@@ -8,10 +8,7 @@
 
 #include "ALFA_SimEv/ALFA_ODHit.h"
 #include "HitManagement/AtlasHitsVector.h"
-
-#ifndef __CINT__
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef AtlasHitsVector<ALFA_ODHit> ALFA_ODHitCollection;
 typedef AtlasHitsVector<ALFA_ODHit>::iterator ALFA_ODHitIter;

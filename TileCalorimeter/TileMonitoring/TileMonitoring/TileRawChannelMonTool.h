@@ -136,23 +136,26 @@ class TileRawChannelMonTool: public TilePaterMonTool {
 
     bool m_bigain;
     int m_nEvents;
-    float m_rangeQ[2][2][3][48];
-    double m_timeCov[5][64][48][2][2][6];
-    double m_timeCovCorr[5][64][48][2][2][3];	//Lukas
+    struct Data {
+      float m_rangeQ[2][2][3][48];
+      double m_timeCov[5][64][48][2][2][6];
+      double m_timeCovCorr[5][64][48][2][2][3];	//Lukas
 
-    //Pointers to Histograms
-    std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
-    std::vector<TH2S *> m_hist2[5][64][48][2];
-    std::vector<TH1F *> m_finalHist1[5][64][2][2]; //ros, drawer,capacitor, gain
-    std::vector<TH2F *> m_finalHist2[256][2];
+      //Pointers to Histograms
+      std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+      std::vector<TH2S *> m_hist2[5][64][48][2];
+      std::vector<TH1F *> m_finalHist1[5][64][2][2]; //ros, drawer,capacitor, gain
+      std::vector<TH2F *> m_finalHist2[256][2];
 
-    std::vector<TH1F *> m_histDsp1[5][64][48][2]; // ros,drawer,channel,gain
-    std::vector<TH2F *> m_histDsp2[5][64][48][2];
-    std::vector<TH1F *> m_finalHistDsp1[5][64][2]; //ros,drawer,gain
-    std::vector<TH2F *> m_finalHistDsp2[5][64][2];
-    std::vector<TH1F *> m_hBarDsp1[5][64][2]; // ros, drawer,gain
+      std::vector<TH1F *> m_histDsp1[5][64][48][2]; // ros,drawer,channel,gain
+      std::vector<TH2F *> m_histDsp2[5][64][48][2];
+      std::vector<TH1F *> m_finalHistDsp1[5][64][2]; //ros,drawer,gain
+      std::vector<TH2F *> m_finalHistDsp2[5][64][2];
+      std::vector<TH1F *> m_hBarDsp1[5][64][2]; // ros, drawer,gain
 
-    std::vector<TH1F *> m_summaryPmts[5][64][2][2];
+      std::vector<TH1F *> m_summaryPmts[5][64][2][2];
+    };
+    std::unique_ptr<Data> m_data;
 
     TileRawChannelUnit::UNIT m_calibUnit;
 

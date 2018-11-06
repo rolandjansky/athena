@@ -16,6 +16,7 @@ class STGC_RawDataContainer
   : public IdentifiableContainer<STGC_RawDataCollection>
 {
 public:  
+  STGC_RawDataContainer();
   STGC_RawDataContainer(unsigned int hashmax);
   ~STGC_RawDataContainer(); 
   

@@ -132,8 +132,8 @@ def TrigTauMonitoringTool():
                                 isData                          = (globalflags.DataSource == 'data'));
 
 	#from AthenaCommon.AppMgr import ToolSvc
-	ToolSvc += HLTTauMon;
+	#ToolSvc += HLTTauMon;
 	print ToolSvc
-	list = [ "HLTTauMonTool/HLTTauMon" ];
+	list = [ HLTTauMon ];
 	return list
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

@@ -37,6 +37,7 @@
 #include "TString.h"
 #include "TDirectory.h"
 
+#include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2I_LW.h"
 #include "LWHists/TProfile_LW.h"
 
@@ -287,6 +288,16 @@ TProfile2D* TilePaterMonTool::bookProfile2D(std::string subdir, std::string nam,
   return hist;
 }
 
+
+TH1I_LW* TilePaterMonTool::book1ILW(std::string subdir, std::string nam, std::string tit,
+                                    int nx, double xmin, double xmax,
+                                    Interval_t interval, MgmtAttr_t attribute,
+                                    std::string trigChain, std::string mergeAlgo)
+{
+  TH1I_LW* hist =  TH1I_LW::create(TString(nam), TString(tit), nx, xmin, xmax);
+  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
+  return hist;
+}
 
 TH2I_LW* TilePaterMonTool::book2ILW(std::string subdir, std::string nam, std::string tit,
                                     int nx, double xmin, double xmax,

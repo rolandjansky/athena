@@ -100,11 +100,8 @@ TrigL2MuonOverlapRemover::TrigL2MuonOverlapRemover(const std::string& name, ISvc
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigL2MuonOverlapRemover::hltBeginRun()
+HLT::ErrorCode TrigL2MuonOverlapRemover::hltStart()
 {
-   msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
-
-   //
    m_doDebug   =  msgLvl() <= MSG::DEBUG;
    msg() << MSG::INFO << "m_doDebug=" << m_doDebug << endmsg;   
 

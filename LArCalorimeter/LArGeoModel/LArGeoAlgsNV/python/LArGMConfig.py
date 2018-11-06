@@ -6,7 +6,7 @@ def LArGMCfg(configFlags):
     
     result,gms=GeoModelCfg(configFlags)
 
-    doAlignment=configFlags("LAr.doAlign")
+    doAlignment=configFlags.LAr.doAlign
     
     from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
     gms.DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
@@ -14,12 +14,12 @@ def LArGMCfg(configFlags):
     result.addService(gms)
 
     if doAlignment:
-        if configFlags.get("global.isMC"):
+        if configFlags.Input.isMC:
             #Monte Carlo case:
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL")[0])
+            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL"))
         else:
             #Regular offline data processing
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL")[0])
+            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
 
             
     return result

@@ -118,12 +118,18 @@
 #include "G4TransportationManager.hh"
 #include "G4TouchableHandle.hh"
 #include "G4TouchableHistory.hh"
-
 #include "G4ios.hh"
+
+#include "CxxUtils/AthUnlikelyMacros.h"
+
+#include <vector>
+#include <string>
 #include <mutex>
 
 static std::once_flag warning1OnceFlag;
 static std::once_flag warning2OnceFlag;
+static std::once_flag warning3OnceFlag;
+static std::once_flag warning4OnceFlag;
 
 namespace CaloG4
 {
@@ -194,10 +200,7 @@ namespace CaloG4
     G4ParticleDefinition* particle = pTrack->GetDefinition();
 
     // If it is a step of a neutrino tracking:
-    if (particle == G4NeutrinoE::Definition() || particle == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
-        particle == G4NeutrinoMu::Definition() || particle == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
-        particle == G4NeutrinoTau::Definition() || particle == G4AntiNeutrinoTau::Definition())   // nu_tau, anti_nu_tau
-    {
+    if (ParticleIsNeutrino(particle)) {
       return result;
     }
 
@@ -262,10 +265,7 @@ namespace CaloG4
       totalEofSecondary = (*fSecondary)[lp1]->GetTotalEnergy();
 
       //----- use this information:
-      if (secondaryID == G4NeutrinoE::Definition() || secondaryID == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
-          secondaryID == G4NeutrinoMu::Definition() || secondaryID == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
-          secondaryID == G4NeutrinoTau::Definition() || secondaryID == G4AntiNeutrinoTau::Definition())   // nu_tau, anti_nu_tau
-      {
+      if (ParticleIsNeutrino(secondaryID)) {
         result.energy[kInvisible0] -= totalEofSecondary;
         result.energy[kEscaped] += totalEofSecondary;
       }
@@ -304,10 +304,11 @@ namespace CaloG4
       result.energy[kInvisible0] -= escapedEnergy;
 
       if ( a_processEscaped ) {
+          auto fakeStep = CreateFakeStep(pTrack, escapedEnergy);
 #ifdef DEBUG_ENERGIES
         allOK =
 #endif
-          ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
+          ProcessEscapedEnergy( fakeStep.get() );
       }
       else {
         result.energy[kEscaped] += escapedEnergy;
@@ -496,9 +497,7 @@ namespace CaloG4
   }
 
 
-  // FIXME: can we change the `G4ThreeVector` arg to `const G4ThreeVector&`?
-  G4bool SimulationEnergies::ProcessEscapedEnergy(G4ThreeVector a_point,
-                                                  G4double a_energy ) const
+  G4bool SimulationEnergies::ProcessEscapedEnergy( G4Step* fakeStep ) const
   {
     // Escaped energy requires special processing.  The energy was not
     // deposited in the current G4Step, but at the beginning of the
@@ -512,32 +511,6 @@ namespace CaloG4
     // route the request for special processing to the appropriate
     // procedure.
 
-    // The first time this routine is called, we have to set up some
-    // Geant4 navigation pointers.
-
-    // FIXME: thread-unsafe statics!!!
-    static G4Navigator*        navigator         = 0;
-    static G4TouchableHandle   touchableHandle;
-
-    // Locate the G4TouchableHandle associated with the volume
-    // containing "a_point".
-
-    if ( navigator == 0 ) {
-      // Get the navigator object used by the G4TransportationManager.
-      navigator =
-        G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-      // Initialize the touchableHandle object.
-      touchableHandle = new G4TouchableHistory();
-      navigator->LocateGlobalPointAndUpdateTouchable(a_point,
-                                                     touchableHandle(),
-                                                     false);
-    }
-    else {
-      navigator->LocateGlobalPointAndUpdateTouchable(a_point,
-                                                     touchableHandle(),
-                                                     false);
-    }
-
     // Choose which VEscapedEnergyProcessing routine we'll use based
     // on the volume name.
 
@@ -545,6 +518,7 @@ namespace CaloG4
       CaloG4::EscapedEnergyRegistry::GetInstance();
     CaloG4::VEscapedEnergyProcessing* eep;
 
+    G4TouchableHandle touchableHandle = fakeStep->GetPreStepPoint()->GetTouchableHandle();
     if (touchableHandle->GetHistoryDepth()) {
       // normal case: volume name exists
       G4String volumeName = touchableHandle->GetVolume()->GetName();
@@ -552,9 +526,8 @@ namespace CaloG4
 
       if ( eep != 0 ) {
         // Call the appropriate routine.
-        return eep->Process( touchableHandle, a_point, a_energy );
+        return eep->Process( fakeStep );
       }
-
       // If we reach here, we're in a volume that has no escaped energy
       // procedure (probably neither Tile nor LAr).
 
@@ -562,8 +535,8 @@ namespace CaloG4
       // procedure for non-sensitive volumes.  Let's use that (for now).
 
       eep = registry->GetProcessing( "LAr::" );
-      if ( eep != 0 ) {
-        return eep->Process( touchableHandle, a_point, a_energy );
+      if (ATH_LIKELY(eep)) {
+        return eep->Process( fakeStep );
       }
 
       // If we get here, the registry was never initialized for LAr.
@@ -574,7 +547,21 @@ namespace CaloG4
                  << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
                  << "   will be recorded." << G4endl;
         });
-      return false;
+
+      eep = registry->GetProcessing( "Tile::" );
+      if (ATH_LIKELY(eep)) {
+        std::call_once(warning3OnceFlag, [](){
+            G4cout << "  Using TileGeoG4CalibSD for escaped energy processing," << G4endl
+                   << "  since LAr SD is not available" << G4endl;
+            });
+        return eep->Process( fakeStep );
+      } else {
+        std::call_once(warning3OnceFlag, [](){
+            G4cout << "  WARNING! TileGeoG4CalibSD was never initialized as well," << G4endl
+                   << "  escaped energies will be definitely lost" << G4endl;
+            });
+        return false;
+      }
     }
     else {
       // If we reach here, we're in an area with geometry problem
@@ -582,8 +569,8 @@ namespace CaloG4
       //  Let's use that (for now).
 
       eep = registry->GetProcessing( "LAr::" );
-      if ( eep != 0 ) {
-        return eep->Process( touchableHandle, a_point, a_energy );
+      if (ATH_LIKELY(eep)) {
+        return eep->Process( fakeStep );
       }
 
       // If we get here, the registry was never initialized for LAr.
@@ -595,8 +582,60 @@ namespace CaloG4
                  << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
                  << "   will be recorded." << G4endl;
         });
-      return false;
+
+      eep = registry->GetProcessing( "Tile::" );
+      if (ATH_LIKELY(eep)) {
+        std::call_once(warning4OnceFlag, [](){
+            G4cout << "  Using TileGeoG4CalibSD for escaped energy processing," << G4endl
+                   << "  since LAr SD is not available" << G4endl;
+            });
+        return eep->Process( fakeStep );
+      } else {
+        std::call_once(warning4OnceFlag, [](){
+            G4cout << "  WARNING! TileGeoG4CalibSD was never initialized as well," << G4endl
+                   << "  escaped energies will be definitely lost" << G4endl;
+            });
+        return false;
+      }
     }
   }
+
+  inline G4bool SimulationEnergies::ParticleIsNeutrino( G4ParticleDefinition* particle ) const
+  {
+    return (particle == G4NeutrinoE::Definition() || particle == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
+            particle == G4NeutrinoMu::Definition() || particle == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
+            particle == G4NeutrinoTau::Definition() || particle == G4AntiNeutrinoTau::Definition());   // nu_tau, anti_nu_tau
+  }
+
+std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(G4Track* a_track, G4double a_energy) const
+{
+  const G4ThreeVector& a_point = a_track->GetVertexPosition();
+
+  // Locate the G4TouchableHandle associated with the volume
+  // containing "a_point".
+  G4TouchableHandle   a_touchableHandle = new G4TouchableHistory();
+  G4TransportationManager::GetTransportationManager()->
+    GetNavigatorForTracking()->LocateGlobalPointAndUpdateTouchable(a_point,
+                                                                   a_touchableHandle(),
+                                                                   false);
+
+  auto fakeStep = std::make_unique<G4Step>();
+  G4StepPoint*        fakePreStepPoint  = fakeStep->GetPreStepPoint();
+  G4StepPoint*        fakePostStepPoint = fakeStep->GetPostStepPoint();
+  // Set the touchable volume at PreStepPoint:
+  fakePreStepPoint->SetTouchableHandle(a_touchableHandle);
+  fakePreStepPoint->SetPosition(a_point);
+  fakePreStepPoint->SetGlobalTime(0.);
+  // Most of the calculators expect a PostStepPoint as well.  For
+  // now, try setting this to be the same as the PreStepPoint.
+  fakePostStepPoint->SetTouchableHandle(a_touchableHandle);
+  fakePostStepPoint->SetPosition(a_point);
+  fakePostStepPoint->SetGlobalTime(0.);
+  // The total energy deposit in the step is actually irrelevant.
+  fakeStep->SetTotalEnergyDeposit(a_energy);
+  fakeStep->SetTrack(a_track);
+  return fakeStep;
+}
+
 
 } // namespace LArG4

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -71,10 +71,33 @@ TileFragHash::ID TileFragHash::identifier(int index) const
   return m_int2id[index];
 }
 
-int TileFragHash::operator() (const ID& id) const
+int TileFragHash::hash (const ID& id) const
 {
   assert(id>=0 && id < m_table_size);
 
   return m_lookup[id]; 
 }
 
+
+/**
+ * @brief Printable representation of a type.
+ */
+std::string TileFragHash::typeToString (TYPE type)
+{
+  switch (type) {
+#define CASE(X) case TileFragHash::X: return #X
+    CASE(Digitizer);
+    CASE(OptFilterDsp);
+    CASE(OptFilterOffline);
+    CASE(OptFilterDspCompressed);
+    CASE(ManyAmps);
+    CASE(MF);
+    CASE(FitFilter);
+    CASE(FitFilterCool);
+    CASE(FlatFilter);
+    CASE(Beam);
+#undef CASE
+  default: break;
+  };
+  return "UNKNOWN";
+}

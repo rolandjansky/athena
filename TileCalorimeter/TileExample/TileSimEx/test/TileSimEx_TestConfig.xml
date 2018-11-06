@@ -3,22 +3,6 @@
 
 <unifiedTestConfiguration>
 
-<atn>
-
-  <TEST name="TileSimulation" type="athena" suite="Examples">
-     <options_atn> TileSimEx/jobOptions_TileTB_Sim.py </options_atn>
-     <timelimit>15</timelimit>
-     <author>Jana Novakova</author>
-     <mailto>Jana.novakova@cern.ch </mailto>
-     <prescript> TileSimEx_links.sh </prescript>        
-     <package_atn>TileCalorimeter/TileExample/TileSimEx</package_atn>
-     <expectations>
-        <successMessage>Terminated successfully</successMessage>
-     </expectations>
-  </TEST>
-
-</atn>
-
 <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt" >
 <mailto> jana.novakova@cern.ch </mailto>
 <refRelease>15.2.0</refRelease>

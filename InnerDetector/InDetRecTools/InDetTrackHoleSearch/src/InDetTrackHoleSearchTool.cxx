@@ -36,7 +36,6 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
-  m_pixelCondSummaryTool("PixelConditionsSummaryTool",this),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
   m_geoModelSvc("GeoModelSvc", n),
   m_extendedListOfHoles(false),
@@ -47,7 +46,6 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_warning(0) {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
-  declareProperty("PixelSummaryTool"     , m_pixelCondSummaryTool);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
   declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);

@@ -98,10 +98,14 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
         return sc;
       }
       else if ( !strcasecmp(n, "ENABLE_IMPLICITMT") )  {
-        bool implicitMT = false;
+        int implicitMT = -1;
         DbStatus sc = opt._getValue(implicitMT);
-        if ( sc.isSuccess() && implicitMT )  {
-           ROOT::EnableImplicitMT();
+        if ( sc.isSuccess() )  {
+           if ( implicitMT == 0 )  {
+              ROOT::EnableImplicitMT();
+           } else if ( implicitMT > 0 )  {
+              ROOT::EnableImplicitMT(implicitMT);
+           }
         }
         return sc;
       }

@@ -48,7 +48,7 @@ LumiBlockMuTool::finalize()
 }
 
 float
-LumiBlockMuTool::actualInteractionsPerCrossing() {
+LumiBlockMuTool::actualInteractionsPerCrossing() const {
 
   // Get eventInfo object
   const EventInfo* eventInfo;
@@ -89,7 +89,7 @@ LumiBlockMuTool::actualInteractionsPerCrossing() {
 }
 
 float
-LumiBlockMuTool::averageInteractionsPerCrossing() {
+LumiBlockMuTool::averageInteractionsPerCrossing() const{
 
   // Already set by callback if using DB
   if (m_useDB) return m_lumiTool->lbAverageInteractionsPerCrossing();

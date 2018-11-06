@@ -6,23 +6,27 @@
 #define __TRIGDKFTRACKMAKERTOOL_H__
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkDistributedKalmanFilter/TrkBaseNode.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
-
-#include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
-#include <vector>
-
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkTrack/Track.h"
 
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+
+#include <mutex>
+#include <vector>
 
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthAlgTool {
  public:
@@ -45,8 +49,15 @@ class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthA
   const AtlasDetectorID* m_idHelper;
   
   const InDetDD::PixelDetectorManager* m_pixelManager;
-  const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;
+  const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;
 };
 
 #endif 

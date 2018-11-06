@@ -39,8 +39,7 @@ class EgammaHadEnFex: public IAlgToolCalo {
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
 		       const IRoiDescriptor& roi,
-		       const CaloDetDescrElement*& caloDDE = caloDDENull,
-                       const EventContext* context = nullptr );
+		       const CaloDetDescrElement*& caloDDE = caloDDENull);
 
     //    StatusCode execute(TrigEMCluster &rtrigEmCluster,double etamin,
     //			double etamax, double phimin, double phimax);

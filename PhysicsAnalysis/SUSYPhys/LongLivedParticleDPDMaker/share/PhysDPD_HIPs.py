@@ -27,8 +27,22 @@ HIPsFilterNames = [] # Filters should append their final selection algo names to
 filtersToBookkeep = [] # Not sure what this does?
 
 
+def HipTriggerSelectionString(flags):
+    cutString=""
+    if flags.triggers.__len__() >=1:
+        cutString+=flags.triggers[0]
+        if flags.triggers.__len__() >1:
+            for trigger in flags.triggers[1:]:
+                cutString+=" || "+trigger
+                pass
+            pass
+        pass
+    return cutString
+    pass
+
+
 HipTriggerFilterTool = skimtool( name = "HipTriggerFilterTool",
-                                 expression = primHIPsDESD.HipsTriggerFilterExpression())
+                                 expression = HipTriggerSelectionString(primHIPsDESD.HipsTriggerFilterExpression) )
 
 ToolSvc += HipTriggerFilterTool
 

@@ -4,11 +4,11 @@
 
 #include "SCT_MajorityConditionsTool.h"
 
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
+
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-
-#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 using namespace SCT_ConditionsData;
 
@@ -46,15 +46,13 @@ StatusCode SCT_MajorityConditionsTool::finalize() {
 bool SCT_MajorityConditionsTool::isGood() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
-  if (!condData) return false;
+  if (condData==nullptr) return false;
 
   if (m_overall) {
     return (condData->getMajorityState(OVERALL) and (condData->getHVFraction(OVERALL) > m_majorityFraction));
   } else {
-    return ((condData->getMajorityState(BARREL) and 
-             condData->getMajorityState(ECA)    and 
-             condData->getMajorityState(ECC))                      and
-	    (condData->getHVFraction(BARREL) > m_majorityFraction) and
+    return ((condData->getMajorityState(BARREL) and condData->getMajorityState(ECA) and condData->getMajorityState(ECC)) and
+            (condData->getHVFraction(BARREL) > m_majorityFraction) and
             (condData->getHVFraction(ECA)    > m_majorityFraction) and
             (condData->getHVFraction(ECC)    > m_majorityFraction));
   }
@@ -64,7 +62,7 @@ bool SCT_MajorityConditionsTool::isGood() const {
 bool SCT_MajorityConditionsTool::isGood(int bec) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
-  if (!condData) return false;
+  if (condData==nullptr) return false;
 
   bool result{true};
 
@@ -87,11 +85,12 @@ const SCT_MajorityCondData* SCT_MajorityConditionsTool::getCondData(const EventC
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cache.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_MajorityCondData> condData{m_condKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());

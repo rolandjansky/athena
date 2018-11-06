@@ -80,9 +80,7 @@ namespace xAOD {
   //////////////////////////////////
 
   MissingETAssociation_v1::MissingETAssociation_v1( bool createStore )
-    : SG::AuxElement(),
-      m_lastObjectPointer( 0 ),
-      m_lastObjectIndex( MissingETBase::Numerical::invalidIndex() )
+    : SG::AuxElement()
   {
 
     if( createStore ) createPrivateStore();
@@ -90,9 +88,7 @@ namespace xAOD {
   }
 
   MissingETAssociation_v1::MissingETAssociation_v1( const Jet* pJet, bool isMisc )
-    : SG::AuxElement(),
-      m_lastObjectPointer( 0 ),
-      m_lastObjectIndex( MissingETBase::Numerical::invalidIndex() )
+    : SG::AuxElement()
   {
 
     createPrivateStore();
@@ -103,8 +99,6 @@ namespace xAOD {
 
   MissingETAssociation_v1::MissingETAssociation_v1(const MissingETAssociation_v1& assocDescr)
     : SG::AuxElement()
-    , m_lastObjectPointer(assocDescr.m_lastObjectPointer)
-    , m_lastObjectIndex(assocDescr.m_lastObjectIndex)
   {
     this->makePrivateStore(&assocDescr);
     initCache();
@@ -113,8 +107,6 @@ namespace xAOD {
   MissingETAssociation_v1& MissingETAssociation_v1::operator=(const MissingETAssociation_v1& assocDescr)
   {
     if((&assocDescr) != this) { 
-      m_lastObjectPointer = assocDescr.m_lastObjectPointer;
-      m_lastObjectIndex   = assocDescr.m_lastObjectIndex;
       f_isMisc() = assocDescr.isMisc();
       this->setJetLink(assocDescr.jetLink());
       this->setObjectLinks(assocDescr.objectLinks());
@@ -261,24 +253,17 @@ namespace xAOD {
 
   size_t MissingETAssociation_v1::findIndex(const IParticle* pPart) const
   {
-    // printf("Misc assoc? %d\n", this->isMisc());
-    // printf("Particle %p (pt %f), lastobjptr %p\n",(void*)pPart, pPart->pt(), (void*)m_lastObjectPointer);
-    if ( m_lastObjectPointer != pPart ) {
-      objlink_vector_t::const_iterator fLnk(this->objectLinks().begin());
-      // FIXME: This is based on dereferencing the ElementLink, which is risky.
-      while ( fLnk != this->objectLinks().end() ) {
-	if((*fLnk).isValid()) {
-	  // printf("Compare with particle %p (type %d, pt %f)\n", (void*) **fLnk,(**fLnk)->type(),(**fLnk)->pt() );
-	  if(*(*fLnk) == pPart) break;
-	}
-	++fLnk;
+    objlink_vector_t::const_iterator fLnk(this->objectLinks().begin());
+    // FIXME: This is based on dereferencing the ElementLink, which is risky.
+    while ( fLnk != this->objectLinks().end() ) {
+      if((*fLnk).isValid()) {
+        if(*(*fLnk) == pPart) break;
       }
-      if ( fLnk != this->objectLinks().end() ) 
-	{ m_lastObjectPointer = pPart; m_lastObjectIndex = std::distance(this->objectLinks().begin(),fLnk); }
-      else
-	{ m_lastObjectPointer = (const IParticle*)0; m_lastObjectIndex = MissingETBase::Numerical::invalidIndex();  }
+      ++fLnk;
     }
-    return m_lastObjectIndex;
+    if ( fLnk != this->objectLinks().end() )
+      return std::distance(this->objectLinks().begin(),fLnk);
+    return MissingETBase::Numerical::invalidIndex();
   }
 
   size_t MissingETAssociation_v1::findCalIndex(MissingETBase::Types::bitmask_t mask) const
@@ -588,17 +573,6 @@ namespace xAOD {
   // Overlap functions //
   ///////////////////////
 
-  void MissingETAssociation_v1::setObjSelectionFlag(size_t objIdx, bool status) const
-  {
-    if(status) m_useObjectFlags |= (1<<objIdx);
-    else m_useObjectFlags &= ~(1<<objIdx);
-  }
-
-  bool MissingETAssociation_v1::objSelected(size_t objIdx) const
-  {
-    return bool(m_useObjectFlags & (1<<objIdx));
-  }
-
 
   bool MissingETAssociation_v1::addOverlap(size_t objIdx,size_t overlapIndex,unsigned char overlapType)
   {
@@ -705,13 +679,14 @@ namespace xAOD {
     return overlapIndices(objIdx).size()>0;
   }
 
-  bool MissingETAssociation_v1::hasOverlaps(size_t objIdx,MissingETBase::UsageHandler::Policy p) const
+  bool MissingETAssociation_v1::hasOverlaps(const MissingETAssociationHelper* helper, size_t objIdx,MissingETBase::UsageHandler::Policy p) const
   {
+    if(!helper) throw std::runtime_error("MissingETAssociation::hasOverlaps received a null pointer");
     if ( objIdx == MissingETBase::Numerical::invalidIndex() ) return false;
     vector<size_t> indices = this->overlapIndices(objIdx);
     vector<unsigned char> types = this->overlapTypes(objIdx);
     for(size_t iOL=0; iOL<indices.size(); ++iOL) {
-      if(this->objSelected(indices[iOL])) {
+      if(helper->objSelected(this, indices[iOL])) {
 	// printf("Test object %lu for overlaps: OL type %i\n",indices[iOL],(int)types[iOL]);
 	switch(p) {
 	case MissingETBase::UsageHandler::TrackCluster:      
@@ -758,28 +733,24 @@ namespace xAOD {
     return newvec; 
   }
 
-  constvec_t MissingETAssociation_v1::overlapCalVec() const
+  constvec_t MissingETAssociation_v1::overlapCalVec(const MissingETAssociationHelper* helper) const
   {
+    if(!helper) throw std::runtime_error("MissingETAssociation::overlapCalVec received a null pointer");
     constvec_t calvec;
-    // printf("Test %lu keys for cal overlaps.\n",this->sizeCal());
     for (size_t iKey = 0; iKey < this->sizeCal(); iKey++) {
-      bool selector = (m_useObjectFlags & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
-      // printf("Selector? %o\n",selector);
+      bool selector = (helper->getObjSelectionFlags(this) & this->calkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) calvec+=this->calVec(iKey);
-      // printf("Updated selector? %o. Overlaps? %o\n",selector,this->hasOverlaps(iKey,MissingETBase::UsageHandler::OnlyCluster)||this->hasOverlaps(iKey,MissingETBase::UsageHandler::ParticleFlow)||this->hasOverlaps(iKey,MissingETBase::UsageHandler::TruthParticle));
     }
     return calvec;
   }
 
-  constvec_t MissingETAssociation_v1::overlapTrkVec() const
+  constvec_t MissingETAssociation_v1::overlapTrkVec(const MissingETAssociationHelper* helper) const
   {
+    if(!helper) throw std::runtime_error("MissingETAssociation::overlapTrkVec received a null pointer");
     constvec_t trkvec;
-    // printf("Test %lu keys for trk overlaps for %lu objects.\n",this->sizeTrk(),this->objectLinks().size());
     for (size_t iKey = 0; iKey < this->sizeTrk(); iKey++) {
-      bool selector = (m_useObjectFlags & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
-      // printf("Selector? %o\n",selector);
+      bool selector = (helper->getObjSelectionFlags(this) & this->trkkey()[iKey]) ? !this->isMisc() : this->isMisc();
       if (selector) trkvec+=ConstVec(this->trkpx()[iKey],this->trkpy()[iKey],this->trkpz()[iKey],this->trke()[iKey],this->trksumpt()[iKey]);
-      // printf("Updated selector? %o. Overlaps? %o\n",selector,this->hasOverlaps(iKey,MissingETBase::UsageHandler::TrackCluster)||this->hasOverlaps(iKey,MissingETBase::UsageHandler::ParticleFlow)||this->hasOverlaps(iKey,MissingETBase::UsageHandler::TruthParticle));
     }
     return trkvec;
   }
@@ -810,24 +781,22 @@ namespace xAOD {
     return false;
   }
 
-  bool MissingETAssociation_v1::checkUsage(const IParticle* pSig,MissingETBase::UsageHandler::Policy p) const
+  bool MissingETAssociation_v1::checkUsage(const MissingETAssociationHelper* helper, const IParticle* pSig, MissingETBase::UsageHandler::Policy p) const
   {
+    if(!helper) throw std::runtime_error("MissingETAssociation::checkUsage received a null pointer");
     if(MissingETAssociation_v1::testPolicy(pSig->type(),p)) {
       const IParticleContainer* pCont = static_cast<const IParticleContainer*>(pSig->container());
       MissingETBase::Types::objlink_t el(*pCont,pSig->index());
       for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
-	if(objSelected(iObj)) {
-	  for(const auto& link : m_objConstLinks[iObj]) {
-	    if(el == link) {
-	      return true;
-	    }
-	  }
-	}
+        if(helper->objSelected(this,iObj)) {
+          for(const auto& link : m_objConstLinks[iObj]) {
+            if(el == link) return true;
+          }
+        }
       }
     }
     return false;
   }
-
 
   ///////////////////////
   // Other function(s) //
@@ -867,16 +836,7 @@ namespace xAOD {
   {
   
     m_objConstLinks.clear();
-    m_contribObjects.clear();
     m_objConstLinks.reserve(50);
-    m_useObjectFlags = 0;
-    m_contribObjects.reserve(10);
-  }
-
-  void MissingETAssociation_v1::resetCache()
-  {
-    m_useObjectFlags = 0;
-    m_lastObjectPointer = 0;
   }
 
   bool MissingETAssociation_v1::testPolicy(unsigned int type,MissingETBase::UsageHandler::Policy p) {

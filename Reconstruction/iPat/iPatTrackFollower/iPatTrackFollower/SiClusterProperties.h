@@ -43,35 +43,39 @@ public:
     SiClusterProperties 	(const std::string& type,
 				 const std::string& name,
 				 const IInterface* parent);
-    ~SiClusterProperties	(void);
+    virtual ~SiClusterProperties	(void);
  
-    StatusCode			initialize();
-    StatusCode			finalize();
+    virtual StatusCode			initialize() override;
+    virtual StatusCode			finalize() override;
 
 
     // conservative cluster errors for use during pattern recognition
     std::pair<double,double>            broadErrors (const InDet::SiCluster*	cluster,
 						     const SiliconDetector*	detector,
-						     const Amg::Vector3D&	trackIntersect);
+						     const Amg::Vector3D&	trackIntersect) const;
 
     // precise cluster position and errors including track-dependent corrections
     HitOnTrack*				hitOnTrack (const InDet::SiCluster*	cluster,
 						    const SiliconDetector*	detector,
-						    const Trk::TrackParameters*	parameters);
+						    const Trk::TrackParameters*	parameters) const;
 private:
-    void				barrelSCT_Errors (void);
-    void				barrelSCT_Properties (void);
-    void				barrelPixelErrors (void);
-    void				barrelPixelProperties (void);
-    void				endcapSCT_Errors (void);
-    void				endcapSCT_Properties (void);
-    void				endcapPixelErrors (void);
-    void				endcapPixelProperties (void);
-    void				setProperties (const SiliconDetector*	detector,
-						       const Amg::Vector3D&	trackIntersect);
-    void				setProperties (const SiliconDetector*	detector,
+    struct State;
+
+    void				barrelSCT_Errors (State& state) const;
+    void				barrelSCT_Properties (State& state) const;
+    void				barrelPixelErrors (State& state) const;
+    void				barrelPixelProperties (State& state) const;
+    void				endcapSCT_Errors (State& state) const;
+    void				endcapSCT_Properties (State& state) const;
+    void				endcapPixelErrors (State& state) const;
+    void				endcapPixelProperties (State& state) const;
+    void				setProperties (State& state,
+                                                       const SiliconDetector*	detector,
+						       const Amg::Vector3D&	trackIntersect) const;
+    void				setProperties (State& state,
+                                                       const SiliconDetector*	detector,
 						       const Amg::Vector3D&	trackIntersect,
-						       const Amg::Vector3D&	trackDirection);
+						       const Amg::Vector3D&	trackDirection) const;
     
     // helpers, managers, tools
     const PixelID*				m_pixelIdHelper;
@@ -82,20 +86,21 @@ private:
     ToolHandle<Trk::IRIO_OnTrackCreator>	m_sctPreciseROT_Maker;
 
     // state
-    double					m_broadEtaError;
-    double					m_broadPhiError;
-    const InDet::SiCluster*			m_cluster;
-    const InDetDD::SiDetectorElement*		m_element;
-    Amg::Vector3D	       			m_globalPosition;
-    const Trk::TrackParameters*			m_parameters;
-    double					m_preciseEtaError;
-    double					m_precisePhiError;
-    const InDet::SiClusterOnTrack*		m_rotBroad;
-    const InDet::SiClusterOnTrack*		m_rotPrecise;
     double					m_sqrt12;
-    HitStatus					m_status;
-    double					m_trackCotTheta;
-    double					m_trackRadius;
+
+    struct State
+    {
+      const InDet::SiCluster*			m_cluster;
+      double					m_broadEtaError;
+      double					m_broadPhiError;
+      Amg::Vector3D	       			m_globalPosition;
+      const Trk::TrackParameters*		m_parameters;
+      const InDet::SiClusterOnTrack*		m_rotBroad;
+      const InDet::SiClusterOnTrack*		m_rotPrecise;
+      HitStatus					m_status;
+      double					m_trackCotTheta;
+      double					m_trackRadius;
+    };
 
 };
 

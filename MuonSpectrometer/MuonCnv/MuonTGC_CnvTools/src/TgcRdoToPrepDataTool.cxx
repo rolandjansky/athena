@@ -29,6 +29,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 // BS access
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <cfloat>
 #include <algorithm>
@@ -41,7 +42,7 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_tgcHelper(0),
     m_tgcCabling(0),
     m_useBStoRdoTool(false), // true if running trigger (EF) on BS input
-    m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
+    m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool", this),
     m_nHitRDOs(0), 
     m_nHitPRDs(0), 
     m_nTrackletRDOs(0), 
@@ -211,7 +212,17 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
       m_fullEventDone[ibc] = sizeVectorRequested==0;
 
       m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
-    } else {
+    }
+    else {
+      // FIXME: This needs to be redone to work properly with MT.
+      if (Gaudi::Hive::currentContext().slot() > 1) {
+        ATH_MSG_ERROR ( "TgcRdoToCscPrepDataTool doesn't yet work with MT." );
+        return StatusCode::FAILURE;
+      }
+      const TgcPrepDataContainer* tgcPrepDataContainer_c = nullptr;
+      ATH_CHECK( evtStore()->retrieve (tgcPrepDataContainer_c, m_outputprepdataKeys[ibc].key()) );
+      m_tgcPrepDataContainer[ibc] = const_cast<TgcPrepDataContainer*> (tgcPrepDataContainer_c);
+
       // If you come here, this event is partially or fully decoded.
       ATH_MSG_DEBUG("TGC PrepData Container at " << 
 		    (bcTag==TgcDigit::BC_PREVIOUS ? "Previous"
@@ -247,31 +258,39 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     }*/
 
   
-  if(!nothingToDoForAllBC) { // If still need to do something 
-    /// clean up containers for Coincidence
-    for(int ibc=0; ibc<NBC; ibc++) {
+  /// clean up containers for Coincidence
+  for(int ibc=0; ibc<NBC; ibc++) {
 
-      if(!evtStore()->contains<Muon::TgcCoinDataContainer>(m_outputCoinKeys.at(ibc).key())) {
-        // this happens the first time in the event !
-        SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
+    if(!evtStore()->contains<Muon::TgcCoinDataContainer>(m_outputCoinKeys.at(ibc).key())) {
+      // this happens the first time in the event !
+      SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
       
       // record the container in storeGate
-        handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_tgcHelper->module_hash_max()));
+      handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_tgcHelper->module_hash_max()));
       
-        // cache the pointer, storegate retains ownership
-        m_tgcCoinDataContainer[ibc] = handle.ptr();
+      // cache the pointer, storegate retains ownership
+      m_tgcCoinDataContainer[ibc] = handle.ptr();
 
-        if(!handle.isValid()) {
-	  ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
-	  return StatusCode::FAILURE;
-        } else {
-	  ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
-        }
+      if(!handle.isValid()) {
+        ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
+        return StatusCode::FAILURE;
       } else {
-        ATH_MSG_DEBUG("TGC CoinData Container is already in StoreGate");
+        ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
       }
+    } else {
+      ATH_MSG_DEBUG("TGC CoinData Container is already in StoreGate");
+      // FIXME: This needs to be redone to work properly with MT.
+      if (Gaudi::Hive::currentContext().slot() > 1) {
+        ATH_MSG_ERROR ( "TgcRdoToCscPrepDataTool doesn't yet work with MT." );
+        return StatusCode::FAILURE;
+      }
+      const TgcCoinDataContainer* tgcCoinDataContainer_c = nullptr;
+      ATH_CHECK( evtStore()->retrieve (tgcCoinDataContainer_c, m_outputCoinKeys[ibc].key()) );
+      m_tgcCoinDataContainer[ibc] = const_cast<TgcCoinDataContainer*> (tgcCoinDataContainer_c);
     }
+  }
 
+  if(!nothingToDoForAllBC) { // If still need to do something 
     // if TGC decoding is switched off stop here
     if(!m_decodeData) {
       ATH_MSG_DEBUG("Stored empty container. Decoding TGC RDO into TGC PrepRawData is switched off");

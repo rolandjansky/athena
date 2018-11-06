@@ -85,21 +85,23 @@ persToTrans( const xAOD::PhotonAuxContainer_v1* oldObj,
      newInt[ i ]->setShowerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE);
      //
      const xAOD::CaloCluster* cluster  = oldInt[ i ]->caloCluster();
-     const float eta2   = fabsf(cluster->etaBE(2));
-     // transverse energy in calorimeter (using eta position in second sampling)
-     const double energy =  cluster->e();
-     double et = 0.;
-     if (eta2<999.) {
-       const double cosheta = cosh(eta2);
-       et = (cosheta != 0.) ? energy /cosheta : 0.;
+     if (cluster) {
+       const float eta2   = fabsf(cluster->etaBE(2));
+       // transverse energy in calorimeter (using eta position in second sampling)
+       const double energy =  cluster->e();
+       double et = 0.;
+       if (eta2<999.) {
+         const double cosheta = cosh(eta2);
+         et = (cosheta != 0.) ? energy /cosheta : 0.;
+       }
+       float ethad = oldInt[ i ]->showerShapeValue(xAOD::EgammaParameters::ethad);
+       float Rhad =  fabs(et) > 0. ? ethad/et : 0.;
+       newInt[ i ]->setShowerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
+       //
+       float ethad1 = oldInt[ i ]->showerShapeValue(xAOD::EgammaParameters::ethad1);
+       float Rhad1 = fabs(et) > 0. ? ethad1/et : 0.;
+       newInt[ i ]->setShowerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1); 
      }
-     float ethad = oldInt[ i ]->showerShapeValue(xAOD::EgammaParameters::ethad);
-     float Rhad =  fabs(et) > 0. ? ethad/et : 0.;
-     newInt[ i ]->setShowerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
-     //
-     float ethad1 = oldInt[ i ]->showerShapeValue(xAOD::EgammaParameters::ethad1);
-     float Rhad1 = fabs(et) > 0. ? ethad1/et : 0.;
-     newInt[ i ]->setShowerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1); 
    }
    // Print what happened:
    ATH_MSG( "Converting xAOD::PhotonAuxContainer_v1 to current version "

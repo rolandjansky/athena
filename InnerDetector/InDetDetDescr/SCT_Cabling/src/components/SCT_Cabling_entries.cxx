@@ -1,11 +1,15 @@
-#include "../SCT_CablingSvc.h"
+#include "../SCT_CablingTool.h"
+#include "../SCT_CablingToolCB.h"
 #include "../SCT_FillCablingFromText.h"
 #include "../SCT_FillCablingFromCoraCool.h"
 #include "../SCT_TestCablingAlg.h"
 #include "../SCT_CablingCondAlgFromCoraCool.h"
+#include "../SCT_CablingCondAlgFromText.h"
 
-DECLARE_COMPONENT( SCT_CablingSvc )
+DECLARE_COMPONENT( SCT_CablingTool )
+DECLARE_COMPONENT( SCT_CablingToolCB )
 DECLARE_COMPONENT( SCT_FillCablingFromText )
 DECLARE_COMPONENT( SCT_FillCablingFromCoraCool )
 DECLARE_COMPONENT( SCT_TestCablingAlg )
 DECLARE_COMPONENT( SCT_CablingCondAlgFromCoraCool )
+DECLARE_COMPONENT( SCT_CablingCondAlgFromText )

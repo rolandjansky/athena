@@ -13,16 +13,12 @@
 #include "AthenaBaseComps/AthService.h"    //baseclass
 #include "GaudiKernel/ServiceHandle.h"     //member
 
-#include "StoreGate/ReadHandleKey.h"
-#include "GaudiKernel/IIncidentSvc.h"      //template parameter, so not fwd declared
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
 #include <string>
 
 class StatusCode;
 class ISvcLocator;
-class Incident;
 class InterfaceID;
-class EventInfo;
 
 class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       friend class SvcFactory<SCT_CalibEventInfo>;
@@ -36,14 +32,13 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       //static const InterfaceID & interfaceID() {return ISCT_CalibEvtInfo::interfaceID();}
       virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
       //@}
-      /// IncidentListener method, reimplemented
-      virtual void handle( const Incident& );
       //@name ISCT_CalibEvtinfo interface methods, implemented
       //@{
       virtual void setTimeStamp(const int begin, const int end);
       virtual void setTimeStamp(const std::string & begin, const std::string & end);
       virtual void setTimeStamp(const int ts);
 
+      virtual void getLumiBlock(int & begin, int & end) const;
       virtual void setLumiBlock(const int begin, const int end);
       virtual void setLumiBlock(const int lb);
 
@@ -53,8 +48,6 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       virtual void setBunchCrossing(const int bc);
       virtual void setCounter(const int counterVal);
       virtual void incrementCounter();
-      virtual void incrementUOFO();
-      virtual void resetUOFO();
 
       virtual void getTimeStamps(int & begin, int & end) const;
       virtual void getTimeStamps(std::string & begin, std::string & end) const;
@@ -63,14 +56,10 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       virtual int lumiBlock() const;
       virtual int runNumber() const;
       virtual int counter() const;
-      virtual int UOFO() const;
       virtual int numLumiBlocks() const;
       //@}
 
    private:
-
-      SG::ReadHandleKey<EventInfo> m_eventInfoKey;
-      ServiceHandle<IIncidentSvc> m_incidentSvc;
 
       int  m_timeStampBegin;
       std::string m_tsBeginString;
@@ -81,8 +70,6 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       int  m_LBBegin;
       int  m_LBEnd;
       int  m_numLB;
-      int  m_numUOFO;
-      int  m_numUOFOth;
       std::string m_source;
 
       //

@@ -58,4 +58,25 @@ StatusCode OverlayAlgBase::finalize() {
 }
 
 //================================================================
+StatusCode OverlayAlgBase::overlayInitialize()
+{
+  ATH_MSG_WARNING("OverlayAlgBase::overlayInitialize() should not be called directly and will be removed in the future.");
+  return StatusCode::SUCCESS;
+}
+
+//================================================================
+StatusCode OverlayAlgBase::overlayExecute()
+{
+  ATH_MSG_WARNING("OverlayAlgBase::overlayExecute() should not be called directly and will be removed in the future.");
+  return StatusCode::SUCCESS;
+}
+
+//================================================================
+StatusCode OverlayAlgBase::overlayFinalize()
+{
+  ATH_MSG_WARNING("OverlayAlgBase::overlayFinalize() should not be called directly and will be removed in the future.");
+  return StatusCode::SUCCESS;
+}
+
+//================================================================
 //EOF

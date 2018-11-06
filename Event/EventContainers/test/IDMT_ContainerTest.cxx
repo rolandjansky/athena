@@ -9,7 +9,7 @@
 #include "EventContainers/IdentifiableContTemp.h"
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // define a bunch of fake data classes 
 using namespace std;
@@ -602,9 +602,9 @@ int ID_ContainerTest::execute(){
     }
     {
     MyCollectionContainer::IDC_WriteHandle lock;
-    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));
-    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));//Try to break the locks
-    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(60)));
+    lock = containerOnline->getWriteHandle(IdentifierHash(50));
+    lock = containerOnline->getWriteHandle(IdentifierHash(50));//Try to break the locks
+    lock = containerOnline->getWriteHandle(IdentifierHash(60));
     lock = containerOnline->getWriteHandle(IdentifierHash(70));
     }
 

@@ -44,6 +44,8 @@ DerivationFramework::EGammaPrepRawDataThinning::EGammaPrepRawDataThinning(const 
 StatusCode DerivationFramework::EGammaPrepRawDataThinning::initialize(){
 
   ATH_CHECK( m_regionSelector.retrieve() );
+
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
  
   return StatusCode::SUCCESS;
 }

@@ -13,18 +13,23 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
+#include "TrkParticleBase/LinkToTrackParticleBase.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 
 
-const float electron_mass = 0.511 * Gaudi::Units::MeV;
-const float muon_mass = 105.66 * Gaudi::Units::MeV;
-const float pion_mass = 139.6 * Gaudi::Units::MeV;
+namespace{
+constexpr float electron_mass = 0.511 * Gaudi::Units::MeV;
+constexpr float muon_mass = 105.66 * Gaudi::Units::MeV;
+constexpr float pion_mass = 139.6 * Gaudi::Units::MeV;
 
-const double profile_x_label_size = 0.03;
-const double profile_y_label_size = 0.03;
-const double profile_msize = 0.5;
-const int profile_mcolor = 2;
-const int profile_mstyle = 2;
-
+constexpr double profile_x_label_size = 0.03;
+constexpr double profile_y_label_size = 0.03;
+constexpr double profile_msize = 0.5;
+constexpr int profile_mcolor = 2;
+constexpr int profile_mstyle = 2;
+}
 
 // *********************************************************************
 // Public Methods
@@ -35,8 +40,8 @@ TRT_Electron_Monitoring_Tool( const std::string & type,
 			const std::string & name,
                         const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-  m_pTRTHelper			(0),
-  m_mgr				(0)
+  m_pTRTHelper			(nullptr),
+  m_mgr				(nullptr)
 {
   declareProperty( "trackName", m_tracksName="InDetTrackParticles" );
   declareProperty( "electronName", m_electronsName="Electrons");
@@ -58,11 +63,9 @@ TRT_Electron_Monitoring_Tool( const std::string & type,
   declareProperty( "useTRTOnly", m_useTRTOnly = false);
   declareProperty( "NMinTRTHits", m_NMinTRTHits = 0);
   declareProperty( "pionTRTHitCut",m_PionTRTHitCut = 19);
-
 }
 
-TRT_Electron_Monitoring_Tool::
-~TRT_Electron_Monitoring_Tool()
+TRT_Electron_Monitoring_Tool::~TRT_Electron_Monitoring_Tool()
 {
 }
 
@@ -70,26 +73,11 @@ StatusCode
 TRT_Electron_Monitoring_Tool::initialize()
 {
   if(ManagedMonitorToolBase::initialize().isFailure()) return StatusCode::FAILURE;
-
   //    Get ID helper for TRT to access various detector components
   // 	like... straw, straw_layer, layer_or_wheel, phi_module etc...
-  if (detStore()->retrieve(m_pTRTHelper,"TRT_ID").isFailure())
-  {
-    ATH_MSG_FATAL( "Unable to retrieve pointer to TRT Helper" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved Tool " << m_pTRTHelper );
-  }
-
+  ATH_CHECK(detStore()->retrieve(m_pTRTHelper,"TRT_ID"));
   // Retrieve detector manager
-  if (detStore()->retrieve(m_mgr, "TRT").isFailure())
-  {
-     ATH_MSG_FATAL("Unable to retrieve pointer to TRT DetectorManager" );
-     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved TRT manager" );
-  }
-
+  ATH_CHECK (detStore()->retrieve(m_mgr, "TRT"));
   if(m_isEMFlag=="Loose") m_isEMType = ISEMLOOSE;
   else if(m_isEMFlag=="Medium") m_isEMType = ISEMMEDIUM;
   else if(m_isEMFlag=="Tight") m_isEMType = ISEMTIGHT;
@@ -99,24 +87,19 @@ TRT_Electron_Monitoring_Tool::initialize()
     ATH_MSG_WARNING( "Skipping TRT Electron HT Monitoring! " );
     m_doElectronMon = false;
   }
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-TRT_Electron_Monitoring_Tool::
-finalize()
+TRT_Electron_Monitoring_Tool::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-TRT_Electron_Monitoring_Tool::
-bookHistograms()
+TRT_Electron_Monitoring_Tool::bookHistograms()
 {
-
   ATH_MSG_DEBUG( "Booking TRT Electron Histograms" );
-
   //Check for keys in Store Gate
   if(!evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName))
   {
@@ -144,13 +127,6 @@ bookHistograms()
   }
   m_doElectronMon = m_doElectronMon && (m_doRecElectrons || m_doConversions); //Electrons need to be turned on and one of the containers (rec or conv) needs to be available
 
-  if( m_environment == AthenaMonManager::online ) {
-	  // book histograms that are only made in the online environmen
-  }
-
-  if( m_dataType == AthenaMonManager::cosmics ) {
-	  // book histograms that are only relevant for cosmics data...
-  }
 
   try
   {
@@ -195,11 +171,8 @@ bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name)
     ZRMax = 1020;
   }
   MonGroup hl_monGroup_shift	( this, "TRT//HTMonitoring/"+name,  run,ATTRIB_MANAGED,"", "");
-  //MonGroup hl_monGroup_expert	( this, "TRT//HTMonitoring/"+name, expert, run, "",""); //not yet used but will be
-
   if( newRunFlag() )
   {
-
     hists.hNTracks		= trtBookHistoLW(hl_monGroup_shift, "hNTracks"		,"Number of Tracks per Event in "+name	, 150 , 0, 150 , profile_x_label_size, profile_y_label_size, "Number of Tracks", "Frequency");
     hists.hHTFracTrack		= trtBookHistoLW(hl_monGroup_shift, "hHTFracTrack"	,"HT Fraction per Track in "+name	, 50 , 0, 1 , profile_x_label_size, profile_y_label_size, "HT Fraction", "Frequency");
     hists.pHTFracTrackPhi	= trtBookHistoLW(hl_monGroup_shift, "pHTFracTrackPhi"	,"HT Fraction per Track vs. Phi in "+name			, m_nPhiBins, 0, 360     , 0, 1 , profile_x_label_size, profile_y_label_size, "PHI, degrees", "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
@@ -214,28 +187,16 @@ bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name)
     }
     if(m_doElectronMon){
       hists.pHTFracGammaEl	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaEl"	,"HT Fraction per e Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaPosEl	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaPosEl"	,"HT Fraction per + e Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaNegEl	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaNegEl"	,"HT Fraction per - e Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
     }
     if(m_doMuonMon){
       hists.pHTFracGammaMu	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaMu"	,"HT Fraction per #mu Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaPosMu	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaPosMu"	,"HT Fraction per + #mu Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaNegMu	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaNegMu"	,"HT Fraction per - #mu Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
     }
     if(m_doTracksMon){
       hists.pHTFracGammaPi	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaPi"	,"HT Fraction per #pi Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaPosPi	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaPosPi"	,"HT Fraction per + #pi Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaNegPi	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaNegPi"	,"HT Fraction per - #pi Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
     }
     if(m_doElectronMon||m_doMuonMon||m_doTracksMon){
       hists.pHTFracGammaAll	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaAll"	,"HT Fraction per Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaPosAll	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaPosAll"	,"HT Fraction per + Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
-      //hists.pHTFracGammaNegAll	= trtBookHistoLW(hl_monGroup_shift, "pHTFracGammaNegAll"	,"HT Fraction per - Candidate vs. Lorentz Gamma Factor in "+name	, NGAMMABINS, 0, 5 , 0, 1, profile_x_label_size, profile_y_label_size, "Log10(Lorentz Gamma)"     , "HT Fraction", profile_msize,profile_mcolor,profile_mstyle);
     }
-    if(m_doExpert)
-    {
-      //Book Expert  Histograms
-    }//if(m_doExpert )
   }//if( isNewRun )
   return;
 }//bookGeoHistograms
@@ -260,9 +221,7 @@ StatusCode
 TRT_Electron_Monitoring_Tool::
 fillHistograms()
 {
-
    ATH_MSG_DEBUG("Filling TRT Electron Monitor Histograms");
-
   m_tBarrelA.N = 0;
   m_tBarrelC.N = 0;
   m_tEndCapA.N = 0;
@@ -303,7 +262,7 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
       {
 	const xAOD::Vertex* vertex = conv_elem;
 	double chi2 = vertex->numberDoF()>0 ? vertex->chiSquared()/vertex->numberDoF() : 0;
-	double r    = sqrt(pow(vertex->position().x(),2)+pow(vertex->position().y(),2));
+	double r    = std::sqrt(std::pow(vertex->position().x(),2)+std::pow(vertex->position().y(),2));
 
 	const std::vector< ElementLink< xAOD::TrackParticleContainer > > tpLinks =  conv_elem->trackParticleLinks();
 	int i(-1);
@@ -335,9 +294,7 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
       }//loop over vertices
   }
   else ATH_MSG_WARNING( "Could not retrieve vertex container this event" );
-
   ATH_MSG_DEBUG( "Leaving loopOverConversions." );
-
   return;
 }//loopOverConversions
 
@@ -348,33 +305,22 @@ loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks)
    ATH_MSG_DEBUG( "Entering loopOverRecElectrons." );
   if(!m_doRecElectrons) return;
   if(!evtStore()->retrieve(m_electronContainer, m_electronsName).isFailure()){
-
-    DataVector<xAOD::Electron>::const_iterator p_Electron = m_electronContainer->begin();
-    for(; p_Electron!=m_electronContainer->end(); ++p_Electron)
+    for(const auto & p_Electron:*m_electronContainer)
     {
-      if(!(*p_Electron)) continue;
-      if(!electronQualityCuts(*p_Electron)) continue;
-
-      const xAOD::TrackParticle* trkP = (*p_Electron)->trackParticle();
+      if(not p_Electron) continue;
+      if(!electronQualityCuts(p_Electron)) continue;
+      const xAOD::TrackParticle* trkP = p_Electron->trackParticle();
       if(!trkP) continue;
       const Trk::Track *trk = trkP->track();
-      std::vector<Trk::Track*>::const_iterator cTrk = v_usedTrks.begin();
-      bool matched(false);
-      for( ; cTrk != v_usedTrks.end() ; ++cTrk ){
-        if(trk == (*cTrk)){
-          if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG( "Track: Found matching track from electrons" );
-          matched=true;
-        }
-      }
+      const bool matched = (std::find(v_usedTrks.begin(), v_usedTrks.end(), trk) != v_usedTrks.end());
       if(matched) continue;
       v_usedTrks.push_back( (Trk::Track*)trk );
       m_tEl.N++;
-      if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, electron_mass, PCAND_EL ))
-      {
-	ATH_MSG_DEBUG( "fillStructHistograms failed!" );
+      if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, electron_mass, PCAND_EL )){
+	      ATH_MSG_DEBUG( "fillStructHistograms failed!" );
+      } else  {
+        ATH_MSG_DEBUG( "fillStructHistograms succeeded!" );
       }
-      else  ATH_MSG_DEBUG( "fillStructHistograms succeeded!" );
-
     }//for(; p_Electron!=m_ElectronCollection->end(); ++p_Electron)
   }
   else ATH_MSG_WARNING( "Could not retrieve electron container this event" );
@@ -383,28 +329,23 @@ loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks)
 }//loopOverRecElectrons
 
 void
-TRT_Electron_Monitoring_Tool::
-loopOverMuons(std::vector<Trk::Track*> &v_usedTrks)
+TRT_Electron_Monitoring_Tool::loopOverMuons(std::vector<Trk::Track*> &v_usedTrks)
 {
    ATH_MSG_DEBUG( "Entering loopOverMuons." );
   if(!m_doMuonMon) return;
   if(!evtStore()->retrieve(m_muonContainer, m_muonsName).isFailure())
   {
-
-    DataVector<xAOD::Muon>::const_iterator p_Muon = m_muonContainer->begin();
-    for(; p_Muon!=m_muonContainer->end(); ++p_Muon)
+    for(const auto & p_Muon:*m_muonContainer)
     {
-      if(!(*p_Muon)) continue;
-      if(!muonQualityCuts(*p_Muon)) continue;
-
-      const xAOD::TrackParticle* trkP = (*p_Muon)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+      if(!(p_Muon)) continue;
+      if(!muonQualityCuts(p_Muon)) continue;
+      const xAOD::TrackParticle* trkP = p_Muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       if(!trkP) continue;
       const Trk::Track *trk = trkP->track();
       v_usedTrks.push_back( (Trk::Track*)trk );
       m_tMu.N++;
-      if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, muon_mass, PCAND_MU ))
-      {
-	ATH_MSG_DEBUG( "fillStructHistograms failed!" );
+      if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, muon_mass, PCAND_MU )){
+	      ATH_MSG_DEBUG( "fillStructHistograms failed!" );
       }
       else  ATH_MSG_DEBUG( "fillStructHistograms succeeded!" );
 
@@ -416,25 +357,20 @@ loopOverMuons(std::vector<Trk::Track*> &v_usedTrks)
 }//loopOverMuons
 
 void
-TRT_Electron_Monitoring_Tool::
-loopOverTracks(std::vector<Trk::Track*> &v_usedTrks)
+TRT_Electron_Monitoring_Tool::loopOverTracks(std::vector<Trk::Track*> &v_usedTrks)
 {
    ATH_MSG_DEBUG( "Entering loopOverTracks." );
   if(!m_doTracksMon) return;
   if(!evtStore()->retrieve(m_trkpCollection, m_tracksName).isFailure())
   {
-    //    DataVector<Trk::Track>::const_iterator p_trk = m_trkpCollection->begin();
    for(const auto* tp : *m_trkpCollection)
-     //    for(; p_trk!=m_trkCollection->end(); ++p_trk)
     {
-      //      if(!(*p_trk)) continue;
-      //      if(!(*tp)) continue;
       fillAllHistograms((xAOD::TrackParticle*)tp);
       if(!pionQualityCuts((xAOD::TrackParticle*)tp,v_usedTrks)) continue;
       m_tPi.N++;
       if(!fillAllHistograms((xAOD::TrackParticle*)tp, pion_mass, PCAND_PI ))
       {
-	ATH_MSG_DEBUG( "fillStructHistograms failed!" );
+	     ATH_MSG_DEBUG( "fillStructHistograms failed!" );
       }
       else  ATH_MSG_DEBUG( "fillStructHistograms succeeded!" );
     }//for(; p_trk!=m_trkCollection->end(); ++p_trk)
@@ -443,23 +379,9 @@ loopOverTracks(std::vector<Trk::Track*> &v_usedTrks)
    ATH_MSG_DEBUG( "Leaving loopOverTTracks." );
 }//loopOverTracks
 
-//const Trk::Track*
-//TRT_Electron_Monitoring_Tool::
-//getTrackFromTrackAtVertex(Trk::VxTrackAtVertex * VxTrkTag)
-//{
-//  if(!VxTrkTag) return NULL;
-//  Trk::ITrackLink * origLinkTag	= VxTrkTag	->trackOrParticleLink();
-//  if(!origLinkTag) return NULL;
-//  Trk::LinkToTrackParticleBase * tr_partTag = dynamic_cast< Trk::LinkToTrackParticleBase * > ( origLinkTag );
-//  if(!tr_partTag) return NULL;
-//  const Trk::TrackParticleBase * tpbTag = dynamic_cast<const Trk::TrackParticleBase*>(**tr_partTag);
-//  if(!tpbTag) return NULL;
-//  return tpbTag  ->originalTrack();
-//}
 
 bool
 TRT_Electron_Monitoring_Tool::
-//conversionQualityCuts(const Trk::Track* trkTag, const Trk::Track* trkProbe)
 conversionQualityCuts(const xAOD::TrackParticle* trkTag, const xAOD::TrackParticle* trkProbe)
 {
   const Trk::Perigee* perigeeTag = trkTag->track()->perigeeParameters();
@@ -479,11 +401,9 @@ conversionQualityCuts(const xAOD::TrackParticle* trkTag, const xAOD::TrackPartic
     return false;
   }
   if(chargeTag!=-1*chargeProbe) return false;
-
-
   int nPix, nSCT, nTRT, nHT, nTRTOut, nHTOut;
   double HTRatioOut;
-  uint8_t dummy(-1);
+  uint8_t dummy(255);
   //Check that tag passes cuts
   nPix = trkTag->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   nSCT = trkTag->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;
@@ -491,13 +411,10 @@ conversionQualityCuts(const xAOD::TrackParticle* trkTag, const xAOD::TrackPartic
   nHT = trkTag->summaryValue(dummy,xAOD::numberOfTRTHighThresholdHits)?dummy:-1;
   nTRTOut = trkTag->summaryValue(dummy,xAOD::numberOfTRTOutliers)?dummy:-1;
   nHTOut = trkTag->summaryValue(dummy,xAOD::numberOfTRTHighThresholdOutliers)?dummy:-1;
-
-  //HTRatio = nTRT>0 ? double(nHT)/double(nTRT) : 0;
   HTRatioOut = nTRT+nTRTOut>0 ? double(nHT+nHTOut)/double(nTRT+nTRTOut) : 0;
   if(!m_useTRTOnly && nPix+nSCT <= 3 ) return false;
   if(nTRT+nTRTOut <= 19) return false;
   if(HTRatioOut <= 0.12) return false;
-
   //Check that probe passes cuts
   nPix = trkProbe->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   nSCT = trkProbe->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;
@@ -505,17 +422,14 @@ conversionQualityCuts(const xAOD::TrackParticle* trkTag, const xAOD::TrackPartic
   nHT = trkProbe->summaryValue(dummy,xAOD::numberOfTRTHighThresholdHits)?dummy:-1;
   nTRTOut = trkProbe->summaryValue(dummy,xAOD::numberOfTRTOutliers)?dummy:-1;
   nHTOut = trkProbe->summaryValue(dummy,xAOD::numberOfTRTHighThresholdOutliers)?dummy:-1;
-
-
+  //
   if(!m_useTRTOnly && nPix+nSCT <= 3 ) return false;
   if(nTRT+nTRTOut <= 19) return false;
-
   return true;
 }//conversionQualityCuts
 
 bool
-TRT_Electron_Monitoring_Tool::
-electronQualityCuts(const xAOD::Electron *electron)
+TRT_Electron_Monitoring_Tool::electronQualityCuts(const xAOD::Electron *electron)
 {
    bool val_loose=0;
   bool val_medium=0;
@@ -523,9 +437,6 @@ electronQualityCuts(const xAOD::Electron *electron)
   if(m_isEMType==ISEMLOOSE && !(electron->passSelection(val_loose, "Loose")==0))  return false;
   if(m_isEMType==ISEMMEDIUM && !(electron->passSelection(val_medium, "Medium")==0))  return false;
   if(m_isEMType==ISEMTIGHT && !(electron->passSelection(val_tight, "Tight")==0))  return false;
-  // if(m_isEMType==ISEMLOOSE  && !(electron->isem(egammaPID::ElectronLoose    )==0)) return false;
-  // if(m_isEMType==ISEMMEDIUM && !(electron->isem(egammaPID::ElectronMedium   )==0)) return false;
-  // if(m_isEMType==ISEMTIGHT  && !(electron->isem(egammaPID::ALLNOTRT_ELECTRON | egammaPID::TRACKMATCHTIGHT_ELECTRON | egammaPID::CONVMATCH_ELECTRON)==0)) return false;
   return true;
 }//electronQualityCuts
 
@@ -536,7 +447,7 @@ muonQualityCuts(const xAOD::Muon *muon)
   if(!muon) return false;
   const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!trkM) return false;
-  uint8_t dummy(-1);
+  uint8_t dummy(255);
   int nTRT = trkM->summaryValue(  dummy , xAOD::numberOfTRTHits  )? dummy :-1;
   int nTRTOut = trkM->summaryValue(  dummy , xAOD::numberOfTRTOutliers  )? dummy :-1;
   if(nTRT+nTRTOut <= 0) return false;
@@ -544,18 +455,10 @@ muonQualityCuts(const xAOD::Muon *muon)
 }//muonQualityCuts
 
 bool
-TRT_Electron_Monitoring_Tool::
-pionQualityCuts(xAOD::TrackParticle *trkP,std::vector<Trk::Track*> &v_usedTrks)
+TRT_Electron_Monitoring_Tool::pionQualityCuts(xAOD::TrackParticle *trkP,std::vector<Trk::Track*> &v_usedTrks)
 {
-
-  std::vector<Trk::Track*>::const_iterator cTrk = v_usedTrks.begin();
-  for( ; cTrk != v_usedTrks.end() ; ++cTrk ){
-    if(trkP->track() == (*cTrk)){
-      if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG( "Electron: Found matching track from conversions" );
-      return false;
-    }
-  }
-  uint8_t dummy(-1);
+  if (std::find(v_usedTrks.begin(), v_usedTrks.end(), trkP->track()) != v_usedTrks.end()) return false;
+  uint8_t dummy(255);
   int nPix = trkP->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   int nSCT = trkP->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;
   int nBLa = trkP->summaryValue(dummy,xAOD::numberOfInnermostPixelLayerHits)?dummy:-1;
@@ -574,17 +477,15 @@ pionQualityCuts(xAOD::TrackParticle *trkP,std::vector<Trk::Track*> &v_usedTrks)
 bool
 TRT_Electron_Monitoring_Tool::
 fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
-
-  uint8_t dummy(-1);
+  uint8_t dummy(255);
   int nPix = trkP->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   int nSCT = trkP->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;
   if(!m_useTRTOnly && nPix+nSCT <= 3 ) return false;
-
   double phi(-999),eta(-999);
   const Trk::Perigee* perigee = trkP->track()->perigeeParameters();
   if (perigee)
   {
-    phi = perigee->momentum().phi()*180/TMath::Pi();
+    phi = perigee->momentum().phi()*180/M_PI;
     if(phi<0) phi +=360;
     eta = perigee->momentum().eta();
   }
@@ -593,7 +494,6 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
     ATH_MSG_WARNING( "Track has no perigee!" );
     return false;
   }
-
   float gamma = 0;
   if(mass>0){
     CLHEP::HepLorentzVector hlv;
@@ -608,7 +508,7 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
       ATH_MSG_DEBUG( "Track has Lightlike Lorentz Vector!!  Skipping..." );
       return false;
     }
-    gamma = TMath::Log10(hlv.gamma());
+    gamma = std::log10(hlv.gamma());
   }
 
   int nLLHits[4]={0,0,0,0};
@@ -648,12 +548,12 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	if(RawDriftCircle && !isTubeHit)
 	{
 	  bool highL = RawDriftCircle->highLevel();
-	  TProfile_LW	*pHTFracTrackPhi = 0;
-	  TProfile_LW	*pHTFracStrawZR  = 0;
-	  TProfile_LW	*pHTFracStrawZAI = 0;
-	  TProfile_LW	*pHTFracStrawZCO = 0;
-    	  TProfile_LW	*pHTFracGamma = 0;
-    	  lw_geo_hists_t * myGeoHists = 0;
+	  TProfile_LW	*pHTFracTrackPhi{};
+	  TProfile_LW	*pHTFracStrawZR{};
+	  TProfile_LW	*pHTFracStrawZAI{};
+	  TProfile_LW	*pHTFracStrawZCO{};
+    TProfile_LW	*pHTFracGamma{};
+    lw_geo_hists_t * myGeoHists{};
 	  if(mass==0){ switch (barrel_ec){
 	    case DET_BARRELA:
 	      pHTFracTrackPhi = m_tBarrelA.pHTFracTrackPhi;
@@ -702,15 +602,12 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
             switch (PCand){
               case PCAND_EL:
         	pHTFracGamma	= myGeoHists->pHTFracGammaEl;
-        	//pHTFracGamma	= charge>0 ? myGeoHists->pHTFracGammaPosEl : myGeoHists->pHTFracGammaNegEl;
 	      break;
               case PCAND_MU:
 	        pHTFracGamma	= myGeoHists->pHTFracGammaMu;
-	        //pHTFracGamma	= charge>0 ? myGeoHists->pHTFracGammaPosMu : myGeoHists->pHTFracGammaNegMu;
 	        break;
               case PCAND_PI:
 	        pHTFracGamma	= myGeoHists->pHTFracGammaPi;
-	        //pHTFracGamma	= charge>0 ? myGeoHists->pHTFracGammaPosPi : myGeoHists->pHTFracGammaNegPi;
 	        break;
               default : break;
             }
@@ -729,7 +626,6 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	    else{
 	      if(pHTFracGamma) pHTFracGamma->Fill(gamma,1);
 	      myGeoHists->pHTFracGammaAll->Fill(gamma,1);
-	      //charge>0 ? myGeoHists->pHTFracGammaPosAll->Fill(gamma,1) : myGeoHists->pHTFracGammaNegAll->Fill(gamma,1);
             }
 	    nHLHits[barrel_ec]++;
 	    nTRTHTHits++;
@@ -744,7 +640,6 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	  else{
 	    if(pHTFracGamma) pHTFracGamma->Fill(gamma,0);
 	    myGeoHists->pHTFracGammaAll->Fill(gamma,0);
-	    //charge>0 ? myGeoHists->pHTFracGammaPosAll->Fill(gamma,0) : myGeoHists->pHTFracGammaNegAll->Fill(gamma,0);
 	  }
 	  nLLHits[barrel_ec]++;
 	  nTRTHits++;
@@ -754,7 +649,7 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
   }//for(;TSOSItBegin!=TSOSItEnd; ++TSOSItBegin)
 
   if(mass==0) for(int i=0;i<4;i++){
-    lw_geo_hists_t * myGeoHists = 0;
+    lw_geo_hists_t * myGeoHists{};
     switch (i){
       case DET_BARRELA:
         myGeoHists = &m_tBarrelA;
@@ -776,14 +671,12 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
     }
   }
   else{
-    uint8_t dummy(-1);
+    uint8_t dummy(255);
     float HTProb  = trkP->summaryValue(dummy,xAOD::eProbabilityHT)?dummy:-1;
-
-    TH1F_LW		*hPIDProb = 0;
-    TH1F_LW		*hHTFrac = 0;
-    TProfile_LW		*pPIDProbEta = 0;
-    TProfile_LW		*pHTFracEta = 0;
-
+    TH1F_LW		*hPIDProb{};
+    TH1F_LW		*hHTFrac{};
+    TProfile_LW		*pPIDProbEta{};
+    TProfile_LW		*pHTFracEta{};
     switch (PCand){
       case PCAND_EL:
         hPIDProb	= m_tEl.hPIDProb;
@@ -851,21 +744,17 @@ TH1F_LW* TRT_Electron_Monitoring_Tool::trtBookHistoLW(MonGroup &mongroup,
 {
   TH1F_LW* hist = TH1F_LW::create(hName.c_str(),hTitle.c_str(),nbins,firstbin,lastbin);
   trtRegHist(hist, mongroup, hName.c_str());
-
   hist->GetXaxis()->SetLabelSize(x_labelSize);
   hist->GetYaxis()->SetLabelSize(y_labelSize);
   hist->GetXaxis()->SetTitle(xTitle.c_str());
   hist->GetYaxis()->SetTitle(yTitle.c_str());
-
   return hist;
-
 }
 
 void TRT_Electron_Monitoring_Tool::trtRegHist(LWHist* hist, MonGroup &mongrp, const char* hName){
   if (mongrp.regHist(hist).isFailure()){
     ATH_MSG_WARNING( "Failed to register histogram "<< hName );
   }
-
     return;
 }
 
@@ -887,7 +776,6 @@ TProfile_LW* TRT_Electron_Monitoring_Tool::trtBookHistoLW(MonGroup &mongroup,
 {
   TProfile_LW* hist = TProfile_LW::create(hName.c_str(), hTitle.c_str(), nbins, firstbin, lastbin, ymin, ymax);
   trtRegHist(hist, mongroup, hName.c_str());
-
   hist->SetMarkerSize(msize);
   hist->SetMarkerStyle(mstyle);
   hist->SetMarkerColor(mcolor);
@@ -895,7 +783,6 @@ TProfile_LW* TRT_Electron_Monitoring_Tool::trtBookHistoLW(MonGroup &mongroup,
   hist->GetYaxis()->SetLabelSize(y_labelSize);
   hist->GetXaxis()->SetTitle(xTitle.c_str());
   hist->GetYaxis()->SetTitle(yTitle.c_str());
-
   return hist;
 
 }
@@ -916,19 +803,16 @@ TH2F_LW* TRT_Electron_Monitoring_Tool::trtBookHistoLW(MonGroup &mongroup,
 {
   TH2F_LW* hist = TH2F_LW::create(hName.c_str(), hTitle.c_str(), xnbins, xfirstbin, xlastbin, ynbins, yfirstbin, ylastbin);
   trtRegHist(hist, mongroup, hName.c_str());
-
   hist->GetXaxis()->SetLabelSize(x_labelSize);
   hist->GetYaxis()->SetLabelSize(y_labelSize);
   hist->GetXaxis()->SetTitle(xTitle.c_str());
   hist->GetYaxis()->SetTitle(yTitle.c_str());
-
   return hist;
 
 }
 
 int
-TRT_Electron_Monitoring_Tool::
-myBarrelEC(int barrel_ec){
+TRT_Electron_Monitoring_Tool::myBarrelEC(int barrel_ec){
   switch(barrel_ec){
     case  1 : return DET_BARRELA;
     case -1 : return DET_BARRELC;

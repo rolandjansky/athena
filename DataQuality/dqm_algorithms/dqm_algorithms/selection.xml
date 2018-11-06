@@ -36,6 +36,7 @@
   <class name="dqm_algorithms::BinsDiffByStrips"/>
   <class name="dqm_algorithms::BinsDiffFromStripMedian"/>
   <class name="dqm_algorithms::BinsDiffFromStripMedianOnline"/>
+  <class name="dqm_algorithms::BinsDiffFromPreviousLBs"/>
   <class name="dqm_algorithms::BinsFilledOutRange"/>
   <class name="dqm_algorithms::BinsOutOfRange"/>
   <class name="dqm_algorithms::BinsSymmetric"/>

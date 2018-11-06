@@ -17,8 +17,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Athena headers
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
@@ -92,46 +92,50 @@ private:
   /// to build the G4 geometry and is no-longer required
   void releaseGeoModel();
 
-  /// Properties for the jobOptions
-  std::string m_libList;
-  std::string m_physList;
-  std::string m_fieldMap;
-  std::string m_rndmGen;
-  bool m_releaseGeoModel;
-  bool m_recordFlux;
-  bool m_killAbortedEvents;
-  bool m_flagAbortedEvents;
-  SG::ReadHandle<McEventCollection>    m_inputTruthCollection; //!< input hard scatter collection
-  SG::WriteHandle<McEventCollection>   m_outputTruthCollection;//!< output hard scatter truth collection
+  /// @name Configurable Properties
+  /// @{
+  bool m_killAbortedEvents{false};
+  bool m_flagAbortedEvents{false};
+  SG::ReadHandleKey<McEventCollection>    m_inputTruthCollectionKey{this, "InputTruthCollection", "BeamTruthEvent", "Input hard scatter collection"}; //!< input hard scatter collection
+  SG::WriteHandleKey<McEventCollection>   m_outputTruthCollectionKey{this, "OutputTruthCollection", "TruthEvent", "Output hard scatter truth collection"};//!< output hard scatter truth collection
+  /// Central Truth Service
+  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this, "TruthRecordService", "ISF_TruthRecordSvc", ""};
+  /// Geo ID Service
+  ServiceHandle<ISF::IGeoIDSvc> m_geoIDSvc{this, "GeoIDSvc", "ISF_GeoIDSvc", ""};
+
   /// Verbosity settings for Geant4
   std::map<std::string,std::string> m_verbosities;
+  /// @}
 
+  /// @name Configurable Properties (common with TransportTool)
+  /// @{
+  std::string m_libList{""};
+  std::string m_physList{""};
+  std::string m_fieldMap{""};
+  std::string m_rndmGen{"athena"};
+  bool m_releaseGeoModel{true};
+  bool m_recordFlux{false};
   /// Commands to send to the G4 UI
   std::vector<std::string> m_g4commands;
-
   /// Activate multi-threading configuration
-  bool m_useMT;
-
+  bool m_useMT{false};
   /// Random number service
-  ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
+  ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "AtRndmGenSvc", "AthRNGSvc", ""}; // TODO rename property
   /// G4Atlas Service - handles G4 initialization
-  ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
+  ServiceHandle<IG4AtlasSvc> m_g4atlasSvc{this, "G4AtlasSvc", "G4AtlasSvc", ""};
   /// User Action Service
-  ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
+  ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc{this, "UserActionSvc", "G4UA::UserActionSvc", ""};
   /// Detector Geometry Service (builds G4 Geometry)
-  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc{this, "DetGeoSvc", "DetectorGeometrySvc", ""};
   /// Service to convert ISF_Particles into a G4Event
-  ServiceHandle<ISF::IInputConverter> m_inputConverter;
-  /// Central Truth Service
-  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc;
-  /// Geo ID Service
-  ServiceHandle<ISF::IGeoIDSvc> m_geoIDSvc;
+  ServiceHandle<ISF::IInputConverter> m_inputConverter{this, "InputConverter", "ISF_InputConverter", ""};
   /// Physics List Tool
-  ToolHandle<IPhysicsListTool> m_physListTool;
+  PublicToolHandle<IPhysicsListTool> m_physListTool{this, "PhysicsListTool", "PhysicsListToolBase", ""};
   /// Sensitive Detector Master Tool
-  ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+  PublicToolHandle<ISensitiveDetectorMasterTool> m_senDetTool{this, "SenDetMasterTool", "SensitiveDetectorMasterTool", ""};
   /// Fast Simulation Master Tool
-  ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
+  PublicToolHandle<IFastSimulationMasterTool> m_fastSimTool{this, "FastSimMasterTool", "FastSimulationMasterTool", ""};
+  /// @}
 
 };
 

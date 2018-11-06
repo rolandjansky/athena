@@ -4,7 +4,7 @@
 
 
 //Local includes
-#include "StripOfflineData.h"
+#include "TrigT1NSWSimTools/StripOfflineData.h"
 
 #include <string>
 
@@ -21,7 +21,7 @@ namespace NSWL1 {
       m_strip_time=digit->time();
     }
 
-    StripOfflineData::~StripOfflineData() {
+  StripOfflineData::~StripOfflineData() {
         // StripOfflineData doesn't own the helper, so nothing to do here
     }
 

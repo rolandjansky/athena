@@ -52,8 +52,6 @@ def toolSV2Tag(name, useBTagFlagsDefaults = True, **options):
 #-----------------------------------------------------------------
 
 metaSV2NewLikelihoodTool = { 'CalibrationTaggers' : ['SV2',],
-                             'DependsOn'          : ['BTagCalibrationBrokerTool',],
-                             'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool' },
                              'ToolCollection'     : 'SV2Tag' }
 
 def toolSV2NewLikelihoodTool(name, useBTagFlagsDefaults = True, **options):

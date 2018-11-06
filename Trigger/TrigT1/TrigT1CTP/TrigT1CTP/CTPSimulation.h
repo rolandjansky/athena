@@ -15,7 +15,8 @@
 
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // local includes:
 #include "TrigT1CTP/ISpecialTrigger.h"
@@ -79,7 +80,7 @@ namespace LVL1CTP {
     *
     */
 
-   class CTPSimulation : public AthAlgorithm, public IMonitoredAlgo {
+   class CTPSimulation : public AthAlgorithm, public IMonitoredAlgo, public IIncidentListener {
 
    public:
 
@@ -88,16 +89,18 @@ namespace LVL1CTP {
 
       virtual StatusCode initialize();
       virtual StatusCode start();
-      virtual StatusCode beginRun();
       virtual StatusCode execute();
       virtual StatusCode finalize();
       virtual StatusCode callback(IOVSVC_CALLBACK_ARGS_P(idx, keys));
       //! handle to result builder (for easy data access) 
       const ResultBuilder* resultBuilder() const;
+
+     virtual void handle(const Incident& incident);
+     
       StoreGateSvc *m_detStore;
 
    private:
-
+      StatusCode loadFixedConditions();
       //! Function pointer to the correct multiplicity extraction function:
       StatusCode ( LVL1CTP::CTPSimulation::*m_extractFunction ) ( void );
 
@@ -111,7 +114,7 @@ namespace LVL1CTP {
 
       // Needed services:
       ServiceHandle<ITHistSvc> m_histSvc;
-      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;    //!< property, see @link CTPSimulation::CTPSimulation @endlink
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       ServiceHandle<IAtRndmGenSvc> m_rndmSvc;                 //!< property, see @link CTPSimulation::CTPSimulation @endlink
       std::string m_rndmEngineName;                           //!< property, see @link CTPSimulation::CTPSimulation @endlink 
       // Needed tools:

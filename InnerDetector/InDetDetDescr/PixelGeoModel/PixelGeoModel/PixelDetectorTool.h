@@ -13,7 +13,6 @@ class PixelGeoModelAthenaComps;
 class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
-class ISiLorentzAngleSvc;
 class IGeoSubDetTool;
 class IInDetServMatBuilderTool;
 class IBLParameterSvc;
@@ -54,13 +53,13 @@ private:
   bool m_initialLayout;
   bool m_devVersion;
   bool m_buildDBM;
+  bool m_useDynamicAlignFolders;
   ToolHandle< IGeoSubDetTool > m_bcmTool;
   ToolHandle< IGeoSubDetTool > m_blmTool;
   ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
-  ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
   const InDetDD::PixelDetectorManager * m_manager;
   std::string m_overrideVersionName;
 

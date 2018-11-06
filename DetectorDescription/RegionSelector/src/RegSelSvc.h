@@ -23,6 +23,7 @@
 
 #include "RegionSelector/IRegionLUT_Creator.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -30,7 +31,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "IRegionSelector/IRoiDescriptor.h"
-
 
 class StoreGateSvc;
 
@@ -454,6 +454,7 @@ private:
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolTRT;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolLAR;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolTile;
+  ToolHandle< ISCT_CablingTool > m_SCTCablingToolCB; // Retrieve SCT_CablingToolCB in initialize of RegSelSvc so that SCT_RegionSelectorTable can use ready SCT_CablingToolCB in BeginRun incident.
   ServiceHandle< IGeoModelSvc > m_geoModelSvc;
   std::vector<std::string> m_enabledDetectors;
   bool m_errorFlag;
@@ -484,16 +485,27 @@ private:
   BooleanProperty  m_initTGC;
   BooleanProperty  m_initCSC;
 
+  BooleanProperty  m_initMM;
+  BooleanProperty  m_initsTGC;
+
+
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolRPC;
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolMDT;
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolTGC;
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolCSC;
+
+  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolMM;
+  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
 
 
   RegSelSiLUT* m_newrpc;
   RegSelSiLUT* m_newmdt;
   RegSelSiLUT* m_newtgc;
   RegSelSiLUT* m_newcsc;
+
+  RegSelSiLUT* m_newmm;
+  RegSelSiLUT* m_newstgc;
+
   
   StringProperty m_PixConditionsSvc;
   StringProperty m_SCTConditionsTool;

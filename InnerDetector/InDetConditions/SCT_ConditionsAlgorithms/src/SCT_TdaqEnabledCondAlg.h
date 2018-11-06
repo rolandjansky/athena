@@ -13,7 +13,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
 class SCT_TdaqEnabledCondAlg : public AthAlgorithm 
 {  
@@ -31,7 +31,7 @@ class SCT_TdaqEnabledCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey{this, "WriteKey", "SCT_TdaqEnabledCondData", "Key of output (derived) conditions data"};
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   ServiceHandle<ICondSvc> m_condSvc; 
-  ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
+  ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
   unsigned int parseChannelName(const std::string &chanNameString) const;
   std::string inWords(const unsigned int aNumber) const;

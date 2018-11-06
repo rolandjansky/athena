@@ -15,6 +15,8 @@
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
 #include "InDetIdentifier/TRT_ID.h"
+#include "TrkTrack/Track.h"
+#include "TrkSegment/TrackSegment.h"
 #include <limits>
 #include <cmath>
 
@@ -87,7 +89,7 @@ void InDet::InDetSlidingWindowTrackTimeTool::beginRun() {
       rtShift += rtRelation->drifttime(0.);
     }
   }
-  if (countAverageT0 == 0.) {
+  if (countAverageT0 == 0) {
     m_averageT0 = std::numeric_limits<double>::infinity();
     rtShift = std::numeric_limits<double>::infinity();
   } else {

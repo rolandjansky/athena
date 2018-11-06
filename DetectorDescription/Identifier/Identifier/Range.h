@@ -207,15 +207,13 @@ public:
  
   /// Constructors 
   Range (); 
-  Range (const Range& other); 
+  Range (const Range& other);
+  Range (Range&& other);
 
   /// Assignment.
   Range& operator= (const Range& other);
+  Range& operator= (Range&& other);
 
-  /// Constructor with move semantics.
-  /// FIXME: Replace with rvalue reference once we can use C++11.
-  Range (Range& other, bool); 
- 
   /** 
    *   This is a sub-range copy constructor.  
    * It copies the portion of the other Range, starting from the  
@@ -447,7 +445,7 @@ public:
   void add (const Range& range); 
 
   /// Add with move semantics.
-  void add (Range& range, bool); 
+  void add (Range&& range); 
 
   /// Add a Range made from a single ExpandedIdentifier 
   void add (const ExpandedIdentifier& id); 

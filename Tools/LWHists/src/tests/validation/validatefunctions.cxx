@@ -43,7 +43,8 @@ namespace HistValFunctions {
   }
 
   //____________________________________________________________________
-  void compareFields(TH1 * t1, TH1 * t2)
+  // Disable ubsan to turn off warnings about casting TH1F to TH1_FieldsAccess.
+  void compareFields NO_SANITIZE_UNDEFINED (TH1 * t1, TH1 * t2)
   {
     test("[TH1-level] GetXaxis()->GetLabelSize()",t1->GetXaxis()->GetLabelSize(),t2->GetXaxis()->GetLabelSize());
     test("[TH1-level] GetXaxis()->GetTitle()",t1->GetXaxis()->GetTitle(),t2->GetXaxis()->GetTitle());

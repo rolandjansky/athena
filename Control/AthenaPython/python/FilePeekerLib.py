@@ -17,6 +17,7 @@ StatusCode = PyAthena.StatusCode
 from PyCool import coral
 _attribute_methods = dir(coral.Attribute)
 _methnames = ['data<std::__cxx11::basic_string<char> >',
+              'data<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >',
               'data<std::basic_string<char> >',
               'data<std::string>']
 for _m in _methnames:
@@ -594,10 +595,6 @@ class FilePeeker(PyAthena.Alg):
         _info('=== [DataHeader#%s] ===', sg_key)
         dh = store.retrieve('DataHeader', sg_key)
         dh_cls = type(dh)
-        if not dh.checkStatus(dh_cls.Primary):
-            _err = 'DataHeader#%s is NOT the primary one !' % (sg_key,)
-            _error(_err)
-            raise RuntimeError(_err)
         
         def _make_item_list(dhe):
             sgkey= dhe.getKey()

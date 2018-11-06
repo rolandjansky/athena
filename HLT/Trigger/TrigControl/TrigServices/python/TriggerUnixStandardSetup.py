@@ -87,8 +87,8 @@ def _setupCommonServices():
         svcMgr += CoreDumpSvc()
         
     # Configure COOL update helper tool
-    from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
-    _eventLoopMgr(svcMgr).CoolUpdateTool = TrigCOOLUpdateHelper()
+    # from TrigServices.TrigServicesConfig import TrigCOOLUpdateHelper
+    # _eventLoopMgr(svcMgr).CoolUpdateTool = TrigCOOLUpdateHelper()
             
     # Setup online THistSvc unless specifically configured otherwise
     if _Conf.useOnlineTHistSvc:

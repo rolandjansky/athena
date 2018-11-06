@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***********************************************************************************
@@ -68,8 +68,10 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
   if (m_outputlevel < 0) 
     msg(MSG::VERBOSE) << "Merging state with " << multiComponentState.size() << " components" << endmsg;
 
+  //state Assembler cache
+  IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
@@ -92,7 +94,7 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
     return multiComponentState.clone();
   }
 
-  Trk::MultiComponentState* unmergedState = const_cast<Trk::MultiComponentState*>( multiComponentState.clone() );
+  Trk::MultiComponentState* unmergedState = multiComponentState.clone();
 
   std::vector<double> weights;
   Trk::MultiComponentState* componentsForCollapse = new Trk::MultiComponentState;
@@ -109,7 +111,7 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
       if (numberOfComponents < m_maximumNumberOfComponents){
 
         // Add component to state being prepared for assembly and check that it is valid
-        bool componentAdded = m_stateAssembler->addComponent(*component);
+        bool componentAdded = m_stateAssembler->addComponent(cache,*component);
       
         if ( !componentAdded )
           msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -130,7 +132,7 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
    delete componentsForCollapse;
 
    // Add component to state being prepared for assembly and check that it is valid
-   bool componentAdded = m_stateAssembler->addComponent(*collapsedComponent);
+   bool componentAdded = m_stateAssembler->addComponent(cache,*collapsedComponent);
 
    // Memory clean-up
    delete collapsedComponent->first;
@@ -139,10 +141,8 @@ const Trk::MultiComponentState* Trk::LargestWeightsMultiStateMerger::merge(const
    if ( !componentAdded )
 	  msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
-   const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(1.);
-
+   const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache,1.);
    delete unmergedState;
 
    return assembledState;
-
 }

@@ -55,6 +55,21 @@ conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChanne
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
 condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
+if (rec.doESD() or rec.doRDOTrigger()):
+   if 'COMP200' not in conddb.GetInstance():
+      rekeyBADF="<key>/LAR/BadChannels/KnownBADFEBs</key>"
+      rekeyMNBF="<key>/LAR/BadChannels/KnownMNBFEBs</key>"
+      conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownBADFEBs","/LAR/BadChannelsOfl/KnownBADFEBs"+forceRN+rekeyBADF,False,False,False,"AthenaAttributeList")
+      inkeyBad="/LAR/BadChannels/KnownBADFEBs"
+      conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownMNBFEBs","/LAR/BadChannelsOfl/KnownMNBFEBs"+forceRN+rekeyMNBF,False,False,False,"AthenaAttributeList")
+      inkeyMNB="/LAR/BadChannels/KnownMNBFEBs"
+   else:   
+      inkeyBad=""
+      inkeyMNB=""
+   pass
+
+   condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey=inkeyBad,WriteKey="LArKnownBadFEBs")
+   condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey=inkeyMNB,WriteKey="LArKnownMNBFEBs")
 
 if not larCondFlags.LoadElecCalib.is_locked():
     larCondFlags.LoadElecCalib.set_Value(rec.readRDO()) 
@@ -99,8 +114,8 @@ def addLArFolder (db, obj, cls, qual=''):
 
 #Load HVScaleCorr. For run 2,these constants are also used by the CaloNoiseToolDB 
 if (haveElecCalibInline):
-    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondAlg
-    addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondAlg, sqlDB)
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
+    addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondFlatAlg, sqlDB)
     # TEMPORARY
     theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
 

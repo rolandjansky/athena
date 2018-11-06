@@ -1,22 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef SCT_FAST_RDO_ANALYSIS_H
 #define SCT_FAST_RDO_ANALYSIS_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 #include <string>
 #include <vector>
-#include "TH1.h"
 
 class TTree;
 class TH1;
@@ -25,16 +26,19 @@ class SCT_FastRDOAnalysis : public AthAlgorithm {
 
 public:
   SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
-  ~SCT_FastRDOAnalysis(){}
+  ~SCT_FastRDOAnalysis() = default;
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
   virtual StatusCode finalize() override final;
 
 private:
-  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey;
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey{this, "InputKey", "SCT_Clusters"};
   // SCT_Cluster
   std::vector<uint16_t>* m_hitsTimeBin3;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // SiCluster - SiWidth + SiDetectorElement
   std::vector<float>* m_siCol;
@@ -122,6 +126,7 @@ private:
   std::string m_ntupleDirName;
   std::string m_ntupleTreeName;
   std::string m_path;
+
   ServiceHandle<ITHistSvc> m_thistSvc;
 };
 

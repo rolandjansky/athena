@@ -17,20 +17,21 @@
 #include <string>
 #include <memory>
 
-class TH2F;
-class TH3F;
+//ROOT
+#include "TH2F.h"
+#include "TH3F.h"
 
-class SCT_TestDistortionsTool:public AthAlgorithm{
+class SCT_TestDistortionsTool:public AthAlgorithm {
   public:
-    SCT_TestDistortionsTool( const std::string & name, ISvcLocator * pSvcLocator);
-    ~SCT_TestDistortionsTool();
+    SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator);
+    ~SCT_TestDistortionsTool() = default;
     // Standard Gaudi functions
     StatusCode initialize(); //!< Gaudi initialiser
     StatusCode execute();    //!< Gaudi executer
     StatusCode finalize();   //!< Gaudi finaliser
     
   private:
-    PublicToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
+    ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
        {this,"SCT_DistortionsTool","SCT_DistortionsTool",""};
 
     std::unique_ptr<TH2F> m_ZvsX;

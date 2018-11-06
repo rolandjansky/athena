@@ -15,17 +15,11 @@
     @authors Dan Guest, Marie Lanfermann
 
 ********************************************************/
-// #include "xAODBTagging/BTagging.h"
-// #include "GaudiKernel/ToolHandle.h"
-// #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "JetTagTools/ITagTool.h"
 #include "JetTagTools/IMultivariateJetTagger.h"
 
 #include <vector>
-
-namespace Analysis {
-  class CalibrationBroker;
-}
 
 namespace Analysis {
   class IMultivariateJetTagger;

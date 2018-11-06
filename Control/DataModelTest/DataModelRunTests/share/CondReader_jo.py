@@ -22,11 +22,8 @@ from AthenaCommon.AppMgr import theApp
 # Load POOL support
 #--------------------------------------------------------------
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+
+include ('DataModelRunTests/loadReadDicts.py')
 
 
 #--------------------------------------------------------------
@@ -43,9 +40,9 @@ import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore") 
 
 from IOVDbSvc.CondDB import conddb
-conddb.addFolder ('condtest.db', '/DMTest/TestAttrList <tag>tag AttrList_noTag</tag>',
+conddb.addFolder ('condtest.db', '/DMTest/TestAttrList <tag>AttrList_noTag</tag>',
                   className='AthenaAttributeList')
-conddb.addFolder ('condtest.db', '/DMTest/S2 <tag>tag S2_noTag</tag>',
+conddb.addFolder ('condtest.db', '/DMTest/S2 <tag>S2_noTag</tag>',
                   className='DMTest::S2')
 
 

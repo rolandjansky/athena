@@ -9,18 +9,6 @@
 
 #include <limits>
 
-#include <iostream>
-namespace {
-  template <typename T>
-  std::ostream &operator<<(std::ostream &out, const std::vector<T> &a) {
-    for (const T &elm : a) {
-      out << " " << elm;
-    }
-    return out;
-  }
-}
-
-
 RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
@@ -53,11 +41,6 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
     registerAttribute(attribut_name, std::numeric_limits<unsigned int>::max(),0);
   }
 
-  std::cout << "DEBUG " << name() << " all done." << std::endl;
-  for (  const SG::WriteCondHandleKey<RIO_OnTrackErrorScaling>  &output : m_writeKey ) {
-    std::cout << " new write key " << output.key() << "[" <<  static_cast<const void *>(&output) << std::endl;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -71,7 +54,6 @@ void RIO_OnTrackErrorScalingCondAlg::registerAttribute(std::string name, unsigne
 }
 
 StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling(const std::string &type_name) {
-  std::cout << "DEBUG " << name() << " addErrorScaling " << type_name << std::endl;
   const RIO_OnTrackErrorScalingKit *the_kit(nullptr);
   try {
     the_kit = &(RIO_OnTrackErrorScalingKitManager::instance().kit( type_name ));
@@ -88,12 +70,9 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling(const std::string &ty
     ATH_MSG_FATAL( "Caught exception: " << err.what() << " Invalide ErrorScalking type name : " << type_name << ". Registered types:" << types.str() );
     return StatusCode::FAILURE;
   }
-  std::cout << "DEBUG " << name() << "register kit " << type_name << " n-params=" << the_kit->nParametres()<< std::endl;
   m_kits.push_back(the_kit);
   const char **parameters=the_kit->paramNames();
   for (unsigned int param_i=0; param_i<the_kit->nParametres(); ++param_i) {
-    std::cout << "DEBUG " << name() << "register attribute " << parameters[param_i]  << " -> "
-              << m_kits.size() << ". " << param_i << std::endl;
     registerAttribute( std::string(parameters[param_i]), m_kits.size()-1, param_i);
   }
 
@@ -123,7 +102,6 @@ public:
 StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
   SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey);
   if (!readHandle.isValid()) {
-    std::cout << "DEBUG cond store content : " << static_cast<const CSAccessCondReadHandleKey<CondAttrListCollection> &>(m_readKey).dump() << std::endl;
     return StatusCode::FAILURE;
   }
   assert( *readHandle );
@@ -168,13 +146,6 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
             // ATH_MSG_VERBOSE("Parameter " << i << " = " << alist[att_i].data<double>() );
             params.push_back(alist[att_i].data<double>());
           }
-          std::cout << "DEBUG " << this->name() << " cond data " << range
-                    << " " << attr_name << " -> " << idx.first << ","  << idx.second << "[" << write_handles[idx.first].key() << "] : " << params
-                    << std::endl;
-        }
-        else {
-          std::cout << "DEBUG " << this->name() << " cond data " << range
-                    << " skip " << attr_name << std::endl;
         }
         --total_params;
       }

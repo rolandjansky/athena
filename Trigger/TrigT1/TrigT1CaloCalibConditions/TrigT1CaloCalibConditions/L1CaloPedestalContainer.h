@@ -5,8 +5,8 @@
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPEDESTALCONTAINER_H
 #define TRIGT1CALOCALIBCONDITIONS_L1CALOPEDESTALCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
 

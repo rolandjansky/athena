@@ -10,8 +10,8 @@
 #define JETRECTOOLS_JETCONSTITUENTMODSEQUENCE_H
 
 //
-// // Michael Nelson, CERN & Univesity of Oxford
-// // February, 2016
+// Michael Nelson, CERN & Univesity of Oxford
+// February, 2016
 
 #include <string>
 #include "AsgTools/AsgTool.h"
@@ -56,22 +56,16 @@ protected:
   bool m_saveAsShallow = true;
 
   // note: not all keys will be used for a particular instantiation
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClusterKey;
-  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_truthParticleKey;
-  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inClusterKey{this, "InClusterKey", "", "ReadHandleKey for unmodified CaloClusters"};
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterKey{this, "OutClusterKey", "", "WriteHandleKey for modified CaloClusters"};
 
-  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey;
-  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey;
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inChargedPFOKey{this, "InChargedPFOKey", "", "ReadHandleKey for modified Charged PFlow Objects"};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outChargedPFOKey{this, "OutChargedPFOKey", "", "WriteHandleKey for modified Charged PFlow Objects"};
 
-  SG::WriteHandleKey<ConstDataVector<xAOD::PFOContainer>> m_outPFOAllKey{};
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inNeutralPFOKey{this, "InNeutralPFOKey", "", "ReadHandleKey for modified Neutral PFlow Objects"};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outNeutralPFOKey{this, "OutNeutralPFOKey", "", "WriteHandleKey for modified Neutral PFlow Objects"};
 
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedKey{};
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralKey{};
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inCaloClusterKey{};
-  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_inTruthParticleKey{};
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inTrackParticleKey{};
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedCopyKey{};
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralCopyKey{};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outAllPFOKey{this, "OutAllPFOKey", "", "WriteHandleKey for all modified PFlow Objects"};
 
   StatusCode copyModRecordPFO() const;
 
@@ -99,15 +93,15 @@ JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
     return StatusCode::FAILURE;
   }
 
-  std::pair< T*, xAOD::ShallowAuxContainer* > newclust = 
+  std::pair< T*, xAOD::ShallowAuxContainer* > newconstit =
     xAOD::shallowCopyContainer(*inHandle);    
-  newclust.second->setShallowIO(m_saveAsShallow);
+  newconstit.second->setShallowIO(m_saveAsShallow);
   
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(newclust.first));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(newconstit.first));}
 
   auto handle = makeHandle(outKey);
-  ATH_CHECK(handle.record(std::unique_ptr<T>(newclust.first),
-                          std::unique_ptr<xAOD::ShallowAuxContainer>(newclust.second)));
+  ATH_CHECK(handle.record(std::unique_ptr<T>(newconstit.first),
+                          std::unique_ptr<xAOD::ShallowAuxContainer>(newconstit.second)));
   
   return StatusCode::SUCCESS;
 }

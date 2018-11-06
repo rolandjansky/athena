@@ -71,14 +71,14 @@ class CaloTriggerTowerService : public AthAlgTool
    * create a TT HWIdentifier from a TT Identifier
    *
    */
-  HWIdentifier createTTChannelID(const Identifier & id, bool bQuiet=false);
+  HWIdentifier createTTChannelID(const Identifier & id, bool bQuiet=false) const;
 
 
   /**
    * create a TT Identifier from a TT HWIdentifier
    *
    */
-  Identifier cnvToIdentifier(const HWIdentifier & id, bool bQuiet=false);
+  Identifier cnvToIdentifier(const HWIdentifier & id, bool bQuiet=false) const;
 
 
   /**
@@ -86,7 +86,7 @@ class CaloTriggerTowerService : public AthAlgTool
    *
    */
   //unsigned int createL1CoolChannelId( const HWIdentifier & id );
-  L1CaloCoolChannelId createL1CoolChannelId( const HWIdentifier& id );
+  L1CaloCoolChannelId createL1CoolChannelId( const HWIdentifier& id ) const;
 
 
   /**
@@ -94,7 +94,7 @@ class CaloTriggerTowerService : public AthAlgTool
    *
    */
   //HWIdentifier cnvCoolChannelIdToHWID( const unsigned int coolChannelId );
-  HWIdentifier cnvCoolChannelIdToHWID( const L1CaloCoolChannelId& coolChannelId );
+  HWIdentifier cnvCoolChannelIdToHWID( const L1CaloCoolChannelId& coolChannelId ) const;
 
 
 
@@ -103,7 +103,7 @@ class CaloTriggerTowerService : public AthAlgTool
    * returns a TDAQ CoolChannelId corresponding to a L1CaloRxCoolChannelId
    *
    */
-  L1CaloCoolChannelId cnvRxIdToCoolChannelId(const L1CaloRxCoolChannelId& rxCoolChannelId);
+  L1CaloCoolChannelId cnvRxIdToCoolChannelId(const L1CaloRxCoolChannelId& rxCoolChannelId) const;
 
 
   /**
@@ -111,18 +111,18 @@ class CaloTriggerTowerService : public AthAlgTool
    *
    */
 
-   std::vector<L1CaloRxCoolChannelId> cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId);
+   std::vector<L1CaloRxCoolChannelId> cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId) const;
 
 
   /** return 0 for z<0 channels and 1 for z>0 channels */
-  unsigned int pos_neg(const HWIdentifier & id);
+  unsigned int pos_neg(const HWIdentifier & id) const;
 
   /** return the corresponding sampling of channelId:
       @return 0: for EM calorimeter
       @return 1: for HAD calorimeter
       @return 999: error
   */
-  unsigned int em_had(const HWIdentifier & id);
+  unsigned int em_had(const HWIdentifier & id) const;
 
   /** To know if a channel belongs to the barrel, end cap or fcal parts
       @return 0: barrel
@@ -130,7 +130,7 @@ class CaloTriggerTowerService : public AthAlgTool
       @return 2: fcal
       @return 999: error
   */
-  unsigned int barrel_endcap_fcal(const HWIdentifier & id);
+  unsigned int barrel_endcap_fcal(const HWIdentifier & id) const;
 
   /** To get the type of the module connected to the channel:
       @return 1: PPM
@@ -138,7 +138,7 @@ class CaloTriggerTowerService : public AthAlgTool
       @return 3: JEM
       @return 999: error
   */
-  unsigned int module_type(const HWIdentifier & id);
+  unsigned int module_type(const HWIdentifier & id) const;
 
 
   //
@@ -155,7 +155,7 @@ class CaloTriggerTowerService : public AthAlgTool
      @warning the actual mapping is offline-offline, so this method is CPU expensive.
      @warning this method is valid only for LAr Id so far
   */
-  std::vector<HWIdentifier> createChannelIDvec(const HWIdentifier & id, int extTt) ;
+  std::vector<HWIdentifier> createChannelIDvec(const HWIdentifier & id, int extTt) const;
 
   /**
      return the TTOnlineID of the TT to which a LArOnlineID belongs   (online-online TT-cell mapping)
@@ -163,7 +163,7 @@ class CaloTriggerTowerService : public AthAlgTool
      @warning the actual mapping is offline-offline, so this method is CPU expensive.
      @warning this method is valid only for LAr Id so far
   */
-  HWIdentifier whichTTChannelID(const HWIdentifier & id);
+  HWIdentifier whichTTChannelID(const HWIdentifier & id) const;
 
   /**
      Return a vector of offline Identifiers (corresponding helpers =
@@ -171,7 +171,7 @@ class CaloTriggerTowerService : public AthAlgTool
      -> all layers together (Rem: equivalent to above extTt=0) <br>
      The call is formarded to the DB object LArTTCellMap
   */
-  std::vector<Identifier> createCellIDvecTT(const Identifier& id) ;
+  std::vector<Identifier> createCellIDvecTT(const Identifier& id) const;
 
   /**
      Return a vector of offline Identifiers (corresponding helpers =
@@ -179,24 +179,24 @@ class CaloTriggerTowerService : public AthAlgTool
      -> one single layer (Rem: equivalent to above extTt!=0) <br>
      The call is formarded to the DB object LArTTCellMap
   */
-  std::vector<Identifier> createCellIDvecLayer(const Identifier& id) ;
+  std::vector<Identifier> createCellIDvecLayer(const Identifier& id) const;
 
   /**
      return the offline id (CaloLVL1_ID) of the TT to which a cell id (CaloCell_ID) belongs <br>
      The call is formarded to the DB object LArTTCellMap
   */
-  Identifier whichTTID(const Identifier & id);
+  Identifier whichTTID(const Identifier & id) const;
 
   /**
      return true if the channel is in the lvl1 sums; <br>
      some channels mapped to TT are only in HLT (last HEC compartment and last cells of barrel PS)
   */
-  bool is_in_lvl1(const HWIdentifier & id) ;
+  bool is_in_lvl1(const HWIdentifier & id) const;
   /**
      return true if the cell is in the lvl1 sums; <br>
      some channels mapped to TT are only in HLT (last HEC compartment and last cells of barrel PS)
   */
-  bool is_in_lvl1(const Identifier & id) ;
+  bool is_in_lvl1(const Identifier & id) const;
 
 
  private:

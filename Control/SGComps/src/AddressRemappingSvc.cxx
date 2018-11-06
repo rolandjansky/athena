@@ -213,11 +213,13 @@ StatusCode AddressRemappingSvc::finalize() {
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type /*storeID*/,
+StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type storeID,
 	IAddressProvider::tadList& tads) {
 
   lock_t lock (m_mutex);
-  ATH_CHECK( renameTads (tads) );
+  if (storeID == StoreID::EVENT_STORE) {
+    ATH_CHECK( renameTads (tads) );
+  }
   
   if(m_skipBadRemappings) return StatusCode::SUCCESS;
    StatusCode status = m_proxyDict.retrieve();
@@ -236,11 +238,13 @@ StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type /*storeID*/,
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
+StatusCode AddressRemappingSvc::loadAddresses(StoreID::type storeID,
 	IAddressProvider::tadList& tads) {
   lock_t lock (m_mutex);
-  initDeletes();
-  ATH_CHECK( renameTads (tads) );
+  if (storeID == StoreID::EVENT_STORE) {
+    initDeletes();
+    ATH_CHECK( renameTads (tads) );
+  }
 
   if(!m_skipBadRemappings) return(StatusCode::SUCCESS);
 

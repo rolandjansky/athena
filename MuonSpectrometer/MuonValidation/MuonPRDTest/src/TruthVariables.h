@@ -17,8 +17,9 @@ class TruthVariables : public ValAlgVariables
   TruthVariables(StoreGateSvc* evtStore,
                      const MuonGM::MuonDetectorManager* detManager,
                      TTree* tree,
-                     std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "TruthVariables"),
+                     std::string containername,
+                     MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_Truth_nVertices(0),
     m_Truth_vertexX(0),
     m_Truth_vertexY(0),
@@ -41,10 +42,7 @@ class TruthVariables : public ValAlgVariables
 
   ~TruthVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete TruthVariables.");
-      std::terminate();
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -56,7 +54,7 @@ class TruthVariables : public ValAlgVariables
     ATH_MSG_ERROR("No Helper for TruthVariables.");
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   int m_Truth_nVertices;

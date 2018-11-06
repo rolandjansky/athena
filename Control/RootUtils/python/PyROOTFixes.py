@@ -99,4 +99,3 @@ def _pyroot_class_hook (cls):
     return
 
 
-ROOT.RootUtils.PyROOTTypePatch.initialize (ROOT.PyRootType)

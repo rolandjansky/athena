@@ -5,9 +5,9 @@
 #ifndef TRIGMISSINGETEVENT_TRIGMISSINGETCONTAINER_H 
 #define TRIGMISSINGETEVENT_TRIGMISSINGETCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigMissingETContainer : public DataVector<TrigMissingET> { }; 
 

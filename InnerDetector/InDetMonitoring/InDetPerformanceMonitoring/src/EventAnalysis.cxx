@@ -4,8 +4,23 @@
 
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
-#include <sstream>
+
+namespace{
+  template <class HistoArrayType>
+  void registerHistogramType(const HistoArrayType & h, const std::string &sampleName, const std::string & suffix){
+    unsigned int u = 1;
+    const std::string titleRoot{"/ESD/" + sampleName + suffix};
+    for ( auto & thisHisto:h ){
+      PerfMonServices::getHistogramService()->regHist( titleRoot + std::to_string(u), thisHisto.second );
+      ++u;
+    }
+  }
+}
 
 //=============================================================================
 // Constructors & Destructors
@@ -50,67 +65,13 @@ void EventAnalysis::BookHistograms()
 //=============================================================================
 void EventAnalysis::Register()
 {
-  // Go off and does whatever the hell Athena does to histograms.
-  Register_1DHistos();
-  Register_2DHistos();
+  // Register histograms in monitoring tool
+  registerHistogramType(m_x1DHistograms, m_xSampleName, "/1dhisto_");
+  registerHistogramType(m_x2DHistograms, m_xSampleName, "/2dhisto_");
 
-  Register_1DProfHistos();
-  Register_2DProfHistos();
+  registerHistogramType(m_x1DProfHistograms, m_xSampleName, "/1dprof_");
+  registerHistogramType(m_x2DProfHistograms, m_xSampleName, "/2dprof_");
 }
 
-void EventAnalysis::Register_1DHistos()
-{
-  // Iterate over all the 1D Histograms
-  unsigned int u = 1;
-  std::map<unsigned int, TH1F*>::iterator xIter =  m_x1DHistograms.begin();
-
-  while ( xIter != m_x1DHistograms.end() )
-  {
-    // Set up an appropriate string & cycle the u_int counter.
-    std::stringstream xTmp;  xTmp << u;  ++u;
-    PerfMonServices::getHistogramService()->regHist( "/ESD/" + m_xSampleName + "/1dhisto_" + xTmp.str(), xIter->second );
-    xIter++;
-  }
-}
-
-void EventAnalysis::Register_2DHistos()
-{
-  // Iterate over all the 2D Histograms
-  unsigned int u = 1;
-  std::map<unsigned int, TH2F*>::iterator xIter =  m_x2DHistograms.begin();
-
-  while ( xIter != m_x2DHistograms.end() )
-  {
-    std::stringstream xTmp;  xTmp << u;  ++u;
-    PerfMonServices::getHistogramService()->regHist( "/ESD/" + m_xSampleName + "/2dhisto_"+ xTmp.str(), xIter->second );
-    xIter++;
-  }
-}
-
-void EventAnalysis::Register_1DProfHistos()
-{
-  unsigned int u = 1;
-  std::map<unsigned int, TProfile*>::iterator xIter =  m_x1DProfHistograms.begin();
-
-  while ( xIter != m_x1DProfHistograms.end() )
-  {
-    std::stringstream xTmp;  xTmp << u;  ++u;
-    PerfMonServices::getHistogramService()->regHist( "/ESD/" + m_xSampleName + "/1dprof_"+ xTmp.str(), xIter->second );
-    xIter++;
-  }
-}
-
-void EventAnalysis::Register_2DProfHistos()
-{
-  unsigned int u = 1;
-  std::map<unsigned int, TProfile2D*>::iterator xIter =  m_x2DProfHistograms.begin();
-
-  while ( xIter != m_x2DProfHistograms.end() )
-  {
-    std::stringstream xTmp;  xTmp << u;  ++u;
-    PerfMonServices::getHistogramService()->regHist( "/ESD/" + m_xSampleName + "/2dprof_"+ xTmp.str(), xIter->second );
-    xIter++;
-  }
-}
 
 //=============================================================================

@@ -54,4 +54,7 @@ private:
   static std::unique_ptr< KitManager<T_KitInterface> > s_instance;
 };
 
+template <class T_KitInterface>
+std::unique_ptr< KitManager<T_KitInterface> > KitManager<T_KitInterface>::s_instance;
+
 #endif

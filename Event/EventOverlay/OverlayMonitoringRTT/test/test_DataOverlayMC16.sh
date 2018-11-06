@@ -37,7 +37,7 @@ Reco_tf.py \
 --outputAODFile testRTT.AOD.pool.root \
 --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' \
 --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' \
---preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;' \
+--preExec 'from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase");rec.doTrigger=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArThinnedDigits.set_Value_and_Lock(False)' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
 --postExec 'r2e:from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool;LArCellBuilderFromLArRawChannelTool.RawChannelsName="LArRawChannels_FromDigits"' \
 --imf False

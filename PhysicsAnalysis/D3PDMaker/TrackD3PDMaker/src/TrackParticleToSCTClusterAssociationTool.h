@@ -16,12 +16,14 @@
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include <vector>
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "Identifier/Identifier.h"
@@ -112,6 +114,9 @@ private:
 
   const AtlasDetectorID* m_idHelper;
   const SCT_ID* m_sctId;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   std::vector<const Trk::TrackStateOnSurface*> m_sctClusterForAssociation; 
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator m_clusItr;

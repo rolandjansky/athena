@@ -24,7 +24,6 @@ def createNtupleOutputStream(streamName, fileName, tupleName="physics", asAlg = 
     # Now do standard output stream
     writingTool1 = AthenaRootOutputStreamTool( streamName + "Tool" )
     writingTool1.TreeName = tupleName
-    #writingTool1.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
     writingTool1.OutputFile = fileName
     #writingTool1.
     cls = AthenaRootNtupleOutputStreamProtect

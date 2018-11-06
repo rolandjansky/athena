@@ -20,14 +20,17 @@
 #include <map>
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLinks_xk.h"
 
 class MsgStream          ;
 
@@ -160,8 +163,12 @@ namespace InDet{
       int                            m_nclusminb     ; // Min number clusters
       int                            m_nwclusmin     ; // Min number weighted clusters
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
-      std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundaryPIX;
-      std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundarySCT;
+      InDet::SiDetElementBoundaryLinks_xk m_boundaryPIX;
+      SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
+          "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};
+      // For P->T converter of SCT_Clusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey",
+          "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
       ///////////////////////////////////////////////////////////////////
       // Methods 

@@ -69,7 +69,7 @@ def createFastCaloSequence(rerun=False):
    fastCaloHypo.CaloClusters = clusterMaker.ClustersName
 #   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
    fastCaloHypo.HypoOutputDecisions = __prefix+"EgammaCaloDecisions"
-   fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
+   fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c, c ) for c in testChains ]
 
    for t in fastCaloHypo.HypoTools:
       t.OutputLevel = DEBUG
@@ -107,7 +107,7 @@ thePhotonHypo.Photons = thePhotonFex.PhotonsName
 
 thePhotonHypo.OutputLevel = VERBOSE
 
-thePhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromName( c ) for c in testChains ]
+thePhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromName( c, c ) for c in testChains ]
 
 for t in thePhotonHypo.HypoTools:
   t.OutputLevel = VERBOSE
@@ -150,7 +150,14 @@ summary.OutputTools = [ edmCreator, egammaViewsMerger ]
 
 summary.OutputLevel = DEBUG
 
-steps = seqAND("HLTSteps", [ step0, step1, step0r, summary ]  )
+step0filter = parOR("step0filter", [ findAlgorithm( egammaCaloStep, "filterL1RoIsAlg") ] )
+step1filter = parOR("step1filter", [ findAlgorithm(egammaIDStep, "filterCaloRoIsAlg") ] )
+step0rfilter = parOR("step0rfilter", [ findAlgorithm(egammaCaloStepRR, "Rerurn_filterL1RoIsAlg") ] )
+
+#steps = seqAND("HLTSteps", [ step0, step1, step0r, summary ]  )
+steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step0rfilter, step0r, summary ]  )
+
+
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()

@@ -23,6 +23,8 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h"
+
 
 // MET EDM
 #include "xAODMissingET/MissingETContainer.h"

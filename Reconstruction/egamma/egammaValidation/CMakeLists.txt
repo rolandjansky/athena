@@ -13,9 +13,13 @@ atlas_depends_on_subdirs( PRIVATE
 	Control/AthToolSupport/AsgTools
 	Event/xAOD/xAODEgamma
 	Event/xAOD/xAODEventInfo
+        Event/xAOD/xAODBase 
 	Event/xAOD/xAODTracking
+        Event/xAOD/xAODTruth
         PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
         PhysicsAnalysis/AnalysisCommon/PATCore
+	PhysicsAnalysis/MCTruthClassifier
+	PhysicsAnalysis/IsolationSelection
 	TestPolicy 
 	Tracking/TrkValidation/TrkValHistUtils ) 
 
@@ -25,7 +29,7 @@ atlas_add_component ( egammmaValidation
 	src/components/*.cxx 
 	INCLUDE_DIRS 
 	LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo PATCoreLib
-	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces )
+	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces xAODTruth xAODBase MCTruthClassifierLib)
 
 # Install JO files from the package:
 atlas_install_joboptions( share/*.py )

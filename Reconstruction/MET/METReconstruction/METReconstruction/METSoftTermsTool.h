@@ -23,6 +23,9 @@
 // METReconstruction includes
 #include "METReconstruction/METBuilderTool.h"
 
+//Framework includes
+#include "StoreGate/DataHandle.h"
+
 // Forward declaration
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -93,7 +96,10 @@ namespace met{
     bool m_cl_vetoNegE;
     bool m_cl_onlyNegE;
     // temporary, until a track-vertex association tool is available
-    std::string m_pv_inputkey;
+    //std::string m_pv_inputkey;
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_caloClusterKey;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trackParticleKey;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
   }; 

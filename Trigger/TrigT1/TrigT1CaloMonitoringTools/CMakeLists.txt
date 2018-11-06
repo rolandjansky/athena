@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
                           GaudiKernel
                           PRIVATE
-                          Control/DataModel
+                          Control/AthContainers
                           Control/SGTools
                           Event/EventInfo
                           Event/xAOD/xAODTrigL1Calo
@@ -31,12 +31,12 @@ atlas_add_library( TrigT1CaloMonitoringToolsLib
                    PUBLIC_HEADERS TrigT1CaloMonitoringTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools GaudiKernel AthenaMonitoringLib TrigT1CaloEventLib TrigT1CaloUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools EventInfo xAODTrigL1Calo LWHists TrigConfL1Data TrigT1Interfaces )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools EventInfo xAODTrigL1Calo LWHists TrigConfL1Data TrigT1Interfaces )
 
 atlas_add_component( TrigT1CaloMonitoringTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaMonitoringLib GaudiKernel DataModel SGTools EventInfo xAODTrigL1Calo LWHists TrigConfL1Data TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces TrigT1CaloMonitoringToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaMonitoringLib GaudiKernel AthContainers SGTools EventInfo xAODTrigL1Calo LWHists TrigConfL1Data TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces TrigT1CaloMonitoringToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

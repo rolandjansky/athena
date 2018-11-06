@@ -23,7 +23,6 @@ else()
   set( extra_deps_private
     Calorimeter/CaloEvent
     Control/AthenaKernel
-    Control/DataModel
     Control/StoreGate
     DetectorDescription/GeoPrimitives
     Event/FourMom
@@ -80,7 +79,7 @@ if( NOT XAOD_STANDALONE )
     Root/*.cxx
     src/components/*.cxx ${PanTauAlgsCintDict}
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps NavFourMom xAODPFlow xAODTau xAODParticleEvent GaudiKernel CaloEvent AthenaKernel DataModel StoreGateLib SGtests GeoPrimitives FourMom FourMomUtils xAODTracking Particle eflowEvent MVAUtils tauEvent tauRecToolsLib PathResolver VxVertex TrkVertexFitterInterfaces )
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps NavFourMom xAODPFlow xAODTau xAODParticleEvent GaudiKernel CaloEvent AthenaKernel StoreGateLib SGtests GeoPrimitives FourMom FourMomUtils xAODTracking Particle eflowEvent MVAUtils tauEvent tauRecToolsLib PathResolver VxVertex TrkVertexFitterInterfaces )
 else()
   atlas_add_library( PanTauAlgs
     PanTauAlgs/*.h Root/*.cxx ${PanTauAlgsCintDict}

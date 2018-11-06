@@ -4,7 +4,7 @@
 
 
 // Local includes
-#include "MMCandidateOfflineData.h"
+#include "TrigT1NSWSimTools/MMCandidateOfflineData.h"
 
 
 namespace NSWL1 {

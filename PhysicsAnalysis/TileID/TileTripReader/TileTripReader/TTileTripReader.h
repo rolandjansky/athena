@@ -20,8 +20,6 @@
 #ifndef ROOTCORE
 #include "PATCore/TSelectorToolBase.h"
 #include "PATCore/TAccept.h"
-#include "PATCore/TCalculatorToolBase.h"
-#include "PATCore/TResult.h"
 #endif /*ROOTCORE*/
 
 
@@ -41,8 +39,7 @@ namespace Root{
 
 class TTileTripReader
 #ifndef ROOTCORE
-        : public TSelectorToolBase,
-          public TCalculatorToolBase
+        : public TSelectorToolBase
 #endif /*ROOTCORE*/
 {
 public:
@@ -92,11 +89,9 @@ public:
      * @param dR Radius of the cone in (eta,phi) space
      * @param tileError the tileError value
      * @param tileFlags the tileFlags value
-     * @return constant TResult& containing the fraction of the area in eta phi space covered by tripped modules
-     * 
-     * Result is stored under "TripAreaFrac" in the returned TResult&
+     * @return fraction of the area in eta phi space covered by tripped modules
      */
-    const TResult& calculate(int run, int lbn, double eta, double phi, double dR, int tileError=0, int tileFlags=0);
+    float calculate(int run, int lbn, double eta, double phi, double dR, int tileError=0, int tileFlags=0);
 #endif /*ROOTCORE*/
     
     

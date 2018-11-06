@@ -10,21 +10,23 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SCTRawDataProviderTool.h"
+
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-// -------------------------------------------------------
 // Constructor
 
 SCTRawDataProviderTool::SCTRawDataProviderTool
 (const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
-    m_robIdSet()
+  m_robIDSet{},
+  m_decodeErrCount{0},
+  m_mutex{}
 {
 }
 
-// -------------------------------------------------------
 // Initialize
 
 StatusCode SCTRawDataProviderTool::initialize()
@@ -40,45 +42,53 @@ StatusCode SCTRawDataProviderTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// -------------------------------------------------------
 // Convert method
 
-StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
-                                           ISCT_RDO_Container& rdoIdc,
+StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
+                                           ISCT_RDO_Container& rdoIDCont,
                                            InDetBSErrContainer* errs,
-                                           SCT_ByteStreamFractionContainer* bsFracCont)
+                                           SCT_ByteStreamFractionContainer* bsFracCont) const
 {
-  if(vecRobs.empty()) return StatusCode::SUCCESS;
+  if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
   m_decodeErrCount = 0;
 
-  StatusCode sc{StatusCode::SUCCESS};
-
   // loop over the ROB fragments
-  for(const ROBFragment* rob_it : vecRobs) {
+
+  std::set<uint32_t> tmpROBIDSet;
+
+  for (const ROBFragment* robFrag : vecROBFrags) {
     // get the ID of this ROB/ROD
-    uint32_t robid{(rob_it)->rod_source_id()};
+    uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
-    if (!m_robIdSet.insert(robid).second) {
+    if (m_robIDSet.count(robid) or tmpROBIDSet.count(robid)) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
                     << std::hex<<robid << std::dec
-                    << " already decoded, skip"); 
-    } 
-    else {
-      sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
-      if (sc==StatusCode::FAILURE) {
-        if (m_decodeErrCount < 100) {
-          ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
-          m_decodeErrCount++;
-        } 
-        else if (100 == m_decodeErrCount) {
-          ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
-          m_decodeErrCount++;
+                    << " already decoded, skip");
+      continue;
+    }
+
+    // Insert the new ROBID to the set.
+    tmpROBIDSet.insert(robid);
+
+    sc = m_decoder->fillCollection(*robFrag, rdoIDCont, errs, bsFracCont);
+    if (sc==StatusCode::FAILURE) {
+      if (m_decodeErrCount <= 100) {
+        if (100 == m_decodeErrCount) {
+          ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.");
         }
+        else {
+          ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
+        }
+        m_decodeErrCount++;
       }
     }
   }
+
+  m_mutex.lock();
+  m_robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
+  m_mutex.unlock();
 
   if (sc==StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");
@@ -88,10 +98,11 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   return sc;
 }
 
-// -------------------------------------------------------
 // beginNewEvent method
 
-void SCTRawDataProviderTool::beginNewEvent() {
-   // reset list of known robIds
-   m_robIdSet.clear(); 
+void SCTRawDataProviderTool::beginNewEvent() const 
+{
+  // reset list of known robIDs
+  std::lock_guard<std::mutex> lock(m_mutex);
+  m_robIDSet.clear();
 }

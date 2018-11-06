@@ -1,19 +1,19 @@
-Wed Jul 18 18:24:33 CEST 2018
+Mon Oct 22 10:34:56 CDT 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5511 configurables from 52 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5377 configurables from 18 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r2)
-                                          running on lxplus052.cern.ch on Wed Jul 18 18:24:41 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
+                                          running on atlaslogin01.hep.anl.gov on Mon Oct 22 10:35:06 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,10 +21,10 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2428 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2946 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 916 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 836 CLIDRegistry entries for module ALL
 ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
 MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
@@ -36,9 +36,9 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-07-17T2058/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus052.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-19T2309/Athena/22.0.1/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host atlaslogin01.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -46,6 +46,10 @@ PoolSvc             DEBUG POOL ReadCatalog is file:Catalog.xml
 PoolSvc              INFO POOL WriteCatalog is file:Catalog1.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc.IOV...  DEBUG Property update for OutputLevel : new value = 2
+MetaDataSvc.IOV...  DEBUG in initialize()
+MetaDataSvc.IOV...  DEBUG initialize(): need to modify folders 
+MetaDataSvc          INFO Found MetaDataTools = PrivateToolHandleArray(['IOVDbMetaDataTool'])
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector       DEBUG Service base class initialized successfully
@@ -118,6 +122,7 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
+ClassIDSvc           INFO  getRegistryEntries: read 2343 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
@@ -125,6 +130,12 @@ MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
+MetaDataSvc.IOV...  DEBUG handle() FirstInputFile for FID:????
+MetaDataSvc.IOV...  DEBUG begin checkOverrideRunNumber
+MetaDataSvc.IOV...  DEBUG checkOverrideRunNumber: check if tag is set in jobOpts
+MetaDataSvc.IOV...  DEBUG resetRunNumber: unable to get OverrideRunNumberFromInput property from EventSelector 
+MetaDataSvc.IOV...  DEBUG processInputFileMetaData: file name FID:????
+MetaDataSvc.IOV...  DEBUG Could not retrieve IOVMetaDataContainer objects from InputMetaDataStore - cannot process input file meta data
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
 ReadData            DEBUG input handles: 2
@@ -143,7 +154,7 @@ WriteTag             INFO in initialize()
 MagicWriteTag        INFO in initialize()
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 2045 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
@@ -170,7 +181,7 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (At
 Stream1             DEBUG Data Deps for Stream1
 RegStream1          DEBUG Property update for OutputLevel : new value = 2
 RegStream1.RegS...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 336 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 337 CLIDRegistry entries for module ALL
 RegStream1          DEBUG In initialize 
 RegStream1          DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
@@ -179,8 +190,6 @@ RegStream1          DEBUG In initialize
 RegStream1          DEBUG Found  'StoreName':StoreGateSvc store.
 RegStream1.TagTool  DEBUG Property update for OutputLevel : new value = 2
 RegStream1          DEBUG  Tool initialized
-RegStream1          DEBUG Retrieved IncidentSvc
-RegStream1          DEBUG Added MetaDataStop listener
 RegStream1          DEBUG  Not class requested by Tool, skipping (40774349,"MagicTag") 
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
 RegStream1          DEBUG End initialize 
@@ -193,10 +202,17 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 ApplicationMgr       INFO Application Manager Started successfully
+RootDatabase.se...  DEBUG Request tree cache 
+RootDatabase.se...  DEBUG File name SimplePoolFile1.root
+RootDatabase.se...  DEBUG Got tree CollectionTree read entry -1
+RootDatabase.se...  DEBUG Using Tree cache. Size: -1 Nevents to learn with: -1
+AthenaPoolCnvSvc    DEBUG setAttribute TREE_CACHE to -1 for db: SimplePoolFile1.root and cont: CollectionTree
 MetaDataSvc         DEBUG handle() BeginInputFile for SimplePoolFile1.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name SimplePoolFile1.root
 MetaDataSvc         DEBUG Loaded input meta data store proxies
-MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
+MetaDataSvc         DEBUG  calling beginInputFile for MetaDataSvc.IOVDbMetaDataTool
+MetaDataSvc.IOV...  DEBUG handle() BeginInputFile for SimplePoolFile1.root
+MetaDataSvc.IOV...  DEBUG The first BeginInputFile incidence is fired along with the FirstInputFile incidence so we skip the processing of the Input File MetaData 
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
@@ -222,7 +238,6 @@ CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-ClassIDSvc           INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
 ReadData            DEBUG in execute()
@@ -256,7 +271,6 @@ ReadData             INFO Hit x = 20.4945 y = 63.5816 z = 48.1358 detector = Dum
 ReadData             INFO Hit x = 23.7045 y = 57.9027 z = 46.3159 detector = DummyHitDetector
 ReadData             INFO Hit x = 26.9145 y = 52.2238 z = 44.9265 detector = DummyHitDetector
 ReadData             INFO Hit x = 30.1245 y = 46.5449 z = 43.831 detector = DummyHitDetector
-ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
 ReWriteData         DEBUG in execute()
 ReWriteData          INFO Hit x = 1.2345 y = 97.655 z = 226.672 detector = DummyHitDetector
 ReWriteData          INFO Hit x = 4.4445 y = 91.9761 z = 94.7318 detector = DummyHitDetector
@@ -315,6 +329,7 @@ SimplePoolFile3...  DEBUG --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 ##Params            DEBUG No objects passing selection criteria... Container has 0 Entries in total.
 AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolFile3.root and cont: TTree=POOLContainerForm(DataHeaderForm)
+ClassIDSvc           INFO  getRegistryEntries: read 25 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
@@ -1916,11 +1931,13 @@ RegStream1          DEBUG Setting tagKey to MagicTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
+EventSelector        INFO Disconnecting input sourceID: ????
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 MetaDataSvc         DEBUG handle() LastInputFile for end
 AthenaEventLoopMgr   INFO No more events in event selection 
-Stream1             DEBUG handle() incident type: MetaDataStop
+Stream1              INFO AthenaOutputStream Stream1 ::stop()
+MetaDataSvc         DEBUG  calling metaDataStop for MetaDataSvc.IOVDbMetaDataTool
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
 Stream1             DEBUG            Key:Stream1
 Stream1             DEBUG  Added object 167728019,"Stream1"
@@ -1953,10 +1970,7 @@ MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_
 SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 Stream1              INFO Records written: 21
-Stream1             DEBUG Leaving handle
-RegStream1          DEBUG handle() incident type: MetaDataStop
 RegStream1.TagTool   INFO Collection Events output: 20
-MetaDataSvc         DEBUG  calling metaDataStop for ToolSvc.IOVDbMetaDataTool
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
@@ -1979,10 +1993,10 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
 cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 62
 cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 66
+fRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.323(+- 2.52)/    0/   20 [ms] #= 62
 cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.123(+- 1.56)/    0/   20 [ms] #=163
-fRep_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.484(+-  2.8)/    0/   20 [ms] #= 62
-cObj_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.476(+- 2.13)/    0/   10 [ms] #= 63
-ChronoStatSvc        INFO Time User   : Tot= 0.89  [s]                                             #=  1
+cObj_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.635(+- 2.44)/    0/   10 [ms] #= 63
+ChronoStatSvc        INFO Time User   : Tot= 0.83  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

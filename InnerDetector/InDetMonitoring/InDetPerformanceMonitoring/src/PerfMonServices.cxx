@@ -3,16 +3,18 @@
 */
 
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-// NULL the static pointers
-ISvcLocator*    PerfMonServices::s_pxSvcLocator   = NULL;
-ITHistSvc*      PerfMonServices::s_pxTHistSvc     = NULL;
-IMessageSvc*    PerfMonServices::s_pxMessageSvc   = NULL;
-StoreGateSvc*   PerfMonServices::s_pxStoreGateSvc = NULL;
-INTupleSvc*     PerfMonServices::s_pxNtupleSvc    = NULL;
-IAtRndmGenSvc*  PerfMonServices::s_pxAtRndmGenSvc = NULL;
+// nullptr the static pointers
+ISvcLocator*    PerfMonServices::s_pxSvcLocator   = nullptr;
+ITHistSvc*      PerfMonServices::s_pxTHistSvc     = nullptr;
+IMessageSvc*    PerfMonServices::s_pxMessageSvc   = nullptr;
+StoreGateSvc*   PerfMonServices::s_pxStoreGateSvc = nullptr;
+INTupleSvc*     PerfMonServices::s_pxNtupleSvc    = nullptr;
+IAtRndmGenSvc*  PerfMonServices::s_pxAtRndmGenSvc = nullptr;
 
 // Names of the various containers.
 const std::string PerfMonServices::s_sContainerNames[NUM_CONTAINERS] = { "MuidMuonCollection",
@@ -61,14 +63,6 @@ StatusCode PerfMonServices::InitialiseServices( ISvcLocator* pxSvcLocator )
   bRegisterSuccess &= InitialiseHistograms();
   bRegisterSuccess &= InitialiseRandom();
 
-  //MsgStream log( s_pxMessageSvc, "Services" );
-  if ( !bRegisterSuccess )
-  {
-    //log << MSG::WARNING
-    //<< "Problem starting at least one of the Athena services : this may be cause problems downstream"
-    //<< endmsg;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -80,50 +74,37 @@ StatusCode PerfMonServices::InitialiseServices( ISvcLocator* pxSvcLocator )
 bool PerfMonServices::InitialiseMessaging()
 {
   StatusCode xStatus = s_pxSvcLocator->service( "MessageSvc", s_pxMessageSvc );
-  return CheckServiceInit( xStatus, !s_pxMessageSvc /* , "messaging" */ );
+  return CheckServiceInit( xStatus, !s_pxMessageSvc );
 }
 
 bool PerfMonServices::InitialiseStoreGate()
 {
   StatusCode xStatus = s_pxSvcLocator->service("StoreGateSvc", s_pxStoreGateSvc );
-  return CheckServiceInit( xStatus, !s_pxStoreGateSvc /* , "StoreGateSvc" */ );
+  return CheckServiceInit( xStatus, !s_pxStoreGateSvc );
 }
 
 bool PerfMonServices::InitialiseRootTuple()
 {
   StatusCode xStatus = s_pxSvcLocator->service( "NTupleSvc", s_pxNtupleSvc );
-  return CheckServiceInit( xStatus, !s_pxNtupleSvc /* , "NTuple" */ );
+  return CheckServiceInit( xStatus, !s_pxNtupleSvc );
 }
 
 bool PerfMonServices::InitialiseHistograms()
 {
   StatusCode xStatus = s_pxSvcLocator->service("THistSvc", s_pxTHistSvc);
-  return CheckServiceInit( xStatus, !s_pxTHistSvc /* , "Histogram" */ );
+  return CheckServiceInit( xStatus, !s_pxTHistSvc );
 }
 
 bool PerfMonServices::InitialiseRandom()
 {
   StatusCode xStatus = s_pxSvcLocator->service( "AtRndmGenSvc", s_pxAtRndmGenSvc, true);
-  return CheckServiceInit( xStatus, !s_pxAtRndmGenSvc /* , "random number" */ );
+  return CheckServiceInit( xStatus, !s_pxAtRndmGenSvc);
 }
 
 // Small status check utility function for the initialisers above
-bool PerfMonServices::CheckServiceInit( const StatusCode& xSC, bool bNullPointer /*, const std::string& sType */ )
+bool PerfMonServices::CheckServiceInit( const StatusCode& xSC, bool bNullPointer )
 {
-  //MsgStream log( s_pxMessageSvc, "Services" );
-  if ( !xSC.isSuccess() )
-  {
-    //log << MSG::WARNING
-    //<< "Problem starting " << sType << " service : Error Code."
-    //<< endmsg;
-  }
-  if ( bNullPointer )
-  {
-    //log << MSG::WARNING
-    //<< "Problem starting " << sType << " service : NULL pointer."
-    //<< endmsg;
-  }
-  return ( xSC.isSuccess() && !bNullPointer ) ? true : false;
+  return ( xSC.isSuccess() and not bNullPointer );
 }
 
 //===========================================================================

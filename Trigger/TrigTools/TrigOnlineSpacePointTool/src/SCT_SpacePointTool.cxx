@@ -1,14 +1,20 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigInDetEvent/TrigSiSpacePointCollection.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
+
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "Identifier/IdentifierHash.h" 
-#include <string>
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
+#include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include <string>
 
 static const InterfaceID IID_ISCT_SpacePointTool
             ("SCT_SpacePointTool", 136, 0);
@@ -47,25 +53,21 @@ StatusCode SCT_SpacePointTool::initialize()  {
 
   ATH_MSG_DEBUG( name() << " in initialize" );
   
-  StatusCode sc=detStore()->retrieve(m_mgr, "SCT");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( name() << "failed to get SCT Manager" );
-    return StatusCode::FAILURE;
-  }
-
   // Get SCT  helpers                                                                                                                         
   if (detStore()->retrieve(m_id_sct, "SCT_ID").isFailure()) { 
      ATH_MSG_FATAL( "Could not get SCT ID helper" ); 
      return StatusCode::FAILURE; 
   }  
 
-  sc=m_numberingTool.retrieve();
+  StatusCode sc=m_numberingTool.retrieve();
   if(sc.isFailure()) {
     ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool);
     return sc;
   }
+
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
-  m_builder = new SCT_GCBuilder(m_mgr,m_id_sct,m_useOfflineAlgorithm,
+  m_builder = new SCT_GCBuilder(m_id_sct,m_useOfflineAlgorithm,
 				m_numberingTool->offsetBarrelSCT(),
 				m_numberingTool->offsetEndcapSCT());
 
@@ -134,13 +136,20 @@ StatusCode SCT_SpacePointTool::finalize() {
 StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterCollData,std::vector<int>& listOfIds) 
 { 
 
-  StatusCode sc;
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
 
   std::map <Identifier,  PhiUVPair> phi_uv_table;
   std::map <Identifier,  PhiUVPair>::iterator iter_phiUV;
 
   int nSP=0;listOfIds.clear();
 
+  StatusCode sc;
   if(!evtStore()->contains<TrigSiSpacePointContainer>(m_spacepointContainerName))
     {
       m_spacepointContainer->cleanup();
@@ -183,6 +192,7 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
   for (; iter_coll != clusterCollData.end(); iter_coll++) {
 
     Identifier wafer_id = (*iter_coll)->identify();
+    IdentifierHash wafer_hash = (*iter_coll)->identifyHash();
     Identifier module_id =  m_id_sct->wafer_id(m_id_sct->barrel_ec(wafer_id),
 					       m_id_sct->layer_disk(wafer_id),
 					       m_id_sct->phi_module(wafer_id),
@@ -191,7 +201,7 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
     bool phi_wafer_found = false;
 
     // Find out if it is a phi wafer   
-    const InDetDD::SiDetectorElement* element=m_mgr->getDetectorElement(wafer_id);
+    const InDetDD::SiDetectorElement* element=elements->getDetectorElement(wafer_hash);
     if(!element->isStereo()) phi_wafer_found = true;
 
     /*
@@ -294,7 +304,7 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
     if ( ((*iter_phiUV).second).uvWafer() == 0 ) 
       {
 	if (m_unassociatedPhi) 
-	  m_builder->formSpacePoints( *(((*iter_phiUV).second).phiWafer()), newSpacePointData ); 
+	  m_builder->formSpacePoints( *(((*iter_phiUV).second).phiWafer()), elements, newSpacePointData );
       } 
     else 
       {
@@ -306,7 +316,7 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
 	*/
 	m_builder->formSpacePoints( *(((*iter_phiUV).second).phiWafer()), 
 				    *(((*iter_phiUV).second).uvWafer()),
-				    m_unassociatedPhi, newSpacePointData);  
+				    m_unassociatedPhi, elements, newSpacePointData);
 	if ( m_timers ) m_timer[0]->pause();
       } 
 

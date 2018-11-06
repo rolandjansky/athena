@@ -6,9 +6,7 @@
 /// Code for the converters
 ///
 
-#define private public
 #include "JetTagInfo/TrackCountingInfo.h"
-#undef private
 #include "JetTagInfoTPCnv/TrackCountingInfoCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -21,11 +19,11 @@ namespace Analysis {
 					    MsgStream & msg) {
     pb->m_baseTagInfo = baseToPersistent(&m_baseTagCnv, pa, msg);
 
-    pb->m_ntrk          = pa->m_ntrk;
-    pb->m_d0sig_2nd     = pa->m_d0sig_2nd;
-    pb->m_d0sig_abs_2nd = pa->m_d0sig_abs_2nd;
-    pb->m_d0sig_3rd     = pa->m_d0sig_3rd;
-    pb->m_d0sig_abs_3rd = pa->m_d0sig_abs_3rd;
+    pb->m_ntrk          = pa->nTracks();
+    pb->m_d0sig_2nd     = pa->d0sig_2nd();
+    pb->m_d0sig_abs_2nd = pa->d0sig_abs_2nd();
+    pb->m_d0sig_3rd     = pa->d0sig_3rd();
+    pb->m_d0sig_abs_3rd = pa->d0sig_abs_3rd();
   }
 
   void TrackCountingInfoCnv_p1::persToTrans(const TrackCountingInfo_p1* pa, 
@@ -33,11 +31,11 @@ namespace Analysis {
 					    MsgStream & msg) {
     fillTransFromPStore (&m_baseTagCnv, pa->m_baseTagInfo, pb, msg);
 
-    pb->m_ntrk          = pa->m_ntrk;
-    pb->m_d0sig_2nd     = pa->m_d0sig_2nd;
-    pb->m_d0sig_abs_2nd = pa->m_d0sig_abs_2nd;
-    pb->m_d0sig_3rd     = pa->m_d0sig_3rd;
-    pb->m_d0sig_abs_3rd = pa->m_d0sig_abs_3rd;
+    pb->setnTracks       (pa->m_ntrk);
+    pb->setd0sig_2nd     (pa->m_d0sig_2nd);
+    pb->setd0sig_abs_2nd (pa->m_d0sig_abs_2nd);
+    pb->setd0sig_3rd     (pa->m_d0sig_3rd);
+    pb->setd0sig_abs_3rd (pa->m_d0sig_abs_3rd);
     
   }
 }

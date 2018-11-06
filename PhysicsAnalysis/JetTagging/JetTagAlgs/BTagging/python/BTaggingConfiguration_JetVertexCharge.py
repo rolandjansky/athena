@@ -9,13 +9,11 @@ metaJetVertexCharge = { 'IsATagger'           : True,
                        'DependsOn'            : ['AtlasExtrapolator',
                                                  'BTagTrackToVertexTool',   #LC FIXME  check if it works  
                                                  'NewJetFitterVxFinder',
-                                                 'BTagCalibrationBrokerTool',
                                                  'MuonCorrectionsTool',
                                                  'MuonSelectorTool',
                                                  ],
                         'CalibrationTaggers'  : ['JetVertexCharge',], 
-                        'PassByPointer'       : {'calibrationTool'    : 'BTagCalibrationBrokerTool',
-                                                 'muonCorrectionTool' : 'MuonCorrectionsTool' ,
+                        'PassByPointer'       : {'muonCorrectionTool' : 'MuonCorrectionsTool' ,
                                                  'muonSelectorTool'   : 'MuonSelectorTool' },
                         'ToolCollection'      : 'JetVertexCharge' }
 

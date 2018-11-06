@@ -18,6 +18,7 @@
 #include "AsgTools/AsgTool.h"
 
 // CaloClusterMatching includes
+#include "CaloClusterMatching/TopoClusterMap.h"
 #include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
 // xAOD includes
@@ -54,43 +55,45 @@ namespace ClusterMatching {
     // Const methods: 
     ///////////////////////////////////////////////////////////////////
 
-    StatusCode fillClusterMap() const;
+    StatusCode fillClusterMap(const EventContext& ctx, TopoClusterMap& tcmap) const override final;
 
     // return shared fraction of clustered cell energy
     float getClusterSharedEfrac(const xAOD::CaloCluster& refCluster,
-				const xAOD::CaloCluster& testCluster) const;
+				const xAOD::CaloCluster& testCluster) const override final;
 
     // return true if clusters share a given fraction of their cell energy
     bool clustersAreMatched(const xAOD::CaloCluster& refCluster,
-			    const xAOD::CaloCluster& testCluster) const;
+			    const xAOD::CaloCluster& testCluster) const override final;
 
     // fill a list of clusters from the testClusters container that match the reference cluster
     // match criteria determined by calling clustersAreMatched
     // return true if matchedClusters list is non-empty.
     bool getMatchedClusters(const xAOD::CaloCluster& refCluster,
 			    const std::vector<const xAOD::CaloCluster*>& testClusters,
-			    std::vector<const xAOD::CaloCluster*>& matchedClusters) const;
+			    std::vector<const xAOD::CaloCluster*>& matchedClusters) const override final;
 
     // fill a list of clusters from the configured cluster container that match the reference cluster
     // match criteria determined by calling clustersAreMatched
     // return true if matchedClusters list is non-empty
     bool getMatchedClusters(const xAOD::CaloCluster& refCluster,
 			    std::vector<const xAOD::CaloCluster*>& matchedClusters,
-			    bool useLeadingCellEtaPhi) const;
+			    const TopoClusterMap& tcmap,
+			    bool useLeadingCellEtaPhi) const override final;
 
     // fill a list of clusters from the testClusters container that match the reference cluster
     // match criteria determined by calling clustersAreMatched
     // return true if matchedClusters list is non-empty.
     bool getMatchedClusters(const xAOD::CaloCluster& refCluster,
 			    const std::vector<const xAOD::CaloCluster*>& testClusters,
-			    std::vector<std::pair<const xAOD::CaloCluster*,float> >& matchedClusters) const;
+			    std::vector<std::pair<const xAOD::CaloCluster*,float> >& matchedClusters) const override final;
 
     // fill a list of clusters from the configured cluster container that match the reference cluster
     // match criteria determined by calling clustersAreMatched
     // return true if matchedClusters list is non-empty
     bool getMatchedClusters(const xAOD::CaloCluster& refCluster,
 			    std::vector<std::pair<const xAOD::CaloCluster*, float> >& matchedClusters,
-			    bool useLeadingCellEtaPhi) const;
+			    const TopoClusterMap& tcmap,
+			    bool useLeadingCellEtaPhi) const override final;
 
     // set ElementLinks to clusters from the configured cluster container that match the reference cluster
     // works via getMatchedClusters
@@ -98,15 +101,16 @@ namespace ClusterMatching {
     StatusCode linkMatchedClusters(const xAOD::CaloCluster& refCluster,
 				   const std::vector<const xAOD::CaloCluster*>& testClusters,
 				   bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
-						   const std::pair<const xAOD::CaloCluster*,float>& pair2)) const;
+						   const std::pair<const xAOD::CaloCluster*,float>& pair2)) const override final;
     
     // set ElementLinks to clusters from the configured cluster container that match the reference cluster
     // works via getMatchedClusters
     // return true if matchedClusters list is non-empty
     StatusCode linkMatchedClusters(const xAOD::CaloCluster& refCluster,
+				   const TopoClusterMap& tcmap,
 				   bool useLeadingCellEtaPhi,
 				   bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
-						   const std::pair<const xAOD::CaloCluster*,float>& pair2)) const;
+						   const std::pair<const xAOD::CaloCluster*,float>& pair2)) const override final;
 
     /////////////////////////////////////////////////////////////////// 
     // Non-const methods: 
@@ -119,8 +123,7 @@ namespace ClusterMatching {
 
     bool m_reqPosE;
     float m_minSharedEfrac;
-    std::string m_clustersIn;
-    std::string m_mapName;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersIn{this,"InputClusterCollection","CaloCalTopoClusters","The CaloCluster collection to match"};
     std::string m_elementLinkName;
 
     SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::CaloClusterContainer> > > m_elementLinkDec;

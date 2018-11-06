@@ -85,7 +85,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
     // create new decision
-    auto d = newDecisionIn( decisions.get() );
+    auto d = newDecisionIn( decisions.get(), name() );
 
 
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );

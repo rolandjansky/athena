@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*- 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARROD_LARRAWCHANNELBUILDERALG_H
@@ -39,7 +39,7 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
   SG::ReadHandleKey<LArDigitContainer> m_digitKey{this, "LArDigitKey","FREE",
       "SG Key of LArDigitContaiiner"};
   //Event output:
-  SG::WriteHandleKey<LArRawChannelContainer> m_rawChannelKey{this,"LArRawChannelKey","LArRawChanels",
+  SG::WriteHandleKey<LArRawChannelContainer> m_rawChannelKey{this,"LArRawChannelKey","LArRawChannels",
       "SG key of the LArRawChannelContainer"};
 
   //Conditions input:
@@ -52,9 +52,11 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   //Other jobOptions:
-  Gaudi::Property<float> m_eCutForQ{this,"ECutForQ",250.0,"Q will be computed only for channels with E above this value"};
+  Gaudi::Property<float> m_eCutFortQ{this,"ECutFortQ",256.0,"Time and Quality will be computed only for channels with E above this value"};
   Gaudi::Property<bool> m_useShapeDer{this,"useShapeDer",true,"Use shape derivative in Q-factor computation"};
 
+  //The following matters only in the MC case, when we have a 32 sample shapes
+  Gaudi::Property<int> m_firstSample{this,"firstSample",0,"first of the 32 sampels of the MC shape to be used"};
 
   //Identifier helper
   const LArOnlineID* m_onlineId;

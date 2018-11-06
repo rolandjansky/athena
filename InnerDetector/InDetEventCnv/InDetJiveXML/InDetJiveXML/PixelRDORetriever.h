@@ -5,6 +5,7 @@
 #ifndef JIVEXML_PIXELRDORETRIEVER_H
 #define JIVEXML_PIXELRDORETRIEVER_H
 
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
@@ -40,7 +41,7 @@ namespace JiveXML {
       virtual std::string dataTypeName() const { return m_typeName; };
 
       /// Only retrieve geo tool in initialize
-      virtual StatusCode initialize() { return m_geo.retrieve(); };
+      virtual StatusCode initialize();
     
     private:
       
@@ -49,6 +50,9 @@ namespace JiveXML {
 
       /// A tool handle to the geo model tool
       const ToolHandle<IInDetGeoModelTool> m_geo;
+
+      /// A tool handle to the SiLorentzAngleTool
+      ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
       /// The StoreGate key for the PixelRDO container
       std::string m_PixelRDOContainerName;

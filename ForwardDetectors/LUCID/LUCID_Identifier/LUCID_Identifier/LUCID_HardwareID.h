@@ -7,7 +7,7 @@
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/HWIdentifier.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // based on the Tile calo identifier class
 

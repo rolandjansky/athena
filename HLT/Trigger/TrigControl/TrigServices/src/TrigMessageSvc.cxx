@@ -9,7 +9,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Message.h"
-#include "GaudiKernel/xtoa.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

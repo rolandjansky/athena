@@ -7,6 +7,7 @@ atlas_subdir( SCT_ConditionsData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/AthenaBaseComps
                           Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier )

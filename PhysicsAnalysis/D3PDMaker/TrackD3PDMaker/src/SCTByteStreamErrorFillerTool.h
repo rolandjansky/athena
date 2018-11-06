@@ -7,10 +7,9 @@
  
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -59,7 +58,7 @@ public:
 
    const SCT_ID*       m_sctid;
    ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-   ServiceHandle<ISCT_CablingSvc> m_cabling;
+   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
 
    int *m_totalNumErrors;

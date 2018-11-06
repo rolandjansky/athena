@@ -52,12 +52,15 @@ public:
     virtual LifetimeInfo* clone() const;
 
     /** The signed 2D impact parameters. TODO: Add 3D impact parameters. */
-    FloatVec signedIP() const;      //!< return signed Impact Parameters
-    FloatVec significance() const;  //!< return significance (= signedIP/sigD0)
-    void setIP(FloatVec ipVec);     //!< set signed impact parameter
-    void setSignificance(FloatVec ipVec); //!< set significance
+    const FloatVec& signedIP() const;      //!< return signed Impact Parameters
+    const FloatVec& significance() const;  //!< return significance (= signedIP/sigD0)
+    void setIP(const FloatVec& ipVec);     //!< set signed impact parameter
+    void setIP(FloatVec&& ipVec);     //!< set signed impact parameter
+    void setSignificance(const FloatVec& ipVec); //!< set significance
+    void setSignificance(FloatVec&& ipVec); //!< set significance
 
    void setTrackProb(const FloatVec& vec); //!< set Track probability (not ACTIVE)
+   void setTrackProb(FloatVec&& vec); //!< set Track probability (not ACTIVE)
    void setNTrackProb(double nTrackProb);  //!< set nTrack probability (nor ACTIVE)
 
    const FloatVec& vectorTrackProb(void) const; //!< return vector of Track probabilities (not ACTIVE)
@@ -72,27 +75,41 @@ private:
 }; // End class
 
 
-inline FloatVec LifetimeInfo::signedIP() const
+inline const FloatVec& LifetimeInfo::signedIP() const
 {
     return m_trackSIP;
 }
-inline FloatVec LifetimeInfo::significance() const
+inline const FloatVec& LifetimeInfo::significance() const
 {
     return m_trackSignificance;
 }
-inline void LifetimeInfo::setIP(FloatVec ipVec)
+inline void LifetimeInfo::setIP(const FloatVec& ipVec)
 {
     m_trackSIP=ipVec;
     return;
 }
-inline void LifetimeInfo::setSignificance(FloatVec ipVec)
+inline void LifetimeInfo::setIP(FloatVec&& ipVec)
+{
+  m_trackSIP=std::move(ipVec);
+    return;
+}
+inline void LifetimeInfo::setSignificance(const FloatVec& ipVec)
 {
     m_trackSignificance=ipVec;
+    return;
+}
+inline void LifetimeInfo::setSignificance(FloatVec&& ipVec)
+{
+    m_trackSignificance=std::move(ipVec);
     return;
 }
 inline void LifetimeInfo::setTrackProb(const FloatVec& vec)
 {
     m_vectorOfTrackProb=vec;
+}
+inline void LifetimeInfo::setTrackProb(FloatVec&& vec)
+{
+  m_vectorOfTrackProb=std::move(vec);
 }
 inline void LifetimeInfo::setNTrackProb(double nTrackProb)
 {

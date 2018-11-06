@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define SLOW_NEWDATAOBJECTS 1
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -14,6 +13,9 @@
 #include <fstream>
 #include <iomanip>
 
+#include "AthContainers/AuxVectorBase.h"
+#include "AthContainersInterfaces/IAuxStore.h"
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
@@ -70,7 +72,6 @@ using SG::TransientAddress;
 ///////////////////////////////////////////////////////////////////////////
 // Remapping implementation.
 
-thread_local DataObjIDColl s_newObjs;
 
 namespace SG {
 
@@ -533,6 +534,7 @@ StoreID::type SGImplSvc::storeID() const
   return store()->storeID();
 }
 
+
 void
 SGImplSvc::keys(const CLID& id, std::vector<std::string>& vkeys, 
                 bool includeAlias, bool onlyValid) 
@@ -542,10 +544,43 @@ SGImplSvc::keys(const CLID& id, std::vector<std::string>& vkeys,
   return store()->keys(id, vkeys, includeAlias, onlyValid);
 } 
 
+
+// DEPRECATED
+std::vector<std::string> 
+SGImplSvc::keys(const CLID id, bool allKeys) {
+  std::vector<std::string> vkeys;
+  this->keys(id, vkeys, allKeys);
+  return vkeys;
+}
+
+
 bool SGImplSvc::isSymLinked(const CLID& linkID, DataProxy* dp)   
 {        
   return (0 != dp) ? dp->transientID(linkID) : false;        
 }
+
+
+StatusCode 
+SGImplSvc::regFcn( const CallBackID c1,
+                   const CallBackID c2,
+                   const IOVSvcCallBackFcn& fcn,
+                   bool trigger)
+{
+  lock_t lock (m_mutex);
+  return ( getIIOVSvc()->regFcn(c1,c2,fcn,trigger) );
+}
+
+
+StatusCode 
+SGImplSvc::regFcn( const std::string& toolName,
+                   const CallBackID c2,
+                   const IOVSvcCallBackFcn& fcn,
+                   bool trigger)
+{
+  lock_t lock (m_mutex);
+  return ( getIIOVSvc()->regFcn(toolName,c2,fcn,trigger) );
+}
+
 
 //////////////////////////////////////////////////////////////////
 // Dump Contents in store:
@@ -604,6 +639,31 @@ SGImplSvc::store() const
 }
 
  
+//////////////////////////////////////////////////////////////////
+// Make a soft link to the object with key
+//////////////////////////////////////////////////////////////////
+StatusCode SGImplSvc::symLink(const void* pObject, CLID linkID)
+{
+  lock_t lock (m_mutex);
+  SG::DataProxy* dp(proxy(pObject));
+
+  // if symLink already exists, just return success      
+  return isSymLinked(linkID,dp) ?
+    StatusCode::SUCCESS :
+    addSymLink(linkID,dp);
+}
+
+StatusCode SGImplSvc::symLink(const CLID id, const std::string& key, const CLID linkID)
+{
+  lock_t lock (m_mutex);
+  SG::DataProxy* dp(proxy(id, key, false));
+  // if symLink already exists, just return success      
+  return isSymLinked(linkID,dp) ?
+    StatusCode::SUCCESS :
+    addSymLink(linkID,dp);
+}
+
+
 StatusCode
 SGImplSvc::addSymLink(const CLID& linkid, DataProxy* dp)
 { 
@@ -621,12 +681,65 @@ SGImplSvc::addSymLink(const CLID& linkid, DataProxy* dp)
     if (baseptr)
       this->t2pRegister (baseptr, dp).ignore();
   }
-
-  addedNewTransObject (linkid, dp->name());
   return sc;
 }
 
  
+StatusCode SGImplSvc::setAlias(const void* pObject, const std::string& aliasKey)
+{
+  lock_t lock (m_mutex);
+
+  SG::DataProxy* dp(0);
+  dp = proxy(pObject);
+  if (0 == dp) {
+    error() << "setAlias: problem setting alias "
+          << aliasKey << '\n'
+          << "DataObject does not exist, record before setting alias."
+          << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  StatusCode sc = addAlias(aliasKey, dp);
+  if (sc.isFailure()) {
+    error() << "setAlias: problem setting alias " 
+          << aliasKey << '\n'
+          << "DataObject does not exist, record before setting alias."
+          << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode SGImplSvc::setAlias(CLID clid,
+                               const std::string& key, const std::string& aKey)
+{
+  lock_t lock (m_mutex);
+
+  SG::DataProxy* dp(0); 
+  dp = proxy(clid, key);
+  if (0 == dp) {
+    error() << "setAlias: problem setting alias " 
+          << std::string(aKey) << '\n'
+          << "DataObject does not exist, record before setting alias."
+          << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  StatusCode sc = addAlias(aKey, dp);
+  if (sc.isFailure()) {
+    error() << "setAlias: problem setting alias " 
+          << (std::string)aKey << '\n'
+          << "DataObject does not exist, record before setting alias."
+          << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
 StatusCode
 SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
 {
@@ -635,8 +748,6 @@ SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
               << endmsg;
     return StatusCode::FAILURE;
   }
-
-  addedNewTransObject (proxy->clID(), aliasKey);
 
   // add key to proxy and to ProxyStore
   return m_pStore->addAlias(aliasKey, proxy);
@@ -647,6 +758,25 @@ int SGImplSvc::typeCount(const CLID& id) const
   lock_t lock (m_mutex);
   return m_pStore->typeCount(id);
 }  
+
+
+bool 
+SGImplSvc::contains(const CLID id, const std::string& key) const
+{
+  try {
+    return (0 != proxy(id, key, true));
+  } catch(...) { return false; }
+}
+
+
+bool 
+SGImplSvc::transientContains(const CLID id, const std::string& key) const
+{
+  try {
+    return (0 != transientProxy(id, key));
+  } catch(...) { return false; }
+}
+
 
 DataProxy* 
 SGImplSvc::proxy(const void* const pTransient) const
@@ -814,19 +944,6 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
       return nullptr;
     }
   return proxy;
-}
-
-
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode SGImplSvc::updatedObject (CLID id, const std::string& key)
-{
-  lock_t lock (m_mutex);
-  addedNewTransObject (id, key);
-  return StatusCode::SUCCESS;
 }
 
 
@@ -1154,10 +1271,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
     }
   }
 
-  addedNewTransObject(clid, rawKey);
-
   return dp;
-  
 }
 
 DataProxy*
@@ -1247,6 +1361,25 @@ StatusCode SGImplSvc::setConst(const void* pObject)
   return StatusCode::SUCCESS;
 }
 
+
+// remove an object from Store, will remove its proxy if not reset only
+StatusCode 
+SGImplSvc::remove(const void* pObject)
+{
+  lock_t lock (m_mutex);
+  return removeProxy(proxy(pObject), pObject);
+}
+
+
+// remove an object and its proxy from Store     
+StatusCode       
+SGImplSvc::removeDataAndProxy(const void* pObject)          
+{        
+  lock_t lock (m_mutex);
+  const bool FORCEREMOVE(true);          
+  return removeProxy(proxy(pObject), pObject, FORCEREMOVE);      
+}
+
 //put a bad (unrecordable) dobj away
 void SGImplSvc::recycle(DataObject* pBadDObj) {
   assert(pBadDObj);
@@ -1269,6 +1402,7 @@ void SGImplSvc::emptyTrash() {
 bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
                                   IResetable* ir, DataProxy *&dp) 
 {
+  lock_t lock (m_mutex);
 
   dp = m_pStore->proxy (id, key);
   if (dp == nullptr && m_pPPS != nullptr) {
@@ -1297,6 +1431,39 @@ bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+bool SGImplSvc::bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                              IResetable* ir, SG::DataProxy *&dp) 
+{
+  lock_t lock (m_mutex);
+  bool ret = bindHandleToProxy (id, key, ir, dp);
+  if (ret) {
+    StatusCode sc = getIIOVSvc()->regProxy(dp,key);
+    if (sc.isFailure()) return false;
+  }
+  return true;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+bool SGImplSvc::bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                              IResetable* ir, SG::DataProxy *&dp,
+                                              const CallBackID c,
+                                              const IOVSvcCallBackFcn& fcn,
+                                              bool trigger)
+{
+  lock_t lock (m_mutex);
+  bool ret = bindHandleToProxy (id, key, ir, dp);
+  if (ret) {
+    StatusCode sc = getIIOVSvc()->regProxy(dp,key);
+    if (sc.isFailure()) return false;
+    sc = getIIOVSvc()->regFcn(dp,c,fcn,trigger);
+    if (sc.isFailure()) return false;
+  }
+  return true;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 StatusCode 
 SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
                           const std::string& store, 
@@ -1316,7 +1483,7 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
   }
   idname = idname + "/" + key;
 
-  DataObject* obj = asStorable<DataHistory>(dho);
+  DataObject* obj = SG::asStorable(dho);
   
   const bool ALLOWOVERWRITE(false);
   if (record_impl(obj, idname, dho, allowMods, resetOnly, ALLOWOVERWRITE,
@@ -1470,6 +1637,7 @@ bool SGImplSvc::tryELRemap (sgkey_t sgkey_in, size_t index_in,
   return true;
 }
 
+
 DataObject* SGImplSvc::typeless_readPrivateCopy(const CLID& clid,
                                                 const std::string& key) {
   lock_t lock (m_mutex);
@@ -1515,6 +1683,56 @@ DataObject* SGImplSvc::typeless_readPrivateCopy(const CLID& clid,
   }
   return pObj;
 }
+
+
+DataObject* SGImplSvc::typeless_retrievePrivateCopy (const CLID clid,
+                                                     const std::string& key)
+{
+  lock_t lock (m_mutex);
+  DataObject* obj = nullptr;
+  SG::DataProxy* dp = proxy (clid, key);
+  //we do not want anyone to mess up with our copy hence we release it immediately.
+  if (dp && dp->isValid()) {
+    obj = dp->object();
+    obj->addRef();
+    clearProxyPayload (dp);
+  }
+  return obj;
+}
+
+
+CLID SGImplSvc::clid( const std::string& key ) const
+{
+  lock_t lock (m_mutex);
+  SG::DataStore::ConstStoreIterator s_iter, s_end;
+  store()->tRange(s_iter, s_end).ignore();
+  
+  for ( ; s_iter != s_end; ++s_iter ) {
+    if ( s_iter->second.find( key ) != s_iter->second.end() ) {
+      return s_iter->first;
+    }
+  }
+
+  return CLID_NULL;
+}
+
+
+std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
+{
+  lock_t lock (m_mutex);
+  std::list<CLID> clids;
+  SG::DataStore::ConstStoreIterator s_iter, s_end;
+  store()->tRange(s_iter, s_end).ignore();
+  
+  for ( ; s_iter != s_end; ++s_iter ) {
+    if ( s_iter->second.find( key ) != s_iter->second.end() ) {
+      clids.push_back(s_iter->first);
+    }
+  }
+  
+  return std::vector<CLID>(clids.begin(), clids.end());
+}
+
 
 /// Add automatically-made symlinks for DP.
 void SGImplSvc::addAutoSymLinks (const std::string& key,
@@ -1579,32 +1797,9 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
   }
 }
 
-StatusCode SGImplSvc::getNewDataObjects(DataObjIDColl& products) {
-  lock_t lock (m_mutex);
-  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
-  products.swap(m_newDataObjects);
-  m_newDataObjects.clear();
-  return StatusCode::SUCCESS;
-}
-
-bool SGImplSvc::newDataObjectsPresent() /*const*/ {
-  lock_t lock (m_mutex);
-  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,false);
-  return !m_newDataObjects.empty();
-} 
-
 void
 SGImplSvc::commitNewDataObjects() {
   lock_t lock (m_mutex);
-  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
-  for (auto obj : s_newObjs) {
-    if (msgLevel(MSG::VERBOSE)) {
-      verbose() << "committing dataObj \"" << obj << "\""
-                << endmsg;
-    }
-    m_newDataObjects.insert( obj );
-  }
-  s_newObjs.clear();
 
   // Reset handles added since the last call to commit.
   bool hard_reset = (m_numSlots > 1);
@@ -1613,36 +1808,6 @@ SGImplSvc::commitNewDataObjects() {
   for (IResetable* h : handles)
     h->reset (hard_reset);
 }
-
-#ifndef SLOW_NEWDATAOBJECTS
-void SGImplSvc::addedNewPersObject(CLID, DataProxy*) const {}
-void SGImplSvc::addedNewTransObject(CLID, const std::string&) {}
-#else
-void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) const {
-  lock_t lock (m_mutex);
-  //if proxy is loading from persistency
-  //add key of object to list of "newly recorded" objects
-  if (0 != dp->provider()) {
-    // The object itself.
-    s_newObjs.insert(DataObjID(clid,dp->name()));
-
-    // Aliases.
-    for (const std::string& alias : dp->alias()) {
-      s_newObjs.insert(DataObjID(clid,alias));
-    }
-
-    // Symlinks.
-    for (CLID clid2 : dp->transientID()) {
-      if (clid2 != clid)
-        s_newObjs.insert(DataObjID(clid2,dp->name()));
-    }
-  }
-}
-void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) const {
-  lock_t lock (m_mutex);
-  s_newObjs.insert(DataObjID(clid,key));
-}
-#endif
 
 
 /**
@@ -1699,7 +1864,11 @@ SGImplSvc::createObj (IConverter* cvt,
                       IOpaqueAddress* addr,
                       DataObject*& refpObject)
 {
-  lock_t lock (m_mutex);
+  // This lock was here originally, but is probably not really needed ---
+  // both DataProxy and the I/O components have their own locks.
+  // Further, this was observed to cause deadlocks for the detector store,
+  // and would in general be expected to be a contention issue.
+  //lock_t lock (m_mutex);
   return cvt->createObj (addr, refpObject);
 }
 
@@ -1725,9 +1894,106 @@ void SG_dump (SGImplSvc* sg, const char* fname)
  */
 SG::SourceID SGImplSvc::sourceID() const
 {
-  const DataHeader* dh = nullptr;
-  if (this->retrieve (dh, "EventSelector").isFailure()) {
-    return "";
+  lock_t lock (m_mutex);
+  SG::DataProxy* dp =proxy (ClassID_traits<DataHeader>::ID(), "EventSelector", true);
+  if (dp) {
+    const DataHeader* dh = SG::DataProxy_cast<DataHeader> (dp);
+    if (dh) {
+      return dh->begin()->getToken()->dbID().toString();
+    }
   }
-  return dh->begin()->getToken()->dbID().toString();
+  return "";
+}
+
+
+//////////////////////////////////////////////////////////////////
+// Retrieve a list of collections from Transient Store with no Key.
+// const version
+//////////////////////////////////////////////////////////////////
+StatusCode SGImplSvc::retrieve (CLID clid,
+                                SG::detail::IteratorBase& cibegin,
+                                SG::detail::IteratorBase& ciend) const
+{
+  lock_t lock (m_mutex);
+  SG::ConstProxyIterator first;
+  SG::ConstProxyIterator end = first;
+
+  if (!(proxyRange(clid,first,end)).isSuccess()) {
+    std::string typnam;
+    m_pCLIDSvc->getTypeNameOfID(clid, typnam).ignore();
+    SG_MSG_DEBUG("retrieve(range): no object found " 
+                 << " of type "  << typnam
+                 << "(CLID " << clid << ')');
+  }
+
+  (ciend.setState(end, end, true)).ignore();
+  
+  if (!(cibegin.setState(first, end, true)).isSuccess()) {
+    std::string typnam;
+    m_pCLIDSvc->getTypeNameOfID(clid, typnam).ignore();
+    SG_MSG_DEBUG("retrieve(range): Can't initialize iterator for object range " 
+                 << " of type "  << typnam
+                 << "(CLID " << clid << ')');
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+bool SGImplSvc::associateAux_impl (SG::AuxVectorBase* ptr,
+                                   const std::string& key,
+                                   CLID auxclid) const
+{
+  lock_t lock (m_mutex);
+  SG_MSG_VERBOSE("called associateAux_impl for key " + key);
+  // no Aux store set yet
+  if (!ptr->hasStore()) {
+    SG::DataProxy* dp = proxy (auxclid, key + "Aux.", true);
+    if (dp) {
+      if (!dp->isConst()) {
+        SG::IAuxStore* pAux = SG::DataProxy_cast<SG::IAuxStore> (dp);
+        if (pAux) {
+          ptr->setStore (pAux);
+          return true;
+        }
+      }
+
+      const SG::IConstAuxStore* pAux = SG::DataProxy_cast<SG::IConstAuxStore> (dp);
+      if (pAux) {
+        ptr->setStore (pAux);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
+bool SGImplSvc::associateAux_impl (SG::AuxElement* ptr,
+                                   const std::string& key,
+                                   CLID auxclid) const
+{
+  lock_t lock (m_mutex);
+  SG_MSG_VERBOSE("called associateAux_impl for key " + key);
+  // no Aux store set yet
+  if (!ptr->hasStore()) {
+    SG::DataProxy* dp = proxy (auxclid, key + "Aux.", true);
+    if (dp) {
+      if (!dp->isConst()) {
+        SG::IAuxStore* pAux = SG::DataProxy_cast<SG::IAuxStore> (dp);
+        if (pAux) {
+          ptr->setStore (pAux);
+          return true;
+        }
+      }
+
+      const SG::IConstAuxStore* pAux = SG::DataProxy_cast<SG::IConstAuxStore> (dp);
+      if (pAux) {
+        ptr->setStore (pAux);
+        return true;
+      }
+    }
+  }
+  return false;
 }

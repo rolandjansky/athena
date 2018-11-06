@@ -2,33 +2,52 @@
 
 from AthenaCommon import CfgMgr
 
-def getInDetOverlay(name="InDetOverlay", **kwargs):
-    from AthenaCommon.DetFlags import DetFlags
+
+def getPixelOverlay(name="PixelOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+PixelRDOs");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+PixelRDOs");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+PixelRDOs");
+
+    kwargs.setdefault("includeBkg", True);
+
+    return CfgMgr.PixelOverlay(name, **kwargs)
+
+
+def getSCTOverlay(name="SCTOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+SCT_RDOs");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+SCT_RDOs");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+SCT_RDOs");
+
+    kwargs.setdefault("includeBkg", True);
+
+    return CfgMgr.SCTOverlay(name, **kwargs)
+
+
+def getTRTOverlay(name="TRTOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     from Digitization.DigitizationFlags import digitizationFlags
-    kwargs.setdefault("do_TRT", DetFlags.overlay.TRT_on());
-    kwargs.setdefault("do_TRT_background", DetFlags.overlay.TRT_on());
-    kwargs.setdefault("mainInputTRTKey", overlayFlags.dataStore() + "+TRT_RDOs");
-    kwargs.setdefault("overlayInputTRTKey", overlayFlags.evtStore() + "+TRT_RDOs");
-    kwargs.setdefault("mainOutputTRTKey", overlayFlags.outputStore() + "+TRT_RDOs");
-    kwargs.setdefault("RndmEngine", "InDetOverlay")
-    kwargs.setdefault("RndmSvc",digitizationFlags.rndmSvc.get_Value())
-    kwargs.setdefault("TRT_LocalOccupancyTool","TRT_LocalOccupancy")
-    #HT hit correction fraction
-    kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel",0.160)
-    kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap",0.130)
-    kwargs.setdefault("do_SCT", DetFlags.overlay.SCT_on());
-    kwargs.setdefault("do_SCT_background", DetFlags.overlay.SCT_on());
-    kwargs.setdefault("mainInputSCTKey", overlayFlags.dataStore() + "+SCT_RDOs");
-    kwargs.setdefault("overlayInputSCTKey", overlayFlags.evtStore() + "+SCT_RDOs");
-    kwargs.setdefault("mainOutputSCTKey", overlayFlags.outputStore() + "+SCT_RDOs");
-    kwargs.setdefault("do_Pixel", DetFlags.overlay.pixel_on());
-    kwargs.setdefault("do_Pixel_background", DetFlags.overlay.pixel_on());
-    kwargs.setdefault("mainInputPixelKey", overlayFlags.dataStore() + "+PixelRDOs");
-    kwargs.setdefault("overlayInputPixelKey", overlayFlags.evtStore() + "+PixelRDOs");
-    kwargs.setdefault("mainOutputPixelKey", overlayFlags.outputStore() + "+PixelRDOs");
 
-    return CfgMgr.InDetOverlay(name, **kwargs)
+    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TRT_RDOs");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_RDOs");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_RDOs");
+    kwargs.setdefault("SignalInputSDOKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
+
+    kwargs.setdefault("includeBkg", True);
+
+    kwargs.setdefault("RndmEngine", "TRTOverlay")
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc.get_Value())
+
+    kwargs.setdefault("TRT_LocalOccupancyTool", "TRT_LocalOccupancy")
+
+    # HT hit correction fraction
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel", 0.160)
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap", 0.130)
+
+    return CfgMgr.TRTOverlay(name, **kwargs)
 
 
 def getInDetSDOOverlay(name="InDetSDOOverlay", **kwargs):

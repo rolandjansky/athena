@@ -15,8 +15,8 @@ from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
 
 from RecExConfig.Configured import Configured 
 
-from AthenaCommon.Logging import logging 
-from AthenaCommon.Include import include
+from AthenaCommon.Logging import logging
+
 from AthenaCommon.Resilience import protectedInclude
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -43,9 +43,9 @@ class TriggerConfigGetter(Configured):
         from RecExConfig.InputFilePeeker import inputFileSummary
         self.hasLBwiseHLTPrescalesAndL1ItemDef = True
         if rec.readESD() or rec.readAOD() or "ReadPool" in self._environment:
-            self.hasLBwiseHLTPrescalesAndL1ItemDef = inputFileSummary['metadata'].has_key('/TRIGGER/HLT/Prescales') # they were all added at the same time (Repro with 15.6.3.2 Prod)
+            self.hasLBwiseHLTPrescalesAndL1ItemDef = '/TRIGGER/HLT/Prescales' in inputFileSummary['metadata'] # they were all added at the same time (Repro with 15.6.3.2 Prod)
         # protection against early runs
-        if inputFileSummary.has_key('run_number') and self._environment=="" and globalflags.DataSource()=='data' and rec.readRDO() and any([run<134230 for run in inputFileSummary['run_number']]):
+        if 'run_number' in inputFileSummary  and self._environment=="" and globalflags.DataSource()=='data' and rec.readRDO() and any([run<134230 for run in inputFileSummary['run_number']]):
             self.hasLBwiseHLTPrescalesAndL1ItemDef = False
         if self.hasLBwiseHLTPrescalesAndL1ItemDef:
             log.info("Using LB-wise HLT prescales")
@@ -92,9 +92,12 @@ class TriggerConfigGetter(Configured):
 
     def setConfigSvcConnParams(self,connectionParameters):
         sl = []
-        if hasattr(svcMgr,'L1TopoConfigSvc'): sl += [svcMgr.L1TopoConfigSvc]
-        if hasattr(svcMgr,'LVL1ConfigSvc'): sl += [svcMgr.LVL1ConfigSvc]
-        if hasattr(svcMgr,'HLTConfigSvc'): sl += [svcMgr.HLTConfigSvc]
+        if hasattr(svcMgr,'L1TopoConfigSvc'):
+            sl += [svcMgr.L1TopoConfigSvc]
+        if hasattr(svcMgr,'LVL1ConfigSvc'):
+            sl += [svcMgr.LVL1ConfigSvc]
+        if hasattr(svcMgr,'HLTConfigSvc'):
+            sl += [svcMgr.HLTConfigSvc]
 
         if "alias" in connectionParameters:
             for svc in sl:
@@ -251,8 +254,10 @@ class TriggerConfigGetter(Configured):
             log.info('The following configuration services will be tried: %r' % self.ConfigSrcList )
 
 
-        try:     self.svc.InitialiseSvc()
-        except Exception, ex: log.error( 'Failed to activate TrigConfigSvc: %r' % ex )
+        try:
+            self.svc.InitialiseSvc()
+        except Exception, ex:
+            log.error( 'Failed to activate TrigConfigSvc: %r' % ex )
 
         if self.readTriggerDB:
             log.info( "Using TriggerDB connection '%s'" % TriggerFlags.triggerDbConnection() )
@@ -331,7 +336,7 @@ class TriggerConfigGetter(Configured):
             log.info( 'DSConfigSvc enabled, will setup IOVDbSvc to access configuration meta data')
         if self.writeESDAOD:
             log.info( 'ESD/AOD writing enabled, will setup IOVDbSvc to access configuration meta data')
-        usePresetConnection = (TrigCoolDbConnection != "")
+        #usePresetConnection = (TrigCoolDbConnection != "")
 
         ## if we process MC from an XML file the dbConnection needs to
         ## be set to a local SQlite file
@@ -367,21 +372,28 @@ class TriggerConfigGetter(Configured):
         # add folders for reading
         from IOVDbSvc.CondDB import conddb
         folders = []
-        if self.hltFolders: folders += [ "HLT/Menu", "HLT/HltConfigKeys" ]
-        if self.l1Folders:  folders += [ "LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales" ]
+        if self.hltFolders:
+            folders += [ "HLT/Menu", "HLT/HltConfigKeys" ]
+        if self.l1Folders:
+            folders += [ "LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales" ]
         if globalflags.DataSource() == 'data':
-            if self.l1Folders:  folders += [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription", "LVL1/BunchGroupContent" ]
+            if self.l1Folders:
+                folders += [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription", "LVL1/BunchGroupContent" ]
         if self.hasLBwiseHLTPrescalesAndL1ItemDef:
-            if self.hltFolders: folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
-            if self.l1Folders:  folders += [ "LVL1/ItemDef" ]
+            if self.hltFolders:
+                folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
+            if self.l1Folders:
+                folders += [ "LVL1/ItemDef" ]
 
         log.info("Adding folders to IOVDbSvc")
 
         if addNewFolders:
             # Need thresholds folders but only for Tier0 BS->ESD
             log.info("Also adding new folders to IOVDbSvc")
-            if self.hltFolders: folders += [ "HLT/Groups" ]
-            if self.l1Folders: folders += [ "LVL1/Thresholds" ]
+            if self.hltFolders:
+                folders += [ "HLT/Groups" ]
+            if self.l1Folders:
+                folders += [ "LVL1/Thresholds" ]
 
         for f in folders:
             log.info("     /TRIGGER/%s" % f)
@@ -397,12 +409,16 @@ class TriggerConfigGetter(Configured):
         log.info( 'ESD/AOD writing enabled, will setup IOVDbSvc to write configuration meta data')
 
         folders = []
-        if self.hltFolders: folders += ["HLT/Menu", "HLT/HltConfigKeys"]
-        if self.l1Folders:  folders += ["LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales", "LVL1/Thresholds", "LVL1/BunchGroupKey"]
+        if self.hltFolders:
+            folders += ["HLT/Menu", "HLT/HltConfigKeys"]
+        if self.l1Folders:
+            folders += ["LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales", "LVL1/Thresholds", "LVL1/BunchGroupKey"]
 
         if self.hasLBwiseHLTPrescalesAndL1ItemDef:
-            if self.hltFolders: folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
-            if self.l1Folders:  folders += [ "LVL1/ItemDef" ]
+            if self.hltFolders:
+                folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
+            if self.l1Folders:
+                folders += [ "LVL1/ItemDef" ]
 
         log.info("Adding output folders to IOVDbSvc")
         for f in folders:

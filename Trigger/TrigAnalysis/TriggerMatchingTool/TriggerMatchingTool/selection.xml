@@ -1,6 +1,5 @@
 
 <lcgdict>
    <namespace name="Trig" />
-   <class name="Trig::MatchingTool" />
    <class name="Trig::IMatchingTool" />
 </lcgdict>

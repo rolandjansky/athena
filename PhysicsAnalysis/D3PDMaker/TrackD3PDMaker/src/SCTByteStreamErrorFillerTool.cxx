@@ -20,8 +20,7 @@ SCTByteStreamErrorFillerTool::SCTByteStreamErrorFillerTool
     const std::string& name,
     const IInterface* parent)
      : BlockFillerTool<xAOD::EventInfo> (type, name, parent),
-       m_sctid(0),
-       m_cabling("SCT_CablingSvc",name)
+       m_sctid(0)
  {
    book().ignore(); // Avoid coverity warnings.
  }

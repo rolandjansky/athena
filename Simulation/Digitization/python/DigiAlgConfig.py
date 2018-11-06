@@ -248,7 +248,7 @@ def getStandardMuonPileUpTools():
     if DetFlags.digitize.sTGC_on():
         PileUpToolsList += [ "sTgcDigitizationTool" ]
     if DetFlags.digitize.Micromegas_on():
-        PileUpToolsList += [ "MmDigitizationTool" ]
+        PileUpToolsList += [ "MM_DigitizationTool" ]
     return PileUpToolsList
 
 def getStandardPileUpToolsList():

@@ -25,11 +25,12 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "EventPrimitives/EventPrimitives.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,7 +47,6 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
   m_PixelHelper(0),
   m_pixelDetectorManager(0),
   m_SCTHelper(0),
-  m_SCTDetectorManager(0),
   m_TRTHelper(0),
   m_TRTDetectorManager(0)
 
@@ -80,12 +80,8 @@ StatusCode GetDetectorPositions::initialize(){
     return StatusCode::FAILURE;
   }
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the SCT ID" << endmsg;
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
-  if ((detStore()->retrieve(m_SCTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving SCT_DetectorManager" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
   /** Retrive Pixel info */
   if (detStore()->retrieve(m_PixelHelper, "PixelID").isFailure()) {
     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
@@ -186,19 +182,24 @@ void GetDetectorPositions::writePixelPositions(){
 void GetDetectorPositions::writeSCTPositions(){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSCTPositions()" << endmsg;
   
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements{*sctDetEleHandle};
+  if (not sctDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
   //Loop over SCT elements
-  std::vector<Identifier>::const_iterator sctIt = m_SCTHelper->wafer_begin();
-  std::vector<Identifier>::const_iterator sctItE = m_SCTHelper->wafer_end();
-  for(; sctIt != sctItE; sctIt++  ) {
-    
-    InDetDD::SiDetectorElement* si_hit = m_SCTDetectorManager->getDetectorElement( *sctIt );
+  for (const InDetDD::SiDetectorElement* si_hit: *elements) {
     Amg::Vector3D p3d = si_hit->center();
+
+    const IdentifierHash wafer_hash = si_hit->identifyHash();
+    const Identifier wafer_id = m_SCTHelper->wafer_id(wafer_hash);
     
-    int sct_barrel_ec = m_SCTHelper->barrel_ec(*sctIt);
-    int sct_layer_disk= m_SCTHelper->layer_disk(*sctIt);
-    int sct_phi_module= m_SCTHelper->phi_module(*sctIt);
-    int sct_eta_module = m_SCTHelper->eta_module(*sctIt);
-    int nStrips      = m_SCTHelper->strip_max(*sctIt)+1;
+    int sct_barrel_ec = m_SCTHelper->barrel_ec(wafer_id);
+    int sct_layer_disk= m_SCTHelper->layer_disk(wafer_id);
+    int sct_phi_module= m_SCTHelper->phi_module(wafer_id);
+    int sct_eta_module = m_SCTHelper->eta_module(wafer_id);
+    int nStrips      = m_SCTHelper->strip_max(wafer_id)+1;
     float sct_x = p3d.x();
     float sct_y = p3d.y();
     float sct_z = p3d.z();

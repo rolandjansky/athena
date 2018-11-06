@@ -21,7 +21,7 @@
 
 //Cluster collections
 //
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetPrepRawData/SCT_Cluster.h"
 //SCT Geometry
 //
 #include "InDetIdentifier/SCT_ID.h"

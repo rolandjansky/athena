@@ -40,46 +40,47 @@ public:
   dSFMTEngine & operator=( const dSFMTEngine & p );
   // Copy constructor and operator=.
 
-  double flat();
+  virtual double flat() override;
   // Returns a pseudo random number between 0 and 1 (excluding the end points).
 
-  void flatArray(const int size, double* vect);
+  virtual void flatArray(const int size, double* vect) override;
   // Fills an array "vect" of specified size with flat random values.
 
-  void setSeed(long seed, int k=0);
+  virtual void setSeed(long seed, int k=0) override;
   // Sets the state of the algorithm according to seed.
 
   void setSeeds(const uint32_t * seeds, int k=0);
   // Sets the state of the algorithm according to the zero terminated
   // array of seeds. It is allowed to ignore one or many seeds in this array.
 
-  void setSeeds(const long * seeds, int k=0);
+  virtual void setSeeds(const long * seeds, int k=0) override;
   // Sets the state of the algorithm according to the zero terminated
   // array of seeds. It is allowed to ignore one or many seeds in this array.
 
-  void saveStatus( const char filename[] = "MTwist.conf") const;
+  virtual void saveStatus( const char filename[] = "MTwist.conf") const override;
   // Saves the current engine status in the named file
 
-  void restoreStatus( const char filename[] = "MTwist.conf" );
+  virtual void restoreStatus( const char filename[] = "MTwist.conf" ) override;
   // Reads from named file the the last saved engine status and restores it.
 
-  void showStatus() const;
+  virtual void showStatus() const override;
   // Dumps the current engine status on the screen.
 
-  operator float();     // returns flat, without worrying about filling bits
-  operator unsigned int(); // 32-bit flat, quickest of all
+  using HepRandomEngine::operator double;
+  virtual operator float() override;     // returns flat, without worrying about filling bits
+  virtual operator unsigned int() override; // 32-bit flat, quickest of all
 
-  virtual std::ostream & put (std::ostream & os) const;
-  virtual std::istream & get (std::istream & is);
+  virtual std::ostream & put (std::ostream & os) const override;
+  virtual std::istream & get (std::istream & is) override;
   static  std::string beginTag ( );
-  virtual std::istream & getState ( std::istream & is );
+  virtual std::istream & getState ( std::istream & is ) override;
 
-  std::string name() const;
+  virtual std::string name() const override;
   static std::string engineName() {return "MTwistEngine";}
 
-  std::vector<unsigned long> put () const;
-  bool get (const std::vector<unsigned long> & v);
-  bool getState (const std::vector<unsigned long> & v);
+  virtual std::vector<unsigned long> put () const override;
+  virtual bool get (const std::vector<unsigned long> & v) override;
+  virtual bool getState (const std::vector<unsigned long> & v) override;
 
 private:
   DSFMT_T* m_dsfmt;

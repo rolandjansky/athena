@@ -45,7 +45,7 @@ public:
 				    FitQuality*&	fitQuality,
 				    PerigeeParameters&	perigee,
 				    hit_const_iterator	begin,
-				    hit_const_iterator	end) = 0;
+				    hit_const_iterator	end) const = 0;
  
     /**IiPatFitter interface:
        updates the track PerigeeParameters, FitQuality and residuals. May modify hits */
@@ -57,7 +57,7 @@ public:
 						 hit_iterator 		begin,
 						 hit_iterator 		end,
 						 hit_const_iterator 	original_begin,
-						 hit_const_iterator 	original_end) = 0;
+						 hit_const_iterator 	original_end) const = 0;
     /**IiPatFitter interface:
        as fit above - but with residual set in HitOnTrack */
     virtual void		fitWithResiduals(TrackStatus		status,
@@ -65,7 +65,7 @@ public:
 						 PerigeeParameters&	perigee,
 						 parameter_vector*&	scattererParameters,
 						 hit_const_iterator	begin,
-						 hit_const_iterator	end) = 0;
+						 hit_const_iterator	end) const = 0;
 
     /**IiPatFitter interface:
        uses transverse vertex as a measurement */
@@ -74,7 +74,7 @@ public:
 					      PerigeeParameters&	perigee,
 					      const Trk::RecVertex&	vertex,
 					      hit_const_iterator	begin,
-					      hit_const_iterator	end) = 0;
+					      hit_const_iterator	end) const = 0;
 };
 
 

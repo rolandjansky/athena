@@ -6,25 +6,31 @@
 #define TRIGONLINESPACEPOINTTOOL_SCTCLUSTERCACHETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
+
 #include "ByteStreamData/RawEvent.h"
+#include "Identifier/IdContext.h" 
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "SiClusterizationTool/ISCT_ClusteringTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
-
-#include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
-#include "Identifier/IdContext.h" 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "TrigOnlineSpacePointTool/ISCT_ClusterCacheTool.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include <vector>
 
-class FastSCT_Clusterization;
-class ISCT_CablingSvc;
 class TrigTimer;
+
+namespace InDetDD {
+  class SCT_DetectorManager;
+}
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 
@@ -49,7 +55,7 @@ private:
   InDet::SCT_ClusterContainer* m_clusterContainer;
   FastSCT_Clusterization m_clusterization;
 
-  ISCT_CablingSvc* m_cablingSvc;
+  ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
   const InDetDD::SCT_DetectorManager * m_indet_mgr;
   const SCT_ID* m_sct_id;
@@ -66,6 +72,7 @@ private:
   std::string m_bsErrContainerName;
   std::string m_bsFracContainerName;
   bool m_doBS;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
 #define SCT_CL_CACHE_NTIMERS 5
   TrigTimer* m_timer[SCT_CL_CACHE_NTIMERS];

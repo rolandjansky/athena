@@ -48,6 +48,7 @@
   XYZ(TempMaskedChip5)         \
   XYZ(ABCDError_Error7)        \
   XYZ(ABCDError_Invalid)       \
+  XYZ(RODSimulatedData)        \
   XYZ(NUM_ERROR_TYPES) // always have this one last, so we can use it as a loop index
 #endif // SCT_ERRORTYPELIST
 

@@ -12,8 +12,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 jobproperties.egammaRecFlags.print_JobProperties("full")
 
-######The simple cases where we can already disable something
-
+######The simple cases where we can disable a flag
 # Truth
 if not rec.doTruth(): 
 	jobproperties.egammaRecFlags.doEgammaTruthAssociation = False
@@ -39,23 +38,28 @@ def setupGSF():
                 from egammaAlgs.egammaSelectedTrackCopy import egammaSelectedTrackCopy
                 egammaSelectedTrackCopy(doPrint=True)
         except Exception:
-                treatException("Could not set up the egamma track Selection for GSF. Switch it off !")
+                treatException("Could not set up the egamma track Selection for GSF. Switch Brem Building off !")
                 jobproperties.egammaRecFlags.doBremFinding=False 
         try:
                 from egammaAlgs.EMBremCollectionBuilder import EMBremCollectionBuilder
                 EMBremCollectionBuilder(doPrint=True)
         except Exception:
-                treatException("Could not set up EMBremCollectionBuilder. Switch it off !")
+                treatException("Could not set up EMBremCollectionBuilder. Switch Brem Building off !")
                 jobproperties.egammaRecFlags.doBremFinding=False 
+        try:
+                from egammaAlgs.EMGSFCaloExtensionBuilder import EMGSFCaloExtensionBuilder
+                EMGSFCaloExtensionBuilder(doPrint=True)
+        except Exception:
+                treatException("Could not set up EMGSFCaloExtensionBuilder.")
 
-#Function to schedule the vertices      
+#Function to schedule the conversion vertices reconstructions      
 def setupVertices():
         # Conversion vertex builder can not run in the default mode without GSF
         try:
                 from egammaAlgs.EMVertexBuilder import EMVertexBuilder
                 EMVertexBuilder(doPrint=True)
         except Exception:
-                treatException("Could not set up the conversion vertex building. Switch it off !")
+                treatException("Could not set up the conversion vertex building. Switch vertex building off !")
                 jobproperties.egammaRecFlags.doVertexBuilding=False
 
 #Function to schedule the Topo cluster based egamma
@@ -116,20 +120,11 @@ if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
                 setupTopoSeededEgamma()        
         elif not jobproperties.egammaRecFlags.doSuperclusters() and (jobproperties.CaloRecFlags.doEmCluster() or rec.readESD()):
                 setupSWSeededEgamma()
-                #Special algs to run on ESD when we do standard egamma
-                if rec.doESD():
-                        try:
-                                topSequence+=CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
-                                                                                             ClustersToDecorate=egammaKeys.outputClusterKey())
-                                topSequence+=CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
-                                                                                             ClustersToDecorate=egammaKeys.outputTopoSeededClusterKey())
-                        except:
-                                treatException("Could not set up ClusterMatching tool! Switched off")
         else:
                 jobproperties.egammaRecFlags.doEgammaCaloSeeded=False
 
 if jobproperties.egammaRecFlags.doEgammaForwardSeeded():
-                setupFwdSeededEgamma()
+        setupFwdSeededEgamma()
 
 if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.egammaRecFlags.doEgammaCaloSeeded(): 
         setupTruthAssociation()

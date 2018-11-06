@@ -70,7 +70,6 @@ testAlgo.selectedSectors  = [ 21, 22, 53, 54, 23, 24, 55, 56, 25, 26, 57, 58 ]
 topSequence += testAlgo
 
 
-import MuonCnvExample.MuonReadBSConfig
 ######################## RPC BS to RDO offline algorithms 
 include("MuonCnvExample/MuonReadBS_jobOptions.py")
 

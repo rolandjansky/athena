@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import bisect
 
@@ -7,10 +7,11 @@ class TileCellHashMgr():
     This class ised to convert cell hash to cell name
     """
     #____________________________________________________________________
-    def __init__(self, geometry='Default'):
+    def __init__(self, geometry='Default', cabling='RUN2'):
 
         #=== initialize all arrays
         self._geometry=geometry
+        self._cabling=cabling
         if geometry == "UpgradeABC":
             self._cellNames=[
             ["A-1","A-2","A-3","B-1","C-1","A-4","A-5","A-6","A-7","B-2","C-2","A-8","A-9","D-1","A-10","A-11","B-3","C-3","A-12","A-13","A-14","A-15","B-4","C-4",
@@ -108,11 +109,19 @@ class TileCellHashMgr():
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
             if index==0 and (module==14 or module==15 or module==18 or module==19): index+=6
             if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)): index+=6
-            if index==2 and (module==7 or module==25 or module==44 or module==53): index+=7
-            if index==2 and (module==8 or module==24 or module==43 or module==54): index+=8
-            if part==4:
-                if index==2 and (module==28 or module==31 or module==35 or module==38): index+=7
-                if index==2 and (module==29 or module==32 or module==34 or module==37): index+=9
+            if index==2 and (self._cabling=='RUN2' or self._cabling=='RUN2a'):
+                if part==4: # E4' in EBC
+                    if module==28 or module==31 or module==35 or module==38: index+=7 # E1m
+                    if module==29 or module==32 or module==34 or module==37: index+=9 # E4'
+                if module==7 or module==25 or module==44 or module==53: index+=7 # E1m
+                if module==8 or module==24 or module==43 or module==54: index+=8 # MBTS
+                if self._cabling=='RUN2a':
+                    if part==5: # EBA
+                        if module==4 or module==21 or module==47 or module==60: index+=7 # E1m
+                        if module==3 or module==20 or module==46 or module==59: index+=8 # MBTS
+                    if part==4: # EBC
+                        if module==4 or module==18 or module==47 or module==60: index+=7 # E1m
+                        if module==3 or module==19 or module==46 or module==59: index+=8 # MBTS
 
         return (modName,self._cellNames[part][index])
 
@@ -131,9 +140,15 @@ class TileCellHashMgr():
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
             if index==0 and (module>=15 and module<=18): index+=6
             if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)): index+=6
-            if index==2 and (module==7 or module==8 or module==25 or module==24 or module==44 or module==43 or module==53 or module==54): index+=7
-            if part==4:
-                if index==2 and (module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37): index+=7
+            if index==2 and (self._cabling=='RUN2' or self._cabling=='RUN2a'):
+                if part==4: # E4' in EBC
+                    if module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37: index+=7 # E1m or E4'
+                if module==7 or module==8 or module==25 or module==24 or module==44 or module==43 or module==53 or module==54: index+=7 # E1m or MBTS
+                if self._cabling=='RUN2a':
+                    if part==5: # EBA
+                        if module==4 or module==3 or module==21 or module==20 or module==47 or module==46 or module==60 or module==59: index+=7 # E1m or MBTS
+                    if part==4: # EBC
+                        if module==4 or module==3 or module==18 or module==19 or module==47 or module==46 or module==60 or module==59: index+=7 # E1m or MBTS
 
         return self._cellNames[part][index]
 

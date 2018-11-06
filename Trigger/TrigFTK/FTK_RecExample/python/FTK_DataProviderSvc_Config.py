@@ -13,10 +13,9 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
         # SiLorentzAngleTool for SCT
         from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-        FTK_DataProviderSvc.SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        FTK_DataProviderSvc.SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
 
         # Track Fitter
         from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter

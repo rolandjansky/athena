@@ -26,9 +26,14 @@
 // Write output into ROOT Trees
 #include "TTree.h"
 
+#include "Identifier/Identifier.h"
+#include "InDetAlignGenTools/IInDetAlignDBTool.h"
+#include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 //Forward declaration
 class IdentifierHash;
-#include "Identifier/Identifier.h"
 class TTree;
 
 class AtlasDetectorID;
@@ -36,11 +41,7 @@ class PixelID;
 class SCT_ID;
 class TRT_ID;
 
-#include "InDetAlignGenTools/IInDetAlignDBTool.h"
-#include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
-
 namespace InDetDD {
-class SCT_DetectorManager;
 class PixelDetectorManager;
 class TRT_DetectorManager;
 }
@@ -71,11 +72,12 @@ private:
     const TRT_ID                          *m_trtIdHelper;
 
     const InDetDD::PixelDetectorManager   *m_pixelManager;
-    const InDetDD::SCT_DetectorManager    *m_SCT_Manager;
     const InDetDD::TRT_DetectorManager    *m_TRT_Manager;
 
     ToolHandle< IInDetAlignDBTool >        m_IDAlignDBTool;
     ServiceHandle<ITRT_AlignDbSvc>          m_trtaligndbservice;
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     // algorithm parameters, possible to declare at runtime
     std::string                            m_asciiFileNameBase;  ///< filename basis for ASCII files with alignment constants

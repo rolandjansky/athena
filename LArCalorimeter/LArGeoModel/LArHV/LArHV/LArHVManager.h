@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHVMANAGER_H_HEADER_INCLUDED_E73E3A24
@@ -74,7 +74,7 @@ class LArHVManager
 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(LArHVManager, 203332428, 1) 
 
 #endif /* LARHVMANAGER_H_HEADER_INCLUDED_E73E3A24 */

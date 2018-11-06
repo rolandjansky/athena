@@ -168,6 +168,13 @@ public:
   IRCUObject (IRCUObject&& other);
 
 
+  // Make these explicit to prevent warnings from coverity.
+  // (copy/assign are implicitly deleted due to the mutex member.)
+  IRCUObject (const IRCUObject&) = delete;
+  IRCUObject& operator= (const IRCUObject&) = delete;
+  IRCUObject& operator= (IRCUObject&&) = delete;
+
+
   /**
    * @brief Destructor.
    *
@@ -288,6 +295,13 @@ public:
    * Allow passing these objects via move.
    */
   RCUObject (RCUObject&& other);
+
+
+  // Make these explicit to prevent warnings from coverity.
+  // (copy/assign are implicitly deleted due to the mutex member.)
+  RCUObject (const RCUObject&) = delete;
+  RCUObject& operator= (const RCUObject&) = delete;
+  RCUObject& operator= (RCUObject&&) = delete;
 
 
   /**

@@ -3,9 +3,8 @@
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm
 
 ################################################################################
-# Tools/algorithms/services from MuonCnvExample.MuonReadBSConfig.py
+# Standard BS algorithms
 ################################################################################
-
 addTool( "MuonCnvExample.MuonReadBSConfig.MdtROD_Decoder",         "MdtROD_Decoder" )
 addTool( "MuonCnvExample.MuonReadBSConfig.MdtRawDataProviderTool", "MdtRawDataProviderTool" )
 addAlgorithm( "Muon::MdtRawDataProvider",                          "MuonMdtRawDataProvider" )

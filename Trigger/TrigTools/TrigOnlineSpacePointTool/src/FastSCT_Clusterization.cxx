@@ -3,9 +3,10 @@
 */
 
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
-#include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
 
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 
 //#define CLUSTERING_DBG 
 
@@ -89,12 +90,13 @@ void FastSCT_Clusterization::addCluster(){
 }
 
 void FastSCT_Clusterization::setupNewElement(const Identifier elementId, 
-					 const IdentifierHash hashId, 
-					 const unsigned int sctStrip){
+                                             const IdentifierHash hashId, 
+                                             const unsigned int sctStrip,
+                                             const InDetDD::SiDetectorElement* detElement){
   
   m_currentClusterColl = new InDet::SCT_ClusterCollection(hashId);
   m_currentClusterColl->setIdentifier(elementId);
-  m_detEl=m_man->getDetectorElement(hashId);
+  m_detEl=detElement;
   m_current_width=1;
   m_first_strip = sctStrip;
   m_last_strip = sctStrip;
@@ -121,7 +123,8 @@ void FastSCT_Clusterization::setupNewElement(const Identifier elementId,
 }
 
 void FastSCT_Clusterization:: addHit( const Identifier elementId, const IdentifierHash
-                                  hashId, const unsigned int sctStrip) {
+                                      hashId, const unsigned int sctStrip,
+                                      const InDetDD::SiDetectorElement* detElement) {
   if (m_firstWord) {
     m_firstWord = false;
 #ifdef CLUSTERING_DBG 
@@ -129,7 +132,7 @@ void FastSCT_Clusterization:: addHit( const Identifier elementId, const Identifi
 #endif
 
     m_element = elementId;
-    setupNewElement(elementId, hashId, sctStrip);
+    setupNewElement(elementId, hashId, sctStrip, detElement);
     
 #ifdef CLUSTERING_DBG 
       std::cout << "done first hit" << std::endl;
@@ -152,7 +155,7 @@ void FastSCT_Clusterization:: addHit( const Identifier elementId, const Identifi
 
     // set up new wafer
     m_element = elementId;
-    setupNewElement(elementId, hashId, sctStrip);
+    setupNewElement(elementId, hashId, sctStrip, detElement);
 
   } else {
 #ifdef CLUSTERING_DBG 

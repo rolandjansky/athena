@@ -83,6 +83,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('RndmSvc', digitizationFlags.rndmSvc.get_Value() )
     digitizationFlags.rndmSeedList.addSeed("LArDigitization", 1234, 5678 )
+    kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault('FirstXing', -751 )
@@ -117,31 +118,28 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     if  isOverlay() :
          kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
 
-    # ADC2MeVTool
-    mlog.info(" ----  set LArADC2MeVToolDefault")
-    kwargs.setdefault('ADC2MeVTool', 'LArADC2MeVToolDefault')
+    # ADC2MeVCondAlgo
+    from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+    LArADC2MeVCondAlgDefault()
 
-    # Tool for noise autocorrelation generation
-    kwargs.setdefault('AutoCorrNoiseTool', 'LArAutoCorrNoiseToolDefault')
+
+    # AutoCorrNoiseCondAlgo
+    from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
+    LArAutoCorrNoiseCondAlgDefault()
 
     # bad channel masking
-    from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-    theLArBadChannelTool=LArBadChanTool()
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc+=theLArBadChannelTool
     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
     theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
     theLArRCBMasker.DoMasking=True
     theLArRCBMasker.ProblemsToMask=[
          "deadReadout","deadPhys"]
-    ToolSvc+=theLArRCBMasker
     kwargs.setdefault('MaskingTool', theLArRCBMasker )
-    kwargs.setdefault('BadChannelTool', theLArBadChannelTool )
-
+    
     # CosmicTriggerTimeTool for cosmics digitization
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
         from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
+        from AthenaCommon.AppMgr import ToolSvc
         theTriggerTimeTool = CosmicTriggerTimeTool()
         ToolSvc += theTriggerTimeTool
         kwargs.setdefault('UseTriggerTime', True )

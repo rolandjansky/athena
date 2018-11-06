@@ -8,31 +8,27 @@
 // Gaudi & StoreGate
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SmartDataPtr.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
-// CLHEP includes
 
 // Geometry Stuff 
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h" 
 
 // Alignment DB StuffStuff
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
-//#include "InDetAlignTools/IInDetAlignDBTool.h"
-
+#include "GaudiKernel/IRndmGenSvc.h"
+#include "GaudiKernel/RndmGenerators.h"
 // CLHEP includes
 
-////namespace InDetSurveyConstraintTool {
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -41,7 +37,6 @@ SurveyConstraint::SurveyConstraint(const std::string& type,
 				   const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
     m_pixelManager(0),
-    m_SCT_Manager(0),
     m_idHelper{},
     m_pixid(0),
     m_sctid(0),
@@ -225,13 +220,8 @@ StatusCode SurveyConstraint::initialize(){
   }
   msg(MSG::INFO) << "got m_pixelManager" << endmsg;
   
-  // get SCTManager
-  sc = detStore()->retrieve(m_SCT_Manager, "SCT");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endmsg;
-    return sc;
-  }
-  msg(MSG::INFO) << "got m_SCT_Manager" << endmsg; 
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // random number service
   if (StatusCode::SUCCESS!=service("RndmGenSvc",m_randsvc,true))
@@ -478,15 +468,22 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   SurveyTransRandSect.setIdentity();
 
   unsigned int nSCTMod = 0,nSCTModInMap = 0,nSCTModEC = 0,nSCTModPointsEC = 0;
-  for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
-    const Identifier SCT_ModuleID = (*iter)->identify(); 
+  // Get SiDetectorElementCollection from ConditionStore for SCT
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
+  if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
+  for (const InDetDD::SiDetectorElement* element: *sctElements) {
+    const Identifier SCT_ModuleID = element->identify(); 
     if(m_sctid->side(SCT_ModuleID) != 0) continue;
     ++nSCTMod;
 
     if (m_ModuleMap.find(SCT_ModuleID) == m_ModuleMap.end()) {
       ++nSCTModInMap;
       SurveyConstraintModule* newSCT_Module = new SurveyConstraintModule(SCT_ModuleID,false);
-      Amg::Transform3D globaltolocal = (*iter)->transform().inverse();
+      Amg::Transform3D globaltolocal = element->transform().inverse();
       newSCT_Module->set_globaltolocal(globaltolocal);
       m_ModuleMap[SCT_ModuleID] = newSCT_Module;
       ++nSCT;
@@ -551,8 +548,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
         //m_survey_IDAlignDBTool->tweakTrans(SCT_ModuleID,3,SurveyTransRand);
         Amg::Vector3D currentPoint = CurrentTrans * temp;
         // Transform the local (survey and current) constraint points into the global coordinate system
-        Amg::VectorX globalSurveyPoint  = (*iter)->globalPosition( surveyPoint );	  
-        Amg::VectorX globalCurrentPoint = (*iter)->globalPosition( currentPoint);
+        Amg::VectorX globalSurveyPoint  = element->globalPosition( surveyPoint );	  
+        Amg::VectorX globalCurrentPoint = element->globalPosition( currentPoint);
 
         SurveyConstraintPoint newCPoint( globalSurveyPoint, globalCurrentPoint );            
         newSCT_Module->addModuleConstraintPoint(newCPoint);	
@@ -826,14 +823,14 @@ void SurveyConstraint::setup_SurveyConstraintModules()
 
   // SCT EC
   nPixModEC2 = 0;nPixModPixModEC = 0;nPixModECPixModEC = 0;nSameLayer = 0;nNotIdentical = 0;
-  for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
-    const Identifier SCT_ModuleID = (*iter)->identify(); 
+  for (SCT_ID::const_id_iterator wafer_it=m_sctid->wafer_begin(); wafer_it!=m_sctid->wafer_end(); ++wafer_it) {
+    const Identifier SCT_ModuleID = *wafer_it;
     if(m_sctid->side(SCT_ModuleID) != 0) continue;
     if(abs(m_sctid->barrel_ec(SCT_ModuleID)) != 2) continue;
     ++nPixModEC2;
-    for (iter2 = m_SCT_Manager->getDetectorElementBegin(); iter2 != m_SCT_Manager->getDetectorElementEnd(); ++iter2) {
+    for (SCT_ID::const_id_iterator wafer_it2=m_sctid->wafer_begin(); wafer_it2!=m_sctid->wafer_end(); ++wafer_it2) {
       ++nPixModPixModEC;
-      const Identifier SCT_ModuleID2 = (*iter2)->identify(); 
+      const Identifier SCT_ModuleID2 = *wafer_it2;
       if(m_sctid->side(SCT_ModuleID2) != 0)continue;
       if(m_sctid->barrel_ec(SCT_ModuleID2) != m_sctid->barrel_ec(SCT_ModuleID))continue;
       ++nPixModECPixModEC;
@@ -872,14 +869,14 @@ void SurveyConstraint::setup_SurveyConstraintModules()
 
   // SCT B
   nPixModEC2 = 0;nPixModPixModEC = 0;nPixModECPixModEC = 0;nSameLayer = 0;nNotIdentical = 0;
-  for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
-    const Identifier SCT_ModuleID = (*iter)->identify(); 
+  for (SCT_ID::const_id_iterator wafer_it=m_sctid->wafer_begin(); wafer_it!=m_sctid->wafer_end(); ++wafer_it) {
+    const Identifier SCT_ModuleID = *wafer_it;
     if(m_sctid->side(SCT_ModuleID) != 0) continue;
     if(m_sctid->barrel_ec(SCT_ModuleID) != 0) continue;
     ++nPixModEC2;
-    for (iter2 = m_SCT_Manager->getDetectorElementBegin(); iter2 != m_SCT_Manager->getDetectorElementEnd(); ++iter2) {
+    for (SCT_ID::const_id_iterator wafer_it2=m_sctid->wafer_begin(); wafer_it2!=m_sctid->wafer_end(); ++wafer_it2) {
       ++nPixModPixModEC;
-      const Identifier SCT_ModuleID2 = (*iter2)->identify(); 
+      const Identifier SCT_ModuleID2 = *wafer_it2;
       if(m_sctid->side(SCT_ModuleID2) != 0)continue;
       if(m_sctid->barrel_ec(SCT_ModuleID2) != m_sctid->barrel_ec(SCT_ModuleID))continue;
       ++nPixModECPixModEC;

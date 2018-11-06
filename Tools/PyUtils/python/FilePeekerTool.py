@@ -63,6 +63,7 @@ class FilePeekerTool():
 
         attribute_methods = dir(coral.Attribute)
         methnames = ['data<std::__cxx11::basic_string<char> >',
+                     'data<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >',
                      'data<std::basic_string<char> >',
                      'data<std::string>']
         for m in methnames:

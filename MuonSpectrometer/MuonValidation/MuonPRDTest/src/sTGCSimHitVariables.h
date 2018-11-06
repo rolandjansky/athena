@@ -17,12 +17,12 @@ class sTGCSimHitVariables : public ValAlgVariables
                     const MuonGM::MuonDetectorManager* detManager,
                     const MuonIdHelper* idhelper,
                     TTree* tree,
-                    std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "sTGCSimHitVariables"),
+						  std::string containername,
+						  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_sTgcIdHelper(0),
     m_NSWsTGC_nSimHits(0), 
     m_NSWsTGC_trackId(0),
-    m_NSWsTGC_truthEl(0),
     m_NSWsTGC_globalTime(0), 
     m_NSWsTGC_hitGlobalPositionX(0), 
     m_NSWsTGC_hitGlobalPositionY(0), 
@@ -76,10 +76,7 @@ class sTGCSimHitVariables : public ValAlgVariables
 
   ~sTGCSimHitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete sTGCSimHitVariables.");
-      std::terminate();
-    }
+    this->deleteVariables();
   }
 
 
@@ -96,14 +93,13 @@ class sTGCSimHitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const sTgcIdHelper* m_sTgcIdHelper;
 
   int m_NSWsTGC_nSimHits;
   std::vector<int> *m_NSWsTGC_trackId;
-  std::vector<int> *m_NSWsTGC_truthEl;
 
   std::vector<double> *m_NSWsTGC_globalTime;
   std::vector<double> *m_NSWsTGC_hitGlobalPositionX;

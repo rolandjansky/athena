@@ -102,6 +102,11 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     TH2I_LW* m_badChannelJump2DNotMasked[4];
     TH2I_LW* m_badChannelNeg2DNotMasked[4];
 
+        /* tibor.zenis@cern.ch */
+    TH1I_LW* m_eventinfoError_LB;
+    TH2I_LW* m_nConsecBad_LB;
+    TH1I_LW* m_nConsecBad;
+
     TH2I_LW* m_errors[4][64];
     TProfile_LW* m_errorsLB[4][64];
 

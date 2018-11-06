@@ -20,10 +20,9 @@
 #include "CoolApplication/DatabaseSvcFactory.h"
 // COOL API include files (CoolApplication)
 #include "CoolApplication/Application.h"
-
-
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
+
 
 /*
  * TRT Specific detector manager to get layout information
@@ -52,7 +51,6 @@ TRT_RodDecoder::TRT_RodDecoder
   :  AthAlgTool              ( type,name,parent ),
      m_CablingSvc            ( "TRT_CablingSvc", name ),
      m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
-     m_incsvc                ( "IncidentSvc",name ),
      m_recordBSErrors        ( true ),
      m_lookAtSidErrors       ( true ),
      m_lookAtErrorErrors     ( false ),
@@ -86,26 +84,10 @@ TRT_RodDecoder::TRT_RodDecoder
 
   for (int i=0; i<256; i++)
      m_compressTableLoaded[i] = false;
-  /*
-  m_CompressionTables[0] = NULL;
-  m_CompressionTables[1] = NULL;
-  m_CompressionTables[2] = NULL;
-  m_CompressionTables[3] = NULL;
-  m_CompressionTables[4] = NULL;
-  m_CompressionTables[5] = NULL;
-  m_CompressionTables[6] = NULL;
-  m_CompressionTables[7] = NULL;
-  m_CompressionTables[8] = NULL;
-  m_CompressionTables[9] = NULL;
-  m_CompressionTables[10] = NULL;
-  m_CompressionTables[11] = NULL;
-  m_CompressionTables[12] = NULL;
-  m_CompressionTables[13] = NULL;
-  m_CompressionTables[14] = NULL;
-  m_CompressionTables[15] = NULL;
-  */
+
 
   declareInterface<ITRT_RodDecoder>( this );
+
 }
 
 /* ----------------------------------------------------------
@@ -205,17 +187,12 @@ StatusCode TRT_RodDecoder::initialize()
   ATH_MSG_INFO( "Look at BCID Errors   : " << m_lookAtBcidErrors );
   ATH_MSG_INFO( "Look at Missing Errors: " << m_lookAtMissingErrors );
 
-  /*
-   * listen for BeginRun in order to decide if data is simulated.
-   */
-  if( m_incsvc.retrieve().isFailure() )
-  {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_incsvc );
-    return StatusCode::FAILURE;
-  } else 
-    m_incsvc->addListener( this, "BeginRun");
-
-
+  // m_loadCompressTableDB is set to (globalflags.DataSource()!='geant4') in JO
+  if(m_loadCompressTableDB) {
+     ATH_CHECK(m_CompressKey.initialize());
+  }else{
+    m_eventTypeIsSim=true;
+  }
 
   if ( m_loadCompressTableFile )
   {
@@ -246,28 +223,6 @@ StatusCode TRT_RodDecoder::initialize()
      }
   }
 
-  if ( m_loadCompressTableDB )
-  {
-  // Register callback function for cache updates - RToT:
-    const DataHandle<CondAttrListCollection> cptr_Ctab;
-    if ( StatusCode::SUCCESS == 
-	 detStore()->regFcn(&TRT_RodDecoder::update, this, 
-			   cptr_Ctab, m_compressTableFolder) )
-    {
-      ATH_MSG_DEBUG ("Registered callback for TRT_RodDecoder - CTable.");
-    }
-    else
-    {
-      ATH_MSG_ERROR ("Callback registration failed for TRT_RodDecoder - CTable! ");
-    }
-
-    // register incident handler for begin run
-    //    IIncidentSvc* incsvc;
-    //    if ( StatusCode::SUCCESS != service( m_incsvc, incsvc) )
-    //      ATH_MSG_FATAL( "Incident service not found" );
-    //    long int pri=100;
-    //    incsvc->addListener(this,"BeginRun",pri);
-  }
 
   if ( m_forceRodVersion > 0 )
   {
@@ -289,41 +244,12 @@ StatusCode TRT_RodDecoder::initialize()
 StatusCode TRT_RodDecoder::finalize() {
 
   ATH_MSG_VERBOSE( "in TRT_RodDecoder::finalize" );
+  for(auto &pair : m_CompressionTables) delete pair.second;
+  m_CompressionTables.clear();
   ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
 
   return StatusCode::SUCCESS;
 }
-
-
-/* ----------------------------------------------------------
- * Incident Handle
- * ----------------------------------------------------------
- */
-void
-TRT_RodDecoder::handle(const Incident& inc) {
-
-  /** Look at first event to determine if it is data or simulation,
-   * in order to complain later if the RodBlock version is wrong.
-   **/
-
-  if ( inc.type() == "BeginRun" ) {
-    const EventInfo* currentEvent = nullptr;
-    StatusCode sc = evtStore()->retrieve(currentEvent);
-    if ( sc.isFailure() ) 
-       ATH_MSG_ERROR( "Could not get current event" );
-#ifdef TRT_BSC_DEBUG    
-    ATH_MSG_DEBUG( "Current Run.Event,Time: " \
-	  << "[" << currentEvent->event_ID()->run_number() \
-	  << "." << currentEvent->event_ID()->event_number() \
-	  << "," << currentEvent->event_ID()->time_stamp() \
-	  << "]   " <<currentEvent->event_type()->typeToString() \
-	  << "..." );
-#endif
-    m_eventTypeIsSim =  currentEvent->event_type()->test(EventType::IS_SIMULATION);
-  }
-  return;
-}
-
 
 
 /* ----------------------------------------------------------
@@ -343,7 +269,11 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
 				 std::vector<IdentifierHash>* vecHash )
 {
+
+  std::lock_guard<std::mutex> lock(m_cacheMutex);
+  // update compression tables
   StatusCode sc;
+  if(m_loadCompressTableDB) sc = update(); 
 
   int    RodBlockVersion          = (robFrag->rod_version() & 0xff);
 
@@ -1390,7 +1320,7 @@ TableFilename
 	return StatusCode::FAILURE;
       }
 
-      Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+      Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
       if ( lengths )
 	 delete[] lengths;
@@ -1434,7 +1364,7 @@ TableFilename
 	return StatusCode::FAILURE;
       }
 
-      Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+      Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
       if ( lengths )
 	 delete[] lengths;
@@ -1796,28 +1726,21 @@ TableFilename
  * Read Compression Table from DB on IOV change
  */
 StatusCode
-TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
+TRT_RodDecoder::update()
 {  
 
-  ATH_MSG_INFO ("Updating TRT_RodDecoder Compression Table from DB");
- 
   /*
-   * Callback function to update compression table when condDB data changes:
+   * function to update compression table when condDB data changes:
    */
 
-  for( std::list<std::string>::const_iterator key=keys.begin(); 
-       key != keys.end(); ++key)
-  {
-    ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
+
+  SG::ReadCondHandle<CondAttrListCollection> rst(m_CompressKey);
+  const CondAttrListCollection* catrlist = *rst;
+  if(!catrlist) {
+    ATH_MSG_ERROR( "No Compression Table found in condDB " );
+    return StatusCode::FAILURE;
   }
- 
 
-  const DataHandle<CondAttrListCollection> catrlist;
-
-  if ( StatusCode::SUCCESS == 
-       detStore()->retrieve( catrlist, m_compressTableFolder )
-       && catrlist != 0) 
-  {
 
     CondAttrListCollection::const_iterator catrIt (catrlist->begin());
     CondAttrListCollection::const_iterator last_catr (catrlist->end());
@@ -1846,7 +1769,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 
        if ( m_compressTableLoaded[Ctable->m_TableVersion] ) 
        {
-	 ATH_MSG_WARNING( "Table " << Ctable->m_TableVersion 
+	 ATH_MSG_DEBUG( "Table " << Ctable->m_TableVersion 
 			  << " already loaded!  Not overwriting" );
 	 delete Ctable;
 	 catrIt++;
@@ -1859,7 +1782,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
        ATH_MSG_DEBUG( "Nsymbols = " << Ctable->m_Nsymbols );
 
 
-       Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+       Ctable->m_syms       = std::make_unique< unsigned int[] >( Ctable->m_Nsymbols );
 
        const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
 
@@ -1870,7 +1793,6 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 			 << (Ctable->m_Nsymbols * sizeof(unsigned int))
 			 << " )" );
 
-	  delete[] Ctable->m_syms;
 	  delete Ctable;
 
 	  return StatusCode::FAILURE;
@@ -1942,69 +1864,7 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
        catrIt++;
 
     }
-  }
-  else
-  {
-     ATH_MSG_ERROR( "Could not read Compression Table from DB" );
-
-     return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }
 
-#ifdef NOTDEF
-void
-TRT_RodDecoder::handle( const Incident &inc )
-{  
-  if ( inc.type() != "BeginRun" )
-    return;
-
-  t_CompressTable *Ctable = new t_CompressTable;
-
-  ATH_MSG_INFO ("Updating TRT_RodDecoder Compression Table from DB in BeginRun handle");
- 
- 
-   const AthenaAttributeList* atrlist=0;
-     
-   if ( StatusCode::SUCCESS == 
-	detStore()->retrieve( atrlist, m_compressTableFolder )
-	&& atrlist != 0) 
-   {
-     Ctable->m_TableVersion = (atrlist)["Version"].data<cool::Int32>();
-     Ctable->m_Nsymbols = (atrlist)["Nsymbols"].data<cool::Int32>();
-
-     Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
-
-     const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
-     const unsigned char* BlobStart =
-       static_cast<const unsigned char*> (blob.startingAddress());
-     int j = 0;
-     for (int i = 0; i < blob.size(); i += sizeof(unsigned int))
-     {
-       Ctable->m_syms[j++] = *((unsigned int*) (BlobStart + i));
-     }
-
-     std::istringstream 
-       iss((atrlist)["firstcode"].data<cool::String4k>());
-     std::string tok;
-     int i = 0;
-     while (getline(iss, tok, ' ')) 
-     {
-       Ctable->m_firstcode[i++] = atoi(tok.c_str());
-     }
-
-
-     std::istringstream 
-       iss2((atrlist)["lengths_integral"].data<cool::String4k>());
-     i = 0;
-     while (getline(iss2, tok, ' ')) 
-     {
-       Ctable->m_lengths_integral[i++] = atoi(tok.c_str());
-     }
-   }
-
-
-   return;
-}
-#endif /* NOTDEF */

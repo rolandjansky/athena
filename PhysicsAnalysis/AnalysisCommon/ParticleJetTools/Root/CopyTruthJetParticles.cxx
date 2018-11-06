@@ -50,6 +50,9 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
 
 StatusCode CopyTruthJetParticles::initialize() {
   ATH_CHECK(m_classif.retrieve());
+
+  ATH_CHECK(m_truthEventKey.initialize());
+  ATH_CHECK(m_outTruthPartKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -170,9 +173,6 @@ MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const
   return originMap[tp];
 }
 
-
-
-
 int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{ 
 
     ATH_MSG_DEBUG(" in call once barcode offset is"<<m_barcodeOffset);
@@ -245,36 +245,48 @@ int CopyTruthJetParticles::execute() const {
   //  we can not change m_barcodeOffset param since this is a const method.
 
   // Retrieve the xAOD truth objects
-  const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
-  ASG_CHECK( evtStore()->retrieve( xTruthEventContainer, "TruthEvents"), 1);
-
-  // Make a new TruthParticleContainer and link it to StoreGate
-  if (evtStore()->contains<xAOD::TruthParticleContainer>(m_outputname))
-    ATH_MSG_ERROR("Tag input TruthParticleContainer " << m_outputname << " already exists");
-
-  ConstDataVector<xAOD::TruthParticleContainer> *ipc = new ConstDataVector<xAOD::TruthParticleContainer>(SG::VIEW_ELEMENTS);
-  if (evtStore()->record(ipc, m_outputname).isFailure())
-    ATH_MSG_ERROR("Failed to record a new TruthParticleContainer " << m_outputname);
-
+  auto truthEvents = SG::makeHandle(m_truthEventKey);
+  if ( !truthEvents.isValid() ) {
+    ATH_MSG_ERROR("Failed to retrieve truth event container " << m_truthEventKey.key());
+    return 1;
+  }
+  
   // Classify particles for tagging and add to the TruthParticleContainer
-  const xAOD::TruthEvent* evt = *xTruthEventContainer->begin();
+  std::unique_ptr<ConstDataVector<xAOD::TruthParticleContainer> > ptruth(new ConstDataVector<xAOD::TruthParticleContainer>(SG::VIEW_ELEMENTS));
   std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin> originMap;
   originMap.clear();
   size_t numCopied = 0;
-  for (unsigned int ip = 0; ip < evt->nTruthParticles(); ++ip) {
-    const xAOD::TruthParticle* tp = evt->truthParticle(ip);
+  const xAOD::TruthEvent* hsevt = truthEvents->front();
+  if(!hsevt) {
+    ATH_MSG_ERROR("Null pointer received for first truth event!");
+    return 1;
+  }
+  for (size_t itp(0); itp<hsevt->nTruthParticles(); ++itp) {
+    const xAOD::TruthParticle* tp = hsevt->truthParticle(itp);
     if(tp == NULL) continue;
     if (tp->pt() < m_ptmin)
         continue;
 
       // Modification: The barcode offset is updated by the call to setBarCodeFromMetaDataCheck
     if (classifyJetInput(tp, m_barcodeOffset, promptLeptons, originMap)) { 
-      ipc->push_back(tp);
+      ptruth->push_back(tp);
       numCopied += 1;
     }
   }
 
   ATH_MSG_DEBUG("Copied " << numCopied << " truth particles into " << m_outputname << " TruthParticle container");
+
+  // record
+  auto truthParticles_out = SG::makeHandle(m_outTruthPartKey);
+  ATH_MSG_DEBUG("Recorded truth particle collection " << m_outTruthPartKey.key());
+  // notify
+  if (!truthParticles_out.put(std::move(ptruth))) {
+    ATH_MSG_ERROR("Unable to write new TruthParticleContainer to event store: " 
+                  << m_outTruthPartKey.key());
+  } else {
+    ATH_MSG_DEBUG("Created new TruthParticleContainer in event store: " 
+                  << m_outTruthPartKey.key());
+  }
 
   return 0;
 }

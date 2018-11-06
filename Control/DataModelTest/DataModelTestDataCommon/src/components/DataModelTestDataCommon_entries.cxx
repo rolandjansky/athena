@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -17,6 +17,7 @@
 #include "../xAODTestAlg.h"
 #include "../xAODTestWriteCInfo.h"
 #include "../CondWriterAlg.h"
+#include "../CondWriterExtAlg.h"
 #include "../CondReaderAlg.h"
 #include "../xAODTestReadSymlinkTool.h"
 #include "../CondAlg1.h"
@@ -29,6 +30,7 @@ DECLARE_COMPONENT( DMTest::xAODTestDecor )
 DECLARE_COMPONENT( DMTest::xAODTestAlg )
 DECLARE_COMPONENT( DMTest::xAODTestWriteCInfo )
 DECLARE_COMPONENT( DMTest::CondWriterAlg )
+DECLARE_COMPONENT( DMTest::CondWriterExtAlg )
 DECLARE_COMPONENT( DMTest::CondReaderAlg )
 DECLARE_COMPONENT( DMTest::CondAlg1 )
 DECLARE_COMPONENT( DMTest::MetaWriterAlg )

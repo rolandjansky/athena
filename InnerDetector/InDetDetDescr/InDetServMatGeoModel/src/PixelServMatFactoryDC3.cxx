@@ -160,24 +160,29 @@ void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
 //std::cout<<isec<<", "<<logNameTmp<<'\n';
 	    GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,isec*M_PI/6.),servpos1));
 	    GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(0.,0.,isec*M_PI/6.),servpos2));
+	    xform2->ref();//artificial refcount increment
 	    mother->add(new GeoNameTag(logNameTmp));
-	    mother->add(xform1);
+	    mother->add(xform1);//xform1 is always used
 	    mother->add(ServPhys);
 	    if( rmin > 0.){
 	       mother->add(new GeoNameTag(logNameTmp));
 	       mother->add(xform2);
 	       mother->add(ServPhys);
 	    }
+	    xform2->unref(); //will delete it, if it was never used
         }
     }else{
 	GeoTransform *xform1 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos1));
 	GeoTransform *xform2 = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),servpos2));
+	xform2->ref();//artificial refcount increment
 	mother->add(xform1);
 	mother->add(ServPhys);
 	if( rmin > 0.){
 	  mother->add(xform2);
 	  mother->add(ServPhys);
 	}
+	xform2->unref(); //will delete it, if it was never used
+
     }
       
   }

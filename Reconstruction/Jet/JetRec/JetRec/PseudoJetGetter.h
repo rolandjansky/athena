@@ -87,9 +87,6 @@ protected:  // data
   /// Input collection name.
   SG::ReadHandleKey<xAOD::IParticleContainer> m_incoll;        
 
-  /// Output collection for reading
-  SG::ReadHandleKey<PseudoJetContainer> m_outcollRead;        
-
   /// Output collection name.
   SG::WriteHandleKey<PseudoJetContainer> m_outcoll;      
 
@@ -97,12 +94,12 @@ protected:  // data
   std::string m_label;
 
   /// Flag indicating to skip objects with E<0.
-  bool m_skipNegativeEnergy;        
+  bool m_skipNegativeEnergy;
 
   /// Ghost scale factor.
   double m_ghostscale;
 
-  /// Flag indicating to treat objects with E<0 as ghosts  (usefull hor HI)
+  /// Flag indicating to treat objects with E<0 as ghosts  (useful for HI)
   bool m_negEnergyAsGhosts;
 
   bool m_emtopo;        /// True if inputs are EM-scale topo clusters.

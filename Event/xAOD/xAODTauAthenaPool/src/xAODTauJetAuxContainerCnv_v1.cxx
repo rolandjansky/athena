@@ -225,17 +225,38 @@ persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
       // newTau->setOtherTrackLinks( oldTau->otherTrackLinks() );
       // newTau->setWideTrackLinks( oldTau->wideTrackLinks() );
 
-      newTau->setNeutralPFOLinks( oldTau->neutral_PFOLinks() );
-      newTau->setChargedPFOLinks( oldTau->charged_PFOLinks() );
-      newTau->setPi0PFOLinks( oldTau->pi0_PFOLinks() );
-      newTau->setShotPFOLinks( oldTau->shot_PFOLinks() );
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> neutralPFOAcc ("neutral_PFOLinks");
+      if (neutralPFOAcc.isAvailable (*oldTau)) {
+        newTau->setNeutralPFOLinks( oldTau->neutral_PFOLinks() );
+      }
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> chargedPFOAcc ("charged_PFOLinks");
+      if (chargedPFOAcc.isAvailable (*oldTau)) {
+        newTau->setChargedPFOLinks( oldTau->charged_PFOLinks() );
+      }
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> pi0PFOAcc ("pi0_PFOLinks");
+      if (pi0PFOAcc.isAvailable (*oldTau)) {
+        newTau->setPi0PFOLinks( oldTau->pi0_PFOLinks() );
+      }
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> shotPFOAcc ("shot_PFOLinks");
+      if (shotPFOAcc.isAvailable (*oldTau)) {
+        newTau->setShotPFOLinks( oldTau->shot_PFOLinks() );
+      }
       /// can't set hadronic pfo links because v1 taujet doesn't have them
       // newTau->setHadronicPFOLinks( oldTau->hadronic_PFOLinks() );
 
       //v2 doesn't have pfo element link with specific type name, so copy cellbased ones into proto
-      newTau->setProtoNeutralPFOLinks( oldTau->cellBased_Neutral_PFOLinks() );
-      newTau->setProtoChargedPFOLinks( oldTau->cellBased_Charged_PFOLinks() );
-      newTau->setProtoPi0PFOLinks( oldTau->cellBased_Pi0_PFOLinks() );
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> cellBasedNeutralPFOAcc ("cellBased_Neutral_PFOLinks");
+      if (cellBasedNeutralPFOAcc.isAvailable (*oldTau)) {
+        newTau->setProtoNeutralPFOLinks( oldTau->cellBased_Neutral_PFOLinks() );
+      }
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> cellBasedChargedPFOAcc ("cellBased_Charged_PFOLinks");
+      if (cellBasedChargedPFOAcc.isAvailable (*oldTau)) {
+        newTau->setProtoChargedPFOLinks( oldTau->cellBased_Charged_PFOLinks() );
+      }
+      const static SG::AuxElement::Accessor<xAOD::TauJet_v1::PFOLinks_t> cellBased_Pi0_PFOAcc ("cellBased_Pi0_PFOLinks");
+      if (cellBasedChargedPFOAcc.isAvailable (*oldTau)) {
+        newTau->setProtoPi0PFOLinks( oldTau->cellBased_Pi0_PFOLinks() );
+      }
      
 
       // //

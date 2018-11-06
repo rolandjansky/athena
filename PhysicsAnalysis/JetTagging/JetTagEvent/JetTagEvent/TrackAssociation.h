@@ -24,7 +24,7 @@ namespace Analysis
       
     public:
       TrackAssociation() ;      //!< constructor
-      TrackAssociation(NameType& name);      //!< constructor
+      TrackAssociation(const NameType& name);      //!< constructor
       ~TrackAssociation() ;      //!< destructor
       
       typedef Navigable<Rec::TrackParticleContainer,double>::object_iter  iterator;
@@ -38,7 +38,7 @@ namespace Analysis
       
       double getTrackWeight(const Rec::TrackParticle* ) const;
       
-      double getTrackWeight(const Rec::TrackParticleContainer*, index_type& ) const;
+      double getTrackWeight(const Rec::TrackParticleContainer*, const index_type& ) const;
       
       //////////////////////
       // Set Methods
@@ -54,7 +54,7 @@ namespace Analysis
       /** set method for tracks.  By default, navigable weight = 0 which
 	  reflects that the tracks do not contribute to the kinematics.   */
       void set_track(const Rec::TrackParticleContainer*,
-		     index_type&,
+		     const index_type&,
 		     double weight=0.);
       
       //compromise for above... use concrete container, but common name for templated methods
@@ -62,7 +62,7 @@ namespace Analysis
 			   const Rec::TrackParticle*, 
 			   double weight=0.);
       void set_association(const Rec::TrackParticleContainer*,
-			   index_type&,
+			   const index_type&,
 			   double weight=0.);
             
     };

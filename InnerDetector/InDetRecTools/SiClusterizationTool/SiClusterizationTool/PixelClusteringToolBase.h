@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ protected:
      int m_errorStrategy;
      int m_acceptDiagonalClusters;
      int m_splitClusters;
-     ToolHandle<IInDetConditionsTool> m_summaryTool;
+     ToolHandle<IInDetConditionsTool> m_summaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
      bool m_useModuleMap;
      bool m_usePixelMap;
      //     mutable MsgStream m_log;

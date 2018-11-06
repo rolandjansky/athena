@@ -87,7 +87,6 @@ public:
   std::string                          m_trt_mgr_location ; //!< Manager name
   const InDetDD::TRT_DetectorManager * m_trt_mgr          ; //!< Manager handle
   const TRT_ID                       * m_trtid            ; //!< ID helper
-  unsigned int                         m_coll_pll         ; //!< trigger phase (clock bins)
   bool                                 m_reject_if_first_bit; //!< If true, reject this DC if first bit high
   bool                                 m_reject_if_first_bit_argon; //!< If true, reject this DC if first bit high
   float                                m_min_trailing_edge; //!< Min raw trailing edge position to not reject this DC

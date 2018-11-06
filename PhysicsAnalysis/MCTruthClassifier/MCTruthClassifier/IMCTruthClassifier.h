@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
     Interface for the PhysicsAnalysis/MCTruthClassifier/MCTruthclassifier
     @author Frederic Derue derue@lpnhe.in2p3.fr
     CREATED : 01/09/2008
-    MODIFIED :
+    MODIFIED : 
 */
 
 #include "AsgTools/IAsgTool.h"
@@ -26,15 +26,20 @@
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+
 #include "xAODTruth/TruthParticle.h"
 #include "xAODMuon/Muon.h"
 #include "xAODJet/Jet.h"
+
+#include <memory>
+#include <unordered_map>
 
 
 #define MCTRUTHCLASSIFIER_CONST
 
 
 #ifndef XAOD_ANALYSIS
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 namespace HepMC {
   class GenParticle;
 }
@@ -45,8 +50,9 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
      
   ASG_TOOL_INTERFACE(IMCTruthClassifier)
     public:
-
-
+#ifndef XAOD_ANALYSIS
+    typedef  Trk::IParticleCaloExtensionTool::Cache Cache;
+#endif
   // Additional information that can be returned by the classifier.
   // Originally, these were all held in member variables in the classifier,
   // but that prevents the classifier methods from being made const.
@@ -55,6 +61,7 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
   class Info
   {
   public:
+
     const xAOD::TruthParticle* genPart = nullptr;
 
     MCTruthPartClassifier::ParticleOutCome particleOutCome = MCTruthPartClassifier::UnknownOutCome;
@@ -75,7 +82,9 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
     const xAOD::TruthParticle* photonMother = nullptr;
 
     const xAOD::TruthParticle* bkgElecMother = nullptr;
-
+#ifndef XAOD_ANALYSIS
+    Cache *extrapolationCache = nullptr;
+#endif
     std::vector<const xAOD::TruthParticle*> egPartPtr;
     std::vector<float> egPartdR;
     std::vector<std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> > egPartClas;

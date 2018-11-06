@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="egammaMVACalib" />
+  <class name="IegammaMVATool" />
+  <class name="egammaMVATool" />
+  <enum pattern="egammaMVACalib::*" />
+
+</lcgdict>

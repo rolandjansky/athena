@@ -118,7 +118,7 @@ private:
  **/
 class  DataHeader {
 public:
-   enum statusFlag { Output, Primary, Input, Manual, Other };
+   enum statusFlag { Output, Input, Other };
 
 public: // Constructor and Destructor
    /// Default Constructor
@@ -133,16 +133,13 @@ public: // Non-static members
    DataHeader& operator=(const DataHeader& rhs);
  
    /// Set StatusFlag enum for DataHeader.
-   void setStatus(statusFlag status) const;
-   /// Check StatusFlag enum for DataHeader.
-   /// @param status [IN] StatusFlag to be checked for.
-   bool checkStatus(statusFlag status) const;
+   void setStatus(statusFlag status);
    /// Check whether StatusFlag is "Input".
    bool isInput() const;
 
    /// Set ProcessTag for DataHeader.
    /// @param processTag [IN] string containing PorcessTag.
-   void setProcessTag(const std::string& processTag) const;
+   void setProcessTag(const std::string& processTag);
    /// @return the string containing PorcessTag for the DataHeader.
    const std::string& getProcessTag() const;
 
@@ -197,9 +194,9 @@ private:
    /// vector with DataHeaderElement to upstream DataHeader ("Provenance").
    std::vector<DataHeaderElement> m_inputDataHeader;
    /// StatusFlag (i.e.: Output, Primary, Input, Manual, Other).
-   mutable statusFlag m_status;
+   statusFlag m_status;
    /// ProcessTag (e.g.: "StreamESD", "StreamAOD" ...).
-   mutable std::string m_processTag;
+   std::string m_processTag;
    /// Optional pointer to AttributeList to enable writing of TAG Attributes to Payload files.
    const coral::AttributeList* m_attrList;
    /// Optional Token String for Event Reference to enable writing of TAG to Payload files.

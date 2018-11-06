@@ -7,8 +7,7 @@ atlas_subdir( IdDictDetDescr )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/IdDict
                           PRIVATE
                           DetectorDescription/Identifier )
@@ -17,6 +16,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( IdDictDetDescr
                    src/IdDictManager.cxx
                    PUBLIC_HEADERS IdDictDetDescr
-                   LINK_LIBRARIES SGTools IdDict
-                   PRIVATE_LINK_LIBRARIES Identifier )
-
+                   LINK_LIBRARIES IdDict
+                   PRIVATE_LINK_LIBRARIES AthenaKernel Identifier )

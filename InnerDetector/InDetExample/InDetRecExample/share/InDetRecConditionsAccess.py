@@ -3,6 +3,8 @@
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.DetFlags import DetFlags
+
 isData = (globalflags.DataSource == 'data')
 
 eventInfoKey = "ByteStreamEventInfo"
@@ -24,17 +26,53 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
 #
+# --- Setup BeamSpot data
+#
+try:
+   from RecExConfig.RecFlags import rec
+   # If express processing, point beam spot to online folder results
+   if (rec.doExpressProcessing()):
+        conddb.addFolder('INDET_ONL', '/Indet/Onl/Beampos <key>/Indet/Beampos</key>', className="AthenaAttributeList")
+   else:
+        conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+
+except ImportError:
+    # Protection for AthSimulationBase release which does not contain RecExConfig
+    conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+
+
+from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
+#
 # --- Load PixelConditionsServices
 #
 if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
-    InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
-  
-    #Tool version for athenaMT
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
+        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+        pixelConditionsSummaryToolSetup.setUseDCS(isData  and InDetFlags.usePixelDCS())
+        pixelConditionsSummaryToolSetup.setUseBS(isData)
+        pixelConditionsSummaryToolSetup.setup()
 
+    InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
+
+    if athenaCommonFlags.isOnline() :
+        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
+    else:
+        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
+
+    if InDetFlags.usePixelDCS():
+        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
+
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetPixelConditionsSummaryTool
+
+ 
     # Load pixel calibration service
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixCalib'):
@@ -46,12 +84,7 @@ if DetFlags.haveRIO.pixel_on():
             print InDetPixelCalibSvc
 
     # Load pixel special pixel map services
-    if athenaCommonFlags.isOnline() :
-       InDetPixelConditionsSummarySvc.UseSpecialPixelMap = False
-       InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
-    else:
-        InDetPixelConditionsSummarySvc.UseSpecialPixelMap = True
-        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
+    if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixMapShort'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/PixMapLong'):
@@ -71,7 +104,6 @@ if DetFlags.haveRIO.pixel_on():
         if InDetFlags.doPrintConfigurables():
             print InDetSpecialPixelMapSvc
 
-        InDetPixelConditionsSummarySvc.DisableCallback = False
         #Alg is suppose to replace service, sync withh service for now
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import SpecialPixelMapCondAlg
         InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
@@ -83,86 +115,17 @@ if DetFlags.haveRIO.pixel_on():
         if InDetFlags.doPrintConfigurables():
             print InDetSpecialPixelMapSvc
 
-    # Load pixel DCS information
-    from SiLorentzAngleSvc.PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-    if InDetFlags.usePixelDCS():
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelDCSSvc
-        if athenaCommonFlags.isOnline():
-            if not conddb.folderRequested('/PIXEL/HLT/DCS/TEMPERATURE'):
-                conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE")
-            if not conddb.folderRequested('/PIXEL/HLT/DCS/HV'):
-                conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/HV")
-                
-            InDetPixelDCSSvc =  PixelDCSSvc(RegisterCallback     = TRUE,
-                                            TemperatureFolder    = "/PIXEL/HLT/DCS/TEMPERATURE",
-                                            HVFolder             = "/PIXEL/HLT/DCS/HV",
-                                            TemperatureFieldName = "temperature",
-                                            HVFieldName          = "HV")
-        else:
-            if not conddb.folderRequested('/PIXEL/DCS/TEMPERATURE'):
-                conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
-            if not conddb.folderRequested('/PIXEL/DCS/HV'):
-                conddb.addFolder("DCS_OFL","/PIXEL/DCS/HV")
-            if not conddb.folderRequested('/PIXEL/DCS/FSMSTATUS'):
-                conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
-            if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
-                conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
-            # from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as idGeoFlags
-            if (rec.doMonitoring() and globalflags.DataSource() == 'data' and ( geoFlags.Run() in ["RUN2", "RUN3"] ) and conddb.dbdata == "CONDBR2"):
-                # idGeoFlags.isIBL() == True may work too instead of ( geoFlags.Run() in ["RUN2", "RUN3"] )
-                if not conddb.folderRequested('/PIXEL/DCS/PIPES'):
-                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
-                if not conddb.folderRequested('/PIXEL/DCS/LV'):
-                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/LV")
-                if not conddb.folderRequested('/PIXEL/DCS/HVCURRENT'):
-                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/HVCURRENT")
-                # not used anymore
-                # if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
-                #    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")
-            
-            InDetPixelDCSSvc =  PixelDCSSvc(RegisterCallback     = TRUE,
-                                            TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
-                                            HVFolder             = "/PIXEL/DCS/HV",
-                                            FSMStatusFolder      = "/PIXEL/DCS/FSMSTATUS",
-                                            FSMStateFolder       = "/PIXEL/DCS/FSMSTATE",
-                                            TemperatureFieldName = "temperature",
-                                            HVFieldName          = "HV",
-                                            FSMStatusFieldName   = "FSM_status",
-                                            FSMStateFieldName    = "FSM_state" )
-        ServiceMgr += InDetPixelDCSSvc
-        if InDetFlags.doPrintConfigurables():
-            print InDetPixelDCSSvc
 
-        # temporarily workaround incomplete conditions data for MC
-        #  by only enabling the usage of dcs in the pixel conditions summary service for data
-        InDetPixelConditionsSummarySvc.UseDCS         = isData
-        InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
-        InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-
-        InDetPixelConditionsSummaryTool.UseDCS        = isData
-        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
-        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-    else:
-        pixelLorentzAngleSvcSetup.usePixelDefaults = True
+    if not InDetFlags.usePixelDCS():
         from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
         PixelSiliconConditionsSvc.UseDB = False
 
     # Load Pixel BS errors service
-    if ( globalflags.DataSource == 'geant4' ) :
-        # Due to a "feature" in the BS encoder for simulation,
-        # the information of the BS error service
-        # is not reliable on MC.
-        InDetPixelConditionsSummarySvc.UseByteStream = False
-        InDetPixelConditionsSummaryTool.UseByteStream = False
-    else :
+    if not (globalflags.DataSource=='geant4'):
         from PixelConditionsServices.PixelConditionsServicesConf import PixelByteStreamErrorsSvc
         InDetPixelByteStreamErrorsSvc = PixelByteStreamErrorsSvc()
         if ( globalflags.InputFormat != 'bytestream' ):
             InDetPixelByteStreamErrorsSvc.ReadingESD = True
-        InDetPixelConditionsSummarySvc.UseByteStream = True
-        InDetPixelConditionsSummaryTool.UseByteStream = True
-
         ServiceMgr += InDetPixelByteStreamErrorsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetPixelByteStreamErrorsSvc
@@ -193,17 +156,17 @@ if DetFlags.haveRIO.pixel_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetPixelOfflineCalibSvc
 
-    # Register and printout configuration of  PixelConditionsSummarySvc
-    ServiceMgr += InDetPixelConditionsSummarySvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelConditionsSummarySvc
-    ToolSvc += InDetPixelConditionsSummaryTool
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelConditionsSummaryTool
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
+
 #
 # --- Load SCT Conditions Services
 #
 if DetFlags.haveRIO.SCT_on():
+    # Set up SCT cabling
+    include( 'InDetRecExample/InDetRecCabling.py' )
 
     # Load conditions summary tool
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
@@ -287,7 +250,6 @@ if DetFlags.haveRIO.SCT_on():
     sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
     sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
     sct_ByteStreamErrorsToolSetup.setup()
-    include( 'InDetRecExample/InDetRecCabling.py' )
     if (InDetFlags.doPrintConfigurables()):
         print sct_ByteStreamErrorsToolSetup.getTool()
     
@@ -348,8 +310,7 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConditionsSummaryTool
 
     # Conditions summary tool without InDetSCT_FlaggedConditionTool
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
     InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()    
     condTools = []
@@ -383,7 +344,7 @@ if DetFlags.haveRIO.TRT_on():
     # Compression table
     if (globalflags.DataSource() == 'data'): 
         if not conddb.folderRequested('/TRT/Onl/ROD/Compress'):
-            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
     # Calibration constants
     # Block folders if they are to be read from or written to text files

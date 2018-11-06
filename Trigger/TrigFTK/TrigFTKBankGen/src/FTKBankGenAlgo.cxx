@@ -263,7 +263,7 @@ StatusCode FTKBankGenAlgo::initialize(){
     m_tmp_hashID = (int *) calloc(m_nplanes+1,sizeof(int));
 
     for(int ibank=0;ibank<m_nbanks;ibank++){
-      sprintf(m_str_sector_file_name,"%s/sectors_raw_%dL_reg%d.patt",m_c_sector_dir_path,m_nplanes,ibank);
+      snprintf(m_str_sector_file_name,sizeof(m_str_sector_file_name),"%s/sectors_raw_%dL_reg%d.patt",m_c_sector_dir_path,m_nplanes,ibank);
       
       ifstream sector_file(m_str_sector_file_name);
       if(!sector_file){
@@ -312,7 +312,7 @@ StatusCode FTKBankGenAlgo::initialize(){
 
     //setBank function
     for(int ibank=0;ibank<m_nbanks;ibank++){
-      sprintf(m_str_gcon_file_name,"%s/corrgen_raw_%dL_reg%d.gcon",m_c_gcon_dir_path,m_nplanes,ibank);
+      snprintf(m_str_gcon_file_name,sizeof(m_str_gcon_file_name),"%s/corrgen_raw_%dL_reg%d.gcon",m_c_gcon_dir_path,m_nplanes,ibank);
       ifstream gcon_file(m_str_gcon_file_name);
       if(!gcon_file){
       	log << MSG::FATAL << m_str_gcon_file_name << " not found!!" << endmsg;
@@ -356,13 +356,13 @@ StatusCode FTKBankGenAlgo::initialize(){
     m_file = new TFile(filename,"recreate");
     gROOT->cd();
   
-    char name[5];
-    char title[20];
+    char name[6];
+    char title[21];
 
     for(int i = 0; i < m_nregions; ++i){
     
-      sprintf(name,"am%d",i);
-      sprintf(title,"Ambank %d para",i); 
+      snprintf(name,sizeof(name),"am%d",i);
+      snprintf(title,sizeof(title),"Ambank %d para",i); 
 
       m_tree[i] = new TTree(name, title);
     }

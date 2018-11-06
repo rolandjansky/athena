@@ -61,7 +61,6 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
     topSequence = AlgSequence()
 
     for i, jet in enumerate(JetCollectionList):
-          #btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, jet) #The [:-4] is not needed here; this function automatically removes trailing 'jets' or 'Jets'.
           btagger = ConfInstance.setupJetBTaggerAlg(ToolSvc, jet) #The [:-4] is not needed here; this function automatically removes trailing 'jets' or 'Jets'.
           if btagger is None:
             continue

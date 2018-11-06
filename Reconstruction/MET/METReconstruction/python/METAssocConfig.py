@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from GaudiKernel.Constants import INFO
 
 #################################################################################
 # Define some default values
@@ -195,7 +194,7 @@ class METAssocConfig:
         self.setupAssociators(buildconfigs)
 
 # Set up a top-level tool with mostly defaults
-def getMETAssocTool(topconfig):
+def getMETAssocTool(topconfig,msglvl):
     assocTool = None
     from METReconstruction.METRecoFlags import metFlags
     if topconfig.doTruth:
@@ -211,13 +210,14 @@ def getMETAssocTool(topconfig):
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix,
                                                    TCSignalState=tcstate,
-                                                   TimingDetail=0)
+                                                   TimingDetail=0,
+                                                   OutputLevel=msglvl)
         if metFlags.AllowOverwrite:
             assocTool.AllowOverwrite = True
     return assocTool
 
 # Allow user to configure reco tools directly or get more default configurations
-def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
+def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
 
     assocTools = []
     assocTools += tools
@@ -229,7 +229,7 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
         print configs
     for key,conf in configs.iteritems():
         print prefix, 'Generate METAssocTool for MET_'+key
-        assoctool = getMETAssocTool(conf)
+        assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool
 

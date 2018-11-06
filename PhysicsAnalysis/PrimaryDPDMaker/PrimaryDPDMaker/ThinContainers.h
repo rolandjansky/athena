@@ -31,6 +31,7 @@ Description: This is a short algorithm to select calorimeter cells that are
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -48,6 +49,8 @@ Description: This is a short algorithm to select calorimeter cells that are
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // Needed for RegSelSvc
 #include "IRegionSelector/RegSelEnums.h" //contains the DETID enum
@@ -142,6 +145,9 @@ private:
 
   // Get the TRT_ID helper
   const TRT_ID* m_trtID;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // Create an empty list of IDs for the various objects (to be thinned)
   // that will be kept.

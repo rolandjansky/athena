@@ -12,10 +12,6 @@
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -36,6 +32,8 @@
 #include <string>
 #include <map>
 
+class PixelID;
+class SCT_ID;
 
 namespace Trk { class ITrackParticleCreatorTool; }
 //namespace Trk { class TrackParticleCreatorTool; }
@@ -187,8 +185,6 @@ private:
   std::string m_FTKSCTClu_CollName; // name of the collection
   InDet::SCT_ClusterContainer *m_FTKSCTCluContainer; // SCT container object
   AtlasDetectorID* m_idHelper;
-  const InDetDD::SiDetectorManager*     m_PIX_mgr;
-  const InDetDD::SiDetectorManager*     m_SCT_mgr;
   const PixelID *m_pixel_id;
   const SCT_ID *m_sct_id;
 

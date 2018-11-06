@@ -164,7 +164,3 @@ from AthenaCommon.DetFlags      import DetFlags
 DetFlags.detdescr.Calo_setOn()
 
 include ('AthenaPoolUtilities/TPCnvTest.py')
-
-from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-tileInfoConfigurator = TileInfoConfigurator()
-

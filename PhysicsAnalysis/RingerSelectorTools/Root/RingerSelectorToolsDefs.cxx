@@ -28,7 +28,7 @@ unsigned numberOfSegments(const SegmentationType e)
       return numberOfSegments(SegmentationType::TrackCalSegmentation) + 1;
       break;
     case SegmentationType::TrackCalJointSections:
-      return numberOfSegments(TrackCalPatTypeSegmentation) - 1 + 
+      return numberOfSegments(TrackCalPatTypeSegmentation) - 1 +
 #ifdef RINGER_STANDALONE
         2;
 #else
@@ -36,7 +36,7 @@ unsigned numberOfSegments(const SegmentationType e)
 #endif
       break;
     case SegmentationType::TrackCalJointLayers:
-      return numberOfSegments(TrackCalPatTypeSegmentation) - 1 + 
+      return numberOfSegments(TrackCalPatTypeSegmentation) - 1 +
 #ifdef RINGER_STANDALONE
         7;
 #else
@@ -45,7 +45,7 @@ unsigned numberOfSegments(const SegmentationType e)
       break;
     default:
       throw std::runtime_error(std::string("Could not recognize ") +
-            "SegmentationType(" + std::to_string(int(e)) + 
+            "SegmentationType(" + std::to_string(int(e)) +
             ") to numberOfSegments method on RingerSelectorToolsDefs.cxx"
             " file.");
   }
@@ -78,7 +78,7 @@ EtaDependency getType(const char* cStr)
 {
   std::string strType(cStr);
   if (strType=="EtaIndependent"){
-    return EtaIndependent; 
+    return EtaIndependent;
   } else if ( strType=="EtaDependent" ){
     return EtaDependent;
   } else {
@@ -93,7 +93,7 @@ EtDependency getType(const char* cStr)
 {
   std::string strType(cStr);
   if (strType=="EtIndependent"){
-    return EtIndependent; 
+    return EtIndependent;
   } else if ( strType=="EtDependent" ){
     return EtDependent;
   } else {

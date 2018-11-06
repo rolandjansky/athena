@@ -83,7 +83,7 @@ pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",
                                      SiConditionsServices = pixelSiliconConditionsSvc)
 ServiceMgr += pixelSiPropertiesSvc
 
-ReadPixelElements.SiLorentzAngleSvc = lorentzAngleSvc.pixel
+ReadPixelElements.SiLorentzAngleTool = lorentzAngleSvc.pixel
 ReadPixelElements.SiPropertiesSvc   = pixelSiPropertiesSvc
 ReadPixelElements.SiConditionsSvc   = pixelSiliconConditionsSvc
 # ReadPixelElements.DetEleCollKey = "PixelDetectorElementCollection"

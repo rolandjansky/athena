@@ -18,7 +18,8 @@
 
 ReadAlignTrans::ReadAlignTrans(const std::string& name, 
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
-   p_geomodelsvc(0)
+   p_geomodelsvc(0),
+   m_sidetman()
 {}
 
 ReadAlignTrans::~ReadAlignTrans(void)

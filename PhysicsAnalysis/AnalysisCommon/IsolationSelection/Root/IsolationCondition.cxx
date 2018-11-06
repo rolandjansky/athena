@@ -38,7 +38,7 @@ namespace CP{
     xAOD::Iso::IsolationType  IsolationCondition::type() const{
         return  m_isolationType;
     }
-    SG::AuxElement::Accessor<float>* IsolationCondition::accessor() const{
+    const SG::AuxElement::Accessor<float>* IsolationCondition::accessor() const{
         return m_acc;
     }
 

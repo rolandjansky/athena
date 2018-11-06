@@ -22,7 +22,7 @@ namespace Rec {
     typedef std::vector< std::pair<const CaloCell*,ParticleCellIntersection*> > CellIntersections;
     
     /** constructor */
-    ParticleCellAssociation( const Trk::CaloExtension& caloExtension, Data&& data, float coneSize, 
+    ParticleCellAssociation( const Trk::CaloExtension* caloExtension, Data&& data, float coneSize, 
                              const CellIntersections&& intersections, const CaloCellContainer* container=0 );
 
     /** destructor */

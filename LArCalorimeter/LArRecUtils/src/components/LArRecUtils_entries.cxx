@@ -19,9 +19,18 @@
 #include "../LArOnOffMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
 #include "../LArFebRodMappingAlg.h"
+#include "../LArHVIdMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
 #include "../LArMCSymCondAlg.h"
 #include "../LArADC2MeVCondAlg.h"
+#include "../LArAutoCorrTotalCondAlg.h"
+#include "../LArOFCCondAlg.h"
+#include "../LArHVPathologyDbCondAlg.h"
+#include "../LArHVIdMappingAlg.h"
+#include "../LArHVCondAlg.h"
+#include "../LArHVScaleCorrCondAlg.h"
+#include "../LArAutoCorrNoiseCondAlg.h"
+
 
 DECLARE_COMPONENT( LArADC2MeVTool )
 DECLARE_COMPONENT( LArAutoCorrNoiseTool )
@@ -69,6 +78,17 @@ DECLARE_COMPONENT( LAruA2MeVSymCondAlg )
 DECLARE_COMPONENT( LArDAC2uASymCondAlg )
 DECLARE_COMPONENT( LArfSamplSymCondAlg )
 DECLARE_COMPONENT( LArMinBiasSymCondAlg )
+DECLARE_COMPONENT( LArMinBiasAverageSymCondAlg )
 DECLARE_COMPONENT( LArNoiseSymCondAlg )
+DECLARE_COMPONENT( LArShapeSymCondAlg )
+DECLARE_COMPONENT( LArAutoCorrSymCondAlg )
+DECLARE_COMPONENT( LArMphysOverMcalSymCondAlg ) 
 
+DECLARE_COMPONENT( LArAutoCorrTotalCondAlg )
 DECLARE_COMPONENT( LArADC2MeVCondAlg )
+DECLARE_COMPONENT( LArHVPathologyDbCondAlg )
+DECLARE_COMPONENT( LArHVIdMappingAlg )
+DECLARE_COMPONENT( LArOFCCondAlg )
+DECLARE_COMPONENT( LArHVCondAlg )
+DECLARE_COMPONENT( LArHVScaleCorrCondAlg )
+DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )

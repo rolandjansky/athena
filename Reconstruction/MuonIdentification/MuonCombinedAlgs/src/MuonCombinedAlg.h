@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDALG_H
@@ -10,11 +10,16 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/MuonCandidate.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include <string>
+#include <vector>
 
-namespace MuonCombined {
-  class IMuonCombinedTool;
+namespace Muon
+{
+  class MuonEDMPrinterTool;
 }
 
 class MuonCombinedAlg : public AthAlgorithm
@@ -29,9 +34,11 @@ class MuonCombinedAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
+
   ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool{this,"MuonCombinedTool","MuonCombined::MuonCombinedTool/MuonCombinedTool","muon combined tool"};
   SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
   SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","name of muon candidate collection"};
+  SG::WriteHandleKeyArray<MuonCombined::InDetCandidateToTagMap> m_combTagMaps{this,"CombinedTagMaps",{"muidcoTagMap","stacoTagMap"},"combined muon tag maps"};
 
 };
 

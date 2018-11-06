@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***********************************************************************************
@@ -52,12 +52,6 @@ StatusCode Trk::GsfMaterialEffectsUpdator::initialize ()
     msg(MSG::FATAL)
 	  << "Could not retrieve Material Effects AlgTool: " << m_materialEffects.typeAndName()
 	  << "... Exiting!" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  // Retrieve an instance of the multi-component state assembler service
-  if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve multi-component state assembler tool... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -397,16 +391,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   // msg(MSG::VERBOSE) << "Computing updated parameters, covariances and weights" << endmsg;
 
   Trk::MultiComponentState* computedState = new Trk::MultiComponentState();
-
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
-
-  if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
-    return 0;
-  }
-
-   /* Get values for:
+    /* Get values for:
      - Change in momentum
      - Change in covariance of momentum
      - Weights of new states
@@ -417,46 +402,43 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
 
   // msg(MSG::VERBOSE) << "Calculating, weights, deltaP and delta-covariance" << endmsg;
 
-  const std::vector<double> componentWeights = m_materialEffects->weights(componentParameters, materialProperties, pathLength, direction, particleHypothesis );
-  const std::vector<double> componentDeltaPs = m_materialEffects->deltaPs(componentParameters, materialProperties, pathLength, direction, particleHypothesis );
+
+  Trk::IMultiStateMaterialEffects::Cache cache;
+  m_materialEffects->compute( cache, componentParameters, materialProperties, pathLength, direction, particleHypothesis );
   
-  std::vector<const AmgSymMatrix(5)*> componentDeltaCovariances;
   
-  if (measuredCov)
-    componentDeltaCovariances = m_materialEffects->deltaCovariances(componentParameters, materialProperties, pathLength, direction, particleHypothesis );
-  else
-    if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No covariance associated with this component... Cannot update covariance with material effects. Continuing" << endmsg;
+  if (!measuredCov)
+    ATH_MSG_VERBOSE( "No covariance associated with this component... Cannot update covariance with material effects. Continuing" );
   
   // check all vectors have the same size
-  if ( componentWeights.size() != componentDeltaPs.size() ){
-    msg(MSG::ERROR) << "Inconsistent number of components in the updator... returning original component" << endmsg;
-    if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "Number of weights components: " << componentWeights.size() << " Number of deltaP entries: " << componentDeltaPs.size()
-	          << " number of deltaCovariance entries: " << componentDeltaCovariances.size() << endmsg;
-    return new Trk::MultiComponentState( *( componentParameters.clone() ) );
+  if ( cache.weights.size() != cache.deltaPs.size() ){
+    ATH_MSG_ERROR( "Inconsistent number of components in the updator... returning original component" );
+    ATH_MSG_DEBUG( "Number of weights components: " << cache.weights.size() 
+                   << " Number of deltaP entries: " << cache.deltaPs.size()
+	                 << " number of deltaCovariance entries: " << cache.deltaCovariances.size() );
+   delete computedState;
+   return new Trk::MultiComponentState( *( componentParameters.clone() ) );
   }
   
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Updator found: " << componentWeights.size() << " components" << endmsg;
+  ATH_MSG_VERBOSE( "Updator found: " << cache.weights.size() << " components" );
   
   // Prepare  an output state
   unsigned int componentIndex = 0;
 
-  for ( ; componentIndex < componentWeights.size(); ++componentIndex){
+  for ( ; componentIndex < cache.weights.size(); ++componentIndex){
     if (m_outputlevel < 0){
       if ( !measuredCov ){
         msg(MSG::VERBOSE) << "Printing updated parameters" << std::endl
         << " ************* Component number: " << componentIndex << " *************" << std::endl
-        << "* - Component weight: " << componentWeights[componentIndex] << std::endl
-        << "* - Component deltaP: " << componentDeltaPs[componentIndex] << std::endl
+        << "* - Component weight: " << cache.weights[componentIndex] << std::endl
+        << "* - Component deltaP: " << cache.deltaPs[componentIndex] << std::endl
         << " **********************************************************************" << endmsg;
       }else{
         msg(MSG::VERBOSE) << "Printing updated parameters" << std::endl
         << " ************* Component number: " << componentIndex << " *************" << std::endl
-        << "* - Component weight:     " << componentWeights[componentIndex] << std::endl
-        << "* - Component deltaP:     " << componentDeltaPs[componentIndex] << std::endl
-        << "* - Component deltaSigma: " << sqrt( (*componentDeltaCovariances[componentIndex])(Trk::qOverP,Trk::qOverP) )  << std::endl
+        << "* - Component weight:     " << cache.weights[componentIndex] << std::endl
+        << "* - Component deltaP:     " << cache.deltaPs[componentIndex] << std::endl
+        << "* - Component deltaSigma: " << sqrt( (*cache.deltaCovariances[componentIndex])(Trk::qOverP,Trk::qOverP) )  << std::endl
         << " **********************************************************************" << endmsg;
       }
     }
@@ -465,30 +447,28 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
     updatedStateVector = stateVector;
     
     // Adjust the momentum of the component's parameters vector here. Check to make sure update is good.
-    if ( !updateP( updatedStateVector, componentDeltaPs[componentIndex] ) ){
-      m_materialEffects->reset();
-      msg(MSG::ERROR) << "Cannot update state vector momentum... returning original component" << endmsg;
+    if ( !updateP( updatedStateVector, cache.deltaPs[componentIndex] ) ){
+      ATH_MSG_ERROR( "Cannot update state vector momentum... returning original component");
+      delete computedState;
       return new Trk::MultiComponentState( *(componentParameters.clone() ) );
     }
     
     const TrackParameters* updatedTrackParameters = 0;
     
-    if ( measuredCov && !componentDeltaCovariances.empty() && componentDeltaCovariances[componentIndex] != 0 ){
-      AmgSymMatrix(5)* updatedCovariance = new AmgSymMatrix(5)( *componentDeltaCovariances[componentIndex] + *measuredCov );
+    if ( measuredCov && !cache.deltaCovariances.empty() && cache.deltaCovariances[componentIndex] != 0 ){
+      AmgSymMatrix(5)* updatedCovariance = new AmgSymMatrix(5)( *cache.deltaCovariances[componentIndex] + *measuredCov );
       updatedTrackParameters = trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],updatedStateVector[Trk::loc2],updatedStateVector[Trk::phi],updatedStateVector[Trk::theta],updatedStateVector[Trk::qOverP], updatedCovariance );
     }
     else
       updatedTrackParameters = trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],updatedStateVector[Trk::loc2],updatedStateVector[Trk::phi],updatedStateVector[Trk::theta],updatedStateVector[Trk::qOverP], 0 );
     
-    double updatedWeight = componentParameters.second * componentWeights[componentIndex];
+    double updatedWeight = componentParameters.second * cache.weights[componentIndex];
 
     const Trk::ComponentParameters updatedComponent(updatedTrackParameters, updatedWeight);
     
     computedState->push_back( updatedComponent );
   }
 
-  // Clean up memory allocated in the material effects
-  m_materialEffects->reset();
 
   return computedState;
 

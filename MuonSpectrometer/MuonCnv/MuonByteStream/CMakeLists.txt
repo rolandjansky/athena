@@ -8,14 +8,14 @@ atlas_subdir( MuonByteStream )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          DetectorDescription/IRegionSelector
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           GaudiKernel
                           MuonSpectrometer/MuonCnv/MuonCSC_CnvTools
                           MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
+                          Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
-                          Control/CLIDSvc
-                          Control/SGTools
                           Control/StoreGate
                           MuonSpectrometer/MuonCablings/CSCcabling
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
@@ -32,7 +32,7 @@ atlas_add_component( MuonByteStream
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel SGTools StoreGateLib SGtests CSCcablingLib RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel StoreGateLib SGtests CSCcablingLib RPCcablingInterfaceLib MuonIdHelpersLib MuonRDO TrigSteeringEvent)
 
 # Install files from the package:
 atlas_install_headers( MuonByteStream )

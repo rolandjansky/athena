@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 __doc__ = "Factories to lazy instantiate Private/Public Tools and Algorithms"
 __authors__ = "Bruno Lenzi, Christos Anastopoulos, Jovan Mitrevski"
 from AthenaCommon.Logging import logging
@@ -97,8 +96,8 @@ class FullNameWrapper( FcnWrapper ):
 
 class Factory:
   """Factory: base class of ToolFactory and AlgFactory.
-  Allows to "lazy" instantiate tools (algs) and add them to ToolSvc (TopSequence) if needed.
-  Allows to set properties in the c-tor , including other factories,tools and also define preInit/postInit methods.
+  Allows to "lazy" instantiate tools/algs/services. Properties are set in the c-tor , 
+  and can include other factories,tools. One can also define preInit/postInit methods.
   The end result is that the configuration can be defined/formed/composed before the actual instantiation  
   which happens when needed, i.e at demand  via () (__call__())  method.
   
@@ -113,15 +112,14 @@ class Factory:
   # default via FcnWrapper or ToolFactory instance, called when the tool is instantiated
   def getNameOfTool2(): return MyTool2().getFullName()
   MyTool3 = ToolFactory(MyPkgConf.MyTool3, 
-    Tool1 = MyTool1, # ToolFactory instance, not actual tool instance (the tool intantiated when needed)
+    Tool1 = MyTool1, # ToolFactory instance, not actual tool instance 
     NameOfTool2 = FcnWrapper(getNameOfTool2), # could have used FullNameWrapper( MyTool2 )
   ) 
-  
+
   # Actual tool instantiation at demand
   MyTool1() # create tool instance with default values
   MyTool2(propertyY = 'xx') # create a tool instance overriding default propertyY. At this point setPropertyX will be called
   MyTool3() # create default instance, will all try to instantiate MyTool1 (effect depends on Private/Public usage)
-  
   tool2a = MyTool2('myTool2a') # create another factory instance with the same properties as MyTool2 above ('x')
   tool3a = MyTool3('myTool3a', Tool1 = MyTool1('myTool1a', propertyA = 'B'),NameOfTool2 = 'myTool2a') 
   # create another factory instance overriding  both properties set above for MyTool3
@@ -143,12 +141,15 @@ class Factory:
   def copy(self, name, **kw):
     "copy(self, name, **kw) --> return a new instance of the factory with new name and defaults"
     kw['name'] = name
-    return self.__class__(self.iclass, **dict(self.defaults, **kw) )
+    deflt = self.defaults.copy()
+    deflt.update(kw) 
+    return self.__class__(self.iclass, **deflt )
 
   def __call__(self, name = '', **kw ):
     """Call preInit functions, instantiate tool (alg), call postInit functions and add
        to ToolSvc (TopSequence)"""
-    params = dict(self.defaults, **kw)
+    params=self.defaults.copy()
+    params.update(kw)
     params['name'] = name or params.get('name', self.iclass.__name__)
     del name, kw # to avoid silly mistakes    
 
@@ -166,8 +167,8 @@ class Factory:
        treatException('calling preInit function %s on %s instantiation\n' %  (fcn.__name__, params['name']))
        raise
     
-    # Call FcnWrapper or ToolFactory parameters 
-    # (or if they are inside a list, for ToolHandleArray)
+    # Instantiate the Factory  parameters or call the Function wrappers.  
+    # (if they are inside a list -->ToolHandleArray loop over them)
     classes = (FcnWrapper, ToolFactory, PublicToolFactory, ServiceFactory)
     for paramName, value in params.items():
       if isinstance(value, classes) or \
@@ -212,56 +213,56 @@ class ToolFactory( Factory ):
 
   def __init__(self, iclass, **defaults ):
     self.iclass = iclass
-    self.defaults = dict({'doAdd': False}, **defaults)
+    self.defaults={'doAdd': False}
+    self.defaults.update(defaults)
 
   def add(self, obj):
-      factoriesInfo("Tool with name ==> %s  will not be added in ToolSvc, use PublicToolFactory for public tools" %  obj.getFullName() )
+      factoriesInfo("Tool with name ==> %s  is a Private Tool, will not be added in ToolSvc" %  obj.getFullName() )
       pass
 
   def copyPublic(self, name, **kw):
     "copy(self, name, **kw) --> return a new instance of the factory as a puclic tool with new name and defaults"
-
-    deflt = dict(self.defaults, **kw)
-
+    deflt = self.defaults.copy()
+    deflt.update(kw)
     deflt['name'] = name
     deflt['doAdd'] = True
-
     return PublicToolFactory(self.iclass, **deflt )
-
 
 class PublicToolFactory( Factory ):
   """ToolFactory: to instantiate tools. Adds in ToolSvc (public tools). See Factory"""
-
   def __init__(self, iclass, **defaults ):
     self.iclass = iclass
-    self.defaults = dict({'doAdd': True}, **defaults)
-
+    self.defaults={'doAdd': True}
+    self.defaults.update(defaults)
+    
   def add(self, obj):
     if not isAlreadyInToolSvc(obj.getName()):
-      factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
+      factoriesInfo("Adding new Public Tool ===> %s" % obj.getFullName())
       addToToolSvc(obj)
     else :
-      factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
+      factoriesInfo("Public Tool with name ==> %s  already in ToolSvc, using existing instance" %  obj.getFullName() )
 
 class ServiceFactory( Factory ):
   """ServiceFactory: to instantiate services. Adds to ServiceMgr. See Factory"""
 
   def __init__(self, iclass, **defaults ):
     self.iclass = iclass
-    self.defaults = dict({'doAdd': True}, **defaults)
+    self.defaults={'doAdd': True}
+    self.defaults.update(defaults)
 
   def add(self, obj):
     if not isAlreadyInServiceMgr(obj.getName()):
       factoriesInfo("Adding new Service ===> %s" % obj.getFullName())
       addToServiceMgr(obj)
     else :
-      factoriesInfo("Service with name ==> %s  already in ServiceMgr, use existing instance" %  obj.getFullName() )
+      factoriesInfo("Service with name ==> %s  already in ServiceMgr, using existing instance" %  obj.getFullName() )
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""
   def __init__(self, iclass, **defaults ):
     self.iclass = iclass
-    self.defaults = dict({'doAdd': True}, **defaults)
+    self.defaults={'doAdd': True}
+    self.defaults.update(defaults)
     
   def add(self, obj):
     factoriesInfo("Adding new Algorithm ==> %s " %obj.getFullName())

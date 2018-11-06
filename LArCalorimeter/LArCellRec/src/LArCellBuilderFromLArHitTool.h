@@ -51,20 +51,24 @@ process(CaloCellContainer * theCellContainer)
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/IdContext.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "StoreGate/DataHandle.h"
-//#include "DataModel/DataPool.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-//#include "LArCellRec/LArHitMap.h"
 #include "LArHitInfo.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "LArSimEvent/LArHitContainer.h"
 
 #include <CLHEP/Random/Randomize.h>
 
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class CaloDetDescrManager; 
 class Identifier; 
@@ -73,12 +77,10 @@ class CaloDetDescrElement;
 class IAtRndmGenSvc;
 class LArG3Escale ;
 
-class LArCellBuilderFromLArHitTool: public AthAlgTool,
-					   public IIncidentListener,  
-					   virtual public ICaloCellMakerTool
-
+class LArCellBuilderFromLArHitTool
+  : public extends<AthAlgTool, IIncidentListener,  ICaloCellMakerTool>
 {
-  typedef std::vector<LArHitInfo*> CellPermanentCollection ;
+  typedef std::vector<LArHitInfo> CellPermanentCollection;
 
 public:    
 
@@ -87,23 +89,37 @@ public:
 				      const std::string& name, 
 				      const IInterface* parent);
 
-  virtual StatusCode initialize();
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
-  StatusCode finalize();
-  void handle(const Incident&); 
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
+  virtual void handle(const Incident&) override;
 
 private: 
+  class Window
+  {
+  public:
+    Window (float etaSize, float phiSize);
+    void reset (size_t n);
+    void push (float eta, float phi)
+    {
+      m_parts.emplace_back (eta, phi);
+    }
 
-  void MakeTheCell(CaloCellContainer* & cellcoll, Identifier & id,
-		   const double & e,const double & t,const double & q);
-  void MakeTheCell(CaloCellContainer* & cellcoll, 
-		   const CaloDetDescrElement * & caloDDE,
-		   const double & e,const double & t,const double & q, 
-		   const CaloGain::CaloGain & g);
-  StatusCode initializeCellPermamentCollection();
-  StatusCode resetCellPermanentCollection();
-  StatusCode buildWindowOnPermanentCollection();
-  StatusCode defineWindow();
+    bool isInWindow (const CaloDetDescrElement& caloDDE) const;
+
+    float m_etaSize;
+    float m_phiSize;
+    std::vector<std::pair<float, float> > m_parts;
+  };
+
+  void MakeTheCell(CaloCellContainer* cellcoll, const Identifier& id,
+		   const double e,const double t,const double q) const;
+  void MakeTheCell(CaloCellContainer* cellcoll, 
+		   const CaloDetDescrElement * caloDDE,
+		   const double e,const double t,const double q, 
+		   const CaloGain::CaloGain g) const;
+  StatusCode initializeCellPermanentCollection();
+  StatusCode defineWindow (Window& window, const EventContext& ctx) const;
   
  
   int m_priority;
@@ -123,11 +139,10 @@ private:
   const DataHandle<ILArfSampl> m_dd_fSampl;
 
 
-
 //
   std::string     m_LArRegion;         //Region to build  
-  std::vector<std::string>  m_HitContainers;      //Hit containers
-  
+  SG::ReadHandleKeyArray<LArHitContainer> m_HitContainerKeys;      //Hit containers
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey { this, "CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 //THRESHOLDS on E
   bool m_applyHitEnergyThreshold ;
   
@@ -148,21 +163,11 @@ private:
   // permanent structure to sort the cell (one entry per cell in detector)
   CellPermanentCollection m_cellPermanentCollection ;
 
-  // window collection
-  CellPermanentCollection m_windowOnPermanentCollection ;  
-
   //SWITCH on WINDOWS MODE  
   bool m_Windows;
   float m_WindowsEtaSize;
   float m_WindowsPhiSize;
   
-  std::vector<float> m_phiPart;
-  std::vector<float> m_etaPart;
-
-  
-
-  IAtRndmGenSvc* m_AtRndmGenSvc;
-
   //SWITCH on NOISE
   bool m_WithNoise;
   bool m_WithElecNoise;
@@ -176,14 +181,9 @@ private:
   bool m_WithMap;
 
   // MC event location
-  std::string m_mcEventName ;
+  SG::ReadHandleKey<McEventCollection> m_mcEventKey;
 
-
+  ServiceHandle<IAthRNGSvc> m_athRNGSvc;
 };
 
 #endif
-
-
-
-
-

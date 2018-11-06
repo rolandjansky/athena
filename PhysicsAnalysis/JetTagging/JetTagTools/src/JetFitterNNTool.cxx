@@ -21,8 +21,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-#include "JetTagCalibration/CalibrationBroker.h"
-
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
 #include "JetTagTools/JetFitterNNTool.h"
 #include "TrkNeuralNetworkUtils/NeuralNetworkToHistoTool.h"
@@ -43,7 +41,6 @@ JetFitterNNTool::JetFitterNNTool(const std::string& name,
         m_calibrationSubDirectory("NeuralNetwork"),
         m_networkToHistoTool("Trk::NeuralNetworkToHistoTool"),
         m_useCombinedIPNN(true),
-        m_calibrationTool("BTagCalibrationBroker"),
         m_maximumRegisteredLayers(4)
 {
   declareProperty("CalibrationDirectory",m_calibrationDirectory);
@@ -51,8 +48,6 @@ JetFitterNNTool::JetFitterNNTool(const std::string& name,
 
   declareProperty("NeuralNetworkToHistoTool",m_networkToHistoTool);
   declareProperty("useCombinedIPNN",m_useCombinedIPNN);
-
-  declareProperty("calibrationTool",	m_calibrationTool);
 
   declareProperty("maximumRegisteredLayers",m_maximumRegisteredLayers);
 
@@ -82,76 +77,20 @@ JetFitterNNTool::~JetFitterNNTool() {
 }
 
 StatusCode JetFitterNNTool::initialize() {
+  ATH_CHECK(m_readKey.initialize()); 
 
-  //here you have to initialize the histograms needed for the fit...
-  StatusCode sc = m_calibrationTool.retrieve();
-  if (sc.isFailure())
-  {
-    ATH_MSG_FATAL(" Could not retrieve " << m_calibrationTool  << ". Aborting...");
-    return sc;
-  } else ATH_MSG_INFO(" Retrieved: " << m_calibrationTool);
-
-  sc = m_networkToHistoTool.retrieve();
+  StatusCode sc = m_networkToHistoTool.retrieve();
   if (sc.isFailure())
   {
     ATH_MSG_FATAL(" Could not retrieve " << m_networkToHistoTool  << ". Aborting...");
     return sc;
-  } else ATH_MSG_INFO(" Retrieved: " << m_networkToHistoTool << ". ");
+  } else ATH_MSG_DEBUG(" Retrieved: " << m_networkToHistoTool << ". ");
 
-  ATH_MSG_INFO("Calibration setting: cannot use Neural Network with more than: " << m_maximumRegisteredLayers << ".");
+  ATH_MSG_DEBUG("Calibration setting: cannot use Neural Network with more than: " << m_maximumRegisteredLayers << ".");
 
-  //now you need to initialize the Calibration Broker with the needed histograms...
-  initializeCalibrationFile();
-
-  ATH_MSG_INFO(" Initialization of JetFitterNNTool succesfull");
+  ATH_MSG_DEBUG(" Initialization of JetFitterNNTool succesfull");
   return StatusCode::SUCCESS;
 }
-
-  void JetFitterNNTool::initializeCalibrationFile()
-  {
-    
-    TString directory(m_calibrationSubDirectory);
-    directory+="/";
-    if (m_useCombinedIPNN)
-    {
-      directory+="comb";
-    }
-    else
-    {
-      directory+="standalone";
-    }
-    directory+="/";
-    
-    m_calibrationTool->registerHistogram(m_calibrationDirectory,
-                                         std::string((const char*)(directory+"LayersInfo")));
-    
-    Int_t nHidden=m_maximumRegisteredLayers-2;
-    
-    for (Int_t i=0;i<nHidden+1;++i)
-    {
-      
-      TString weightName("Layer");
-      weightName+=i;
-      weightName+="_weights";
-      
-      TString thresholdName("Layer");
-      thresholdName+=i;
-      thresholdName+="_thresholds";
-      
-      m_calibrationTool->registerHistogram(m_calibrationDirectory,
-                                           std::string((const char*)(directory+weightName)));
-      
-      m_calibrationTool->registerHistogram(m_calibrationDirectory,
-                                           std::string((const char*)(directory+thresholdName)));
-      
-    }
-
-    ATH_MSG_DEBUG(" Registered NN histograms with directory: " << m_calibrationDirectory << " and subdirectory " << directory);
-
-    m_calibrationTool->printStatus();
-    
-  }
-  
 
 StatusCode JetFitterNNTool::finalize() {
 
@@ -164,6 +103,8 @@ StatusCode JetFitterNNTool::finalize() {
   void JetFitterNNTool::loadCalibration(const std::string & jetauthor) {
     
     std::vector<TH1*> retrievedHistos;
+    
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
     
     //it is assumed that in the NN 0 is signal (bottom), 1 is charm and 2 is light
     
@@ -179,26 +120,11 @@ StatusCode JetFitterNNTool::finalize() {
     }
     directory+="/";
     
-    std::pair<TH1*, bool> histoLayers = m_calibrationTool->retrieveHistogram(m_calibrationDirectory, 
+    TH1* histoLayers = readCdo->retrieveHistogram("JetFitterNN", 
                                                                              jetauthor, 
                                                                              std::string((const char*)(directory+TString("LayersInfo"))));
-    
-    if (histoLayers.second==false && m_NN[jetauthor]!=0)
-    {
-      return;
-    } 
-    else if(histoLayers.second==true)
-    {
-      ATH_MSG_DEBUG(" HistoLayers in " << directory << " was updated. Switching updated now to false ... ");
-      m_calibrationTool->updateHistogramStatus(m_calibrationDirectory, 
-                                               jetauthor, 
-                                               std::string((const char*)(directory+TString("LayersInfo"))),
-                                               false);
-    }
-    
-        
 
-    TH1F* myHistoLayers=dynamic_cast<TH1F*>(histoLayers.first);
+    TH1F* myHistoLayers=dynamic_cast<TH1F*>(histoLayers);
 
     if (myHistoLayers==0)
     {
@@ -210,7 +136,7 @@ StatusCode JetFitterNNTool::finalize() {
 
     Int_t nHidden=myHistoLayers->GetNbinsX()-2;
 
-    ATH_MSG_INFO(" Retrieving calibration for NN with: " << nHidden << " hidden layers.");
+    ATH_MSG_DEBUG(" Retrieving calibration for NN with: " << nHidden << " hidden layers.");
 
     for (Int_t i=0;i<nHidden+1;++i)
     {
@@ -223,20 +149,11 @@ StatusCode JetFitterNNTool::finalize() {
       thresholdName+=i;
       thresholdName+="_thresholds";
       
-      std::pair<TH1*, bool> weightHisto = m_calibrationTool->retrieveHistogram(m_calibrationDirectory, 
+      TH1* weightHisto = readCdo->retrieveHistogram("JetFitterNN", 
                                                                                jetauthor, 
                                                                                std::string((const char*)(directory+weightName)));
-
-      if (weightHisto.second==true)
-      {
-        m_calibrationTool->updateHistogramStatus(m_calibrationDirectory, 
-                                                 jetauthor, 
-                                                 std::string((const char*)(directory+weightName)),
-                                                 false);
-      }
       
-      
-      TH2F* myWeightHisto=dynamic_cast<TH2F*>(weightHisto.first);
+      TH2F* myWeightHisto=dynamic_cast<TH2F*>(weightHisto);
       
       if (myWeightHisto==0)
       {
@@ -251,19 +168,11 @@ StatusCode JetFitterNNTool::finalize() {
 
       retrievedHistos.push_back(myWeightHisto);
 
-      std::pair<TH1*, bool> thresholdHisto = m_calibrationTool->retrieveHistogram(m_calibrationDirectory, 
+      TH1* thresholdHisto = readCdo->retrieveHistogram("JetFitterNN", 
                                                                                   jetauthor, 
                                                                                   std::string((const char*)(directory+thresholdName)));
 
-      if (thresholdHisto.second==true)
-      {
-        m_calibrationTool->updateHistogramStatus(m_calibrationDirectory, 
-                                                 jetauthor, 
-                                                 std::string((const char*)(directory+thresholdName)),
-                                                 false);
-      }
-
-      TH1F* myThresholdHisto=dynamic_cast<TH1F*>(thresholdHisto.first);
+      TH1F* myThresholdHisto=dynamic_cast<TH1F*>(thresholdHisto);
       
       if (myThresholdHisto==0)
       {

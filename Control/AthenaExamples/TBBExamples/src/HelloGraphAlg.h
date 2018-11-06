@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHELLOWORLD_HELLOGRAPHALG_H
@@ -26,9 +26,6 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
-  StatusCode beginRun();
-  StatusCode endRun();
-  
 private:
   size_t m_nIters;  ///property
   size_t m_concurrency; ///property

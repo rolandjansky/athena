@@ -85,34 +85,14 @@ public:
       m_rHSG(rHSG){}
     void testNewDataObjects(StoreGateSvc& rSG) 
     {  
-      DataObjIDColl products;
-      rSG.getNewDataObjects(products).ignore(); //reset counter
-      assert( !rSG.newDataObjectsPresent() );
-      assert( products.empty() );
-      //direct call
-      rSG.currentStore()->addedNewTransObject(ClassID_traits<SG::Foo>::ID(), "blassed");  
       rSG.commitNewDataObjects();
-      rSG.getNewDataObjects(products).ignore();    
-      assert( 1 == products.size() );
-      assert (products.count (DataObjID (81010,"blassed")) == 1);
 
       //add something to store
       assert(rSG.record(new SG::Foo(1), "pFoo1").isSuccess());
       assert(rSG.record(new SG::Foo(2), "pFoo2").isSuccess());
       rSG.commitNewDataObjects();
-      assert( rSG.newDataObjectsPresent() );
-      rSG.getNewDataObjects(products).ignore();
-      assert( 2 == products.size() );
-      assert (products.count (DataObjID (81010,"pFoo1")) == 1);
-      //we have emptied newdataobject array with call to newDataObjects
-      assert( !rSG.newDataObjectsPresent() );
       assert(rSG.record(new SG::Foo(3), "pFoo3").isSuccess());
       rSG.commitNewDataObjects();
-      assert( rSG.newDataObjectsPresent() );
-      rSG.getNewDataObjects(products).ignore();    
-      assert( 1 == products.size() );
-      //      assert (products.count (DataObjID (81010,"pFoo3")) == 1);
-      assert (products.count (DataObjID ("SG::Foo","pFoo3")) == 1);
     }
     void testNoSlot() {
       cout << "\n*** SGHive_test noSlot BEGINS ***" << endl;

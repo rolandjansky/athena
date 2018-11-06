@@ -25,6 +25,8 @@
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 #include "TrkToolInterfaces/IUpdator.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class AtlasDetectorID;
 class PixelID;
@@ -81,6 +83,10 @@ namespace DerivationFramework {
       std::string m_pixelMsosName;
       std::string m_sctMsosName;
       std::string m_trtMsosName;
+
+      // --- Read Cond Handle Key
+      // For P->T converter of SCT_Clusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
       // --- Services and tools
       const AtlasDetectorID* m_idHelper;

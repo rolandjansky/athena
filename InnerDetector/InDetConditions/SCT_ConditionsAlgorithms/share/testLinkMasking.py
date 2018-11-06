@@ -43,6 +43,7 @@ DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
 DetFlags.LVL1_setOff()
+DetFlags.pixel_setOff()
 DetFlags.SCT_setOn()
 DetFlags.TRT_setOff()
 

@@ -180,8 +180,7 @@ namespace Muon {
 
   bool MuonSystemExtensionTool::muonSystemExtension( const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention ) const {
     // get calo extension
-    const Trk::CaloExtension* caloExtension = 0;
-    m_caloExtensionTool->caloExtension( indetTrackParticle, caloExtension );    
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension( indetTrackParticle );    
     if( !caloExtension || !caloExtension->muonEntryLayerIntersection() ) {
       ATH_MSG_VERBOSE("Failed to get CaloExtension ");
       return false;

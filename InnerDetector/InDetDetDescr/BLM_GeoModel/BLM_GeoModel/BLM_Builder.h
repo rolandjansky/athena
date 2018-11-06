@@ -12,6 +12,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GeoModelInterfaces/IGeoSubDetTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include <vector>
 
 class AtlasDetectorID;
 class Identifier;

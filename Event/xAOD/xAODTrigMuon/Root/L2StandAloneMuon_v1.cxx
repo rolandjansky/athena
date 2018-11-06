@@ -1166,7 +1166,6 @@ namespace xAOD {
    /// Object for accessing the MDT tube variables
    static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtonAcc( "mdtHitOnlineId" );
    static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtoffAcc( "mdtHitOfflineId" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtcAcc( "mdtHitChamber" );
    static SG::AuxElement::Accessor< std::vector< float > >    mdtrAcc( "mdtHitR" );
    static SG::AuxElement::Accessor< std::vector< float > >    mdtzAcc( "mdtHitZ" );
    static SG::AuxElement::Accessor< std::vector< float > >    mdtresAcc( "mdtHitResidual" );
@@ -1710,6 +1709,7 @@ namespace xAOD {
    }
 
    uint32_t L2StandAloneMuon_v1::mdtHitChamber( unsigned int tube ) const {
+     static const SG::AuxElement::Accessor< std::vector< uint32_t > > mdtcAcc( "mdtHitChamber" );
      if( mdtcAcc( *this ).size() > tube ) {
        return mdtcAcc( *this ).at( tube );
      } else {
@@ -1772,6 +1772,7 @@ namespace xAOD {
      if ( mdtonAcc( *this ).size() >= (unsigned int)mdtHitsCapacity() ) return;
 
       // Set the variables:
+      static const SG::AuxElement::Accessor< std::vector< uint32_t > > mdtcAcc( "mdtHitChamber" );
       mdtonAcc( *this ).push_back( onlineId );
       mdtoffAcc( *this ).push_back( offlineId );
       mdtcAcc( *this ).push_back( chamber );

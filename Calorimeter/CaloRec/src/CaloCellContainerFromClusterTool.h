@@ -8,13 +8,14 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/IdentifierHash.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 // Calo includes
 #include "CaloInterface/ICaloConstCellMakerTool.h"
 
-class CaloCellContainerFromClusterTool: public AthAlgTool
-                                      , virtual public ICaloConstCellMakerTool
-
+class CaloCellContainerFromClusterTool
+  : public extends<AthAlgTool, ICaloConstCellMakerTool>
 {
 
   public:
@@ -22,24 +23,22 @@ class CaloCellContainerFromClusterTool: public AthAlgTool
     CaloCellContainerFromClusterTool(const std::string& type, const std::string& name,
         const IInterface* parent);
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     // update theCellContainer
-    virtual StatusCode process(CaloConstCellContainer* theCellContainer);
+    virtual StatusCode process(CaloConstCellContainer* theCellContainer) override;
 
   private:
 
     std::string m_caloClusterName; // name of input CaloClusterContainer (for backward compatibility)
-    std::string m_cellName;  // name of input CaloCellContainer
+    SG::ReadHandleKey<CaloCellContainer> m_cellName; // name of input CaloCellContainer
 
-    std::vector<std::string> m_caloClusterNames;
     bool m_addSamplingCells;
     std::vector<std::string> m_samplingNames;
     IdentifierHash m_hashMax;
 
     std::set<int> m_validSamplings;
-    std::set<std::string> m_caloClusterNameSet;
-    bool m_firstEvent;
+    SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_clusterKeys;
 };
 
 #endif

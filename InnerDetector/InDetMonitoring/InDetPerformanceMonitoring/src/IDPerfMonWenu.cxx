@@ -13,7 +13,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
-#include "TMath.h"
+//#include "TMath.h"
 #include "TLorentzVector.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -24,11 +24,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
@@ -39,21 +36,42 @@
 #include "egammaEvent/egammaParamDefs.h"
 #include "egammaEvent/egammaPIDdefsObs.h"
 
-
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetPerformanceMonitoring/IDPerfMonWenu.h"
+
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
+
 #include <stdexcept>
 
 // *********************************************************************
 // Public Methods
 // *********************************************************************
 
+namespace{
+template <class T>
+  T *
+  getCollectionWithCheck(const ServiceHandle<StoreGateSvc> & evtStore,const std::string &contName){
+    T * container{};
+    if (evtStore->contains<T>(contName)){
+      //retrieve
+      if(evtStore->retrieve(container,contName).isFailure()) return nullptr;
+    }
+    return container;
+  }
+}
+
 IDPerfMonWenu::IDPerfMonWenu( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
+   m_region_strings{"incl", "barrel", "eca", "ecc"},
    m_triggerChainName("NoTriggerSelection")
 {
   declareProperty("tracksName",m_tracksName);
@@ -71,51 +89,41 @@ IDPerfMonWenu::IDPerfMonWenu( const std::string & type, const std::string & name
   declareProperty("triggerChainName",m_triggerChainName);
   declareProperty("rejectSecondCluster",m_rejectSecondCluster = true);
   declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
-
-  m_region_strings.push_back("incl");
-  m_region_strings.push_back("barrel");
-  m_region_strings.push_back("eca");
-  m_region_strings.push_back("ecc");
-
 }
-
 
 IDPerfMonWenu::~IDPerfMonWenu() { }
 
-
-StatusCode IDPerfMonWenu::initialize()
-{
-
+StatusCode IDPerfMonWenu::initialize(){
   m_histosBooked = 0;
-
-  if (m_tracksName.empty() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " no track collection given" << endmsg;
-
+  if (m_tracksName.empty() ){
+    ATH_MSG_WARNING( " no track collection given" );
+  }
   StatusCode sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not initialize ManagedMonitorToolBase" << endmsg;
-
+  if (sc.isFailure()){
+    ATH_MSG_WARNING( "Could not initialize ManagedMonitorToolBase" );
+  }
   //---Electron Likelihood tool---
-  ATH_MSG_INFO("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
+  ATH_MSG_DEBUG("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
   m_LHTool2015=std::make_unique<AsgElectronLikelihoodTool> ("m_LHTool2015");
-  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
+  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure()){
     ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
-
+  }
   //Set up electron LH level
   m_doIDCuts = true;
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
-  if(m_electronIDLevel == ""){
+  if(m_electronIDLevel .empty()){
     ATH_MSG_WARNING("electronIDLevel is set to empty!  No electron ID cuts will be applied.");
     m_doIDCuts = false;
-  }
-  else{
+  } else {
     if((m_electronIDLevel != "Loose") && (m_electronIDLevel != "Medium") && (m_electronIDLevel != "Tight")){
       ATH_MSG_WARNING("Unknown electronIDLevel!! (Accepted values: Loose, Medium, Tight)");
       m_doIDCuts = false;
-    }
-    else{
+    } else {
       std::string configFile = confDir+"ElectronLikelihood"+m_electronIDLevel+"OfflineConfig2015.conf";
       ATH_MSG_INFO("Likelihood configuration file: " << configFile);
-      if((m_LHTool2015->setProperty("ConfigFile",configFile)).isFailure())
-	ATH_MSG_WARNING("Failure loading ConfigFile in electron likelihood tool.");
+      if((m_LHTool2015->setProperty("ConfigFile",configFile)).isFailure()){
+	      ATH_MSG_WARNING("Failure loading ConfigFile in electron likelihood tool.");
+	    }
     }
   }
   StatusCode lh = m_LHTool2015->initialize();
@@ -123,26 +131,13 @@ StatusCode IDPerfMonWenu::initialize()
     ATH_MSG_WARNING("Electron likelihood tool initialize() failed!  Turning off electron LH cuts!");
     m_doIDCuts = false;
   }
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode IDPerfMonWenu::bookHistograms()
 {
   MonGroup al_Wenu_mon ( this, "IDPerfMon/Wenu/" + m_triggerChainName, run);
-
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-    // book histograms that are only made in the online environment...
-  }
-
-  if ( AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
-    // book histograms that are only relevant for cosmics data...
-  }
-
-
-
   if( newRunFlag() ) {
-
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
     if(m_histosBooked!=0 && AthenaMonManager::environment()==AthenaMonManager::user)      return StatusCode::SUCCESS;
@@ -153,7 +148,6 @@ StatusCode IDPerfMonWenu::bookHistograms()
 
     m_Nevents = new TH1F("Nevents", "Number of events processed", 1, -.5, 0.5);
     RegisterHisto(al_Wenu_mon,m_Nevents);
-
     m_Wenu_met_sel = new TH1F("Wenu_met_sel","met", 50, 0., 100.);
     RegisterHisto(al_Wenu_mon,m_Wenu_met_sel);
     m_Wenu_transmass_sel = new TH1F("Wenu_transmass_sel","Transverse mass of the leading em cluster and the met", 90, 0., 180.);
@@ -238,18 +232,12 @@ StatusCode IDPerfMonWenu::bookHistograms()
       name = "Wenu_Eop_" + m_region_strings[region];
       title = "E/p for Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eop.push_back(new TH1F(name.c_str(),title.c_str(), 60, 0., 10.));
-      /** original code: what was intended here?
-      if (region==incl) RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
-      else RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
-      **/
+     
       RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
       name = "Wenu_Eopdiff_" + m_region_strings[region];
       title = "E/p difference (pos-neg) for Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eopdiff.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
-      /** original code: what was intended here?
-      if (region==incl) RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
-      else RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
-      **/
+      
       RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
       name = "Wenu_Eop_plus_" + m_region_strings[region];
       title = "E/p for pos. charged Wenu EM-clusters in " + m_region_strings[region];
@@ -393,118 +381,74 @@ StatusCode IDPerfMonWenu::bookHistograms()
 }
 
 void IDPerfMonWenu::RegisterHisto(MonGroup& mon, TH1* histo, bool doSumw2) {
-
   if (doSumw2) histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1 Histogram:" << endmsg;
+    ATH_MSG_DEBUG( "Cannot book TH1 Histogram:" );
   }
 }
 
 void IDPerfMonWenu::RegisterHisto(MonGroup& mon, TProfile* histo) {
-
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TProfile Histogram:" << endmsg;
+  if (mon.regHist(histo).isFailure() ) {
+    ATH_MSG_DEBUG( "Cannot book TProfile Histogram:" );
   }
 }
 
 void IDPerfMonWenu::RegisterHisto(MonGroup& mon, TH2* histo, bool doSumw2) {
-
   if (doSumw2) histo->Sumw2();
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2 Histogram:" << endmsg;
+  if (mon.regHist(histo).isFailure() ) {
+    ATH_MSG_WARNING( "Cannot book TH2 Histogram:" );
   }
 }
 
 StatusCode IDPerfMonWenu::fillHistograms()
 {
-
   int nevents = (int) m_Nevents->GetEntries();
-
+  const bool firstEvent{nevents == 1};
   // get electron container from storegate
-  const xAOD::ElectronContainer* electrons = 0;
-  if (!evtStore()->contains<xAOD::ElectronContainer>(m_electronsName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_electronsName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_electronsName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
+  auto formErrorMessage = [] (const std::string & contName)->std::string {
+    return std::string(std::string("No Collection with name ") + contName + std::string(" found in StoreGate"));
+  };
+  const xAOD::ElectronContainer* electrons=getCollectionWithCheck<xAOD::ElectronContainer>(evtStore(),m_electronsName);
+  if (not electrons){
+    const std::string & errMsg=formErrorMessage(m_electronsName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-  else {
-    StatusCode sc = evtStore()->retrieve(electrons,m_electronsName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   // get photon container from storegate
-  const xAOD::PhotonContainer* photons = 0;
-  if (!evtStore()->contains<xAOD::PhotonContainer>(m_photonsName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_photonsName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_photonsName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
+  const xAOD::PhotonContainer* photons = getCollectionWithCheck<xAOD::PhotonContainer>(evtStore(),m_photonsName);
+  if (not photons){
+    const std::string & errMsg =  formErrorMessage(m_photonsName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-  else {
-    StatusCode sc = evtStore()->retrieve(photons,m_photonsName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   // get emcluster container from storegate
-  const xAOD::CaloClusterContainer* emclusters = 0;
-  if (!evtStore()->contains<xAOD::CaloClusterContainer>(m_emclustersName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
+  const xAOD::CaloClusterContainer* emclusters = getCollectionWithCheck<xAOD::CaloClusterContainer>(evtStore(),m_emclustersName);
+  if (not emclusters){
+    const std::string & errMsg =  formErrorMessage(m_emclustersName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-  else {
-    StatusCode sc = evtStore()->retrieve(emclusters,m_emclustersName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   // get track container from storegate
-  const xAOD::TrackParticleContainer* tracks = 0;
-  if (!evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_tracksName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_tracksName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
+  const xAOD::TrackParticleContainer* tracks = getCollectionWithCheck<xAOD::TrackParticleContainer>(evtStore(),m_tracksName);
+  if (not tracks){
+    const std::string & errMsg =  formErrorMessage(m_tracksName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-  else {
-    StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   // get met container from storegate
-  const xAOD::MissingETContainer* final_met = 0;
-  if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_metName << " found in StoreGate" << endmsg;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_metName << " found in StoreGate" << endmsg;
-    return StatusCode::SUCCESS;
+  const xAOD::MissingETContainer* final_met = getCollectionWithCheck<xAOD::MissingETContainer>(evtStore(),m_metName);
+  if (not final_met){
+    const std::string & errMsg =  formErrorMessage(m_metName);
+    if (firstEvent) ATH_MSG_WARNING( errMsg );
+    else ATH_MSG_DEBUG(errMsg);
+    return StatusCode::RECOVERABLE;
   }
-  else {
-    StatusCode sc = evtStore()->retrieve(final_met,m_metName);
-    if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endmsg;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  }
-
   m_Nevents->Fill(0.);
-
   // ******************
   // Get the missing ET
   // ******************
@@ -515,18 +459,15 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // *******************
   // Look at EM clusters
   // *******************
-
   const xAOD::CaloCluster* LeadingEMcluster = getLeadingEMcluster(photons, electrons);
   const xAOD::CaloCluster* SecondLeadingEMcluster = getLeadingEMcluster(photons, electrons, LeadingEMcluster);
-  if (LeadingEMcluster != 0) {
+  if (LeadingEMcluster) {
     int leading_eta_region = etaRegion(LeadingEMcluster->eta());
     double leading_dPhi = electronTrackMatchEta(tracks,LeadingEMcluster);
     double leading_dEta = electronTrackMatchPhi(tracks,LeadingEMcluster);
     const xAOD::TrackParticle* track_leading_emcluster = electronTrackMatch(tracks,LeadingEMcluster);
-
     int selected = isWenu(LeadingEMcluster, SecondLeadingEMcluster, met);
     if (selected == 0) {
-
       // *********************
       // Fill event histograms
       // *********************
@@ -535,48 +476,28 @@ StatusCode IDPerfMonWenu::fillHistograms()
       double cluster_met_transmass = TransMass(LeadingEMcluster,MET);
       if (cluster_met_transmass > 0.) m_Wenu_transmass_sel->Fill(cluster_met_transmass);
       double track_met_transmass = 0.;
-      if (track_leading_emcluster != 0) {
-	track_met_transmass = TransMass(track_leading_emcluster,MET);
-	if (track_met_transmass > 0.) m_Wenu_trk_transmass_sel->Fill(track_met_transmass);
+      if (track_leading_emcluster ) {
+	      track_met_transmass = TransMass(track_leading_emcluster,MET);
+	      if (track_met_transmass > 0.) m_Wenu_trk_transmass_sel->Fill(track_met_transmass);
       }
-
       // ***********************
       // Fill cluster histograms
       // ***********************
       FillHistosPerCluster(LeadingEMcluster, track_leading_emcluster, leading_eta_region, leading_dEta, leading_dPhi);
       FillHistosPerCluster(LeadingEMcluster, track_leading_emcluster, incl, leading_dEta, leading_dPhi);
-
     }
-
   }
-
   return StatusCode::SUCCESS;
 }
 
 void IDPerfMonWenu::makeEffHisto(TH1F* h_num, TH1F* h_denom, TH1F* h_eff) {
   h_eff->Divide(h_num,h_denom,1.,1.,"B");
-  //   int Nbins;
-  //   Nbins = h_num->GetNbinsX();
-  //   for (int bin=0; bin!=Nbins; ++bin) {
-  //     int Npass = int(h_num->GetBinContent(bin+1));
-  //     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
-  //     double x = h_denom->GetBinCenter(bin+1);
-  //     for (int pass=0; pass!=Npass; ++pass) {
-  //       h_eff->Fill(x,1.);
-  //     }
-  //     for (int fail=0; fail!=Nfail; ++fail) {
-  //       h_eff->Fill(x,0.);
-  //     }
-  //   }
 }
 
 StatusCode IDPerfMonWenu::procHistograms()
 {
-
   if( endOfRunFlag() ) {
-
     // PostProcess Wenu histograms
-
     for (int region=0; region!=1; ++region) {
       makeEffHisto(m_Wenu_trackmatched_eta[region],m_Wenu_eta[region],m_Wenu_trackmatch_eff_vs_eta[region]);
       makeEffHisto(m_Wenu_trackmatched_phi[region],m_Wenu_phi[region],m_Wenu_trackmatch_eff_vs_phi[region]);
@@ -584,7 +505,6 @@ StatusCode IDPerfMonWenu::procHistograms()
       makeEffHisto(m_Wenu_trackmatched_Eopmatched_phi[region],m_Wenu_trackmatched_phi[region],m_Wenu_Eopmatch_eff_vs_phi[region]);
       makeEffHisto(m_Wenu_trackmatched_tightEopmatched_eta[region],m_Wenu_trackmatched_eta[region],m_Wenu_tightEopmatch_eff_vs_eta[region]);
       makeEffHisto(m_Wenu_trackmatched_tightEopmatched_phi[region],m_Wenu_trackmatched_phi[region],m_Wenu_tightEopmatch_eff_vs_phi[region]);
-
       // commented out for some reason?
       m_Wenu_Eopdiff[region]->Add(m_Wenu_Eop_plus[region],m_Wenu_Eop_minus[region],1.,-1);
       m_Wenu_Eopdiff_vs_p[region]->Add(m_Wenu_meanEop_vs_p_plus[region],m_Wenu_meanEop_vs_p_minus[region],1.,-1);
@@ -592,29 +512,22 @@ StatusCode IDPerfMonWenu::procHistograms()
       m_Wenu_Eopdiff_vs_E[region]->Add(m_Wenu_meanEop_vs_E_plus[region],m_Wenu_meanEop_vs_E_minus[region],1.,-1);
       m_Wenu_Eopdiff_vs_phi[region]->Add(m_Wenu_meanEop_vs_phi_plus[region],m_Wenu_meanEop_vs_phi_minus[region],1.,-1);
       m_Wenu_Eopdiff_vs_eta[region]->Add(m_Wenu_meanEop_vs_eta_plus[region],m_Wenu_meanEop_vs_eta_minus[region],1.,-1);
-
+      //
       makeEffHisto(m_Wenu_Eop_lt1_vs_eta[region],m_Wenu_eta[region],m_Wenu_frac_Eop_lt1_vs_eta[region]);
       makeEffHisto(m_Wenu_Eop_lt1_vs_phi[region],m_Wenu_phi[region],m_Wenu_frac_Eop_lt1_vs_phi[region]);
       makeEffHisto(m_Wenu_Eop_15_25[region],m_Wenu_Eop_05_25[region],m_Wenu_frac_Eop_05_25_15_25[region]);
     }
-
   }
   return StatusCode::SUCCESS;
 }
 
 
 const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClusterContainer* clusters, const xAOD::CaloCluster* omitCluster) const {
-  // iterators over the emcluster container
-  xAOD::CaloClusterContainer::const_iterator Itr = clusters->begin();
-  xAOD::CaloClusterContainer::const_iterator ItrEnd = clusters->end();
-
-  const xAOD::CaloCluster* leading_emcluster = 0;
-
+  const xAOD::CaloCluster* leading_emcluster{nullptr};
   float max_pt = 0.;
-  for (; Itr != ItrEnd; ++Itr) {
-    const xAOD::CaloCluster* cl = (*Itr);
+  for (const auto & cl: *clusters) {
     if (cl == omitCluster) continue;
-    double deltaR = sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
+    double deltaR = std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
     if (cl->pt() > max_pt) {
@@ -623,22 +536,13 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClus
     }
   }
   return leading_emcluster;
-
 }
 
 const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonContainer* /*photons*/, const xAOD::ElectronContainer* electrons, const xAOD::CaloCluster* omitCluster) const {
-
-  // iterators over the electron container
-  xAOD::ElectronContainer::const_iterator electronItr = electrons->begin();
-  xAOD::ElectronContainer::const_iterator electronItrEnd = electrons->end();
-
   const xAOD::CaloCluster* leading_emcluster = 0;
   bool LHSel;
   float max_pt = 0.;
-  
-  for (; electronItr != electronItrEnd; ++electronItr) {
-    const xAOD::Electron* em = (*electronItr);
-
+  for (const auto & em: *electrons) {
     // check ID
     if(m_doIDCuts){
       LHSel = false;
@@ -646,16 +550,6 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
       if(!LHSel) continue;
       ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
     }
-
-    // check isolation 
-    //float iso;
-    //if(em->isolationValue(iso,xAOD::Iso::ptcone20)){
-    //  if( (iso/em->pt()) > 0.12 )
-    //continue;
-    //}
-    //else
-    //  ATH_MSG_WARNING("Isolation information not found! Will skip this cut!!");
-
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
@@ -663,96 +557,62 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
       leading_emcluster = cl;
       max_pt = cl->pt();
     }
-
   }
-
   return leading_emcluster;
 
 }
 
 const xAOD::TrackParticle* IDPerfMonWenu::electronTrackMatch(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta, double dPhi) const {
-
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
-
   const xAOD::TrackParticle* matched_track = 0;
   double min_dR = 1.0e+20;
-
-  for (; Itr!=ItrEnd; ++Itr) {
-    const xAOD::TrackParticle* track = (*Itr);
+  for (const auto & track: *tracks) {
     double deta = cluster->eta()-track->eta();
     double dphi = cluster->phi()-track->phi();
-    double dr = TMath::Sqrt(deta*deta + dphi*dphi);
-    if (dr < min_dR && TMath::Abs(deta) < dEta && TMath::Abs(dphi) < dPhi) {
+    double dr = std::sqrt(deta*deta + dphi*dphi);
+    if (dr < min_dR && std::fabs(deta) < dEta && std::fabs(dphi) < dPhi) {
       min_dR = dr;
       matched_track = track;
     }
   }
-
   return matched_track;
-
 }
 
 double IDPerfMonWenu::electronTrackMatchEta(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta) const {
-
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
-
   const xAOD::TrackParticle* matched_track = 0;
   double min_dEta = 1.0e+20;
-
-  for (; Itr!=ItrEnd; ++Itr) {
-    const xAOD::TrackParticle* track = (*Itr);
-    double deta = TMath::Abs(cluster->eta()-track->eta());
+  for (const auto & track: *tracks) {
+    double deta = std::fabs(cluster->eta()-track->eta());
     if (deta < min_dEta && deta < dEta) {
       min_dEta = deta;
       matched_track = track;
     }
   }
-
   double dPhi = 1.0e+20;
   if (matched_track != 0) dPhi = signedDeltaPhi(cluster->phi(),matched_track->phi());
-
   return dPhi;
-
 }
 
 double IDPerfMonWenu::electronTrackMatchPhi(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dPhi) const {
-
- // iterators over the track container
-  xAOD::TrackParticleContainer::const_iterator Itr = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator ItrEnd = tracks->end();
-
   const xAOD::TrackParticle* matched_track = 0;
   double min_dPhi = 1.0e+20;
-
-  for (; Itr!=ItrEnd; ++Itr) {
-    const xAOD::TrackParticle* track = (*Itr);
-    double dphi = TMath::Abs(signedDeltaPhi(cluster->phi(),track->phi()));
+  for (const auto & track : *tracks) {
+    double dphi = std::abs(signedDeltaPhi(cluster->phi(),track->phi()));
     if (dphi < min_dPhi && dphi < dPhi) {
       min_dPhi = dphi;
       matched_track = track;
     }
   }
-
   double dEta = 1.0e+20;
   if (matched_track != 0) dEta = cluster->eta()-matched_track->eta();
-
   return dEta;
 
 }
 
 int IDPerfMonWenu::isWenu(const xAOD::CaloCluster* em, const xAOD::CaloCluster* em2, double met) const {
-
   int selected = 2;
-
   if(em->pt()/Gaudi::Units::GeV > 25.) --selected;
   if(met/Gaudi::Units::GeV > 20.) --selected; // was at 0 for some reason?
-
   if(!m_rejectSecondCluster) return selected;
-
   // else check 2nd EM cluster veto
   if(em2 != 0){
     if(em2->pt()/Gaudi::Units::GeV > 25.){
@@ -760,15 +620,11 @@ int IDPerfMonWenu::isWenu(const xAOD::CaloCluster* em, const xAOD::CaloCluster* 
       selected++;
     }
   }
-
   return selected;
-
 }
 
 double IDPerfMonWenu::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloCluster* EM2) const {
-
   if (EM1 == 0 || EM2 == 0) return -99.;
-
   double invmass = 0.;
   if (EM1->pt() != 0 && EM2->pt() != 0.) {
     TLorentzVector particle1;
@@ -777,16 +633,11 @@ double IDPerfMonWenu::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloClus
     particle2.SetPtEtaPhiE(EM2->pt()/Gaudi::Units::GeV,EM2->eta(),EM2->phi(),EM2->e()/Gaudi::Units::GeV);
     invmass = (particle1+particle2).Mag();
   }
-
   return invmass;
-
 }
 
 double IDPerfMonWenu::InvMass(const xAOD::TrackParticle* trk1, const xAOD::TrackParticle* trk2) const {
-
   if (trk1 == 0 || trk2 == 0) return -99.;
-
-
   double invmass = 0.;
   if (trk1->pt() != 0 && trk2->pt() != 0.) {
     TLorentzVector particle1;
@@ -795,45 +646,33 @@ double IDPerfMonWenu::InvMass(const xAOD::TrackParticle* trk1, const xAOD::Track
     particle2.SetPtEtaPhiE(trk2->pt()/Gaudi::Units::GeV,trk2->eta(),trk2->phi(),trk2->e()/Gaudi::Units::GeV);
     invmass = (particle1+particle2).Mag();
   }
-
   return invmass;
-
 }
 
 double IDPerfMonWenu::TransMass(const xAOD::CaloCluster* EM, const xAOD::MissingET* met) const {
-
   if (EM == 0 || met == 0) return -99.;
-
   double transmass = 0.;
   float dphi = signedDeltaPhi(EM->phi(),met->phi());
-  transmass = TMath::Sqrt(2.*EM->et()*met->met()*(1.-TMath::Cos(dphi)));
-
+  transmass = std::sqrt(2.*EM->et()*met->met()*(1.-std::cos(dphi)));
   return transmass/Gaudi::Units::GeV;
 
 }
 
 double IDPerfMonWenu::TransMass(const xAOD::TrackParticle* track, const xAOD::MissingET* met) const {
-
   if (track == 0 || met == 0) return -99.;
-
   double transmass = 0.;
   float dphi = signedDeltaPhi(track->phi(),met->phi());
-  transmass = TMath::Sqrt(2.*(track->p4().Et()/Gaudi::Units::GeV)*(met->met()/Gaudi::Units::GeV)*(1.-TMath::Cos(dphi)));
-
+  transmass = std::sqrt(2.*(track->p4().Et()/Gaudi::Units::GeV)*(met->met()/Gaudi::Units::GeV)*(1.-std::cos(dphi)));
   return transmass;
-
 }
 
 double IDPerfMonWenu::deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track) const {
   double dr =-999.;
   if (cluster == 0 || track == 0) return dr;
-
   double deta = cluster->eta()-track->eta();
   double dphi = cluster->phi()-track->phi();
-  if(fabs(dphi) > 3.14159)
-    dphi = 2*3.14159-fabs(dphi);
-  dr = TMath::Sqrt(deta*deta + dphi*dphi);
-
+  if(std::fabs(dphi) > M_PI) dphi = 2.*M_PI-std::fabs(dphi);
+  dr = std::sqrt(deta*deta + dphi*dphi);
   return dr;
 
 }
@@ -850,45 +689,40 @@ double IDPerfMonWenu::signedDeltaPhi(double phi1, double phi2) const {
 }
 
 int IDPerfMonWenu::etaRegion(double eta) {
-
   int region = -99;
-
-  if (TMath::Abs(eta) <= 1.) region = barrel;
+  if (std::fabs(eta) <= 1.) region = barrel;
   else if (eta > 1.) region = eca; // eca
   else if (eta < -1.) region = ecc; // ecc
-
   return region;
 
 }
 
 void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track, int region, float dEta, float dPhi) {
-  if (cluster == 0) return;
+  if (not cluster) return;
   if (region<0){
     throw std::out_of_range("Region is negative in IDPerfMonWenu::FillHistosPerCluster");
   }
   // THERE IS A CLUSTER
-
   if (region == incl) { // inclusive only
-
     m_Wenu_eta[region]->Fill(cluster->eta());
     m_Wenu_phi[region]->Fill(cluster->phi());
     // match in eta and phi separately and make dEta and dPhi plots
     if (dEta < 1.0e+20) {
       m_Wenu_deta[region]->Fill(dEta);
-      if (TMath::Abs(dEta < 0.05)) { // calculate mean only for those in matching window
-	m_Wenu_deta_vs_eta[region]->Fill(cluster->eta(),dEta);
-	m_Wenu_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
-	m_Wenu_absdeta_vs_eta[region]->Fill(cluster->eta(),TMath::Abs(dEta));
-	m_Wenu_absdeta_vs_phi[region]->Fill(cluster->phi(),TMath::Abs(dEta));
+      if (std::fabs(dEta < 0.05)) { // calculate mean only for those in matching window
+        m_Wenu_deta_vs_eta[region]->Fill(cluster->eta(),dEta);
+        m_Wenu_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
+        m_Wenu_absdeta_vs_eta[region]->Fill(cluster->eta(),std::fabs(dEta));
+        m_Wenu_absdeta_vs_phi[region]->Fill(cluster->phi(),std::fabs(dEta));
       }
     }
     if (dPhi < 1.0e+20) {
       m_Wenu_dphi[region]->Fill(dPhi);
-      if (TMath::Abs(dPhi < 0.1)) { // calculate mean only for those in matching window
-	m_Wenu_dphi_vs_eta[region]->Fill(cluster->eta(),dPhi);
-	m_Wenu_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
-	m_Wenu_absdphi_vs_eta[region]->Fill(cluster->eta(),TMath::Abs(dPhi));
-	m_Wenu_absdphi_vs_phi[region]->Fill(cluster->phi(),TMath::Abs(dPhi));
+      if (std::fabs(dPhi < 0.1)) { // calculate mean only for those in matching window
+        m_Wenu_dphi_vs_eta[region]->Fill(cluster->eta(),dPhi);
+        m_Wenu_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
+        m_Wenu_absdphi_vs_eta[region]->Fill(cluster->eta(),std::fabs(dPhi));
+        m_Wenu_absdphi_vs_phi[region]->Fill(cluster->phi(),std::fabs(dPhi));
       }
     }
 
@@ -896,22 +730,17 @@ void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const
 
   if (track == 0) return;
   // TRACK-MATCHED
-
   float eoverp = 0.;
-  float track_p = track->pt()*cosh(track->eta());
+  float track_p = track->pt()*std::cosh(track->eta());
   if (track_p != 0.) eoverp = cluster->e()/track_p;
-
   m_Wenu_Eop[region]->Fill(eoverp);
-
   if (track->charge() == 1.) {
     m_Wenu_Eop_plus[region]->Fill(eoverp);
   }
   else if (track->charge() == -1.) {
     m_Wenu_Eop_minus[region]->Fill(eoverp);
   }
-
   if (region == incl) { // inclusive only
-
     m_Wenu_trackmatched_eta[region]->Fill(cluster->eta());
     m_Wenu_trackmatched_phi[region]->Fill(cluster->phi());
     if (eoverp > m_eoverp_tight_min && eoverp < m_eoverp_tight_max) {
@@ -925,20 +754,20 @@ void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const
     }
     if (track->charge() == 1.) {
       if (eoverp > m_eoverp_tight_min && eoverp < m_eoverp_tight_max) {
-	m_Wenu_meanEop_vs_p_plus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
-	m_Wenu_meanEop_vs_invp_plus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
-	m_Wenu_meanEop_vs_E_plus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
-	m_Wenu_meanEop_vs_phi_plus[region]->Fill(track->phi(),eoverp);
-	m_Wenu_meanEop_vs_eta_plus[region]->Fill(track->eta(),eoverp);
+        m_Wenu_meanEop_vs_p_plus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
+        m_Wenu_meanEop_vs_invp_plus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
+        m_Wenu_meanEop_vs_E_plus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
+        m_Wenu_meanEop_vs_phi_plus[region]->Fill(track->phi(),eoverp);
+        m_Wenu_meanEop_vs_eta_plus[region]->Fill(track->eta(),eoverp);
       }
     }
     else if (track->charge() == -1.) {
       if (eoverp > m_eoverp_tight_min && eoverp < m_eoverp_tight_max) {
-	m_Wenu_meanEop_vs_p_minus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
-	m_Wenu_meanEop_vs_invp_minus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
-	m_Wenu_meanEop_vs_E_minus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
-	m_Wenu_meanEop_vs_phi_minus[region]->Fill(track->phi(),eoverp);
-	m_Wenu_meanEop_vs_eta_minus[region]->Fill(track->eta(),eoverp);
+        m_Wenu_meanEop_vs_p_minus[region]->Fill(track_p/Gaudi::Units::GeV,eoverp);
+        m_Wenu_meanEop_vs_invp_minus[region]->Fill(1./(track_p/Gaudi::Units::GeV),eoverp);
+        m_Wenu_meanEop_vs_E_minus[region]->Fill(cluster->e()/Gaudi::Units::GeV,eoverp);
+        m_Wenu_meanEop_vs_phi_minus[region]->Fill(track->phi(),eoverp);
+        m_Wenu_meanEop_vs_eta_minus[region]->Fill(track->eta(),eoverp);
       }
     }
     if (eoverp < m_eoverp_standard_max && eoverp > m_eoverp_standard_min) {

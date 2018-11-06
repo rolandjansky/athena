@@ -3,28 +3,34 @@
 */
 
 #include "SCT_ClusterContainerCnv_p0.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetIdentifier/SCT_ID.h"
+
 #include "MsgUtil.h"
 
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
-
 // Athena
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 
-#include <string>
+// Gaudi
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/StatusCode.h"
+
 #include <iostream>
 #include <sstream>
+#include <string>
 
 //================================================================
 
+
+SCT_ClusterContainerCnv_p0::SCT_ClusterContainerCnv_p0():
+  m_sctId{nullptr},
+  m_SCTDetEleCollKey{"SCT_DetectorElementCollection"}
+{
+}
 
 StatusCode SCT_ClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
@@ -36,24 +42,28 @@ StatusCode SCT_ClusterContainerCnv_p0::initialize(MsgStream &log ) {
    StoreGateSvc *detStore = nullptr;
    CHECK( svcLocator->service("DetectorStore", detStore) );
    CHECK( detStore->retrieve(m_sctId, "SCT_ID") );
-   CHECK( detStore->retrieve(m_sctMgr) );
+   CHECK( m_SCTDetEleCollKey.initialize() );
    MSG_DEBUG(log,"Converter initialized.");
 
    return StatusCode::SUCCESS;
 }
 
-
-
-
 InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_ClusterContainer_p0* persObj, MsgStream& log) {
 
   std::unique_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()) );
   //  MSG_DEBUG(log,"Read PRD vector, size " << persObj->size());
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*sctDetEleHandle);
+  if (not sctDetEleHandle.isValid() or elements==nullptr) {
+    log << MSG::FATAL << m_SCTDetEleCollKey.fullKey() << " is not available." << endmsg;
+    return nullptr;
+  }
   
   for (InDet::SCT_ClusterCollection* dcColl : *persObj) {
       // Add detElem to each drift circle
       IdentifierHash collHash = dcColl->identifyHash();
-      const InDetDD::SiDetectorElement * de = m_sctMgr->getDetectorElement(collHash);
+      const InDetDD::SiDetectorElement * de = elements->getDetectorElement(collHash);
       //      MSG_DEBUG(log,"Set SCT_Cluster detector element to "<< de);
 
       InDet::SCT_ClusterCollection::iterator itColl   = dcColl->begin();
@@ -64,7 +74,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_Clu
 
       StatusCode sc= trans->addCollection(dcColl, collHash);
       if (sc.isSuccess()){
-	//         MSG_VERBOSE("SCT_ClusterContainer successfully added to Container !");
+        //         MSG_VERBOSE("SCT_ClusterContainer successfully added to Container !");
       } else {
          log << MSG::ERROR << "Failed to add SCT_ClusterContainer to container" << endmsg;
          return 0;

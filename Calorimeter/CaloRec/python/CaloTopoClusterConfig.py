@@ -59,7 +59,7 @@ def CaloTopoClusterCfg(configFlags):
     TopoMaker.SeedCutsInAbsE                 = True
     TopoMaker.ClusterEtorAbsEtCut            = 0.0*MeV
     # use 2-gaussian or single gaussian noise for TileCal
-    TopoMaker.TwoGaussianNoise = configFlags.get("Calo.TopoCluster.doTwoGaussianNoise")
+    TopoMaker.TwoGaussianNoise = configFlags.Calo.TopoCluster.doTwoGaussianNoise
         
     TopoSplitter = CaloTopoClusterSplitter("TopoSplitter")
     # cells from the following samplings will be able to form local
@@ -81,7 +81,7 @@ def CaloTopoClusterCfg(configFlags):
                                            "FCAL1","FCAL2"]
     TopoSplitter.ShareBorderCells = True
     TopoSplitter.RestrictHECIWandFCalNeighbors  = False
-    TopoSplitter.WeightingOfNegClusters = configFlags.get("Calo.TopoCluster.doTreatEnergyCutAsAbsolute")
+    TopoSplitter.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     #
     # the following options are not set, since these are the default
     # values
@@ -110,23 +110,35 @@ if __name__=="__main__":
 
     log.setLevel(DEBUG)
 
-    ConfigFlags.set("global.isMC",False)
-    ConfigFlags.set("global.InputFiles",["myESD.pool.root"])
+    ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.Files = ["myESD.pool.root"]
+    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
     ConfigFlags.lock()
 
-    cfg=ComponentAccumulator()
-
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    #cfg=ComponentAccumulator()
+    cfg=MainServicesSerialCfg() 
     cfg.merge(PoolReadCfg(ConfigFlags))
     
+    theKey="CaloCalTopoClustersNew"
+
     topoAcc,topoAlg=CaloTopoClusterCfg(ConfigFlags)
-    topoAlg.ClustersOutputName="CaloCalTopoClustersNew" 
+    topoAlg.ClustersOutputName=theKey
     
     cfg.merge(topoAcc)
-    cfg.addEventAlgo(topoAlg)
-              
+    cfg.addEventAlgo(topoAlg,sequenceName="AthAlgSeq")
 
-    f=open("CaloTopoCluster.pkl","w")
-    cfg.store(f)
-    f.close()
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"ESD", ItemList=["xAOD::CaloClusterContainer#"+theKey,
+                                                            "xAOD::CaloClusterAuxContainer#"+theKey+"Aux.",
+                                                            "CaloClusterCellLinkContainer#"+theKey+"_links"]))
+
+  
+    cfg.getService("StoreGateSvc").Dump=True
+
+    cfg.run()
+    #f=open("CaloTopoCluster.pkl","w")
+    #cfg.store(f)
+    #f.close()
     

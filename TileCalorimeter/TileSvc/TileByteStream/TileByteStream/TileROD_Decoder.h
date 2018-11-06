@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_DECODER_H
@@ -456,7 +456,7 @@ class TileROD_Decoder: public AthAlgTool {
     bool m_suppressDummyFragments;
     // next three are needed to handle automatic conversion digits->channels->cells,
     // when HLT request for cells, and finds only digits.
-    TileRawChannelBuilder* m_RCBuilder;
+    //TileRawChannelBuilder* m_RCBuilder;
     std::string m_TileDefaultChannelBuilder;
     bool m_calibrateEnergy;
     // next two are needed to handle automatic conversion channels->cells,
@@ -644,11 +644,11 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     v.setFragExtraWords(*(m_digitsMetaData[1]));
 
     v.setFragChipHeaderWords(*(m_digitsMetaData[2]));
-    v.setFraghipCRCWords(*(m_digitsMetaData[3]));
+    v.setFragChipCRCWords(*(m_digitsMetaData[3]));
 
     if (v.isCalibMode()) {
       v.setFragChipHeaderWordsHigh(*(m_digitsMetaData[4]));
-      v.setFraghipCRCWordsHigh(*(m_digitsMetaData[5]));
+      v.setFragChipCRCWordsHigh(*(m_digitsMetaData[5]));
     }
     if (m_verbose) v.printExtra();
   } else if ( m_digitsMetaData[0]->size() == 0 ) {

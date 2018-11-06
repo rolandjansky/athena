@@ -15,8 +15,26 @@
  */
 
 #include "RootUtils/PyROOTTTreePatch.h"
-#include "RootUtils/PyROOTTypePatch.h"
 #include "RootUtils/PyLogger.h"
 #include "RootUtils/PyROOTPickle.h"
 #include "RootUtils/PyROOTTFilePythonize.h"
 #include "RootUtils/PyROOTInspector.h"
+
+
+// Work around a problem sometimes seen with cling in which `struct timespec'
+// appears to be predeclared without the include guard being defined.
+// This can cause problems, for example, with headers that include Python.h.
+// As a workaroud, force the include guard to be defined when this
+// dictionary is loaded.
+#include "TInterpreter.h"
+class RootUtilsInit
+{
+public:
+  RootUtilsInit();
+};
+RootUtilsInit::RootUtilsInit()
+{
+  gInterpreter->ProcessLine ("#define _STRUCT_TIMESPEC 1");
+}
+RootUtilsInit rootUtilsInit;
+

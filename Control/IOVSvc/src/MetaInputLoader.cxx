@@ -175,7 +175,6 @@ MetaInputLoader::execute()
    
     if (mcb->valid(sid)) {
       ATH_MSG_INFO( "  MetaObj " << obj << " is still valid for " << sid );
-      //evtStore()->addedNewTransObject(obj.clid(), obj.key());
       continue;
     }
 
@@ -184,10 +183,6 @@ MetaInputLoader::execute()
                     << sid);
       return StatusCode::FAILURE;
     } 
-    else {
-      m_metaStore->addedNewTransObject(obj.clid(), obj.key());
-    }
-
   }
 
   if (m_dump) {

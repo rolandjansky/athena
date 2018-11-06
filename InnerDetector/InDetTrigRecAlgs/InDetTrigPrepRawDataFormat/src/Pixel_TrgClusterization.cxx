@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -112,26 +112,6 @@ namespace InDet{
     m_timerRegSel = m_timerDecoder = 0;
     m_timerCluster = m_timerSGate = 0;
 
-  }
-
-  //----------------------------------  
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode Pixel_TrgClusterization::hltBeginRun()
-  {
-    
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "Pixel_TrgClusterization::hltBeginRun() configured with:"
-		  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
-    if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
-    ATH_MSG_INFO( "will be driven by RoI objects" );
-
-    /*
-      StatusCode sc = m_rawDataProvider->initContainer();
-      if (sc.isFailure())
-      msg() << MSG::WARNING << "RDO container cannot be registered" << endmsg;
-    */
-    return HLT::OK;
   }
 
   //---------------------------------------------------------------------------- 
@@ -251,6 +231,12 @@ namespace InDet{
       ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
+
+    // Get the messaging service, print where you are
+    ATH_MSG_INFO( "Pixel_TrgClusterization configured with:"
+                  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
+    if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
+    ATH_MSG_INFO( "will be driven by RoI objects" );
 
     // Timers:
     m_timerRegSel  = addTimer("RegSel");
@@ -636,19 +622,6 @@ namespace InDet{
 
     return HLT::OK;
   }
-  //----------------------------------  
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode Pixel_TrgClusterization::hltEndRun()
-  {
-
-    ATH_MSG_INFO( "Pixel_TrgClusterization::endRun()" );
-
-    return HLT::OK;
-  }
-
-  //---------------------------------------------------------------------------
-
 
   //-------------------------------------------------------------------------
   HLT::ErrorCode Pixel_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {

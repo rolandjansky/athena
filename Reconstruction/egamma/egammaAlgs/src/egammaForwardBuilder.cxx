@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "PathResolver/PathResolver.h"
 #include "StoreGate/StoreGateSvc.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -31,8 +28,8 @@
 //  CONSTRUCTOR:
     
 egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_timingProfile(0)
+  AthReentrantAlgorithm(name, pSvcLocator),
+  m_timingProfile("ChronoStatSvc", name)
 { 
 } 
 
@@ -62,112 +59,60 @@ StatusCode egammaForwardBuilder::initialize()
   ATH_CHECK(m_outClusterContainerCellLinkKey.initialize());
 
   // retrieve object quality tool 
-  RetrieveObjectQualityTool();
-
-  m_timingProfile = 0;
-  StatusCode sc = service("ChronoStatSvc",m_timingProfile);
-  if(sc.isFailure() || m_timingProfile == 0) {
-    ATH_MSG_ERROR("Cannot find the ChronoStatSvc " << m_timingProfile);
+  if (m_objectQualityTool.name()!="") {
+    ATH_CHECK(m_objectQualityTool.retrieve());
+  } else {
+    ATH_MSG_DEBUG("egammaOQFlagsBuilder is disabled");
   }
 
   // retrieve 4-mom builder:
-  if ((sc = RetrieveEMFourMomBuilder()).isFailure()) {
-    return sc;
-  }
+  if (!m_fourMomBuilder.empty()) {
+    ATH_CHECK(m_fourMomBuilder.retrieve());
+  } 
 
-
-  for (const auto& selector : m_forwardelectronIsEMselectors) {
-    CHECK(selector.retrieve());
+  for (const auto& selector : m_forwardElectronIsEMSelectors) {
+    ATH_CHECK(selector.retrieve());
   }
   
-  if (m_forwardelectronIsEMselectors.size() != m_forwardelectronIsEMselectorResultNames.size()) {
+  if (m_forwardElectronIsEMSelectors.size() != m_forwardElectronIsEMSelectorResultNames.size()) {
     ATH_MSG_ERROR("The number of selectors does not match the number of given fwd-electron selector names");
     return StatusCode::FAILURE;
   }
   
+  if (m_doChrono) ATH_CHECK( m_timingProfile.retrieve() );
 
   ATH_MSG_DEBUG("Initialization completed successfully");
-  return StatusCode::SUCCESS;
-}
 
-// ====================================================================
-void egammaForwardBuilder::RetrieveObjectQualityTool()
-{
-  //
-  // retrieve object quality tool
-  //
-
-  if (m_objectqualityTool.name()=="") {
-    ATH_MSG_INFO("egammaOQFlagsBuilder is disabled"); 
-    return;
-  } 
-
-  if(m_objectqualityTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve " << m_objectqualityTool
-		  << ", turning it off");
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool " << m_objectqualityTool);
-
-  return;
-}
-
-StatusCode egammaForwardBuilder::RetrieveEMFourMomBuilder()
-{
-  //
- // retrieve EMFourMomBuilder tool
- //
-  
-  if (m_fourMomBuilder.empty()) {
-    ATH_MSG_ERROR("EMFourMomBuilder is empty");
-    return StatusCode::FAILURE;
-  }
-  
-  
-  if(m_fourMomBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_fourMomBuilder);
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_fourMomBuilder);
-  
   return StatusCode::SUCCESS;
 }
 
 // ====================================================================
 StatusCode egammaForwardBuilder::finalize()
 {
-  //
-  // finalize method
-  //
-
   return StatusCode::SUCCESS;
 }
 
 // ======================================================================
-StatusCode egammaForwardBuilder::execute()
+StatusCode egammaForwardBuilder::execute_r(const EventContext& ctx) const
 {
-  //
-  // athena execute method
-  //
-
   ATH_MSG_DEBUG("Executing egammaForwardBuilder ");
 
   // create an egamma container and register it
-  SG::WriteHandle<xAOD::ElectronContainer> xaodFrwd(m_electronOutputKey);
+  SG::WriteHandle<xAOD::ElectronContainer> xaodFrwd(m_electronOutputKey, ctx);
   ATH_CHECK(xaodFrwd.record(std::make_unique<xAOD::ElectronContainer>(),
 			    std::make_unique<xAOD::ElectronAuxContainer>()));
 
   ATH_MSG_DEBUG( "Recorded Electrons with key: " << m_electronOutputKey.key() );
 
-
   //cluster
-  SG::WriteHandle<xAOD::CaloClusterContainer> outClusterContainer(m_outClusterContainerKey);
+  SG::WriteHandle<xAOD::CaloClusterContainer> outClusterContainer(m_outClusterContainerKey, ctx);
   ATH_CHECK(outClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
-  SG::WriteHandle<CaloClusterCellLinkContainer> outClusterContainerCellLink(m_outClusterContainerCellLinkKey);
+  SG::WriteHandle<CaloClusterCellLinkContainer> outClusterContainerCellLink(m_outClusterContainerCellLinkKey, ctx);
   ATH_CHECK(outClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
 
   //Topo cluster Container
-  SG::ReadHandle<xAOD::CaloClusterContainer> cluster(m_topoClusterKey);
+  SG::ReadHandle<xAOD::CaloClusterContainer> cluster(m_topoClusterKey, ctx);
 
   // check is only used for serial running; remove when MT scheduler used 
   // --used to be a warning with SUCCESS, but that won't work in MT
@@ -194,7 +139,6 @@ StatusCode egammaForwardBuilder::execute()
 
     el->setAuthor( xAOD::EgammaParameters::AuthorFwdElectron );
 
-     
     xAOD::CaloCluster *newcluster = new xAOD::CaloCluster(**clus_begin);
     outClusterContainer->push_back(newcluster);
     
@@ -208,21 +152,21 @@ StatusCode egammaForwardBuilder::execute()
     el->setCaloClusterLinks(linksToClusters);    
 
     //do  Four Momentum
-    CHECK(m_fourMomBuilder->execute(el));
+    ATH_CHECK(m_fourMomBuilder->execute(ctx, el));
     
     // do object quality 
-    CHECK( ExecObjectQualityTool(el) );
+    ATH_CHECK( ExecObjectQualityTool(ctx, el) );
     
   
     // FwdSelectors:
-    size_t size = m_forwardelectronIsEMselectors.size();
+    size_t size = m_forwardElectronIsEMSelectors.size();
     
     for (size_t i = 0; i<size;++i) {
-      asg::AcceptData accept = m_forwardelectronIsEMselectors[i]->accept(el);
+      asg::AcceptData accept = m_forwardElectronIsEMSelectors[i]->accept(ctx, el);
       //save the bool result
-      el->setPassSelection(static_cast<bool>(accept), m_forwardelectronIsEMselectorResultNames[i]);
+      el->setPassSelection(static_cast<bool>(accept), m_forwardElectronIsEMSelectorResultNames[i]);
       //save the isem
-      el->setSelectionisEM(accept.getCutResultInverted(), "isEM"+m_forwardelectronIsEMselectorResultNames[i]);
+      el->setSelectionisEM(accept.getCutResultInverted(), "isEM"+m_forwardElectronIsEMSelectorResultNames[i]);
       
     }
   }
@@ -242,7 +186,7 @@ StatusCode egammaForwardBuilder::execute()
 }  
   
 // ===========================================================
-StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
+StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, xAOD::Egamma *eg) const
 {
   //
   // execution of the object quality tools
@@ -251,19 +195,18 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
   // return success as algorithm may be able to run without it 
   // in degraded mode
 
-  if (m_objectqualityTool.name()=="") return StatusCode::SUCCESS;
+  if (m_objectQualityTool.name()=="") return StatusCode::SUCCESS;
 
   // setup chrono for this tool
-  std::string chronoName=this->name()+"_"+m_objectqualityTool->name() ;
-  if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+  std::string chronoName=this->name()+"_"+m_objectQualityTool->name() ;
+  if (m_doChrono) m_timingProfile->chronoStart(chronoName);
 
   // execute the tool
-  StatusCode sc = m_objectqualityTool->execute(eg);
+  StatusCode sc = m_objectQualityTool->execute(ctx, eg);
   if ( sc.isFailure() ) {
     ATH_MSG_DEBUG("failure returned by object quality tool"); 
   }
-
-  if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+  if (m_doChrono) m_timingProfile->chronoStop(chronoName);
 
   return sc;
 }

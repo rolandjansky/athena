@@ -14,7 +14,7 @@
 */
 
 // Framework
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // C/C++
 #include <iostream>

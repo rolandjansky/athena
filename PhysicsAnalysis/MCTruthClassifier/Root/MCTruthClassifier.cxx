@@ -152,7 +152,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle  *thePart,
   ParticleOrigin partOrig = NonDefined;  
  
   if (info) {
-    *info = Info();
     info->genPart = thePart;
   }
 
@@ -330,7 +329,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TrackParticle *trkPtr,
 
   const xAOD::TruthParticle* genPart = getGenPart(trkPtr);
   if (info) {
-    *info = Info();
     info->genPart = genPart;
   }
   
@@ -369,7 +367,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Electron* elec,
   }
 
   if (info) {
-    *info = Info();
     info->genPart = genPart;
   }
 
@@ -392,8 +389,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Photon* phot,
   ParticleType   parttype = Unknown;
   ParticleOrigin partorig = NonDefined;
 
-  if (info)
-    *info = Info();
     
   const xAOD::CaloCluster* clus=phot->caloCluster();
   if(!clus) return std::make_pair(parttype,partorig);  
@@ -441,9 +436,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Muon* mu,
   //-----------------------------------------------------------------------------------------
   
   ATH_MSG_DEBUG( "Executing muon  Classifier" );
- 
-  if (info)
-   *info = Info();
 
   ParticleType   parttype = Unknown;
   ParticleOrigin partorig = NonDefined;
@@ -479,9 +471,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::CaloCluster* clus,
   ParticleType   parttype = Unknown;
   ParticleOrigin partorig = NonDefined;
 
-  if (info){
-    *info = Info();
-  }
   if(!clus){
     return std::make_pair(parttype,partorig);  
   }
@@ -511,10 +500,6 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
   //-----------------------------------------------------------------------------------------
 
   ATH_MSG_DEBUG( "Executing Classifier with jet Input" );
-
-  if (info){
-    *info = Info();
-  }
 
   ParticleType   parttype     = UnknownJet;
   ParticleOrigin partorig     = NonDefined;

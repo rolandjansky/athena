@@ -998,8 +998,10 @@ namespace asg
       return;
     }
     if (std::get<1>(GetParam()) == "public")
+    {
       ASSERT_SUCCESS (th3.setProperty ("usePublic", true));
-
+    }
+    
     ASSERT_SUCCESS (th3.initialize ());
     if (value == -1)
     {

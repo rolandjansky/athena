@@ -44,6 +44,9 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <tuple>
 typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
 
@@ -66,7 +69,6 @@ namespace InDet {
 
 namespace InDetDD
 {
-  class SCT_DetectorManager;
   class PixelDetectorManager;
 }
 
@@ -128,7 +130,7 @@ public:
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;             //!< Random number service
 
   const InDetDD::PixelDetectorManager* m_manager_pix;
-  const InDetDD::SCT_DetectorManager* m_manager_sct;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper
   const SCT_ID* m_sct_ID;                             //!< Handle to the ID helper
@@ -151,6 +153,9 @@ public:
   iFatras::PlanarClusterContainer*  m_planarClusterContainer;               //!< the SCT_ClusterContainer
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
+  int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
+  bool                      m_HardScatterSplittingSkipper;
+  IntegerProperty  m_vetoThisBarcode;
 
   PRD_MultiTruthCollection* m_pixelPrdTruth{};
   std::string               m_prdTruthNamePixel;
@@ -164,7 +169,6 @@ public:
   SiHitCollection* m_simHitColl{};
   std::string      m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::vector<std::pair<unsigned int, int> > m_seen;
   std::list<SiHitCollection*> m_siHitCollList;
 
   Pixel_detElement_RIO_map* m_pixelClusterMap{};

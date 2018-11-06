@@ -59,22 +59,24 @@ namespace met {
     declareProperty( "TimingDetail",       m_timedetail = 0      );
   }
 
-
   // Athena algtool's Hooks
   ////////////////////////////
   StatusCode METRecoTool::initialize()
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
-    if( m_contname.size()==0 ) {
+    if( m_contname.key().size()==0 ) {
       ATH_MSG_FATAL("Output MissingETContainer name must be provided.");
       return StatusCode::FAILURE;
     }
 
-    if( m_mapname.size()==0 ) {
+    if( m_mapname.key().size()==0 ) {
       ATH_MSG_FATAL("Output MissingETComponentMap name must be provided.");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_contname.initialize() );
+    ATH_CHECK( m_mapname.initialize() );
+
 
     ATH_MSG_INFO ("Reconstructing MET container: " << m_contname
 		  << " with composition map: " << m_mapname     );
@@ -125,43 +127,20 @@ namespace met {
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
-    if( evtStore()->contains<MissingETContainer>(m_contname) ) {
-      if(m_warnOfDupes)
-	{ ATH_MSG_WARNING("MET container " << m_contname << " already in StoreGate"); }
-      return StatusCode::SUCCESS;
-    }
-
-    if( evtStore()->contains<MissingETComponentMap>(m_mapname) ) {
-      if(m_warnOfDupes)
-	{ ATH_MSG_WARNING("MET map " << m_mapname << " already in StoreGate"); }
-      return StatusCode::SUCCESS;
-    }
-
     // Create a MissingETContainer with its aux store
-    MissingETContainer* metCont = new MissingETContainer();
-    if( evtStore()->record(metCont, m_contname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_contname);
-      return StatusCode::SUCCESS;
-    }
-    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    if( evtStore()->record(metAuxCont, m_contname+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_contname+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    metCont->setStore(metAuxCont);
+    auto metHandle= SG::makeHandle (m_contname); 
+    //note that the method below automatically creates the MET container and its corresponding aux store (which will be named "m_contname+Aux.")
+    ATH_CHECK( metHandle.record (std::make_unique<xAOD::MissingETContainer>(),                      std::make_unique<xAOD::MissingETAuxContainer>()) );
+    xAOD::MissingETContainer* metCont=metHandle.ptr();
+
 
     // Create a MissingETComponentMap with its aux store
-    MissingETComponentMap* metMap = new MissingETComponentMap();
-    if( evtStore()->record(metMap, m_mapname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_mapname);
-      return StatusCode::SUCCESS;
-    }
-    MissingETAuxComponentMap* metAuxMap = new MissingETAuxComponentMap();
-    if( evtStore()->record(metAuxMap, m_mapname+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_mapname+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    metMap->setStore(metAuxMap);
+
+    auto metMapHandle= SG::makeHandle (m_mapname); 
+    //note that the method below automatically creates the MET container and its corresponding aux store (which will be named "m_contname+Aux.")
+    ATH_CHECK( metMapHandle.record (std::make_unique<xAOD::MissingETComponentMap>(),                      std::make_unique<xAOD::MissingETAuxComponentMap>()) );
+    xAOD::MissingETComponentMap* metMap=metMapHandle.ptr();
+
 
     if( buildMET(metCont, metMap).isFailure() ) {
       ATH_MSG_WARNING("Failed in MissingET reconstruction");

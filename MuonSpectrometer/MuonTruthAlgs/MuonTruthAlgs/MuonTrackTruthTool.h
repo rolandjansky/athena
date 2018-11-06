@@ -14,8 +14,6 @@
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TrkTrack/TrackCollection.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "GeneratorObjects/McEventCollection.h"
 
 #include <string>
 #include <vector>
@@ -93,7 +91,8 @@ namespace Muon {
     MuonTrackTruth getTruth( const std::vector<const Trk::MeasurementBase*>& measurements, bool restrictedTruth = false ) const;
 
     /** create truth tree from sim data */
-    const TruthTree& createTruthTree() const;
+    const TruthTree createTruthTree(const TrackRecordCollection* truthTrackCol, const McEventCollection* mcEventCollection,
+				    std::vector<const MuonSimDataCollection*> muonSimData, const CscSimDataCollection* cscSimDataMap) const;
 
     /// Returns the mother particle of the particle with barcodeIn if it is found in the truth trajectory.
     /// It traces the decay chain until if finds the first particle that is different flavor from the starting one.
@@ -150,11 +149,6 @@ namespace Muon {
     ToolHandle<Muon::MuonEDMPrinterTool>         m_printer;
     ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
     ToolHandle<Trk::ITruthTrajectoryBuilder>     m_truthTrajectoryBuilder;
-
-    SG::ReadHandleKey<McEventCollection> m_mcEventColl{this,"McEventCollectionKey","TruthEvent","McEventCollection"};
-    SG::ReadHandleKeyArray<MuonSimDataCollection> m_muonSimData{this,"MuonSimDataNames",{ "MDT_SDO", "RPC_SDO", "TGC_SDO" },"Muon SDO maps"};
-    SG::ReadHandleKey<CscSimDataCollection> m_cscSimData{this,"CSC_SDO_Container","CSC_SDO","CSC SDO"};
-    SG::ReadHandleKey<TrackRecordCollection> m_trackRecord{this,"TrackRecord","MuonEntryLayerFilter","Track Record Collection"};
 
     mutable TruthTree m_truthTree;
     mutable std::vector<TruthTrajectory*> m_truthTrajectoriesToBeDeleted;

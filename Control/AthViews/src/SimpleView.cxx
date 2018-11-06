@@ -8,23 +8,9 @@
 
 using namespace std;
 
-SimpleView::SimpleView() :
-	m_store( "StoreGateSvc", "SimpleView" ),
-	m_name( "SimpleView" ),
-  m_allowFallThrough( false )
-{
-}
-
-SimpleView::SimpleView( std::string Name, bool AllowFallThrough ) :
-	m_store( "StoreGateSvc", "SimpleView" ),
-	m_name( Name ),
-  m_allowFallThrough( AllowFallThrough )
-{
-}
-
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
-	m_store( storeName, "SimpleView" ),
-	m_name( Name ),
+  m_store( storeName, "SimpleView" ),
+  m_name( Name ),
   m_allowFallThrough( AllowFallThrough )
 {
 }
@@ -47,9 +33,9 @@ void SimpleView::linkParent( const IProxyDict* parent ) {
  */
 SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
 {
-	cout << "Not implemented: SimpleView::proxy_exact" << endl;
-	//TODO - view rename
-	return m_store->proxy_exact( sgkey );
+  cout << "Not implemented: SimpleView::proxy_exact" << endl;
+  //TODO - view rename
+  return m_store->proxy_exact( sgkey );
 }
 
 
@@ -70,12 +56,12 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
 {
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
   const std::string viewKey = m_name + "_" + key;
-  auto localProxy =  m_store->proxy( id, viewKey );
+  auto localProxy = m_store->proxy( id, viewKey );
   
-  //  std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in this view store with validity " << isValid( localProxy ) << std::endl;
+  //std::cout << " while looking for object " << key << " in view " << name() << " found proxy in this view store with validity " << isValid( localProxy ) << std::endl;
   for ( auto parent: m_parents ) {
-    auto inParentProxy = parent->proxy( id, key ); 
-    //    std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in parent view store with validity " << isValid( inParentProxy ) << std::endl;
+    auto inParentProxy = parent->proxy( id, key );
+    //std::cout << " while looking for object " << key << " in view " << name() << " found proxy in parent view store with validity " << isValid( inParentProxy ) << std::endl;
     if ( isValid( inParentProxy ) ) {
       if ( isValid( localProxy ) ) {
 	throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
@@ -88,7 +74,7 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
   //Look in the default store if cound not find in any view - for instance for event-wise IDCs
   if ( (not isValid( localProxy ))  and  m_allowFallThrough ) {
     auto mainStoreProxy = m_store->proxy( id, key );
-    //    std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in the main store with validity " << isValid( mainStoreProxy ) << std::endl;
+    //std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in the main store with validity " << isValid( mainStoreProxy ) << std::endl;
     return mainStoreProxy;
   }	
   return localProxy; // can be the nullptr still
@@ -103,9 +89,9 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
  */
 SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
 {
-	cout << "Not implemented: SimpleView::proxy" << endl;
-	//TODO - view rename
-	return m_store->proxy( pTransient );
+  cout << "Not implemented: SimpleView::proxy" << endl;
+  //TODO - view rename
+  return m_store->proxy( pTransient );
 }
 
 
@@ -114,7 +100,7 @@ SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
  */
 std::vector< const SG::DataProxy* > SimpleView::proxies() const
 {
-	return m_store->proxies();
+  return m_store->proxies();
 }
 
 
@@ -130,8 +116,7 @@ std::vector< const SG::DataProxy* > SimpleView::proxies() const
  */
 StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
 {
-	const std::string viewKey = m_name + "_" + proxy->name();
-	return m_store->addToStore( id, proxy );
+  return m_store->addToStore( id, proxy );
 }
 
 
@@ -147,8 +132,8 @@ StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
  */
 bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_out, size_t & index_out )
 {
-	cout << "Not implemented: SimpleView::tryELRemap" << endl;
-	return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out ); //TODO
+  cout << "Not implemented: SimpleView::tryELRemap" << endl;
+  return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out ); //TODO
 }
 
 /**
@@ -164,19 +149,8 @@ bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_
  */
 SG::DataProxy * SimpleView::recordObject( SG::DataObjectSharedPtr<DataObject> obj, const std::string& key, bool allowMods, bool returnExisting )
 {
-	const std::string viewKey = m_name + "_" + key;
-	return m_store->recordObject( obj, viewKey, allowMods, returnExisting );
-}
-
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode SimpleView::updatedObject( CLID id, const std::string& key )
-{
-	const std::string viewKey = m_name + "_" + key;
-	return m_store->updatedObject( id, viewKey );
+  const std::string viewKey = m_name + "_" + key;
+  return m_store->recordObject( obj, viewKey, allowMods, returnExisting );
 }
 
 /**
@@ -186,7 +160,7 @@ StatusCode SimpleView::updatedObject( CLID id, const std::string& key )
  */
 void SimpleView::boundHandle( IResetable * handle )
 {
-	return m_store->boundHandle( handle );
+  return m_store->boundHandle( handle );
 }
 
 /**
@@ -196,49 +170,69 @@ void SimpleView::boundHandle( IResetable * handle )
  */
 void SimpleView::unboundHandle( IResetable * handle )
 {
-	return m_store->unboundHandle( handle );
+  return m_store->unboundHandle( handle );
 }
 
 unsigned long SimpleView::addRef()
 {
-	cout << "Not implemented: SimpleView::addRef" << endl;
-	return 0; //TODO
+  cout << "Not implemented: SimpleView::addRef" << endl;
+  return 0; //TODO
 }
 unsigned long SimpleView::release()
 {
-	cout << "Not implemented: SimpleView::release" << endl;
-	return 0; //TODO
+  cout << "Not implemented: SimpleView::release" << endl;
+  return 0; //TODO
 }
 StatusCode SimpleView::queryInterface( const InterfaceID &/*ti*/, void** /*pp*/ )
 {
-	cout << "Not implemented: SimpleView::queryInterface" << endl;
-	return StatusCode::FAILURE; //TODO
+  cout << "Not implemented: SimpleView::queryInterface" << endl;
+  return StatusCode::FAILURE; //TODO
 }
 const std::string& SimpleView::name() const
 {
-	return m_name;
+  return m_name;
 }
 
 //IStringPool
 IStringPool::sgkey_t SimpleView::stringToKey( const std::string& str, CLID clid )
 {
-	const std::string viewKey = m_name + "_" + str;
-	return m_store->stringToKey( viewKey, clid );
+  const std::string viewKey = m_name + "_" + str;
+  return m_store->stringToKey( viewKey, clid );
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key ) const
 {
-	cout << "Not implemented: SimpleView::keyToString" << endl;
-	//TODO - view rename maybe?
-	return m_store->keyToString( key );
+  cout << "Not implemented: SimpleView::keyToString" << endl;
+  //TODO - view rename maybe?
+  return m_store->keyToString( key );
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key, CLID& clid ) const
 {
-	cout << "Not implemented: SimpleView::keyToString" << endl;
-	//TODO - view rename maybe?
-	return m_store->keyToString( key, clid ); 
+  cout << "Not implemented: SimpleView::keyToString" << endl;
+  //TODO - view rename maybe?
+  return m_store->keyToString( key, clid );
 }
 void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid )
 {
 	const std::string viewKey = m_name + "_" + str;
 	m_store->registerKey( key, viewKey, clid );
+}
+
+
+std::string SimpleView::dump( const std::string& delim ) const {
+  std::string ret = "in view: "+name() + delim +" [ ";
+  for ( const SG::DataProxy* dp: proxies() ) {
+    if ( dp->name().find( name() ) == 0 ) 
+      ret += dp->name() + delim;
+  }
+  ret += " ] ";
+  for ( auto p : m_parents ) {
+    const SimpleView * parent = dynamic_cast<const SimpleView*>( p );
+    if ( parent ) {
+      ret += delim;
+      ret += parent->dump( delim );
+    } else {
+      ret += delim + "main store";
+    }
+  }
+  return ret;
 }

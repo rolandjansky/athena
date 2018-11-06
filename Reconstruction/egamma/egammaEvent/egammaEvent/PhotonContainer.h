@@ -20,7 +20,7 @@ PACKAGE:  offline/Reconstruction/egammaEvent
 // INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "egammaEvent/Photon.h"
 #include "egammaEvent/egammaContainer.h"
 
@@ -34,14 +34,6 @@ class PhotonContainer : public DataVector<Analysis::Photon>
 
   /** @brief Main constructor */
   PhotonContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
-
-  /** @brief wether it owns or not the cel SG::OWN_ELEMENTS or VIEW_ELEMENTS */
-  SG::OwnershipPolicy  m_ownPolicy ;
-
-  /** reimplementation of push_back (temporary)*/
-  void push_back(const Analysis::Photon*);
-
-  void push_back(Analysis::Photon*);
 
   void print();
 };

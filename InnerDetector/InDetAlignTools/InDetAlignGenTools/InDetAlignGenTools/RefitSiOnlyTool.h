@@ -21,9 +21,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetAlignToolInterfaces/ICollectionProcessor.h"
-
+#include "TrkEventUtils/TrkParametersComparisonFunction.h"//typedef, cannot fwd declare
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrkEventUtils/TrkParametersComparisonFunction.h"
 
 namespace Trk {
   class Track;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,16 +75,6 @@ namespace InDetDD {
       /** access to individual elements via module numbering schema */
       SiDetectorElement * getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side) const;
     
-      /** access to individual elements using Identifier using SiDetectorElementCollection */
-      virtual const SiDetectorElement* getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const;
-
-      /** access to individual elements using IdentiferHash using SiDetectorElementCollection */
-      virtual const SiDetectorElement* getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const;
-
-      /** access to individual elements via module numbering schema using IdentiferHash using SiDetectorElementCollection */
-      const SiDetectorElement* getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side,
-                                                  const SiDetectorElementCollection* coll) const;
-
       /** access to whole collectiom via iterators */
       virtual const SiDetectorElementCollection * getDetectorElementCollection() const;
       virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const;
@@ -162,7 +152,7 @@ namespace InDetDD {
 } // namespace InDetDD
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF(InDetDD::SCT_DetectorManager, 72488296, 1) 
 #endif
 

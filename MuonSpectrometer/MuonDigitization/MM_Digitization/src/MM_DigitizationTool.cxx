@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,25 +95,25 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	// Services
 	m_storeGateService("StoreGateSvc", name),
 	m_magFieldSvc("AtlasFieldSvc",name) ,
-	m_mergeSvc(0),
+	m_mergeSvc(nullptr),
 	m_rndmSvc("AtRndmGenSvc", name ),
-	m_rndmEngine(0),
+	m_rndmEngine(nullptr),
 	m_rndmEngineName("MuonDigitization"),
 
 	// Containers
-	m_digitContainer(NULL),
-	m_sdoContainer(NULL),
+	m_digitContainer(nullptr),
+	m_sdoContainer(nullptr),
 
 	// Tools
 	m_digitTool("MM_Response_DigitTool", this),
-	m_file(0),
-	m_ntuple(0),
+	m_file(nullptr),
+	m_ntuple(nullptr),
 
 	// Settings
 	m_energyThreshold(50.),
 	m_maskMultiplet(0),
 	m_writeOutputFile(false),
-	m_timedHitCollection_MM(0),
+	m_timedHitCollection_MM(nullptr),
 
 	m_inputObjectName(""),
 	m_outputObjectName(""),
@@ -251,8 +251,8 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
 
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
-	StoreGateSvc* detStore=0;
-	m_MuonGeoMgr=0;
+	StoreGateSvc* detStore=nullptr;
+	m_MuonGeoMgr=nullptr;
 	ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
 	if(detStore->contains<MuonGM::MuonDetectorManager>( "Muon" )){
 		ATH_CHECK( detStore->retrieve(m_MuonGeoMgr) );
@@ -273,7 +273,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	// Random Engine from Random Service
 	ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
 	m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-	if (m_rndmEngine==0) {
+	if (m_rndmEngine == nullptr) {
 		ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
 		return StatusCode::FAILURE;
 	}
@@ -456,7 +456,6 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 	}
 
 	// create a new hits collection - Define Hit Collection
-	// m_timedHitCollection_MM = new TimedHitCollection<GenericMuonSimHit>() ;
 	if(!m_timedHitCollection_MM) {
 		m_timedHitCollection_MM = new TimedHitCollection<GenericMuonSimHit>();
 	}else{
@@ -481,7 +480,7 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 /*******************************************************************************/
 StatusCode MM_DigitizationTool::mergeEvent() {
 
-	// ATH_MSG_DEBUG ( "MM_DigitizationTool::in mergeEvent()" );
+	ATH_MSG_VERBOSE ( "MM_DigitizationTool::in mergeEvent()" );
 
 	// Cleanup and record the Digit container in StoreGate
 	ATH_CHECK( recordDigitAndSdoContainers() );
@@ -490,7 +489,7 @@ StatusCode MM_DigitizationTool::mergeEvent() {
 	// reset the pointer (delete null pointer should be safe)
 	if (m_timedHitCollection_MM){
 		delete m_timedHitCollection_MM;
-		m_timedHitCollection_MM = 0;
+		m_timedHitCollection_MM = nullptr;
 	}
 
 	// remove cloned one in processBunchXing......
@@ -516,14 +515,14 @@ StatusCode MM_DigitizationTool::processAllSubEvents() {
 
 	//merging of the hit collection in getNextEvent method
 
-	if (0 == m_timedHitCollection_MM ) ATH_CHECK( getNextEvent() );
+	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent() );
 
 	ATH_CHECK( doDigitization() );
 
 	// reset the pointer (delete null pointer should be safe)
 	if (m_timedHitCollection_MM){
 		delete m_timedHitCollection_MM;
-		m_timedHitCollection_MM = 0;
+		m_timedHitCollection_MM = nullptr;
 	}
 	return StatusCode::SUCCESS;
 }
@@ -566,7 +565,7 @@ StatusCode MM_DigitizationTool::recordDigitAndSdoContainers() {
 StatusCode MM_DigitizationTool::doDigitization() {
 
 
-	GenericMuonSimHitCollection* inputSimHitColl=NULL;
+	GenericMuonSimHitCollection* inputSimHitColl=nullptr;
 
 	IdentifierHash detectorElementHash=0;
 
@@ -589,9 +588,8 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 	//iterate over hits and fill id-keyed drift time map
 	TimedHitCollection< GenericMuonSimHit >::const_iterator i, e;
-	const GenericMuonSimHit* previousHit = 0;
+	const GenericMuonSimHit* previousHit = nullptr;
 
-	// ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
 	std::map<Identifier,int> hitsPerChannel;
 	int nhits = 0;
 
@@ -1147,7 +1145,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 		const Identifier elemId = m_idHelper->elementID( stripDigitOutputAllHits.digitID() );
 		m_idHelper->get_detectorElement_hash( elemId, detectorElementHash );
 
-		MmDigitCollection* digitCollection = 0;
+		MmDigitCollection* digitCollection = nullptr;
 		// put new collection in storegate
 		// Get the messaging service, print where you are
 		m_activeStore->setStore( &*m_storeGateService );
@@ -1178,7 +1176,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 	if (m_timedHitCollection_MM){
 		delete m_timedHitCollection_MM;
-		m_timedHitCollection_MM = 0;
+		m_timedHitCollection_MM = nullptr;
 	}
 
 	return StatusCode::SUCCESS;

@@ -4,9 +4,15 @@
 #
 ###############################################################
 #
-from AthenaCommon.GlobalFlags import GlobalFlags
-GlobalFlags.DetGeo.set_atlas()
-GlobalFlags.DataSource.set_geant4()
+include("AthenaCommon/Atlas_Gen.UnixStandardJob.py")
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.JobProperties import jobproperties
+
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetGeo.set_Value_and_Lock('atlas')
+globalflags.DataSource.set_Value_and_Lock('geant4')
 
 from AthenaCommon.DetFlags import DetFlags
 # - Select detectors 
@@ -16,7 +22,6 @@ DetFlags.Tile_setOff()
 DetFlags.Muon_setOff()
 
 # default ?
-DetDescrCnvSvc.IdDictFromRDB = True
 # Default UseLArCoolPool is True
 #UseLArCoolPool=True
 
@@ -24,48 +29,63 @@ DetDescrCnvSvc.IdDictFromRDB = True
 LArIdMapFix=7
 
 if LArIdMapFix>=7:
-    DetDescrVersion="ATLAS-CSC-02-00-00"
+    jobproperties.Global.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 #    DetDescrCnvSvc.LArIDFileName = "IdDictLArCalorimeter_DC3-05-Comm-01.xml"
 #    DetDescrCnvSvc.CaloIDFileName = "IdDictCalorimeter_L1Onl.xml"
     include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 #    include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 else:    
-    DetDescrVersion="ATLAS-CSC-01-00-00"
+    jobproperties.Global.DetDescrVersion="ATLAS-CSC-01-00-00"
 #    DetDescrCnvSvc.LArIDFileName = "IdDictLArCalorimeter_DC3-05.xml"
 #    DetDescrCnvSvc.CaloIDFileName = "IdDictCalorimeter_DC3-05.xml"
     include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
     
 #setup GeoModel
-include( "AtlasGeoModel/SetGeometryVersion.py" )
-include( "AtlasGeoModel/GeoModelInit.py" )
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
+from AtlasGeoModel import SetupRecoGeometry
 #GeoModelSvc = Service( "GeoModelSvc" )
 
 include( "LArIdCnv/LArIdCnv_joboptions.py" )
 # note : LArIdCnv includes LArTools_jobOptions.py, which includes CaloIdCnv, which includes CaloTriggerTool
 
+svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
+svcMgr.EventSelector.RunNumber= 10000000
+svcMgr.IOVDbSvc.GlobalTag='OFLCOND-MC16-SDR-24'
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSequence = AthSequencer("AthCondSeq")
+from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
+condSequence+=LArHVIdMappingAlg(ReadKey="/LAR/Identifier/HVLineToElectrodeMap")
+from LArConditionsCommon import LArHVDB
 
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-theApp.Dlls += ["TestLArHardwareID" ] 
-theApp.TopAlg += ["TestLArHWID_Algo" ]
+from TestLArHardwareID.TestLArHardwareIDConf import TestLArHWID_Algo 
+testLArHWID_Algo = TestLArHWID_Algo()
+topSequence += testLArHWID_Algo
+
+#from LArCabling.LArCablingConf import LArHVCablingTool
+#hvcab=LArHVCablingTool()
+#hvcab.MappingFolder="/LAR/Identifier/HVLineToElectrodeMap"
+#svcMgr.ToolSvc += hvcab
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 MessageSvc = Service( "MessageSvc" )
-MessageSvc.OutputLevel = 2
-MessageSvc.setDebug += [ "LArEM_ID" ];
-MessageSvc.setDebug += [ "LArOnOffIdMap" ];
+MessageSvc.OutputLevel = WARNING
+#MessageSvc.setDebug += [ "LArEM_ID" ];
+#MessageSvc.setDebug += [ "LArOnOffIdMap" ];
 MessageSvc.infoLimit   = 200000
 MessageSvc.debugLimit  = 200000
 # 
 # Set flag to check ids
 # ----------------------
-DetDescrCnvSvc.DoIdChecks = False;
+svcMgr.DetDescrCnvSvc.DoIdChecks = False;
 theApp.EvtMax = 1
 
 #--------------------------------------
 # Set Property - to select sub-detector 
 #--------------------------------------
-TestLArHWID_Algo = Algorithm( "TestLArHWID_Algo" )
 #
 # Declare Mode chosen to access dictionary
 # ----------------------------------------
@@ -76,16 +96,16 @@ TestLArHWID_Algo = Algorithm( "TestLArHWID_Algo" )
 #  Detector       |  ALL, EMB, EMEC, HEC, FCAL     |
 #  SubDetector    |  ALL, S0, S1, S2, S3           |
 #--------------------------------------------------
-TestLArHWID_Algo.Detector    = "HEC"
-TestLArHWID_Algo.SubDetector = "ALL"
+testLArHWID_Algo.Detector    = "ALL"
+testLArHWID_Algo.SubDetector = "ALL"
 
 
 # -------------------------------------------------
 #  OnlineTest        |       ON , OFF, FEB         |
 #  Calibration       |       ON , OFF, EXCL        |
 #--------------------------------------------------
-TestLArHWID_Algo.OnlineTest  = "OFF"
-TestLArHWID_Algo.Calibration = "OFF"
+testLArHWID_Algo.OnlineTest  = "OFF"
+testLArHWID_Algo.Calibration = "OFF"
 
 # -------------------------------------------------
 # OfflineTest        |       ON, OFF               |
@@ -93,8 +113,8 @@ TestLArHWID_Algo.Calibration = "OFF"
 # Connected          |       ON, OFF, ALL          |
 #   for Connected channels,OfflineTest must be ON  |
 # --------------------------------------------------
-TestLArHWID_Algo.OfflineTest = "ON"
-TestLArHWID_Algo.Connected   = "ON"
+testLArHWID_Algo.OfflineTest = "OFF"
+testLArHWID_Algo.Connected   = "OFF"
 
 # -------------------------------------------------
 # HighVoltage             |       ON, OFF          |
@@ -102,10 +122,9 @@ TestLArHWID_Algo.Connected   = "ON"
 # - HVlineToOffline       |       ON, OFF          |
 # - HVelectrodeToOffline  |       ON, OFF          |
 # -------------------------------------------------
-TestLArHWID_Algo.HighVoltage          ="OFF"
-TestLArHWID_Algo.HVlineToOffline      ="OFF"
-TestLArHWID_Algo.HVelectrodeToOffline ="OFF"
-
+testLArHWID_Algo.HighVoltage          ="ON"
+testLArHWID_Algo.HVlineToOffline      ="ON"
+testLArHWID_Algo.HVelectrodeToOffline ="ON"
 
 #
 #-------------------------------------------

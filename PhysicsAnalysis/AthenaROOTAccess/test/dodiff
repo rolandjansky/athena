@@ -1,8 +1,18 @@
 #!/bin/sh
 
+version=`cat VERSION`
+
 # Exclude some differences from taujet v2->v3 migration which are not
 # practical to implement in ARA.
-excludes="-InChargedTracks: -InIsolatedTracks: -ItauTrackLinks:"
+excludes="-InChargedTracks: -InIsolatedTracks: -ItauTrackLinks: -INUMTRACK: -INUMVERTICES: -INUMWIDETRACK:"
+
+case "$version" in
+  # In a few versions, the TrigPassBits was written incorrectly.
+  # This was worked around with a custom Athena converter,
+  # but is not implemented in ARA.
+  20.7.3.* | 20.7.4.* | 20.7.5.* )
+    excludes="$excludes -IcontainerClid: -IcontainerKey: -IpassBits: -Isize:";;
+esac
 
 echo "*** diff 1"
 bzdiff -u $excludes dump.out.bz2 dump1.out.bz2

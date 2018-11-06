@@ -81,7 +81,8 @@ namespace JiveXML {
         }
 
         //Get the global position from the local position
-	Amg::Vector2D localPos = element->localPositionOfCell(id);
+        Amg::Vector2D localPos = element->rawLocalPositionOfCell(id);
+        localPos[Trk::distPhi] += m_lorentzAngleTool->getLorentzShift(element->identifyHash());
 	Amg::Vector3D globalPos = element->globalPosition(localPos);
 
         //Fill in all the data in our data vectors
@@ -120,4 +121,10 @@ namespace JiveXML {
     return StatusCode::SUCCESS;
   }
 
+
+  StatusCode PixelRDORetriever::initialize() {
+    ATH_CHECK( m_lorentzAngleTool.retrieve() );
+
+    return m_geo.retrieve();
+  }
 }

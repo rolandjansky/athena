@@ -94,11 +94,9 @@ class SCT_ConfigurationConditionsToolSetup:
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
-            ToolSvc += SCT_ConfigurationConditionsTool(name = self.toolName)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_ConfigurationConditionsTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

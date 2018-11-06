@@ -21,6 +21,8 @@
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 #include "TrkPrepRawData/PrepRawDataCollection.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
  
 class AtlasDetectorID;
 class PixelID;
@@ -93,6 +95,8 @@ namespace InDet {
         const SCT_ID*                               m_sctIdHelper;                      
         std::string                                 m_sctClusterContainerName;          
         mutable const SCT_ClusterContainer*         m_sctClusterContainer;              
+        // For P->T converter of SCT_Clusters
+        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
         
         const TRT_ID*                               m_trtIdHelper;                      
         std::string                                 m_trtDriftCircleContainerName;      

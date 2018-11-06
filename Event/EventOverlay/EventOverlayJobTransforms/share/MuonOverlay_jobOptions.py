@@ -42,49 +42,48 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         if overlayFlags.isDataOverlay():
             ToolSvc.CscRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+CSCRDO"
         job += getAlgorithm("CscOverlay")
-
         #job.CscOverlay.OutputLevel=VERBOSE
         #svcMgr.MessageSvc.defaultLimit=100000
         #print job.CscOverlay
-
         #print "ACH123: Setting DEBUG v99"
         #job.CscOverlay.MakeRDOTool.OutputLevel=DEBUG
         #job.CscOverlay.MakeRDOTool.cscCalibTool.OutputLevel=DEBUG
         #job.CscOverlay.OutputLevel=DEBUG
         #MessageSvc.debugLimit = 100000
-
         #print "ACH123: NumSamples = 2 for MakeRDOTool"
         #job.CscOverlay.MakeRDOTool.NumSamples=2
 
     if DetFlags.overlay.MDT_on():
+        job += CfgGetter.getAlgorithm("MdtRdoToMdtDigitOverlayAlg")
+        job += CfgGetter.getAlgorithm("MDT_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MdtOverlay")
         job += CfgGetter.getAlgorithm("OverlayMdtDigitToMdtRDO")
         if overlayFlags.isDataOverlay():
             ToolSvc.MdtRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+MDTCSM"
-            job.MdtOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
         #job.MdtOverlay.OutputLevel = VERBOSE
         #job.OverlayMdtDigitToMdtRDO.OutputLevel = VERBOSE
 
     if DetFlags.overlay.RPC_on():
+        job += CfgGetter.getAlgorithm("RpcRdoToRpcDigitOverlayAlg")
+        job += CfgGetter.getAlgorithm("RPC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("RpcOverlay")
         job += CfgGetter.getAlgorithm("OverlayRpcDigitToRpcRDO")
         if overlayFlags.isDataOverlay():
             ToolSvc.RpcRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+RPCPAD"
-            job.RpcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
         #job.RpcOverlay.OutputLevel = VERBOSE
         #job.OverlayRpcDigitToRpcRDO.OutputLevel = VERBOSE
 
     if DetFlags.overlay.TGC_on():
+        job += CfgGetter.getAlgorithm("TgcRdoToTgcDigitOverlayAlg")
+        job += CfgGetter.getAlgorithm("TGC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("TgcOverlay")
         job += CfgGetter.getAlgorithm("OverlayTgcDigitToTgcRDO")
         if overlayFlags.isDataOverlay():
             ToolSvc.TgcRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+TGCRDO"
-            job.TgcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
         #job.TgcOverlay.OutputLevel = VERBOSE
-        #job.OverlayTgcDigitToRpcRDO.OutputLevel = VERBOSE
+        #job.OverlayTgcDigitToTgcRDO.OutputLevel = VERBOSE
 
-        # storegate dump
-        # StoreGateSvc = Service( "StoreGateSvc" )
-        # StoreGateSvc.Dump = True  #true will dump data store contents
-
-        # StoreGateSvc.OutputLevel=DEBUG
+    # storegate dump
+    #StoreGateSvc = Service( "StoreGateSvc" )
+    #StoreGateSvc.Dump = True  #true will dump data store contents
+    #StoreGateSvc.OutputLevel=DEBUG

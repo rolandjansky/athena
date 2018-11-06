@@ -167,13 +167,6 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltInitialize() {
   return HLT::OK;
 }
 
-//-----------------------------------------------------------------------------
-HLT::ErrorCode TrigCountSpacePointsHypo::hltBeginRun() {
-  // This initialisation has been moved into the event loop.
-  // @see TrigCountSpacePointsHypo::checkDetectorMask
-  ATH_MSG_DEBUG(" TrigCountSpacePointsHypo will be initialized in hltExecute"); 
-  return HLT::OK;
-}
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePointsHypo::checkDetectorMask() {
@@ -564,6 +557,12 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     }
     else
       ATH_MSG_DEBUG("Event fails Pixel OR SCT ");
+  }
+
+  // Veto
+  if (m_veto == true) {
+    pass = !pass;
+    ATH_MSG_DEBUG("Using inverted/VETO logic, final decision is " << (pass ? "PASS" : "FAIL"));
   }
 
   // Veto

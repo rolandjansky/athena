@@ -6,7 +6,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoring/MonitoredScope.h"
-
+#include "TrigConfL1Data/CTPConfig.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -33,8 +33,12 @@ StatusCode EMRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMRoIsUnpackingTool::updateConfiguration() {
+StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
   using namespace TrigConf;
+  
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::EM; }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
 
   m_emThresholds.clear();
 

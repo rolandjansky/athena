@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -99,24 +99,17 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
     rebuildStateWithErrors = rebuildStateWithErrors || invalidComponent( component->first ) ;
   }
 
-  if ( rebuildStateWithErrors ){
-
+  if (rebuildStateWithErrors){
     ATH_MSG_VERBOSE( "Rebuilding state with errors");
-
     Trk::MultiComponentState* stateWithInsertedErrors = rebuildState( stateBeforeUpdate );
-
     // Perform the measurement update with the modified state
     updatedState = calculateFilterStep(*stateWithInsertedErrors, measurement, updator);
-    
     delete stateWithInsertedErrors;
-
     if ( !updatedState ) {
       ATH_MSG_DEBUG("Updated state could not be calculated... Returning 0" );
-      return 0;
+      return nullptr;
     }
-
     return updatedState;
-
   }
 
   // Perform the measurement update
@@ -124,7 +117,7 @@ const Trk::MultiComponentState* Trk::GsfMeasurementUpdator::update (const Trk::M
 
   if ( !updatedState ) {
     ATH_MSG_DEBUG("Updated state could not be calculated... Returning 0" );
-    return 0;
+    return nullptr;
   }
 
   return updatedState;
@@ -200,8 +193,10 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
   // Start the timer
   //Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
 
+  //state Assembler cache
+  IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     ATH_MSG_DEBUG("Could not reset the state assembler... returning 0");
@@ -236,11 +231,8 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
     Trk::FitQualityOnSurface* fitQuality = 0;
 
-    // Track update alternates between update and getUnbiasedTrackParams
-    Trk::IUpdator* updatorPointer = &(*m_updator);
-    updatedTrackParameters = (updatorPointer->*updator) ( *(*component).first, measurement.localParameters(), measurement.localCovariance(), fitQuality );
-
-    //updatedTrackParameters = m_updator->addToState( *(*component).first, measurement.localParameters(), measurement.localCovariance(), fitQuality );
+    // Track updates using a pointer to the member function
+    updatedTrackParameters = ((&(*m_updator))->*updator)( *(*component).first, measurement.localParameters(), measurement.localCovariance(), fitQuality );
 
     if ( !updatedTrackParameters ) {
       ATH_MSG_DEBUG( "Update of state with Measurement has failed 1... Exiting!");
@@ -264,7 +256,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     Trk::ComponentParameters updatedComponentParameters(updatedTrackParameters, component->second);
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(updatedComponentParameters);
+    bool componentAdded = m_stateAssembler->addComponent(cache,updatedComponentParameters);
 
     if ( !componentAdded )
       ATH_MSG_DEBUG( "Component could not be added to the state in the assembler");
@@ -275,24 +267,23 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
   
   delete stateWithNewWeights;
 
-  const Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
 
 
  
-  if(!assembledUpdatedState)
+  if(!assembledUpdatedState){
     return 0;
+  }
       
   // Renormalise state
   const Trk::MultiComponentState* renormalisedUpdatedState = assembledUpdatedState->clonedRenormalisedState();
   
   // Clean up memory
   delete assembledUpdatedState;
-
-  
+ 
   ATH_MSG_VERBOSE( "Successful calculation of filter step"); 
 
   return renormalisedUpdatedState;
-
 }
 
 
@@ -361,8 +352,10 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
   // Start the timer
   //Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
 
+  //state Assembler cache
+  IMultiComponentStateAssembler::Cache cache;
   // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     ATH_MSG_ERROR("Could not reset the state assembler... returning 0");
@@ -455,7 +448,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     Trk::ComponentParameters updatedComponentParameters(updatedTrackParameters, component->second);
 
     // Add component to state being prepared for assembly and check that it is valid
-    bool componentAdded = m_stateAssembler->addComponent(updatedComponentParameters);
+    bool componentAdded = m_stateAssembler->addComponent(cache,updatedComponentParameters);
 
     if ( !componentAdded )
       ATH_MSG_DEBUG( "Component could not be added to the state in the assembler");
@@ -466,7 +459,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
   
   delete stateWithNewWeights;
 
-  const Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
   
   if(!assembledUpdatedState)
     return 0;

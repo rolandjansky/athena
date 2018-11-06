@@ -213,9 +213,6 @@ elif (WhichInput == "BS"):
     #if hasattr(ToolSvc,"TRT_FillCablingData_DC3"):
     #  ToolSvc.TRT_FillCablingData_DC3.RealData=False
 
-    #if hasattr(ToolSvc,"SCT_CablingSelector"):
-    #  ToolSvc.SCT_CablingSelector.Filename = "SCT_Jan08Cabling.dat" 
-
 jobproperties.PerfMonFlags.doMonitoring = True
 
 print ">>>>>>>>== generalJobOption.py DEBUG ==<<<<<<<<<"

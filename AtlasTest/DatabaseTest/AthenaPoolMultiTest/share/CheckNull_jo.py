@@ -34,7 +34,6 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.PoolSvc.ReadCatalog = ["xmlcatalog_file:SplittableData.xml"]
 
 svcMgr.EventSelector.InputCollections = [ "PFN:NullableCollection.root" ]
-svcMgr.EventSelector.BackNavigation = TRUE; # // switch on BackNavigation of AddressProvider
 svcMgr.EventSelector.CollectionType = "ExplicitROOT"
 
 #from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__QueryTag

@@ -115,11 +115,6 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltFinalize(){
   return HLT::OK;
 }
 
-HLT::ErrorCode TrigIDTPMonitorElectron::hltBeginRun() {
-  ATH_MSG_INFO( "beginning run in this " << name() );
-  return HLT::OK;
-}
-
 HLT::ErrorCode TrigIDTPMonitorElectron::acceptInput(const HLT::TriggerElement* /*inputTE*/, bool& pass){
   ATH_MSG_DEBUG( "Running TrigIDTPMonitorElectron::acceptInputs" );
   pass = true;

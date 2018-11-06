@@ -233,37 +233,6 @@ void throwExcNullUpdateHandle (CLID clid,
 
 
 /**
- * @brief Exception --- updatedObject failed.
- */
-class ExcUpdatedObjectFailure
-  : public std::runtime_error
-{
-public:
-  /**
-   * @brief Constructor.
-   * @param clid CLID from the key.
-   * @param sgkey StoreGate key from the key.
-   * @param storename Store name from the key.
-   */
-  ExcUpdatedObjectFailure (CLID clid,
-                           const std::string& sgkey,
-                           const std::string& storename);
-};
-
-
-/**
- * @brief Throw a SG::ExcUpdatedObjectFailure exception.
- * @param clid CLID from the key.
- * @param sgkey StoreGate key from the key.
- * @param storename Store name from the key.
- */
-[[noreturn]]
-void throwExcUpdatedObjectFailure (CLID clid,
-                                   const std::string& sgkey,
-                                   const std::string& storename);
-
-
-/**
  * @brief Exception --- Attempt to get non-const VarHandleKey from non-owning VarHandle.
  *
  * If a Read/Write/Update handle is initialized from a HandleKey object, then
@@ -297,6 +266,20 @@ public:
 void throwExcNonConstHandleKey (CLID clid,
                                 const std::string& sgkey,
                                 const std::string& storename);
+
+
+/**
+ * @brief Exception --- Deference invalid SG::Iterator.
+ */
+class ExcInvalidIterator
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcInvalidIterator();
+};
 
 
 } // namespace SG

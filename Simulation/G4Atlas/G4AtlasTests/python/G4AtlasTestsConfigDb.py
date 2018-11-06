@@ -30,6 +30,7 @@ addTool("G4AtlasTests.G4AtlasTestsConfig.TileDeadMaterialCaloCalibHitsTestTool",
 addTool("G4AtlasTests.G4AtlasTestsConfig.TileCellCaloCalibHitsTestTool", "TileCellCaloCalibHitsTestTool") #old name
 addTool("G4AtlasTests.G4AtlasTestsConfig.TileDMCaloCalibHitsTestTool", "TileDMCaloCalibHitsTestTool") #old name
 addTool("G4AtlasTests.G4AtlasTestsConfig.EvgenTruthTestTool", "EvgenTruthTestTool")
+addTool("G4AtlasTests.G4AtlasTestsConfig.BeamTruthTestTool", "BeamTruthTestTool")
 addTool("G4AtlasTests.G4AtlasTestsConfig.TruthTestTool", "TruthTestTool")
 addTool("G4AtlasTests.G4AtlasTestsConfig.PileupEvgenTruthTestTool", "PileupEvgenTruthTestTool")
 addTool("G4AtlasTests.G4AtlasTestsConfig.PileupTruthTestTool", "PileupTruthTestTool")

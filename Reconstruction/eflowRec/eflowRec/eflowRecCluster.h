@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -32,13 +32,12 @@ This class extends the information about a xAOD::CaloCluster. It includes an ele
 */
 class eflowRecCluster {
 public:
-  eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink);
+  eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink, xAOD::CaloClusterContainer& newClusContainer);
   eflowRecCluster(const eflowRecCluster& originalEflowRecCluster);
   eflowRecCluster&  operator=(const eflowRecCluster& originalEflowRecCluster);
   virtual ~eflowRecCluster();
 
-  const xAOD::CaloCluster* getCluster() const { return m_cluster; }
-  xAOD::CaloCluster* getClusterForModification(xAOD::CaloClusterContainer* container);
+  xAOD::CaloCluster* getCluster() const { return m_cluster; }
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
   ElementLink<xAOD::CaloClusterContainer> getOriginalClusElementLink() const { return m_originalClusElementLink; }
@@ -62,21 +61,23 @@ public:
   const bool& isTouchable() { return m_isTouchable;}
 
 private:
+  /** ENUM that defines calorimeter regions as ECAL, HCAL or FCAL  */
+  enum CalorimeterType { CALORIMETER_START = 0, UNASSIGNED = CALORIMETER_START, ECAL = 1, HCAL = 2, FCAL = 3, UNKNOWN = 4, CALORIMETER_END = 5};
+  
   int m_clusterId;
-  const xAOD::CaloCluster* m_cluster;
+  xAOD::CaloCluster* m_cluster;
   ElementLink<xAOD::CaloClusterContainer> m_originalClusElementLink;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
-  /* 1: ECAL, 2: HCAL */
-  int m_type;
+
+  /** Specifies if we have a cluster mainly in ECAL, HCAL or FCAL  */
+  CalorimeterType m_calorimeterType;
 
   /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
   std::map<IdentifierHash,double> m_cellsWeightMap;
 
   std::unique_ptr<eflowMatchCluster> m_matchCluster;
   std::vector<eflowTrackClusterLink*> m_trackMatches;
-
-  void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);
 
 public:
   class SortDescendingPt {
@@ -180,7 +181,7 @@ private:
 };
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class eflowRecClusterContainer : public DataVector< eflowRecCluster >
 

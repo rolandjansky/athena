@@ -7,9 +7,8 @@ atlas_subdir( LArHV )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/IOVSvc
-                          Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelKernel
                           PRIVATE
@@ -23,6 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( LArHV
                    src/*.cpp
                    PUBLIC_HEADERS LArHV
-                   LINK_LIBRARIES SGTools GeoModelKernel IOVSvcLib StoreGateLib SGtests LArCablingLib
+                   LINK_LIBRARIES AthenaKernel GeoModelKernel IOVSvcLib StoreGateLib SGtests LArCablingLib
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities Identifier GaudiKernel LArIdentifier )
 

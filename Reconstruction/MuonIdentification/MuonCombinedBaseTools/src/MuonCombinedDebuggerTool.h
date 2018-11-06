@@ -37,9 +37,9 @@ namespace MuonCombined {
   public:
     MuonCombinedDebuggerTool(const std::string& type, const std::string& name, const IInterface* parent);
     ~MuonCombinedDebuggerTool(void); // destructor
-  
-    static const InterfaceID& interfaceID() {return IID_MuonCombinedDebuggerTool;}
 
+    static const InterfaceID& interfaceID() {return IID_MuonCombinedDebuggerTool;}
+  
     StatusCode initialize();
     StatusCode finalize();
 

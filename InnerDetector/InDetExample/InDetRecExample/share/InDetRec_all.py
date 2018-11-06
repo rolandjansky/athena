@@ -211,8 +211,6 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
   from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
   # --- check dictionary
   ServiceMgr.AthenaSealSvc.CheckDictionary = True
-  # --- commit interval (test)
-  ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 # MC truth information
   if doWriteESD or doWriteAOD:

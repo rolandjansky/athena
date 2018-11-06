@@ -6,9 +6,7 @@
 /// Code for the converters
 ///
 
-#define private public
 #include "JetTagInfo/JetProbInfoBase.h"
-#undef private
 #include "JetTagInfoTPCnv/JetProbInfoBaseCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -18,12 +16,12 @@ namespace Analysis {
 
   void JetProbInfoBaseCnv_p1::transToPers(const JetProbInfoBase* pa, JetProbInfoBase_p1* pb, MsgStream & msg) {
     pb->m_baseTagInfo = baseToPersistent(&m_baseTagCnv, pa, msg);
-    pb->m_ntrk = pa->m_ntrk;
+    pb->m_ntrk = pa->nbTracks();
   }
 
   void JetProbInfoBaseCnv_p1::persToTrans(const JetProbInfoBase_p1* pa, JetProbInfoBase* pb, MsgStream & msg) {
     fillTransFromPStore (&m_baseTagCnv, pa->m_baseTagInfo, pb, msg);
-    pb->m_ntrk = pa->m_ntrk;
+    pb->nbTracks (pa->m_ntrk);
   }
 
 }

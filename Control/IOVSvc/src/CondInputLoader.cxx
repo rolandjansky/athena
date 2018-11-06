@@ -357,8 +357,7 @@ CondInputLoader::execute()
     }
    
     if (ccb->valid(now)) {
-      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now_event );
-      evtStore()->addedNewTransObject(vhk.fullKey().clid(), vhk.key());
+      ATH_MSG_DEBUG( "  CondObj " << vhk.fullKey() << " is still valid at " << now_event );
       continue;
     }
 
@@ -368,10 +367,7 @@ CondInputLoader::execute()
                     << dbKey);
       sc = StatusCode::FAILURE;
       continue;
-    } else {
-      evtStore()->addedNewTransObject(vhk.fullKey().clid(), vhk.key());
     }
-
   }
 
   if (m_dumpEvt) {

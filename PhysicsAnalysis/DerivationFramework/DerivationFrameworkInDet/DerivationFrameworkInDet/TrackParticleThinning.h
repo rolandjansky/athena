@@ -9,14 +9,17 @@
 #ifndef DERIVATIONFRAMEWORK_TRACKPARTICLETHINNING_H
 #define DERIVATIONFRAMEWORK_TRACKPARTICLETHINNING_H
 
-#include <string>
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
 #include "GaudiKernel/ToolHandle.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
+#include <string>
+#include <vector>
 
 namespace ExpressionParsing {
   class ExpressionParser;
@@ -61,6 +64,8 @@ namespace DerivationFramework {
       mutable unsigned int m_ntot_trt_measurements, m_npass_trt_measurements;
       std::string m_measurementsTrtSGKey;
 
+      // For P->T converter of SCT_Clusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
       //logic
       bool m_and;

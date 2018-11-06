@@ -21,6 +21,7 @@ namespace InDetDD {
     GeoShapeHolder(const GeoShape *); 
     GeoShapeHolder(const GeoShapeHolder &);
     GeoShapeHolder & operator=(const GeoShapeHolder &);
+    GeoShapeHolder & operator=(GeoShapeHolder &&);
     ~GeoShapeHolder(); 
     const GeoShape * get() const {return m_geoShape;}
     void set(const GeoShape *);

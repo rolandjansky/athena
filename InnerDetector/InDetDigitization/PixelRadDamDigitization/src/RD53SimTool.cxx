@@ -40,14 +40,14 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
   const IdentifierHash moduleHash = pixelId->wafer_hash(chargedDiodes.identify()); // wafer hash
 
-  int maxRD53SmallHit = 0;
+  //int maxRD53SmallHit = 0;
   int overflowToT     = 256;
 
   int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
-  int nSmallHitsRD53 = 0;
+  //int nSmallHitsRD53 = 0;
   std::vector<int> row, col;
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();
@@ -118,10 +118,12 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // Front-End simulation
     if (bunch>=0 && bunch<m_timeBCN) {
       Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch,0,bunch);
-      if (nToT>maxRD53SmallHit) {
+      //nToT>maxRD53SmallHit must be true at this point
+      //if (nToT>maxRD53SmallHit) {
         rdoCollection.push_back(p_rdo);
         RD53Map[iirow][iicol] = 2; //Flag for "big hits"
-      }
+      //}
+      /**
       else {
         p_rdo_small_fei4.push_back(p_rdo);
         row.push_back(iirow);
@@ -129,10 +131,13 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
         RD53Map[iirow][iicol] = 1; //Flag for low hits
         nSmallHitsRD53++;
       }
+      **/
     }
   }
 
   // Copy mechanism for IBL small hits:
+  // nSmallHitsRD53 is zero
+  /**
   if (nSmallHitsRD53>0) {
     bool recorded = false;
 
@@ -165,7 +170,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       }
     }
   }
-
+  **/
   return;
 }
 

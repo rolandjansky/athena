@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARMIBIASSYM_H
@@ -9,27 +9,21 @@
 
 class LArMCSym;
 class LArMinBiasMC;
-class LArMinBiasComplete;
+class LArMinBiasP;
+template<typename LArMinBiastP> class LArConditionsContainer;
+
 
 class LArMinBiasSym: virtual public ILArMinBias {
-  
  public:
-
   LArMinBiasSym() = delete;
-
   LArMinBiasSym(const LArMCSym* mcsym,  const LArMinBiasMC* MinBiasComplete);
-  
   virtual ~LArMinBiasSym( );
-  
+
   virtual const float& minBiasRMS(const HWIdentifier& hwid) const override;
   
-  virtual const float& minBiasRMS(const Identifier& CellID) const override;
-  
  private: 
-
   const LArMCSym* m_mcSym;
-  const LArMinBiasComplete* m_MinBiasComplete;
-
+  const LArConditionsContainer<LArMinBiasP>* m_MinBiasComplete;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

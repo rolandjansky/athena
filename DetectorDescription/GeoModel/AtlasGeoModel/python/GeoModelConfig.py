@@ -1,7 +1,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def GeoModelCfg(configFlags):
-    version=configFlags.get("GeoModel.AtlasVersion")
+    version=configFlags.GeoModel.AtlasVersion
 
     from AthenaCommon.AppMgr import release_metadata
     rel_metadata = release_metadata()

@@ -33,12 +33,10 @@ namespace PESA
   public:
     TrigRoiUpdater(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~TrigRoiUpdater();
-    HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
     virtual void handle(const Incident& inc); 
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltEndRun();
 
   private:
     

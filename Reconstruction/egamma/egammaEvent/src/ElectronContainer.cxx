@@ -19,29 +19,8 @@ PACKAGE:  offline/Reconstruction/egammaEvent
 //  END OF HEADER FILES INCLUDE
 
 ElectronContainer::ElectronContainer(SG::OwnershipPolicy ownPolicy ) : 
-  DataVector<Analysis::Electron>(ownPolicy),
-  m_ownPolicy(ownPolicy)
+  DataVector<Analysis::Electron>(ownPolicy)
 {}
-
-// push_back with const_cast (temporary)
-void ElectronContainer::push_back(const Analysis::Electron* El)
-{
-
-  if (m_ownPolicy==SG::OWN_ELEMENTS) {
-    std::cout << "ERROR Should not push_back const cell in OWN egammaContainer." << std::endl;
-  }
-
-  // have to const_cast because egammaContainer is a DataVector<egamma> not const Electron
-  Analysis::Electron* theNonConstEl = const_cast<Analysis::Electron*>(El);
-  
-  DataVector<Analysis::Electron>::push_back(theNonConstEl) ;
-}
-
-void ElectronContainer::push_back(Analysis::Electron* El)
-{
-  DataVector<Analysis::Electron>::push_back(El) ;
-}
-
 
 // print objects found in container
 void ElectronContainer::print()

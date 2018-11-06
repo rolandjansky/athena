@@ -46,15 +46,17 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 
 # Component(s) in the package:
 atlas_add_component( egammaTrackTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib CaloGeoHelpers AthenaBaseComps AthContainers AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel InDetIdentifier RecoToolInterfaces TrkSurfaces TrkCaloCluster_OnTrack TrkCaloExtension TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters TrkParametersIdentificationHelpers TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
+                     INCLUDE_DIRS 
+                     LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib CaloGeoHelpers AthenaBaseComps AthContainers 
+		     AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel InDetIdentifier 
+		     RecoToolInterfaces TrkSurfaces TrkCaloCluster_OnTrack TrkCaloExtension TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase 
+		     TrkNeutralParameters TrkParameters TrkParametersIdentificationHelpers TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack 
+		     TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( egammaTrackTools )

@@ -8,18 +8,13 @@
 #include <vector>
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "ParticleCaloExtension/ParticleCaloAssociation.h"
-
-namespace Trk {
-  class CaloExtension;
-}
-
 namespace Rec {
   
   /** class storing calorimeter cell association with IParticle objects */
   class ParticleClusterAssociation  : public ParticleCaloAssociation< const xAOD::CaloCluster* > {
   public:
     /** constructor taking CaloExtension, a vector of cells and a cone size as arguments */
-    ParticleClusterAssociation( const Trk::CaloExtension& caloExtension, Data&& clusters, float coneSize, const xAOD::CaloClusterContainer* container = 0);
+    ParticleClusterAssociation( const Trk::CaloExtension* caloExtension, Data&& clusters, float coneSize, const xAOD::CaloClusterContainer* container = 0);
 
     /** access to container */
     const xAOD::CaloClusterContainer* container() const;

@@ -34,7 +34,7 @@ using namespace LVL1;
 MuonInputProvider::MuonInputProvider( const std::string& type, const std::string& name, 
                                       const IInterface* parent) :
    base_class(type, name, parent),
-   m_roibLocation(""),
+   m_roibLocation(ROIB::DEFAULT_RoIBRDOLocation),
    m_histSvc("THistSvc", name),
    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
    m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),

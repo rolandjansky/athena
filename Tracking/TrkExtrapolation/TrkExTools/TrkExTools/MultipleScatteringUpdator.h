@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,19 +50,19 @@ namespace Trk {
       virtual ~MultipleScatteringUpdator();
        
       /** AlgTool initailize method.*/
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       
       /** AlgTool finalize method */
-      StatusCode finalize();
+      virtual StatusCode finalize() override;
         
       /** Calculate the sigma on theta introduced by multiple scattering,
           according to the RutherFord-Scott Formula           
       */
-      double sigmaSquare(const MaterialProperties& mat,
+      virtual double sigmaSquare(const MaterialProperties& mat,
                          double p,
                          double pathcorrection,
                          ParticleHypothesis particle=pion,
-                         double deltaE=0.) const;
+                         double deltaE=0.) const override;
     
     private:
 
@@ -76,33 +76,8 @@ namespace Trk {
       /** Random Generator service  */
       ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;
       /** Random engine  */
-      CLHEP::HepRandomEngine*                             m_randomEngine;
+      CLHEP::HepRandomEngine*                      m_randomEngine;
       std::string                                  m_randomEngineName;                   //!< Name of the random number stream
-
-      static ParticleMasses s_particleMasses;        //!< struct of Particle masses
-
-      static double         s_main_RutherfordScott;  //!< main factor of Rutherford-Scott formula
-      static double         s_log_RutherfordScott;   //!< log factor of Rutherford-Scott formula
-
-      static double         s_main_RossiGreisen;     //!< main factor for Rossi-Greisen formula
-      static double         s_log_RossiGreisen;      //!< main factor for Rossi-Greisen formula
-
-
-      // ========= Gaussian mixture model Fruehwirth, Regler Nucl. Inst. Methods A 456(2001) =========
-
-      static double         s_gausMixSigma1_a0;     //!< Gaussian mixture model: Sigma parameter a0
-      static double         s_gausMixSigma1_a1;     //!< Gaussian mixture model: Sigma parameter a1
-      static double         s_gausMixSigma1_a2;     //!< Gaussian mixture model: Sigma parameter a2
-
-      static double         s_gausMixEpsilon_a0;     //!< Gaussian mixture model: Epsilon parameter a0
-      static double         s_gausMixEpsilon_a1;     //!< Gaussian mixture model: Epsilon parameter a1
-      static double         s_gausMixEpsilon_a2;     //!< Gaussian mixture model: Epsilon parameter a2
-
-      static double         s_gausMixEpsilon_b0;     //!< Gaussian mixture model: Epsilon parameter b0
-      static double         s_gausMixEpsilon_b1;     //!< Gaussian mixture model: Epsilon parameter b1
-      static double         s_gausMixEpsilon_b2;     //!< Gaussian mixture model: Epsilon parameter b2
-
-
                                                       
   };
 

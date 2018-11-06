@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -76,27 +76,6 @@ namespace InDet{
 
   }
   
-  //----------------------------------  
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TRT_TrgRIO_Maker::hltBeginRun(){
-
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "TRT_TrgRIO_Maker::hltBeginRun()");
-    if (!m_doFullScan)
-      ATH_MSG_INFO( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
-    else
-      ATH_MSG_INFO( "FullScan mode" );
-   
-    /*
-    StatusCode sc = m_rawDataProvider->initContainer();
-    if (sc.isFailure())
-      msg() << MSG::WARNING << "RDO container cannot be registered" << endmsg;
-    */
-    return HLT::OK;
-  }
-
-
   //----------------------------------  
   //          Initialize method:
   //----------------------------------------------------------------------------
@@ -193,6 +172,11 @@ namespace InDet{
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
+    // Get the messaging service, print where you are
+    if (!m_doFullScan)
+      ATH_MSG_INFO( "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
+    else
+      ATH_MSG_INFO( "FullScan mode" );
     
     // Timers:
     m_timerRegSel  = addTimer("InDetEFTClRegSel"); // 1
@@ -513,19 +497,6 @@ namespace InDet{
 
     return HLT::OK;
   }
-
-  //----------------------------------  
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TRT_TrgRIO_Maker::hltEndRun()
-  {
-
-    ATH_MSG_INFO( "TRT_TrgRIO_Maker::endRun()" );
-
-    return HLT::OK;
-  }
-
-  //---------------------------------------------------------------------------
 
   //---------------------------------
   //        prepareRobRequests method:

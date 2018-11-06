@@ -15,6 +15,7 @@ class GeoPixelTMT : public GeoPixelStaveSupport {
 
 public:  
   GeoPixelTMT();
+  virtual ~GeoPixelTMT();
   virtual GeoVPhysVol* Build();
   virtual GeoVPhysVol* getPhysVol() const {return m_physVol;}
   virtual const HepGeom::Transform3D & transform() const {return m_transform;}

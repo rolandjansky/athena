@@ -241,32 +241,6 @@ class doHighPtMinBias(JobProperty):
         jobproperties.Digitization.HighPtMinBiasInputCols.set_Off()
 
 #
-class doLowPtMinBias(JobProperty):
-    """ Superimpose mixed low pt minimum bias events (pile-up) on signal events?
-         --> will activate the default LowPtMinBiasInputCols as well
-    """
-    statusOn=False
-    allowedTypes=['bool']
-    StoredValue=False
-    def _do_action(self):
-        jobproperties.Digitization.LowPtMinBiasInputCols.set_On()
-    def _undo_action(self):
-        jobproperties.Digitization.LowPtMinBiasInputCols.set_Off()
-
-#
-class doHighPtMinBias(JobProperty):
-    """ Superimpose mixed high pt minimum bias events (pile-up) on signal events?
-         --> will activate the default HighPtMinBiasInputCols as well
-    """
-    statusOn=False
-    allowedTypes=['bool']
-    StoredValue=False
-    def _do_action(self):
-        jobproperties.Digitization.HighPtMinBiasInputCols.set_On()
-    def _undo_action(self):
-        jobproperties.Digitization.HighPtMinBiasInputCols.set_Off()
-
-#
 class doCavern(JobProperty):
     """ Superimpose cavern events on signal events?
          --> will activate cavernInputCols as well
@@ -432,6 +406,14 @@ class doBichselSimulation(JobProperty):
     Digitization.
     """
     statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+#
+class doDigiTruth(JobProperty):
+    """ Should DigiTruth information be calculated and stored.
+    """
+    statusOn=False
     allowedTypes=['bool']
     StoredValue=True
 
@@ -819,7 +801,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
                     IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\
                     doLowPtMinBias,numberOfLowPtMinBias,LowPtMinBiasInputCols,\
-                    doHighPtMinBias,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
+                    doHighPtMinBias,doDigiTruth,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
                     doCavern,numberOfCavern,cavernInputCols,\
                     doBeamGas,numberOfBeamGas,beamGasInputCols,\
                     doBeamHalo,numberOfBeamHalo,beamHaloInputCols,\

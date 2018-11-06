@@ -72,12 +72,18 @@ fi
 
 echo "#######################################"
 echo $(date "+%FT%H:%M %Z")"     Test AthenaTrigAODtoAOD_TrigNavSlimming"
-export SLIM_LOG=${JOB_LOG%%.*}.TrigNavSlimming.${JOB_LOG#*.}
-athena.py -c 'TestType="RSegamma";useCONDBR2=False;' -b TrigAnalysisTest/testAthenaTrigAODtoAOD_TrigNavSlimming.py | tee ${SLIM_LOG}
-echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}"
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${SLIM_LOG} | tee checklog.TrigNavSlimming.log
-echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigNavSlimming"
+echo "AtlasProject" $AtlasProject
+if [ $AtlasProject = "AthenaP1" ]; then
+   echo "This is AthenaP1 so not running TrigNavSlimming test"   
+else
+   export SLIM_LOG=${JOB_LOG%%.*}.TrigNavSlimming.${JOB_LOG#*.}
+   athena.py -c 'TestType="RSegamma";useCONDBR2=False;' -b TrigAnalysisTest/testAthenaTrigAODtoAOD_TrigNavSlimming.py | tee ${SLIM_LOG}
+   echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}"
+   echo $(date "+%FT%H:%M %Z")"     Running checklog"
+   timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${SLIM_LOG} | tee checklog.TrigNavSlimming.log
+   echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigNavSlimming"
+fi
+
 if [ -f AOD.pool.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on AOD"
   timeout 10m checkFile.py AOD.pool.root | tee AOD.pool.root.checkFile

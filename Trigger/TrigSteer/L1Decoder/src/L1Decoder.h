@@ -11,10 +11,11 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
-
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 /*
   @brief an algorithm used to unpack the RoIB result and provide CTP bits, active chains and RoIs
@@ -23,11 +24,11 @@
   and threshods to chains is maintained in this algorithm and provided to unpacking tools.
  */
 
-class L1Decoder : public AthReentrantAlgorithm {
+class L1Decoder : public AthReentrantAlgorithm, public IIncidentListener {
 public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override;
-  virtual StatusCode start() override;
+  virtual void handle(const Incident& incident) override;
   virtual StatusCode execute_r (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
@@ -49,6 +50,9 @@ private:
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_chainsKey{this, "Chains", "HLTChains", 
       "Chains status after L1 and prescaling"};
 
+  SG::WriteHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
+      "Object with the time stamp when decoding started" };
+
   ToolHandle<ICTPUnpackingTool> m_ctpUnpacker{this, "ctpUnpacker", "CTPUnpackingTool/CTPUnpackingTool",
       "Tool used to unpack the CTP info"};
 
@@ -59,6 +63,17 @@ private:
   ToolHandleArray<IRoIsUnpackingTool> m_rerunRoiUnpackers{this, "rerunRoiUnpackers", {}, "Unpackers that unpack RoIs into separate collections"};
   ///@}
 
+  Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
+    this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
+
+  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
+    "The trigger cost service" };
+
+  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+    "Enables start-of-event cost monitoring behavior."};
+
+  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
+    "Name of the chain which should enable HLT cost montoring."};
 
 };
 

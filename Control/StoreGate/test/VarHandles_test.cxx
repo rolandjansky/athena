@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#undef NDEBUG
 #include "TestTools/initGaudi.h"
 #include "TestTools/SGassert.h"
 #include "StoreGate/ReadHandle.h"

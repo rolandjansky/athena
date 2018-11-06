@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRACKSIMWRAP_DUMPSP
@@ -43,11 +43,15 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
+
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class AtlasDetectorID;
 class StoreGateSvc;
@@ -55,12 +59,11 @@ class ITruthParameters;
 class TruthSelector; 
 class PixelID; 
 class SCT_ID;
-class TRT_ID;
 class IBeamCondSvc;
 class EventID;
 
 namespace InDetDD {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }
 namespace HepPDT { 
   class ParticleDataTable; 
@@ -122,11 +125,8 @@ private:
 
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;
-  const TRT_ID*    m_trtId;
 
-  const InDetDD::SiDetectorManager*     m_PIX_mgr;
-  const InDetDD::SiDetectorManager*     m_SCT_mgr;    
-  const InDetDD::SiDetectorManager*     m_TRT_mgr;    
+  const InDetDD::PixelDetectorManager*     m_PIX_mgr;
 
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
@@ -141,12 +141,16 @@ private:
   ServiceHandle<IInDetConditionsSvc>        m_pixelCondSummarySvc; // tool to retrieve pixel conditions db
   ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool{this, "SctSummaryTool",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
+  ToolHandle<ISiLorentzAngleTool>           m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+  ToolHandle<ISiLorentzAngleTool>           m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   //#else
     // ToolHandle<Trk::TruthToTrack>             m_truthToTrack; //!< tool to create track parameters from a gen particle
   //#endif
   // ToolHandle<Trk::ITrackHoleSearchTool>     m_holeSearchTool;
 
   ServiceHandle<IBeamCondSvc>               m_beamCondSvc;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // job configuration 
   

@@ -11,13 +11,10 @@
 //=== TileCalibBlobObjs
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 #include "CaloCondBlobObjs/CaloCondUtils.h"
-
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TMath.h"
-#include <boost/math/special_functions/erf.hpp>
-
 
 using CLHEP::RandGauss;
 
@@ -258,7 +255,7 @@ CaloNoiseToolDB::updateCache()
   // update once.  It will likely fail in a MT job if conditions change
   // during a run.  What's here is probably sufficient for running on MC,
   // but this tool needs a rewrite to properly handle running on real
-  // data in MC.
+  // data in MT.
   lock_t lock (m_mutex);
   if (m_cacheValid) return;
 
@@ -756,13 +753,8 @@ CaloNoiseToolDB::calcSig(double e, double sigma1, double ratio, double sigma2) {
   //  return z;
  
   // if instead you want to return the sigma-equivalent C.L.
-  // (with sign!) use the following lines
-  
-  //erf_inv throws an exception for z >= 1.0: TMath::ErfInverse() returns 0, so keep this behaviour
-  if (std::abs(z) < 1.0) { 
-    return sqrt2*boost::math::erf_inv(z);
-  }
-  return 0.0;
+  // (with sign!) use the following line
+  return sqrt2*TMath::ErfInverse(z);
 
 }
 

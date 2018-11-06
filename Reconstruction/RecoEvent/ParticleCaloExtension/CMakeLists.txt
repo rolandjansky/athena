@@ -10,11 +10,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Control/AthContainers
                           Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODCore )
+                          Event/xAOD/xAODCore 
+			  Tracking/TrkEvent/TrkCaloExtension)
 
 # Component(s) in the package:
 atlas_add_library( ParticleCaloExtension
                    src/*.cxx
                    PUBLIC_HEADERS ParticleCaloExtension
-                   LINK_LIBRARIES CaloEvent AthContainers xAODCaloEvent xAODCore )
+		   LINK_LIBRARIES CaloEvent AthContainers xAODCaloEvent xAODCore TrkCaloExtension )
 

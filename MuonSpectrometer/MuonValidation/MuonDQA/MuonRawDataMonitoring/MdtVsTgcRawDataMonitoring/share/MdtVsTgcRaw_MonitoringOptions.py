@@ -22,7 +22,7 @@ MdtVsTgcRawDataValAlg = MdtVsTgcRawDataValAlg (name = "MdtVsTgcRawDataValAlg",
                                                OutputCoinCollection="TrigT1CoinDataCollection",
                                                MdtPrepDataContainer="MDT_DriftCircles",
                                                TgcLv1File = False) 
-ToolSvc += MdtVsTgcRawDataValAlg
+#ToolSvc += MdtVsTgcRawDataValAlg
 MdtTgcRawMonMan.AthenaMonTools += [ MdtVsTgcRawDataValAlg ]
 topSequence += MdtTgcRawMonMan
 print MdtTgcRawMonMan

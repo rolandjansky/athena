@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -22,13 +22,6 @@ Trk::FitterStatusCode::FitterStatusCode( FitCode thecode )
         //StatusCode( (thecode>1)?StatusCode::SUCCESS : StatusCode::FAILURE ),
         m_code( thecode ) {}
 
-Trk::FitterStatusCode::FitterStatusCode( const FitterStatusCode& rhs )
-        :
-        //StatusCode( (rhs.m_code>1)?StatusCode::SUCCESS : StatusCode::FAILURE ),
-        m_code( rhs.m_code ) {}
-
-Trk::FitterStatusCode::~FitterStatusCode() {}
-
 bool Trk::FitterStatusCode::isFailure() const {
     if (m_code>1) return true;
     return false;
@@ -40,21 +33,6 @@ Trk::FitterStatusCode::operator unsigned long() const  {
 
 Trk::FitterStatusCode::operator StatusCode() const  {
     return StatusCode( (m_code>1)?StatusCode::SUCCESS : StatusCode::FAILURE );
-}
-
-Trk::FitterStatusCode& Trk::FitterStatusCode::operator=(unsigned long value)   {
-    m_code = value;
-    return *this;
-}
-
-Trk::FitterStatusCode& Trk::FitterStatusCode::operator=(const FitterStatusCode& rhs) {
-    // coverity complains about a missing self assigmment protection.
-    // But self assignment of integers is not problematic and
-    // adding a comparison just for this rare case does not seem useful.
-    //if (&rhs != this ) {
-    m_code = rhs.m_code;
-    //}
-    return *this;
 }
 
 unsigned long Trk::FitterStatusCode::getCode() const {

@@ -1,42 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-//  Header file for class  PixelClusterOnTrackTool
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-// Interface for PixelClusterOnTrack production
-///////////////////////////////////////////////////////////////////
-// started 1/05/2004 I.Gavrilenko - see ChangeLog for details
-///////////////////////////////////////////////////////////////////
 #ifndef PixelClusterOnTrackTool_H
 #define PixelClusterOnTrackTool_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
-/** The following cannot be fwd declared for interesting reason; the return type of
- * 'correct' is InDet::PixelClusterOnTrack* here, but in the baseclass is 
- * Trk::RIO_OnTrack*. This works if the inheritance is known, but fwd declaration results
- * in an error:
- * invalid covariant return type for 'virtual const InDet::PixelClusterOnTrack* 
- InDet::PixelClusterOnTrackTool::correct(const Trk::PrepRawData&, 
- const TrackParameters&) const'
- * because the return type has changed and the compiler has no information to cast.
- **/
+// STSTST #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
 
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
+
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
@@ -47,18 +32,18 @@ class IIBLParameterSvc;
 namespace InDet {
 
   /** @brief creates PixelClusterOnTrack objects allowing to
-      calibrate cluster position and error using a given track hypothesis. 
+    calibrate cluster position and error using a given track hypothesis. 
 
-      See doxygen of Trk::RIO_OnTrackCreator for details.
-      Different strategies to calibrate the cluster error can be chosen
-      by job Option. Also the handle to the general hit-error scaling
-      is implemented.
+    See doxygen of Trk::RIO_OnTrackCreator for details.
+    Different strategies to calibrate the cluster error can be chosen
+    by job Option. Also the handle to the general hit-error scaling
+    is implemented.
 
-      Special strategies for correction can be invoked by calling the
-      correct method with an additional argument from the 
-      PixelClusterStrategy enumeration
+    Special strategies for correction can be invoked by calling the
+    correct method with an additional argument from the 
+    PixelClusterStrategy enumeration
 
-  */
+   */
 
   class NnClusterizationFactory;
 
@@ -68,7 +53,6 @@ namespace InDet {
     PIXELCLUSTER_SHARED =2,
     PIXELCLUSTER_SPLIT  =3
   };
-
 
   class PixelClusterOnTrackTool: 
         public AthAlgTool, virtual public Trk::IRIO_OnTrackCreator
@@ -140,6 +124,8 @@ public:
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
+
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   //  SG::ReadCondHandleKey<PixelRIO_OnTrackErrorScaling> m_pixelErrorScalingKey
   //    {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};

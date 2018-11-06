@@ -16,7 +16,7 @@ from RingerSelectorTools.ElectronRingerSelectorMapping import ElectronRingerMap
 def ConfiguredAsgElectronRingerSelector( quality, menu, cutIDConfDict = None, **kwargs ):
     """
     Configure the AsgElectronRingerSelector with the quality cuts
-    and allow for setting its configurable properties through 
+    and allow for setting its configurable properties through
     cutIDConfDict and kwargs arguments.
 
     Use cutIDConfDict argument to set the properties from the CutIDSelector.

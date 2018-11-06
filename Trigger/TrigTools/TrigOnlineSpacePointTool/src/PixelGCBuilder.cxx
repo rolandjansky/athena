@@ -5,13 +5,12 @@
 #include "TrigOnlineSpacePointTool/PixelGCBuilder.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include <cmath>
 //#define GCDEBUG 
 
-PixelGCBuilder::PixelGCBuilder(const InDetDD::SiDetectorManager* &manager, const PixelID* pixelId, 
+PixelGCBuilder::PixelGCBuilder(const InDetDD::PixelDetectorManager* &manager, const PixelID* pixelId, 
 			       int offsetEndcapPixels) {
   m_manager=manager;
   m_pixelID = pixelId;

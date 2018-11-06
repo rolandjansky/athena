@@ -248,11 +248,7 @@ StatusCode TrigROBMonitor::finalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigROBMonitor::beginRun() {
-
-  // Get a message stream instance
-
-  ATH_MSG_INFO( "beginRun()" );
+StatusCode TrigROBMonitor::start() {
 
   // Define histograms only when checks are requested
   if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value()) &&
@@ -402,14 +398,6 @@ StatusCode TrigROBMonitor::beginRun() {
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode TrigROBMonitor::endRun() {
-
-  ATH_MSG_INFO( "endRun()" );
-
-  return StatusCode::SUCCESS;
-}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 bool TrigROBMonitor::verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {

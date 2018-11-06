@@ -24,7 +24,10 @@ CoolHistExample::CoolHistExample(const std::string& name,
    m_objname("fileGUID"),
    m_dirname("DefTag"),
    m_channel(10),
-   m_retrievedir(false)
+   m_retrievedir(false),
+   m_histptr(nullptr),
+   m_objptr(nullptr),
+   m_dirptr(nullptr)
 {
   // declare properties
   declareProperty("RetrieveDir",m_retrievedir);

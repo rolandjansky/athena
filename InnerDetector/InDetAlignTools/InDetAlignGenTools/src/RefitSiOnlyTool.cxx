@@ -27,7 +27,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include "TrkFitterInterfaces/ITrackFitter.h" 
-#include "TrkEventUtils/TrkParametersComparisonFunction.h"
 
 #include "InDetPrepRawData/SiCluster.h"
 
@@ -37,6 +36,7 @@ namespace InDetAlignment {
  
   RefitSiOnlyTool::RefitSiOnlyTool (const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
+    m_idHelper{},
     m_ITrkFitter("Trk::KalmanFitter"),
     m_comPar(0),
     m_ParticleHypothesis(Trk::nonInteracting),
@@ -60,25 +60,18 @@ namespace InDetAlignment {
   StatusCode RefitSiOnlyTool::initialize()
   {
     StatusCode sc;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of RefitSiOnlyTool" << endmsg;
+    ATH_MSG_DEBUG( "Initialize() of RefitSiOnlyTool" );
 
     // make for cosmic tracks new reference point
     Amg::Vector3D refGP(0.,15000.,0.);
     m_comPar = new Trk::TrkParametersComparisonFunction(refGP);
 
     //ID Helper
-    if (detStore()->retrieve(m_idHelper,"AtlasID").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to initialize ID helper." << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK (detStore()->retrieve(m_idHelper,"AtlasID"));
     
     //Fitter
-    if (m_ITrkFitter.retrieve().isFailure()) {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Can not retrieve Fitter of type "
-          << m_ITrkFitter.typeAndName() << endmsg;
-      return StatusCode::FAILURE;
-    } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_ITrkFitter.typeAndName() << endmsg;
-
+    ATH_CHECK(m_ITrkFitter.retrieve());
+    
     if (m_ParticleNumber == 0)       m_ParticleHypothesis = Trk::nonInteracting;
     else if (m_ParticleNumber == 1)  m_ParticleHypothesis = Trk::electron;
     else if (m_ParticleNumber == 2)  m_ParticleHypothesis = Trk::muon;
@@ -99,18 +92,18 @@ namespace InDetAlignment {
 
   StatusCode RefitSiOnlyTool::finalize()
   {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Finalize() of RefitSiOnlyTool" << endmsg;
+    ATH_MSG_DEBUG("Finalize() of RefitSiOnlyTool" );
     return StatusCode::SUCCESS;
   }
   //_________________________________________________________________________________________
   StatusCode RefitSiOnlyTool::configure()
    {
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "nothing to configure - everything has already been configured in initialize()" << endmsg;
+     ATH_MSG_DEBUG( "nothing to configure - everything has already been configured in initialize()" );
      return StatusCode::SUCCESS;
    }
   //_________________________________________________________________________________________
   const DataVector<Trk::Track>* RefitSiOnlyTool::processTrackCollection(const DataVector<Trk::Track>* trks) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "processTrackCollection() of RefitSiOnlyTool" << endmsg;
+    ATH_MSG_DEBUG( "processTrackCollection() of RefitSiOnlyTool" );
 
     m_trkindex=0;
     DataVector<Trk::Track>* newTrks = new DataVector<Trk::Track>;
@@ -120,12 +113,12 @@ namespace InDetAlignment {
   Trk::Track* refittedTrack = refit(*t);
    
   if (refittedTrack==0)
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Refit of the track " << m_trkindex << " did not work. Track skipped." << endmsg;
+          ATH_MSG_DEBUG( " Refit of the track " << m_trkindex << " did not work. Track skipped." );
 
   newTrks->push_back(refittedTrack);
       } else {
         newTrks->push_back(0);
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Track " << m_trkindex << " is empty." << endmsg;
+        ATH_MSG_DEBUG( " Track " << m_trkindex << " is empty." );
       }
       
       m_trkindex++;
@@ -142,20 +135,20 @@ namespace InDetAlignment {
   Trk::Track* RefitSiOnlyTool::refit(const Trk::Track* tr) const {
     // Step through all hits on a Trk::Track, pushback SiliconHits into RIO_Collection
     // and Refit Track with SiliconHits
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Entering RefitSiOnlyTool::refit() for track #" << m_trkindex  << endmsg;
+    ATH_MSG_DEBUG( "Entering RefitSiOnlyTool::refit() for track #" << m_trkindex  );
     
     const Trk::Perigee* initialPerigee = tr->perigeeParameters();
     if (initialPerigee) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track # " << m_trkindex << " has momentum before refit: " 
-                                              << initialPerigee->momentum().mag() / CLHEP::GeV << " CLHEP::GeV/c" << endmsg;
+      ATH_MSG_DEBUG( "Track # " << m_trkindex << " has momentum before refit: " 
+                                              << initialPerigee->momentum().mag() / CLHEP::GeV << " CLHEP::GeV/c" );
     }
-    else { if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Track # " << m_trkindex << " without perigee" << endmsg; }
+    else { ATH_MSG_WARNING( "Track # " << m_trkindex << " without perigee" ); }
 
     Trk::Track* SiOnlyTrack = 0;
     bool containsGangedPixels = false;
     std::vector<const Trk::MeasurementBase*> MeasurementBase_Collection;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Building stripped RIO_Collection" << endmsg;    
+    ATH_MSG_DEBUG( "Building stripped RIO_Collection" );    
     for (DataVector<const Trk::MeasurementBase>::const_iterator measBase = tr->measurementsOnTrack()->begin(); 
       measBase !=tr->measurementsOnTrack()->end(); ++measBase) {
 
@@ -171,8 +164,8 @@ namespace InDetAlignment {
             if (siHit) {
               if (siHit->gangedPixel()) {
                 containsGangedPixels = true;
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Reject track # "  << m_trkindex 
-                                                        << " because it contains ganged pixel hits" << endmsg;
+                ATH_MSG_DEBUG( " Reject track # "  << m_trkindex 
+                                                        << " because it contains ganged pixel hits" );
               }
             }
           }
@@ -184,7 +177,7 @@ namespace InDetAlignment {
     // Do Silicon only Refit with Silicon only HitCollection and TrackParameters at StartingPoint of track
     if (!containsGangedPixels) {
       if (m_doCosmic) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Refitting using Cosmic reference point" << endmsg;
+        ATH_MSG_DEBUG( "Refitting using Cosmic reference point" );
 
         // order the parameters according to the Cosmics reference points
         // works only for Si, not for TRT!
@@ -199,7 +192,7 @@ namespace InDetAlignment {
           m_OutlierRemoval, m_ParticleHypothesis);
     }
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " No refit was done for track # " << m_trkindex << endmsg;
+      ATH_MSG_DEBUG( " No refit was done for track # " << m_trkindex );
       return 0;
     }
 
@@ -219,7 +212,7 @@ namespace InDetAlignment {
   
   //_________________________________________________________________________________________
   void RefitSiOnlyTool::dumpTrackCol(DataVector<Trk::Track>* tracks) { 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In dumpTrackCol() with size=" << tracks->size() << endmsg;
+    ATH_MSG_DEBUG( "In dumpTrackCol() with size=" << tracks->size() );
     
     int itrk = 0;
     for (DataVector<Trk::Track>::const_iterator it=tracks->begin(); 
@@ -229,7 +222,7 @@ namespace InDetAlignment {
   
         const Trk::Perigee* aMeasPer = (*it)->perigeeParameters();
         if (aMeasPer==0){
-          if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endmsg;}
+          ATH_MSG_ERROR( "Could not get Trk::MeasuredPerigee" );}
         else {
           double d0     = aMeasPer->parameters()[Trk::d0];
           double z0     = aMeasPer->parameters()[Trk::z0];

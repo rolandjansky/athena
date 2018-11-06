@@ -203,7 +203,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 ////  if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
-    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, nullptr ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE ).isFailure() ) {
       (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endmsg;
       return StatusCode::FAILURE;
     }

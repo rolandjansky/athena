@@ -17,24 +17,21 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
-SCT_SiliconConditionsTestAlg::SCT_SiliconConditionsTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator )
+SCT_SiliconConditionsTestAlg::SCT_SiliconConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
+  AthAlgorithm(name, pSvcLocator)
 {
   //nop
 }
 
 //Initialize
-StatusCode SCT_SiliconConditionsTestAlg::initialize()
-{  
+StatusCode SCT_SiliconConditionsTestAlg::initialize() {
   ATH_MSG_INFO("Calling initialize");
-  if (m_siliconTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the summary service");
-  }
+  ATH_CHECK(m_siliconTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
 //Execute
-StatusCode SCT_SiliconConditionsTestAlg::execute(){
+StatusCode SCT_SiliconConditionsTestAlg::execute() {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   
@@ -48,7 +45,7 @@ StatusCode SCT_SiliconConditionsTestAlg::execute(){
 
 //Finalize
 StatusCode
-SCT_SiliconConditionsTestAlg::finalize(){
+SCT_SiliconConditionsTestAlg::finalize() {
   ATH_MSG_INFO("Calling finalize");
   return StatusCode::SUCCESS;
 }

@@ -18,17 +18,15 @@
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
-#include "xAODEventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
 
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
-#include "StoreGate/StoreGateSvc.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -44,7 +42,7 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
 				      const std::string& type, 
 				      const std::string& name, 
 				      const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class(type, name, parent),
    m_priority(1000), 
    m_caloNum(),
    m_calo_dd_man(nullptr),
@@ -64,17 +62,14 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
    m_Windows(false), 
    m_WindowsEtaSize(0.4),  
    m_WindowsPhiSize(0.5),
-   m_AtRndmGenSvc(nullptr),
    m_WithNoise(true),
    m_WithElecNoise(true),
    m_WithPileUpNoise(false),
    m_NoiseToolName("CaloNoiseTool/calonoisetool"),
    m_noisetool(nullptr),
    m_WithMap(false),
-   m_mcEventName("GEN_EVENT")
- 
+   m_athRNGSvc("AthRNGSvc", name)
 {
-  declareInterface<ICaloCellMakerTool>(this); 
   // Priority of the IncidentListener (for "BeginRun")
   declareProperty("BeginRunPriority",m_priority); 
 
@@ -83,7 +78,7 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
   declareProperty("LArRegion",m_LArRegion);
 
   // LAr Region of interest:
-  declareProperty("LArHitContainers",m_HitContainers);
+  declareProperty("LArHitContainers",m_HitContainerKeys);
 
   //threshold on energy of the Hits
   declareProperty("eHitThreshold", m_eHitThreshold);
@@ -109,8 +104,9 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
   declareProperty("NoiseTool",m_NoiseToolName);
 
   // McEventCollection
-  declareProperty("McEventName", m_mcEventName);
+  declareProperty("McEventName", m_mcEventKey = "GEN_EVENT");
 
+  declareProperty("AthRNGSvc", m_athRNGSvc);
 }
 
 
@@ -242,32 +238,32 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
  
   if (m_LArRegion == "LAr_EM") 
      {       
-        m_HitContainers.push_back("LArHitEMB");	
-        m_HitContainers.push_back("LArHitEMEC");
+        m_HitContainerKeys.emplace_back("LArHitEMB");
+        m_HitContainerKeys.emplace_back("LArHitEMEC");
         //nPool=175000;
 	
      }
   else if (m_LArRegion == "LAr_EM_Barrel")
      {
-        m_HitContainers.push_back("LArHitEMB");
+        m_HitContainerKeys.emplace_back("LArHitEMB");
         //nPool=150000;
      }
   else if (m_LArRegion == "LAr_EM_Endcap")
      {
-        m_HitContainers.push_back("LArHitEMEC");
+        m_HitContainerKeys.emplace_back("LArHitEMEC");
         //nPool=150000;
      }
   else if (m_LArRegion == "LAr_HEC")
      {
-        m_HitContainers.push_back("LArHitHEC");
+        m_HitContainerKeys.emplace_back("LArHitHEC");
         //nPool=6000;
      }
   else if (m_LArRegion == "LAr_FCal")  
     {      
-        m_HitContainers.push_back("LArHitFCAL");
+        m_HitContainerKeys.emplace_back("LArHitFCAL");
         //nPool=3600;
     }  
-  else if (m_LArRegion == "UserDefined" && (m_HitContainers.size()>0) )
+  else if (m_LArRegion == "UserDefined" && (m_HitContainerKeys.size()>0) )
      {
       ATH_MSG_INFO ("Using user defined Region: hitContainers are ");
       ATH_MSG_INFO (" cannot simulate noise ");
@@ -276,8 +272,8 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
       m_WithMap = false;
       
       std::string names ; 
-      for(unsigned int i=0; i < m_HitContainers.size(); ++i)
-	names+=m_HitContainers[i]+" ";
+      for(unsigned int i=0; i < m_HitContainerKeys.size(); ++i)
+	names+=m_HitContainerKeys[i].key()+" ";
       ATH_MSG_INFO (names);
       //nPool=10000;
      }
@@ -286,6 +282,8 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
       ATH_MSG_ERROR (" Unknown Region: "  << m_LArRegion);
       return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_HitContainerKeys.initialize() );
 
   // retrieve the noisetool  
   //always needed even without noise to get the gain estimate
@@ -308,8 +306,7 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
 
 
     //access random noise number service
-    static const bool CREATEIFNOTTHERE(true);
-    ATH_CHECK( service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE) );
+    ATH_CHECK( m_athRNGSvc.retrieve() );
   }
   else ATH_MSG_INFO (" no noise selected ");
    
@@ -326,6 +323,16 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
   else {
     ATH_MSG_VERBOSE (" Internal map will not be used ");
   }
+
+  if (m_WithMap && m_Windows) {
+    ATH_CHECK( m_mcEventKey.initialize() );
+  }
+  else {
+    m_mcEventKey = "";
+  }
+
+  ATH_CHECK(m_cablingKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -344,9 +351,9 @@ LArCellBuilderFromLArHitTool::handle(const Incident& /* inc*/ )
   if (m_WithMap) 
   {    
     ATH_MSG_VERBOSE (" initialize internal cell collection ");
-    if (!this->initializeCellPermamentCollection().isSuccess())
+    if (!this->initializeCellPermanentCollection().isSuccess())
     {
-      ATH_MSG_FATAL ("Making of cell permament collection failed");
+      ATH_MSG_FATAL ("Making of cell permanent collection failed");
       return;
     }    
   }
@@ -357,15 +364,6 @@ LArCellBuilderFromLArHitTool::handle(const Incident& /* inc*/ )
 
 StatusCode LArCellBuilderFromLArHitTool::finalize()
 {
-  ATH_MSG_VERBOSE (" finalize: delete cellPermamentCollection ");
-  //clean all LarHitInfo*
-  for (unsigned int i=0;i<m_cellPermanentCollection.size();++i){
-    if (m_cellPermanentCollection[i]!=0) {
-      delete m_cellPermanentCollection[i];
-    }
-  }
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -373,52 +371,41 @@ StatusCode LArCellBuilderFromLArHitTool::finalize()
 
 StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellContainer )
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
+  const LArOnOffIdMapping* cabling(*cablingHdl);
+
   ATH_MSG_DEBUG ("Executing LArCellBuilderFromLArHitTool");
 
   unsigned int nCells0 = theCellContainer->size();
   
 
-//---- re-initialize the HitMap ----------------
-  // WITH NOISE 
-  if( m_WithMap )
-  {      
-    ATH_CHECK( this->resetCellPermanentCollection() );
-    if (m_Windows){
-      ATH_MSG_WARNING (" windows not reimplemented yet");
-      ATH_CHECK( this->buildWindowOnPermanentCollection() );
-    }
-  }
-  
-
 //---- Get the HitContainer ----------------
 
-  std::vector<std::string>::const_iterator hit_itr = m_HitContainers.begin(); 
-  std::vector<std::string>::const_iterator hit_itr_end = m_HitContainers.end();
+  std::vector<const LArHit*> hits;
+  if( m_WithMap ) {
+    hits.resize (m_cellPermanentCollection.size());
+  }
 
-  for(; hit_itr!=hit_itr_end; hit_itr++) 
-  { 
-    //  const DataHandle < LArHitContainer >     hitcoll ;
-    const LArHitContainer* hitcoll;
-    ATH_CHECK( evtStore()->retrieve(hitcoll,*hit_itr) );
-
-    ATH_MSG_DEBUG ("LArHit container: " << *hit_itr 
+  for (const SG::ReadHandleKey<LArHitContainer>& k : m_HitContainerKeys)
+  {
+    SG::ReadHandle<LArHitContainer> hitcoll (k, ctx);
+    ATH_MSG_DEBUG ("LArHit container: " << k.key()
                    << " Size=" << hitcoll->size());
-      
-    LArHitContainer::const_iterator f_cell = hitcoll->begin();
-    LArHitContainer::const_iterator l_cell = hitcoll->end();
-    
-    for ( ; f_cell!=l_cell; ++f_cell)
+
+    for (const LArHit* hit : *hitcoll)
     {	          
-      LArHit* hit = (*f_cell) ; 
       // hits and cells are now in MeV
 
       double e  = hit->energy() ;
       if (m_applyHitEnergyThreshold) {
-	if (e>m_eHitThreshold) continue;
+	if (e < m_eHitThreshold) continue;
       }
       
-      Identifier id  = hit->cellID();
-
+      const Identifier id  = hit->cellID();
+      const HWIdentifier hwid=cabling->createSignalChannelID(id);
+      
       //FIXME
       //log << MSG::DEBUG << " Hit : " << m_atlas_id->show_to_string(id)
       //	  << " energy " << e << endmsg ;
@@ -439,9 +426,9 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 	  }
 
 	  // set the hits of hitmap
-	  if (m_cellPermanentCollection[idHash]!=0) {
-	    m_cellPermanentCollection[idHash]->setHit(hit);
-	   }	
+	  if (m_cellPermanentCollection[idHash].caloDDE()!=0) {
+            hits[idHash] = hit;
+          }
 	  else {
             ATH_MSG_WARNING (" Trying to fill hit with no DDE " 
                              << m_atlas_id->show_to_string(id));
@@ -451,7 +438,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       else
 	{	
 	  // directly make the cells and add them to theCellContainer
-	  e/= m_dd_fSampl->FSAMPL(id);	  
+	  e/= m_dd_fSampl->FSAMPL(hwid);	  
 
 	  //FIXME
 	  //  log << MSG::DEBUG << " .. new e " << e << endmsg ;
@@ -470,12 +457,9 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   HepRandomEngine* engine=0; 
   if (m_WithNoise) 
     {
-      const xAOD::EventInfo* eventInfo;
-      ATH_CHECK( evtStore()->retrieve(eventInfo) );
-      const int iSeedNumber = eventInfo->runNumber()*10000000
-	                     +eventInfo->eventNumber();
-      
-      engine = m_AtRndmGenSvc->setOnDefinedSeeds(iSeedNumber,this->name());
+      ATHRNG::RNGWrapper* wrapper = m_athRNGSvc->getEngine (this, this->name());
+      wrapper->setSeed (this->name(), ctx);
+      engine = wrapper->getEngine (ctx);
     }
 
 
@@ -483,41 +467,30 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   // with map
   if( m_WithMap )
   {      
-    CellPermanentCollection::const_iterator it, itEnd;
-
+    Window window (m_WindowsEtaSize, m_WindowsPhiSize);
     if (m_Windows){
-      it=m_windowOnPermanentCollection.begin();
-      itEnd=m_windowOnPermanentCollection.end();
+      ATH_MSG_WARNING (" windows not reimplemented yet");
+      ATH_CHECK( this->defineWindow (window, ctx) );
     }
-    else{
-      it=m_cellPermanentCollection.begin();
-      itEnd=m_cellPermanentCollection.end();
-    }    
  
-    long index =-1;
-    
-    for ( ; it!=itEnd; ++it)
+    size_t sz = m_cellPermanentCollection.size();
+    for (size_t index = 0; index < sz; ++index)
     {
-      //check
-      ++index;
-      if (*it==0) {	
-	//log << MSG::WARNING << " hole in permanent collection " 
-	//    << index << endmsg ;
-	continue;
-      }
-      
-      const LArHitInfo & info = **it;           
+      const LArHitInfo& info = m_cellPermanentCollection[index];
+      if (!info.caloDDE()) continue;
+      if (m_Windows && !window.isInWindow (*info.caloDDE())) continue;
+      const LArHit* hit = hits[index];
 
       //if no noise eliminate now cells with zero energy (=cells with no hits)
       //or zero energy cell
       if ( ! m_WithNoise) {
-        if (!info.hasBeenHit()) continue ;
+        if (!hit) continue ;
       }
       
-      double e=info.energy();   
+      double e = hit ? hit->energy() : 0;
 
       // scale     
-      e/= m_dd_fSampl->FSAMPL( info.caloDDE()->identify() ); 
+      e/= m_dd_fSampl->FSAMPL(cabling->createSignalChannelID(info.caloDDE()->identify()) ); 
 
       // choose the gain   
 
@@ -525,7 +498,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 				    ICaloNoiseToolStep::RAWCHANNELS);      
       const int igain = static_cast<int>(g);
       // retrieve the data of the LArHitInfo
-      std::vector<float> SIGMANOISE=info.SIGMANOISE();
+      const std::vector<float>& SIGMANOISE=info.SIGMANOISE();
 
       // add the noise
       double sigma=SIGMANOISE[igain];  
@@ -551,7 +524,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       }
       
       // make the LArCell
-      double t=info.time();
+      double t = hit ? hit->time() : 0;
       double q=1.;
       const CaloDetDescrElement * caloDDE=info.caloDDE();
       MakeTheCell(theCellContainer,caloDDE,e,t,q,g);
@@ -607,12 +580,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   }
 
   //specify that a given calorimeter has been filled
-  if (theCellContainer->hasCalo(m_caloNum) )
-  {
-    ATH_MSG_WARNING ("CaloCellContainer has already been filled with calo " 
-                     << m_caloNum);
-  }
-      
+  theCellContainer->resetLookUpTable();
   theCellContainer->setHasCalo(m_caloNum);
   
   
@@ -629,23 +597,23 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 ///////////////////////////////////////////////////////////////////
  
 void 
-LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer * & cellcoll, 
-				      const CaloDetDescrElement * &caloDDE,
-				      const double & e,const double & t,
-				      const double & q,
-				      const CaloGain::CaloGain & g)
+LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* cellcoll, 
+                                          const CaloDetDescrElement* caloDDE,
+                                          const double e,const double t,
+                                          const double q,
+                                          const CaloGain::CaloGain g) const
 {
-  cellcoll->push_back(new LArCell(caloDDE,e,t,q,g));
+  cellcoll->push_back_fast(new LArCell(caloDDE,e,t,q,g));
 }
 
 /////////////////////////////////////////////////////////////////// 
 
 // estimate the gain as well
-void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* & cellcoll, 
-					   Identifier & id,
-					   const double & e,const double & t,
-                                           const double & q)
-
+void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* cellcoll, 
+                                               const Identifier& id,
+                                               const double e,const double t,
+                                               const double q) const
+  
 {  
   const CaloDetDescrElement* caloDDE=m_calo_dd_man->get_element(id);
 
@@ -653,13 +621,13 @@ void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* & cellcoll,
   const CaloGain::CaloGain g=
     m_noisetool->estimatedGain(caloDDE,e,ICaloNoiseToolStep::RAWCHANNELS);  
   
-  cellcoll->push_back (new LArCell(caloDDE,e,t,q,g));
+  cellcoll->push_back_fast (new LArCell(caloDDE,e,t,q,g));
 
 }
 
 /////////////////////////////////////////////////////////////////// 
 
-StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
+StatusCode LArCellBuilderFromLArHitTool::initializeCellPermanentCollection()
 {
   m_cellPermanentCollection.clear();
    
@@ -667,7 +635,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
   IdentifierHash caloCellMin, caloCellMax ;
   m_caloCID->calo_cell_hash_range(m_caloNum,caloCellMin,caloCellMax);
   unsigned int nCellCalo=caloCellMax-caloCellMin;
-  m_cellPermanentCollection.resize(nCellCalo,0);
+  m_cellPermanentCollection.resize(nCellCalo);
 
 
   long index = -1;
@@ -693,11 +661,11 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
     //Identifier id=caloDDE->identify() ;
     IdentifierHash idHash=caloDDE->subcalo_hash() ;
     
-    LArHitInfo* theLArHitInfo = new LArHitInfo(caloDDE);
+    LArHitInfo theLArHitInfo (caloDDE);
     
     // FIXME: USELESS ! 
-    theLArHitInfo->setEpart2Edep(1. );
-    theLArHitInfo->setEscale(1.);    
+    theLArHitInfo.setEpart2Edep(1. );
+    theLArHitInfo.setEscale(1.);    
 	
     std::vector<float> vNoise;
     if(m_WithElecNoise && !m_WithPileUpNoise)
@@ -715,9 +683,9 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
 				       static_cast<CaloGain::CaloGain>(igain)) 
 			               );
 
-    theLArHitInfo->setSIGMANOISE(vNoise);
+    theLArHitInfo.setSIGMANOISE(vNoise);
 
-    m_cellPermanentCollection[idHash]=theLArHitInfo;
+    m_cellPermanentCollection[idHash]=std::move(theLArHitInfo);
     
   }
 
@@ -737,7 +705,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
   int nFailed = 0 ;
   
   for (unsigned int i=0;i<m_cellPermanentCollection.size();++i){
-    if (m_cellPermanentCollection[i]==0) {
+    if (m_cellPermanentCollection[i].caloDDE()==0) {
       //log << MSG::WARNING 
       //<< " one element missing in m_cellPermanentCollection " << i << endmsg;
       ++nFailed;      
@@ -755,92 +723,84 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
 
 /////////////////////////////////////////////////////////////////// 
 
-StatusCode LArCellBuilderFromLArHitTool::resetCellPermanentCollection()
-{
-  for (unsigned int i=0;i<m_cellPermanentCollection.size();++i){
-    if (m_cellPermanentCollection[i]!=0)
-      m_cellPermanentCollection[i]->setHasNotBeenHit();
-  }
-  return StatusCode::SUCCESS;
-}
-
-/////////////////////////////////////////////////////////////////// 
-
-StatusCode LArCellBuilderFromLArHitTool::buildWindowOnPermanentCollection()
-{
-  StatusCode sc=this->defineWindow();
-  if (!sc.isSuccess()) return sc;
-  
-  m_windowOnPermanentCollection.clear();
-  if (m_etaPart.size()==0) return StatusCode::SUCCESS;
-
-  const float pi=2*asin(1);  
-  for (unsigned int i=0;i<m_cellPermanentCollection.size();++i)
-  {
-    if (m_cellPermanentCollection[i]==0) continue ;
-    const CaloDetDescrElement *caloDDE=m_cellPermanentCollection[i]->caloDDE();
-    //loop on the particles of the truth, 
-    //and select a zone around each one
-
-    for(unsigned int iPart=0;iPart<m_etaPart.size();++iPart)
-    { 	     
-      float deltaPhi=fmod(m_phiPart[iPart]-caloDDE->phi()+3*pi,2*pi)-pi;
-      float deltaEta=std::abs(m_etaPart[iPart]-caloDDE->eta());
-      if( std::abs(deltaPhi)<m_WindowsPhiSize/2. &&
-	  std::abs(deltaEta)<m_WindowsEtaSize/2. )
-      {
-	m_windowOnPermanentCollection.push_back(m_cellPermanentCollection[i]);
-	break ;
-      }
-    }	
-  }	
-  
-  return StatusCode::SUCCESS;
-}
-
-/////////////////////////////////////////////////////////////////// 
-
-StatusCode LArCellBuilderFromLArHitTool::defineWindow()
+StatusCode
+LArCellBuilderFromLArHitTool::defineWindow (Window& window,
+                                            const EventContext& ctx) const
 {
 //define a window around each selected Geant-particle (eta,phi)
 
-    MsgStream log(msgSvc(), name());     
-    m_etaPart.clear();
-    m_phiPart.clear();
-    
     //get pointer of MC collection
-    const McEventCollection * mcCollptr; 
-    ATH_CHECK( evtStore()->retrieve(mcCollptr,m_mcEventName) );
+    SG::ReadHandle<McEventCollection> mcCollptr (m_mcEventKey, ctx);
 
-    McEventCollection::const_iterator itr; 
-    for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
-      const HepMC::GenEvent* myEvent=(*itr);
+    window.reset (mcCollptr->size());
+
+    for (const HepMC::GenEvent* myEvent : *mcCollptr) {
       HepMC::GenEvent::particle_const_iterator itrPart; 
       for (itrPart = myEvent->particles_begin(); 
 	   itrPart!=myEvent->particles_end(); ++itrPart ) 
 	{
-	  HepMC::GenParticle *part=*itrPart;
+	  const HepMC::GenParticle *part=*itrPart;
 	  //works only for photons(22) and electrons(11) primary 
 	  //particle from Geant (status>1000) with pt>5 GeV      
 	  if( (part->pdg_id()==22 || abs(part->pdg_id())==11) 
 	      && part->status()>1000 
 	      && part->momentum().perp()>5 * GeV )
-	    {
-	      m_etaPart.push_back(part->momentum().pseudoRapidity()); 
-	      m_phiPart.push_back(part->momentum().phi()); 
-	    }
-	} 
+          {
+            window.push (part->momentum().pseudoRapidity(),
+                         part->momentum().phi());
+          }
+        }
     }
 
   if (msgSvc()->outputLevel() <= MSG::DEBUG) {
-    for(unsigned int iPart=0;iPart<m_etaPart.size();++iPart)
-    {      
+    for (const std::pair<float, float>& p : window.m_parts) {
       ATH_MSG_DEBUG( " Selected window" 
-                     << m_etaPart[iPart] << " phi=" << m_phiPart[iPart] 
+                     << p.first << " phi=" << p.second
                      << " deta=" << m_WindowsEtaSize << " dphi="<< m_WindowsPhiSize 
                      );
     }
   }
   
   return StatusCode::SUCCESS; 
+}
+
+
+/////////////////////////////////////////////////////////////////// 
+
+
+LArCellBuilderFromLArHitTool::Window::Window (float etaSize,
+                                              float phiSize)
+  : m_etaSize (etaSize),
+    m_phiSize (phiSize)
+{
+}
+
+
+/////////////////////////////////////////////////////////////////// 
+
+
+void LArCellBuilderFromLArHitTool::Window::reset (size_t n)
+{
+  m_parts.clear();
+  m_parts.reserve (n);
+}
+
+
+/////////////////////////////////////////////////////////////////// 
+
+
+bool LArCellBuilderFromLArHitTool::Window::isInWindow
+ (const CaloDetDescrElement& caloDDE) const
+{
+  for (const std::pair<float, float>& p : m_parts) {
+    float deltaPhi = fmod(p.second - caloDDE.phi()+3*M_PI,2*M_PI)-M_PI;
+    float deltaEta = std::abs(p.first - caloDDE.eta());
+    if( std::abs(deltaPhi) < m_phiSize/2. &&
+        std::abs(deltaEta) < m_etaSize/2. )
+    {
+      return true;
+    }
+  }
+
+  return false;
 }

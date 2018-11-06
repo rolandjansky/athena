@@ -11,6 +11,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/Menu.h"
 
 namespace ROIB {
   class RoIBResult;
@@ -33,7 +34,8 @@ public:
   
   virtual StatusCode initialize() override;
 
-  virtual StatusCode updateConfiguration() override { return StatusCode::SUCCESS; }
+  
+  virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& /*seeding*/ ) override { return StatusCode::SUCCESS; }
   
   virtual StatusCode unpack(const EventContext& /*ctx*/,
                             const ROIB::RoIBResult& /*roib*/,
@@ -47,14 +49,18 @@ protected:
 
   Gaudi::Property<std::vector<std::string>> m_thresholdToChainProperty{
     this, "ThresholdToChainMapping", {}, "Mapping from the threshold name to chain in the form: "
-                                         "'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., ( note spaces )"};
+                                         "'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., ( note spaces ), if absent, the L1 item -> HLT chain seeding relation is used to find the threshold"};
 
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
   ///@}
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
+  /**
+   * decodes mapping from L1 item -> to HLT chain  to find out which threshold seeds which chain
+   * Threshold have to pass the selection of the filter (i.e. the filter should return true for the threshold to seed a chain)
+   **/
+  StatusCode decodeMapping( std::function< bool(const TrigConf::TriggerThreshold*)> filter, const TrigConf::ItemContainer& l1Items, const IRoIsUnpackingTool::SeedingMap& seeding );
 
-  StatusCode decodeMapping();
   void addChainsToDecision( HLT::Identifier thresholdId,
                             TrigCompositeUtils::Decision* d,
                             const HLT::IDSet& activeChains ) const;

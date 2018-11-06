@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -16,23 +16,12 @@ description          : Implementation code for MultiComponentStateAssembler
 #include "TrkGaussianSumFilter/SortingClasses.h"
 #include "TrkParameters/TrackParameters.h"
 
-Trk::MultiComponentStateAssembler::MultiComponentStateAssembler (const std::string& type, const std::string& name, const IInterface* parent)
-  :
-  AthAlgTool(type, name, parent),
-  m_outputlevel(0),
-  m_assemblyDone(false),
-  m_minimumFractionalWeight(1.e-9),
-  m_minimumValidFraction(0.01),
-  m_validWeightSum(0.),
-  m_invalidWeightSum(0.),
-  m_multiComponentState( new Trk::MultiComponentState() )
-{
-  
+Trk::MultiComponentStateAssembler::MultiComponentStateAssembler (const std::string& type, 
+                                                                 const std::string& name, 
+                                                                 const IInterface* parent)
+  : AthAlgTool(type, name, parent)
+{ 
   declareInterface<IMultiComponentStateAssembler>(this);
-  
-  declareProperty("minimumFractionalWeight", m_minimumFractionalWeight);
-  declareProperty("minimumValidFraction",    m_minimumValidFraction);
-
 }
 
 Trk::MultiComponentStateAssembler::~MultiComponentStateAssembler () 
@@ -40,125 +29,92 @@ Trk::MultiComponentStateAssembler::~MultiComponentStateAssembler ()
 
 StatusCode Trk::MultiComponentStateAssembler::initialize(){
   
-  m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
-  
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Initialisation of " << name() << " successful" << endmsg;
-  
+  ATH_MSG_DEBUG("Initialisation of " << name() << " successful \n"); 
   return StatusCode::SUCCESS;
 }
 
 StatusCode Trk::MultiComponentStateAssembler::finalize(){
  
-  delete m_multiComponentState;
- 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Finalisation of " << name() << " successful" << endmsg;
-  
+  ATH_MSG_DEBUG ("Finalisation of " << name() << " successful \n");  
   return StatusCode::SUCCESS;
-  
 }
 
-bool Trk::MultiComponentStateAssembler::reset()
+bool Trk::MultiComponentStateAssembler::reset(Cache& cache) const
 {
 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Resetting the MultiComponentStateAssembler: " << name() << endmsg;
-
-  m_assemblyDone = false;
-
-  if ( !m_multiComponentState->empty() ){
-    
-    Trk::MultiComponentState::const_iterator component = m_multiComponentState->begin();
-
-    for ( ; component != m_multiComponentState->end(); ++component )
+  ATH_MSG_VERBOSE("Resetting the MultiComponentStateAssembler: " << name()<<"\n");
+  cache.assemblyDone = false;
+  if (cache.multiComponentState.get()!=nullptr && !cache.multiComponentState->empty() ){
+    Trk::MultiComponentState::const_iterator component = cache.multiComponentState->begin();
+    for ( ; component != cache.multiComponentState->end(); ++component ){
       delete component->first;
-    
-    m_multiComponentState->clear();
-
+    }
+    cache.multiComponentState->clear();
   }
-
-  m_validWeightSum = 0.;
-  m_invalidWeightSum = 0.;
-  
+  cache.validWeightSum = 0.;
+  cache.invalidWeightSum = 0.; 
   return true;
-
 }
 
-void Trk::MultiComponentStateAssembler::status() const
+void Trk::MultiComponentStateAssembler::status(const Cache& cache) const
 {
-
-  if (m_outputlevel <= 0) {
-    std::cout << "**************** Current status of assembler: " << name() << " ****************" << std::endl;
-    std::cout << "Number of components in cached state: " << m_multiComponentState->size() << std::endl;
-    std::cout << "Assembly done? (Bool): " << m_assemblyDone << std::endl;
-    std::cout << "Total valid weight:    " << m_validWeightSum << std::endl;
-    std::cout << "Total invalid weight:  " << m_invalidWeightSum << std::endl;
-    std::cout << "**************** End assembler status ****************" << std::endl;
-  }
-
+    ATH_MSG_DEBUG( "**************** Current status of assembler: " << name() << " **************** \n "
+                   << "Number of components in cached state: " << cache.multiComponentState->size() << "\n"
+                   << "Assembly done? (Bool): " << cache.assemblyDone << "\n"
+                   << "Total valid weight:    " << cache.validWeightSum << "\n"
+                   << "Total invalid weight:  " << cache.invalidWeightSum << "\n"
+                   << "**************** End assembler status **************** \n");
 }
 
-bool Trk::MultiComponentStateAssembler::addComponent (const ComponentParameters& componentParameters){
+bool Trk::MultiComponentStateAssembler::addComponent (Cache&  cache, const ComponentParameters& componentParameters) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Adding single component to mixture" << endmsg;
-
-  if ( m_assemblyDone ){
-    msg(MSG::WARNING) << "Trying to add state after assembly... returning false" << endmsg;
+  ATH_MSG_VERBOSE ( "Adding single component to mixture \n");
+  if ( cache.assemblyDone ){
+    ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
-  }
-  
-  const Trk::ComponentParameters* clonedComponentParameters = new Trk::ComponentParameters( (componentParameters.first)->clone(), componentParameters.second);
+  } 
+  const Trk::ComponentParameters* clonedComponentParameters = 
+    new Trk::ComponentParameters( (componentParameters.first)->clone(), componentParameters.second);
 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Creating multiple component state from single component. Weight of state is: " << componentParameters.second << endmsg;
+  ATH_MSG_VERBOSE("Creating multiple component state from single component. Weight of state is: " 
+                  << componentParameters.second << "\n");
 
   Trk::MultiComponentState* singleComponentList = new Trk::MultiComponentState(*clonedComponentParameters);
-  this->addComponentsList(singleComponentList);
+  this->addComponentsList(cache,singleComponentList);
   delete clonedComponentParameters;
   singleComponentList->clear();
   delete singleComponentList;
-
   return true;
 }
 
-bool Trk::MultiComponentStateAssembler::addMultiState (const MultiComponentState& multiComponentState){
+bool Trk::MultiComponentStateAssembler::addMultiState (Cache& cache, const MultiComponentState& multiComponentState) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Adding multiple component state to mixture" << endmsg;
-
-  if ( m_assemblyDone ){
-    msg(MSG::WARNING) << "Trying to add state after assembly... returning false" << endmsg;
+  ATH_MSG_VERBOSE("Adding multiple component state to mixture \n");
+  if (cache.assemblyDone ){
+    ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
   }
-  
-  Trk::MultiComponentState* clonedMultiComponentState = const_cast<Trk::MultiComponentState*>( multiComponentState.clone() );
 
-  this->addComponentsList(clonedMultiComponentState);
+  Trk::MultiComponentState* clonedMultiComponentState = multiComponentState.clone();
+
+  this->addComponentsList(cache,clonedMultiComponentState);
   clonedMultiComponentState->clear();
   delete clonedMultiComponentState;
   return true;
 }
 
-bool Trk::MultiComponentStateAssembler::addInvalidComponentWeight (const double& invalidComponentWeight){
+bool Trk::MultiComponentStateAssembler::addInvalidComponentWeight (Cache& cache, const double invalidComponentWeight) const {
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Adding the weight of an invalid state to the mixture" << endmsg;
-
-  m_invalidWeightSum += invalidComponentWeight;
-
+  ATH_MSG_VERBOSE( "Adding the weight of an invalid state to the mixture \n");
+  cache.invalidWeightSum += invalidComponentWeight;
   return true;
-
 }
 
-void Trk::MultiComponentStateAssembler::addComponentsList (const MultiComponentState* multiComponentState){
+void Trk::MultiComponentStateAssembler::addComponentsList (Cache& cache, const MultiComponentState* multiComponentState) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Add multiple component state to exisiting mixture" << endmsg;
-
-  if ( m_assemblyDone ){
-    msg(MSG::WARNING) << "Trying to add state after assembly" << endmsg;
+  ATH_MSG_VERBOSE ("Add multiple component state to exisiting mixture \n");
+  if ( cache.assemblyDone ){
+    ATH_MSG_WARNING( "Trying to add state after assembly \n");
     return;
   }
   
@@ -169,159 +125,140 @@ void Trk::MultiComponentStateAssembler::addComponentsList (const MultiComponentS
     sumW += (*component).second;
   
 
-  m_multiComponentState->insert( m_multiComponentState->end(), multiComponentState->begin(), multiComponentState->end() );
+  cache.multiComponentState->insert(cache.multiComponentState->end(), multiComponentState->begin(), multiComponentState->end() );
 
-  m_validWeightSum += sumW;
+  cache.validWeightSum += sumW;
 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Successfully inserted state" << endmsg;
+  ATH_MSG_VERBOSE( "Successfully inserted state \n");
 
 }
 
-bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (){
+bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (Cache& cache) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Preparing state for assembly" << endmsg;
+   ATH_MSG_VERBOSE( "Preparing state for assembly \n");
 
   // Protect against empty state
-  if ( !isStateValid () ){
-    if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "State is not valid... returning false" << endmsg;
+  if ( !isStateValid (cache) ){
+    ATH_MSG_DEBUG("State is not valid... returning false \n");
     return false;
   }
   
   // Check for minimum fraction of valid states
-  double validWeightFraction = m_validWeightSum / ( m_validWeightSum + m_invalidWeightSum );
+  double validWeightFraction = cache.validWeightSum / ( cache.validWeightSum + cache.invalidWeightSum );
 
-  if (m_invalidWeightSum > 0. && validWeightFraction < m_minimumValidFraction){
-    if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Insufficient valid states in the state... returning false" << endmsg;
+  if (cache.invalidWeightSum > 0. && validWeightFraction < m_minimumValidFraction){
+    ATH_MSG_DEBUG( "Insufficient valid states in the state... returning false \n");
     return false;
   }
-
   // Check to see assembly has not already been done
-  if ( m_assemblyDone ){
-    if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Assembly of state already complete... returning true" << endmsg;
+  if ( cache.assemblyDone ){
+     ATH_MSG_VERBOSE("Assembly of state already complete... returning true \n");
     return true;
   }
 
   // Remove components with negligable weights
-  removeSmallWeights ();
+  removeSmallWeights (cache);
   
   // Now recheck to make sure the state is now still valid
-  if ( !isStateValid () ){
-    if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "After removal of small weights, state is invalid... returning false" << endmsg;
+  if ( !isStateValid (cache) ){
+     ATH_MSG_DEBUG("After removal of small weights, state is invalid... returning false \n");
     return false;
   }
   
   // Sort Multi-Component State by weights
-  m_multiComponentState->sort( SortByLargerComponentWeight() );
+  cache.multiComponentState->sort( SortByLargerComponentWeight() );
   
   // Set assembly flag
-  m_assemblyDone = true;
+  cache.assemblyDone = true;
 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "State is prepared for assembly... returning true" << endmsg;
+  ATH_MSG_VERBOSE ("State is prepared for assembly... returning true \n");
 
   return true;
 }
 
 const Trk::MultiComponentState*
-Trk::MultiComponentStateAssembler::assembledState () {
+Trk::MultiComponentStateAssembler::assembledState (Cache& cache)  const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Finalising assembly... no specified reweighting" << endmsg;
+  ATH_MSG_VERBOSE( "Finalising assembly... no specified reweighting \n");
 
-  if ( !prepareStateForAssembly() ) {
-    if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Unable to prepare state for assembly... returning 0" << endmsg;
+  if ( !prepareStateForAssembly(cache) ) {
+    ATH_MSG_DEBUG ("Unable to prepare state for assembly... returning 0 \n");
     return 0;
   }
 
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Successful preparation for assembly" << endmsg;
+  ATH_MSG_VERBOSE("Successful preparation for assembly \n");
   
-  if ( m_invalidWeightSum > 0. || m_validWeightSum <= 0.) {
-    if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Assembling state with invalid weight components" << endmsg;
-    double totalWeight = m_validWeightSum + m_invalidWeightSum;
-    const Trk::MultiComponentState* stateAssembly = doStateAssembly(totalWeight);
+  if ( cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
+    ATH_MSG_VERBOSE("Assembling state with invalid weight components \n");
+    double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
+    const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache,totalWeight);
     return stateAssembly;
   }
   
-  const Trk::MultiComponentState* multiComponentState = m_multiComponentState->clone();
-
+  const Trk::MultiComponentState* multiComponentState = cache.multiComponentState->clone();
   // Reset state cache before leaving
-  this->reset();
-
+  this->reset(cache);
+ 
   return multiComponentState;
 }
 
 const Trk::MultiComponentState*
-Trk::MultiComponentStateAssembler::assembledState (const double& newWeight) {
+Trk::MultiComponentStateAssembler::assembledState (Cache& cache, const double newWeight) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Finalising assembly with reweighting of components" << endmsg;
+  ATH_MSG_VERBOSE( "Finalising assembly with reweighting of components \n");
 
-  if ( !prepareStateForAssembly() ) {
-    if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Unable to prepare state for assembly... returing 0" << endmsg;
+  if ( !prepareStateForAssembly(cache) ) {
+     ATH_MSG_DEBUG("Unable to prepare state for assembly... returing 0 \n");
     return 0;
   }
   
-  const Trk::MultiComponentState* stateAssembly = doStateAssembly(newWeight);
+  const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache,newWeight);
 
   return stateAssembly;	
 }
 
 const Trk::MultiComponentState*
-Trk::MultiComponentStateAssembler::doStateAssembly (const double& newWeight) {
+Trk::MultiComponentStateAssembler::doStateAssembly (Cache& cache, const double newWeight) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Do state assembly" << endmsg;
+  ATH_MSG_VERBOSE( "Do state assembly \n");
   
-  if ( !isStateValid() ) {
-    if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Cached state is empty... returning 0" << endmsg;
+  if ( !isStateValid(cache) ) {
+    ATH_MSG_VERBOSE( "Cached state is empty... returning 0 \n");
     return 0;
   }
   
   
-  if (m_validWeightSum <= 0.) {
-    if (!m_multiComponentState->empty()) {
-      double fixedWeights = 1. / (double) m_multiComponentState->size();
-      Trk::MultiComponentState::iterator component = m_multiComponentState->begin();
-      for ( ; component != m_multiComponentState->end() ; ++component ){
+  if (cache.validWeightSum <= 0.) {
+    if (!cache.multiComponentState->empty()) {
+      double fixedWeights = 1. / (double) cache.multiComponentState->size();
+      Trk::MultiComponentState::iterator component = cache.multiComponentState->begin();
+      for ( ; component != cache.multiComponentState->end() ; ++component ){
         component->second = fixedWeights;
       } 
     }
-    const Trk::MultiComponentState* assembledState = m_multiComponentState->clone();
+    const Trk::MultiComponentState* assembledState = cache.multiComponentState->clone();
     // Reset the cache before leaving
-    this->reset();
+    this->reset(cache);
     return assembledState;
   }
 
-  double scalingFactor = m_validWeightSum > 0. ? newWeight / m_validWeightSum : 1. ;
-  const Trk::MultiComponentState* assembledState = m_multiComponentState->cloneWithWeightScaling( scalingFactor );
+  double scalingFactor = cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1. ;
+  const Trk::MultiComponentState* assembledState = cache.multiComponentState->cloneWithWeightScaling( scalingFactor );
 
   // Reset the cashe before leaving
-  this->reset();
+  this->reset(cache);
 
   return assembledState;
 }
 
-void Trk::MultiComponentStateAssembler::removeSmallWeights () {
+void Trk::MultiComponentStateAssembler::removeSmallWeights (Cache& cache) const{
   
-  if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Removing small weights" << endmsg;
+  ATH_MSG_VERBOSE("Removing small weights \n");
 
-  double totalWeight( m_validWeightSum + m_invalidWeightSum );
+  double totalWeight( cache.validWeightSum + cache.invalidWeightSum );
   
   if ( totalWeight == 0. ) {
-    if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Total weight of state is zero... exiting" << endmsg;
+    ATH_MSG_VERBOSE("Total weight of state is zero... exiting \n");
     return;
   }
   
@@ -331,18 +268,16 @@ void Trk::MultiComponentStateAssembler::removeSmallWeights () {
   do {
     continueToRemoveComponents = false;
     MultiComponentState::iterator component;
-    for ( component  = m_multiComponentState->begin() ;
-	  component != m_multiComponentState->end()   ;
+    for ( component  = cache.multiComponentState->begin() ;
+	  component != cache.multiComponentState->end()   ;
 	  ++component ) {
       if ( (*component).second / totalWeight < m_minimumFractionalWeight ) {
         delete component->first;
-        m_multiComponentState->erase(component);
-        if (m_outputlevel <= 0) 
-          msg(MSG::DEBUG) << "State with weight " << (*component).second << " has been removed from mixture" << endmsg;
+        cache.multiComponentState->erase(component);
+        ATH_MSG_DEBUG("State with weight " << (*component).second << " has been removed from mixture");
         continueToRemoveComponents = true;
         break;
       } // end if
     } // end for
   } while ( continueToRemoveComponents );
-
 }

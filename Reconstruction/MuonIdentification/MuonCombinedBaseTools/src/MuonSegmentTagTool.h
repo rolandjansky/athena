@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONSEGMENTTAGTOOL_H
@@ -45,8 +45,8 @@ namespace MuonCombined {
     StatusCode finalize();
 
     /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */    
-    void tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments ) const;
-    void tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap ) const;
+    void tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments, InDetCandidateToTagMap* tagMap ) const;
+    void tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap ) const;
 
 
 

@@ -14,7 +14,6 @@ namespace  AIDA{
 }
 
 namespace InDetDD{
-  class SCT_DetectorManager;
   class PixelDetectorManager;
 }
 
@@ -33,7 +32,6 @@ class SurveyConstraintTestAlg:public AthAlgorithm {
   IToolSvc*                              m_toolsvc;            //!< Pointer to tool service
   ISurveyConstraint*                     m_SurvConstr;
   const InDetDD::PixelDetectorManager*   m_pixelManager;
-  const InDetDD::SCT_DetectorManager*    m_SCT_Manager;
   const PixelID*                         m_pixid;
   const SCT_ID*                          m_sctid;
   AIDA::IHistogram1D*                    m_h_PixEC_Align_Disk[6];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -15,7 +15,6 @@
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
@@ -105,6 +104,7 @@ StatusCode  ClusterMakerTool::initialize(){
      }
    }
 
+   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
    ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
    return StatusCode::SUCCESS;
@@ -193,15 +193,14 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     }
   }
 // ask for Lorentz correction, get global position
- 
-  double shift = element->getLorentzCorrection();
+
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
   const InDetDD::SiLocalPosition& localPosition = 
           InDetDD::SiLocalPosition(localPos[Trk::locY],
                           localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
   // find global position of element
   Amg::Vector3D globalPos = element->globalPosition(localPosition);
-
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
@@ -388,14 +387,14 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endmsg;
 
 // ask for Lorentz correction, get global position
-  double shift = element->getLorentzCorrection();
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
   const InDetDD::SiLocalPosition& localPosition = 
     InDetDD::SiLocalPosition(localPos[Trk::locY],
 			     localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
 // find global position of element
   Amg::Vector3D globalPos = element->globalPosition(localPosition);
-        
+
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
@@ -472,6 +471,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                     split,
                     splitProb1,
                     splitProb2);
+
  return newCluster;
 
 }

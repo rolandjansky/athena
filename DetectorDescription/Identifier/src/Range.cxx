@@ -1179,6 +1179,12 @@ Range::Range (const Range& other)
 } 
  
 //----------------------------------------------- 
+Range::Range (Range&& other)
+  : m_fields (std::move (other.m_fields))
+{ 
+} 
+ 
+//----------------------------------------------- 
 Range& Range::operator= (const Range& other) 
 { 
   if (this != &other)
@@ -1187,9 +1193,11 @@ Range& Range::operator= (const Range& other)
 } 
  
 //----------------------------------------------- 
-Range::Range (Range& other, bool) 
+Range& Range::operator= (Range&& other) 
 { 
-  m_fields.swap (other.m_fields);
+  if (this != &other)
+    m_fields = std::move (other.m_fields);
+  return *this;
 } 
  
 //----------------------------------------------- 
@@ -2390,14 +2398,14 @@ void MultiRange::add (const Range& range)
 } 
  
 //----------------------------------------------- 
-void MultiRange::add (Range& range, bool) 
+void MultiRange::add (Range&& range) 
 { 
     // Add new range ONLY if an equivalent does NOT exist
     for (size_type i = 0; i < m_ranges.size(); ++i) {
 	const Range& test_range = m_ranges[i];
 	if (test_range == range) return;
     }
-    m_ranges.emplace_back (range, true);
+    m_ranges.emplace_back (std::move(range));
 } 
  
 //----------------------------------------------- 

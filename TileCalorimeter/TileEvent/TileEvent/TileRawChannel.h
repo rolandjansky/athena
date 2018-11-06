@@ -41,13 +41,15 @@ class TileRawChannel: public TileRawData {
         : m_pedestal(0) {
     }
 
-    TileRawChannel(const Identifier& id, float amplitude, float time, float quality, float ped = 0.0);
+    // nb. Overload for HWIdentifier should come before that for Identifier;
+    // otherwise, pyroot gets overload resolution wrong.
     TileRawChannel(const HWIdentifier& HWid, float amplitude, float time, float quality, float ped = 0.0);
     TileRawChannel(const HWIdentifier& HWid, 
                    std::vector<float>&& amplitude,
                    std::vector<float>&& time,
                    std::vector<float>&& quality,
                    float ped = 0.0);
+    TileRawChannel(const Identifier& id, float amplitude, float time, float quality, float ped = 0.0);
 
     /* Destructor */
 

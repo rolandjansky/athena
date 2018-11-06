@@ -59,7 +59,6 @@ bool fulldbg = false;
 template<typename T=TH1F>
 T* Get( TFile& f, const std::string& n, const std::string& dir="", std::vector<std::string>* saved=0  ) { 
 
-
   std::string name;
 
   size_t pos = n.find("+");
@@ -79,6 +78,8 @@ T* Get( TFile& f, const std::string& n, const std::string& dir="", std::vector<s
       else     saved->push_back( name );
     }
   }
+
+  if ( h ) h->SetDirectory(0);
 
   return h;
 }
@@ -853,7 +854,7 @@ int main(int argc, char** argv) {
 
     /// use the default panels
 
-    std::string ((*inpanels[3])[6]) = { eff_panel, res_panel, diff_panel };
+    std::string (*inpanels[3])[6] = { eff_panel, res_panel, diff_panel };
 
     size_t nphist[3] = { 4, 4, 10 }; 
 

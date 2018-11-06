@@ -4,18 +4,16 @@
 
 #include "SCT_DCSConditionsHVCondAlg.h"
 
-#include <memory>
-
 #include "Identifier/IdentifierHash.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
+#include <memory>
+
 SCT_DCSConditionsHVCondAlg::SCT_DCSConditionsHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
-  , m_returnHVTemp{true}
 {
-  declareProperty("ReturnHVTemp", m_returnHVTemp);
 }
 
 StatusCode SCT_DCSConditionsHVCondAlg::initialize() {
@@ -24,12 +22,12 @@ StatusCode SCT_DCSConditionsHVCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  if (m_returnHVTemp) {
+  if (m_returnHVTemp.value()) {
     // Read Cond Handle
     ATH_CHECK(m_readKey.initialize());
     // Write Cond Handle
     ATH_CHECK(m_writeKey.initialize());
-    if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
     }
@@ -41,7 +39,7 @@ StatusCode SCT_DCSConditionsHVCondAlg::initialize() {
 StatusCode SCT_DCSConditionsHVCondAlg::execute() {
   ATH_MSG_DEBUG("execute " << name());
 
-  if (not m_returnHVTemp) {
+  if (not m_returnHVTemp.value()) {
     return StatusCode::SUCCESS;
   }
 

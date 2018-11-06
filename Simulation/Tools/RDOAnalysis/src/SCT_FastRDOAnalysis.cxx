@@ -1,112 +1,106 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "SCT_FastRDOAnalysis.h"
 #include "StoreGate/ReadHandle.h"
 
-#include "TTree.h"
+#include "TH1.h"
 #include "TString.h"
+#include "TTree.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <iostream>
 
 SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_inputKey("SCT_Clusters")
-  , m_hitsTimeBin3(0)
-  , m_siCol(0)
-  , m_siRow(0)
-  , m_siPhiR(0)
-  , m_siZ(0)
-  , m_siPos_x(0)
-  , m_siPos_y(0)
-  , m_siPos_z(0)
-  , m_siGangPix(0)
-  , m_siDetID(0)
-  , m_siDetPix(0)
-  , m_siDetSCT(0)
-  , m_siDetBrl(0)
-  , m_siDetEc(0)
-  , m_siDetBlay(0)
-  , m_siDetInPixLay(0)
-  , m_siDetNtInPixLay(0)
-  , m_siDetDBM(0)
-  , m_siDetHitDepthDir(0)
-  , m_siDetHitPhiDir(0)
-  , m_siDetHitEtaDir(0)
-  , m_siDetMinR(0)
-  , m_siDetMaxR(0)
-  , m_siDetMinZ(0)
-  , m_siDetMaxZ(0)
-  , m_siDetMinPhi(0)
-  , m_siDetMaxPhi(0)
-  , m_siDetWidth(0)
-  , m_siDetMinWidth(0)
-  , m_siDetMaxWidth(0)
-  , m_siDetLength(0)
-  , m_siDetThick(0)
-  , m_siDetEtaPitch(0)
-  , m_siDetPhiPitch(0)
-  , m_clusID(0)
-  , m_locpos_x(0)
-  , m_locpos_y(0)
-  , m_rdoID_prd(0)
+  , m_hitsTimeBin3{nullptr}
+  , m_siCol{nullptr}
+  , m_siRow{nullptr}
+  , m_siPhiR{nullptr}
+  , m_siZ{nullptr}
+  , m_siPos_x{nullptr}
+  , m_siPos_y{nullptr}
+  , m_siPos_z{nullptr}
+  , m_siGangPix{nullptr}
+  , m_siDetID{nullptr}
+  , m_siDetPix{nullptr}
+  , m_siDetSCT{nullptr}
+  , m_siDetBrl{nullptr}
+  , m_siDetEc{nullptr}
+  , m_siDetBlay{nullptr}
+  , m_siDetInPixLay{nullptr}
+  , m_siDetNtInPixLay{nullptr}
+  , m_siDetDBM{nullptr}
+  , m_siDetHitDepthDir{nullptr}
+  , m_siDetHitPhiDir{nullptr}
+  , m_siDetHitEtaDir{nullptr}
+  , m_siDetMinR{nullptr}
+  , m_siDetMaxR{nullptr}
+  , m_siDetMinZ{nullptr}
+  , m_siDetMaxZ{nullptr}
+  , m_siDetMinPhi{nullptr}
+  , m_siDetMaxPhi{nullptr}
+  , m_siDetWidth{nullptr}
+  , m_siDetMinWidth{nullptr}
+  , m_siDetMaxWidth{nullptr}
+  , m_siDetLength{nullptr}
+  , m_siDetThick{nullptr}
+  , m_siDetEtaPitch{nullptr}
+  , m_siDetPhiPitch{nullptr}
+  , m_clusID{nullptr}
+  , m_locpos_x{nullptr}
+  , m_locpos_y{nullptr}
+  , m_rdoID_prd{nullptr}
 
-  , m_h_hitsTimeBin3(0)
-  , m_h_siCol(0)
-  , m_h_siRow(0)
-  , m_h_siPhiR(0)
-  , m_h_siZ(0)
-  , m_h_siPos_x(0)
-  , m_h_siPos_y(0)
-  , m_h_siPos_z(0)
-  , m_h_siGangPix(0)
-  , m_h_siDetID(0)
-  , m_h_siDetPix(0)
-  , m_h_siDetSCT(0)
-  , m_h_siDetBrl(0)
-  , m_h_siDetEc(0)
-  , m_h_siDetBlay(0)
-  , m_h_siDetInPixLay(0)
-  , m_h_siDetNtInPixLay(0)
-  , m_h_siDetDBM(0)
-  , m_h_siDetHitDepthDir(0)
-  , m_h_siDetHitPhiDir(0)
-  , m_h_siDetHitEtaDir(0)
-  , m_h_siDetMinR(0)
-  , m_h_siDetMaxR(0)
-  , m_h_siDetMinZ(0)
-  , m_h_siDetMaxZ(0)
-  , m_h_siDetMinPhi(0)
-  , m_h_siDetMaxPhi(0)
-  , m_h_siDetWidth(0)
-  , m_h_siDetMinWidth(0)
-  , m_h_siDetMaxWidth(0)
-  , m_h_siDetLength(0)
-  , m_h_siDetThick(0)
-  , m_h_siDetEtaPitch(0)
-  , m_h_siDetPhiPitch(0)
-  , m_h_clusID(0)
-  , m_h_locpos_x(0)
-  , m_h_locpos_y(0)
-  , m_h_rdoID_prd(0)
+  , m_h_hitsTimeBin3{nullptr}
+  , m_h_siCol{nullptr}
+  , m_h_siRow{nullptr}
+  , m_h_siPhiR{nullptr}
+  , m_h_siZ{nullptr}
+  , m_h_siPos_x{nullptr}
+  , m_h_siPos_y{nullptr}
+  , m_h_siPos_z{nullptr}
+  , m_h_siGangPix{nullptr}
+  , m_h_siDetID{nullptr}
+  , m_h_siDetPix{nullptr}
+  , m_h_siDetSCT{nullptr}
+  , m_h_siDetBrl{nullptr}
+  , m_h_siDetEc{nullptr}
+  , m_h_siDetBlay{nullptr}
+  , m_h_siDetInPixLay{nullptr}
+  , m_h_siDetNtInPixLay{nullptr}
+  , m_h_siDetDBM{nullptr}
+  , m_h_siDetHitDepthDir{nullptr}
+  , m_h_siDetHitPhiDir{nullptr}
+  , m_h_siDetHitEtaDir{nullptr}
+  , m_h_siDetMinR{nullptr}
+  , m_h_siDetMaxR{nullptr}
+  , m_h_siDetMinZ{nullptr}
+  , m_h_siDetMaxZ{nullptr}
+  , m_h_siDetMinPhi{nullptr}
+  , m_h_siDetMaxPhi{nullptr}
+  , m_h_siDetWidth{nullptr}
+  , m_h_siDetMinWidth{nullptr}
+  , m_h_siDetMaxWidth{nullptr}
+  , m_h_siDetLength{nullptr}
+  , m_h_siDetThick{nullptr}
+  , m_h_siDetEtaPitch{nullptr}
+  , m_h_siDetPhiPitch{nullptr}
+  , m_h_clusID{nullptr}
+  , m_h_locpos_x{nullptr}
+  , m_h_locpos_y{nullptr}
+  , m_h_rdoID_prd{nullptr}
 
-  , m_tree(0)
-  , m_ntupleFileName("/ntuples/file1")
-  , m_ntupleDirName("/SCT_FastRDOAnalysis/")
-  , m_ntupleTreeName("/SCT_FastRDOAna")
-  , m_path("/SCT_FastRDOAnalysis/")
-  , m_thistSvc("THistSvc", name)
+  , m_tree{nullptr}
+  , m_thistSvc{"THistSvc", name}
 {
-  declareProperty("InputKey", m_inputKey);
-  declareProperty("NtupleFileName", m_ntupleFileName);
-  declareProperty("NtupleDirectoryName", m_ntupleDirName);
-  declareProperty("NtupleTreeName", m_ntupleTreeName);
-  declareProperty("HistPath", m_path);
+  declareProperty("NtupleFileName", m_ntupleFileName="/ntuples/file1");
+  declareProperty("NtupleDirectoryName", m_ntupleDirName="/SCT_FastRDOAnalysis/");
+  declareProperty("NtupleTreeName", m_ntupleTreeName="/SCT_FastRDOAna");
+  declareProperty("HistPath", m_path="/SCT_FastRDOAnalysis/");
 }
 
 StatusCode SCT_FastRDOAnalysis::initialize() {
@@ -115,6 +109,9 @@ StatusCode SCT_FastRDOAnalysis::initialize() {
   // This will check that the properties were initialized
   // properly by job configuration.
   ATH_CHECK( m_inputKey.initialize() );
+
+  // Read Cond Handle Key
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());

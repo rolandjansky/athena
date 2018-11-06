@@ -17,7 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCablings/MuonMDT_Cabling
                           MuonSpectrometer/MuonCablings/MuonTGC_Cabling
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry )
+                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
+			  MuonSpectrometer/MuonDetDescr/MuonAGDDDescription )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,7 +29,11 @@ atlas_add_component( MuonRegionSelector
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives RegSelLUT GaudiKernel Identifier CSCcablingLib MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MuonReadoutGeometry )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives 
+		     RegSelLUT GaudiKernel Identifier CSCcablingLib 
+		     MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib 
+		     MuonReadoutGeometry
+	             MuonAGDDDescription )
 
 # Install files from the package:
 atlas_install_headers( MuonRegionSelector )

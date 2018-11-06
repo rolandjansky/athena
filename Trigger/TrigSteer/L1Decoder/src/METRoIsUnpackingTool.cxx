@@ -27,7 +27,7 @@ StatusCode METRoIsUnpackingTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode METRoIsUnpackingTool::updateConfiguration() {
+StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
   using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   std::vector<const TriggerThreshold*> filtered;

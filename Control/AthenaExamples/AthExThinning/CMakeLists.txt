@@ -72,3 +72,18 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.ref )
 
+
+atlas_add_test( test_thinning
+                SCRIPT test/test_thinning.sh
+                PROPERTIES TIMEOUT 900
+                EXTRA_PATTERNS ":::running" )
+
+atlas_add_test( test_pythinning
+                SCRIPT test/test_pythinning.sh
+                PROPERTIES TIMEOUT 900
+                EXTRA_PATTERNS ":::running" )
+
+atlas_add_test( test_slimming
+                SCRIPT test/test_slimming.sh
+                PROPERTIES TIMEOUT 900
+                EXTRA_PATTERNS ":::running" )

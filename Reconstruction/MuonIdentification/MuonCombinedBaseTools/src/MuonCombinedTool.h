@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDTOOL_H
@@ -10,6 +10,7 @@
 #include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedDebuggerTool.h"
 
 namespace Muon
@@ -31,12 +32,12 @@ namespace MuonCombined {
     StatusCode initialize();
     StatusCode finalize();
 
-    void combine( const MuonCandidateCollection& muonCandidates,  const InDetCandidateCollection& inDetCandidates ) const;
+    void combine(const MuonCandidateCollection& muonCandidates,const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps) const;
 
   private:
 
     void associate( const MuonCandidate& muonCandidate, const InDetCandidateCollection& inDetCandidates,  
-		    std::vector<InDetCandidate*>& associatedIdCandidates ) const ;
+		    std::vector<const InDetCandidate*>& associatedIdCandidates ) const ;
 
     // helpers, managers, tools
     ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;

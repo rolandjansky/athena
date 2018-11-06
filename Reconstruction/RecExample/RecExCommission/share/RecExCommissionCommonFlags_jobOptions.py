@@ -91,7 +91,6 @@ jobproperties.BField.endcapToroidOn=False
 #from RecExConfig.RecConfFlags import recConfFlags
 
 
-#RecConfFlags.AllowBackNavigation
 #RecConfFlags.AllowDisable
 #RecConfFlags.AllowIgnoreConfigError	
 #RecConfFlags.AllowIgnoreExistingDataObject	

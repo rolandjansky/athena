@@ -2,13 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
 
 // Tile includes
 #include "TileConditions/TileCondToolAutoCr.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileCalibBlobObjs/Exception.h"
+#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //
 //____________________________________________________________________
@@ -23,11 +24,9 @@ const InterfaceID& TileCondToolAutoCr::interfaceID() {
 TileCondToolAutoCr::TileCondToolAutoCr(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_pryNoiseAutoCr("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_NoiseAutoCr", this)
 {
-  //  declareInterface<ITileCondToolAutoCr>(this);
   declareInterface<TileCondToolAutoCr>(this);
-  declareProperty("ProxyNoiseAutoCr", m_pryNoiseAutoCr);
+
 }
 
 //
@@ -41,8 +40,8 @@ StatusCode TileCondToolAutoCr::initialize() {
 
   ATH_MSG_DEBUG( "In initialize()" );
 
-  //=== Retrieve proxy
-  CHECK( m_pryNoiseAutoCr.retrieve() );
+  //=== Initialize conditions data key with auto correlations
+  ATH_CHECK( m_calibAutorCorrelationKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -58,17 +57,21 @@ StatusCode TileCondToolAutoCr::finalize() {
 //
 //____________________________________________________________________
 
-void TileCondToolAutoCr::getAutoCorr(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-    std::vector<float>& vec) const {
-  const TileCalibDrawerFlt* calibDrawer = m_pryNoiseAutoCr->getCalibDrawer(drawerIdx);
-  unsigned int nNum = calibDrawer->getObjSizeUint32();
+void TileCondToolAutoCr::getAutoCorr(unsigned int drawerIdx,
+                                     unsigned int channel,
+                                     unsigned int adc,
+                                     std::vector<float>& vec) const {
 
-  if (vec.size() != nNum) {
-    vec.resize(nNum);
+
+  SG::ReadCondHandle<TileCalibDataFlt> calibAutoCorrelation(m_calibAutorCorrelationKey);
+  const TileCalibDrawerFlt* calibDrawer = calibAutoCorrelation->getCalibDrawer(drawerIdx);
+  const unsigned int nElements(calibDrawer->getObjSizeUint32());
+
+  if (vec.size() != nElements) {
+    vec.resize(nElements);
   }
 
-  for (unsigned int i = 0; i < nNum; ++i) {
+  for (unsigned int i = 0; i < nElements; ++i) {
     vec[i] = calibDrawer->getData(channel, adc, i);
   }
 }
-

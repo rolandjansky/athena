@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_FillCablingFromText_H
@@ -13,19 +13,18 @@
  *   @date 05/11/2008
  */
 
+//Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_Cabling/ISCT_FillCabling.h"
+
 //STL includes
 #include <string>
 
-//Gaudi includes
-#include "AthenaBaseComps/AthService.h"
-
-//local includes
-#include "SCT_Cabling/ISCT_FillCabling.h"
-
 //fwd declarations
-template <class TYPE> class SvcFactory;
-class ISvcLocator;
-class ISCT_CablingSvc;
+class IdentifierHash;
+class SCT_CablingData;
+class SCT_OnlineId;
+class SCT_SerialNumber;
 class StatusCode;
  
 /**
@@ -33,17 +32,14 @@ class StatusCode;
  *    @brief Service which fill the SCT Cabling from plain text (a file).
  *
  */
-class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthService {
-  friend class SvcFactory<SCT_FillCablingFromText>;
+class SCT_FillCablingFromText: public extends<AthAlgTool, ISCT_FillCabling> {
  public:
   //@name Service methods, reimplemented
   //@{
-  SCT_FillCablingFromText(const std::string& name, ISvcLocator* svc);
+  SCT_FillCablingFromText(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_FillCablingFromText() = default;
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  //interfaceID() implementation is in the baseclass
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   //@}
 
   /** May set the data source to textFile, database etc
@@ -57,9 +53,9 @@ class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthServic
   virtual std::string getDataSource() const;
   
   /**Fill the cabling maps
-   * @param[in] @c ISCT_CablingSvc& , reference to the underlying data service
+   * @return @c cabling map object
    */
-  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling) const;
+  virtual SCT_CablingData getMaps() const;
   
   /**Report whether the map was filled
    * @return @c bool
@@ -70,10 +66,14 @@ class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthServic
    * @return @c bool
    */
   virtual bool canFillDuringInitialize() const {return true;}
+
  private:
-  StatusCode readDataFromFile(ISCT_CablingSvc* cabling) const;
+  StatusCode readDataFromFile(SCT_CablingData& data) const;
+
+  bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const;
+
   mutable bool m_filled;
   std::string m_source;
 };//end of class
 
-#endif
+#endif // SCT_FillCablingFromText_H

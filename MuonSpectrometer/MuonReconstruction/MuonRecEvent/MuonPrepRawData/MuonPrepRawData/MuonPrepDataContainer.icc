@@ -12,6 +12,12 @@
 ///////////////////////////////////////////////////////////////////
 
 
+/// constructor for POOL with no parameters
+template< class CollectionT>
+MuonPrepDataContainer< CollectionT>::MuonPrepDataContainer() :
+  IdentifiableContainer<CollectionT>(0)
+{
+}
 
 template< class CollectionT>
 // Constructor with parameters:

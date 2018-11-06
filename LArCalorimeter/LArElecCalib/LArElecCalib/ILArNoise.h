@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARNOISE_H
 #define LARELECCALIB_ILARNOISE_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
-class Identifier;
 class HWIdentifier;
 
 class ILArNoise {
@@ -36,8 +35,6 @@ public:
   virtual ~ILArNoise() {};
 
   virtual const float& noise( const HWIdentifier& id, int gain) const =0 ;
-
-  virtual const float& noise( const Identifier& id, int gain ) const = 0 ;
 
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 

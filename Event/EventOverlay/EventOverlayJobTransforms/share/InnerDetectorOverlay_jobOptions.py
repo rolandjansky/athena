@@ -21,6 +21,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
     if DetFlags.overlay.pixel_on():
         job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
+        job += CfgGetter.getAlgorithm("PixelOverlay")
 
         if overlayFlags.isDataOverlay():
             job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
@@ -47,6 +48,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             #   conddb.addFolderSplitOnline("SCT","/SCT/DAQ/Calibration/ChipNoise","/SCT/DAQ/Calibration/ChipNoise",forceMC=True)
 
         job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
+        job += CfgGetter.getAlgorithm("SCTOverlay")
+
         if overlayFlags.isDataOverlay():
             job.InDetSCTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+SCT_RDOs"
             job.InDetSCTRawDataProvider.LVL1IDKey = overlayFlags.dataStore()+"+SCT_LVL1ID"
@@ -65,6 +68,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         ToolSvc += TRT_LocalOccupancy
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
+        job += CfgGetter.getAlgorithm("TRTOverlay")
 
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
@@ -78,10 +82,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             #conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")
             #conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibRt-HLT-UPD1-01</tag>")
             #conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibT0-HLT-UPD1-01</tag>")
-            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
     if overlayFlags.doSignal==True:
         include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
-    job += CfgGetter.getAlgorithm("InDetOverlay")
     job += CfgGetter.getAlgorithm("InDetSDOOverlay")

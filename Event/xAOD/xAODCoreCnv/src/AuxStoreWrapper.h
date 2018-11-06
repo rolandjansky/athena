@@ -17,9 +17,7 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/ServiceHandle.h"
-#define private public
 #include "AthenaBaseComps/AthAlgorithm.h"
-#undef private
 #include "AthenaKernel/IClassIDSvc.h"
 
 // Forward declaration(s):

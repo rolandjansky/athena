@@ -28,9 +28,9 @@ namespace Ringer {
  *  Based on egammaRec and IsolationAlgs.
  **/
 class CaloRingerAlgorithm : public ::AthAlgorithm
-{ 
+{
 
-  public: 
+  public:
 
     /// @name CaloRingerAlgorithm ctors and dtors:
     /// @{
@@ -41,7 +41,7 @@ class CaloRingerAlgorithm : public ::AthAlgorithm
     /**
      * @brief default dtor:
      **/
-    virtual ~CaloRingerAlgorithm(); 
+    virtual ~CaloRingerAlgorithm();
     /// @}
 
     /// Athena algorithm's Hooks:
@@ -51,7 +51,7 @@ class CaloRingerAlgorithm : public ::AthAlgorithm
     virtual StatusCode  finalize();
     /// @}
 
-  private: 
+  private:
 
     /// @name CaloRingerAlgorithm private methods:
     /// @{
@@ -61,14 +61,14 @@ class CaloRingerAlgorithm : public ::AthAlgorithm
 
     /// @name CaloRingerAlgorithm props (python configurables):
     /// @{
-    /** 
-     * @brief Tools for building CaloRings 
+    /**
+     * @brief Tools for building CaloRings
      **/
     PublicToolHandleArray< Ringer::ICaloRingerInputReader > m_inputReaders {this,
 	"inputReaderTools", {}, "Sequence of reader tools to execute."};
     /// @}
 
-}; 
+};
 
 } // namespace Ringer
 

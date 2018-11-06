@@ -2,16 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
+// Tile includes
+#include "TileConditions/TileCondToolPulseShape.h"
+#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 
 // Athena includes
 #include "AthenaKernel/errorcheck.h"
-
-// Tile includes
-#include "TileConditions/TileCondToolPulseShape.h"
-#include "TileCalibBlobObjs/Exception.h"
-#include "TileConditions/TileCondProxyWrapper.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //
 //____________________________________________________________________
@@ -26,10 +23,8 @@ const InterfaceID& TileCondToolPulseShape::interfaceID() {
 TileCondToolPulseShape::TileCondToolPulseShape(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_pryPulseShape("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_PulseShape", this)
 {
   declareInterface<TileCondToolPulseShape>(this);
-  declareProperty("ProxyPulseShape", m_pryPulseShape);
 }
 
 //
@@ -42,8 +37,8 @@ TileCondToolPulseShape::~TileCondToolPulseShape() {
 StatusCode TileCondToolPulseShape::initialize() {
   ATH_MSG_DEBUG( "In initialize()" );
 
-  //=== Retrieve offline proxies
-  CHECK( m_pryPulseShape.retrieve() );
+  //=== Initialize conditions data key with pulse shape
+  ATH_CHECK( m_calibPulseShapeKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -60,11 +55,8 @@ StatusCode TileCondToolPulseShape::finalize() {
 bool TileCondToolPulseShape::getPulseShapeYDY(unsigned int drawerIdx, unsigned int channel, unsigned int adc
                                               , float time, float &y, float &dy) const {
 
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileCondToolPulseShape::getPulseShapeYDY", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
-
-  return m_pryPulseShape->getCalibDrawer(drawerIdx)->getYDY(channel, adc, time, y, dy);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibPulseShape(m_calibPulseShapeKey);
+  return calibPulseShape->getCalibDrawer(drawerIdx)->getYDY(channel, adc, time, y, dy);
 }
 
 //

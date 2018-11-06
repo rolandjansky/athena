@@ -25,11 +25,14 @@ if InDetFlags.doPRDFormation():
    
    if DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on():
       #
-      # --- SiLorentzAngleTool for SCT
+      # --- SiLorentzAngleTool
       #
-      if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+      if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
+      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
       #
       # --- ClusterMakerTool (public), needed by Pixel and SCT Clusterization
@@ -39,7 +42,8 @@ if InDetFlags.doPRDFormation():
                                                       PixelCalibSvc        = None,
                                                       PixelOfflineCalibSvc = None,
                                                       UsePixelCalibCondDB  = False,
-                                                      SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
+                                                      PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
+                                                      SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
          InDetClusterMakerTool.PixelCalibSvc        = InDetPixelCalibSvc
@@ -69,7 +73,6 @@ if InDetFlags.doPRDFormation():
          # --- Neutral Network version ?
          #
          if InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
-
             useBeamConstraint = InDetFlags.useBeamConstraint()
             
             # --- new NN prob tool
@@ -114,7 +117,6 @@ if InDetFlags.doPRDFormation():
          # --- Neutral Network version ?
          #
          elif InDetFlags.pixelClusterSplittingType() == 'AnalogClus':      
-
             # new splitter tool
             from SiClusterizationTool.SiClusterizationToolConf import InDet__TotPixelClusterSplitter
             TotPixelClusterSplitter=InDet__TotPixelClusterSplitter (name="TotPixelClusterSplitter")
@@ -199,7 +201,6 @@ if InDetFlags.doPRDFormation():
          else: 
             InDetSCT_ClusteringTool.timeBins = "X1X" 
 
-      ToolSvc += InDetSCT_ClusteringTool
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ClusteringTool
             
@@ -211,14 +212,13 @@ if InDetFlags.doPRDFormation():
       InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                           clusteringTool          = InDetSCT_ClusteringTool,
                                                           # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                          DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                           DataObjectName          = InDetKeys.SCT_RDOs(),
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
                                                           conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
       if InDetFlags.cutSCTOccupancy():
-        InDetSCT_Clusterization.maxRDOs = 384 #77
+        InDetSCT_Clusterization.maxFiredStrips = 384 #77
       else:
-        InDetSCT_Clusterization.maxRDOs = 0
+        InDetSCT_Clusterization.maxFiredStrips = 0
       topSequence += InDetSCT_Clusterization
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_Clusterization
@@ -227,14 +227,13 @@ if InDetFlags.doPRDFormation():
         InDetSCT_ClusterizationPU = InDet__SCT_Clusterization(name                    = "InDetSCT_ClusterizationPU",
                                                               clusteringTool          = InDetSCT_ClusteringTool,
                                                               # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                              DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                               DataObjectName          = InDetKeys.SCT_PU_RDOs(),
                                                               ClustersName            = InDetKeys.SCT_PU_Clusters(),
                                                               conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
         if InDetFlags.cutSCTOccupancy():
-          InDetSCT_ClusterizationPU.maxRDOs = 384 #77
+          InDetSCT_ClusterizationPU.maxFiredStrips = 384 #77
         else:
-          InDetSCT_ClusterizationPU.maxRDOs = 0
+          InDetSCT_ClusterizationPU.maxFiredStrips = 0
         topSequence += InDetSCT_ClusterizationPU
         if (InDetFlags.doPrintConfigurables()):
           print InDetSCT_ClusterizationPU
@@ -274,6 +273,13 @@ if InDetFlags.doSpacePointFormation():
                                                                      ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                      ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                      ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
+
+   # Condition algorithm for SiTrackerSpacePointFinder
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer("AthCondSeq")
+   if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+      from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
 #   if InDetFlags.doDBM():
 #     InDetSiTrackerSpacePointFinderDBM = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinderDBM",

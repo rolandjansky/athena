@@ -8,6 +8,8 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
+
 
 
 using CLHEP::HepVector;
@@ -15,6 +17,8 @@ using CLHEP::HepVector;
 
 namespace Trk {
   GXFTrajectory::GXFTrajectory() {
+    m_straightline = true;
+    m_fieldprop = nullptr;
     m_ndof = 0;
     m_nperpars = -1;
     m_nscatterers = 0;
@@ -43,6 +47,8 @@ namespace Trk {
   }
 
   GXFTrajectory::GXFTrajectory(GXFTrajectory &rhs) {
+    m_straightline = rhs.m_straightline;
+    m_fieldprop = rhs.m_fieldprop;
     m_ndof = rhs.m_ndof;
     m_nperpars = rhs.m_nperpars;
     m_nscatterers = rhs.m_nscatterers;
@@ -104,6 +110,8 @@ namespace Trk {
   GXFTrajectory &
   GXFTrajectory::operator = (GXFTrajectory &rhs) {
     if (this != &rhs) {
+      m_straightline = rhs.m_straightline;
+      m_fieldprop = rhs.m_fieldprop;
       m_ndof = rhs.m_ndof;
       m_nperpars = rhs.m_nperpars;
       m_nscatterers = rhs.m_nscatterers;

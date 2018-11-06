@@ -14,6 +14,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AnalysisTools/AnalysisTools.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //LAr services:
 #include "Identifier/Range.h" 
@@ -25,8 +26,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArHVCablingTool.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -92,7 +92,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    int GetPartitionLayerIndex(const Identifier& id);
    std::vector<int>* GetHVLines(const Identifier& id);
      
-   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain);
+   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling);
 
  private:
 
@@ -100,9 +100,8 @@ class LArNoiseBursts : public AthAlgorithm  {
     
    TTree* m_tree;
 
+   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey { this, "CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    /*Tools*/
-   ToolHandle<LArCablingService> m_LArCablingService;
-   ToolHandle<LArHVCablingTool> m_LArHVCablingTool;
    ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
    ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
    ToolHandle<ILArBadChanTool> m_badchan_tool;
@@ -229,8 +228,6 @@ class LArNoiseBursts : public AthAlgorithm  {
    std::vector<short>    m_nt_cellpartlayerindex;
    std::vector< unsigned int > m_nt_cellIdentifier;
    std::vector<float> m_nt_noisycellpart;
-   std::vector<int> m_nt_nominalhv;
-   std::vector<int> m_nt_maximalhv;
    std::vector<int> m_nt_noisycellHVphi;
    std::vector<int> m_nt_noisycellHVeta;
    std::vector<std::vector<short> > m_nt_samples;

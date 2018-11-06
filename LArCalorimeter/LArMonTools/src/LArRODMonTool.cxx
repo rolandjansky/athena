@@ -33,6 +33,8 @@
 
 #include "LArRawEvent/LArFebHeader.h" 
 
+#include "LArCabling/LArOnOffIdMapping.h"
+
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
@@ -58,27 +60,18 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
     m_eventsCounter(0),
     m_histos(N_PARTITIONS),
     m_errcounters(N_PARTITIONS),
-    m_adc2mevtool("LArADC2MeVToolDefault"),
     m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
-    m_cable_service_tool ( "LArCablingService" ),
     m_BC(0),
     m_dumpDigits(false)
 
 {
-  declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "HIGH");
   declareProperty("useEvtCounter", m_useEvtCounter = true);
-  declareProperty("LArRawChannelKey_fromBytestream",m_channelKey_fromBytestream="LArRawChannels_fromBytestream");
-  declareProperty("LArRawChannelKey_fromDigits",m_channelKey_fromDigits="LArRawChannels_fromDigits");
-  declareProperty("KeyOFC",m_keyOFC="LArOFC") ;  
-  declareProperty("KeyShape",m_keyShape="LArShape") ;  
   declareProperty("DigitsFileName",m_DigitsFileName = "digits.txt");
   declareProperty("EnergyFileName",m_EnergyFileName = "energy.txt");
   declareProperty("AiFileName",m_AiFileName = "Calib_ai.dat");
   declareProperty("DumpCellsFileName",m_DumpCellsFileName = "dumpCells.txt");
   declareProperty("DoDspTestDump",m_doDspTestDump = false);
   declareProperty("DoCellsDump",m_doCellsDump = false);
-  declareProperty("ADC2MeVTool",m_adc2mevtool);
-  declareProperty("LArPedestalKey",m_larpedestalkey = "LArPedestal");
   declareProperty("DoCheckSum",m_doCheckSum = true);
   declareProperty("DoRodStatus",m_doRodStatus = true);
   declareProperty("PrintEnergyErrors",m_printEnergyErrors = true);
@@ -188,56 +181,32 @@ LArRODMonTool::initialize() {
 
   m_dumpDigits=(m_doDspTestDump || m_doCellsDump || (m_adc_th != 0));
 
-//  For Eon/Eoff dump
-//  if (m_doDspTestDump) {
-    sc = detStore()->regHandle(m_dd_ofc,m_keyOFC);
-    if (sc!=StatusCode::SUCCESS) {
-      ATH_MSG_FATAL( "Cannot register DataHandle for OFC object with key " << m_keyOFC ); 
-      return sc;
-    }
+  ATH_CHECK(m_channelKey_fromDigits.initialize());
+  ATH_CHECK(m_channelKey_fromBytestream.initialize());
+  ATH_CHECK(m_digitContainerKey.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
 
-    sc = detStore()->regHandle(m_dd_shape,m_keyShape);
-    if (sc!=StatusCode::SUCCESS) {
-      ATH_MSG_FATAL( "Cannot register DataHandle for Shape object with key " << m_keyShape ); 
-      return sc;
-    }
+  ATH_CHECK(m_keyOFC.initialize());
+  ATH_CHECK(m_keyShape.initialize());
+  ATH_CHECK(m_keyHVScaleCorr.initialize());
+  ATH_CHECK(m_keyPedestal.initialize());
 
-    sc = detStore()->regHandle(m_dd_HVScaleCorr,"LArHVScaleCorr");
-    if (sc!=StatusCode::SUCCESS) {
-      ATH_MSG_FATAL( "Cannot register DataHandle for HVScaleCorr object with key LArHVScaleCorr" ); 
-      return sc;
-    }
-    // ADC2MeV Tool
-    sc = m_adc2mevtool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to find tool for LArADC2MeV" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_adc2mevKey.initialize());
 
-    sc = m_calo_noise_tool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to find calo noise tool" );
-      return StatusCode::FAILURE;
-    }
-    sc = m_cable_service_tool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to find cabling service tool" );
-      return StatusCode::FAILURE;
-    }
-    sc = detStore()->retrieve(m_calo_description_mgr);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to find CeloDetDescrManager " );
-      return StatusCode::FAILURE;
-    }
-//  }
-//  For Eon/Eoff dump
-//  if (m_skipNullPed || m_doDspTestDump) {
-    sc=detStore()->retrieve(m_larpedestal,m_larpedestalkey);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot register DataHandle for Pedestal object with key " << m_larpedestalkey );
-      return StatusCode::FAILURE;
-    }
-//  }
+  sc = m_calo_noise_tool.retrieve();
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR( "Unable to find calo noise tool" );
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK(m_cablingKey.initialize());
+
+  sc = detStore()->retrieve(m_calo_description_mgr);
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR( "Unable to find CeloDetDescrManager " );
+    return StatusCode::FAILURE;
+  }
+
   if (m_skipKnownProblematicChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
@@ -668,12 +637,10 @@ StatusCode LArRODMonTool::fillHistograms() {
   // Between -222 and 222 MeV (~ 4 TeV)        2**9=512 MeV precision (range 3)
   */
 
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_eventInfoKey);
 
-  const xAOD::EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo).isFailure()) {
-    ATH_MSG_ERROR( "No EventInfo object found! Can't read run number!" );
-    return StatusCode::FAILURE;
-  }
+  SG::ReadCondHandle<ILArPedestal>    pedestalHdl{m_keyPedestal};
+  const ILArPedestal* pedestals=*pedestalHdl;
 
   m_curr_lb=thisEventInfo->lumiBlock();   
   if(m_last_lb < 0) m_last_lb = m_curr_lb;
@@ -737,34 +704,14 @@ StatusCode LArRODMonTool::fillHistograms() {
   }
   */
 
-  // Retrieve LArRawChannels from Digits (via LArRawChannelBuilder)
-  const LArRawChannelContainer* rawColl_fromDigits;
-  StatusCode sc = evtStore()->retrieve(rawColl_fromDigits, m_channelKey_fromDigits);
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING( "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey_fromDigits );
-    return StatusCode::FAILURE;
-  }
 
-  // Retrieve LArRawChannels from ByteStream (i.e. calculated by DSP)
-  const LArRawChannelContainer* rawColl_fromBytestream;
-  sc = evtStore()->retrieve(rawColl_fromBytestream, m_channelKey_fromBytestream);
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING( "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey_fromBytestream );
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<LArRawChannelContainer> rawColl_fromDigits(m_channelKey_fromDigits);
 
-  const LArDigitContainer* pLArDigitContainer=NULL;
-//  For Eon/Eoff dump
-//  if (m_dumpDigits) {
-    sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING( "Can't retrieve LArDigitContainer with key " << m_LArDigitContainerKey <<". Turn off digit dump." );
-      closeDumpfiles();
-      m_dumpDigits=false;
-      m_doDspTestDump=false;
-      m_doCellsDump=false;
-    }
-//  }
+  SG::ReadHandle<LArRawChannelContainer> rawColl_fromBytestream(m_channelKey_fromBytestream);
+  
+  SG::ReadHandle<LArDigitContainer> pLArDigitContainer(m_digitContainerKey);
+
+
   if (m_doCheckSum || m_doRodStatus) {
     FebStatus_Check();
     ATH_MSG_DEBUG("Found " << m_ignoreFEBs.size() << " FEBs with checksum errors or statatus errors. Will ignore these FEBs.");
@@ -805,7 +752,7 @@ StatusCode LArRODMonTool::fillHistograms() {
     //Check pedestal if needed
     if (m_skipNullPed) {
       const CaloGain::CaloGain gain = rcDigIt->gain();
-      const float ped = m_larpedestal->pedestal(idDig,gain);
+      const float ped = pedestals->pedestal(idDig,gain);
       if(ped <= (1.0+LArElecCalib::ERRORCODE)) continue;
     }
 
@@ -1072,6 +1019,27 @@ void LArRODMonTool::closeDumpfiles() {
 
 StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
   ATH_MSG_DEBUG( " I am entering compareChannels method" );
+
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+
+  SG::ReadCondHandle<ILArOFC>         ofcHdl{m_keyOFC};
+  const ILArOFC* ofcs=*ofcHdl;
+
+  SG::ReadCondHandle<ILArShape>       shapeHdl{m_keyShape};
+  const ILArShape* shapes=*shapeHdl;
+
+  SG::ReadCondHandle<ILArHVScaleCorr> hvScaleCorrHdl{m_keyHVScaleCorr};
+  const ILArHVScaleCorr* hvScaleCorrs=*hvScaleCorrHdl;
+
+  SG::ReadCondHandle<ILArPedestal>    pedestalHdl{m_keyPedestal};
+  const ILArPedestal* pedestals=*pedestalHdl;
+
+  SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
+  const LArADC2MeV* adc2mev=*adc2MeVHdl;
+
+
   const int slot_fD = m_LArOnlineIDHelper->slot(chid);
   const  int feedthrough_fD = m_LArOnlineIDHelper->feedthrough(chid);
   const float timeOffline = rcDig.time()/m_unit_offline - m_timeOffset*m_BC;
@@ -1199,7 +1167,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
     }
     hg.m_hEon_VS_Eoff->Fill(rcDig.energy(),en_fB);
     // For Eon/Eoff  or Qon/Qoff dump
-    const float hvscale = m_dd_HVScaleCorr->HVScaleCorr(chid);
+    const float hvscale = hvScaleCorrs->HVScaleCorr(chid);
     //if ( ((fabs(DiffE) > DECut && hvscale == 1.) || (keepQ && (fabs(DiffQ) > DQCut)))  && dig) {
     if ( ((fabs(DiffE) > DECut) || (keepQ && (fabs(DiffQ) > DQCut)))  && dig) {
     // absolute cut on energy 1.MeV
@@ -1237,33 +1205,33 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
          os << "Digits : ";
          for (unsigned int k = 0; k<samples.size(); k++) {os << samples.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         ILArOFC::OFCRef_t this_OFC_a_test = m_dd_ofc->OFC_a(chid,rcDig.gain());
+         ILArOFC::OFCRef_t this_OFC_a_test = ofcs->OFC_a(chid,rcDig.gain());
          os.clear(); os.seekp(0);
          os << "OFCa : ";
          for (unsigned int k = 0; k<this_OFC_a_test.size(); ++k) {os << this_OFC_a_test.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         ILArOFC::OFCRef_t this_OFC_b_test = m_dd_ofc->OFC_b(chid,rcDig.gain());
+         ILArOFC::OFCRef_t this_OFC_b_test = ofcs->OFC_b(chid,rcDig.gain());
          os.clear(); os.seekp(0);
          os << "OFCb : ";
          for (unsigned int k = 0; k<this_OFC_b_test.size(); ++k) {os << this_OFC_b_test.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         ILArShape::ShapeRef_t this_Shape_test = m_dd_shape->Shape(chid,rcDig.gain());
+         ILArShape::ShapeRef_t this_Shape_test = shapes->Shape(chid,rcDig.gain());
          os.clear(); os.seekp(0);
          os << "Shape : ";
          for (unsigned int k = 0; k<this_Shape_test.size(); ++k) {os << this_Shape_test.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         ILArShape::ShapeRef_t this_ShapeDer_test = m_dd_shape->ShapeDer(chid,rcDig.gain());
+         ILArShape::ShapeRef_t this_ShapeDer_test = shapes->ShapeDer(chid,rcDig.gain());
          os.clear(); os.seekp(0);
          os << "ShapeDer : ";
          for (unsigned int k = 0; k<this_ShapeDer_test.size(); ++k) {os << this_ShapeDer_test.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         const std::vector<float>& ramp=m_adc2mevtool->ADC2MEV(chid,rcDig.gain());
+         const std::vector<float>& ramp=adc2mev->ADC2MEV(chid,rcDig.gain());
          const float escale = ramp[1];
          float ramp0 = ramp[0];
          if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
-         const float ped = m_larpedestal->pedestal(chid,rcDig.gain());
+         const float ped = pedestals->pedestal(chid,rcDig.gain());
          ATH_MSG_INFO( "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() );
-         const Identifier cellid=m_cable_service_tool->cnvToIdentifier(chid);
+         const Identifier cellid=cabling->cnvToIdentifier(chid);
          const CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
          const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
          ATH_MSG_INFO( "Noise for mu=20: "<<noise);
@@ -1371,18 +1339,18 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
     if ((keepE && fabs(DiffE)>DECut) || (keepT && fabs(DiffT)>DTCut) || (keepQ && DiffQ > DQCut)) {
       if (m_doDspTestDump) {
 	int Ind = 0;
-	const float timeBinWidth_test=m_dd_ofc->timeBinWidth(chid,q_gain);
+	const float timeBinWidth_test=ofcs->timeBinWidth(chid,q_gain);
 	unsigned delayIdx_test=(unsigned)floor(0.5+Ind/timeBinWidth_test);
-	ILArOFC::OFCRef_t this_OFC_a_test = m_dd_ofc->OFC_a(chid,q_gain,delayIdx_test);
-	ILArOFC::OFCRef_t this_OFC_b_test = m_dd_ofc->OFC_b(chid,q_gain,delayIdx_test);
-	ILArShape::ShapeRef_t this_OFC_h_test = m_dd_shape->Shape(chid,q_gain,delayIdx_test);
-	ILArShape::ShapeRef_t this_OFC_d_test = m_dd_shape->ShapeDer(chid,q_gain,delayIdx_test);	
-	const std::vector<float>& ramp=m_adc2mevtool->ADC2MEV(chid,q_gain);
+	ILArOFC::OFCRef_t this_OFC_a_test = ofcs->OFC_a(chid,q_gain,delayIdx_test);
+	ILArOFC::OFCRef_t this_OFC_b_test = ofcs->OFC_b(chid,q_gain,delayIdx_test);
+	ILArShape::ShapeRef_t this_OFC_h_test = shapes->Shape(chid,q_gain,delayIdx_test);
+	ILArShape::ShapeRef_t this_OFC_d_test = shapes->ShapeDer(chid,q_gain,delayIdx_test);	
+	const std::vector<float>& ramp=adc2mev->ADC2MEV(chid,q_gain);
 	const std::vector<short>& samples=dig->samples();
 	const float escale = ramp[1];
 	float ramp0 = ramp[0];
 	if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
-	const float ped = m_larpedestal->pedestal(chid,q_gain);
+	const float ped = pedestals->pedestal(chid,q_gain);
 	this->DumpCellEvent((int)m_counter,this_OFC_a_test,this_OFC_b_test,this_OFC_h_test,this_OFC_d_test,escale,ramp0,ped,&samples,(int)(rcDig.energy()),(int)(en_fB),m_fai,m_fdig,m_fen, chid, (int)m_eventsCounter);
       }
       if (m_doCellsDump) {

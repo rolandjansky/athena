@@ -9,12 +9,12 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "IdDictDetDescr/IdDictManager.h"
@@ -38,15 +38,17 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(
   AthAlgTool(t,n,p),
   m_pixMgrLocation("Pixel"),
   m_pixMgr(0),
-  m_sctMgrLocation("SCT"),
-  m_sctMgr(0),
   m_trtMgrLocation("TRT"),
   m_trtMgr(0),
-  m_setPrepRawDataLink(false)
+  m_setPrepRawDataLink(false),
+  m_IDHelper(nullptr),
+  m_SCTHelper(nullptr),
+  m_idDictMgr(nullptr),
+  m_mutex{},
+  m_cacheSCTElements{}
 {
   declareInterface<ITrkEventCnvTool>(this);
   declareProperty("PixelMgrLocation", m_pixMgrLocation);
-  declareProperty("SCT_MgrLocation", m_sctMgrLocation);
   declareProperty("TRT_MgrLocation", m_trtMgrLocation);
   declareProperty("RecreatePRDLinks", m_setPrepRawDataLink);
   
@@ -73,16 +75,6 @@ StatusCode InDet::InDetEventCnvTool::initialize()
     ATH_MSG_INFO("No Pixels? Could not get PixelDetectorDescription"); 
   }
         
-  // Get SCT Detector Description Manager
-  if(detStore()->contains<InDetDD::SCT_DetectorManager>(m_sctMgrLocation)){
-    sc = detStore()->retrieve(m_sctMgr, m_sctMgrLocation);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Could not get SCT_DetectorDescription");
-        return sc;
-    }
-  } else {
-    ATH_MSG_INFO("No SCT? Could not get SCT_DetectorDescription"); 
-  }
   // check if SLHC geo is used (TRT not implemented) 
   // if not SLHC, get the TRT Det Descr manager
   sc = detStore()->retrieve(m_idDictMgr, "IdDict");
@@ -122,9 +114,13 @@ StatusCode InDet::InDetEventCnvTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( detStore()->retrieve(m_SCTHelper, "SCT_ID") );
+
   ATH_CHECK( m_pixClusContName.initialize() );
   ATH_CHECK( m_sctClusContName.initialize() );
   ATH_CHECK( m_trtDriftCircleContName.initialize() );
+
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
 
   return sc;
      
@@ -168,7 +164,7 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
   {
     ATH_MSG_DEBUG("Set SCT detector element" ); 
     // use IdentifierHash for speed
-    detEl = m_sctMgr->getDetectorElement( rioOnTrack.idDE() ) ;
+    detEl = getSCTDetectorElement( rioOnTrack.idDE() ) ;
     if (m_setPrepRawDataLink) prd = sctClusterLink( id, rioOnTrack.idDE() );
   }
   else if (m_IDHelper->is_trt(id)) 
@@ -231,7 +227,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const Identif
 
     ATH_MSG_DEBUG("Set SCT detector element" ); 
     // use IdentifierHash for speed
-    detEl = m_sctMgr->getDetectorElement( idHash ) ;
+    detEl = getSCTDetectorElement( idHash ) ;
   }
   else if (m_IDHelper->is_trt(id) ) 
   {
@@ -265,8 +261,9 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id)
   {
 
     ATH_MSG_DEBUG("Set SCT detector element" ); 
-    // use IdentifierHash for speed
-    detEl = m_sctMgr->getDetectorElement( id ) ;
+    const Identifier wafer_id = m_SCTHelper->wafer_id(id);
+    const IdentifierHash wafer_hash = m_SCTHelper->wafer_hash(wafer_id);
+    detEl = getSCTDetectorElement( wafer_hash ) ;
   }
   else if (m_IDHelper->is_trt(id) ) 
   {
@@ -382,3 +379,22 @@ const Trk::PrepRawData*
   return 0;
 }
 
+const InDetDD::SiDetectorElement* InDet::InDetEventCnvTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheSCTElements.size()) {
+    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheSCTElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle{m_SCTDetEleCollKey};
+    if (not sctDetEle.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_sctDetectorElements.set(*sctDetEle);
+    m_cacheSCTElements[slot] = evt;
+  }
+  return (m_sctDetectorElements.isValid() ? m_sctDetectorElements->getDetectorElement(waferHash) : nullptr);
+}

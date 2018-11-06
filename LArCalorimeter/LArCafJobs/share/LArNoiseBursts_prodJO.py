@@ -64,7 +64,6 @@ ToolSvc += theBCTool
 # --- SCTClusteringTool configuration ---
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool()
-ToolSvc += InDetSCT_ClusteringTool
 
 
 include ( "ParticleBuilderOptions/ESD_PoolCnv_jobOptions.py" )
@@ -114,6 +113,12 @@ from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpac
 InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name = "InDetSiTrackerSpacePointFinder")
 topSequence += InDetSiTrackerSpacePointFinder
 
+# Condition algorithm for SiTrackerSpacePointFinder
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+   condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
 from LArCafJobs.LArCafJobsConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )

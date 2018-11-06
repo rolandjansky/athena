@@ -28,6 +28,15 @@ class SCT_CablingData {
   SCT_CablingData(); // constructor
   ~SCT_CablingData() = default; // destructor
 
+  // Default copy constructor
+  SCT_CablingData(const SCT_CablingData&) = default;
+  // Default assignment operator
+  SCT_CablingData& operator=(const SCT_CablingData&) = default;
+  // Default move constructor
+  SCT_CablingData(SCT_CablingData&&) = default;
+  // Default move assignment operator
+  SCT_CablingData& operator=(SCT_CablingData&&) = default;
+
   void invalidate();
 
   void invalidateHashesForOnlineIds();

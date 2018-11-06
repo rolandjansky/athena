@@ -167,7 +167,7 @@ namespace NavigationDefaults
 
       // insertion of ElementLink by object index
       static void insert(type& cont, const CONT* aChildContainer,
-			 external_index_type& anIndex,
+			 const external_index_type& anIndex,
 			 const RPAR& aPar=RPAR(),
                          size_t sizeHint = 0) 
       {
@@ -178,7 +178,7 @@ namespace NavigationDefaults
 
       // insertion of ElementLink by object index
       static void insert(type& cont, const CONT* aChildContainer,
-			 external_index_type& anIndex,
+			 const external_index_type& anIndex,
                          IProxyDict* sg,
 			 const RPAR& aPar=RPAR(),
                          size_t sizeHint = 0) 
@@ -211,7 +211,7 @@ namespace NavigationDefaults
       // change parameter
       static void changeParm(type& cont,
 			     const CONT* pContainer,
-			     external_index_type& refIndex,
+			     const external_index_type& refIndex,
 			     const RPAR& aPar=RPAR())
       {
 	changeParm(cont,(pContainer->operator[])(refIndex),aPar);
@@ -454,7 +454,7 @@ namespace NavigationDefaults
       // change parameter
       static void changeParm(type& /* cont */,
 			     const CONT* /* pContainer */, 
-			     external_index_type& /* refIndex */,
+			     const external_index_type& /* refIndex */,
 			     const DefaultWeight& /* refParm */)
       { }
  

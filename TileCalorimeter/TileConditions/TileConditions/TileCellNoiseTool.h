@@ -5,18 +5,17 @@
 #ifndef TILECONDITIONS_TILECELLNOISETOOL_H
 #define TILECONDITIONS_TILECELLNOISETOOL_H
 
+// Tile includes
+#include "TileConditions/ITileCellNoiseTool.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
-
-// Tile includes
-#include "TileConditions/ITileCellNoiseTool.h"
-//#include "TileConditions/TileCablingSvc.h"
-//#include "TileConditions/TileCondIdTransforms.h"
-//#include "TileConditions/ITileCondToolNoise.h"
 
 // Forward declaration
 class TileCablingSvc;
@@ -31,10 +30,10 @@ class TileCellNoiseTool: public AthAlgTool
     TileCellNoiseTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCellNoiseTool();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    float getCellNoise(const Identifier& cell_id, CaloGain::CaloGain caloGain) const;
+    virtual float getCellNoise(const Identifier& cell_id, CaloGain::CaloGain caloGain) const override;
 
   private:
 

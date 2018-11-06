@@ -70,7 +70,7 @@ else
 		egrep -a -v 'NewEventCollection.root, recovered'
 
 	    diffStatus=$?
-	    if [ $diffStatus = 0 ] 
+	    if [ $diffStatus -ne 1 ] 
 		then
 		echo "[97;101;1m post_check_ec.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1

@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 
 ///////////////////////////////////////////////////////////////////
 // SCT_RandomDisabledCellGenerator.h
 //   Header file for class SCT_RandomDisabledCellGenerator 
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Class to randomly disable cells for SCT
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +30,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class SCT_RandomDisabledCellGenerator : public AthAlgTool, virtual public ISCT_RandomDisabledCellGenerator {
+class SCT_RandomDisabledCellGenerator : public extends<AthAlgTool, ISCT_RandomDisabledCellGenerator> {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -45,10 +42,8 @@ class SCT_RandomDisabledCellGenerator : public AthAlgTool, virtual public ISCT_R
   SCT_RandomDisabledCellGenerator(const std::string& type, const std::string& name, const IInterface* parent) ;
 
   /** Destructor */
-  virtual ~SCT_RandomDisabledCellGenerator();
+  virtual ~SCT_RandomDisabledCellGenerator() = default;
 
-  /** AlgTool InterfaceID */
-  //static const InterfaceID& interfaceID() ;
   /** AlgTool initialize */
   virtual StatusCode initialize();
   /** AlgTool finalize */
@@ -65,7 +60,6 @@ class SCT_RandomDisabledCellGenerator : public AthAlgTool, virtual public ISCT_R
  private:
 
   float m_disableProbability;   // probability that a cell is disabled
-  void (*m_myfunc)(SiChargedDiode& chDiode, bool flag1, bool flag2);
   CLHEP::HepRandomEngine *m_rndmEngine; // local rndm stream
 
 };

@@ -6,6 +6,8 @@
 # Declare the package name:
 atlas_subdir( LWHists )
 
+atlas_depends_on_subdirs( PUBLIC Control/CxxUtils )
+
 # External dependencies:
 find_package( ROOT COMPONENTS Hist RIO Core MathCore )
 
@@ -33,7 +35,7 @@ atlas_add_library( LWHists src/*.cxx
 # Executables in the package:
 atlas_add_executable( lwhists_validate src/tests/validation/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} LWHists )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} LWHists CxxUtils )
 
 atlas_add_executable( lwhists_benchmark src/tests/benchmarking/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -42,3 +44,21 @@ atlas_add_executable( lwhists_benchmark src/tests/benchmarking/*.cxx
 atlas_add_executable( lwhists_comphistfiles src/tests/comphistfiles/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+
+
+atlas_add_test( LWHists_val
+   SCRIPT lwhists_validate --seed=117
+   PROPERTIES TIMEOUT 600
+   EXTRA_PATTERNS "Systematic tests" )
+
+
+atlas_add_test( LWHists_val_rootbackend
+   SCRIPT lwhists_validate --rootbackend --seed=117
+   PROPERTIES TIMEOUT 600
+   EXTRA_PATTERNS "Systematic tests" )
+
+
+atlas_add_test( LWHists_val_triggerrootconv
+   SCRIPT lwhists_validate --triggerconv --seed=117
+   PROPERTIES TIMEOUT 600
+   EXTRA_PATTERNS "Systematic tests" )

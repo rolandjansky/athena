@@ -3,8 +3,8 @@
 */
 
 /* Dear emacs, this is -*-c++-*- */
-#ifndef _DummyTrackSlimmingTool_H_
-#define _DummyTrackSlimmingTool_H_
+#ifndef INDETPHYSVALMONITORING_DUMMYTRACKSLIMMINGTOOL_H
+#define INDETPHYSVALMONITORING_DUMMYTRACKSLIMMINGTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/ITrackSlimmingTool.h"
@@ -35,7 +35,7 @@ public:
      @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is
         configured
    */
-  Trk::Track* slim(const Trk::Track& track);
+  virtual Trk::Track* slim(const Trk::Track& track) const override;
 private:
 };
 

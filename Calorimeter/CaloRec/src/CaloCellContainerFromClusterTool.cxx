@@ -10,12 +10,9 @@
  AUTHORS:  David Rousseau
  CREATED:  May 24,2005
 
- PURPOSE:  build a cell container from a calocluster correction
+ PURPOSE:  build a cell container from a calocluster collection
 
  ********************************************************************/
-
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
 
 // Calo includes
 #include "CaloCellContainerFromClusterTool.h"
@@ -23,18 +20,20 @@
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+
 /////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR:
 /////////////////////////////////////////////////////////////////////
 
 CaloCellContainerFromClusterTool::CaloCellContainerFromClusterTool(const std::string& type,
     const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
-  , m_firstEvent(true)
+    : base_class(type, name, parent)
 {
-  declareInterface<ICaloConstCellMakerTool>(this);
   declareProperty("CaloClustersName", m_caloClusterName = ""); //Backward compatibility
-  declareProperty("CaloClusterNames", m_caloClusterNames);
+  declareProperty("CaloClusterNames", m_clusterKeys);
   declareProperty("CaloCellName", m_cellName = "AllCalo");
   declareProperty("AddSamplingCells", m_addSamplingCells = false);
   declareProperty("SamplingCellsName", m_samplingNames);
@@ -47,74 +46,72 @@ CaloCellContainerFromClusterTool::CaloCellContainerFromClusterTool(const std::st
 
 StatusCode CaloCellContainerFromClusterTool::initialize() {
 
-  //Create a set of cluster names (clear out duplicate names):
-  m_caloClusterNameSet.insert(m_caloClusterNames.begin(),m_caloClusterNames.end());
   //If old interface "CaloClusterName" is used, add it to the set:
-  if (m_caloClusterName.size()) m_caloClusterNameSet.insert(m_caloClusterName);
+  if (m_caloClusterName.size()) {
+    m_clusterKeys.emplace_back (m_caloClusterName);
+  }
 
   if (msgLvl(MSG::INFO)) {
     msg(MSG::INFO) << "Will add cells from the following cluster container(s): ";
-    for (const std::string& clusterName : m_caloClusterNameSet) 
-      msg(MSG::INFO) << clusterName << ", ";    
+    for (const SG::ReadHandleKey<xAOD::CaloClusterContainer>& clusterName : m_clusterKeys) 
+      msg(MSG::INFO) << clusterName.key() << ", ";    
 
     msg(MSG::INFO) << endmsg;
   }
 
   // check sampling names set in properties
   if (m_addSamplingCells) {
-    std::vector<std::string>::iterator samplingIter = m_samplingNames.begin();
-    std::vector<std::string>::iterator samplingIterEnd = m_samplingNames.end();
-    for (; samplingIter != samplingIterEnd; samplingIter++) {
-      if (*samplingIter == "PreSamplerB")
+    for (const std::string& samp : m_samplingNames) {
+      if (samp == "PreSamplerB")
         m_validSamplings.insert(CaloCell_ID::PreSamplerB);
-      else if (*samplingIter == "EMB1")
+      else if (samp == "EMB1")
         m_validSamplings.insert(CaloCell_ID::EMB1);
-      else if (*samplingIter == "EMB2")
+      else if (samp == "EMB2")
         m_validSamplings.insert(CaloCell_ID::EMB2);
-      else if (*samplingIter == "EMB3")
+      else if (samp == "EMB3")
         m_validSamplings.insert(CaloCell_ID::EMB3);
-      else if (*samplingIter == "PreSamplerE")
+      else if (samp == "PreSamplerE")
         m_validSamplings.insert(CaloCell_ID::PreSamplerE);
-      else if (*samplingIter == "EME1")
+      else if (samp == "EME1")
         m_validSamplings.insert(CaloCell_ID::EME1);
-      else if (*samplingIter == "EME2")
+      else if (samp == "EME2")
         m_validSamplings.insert(CaloCell_ID::EME2);
-      else if (*samplingIter == "EME3")
+      else if (samp == "EME3")
         m_validSamplings.insert(CaloCell_ID::EME3);
-      else if (*samplingIter == "HEC0")
+      else if (samp == "HEC0")
         m_validSamplings.insert(CaloCell_ID::HEC0);
-      else if (*samplingIter == "HEC1")
+      else if (samp == "HEC1")
         m_validSamplings.insert(CaloCell_ID::HEC1);
-      else if (*samplingIter == "HEC2")
+      else if (samp == "HEC2")
         m_validSamplings.insert(CaloCell_ID::HEC2);
-      else if (*samplingIter == "HEC3")
+      else if (samp == "HEC3")
         m_validSamplings.insert(CaloCell_ID::HEC3);
-      else if (*samplingIter == "TileBar0")
+      else if (samp == "TileBar0")
         m_validSamplings.insert(CaloCell_ID::TileBar0);
-      else if (*samplingIter == "TileBar1")
+      else if (samp == "TileBar1")
         m_validSamplings.insert(CaloCell_ID::TileBar1);
-      else if (*samplingIter == "TileBar2")
+      else if (samp == "TileBar2")
         m_validSamplings.insert(CaloCell_ID::TileBar2);
-      else if (*samplingIter == "TileGap1")
+      else if (samp == "TileGap1")
         m_validSamplings.insert(CaloCell_ID::TileGap1);
-      else if (*samplingIter == "TileGap2")
+      else if (samp == "TileGap2")
         m_validSamplings.insert(CaloCell_ID::TileGap2);
-      else if (*samplingIter == "TileGap3")
+      else if (samp == "TileGap3")
         m_validSamplings.insert(CaloCell_ID::TileGap3);
-      else if (*samplingIter == "TileExt0")
+      else if (samp == "TileExt0")
         m_validSamplings.insert(CaloCell_ID::TileExt0);
-      else if (*samplingIter == "TileExt1")
+      else if (samp == "TileExt1")
         m_validSamplings.insert(CaloCell_ID::TileExt1);
-      else if (*samplingIter == "TileExt2")
+      else if (samp == "TileExt2")
         m_validSamplings.insert(CaloCell_ID::TileExt2);
-      else if (*samplingIter == "FCAL0")
+      else if (samp == "FCAL0")
         m_validSamplings.insert(CaloCell_ID::FCAL0);
-      else if (*samplingIter == "FCAL1")
+      else if (samp == "FCAL1")
         m_validSamplings.insert(CaloCell_ID::FCAL1);
-      else if (*samplingIter == "FCAL2")
+      else if (samp == "FCAL2")
         m_validSamplings.insert(CaloCell_ID::FCAL2);
       else
-        ATH_MSG_ERROR( "Calorimeter sampling" << *samplingIter
+        ATH_MSG_ERROR( "Calorimeter sampling" << samp
                      << " is not a valid Calorimeter sampling name and will be ignored! "
                      << "Valid names are: "
                      << "PreSamplerB, EMB1, EMB2, EMB3, "
@@ -128,62 +125,45 @@ StatusCode CaloCellContainerFromClusterTool::initialize() {
 
     if (msgLvl(MSG::INFO)) {
       msg(MSG::INFO) << "Samplings to consider for AODcellContainer:";
-      samplingIter = m_samplingNames.begin();
-      for (; samplingIter != samplingIterEnd; samplingIter++)
-	msg(MSG::INFO) << " " << *samplingIter;
+      for (const std::string& samp : m_samplingNames) {
+	msg(MSG::INFO) << " " << samp;
+      }
 
       msg(MSG::INFO) << endmsg;
     }
   }
 
-  return StatusCode::SUCCESS;
+  ATH_CHECK( m_clusterKeys.initialize() );
+  if (m_addSamplingCells) {
+    ATH_CHECK( m_cellName.initialize() );
+  }
+  else {
+    m_cellName = "";
+  }
 
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CaloCellContainerFromClusterTool::process(CaloConstCellContainer* theCont) {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   unsigned nCells=0;
   //Build bitmap to keep track which cells have been added to reducedCellContainer;
   std::bitset<200000> addedCellsMap;
-  // if add additional cells, retrieve full cell container "AllCalo"
-  const CaloCellContainer* cellContainer = NULL;
-  if (m_addSamplingCells) {
-    ATH_CHECK( evtStore()->retrieve(cellContainer, m_cellName) );
-  }
-
-  //On first event check if all containers exist. Remove missing ones
-  if (m_firstEvent) {
-    m_firstEvent = false;
-    std::set<std::string>::iterator it1 = m_caloClusterNameSet.begin();
-    while (it1 != m_caloClusterNameSet.end()) {
-      if (evtStore()->contains < xAOD::CaloClusterContainer > (*it1)) {
-        ++it1; //Container found, everything ok
-      } else {
-        ATH_MSG_WARNING( "Cluster container with key " << *it1
-            << " not found on first event. Removing from list of clusters." );
-
-        // This is c++11.  We're compiling with c++11; however, it's not
-        // safe to use this if we're linking against code compiled with
-        // c++98, as is ROOT currently.
-        //it1 = m_caloClusterNameSet.erase(it1);
-        auto it_erase = it1;
-        ++it1;
-        m_caloClusterNameSet.erase (it_erase);
-      }
-    } // end loop over cluster container names
-  }
 
   //Loop over list cluster container keys
-  for (const std::string& clusterName : m_caloClusterNameSet) {
-    ATH_MSG_DEBUG( "Now working on CaloClusterContainer with key " << clusterName );
+  for (const SG::ReadHandleKey<xAOD::CaloClusterContainer>& clusKey :
+         m_clusterKeys)
+  {
+    ATH_MSG_DEBUG( "Now working on CaloClusterContainer with key " << clusKey.key() );
 
-    const xAOD::CaloClusterContainer* clusterContainer = NULL;
-    CHECK(evtStore()->retrieve(clusterContainer, clusterName));
+    SG::ReadHandle<xAOD::CaloClusterContainer> clusterContainer (clusKey, ctx);
 
     //Got ClusterContainer, loop over clusters;
-    for (auto it_cluster : (*clusterContainer)) {
+    for (const xAOD::CaloCluster* it_cluster : *clusterContainer) {
       const CaloClusterCellLink* cellLinks=it_cluster->getCellLinks();
       if (!cellLinks) {
-        ATH_MSG_WARNING( "  Cluster without cell links found  in collection: " << clusterName
+        ATH_MSG_WARNING( "  Cluster without cell links found  in collection: " << clusKey.key()
 			 << "   ===> cells cannot be written in AOD as requested ! " );
         continue;
       }
@@ -205,18 +185,19 @@ StatusCode CaloCellContainerFromClusterTool::process(CaloConstCellContainer* the
 
       // add additional layer cells
       if (m_addSamplingCells) {	
+        // if add additional cells, retrieve full cell container "AllCalo"
+        SG::ReadHandle<CaloCellContainer> cellContainer (m_cellName, ctx);
+
         double eta = it_cluster->eta();
         double phi = it_cluster->phi();
         double deta = it_cluster->getClusterEtaSize() * 0.025;
         double dphi = it_cluster->getClusterPhiSize() * 0.025;
-        std::set<int>::const_iterator vSamplingIter = m_validSamplings.begin();
-        std::set<int>::const_iterator vSamplingIterEnd = m_validSamplings.end();
         // get cell lists for each sampling we want to add
-        for (; vSamplingIter != vSamplingIterEnd; vSamplingIter++) {
-          CaloCellList cell_list(cellContainer);
-          cell_list.select(eta, phi, deta, dphi, (*vSamplingIter));
+        for (int isamp : m_validSamplings) {
+          CaloCellList cell_list(cellContainer.cptr());
+          cell_list.select(eta, phi, deta, dphi, isamp);
 
-          ATH_MSG_DEBUG( "sampling " << (*vSamplingIter)
+          ATH_MSG_DEBUG( "sampling " << isamp
                         << ", size of list = " << cell_list.ncells()
                         << ", eta = " << eta
                         << ", phi = " << phi

@@ -25,7 +25,7 @@ namespace Muon {
     /** access to tool interface */
     static const InterfaceID& interfaceID();
 
-    virtual std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters) = 0;
+    virtual std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters) const = 0;
 
   };
   

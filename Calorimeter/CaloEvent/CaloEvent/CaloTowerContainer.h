@@ -59,7 +59,7 @@ UPDATE:   MAY-11-01
 
 // INCLUDE HEADER FILES:
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 

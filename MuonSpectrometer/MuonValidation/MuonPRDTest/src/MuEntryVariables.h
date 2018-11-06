@@ -17,8 +17,9 @@ class MuEntryVariables : public ValAlgVariables
   MuEntryVariables(StoreGateSvc* evtStore,
                      const MuonGM::MuonDetectorManager* detManager,
                      TTree* tree,
-                     std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MuEntryVariables"),
+							std::string containername,
+							MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MuEntry_nParticles(0), 
     m_MuEntry_particlePt(0), 
     m_MuEntry_particleEta(0), 
@@ -35,10 +36,7 @@ class MuEntryVariables : public ValAlgVariables
 
   ~MuEntryVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete MuEntryVariables.");
-      std::terminate();
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -50,7 +48,7 @@ class MuEntryVariables : public ValAlgVariables
     ATH_MSG_ERROR("No Helper for MuEntryVariables.");
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   int m_MuEntry_nParticles;  

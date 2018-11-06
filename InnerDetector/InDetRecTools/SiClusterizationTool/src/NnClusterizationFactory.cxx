@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,6 +169,8 @@ namespace InDet {
         ATH_MSG_ERROR("Could not retrieve " << m_calibSvc);
         return StatusCode::FAILURE;
     }
+   
+    ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
     
     return StatusCode::SUCCESS;
   }
@@ -871,9 +873,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       InDetDD::SiLocalPosition siLocalPositionAdd(pitchY*(posYid-(double)posYid_int),
                                                   pitchX*(posXid-(double)posXid_int));
 
-      
+      double lorentzShift=m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
 
-      double lorentzShift=element->getLorentzCorrection();
       if (input.ClusterPixBarrelEC == 0)
       {
         if (!input.useTrackInfo)
@@ -1248,7 +1249,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   float trknormcomp = my_track.dot(my_normal);
   double bowphi = atan2(trkphicomp,trknormcomp);
   double boweta = atan2(trketacomp,trknormcomp);
-  tanl = element->getTanLorentzAnglePhi();
+  tanl = m_pixelLorentzAngleTool->getTanLorentzAngle(element->identifyHash());
   if(bowphi > M_PI/2) bowphi -= M_PI;
   if(bowphi < -M_PI/2) bowphi += M_PI;
   int readoutside = design->readoutSide();

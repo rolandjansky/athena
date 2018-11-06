@@ -84,7 +84,7 @@ class PixelFillCablingData;
  */
 
 namespace InDetDD {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }  
 
 class PixelCablingSvc: virtual public IPixelCablingSvc, public AthService {
@@ -201,7 +201,7 @@ public:
 private:
   ToolHandle<PixelFillCablingData> m_cablingTool;
   ServiceHandle< StoreGateSvc > m_detStore;
-  const InDetDD::SiDetectorManager *m_detManager;
+  const InDetDD::PixelDetectorManager *m_detManager;
   const PixelID* m_idHelper;
   std::unique_ptr<PixelCablingData> m_cabling;
 

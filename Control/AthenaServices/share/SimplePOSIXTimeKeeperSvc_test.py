@@ -32,5 +32,5 @@ ServiceMgr.SimplePOSIXTimeKeeperSvc.AllocTime = 6
 
 ServiceMgr += AthenaEventLoopMgr(TimeKeeper="SimplePOSIXTimeKeeperSvc")
 
-from GaudiSvc.GaudiSvcConf import MessageSvc
-ServiceMgr.MessageSvc.OutputLevel = 2
+#from GaudiSvc.GaudiSvcConf import MessageSvc
+#ServiceMgr.MessageSvc.OutputLevel = 2

@@ -11,13 +11,17 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include <vector>
 
 namespace MuonCombined {
+
+  typedef std::pair<const InDetCandidate*,std::vector<const TagBase*> > InDetCandidateTags;
 
   static const InterfaceID IID_IMuonCreatorTool("MuonCombined::IMuonCreatorTool", 1, 0);
 
@@ -27,7 +31,7 @@ namespace MuonCombined {
       The tool is capable of writing a large number of different output formats. Whether or not certain outputs 
       are written is controled using the OutputData struct defined below. 
       If the pointer to a certain type is non-zero, the container is filled. 
-      The MuonContainer is manditory, all other output types are optional.
+      The MuonContainer is mandatory, all other output types are optional.
 
       @author Niels van Eldik
    */
@@ -81,14 +85,14 @@ namespace MuonCombined {
 
     /**IMuonCreatorTool interface: build muons from ID and MS candidates */    
 
-    virtual void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
+    virtual void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
     			 OutputData& outputData ) const = 0;
 
     /** create a muon from a muon candidate */
     virtual xAOD::Muon* create( const MuonCandidate& candidate, OutputData& outputData ) const = 0;
 
-    /** create a muon from a muon candidate */
-    virtual xAOD::Muon* create( const InDetCandidate& candidate, OutputData& outputData ) const = 0;
+    /** create a muon from an ID candidate */
+    virtual xAOD::Muon* create( InDetCandidateTags& candidate, OutputData& outputData) const = 0;
 
   };
 

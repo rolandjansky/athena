@@ -67,5 +67,5 @@ CaloTowerMonCosmicsNoTA = CaloTowerVecMon(
    fill_TotalE=True,
 )
 
-ToolSvc += CaloTowerMonCosmicsNoTA 
+#ToolSvc += CaloTowerMonCosmicsNoTA 
 CaloMon.AthenaMonTools += [ CaloTowerMonCosmicsNoTA ]

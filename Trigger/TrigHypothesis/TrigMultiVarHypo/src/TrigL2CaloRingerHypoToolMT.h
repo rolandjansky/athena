@@ -78,8 +78,6 @@ class TrigL2CaloRingerHypoToolMT : virtual public ::AthAlgTool
   Gaudi::Property<double>                                             m_emEtCut;
 
   
-  size_t m_multiplicity = 1;
-
   //ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 }; 
 

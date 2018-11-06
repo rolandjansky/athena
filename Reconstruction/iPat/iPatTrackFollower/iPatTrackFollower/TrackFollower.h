@@ -43,19 +43,19 @@ public:
     TrackFollower	(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent);
-    ~TrackFollower	(void);
+    virtual ~TrackFollower	(void);
 
-    StatusCode		initialize();
-    StatusCode		finalize();
+    virtual StatusCode		initialize();
+    virtual StatusCode		finalize();
 
-    Track*		associate_trt (const Track&);
-    Track*		extrapolate_inwards (const Track&) const;
-    Track*		extrapolate_outwards (const Track&) const;
-    Track*		fast_interpolate_outwards (const Track&) const;
-    Track*		interpolate (const Track&) const;
-    Track*		interpolate_from_beam_spot (const Track&) const;
-    void		setDataContainers (const InDet::SiClusterContainer* pixelContainer,
-					   const InDet::SiClusterContainer* sctContainer);
+    virtual Track*		associate_trt (const Track&) override;
+    virtual Track*		extrapolate_inwards (const Track&) override;
+    virtual Track*		extrapolate_outwards (const Track&) override;
+    virtual Track*		fast_interpolate_outwards (const Track&) override;
+    virtual Track*		interpolate (const Track&) override;
+    virtual Track*		interpolate_from_beam_spot (const Track&) override;
+    virtual void		setDataContainers (const InDet::SiClusterContainer* pixelContainer,
+					   const InDet::SiClusterContainer* sctContainer) override;
 
 private:
     typedef	HitList::hit_list	       	hit_list;
@@ -68,7 +68,7 @@ private:
     hit_list*	       		associateSilicon (layer_iterator	begin,
 						  layer_iterator	end,
 						  bool			extrapolate,
-						  const Track&	       	track) const;
+						  const Track&	       	track);
     layer_iterator		begin_layer (layer_vector*	layers, 
 					     const HitOnTrack&	hit) const;
     layer_iterator		end_layer (layer_iterator	begin,

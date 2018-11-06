@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISCT_FillCabling_H
@@ -7,21 +7,20 @@
 /**   
  *   @file ISCT_Fill_Cabling.h
  *
- *   @brief Interface for services which fill an SCT cabling object
+ *   @brief Interface for tools which fill an SCT cabling object
  *
  *   @author Shaun Roe
  *   @date 05/10/2008
  */
 
+//Gaudi includes
+#include "GaudiKernel/IAlgTool.h"
+
 //STL includes
 #include <string>
 
-//Gaudi includes
-#include "GaudiKernel/IInterface.h"
-
-
 //fwd declarations
-class ISCT_CablingSvc;
+class SCT_CablingData;
 class StatusCode;
  
 /**
@@ -29,13 +28,13 @@ class StatusCode;
  *    @brief Interface base class for objects which fill the SCT Cabling.
  *
  */
-class ISCT_FillCabling:virtual public IInterface{
+class ISCT_FillCabling: virtual public IAlgTool {
  public:
   ///Virtual destructor
-  virtual ~ISCT_FillCabling(){}
+  virtual ~ISCT_FillCabling() = default;
   
   /// interfaceID re-implemented from IInterface
-  static const InterfaceID& interfaceID();
+  DeclareInterfaceID(ISCT_FillCabling, 1, 0);
 
   /** May set the data source to textFile, database etc
    * @param[in] @c string name of datasource
@@ -47,10 +46,10 @@ class ISCT_FillCabling:virtual public IInterface{
    */
   virtual std::string getDataSource() const = 0;
   
-  /**Fill the cabling maps
-   * @param[in] @c SCT_CablingSvc& , reference to the underlying data service
+  /**Get the cabling maps
+   * @return @c cabling map object
    */
-  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling) const = 0;
+  virtual SCT_CablingData getMaps() const = 0;
   
   /**Report whether the map was filled
    * @return @c bool
@@ -63,9 +62,4 @@ class ISCT_FillCabling:virtual public IInterface{
   virtual bool canFillDuringInitialize() const = 0;
 };//end of class
 
-inline const InterfaceID& ISCT_FillCabling::interfaceID() {
-  static const InterfaceID IID("ISCT_FillCabling",1,0);
-  return IID;
-}
-
-#endif
+#endif // ISCT_FillCabling_H

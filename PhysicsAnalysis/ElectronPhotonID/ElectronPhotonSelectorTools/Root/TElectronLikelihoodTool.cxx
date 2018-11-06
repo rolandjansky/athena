@@ -474,8 +474,8 @@ Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVars_t& vars_struct ) c
   }
   
   double cutDiscriminant;
-  unsigned int ibin_combinedLH = etbinLH*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
-  unsigned int ibin_combinedOther = etbinOther*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
+  unsigned int ibin_combinedLH = etbinLH*s_fnEtaBins+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
+  unsigned int ibin_combinedOther = etbinOther*s_fnEtaBins+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
 
   if(m_cutLikelihood.size()){
     // To protect against a binning mismatch, which should never happen
@@ -785,7 +785,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
       // default situation, in the case where 4-7 GeV bin is not defined
       if (et > 7000. || !m_discHardCutForPileupTransform4GeV.size()){
 	unsigned int etfinebinLH = getLikelihoodEtDiscBin(et,true);
-	unsigned int ibin_combined = etfinebinLH*10+etabin;
+	unsigned int ibin_combined = etfinebinLH*s_fnEtaBins+etabin;
 	disc_hard_cut_ref       = m_discHardCutForPileupTransform[ibin_combined];
 	disc_hard_cut_ref_slope = m_discHardCutSlopeForPileupTransform[ibin_combined];
 	if (m_doCentralityTransform) disc_hard_cut_ref_quad  = m_discHardCutQuadForPileupTransform[ibin_combined];
@@ -853,7 +853,7 @@ unsigned int Root::TElectronLikelihoodTool::getIpBin(double ip) const{
 //---------------------------------------------------------------------------------------
 // Gets the Eta bin [0-9] given the eta
 unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const{
-  const unsigned int nEtaBins = 10;
+  const unsigned int nEtaBins = s_fnEtaBins;
   const double etaBins[nEtaBins] = {0.1,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
   
   for(unsigned int etaBin = 0; etaBin < nEtaBins; ++etaBin){
@@ -946,7 +946,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodBitmask(std::string var
 double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const{
   int etbinLH = getLikelihoodEtDiscBin(et,true);
   int etabin = getLikelihoodEtaBin(eta);
-  unsigned int ibin_combinedLH = etbinLH*10+etabin;
+  unsigned int ibin_combinedLH = etbinLH*s_fnEtaBins+etabin;
   double cut = cuts.at(ibin_combinedLH);
   if (cuts_4gev.size() && et < 7000.) {cut = cuts_4gev.at(etabin);}
   if (et > 47500.) {return cut;} // interpolation stops here.
@@ -960,12 +960,12 @@ double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>&
   double bin_center = eTBins[etbinLH];
   if (et > bin_center) {
     double cut_next = cut;
-    if (etbinLH+1<=8) cut_next = cuts.at((etbinLH+1)*10+etabin);
+    if (etbinLH+1<=8) cut_next = cuts.at((etbinLH+1)*s_fnEtaBins+etabin);
     return cut+(cut_next-cut)*(et-bin_center)/(bin_width);
   }
   // or else if et < bin_center :
   double cut_before = cut;
-  if (etbinLH-1>=0) {cut_before = cuts.at((etbinLH-1)*10+etabin);}
+  if (etbinLH-1>=0) {cut_before = cuts.at((etbinLH-1)*s_fnEtaBins+etabin);}
   else if (etbinLH == 0 && cuts_4gev.size()){cut_before = cuts_4gev.at(etabin);}
 
   return cut-(cut-cut_before)*(bin_center-et)/(bin_width);

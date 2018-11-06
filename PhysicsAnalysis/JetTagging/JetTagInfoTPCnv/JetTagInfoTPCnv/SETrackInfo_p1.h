@@ -8,10 +8,11 @@
 #include "DataModelAthenaPool/ElementLink_p1.h"
 
 ///
-/// Persitent class for the truth info
+/// Persistent class for the truth info
 ///
 
 #include <string>
+#include <vector>
 
 namespace Analysis {
   class SETrackInfoCnv_p1;

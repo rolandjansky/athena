@@ -25,6 +25,8 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 theApp.EvtMax = 20
 
+include ('DataModelRunTests/loadReadDicts.py')
+
 #--------------------------------------------------------------
 # Application:
 #--------------------------------------------------------------
@@ -53,15 +55,6 @@ topSequence += DMTest__xAODTestReadHVec ('xAODTestReadHVec',
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec2',
                                          CVecKey = 'HLT_DMTest__CVec_cvec2')
 
-
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataReadDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
-ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataReadSerCnv.so')
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.BSRDOInput = ['test.bs']

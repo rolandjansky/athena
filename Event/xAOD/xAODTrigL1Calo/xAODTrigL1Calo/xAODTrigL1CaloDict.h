@@ -451,4 +451,6 @@ namespace {
   };
 }
 
+template class DataVector<xAOD::TriggerTower_v2>;
+
 #endif // XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H

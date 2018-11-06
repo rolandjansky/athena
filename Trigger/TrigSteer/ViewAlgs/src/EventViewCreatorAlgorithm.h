@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
 
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ViewAlgs_EventViewCreatorAlgorithm_h
@@ -33,8 +33,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     virtual ~EventViewCreatorAlgorithm();
     virtual StatusCode initialize() override;
     virtual StatusCode execute_r(const EventContext&) const override;
-    virtual StatusCode finalize() override;
-
+    virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   private:
 
     EventViewCreatorAlgorithm();
@@ -51,6 +50,17 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the CF node to attach a view to" };
     Gaudi::Property< std::string > m_roisLink{ this, "RoIsLink", "Unspecified", "Name of EL to RoI object lined to the decision" };
     Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may accesas StoreGate directly to retrieve data" };
+    Gaudi::Property< bool > m_requireParentView { this, "RequireParentView", false, "Fail if the parent view can not be found" };
+
+
+    size_t countInputHandles( const EventContext& context ) const;
+    void   printDecisions( const std::vector<SG::WriteHandle<TrigCompositeUtils::DecisionContainer>>& outputHandles ) const;
+    void insertDecisions( const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest ) const;
+  /**
+   * @brief makes sure the views are linked, if configuration requireParentView is set, failure to set the parent is an error
+   **/
+    StatusCode linkViewToParent( const TrigCompositeUtils::Decision* inputDecsion, SG::View* newView ) const;
+    StatusCode placeRoIInView( const TrigRoiDescriptor* roi, SG::View* view, const EventContext& context ) const;
 };
 
 #endif

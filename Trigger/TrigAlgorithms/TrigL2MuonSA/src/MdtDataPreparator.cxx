@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MdtDataPreparator.h"
@@ -12,6 +12,7 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -97,9 +98,13 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    
    ATH_CHECK( m_storeGateSvc.retrieve() );
 
-   ATH_CHECK( m_mdtRawDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
-
+   ATH_MSG_DEBUG("Decode BS set to" << m_decodeBS );
+   if ( m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+     ATH_MSG_ERROR("Failed to retrieve " << m_mdtRawDataProvider );
+     return StatusCode::FAILURE;
+   } else {
+     ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
+   }
    //
    std::string serviceName;
 
@@ -422,12 +427,14 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
 						      const std::vector<IdentifierHash>& v_idHash,
 						      std::vector<const MdtCsm*>& v_mdtCsms)
 {
-  if( m_mdtRawDataProvider->convert(v_robFragments, v_idHash).isFailure() ) {
-    ATH_MSG_WARNING("Failed to convert MDT CSM hash Ids: ");
-    for(unsigned int i=0; i < v_idHash.size(); i++) {
-      ATH_MSG_WARNING(" " << v_idHash[i]);
+  if ( m_decodeBS ) {
+    if( m_mdtRawDataProvider->convert(v_robFragments, v_idHash).isFailure() ) {
+      ATH_MSG_WARNING("Failed to convert MDT CSM hash Ids: ");
+      for(unsigned int i=0; i < v_idHash.size(); i++) {
+        ATH_MSG_WARNING(" " << v_idHash[i]);
+      }
+      return StatusCode::FAILURE;
     }
-    return StatusCode::FAILURE;
   }
  
   std::vector<uint32_t> v_robIds;
@@ -898,6 +905,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 								       TrigL2MuonSA::MdtHits& mdtHits,
 								       const TrigL2MuonSA::MuonRoad& muonRoad)
 {    
+  if(m_decodeBS) {
+    if ( m_mdtRawDataProvider->convert(v_robIds).isFailure()) {
+      ATH_MSG_WARNING("Conversion of BS for decoding of MDTs failed");
+    }
+  }
   if (m_mdtPrepDataProvider->decode(v_robIds).isSuccess()) {
     ATH_MSG_DEBUG("Calling ROB based decoding with "<< v_robIds.size() << " ROB's");
   }

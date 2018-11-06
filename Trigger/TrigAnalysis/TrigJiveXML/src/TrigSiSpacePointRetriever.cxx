@@ -13,7 +13,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 namespace JiveXML {
@@ -114,12 +113,6 @@ namespace JiveXML {
 	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endmsg;
 	return StatusCode::RECOVERABLE;
     }
-
-    const InDetDD::SCT_DetectorManager* sct_geomanager;
-    if ( detStore()->retrieve(sct_geomanager, "SCT").isFailure() ){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT GeoModel Manager!" << endmsg;
-	return StatusCode::RECOVERABLE;
-      } 
 
 //migration: https://twiki.cern.ch/twiki/bin/view/Atlas/InDetPkgFixing 
     if ( detStore()->retrieve(m_pixelHelper, "PixelID").isFailure() ){

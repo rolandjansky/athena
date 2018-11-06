@@ -72,7 +72,10 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_trt_id( nullptr ),
     m_HardScatterSplittingMode( 0 ),
     m_HardScatterSplittingSkipper( false ),
-    m_vetoThisBarcode( crazyParticleBarcode )
+    m_vetoThisBarcode( crazyParticleBarcode ),
+    m_useEventInfo( false ),
+    m_EventInfoKey( "McEventInfo" ),
+    m_NCollPerEvent( 30 )
 {
   declareInterface< ITRTFastDigitizationTool >( this );
   declareProperty( "TRT_DriftFunctionTool",       m_trtDriftFunctionTool );
@@ -86,6 +89,9 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
   declareProperty( "trtPrdMultiTruthCollection",  m_trtPrdTruth );
   declareProperty( "HardScatterSplittingMode",    m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty( "ParticleBarcodeVeto",         m_vetoThisBarcode, "Barcode of particle to ignore");
+  declareProperty( "useEventInfo",                m_useEventInfo);
+  declareProperty( "EventInfoKey",                m_EventInfoKey);
+  declareProperty( "NCollPerEvent",               m_NCollPerEvent);
 }
 
 
@@ -142,7 +148,7 @@ StatusCode TRTFastDigitizationTool::prepareEvent( unsigned int )
 }
 
 
-StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
+StatusCode TRTFastDigitizationTool::processBunchXing( int bunchXing,
                                                       SubEventIterator bSubEvents,
                                                       SubEventIterator eSubEvents ) {
 
@@ -151,24 +157,32 @@ StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
   if ( m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if ( m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  SubEventIterator iEvt( bSubEvents );
-  while ( iEvt != eSubEvents ) {
-    StoreGateSvc& seStore( *iEvt->ptr()->evtStore() );
-    PileUpTimeEventIndex thisEventIndex( PileUpTimeEventIndex( static_cast< int >( iEvt->time() ),iEvt->index() ) );
-    const TRTUncompressedHitCollection* seHitColl( nullptr );
-    CHECK( seStore.retrieve( seHitColl, m_trtHitCollectionKey ) );
-    // copy Hit Collection
-    TRTUncompressedHitCollection* trtHitColl( new TRTUncompressedHitCollection( "TRTUncompressedHits") );
-    // read hits from this collection
-    for ( TRTUncompressedHitCollection::const_iterator itr = seHitColl->begin(); itr != seHitColl->end(); ++itr ) {
-      const TRTUncompressedHit trthit( *itr );
-      trtHitColl->Insert( trthit );
-    }
-    m_thpctrt->insert( thisEventIndex, trtHitColl );
-    // store these for deletion at the end of mergeEvent
-    m_trtHitCollList.push_back( trtHitColl );
+  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-    ++iEvt;
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_trtHitCollectionKey, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " TRTUncompressedHitCollections with key " <<
+                    m_trtHitCollectionKey << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  for( ; iColl != endColl; iColl++) {
+    TRTUncompressedHitCollection *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+    ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
+    m_thpctrt->insert(timeIndex, hitCollPtr);
+    m_trtHitCollList.push_back(hitCollPtr);
   }
 
   return StatusCode::SUCCESS;
@@ -193,6 +207,17 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
                                   { 0.986, 1.020, 0.800, 0.995, 2.400 },  // Barrel C-side Argon
                                   { 1.018, 1.040, 0.800, 0.935, 2.400 }   // EndCap C-side Argon
                                 };
+  
+  if(m_useEventInfo){
+
+     SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey);
+     if(eventInfoContainer.isValid()){
+       m_NCollPerEvent = (float) eventInfoContainer->averageInteractionsPerCrossing();
+     }
+     else{
+      ATH_MSG_INFO("Cannot retrieve event info");
+     }
+  }
 
   m_driftCircleMap.clear();
 
@@ -243,7 +268,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       double sigmaTrt = trtSigmaDriftRadiusTail;
       if ( !isTail ) {
         double driftTime = m_trtDriftFunctionTool->approxDriftTime( fabs( driftRadiusLoc ) );
-        sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id );
+        sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id, m_NCollPerEvent );
       }
 
       // driftRadiusLoc smearing procedure 

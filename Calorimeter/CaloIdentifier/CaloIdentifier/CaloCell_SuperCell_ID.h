@@ -17,14 +17,14 @@
 #define CALOIDENTIFIER_CALOCELL_SUPERCELL_ID_H
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/CaloCell_Base_ID.h"
 #include "CaloIdentifier/LArNeighbours.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include <vector>
 #include <iostream>

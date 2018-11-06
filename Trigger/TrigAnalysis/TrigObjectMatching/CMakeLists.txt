@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CxxUtils
-                          Control/DataModel
+                          Control/AthContainers
                           GaudiKernel
                           Reconstruction/Jet/JetEvent
                           Reconstruction/egamma/egammaEvent
@@ -35,17 +35,17 @@ atlas_add_library( TrigObjectMatchingLib
                    PUBLIC_HEADERS TrigObjectMatching
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel GaudiKernel JetEvent egammaEvent tauEvent TrigCaloEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigDecisionToolLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils AthContainers GaudiKernel JetEvent egammaEvent tauEvent TrigCaloEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigDecisionToolLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventKernel AnalysisTriggerEvent muonEvent )
 
 atlas_add_component( TrigObjectMatching
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel GaudiKernel JetEvent egammaEvent tauEvent TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigSteeringEvent EventKernel AnalysisTriggerEvent muonEvent TrigObjectMatchingLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils AthContainers GaudiKernel JetEvent egammaEvent tauEvent TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigSteeringEvent EventKernel AnalysisTriggerEvent muonEvent TrigObjectMatchingLib )
 
 atlas_add_dictionary( TrigObjectMatchingDict
                       TrigObjectMatching/TrigObjectMatchingDict.h
                       TrigObjectMatching/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel GaudiKernel JetEvent egammaEvent tauEvent TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigSteeringEvent EventKernel AnalysisTriggerEvent muonEvent TrigObjectMatchingLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils AthContainers GaudiKernel JetEvent egammaEvent tauEvent TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigSteeringEvent EventKernel AnalysisTriggerEvent muonEvent TrigObjectMatchingLib )
 

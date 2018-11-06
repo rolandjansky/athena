@@ -1,64 +1,54 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <memory>
 #include "SCTRawDataProvider.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 #include "EventContainers/IdentifiableContTemp.h"
+
+#include <memory>
+
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-/// --------------------------------------------------------------------
-/// Constructor
+// Constructor
 
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
                                        ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
-  m_cabling{"SCT_CablingSvc", name},
-  m_sct_id{nullptr},
-  m_roiSeeded{false},
-  m_roiCollectionKey{""},
-  m_rdoContainerKey{""},
-  m_lvl1CollectionKey{""},
-  m_bcidCollectionKey{""},
+  m_sctID{nullptr},
   m_rdoContainerCacheKey{""}
 {
-  declareProperty("RoIs", m_roiCollectionKey = std::string{""}, "RoIs to read in");
-  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
-  declareProperty("RDOKey", m_rdoContainerKey = std::string{"SCT_RDOs"});
-  declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string{"SCT_LVL1ID"});
-  declareProperty("BCIDKey", m_bcidCollectionKey = std::string{"SCT_BCID"});
-  declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string{"SCT_ByteStreamErrs"});
-  declareProperty("ByteStreamFracContainer", m_bsFracContainerKey = std::string{"SCT_ByteStreamFrac"});
-  declareProperty("CablingSvc", m_cabling);
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
 
-/// --------------------------------------------------------------------
-/// Initialize
+// Initialize
 
-StatusCode SCTRawDataProvider::initialize() {
-  /** Get ROBDataProviderSvc */
+StatusCode SCTRawDataProvider::initialize()
+{
+  // Get ROBDataProviderSvc
   ATH_CHECK(m_robDataProvider.retrieve());
-  /** Get the SCT ID helper **/
-  ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
-  if (m_roiSeeded) {//Don't need SCT cabling if running in RoI-seeded mode
+  // Get the SCT ID helper
+  ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
+  if (m_roiSeeded.value()) {
+    // Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_regionSelector.retrieve());
-  } else {
-    /** Retrieve Cabling service */ 
+    m_cabling.disable();
+  } 
+  else {
+    // Retrieve Cabling service
     ATH_CHECK(m_cabling.retrieve());
   }
   //Initialize 
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_lvl1CollectionKey.initialize());
-  ATH_CHECK(m_bcidCollectionKey.initialize());
+  ATH_CHECK(m_bcIDCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
   ATH_CHECK(m_bsFracContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
@@ -68,21 +58,21 @@ StatusCode SCTRawDataProvider::initialize() {
   return StatusCode::SUCCESS;
 }
 
-typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> DummySCTRDO;
+typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> dummySCTRDO_t;
 
-/// --------------------------------------------------------------------
-/// Execute
+// Execute
+
 StatusCode SCTRawDataProvider::execute()
 {
-
   m_rawDataTool->beginNewEvent();
 
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  bool externalcacheRDO = !m_rdoContainerCacheKey.key().empty();
-  if(!externalcacheRDO){
-    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max())));
-    ATH_MSG_DEBUG("Created container for " << m_sct_id->wafer_hash_max());
-  }else{
+  bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if (!externalCacheRDO) {
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
+    ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
+  }
+  else {
     SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
     ATH_CHECK(update.isValid());
     ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(update.ptr())));
@@ -96,71 +86,76 @@ StatusCode SCTRawDataProvider::execute()
   SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey);
   ATH_CHECK(bsFracContainer.record(std::make_unique<SCT_ByteStreamFractionContainer>()));
 
-  //// do we need this??  rdoIdc->cleanup();
-
-  /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
-  std::vector<const ROBFragment*> listOfRobf;
-  if (!m_roiSeeded) {
+  // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
+  std::vector<const ROBFragment*> vecROBFrags;
+  if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList);
-    m_robDataProvider->getROBData(rodList , listOfRobf);
-  } else {//Only load ROBs from RoI
-    std::vector<uint32_t> listOfRobs;
+    m_robDataProvider->getROBData(rodList , vecROBFrags);
+  } 
+  else {
+    // Only load ROBs from RoI
+    std::vector<uint32_t> listOfROBs;
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
     ATH_CHECK(roiCollection.isValid());
-    TrigRoiDescriptorCollection::const_iterator roi{roiCollection->begin()};
-    TrigRoiDescriptorCollection::const_iterator roiE{roiCollection->end()};
-    TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+    TrigRoiDescriptor superRoI; // Add all RoIs to a super-RoI
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
-    for (; roi!=roiE; ++roi) {
-      superRoI.push_back(*roi);
+    for (const TrigRoiDescriptor* roi: *roiCollection) {
+      superRoI.push_back(roi);
     }
-    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfRobs);
-    m_robDataProvider->getROBData(listOfRobs, listOfRobf);
+    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
+    m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 
 
-  ATH_MSG_DEBUG("Number of ROB fragments " << listOfRobf.size());
+  ATH_MSG_DEBUG("Number of ROB fragments " << vecROBFrags.size());
 
   SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey};
-  lvl1Collection = std::make_unique<InDetTimeCollection>(listOfRobf.size()); 
+  lvl1Collection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
   ATH_CHECK(lvl1Collection.isValid());
 
-  SG::WriteHandle<InDetTimeCollection> bcidCollection{m_bcidCollectionKey};
-  bcidCollection = std::make_unique<InDetTimeCollection>(listOfRobf.size()); 
-  ATH_CHECK(bcidCollection.isValid());
+  SG::WriteHandle<InDetTimeCollection> bcIDCollection{m_bcIDCollectionKey};
+  bcIDCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
+  ATH_CHECK(bcIDCollection.isValid());
 
-  std::vector<const ROBFragment*>::const_iterator rob_it{listOfRobf.begin()};
-  for (; rob_it!=listOfRobf.end(); ++rob_it) {
+  for (const ROBFragment* robFrag : vecROBFrags) {
+    // Store LVL1ID and BCID information in InDetTimeCollection 
+    // to be stored in StoreGate at the end of the loop.
+    // We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
+    uint32_t robID{(robFrag)->rod_source_id()};
     
-    uint32_t robid{(*rob_it)->rod_source_id()};
-    /**
-     * Store LVL1ID and BCID information in InDetTimeCollection 
-     * to be stored in StoreGate at the end of the loop.
-     * We want to store a pair<ROBID, LVL1ID> for each ROD, once per event.
-     **/
-    
-    unsigned int lvl1id{(*rob_it)->rod_lvl1_id()};
-    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robid, lvl1id)};
+    unsigned int lvl1ID{(robFrag)->rod_lvl1_id()};
+    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, lvl1ID)};
     lvl1Collection->push_back(std::move(lvl1Pair));
     
-    unsigned int bcid{(*rob_it)->rod_bc_id()};
-    auto bcidPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robid, bcid)};
-    bcidCollection->push_back(std::move(bcidPair));
+    unsigned int bcID{(robFrag)->rod_bc_id()};
+    auto bcIDPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, bcID)};
+    bcIDCollection->push_back(std::move(bcIDPair));
     
-    ATH_MSG_DEBUG("Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections");
-    
+    ATH_MSG_DEBUG("Stored LVL1ID " << lvl1ID << " and BCID " << bcID << " in InDetTimeCollections");
   }
-  std::unique_ptr<DummySCTRDO> dummyrdo;
-  if(externalcacheRDO) dummyrdo = std::make_unique<DummySCTRDO>(rdoContainer.ptr());
-  ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
-                     : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
-  /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
+
+  std::unique_ptr<dummySCTRDO_t> dummyRDO;
+  ISCT_RDO_Container *rdoInterface{nullptr};
+  if (externalCacheRDO) { 
+    dummyRDO = std::make_unique<dummySCTRDO_t>(rdoContainer.ptr());
+    rdoInterface = static_cast< ISCT_RDO_Container*> (dummyRDO.get());
+  }
+  else {
+    rdoInterface = static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
+  }
+
+  // Ask SCTRawDataProviderTool to decode it and to fill the IDC
+  if (m_rawDataTool->convert(vecROBFrags, 
+                             *rdoInterface, 
+                             bsErrContainer.ptr(), 
+                             bsFracContainer.ptr()).isFailure()) 
+  {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
-  if(dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());
+
+  if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());
   
   return StatusCode::SUCCESS;
 }

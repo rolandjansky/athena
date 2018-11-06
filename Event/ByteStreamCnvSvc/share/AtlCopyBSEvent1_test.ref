@@ -1,22 +1,28 @@
-Events to copy: 14350 14356 14382 
-Checking file /afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
+Events to copy: 186882810 187403142 187404922 187419528 
+Checking file /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Created DataWriter for file test.data in directory .
 
-File:/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
-Event index: 1
-Run:         20720
-Event ID:    14350
-LumiBlock:   18
+File:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Event index: 209
+Run:         327265
+Event ID:    186882810
+LumiBlock:   100
 
-File:/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
-Event index: 2
-Run:         20720
-Event ID:    14356
-LumiBlock:   19
+File:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Event index: 473
+Run:         327265
+Event ID:    187403142
+LumiBlock:   100
 
-File:/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
-Event index: 3
-Run:         20720
-Event ID:    14382
-LumiBlock:   19
-Wrote 3 events to file test.data
+File:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Event index: 488
+Run:         327265
+Event ID:    187404922
+LumiBlock:   100
+
+File:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Event index: 490
+Run:         327265
+Event ID:    187419528
+LumiBlock:   100
+Wrote 4 events to file test.data

@@ -1,11 +1,11 @@
-#include "../PadTdsOfflineTool.h"
-#include "../PadTriggerLogicOfflineTool.h"
-#include "../StripTdsOfflineTool.h"
-#include "../StripClusterTool.h"
-#include "../StripSegmentTool.h"
-#include "../MMStripTdsOfflineTool.h"
-#include "../MMFPGAOfflineTool.h"
-#include "../MMTriggerTool.h"
+#include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/PadTriggerLogicOfflineTool.h"
+#include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/StripClusterTool.h"
+#include "TrigT1NSWSimTools/StripSegmentTool.h"
+#include "TrigT1NSWSimTools/MMStripTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/MMFPGAOfflineTool.h"
+#include "TrigT1NSWSimTools/MMTriggerTool.h"
 
 using NSWL1::PadTdsOfflineTool;
 using NSWL1::PadTriggerLogicOfflineTool;

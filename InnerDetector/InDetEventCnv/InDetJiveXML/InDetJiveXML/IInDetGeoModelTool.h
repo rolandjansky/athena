@@ -9,7 +9,6 @@
 
 namespace InDetDD{
   class PixelDetectorManager;
-  class SCT_DetectorManager;
   class TRT_DetectorManager;
 }
 class PixelID;
@@ -33,8 +32,6 @@ namespace JiveXML{
 
     /// Provide the Pixel geometry manager
     virtual const InDetDD::PixelDetectorManager* PixelGeoManager() const = 0 ;
-    /// Provide the SCT geometry manager
-    virtual const InDetDD::SCT_DetectorManager* SCTGeoManager() const = 0 ;
     /// Provide the TRT geometry manager
     virtual const InDetDD::TRT_DetectorManager* TRTGeoManager() const = 0 ;
 

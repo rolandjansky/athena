@@ -6,7 +6,7 @@ def PoolReadCfg(configFlags):
     athena services required for POOL file reading
     """
 
-    filenames=configFlags("global.InputFiles")
+    filenames=configFlags.Input.Files
 
     result=ComponentAccumulator()
 
@@ -16,12 +16,15 @@ def PoolReadCfg(configFlags):
     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc, EventSelectorAthenaPool
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
     
-
+    from StoreGate.StoreGateConf import StoreGateSvc
 
     result.addService(PoolSvc(MaxFilesOpen=0))
     apcs=AthenaPoolCnvSvc()
     result.addService(apcs)
     result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),])) #No service handle yet???
+
+
+    result.addService(StoreGateSvc("MetaDataStore"))
 
     apaps=AthenaPoolAddressProviderSvc()
     result.addService(apaps)

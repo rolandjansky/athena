@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include  "EMExtrapolationTools.h"
 #include  "TrkEventPrimitives/PropDirection.h"
@@ -24,6 +24,7 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "GaudiKernel/EventContext.h"
 //
 #include <tuple>
 
@@ -34,27 +35,23 @@ EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
   m_trtId(0)
 {
 
-  // Name of the utility for conversion
-  
   declareInterface<IEMExtrapolationTools>(this);
 }
 
-// =========================================================
 EMExtrapolationTools::~EMExtrapolationTools() {}
 
-// =========================================================
 StatusCode EMExtrapolationTools::initialize() 
 {
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
 
   // Retrieve TrackToCalo tool for extrapolation to calorimeter
-  if ( m_defaultParticleCaloExtensionTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Cannot retrieve DefaultParticleCaloExtensionTool" << m_defaultParticleCaloExtensionTool );
+  if ( m_lastParticleCaloExtensionTool.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Cannot retrieve DefaultParticleCaloExtensionTool" << m_lastParticleCaloExtensionTool );
     return StatusCode::FAILURE;
   }
   else {
-    ATH_MSG_DEBUG("Retrieved DefaultParticleCaloExtensionTool tool " << m_defaultParticleCaloExtensionTool);
+    ATH_MSG_DEBUG("Retrieved DefaultParticleCaloExtensionTool tool " << m_lastParticleCaloExtensionTool);
   }
 
   if ( m_perigeeParticleCaloExtensionTool.retrieve().isFailure() ) {
@@ -85,26 +82,25 @@ StatusCode EMExtrapolationTools::initialize()
   } else {
     ATH_MSG_DEBUG("Could not get TRT_ID helper !");
   }
-  
+  ATH_CHECK(m_GSFPerigeeCacheKey.initialize(m_useCaching));
+  ATH_CHECK(m_GSFLastCacheKey.initialize(m_useCaching));
+
   return StatusCode::SUCCESS;
 }
 
-// =====================================================================
 StatusCode EMExtrapolationTools::finalize() 
 {
   return StatusCode::SUCCESS;
 }
 
-// ======================= Electron Charged Track related interfaces
-
-//////////////////////////////////////////////////////////////////////////////
-//* Extrapolate TrackParticle to electron CaloCluster
-//* Returns selection
-//* i.e performs the cuts
-//It also returns the quantities used for matching
-//////////////////////////////////////////////////////////////////////////////
+/* 
+ * Electron Charged Track related interfaces
+ * Extrapolates TrackParticle to  CaloCluster
+ * Returns the selection results
+ */
 bool
-EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster, 
+EMExtrapolationTools::matchesAtCalo(const EventContext&           ctx,
+                                    const xAOD::CaloCluster*      cluster, 
                                     const xAOD::TrackParticle*    trkPB, 
                                     bool                          isTRT, 
                                     Trk::PropDirection            direction,
@@ -112,172 +108,180 @@ EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster,
                                     std::vector<double>&          phi,
                                     std::vector<double>&          deltaEta,
                                     std::vector<double>&          deltaPhi,
-                                    unsigned int                  extrapFrom) const  
+                                    unsigned int                  extrapFrom,
+                                    Cache*                        cache) const  
 {
-
-  // Sample for testing match
-  unsigned int               iSampling  = 2;  
-
-  // Decide matching for TRT standalone
-  // In case of standalone TRT tracks get an idea where the last measurement is
+  // Always use the 2nd sampling
+  constexpr unsigned int iSampling  = 2;  
+  // Decide eta matching for TRT standalone
+  // Skip barrel tracks matching endcap clusters and vice-versa
   int isTRTB = 0 ;
   if(isTRT){
     if (!m_trtId) {
       ATH_MSG_WARNING("Should have m_trtId defined for isTRT");
       return false;
     }
-    isTRTB = getTRTsection(trkPB);
-    // First pass on TRT tracks, skip barrel tracks matching endcap clusters and vice-versa
+    int isTRTB = getTRTsection(trkPB);
     if((isTRTB==2 && (cluster->eta()<=0.6  || cluster->eta()>=2.4)   ) ||
        (isTRTB==-2 && (cluster->eta()>=-0.6 || cluster->eta()<=-2.4)  ) ||
        (isTRTB==1 && (cluster->eta()<=-0.1 || cluster->eta()>=1.3)   ) ||
        (isTRTB==-1 && (cluster->eta()>=0.1  || cluster->eta()<=-1.3)  )
-       ) {
+      ) {
       return false;
     }
   }
-  
   //Call getMatchAtCalo
-  if(getMatchAtCalo (cluster,trkPB,isTRT,direction, eta,phi, deltaEta, deltaPhi,extrapFrom).isFailure()){
-    ATH_MSG_WARNING("getMatchAtCalo failed");
+  if(getMatchAtCalo (ctx,cluster,trkPB,isTRT,direction, eta,phi, deltaEta, deltaPhi,extrapFrom,cache).isFailure()){
+    ATH_MSG_WARNING("getMatchAtCalo call failed");
     return false;
   }  
-  
   // Selection in the narrow eta/phi window
-  if((isTRT && ((abs(isTRTB)==1 && deltaPhi[iSampling] < m_narrowDeltaPhiTRTbarrel && 
-		 deltaPhi[iSampling] > -m_narrowDeltaPhiBremTRTbarrel) || 
-		(abs(isTRTB)==2 && deltaPhi[iSampling] < m_narrowDeltaPhiTRTendcap && 
-		 deltaPhi[iSampling] > -m_narrowDeltaPhiBremTRTendcap)))
-     || 
-     (!isTRT && fabs(deltaEta[iSampling]) < m_narrowDeltaEta && 
-      deltaPhi[iSampling] < m_narrowDeltaPhi && 
-      deltaPhi[iSampling] > -m_narrowDeltaPhiBrem) ) {
-    return true;
+  if(isTRT){
+    if ( (abs(isTRTB)==1 && deltaPhi[iSampling] < m_narrowDeltaPhiTRTbarrel && deltaPhi[iSampling] > -m_narrowDeltaPhiBremTRTbarrel) || 
+         (abs(isTRTB)==2 && deltaPhi[iSampling] < m_narrowDeltaPhiTRTendcap && deltaPhi[iSampling] > -m_narrowDeltaPhiBremTRTendcap)){
+      return true;
+    }
   }
-
+  else{
+    if (fabs(deltaEta[iSampling]) < m_narrowDeltaEta && deltaPhi[iSampling] < m_narrowDeltaPhi && deltaPhi[iSampling] > -m_narrowDeltaPhiBrem) {
+      return true;
+    }
+  }
   return false;
 }
-/////////////////////////////////////////////////////////////////////////////////////////////
-//* Extrapolate to calorimeter for trackParticle
-/////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ * This is the method that does the heavy lifting for the 
+ * electrons extrapolations. Handles multipe extrapolation modes.
+ */
 StatusCode
-EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster, 
+EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
+                                      const xAOD::CaloCluster*      cluster, 
                                       const xAOD::TrackParticle*    trkPB,
-				      bool                          isTRT, 
+                                      bool                          isTRT, 
                                       Trk::PropDirection            direction,
                                       std::vector<double>&          eta,
                                       std::vector<double>&          phi,
                                       std::vector<double>&          deltaEta,
                                       std::vector<double>&          deltaPhi,
-                                      unsigned int                  extrapFrom) const
+                                      unsigned int                  extrapFrom,
+                                      Cache*                        cache) const
 {
-  // Extrapolate track to calo and return the extrapolated eta/phi and
-  // the deta/dphi between cluster and track
-  //   We allow different ways to extrapolate:
-  // 
-  //     1) from the last measurement point track parameters  
-  //     2) from the perigee 
-  //     3) from the perigee with the track momentum rescaled by the cluster energy
-  //
+  /* Extrapolate track to calo and return 
+   * the extrapolated eta/phi and
+   * the deta/dphi between cluster and track
+   * We allow different ways to extrapolate:
+   * 1) from the last measurement  track parameters (this is always the case for TRT standalone)  
+   * 2) from the perigee track parameters
+   * 3) from the perigee with the track momentum rescaled by the cluster energy
+   *
+   * But in principle the possible workFlows are quite constrained 
+   */
   ATH_MSG_DEBUG("getMatchAtCalo");
-   
   if(deltaEta.size() < 4  || deltaPhi.size()<4 || eta.size()<4 || phi.size()<4 ){
     ATH_MSG_WARNING("deltaEta, deltaPhi, eta , phi size should be at least 4");
     return StatusCode::SUCCESS;
   }
 
-  //------------------------------------------------------------------------------------------------------------------------------------//
-  //------------------- Create the extension, supports different methods of extrapolation (i.e last point, perigee, perigee rescaled ---//  
-  const Trk::CaloExtension* extension = 0;      
+  bool didExtension=false;
+  /* 
+   * Rescaled Perigee is "easy"
+   * It will never have a cache
+   */ 
   double atPerigeePhi(-999);
-  double PerigeeTrkParPhi(-999);
-  //TRT  only track. Could be in the standard or GSF container.
-  //Use the std tool and the cached result always. For TRT only it does not matter if perigee or rescaled requested.
-  if (isTRT){
-    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
-      ATH_MSG_INFO("Could not create an extension for TRT only track with : "<< " Track Pt "
-		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
-		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
-      return StatusCode::SUCCESS;
-    }
-  }
-  //extrapolation using  Rescaled Perigee, not caching possible as it is changed per cluster
-  else if (fromPerigeeRescaled == extrapFrom) {
+  double PerigeeTrkParPhi(-999); 
+  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
+  if(fromPerigeeRescaled == extrapFrom){
     const Trk::TrackParameters*  trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
       ATH_MSG_ERROR("getMatchAtCalo: Cannot access track parameters"); 
       return StatusCode::FAILURE; 
-    }
-    extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, direction, Trk::muon );
+    }  
+    std::unique_ptr<Trk::CaloExtension> extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, direction, Trk::muon);
     Amg::Vector3D atPerigee(trkPar->position().x(), trkPar->position().y(), trkPar->position().z()); 
     atPerigeePhi=atPerigee.phi(); ;
     PerigeeTrkParPhi=trkPar->momentum().phi();
     ATH_MSG_DEBUG("Rescale (phi, eta , pt, charge) ( " << trkPar->momentum().phi() << " , " << trkPar->momentum().eta() << " , " 
-		  << trkPar->momentum().perp() <<" , " << trkPar->charge()<< ")");
+                  << trkPar->momentum().perp() <<" , " << trkPar->charge()<< ")");
     ATH_MSG_DEBUG("Before Rescale (phi, eta , pt,charge) ( " << trkPB->phi() <<" , " << trkPB->eta() <<" , " 
-		  << trkPB->pt()<< " , " << trkPB->charge()<<")");
-    delete trkPar;    
-  }
-  //GSF track Particles, extrapolate from perigee , using the egamma tool instance and the egamma dedicated cache.
-  else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromPerigee == extrapFrom){
-    if(!m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension, m_useCaching)){
-      ATH_MSG_INFO("Could not create an extension from perigee for a silicon GSF track with : "<< " Track Pt "
-		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
-		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
-      return StatusCode::SUCCESS;
+                  << trkPB->pt()<< " , " << trkPB->charge()<<")");
+    delete trkPar;
+    didExtension=extension.get()!=nullptr;
+    if(didExtension){
+      intersections=getIntersections(*extension,cluster); 
     }
   }
-  //GSF track Particles, from last measurement , the cache for GSF is used for the perigee so do not use it here 
-  else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromLastMeasurement == extrapFrom){
-    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension, false)){
-      ATH_MSG_INFO("Could not create an extension from last measurement for a silicon GSF track with : "<< " Track Pt "
-		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
-		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
-      return StatusCode::SUCCESS;
+  /* For the other cases
+   * See if there is a collection cache
+   * else if there is an in algorithm cache
+   * else do it without a cache
+   */
+  else if(fromPerigee == extrapFrom){
+    if (m_useCaching){
+      SG::ReadHandle<CaloExtensionCollection>  PerigeeCache(m_GSFPerigeeCacheKey,ctx);
+      if (!PerigeeCache.isValid()) {
+        ATH_MSG_ERROR("Could not retrieve Perigee Cache " << PerigeeCache.key());
+        return StatusCode::FAILURE;
+      }
+      const Trk::CaloExtension* extension = m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,*PerigeeCache);
+      didExtension=extension!=nullptr; 
+      if(didExtension){
+        intersections=getIntersections(*extension,cluster);
+      }
+    }
+    else if(cache){
+      const Trk::CaloExtension* extension=m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,*cache);
+      didExtension=extension!=nullptr; 
+      if(didExtension){ 
+        intersections=getIntersections(*extension,cluster);
+      }
+    } 
+    else{
+      std::unique_ptr<Trk::CaloExtension> extension = m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB);
+      didExtension=extension!=nullptr;
+      if(didExtension){
+        intersections=getIntersections(*extension,cluster); 
+      }
     }
   }
-  //Else track Particles before GSF, or failed GSF, or last measurement use the std tool/cache
-  else {
-    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
-      ATH_MSG_INFO("Could not create an extension from last measurement for a standard (non-GSF) track with : "<< " Track Pt "
-		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
-		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
-      return StatusCode::SUCCESS;
+  else if(fromLastMeasurement == extrapFrom){
+    if (m_useCaching){
+      SG::ReadHandle<CaloExtensionCollection>  LastCache(m_GSFLastCacheKey,ctx);
+      if (!LastCache.isValid()) {
+        ATH_MSG_ERROR("Could not retrieve Last Cache " << LastCache.key());
+        return StatusCode::FAILURE;
+      }
+      const Trk::CaloExtension* extension=m_lastParticleCaloExtensionTool->caloExtension(*trkPB,*LastCache);
+      didExtension=extension!=nullptr; 
+      if(didExtension){ 
+        intersections=getIntersections(*extension,cluster);
+      }
+    }
+    else if(cache){
+      const Trk::CaloExtension* extension =m_lastParticleCaloExtensionTool->caloExtension(*trkPB,*cache);
+      didExtension=extension!=nullptr; 
+      if(didExtension){ 
+        intersections=getIntersections(*extension,cluster);
+      }
+    } 
+    else{
+      std::unique_ptr<Trk::CaloExtension> extension = m_lastParticleCaloExtensionTool->caloExtension(*trkPB);
+      didExtension=extension!=nullptr;
+      if(didExtension){
+        intersections=getIntersections(*extension,cluster); 
+      }
     }
   }
-  //------------------------------------------------------------------------------------------------------------------------------------//
-  if(!extension){
-    ATH_MSG_INFO("Could not create an extension for "<< " Track Pt "
-		    <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
-		    << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
-    return StatusCode::SUCCESS;
+  if(!didExtension){
+    ATH_MSG_INFO("Could not create an extension from " << extrapFrom <<  " for a track with : "<< " Track Pt "
+                 <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " << trkPB->trackFitter() << " isTRT " << isTRT); 
+    return StatusCode::SUCCESS; 
   }
-  //----------------------------------------------Calculate intersections------------------------------------------------------------------------------//
-  //Layers to calculate intersections
-  CaloExtensionHelpers::LayersToSelect layersToSelect;  
-  if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
-    // Barrel
-    layersToSelect.insert(CaloSampling::PreSamplerB );  
-    layersToSelect.insert(CaloSampling::EMB1 );  
-    layersToSelect.insert(CaloSampling::EMB2 );  
-    layersToSelect.insert(CaloSampling::EMB3 );  
-  } else {
-    // Endcap
-    layersToSelect.insert(CaloSampling::PreSamplerE );  
-    layersToSelect.insert(CaloSampling::EME1 );  
-    layersToSelect.insert(CaloSampling::EME2 );  
-    layersToSelect.insert(CaloSampling::EME3 );        
-  }
-
-  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
-  CaloExtensionHelpers::midPointEtaPhiPerLayerVector( *extension, intersections, &layersToSelect );
   std::vector<bool> hasBeenHit(4,false); 
   // Should we flip the sign for deltaPhi? 
   bool flipSign = false; 
   if(trkPB->charge() > 0) {
     flipSign = true; 
   }
-  
   for( const auto& p : intersections ){    
     int  i(0); 
     auto sample = std::get<0>(p);
@@ -296,7 +300,6 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
     } else {
       continue;
     }
-      
     eta[i]      = std::get<1>(p); 
     phi[i]      = std::get<2>(p); 
     deltaEta[i] = cluster->etaBE(i) - std::get<1>(p); 
@@ -305,20 +308,19 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
     if(flipSign)  {
       deltaPhi[i] = -deltaPhi[i];
     }
-    
     ATH_MSG_DEBUG("getMatchAtCalo: i, eta, phi, deta, dphi: "  
-		  << i << " " << eta[i] << " " << phi[i] << " " 
-		  << deltaEta[i] << " " << deltaPhi[i]);     
-    
-    if (fromPerigeeRescaled == extrapFrom && !isTRT) {
+                  << i << " " << eta[i] << " " << phi[i] << " " 
+                  << deltaEta[i] << " " << deltaPhi[i]);     
+    if (fromPerigeeRescaled == extrapFrom) {
       if ( i == 2 && deltaPhi.size() > 4) { 
-	// For rescaled perigee when at sampling 2, save the phi   
-	// rotation of the track. This is defined as: ((phi of point at 
-	// sampling 2 - phi of point at track vertex/perigee) - phi of 
-	// direction of track at perigee) 
-	double perToSamp2 = std::get<2>(p)  - atPerigeePhi; 
-	deltaPhi[4] = fabs(P4Helpers::deltaPhi(perToSamp2, PerigeeTrkParPhi)); 
-	ATH_MSG_DEBUG("getMatchAtCalo: phi-rot: " << deltaPhi[4]); 
+        /* For rescaled perigee when at sampling 2, save the the  rotation in phi
+         * This is defined as: 
+         * ((phi of point at sampling 2 - phi of point at track vertex/perigee) - 
+         * phi of direction of track at perigee) 
+         */  
+        double perToSamp2 = std::get<2>(p)  - atPerigeePhi; 
+        deltaPhi[4] = fabs(P4Helpers::deltaPhi(perToSamp2, PerigeeTrkParPhi)); 
+        ATH_MSG_DEBUG("getMatchAtCalo: phi-rot: " << deltaPhi[4]); 
       }
     }
   }
@@ -331,100 +333,70 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   return StatusCode::SUCCESS;   
 }
 
-// =================================================================
-// ======================= Photon/vertex Neutral track parameters Related Interfaces 
+/*
+ * Photon/vertex/Neutral track parameters 
+ * Related methods 
+ * needed for  Extrapolating/matching conversions
+ */
 
-///////////////////////////////////////////////////////////////////////////////
-//* Extrapolate double-track conversion with the neutral perigee
-///////////////////////////////////////////////////////////////////////////////
-bool
-EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*           cluster, 
-				    const Trk::NeutralParameters*      phPerigee, 
-				    bool                               isTRT,
-				    double&                            deltaEta,
-				    double&                            deltaPhi) const 
-{
-
-  float etaAtCalo, phiAtCalo;
-  Trk::PerigeeSurface surface( phPerigee->position() );
-  const Trk::TrackParameters* trkPar = surface.createTrackParameters( phPerigee->position(), phPerigee->momentum().unit()*1e9,1,0);  
-  if( !getEtaPhiAtCalo( trkPar, &etaAtCalo, &phiAtCalo) ){
-    delete trkPar;
-    return false;
-  }
-  delete trkPar;
-
-  deltaEta = cluster->eta() - etaAtCalo;
-  deltaPhi = P4Helpers::deltaPhi(cluster->phi(),phiAtCalo); 
-  if ((!isTRT && (fabs(deltaEta) > m_broadDeltaEta) )
-      || (isTRT && (fabs(deltaEta) > std::max(m_TRTbarrelDeltaEta, m_TRTendcapDeltaEta)) )         
-      || fabs(deltaPhi) > m_broadDeltaPhi) {
-    return false;
-  }
-
-  if ((isTRT && fabs(deltaPhi) < std::max(m_narrowDeltaPhiTRTbarrel, m_narrowDeltaPhiTRTendcap)) || 
-      (!isTRT && fabs(deltaEta)< m_narrowDeltaEta && fabs(deltaPhi) < m_narrowDeltaPhi) ){
-    return true;
-  }
-  return false;
-}
-
+/*  Method  doing the matching given the eta at calo as input  */
 bool EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster* cluster,
-					 const xAOD::Vertex *vertex,
-					 float etaAtCalo,
-					 float phiAtCalo) const
+                                         const xAOD::Vertex *vertex,
+                                         float etaAtCalo,
+                                         float phiAtCalo) const
 {
   if (!cluster || !vertex) return false;  
   float deltaEta = fabs(etaAtCalo - cluster->etaBE(2));
   float deltaPhi = fabs(P4Helpers::deltaPhi(cluster->phi(), phiAtCalo));
-  
+
   int TRTsection = 0;
   if (xAOD::EgammaHelpers::numberOfSiTracks(vertex) == 0)
     TRTsection = getTRTsection(vertex->trackParticle(0));
-  
+
   // First pass on TRT tracks, skip barrel tracks matching endcap clusters and vice-versa
   if((TRTsection==2 && (cluster->eta()<=0.6  || cluster->eta()>=2.4)   ) ||
      (TRTsection==-2 && (cluster->eta()>=-0.6 || cluster->eta()<=-2.4)  ) ||
      (TRTsection==1 && (cluster->eta()<=-0.1 || cluster->eta()>=1.3)   ) ||
      (TRTsection==-1 && (cluster->eta()>=0.1  || cluster->eta()<=-1.3)  )
-     ) {
+    ) {
     return false;
   }
-  
+
   // The maximum deltaEta/deltaPhi for Si, TRT barrel, TRT endcap
   std::vector<double> dEtaV{m_narrowDeltaEta, m_TRTbarrelDeltaEta, m_TRTendcapDeltaEta};
   std::vector<double> dPhiV{m_narrowDeltaPhi, m_narrowDeltaPhiTRTbarrel, m_narrowDeltaPhiTRTendcap};
 
   return (deltaEta < dEtaV[abs(TRTsection)] && deltaPhi < dPhiV[abs(TRTsection)]);
 }
-
-
-// =================================================================
+/*
+ * The following two are the heavy lifting methods.
+ * Start from vertex/Track Parameters 
+ * and then calculate the eta/phi at calo
+ */
 bool EMExtrapolationTools::getEtaPhiAtCalo (const xAOD::Vertex* vertex, 
-					    float *etaAtCalo,
-					    float *phiAtCalo) const
+                                            float *etaAtCalo,
+                                            float *phiAtCalo) const
 {
   if (!vertex) return false;
-  // Get the momentum at the vertex
   Amg::Vector3D momentum = getMomentumAtVertex(*vertex);
-  // Protection against momentum = 0
   if (momentum.mag() < 1e-5){
     ATH_MSG_DEBUG("Intersection failed");
     return false;
   }
   Trk::PerigeeSurface surface (vertex->position());
-  // Hack create high pt track parameters
-  const Trk::TrackParameters* trkPar =  surface.createTrackParameters( vertex->position(), momentum.unit() *1.e9, +1, 0);
+  /*
+   * Create high pt track parameters to mimic a neutral particle.
+   * This in principle is an approximation
+   */ 
+  const Trk::TrackParameters* trkPar =  surface.createTrackParameters( vertex->position(), momentum.unit() *1.e10, +1, 0);
   bool success = getEtaPhiAtCalo( trkPar, etaAtCalo, phiAtCalo);
   delete trkPar;
   return success;   
 }
-
-// =================================================================
+/*  The actual calculation happens here*/
 bool EMExtrapolationTools::getEtaPhiAtCalo (const Trk::TrackParameters* trkPar, 
-					    float *etaAtCalo,
-					    float *phiAtCalo) const{
-
+                                            float *etaAtCalo,
+                                            float *phiAtCalo) const{
   if (!trkPar) return false;
   CaloExtensionHelpers::LayersToSelect layersToSelect;    
   if ( fabs(trkPar->eta()) < 1.425) {
@@ -434,29 +406,15 @@ bool EMExtrapolationTools::getEtaPhiAtCalo (const Trk::TrackParameters* trkPar,
     // Endcap
     layersToSelect.insert(CaloSampling::EME2 );  
   }
-  bool success = getHackEtaPhiAtCalo( trkPar, etaAtCalo, phiAtCalo, layersToSelect);
-  return success;   
-}
-// =================================================================
 
-bool EMExtrapolationTools::getHackEtaPhiAtCalo (const Trk::TrackParameters* trkPar, 
-						float *etaAtCalo,
-						float *phiAtCalo,
-						CaloExtensionHelpers::LayersToSelect& layersToSelect
-						) const
-
-{
-  const Trk::CaloExtension* extension = 0;      
+  std::unique_ptr<Trk::CaloExtension> extension = nullptr;      
   extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, Trk::alongMomentum, Trk::muon );
-
   if(!extension){
     ATH_MSG_WARNING("Could not create an extension from getHackEtaPhiAtCalo ");
     return false;
   } 
-
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   CaloExtensionHelpers::midPointEtaPhiPerLayerVector( *extension, intersections, &layersToSelect );
- 
   bool hitEM2(false);
   for( const auto& p : intersections ){    
     int  i(0); 
@@ -467,14 +425,13 @@ bool EMExtrapolationTools::getHackEtaPhiAtCalo (const Trk::TrackParameters* trkP
       hitEM2=true;
       ++i;
       ATH_MSG_DEBUG("getMatchAtCalo: i, eta, phi : "  
-		    << i << " " << std::get<1>(p) << " " << std::get<2>(p) ); 
-      
+                    << i << " " << std::get<1>(p) << " " << std::get<2>(p) ); 
     }
   }
   return hitEM2;   
 }
 
-// =================================================================
+/* Methods to get the momemtum at the conversion vertex*/
 Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, unsigned int index) const
 {
   Amg::Vector3D momentum(0., 0., 0.);
@@ -521,7 +478,7 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
   }
   return momentum;  
 }
-// =================================================================
+
 Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, bool reuse /* = true */) const
 {
   Amg::Vector3D momentum(0., 0., 0.);
@@ -536,12 +493,12 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
       accPx.isAvailable(vertex) && 
       accPy.isAvailable(vertex) && 
       accPz.isAvailable(vertex) 
-      ){
+     ){
     // Already decorated with parameters at vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
     return Amg::Vector3D(accPx(vertex), 
-			 accPy(vertex),  
-			 accPz(vertex)); 
+                         accPy(vertex),  
+                         accPz(vertex)); 
   }
   else{
     for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i){
@@ -550,9 +507,10 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
   }
   return momentum;	
 }
-// ============================================================================
 
-// ======================= HELPERS==============================================
+/* 
+ * Create Rescaled Perigee Parametrs
+ */
 const Trk::TrackParameters* 
 EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const {
   const Trk::TrackParameters* oldPerigee = &trkPB->perigeeParameters();
@@ -574,14 +532,42 @@ EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const
   Trk::PerigeeSurface surface (oldPerigee->position());
   //This surface has the correct offset in x and y
   const Trk::TrackParameters* result  = surface.createParameters<5,Trk::Charged>(0,
-										 0,
-										 phi,
-										 theta,
-										 qoverp);
+                                                                                 0,
+                                                                                 phi,
+                                                                                 theta,
+                                                                                 qoverp);
   return (result);
 }
 
-// =================================================================
+/*
+ * Helper to get the Eta/Phi per Layer
+ */
+CaloExtensionHelpers::EtaPhiPerLayerVector 
+EMExtrapolationTools::getIntersections (const Trk::CaloExtension& extension,const xAOD::CaloCluster* cluster) const
+{
+  //Layers to calculate intersections
+  CaloExtensionHelpers::LayersToSelect layersToSelect;  
+  if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
+    // Barrel
+    layersToSelect.insert(CaloSampling::PreSamplerB );  
+    layersToSelect.insert(CaloSampling::EMB1 );  
+    layersToSelect.insert(CaloSampling::EMB2 );  
+    layersToSelect.insert(CaloSampling::EMB3 );  
+  } else {
+    // Endcap
+    layersToSelect.insert(CaloSampling::PreSamplerE );  
+    layersToSelect.insert(CaloSampling::EME1 );  
+    layersToSelect.insert(CaloSampling::EME2 );  
+    layersToSelect.insert(CaloSampling::EME3 );        
+  }
+  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
+  CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &layersToSelect );
+  return intersections;
+}
+
+/*
+ * Helper to identify the TRT section
+ */
 int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
   if (!trkPB){
     ATH_MSG_DEBUG("Null pointer to TrackParticle");
@@ -602,9 +588,9 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
     //Loop over the TrkStateOnSurfaces search last valid TSOS first
     for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS){
       if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && !((*rItTSoS)->type(Trk::TrackStateOnSurface::Outlier)) && (*rItTSoS)->measurementOnTrack()!=0 
-	   && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
-	trkPar = (*rItTSoS)->measurementOnTrack();
-	break;
+           && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
+        trkPar = (*rItTSoS)->measurementOnTrack();
+        break;
       }
     }
   }

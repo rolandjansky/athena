@@ -28,7 +28,7 @@ class EMBremCollectionBuilder : public AthAlgorithm
 {
   /*Helper struct, 
    * added here mainly for
-   * scopping
+   * scoping
    */
 
   struct localCounter{
@@ -46,7 +46,6 @@ public:
   virtual StatusCode execute() override final;
 
 private:
-
   /** @brief Refit of track */
   StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart , 
                         TrackCollection* finalTracks, 

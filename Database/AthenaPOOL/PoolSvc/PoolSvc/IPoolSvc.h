@@ -56,6 +56,10 @@ public: // Non-static members
    /// @param token [IN] token of the Data Object for which a Pool Ref is filled.
    virtual void setObjPtr(void*& obj, const Token* token) const = 0;
 
+   /// @return an Id for an output context (POOL persistency service) and create it if needed.
+   /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
+   virtual unsigned int getOutputContext(const std::string& label) = 0;
+
    /// @return an Id for an input context (POOL persistency service) and create it if needed.
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
    /// @param maxFile [IN] maximum number of open input files.

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # TileSynchronizeBch.py <TAG1> <TAG2> <MASKONLY> <RUN1> <RUN2>
 # sanya.solodkov@cern.ch July 2016
@@ -113,6 +113,25 @@ for ros in xrange(1,5):
             stathiBefore = mgr2.getAdcProblems(ros,mod,chn,1)
 
             if online:
+
+                # remove all trigger problems first
+                for prb in [TileBchPrbs.TrigGeneralMask,
+                            TileBchPrbs.TrigNoGain,
+                            TileBchPrbs.TrigHalfGain,
+                            TileBchPrbs.TrigNoisy]:
+                    mgr2.delAdcProblem(ros, mod, chn, 0, prb)
+                    mgr2.delAdcProblem(ros, mod, chn, 1, prb)
+                # and now set new trigger problems (if any)
+                if not statlo.isGood():
+                    prbs = statlo.getPrbs()
+                    for prb in prbs:
+                        if prb in [TileBchPrbs.TrigGeneralMask,
+                                   TileBchPrbs.TrigNoGain,
+                                   TileBchPrbs.TrigHalfGain,
+                                   TileBchPrbs.TrigNoisy]:
+                            mgr2.addAdcProblem(ros, mod, chn, 0, prb)
+                            mgr2.addAdcProblem(ros, mod, chn, 1, prb)
+
                 if copyall or statlo.isBad() or stathi.isBad():
                     #--- add IgnoreInHlt if either of the ADCs has isBad
                     #--- add OnlineGeneralMaskAdc if the ADCs has isBad            

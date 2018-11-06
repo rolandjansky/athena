@@ -17,46 +17,40 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "MuonOverlayBase/MuonOverlayBase.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 class MdtIdHelper;
 
 
 class MdtOverlay : public MuonOverlayBase  {
 public:
-  
+
   MdtOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
-  /** Framework implemenrtation for the event loop */  
+  /** Framework implemenrtation for the event loop */
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
 
   float adcIntegrationWindow() const { return m_adcIntegrationWindow; }
-  
+
 private:
   // ----------------------------------------------------------------
 
-  ServiceHandle<StoreGateSvc> m_storeGateTemp;
-  ServiceHandle<StoreGateSvc> m_storeGateTempBkg;
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  std::string m_mainInputMDT_Name;
-  std::string m_overlayInputMDT_Name;
-  std::string m_sdo;
- 
-  float m_adcIntegrationWindow;
-  const MdtIdHelper   * m_mdtHelper;
-  bool m_copySDO, m_clean_overlay_data, m_clean_overlay_signal;
-  ToolHandle<IMuonDigitizationTool> m_digTool;
-  ToolHandle<IMuonDigitizationTool> m_rdoTool;
+  SG::ReadHandleKey<MdtDigitContainer> m_mainInputDigitKey{this,"MainInputDigitKey","OriginalEvent_SG+MDT_DIGITS","ReadHandleKey for Main Input MdtDigitContainer"};
+  SG::ReadHandleKey<MdtDigitContainer> m_overlayInputDigitKey{this,"OverlayInputDigitKey","BkgEvent_0_SG+MDT_DIGITS","ReadHandleKey for Overlay Input MdtDigitContainer"};
+  SG::WriteHandleKey<MdtDigitContainer> m_outputDigitKey{this,"OutputDigitKey","StoreGateSvc+MDT_DIGITS","WriteHandleKey for Output MdtDigitContainer"};
+  std::string m_sdo{"MDT_SDO"};
+
+  float m_adcIntegrationWindow{20.0}; // in ns
+  const MdtIdHelper   * m_mdtHelper{nullptr};
+  bool m_copySDO{true};
+  bool m_clean_overlay_data{false};
+  bool m_clean_overlay_signal{false};
 };
 
 #endif/* MDTOVERLAY_H */

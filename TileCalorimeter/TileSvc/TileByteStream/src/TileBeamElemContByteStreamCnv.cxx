@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -8,7 +8,7 @@
 #include "GaudiKernel/IRegistry.h"
 
 // Athena includes
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
@@ -17,7 +17,7 @@
 #include "ByteStreamData/RawEvent.h" 
 
 #include "StoreGate/StoreGate.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 // Tile includes

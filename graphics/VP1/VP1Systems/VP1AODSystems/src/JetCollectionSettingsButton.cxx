@@ -320,8 +320,7 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int di
 	connect(m_d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(enableMaxR(bool)));
 	connect(m_d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(possibleChange_maxR()));
 	connect(m_d->ui_disp.doubleSpinBox_maxR, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_maxR()));
-	this->enableMaxR(false);
-
+	this->enableMaxR(false); // init
 
 	// BTagging
 	connect(m_d->ui_disp.bTaggingCheckBox, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingEnabled(bool)) );
@@ -719,17 +718,40 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 
 	updateButton();
 
-	// after restoring the state, check if b-tagging checkbox is enabled,
+	// after restoring the state, check status of selection cuts
+	checkSelection();
+
+
+}
+
+//____________________________________________________________________
+void JetCollectionSettingsButton::checkSelection()
+{
+	messageDebug("JetCollectionSettingsButton::checkSelection()");
+
+    // -- b-tagging settings/cuts
 	messageDebug("updating b-tagging status for collection " + m_d->name + "...");
 	if (m_d->ui_disp.bTaggingCheckBox->isChecked()) {
 		possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
-
+		possibleChange_bTaggingCut();
+		if (m_d->ui_disp.radioButton_material->isChecked())
+			possibleChange_bTaggingRenderingMaterial(true);
+		else if (m_d->ui_disp.radioButton_skins->isChecked())
+			possibleChange_bTaggingRenderingSkin(true);
+		possibleChange_bTaggingTagger();
 	}
 	else
 		possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
 
-
-	//FIXME - anything else need updating?
+	// -- other cuts
+	messageDebug("updating other selection cuts for collection " + m_d->name + "...");
+    possibleChange_maxR();
+    possibleChange_cutAllowedEta();
+    possibleChange_cutAllowedPhi();
+    possibleChange_cutAllowedPt();
+    possibleChange_scale();
+    possibleChange_randomJetColours();
+    //FIXME - anything else need updating?
 }
 
 //____________________________________________________________________
@@ -879,7 +901,7 @@ void JetCollectionSettingsButton::possibleChange_maxR()
 		return;
 	}
 
-	messageVerbose("setting maxR");
+	messageDebug("setting maxR: "+QString::number(maxR()));
 	m_d->last_maxR = maxR();
 	emit maxRChanged(m_d->last_maxR);
 }

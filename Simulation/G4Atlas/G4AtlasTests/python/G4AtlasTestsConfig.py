@@ -89,6 +89,9 @@ def TileDMCaloCalibHitsTestTool(name="TileDMCaloCalibHitsTestTool", **kwargs):
 def TileCellCaloCalibHitsTestTool(name="TileCellCaloCalibHitsTestTool", **kwargs):
     kwargs.setdefault("CalibHitType","TileCell")
     return CfgMgr.CaloCalibrationHitsTestTool(name, **kwargs)
+def BeamTruthTestTool(name="BeamTruthTestTool", **kwargs):
+    kwargs.setdefault("McEventKey", "BeamTruthEvent")
+    return CfgMgr.TruthTestTool(name, **kwargs)
 def TruthTestTool(name="TruthTestTool", **kwargs):
     kwargs.setdefault("McEventKey", "TruthEvent")
     return CfgMgr.TruthTestTool(name, **kwargs)

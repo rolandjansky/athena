@@ -5,7 +5,7 @@
 #ifndef GENERATORMODULES_GEN_HEPEVT_H
 #define GENERATORMODULES_GEN_HEPEVT_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 // #include "StoreGate/tools/ClassID_traits.h"
 // #include "CLHEP/Vector/LorentzVector.h"
 #include <vector>

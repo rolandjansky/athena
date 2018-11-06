@@ -170,6 +170,10 @@ namespace DerivationFramework {
       CHECK( m_TRTdEdxTool.retrieve() );
 	}
 
+    if (m_storeSCT) {
+      CHECK( m_SCTDetEleCollKey.initialize() );
+    }
+
     ATH_MSG_DEBUG("Initialization finished.");
 
     return StatusCode::SUCCESS;

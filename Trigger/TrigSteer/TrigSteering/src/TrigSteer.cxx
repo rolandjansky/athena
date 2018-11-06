@@ -133,7 +133,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("cachingMode", m_cachingMode = HLT::RoICacheHelper::HistoryBased,
                    "Caching mode: 0 - off, 1 - RoI based, 2 - RoI +features, 3 - as 2 +check only used features, default is 3(most advanced)");
    declareProperty("enableCoherentPrescaling", m_enableCoherentPrescaling=false, "Enables coherent prescaling (so chains from one prescaling group fire in the same event)");
-   declareProperty("enableRobRequestPreparation", m_enableRobRequestPreparation=false, "Enables ROB-request-preparation step");
+   declareProperty("enableRobRequestPreparation", m_enableRobRequestPreparation=true, "Enables ROB-request-preparation step");
    declareProperty("enableRerun", m_enableRerun=true, "Enables rerun of prescaled chains");
    declareProperty("EBstrategy", m_strategyEB = 0, "EB strategy: 0 = call by chains, 1 = call at the end of chains ");
    declareProperty("doL1TopoSimulation",m_doL1TopoSimulation=true,"Turns on L1Topo Sim");
@@ -812,6 +812,7 @@ void TrigSteer::runChains(bool secondPass) {
   bool eventPassed = false;
   int  step = 0; //just for debug: follow numeration of signature counters: starts from 1 (but currentStep in chains starts from 0)
   bool doEBbyChain = false;
+  bool isPhysicsEvent = false;
 
   if(m_config -> getSteeringOPILevel() > 0) {
     // Create new chain step OPI as before
@@ -899,8 +900,13 @@ void TrigSteer::runChains(bool secondPass) {
             ATH_MSG_DEBUG("Call EB at step " << step << " because chain needs it");
           else 
             ATH_MSG_DEBUG("Call EB at step " << step << " because the event is accepted");
-	  
-          issueEventBuildingRequest(step);
+
+	  // determine if the event is a "physics" event. Call only for these events full event building (not for calibration or monitoring)
+	  for (auto vec_it = ((*iterChain)->getStreamTags()).begin(); vec_it != ((*iterChain)->getStreamTags()).end(); ++vec_it) {
+	    if (vec_it->getType() == "physics") isPhysicsEvent = true;
+	  }
+
+	  if (isPhysicsEvent) issueEventBuildingRequest(step);
         }
       }
       if (m_auditChains) auditorSvc()->after(IAuditor::Execute,chainName);
@@ -913,7 +919,7 @@ void TrigSteer::runChains(bool secondPass) {
   // final call of EB at the end of steps (done here if strategyEB == 1)
   if (eventPassed){
     ATH_MSG_DEBUG("Call EB at step " << step << " at the end of steps processing because not done previously");
-    issueEventBuildingRequest(step);
+    if (isPhysicsEvent) issueEventBuildingRequest(step);
   }
 
   m_coreDumpSvc->setCoreDumpInfo("Current trigger chain","<NONE>");

@@ -6,7 +6,7 @@ from AthenaCommon import CfgMgr
 from RecExConfig.RecFlags import rec
 
 from glob import glob
-filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
+filelist = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
@@ -39,7 +39,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from GaudiSequencer.PyComps import PyEvtFilter
-filterseq = CfgMgr.AthSequencer("AthFilterSeq")
+#filterseq = CfgMgr.AthSequencer("AthFilterSeq")
 #the following lines are examples, pick one...
 # filterseq += PyEvtFilter("PVSoftTrkTail", evt_list=[
 #         # 106239409,
@@ -59,13 +59,24 @@ filterseq = CfgMgr.AthSequencer("AthFilterSeq")
 #         # 7747623,
 #         # 9713934,
 #         ])
-topSequence += filterseq
+#topSequence += filterseq
 
 ############################################################################
 # Set up an extra associator for testing
 from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 JetType = 'EMJet'
+
+modConstKey = ""
+modClusColls = {}
+if metFlags.UseTracks():
+	modConstKey="OriginCorr"
+	modClusColls={
+	'LCOriginCorrClusters':'LCOriginTopoClusters',
+	'EMOriginCorrClusters':'EMOriginTopoClusters'
+        }
+
+
 
 associators = [AssocConfig(JetType),
                AssocConfig('Muon'),
@@ -76,7 +87,8 @@ associators = [AssocConfig(JetType),
 cfg_akt4em = METAssocConfig('NewAntiKt4EMTopo',
                             associators,
                             doPFlow=False,
-                            doOriginCorrClus=True
+                            modConstKey=modConstKey,
+			    modClusColls=modClusColls
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
@@ -105,17 +117,17 @@ from METReconstruction.METAssocConfig import getMETAssocAlg
 # Get the configuration directly from METRecoFlags
 # Can also provide a dict of configurations or list of RecoTools or both
 metAlg = getMETAssocAlg('METAssociation')
-filterseq += metAlg
+topSequence += metAlg
 
 from METUtilities.METMakerConfig import getMETMakerAlg
 makerAlgEM = getMETMakerAlg("NewAntiKt4EMTopo",jetColl="AntiKt4EMTopoJets")
-# ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
+ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
 ToolSvc.METMaker_NewAntiKt4EMTopo.DoRemoveElecTrks=False
-filterseq += makerAlgEM
+topSequence += makerAlgEM
 makerAlgPF = getMETMakerAlg("NewAntiKt4EMPFlow",jetColl="AntiKt4EMPFlowJets")
-# ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
+ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
 ToolSvc.METMaker_NewAntiKt4EMPFlow.DoRemoveElecTrks=False
-filterseq += makerAlgPF
+topSequence += makerAlgPF
 
 # filterseq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMTopo",
 #                                          OutputLevel=VERBOSE,
@@ -146,6 +158,6 @@ if write_xAOD:
     xaodStream.AddItem('xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.')
 
     # xaodStream.AddAcceptAlgs( "PVSoftTrkTail" )
-theApp.EvtMax = 200
+theApp.EvtMax = 10
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 9999

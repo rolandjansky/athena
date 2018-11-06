@@ -42,9 +42,6 @@ namespace Trk {
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
 }
 
-namespace InDetDD {
-  class SiDetectorManager;
-}
 
 namespace iFatras {
 
@@ -102,8 +99,6 @@ namespace iFatras {
     void computeRadiusMinMax(Amg::Transform3D trf, iFatras::PlanarDetElement* moduleTmp, double &rMin, double &rMax) const;
     
     bool                                           m_pixelCase;                      //!< flag for pixel/sct
-    const InDetDD::SiDetectorManager*              m_siMgr;                          //!< the Si Detector Manager
-    std::string                                    m_siMgrLocation;                  //!< the location of the Pixel Manager
     const PixelID*                                 m_pixIdHelper;                    //!< pixel Id Helper 
     const SCT_ID*                                  m_sctIdHelper;                    //!< sct Id Helper
 

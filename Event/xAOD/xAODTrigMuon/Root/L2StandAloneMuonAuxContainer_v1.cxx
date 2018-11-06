@@ -207,7 +207,7 @@ namespace xAOD {
 
       AUX_VARIABLE( mdtHitOnlineId );
       AUX_VARIABLE( mdtHitOfflineId );
-      AUX_VARIABLE( mdtHitChamber );
+      //AUX_VARIABLE( mdtHitChamber );
       AUX_VARIABLE( mdtHitR );
       AUX_VARIABLE( mdtHitZ );
       AUX_VARIABLE( mdtHitResidual );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -33,7 +33,7 @@ namespace Amg {
 
 struct Vector3DComparer
 {
-	bool operator()(Amg::Vector3D const &v1, Amg::Vector3D const &v2)
+	bool operator()(Amg::Vector3D const &v1, Amg::Vector3D const &v2) const
 	{
 		if ( v1.z() > v2.z() ) {
 			return false;
@@ -56,36 +56,34 @@ struct Vector3DComparer
 
 struct VectorVector3DComparer
 {
-	bool operator()(std::vector<Amg::Vector3D> const &vv1, std::vector<Amg::Vector3D> const &vv2)
+	bool operator()(std::vector<Amg::Vector3D> const &vv1, std::vector<Amg::Vector3D> const &vv2) const
 	{
-		std::vector<Amg::Vector3D>::const_iterator v1;
-		std::vector<Amg::Vector3D>::const_iterator v2;
+          std::vector<Amg::Vector3D>::const_iterator v1 = vv1.begin();
+          std::vector<Amg::Vector3D>::const_iterator v2 = vv2.begin();
 
-		for (v1 = vv1.begin(); v1 != vv1.end(); ++v1) {
-			for (v2 = vv2.begin(); v2 != vv2.end(); ++v2) {
-				if ( (*v1).z() > (*v2).z() ) {
-					return false;
-				} else if ( (*v1).z() < (*v2).z() ) {
-					return true;
-				} else if ( (*v1).y() > (*v2).y() ) {
-					return false;
-				} else if ( (*v1).y() < (*v2).y() ) {
-					return true;
-				} else if ( (*v1).x() > (*v2).x() ) {
-					return false;
-				} else if ( (*v1).x() < (*v2).x() ) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
-		return false; // you should never get here
-	}
+          while (v1 != vv1.end()) {
+            if (v2 == vv2.end()) return false;
+            if ( (*v1).z() > (*v2).z() ) {
+              return false;
+            } else if ( (*v1).z() < (*v2).z() ) {
+              return true;
+            } else if ( (*v1).y() > (*v2).y() ) {
+              return false;
+            } else if ( (*v1).y() < (*v2).y() ) {
+              return true;
+            } else if ( (*v1).x() > (*v2).x() ) {
+              return false;
+            } else if ( (*v1).x() < (*v2).x() ) {
+              return true;
+            }
+            ++v1;
+            ++v2;
+          }
+          if (v2 != vv2.end()) return true;
+          return false;
+}
+
 };
-
-
-
 
 
 } // end namespace

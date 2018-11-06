@@ -8,11 +8,10 @@ atlas_subdir( TrigT1CaloByteStream )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
-                          Control/DataModel
+                          Control/AthContainers
                           Event/xAOD/xAODTrigL1Calo
                           GaudiKernel
                           PRIVATE
-                          Control/AthContainers
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/SGTools
@@ -36,13 +35,13 @@ atlas_add_component( TrigT1CaloByteStream
                      src/xaod/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools DataModel xAODTrigL1Calo GaudiKernel AthContainers AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthContainers xAODTrigL1Calo GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces )
 
 atlas_add_dictionary( TrigT1CaloByteStreamDict
                       TrigT1CaloByteStream/TrigT1CaloByteStreamDict.h
                       TrigT1CaloByteStream/selection.xml
                       INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools DataModel xAODTrigL1Calo GaudiKernel AthContainers AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces )
+                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthContainers xAODTrigL1Calo GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces )
 
 # Install files from the package:
 atlas_install_headers( TrigT1CaloByteStream )

@@ -1,4 +1,6 @@
-// $Id$
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
 /**
  * @file CxxUtils/CachedValue.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -52,7 +54,8 @@ CachedValue<T>::CachedValue (T&& val)
 template <class T>
 inline
 CachedValue<T>::CachedValue (const CachedValue& other)
-  : m_cacheValid (INVALID)
+  : m_cacheValid (INVALID),
+    m_val()
 {
   // If the source is in the middle of an update, set this value
   // to invalid.  Don't copy the value itself unless the source is valid.
@@ -168,6 +171,7 @@ struct CacheLock
 /**
  * @brief Set the value, assuming it is currently invalid.
  * Otherwise, this method will do nothing.
+ * The value will be valid once this returns.
  */
 template <class T>
 inline
@@ -180,6 +184,12 @@ void CachedValue<T>::set (const T& val) const
     if (lock) {
       m_val = val;
     }
+    else {
+      // Spin if another thread is currently updating.
+      while (m_cacheValid == UPDATING) {
+        CxxUtils::stall();
+      }
+    }
   }
 }
 
@@ -187,6 +197,7 @@ void CachedValue<T>::set (const T& val) const
 /**
  * @brief Set the value by move, assuming it is currently invalid.
  * Otherwise, this method will do nothing.
+ * The value will be valid once this returns.
  */
 template <class T>
 inline
@@ -198,6 +209,12 @@ void CachedValue<T>::set (T&& val) const
     CacheLock lock (m_cacheValid);
     if (lock) {
       m_val = std::move (val);
+    }
+    else {
+      // Spin if another thread is currently updating.
+      while (m_cacheValid == UPDATING) {
+        CxxUtils::stall();
+      }
     }
   }
 }
@@ -214,14 +231,17 @@ bool CachedValue<T>::isValid() const
   CacheState stat;
   // Get the state flag.
   // Spin if another thread is currently updating.
-  while ((stat = m_cacheValid) == UPDATING) ;
+  while ((stat = m_cacheValid) == UPDATING) {
+    CxxUtils::stall();
+  }
   return stat == VALID;
 }
 
 
 /**
  * @brief Return a pointer to the cached value.
- *        Should not be called unless isValid() has returned true.
+ *        Should not be called unless isValid() has returned true or set()
+ *        has returned.
  */
 template <class T>
 inline

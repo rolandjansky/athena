@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # ReadFloatFromCaloCool.py
 # Carlos.Solans <Carlos.Solans@cern.ch>
@@ -91,11 +91,6 @@ import cppyy
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
-hashMgr=None
-hashMgrDef=TileCellTools.TileCellHashMgr()
-hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
-hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
-hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
 
 #=== get a logger
 log = CaloCondLogger.getLogger("ReadCellNoise")
@@ -142,6 +137,19 @@ elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
         schema='COOLOFL_TILE/OFLP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
     if tag=='UPD4': tag='OFLCOND-RUN12-SDR-31' # change default to tag used in MC15
+
+if run<222222 or 'COMP200' in schema:
+    cabling = 'RUN1'
+else:
+    if ('OFLP200' in schema and run>=310000) or run>=343000:
+        cabling = 'RUN2a'
+    else:
+        cabling = 'RUN2'
+hashMgr=None
+hashMgrDef=TileCellTools.TileCellHashMgr(cabling=cabling)
+hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
+hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
+hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
 
 db = CaloCondTools.openDbConn(schema, "READONLY")
 
@@ -213,7 +221,7 @@ if brief or doubl:
   dm=" "
   for i in xrange(indexmax): names += [""]
 else:
-  name1 = ["Noise cell ", "gain ","0.00"]
+  name1 = ["Noise cell ", "gain ","0.00    "]
   names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
   for i in xrange(len(names),indexmax): names += ["c"+str(i)+" "]
   dm="\t"
@@ -224,10 +232,10 @@ for cell in xrange(cellmin,cellmax):
     msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
     for index in xrange(indexmin,indexmax):
       v=blobFlt.getData(cell, gain, index)
-      if doubl: msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v),dm)
+      if doubl: msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
       elif v<5.e-7: msg += "%s%s%s" % (names[index],name1[2],dm)
       elif v<1: msg += "%s%8.6f%s" % (names[index],v,dm)
-      else: msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v),dm)
+      else: msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
     print msg
 
 #=== close DB

@@ -13,7 +13,7 @@
 TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) 
   :
   AthAlgorithm(name, pSvcLocator),
-  m_tool( "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"), // 'this' as 2nd arg would make it private tool
+  m_tool( "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", this), 
   m_print_inputRdo(false),
   m_print_prepData(false),
   m_setting(0),

@@ -17,7 +17,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <cmath>
 

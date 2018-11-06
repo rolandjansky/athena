@@ -19,6 +19,8 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h" 
 #include "GeoPrimitives/GeoPrimitives.h"
+//std
+#include <cmath> //for cos, sin etc
 
 class MsgStream;
 template< class SURFACE, class BOUNDS_CNV > class BoundSurfaceCnv_p1;
@@ -174,6 +176,9 @@ namespace Trk {
       /**  Special method for Disc surface : local<->local transformations polar <-> cartesian */
       const Amg::Vector2D* localCartesianToPolar(const Amg::Vector2D& loccart) const;      
       
+      /**  Special method for Disc surface : local<->local transformations polar <-> cartesian by value*/
+      Amg::Vector2D localCartesianToPolarValue(const Amg::Vector2D& loccart) const;  
+      
       /**  Special method for DiscSurface : local<->local transformations polar <-> cartesian */
       const Amg::Vector2D* localPolarToLocalCartesian(const Amg::Vector2D& locpol) const;
       
@@ -257,12 +262,17 @@ namespace Trk {
   }
 
   inline const Amg::Vector2D* DiscSurface::localPolarToCartesian(const Amg::Vector2D& locpol) const
-  { return(new Amg::Vector2D(locpol[locR]*cos(locpol[locPhi]),locpol[locR]*sin(locpol[locPhi]))); }
+  { return(new Amg::Vector2D(locpol[locR]*std::cos(locpol[locPhi]),locpol[locR]*std::sin(locpol[locPhi]))); }
   
   inline const Amg::Vector2D* DiscSurface::localCartesianToPolar(const Amg::Vector2D& loccart) const
   {
-    return(new Amg::Vector2D(sqrt(loccart[locX]*loccart[locX]+loccart[locY]*loccart[locY]),
-                             atan2(loccart[locY], loccart[locX])));    
+    return(new Amg::Vector2D(std::sqrt(loccart[locX]*loccart[locX]+loccart[locY]*loccart[locY]),
+                             std::atan2(loccart[locY], loccart[locX])));    
+  }
+  inline Amg::Vector2D DiscSurface::localCartesianToPolarValue(const Amg::Vector2D& loccart) const
+  {
+    return(Amg::Vector2D(std::sqrt(loccart[locX]*loccart[locX]+loccart[locY]*loccart[locY]),
+                             std::atan2(loccart[locY], loccart[locX])));    
   }
   
   inline Intersection DiscSurface::straightLineIntersection(const Amg::Vector3D& pos, 

@@ -1,39 +1,15 @@
 <?xml version="1.0"?>
 <atn>
-   <TEST name="LWHists_val" type="script">
-      <options_atn>lwhists_validate.exe --seed=117</options_atn>
-      <package>Tools/LWHists</package>
-      <timelimit>30</timelimit>
-      <author>Thomas Kittelmann</author>
-      <mailto>atlas-srl-core-tools@cern.ch</mailto>
-      <expectations>
-         <successMessage>All enabled tests succesfully completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-   <TEST name="LWHists_val_rootbackend" type="script">
-      <options_atn>lwhists_validate.exe --rootbackend --seed=117</options_atn>
-      <package>Tools/LWHists</package>
-      <timelimit>30</timelimit>
-      <author>Thomas Kittelmann</author>
-      <mailto>atlas-srl-core-tools@cern.ch</mailto>
-      <expectations>
-         <successMessage>All enabled tests succesfully completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-   <TEST name="LWHists_val_triggerrootconv" type="script">
-      <options_atn>lwhists_validate.exe --triggerconv --seed=117</options_atn>
-      <package>Tools/LWHists</package>
-      <timelimit>30</timelimit>
-      <author>Thomas Kittelmann</author>
-      <mailto>atlas-srl-core-tools@cern.ch</mailto>
-      <expectations>
-         <successMessage>All enabled tests succesfully completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
+    <TEST name="LWHistsTests" type="makecheck" suite="Tests">
+       <package>Tools/LWHists</package>
+       <author> scott snyder </author>
+       <mailto> snyder@bnl.gov </mailto>
+       <expectations>
+          <errorMessage>Athena exited abnormally</errorMessage>
+          <errorMessage>differ</errorMessage>
+          <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+          <successMessage>check ok</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
 </atn>

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetailedSurfaceChargesGenerator.h"
 
-double SCT_DetailedSurfaceChargesGenerator::EyValue150(int& ix, int& iy) {
+double SCT_DetailedSurfaceChargesGenerator::EyValue150(int ix, int iy) const {
 //  EyArray for VD=70V(rho=0.1540[C/m**3]), VB=150V
-double EyArray[17][115] = {
+static const double EyArray[17][115] = {
 {
    2609.00,   2646.00,   2683.00,   2721.00,   2758.00,
    2794.00,   2833.00,   2871.00,   2908.00,   2944.00,
@@ -439,9 +439,9 @@ return EyArray[ix][iy];
                                       
                                       
                                       
-double SCT_DetailedSurfaceChargesGenerator::ExValue150(int& ix, int& iy) {
+double SCT_DetailedSurfaceChargesGenerator::ExValue150(int ix, int iy) const {
 //  ExArray for VD=70V(rho=0.1540[C/m**3]), VB=150V
-double ExArray[17][115] = {
+static const double ExArray[17][115] = {
 {
      -2.04,     -1.58,     -2.92,     -3.26,     -3.61,
      -2.99,     -2.63,     -3.06,     -3.50,     -3.28,

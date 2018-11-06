@@ -13,13 +13,16 @@
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <string>
 #include <iostream>
 #include <fstream>
 
 namespace InDetDD {
   class TRT_DetectorManager; 
-  class SCT_DetectorManager; 
   class PixelDetectorManager; 
 }
 
@@ -55,12 +58,14 @@ class GetDetectorPositions:public AthAlgorithm {
     std::string m_outputFileName;
     std::ofstream m_outputFile;
     
+    /** SCT Data */
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
     /** Tools */
     const PixelID *m_PixelHelper;
     const InDetDD::PixelDetectorManager *m_pixelDetectorManager;
     
     const SCT_ID *m_SCTHelper;
-    const InDetDD::SCT_DetectorManager *m_SCTDetectorManager;
 
     const TRT_ID *m_TRTHelper;
     const InDetDD::TRT_DetectorManager *m_TRTDetectorManager;

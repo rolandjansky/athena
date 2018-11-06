@@ -6,6 +6,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoring/MonitoredScope.h"
+#include "TrigConfL1Data/CTPConfig.h"
 
 JRoIsUnpackingTool::JRoIsUnpackingTool( const std::string& type, 
                                         const std::string& name, 
@@ -26,10 +27,14 @@ StatusCode JRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JRoIsUnpackingTool::updateConfiguration() {
-  using namespace TrigConf;
+StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding) {
+  using namespace TrigConf;  
 
-  m_jetThresholds.clear();
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::JET; }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
+
+  m_jetThresholds.clear();  
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JF ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JB ), m_jetThresholds ) );
@@ -50,7 +55,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
 
   // Additional FS RoI tagged with the decisions of all chains
   auto trigFSRoIs = std::make_unique< TrigRoiDescriptorCollection >();
-  trigFSRoIs->push_back( new TrigRoiDescriptor() ); // the argument-less c'tor is crating the FS RoI
+  trigFSRoIs->push_back( new TrigRoiDescriptor( true ) ); // the c'tor for the FS RoI
   auto fsDecisionOutput = std::make_unique<DecisionContainer>();
   auto fsDecisionAux    = std::make_unique<DecisionAuxContainer>();
   fsDecisionOutput->setStore( fsDecisionAux.get() );  
@@ -125,6 +130,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   }
 
   ATH_MSG_DEBUG( "Unpacked " <<  trigRoIs->size() << " RoIs" );
+  ATH_MSG_DEBUG( "Unpacked " <<  trigFSRoIs->size() << " FS RoIs" );
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );

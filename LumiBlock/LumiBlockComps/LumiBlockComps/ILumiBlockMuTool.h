@@ -29,8 +29,8 @@ class ILumiBlockMuTool: virtual public IAlgTool {
   virtual StatusCode finalize() = 0;
 
   // Interface
-  virtual float averageInteractionsPerCrossing() = 0;
-  virtual float actualInteractionsPerCrossing() = 0;
+  virtual float averageInteractionsPerCrossing() const = 0;
+  virtual float actualInteractionsPerCrossing() const = 0;
 
  private:
 };

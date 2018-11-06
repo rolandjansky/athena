@@ -13,7 +13,10 @@
 #+ HLT/Trigger/TrigTransforms/TrigTransform
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
+- HLT/HLTTestApps
 - HLT/HLToks
+- Trigger/ALP
+- Event/DFStreamEventSelector
 
 # Offload service has build problems
 - Offloading/.*
@@ -52,5 +55,13 @@
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
 
+# Data quality packages not needed in Athena
+- DataQuality/DataQualityConfigurations
+- DataQuality/DCSCalculator2
+
 # obsolete packages to be removed in a second step
 - Tracking/TrkTools/TrkSegmentConverter
+
+# Huge D3PD librarys not really useful any more
+- PhysicsAnalysis/D3PDMaker/TrackD3PDMaker
+- PhysicsAnalysis/D3PDMaker/CaloD3PDMaker

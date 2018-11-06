@@ -226,7 +226,54 @@ namespace xAOD {
          /// and pi-
          ENG_CALIB_FRAC_HAD     = 10052,
          ///  Calibration Hit energy inside the cluster caused by other particles
-         ENG_CALIB_FRAC_REST    = 10053
+         ENG_CALIB_FRAC_REST    = 10053,
+
+
+         ENERGY_DigiHSTruth         = 40101, ///< First Moment in \f$\phi\f$
+         ETA_DigiHSTruth         = 401024, ///< Eta moment that I am trying to include
+         PHI_DigiHSTruth         = 401034, ///< phi moment I would like to have
+         TIME_DigiHSTruth         = 40104, ///< First Moment in \f$\phi\f$
+         ENERGY_CALIB_DigiHSTruth         = 40105, ///< First Moment in \f$\phi\f$
+         ETA_CALIB_DigiHSTruth         = 40106, ///< First Moment in \f$\phi\f$
+         PHI_CALIB_DigiHSTruth         = 40107, ///< First Moment in \f$\phi\f$
+         TIME_CALIB_DigiHSTruth         = 40108, ///< First Moment in \f$\phi\f$
+         FIRST_PHI_DigiHSTruth         = 50101, ///< First Moment in \f$\phi\f$
+         FIRST_ETA_DigiHSTruth         = 50102, ///< First Moment in \f$\eta\f$
+         SECOND_R_DigiHSTruth          = 50201, ///< Second Moment in \f$r\f$
+         SECOND_LAMBDA_DigiHSTruth     = 50202, ///< Second Moment in \f$\lambda\f$
+         DELTA_PHI_DigiHSTruth         = 50301,
+         DELTA_THETA_DigiHSTruth       = 50302,
+         DELTA_ALPHA_DigiHSTruth       = 50303,
+         CENTER_X_DigiHSTruth          = 50401, ///< Cluster Centroid (\f$x\f$)
+         CENTER_Y_DigiHSTruth          = 50402, ///< Cluster Centroid (\f$y\f$)
+         CENTER_Z_DigiHSTruth          = 50403, ///< Cluster Centroid (\f$z\f$)
+         CENTER_MAG_DigiHSTruth        = 50404,
+         CENTER_LAMBDA_DigiHSTruth     = 50501, ///< Shower depth at Cluster Centroid
+         LATERAL_DigiHSTruth           = 50601, ///< Normalized lateral moment
+         LONGITUDINAL_DigiHSTruth      = 50602, ///< Normalized longitudinal moment
+         ENG_FRAC_EM_DigiHSTruth       = 50701, ///< Energy fraction in EM calorimeters
+         ENG_FRAC_MAX_DigiHSTruth      = 50702, ///< Energy fraction of hottest cell
+         ENG_FRAC_CORE_DigiHSTruth     = 75003,
+         FIRST_ENG_DENS_DigiHSTruth    = 50804, ///< First Moment in E/V
+         SECOND_ENG_DENS_DigiHSTruth   = 50805, ///< Second Moment in E/V
+         ISOLATION_DigiHSTruth         = 50806,
+         ENG_BAD_CELLS_DigiHSTruth     = 50807,
+         N_BAD_CELLS_DigiHSTruth       = 50808, ///< number of bad cells
+         N_BAD_CELLS_CORR_DigiHSTruth  = 50809,
+         BAD_CELLS_CORR_E_DigiHSTruth  = 50813,
+         BADLARQ_FRAC_DigiHSTruth      = 50821,
+         ENG_POS_DigiHSTruth           = 50822, ///< Total positive Energy of this cluster
+         SIGNIFICANCE_DigiHSTruth      = 50823, ///< Cluster significance
+         CELL_SIGNIFICANCE_DigiHSTruth = 50824,
+         CELL_SIG_SAMPLING_DigiHSTruth = 50825,
+         AVG_LAR_Q_DigiHSTruth         = 50826,
+         AVG_TILE_Q_DigiHSTruth        = 50827,
+         ENG_BAD_HV_CELLS_DigiHSTruth  = 50828,
+         N_BAD_HV_CELLS_DigiHSTruth    = 50829, ///< number of cells with bad HV
+         EM_PROBABILITY_DigiHSTruth    = 50900, ///< Classification probability to be em-like
+         HAD_WEIGHT_DigiHSTruth        = 50901, ///< Hadronic weight (E_w/E_em)
+         OOC_WEIGHT_DigiHSTruth        = 50902, ///< Out-of-cluster weight (E_ooc/E_w)
+         DM_WEIGHT_DigiHSTruth         = 50903  ///< Dead-material weight (E_dm/E_ooc)
       };
 
      /// enum of possible signal states. 
@@ -295,18 +342,7 @@ namespace xAOD {
      double et() const;
 
      ///}
-  // Cint has trouble with the types of these members.
-  // Just hide them from reflex for now.
-     /*
-#ifndef __REFLEX__
-   private:
-     typedef flt_t (CaloCluster_v1::*GET_VALUE)() const;
-     mutable GET_VALUE m_getE;
-     mutable GET_VALUE m_getEta;
-     GET_VALUE m_getPhi;
-     GET_VALUE m_getM;
-#endif
-     */
+  
    public:
 
      /// @name Energy/Eta/Phi per sampling
@@ -507,8 +543,8 @@ namespace xAOD {
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
    private:
 #endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
-     /// Switch signal state (mutable)
-     bool setSignalState(const State s) const;
+     /// Switch signal state 
+     bool setSignalState(const State s) ;
    public:
      /// Get the current signal state
      State signalState() const {return m_signalState;}
@@ -522,8 +558,12 @@ namespace xAOD {
      /// eta with a given signal state
      double eta(const State s) const;
 
-     /// eta with a given signal state
+     /// phi with a given signal state
      double phi(const State s) const;
+
+     /// m with a given signal state
+     double m(const State s) const;
+
 
      ///  @}
 
@@ -553,8 +593,8 @@ namespace xAOD {
      /// bit-pattern describing the calo samplings contributing to this cluster
      unsigned m_samplingPattern;
 
-     /// Current signal state *** NEED TO UPDATE FOR ATHENAMT ***
-     mutable State m_signalState;
+     /// Current signal state 
+     State m_signalState;
      ///Non-const ptr to cell links (for cluster building, transient-only)
      CaloClusterCellLink* m_cellLinks;
 
@@ -650,24 +690,28 @@ namespace xAOD {
       */
      size_t size() const {return getCellLinks()->size();}
 
-     ///Iterator of the underlying CaloClusterCellLink (const version)
+     ///Iterator of the underlying CaloClusterCellLink (explicitly const version)
      typedef CaloClusterCellLink::const_iterator const_cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
-     const_cell_iterator cell_begin() const { 
+     const_cell_iterator cell_cbegin() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
 	 return CaloClusterCellLink::dummyIt;
        else
 	 return links->begin();
      }
-     const_cell_iterator cell_end() const { 
+     const_cell_iterator cell_cend() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
 	 return CaloClusterCellLink::dummyIt;
        else
 	 return getCellLinks()->end();
      } 
-     
+
+     ///Iterator of the underlying CaloClusterCellLink (const version)
+     const_cell_iterator cell_begin() const { return cell_cbegin(); } 
+     const_cell_iterator cell_end() const { return cell_cend(); }
+
      ///Iterator of the underlying CaloClusterCellLink (non-const version)
      typedef CaloClusterCellLink::iterator cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
@@ -677,8 +721,10 @@ namespace xAOD {
      /// STL-compatible iterators.
      typedef const_cell_iterator const_iterator;
      typedef cell_iterator iterator;
-     const_iterator begin() const { return cell_begin(); }
-     const_iterator end() const { return cell_end(); }
+     const_iterator begin() const { return cell_cbegin(); }
+     const_iterator end() const { return cell_cend(); }
+     const_iterator cbegin() const { return cell_cbegin(); }
+     const_iterator cend() const { return cell_cend(); }
      iterator begin() { return cell_begin(); }
      iterator end() { return cell_end(); }
 

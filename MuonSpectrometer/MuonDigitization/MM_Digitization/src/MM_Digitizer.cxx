@@ -12,7 +12,7 @@
 /*******************************************************************************/
 MM_Digitizer::MM_Digitizer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_digTool("MmDigitizationTool", this )
+    m_digTool("MM_DigitizationTool", this )
 {
   declareProperty("MM_DigitizationTool", m_digTool , "AthAlgTool which performs the MicroMegas digitization");
 }

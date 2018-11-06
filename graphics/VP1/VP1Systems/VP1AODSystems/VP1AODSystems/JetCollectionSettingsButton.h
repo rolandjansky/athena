@@ -141,7 +141,9 @@ private:
   void enableRandomColours(bool);
 
   void emitRerandomise();
-  //	void emitMaxR();
+
+  void checkSelection();
+
     
 };
 

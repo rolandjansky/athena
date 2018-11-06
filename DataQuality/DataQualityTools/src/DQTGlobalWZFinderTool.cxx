@@ -293,10 +293,12 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      Double_t phiMet = 0, metMet = 0;
      //     const MissingET *missET;
      const xAOD::MissingETContainer *missETcont(0);
-     const xAOD::MissingET* missET;
      if ( evtStore()->contains<xAOD::MissingETContainer>(m_METName) ) {
-       evtStore()->retrieve(missETcont,m_METName);
-       missET = (*missETcont)["FinalClus"];
+       const xAOD::MissingET* missET = nullptr;
+       sc = evtStore()->retrieve(missETcont,m_METName);
+       if (sc.isSuccess()) {
+         missET = (*missETcont)["FinalClus"];
+       }
        if (!missET){
 	 ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
 	 if (!m_printedErrorMet)
@@ -399,7 +401,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      bool printedErrorJetCollection = false;
      if (evtStore()->contains<JetContainer>(m_jetCollectionName)) {
        //       log << MSG::DEBUG << "Found JetCollection!" << endmsg;
-       sc=evtStore()->retrieve(jetTES,m_jetCollectionName);
+       ATH_CHECK( evtStore()->retrieve(jetTES,m_jetCollectionName) );
 	      
        //MET cleaning
        //JetContainer::const_iterator fJet = jetTES->begin();

@@ -5,14 +5,14 @@
 #ifndef GTOWER_ID_H
 #define GTOWER_ID_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/IdentifierHash.h"
 #include "IdDict/IdDictFieldImplementation.h"
 #include "IdDict/IdDictDefs.h"
 
 #include "CaloIdentifier/JGTowerBase_ID.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include <vector>
 #include <algorithm>

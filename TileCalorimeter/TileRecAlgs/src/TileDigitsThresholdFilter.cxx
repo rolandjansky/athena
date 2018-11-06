@@ -16,7 +16,7 @@
 //*****************************************************************************
 
 // Tile includes
-#include "TileRecAlgs/TileDigitsThresholdFilter.h"
+#include "TileDigitsThresholdFilter.h"
 
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileConditions/TileCondToolDspThreshold.h"

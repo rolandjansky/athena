@@ -14,7 +14,7 @@
 #include "CaloRingerTools/ICaloRingerElectronsReader.h"
 #include "CaloRingerReaderUtils.h"
 
-//CxxUtils for override final  
+// CxxUtils for override final
 #include "CxxUtils/final.h"
 #include "CxxUtils/override.h"
 
@@ -24,11 +24,12 @@
 // Asg selectors include:
 #include "RingerSelectorTools/IAsgElectronRingerSelector.h"
 
+// StoreGate includes:
 #include "StoreGate/ReadHandleKey.h"
 
 namespace Ringer {
 
-class CaloRingerElectronsReader : public CaloRingerInputReader, 
+class CaloRingerElectronsReader : public CaloRingerInputReader,
                                   public ICaloRingerElectronsReader
 {
 
@@ -36,31 +37,31 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
 
     /// @name CaloRingerElectronsReader ctors and dtors:
     /// @{
-    /** 
+    /**
      * @brief Default constructor
      **/
     CaloRingerElectronsReader(const std::string& type,
                      const std::string& name,
                      const IInterface* parent);
 
-    /** 
+    /**
      * @brief Destructor
      **/
     ~CaloRingerElectronsReader();
     /// @}
-    
+
     /// Tool main methods:
     /// @{
-    /** 
-     * @brief initialize method 
+    /**
+     * @brief initialize method
      **/
     virtual StatusCode initialize() ATH_OVERRIDE;
-    /** 
+    /**
      * @brief read electrons and populates @name decoMap with them and their
      * respective CaloRings.
      **/
     virtual StatusCode execute() ATH_OVERRIDE;
-    /** 
+    /**
      * @brief finalize method
      **/
     virtual StatusCode finalize() ATH_OVERRIDE;
@@ -77,7 +78,7 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
 
     /// Tool CaloRingerElectronsReader props (python configurables):
     /// @{
-    /** 
+    /**
      * @brief Electron selectors.
      **/
     PublicToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors {this,
@@ -97,10 +98,10 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     writeDecorHandleKeys<xAOD::ElectronContainer> m_selectorDecorHandleKeys;
 
     /// The CaloRings Builder functor:
-    BuildCaloRingsFctor<const xAOD::Electron> *m_clRingsBuilderElectronFctor;
+    BuildCaloRingsFctor<xAOD::ElectronContainer> *m_clRingsBuilderElectronFctor;
 
     /// Whether selectors are available
-    Gaudi::Property<bool> m_selectorsAvailable {this, 
+    Gaudi::Property<bool> m_selectorsAvailable {this,
 	"selectorsAvailable", false, "Whether Selector Tool is available."};
     /// @}
 

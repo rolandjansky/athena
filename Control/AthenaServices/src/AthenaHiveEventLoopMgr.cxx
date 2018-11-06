@@ -22,7 +22,6 @@
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/DataSelectionAgent.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -502,67 +501,52 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
 //=========================================================================
 StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 
-
   StatusCode sc (StatusCode::SUCCESS);
   
   if ( 0 != m_histoPersSvc && m_writeHists ) {
-    DataSelectionAgent agent;
-    StatusCode iret = m_histoDataMgrSvc->traverseTree( &agent );
-    if( iret.isFailure() ) {
-      sc = iret;
-      error() << "Error while traversing Histogram data store" 
-              << endmsg;
+    std::vector<DataObject*> objects;
+    sc = m_histoDataMgrSvc->traverseTree( [&objects]( IRegistry* reg, int ) {
+        DataObject* obj = reg->object();
+        if ( !obj || obj->clID() == CLID_StatisticsFile ) return false;
+        objects.push_back( obj );
+        return true;
+      } );
+
+    if ( !sc.isSuccess() ) {
+      error() << "Error while traversing Histogram data store" << endmsg;
+      return sc;
     }
-    
-    IDataSelector* objects = agent.selectedObjects();
-    // skip /stat entry!
-    if ( objects->size() > 0 ) {
-      unsigned int writeInterval(m_writeInterval.value());
-      IDataSelector::iterator i;
-      for ( i = objects->begin(); i != objects->end(); i++ ) {
-	StatusCode iret(StatusCode::SUCCESS);
-	
-	if ( m_nevt == 1 || force || 
-	     (writeInterval != 0 && m_nevt%writeInterval == 0) ) {
-	  
-	  bool crt(false);
-	  
-	  IOpaqueAddress* pAddr = (*i)->registry()->address();
-	  if (pAddr == 0) {
-	    iret = m_histoPersSvc->createRep(*i, pAddr);
-	    if ( iret.isSuccess() ) {
-	      (*i)->registry()->setAddress(pAddr);
-	      crt = true;
-	    } else {
-	      error() << "calling createRep for " 
-                      << (*i)->registry()->identifier() << endmsg;
-	    }	       
-	  }
-	  
-	  if (iret.isSuccess()) {
-	    assert(pAddr != 0);
-	    iret = m_histoPersSvc->updateRep(pAddr, *i);
-	    
-	    if (iret.isSuccess() && crt == true) {
-	      iret = m_histoPersSvc->fillRepRefs(pAddr,*i);
-	    }
-	  }
-	  
-	}
-	
-	if ( iret.isFailure() ) {
-	  sc = iret;
-	}
-	
-      }    // end of loop over Objects
-      
-      if (force || (writeInterval != 0 && m_nevt%writeInterval == 0) ) {
-	if (msgLevel(MSG::DEBUG)) { debug() << "committing Histograms" << endmsg; }
-	m_histoPersSvc->conversionSvc()->commitOutput("",true).ignore();
+
+    if ( objects.size() > 0) {
+      int writeInterval(m_writeInterval.value());
+
+      if ( m_nevt == 1 || force || 
+           (writeInterval != 0 && m_nevt%writeInterval == 0) ) {
+
+        // skip /stat entry!
+        sc = std::accumulate( begin( objects ), end( objects ), sc, [&]( StatusCode isc, auto& i ) {
+            IOpaqueAddress* pAddr = nullptr;
+            StatusCode      iret  = m_histoPersSvc->createRep( i, pAddr );
+            if ( iret.isFailure() ) return iret;
+            i->registry()->setAddress( pAddr );
+            return isc;
+          } );
+        sc = std::accumulate( begin( objects ), end( objects ), sc, [&]( StatusCode isc, auto& i ) {
+            IRegistry* reg  = i->registry();
+            StatusCode iret = m_histoPersSvc->fillRepRefs( reg->address(), i );
+            return iret.isFailure() ? iret : isc;
+          } );
+        if ( ! sc.isSuccess() ) {
+          error() << "Error while saving Histograms." << endmsg;
+        }
       }
-      
-    }       // end of objects->size() > 0
-    
+
+      if (force || (writeInterval != 0 && m_nevt%writeInterval == 0) ) {
+        if (msgLevel(MSG::DEBUG)) { debug() << "committing Histograms" << endmsg; }
+        m_histoPersSvc->conversionSvc()->commitOutput("",true).ignore();
+      }
+    }
+          
   }
   
   return sc;
@@ -1243,7 +1227,6 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       continue;
     }
     
-
     EventID::number_type n_run(0);
     EventID::number_type n_evt(0);
 
@@ -1268,7 +1251,7 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
-
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
             << " (event " << thisFinishedEvtContext->evt()
@@ -1313,14 +1296,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 
     debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext
 	    << endmsg;
-    
-    
-    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, 
-					 *thisFinishedEvtContext ));    
 
     delete thisFinishedEvtContext;
-
-    
   }
 
   return (  fail ? -1 : 1 );

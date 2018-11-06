@@ -66,7 +66,10 @@ def read_metadata(filenames, file_type=None, mode='lite', meta_key_filter= []):
 			current_file = ROOT.TFile(filename)
 
 			# open the tree 'POOLContainer' to read the number of entries
-			meta_dict[filename]['nentries'] = current_file.Get('POOLContainer').GetEntriesFast()
+			if current_file.GetListOfKeys().Contains('POOLContainer'):
+				meta_dict[filename]['nentries'] = current_file.Get('POOLContainer').GetEntriesFast()
+			else:
+				meta_dict[filename]['nentries'] = None
 
 			# read and add the 'GUID' value
 			meta_dict[filename]['file_guid'] = _read_guid(filename)

@@ -117,8 +117,10 @@ int main(int argc, char** )
        collection = factory->openWithPhysicalName(physicalName, 0);
     }
     cout << (collection ? "OK":"KO") << endl;
+    delete collection;
+    collection = nullptr;
 
-    
+
     cout << "Open collection 1 with guid .... ";
     if(crude) {
        CollectionDescription	desc( guid, "" ); 
@@ -126,6 +128,8 @@ int main(int argc, char** )
     } else
        collection = factory->openWithGuid(guid, 0);
     cout << (collection ? "OK":"KO") << endl;
+    delete collection;
+    collection = nullptr;
     
 
     cout << "Open collection 2 with logical name .... ";
@@ -135,6 +139,8 @@ int main(int argc, char** )
     } else
        collection = factory->openWithLogicalName("logicalName2", 0);
     cout << (collection ? "OK":"KO") << endl;
+    delete collection;
+    collection = nullptr;
         
  
     cout << "Try to create the existing collection 0 ... ";
@@ -153,7 +159,7 @@ int main(int argc, char** )
     }
     
     
-    
+
     cout << "Try to replace the replicated collection 1 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection1";
     try{
@@ -181,13 +187,15 @@ int main(int argc, char** )
      	  CollectionDescription	desc( "Collection0", collType, collConnection ); 
 	  collection = factory->createAndRegister( desc, 0, true, "", collMetaData );
        }
+       delete collection;
+       collection = nullptr;
        cout << "OK, this works" << endl;
     }catch( std::exception& e){
        cout << "ERROR, this should work" << endl;
        std::cout << "Exception: "<<e.what()<<std::endl;
     }
     
-    
+
     cout << "Try to update the NON replicated collection 0 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection0";
     try{
@@ -198,6 +206,8 @@ int main(int argc, char** )
 	  collection = factory->openWithPhysicalName( physicalName, 0, 
 						       ICollection::UPDATE );
        cout << "OK, this works" << endl;
+       delete collection;
+       collection = nullptr;
     }catch( std::exception&e ){
        cout << "ERROR, this should work" << endl;
        std::cout << "Exception: "<<e.what()<<std::endl; 
@@ -227,6 +237,8 @@ int main(int argc, char** )
 	  collection = factory->openWithLogicalName( "logicalName0", 0,// logical name 
 						     false );        // readOnly
        cout << "OK it works" << endl;
+       delete collection;
+       collection = nullptr;
     }catch( std::exception&){
       cout << "ERROR, this should work" << endl;
     }

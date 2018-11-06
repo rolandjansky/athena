@@ -67,16 +67,19 @@ StatusCode CoolStrFileSvc::putFile(const std::string& folder,
     fseek (f, 0L, SEEK_SET);
     ATH_MSG_INFO("Input file size is " << size);
     std::vector<char> sbuf(size);
-    fread(&sbuf[0],size,1,f);
+    if (fread(&sbuf[0],size,1,f) != 1) {
+      ATH_MSG_ERROR("Short read of input file.");
+      fclose (f);
+      return StatusCode::FAILURE;
+    }
     fclose (f);
     // copy from buffer to string and save
     std::string sdata(sbuf.begin(),sbuf.begin()+size);
     return putData(folder,filename,chan,tech,sdata);
-  } else {
-    ATH_MSG_INFO("Cannot open file "+filename);
-    return StatusCode::FAILURE;
   }
-  return StatusCode::SUCCESS;
+
+  ATH_MSG_INFO("Cannot open file "+filename);
+  return StatusCode::FAILURE;
 }
 
 StatusCode CoolStrFileSvc::getString(const std::string& folder, 

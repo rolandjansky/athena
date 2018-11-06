@@ -13,18 +13,18 @@ def GetKeyNames(f0, dir = ""):
     f0.cd(dir)
     return [key.GetName() for key in gDirectory.GetListOfKeys()]
 
-f1 = TFile(sys.argv[1])
-f2 = TFile(sys.argv[2])
+f_baseline = TFile(sys.argv[1])
+f_nightly = TFile(sys.argv[2])
 
 particleType = sys.argv[3]
 
 fO = TFile("BN_ComparisonPlots_"+particleType+".hist.root", "RECREATE")
 
 gROOT.SetBatch(kTRUE)
+gStyle.SetOptStat(0)
+for folder in GetKeyNames(f_nightly):
+    for histo in GetKeyNames(f_nightly,folder):
 
-for folder in GetKeyNames(f1):
-    for histo in GetKeyNames(f1,folder):
-        
         c1 = TCanvas()
         
         mainPad =  TPad("mainPad", "top", 0.00, 0.254758, 1.00, 1.00)
@@ -48,30 +48,32 @@ for folder in GetKeyNames(f1):
         
         c1.Update()
 
-        h_Base = f1.Get(folder+'/'+histo)
+        h_Base = f_baseline.Get(folder+'/'+histo)
         h_Base.SetLineColor(4)
         h_Base.SetLineWidth(2)
         h_Base.GetXaxis().SetLabelOffset(1.20)
         h_Base.GetYaxis().SetTitleSize(0.045)
         h_Base.GetYaxis().SetTitleOffset(0.95)
         
-        h_Night = f2.Get(folder+'/'+histo)
+        h_Night = f_nightly.Get(folder+'/'+histo)
         h_Night.SetMarkerStyle(8)
         h_Night.SetMarkerSize(0.5)
  
         mainPad.cd()
         
-        h_Base.Draw()
-        h_Night.Draw("same p")
+        if not "2D" in histo: h_Base.Draw()
+        h_Night.Draw("same p" if not "2D" in histo else "colz")
 
         c1.Update()
+
+        var_name = histo.split("_", 1)[1]
         
         leg = TLegend(0.330986, 0.884087, 0.879499, 0.97053)
-        leg.SetHeader(folder+'_'+histo, "C")
+        leg.SetHeader(folder+''+var_name, "C")
         leg.SetNColumns(2)
         leg.SetFillStyle(0)
         leg.SetBorderSize(0)
-        leg.AddEntry(h_Base , "Baseline", "l")
+        if not "2D" in histo: leg.AddEntry(h_Base , "Baseline", "l")
         leg.AddEntry(h_Night, "Nightly" , "p")
         leg.Draw()
         
@@ -79,29 +81,34 @@ for folder in GetKeyNames(f1):
                 
         ratioPad.cd()
                 
-        h1clone = h_Night.Clone()
-        h1clone.Sumw2()
-        h1clone.SetStats(0)
-        h1clone.Divide(h_Base)
-        h1clone.SetMarkerColor(1)
-        h1clone.SetMarkerStyle(20)
-        h1clone.GetXaxis().SetLabelSize(0.10)
-        h1clone.GetXaxis().SetTitleSize(0.17)
-        h1clone.GetYaxis().SetLabelSize(0.10)
-        h1clone.GetYaxis().SetRangeUser(0.75, 1.25)
-        h1clone.GetYaxis().SetTitle("Ratio")
-        h1clone.GetYaxis().CenterTitle(1)
-        h1clone.GetYaxis().SetTitleSize(0.15)
-        h1clone.GetYaxis().SetTitleOffset(0.3)
-        h1clone.GetYaxis().SetNdivisions(505)
+        if not "2D" in histo:
+          h1clone = h_Night.Clone()
+          h1clone.Sumw2()
+          h1clone.SetStats(0)
+          h1clone.Divide(h_Base)
+          h1clone.SetMarkerColor(1)
+          h1clone.SetMarkerStyle(20)
+          if "Efficiency" in folder: 
+            h1clone.GetYaxis().SetRangeUser(h1clone.GetMinimum()*0.7,h1clone.GetMaximum()*1.3)
+            gStyle.SetOptStat(0)
+          h1clone.GetXaxis().SetLabelSize(0.10)
+          h1clone.GetXaxis().SetTitleSize(0.17)
+          h1clone.GetYaxis().SetLabelSize(0.10)
+          h1clone.GetYaxis().SetRangeUser(0.75, 1.25)
+          h1clone.GetYaxis().SetTitle("Ratio")
+          h1clone.GetYaxis().CenterTitle(1)
+          h1clone.GetYaxis().SetTitleSize(0.15)
+          h1clone.GetYaxis().SetTitleOffset(0.3)
+          h1clone.GetYaxis().SetNdivisions(505)
 
-        h1clone.Draw("p")
+          h1clone.Draw("p")
+
         c1.Update()
         
-        c1.SaveAs(folder+'_'+histo+".png" )
+        c1.SaveAs(folder+'_'+var_name+".png" )
         
         fO.cd()
-        c1.Write(folder+'_'+histo)        
+        c1.Write(folder+'_'+var_name)        
 
 fO.Write()
 fO.Close()

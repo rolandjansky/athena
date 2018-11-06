@@ -219,6 +219,7 @@ class HLTMuonMonTool : public IHLTMonTool
   bool m_passedES[ESHIINDEP + 1]; // std, tag, id
   bool m_CB_mon_ESbr[ESHIINDEP + 1];
   bool m_MS_mon_ESbr[ESHIINDEP + 1];
+  bool m_passedESNONISO;
 
   //AI 20100824
   std::vector<std::string> m_allESchain;

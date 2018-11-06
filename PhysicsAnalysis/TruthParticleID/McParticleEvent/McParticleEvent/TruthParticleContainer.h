@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainer.h 
@@ -18,8 +18,7 @@
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
 
-// CLIDSvc includes (for persistency)
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // GeneratorObjects includes
 #include "GeneratorObjects/McEventCollection.h"

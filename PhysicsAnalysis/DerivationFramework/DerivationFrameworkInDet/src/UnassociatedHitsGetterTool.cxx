@@ -49,7 +49,10 @@ StatusCode UnassociatedHitsGetterTool::initialize(){
   
   // retrieve PRD association tool
   CHECK( m_assoTool.retrieve() );
-  
+
+  // Read Cond Handle Key
+  CHECK( m_SCTDetEleCollKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
   

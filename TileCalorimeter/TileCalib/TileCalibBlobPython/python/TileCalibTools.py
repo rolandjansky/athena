@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # TileCalibTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # Carlos Solans <carlos.solans@cern.ch>, 2012-10-19
@@ -58,9 +58,9 @@ LASPARTCHAN = 43
 
 #
 #______________________________________________________________________
-def getLastRunNumber(partition=""):
+def getLastRunNumber():
     """
-    Return the run number of last run taken in the pit
+    Return the run number of next run to be taken in the pit
     """
     try:
         response = urllib2.urlopen("http://atlas-service-db-runlist.web.cern.ch/atlas-service-db-runlist/cgi-bin/latestRun.py")
@@ -68,6 +68,29 @@ def getLastRunNumber(partition=""):
     except:
         data=[]
     return int(data[0])+1 if len(data) else 222222
+
+#
+#______________________________________________________________________
+def getPromptCalibRunNumber():
+    """
+    Return the minimal run number of runs in prompt calibration loop
+    """
+
+    promptCalibRuns = []
+
+    fin = open("/afs/cern.ch/user/a/atlcond/scratch0/nemo/prod/web/calibruns.txt","r").read().split()
+
+    for line in fin:
+        try:
+            if line: promptCalibRuns.append( int(line) )
+        except ValueError:
+            pass
+
+    if len(promptCalibRuns) >= 1:
+        promptCalibRuns.sort()
+        return promptCalibRuns[0]
+    else:
+        return getLastRunNumber()
 
 #
 #______________________________________________________________________

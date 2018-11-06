@@ -33,6 +33,12 @@ elif hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FILTFile )
+elif hasattr(runArgs,"inputRDO_FTKFile"):
+    rec.readRDO.set_Value_and_Lock( True )
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FTKFile )
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.doFTK=True;
 else:
      raise RuntimeError("No RDO input file specified")
 

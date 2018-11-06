@@ -38,7 +38,7 @@ if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.set("global.InputFiles",["myRDO.pool.root"])
+    ConfigFlags.Input.Files=["myRDO.pool.root",]
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()

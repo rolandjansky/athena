@@ -57,7 +57,10 @@ class TileRawCorrelatedNoise: public AthAlgorithm {
     std::string m_meanFilePrefix;
 
     // matrices
-    float m_alphaMatrix[4][64][48][48];
+    struct AlphaMatrix {
+      float m[4][64][48][48];
+    };
+    std::unique_ptr<AlphaMatrix> m_alphaMatrix;
     float m_meanSamples[4][64][48][7];
     float m_sample3RMS[4][64][48];
 

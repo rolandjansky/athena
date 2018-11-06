@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInsideOutRecoTool.h"
@@ -79,26 +79,26 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) {
+  void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) {
     ATH_MSG_WARNING("This version is deprecated, please use extendWithPRDs for MuGirl");
-    extendWithPRDs(inDetCandidates,0,0,0,0,0,0);
+    extendWithPRDs(inDetCandidates,tagMap,0,0,0,0,0,0);
   }
 
-  void MuonInsideOutRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-					      const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-					      const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuonInsideOutRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
+					      const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
+					      const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
     InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
     for( ; it!=it_end;++it ){
-      handleCandidate( **it,mdtPRDs,cscPRDs,rpcPRDs,tgcPRDs,stgcPRDs,mmPRDs );
+      handleCandidate( **it,tagMap,mdtPRDs,cscPRDs,rpcPRDs,tgcPRDs,stgcPRDs,mmPRDs );
     }
   }
 
-  void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-					       const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-					       const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, 
+					       const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
+					       const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -176,7 +176,7 @@ namespace MuonCombined {
     }
 
     // add candidate to indet candidate
-    addTag(indetCandidate,*bestCandidate.first.get(),bestCandidate.second);
+    addTag(indetCandidate,tagMap,*bestCandidate.first.get(),bestCandidate.second);
   }
 
 
@@ -223,8 +223,8 @@ namespace MuonCombined {
                            std::unique_ptr<const Trk::Track>(new Trk::Track(*selectedTrack)) );
   }
 
-  void MuonInsideOutRecoTool::addTag( const InDetCandidate& indetCandidate, const Muon::MuonCandidate& candidate,  
-                                      std::unique_ptr<const Trk::Track>& selectedTrack ) const {
+  void MuonInsideOutRecoTool::addTag( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, 
+				      const Muon::MuonCandidate& candidate, std::unique_ptr<const Trk::Track>& selectedTrack ) const {
 
     const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
     float bs_x = 0.;
@@ -278,8 +278,8 @@ namespace MuonCombined {
     MuGirlTag* tag = new MuGirlTag(selectedTrack.release(),segments);    
     if( standaloneRefit ) tag->setUpdatedExtrapolatedTrack(std::unique_ptr<const Trk::Track>(standaloneRefit));
 
-    // add tag to IndetCandidate
-    const_cast<InDetCandidate&>(indetCandidate).addTag(*tag);
+    // add tag to IndetCandidateToTagMap
+    tagMap->addEntry(&indetCandidate,tag);
   }
 
   bool MuonInsideOutRecoTool::getLayerData( int sector, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,

@@ -4,6 +4,7 @@
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "EMShowerBuilder.h"
@@ -129,7 +130,7 @@ StatusCode EMShowerBuilder::finalize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg) const { 
+StatusCode EMShowerBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const { 
     // 
     // execute method as used in offline reconstruction
     // 
@@ -138,7 +139,7 @@ StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg) const {
     if (eg==0) return StatusCode::SUCCESS;
 
     // retrieve the cell containers
-    SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+    SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
     // check is only used for serial running; remove when MT scheduler used
     if(!cellcoll.isValid()) {
         ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());

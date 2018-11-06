@@ -180,7 +180,6 @@ void test3()
   SG::DataProxy* foo_proxy = testStore.proxy (MyCLID, "foo");
   assert (foo_proxy->refCount() == 1);
 
-  testStore.m_updated.clear();
   SG::UpdateHandle<MyObj> h1 ("foo", "FooSvc");
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (!h1.isInitialized());
@@ -189,21 +188,16 @@ void test3()
   assert (h1.isInitialized());
   assert (h1.isValid());
   assert (h1.cachedPtr() == fooptr);
-  assert (testStore.m_updated.empty());
   assert (h1.ptr() == fooptr);
-  assert (testStore.m_updated == std::vector<std::string>{"foo"});
   assert (h1->x == 23);
   assert ((*h1).x == 23);
   assert (foo_proxy->refCount() == 2);
-  testStore.m_updated.clear();
   h1.reset(false);
   assert (foo_proxy->refCount() == 2);
   assert (h1.isInitialized());
   assert (h1.cachedPtr() == nullptr);
   assert (h1.ptr() == fooptr);
-  assert (testStore.m_updated == std::vector<std::string>{"foo"});
 
-  testStore.m_updated.clear();
   SG::UpdateHandle<MyObj> h2 ("foox", "FooSvc");
   assert (h2.setProxyDict (&testStore).isSuccess());
   assert (h2.cachedPtr() == nullptr);
@@ -215,12 +209,9 @@ void test3()
   int UNUSED(xx) = 0;
   EXPECT_EXCEPTION (SG::ExcNullUpdateHandle, xx = (*h2).x);
   EXPECT_EXCEPTION (SG::ExcNullUpdateHandle, xx = h2->x);
-  assert (testStore.m_updated.empty());
 
   SG::UpdateHandle<MyObj> h3 ("foo", "FooSvc");
   assert (h3.setProxyDict (&testStore).isSuccess());
-  testStore.m_failUpdatedObject = true;
-  EXPECT_EXCEPTION (SG::ExcUpdatedObjectFailure, h3.ptr());
 }
 
 

@@ -18,6 +18,10 @@
 #include "METReconstruction/METEgammaAssociator.h"
 #include "xAODEgamma/PhotonFwd.h"
 
+//Includes for DataHandles
+#include "StoreGate/DataHandle.h"
+
+
 namespace met{
   class METPhotonAssociator final
     : public METEgammaAssociator
@@ -58,6 +62,7 @@ namespace met{
  
     /// Default constructor: 
     METPhotonAssociator();
+    SG::ReadHandleKey<xAOD::PhotonContainer> m_phContKey;
 
   }; 
 

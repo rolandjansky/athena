@@ -12,8 +12,6 @@
 #include "TString.h"
 #include "PATCore/TAccept.h"
 #include "PATCore/TSelectorToolBase.h"
-#include "PATCore/TResult.h"
-#include "PATCore/TCalculatorToolBase.h"
 
 #ifdef __CINT__
 
@@ -25,8 +23,6 @@
 
 #pragma link C++ class Root::TAccept+ ;
 #pragma link C++ class Root::TSelectorToolBase+ ;
-#pragma link C++ class Root::TResult+ ;
-#pragma link C++ class Root::TCalculatorToolBase+ ; 
 
 #endif
 

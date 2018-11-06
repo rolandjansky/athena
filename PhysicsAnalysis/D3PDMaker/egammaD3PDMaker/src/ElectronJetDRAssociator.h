@@ -18,6 +18,7 @@
 #define EGAMMAD3PDMAKER_ELECTRONJETDRASSOCIATOR_H
 
 
+#include "D3PDMakerInterfaces/ICollectionGetterRegistryTool.h"
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODJet/Jet.h"
@@ -34,7 +35,6 @@ namespace Trk  { class VxCandidate; }
 namespace D3PD {
 
 
-class ICollectionGetterRegistryTool;
 class ICollectionGetterTool;
 
 

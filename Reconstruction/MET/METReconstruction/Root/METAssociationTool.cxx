@@ -67,6 +67,12 @@ namespace met {
       ATH_MSG_INFO("Tool configured to build MET with names:");
       ATH_MSG_INFO("   Core container  ==> " << m_corename);
       ATH_MSG_INFO("   Association map ==> " << m_mapname);
+      ATH_CHECK( m_corenameKey.assign(m_corename) );
+      ATH_CHECK( m_corenameKey.initialize() );
+      ATH_CHECK( m_mapnameKey.assign(m_mapname) );
+      ATH_CHECK( m_mapnameKey.initialize() );
+
+
     }
 
     // retrieve associators and generate clocks
@@ -86,70 +92,26 @@ namespace met {
     }
     m_clock.Reset();
 
+
     return StatusCode::SUCCESS;
   }
 
   StatusCode METAssociationTool::execute() const
   {
+
+    //this section has had a very big re-write, after discussions with TJK...
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
-    bool mapExists = evtStore()->contains<xAOD::MissingETAssociationMap>(m_mapname);
-    bool coreExists = evtStore()->contains<xAOD::MissingETContainer>(m_corename);
-    if(!m_overwrite && mapExists) {
-      ATH_MSG_WARNING("Association map \"" << m_mapname << "\" is already present and AllowOverwrite=False, exiting.");
-      return StatusCode::SUCCESS;
-    }
-    if(!m_overwrite && coreExists) {
-      ATH_MSG_WARNING("MET_Core container \"" << m_corename << "\" is already present and AllowOverwrite=False, exiting.");
-      return StatusCode::SUCCESS;
-    }
-    if(mapExists!=coreExists) {
-      ATH_MSG_WARNING("Overwriting only " << (mapExists?"map":"core container") << " may result in meaningless results.");
-      return StatusCode::SUCCESS;
-    }
 
     //Create map and core containers
-    xAOD::MissingETAuxAssociationMap* metAuxMap = new xAOD::MissingETAuxAssociationMap();
-    xAOD::MissingETAssociationMap* metMap = new xAOD::MissingETAssociationMap();
-    metMap->setStore(metAuxMap);
-    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    MissingETContainer* metCont = new MissingETContainer();
-    metCont->setStore(metAuxCont);
 
-    //Record or overwrite association map
-    if(!mapExists && evtStore()->record(metAuxMap, m_mapname+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxAssociationMap: " << m_mapname+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    if(mapExists && evtStore()->overwrite(metAuxMap, m_mapname+"Aux.",true,false).isFailure() ) {
-      ATH_MSG_WARNING("Unable to overwrite MissingETAuxAssociationMap: " << m_mapname+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    if(!mapExists && evtStore()->record(metMap, m_mapname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAssociationMap: " << m_mapname);
-      return StatusCode::SUCCESS;
-    }
-    if(mapExists && evtStore()->overwrite(metMap, m_mapname,true,false).isFailure() ) {
-      ATH_MSG_WARNING("Unable to overwrite MissingETAssociationMap: " << m_mapname);
-      return StatusCode::SUCCESS;
-    }
+    auto metHandle= SG::makeHandle (m_corenameKey);
+    ATH_CHECK( metHandle.record (std::make_unique<xAOD::MissingETContainer>(),                      std::make_unique<xAOD::MissingETAuxContainer>()) );
+    xAOD::MissingETContainer* metCont=metHandle.ptr();
 
-    //Record or overwrite core container
-    if(!coreExists && evtStore()->record(metCont, m_corename).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_corename);
-      return StatusCode::SUCCESS;
-    }
-    if(coreExists && evtStore()->overwrite(metCont, m_corename,true,false).isFailure() ) {
-      ATH_MSG_WARNING("Unable to overwrite MissingETContainer: " << m_corename);
-      return StatusCode::SUCCESS;
-    }
-    if(!coreExists && evtStore()->record(metAuxCont, m_corename+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_corename+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    if(coreExists && evtStore()->overwrite(metAuxCont, m_corename+"Aux.",true,false).isFailure() ) {
-      ATH_MSG_WARNING("Unable to overwrite MissingETAuxContainer: " << m_corename+"Aux.");
-      return StatusCode::SUCCESS;
-    }
+    auto metMapHandle= SG::makeHandle (m_mapnameKey);
+    ATH_CHECK( metMapHandle.record (std::make_unique<xAOD::MissingETAssociationMap>(),                      std::make_unique<xAOD::MissingETAuxAssociationMap>()) );
+    xAOD::MissingETAssociationMap* metMap=metMapHandle.ptr();
+
 
     if( buildMET(metCont, metMap).isFailure() ) {
       ATH_MSG_DEBUG("Failed in MissingET reconstruction");
@@ -157,8 +119,8 @@ namespace met {
     }
 
     // Lock the containers in SG
-    ATH_CHECK( evtStore()->setConst(metMap) );
-    ATH_CHECK( evtStore()->setConst(metCont) );
+    //ATH_CHECK( evtStore()->setConst(metMap) );
+    //ATH_CHECK( evtStore()->setConst(metCont) );
 
     return StatusCode::SUCCESS;
   }
@@ -217,21 +179,6 @@ namespace met {
   {
 
     if ( m_timedetail > 0 ) m_clock.Start(false);
-
-    // Set the topocluster signal states for the duration of this method
-    // Cluster signal states will revert upon the return.
-    CaloClusterChangeSignalStateList stateHelperList;    
-    if(m_signalstate>=0) { // can ignore this for PFlow
-      const CaloClusterContainer* clusters(0);
-      if( evtStore()->retrieve(clusters,"CaloCalTopoClusters").isFailure() ) {
-	ATH_MSG_WARNING("Failed to set topocluster signal states!");
-	return StatusCode::FAILURE;
-      } else {
-	for(const auto& clus : *clusters) {
-	  stateHelperList.add(clus,CaloCluster::State(m_signalstate));
-	}
-      }
-    }
 
     unsigned int itool=0;
     // Run the MET reconstruction tools in sequence

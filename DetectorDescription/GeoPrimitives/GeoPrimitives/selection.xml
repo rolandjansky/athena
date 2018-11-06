@@ -21,6 +21,7 @@
   <class name="Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> >"/>
   <class name="Eigen::DenseBase<Eigen::Matrix<double,3,1,0,3,1> >"/>
   <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,1,0,3,1>,double,double,Eigen::MatrixBase<Eigen::Matrix<double,3,1,0,3,1> >,false>"/>
+  <class name="Eigen::internal::special_scalar_op_base<Eigen::Matrix<double,3,1,0,3,1>,double,double,Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,3>,false>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,3>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,1>"/>
   <class name="Eigen::DenseCoeffsBase<Eigen::Matrix<double,3,1,0,3,1>,0>"/>

@@ -37,16 +37,16 @@ namespace Trk
       virtual ~TrackSlimmingTool ();
       
       /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       
       /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize  () override;
       
       /**This method 'skims' interesting information from the passed track, and creates a new one with cloned copies of this information
 	 @param track A reference to the track to be skimmed. It will not be modified in any way.
 	 @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
       */
-      Trk::Track* slim(const Trk::Track& track);
+      Trk::Track* slim(const Trk::Track& track) const override;
       
     private:
       /** any CaloDeposit with its adjacent MEOT's will be kept on the slimmed track (combined muon property) */
@@ -65,7 +65,7 @@ namespace Trk
       /**atlas id helper*/
       const AtlasDetectorID* m_detID;
       
-      void checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas);
+      void checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas) const;
       
       void checkIfInDet(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas);
 

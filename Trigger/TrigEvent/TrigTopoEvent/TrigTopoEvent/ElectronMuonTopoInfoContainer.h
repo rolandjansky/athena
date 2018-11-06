@@ -21,11 +21,11 @@
 #ifndef ELECTRONMUONTOPOINFO_CONTAINER
 #define ELECTRONMUONTOPOINFO_CONTAINER
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "ElectronMuonTopoInfo.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class ElectronMuonTopoInfoContainer : public DataVector<ElectronMuonTopoInfo> {}; 
 

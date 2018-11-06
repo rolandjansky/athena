@@ -9,6 +9,7 @@
 #include "PixelCalibSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl):AthService(name, sl),
   m_detStore("DetectorStore",name),

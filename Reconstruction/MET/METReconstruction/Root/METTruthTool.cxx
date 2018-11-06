@@ -15,13 +15,14 @@
 // METReconstruction includes
 #include "METReconstruction/METTruthTool.h"
 
+#include "StoreGate/DataHandle.h"
+
 // MET EDM
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAuxComponentMap.h"
 
 // Truth EDM
-#include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
 
@@ -55,7 +56,8 @@ namespace met {
   METTruthTool::METTruthTool(const std::string& name) : 
     AsgTool(name),
     METBuilderTool(name),
-    m_truth_type(0)
+    m_truth_type(0),
+    m_truthEventKey("")
   {
     // NonInt, Int, IntMuons, IntOut
     declareProperty( "InputComposition", m_inputType = "NonInt" ); // Truth type
@@ -88,6 +90,9 @@ namespace met {
       ATH_MSG_FATAL("Invalid input type provided");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_truthEventKey.assign(m_input_data_key));
+    ATH_CHECK( m_truthEventKey.initialize());
+
 
     return StatusCode::SUCCESS;
   }
@@ -167,9 +172,13 @@ namespace met {
   bool METTruthTool::accept_intout(const xAOD::TruthParticle* truth) const
   {
     ATH_MSG_VERBOSE("Check intout");
-    // not in acceptance (calo or MS)
-    if( (truth->isMuon() && fabs(truth->eta())<m_truthmu_maxEta) ||
-	(fabs(truth->eta())<m_det_maxEta) ) return false;
+    // muon outside MS acceptance
+    if( truth->isMuon() ) {
+      if( fabs(truth->eta())<m_truthmu_maxEta) return false;
+    } else {
+      // other particle outside calo acceptance
+      if( (fabs(truth->eta())<m_det_maxEta) ) return false;
+    }
     // stable
     if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // interacting
@@ -186,7 +195,7 @@ namespace met {
     // stable
     if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // in acceptance
-    if(truth->pt()<m_truthmu_minPt && fabs(truth->eta())>m_truthmu_maxEta) return false;
+    if(truth->pt()<m_truthmu_minPt || fabs(truth->eta())>m_truthmu_maxEta) return false;
 
     return true;
   }
@@ -195,13 +204,13 @@ namespace met {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
-    const TruthEventContainer* truthEvents = 0;
-
     metTerm->setSource(m_truth_type);
 
     // Retrieve the truth container
-    if ( evtStore()->retrieve(truthEvents, m_input_data_key).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truth event container");
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEvents(m_truthEventKey);
+
+    if (!truthEvents.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input truth event container ");
       return StatusCode::SUCCESS;
     }
 

@@ -14,14 +14,17 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "TrkTrack/Track.h"
-#include "TrkSegment/TrackSegment.h"
+
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "InDetCosmicsEventPhase/IInDetCosmicsEventPhaseTool.h"
 
 class AtlasDetectorID;
 class Identifier;
+namespace Trk{
+  class Track;
+  class Segment;
+}
 
 namespace InDet 
 {

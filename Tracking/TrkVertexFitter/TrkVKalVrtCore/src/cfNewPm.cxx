@@ -6,24 +6,23 @@
 #include <iostream>
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/TrkVKalUtils.h"
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
-extern VKalVrtBMag vkalvrtbmag;
 extern vkalMagFld  myMagFld;
 
 
 extern double d_sign(double, double);
 extern void cfnewp(long int *, double *, double *, double *, double *, double *);
-extern void vkgrkuta_(double *, double *, double *, double *);
+extern void vkgrkuta_(double *, double *, double *, double *, const VKalVrtControlBase* =0 );
 
 
-void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint)
+void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint, const VKalVrtControlBase * CONTROL)
 {
     double d__1, d__2,dist_left;
     double vect[7], stmg, vout[7], dpar0[5];
-    double p, perig[3], dstep, constB, xyzst[3], charge, fx, fy, fz, pt, px, py, pz;
+    double perig[3], dstep, xyzst[3], charge;
     double posold, poscur, totway, dp;
     double dX, dY, dZ;
     long int ich;
@@ -51,14 +50,13 @@ void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, doubl
     vect[1] = -cos(par[4]) * par[1]   +xyzStart[1];
     vect[2] = par[2]                  +xyzStart[2];
 
-    myMagFld.getMagFld( vect[0],vect[1],vect[2],fx,fy,fz);
-    constB = fz * myMagFld.getCnvCst();
+    double constB = myMagFld.getMagFld(vect,CONTROL) * myMagFld.getCnvCst();
 
-    pt = constB / fabs(par[5]);
-    px = pt * cos(par[4]);
-    py = pt * sin(par[4]);
-    pz = pt / tan(par[3]);
-    p = sqrt(pt * pt + pz * pz);
+    double pt = constB / fabs(par[5]);
+    double px = pt * cos(par[4]);
+    double py = pt * sin(par[4]);
+    double pz = pt / tan(par[3]);
+    double p = sqrt(pt * pt + pz * pz);
 
     vect[3] = px / p;
     vect[4] = py / p;
@@ -75,7 +73,7 @@ void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, doubl
 	poscur = d__1 < d__2 ? d__1 : d__2;
 	poscur = d_sign(poscur, totway);
 	dstep = poscur - posold;
-	vkgrkuta_(&charge, &dstep, vect, vout);
+	vkgrkuta_(&charge, &dstep, vect, vout, CONTROL);
 	vect[0] = vout[0];
 	vect[1] = vout[1];
 	vect[2] = vout[2];
@@ -93,9 +91,7 @@ void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, doubl
 /* --- Now we are in the new point. Calculate track parameters */
 /*   at new point with new mag.field */
 
-    myMagFld.getMagFld( xyzEnd[0],xyzEnd[1],xyzEnd[2],fx,fy,fz);
-    //myMagFld.getMagFld( vect[0], vect[1], vect[2], fx, fy, fz);
-    constB = fz * myMagFld.getCnvCst();
+    constB = myMagFld.getMagFld(xyzEnd,CONTROL) * myMagFld.getCnvCst() ;
 
     dpar0[0] = 0.;
     dpar0[1] = 0.;

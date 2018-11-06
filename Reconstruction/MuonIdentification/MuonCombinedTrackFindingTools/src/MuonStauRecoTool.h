@@ -152,15 +152,15 @@ namespace MuonCombined {
     virtual StatusCode finalize() override;
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
-    virtual void extend( const InDetCandidateCollection& inDetCandidates ) override;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) override;
 
-    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-				const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs,
-				const Muon::MMPrepDataContainer* mmPRDs) override;
+    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
+				const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
+				const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, const Muon::MMPrepDataContainer* mmPRDs) override;
 
   private:
     /** handle a single candidate */
-    void handleCandidate( const InDetCandidate& inDetCandidate );
+    void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap );
 
     /** associate Hough maxima to intersection */
     void associateHoughMaxima( LayerData& layerData );
@@ -208,7 +208,7 @@ namespace MuonCombined {
     bool resolveAmbiguities( CandidateVec& candidates );
     
     /** create final tag object and add it to the inDetCandidate */
-    void addTag( const InDetCandidate& inDetCandidate, Candidate& candidate ) const;
+    void addTag( const InDetCandidate& inDetCandidate, Candidate& candidate, InDetCandidateToTagMap* tagMap ) const;
     
     /** extract time measurements from the track associated with the candidate */
     void extractTimeMeasurementsFromTrack( Candidate& candidate  );

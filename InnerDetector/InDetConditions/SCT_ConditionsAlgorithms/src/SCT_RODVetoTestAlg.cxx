@@ -27,11 +27,8 @@ SCT_RODVetoTestAlg::SCT_RODVetoTestAlg(const std::string& name,
 StatusCode 
 SCT_RODVetoTestAlg::initialize(){
   ATH_MSG_INFO("Calling initialize");
-  StatusCode sc{m_pRODVetoTool.retrieve()};
-  if (StatusCode::SUCCESS not_eq sc) {
-    ATH_MSG_ERROR("Could not retrieve the veto service");
-  }
-  return sc;
+  ATH_CHECK(m_pRODVetoTool.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 //Execute

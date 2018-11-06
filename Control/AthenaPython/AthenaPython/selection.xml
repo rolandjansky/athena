@@ -18,6 +18,7 @@
   <class name="AthAlgTool" />
   <class name="AthService" />
 
+  <class name="IPyComponent" />
   <class name="PyAthena::Alg" />
   <class name="PyAthena::Svc" />
   <class name="PyAthena::Tool" />

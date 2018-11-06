@@ -199,7 +199,7 @@ if (isMC==False):
     commonPhysValTool( "AntiKt4EMPFlowJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
 
-ToolSvc += athenaMonTool
+#ToolSvc += athenaMonTool
 
 def athenaPhysValTool():
     return athenaMonTool

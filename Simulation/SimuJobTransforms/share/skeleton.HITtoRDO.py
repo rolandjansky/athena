@@ -87,7 +87,7 @@ if hasattr(runArgs,"numberOfBeamGas"):
         digitizationFlags.numberOfBeamGas=float(runArgs.numberOfBeamGas)
         PileUpConfigOverride=True
 if hasattr(runArgs,"numberOfCavernBkg"):
-    if not math.fabs(digitizationFlags.numberOfCavern.get_Value()==runArgs.numberOfCavernBkg):
+    if not digitizationFlags.numberOfCavern.get_Value()==runArgs.numberOfCavernBkg:
         digilog.info( "Changing digitizationFlags.cavernEvents from %s to %s", digitizationFlags.numberOfCavern.get_Value(),runArgs.numberOfCavernBkg)
         digitizationFlags.numberOfCavern=runArgs.numberOfCavernBkg
         PileUpConfigOverride=True

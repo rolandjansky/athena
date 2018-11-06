@@ -75,7 +75,7 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
-  HLT::ErrorCode hltBeginRun();
+  HLT::ErrorCode hltStart();
 
   /** Find the impact parameter by extrapolating to either the beam spot or (0,0) **/
   double findImpact(const xAOD::TrackParticle* track) const;//AT: copied from Offline

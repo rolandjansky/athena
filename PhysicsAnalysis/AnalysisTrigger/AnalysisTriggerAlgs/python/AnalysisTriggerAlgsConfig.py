@@ -1,5 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
+# Athena import(s):
+import AthenaCommon.CfgMgr as CfgMgr
 
 # Import the genConf made configurable:
 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConf import RoIBResultToxAOD as genConfRoIBResultToAOD
@@ -38,19 +40,13 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
         #
         from AthenaCommon.AppMgr import ToolSvc
 
-        log.info( "will add L1EmTauTools instance to ToolSvc" )
-        from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EmTauTools
-        theL1EmTauTools = LVL1__L1EmTauTools( "L1EmTauTools" )
-        theL1EmTauTools.LVL1ConfigSvc = lvl1ConfigSvc
-        ToolSvc += theL1EmTauTools
-        self.L1EmTauTools = ToolSvc.L1EmTauTools
+        log.info( "will add L1CPMTools instance to the algorithm" )
+        self.L1CPMTools = CfgMgr.LVL1__L1CPMTools( 'L1CPMTools' )
+        self.L1CPMTools.LVL1ConfigSvc = lvl1ConfigSvc
 
-        log.info( "will add L1JetTools instance to ToolSvc" )
-        from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JetTools
-        theL1JetTools = LVL1__L1JetTools( "L1JetTools" )
-        theL1JetTools.LVL1ConfigSvc = lvl1ConfigSvc
-        ToolSvc += theL1JetTools
-        self.L1JetTools = ToolSvc.L1JetTools
+        log.info( "will add L1JEMJetTools instance to the algorithm" )
+        self.L1JEMJetTools = CfgMgr.LVL1__L1JEMJetTools( 'L1JEMJetTools' )
+        self.L1JEMJetTools.LVL1ConfigSvc = lvl1ConfigSvc
 
         #
         # Set up the muon RoI services:

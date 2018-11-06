@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -421,10 +421,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
 //-------------------------------------------------------------------------
 
-HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
+HLT::ErrorCode TrigFastTrackFinder::hltStart()
 {
-  ATH_MSG_DEBUG("At BeginRun of " << name());
-
   //getting magic numbers from the layer numbering tool
 
   m_tcs.m_maxBarrelPix    = m_numberingTool->offsetBarrelSCT();
@@ -442,12 +440,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
 }
 
 StatusCode TrigFastTrackFinder::execute() {
-  if (m_tcs.m_layerGeometry.empty()) {
-    HLT::ErrorCode ec = hltBeginRun();
-    if(ec != HLT::OK) {
-      return StatusCode::FAILURE;
-    }
-  }
   //RoI preparation/update 
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
   ATH_CHECK(roiCollection.isValid());
@@ -473,13 +465,6 @@ StatusCode TrigFastTrackFinder::execute() {
 //-------------------------------------------------------------------------
 HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inputTE*/,
     HLT::TriggerElement* outputTE) {
-
-  if (m_tcs.m_layerGeometry.empty()) {
-    HLT::ErrorCode ec = hltBeginRun();
-    if(ec != HLT::OK) {
-      return ec;
-    }
-  }
   const IRoiDescriptor* internalRoI;
   HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
   if(ec != HLT::OK) {

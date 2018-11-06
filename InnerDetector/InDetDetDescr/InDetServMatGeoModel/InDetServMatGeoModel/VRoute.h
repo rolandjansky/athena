@@ -52,11 +52,11 @@ public:
   */
 private:
 
-  double m_zPos;
-  double m_rMin;
-  double m_rMax;
-  double m_rExit;
-  Route* m_next;
+  double m_zPos{};
+  double m_rMin{};
+  double m_rMax{};
+  double m_rExit{};
+  Route* m_next{};
 
   VolumeContainer m_volumes;
 };

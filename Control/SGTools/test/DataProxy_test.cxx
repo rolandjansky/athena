@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -41,6 +41,15 @@ public:
   bool m_locked;
 };
 CLASS_DEF(XLock, 8114, 1)
+
+class XLockObj : public DataObject, public ILockable
+{
+public:
+  XLockObj() : m_locked (false) {}
+  void lock() { m_locked = true; std::cout << "lock\n"; }
+  bool m_locked;
+};
+CLASS_DEF(XLockObj, 8124, 1)
 
 class TestConversionSvc
   : public IConversionSvc
@@ -186,6 +195,16 @@ void test2()
   dp2.setObject (b2a);
   assert (xlock_a->m_locked);
   assert (dp2.isConst());
+
+  XLockObj* xlockobj = new XLockObj;
+  DataObject* bobj = SG::asStorable (xlockobj);
+  SG::DataProxy dpobj;
+  dpobj.setObject (bobj);
+  assert (!dpobj.isConst());
+  assert (!xlockobj->m_locked);
+  dpobj.setConst();
+  assert (dpobj.isConst());
+  assert (xlockobj->m_locked);
 }
 
 

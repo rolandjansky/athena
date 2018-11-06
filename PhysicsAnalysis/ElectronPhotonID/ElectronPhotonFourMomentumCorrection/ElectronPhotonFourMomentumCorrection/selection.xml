@@ -17,7 +17,6 @@
    <enum pattern="egEnergyCorr::Scale::*"/>
    <class name="egEnergyCorr::Scale::ROOT6_OpenNamespaceWorkaround" />
 
-   <class name="eg_resolution" />
    <class name="EgammaFactory" />
    <class name="LArTemperatureCorrectionTool" />
 

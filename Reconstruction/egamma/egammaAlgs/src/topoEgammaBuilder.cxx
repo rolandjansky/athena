@@ -4,12 +4,14 @@
 
 
 #include "topoEgammaBuilder.h"
+#include "smallChrono.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -26,32 +28,10 @@
 #include <algorithm> 
 #include <cmath>
 
-namespace{
-    class smallChrono{
-    public:
-        smallChrono(IChronoStatSvc* timingProfile, const std::string& name): 
-            m_time(timingProfile),
-            m_name(name){
-                if(m_time){
-                    m_time->chronoStart(m_name);
-                }
-            }
-        ~smallChrono(){
-            if(m_time){
-                m_time->chronoStop(m_name);
-            }
-        }
-    private:
-        IChronoStatSvc* m_time;
-        const std::string m_name;
-    };
-}
-
-
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
     AthAlgorithm(name, pSvcLocator),
-    m_timingProfile(0)
+    m_timingProfile("ChronoStatSvc", name)
 {
 }
 
@@ -81,7 +61,7 @@ StatusCode topoEgammaBuilder::initialize()
     CHECK( RetrieveTools(m_photonTools) );
 
     // retrieve timing profile
-    CHECK( service("ChronoStatSvc",m_timingProfile) );
+    if (m_doChrono) CHECK( m_timingProfile.retrieve() );
 
     ATH_MSG_DEBUG("Initialization completed successfully");
     return StatusCode::SUCCESS;
@@ -256,15 +236,17 @@ StatusCode topoEgammaBuilder::execute(){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
+
+    const EventContext ctx = Gaudi::Hive::currentContext();
     
     for (auto& tool : m_egammaTools){
-        CHECK( CallTool(tool, electronContainer.ptr(), photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
     }
     for (auto& tool : m_electronTools){
-        CHECK( CallTool(tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
     }
     for (auto& tool : m_photonTools){
-        CHECK( CallTool(tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
     }
 
     //Do the ambiguity Links
@@ -335,17 +317,18 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
 //-----------------------------------------------------------------
 
 // =====================================================
-StatusCode topoEgammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool, 
+StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx, 
+        ToolHandle<IegammaBaseTool>& tool, 
         xAOD::ElectronContainer *electronContainer /* = 0*/, 
         xAOD::PhotonContainer *photonContainer /* = 0*/){
 
 
-    smallChrono timer(m_timingProfile,this->name()+"_"+tool->name());  
+    smallChrono timer(*m_timingProfile,this->name()+"_"+tool->name(), m_doChrono);  
 
     if (electronContainer){    
         ATH_MSG_DEBUG("Executing tool on electrons: " << tool );
         for (const auto& electron : *electronContainer){
-            if (tool->execute(electron).isFailure() ){
+            if (tool->execute(ctx, electron).isFailure() ){
                 ATH_MSG_ERROR("Problem executing tool on electrons: " << tool);
                 return StatusCode::FAILURE;
             }
@@ -354,7 +337,7 @@ StatusCode topoEgammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool,
     if (photonContainer){
         ATH_MSG_DEBUG("Executing tool on photons: " << tool );
         for (const auto& photon : *photonContainer){
-            if (tool->execute(photon).isFailure() ){
+            if (tool->execute(ctx, photon).isFailure() ){
                 ATH_MSG_ERROR("Problem executing tool on photons: " << tool);
                 return StatusCode::FAILURE;
             }

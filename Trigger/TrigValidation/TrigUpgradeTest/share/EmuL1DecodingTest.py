@@ -52,7 +52,7 @@ writeEmulationFiles(data)
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
 
 l1Decoder.ctpUnpacker = ctpUnpacker
-l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
+
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                         Decisions = "EMRoIDecisions",

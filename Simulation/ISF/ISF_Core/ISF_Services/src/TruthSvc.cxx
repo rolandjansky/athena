@@ -451,13 +451,13 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
       this->deleteChildVertex(oldVertex);
     }
     else {
-#ifdef DEBUG_TRUTHSVC
-      ATH_MSG_VERBOSE("createGVfromTI Existing QS GenVertex 2: " << *oldVertex );
-#endif
       //oldVertex->suggest_barcode( vtxbcode );
       oldVertex->set_position( ti.position() );
       oldVertex->set_id( vtxID );
       oldVertex->weights() = weights;
+#ifdef DEBUG_TRUTHSVC
+      ATH_MSG_VERBOSE("createGVfromTI Existing QS GenVertex 2: " << *oldVertex );
+#endif
     }
 #ifdef DEBUG_TRUTHSVC
     ATH_MSG_VERBOSE ( "createGVfromTI QS End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );

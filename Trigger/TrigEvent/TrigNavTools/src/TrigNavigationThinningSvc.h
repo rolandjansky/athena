@@ -93,10 +93,6 @@ public:
                                        bool returnExisting) override;
 
 
-  /// Inform HIVE that an object has been updated.
-  virtual StatusCode updatedObject (CLID id, const std::string& key) override;
-
-  
   /**
    * @brief Find the key for a string/CLID pair.
    * @param str The string to look up.

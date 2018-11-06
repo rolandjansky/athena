@@ -16,7 +16,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "PATCore/TAccept.h"
-#include "PATCore/TResult.h"
 #include "TileTripReader/TTileTripReader.h"
 
 
@@ -42,7 +41,7 @@ public:
     
     const Root::TAccept& accept(const INavigable4Momentum* part=0);
     
-    const Root::TResult& calculate(const INavigable4Momentum* part);
+    float calculate(const INavigable4Momentum* part);
     
     bool checkEvent();
     
@@ -67,7 +66,6 @@ private:
     std::string m_tripFile;
     Root::TTileTripReader* m_tripReader;
     Root::TAccept m_acceptDummy;
-    Root::TResult m_resultDummy;
     double m_dR;
 };
 

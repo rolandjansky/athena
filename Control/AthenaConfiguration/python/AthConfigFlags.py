@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
-
+from AthenaCommon.Logging import logging
 class CfgFlag(object):
     __slots__ = ['_value','_setDef']
 
@@ -67,7 +67,10 @@ class FlagAddress(object):
 
 
 class AthConfigFlags(object):
+
     def __init__(self,inputflags=None):
+        self._msg = logging.getLogger('AthConfigFlags')
+        
         if inputflags:
             self._flagdict=inputflags
         else:
@@ -90,10 +93,6 @@ class AthConfigFlags(object):
     def hasFlag(self, name):
         return name in self._flagdict
 
-    def set(self,name,value):
-        # add obsoletness message here
-        self._set(name,value)
-
     def _set(self,name,value):
         if (self._locked):
             raise RuntimeError("Attempt to set a flag of an already-locked container")
@@ -106,11 +105,7 @@ class AthConfigFlags(object):
             if len(closestMatch)>0:
                 errString+=". Did you mean \'%s\'?" %  closestMatch[0] 
             raise KeyError(errString)
-
-    def get(self,name):
-        # add obsoltness message here
-        return self._get(name)
-
+    
     def _get(self,name):
         try:
             return self._flagdict[name].get(self)

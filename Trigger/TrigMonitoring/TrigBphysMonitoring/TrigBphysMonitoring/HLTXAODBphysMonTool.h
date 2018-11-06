@@ -82,6 +82,8 @@ private:
     ToolHandle<Trig::TrigDecisionTool> m_tdt;
     const Trig::ChainGroup *m_all;
 
+    // vector of muon pairs to check if already put into histograms
+    std::vector<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>> m_muon_pairs_processed;
     
     
     // property variables

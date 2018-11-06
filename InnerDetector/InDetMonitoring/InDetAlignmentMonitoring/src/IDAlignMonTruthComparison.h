@@ -103,17 +103,17 @@ protected:
 	TH2F* m_Dqopt_vs_eta_lowpt{};
 	TH1F* m_dqopt_vs_eta_lowpt_1{};
 	TH1F* m_dqopt_vs_eta_lowpt_2{};
-	TH1F* m_dqopt_vs_eta_lowpt_chi2;
+	TH1F* m_dqopt_vs_eta_lowpt_chi2{};
 
 	TH2F* m_Dqopt_vs_phi_highpt_barrel{};
 	TH1F* m_dqopt_vs_phi_highpt_barrel_1{};
 	TH1F* m_dqopt_vs_phi_highpt_barrel_2{};
 	TH1F* m_dqopt_vs_phi_highpt_barrel_chi2{};
 
-	TH2F* m_Dqopt_vs_phi_highpt_eca;
-	TH1F* m_dqopt_vs_phi_highpt_eca_1;
-	TH1F* m_dqopt_vs_phi_highpt_eca_2;
-	TH1F* m_dqopt_vs_phi_highpt_eca_chi2;
+	TH2F* m_Dqopt_vs_phi_highpt_eca{};
+	TH1F* m_dqopt_vs_phi_highpt_eca_1{};
+	TH1F* m_dqopt_vs_phi_highpt_eca_2{};
+	TH1F* m_dqopt_vs_phi_highpt_eca_chi2{};
 
 	TH2F* m_Dqopt_vs_phi_highpt_ecc{};
 	TH1F* m_dqopt_vs_phi_highpt_ecc_1{};

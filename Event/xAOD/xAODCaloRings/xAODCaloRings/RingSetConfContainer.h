@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConfContainer.h 707323 2015-11-12 02:45:01Z wsfreund $ 
+// $Id: RingSetConfContainer.h 707323 2015-11-12 02:45:01Z wsfreund $
 #ifndef XAODCALORINGS_RINGSETCONFCONTAINER_H
 #define XAODCALORINGS_RINGSETCONFCONTAINER_H
 
@@ -22,6 +22,9 @@ typedef RingSetConfContainer_v1 RingSetConfContainer;
 /// Declare element links vector
 typedef std::vector< ElementLink< RingSetConfContainer > >
   RingSetConfLinks;
+// There is probably no need to use AthenaKernel/MetaCont since the parameters
+// are not expected to change during the reconstruction, it is probably not
+// needed. Example on: xAODTrigger/TriggerMenuContainer.h
 } // namespace xAOD
 
 // Set up a CLID for the container:

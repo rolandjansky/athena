@@ -61,7 +61,6 @@ namespace JiveXML {
     const TrackRecordCollection* TrackRecordColl = NULL ;
     //Loop over all the collections and try a retrieve (more efficenct than
     //contain-retrieve combination)
-    std::vector<std::string>::const_iterator CollNameItr = m_TrackRecCollNames.begin();
     for (auto CollNameItr : m_TrackRecCollNames ) {
       //be verbose
       ATH_MSG_DEBUG( "Trying to retrieve " << CollNameItr );

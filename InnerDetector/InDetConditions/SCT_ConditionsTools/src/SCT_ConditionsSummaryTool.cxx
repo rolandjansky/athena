@@ -64,7 +64,7 @@ SCT_ConditionsSummaryTool::activeFraction(const IdentifierHash& elementHash, con
 bool
 SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetConditions::Hierarchy h) const {
   if (not m_noReports) {
-    for (ToolHandle<ISCT_ConditionsTool> tool: m_toolHandles) {
+    for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
       if (tool->canReportAbout(h) and (not tool->isGood(elementId, h))) return false;
     }
   }
@@ -74,7 +74,7 @@ SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetCondit
 bool
 SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash) const {
   if (not m_noReports) {
-    for (ToolHandle<ISCT_ConditionsTool> tool: m_toolHandles) {
+    for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
       if (tool->canReportAbout(InDetConditions::SCT_SIDE) and (not tool->isGood(elementHash))) return false;
     }    
   }
@@ -84,7 +84,7 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash) const {
 bool
 SCT_ConditionsSummaryTool::isGood(const IdentifierHash& /*elementHash*/, const Identifier& elementId) const {
   if (not m_noReports) {
-    for (ToolHandle<ISCT_ConditionsTool> tool: m_toolHandles) {
+    for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
       if (tool->canReportAbout(InDetConditions::SCT_STRIP) and (not tool->isGood(elementId))) return false;
     } 
   }

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # ReadFromCoolCompare.py
 # (Based on A. Solodkov's script ReadCsFromCool.py)
@@ -234,7 +234,9 @@ os2 = flt2.getObjSizeByte()/4
 
 if (os <> os2) or (ot <> ot2):
     log.error("Object sizes (%s vs %s) or types (%s vs %s) are different" % (os, os2, ot, ot2))
-    sys.exit()
+    answ=raw_input(' continue anyway? (y/n)')
+    if (answ <> 'y'):
+        sys.exit()
 
 v =[]
 v2=[]

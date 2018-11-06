@@ -382,7 +382,7 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   ATH_MSG_DEBUG("Cluster phiBE(2) no correction/calibration: "<<newCluster->phiBE(2));
   // first do the corrections
   if (m_correctClusters) {
-    ATH_CHECK(m_clusterCorrectionTool->execute(newCluster,egType,xAOD::EgammaHelpers::isBarrel(newCluster)));
+    ATH_CHECK(m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newCluster,egType,xAOD::EgammaHelpers::isBarrel(newCluster)));
   }
   newCluster->setRawE(newCluster->e());
   newCluster->setRawEta(newCluster->eta());

@@ -29,10 +29,10 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
                              ISCT_RDO_Container&,
                              InDetBSErrContainer* errs,
-                             SCT_ByteStreamFractionContainer* bsFracCont) = 0;
+                             SCT_ByteStreamFractionContainer* bsFracCont) const = 0;
 
   //Replace the incident calls with private calls, more MT friendly
-  virtual void beginNewEvent() = 0;
+  virtual void beginNewEvent() const = 0;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H

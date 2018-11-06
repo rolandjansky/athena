@@ -51,7 +51,11 @@ namespace met {
     AsgTool(name),
     m_trkseltool(""),
     m_trkIsolationTool(""),
-    m_caloIsolationTool("")
+    m_caloIsolationTool(""),
+    m_pvcollKey(""),
+    m_clcollKey(""),
+    m_trkcollKey(""),
+    m_pfcollKey("")
   {
     ATH_MSG_INFO("METAssoc constructor");
     declareProperty( "InputCollection",    m_input_data_key                      );
@@ -112,7 +116,29 @@ namespace met {
     } else {
       ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcoll << "\".");
     }
-
+    //initialise read handle keys
+    if(m_useTracks){
+      ATH_CHECK( m_pvcollKey.assign(m_pvcoll));
+      ATH_CHECK( m_pvcollKey.initialize());
+      ATH_CHECK( m_trkcollKey.assign(m_trkcoll));
+      ATH_CHECK( m_trkcollKey.initialize());
+    }
+    if(m_pflow){
+      ATH_CHECK( m_pfcollKey.assign(m_pfcoll));
+      ATH_CHECK( m_pfcollKey.initialize());
+    }
+    if(!m_skipconst || m_forcoll.empty()){
+      ATH_CHECK( m_clcollKey.assign(m_clcoll));
+      ATH_CHECK( m_clcollKey.initialize());
+    }
+    else{
+      std::string hybridname = "Etmiss";
+      hybridname += m_clcoll;
+      hybridname += m_foreta;
+      hybridname += m_forcoll;
+      ATH_CHECK( m_hybridContKey.assign(hybridname));
+      ATH_CHECK( m_hybridContKey.initialize());
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -140,31 +166,61 @@ namespace met {
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
     if (!m_skipconst || m_forcoll.empty()) {
-      if( evtStore()->retrieve(constits.tcCont, m_clcoll).isFailure() ) {
+
+      SG::ReadHandle<IParticleContainer> topoclusterCont(m_clcollKey);
+      if (!topoclusterCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_clcoll << " for overlap removal");
         return StatusCode::FAILURE;
       }
+      constits.tcCont=topoclusterCont.cptr();
       ATH_MSG_DEBUG("Successfully retrieved topocluster collection");
     } else {
       std::string hybridname = "Etmiss";
       hybridname += m_clcoll;
       hybridname += m_foreta;
       hybridname += m_forcoll;
-      if( evtStore()->contains<IParticleContainer>(hybridname) ) {
-        ATH_CHECK(evtStore()->retrieve(constits.tcCont,hybridname));
+
+      SG::ReadHandle<IParticleContainer> hybridCont(m_hybridContKey);
+      if( hybridCont.isValid()) {
+        constits.tcCont=hybridCont.cptr();
       } else {
+        // Trying to do this using write handles (need to get some input here)
+        /*std::unique_ptr<ConstDataVector<IParticleContainer>> hybridCont = std::make_unique<ConstDataVector<IParticleContainer>>();
+        SG::WriteHandle<ConstDataVector<IParticleContainer>> hybridContHandle(hybridname);
+
+        StatusCode sc = hybridContHandle.record(std::make_unique<ConstDataVector<IParticleContainer>>(*hybridCont));
+
+        if (sc.isFailure()) {
+          ATH_MSG_WARNING("Unable to record container");
+         return StatusCode::SUCCESS;
+
+        }*/
+
+        /*SG::ReadHandle<IParticleContainer> centCont(m_clcoll);
+        if (!centCont.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve central container " << m_clcoll << " for overlap removal");
+          return StatusCode::FAILURE;
+        }
+
+        SG::ReadHandle<IParticleContainer> forCont(m_forcoll);
+        if (!forCont.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve forward container " << m_forcoll << " for overlap removal");
+          return StatusCode::FAILURE;
+        }*/
         ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
 
-        const IParticleContainer *centCont = 0;
-        const IParticleContainer *forCont = 0;
+        const IParticleContainer* centCont=0;
         if( evtStore()->retrieve(centCont, m_clcoll).isFailure() ) {
           ATH_MSG_WARNING("Unable to retrieve central container " << m_clcoll << " for overlap removal");
           return StatusCode::FAILURE;
         }
+
+        const IParticleContainer* forCont=0;
         if( evtStore()->retrieve(forCont, m_forcoll).isFailure() ) {
           ATH_MSG_WARNING("Unable to retrieve forward container " << m_forcoll << " for overlap removal");
           return StatusCode::FAILURE;
         }
+
         for(const auto& clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridCont->push_back(clus);
         for(const auto& clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
         ATH_CHECK( evtStore()->record(hybridCont,hybridname));
@@ -176,12 +232,13 @@ namespace met {
       //if you want to skip tracks, set the track collection empty manually
       ATH_MSG_DEBUG("Skipping tracks");
     }else{
-      const VertexContainer *vxCont = 0;
-      if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
+      SG::ReadHandle<VertexContainer> vxCont(m_pvcollKey);
+      if (!vxCont.isValid()) {
 	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
 	//this is actually really bad.  If it's empty that's okay
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
+
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
@@ -198,12 +255,22 @@ namespace met {
 
       constits.trkCont=0;
       ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
-      ATH_CHECK( evtStore()->retrieve(constits.trkCont, m_trkcoll) );
+      SG::ReadHandle<TrackParticleContainer> trCont(m_trkcollKey);
+      if (!trCont.isValid()) {
+	ATH_MSG_WARNING("Unable to retrieve track particle container");
+        return StatusCode::FAILURE;
+      }
+      constits.trkCont=trCont.cptr();
 
       if(m_pflow) {
 	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcoll);
 	constits.pfoCont = 0;
-	ATH_CHECK( evtStore()->retrieve(constits.pfoCont, m_pfcoll ) );
+        SG::ReadHandle<PFOContainer> pfCont(m_pfcollKey);
+        if (!pfCont.isValid()) {
+	  ATH_MSG_WARNING("Unable to PFlow object container");
+          return StatusCode::FAILURE;
+        }
+        constits.pfoCont=pfCont.cptr();
       }//pflow
     }//retrieve track/pfo containers
 

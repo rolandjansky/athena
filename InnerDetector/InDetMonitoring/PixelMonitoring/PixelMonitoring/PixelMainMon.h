@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXMAINMON_H_
@@ -24,6 +24,7 @@
 #include "EventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 class PixelMonModules1D;
 class PixelMonModulesProf;
@@ -60,7 +61,6 @@ class ITrackHoleSearchTool;
 class IPixelCablingSvc;
 class SpacePointContainer;
 class IPixelByteStreamErrorsSvc;
-class IInDetConditionsSvc;
 class PixelRDORawData;
 
 typedef InDet::PixelCluster PixelCluster;
@@ -171,7 +171,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   StatusCode procPixelDCSMon(void);
 
  private:
-  ServiceHandle<IInDetConditionsSvc> m_pixelCondSummarySvc;
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
   ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
   ServiceHandle<IPixelCablingSvc> m_pixelCableSvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
@@ -181,6 +181,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   const PixelID* m_pixelid;
   uint64_t m_event;
+  uint64_t m_event5min;
 
   time_t m_startTime;
   bool m_majorityDisabled;  // check for each event, true if >50% modules disabled
@@ -196,8 +197,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int m_nGood_mod[PixLayerIBL2D3DDBM::COUNT];
   int m_nActive_mod[PixLayerIBL2D3DDBM::COUNT];
 
-  unsigned int m_nRefresh;
-  unsigned int m_nRefresh5min;
+  int m_nRefresh;
+  int m_nRefresh5min;
 
   const AtlasDetectorID* m_idHelper;
 
@@ -400,6 +401,20 @@ class PixelMainMon : public ManagedMonitorToolBase {
   // npixhits/track/lumi
   TH2F_LW* m_npixhits_per_track_lumi{};
   TH2F* m_npixhits_per_track_lastXlb{};
+
+  // zoomed clusterToTxcosAlpha peak region
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_IBL;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_IBL;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B0;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B0;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B1;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B1;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_B2;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_B2;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_ECA;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_ECA;
+  TH2F_LW* m_zoomed_clusterToTcosA_lumi_ECC;
+  TH2F* m_zoomed_clusterToTcosA_lastXlb_ECC;
 
   // cluster size
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];

@@ -49,8 +49,8 @@
 namespace LVL1MUCTPI {
 
   // Set the default StoreGate locations of input and output objects:
-  const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
-  const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
+  const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationRPC = "L1MuctpiStoreRPC";
+  const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "L1MuctpiStoreTGC";
   const std::string L1MuctpiTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
   const std::string L1MuctpiTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
 

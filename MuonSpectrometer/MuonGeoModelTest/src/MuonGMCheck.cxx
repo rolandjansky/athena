@@ -1607,6 +1607,26 @@ void MuonGMCheck::checkreadoutmdtgeo()
 			 if (mdt->hasCutouts()) tubeStep = 1;
                          for (int tube = 1; tube<mdt->getNtubesperlayer()+1;)
                          {
+			   if(mdt->hasCutouts()){ //check that the tube exists if there are cutouts
+			     PVConstLink cv = mdt->getMaterialGeom();
+			     int nGrandchildren = cv->getNChildVols();
+			     if(nGrandchildren <= 0) continue;
+			     bool tubefound = false;
+			     for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+			       int tubegeo = cv->getIdOfChildVol(kk) % 100;
+			       int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+			       if( tubegeo == tube && layergeo == tl ) {
+				 tubefound=true;
+				 break;
+			       }
+			       if( layergeo > tl ) break;
+			     }
+			     if(!tubefound){
+			       tube+=tubeStep;
+			       continue;
+			     }
+			   }
+
                              gotTube = tube;
                              chid   = p_MdtIdHelper->channelID(idp,mdt->getMultilayer(), tl, tube);
                              fout<<p_MdtIdHelper->show_to_string(chid)

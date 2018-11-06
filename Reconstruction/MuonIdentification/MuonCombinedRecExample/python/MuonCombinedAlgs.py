@@ -29,6 +29,7 @@ def MuGirlAlg(name="MuGirlAlg",**kwargs):
 def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     tools = [getPublicTool("MuonCaloTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    kwargs.setdefault("TagMap","caloTagMap");
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
@@ -39,11 +40,13 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
+    kwargs.setdefault("TagMap","muGirlTagMap")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    kwargs.setdefault("TagMap","stauTagMap")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
       
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
@@ -60,6 +63,15 @@ def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs 
 
 def MuonCombinedAlg( name="MuonCombinedAlg",**kwargs ):
     kwargs.setdefault("MuonCombinedTool",getPublicTool("MuonCombinedTool"))
+    tagmaps = []
+    # CombinedTagMaps must be in a 1-1 correspondence
+    # with MuonCombinedTagTools.
+    for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
+        if h.getFullName().find('FitTagTool') >= 0:
+            tagmaps.append ('muidcoTagMap')
+        elif h.getFullName().find('StacoTagTool') >= 0:
+            tagmaps.append ('stacoTagMap')
+    kwargs.setdefault("CombinedTagMaps", tagmaps)
     return CfgMgr.MuonCombinedAlg(name,**kwargs)
 
 def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
@@ -76,6 +88,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
+    kwargs.setdefault("TagMaps",["stauTagMap"])
     return MuonCreatorAlg(name,**kwargs)
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -40,65 +40,61 @@ class MultiComponentStateAssembler : public AthAlgTool, virtual public IMultiCom
   virtual ~MultiComponentStateAssembler ();
     
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
+
+  typedef IMultiComponentStateAssembler::Cache Cache;
 
   /** Resets the AlgTool */
-  virtual bool reset();
+  virtual bool reset(Cache& cache) const override;
 
   /** Print the status of the assembler */
-  virtual void status() const;
+  virtual void status(const Cache& cache) const override;
 
   /** Method to add a single set of Trk::ComponentParameters to the cashed Trk::MultiComponentState object under construction */
-  virtual bool addComponent  (const ComponentParameters&);
+  virtual bool addComponent  (Cache& cache, const ComponentParameters&)  const override ;
   
   /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
-  virtual bool addMultiState (const MultiComponentState&);
+  virtual bool addMultiState (Cache& cache, const MultiComponentState&) const override ;
   
   /** Method to include the weights of states that are invalid */
-  virtual bool addInvalidComponentWeight (const double&);
+  virtual bool addInvalidComponentWeight (Cache& cache, const double) const override;
   
   /** Method to return the cashed state object - it performs a reweighting before returning the object based on the valid and invaid weights */
-  virtual const MultiComponentState* assembledState ();
+  virtual const MultiComponentState* assembledState (Cache& cache) const override ;
   
   /** Method to return the cashed state object - it performs a reweighting based on the input parameter  */
-  virtual const MultiComponentState* assembledState (const double&);
+  virtual const MultiComponentState* assembledState (Cache& cache, const double) const override;
   
  private:
   
   /** Method to Check component entries before full assembly */
-  bool prepareStateForAssembly ();
+  bool prepareStateForAssembly (Cache& cache) const;
   
   /** Method to assemble state with correct weightings */
-  const MultiComponentState* doStateAssembly (const double&);
+  const MultiComponentState* doStateAssembly (Cache& cache,const double) const;
   
   /** Method to check the validity of of the cashed state */
-  bool isStateValid () const;
+  bool isStateValid (Cache& cache) const;
   
   /** Method to Remove components with insignificantly small weightings */
-  void removeSmallWeights ();
+  void removeSmallWeights (Cache& cache) const;
 
   /** Method for the actual addition of a multi-component state to the cashed state */
-  void addComponentsList (const MultiComponentState*);
+  void addComponentsList (Cache& cache, const MultiComponentState*) const;
   
   // Private data members
  private:
-  int                                m_outputlevel;                      //!< to cache current output level  bool m_sortComponents;
-  bool                               m_assemblyDone;
-  double                             m_minimumFractionalWeight;
-  double                             m_minimumValidFraction;
-  double                             m_validWeightSum;
-  double                             m_invalidWeightSum;
-  MultiComponentState*               m_multiComponentState;
-
+  Gaudi::Property<double> m_minimumFractionalWeight {this, "minimumFractionalWeight",1.e-9," Minimum Fractional Weight"};
+  Gaudi::Property<double> m_minimumValidFraction {this, "minimumValidFraction",0.01," Minimum Valid Fraction"};
 };
 } // End Trk namepace
 
-inline bool Trk::MultiComponentStateAssembler::isStateValid () const
+inline bool Trk::MultiComponentStateAssembler::isStateValid ( Cache& cache) const
 {
-  return !m_multiComponentState->empty();
+  return !cache.multiComponentState->empty();
 }
 
 #endif

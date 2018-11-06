@@ -15,10 +15,13 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
+// #include "GaudiKernel/CnvFactory.h"
+// #include "GaudiKernel/StatusCode.h"
+// #include "GaudiKernel/Service.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 StatusCode Muon::MMPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -243,7 +246,7 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       // int result = m_MMId->get_detectorElement_hash(chan->identify(), deIDHash);
       // if (result&&log.level() <= MSG::WARNING) 
       //   log << MSG::WARNING<< " Muon::MMPrepDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endmsg;
-          // chan->m_detEl = m_muonDetMgr->getMMReadoutElement(deIDHash);
+          // chan->m_detEl = m_muonDetMgr->getMMReadoutElement(deIDHash);;
       log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endmsg;
 
       chan->setHashAndIndex(collIDHash, chanIndex); 

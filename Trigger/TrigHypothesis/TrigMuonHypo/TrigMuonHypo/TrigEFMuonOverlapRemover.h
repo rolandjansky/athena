@@ -44,7 +44,7 @@ class TrigEFMuonOverlapRemover : public HLT::AllTEAlgo
       
       HLT::ErrorCode hltInitialize() { return HLT::OK; } //!< hlt initialize, doing nothing here
       HLT::ErrorCode hltFinalize()   { return HLT::OK; } //!< hlt finalize, doing nothing here
-      virtual HLT::ErrorCode hltBeginRun();
+      virtual HLT::ErrorCode hltStart();
       HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input,
 				unsigned int output);
 

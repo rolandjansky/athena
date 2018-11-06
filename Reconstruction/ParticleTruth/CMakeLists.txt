@@ -7,9 +7,8 @@ atlas_subdir( ParticleTruth )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/AthLinks
-                          Control/SGTools
                           Generators/GeneratorObjects
                           Reconstruction/Particle )
 
@@ -21,13 +20,13 @@ atlas_add_library( ParticleTruth
                    src/*.cxx
                    PUBLIC_HEADERS ParticleTruth
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthLinks SGTools GeneratorObjects Particle
+                   LINK_LIBRARIES AthLinks AthenaKernel GeneratorObjects Particle
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( ParticleTruthDict
                       ParticleTruth/ParticleTruthDict.h
                       ParticleTruth/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks SGTools GeneratorObjects Particle ParticleTruth
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthenaKernel GeneratorObjects Particle ParticleTruth
                       DATA_LINKS TrackParticleTruthCollection )
 

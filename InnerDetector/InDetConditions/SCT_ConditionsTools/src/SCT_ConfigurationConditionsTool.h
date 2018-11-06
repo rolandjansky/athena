@@ -11,34 +11,34 @@
 #ifndef SCT_ConfigurationConditionsTool_h
 #define SCT_ConfigurationConditionsTool_h
 
-// STL includes
-#include <string>
-#include <mutex>
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
-// Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
-#include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/ReadCondHandleKey.h"
+// STL includes
+#include <mutex>
+#include <string>
 
 // Forward declarations
 class SCT_ID;
-namespace InDetDD { class SCT_DetectorManager; }
 
 /**
  * @class SCT_ConfigurationConditionsTool
- * Service which reads SCT_Configuration from the database
+ * Tool which reads SCT_Configuration from the database
  * Deals with bad modules, bad links, strips out of the readout and bad strips
 **/
 
 class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_ConfigurationConditionsTool> {
-public:
+ public:
 
   //@name Service methods
   //@{
@@ -64,9 +64,9 @@ public:
   /**List of bad strips for a given module*/
   virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   /**List of bad links*/
-  virtual std::pair<bool, bool>         badLinks(const Identifier& moduleId) const override;
+  virtual std::pair<bool, bool>         badLinks(const IdentifierHash& hash) const override;
   /**Bad links for a given module*/
-  virtual const std::map<Identifier, std::pair<bool, bool>>* badLinks() const override;
+  virtual const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks() const override;
   /**List of bad chips*/
   virtual const std::map<Identifier, unsigned int>* badChips() const override;
   /**Bad chips for a given module*/
@@ -74,17 +74,20 @@ public:
   /** Get the chip number containing a particular strip*/
   virtual int                           getChip(const Identifier& stripId) const override;
 
-private:
+ private:
   // Mutex to protect the contents.
   mutable std::mutex m_mutex;
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_MonitorConditionsCondData
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
+  // Pointer of SCT_ConfigurationCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ConfigurationCondData> m_condData;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
   SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey{this, "CondKey", "SCT_ConfigurationCondData", "SCT DAQ configuration"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   const SCT_ID*                         m_pHelper;                  //!< ID helper for SCT
-  const InDetDD::SCT_DetectorManager*   m_pManager;                 //!< SCT detector manager
   bool                                  m_checkStripsInsideModules; //!< Do we want to check if a strip is bad because it is inside a bad module
 
   /** Is a strip within a bad module*/
@@ -99,6 +102,7 @@ private:
   enum {stripsPerChip=128, lastStrip=767, invalidChipNumber=-1};
 
   const SCT_ConfigurationCondData* getCondData(const EventContext& ctx) const;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
 };
 
 #endif // SCT_ConfigurationConditionsTool_h

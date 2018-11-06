@@ -36,10 +36,7 @@ SCT_ReadCalibChipDataTool::SCT_ReadCalibChipDataTool (const std::string& type, c
 StatusCode 
 SCT_ReadCalibChipDataTool::initialize() {
   // Get SCT helper
-  if (detStore()->retrieve(m_id_sct, "SCT_ID").isFailure()) {
-    ATH_MSG_FATAL("Failed to get SCT helper");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKeyGain.initialize());
@@ -79,7 +76,7 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
   const SCT_ModuleNoiseCalibData& noiseOccData{(*condDataNoise)[moduleIdx]};
 
   // Retrieve the data
-  int i{noiseOccIndex("NoiseByChip")};
+  const int i{noiseOccIndex("NoiseByChip")};
   if (i<0) {
     ATH_MSG_ERROR("This NoiseOccupancy noise data does not exist");
     return true;
@@ -89,7 +86,7 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
   // Calcuate module status
   // For now just simple check NO mean noise level
   // Chip could be 0 if bypassed, need to check
-  int side{static_cast<int>(elementHashId%2)};
+  const int side{static_cast<int>(elementHashId%2)};
   int chip{side*CHIPS_PER_SIDE};
   const int endChip{CHIPS_PER_SIDE+chip};
   int nChips{0};
@@ -101,7 +98,7 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
       ++nChips;
     }
   }
-  float meanNoiseValue{sum/nChips};
+  const float meanNoiseValue{sum/nChips};
   ATH_MSG_DEBUG("Module mean noise: " << meanNoiseValue);
   return (meanNoiseValue < m_noiseLevel);
 } //SCT_ReadCalibChipDataTool::summary()
@@ -143,14 +140,14 @@ SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int 
   try {
     const SCT_ModuleGainCalibData& wantedNPGData{condDataGain->at(idx)};
     //find the correct index for the required data
-    int dataIdx{nPtGainIndex(datatype)};
+    const int dataIdx{nPtGainIndex(datatype)};
     if (dataIdx<0) {
       ATH_MSG_ERROR("This N-point gain data: " << datatype << " does not exist");
       return waferData;
     }
     const SCT_ModuleCalibParameter& moduleGains{wantedNPGData[dataIdx]};
-    int startOffset{side*CHIPS_PER_SIDE};
-    int endOffset{CHIPS_PER_SIDE+startOffset};
+    const int startOffset{side*CHIPS_PER_SIDE};
+    const int endOffset{CHIPS_PER_SIDE+startOffset};
     SCT_ModuleCalibParameter::const_iterator it{moduleGains.begin() + startOffset};
     SCT_ModuleCalibParameter::const_iterator end{moduleGains.begin() + endOffset};
     // Returns the data for the wanted wafer
@@ -160,7 +157,7 @@ SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int 
     waferData.assign(it, end);
     return waferData;
   } catch (const std::out_of_range& e) {
-    return waferData; 
+    return waferData;
   }
 } //SCT_ReadCalibChipDataTool::getNPtGainData()
 
@@ -188,22 +185,22 @@ SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, con
     const SCT_ModuleNoiseCalibData& wantedNoiseData{condDataNoise->at(idx)};
 
     //find the correct index for the required data
-    int dataIdx{noiseOccIndex(datatype)};
+    const int dataIdx{noiseOccIndex(datatype)};
     if (dataIdx<0) {
       ATH_MSG_ERROR("This Noise Occupancy data: " << datatype << " does not exist");
       return waferData;
     }
     const SCT_ModuleCalibParameter& moduleNoise{wantedNoiseData[dataIdx]};
-    int startOffset{side*CHIPS_PER_SIDE};
-    int endOffset{CHIPS_PER_SIDE+startOffset};
+    const int startOffset{side*CHIPS_PER_SIDE};
+    const int endOffset{CHIPS_PER_SIDE+startOffset};
     SCT_ModuleCalibParameter::const_iterator it{moduleNoise.begin() + startOffset};
     SCT_ModuleCalibParameter::const_iterator end{moduleNoise.begin() + endOffset};
     // Returns the data for the wanted wafer
     if (*it != *it) return waferData;
-    waferData.assign(it, end); 
+    waferData.assign(it, end);
     return waferData;
   } catch (const std::out_of_range& e) {
-    return waferData; 
+    return waferData;
   }
 } // SCT_ReadCalibChipDataTool::getNoiseOccupancyData()
 
@@ -226,11 +223,12 @@ SCT_ReadCalibChipDataTool::getCondDataGain(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheGain.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheGain.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheGain[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_GainCalibData> condData{m_condKeyGain};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyGain.key());
@@ -246,11 +244,12 @@ SCT_ReadCalibChipDataTool::getCondDataNoise(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheNoise.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheNoise.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheNoise[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_NoiseCalibData> condData{m_condKeyNoise};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKeyNoise.key());

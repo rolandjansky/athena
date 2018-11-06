@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -14,8 +14,8 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
-#include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/StacoTag.h"
 #include "MuonCombinedStacoTagTool.h"
@@ -55,7 +55,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const {  
+  void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap ) const {  
 
     // only combine if the back extrapolation was successfull
     if( !muonCandidate.extrapolatedTrack() ||
@@ -63,11 +63,11 @@ namespace MuonCombined {
 	!muonCandidate.extrapolatedTrack()->perigeeParameters()->covariance() ) return;
 
     std::unique_ptr<const Trk::Perigee> bestPerigee;
-    InDetCandidate*     bestCandidate = 0;
+    const InDetCandidate*     bestCandidate = 0;
     double              bestChi2=2e20;
 
     // loop over ID candidates
-    for( auto idTP : indetCandidates ){
+    for( const auto idTP : indetCandidates ){
       
       //skip tracklets
       if(idTP->isSiliconAssociated()) continue;
@@ -120,7 +120,7 @@ namespace MuonCombined {
       }
       ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(*bestPerigee) << " match chi2 " << bestChi2 << " outer match " << outerMatchChi2 );
       StacoTag* tag = new StacoTag(muonCandidate,bestPerigee,bestChi2);
-      bestCandidate->addTag(*tag);
+      tagMap.addEntry(bestCandidate,tag);
     }    
   }
 

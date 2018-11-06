@@ -72,8 +72,6 @@ See the respective modules for the full list of available flags and their meanin
 
 @subsubsection MuonRecExampleConverters Configuring the data converters
 The data converters convert BS (bytestream) into RDO (Raw Data Object), and RDO in PRD (Prepared Raw Data).
-The converter algorithms for BS to RDO are setup in the jobOptions files share/MuonReadBS_jobOptions.py.
-The converter tools and services are configured in the python modules python/MuonReadBSConfig.py and
 python/MuonRecTools.py.The converter algorithms for RDO to PRD are configured in the jobOptions file share/MuonRDO_to_PRD_jobOptions.py, which calls the external jobOptions MuonRdoToPrepData/MuonRdoToMuonPrepData_jobOptions.py, which also sets up the converter tools (by including other jobOptions).
 
 \todo Move configuration of all converter tools to module python/MuonRecCnvTools.py.

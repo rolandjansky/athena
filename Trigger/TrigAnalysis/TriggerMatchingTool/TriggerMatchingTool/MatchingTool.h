@@ -51,6 +51,8 @@ public:
 
   //main matching method
   std::unique_ptr<IMatchResult> match_result(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, const IMatchConfig* mc = 0) override;
+
+  virtual void setCondition(unsigned int condition=TrigDefs::Physics) override;
   
 protected:
   MatchingImplementation* impl() override;
@@ -79,6 +81,7 @@ private:
   TypeMap m_typeMap;
   ToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
   double m_matchingThreshold;
+  unsigned int m_condition;
 };
 
 }

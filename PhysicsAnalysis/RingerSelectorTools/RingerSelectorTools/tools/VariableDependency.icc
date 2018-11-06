@@ -13,14 +13,14 @@ namespace Ringer {
 
 // =============================================================================
 inline
-bool VariableDependency::isWithinRange(const DepVarStruct &depVar) const 
+bool VariableDependency::isWithinRange(const DepVarStruct &depVar) const
 {
   return isWithinEtaRange(depVar.eta) && isWithinEtRange(depVar.et);
 }
 
 // =============================================================================
 inline
-bool VariableDependency::isWithinEtaRange(const float eta) const  
+bool VariableDependency::isWithinEtaRange(const float eta) const
 {
   if ( static_cast<bool>(m_etaDependency) ){
     const float eta_abs = std::abs(eta);
@@ -52,7 +52,7 @@ float VariableDependency::etaMax() const
 
 // =============================================================================
 inline
-void VariableDependency::setEtaDep(const float etaMin, const float etaMax) 
+void VariableDependency::setEtaDep(const float etaMin, const float etaMax)
 {
   m_etaDependency = EtaDependency::EtaDependent;
   m_etaMin = etaMin;
@@ -61,7 +61,7 @@ void VariableDependency::setEtaDep(const float etaMin, const float etaMax)
 
 // =============================================================================
 inline
-bool VariableDependency::isWithinEtRange(const float et) const 
+bool VariableDependency::isWithinEtRange(const float et) const
 {
   if ( static_cast<bool>(m_etDependency) ) {
     return ( (et >= m_etMin) && (et < m_etMax) );
@@ -92,7 +92,7 @@ float VariableDependency::etMax() const
 
 // =============================================================================
 inline
-void VariableDependency::setEtDep(const float etMin, const float etMax) 
+void VariableDependency::setEtDep(const float etMin, const float etMax)
 {
   m_etDependency = EtDependency::EtDependent;
   m_etMin = etMin;

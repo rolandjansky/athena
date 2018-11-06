@@ -17,15 +17,17 @@ TFCSHitCellMapping::TFCSHitCellMapping(const char* name, const char* title, ICal
   set_match_all_pdgid();
 }
 
-void TFCSHitCellMapping::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSHitCellMapping::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   int cs=calosample();
   const CaloDetDescrElement* cellele=m_geo->getDDE(cs,hit.eta(),hit.phi());
   ATH_MSG_DEBUG("HIT: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi());
   if(cellele) {
     simulstate.deposit(cellele,hit.E());
+    return FCSSuccess;
   } else {
     ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitCellMapping::simulate_hit: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi());
+    return FCSFatal;
   }
 }
 

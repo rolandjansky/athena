@@ -105,12 +105,12 @@ from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
 HLTMon = HLTMonTool(name               = 'HLTMon',
                histoPathBase      = "HLT");
 
-ToolSvc += HLTMon;
-HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+#ToolSvc += HLTMon;
+HLTMonManager.AthenaMonTools += [ HLTMon ];
     
 from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig
-TrigEgammaMonToolConfig.TrigEgammaMonTool()
-HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool/HLTEgammaMon" ]
+HLTEgammaMon = TrigEgammaMonToolConfig.TrigEgammaMonTool()
+HLTMonManager.AthenaMonTools += [ HLTEgammaMon ]
 HLTMonManager.FileKey = "GLOBAL"
 
 

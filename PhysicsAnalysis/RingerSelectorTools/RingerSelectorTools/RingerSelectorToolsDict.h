@@ -100,14 +100,15 @@ struct dict {
   // Add all interface wrappers:
   RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::PreProcessing::IPreProcessorVarDep, iwrap_ipp)
   RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::Discrimination::IDiscriminatorVarDep, iwrap_idiscr)
-  //RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::IThresholdVarDep, iwrap_ithres)
+  RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::IThresholdVarDep, iwrap_ithres)
   // Now we add some the specialized procedure wrappers:
   // Norm1:
   RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::PreProcessing::Norm::Norm1VarDep, norm1)
   // NNFeedForward:
   RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::NNFeedForwardVarDep, nnff)
-  // UniqueThreshold
+  // Threshold
   RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::UniqueThresholdVarDep, uniqueThres)
+  RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::LinearPileupCorrectionThresholdVarDep, linearThres)
   /// @}
 
 };

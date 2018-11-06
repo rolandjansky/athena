@@ -27,12 +27,11 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
 #include "DetDescrConditions/AlignableTransform.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Alignment DB Stuff
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
@@ -54,7 +53,6 @@ namespace InDetAlignment
         m_sctIdHelper(nullptr),
         m_trtIdHelper(nullptr),
         m_pixelManager(nullptr),
-        m_SCT_Manager(nullptr),
         m_TRT_Manager(nullptr),
 	m_IDAlignDBTool("InDetAlignDBTool"),
 	m_trtaligndbservice("TRT_AlignDbSvc",name),
@@ -133,8 +131,9 @@ namespace InDetAlignment
 		ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 		//pixel and SCT  TRT manager
 		ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
-		ATH_CHECK(detStore()->retrieve(m_SCT_Manager, "SCT"));
 		ATH_CHECK(detStore()->retrieve(m_TRT_Manager, "TRT"));
+                // ReadCondHandleKey
+                ATH_CHECK(m_SCTDetEleCollKey.initialize());
 		// Retrieve the Histo Service
 		ITHistSvc* hist_svc;
 		ATH_CHECK(service("THistSvc",hist_svc));
@@ -242,14 +241,20 @@ namespace InDetAlignment
 	//__________________________________________________________________________
 	void CreateMisalignAlg::setupSCT_AlignModule(int& nSCT)
 	{
-		InDetDD::SiDetectorElementCollection::const_iterator iter;
-		
-		for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
-			const Identifier SCT_ModuleID = m_sctIdHelper->module_id((*iter)->identify()); //from wafer id to module id
+                // SiDetectorElementCollection for SCT
+                SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+                const InDetDD::SiDetectorElementCollection* elements(*sctDetEleHandle);
+                if (not sctDetEleHandle.isValid() or elements==nullptr) {
+                        ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+                        return;
+                }
+		for (const InDetDD::SiDetectorElement *element: *elements) {
+			const Identifier SCT_ModuleID = m_sctIdHelper->module_id(element->identify()); //from wafer id to module id
+                        const IdentifierHash SCT_ModuleHash = m_sctIdHelper->wafer_hash(SCT_ModuleID);
 			
 			if (m_ModuleList.find(SCT_ModuleID) == m_ModuleList.end())
 			{
-				const InDetDD::SiDetectorElement *module = m_SCT_Manager->getDetectorElement(SCT_ModuleID);
+				const InDetDD::SiDetectorElement *module = elements->getDetectorElement(SCT_ModuleHash);
 				m_ModuleList[SCT_ModuleID][0] = module->center()[0];
 				m_ModuleList[SCT_ModuleID][1] = module->center()[1];
 				m_ModuleList[SCT_ModuleID][2] = module->center()[2];
@@ -257,7 +262,7 @@ namespace InDetAlignment
 				ATH_MSG_INFO( "SCT module " << nSCT );
 			}
 			
-			if (m_sctIdHelper->side((*iter)->identify()) == 0) { // inner side case
+			if (m_sctIdHelper->side(element->identify()) == 0) { // inner side case
 				// Write out Visualization Lookup Tree
 				m_AthenaHashedID = SCT_ModuleID.get_identifier32().get_compact();
 				m_HumanReadableID = 1000000*2 /*2 = SCT*/
@@ -477,7 +482,14 @@ namespace InDetAlignment
 		const double maxDeltaZ = m_Misalign_maxShift;
 		ATH_MSG_DEBUG( "maximum deltaPhi              = " << maxAngle/CLHEP::mrad << " mrad" );
 		ATH_MSG_DEBUG( "maximum deltaPhi for 1/r term = " << maxAngleInner/CLHEP::mrad << " mrad" );
-		
+
+                // SiDetectorElementCollection for SCT
+                SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+                const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
+                if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+                  ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+                  return StatusCode::FAILURE;
+                }
 		
 		for (std::map<Identifier, HepGeom::Point3D<double> >::const_iterator iter = m_ModuleList.begin(); iter != m_ModuleList.end(); ++iter) {
 			++i;
@@ -490,7 +502,8 @@ namespace InDetAlignment
 				SiModule = m_pixelManager->getDetectorElement(ModuleID);
 				//module = SiModule;
 			} else if (m_idHelper->is_sct(ModuleID)) {
-				SiModule = m_SCT_Manager->getDetectorElement(ModuleID);
+                                const IdentifierHash SCT_ModuleHash = m_sctIdHelper->wafer_hash(ModuleID);
+				SiModule = sctElements->getDetectorElement(SCT_ModuleHash);
 				//module = SiModule;
 			} else if (m_idHelper->is_trt(ModuleID)) {
 				//module = m_TRT_Manager->getElement(ModuleID);

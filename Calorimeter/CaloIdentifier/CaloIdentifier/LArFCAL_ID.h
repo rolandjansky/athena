@@ -5,7 +5,7 @@
 #ifndef LARFCAL_ID_H
 #define LARFCAL_ID_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/IdentifierHash.h"
 #include "IdDict/IdDictFieldImplementation.h"
@@ -13,7 +13,7 @@
 
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArFCAL_Base_ID.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "boost/range/iterator_range.hpp"
 #include <vector>

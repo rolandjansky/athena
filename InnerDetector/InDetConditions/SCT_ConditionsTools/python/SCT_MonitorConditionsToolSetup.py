@@ -7,7 +7,7 @@ class SCT_MonitorConditionsToolSetup:
         self.folder = "/SCT/Derived/Monitoring"
         self.folderDb = None
         self.dbInstance = "SCT_OFL"
-        self.algName = "SCT_MonitorConditionsCondAlg"
+        self.algName = "SCT_MonitorCondAlg"
         self.alg = None
         self.toolName = "InDetSCT_MonitorConditionsTool"
         self.tool = None
@@ -34,32 +34,30 @@ class SCT_MonitorConditionsToolSetup:
     def getAlg(self):
         return self.alg
 
-    def setFolders(self):
+    def setFolder(self):
         from IOVDbSvc.CondDB import conddb
         if not conddb.folderRequested(self.folder):
             if self.folderDb is None:
                 self.folderDb = self.folder
             conddb.addFolder(self.dbInstance, self.folderDb, className="CondAttrListCollection")
 
-    def setAlgs(self):
+    def setAlg(self):
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorConditionsCondAlg
-            condSeq += SCT_MonitorConditionsCondAlg(name = self.algName,
-                                              ReadKey = self.folder)
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorCondAlg
+            condSeq += SCT_MonitorCondAlg(name = self.algName,
+                                          ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_MonitorConditionsTool
             if self.outputLevel is None:
-                ToolSvc += SCT_MonitorConditionsTool(name = self.toolName)
+                self.tool = SCT_MonitorConditionsTool(name = self.toolName)
             else:
-                ToolSvc += SCT_MonitorConditionsTool(name = self.toolName,
-                                                     OutputLevel = self.outputLevel)
-        self.tool = getattr(ToolSvc, self.toolName)
+                self.tool = SCT_MonitorConditionsTool(name = self.toolName,
+                                                      OutputLevel = self.outputLevel)
 
     def getTool(self):
         return self.tool
@@ -74,6 +72,6 @@ class SCT_MonitorConditionsToolSetup:
         self.outputLevel = outputLevel
 
     def setup(self):
-        self.setFolders()
-        self.setAlgs()
+        self.setFolder()
+        self.setAlg()
         self.setTool()

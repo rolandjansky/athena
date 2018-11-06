@@ -16,6 +16,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "CaloEvent/CaloTowerContainer.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -45,7 +47,7 @@ class CaloTowerMonitor : public AthAlgorithm
 
  protected:
 
-  std::vector<std::string> m_collectionNames;
+  SG::ReadHandleKeyArray<CaloTowerContainer> m_collectionNames;
 
   ////////////////
   // Histograms //

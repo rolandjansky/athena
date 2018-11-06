@@ -45,7 +45,7 @@ def getTransform():
     addRecoSubsteps(executorSet)
 
     # Sim + Digi - factor these out into an importable function in time
-    executorSet.add(athenaExecutor(name = 'EVNTtoRDO', skeletonFile = 'FullChainTransforms/skeleton.EVGENtoRDO.py',
+    executorSet.add(athenaExecutor(name = 'EVNTtoRDO', skeletonFile = 'FullChainTransforms/FastChainSkeleton.EVGENtoRDO.py',
                                    substep = 'simdigi', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz', 
                                    inData=['NULL','EVNT'],
                                    outData=['RDO','NULL'] ))

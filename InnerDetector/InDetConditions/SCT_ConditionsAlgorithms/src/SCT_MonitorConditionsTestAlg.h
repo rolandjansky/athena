@@ -17,15 +17,15 @@
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-//Gaudi
-#include "GaudiKernel/ToolHandle.h"
+#include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
 
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
 // Event Info
 #include "xAODEventInfo/EventInfo.h"
 
-#include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
 
 //Forward declarations
 class SCT_ID;
@@ -46,8 +46,6 @@ class SCT_MonitorConditionsTestAlg : public AthAlgorithm {
 
   // Parameters to control the db access 
   SG::ReadHandleKey<xAOD::EventInfo>       m_evtKey;
-  UnsignedIntegerProperty                  m_select_run;
-  UnsignedIntegerProperty                  m_select_event;
 
 }; // end of class
 

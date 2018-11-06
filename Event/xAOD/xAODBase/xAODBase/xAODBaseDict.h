@@ -34,6 +34,8 @@ namespace {
    };
 }
 
+template class DataVector<xAOD::IParticle>;
+
 template
 bool& xAOD::IParticle::auxdata< bool >( const std::string& name,
                                         const std::string& clsname = "" );
@@ -45,7 +47,6 @@ float& xAOD::IParticle::auxdata< float >( const std::string& name,
 template
 int& xAOD::IParticle::auxdata< int >( const std::string& name,
                                       const std::string& clsname = "" );
-
 template
 unsigned int&
 xAOD::IParticle::auxdata< unsigned int >( const std::string& name,

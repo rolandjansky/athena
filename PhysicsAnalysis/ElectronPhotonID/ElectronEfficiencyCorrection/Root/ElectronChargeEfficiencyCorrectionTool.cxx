@@ -328,13 +328,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::finalize()
 //
 
 CP::CorrectionCode
-CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const {
-  ATH_MSG_DEBUG("In CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const");
-  if ( part.type() != xAOD::Type::Electron ){
-    ATH_MSG_ERROR("This function requires an electron to be passed. Failing!");
-    return CP::CorrectionCode::Error;
-  }
-  const xAOD::Electron& ele = static_cast<const xAOD::Electron&>(part);
+CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron& ele, double& sf) const {
 
   // initialize the SF at 1
   sf = 1.0;
@@ -527,7 +521,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
 
 
 CP::CorrectionCode
-CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::IParticle& part) const {
+CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::Electron& part) const {
   ATH_MSG_DEBUG("In CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::IParticle& part) const");
   double sf = 0.0;
   CP::CorrectionCode result = this->getEfficiencyScaleFactor(part,sf);
@@ -536,62 +530,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAO
   return result;
 
 }
-
-
-//// Giulia: This one won't exist!! ################################################ Kristin: But ok to just comment out for the moment
-
-// //---------------------------------------------------------------------------------------
-// // Get the efficiency for data only
-// //---------------------------------------------------------------------------------------
-
-// CP::CorrectionCode CP::ElectronChargeEfficiencyCorrectionTool::getDataEfficiency(const xAOD::Electron& ele, float& rate) {
-
-//   const double ele_pt  = ele.pt()*m_gevmev;
-//   const double ele_eta = fabs(ele.eta());
-//   rate = 999.;
-
-//   float syst_err(-1.0);
-//   float stat_err(-1.0);
-//   float retVal(0.0);
-
-//   retVal= this->getChargeFlipRate(ele_eta, ele_pt, m_correctionRates_data[0], rate);
-//   if ( retVal != 0 ) return CP::CorrectionCode::OutOfValidityRange;
-
-//   //.......sys.......
-//   retVal = this->getChargeFlipRate( ele_eta, ele_pt, m_correctionRates_data[1], syst_err);
-//   if ( retVal != 0 )  return CP::CorrectionCode::OutOfValidityRange;
-
-//   //.......stat.......
-//   retVal = this->getChargeFlipRate( ele_eta, ele_pt, m_correctionRates_data[2], stat_err);
-//   if ( retVal != 0 )  return CP::CorrectionCode::OutOfValidityRange;
-
-//   float total=sqrt( syst_err*syst_err + stat_err*stat_err );
-
-//   ATH_MSG_VERBOSE("Rates---- data: " << rate);
-
-
-//   // Systematics ------------------------------------------------------------------------------------------------------
-//   if ( m_mySysConf.size() >1 )  ATH_MSG_ERROR("m_mySysConf.size() >1 !! By now just one systematic implemented!!");
-
-//   if ( m_mySysConf.empty() ) ATH_MSG_VERBOSE("mySysConf is empty. NOMINAL value for rate!!!--->" << rate);
-
-//   else if (*(m_mySysConf.begin()) == SystematicVariation ("ELE_ChargeMisID_STAT",  1)) {rate*=(1+(stat_err*0.01)); ATH_MSG_VERBOSE("Rate data after STATup = "   << rate); }
-//   else if (*(m_mySysConf.begin()) == SystematicVariation ("ELE_ChargeMisID_STAT", -1)) {rate*=(1-(stat_err*0.01)); ATH_MSG_VERBOSE("Rate data after STATdown = " << rate); }
-
-//   else if (*(m_mySysConf.begin()) == SystematicVariation ("ELE_ChargeMisID_SYS" ,  1)) {rate*=(1+(syst_err*0.01)); ATH_MSG_VERBOSE("Rate data after SYSup = "    << rate); }
-//   else if (*(m_mySysConf.begin()) == SystematicVariation ("ELE_ChargeMisID_SYS" , -1)) {rate*=(1-(syst_err*0.01)); ATH_MSG_VERBOSE("Rate data after SYSdown = "  << rate); }
-
-//   else if (*(m_mySysConf.begin()) == SystematicVariation ("ELE_ChargeMisID_TOT" ,  1)) {rate*=(1+(total*0.01)); ATH_MSG_VERBOSE("Rate data after TOTup = "    << rate); }
-//   else if (*(m_mySysConf.begin()) == SystematicVariation ("ELE_ChargeMisID_TOT" , -1)) {rate*=(1-(total*0.01)); ATH_MSG_VERBOSE("Rate data after TOTdown = "  << rate); }
-
-//   else ATH_MSG_ERROR("No systematic string found");
-
-
-//   return CP::CorrectionCode::Ok;
-// }
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Get the charge of the original electron

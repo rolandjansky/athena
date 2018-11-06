@@ -15,7 +15,7 @@ PixelDCSCondTempAlg::PixelDCSCondTempAlg(const std::string& name, ISvcLocator* p
 }
 
 StatusCode PixelDCSCondTempAlg::initialize() {
-  ATH_MSG_INFO("PixelDCSCondTempAlg::initialize()");
+  ATH_MSG_DEBUG("PixelDCSCondTempAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -30,7 +30,7 @@ StatusCode PixelDCSCondTempAlg::initialize() {
 }
 
 StatusCode PixelDCSCondTempAlg::execute() {
-  ATH_MSG_INFO("PixelDCSCondTempAlg::execute()");
+  ATH_MSG_DEBUG("PixelDCSCondTempAlg::execute()");
 
   SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey);
   // Do we have a valid Write Cond Handle for current time?
@@ -83,7 +83,7 @@ StatusCode PixelDCSCondTempAlg::execute() {
 }
 
 StatusCode PixelDCSCondTempAlg::finalize() {
-  ATH_MSG_INFO("PixelDCSCondTempAlg::finalize()");
+  ATH_MSG_DEBUG("PixelDCSCondTempAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

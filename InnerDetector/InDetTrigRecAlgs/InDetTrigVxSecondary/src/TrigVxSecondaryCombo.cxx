@@ -15,8 +15,6 @@
 #include "IRegionSelector/IRegSelSvc.h"
 #include <sstream>
 #include <TLorentzVector.h>
-//#include "xAODTracking/Vertex.h"
-//#include "xAODTracking/VertexContainer.h"
 #include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthContainers/ConstDataVector.h"
@@ -445,8 +443,12 @@ namespace InDet {
 	//* for monitoring *//
 
 	const Trk::VxSecVKalVertexInfo* secVKalVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(m_secVertexInfo);
+	if (not secVKalVertexInfo){
+	  msg() << MSG::ERROR<< "Cast to Trk::VxSecVKalVertexInfo* failed in TrigVxSecondaryCombo::hltExecute" <<endmsg;
+	  return HLT::NAV_ERROR;
+	}
 	const std::vector<xAOD::Vertex*> & myVertices = secVKalVertexInfo->vertices();
-	if(myVertices.size()>0) {
+	if(not myVertices.empty()) {
 	  m_secVtx_twoTrkTot = secVKalVertexInfo->n2trackvertices();
 	  m_secVtx_mass      = secVKalVertexInfo->mass();
 	  m_secVtx_energy    = secVKalVertexInfo->energyFraction();

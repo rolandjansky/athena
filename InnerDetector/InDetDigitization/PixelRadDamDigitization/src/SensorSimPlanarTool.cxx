@@ -79,6 +79,8 @@ StatusCode SensorSimPlanarTool::initialize() {
   CHECK(m_radDamageUtil.retrieve());
   ATH_MSG_DEBUG ( "RadDamageUtil tool retrieved successfully");
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
+
   //Calculate trapping times based on fluence (already includes check for fluence=0)
   if(m_doRadDamage){
 
@@ -155,11 +157,11 @@ StatusCode SensorSimPlanarTool::initialize() {
 
   }else if(m_fluence==6){
 
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_400V_fl8_7e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_400V_fl4_6e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_400V_fl8_7e14.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_400V_fl4_6e14.root") );
     
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_250V_fl2_1e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_150V_fl1_3e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl2_1e14.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1_3e14.root") );
 
     m_fluence_layers.push_back(8.7e14);
     m_fluence_layers.push_back(4.6e14);
@@ -168,11 +170,11 @@ StatusCode SensorSimPlanarTool::initialize() {
 
   }else if(m_fluence==7){
 
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_endLHC.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_blayer_endLHC.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_endLHC.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_blayer_endLHC.root") );
 
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L1_endLHC.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L2_endLHC.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L1_endLHC.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L2_endLHC.root") );
 
     m_fluence_layers.push_back(2*8.7e14);
     m_fluence_layers.push_back(2*4.6e14);
@@ -335,7 +337,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
   double collectionDist = 0.2*CLHEP::mm;//kept for consistency with previosu version of digi. Does someone know where this number comes from?
   double smearScale = 1. + 0.35*smearRand;//ditto...
-  double tanLorentz = Module.getTanLorentzAnglePhi();
+  double tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(Module.identifyHash());
   double coLorentz=sqrt(1+pow(tanLorentz,2));
   
   //**************************************//

@@ -58,6 +58,11 @@ StatusCode ByteStreamMetadataTool::finalize() {
 }
 
 
+StatusCode ByteStreamMetadataTool::beginInputFile(const SG::SourceID&)
+{
+   return this->beginInputFile();
+}
+
 StatusCode ByteStreamMetadataTool::beginInputFile()
 {
    std::vector<std::string> vKeys;
@@ -82,9 +87,8 @@ StatusCode ByteStreamMetadataTool::beginInputFile()
          } else {
             ATH_MSG_DEBUG("Found Input ByteStreamMetadata");
          }
-         for (std::list<SG::ObjectWithVersion<ByteStreamMetadata> >::const_iterator versIter =
-		            allVersions.begin(), versEnd = allVersions.end(); versIter != versEnd; versIter++) {
-            copy.push_back(new ByteStreamMetadata(*versIter->dataObject));
+         for (SG::ObjectWithVersion<ByteStreamMetadata>& obj : allVersions) {
+            copy.push_back(new ByteStreamMetadata(*obj.dataObject));
          }
       }
       if (m_pInputStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
@@ -96,12 +100,10 @@ StatusCode ByteStreamMetadataTool::beginInputFile()
          } else {
             ATH_MSG_DEBUG("Found Input ByteStreamMetadataContainer");
          }
-         for (std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> >::const_iterator versIter =
-		            allVersions.begin(), versEnd = allVersions.end(); versIter != versEnd; versIter++) {
-            const ByteStreamMetadataContainer* bsmdc = versIter->dataObject;
-            for (ByteStreamMetadataContainer::const_iterator elemIter = bsmdc->begin(), elemEnd = bsmdc->end();
-	               elemIter != elemEnd; elemIter++) {
-               copy.push_back(new ByteStreamMetadata(**elemIter));
+         for (SG::ObjectWithVersion<ByteStreamMetadataContainer>& obj : allVersions) {
+            const ByteStreamMetadataContainer& bsmdc = *obj.dataObject;
+            for (const ByteStreamMetadata* md : bsmdc) {
+              copy.push_back(new ByteStreamMetadata(*md));
             }
          }
       }
@@ -146,11 +148,20 @@ StatusCode ByteStreamMetadataTool::beginInputFile()
 }
 
 
+StatusCode ByteStreamMetadataTool::endInputFile(const SG::SourceID&)
+{
+   return StatusCode::SUCCESS;
+}
+
 StatusCode ByteStreamMetadataTool::endInputFile()
 {
    return StatusCode::SUCCESS;
 }
 
+StatusCode ByteStreamMetadataTool::metaDataStop(const SG::SourceID&)
+{
+   return StatusCode::SUCCESS;
+}
 
 StatusCode ByteStreamMetadataTool::metaDataStop()
 {

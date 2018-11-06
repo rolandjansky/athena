@@ -23,7 +23,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkTrackSummary
    Tracking/TrkTools/TrkToolInterfaces
    PRIVATE
-   Control/DataModel
+   Control/AthContainers
    DetectorDescription/AtlasDetDescr
    DetectorDescription/GeoPrimitives
    DetectorDescription/IdDictDetDescr
@@ -53,7 +53,7 @@ atlas_add_component( TrkParticleCreator
    LINK_LIBRARIES AthContainers AthenaBaseComps EventPrimitives xAODTracking
    GaudiKernel InDetIdentifier MuonRecToolInterfaces TrkEventPrimitives
    TrkParameters TrkParticleBase TrkTrack TrkTrackSummary TrkToolInterfaces
-   DataModel AtlasDetDescr GeoPrimitives IdDictDetDescr InDetPrepRawData
+   AthContainers AtlasDetDescr GeoPrimitives IdDictDetDescr InDetPrepRawData
    InDetRIO_OnTrack MagFieldInterfaces Particle ITrackToVertex TrkSurfaces
    TrkPseudoMeasurementOnTrack VxVertex TrkExInterfaces PixelGeoModelLib
    TrkParticleCreatorLib )

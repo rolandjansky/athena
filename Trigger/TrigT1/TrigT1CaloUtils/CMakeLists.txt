@@ -8,9 +8,8 @@ atlas_subdir( TrigT1CaloUtils )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Event/xAOD/xAODTrigL1Calo
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfInterfaces
@@ -28,11 +27,11 @@ atlas_add_library( TrigT1CaloUtilsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1CaloUtils
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloEvent DataModel SGTools xAODTrigL1Calo GaudiKernel TrigT1Interfaces TrigT1CaloEventLib
+                   LINK_LIBRARIES CaloEvent AthContainers xAODTrigL1Calo GaudiKernel TrigT1Interfaces TrigT1CaloEventLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigConfL1Data TrigT1Result )
 
 atlas_add_component( TrigT1CaloUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent DataModel SGTools xAODTrigL1Calo GaudiKernel TrigT1CaloEventLib TrigT1Interfaces TrigConfL1Data TrigT1Result TrigT1CaloUtilsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthContainers xAODTrigL1Calo GaudiKernel TrigT1CaloEventLib TrigT1Interfaces TrigConfL1Data TrigT1Result TrigT1CaloUtilsLib )
 

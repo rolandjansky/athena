@@ -17,8 +17,9 @@ class MMDigitVariables : public ValAlgVariables
                    const MuonGM::MuonDetectorManager* detManager,
                    const MuonIdHelper* idhelper,
                    TTree* tree,
-                   std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MMDigitVariables"),
+						 std::string containername,
+						 MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nDigits(0),
     m_NSWMM_dig_stationName(0),
@@ -43,13 +44,6 @@ class MMDigitVariables : public ValAlgVariables
     m_NSWMM_dig_sr_stripGposX(0),
     m_NSWMM_dig_sr_stripGposY(0),
     m_NSWMM_dig_sr_stripGposZ(0),
-    m_NSWMM_dig_truth_barcode(0),
-    m_NSWMM_dig_truth_localPosX(0),
-    m_NSWMM_dig_truth_localPosY(0),
-    m_NSWMM_dig_truth_globalPosX(0),
-    m_NSWMM_dig_truth_globalPosY(0),
-    m_NSWMM_dig_truth_globalPosZ(0),
-    m_NSWMM_dig_truth_XZ_angle(0),
     m_NSWMM_dig_time_trigger(0),
     m_NSWMM_dig_charge_trigger(0),
     m_NSWMM_dig_position_trigger(0),
@@ -62,10 +56,7 @@ class MMDigitVariables : public ValAlgVariables
 
   ~MMDigitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete MMDigitVariables.");
-      std::terminate();
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -81,7 +72,7 @@ class MMDigitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const MmIdHelper* m_MmIdHelper;
@@ -110,14 +101,6 @@ class MMDigitVariables : public ValAlgVariables
   std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposX;
   std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposY;
   std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposZ;
-
-  std::vector< int    > *m_NSWMM_dig_truth_barcode;
-  std::vector< double > *m_NSWMM_dig_truth_localPosX;
-  std::vector< double > *m_NSWMM_dig_truth_localPosY;
-  std::vector< double > *m_NSWMM_dig_truth_globalPosX;
-  std::vector< double > *m_NSWMM_dig_truth_globalPosY;
-  std::vector< double > *m_NSWMM_dig_truth_globalPosZ;
-  std::vector< float  > *m_NSWMM_dig_truth_XZ_angle;
 
   std::vector< std::vector<float> >  *m_NSWMM_dig_time_trigger;
   std::vector< std::vector<float> >  *m_NSWMM_dig_charge_trigger;

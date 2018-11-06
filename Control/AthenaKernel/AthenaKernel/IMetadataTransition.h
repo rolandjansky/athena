@@ -29,7 +29,7 @@ public: // Non-static members
   virtual StatusCode retireMetadataSource(const Incident&) = 0;
 
   /// Function called when the tool should write out its metadata
-  virtual StatusCode prepareOutput() = 0;
+  virtual StatusCode prepareOutput(const Incident&) = 0;
 
   virtual StatusCode proxyIncident(const Incident&) = 0;
 

@@ -14,6 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetConditions/SiPropertiesSvc
+                          InnerDetector/InDetConditions/PixelConditionsData
+                          InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/SCT_ConditionsData
                           MagneticField/MagFieldInterfaces
                           PRIVATE

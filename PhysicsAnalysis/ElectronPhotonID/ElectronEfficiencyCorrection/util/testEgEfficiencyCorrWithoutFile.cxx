@@ -167,5 +167,3 @@ int main( int argc, char* argv[] ) {
             << " + " << totalPos << " - " <<totalNeg << " <===");
     return 0;
 }
-
-

@@ -3,10 +3,8 @@
 
   <!--Add the TauJetParameter enums -->
   <enum pattern="xAOD::TauJetParameters::*"/>
-  <variable pattern="xAOD::TauJetParameters::*"/>
 
   <!--Add the DiTauJetParameter enums -->
   <enum pattern="xAOD::DiTauJetParameters::*"/>
-  <variable pattern="xAOD::DiTauJetParameters::*"/>
 
 </lcgdict>

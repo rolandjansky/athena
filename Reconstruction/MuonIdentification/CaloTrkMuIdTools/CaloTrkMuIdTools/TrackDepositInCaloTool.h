@@ -7,23 +7,19 @@
 
 // --- Tools ---
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
-#include "ICaloTrkMuIdTools/ITrackEnergyInCaloTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 
 // --- Athena common ---
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 // --- Athena ---
-#include "CaloEvent/CaloCellContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 // --- STL ---
-#include <utility>
+#include <map>
 #include <vector>
 
 // --- Forward declarations ---
@@ -33,7 +29,7 @@ class TileDetDescrManager;
 
 class TH1F;
 class TH2F;
-
+class ITHistSvc;
 
 class CaloDetDescrManager;
 
@@ -156,7 +152,6 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     const Trk::TrackParameters* extrapolateToEntranceOfLayer(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
 	  const Trk::TrackParameters* extrapolateToExitOfLayer(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
 
-//    double distanceInTile(const Trk::TrackParameters* par, const Trk::TrackParameters* parExit, const CaloDetDescrElement* dde, double cell_z_min, double cell_z_max) const;
     double distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) const;
     
     bool isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable = false) const;
@@ -167,10 +162,10 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
   private:
 
     // Services & Tools
-    ITHistSvc*                          m_histSvc;                             //!< Pointer to THistSvc
+    ITHistSvc*                          m_histSvc{};                             //!< Pointer to THistSvc
     ToolHandle<Trk::IExtrapolator>      m_extrapolator;                        //!< Extrapolator tool
-    const CaloDetDescrManager*          m_caloDDM;                             //!< Calorimeter detector description manager
-    const TileDetDescrManager*          m_tileDDM;
+    const CaloDetDescrManager*          m_caloDDM{};                             //!< Calorimeter detector description manager
+    const TileDetDescrManager*          m_tileDDM{};
     
     ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
     ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
@@ -183,34 +178,32 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     bool            m_debugMode;                                               //!< Flag to run in specialized debug mode
     bool            m_showNeighbours;
     double          m_solenoidRadius;                                          //!< Radius of the solenoid surrounding the ID
-    //double          m_solenoidHalfLength;                                      //!< Halflength of the solenoid surrounding the ID
     CaloLayerMap    m_barrelLayerMap;                                          //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
     CaloLayerMap    m_endCapLayerMap;                                          //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
     
-    //mutable int     m_stacks;                                                  //!< Counts the number of stacks (diagnoses indefinite recursion).
 
     // Histograms        
-    TH1F* m_hDepositLayer12;
-    TH1F* m_hDepositLayer13;
-    TH1F* m_hDepositLayer14;
+    TH1F* m_hDepositLayer12{};
+    TH1F* m_hDepositLayer13{};
+    TH1F* m_hDepositLayer14{};
     
-    TH2F* m_hParELossEta;
-    TH2F* m_hParELossSample;
+    TH2F* m_hParELossEta{};
+    TH2F* m_hParELossSample{};
 
     ///////////////////////////////
-    TH1F* m_hDeltaEtaLastPar;
-    TH1F* m_hDeltaRadiusLastPar;
-    TH1F* m_hDepositsInCore;
-    TH1F* m_hDepositsInCone;
-    TH2F* m_hDistDepositsTile;
-    TH2F* m_hDistDepositsHEC;
+    TH1F* m_hDeltaEtaLastPar{};
+    TH1F* m_hDeltaRadiusLastPar{};
+    TH1F* m_hDepositsInCore{};
+    TH1F* m_hDepositsInCone{};
+    TH2F* m_hDistDepositsTile{};
+    TH2F* m_hDistDepositsHEC{};
     
-    TH2F* m_hEMB1vsdPhi;
-    TH2F* m_hEMB2vsdPhi;
-    TH2F* m_hEMB3vsdPhi;
-    TH2F* m_hEMB1vsdEta;
-    TH2F* m_hEMB2vsdEta;
-    TH2F* m_hEMB3vsdEta;
+    TH2F* m_hEMB1vsdPhi{};
+    TH2F* m_hEMB2vsdPhi{};
+    TH2F* m_hEMB3vsdPhi{};
+    TH2F* m_hEMB1vsdEta{};
+    TH2F* m_hEMB2vsdEta{};
+    TH2F* m_hEMB3vsdEta{};
 
 };
     

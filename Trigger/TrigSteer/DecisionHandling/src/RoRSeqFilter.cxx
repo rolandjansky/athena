@@ -150,15 +150,13 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
          objDecisions.begin(), objDecisions.end(),
          std::back_inserter( intersection ) );
 
-    if ( not intersection.empty() ) {
-      TrigCompositeUtils::Decision* decisionCopy = new TrigCompositeUtils::Decision();
-      output.push_back( decisionCopy );
+    if ( not intersection.empty() ) {      
+      TrigCompositeUtils::Decision* decisionCopy = TrigCompositeUtils::newDecisionIn( &output, name() );
       *decisionCopy = *inputDecision; // copies auxdata from one auxstore to the other
       TrigCompositeUtils::linkToPrevious(decisionCopy, inputKey, i); // Update seed
       passCounter ++;
       ATH_MSG_DEBUG("Input satisfied at least one active chain");
-    }
-    else {
+    } else {
       ATH_MSG_DEBUG("No Input decisions requested by active chains");
     }
   }

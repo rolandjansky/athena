@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TransportTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 // class header
 #include "TransportTool.h"
 
@@ -48,24 +44,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p )
   : base_class(t,n,p)
-  , m_libList("")
-  , m_physList("")
-  , m_fieldMap("")
-  , m_rndmGen("")
-  , m_releaseGeoModel(true)
-  , m_recordFlux(false)
-  , m_mcEventCollectionName("TruthEvent")
-  , m_useMT(false)
-  , m_rndmGenSvc("AtDSFMTGenSvc",n)
-  , m_g4atlasSvc("G4AtlasSvc", n)
-  , m_userActionSvc("",n)
-  , m_detGeoSvc("DetectorGeometrySvc", n)
-  , m_inputConverter("ISF_InputConverter",n)
-  , m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper")
-  , m_physListTool("PhysicsListToolBase")
-  , m_senDetTool("SensitiveDetectorMasterTool")
-  , m_fastSimTool("FastSimulationMasterTool")
-  , m_pRunMgr(nullptr)
 {
   declareProperty("Dll",                   m_libList);
   declareProperty("Physics",               m_physList);
@@ -74,22 +52,10 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty("ReleaseGeoModel",       m_releaseGeoModel);
   declareProperty("RecordFlux",            m_recordFlux);
   declareProperty("McEventCollection",     m_mcEventCollectionName);
+  declareProperty("G4Commands",            m_g4commands, "Commands to send to the G4UI");
+  declareProperty("MultiThreading",        m_useMT, "Multi-threading specific settings");
   //declareProperty("KillAllNeutrinos",      m_KillAllNeutrinos=true);
   //declareProperty("KillLowEPhotons",       m_KillLowEPhotons=-1.);
-  // Commands to send to the G4UI
-  declareProperty("G4Commands",            m_g4commands);
-  // Multi-threading specific settings
-  declareProperty("MultiThreading",        m_useMT=false);
-  declareProperty("RandomNumberService",   m_rndmGenSvc);
-  declareProperty("G4AtlasSvc",            m_g4atlasSvc );
-  declareProperty("UserActionSvc",         m_userActionSvc);
-  declareProperty("DetGeoSvc",             m_detGeoSvc);
-  declareProperty("InputConverter",        m_inputConverter);
-  declareProperty("G4RunManagerHelper",    m_g4RunManagerHelper);
-  declareProperty("PhysicsListTool",       m_physListTool);
-  declareProperty("SenDetMasterTool",      m_senDetTool);
-  declareProperty("FastSimMasterTool",     m_fastSimTool);
-
 
 }
 

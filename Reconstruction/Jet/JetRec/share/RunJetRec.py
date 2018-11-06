@@ -15,7 +15,7 @@ runJetGrooming = True
 from JetRec.JetRecFlags import jetFlags
 
 # Import the standard jet tool manager.
-from JetRec.JetRecStandardToolManager import jtm
+from JetRec.JetRecStandard import jtm
 
 # Set this true to test LAr bad HV fractions with data.
 # See ATLJETMET-15
@@ -60,7 +60,7 @@ if jetFlags.useTracks:
   jtm.addJetFinder("Run2AntiKt2PV0TrackJets", "AntiKt", 0.2, "pv0track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4TrackJets",    "AntiKt", 0.4,    "track", ghostArea=gatrack, ptmin= 2000)
-  jtm.addJetFinder("Run2AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ghostArea=gatrack, ptmin= 2000)
+  #jtm.addJetFinder("Run2AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ghostArea=gatrack, ptmin= 2000)
 jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "emtopo_ungroomed", ptmin=2000, ptminFilter= 5000, ghostArea=gatopo, calibOpt="ar")
 jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "lctopo_ungroomed", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="ar")

@@ -23,8 +23,7 @@
 //
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetPrepRawData/SiCluster.h"
 
 //The main Input file
 //

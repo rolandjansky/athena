@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_L1TopoSimulation
@@ -46,9 +46,6 @@ namespace LVL1 {
       ~L1TopoSimulation();
 
       virtual StatusCode initialize() override;
-
-      virtual StatusCode beginRun() override;
-      virtual StatusCode endRun() override;
 
       virtual StatusCode start() override;
       virtual StatusCode stop() override;

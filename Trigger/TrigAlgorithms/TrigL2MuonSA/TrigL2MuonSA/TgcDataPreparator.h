@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCDATAPREPARATOR_H
@@ -103,10 +103,6 @@ class TgcDataPreparator: public AthAlgTool
       //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider {
       // 	this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", ""};
       //  
-      //// Tools for the Raw data conversion
-      ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider;
-      //ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider {
-      // 	this, "TGC_RawDataProvider", "Muon::TGC_RawDataProviderTool", ""};
 
       // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;

@@ -56,8 +56,6 @@ class TrigL2PhotonFexMT : public AthAlgorithm {
   
  private:
   
-  xAOD::TrigPhotonContainer* m_trigPhotonContainer; 
-
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey { this, 
       "RoIs",                             // property name
       "rois",                            // default value of StoreGate key

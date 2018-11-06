@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,40 +26,42 @@ class SCT_Amp : public AthAlgTool, virtual public ISCT_Amp {
  public:
 
   /**  constructor */
-  SCT_Amp(const std::string& type, const std::string& name, const IInterface* parent ) ;
+  SCT_Amp(const std::string& type, const std::string& name, const IInterface* parent);
   /** Destructor */
-  virtual ~SCT_Amp();
+  virtual ~SCT_Amp() = default;
   /** AlgTool initialize */
   virtual StatusCode initialize();
   /** AlgTool finalize */
   virtual StatusCode finalize();
    
   /** main purpose: CR-RC^3 response to a list of charges with times */
-  float response(const list_t &Charges, const float timeOverThreshold) const;
-  void response(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const;
+  float response(const list_t& Charges, const float timeOverThreshold) const;
+  void response(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const;
 
   /** Neighbour strip cross talk response strip to a list of charges with times */
-  float crosstalk(const list_t &Charges, const float timeOverThreshold) const;
-  void crosstalk(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const;
+  float crosstalk(const list_t& Charges, const float timeOverThreshold) const;
+  void crosstalk(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const;
 
 private:
 
   /** signal peak time */   
-  float m_PeakTime;   
+  float m_PeakTime;
 
   /** Cross factor 2 side */
-  float m_CrossFactor2sides; 
+  float m_CrossFactor2sides;
 
   /** cross factor */
   float m_CrossFactorBack;
 
   /** Normalisation factor for the signal response */
-  float m_NormConstCentral ;
+  float m_NormConstCentral;
 
   /** Normalisation factor for the neighbour strip signal response */
-  float m_NormConstNeigh ;
+  float m_NormConstNeigh;
 
-  float m_tmin, m_tmax, m_dt ;
+  float m_tmin;
+  float m_tmax;
+  float m_dt;
 
 };
 

@@ -246,7 +246,7 @@ namespace MuonGM {
       m_nStrips.push_back(m_etaDesign[il].nch);
 
       reLog()<<MSG::DEBUG
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
+	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
 
     }
 
@@ -270,16 +270,19 @@ namespace MuonGM {
       // move the readout plane to the sensitive volume boundary 
       double shift = 0.5*m_etaDesign[layer].thickness;
       double rox = ( layer==0 || layer==2) ? shift : -shift;
-
+      
+      double sAngle = m_etaDesign[layer].sAngle;
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*Amg::Translation3D(rox,0.,0.)*
-						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
+						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
+                                                 Amg::AngleAxis3D(-sAngle,Amg::Vector3D(0.,0.,1.)) );
 
       // surface info (center, normal) 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
-
+// get phi direction of MM eta strip 
+      *m_MsgStream << MSG::DEBUG << " MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
     }
   }
 

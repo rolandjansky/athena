@@ -46,7 +46,7 @@ Updated:  Jan 13, 2001   (MW)
 
 #include "egammaEvent/EMShower.h"
 #include "GaudiKernel/GaudiException.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 #include <iomanip>
 #include <iostream>
 

@@ -24,8 +24,6 @@ const long long oneBillion(1000000000LL);
 }
 
 SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * svc):AthService(name,svc),
-   m_eventInfoKey(std::string("ByteStreamEventInfo")),
-   m_incidentSvc ( "IncidentSvc", name ),
    m_timeStampBegin(INTMAX),
    m_tsBeginString(""),
    m_tsEndString(""),
@@ -35,8 +33,6 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * sv
    m_LBBegin(INTMAX),
    m_LBEnd(INTMIN),
    m_numLB(0),
-   m_numUOFO(0),
-   m_numUOFOth(10),
    m_source("UNKNOWN"),
    m_runNumber(0),
    m_eventNumber(0),
@@ -50,12 +46,6 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * sv
 StatusCode
 SCT_CalibEventInfo::initialize() {
    msg( MSG::INFO)<<"Initialize of evtInfo in "<<PACKAGE_VERSION<<endmsg;
-   ATH_CHECK(m_eventInfoKey.initialize());
-   const int pri(500);
-   m_incidentSvc->addListener( this, "BeginRun",         pri, true, true );
-   m_incidentSvc->addListener( this, "UnknownOfflineId", pri, true );
-   m_incidentSvc->addListener( this, "BeginEvent",       pri, true );
-   m_incidentSvc->addListener( this, "EndEvent",         pri, true );
    return StatusCode::SUCCESS;
 }
 
@@ -78,61 +68,6 @@ SCT_CalibEventInfo::queryInterface(const InterfaceID & riid, void** ppvInterface
 int SCT_CalibEventInfo::lumiBlock() const {
    return m_lumiBlock;
 }
-
-void
-SCT_CalibEventInfo::handle(const Incident &inc) {
-
-   if ( m_source == "BS" ) {
-      SG::ReadHandle<EventInfo> evt(m_eventInfoKey);
-      if (not evt.isValid()) {
-         msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
-         return;
-      }
-
-      //listening for the Unknown offlineId for OfflineId..." error.
-      //count number of instances/event
-      if (inc.type() == "UnknownOfflineId") {
-         incrementUOFO();
-      }
-
-      //at the beginning of each run do a print put
-      if (inc.type() == "BeginRun") {
-         msg(MSG:: INFO) << "BeginRun is HERE" << endmsg;
-      }
-
-      //at the beginning of each event set the counter to 0
-      if (inc.type() == "BeginEvent") {
-         resetUOFO();
-      }
-
-      //at the end end of each event, if there are more than m_numUOFOth instances
-      //(default is 10) of the error, skip the event
-      if (inc.type() == "EndEvent") {
-         int nUOFO = UOFO();
-         if (nUOFO > m_numUOFOth) {
-            msg ( MSG::DEBUG ) << " More than " << m_numUOFOth <<" Id ROD failures, skipping event" << endmsg;
-            m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
-         }
-      }
-
-      const EventInfo* evt_ptr = &(*evt);
-      msg( MSG::VERBOSE ) << SCT_CalibAlgs::eventInfoAsString(evt_ptr) << endmsg;
-      //--- TimeStamp/LB range analyzed
-      const int timeStamp = evt->event_ID()->time_stamp();
-      const int lumiBlock = evt->event_ID()->lumi_block();
-      setTimeStamp(std::min(timeStamp, m_timeStampBegin), std::max(timeStamp, m_timeStampEnd));
-      setLumiBlock(std::min(lumiBlock, m_LBBegin), std::max(lumiBlock, m_LBEnd));
-      m_lumiBlock=lumiBlock;
-      m_timeStamp=timeStamp;
-
-   } else if ( m_source == "HIST" ) {
-
-      msg( MSG::INFO ) << "RunNumber, TimeStamp (Begin, End): " << m_runNumber << ", " << m_timeStampBegin << ", " << m_timeStampEnd<< endmsg;
-
-   } else msg( MSG::FATAL ) << "SCT_CalibEventInfo: Unknown source!" << endmsg;
-
-}
-
 
 void
 SCT_CalibEventInfo::setTimeStamp(const int begin, const int end) {
@@ -158,6 +93,13 @@ void
 SCT_CalibEventInfo::setTimeStamp(const int ts) {
    m_timeStamp=ts;
 }
+
+void
+SCT_CalibEventInfo::getLumiBlock(int & begin, int & end) const {
+   begin=m_LBBegin;
+   end=m_LBEnd;
+}
+
 void
 SCT_CalibEventInfo::setLumiBlock(const int begin, const int end) {
    m_LBBegin=begin;
@@ -174,7 +116,7 @@ SCT_CalibEventInfo::setSource(const std::string source) {
 }
 void
 SCT_CalibEventInfo::setRunNumber(const int rn) {
-   m_runNumber=rn;
+  m_runNumber=rn;
 }
 void
 SCT_CalibEventInfo::setBunchCrossing(const int bc) {
@@ -212,22 +154,6 @@ void
 SCT_CalibEventInfo::incrementCounter() {
    ++m_counter;
 }
-
-int
-SCT_CalibEventInfo::UOFO() const {
-   return m_numUOFO;
-}
-
-void
-SCT_CalibEventInfo::incrementUOFO() {
-   ++m_numUOFO;
-}
-
-void
-SCT_CalibEventInfo::resetUOFO() {
-   m_numUOFO=0;
-}
-
 
 void
 SCT_CalibEventInfo::setCounter(const int counterVal) {

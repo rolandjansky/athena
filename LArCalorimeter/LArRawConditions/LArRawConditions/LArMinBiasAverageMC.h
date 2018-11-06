@@ -44,6 +44,8 @@ class LArMinBiasAverageMC: public LArMinBiasAverageComplete {
 
 };
 
-
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArMinBiasAverageMC, 255615918, 1)
+CONDCONT_DEF( LArMinBiasAverageMC,157938128 , ILArMinBiasAverage );
+
 #endif 

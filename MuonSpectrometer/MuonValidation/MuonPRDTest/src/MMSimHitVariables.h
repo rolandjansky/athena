@@ -17,12 +17,12 @@ class MMSimHitVariables : public ValAlgVariables
                     const MuonGM::MuonDetectorManager* detManager,
                     const MuonIdHelper* idhelper,
                     TTree* tree,
-                    std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MMSimHitVariables"),
+						  std::string containername,
+						  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nSimHits(0), 
     m_NSWMM_trackId(0),
-    m_NSWMM_truthEl(0),
     m_NSWMM_globalTime(0), 
     m_NSWMM_hitGlobalPositionX(0), 
     m_NSWMM_hitGlobalPositionY(0), 
@@ -70,10 +70,7 @@ class MMSimHitVariables : public ValAlgVariables
 
   ~MMSimHitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete MMSimHitVariables.");
-      std::terminate();
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -89,14 +86,13 @@ class MMSimHitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const MmIdHelper* m_MmIdHelper;
 
   int m_NSWMM_nSimHits;
   std::vector<int>    *m_NSWMM_trackId;
-  std::vector<int>    *m_NSWMM_truthEl;
   std::vector<double> *m_NSWMM_globalTime;
   std::vector<double> *m_NSWMM_hitGlobalPositionX;
   std::vector<double> *m_NSWMM_hitGlobalPositionY;

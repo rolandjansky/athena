@@ -12,14 +12,4 @@
           <returnValue>0</returnValue>
        </expectations>
     </TEST>
-    <TEST name="clid" type="script">
-       <options>_clid_unittest.py</options>
-       <author> Paolo Calafiura </author>
-       <mailto> pcalafiura@lbl.gov </mailto>
-       <expectations>
-          <errorMessage>AssertionError</errorMessage>
-          <successMessage>OK</successMessage>
-          <returnValue>0</returnValue>
-       </expectations>
-    </TEST>
 </atn>

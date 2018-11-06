@@ -1420,6 +1420,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
       // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
+      std::vector<std::string> vs_ESnoniso;
+      vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
+      vs_ESnoniso.push_back("HLT_mu26");
+      vs_ESnoniso.push_back("HLT_mu24");      
+      
       std::vector<std::string> vs_EStag;
       //vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight"); // pp v4
       vs_EStag.push_back("HLT_mu20_idperf"); // pp v5
@@ -1475,6 +1480,12 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
 	    m_passedES[ESSTD] = true;
 	    ATH_MSG_DEBUG("----- CommonDQA: ESstd " << *itrES << " and EF " << *itrES << " passed");
+	  }
+	}
+	for (itrES = vs_ESnoniso.begin(); itrES != vs_ESnoniso.end(); itrES++) {
+	  if (getTDT()->isPassed(*itrES)) {
+	    m_passedESNONISO = true;
+	    ATH_MSG_DEBUG("----- CommonDQA: ESnoniso " << *itrES << " and EF " << *itrES << " passed");
 	  }
 	}
 	for (itrES = vs_EStag.begin(); itrES != vs_EStag.end(); itrES++) {

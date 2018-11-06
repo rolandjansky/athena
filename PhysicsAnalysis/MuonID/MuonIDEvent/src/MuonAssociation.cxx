@@ -12,7 +12,7 @@ namespace Analysis
   MuonAssociation::MuonAssociation()
   {  } 
   
-  MuonAssociation::MuonAssociation(NameType& name)
+  MuonAssociation::MuonAssociation(const NameType& name)
   { this->setName(name); }  
   
   MuonAssociation::~MuonAssociation()
@@ -53,7 +53,7 @@ namespace Analysis
   }
   
   void  MuonAssociation::set_muon(const MuonContainer* theContainer,
-		       index_type& theIndex,
+		       const index_type& theIndex,
 		       double weight)
   {
     double newWeight = weight;
@@ -80,7 +80,7 @@ namespace Analysis
   }
   
   double MuonAssociation::getMuonWeight(const MuonContainer* theContainer,
-				      index_type& theIndex) const
+                                        const index_type& theIndex) const
   {
     // from Navigable
     return (this->contains(theContainer,theIndex))

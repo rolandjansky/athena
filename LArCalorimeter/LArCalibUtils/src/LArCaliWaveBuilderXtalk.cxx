@@ -371,7 +371,7 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
     return StatusCode::FAILURE;
   } 
 
-  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
+  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer = nullptr;
  
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();

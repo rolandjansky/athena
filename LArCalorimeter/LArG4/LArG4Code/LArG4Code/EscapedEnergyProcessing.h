@@ -28,6 +28,7 @@
 
 #include "G4TouchableHandle.hh"
 #include "G4ThreeVector.hh"
+#include "G4Step.hh"
 #include "globals.hh"
 
 class LArG4CalibSD;
@@ -42,10 +43,9 @@ public:
   // located; the value of "point" itself in case additional
   // processing is necessary, and the amount of escaped energy.
 
-  virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy );
+  virtual G4bool Process( G4Step* fakeStep );
 
 private:
-
   // Local pointer to the default SD that this should put hits into
   LArG4CalibSD* m_defaultSD;
 };

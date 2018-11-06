@@ -13,15 +13,17 @@
 
 #ifndef SCT_ConditionsSummaryTestAlg_H
 #define SCT_ConditionsSummaryTestAlg_H 
-//STL
-#include <string>
-
-//Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 
 //Athena
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <string>
 
 ///Example class to show calling the SCT_ConditionsSummaryTool
 class SCT_ConditionsSummaryTestAlg : public AthAlgorithm {

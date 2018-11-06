@@ -1,0 +1,49 @@
+Starting tests
+Testing types...
+NB: Stress-tests will use random seed = 117
+Performing basic validation of TH1F vs. TH1F_LW...
+LWHists INFO: Using light weight histograms version LWHists-00-00-00
+ ---> Quick basic test completed
+ ---> Basic scaling test completed
+ ---> Systematic tests (663552) completed
+ ---> Variable binning tests completed
+ ---> Various filling tests completed
+Performing basic validation of TH1D vs. TH1D_LW...
+ ---> Quick basic test completed
+ ---> Basic scaling test completed
+ ---> Systematic tests (663552) completed
+ ---> Variable binning tests completed
+ ---> Various filling tests completed
+Performing basic validation of TH1I vs. TH1I_LW...
+ ---> Quick basic test completed
+ ---> Basic scaling test completed
+ ---> Systematic tests (663552) completed
+ ---> Variable binning tests completed
+ ---> Various filling tests completed
+Performing stress-test level validations of TH1F vs. TH1F_LW...
+Performing stress-test level validations of TH1D vs. TH1D_LW...
+Performing stress-test level validations of TH1I vs. TH1I_LW...
+Performing basic validation of TH2F vs. TH2F_LW...
+ ---> Quick basic test completed
+ ---> Various filling tests completed
+ ---> Systematic tests (768) completed
+ ---> Variable binning tests completed
+Performing basic validation of TH2D vs. TH2D_LW...
+ ---> Quick basic test completed
+ ---> Various filling tests completed
+ ---> Systematic tests (768) completed
+ ---> Variable binning tests completed
+Performing basic validation of TH2I vs. TH2I_LW...
+ ---> Quick basic test completed
+ ---> Various filling tests completed
+ ---> Systematic tests (768) completed
+ ---> Variable binning tests completed
+Performing basic validation of TProfile vs. TProfile_LW...
+ ---> Quick basic test completed
+ ---> Systematic tests (460800) completed
+ ---> Floating point precision tests (117650) completed
+ ---> Variable binning tests completed
+Performing basic validation of TProfile2D vs. TProfile2D_LW...
+ ---> Quick basic test completed
+ ---> Systematic tests (3888) completed
+All enabled tests succesfully completed

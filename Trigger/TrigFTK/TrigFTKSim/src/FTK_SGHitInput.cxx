@@ -32,6 +32,8 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
 #include "IdDictDetDescr/IdDictManager.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/SiClusterCollection.h"
 #include "InDetRawData/InDetRawDataCollection.h"
@@ -40,8 +42,11 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/SCT_SimHelper.h"
 #include "InDetSimData/PixelSimHelper.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
@@ -123,6 +128,8 @@ StatusCode FTK_SGHitInput::initialize(){
     m_log << MSG::INFO << m_extrapolator << " retrieved" << endmsg;
   }
 
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
+
   if( m_beamSpotSvc.retrieve().isFailure() ) {
     m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endmsg;
     return StatusCode::FAILURE;
@@ -157,14 +164,13 @@ StatusCode FTK_SGHitInput::initialize(){
     m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // open output to .bz2 using streams for debug //
   if(m_dooutFileRawHits) {
@@ -311,7 +317,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-        const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+        Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+        localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+        const InDetDD::SiLocalPosition localPos(localPos2D);
         const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
         // update map between pixel identifier and event-unique hit index.
@@ -461,7 +469,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           Identifier rdoId = (*iRDO)->identify();
           // get the det element from the det element collection
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-          const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+          Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+          localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+          const InDetDD::SiLocalPosition localPos(localPos2D);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           if(m_dooutFileRawHits){
@@ -524,6 +534,13 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
     m_log << MSG::INFO << "Found SCT SDO Map" << endmsg;
   }
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
+  if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
+
   const DataHandle<SCT_RDO_Container> sct_rdocontainer_iter;
   if( m_storeGate->retrieve(sct_rdocontainer_iter, "SCT_RDOs").isSuccess() ) {
     sct_rdocontainer_iter->clID(); // anything to dereference the DataHandle
@@ -535,7 +552,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
         const Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
-        const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
+        const Identifier wafer_id = m_sctId->wafer_id(rdoId);
+        const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+        const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
         const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
         const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
         const Amg::Vector3D gPos = sielement->globalPosition(localPos);
@@ -656,7 +675,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endmsg;
         for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
           const Identifier rdoId = (*iRDO)->identify();
-          const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
+          const Identifier wafer_id = m_sctId->wafer_id(rdoId);
+          const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
           const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
           const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
           const Amg::Vector3D gPos = sielement->globalPosition(localPos);

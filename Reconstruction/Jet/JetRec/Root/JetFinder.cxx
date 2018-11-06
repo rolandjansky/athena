@@ -5,8 +5,6 @@
 // JetFinder.cxx
 
 #include "JetRec/JetFinder.h"
-#include <iomanip>
-#include <sstream>
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
@@ -83,7 +81,6 @@ StatusCode JetFinder::initialize() {
 #endif
 
   // Input DataHandles
-  m_eventinfokey = "EventInfo";
   ATH_CHECK( m_eventinfokey.initialize() );
 
   std::string sdrop = "ToolSvc.";
@@ -164,8 +161,15 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
     if ( m_ranopt == 1 ) {
       // Use run/event number as random number seeds.
       std::vector<int> inseeds;
-      const xAOD::EventInfo* pevinfo =
-        evtStore()->retrieve<const xAOD::EventInfo>("EventInfo");
+
+      auto handle = SG::makeHandle(m_eventinfokey);
+      if (!handle.isValid()){
+        ATH_MSG_ERROR("Unable to retrieve event info");
+        return 1;
+      }
+      const xAOD::EventInfo* pevinfo = handle.cptr();
+
+      
       if ( pevinfo != 0 ) {
 #ifdef USE_BOOST_AUTO
         BOOST_AUTO(ievt, pevinfo->eventNumber());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -11,24 +11,26 @@
 
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
-#include "xAODEventInfo/EventInfo.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/TrackCollection.h"
-#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
-#include <vector>
-#include <string>
 #include <set>
+#include <string>
+#include <vector>
 
 class SCT_ID;
 class TTree;
-class ISCT_CablingSvc;
 
 namespace InDet {
-
 
 /** @class SCT_ClusterValidationNtupleWriter
  
@@ -44,26 +46,30 @@ public:
     /** Standard Athena-Algorithm Constructor */
     SCT_ClusterValidationNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~SCT_ClusterValidationNtupleWriter();
+    ~SCT_ClusterValidationNtupleWriter() = default;
 
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    StatusCode initialize();
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    StatusCode execute();
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    StatusCode finalize();
 
 private:
 
-    const SCT_ID*       m_sctid;                   //!< SCT ID helper
-    const InDet::SCT_ClusterContainer*  m_riocontainer; //!< container of RIOs
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey; //!< key for xAOD::EventInfo
-    SG::ReadHandleKey<SCT_ClusterContainer> m_jo_riocontainername; //!< jobOption: name of container with RIOs
-    SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;     //!< Data object name: for the SCT this is "SCT_RDOs"
-    SG::ReadHandleKey<SpacePointContainer> m_spacePointContainerName;//!< SpacePoint container name: for the SCT this is "SCT_SpacePoints"
-    SG::ReadHandleKey<TrackCollection> m_inputTrackCollection; //! TrackCollection name, needed for hits-on-tracks, default is "CombinedInDetTracks"
+    const SCT_ID* m_sctid; //!< SCT ID helper
+    const InDet::SCT_ClusterContainer* m_riocontainer; //!< container of RIOs
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "key for xAOD::EventInfo"};
+    SG::ReadHandleKey<SCT_ClusterContainer> m_jo_riocontainername{this, "SCT_ClusterContainer", "SCT_Clusters", "jobOption: name of container with RIOs"};
+    SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName{this, "SCT_RDOContainer", "SCT_RDOs", "Data object name: for the SCT this is SCT_RDOs"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacePointContainerName{this, "SCT_SpacePointContainer", "SCT_SpacePoints", "SpacePoint container name: for the SCT this is SCT_SpacePoints"};
+    SG::ReadHandleKey<TrackCollection> m_inputTrackCollection{this, "SCT_InputTrackCollection", "CombinedInDetTracks", "TrackCollection name, needed for hits-on-tracks, default is CombinedInDetTracks"};
+
+    // For P->T converter of SCT_Clusters
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-    ServiceHandle<ISCT_CablingSvc> m_cabling;
+    ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     std::string m_ntupleFileName;     //!< jobOption: Ntuple file name
     std::string m_ntupleDirName;      //!< jobOption: Ntuple directory name
     std::string m_ntupleTreeName;     //!< jobOption: Ntuple tree name
@@ -71,7 +77,7 @@ private:
     bool        m_fillRDO;            //!< flag to book, access and fill RDO or not
     bool        m_fillSpacePoint;     //!< flag to book, access and fill SpacePoints or not
     bool        m_fillBSErrs;         //!< flag to book, access and fill ByteStream errors or not
-    bool        m_doHitsOnTracks;         //!< flag to book, access and fill RDO isOnTrack or not
+    bool        m_doHitsOnTracks;     //!< flag to book, access and fill RDO isOnTrack or not
 
     //! pointer to the ntuple tree.
     TTree* m_nt;
@@ -84,18 +90,18 @@ private:
     int         m_bunchCrossing;   //!< event bunch crossing ID
 
     // ntuple items for SCT clusters
-    int         m_nRIOs;           //!< number of RIOs, i.e. SCT clusters, in the event. This variable set the size of the vectors with cluster information.
+    int         m_nRIOs;              //!< number of RIOs, i.e. SCT clusters, in the event. This variable set the size of the vectors with cluster information.
     std::vector<float>* m_rioLoc1;    //!< local x coordinate of strip UNIT:mm
     std::vector<float>* m_rioSurfaceX; //!< global x coordinate of SCT wafer center UNIT:mm
     std::vector<float>* m_rioSurfaceY; //!< global x coordinate of SCT wafer center UNIT:mm
     std::vector<float>* m_rioSurfaceZ; //!< global x coordinate of SCT wafer center UNIT:mm
-    std::vector<int>*	m_SctBarrelEndcap; //!< from IdHelper: pos/neg barrel (+/-1) and pos/neg endcap (+/-2) UNIT:1:bar, 2:ec
-    std::vector<int>*	m_SctLayerDisk; //!< from IdHelper: layer/disk index
-    std::vector<int>*	m_SctEtaModule; //!< from IdHelper: module index in eta
-    std::vector<int>*	m_SctPhiModule; //!< from IdHelper: module index in phi
-    std::vector<int>*	m_SctSide;      //!< from IdHelper: side index (0/1)
-    std::vector<float>*  m_SctDeltaPhi; //!< please provide description!
-    std::vector<float>*  m_SctHitErr;   //!< please provide description!
+    std::vector<int>*   m_SctBarrelEndcap; //!< from IdHelper: pos/neg barrel (+/-1) and pos/neg endcap (+/-2) UNIT:1:bar, 2:ec
+    std::vector<int>*   m_SctLayerDisk; //!< from IdHelper: layer/disk index
+    std::vector<int>*   m_SctEtaModule; //!< from IdHelper: module index in eta
+    std::vector<int>*   m_SctPhiModule; //!< from IdHelper: module index in phi
+    std::vector<int>*   m_SctSide;      //!< from IdHelper: side index (0/1)
+    std::vector<float>* m_SctDeltaPhi;  //!< please provide description!
+    std::vector<float>* m_SctHitErr;    //!< please provide description!
 
     //SpacePoints
     int m_nSP;
@@ -110,7 +116,7 @@ private:
     //  RDO
     int  m_nRDOs;                         //!< Number of RDOs
     std::vector<int>* m_sct_rdoGroupSize; //!< RDO group size 
-    std::vector<int>* m_sct_rdoIsOnTrack;    //!< RDO on track 
+    std::vector<int>* m_sct_rdoIsOnTrack; //!< RDO on track 
     std::vector<int>* m_sct_layer;        //!< index of the SCT-layer in which the SCT wafer is positioned
     std::vector<int>* m_sct_eta;          //!< eta of the SCT wafer
     std::vector<int>* m_sct_phi;          //!< phi of the SCT wafer
@@ -138,7 +144,6 @@ private:
     std::vector<int>* m_scterr_rodid;     //!< online ID of ROD containing link   
     std::vector<int>* m_scterr_channel;   //!< online channel no. of link.
     std::vector<int>* m_scterr_type;      //!< type of BS error (as defined in SCT_ByteStreamErrs enum in ISCT_ByteStreamErrorsSvc.h)
-
 
 };
 

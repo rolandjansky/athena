@@ -7,11 +7,12 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
-// ROOT include(s):
+// ROOT ide(s):
 #include "TFile.h"
 #include "TString.h"
 #include "TList.h"
 #include "TKey.h"
+#include "TH2F.h"
 
 // Local include(s):
 #include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
@@ -106,7 +107,7 @@ else if(pt<TEV) printf("|%2.0f - %2.0f\t\t|",pTbounds[i-1]/GEV,pTbounds[i]/GEV);
 else printf("|%2.0f-%2.0f\t\t|",pTbounds[i-1]/GEV,pTbounds[i]/GEV);
 for(int j=1;j<=nEtabins;j++){
 eta=0.5*(Etabounds[j-1]+Etabounds[j]);
-printf("%2.2f+/-%2.4f\t|",tool_SF.calculate(datatype,run_number,eta,pt).getScaleFactor(),tool_SF.calculate(datatype,run_number,eta,pt).getTotalUncertainty());
+printf("%2.2f+/-%2.4f\t|",tool_SF.calculate(datatype,run_number,eta,pt).scaleFactor,tool_SF.calculate(datatype,run_number,eta,pt).totalUncertainty);
 } cout << endl;
 }
 cout << dash_line.Data() <<endl;

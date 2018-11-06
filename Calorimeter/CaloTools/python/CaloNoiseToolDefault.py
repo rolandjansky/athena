@@ -43,9 +43,14 @@ def CaloNoiseToolDefault(flag='',name='CaloNoiseToolDefault'):
         mlog.info("Using CaloNoiseTool")
         from CaloTools.CaloToolsConf import CaloNoiseTool
         # Tile configuration
-        from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-        tileInfoConfigurator = TileInfoConfigurator()
-        tileInfoConfigurator.setupCOOL()
+        from AthenaCommon.DetFlags      import DetFlags
+        if DetFlags.Tile_on():
+            from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+            tileInfoConfigurator = TileInfoConfigurator()
+            tileInfoConfigurator.setupCOOL()
+            UseTile = True
+        else:
+            UseTile = False
         
         # CaloNoiseTool configuration
         WorkMode=1
@@ -82,6 +87,7 @@ def CaloNoiseToolDefault(flag='',name='CaloNoiseToolDefault'):
         theTool = CaloNoiseTool(name,
                           WorkMode = WorkMode,
                           WithOF = WithOF,
+                          UseTile = UseTile,
                           TileInfoName = TileInfoName,
                           LArADC2MeVTool = theADC2MeVTool,
                           LArOFCTool = theOFCTool,

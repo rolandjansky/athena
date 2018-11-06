@@ -93,8 +93,7 @@ StatusCode TauAllCaloDRFex::initialize()
 
 HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
 					 const IRoiDescriptor& roi,
-					 const CaloDetDescrElement*& /*caloDDE*/,
-                                	 const EventContext* /*context*/ )
+					 const CaloDetDescrElement*& /*caloDDE*/)
 {
   
   // Time total AlgTool time 

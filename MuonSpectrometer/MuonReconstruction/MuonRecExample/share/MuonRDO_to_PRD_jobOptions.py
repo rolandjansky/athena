@@ -17,22 +17,30 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from AthenaCommon.CfgGetter import getAlgorithm
+from MuonRecExample.MuonPrdProviderToolsConfig import RpcPrepDataProviderTool, MdtPrepDataProviderTool, TgcPrepDataProviderTool, CscPrepDataProviderTool
 
 if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
-    topSequence += getAlgorithm("CscRdoToCscPrepData")
+    topSequence += getAlgorithm("CscRdoToCscPrepData", tryDefaultConfigurable=True)
+    topSequence.CscRdoToCscPrepData.CscRdoToCscPrepDataTool = CscPrepDataProviderTool()
 
 if muonRecFlags.doMDTs() and DetFlags.makeRIO.MDT_on() and (DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on()):
     topSequence += getAlgorithm("MdtRdoToMdtPrepData", tryDefaultConfigurable=True)
+    topSequence.MdtRdoToMdtPrepData.DecodingTool = MdtPrepDataProviderTool()
 
 if muonRecFlags.doRPCs() and DetFlags.makeRIO.RPC_on() and (DetFlags.haveRDO.RPC_on() or DetFlags.digitize.RPC_on()):
-    topSequence += getAlgorithm("RpcRdoToRpcPrepData", tryDefaultConfigurable=True)
+    topSequence += getAlgorithm("RpcRdoToRpcPrepData", tryDefaultConfigurable=True )
+    topSequence.RpcRdoToRpcPrepData.DecodingTool = RpcPrepDataProviderTool()
 
 if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on()):
     topSequence += getAlgorithm("TgcRdoToTgcPrepData", tryDefaultConfigurable=True)
+    topSequence.TgcRdoToTgcPrepData.DecodingTool = TgcPrepDataProviderTool()
 
-if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
+if not muonRecFlags.doFastDigitization():
+  if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
     topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
 
+  if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
+    topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
 
 #
 # Remove hits from part of the detector to mimic dead channels

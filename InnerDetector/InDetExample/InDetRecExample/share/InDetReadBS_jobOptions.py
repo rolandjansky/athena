@@ -33,9 +33,7 @@ if DetFlags.readRDOBS.pixel_on():
 
 if DetFlags.readRDOBS.SCT_on():
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-  InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                      TriggerMode = False)
-  ToolSvc += InDetSCTRodDecoder
+  InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder")
   if (InDetFlags.doPrintConfigurables()):
     print      InDetSCTRodDecoder
   #InDetSCTRodDecoder.OutputLevel = VERBOSE
@@ -43,7 +41,6 @@ if DetFlags.readRDOBS.SCT_on():
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
   InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
                                                       Decoder = InDetSCTRodDecoder)
-  ToolSvc += InDetSCTRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
     print      InDetSCTRawDataProviderTool
   #InDetSCTRawDataProviderTool.OutputLevel = VERBOSE

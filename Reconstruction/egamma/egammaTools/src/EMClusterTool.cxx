@@ -219,7 +219,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 								   cluster.eta0(),cluster.phi0(),
 								   cluSize);
   if(newClus){  
-    if (m_clusterCorrectionTool->execute(newClus).isFailure()){
+    if (m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newClus).isFailure()){
       ATH_MSG_ERROR("Problem executing cluster correction tool");
     }
     fillPositionsInCalo(newClus);

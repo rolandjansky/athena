@@ -219,7 +219,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   // get the iterator pairs for this DetEl
   //iterate over hits
   const EventInfo* pevt = 0;
-  StatusCode sc_ev = evtStore()->retrieve(pevt, "");
+  ATH_CHECK( evtStore()->retrieve(pevt, "") );
   m_evt = pevt->event_ID()->event_number();
   m_run = pevt->event_ID()->run_number();
   

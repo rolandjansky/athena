@@ -51,7 +51,7 @@ InDetServMatFactorySLHC::InDetServMatFactorySLHC(const InDetServMatAthenaComps *
 
 InDetServMatFactorySLHC::~InDetServMatFactorySLHC()
 {
-
+  delete m_manager;
 }
 
 

@@ -7,15 +7,27 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM = jobproperties.PrimaryDPDFlags_RPVLLStream
 
+## TriggerAPI ##
+from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
+apitriggers = RPVLLTriggers()
+
 class DiLep_FilterFlags(JobProperty):
     statusOn       = True
     allowedTypes   = ['bool']
     StoredValue    = True
     
-    SiPhTriggers   = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
-    DiPhTriggers   = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
-    SiMuTriggers   = ["HLT_mu80_msonly_3layersEC"]
-    SiMuBaTriggers = ["HLT_mu60_0eta105_msonly"]
+    SiPhTriggers    = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
+    if apitriggers.doTriggerAPI:
+        SiPhTriggers   += apitriggers.getDiLepSiPhTriggers() ## TriggerAPI
+    DiPhTriggers    = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
+    if apitriggers.doTriggerAPI:
+        DiPhTriggers   += apitriggers.getDiLepDiPhTriggers() ## TriggerAPI
+    SiMuTriggers    = ["HLT_mu80_msonly_3layersEC"]
+    if apitriggers.doTriggerAPI:
+        SiMuTriggers   += apitriggers.getDiLepSiMuTriggers() ## TriggerAPI
+    SiMuBaTriggers  = ["HLT_mu60_0eta105_msonly"]
+    if apitriggers.doTriggerAPI:
+        SiMuBaTriggers += apitriggers.getDiLepSiMuBaTriggers() ## TriggerAPI
     
     ElEtaMax       = 2.5
     PhEtaMax       = 2.5

@@ -2,17 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloIdentifier/CaloCell_ID.h"
-
 // Tile includes
 #include "TileConditions/TileCondToolMuID.h"
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileCalibBlobObjs/Exception.h"
+
+// Calo includes
+#include "CaloIdentifier/CaloCell_ID.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 
 //
@@ -27,11 +27,9 @@ TileCondToolMuID::interfaceID() {
 //____________________________________________________________________
 TileCondToolMuID::TileCondToolMuID(const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-  , m_caloID(0)
-  , m_pryMuID( "TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_MuID", this)
+  , m_caloID(nullptr)
 {
   declareInterface<TileCondToolMuID>(this);
-  declareProperty("ProxyMuID", m_pryMuID);
 }
 
 //
@@ -45,11 +43,11 @@ StatusCode TileCondToolMuID::initialize() {
 
   ATH_MSG_DEBUG( "In initialize()" );
 
-  //=== retrieve proxy
-  CHECK( m_pryMuID.retrieve() );
+  //=== Initialize MuID conditions data key
+  ATH_CHECK( m_calibMuIdKey.initialize() );
 
   // Retrieve CaloIdManager
-  CHECK( detStore()->retrieve(m_caloID) );
+  ATH_CHECK( detStore()->retrieve(m_caloID) );
 
   return StatusCode::SUCCESS;
 }
@@ -63,7 +61,7 @@ StatusCode TileCondToolMuID::finalize() {
 
 //
 //____________________________________________________________________
-void TileCondToolMuID::getLowThreshold(Identifier & id, int & ros, int & module, int & index) {
+void TileCondToolMuID::getLowThreshold(Identifier & id, int & ros, int & module, int & index) const {
 
   module = m_caloID->module(id);
 
@@ -171,7 +169,7 @@ void TileCondToolMuID::getLowThreshold(Identifier & id, int & ros, int & module,
 
 //
 //____________________________________________________________________
-void TileCondToolMuID::getHighThreshold(Identifier & id, int & ros, int & module, int & index) {
+void TileCondToolMuID::getHighThreshold(Identifier & id, int & ros, int & module, int & index) const {
 
   index = ros = -999;
   module = m_caloID->module(id);
@@ -280,39 +278,57 @@ void TileCondToolMuID::getHighThreshold(Identifier & id, int & ros, int & module
 
 //
 //____________________________________________________________________
-float TileCondToolMuID::getLowThresholdValue(Identifier id) {
-  int ros, module, index, blob_size;
+float TileCondToolMuID::getLowThresholdValue(Identifier id) const {
+
+  int ros;
+  int module;
+  int index;
+
   getLowThreshold(id, ros, module, index);
+
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, module);
-  blob_size = m_pryMuID->getCalibDrawer(drawerIdx)->getObjSizeUint32();
-  if (index >= blob_size) {
-    ATH_MSG_ERROR( "getLowThresholdValue: index out of range! ->  ros/mod/blob_size/ind "
-                  << ros << " " << module << " " << blob_size << " " << index );
+
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibMuID(m_calibMuIdKey);
+  int nValues = calibMuID->getCalibDrawer(drawerIdx)->getObjSizeUint32();
+
+
+  if (index >= nValues) {
+    ATH_MSG_ERROR( "getLowThresholdValue: index out of range! ->  ros/mod/num_values/ind "
+                  << ros << " " << module << " " << nValues << " " << index );
     return -999.;
   } else {
-    ATH_MSG_DEBUG( "getLowThresholdValue: ros/mod/drawer_ind/blob_size/ind " << ros << " "
-                  << module << " " << drawerIdx << " " << blob_size << " " << index );
+    ATH_MSG_DEBUG( "getLowThresholdValue: ros/mod/drawer_ind/num_values/ind " << ros << " "
+                  << module << " " << drawerIdx << " " << nValues << " " << index );
 
-    return m_pryMuID->getCalibDrawer(drawerIdx)->getData(0, 0, index);
+    return calibMuID->getCalibDrawer(drawerIdx)->getData(0, 0, index);
   }
 }
 
 //
 //____________________________________________________________________
-float TileCondToolMuID::getHighThresholdValue(Identifier id) {
-  int ros, module, index, blob_size;
+float TileCondToolMuID::getHighThresholdValue(Identifier id) const {
+
+  int ros;
+  int module;
+  int index;
+
   getHighThreshold(id, ros, module, index);
+
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, module);
-  blob_size = m_pryMuID->getCalibDrawer(drawerIdx)->getObjSizeUint32();
-  if (index >= blob_size) {
-    ATH_MSG_ERROR( "getHighThresholdValue: index out of range! ->  ros/mod/blob_size/ind "
-                  << ros << " " << module << " " << blob_size << " " << index );
+
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibMuID(m_calibMuIdKey);
+  int nValues = calibMuID->getCalibDrawer(drawerIdx)->getObjSizeUint32();
+
+  if (index >= nValues) {
+    ATH_MSG_ERROR( "getHighThresholdValue: index out of range! ->  ros/mod/num_values/ind "
+                  << ros << " " << module << " " << nValues << " " << index );
 
     return -999.;
   } else {
-    ATH_MSG_DEBUG( "getHighThresholdValue: ros/mod/drawer_ind/blob_size/ind " << ros << " "
-                  << module << " " << drawerIdx << " " << blob_size << " " << index );
+    ATH_MSG_DEBUG( "getHighThresholdValue: ros/mod/drawer_ind/num_values/ind " << ros << " "
+                  << module << " " << drawerIdx << " " << nValues << " " << index );
 
-    return m_pryMuID->getCalibDrawer(drawerIdx)->getData(0, 0, index);
+    return calibMuID->getCalibDrawer(drawerIdx)->getData(0, 0, index);
+
   }
 }

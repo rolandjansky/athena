@@ -31,7 +31,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 //#define PIXEL_DEBUG
 

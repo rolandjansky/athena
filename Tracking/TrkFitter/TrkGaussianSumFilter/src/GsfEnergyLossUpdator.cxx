@@ -23,9 +23,9 @@ decription           : Implementation code for EnergyLossUpdator class
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
-// static particle masses
-Trk::ParticleMasses Trk::GsfEnergyLossUpdator::s_particleMasses;
-
+namespace{
+  const Trk::ParticleMasses s_particleMasses{};
+}
 
 Trk::GsfEnergyLossUpdator::GsfEnergyLossUpdator(const std::string& type, const std::string& name, const IInterface* parent)
   :
@@ -119,7 +119,7 @@ const Trk::TrackParameters* Trk::GsfEnergyLossUpdator::update( const TrackParame
   const Amg::Vector3D& globalMomentum = trackParameters.momentum();
    
   EnergyLoss* energyLoss =
-                 m_EnergyLossUpdator->energyLoss(materialProperties, globalMomentum.mag(), pathcorrection, direction, particle, true);
+    m_EnergyLossUpdator->energyLoss(materialProperties, globalMomentum.mag(), pathcorrection, direction, particle, true);
     
   // update for mean energy loss
   double deltaE      = energyLoss ? energyLoss->deltaE() : 0;
@@ -142,14 +142,12 @@ const Trk::TrackParameters* Trk::GsfEnergyLossUpdator::update( const TrackParame
   // Update diagonal and off-diagonal covariance matrix elements
   (*updatedCovarianceMatrix)(Trk::qOverP,Trk::qOverP) += sigmaQoverP*sigmaQoverP;
   
-  //Amg::VectorX updatedTrackStateVector(5);
-  //updatedTrackStateVector[Trk::locX]   = trackStateVector[Trk::locX];
-  //updatedTrackStateVector[Trk::locY]   = trackStateVector[Trk::locY];
-  //updatedTrackStateVector[Trk::phi]    = trackStateVector[Trk::phi];
-  //updatedTrackStateVector[Trk::theta]  = trackStateVector[Trk::theta];
-  //updatedTrackStateVector[Trk::qOverP] = trackStateVector[Trk::qOverP] * (1. +  momentumFractionLost);
-     
-  return trackParameters.associatedSurface().createTrackParameters(trackStateVector[Trk::locX],trackStateVector[Trk::locY],trackStateVector[Trk::phi],trackStateVector[Trk::theta],trackStateVector[Trk::qOverP] * (1. +  momentumFractionLost), updatedCovarianceMatrix );
+    
+  return trackParameters.associatedSurface().createTrackParameters(trackStateVector[Trk::locX],
+                                                                   trackStateVector[Trk::locY],
+                                                                   trackStateVector[Trk::phi],
+                                                                   trackStateVector[Trk::theta],
+                                                                   trackStateVector[Trk::qOverP] * (1. +  momentumFractionLost), updatedCovarianceMatrix );
   
 }
 

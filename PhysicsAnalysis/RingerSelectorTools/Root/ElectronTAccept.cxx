@@ -46,11 +46,11 @@ DECLARE_BIT(BitdefElectron_v1, CutIDDec,
 // =============================================================================
 /// The decision position of the Ringer algorithm's discrimation chain:
 DECLARE_BIT(BitdefElectron_v1, RingerChainDec,
-    "Ringer algorithm discrimation chain decision." , 
+    "Ringer algorithm discrimation chain decision." ,
     ElectronNBits )
 
 // =============================================================================
-unsigned int ElectronTAccept_v1::getAppliedCutMsk( const Requirement cut, 
+unsigned int ElectronTAccept_v1::getAppliedCutMsk( const Requirement cut,
     bool withCutIDTrack)
 {
   // Create an empty word:

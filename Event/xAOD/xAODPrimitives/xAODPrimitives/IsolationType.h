@@ -41,7 +41,7 @@ namespace xAOD {
          ptcone20 = 12,
          ptcone30 = 14,
          ptcone40 = 16,
-	 ptcone50 = 18,
+         ptcone50 = 18,
          /// Topo-cluster E<sub>T</sub>-sum 
          ///
          /// E<sub>T</sub>-sum of the topo-clusters in a cone

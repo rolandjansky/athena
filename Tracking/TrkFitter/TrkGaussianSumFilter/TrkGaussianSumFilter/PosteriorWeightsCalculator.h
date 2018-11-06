@@ -43,7 +43,7 @@ class PosteriorWeightsCalculator : public AthAlgTool, virtual public IPosteriorW
   StatusCode finalize();
 
   /** Method to compute the state weights after measurement update */
-  virtual const MultiComponentState* weights( const MultiComponentState&, const MeasurementBase& );
+  virtual const MultiComponentState* weights( const MultiComponentState&, const MeasurementBase& ) const;
  
 };
 

@@ -18,7 +18,7 @@ namespace Analysis {
     pb->m_tagLikelihood.assign(pa->tagLikelihood().begin(),
                                pa->tagLikelihood().end());
 
-    if (pa->isPhoton()) {
+    if (!pa->isPhoton()) {
       m_eleElementLinkCnv.transToPers(&pa->electronLink(), &pb->m_electron, msg);
     }
     else {

@@ -21,7 +21,7 @@ namespace Trk{
 }
 
 namespace InDetDD{
-  class SCT_DetectorManager;
+  class SiDetectorElementCollection;
   class SiDetectorElement;
 }
 namespace InDet{
@@ -49,24 +49,24 @@ namespace InDet{
 		  const Amg::Vector3D& vertexVec,
 		  const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2, double stripLengthGapTolerance) const;
 
-		void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
-		  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
-		  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-		  SpacePointCollection* spacepointCollection) const;
+                void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1,
+                                                  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters,
+                                                  const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
+                                                  SpacePointCollection* spacepointCollection) const;
 
-		void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, 
-		  SpacePointCollection* spacepointCollection) const;
+                void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters,
+                                                   SpacePointCollection* spacepointCollection) const;
 
-		void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
-		  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
-		  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
-		  SpacePointOverlapCollection* spacepointOverlapCollection) const;
+                void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1,
+                                                            const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters,
+                                                            const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
+                                                            SpacePointOverlapCollection* spacepointOverlapCollection) const;
 
-		void fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
-		  const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, 
-		  double max2, bool allClusters, const Amg::Vector3D& vertexVec , 
-		  const InDetDD::SCT_DetectorManager *SCT_Manager, 
-		  SpacePointOverlapCollection* spacepointOverlapCollection) const;
+                void fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1,
+                                                            const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2,
+                                                            double max2, bool allClusters, const Amg::Vector3D& vertexVec ,
+                                                            const InDetDD::SiDetectorElementCollection* elements,
+                                                            SpacePointOverlapCollection* spacepointOverlapCollection) const;
 
 	private:
 		double m_stripLengthTolerance;

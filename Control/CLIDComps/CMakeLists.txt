@@ -40,6 +40,10 @@ atlas_add_test( ClassIDSvc_test
    EXTRA_PATTERNS "WARNING Could not resolve clid DB|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( clid
+                SCRIPT test/_clid_unittest.py
+                EXTRA_PATTERNS "Ran 3 tests in" )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/Gaudi_clid.db )

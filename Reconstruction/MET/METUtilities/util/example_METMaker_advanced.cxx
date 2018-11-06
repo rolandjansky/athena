@@ -28,6 +28,7 @@ int main() {
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/JetContainer.h"
@@ -158,14 +159,12 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     const xAOD::MissingETAssociationMap* metMap = nullptr;
     std::string metAssocKey = "METAssoc_" + jetType;
     ANA_CHECK( event->retrieve(metMap, metAssocKey) );
-    metMap->resetObjSelectionFlags();
 
     xAOD::MissingETContainer*    newMetContainer    = new xAOD::MissingETContainer();
     xAOD::MissingETAuxContainer* newMetAuxContainer = new xAOD::MissingETAuxContainer();
     newMetContainer->setStore(newMetAuxContainer);
 
-    // It is necessary to reset the selected objects before every MET calculation
-    metMap->resetObjSelectionFlags();
+    xAOD::MissingETAssociationHelper metHelper(metMap);
 
     //here we apply some basic cuts and rebuild the met at each step
     //InvisibleElectrons
@@ -178,7 +177,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       }
       //this line will mark the electron as invisible if it passes the (inv) electron selection cut
       //this removes the particle and associated clusters from the jet and soft term calculations
-      ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),metMap,newMetContainer) );
+      ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),&metHelper,newMetContainer) );
       // NOTE: Objects marked as invisible should not also be added as part
       // of another term! However, you can e.g. mark some electrons invisible
       // and compute RefEle with others.
@@ -193,7 +192,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 			       xAOD::Type::Photon,
 			       newMetContainer,
 			       metPhotons.asDataVector(),
-			       metMap)
+			       &metHelper)
 	   );
     //Taus
     ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
@@ -204,7 +203,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 			       xAOD::Type::Tau,
 			       newMetContainer,
 			       metTaus.asDataVector(),
-			       metMap)
+			       &metHelper)
 	   );
     
     //Muons
@@ -217,7 +216,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 			       xAOD::Type::Muon,
 			       newMetContainer,
 			       metMuons.asDataVector(),
-			       metMap)
+			       &metHelper)
 	   );
     
     met::addGhostMuonsToJets(*muons, *calibJets);
@@ -230,7 +229,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    newMetContainer, //adding to this new met container
 				    calibJets,       //using this jet collection to calculate jet met
 				    coreMet,         //core met container
-				    metMap,          //with this association map
+				    &metHelper,          //with this association map
 				    false            //don't apply jet jvt cut
 				    )
 	     );
@@ -240,7 +239,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				      newMetContainer,//adding to this new met container
 				      calibJets,	  //using this jet collection to calculate jet track met
 				      coreMet,	  //core met container
-				      metMap,	  //with this association map
+				      &metHelper,	  //with this association map
 				      false		  //don't apply jet jvt cut
 				      )
 	     );

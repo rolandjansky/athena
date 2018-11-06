@@ -21,7 +21,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-#include "PixelConditionsServices/IPixelDCSSvc.h"
+#include "PixelConditionsTools/IPixelDCSSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 class PixelSiliconConditionsSvc: public AthService, virtual public ISiliconConditionsSvc {

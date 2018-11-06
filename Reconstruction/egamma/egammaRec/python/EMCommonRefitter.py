@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 print "EMCommonRefitter.py"
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -14,6 +14,7 @@ egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 def CreateEgammaRotCreator():
   global ToolSvc
   #Setup e/gamma offline RotCreator if one is not present
+
   if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
     # --- temp: read calib file 
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -33,11 +34,17 @@ def CreateEgammaRotCreator():
     conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")               
     # --- Select the necessary settings when running on run 1 data/MC
     # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
+
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+      from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+      pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory    
       
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
       egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
+                                                                  PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
                                                                   NetworkToHistoTool   = egNeuralNetworkToHistoTool,
                                                                   doRunI = True,
                                                                   useToT = False,
@@ -50,6 +57,7 @@ def CreateEgammaRotCreator():
         
     else:
       egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
+                                                                  PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
                                                                   NetworkToHistoTool   = egNeuralNetworkToHistoTool,
                                                                   LoadNoTrackNetwork   = True,
                                                                   useToT = InDetFlags.doNNToTCalibration(),
@@ -61,8 +69,13 @@ def CreateEgammaRotCreator():
   if DetFlags.haveRIO.pixel_on():
     # load Pixel ROT creator, we overwrite the defaults for the
     # tool to always make conservative pixel cluster errors
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+      from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+      pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
     from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
     egPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("egPixelClusterOnTrackTool",
+                                                               LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                                DisableDistortions = InDetFlags.doFatras(),
                                                                applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() 
                                                                                      and InDetFlags.pixelClusterSplittingType() == 'NeuralNet'))   
@@ -76,14 +89,13 @@ def CreateEgammaRotCreator():
 
   if DetFlags.haveRIO.SCT_on():
     # SiLorentzAngleTool
-    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
     from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
     egSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("egSCT_ClusterOnTrackTool",
                                                               CorrectionStrategy = 0,  # do correct position bias
                                                               ErrorStrategy      = 2,  # do use phi dependent errors
-                                                              LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
+                                                              LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
     ToolSvc += egSCT_ClusterOnTrackTool
   else:
     egSCT_ClusterOnTrackTool = None
@@ -196,7 +208,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                         MakePerigee             = True,
                                         RefitOnMeasurementBase  = True,
                                         DoHitSorting            = True,
-                                        ValidationMode          = False,
                                         ToolForROTCreation      = egRotCreator)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter

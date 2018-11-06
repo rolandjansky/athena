@@ -26,6 +26,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/EventContext.h"
+
 //
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigEgammaHypo/TrigEFElectronHypo.h"
@@ -340,7 +342,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   return HLT::OK;
  }
 
-HLT::ErrorCode TrigEFElectronHypo::hltBeginRun() {
+HLT::ErrorCode TrigEFElectronHypo::hltStart() {
   prepareMonitoringVars();
   return HLT::OK;
 }
@@ -370,6 +372,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   // -------------------------------------
   if (timerSvc()) m_totalTimer->start();    
 
+  const EventContext ctx = Gaudi::Hive::currentContext();
 
   ATH_MSG_DEBUG(name() << ": in execute()");
  
@@ -483,16 +486,16 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             }else{
                 if (timerSvc()) m_timerPIDTool->start(); //timer
                 if(useLumiTool){
-                    asg::AcceptData acc = m_athElectronLHIDSelectorTool->accept(egIt,avg_mu);
-                    lhval = m_athElectronLHIDSelectorTool->calculate(egIt,avg_mu);
+                    asg::AcceptData acc = m_athElectronLHIDSelectorTool->accept(ctx,egIt,avg_mu);
+                    lhval = m_athElectronLHIDSelectorTool->calculate(ctx,egIt,avg_mu);
                     ATH_MSG_DEBUG("LHValue with mu " << lhval);
                     m_lhval.push_back(lhval);
                     isLHAcceptTrig = (bool) (acc);
                 }
                 else {
                     ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-                    asg::AcceptData acc = m_athElectronLHIDSelectorTool->accept(egIt);
-                    lhval = m_athElectronLHIDSelectorTool->calculate(egIt);
+                    asg::AcceptData acc = m_athElectronLHIDSelectorTool->accept(ctx,egIt);
+                    lhval = m_athElectronLHIDSelectorTool->calculate(ctx,egIt);
                     ATH_MSG_DEBUG("LHValue without mu " << lhval);
                     m_lhval.push_back(lhval);
                     isLHAcceptTrig = (bool) (acc);
@@ -511,7 +514,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         }else{
             if (timerSvc()) m_timerPIDTool->start(); //timer
             unsigned int isEM = 0;
-            if ( m_egammaElectronCutIDTool->execute(egIt, isEM).isFailure() ) 
+            if ( m_egammaElectronCutIDTool->execute(ctx, egIt, isEM).isFailure() ) 
                 ATH_MSG_DEBUG("problem with egammaElectronCutIDTool, egamma object not stored");
             isEMTrig = isEM;
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG

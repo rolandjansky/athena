@@ -65,12 +65,10 @@ class SCT_TdaqEnabledToolSetup:
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_TdaqEnabledTool
-            ToolSvc += SCT_TdaqEnabledTool(name = self.toolName,
-                                           EventInfoKey = self.eventInfoKey)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_TdaqEnabledTool(name = self.toolName,
+                                            EventInfoKey = self.eventInfoKey)
 
     def getTool(self):
         return self.tool

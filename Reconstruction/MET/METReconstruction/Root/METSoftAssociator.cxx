@@ -14,7 +14,7 @@
 
 // METReconstruction includes
 #include "METReconstruction/METSoftAssociator.h"
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+#include "xAODCaloEvent/CaloVertexedClusterBase.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace met {
@@ -26,11 +26,13 @@ namespace met {
   ////////////////
   METSoftAssociator::METSoftAssociator(const std::string& name) :
     AsgTool(name),
-    METAssociator(name)
+    METAssociator(name),
+    m_lcmodclus_key(""),
+    m_emmodclus_key("")
   {
     declareProperty("DecorateSoftConst", m_decorateSoftTermConst=false);
-    declareProperty("LCModClusterKey",   m_lcmodclus_key = "LCOriginTopoClusters");
-    declareProperty("EMModClusterKey",   m_emmodclus_key = "EMOriginTopoClusters");
+    declareProperty("LCModClusterKey",   m_lcmodclus = "LCOriginTopoClusters");
+    declareProperty("EMModClusterKey",   m_emmodclus = "EMOriginTopoClusters");
   }
 
   // Destructor
@@ -44,6 +46,10 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_CHECK( m_lcmodclus_key.assign(m_lcmodclus));
+    ATH_CHECK( m_lcmodclus_key.initialize());
+    ATH_CHECK( m_emmodclus_key.assign(m_emmodclus));
+    ATH_CHECK( m_emmodclus_key.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -132,19 +138,17 @@ namespace met {
         dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
         dec_softConst(*metCoreCl).reserve(uniqueClusters->size());
       }
-      const CaloClusterContainer *lctc(0), *emtc(0);
-      if(m_useModifiedClus) {
-	ATH_CHECK( evtStore()->retrieve(lctc,m_lcmodclus_key) );
-	ATH_CHECK( evtStore()->retrieve(emtc,m_emmodclus_key) );
-      }
+      SG::ReadHandle<xAOD::CaloClusterContainer> lctc(m_lcmodclus_key);
+      SG::ReadHandle<xAOD::CaloClusterContainer> emtc(m_emmodclus_key);
+
       for(const auto& cl : *uniqueClusters) {
 	if (cl->e()>FLT_MIN) {
 	  if(m_useModifiedClus) {
-	    if(lctc && emtc) {
+	    if(lctc.isValid() && emtc.isValid()) {
 	      size_t cl_idx(cl->index());
 	      // clusters at LC scale
 	      *metCoreCl += (*lctc)[cl_idx];
-	      if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(lctc),cl->index()));
+	      if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(lctc.cptr()),cl->index()));
 	      // clusters at EM scale
 	      *metCoreEMCl += (*emtc)[cl_idx];
 	    } else {
@@ -153,14 +157,14 @@ namespace met {
 	  } else {
 	    // clusters at LC scale
 	    if (cl->type()==xAOD::Type::CaloCluster) {
-	      CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
-	      *metCoreCl += cl;
+        CaloVertexedClusterBase stateClLC(*(static_cast<const CaloCluster*>(cl)),xAOD::CaloCluster::CALIBRATED);
+	      *metCoreCl += (&stateClLC);
 	    } else *metCoreCl += cl;
 	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
 	    // clusters at EM scale
 	    if (cl->type()==xAOD::Type::CaloCluster) {
-	      CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
-	      *metCoreEMCl += cl;
+        CaloVertexedClusterBase stateClEM( *(static_cast<const CaloCluster*>(cl)),xAOD::CaloCluster::UNCALIBRATED);
+        *metCoreEMCl += (&stateClEM);
 	    } else *metCoreEMCl += cl;
 	  }
 	}

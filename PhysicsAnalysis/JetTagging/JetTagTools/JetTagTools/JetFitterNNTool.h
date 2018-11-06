@@ -21,6 +21,7 @@
 
 #include "JetTagTools/IJetFitterClassifierTool.h"
 #include "xAODBTagging/BTagging.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -41,8 +42,6 @@ namespace Analysis {
 
 class IJetFitterTagInfo;
 
-class CalibrationBroker;
-  
 
 static const InterfaceID IID_JetFitterNNTool("Analysis::JetFitterNNTool", 1, 0);
 
@@ -73,8 +72,6 @@ static const InterfaceID IID_JetFitterNNTool("Analysis::JetFitterNNTool", 1, 0);
 
     void loadCalibration(const std::string & jetauthor);
 
-    void initializeCalibrationFile();
-
     std::map<std::string,TTrainedNetwork*> m_NN;
 
     std::string m_calibrationDirectory;
@@ -85,7 +82,8 @@ static const InterfaceID IID_JetFitterNNTool("Analysis::JetFitterNNTool", 1, 0);
     
     bool m_useCombinedIPNN;
     
-    ToolHandle<CalibrationBroker> m_calibrationTool;
+    /** Key of calibration data: */
+    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
 
     int m_maximumRegisteredLayers;
     bool m_usePtCorrectedMass;

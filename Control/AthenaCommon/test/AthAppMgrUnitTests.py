@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # Author: Sebastien Binet (binet@cern.ch)
 
 """Unit tests for verifying basic features of AthAppMgr."""
 
-import unittest, sys
+import unittest
 
 from AthenaCommon.AppMgr import AthAppMgr
-from AthenaCommon.Logging import log as msg
 
 ### data ---------------------------------------------------------------------
 __version__ = '$Revision: 1.1 $'
@@ -22,7 +21,6 @@ import sys
 import os
 
 ### helper class to sanitize output-------------------------------------------
-import re
 from tempfile import NamedTemporaryFile
 class ShutUp(object):
     """
@@ -54,8 +52,8 @@ class BasicAthAppMgrTestCase( unittest.TestCase ):
 
         app1 = AthAppMgr( "MyApp" )
         app2 = AthAppMgr( "MyApp" )
-        self.failUnless( app1 == app2, "instances are not equal !" )
-        self.failUnless( app1 is app2, "instances are not identical !" )
+        self.assertTrue( app1 == app2, "instances are not equal !" )
+        self.assertTrue( app1 is app2, "instances are not identical !" )
 
     def test2CppAppMgr( self ):
         """Test communication b/w Py-proxy and C++ app mgr"""
@@ -63,49 +61,49 @@ class BasicAthAppMgrTestCase( unittest.TestCase ):
         createSvc = app.CreateSvc[:]
         dlls = app.Dlls[:]
         app.CreateSvc += [ "StoreGateSvc/abcde" ]
-        self.failUnless( app.CreateSvc == createSvc + [ "StoreGateSvc/abcde" ] )
+        self.assertTrue( app.CreateSvc == createSvc + [ "StoreGateSvc/abcde" ] )
 
         app.Dlls += [ "NothingThereLikeSuch" ]
-        self.failUnless( app.Dlls    == []   )
-        self.failUnless( app._cppApp == None )
+        self.assertTrue( app.Dlls    == []   )
+        self.assertTrue( app._cppApp is None )
         
         Cout.instance.mute()
         ## instantiates the C++ application mgr (un-configured)
         cppApp = app.getHandle()
         Cout.instance.unMute()
 
-        self.failUnless( app.Dlls    == ["AthenaServices"]   )
-        self.failUnless( app._cppApp != None )
+        self.assertTrue( app.Dlls    == ["AthenaServices"]   )
+        self.assertTrue( app._cppApp is not None )
 
         ## now Dlls calls should be re-directed to C++ app
         Cout.instance.mute()
         app.Dlls += [ "AthenaKernel" ]
         Cout.instance.unMute()
-        self.failUnless( set(app.Dlls[:]) ==
+        self.assertTrue( set(app.Dlls[:]) ==
                          set(["AthenaServices","AthenaKernel"]) )
         
-        self.failUnless( cppApp.CreateSvc == [] )
+        self.assertTrue( cppApp.CreateSvc == [] )
 
         app.CreateSvc += [ "StoreGateSvc/svcA" ]
-        self.failUnless( cppApp.CreateSvc == [ "StoreGateSvc/svcA" ] )
+        self.assertTrue( cppApp.CreateSvc == [ "StoreGateSvc/svcA" ] )
 
         ## configure the application (not just the app mgr)
         app.setup()
-        self.failUnless( cppApp.CreateSvc == app.CreateSvc )
+        self.assertTrue( cppApp.CreateSvc == app.CreateSvc )
 
         # really want to test that ?
-        self.failUnless( cppApp.CreateSvc[0] == "ToolSvc/ToolSvc" )
+        self.assertTrue( cppApp.CreateSvc[0] == "ToolSvc/ToolSvc" )
 
         app.CreateSvc += [ "StoreGateSvc/svcB" ]
-        self.failUnless( cppApp.CreateSvc == app.CreateSvc )
+        self.assertTrue( cppApp.CreateSvc == app.CreateSvc )
 
         app.CreateSvc = [ "StoreGateSvc/svcC" ]
-        self.failUnless( app.CreateSvc    == [ "StoreGateSvc/svcC" ] )
-        self.failUnless( cppApp.CreateSvc == [ "StoreGateSvc/svcC" ] )
+        self.assertTrue( app.CreateSvc    == [ "StoreGateSvc/svcC" ] )
+        self.assertTrue( cppApp.CreateSvc == [ "StoreGateSvc/svcC" ] )
         
         ## test all properties are synchronized b/w py-proxy & C++
         for p in AthAppMgr.__slots__:
-            self.failUnless( getattr(cppApp,p) == getattr(app,p),
+            self.assertTrue( getattr(cppApp,p) == getattr(app,p),
                              "Property [%s] DIFFERS !!" % str(p) )
 
         ## test that multiple calls to setup() are stable
@@ -117,10 +115,37 @@ class BasicAthAppMgrTestCase( unittest.TestCase ):
             Cout.instance.mute()
             app.setup()
             Cout.instance.unMute()
-            self.failUnless( createSvc == app.CreateSvc[:] )
+            self.assertTrue( createSvc == app.CreateSvc[:] )
             pass
         return
-        
+
+    def test3ToolSvc( self ):
+        """Test ToolSvc __iadd__"""
+        from AthenaCommon.AppMgr import ToolSvc
+        from AthenaCommon.Configurable import ConfigurableAlgTool, ConfigurableService
+
+        t1 = ConfigurableAlgTool('tool1')
+        t2 = ConfigurableAlgTool('tool2')
+        s1 = ConfigurableService('svc1')
+
+        ## Check silent adding of duplicate
+        ToolSvc += t1
+        self.assertEqual( ToolSvc.getChildren(), [t1] )
+        ToolSvc += t1
+        self.assertEqual( ToolSvc.getChildren(), [t1] )
+        ToolSvc += [t1,t2]
+        self.assertEqual( ToolSvc.getChildren(), [t1,t2] )
+
+        ## Check type checking
+        with self.assertRaises(TypeError):
+            ToolSvc += s1
+
+        with self.assertRaises(TypeError):
+            ToolSvc += [s1]
+
+        return
+
+
 ## actual test run
 if __name__ == '__main__':
    loader = unittest.TestLoader()

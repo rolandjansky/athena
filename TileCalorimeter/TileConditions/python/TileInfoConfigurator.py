@@ -2,13 +2,14 @@
 
 ##############################################################
 #
-#  TileInfoConfigurator class  
+#  TileInfoConfigurator class
 #
 #  used to set up the TileInfoLoader service
 #
 # Author:   nils.gollub@cern.ch
 # Modified: lukas.pribyl@cern.ch
 #############################################################
+
 
 from AthenaCommon import CfgMgr
 TileInfoLoader = CfgMgr.TileInfoLoader
@@ -18,7 +19,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
     TileInfoLoader with additional state
     """
     __slots__ = {
-        '_coolIsConfigured' : False,        
+        '_coolIsConfigured' : False,
         '_coolofcIsConfigured': False,
         '_coolof1ofcIsConfigured': False,
         '_coolcispulseIsConfigured': False,
@@ -54,7 +55,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         """
         #=== One can use loggers but not as a datamember of configurables as loggers'
         #=== instances can't be pickled. Hence we use _msg as a property
-         
+
         #=== initialize logger with INFO level
         import AthenaCommon.Logging as L
         msg = L.logging.getLogger('TileInfoConf.')
@@ -78,10 +79,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect all tools to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileBadChanTool configuration to COOL source")
         from .TileCondToolConf import getTileBadChanTool
         ToolSvc += getTileBadChanTool('COOL')
+
+        self._msg.info("Changing default TileBadChanLegacyTool configuration to COOL source")
+        from .TileCondToolConf import getTileBadChanLegacyTool
+        ToolSvc += getTileBadChanLegacyTool('COOL')
 
         self._msg.info("Changing default TileCondToolEmscale configuration to COOL source")
         from .TileCondToolConf import getTileCondToolEmscale
@@ -94,15 +99,15 @@ class _TileInfoConfigurator( TileInfoLoader ):
 #        self._msg.info("Changing default TileCondToolNoiseAutoCr configuration to COOL source")
 #        from .TileCondToolConf import getTileCondToolAutoCr
 #        ToolSvc += getTileCondToolAutoCr('COOL')
-        
+
         #self._msg.info("Changing default TileCondToolNoiseRawChn configuration to COOL source")
         #from .TileCondToolConf import getTileCondToolNoiseRawChn
         #ToolSvc += getTileCondToolNoiseRawChn('COOL')
-        
+
         self._msg.info("Changing default TileCondToolTiming configuration to COOL source")
         from .TileCondToolConf import getTileCondToolTiming
         ToolSvc += getTileCondToolTiming('COOL',type)
-        
+
  #       self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
  #       from .TileCondToolConf import getTileCondToolPulseShape
  #       ToolSvc += getTileCondToolPulseShape('COOL')
@@ -166,7 +171,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
         - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
         - type              Pulse type - PHY or LAS or CIS
-        - online          : Read time from online COOL folder always 
+        - online          : Read time from online COOL folder always
         """
 
         name = 'TileCondToolTiming'
@@ -185,7 +190,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileCondToolTiming to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolTiming configuration to COOL source")
         from .TileCondToolConf import getTileCondToolTiming
         ToolSvc += getTileCondToolTiming('COOL', type, online, name )
@@ -226,7 +231,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect all tools to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
         from .TileCondToolConf import getTileCondToolPulseShape
         ToolSvc += getTileCondToolPulseShape('COOL','CISPULSE100','TileCondToolPulseShape')
@@ -251,7 +256,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileCondToolOfcCool to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
         from .TileCondToolConf import getTileCondToolPulseShape
         ToolSvc += getTileCondToolPulseShape('COOL','LAS','TileCondToolPulseShape')
@@ -273,7 +278,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileCondToolOfcCool to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolPHYPULSECool configuration to COOL source")
         from .TileCondToolConf import getTileCondToolPulseShape
         ToolSvc += getTileCondToolPulseShape('COOL')
@@ -295,7 +300,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileCondToolIntegrator to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolIntegrator configuration to COOL source")
         from .TileCondToolConf import getTileCondToolIntegrator
         ToolSvc += getTileCondToolIntegrator('COOL','TileCondToolIntegrator')
@@ -317,7 +322,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileCondToolMuID to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolMuID configuration to COOL source")
         from .TileCondToolConf import getTileCondToolMuID
         ToolSvc += getTileCondToolMuID('COOL','TileCondToolMuID')
@@ -340,7 +345,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileCondToolMuID to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileCondToolNoiseAutoCr configuration to COOL source")
         from .TileCondToolConf import getTileCondToolAutoCr
         ToolSvc += getTileCondToolAutoCr('COOL','TileCondToolAutoCr')
@@ -362,10 +367,10 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== connect TileExpertToolEmscale to COOL
         from AthenaCommon.AppMgr import ToolSvc
-        
+
         self._msg.info("Changing default TileExpertToolEmscale configuration to COOL source")
         from .TileCondToolConf import getTileExpertToolEmscale
-        ToolSvc += getTileExpertToolEmscale('COOL')        
+        ToolSvc += getTileExpertToolEmscale('COOL')
 
         return
 
@@ -377,26 +382,41 @@ class _TileInfoConfigurator( TileInfoLoader ):
         - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
         - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
         """
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
 
         #=== prevent a second initialization
         if self._coolDCSIsConfigured:
             self._msg.info("setupCOOLDCS already called previously, ignoring this repeated call!")
             return
         self._coolDCSIsConfigured = True
-        
+
         ##     #=== ensure the availability of TileDCSSvc
         from AthenaCommon.GlobalFlags import globalflags
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         TileUseDCS = (not athenaCommonFlags.isOnline()) and globalflags.DataSource()=='data'
         ## get a handle to the ServiceManager
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if TileUseDCS and not hasattr(svcMgr, "TileDCSSvc"):
+
+        dcs = 'TileDCS'
+        dcsCondAlg = dcs + 'CondAlg'
+        if TileUseDCS and not hasattr(condSequence, dcsCondAlg):
             self._msg.info("setting up DCS TileCal conditions data")
             dbConnStr = 'DCS_OFL'
             from IOVDbSvc.CondDB import conddb
-            if useHV:     conddb.addFolder(dbConnStr, "/TILE/DCS/HV")
-            if useHVSET:  conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET")
-            if useSTATUS: conddb.addFolder(dbConnStr, "/TILE/DCS/STATES")
+            if useHV:     conddb.addFolder(dbConnStr, "/TILE/DCS/HV", className = 'CondAttrListCollection')
+            if useHVSET:  conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET", className = 'CondAttrListCollection')
+            if useSTATUS: conddb.addFolder(dbConnStr, "/TILE/DCS/STATES", className = 'CondAttrListCollection')
+
+            from TileConditions.TileConditionsConf import TileDCSCondAlg
+            condSequence += TileDCSCondAlg(name = dcsCondAlg,
+                                           ReadHV = useHV,
+                                           ReadHVSET = useHVSET,
+                                           ReadSTATES = useSTATUS,
+                                           TileDCS = dcs)
+
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        if TileUseDCS and not hasattr(svcMgr, "TileDCSSvc"):
+
             self._msg.info("Adding TileDCSSvc to ServiceMgr")
             svcMgr += CfgMgr.TileDCSSvc()
 
@@ -435,9 +455,9 @@ class _TileInfoConfigurator( TileInfoLoader ):
         else:
             return False
 
-  
+
     #_______________________________________________________________
- 
+
 def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     """
     factory function to create readily configured TileInfoLoader instances
@@ -451,11 +471,11 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
         svc = getattr (svcMgr, svcName)
         #--- trying to create duplicate, returning original
         return svc
-    
+
     svc = _TileInfoConfigurator(svcName, **kwargs)
 
     from AthenaCommon import CfgMgr
-    
+
     #=== add to ServiceMgr
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     if not hasattr( svcMgr , svcName ):
@@ -474,26 +494,33 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     #=== ensure the configuration of all needed tools
     from AthenaCommon.AppMgr import ToolSvc
 
-    if not hasattr(ToolSvc, "TileBadChanTool"):
-        svc._msg.info("Adding default TileBadChanTool to ToolSvc")
-        from .TileCondToolConf import getTileBadChanTool
-        ToolSvc += getTileBadChanTool()
-    if not hasattr(ToolSvc, "TileCondToolOfc"):
-        svc._msg.info("Adding default TileCondToolOfc to ToolSvc")
-        from .TileConditionsConf import TileCondToolOfc
-        ToolSvc += TileCondToolOfc()
-    if not hasattr(ToolSvc, "TileCondToolEmscale"):
-        svc._msg.info("Adding default TileCondToolEmscale to ToolSvc")
-        from .TileCondToolConf import getTileCondToolEmscale
-        ToolSvc += getTileCondToolEmscale()
+
+#    if not hasattr(ToolSvc, "TileBadChanTool"):
+#        svc._msg.info("Adding default TileBadChanTool to ToolSvc")
+#        from .TileCondToolConf import getTileBadChanTool
+#        ToolSvc += getTileBadChanTool()
+#    if not hasattr(ToolSvc, "TileCondToolOfc"):
+#        svc._msg.info("Adding default TileCondToolOfc to ToolSvc")
+#        from .TileConditionsConf import TileCondToolOfc
+#        ToolSvc += TileCondToolOfc()
+#    if not hasattr(ToolSvc, "TileCondToolEmscale"):
+#        svc._msg.info("Adding default TileCondToolEmscale to ToolSvc")
+#        from .TileCondToolConf import getTileCondToolEmscale
+#        ToolSvc += getTileCondToolEmscale()
+
+
     #if not hasattr(ToolSvc, "TileCondToolIntegrator"):
     #    svc._msg.info("Adding default TileCondToolIntegrator to ToolSvc")
     #    from .TileCondToolConf import getTileCondToolIntegrator
     #    ToolSvc += getTileCondToolIntegrator()
-    if not hasattr(ToolSvc, "TileCondToolNoiseSample"):
-        svc._msg.info("Adding default TileCondToolNoiseSample to ToolSvc")
-        from .TileCondToolConf import getTileCondToolNoiseSample
-        ToolSvc += getTileCondToolNoiseSample()
+
+
+#    if not hasattr(ToolSvc, "TileCondToolNoiseSample"):
+#        svc._msg.info("Adding default TileCondToolNoiseSample to ToolSvc")
+#        from .TileCondToolConf import getTileCondToolNoiseSample
+#        ToolSvc += getTileCondToolNoiseSample()
+
+
  #   if not hasattr(ToolSvc, "TileCondToolNoiseAutoCr"):
  #       svc._msg.info("Adding default TileCondToolNoiseAutoCr to ToolSvc")
  #       from .TileCondToolConf import getTileCondToolAutoCr
@@ -502,10 +529,14 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     #    svc._msg.info("Adding default TileCondToolNoiseRawChn to ToolSvc")
     #    from .TileCondToolConf import getTileCondToolNoiseRawChn
     #    ToolSvc += getTileCondToolNoiseRawChn()
-    if not hasattr(ToolSvc, "TileCondToolTiming"):
-        svc._msg.info("Adding default TileCondToolTiming to ToolSvc")
-        from .TileCondToolConf import getTileCondToolTiming
-        ToolSvc += getTileCondToolTiming()
+
+
+#    if not hasattr(ToolSvc, "TileCondToolTiming"):
+#        svc._msg.info("Adding default TileCondToolTiming to ToolSvc")
+#        from .TileCondToolConf import getTileCondToolTiming
+#        ToolSvc += getTileCondToolTiming()
+
+
 #    if not hasattr(ToolSvc, "TileCondToolPulseShape"):
 #        svc._msg.info("Adding default TileCondToolPulseShape to ToolSvc")
 #        from .TileCondToolConf import getTileCondToolPulseShape
@@ -533,4 +564,4 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     svc._cooltimeIsConfigured = False
     svc._coolonlinetimeIsConfigured = False
     svc._coolDspThresholdIsConfigured = False
-    return svc 
+    return svc

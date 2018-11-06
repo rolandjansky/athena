@@ -134,14 +134,14 @@ if monitorTracks :
 #cbg
 athenaMonTool.FilterTools += [ monbadlb ]
 
-ToolSvc += athenaMonTool
+#ToolSvc += athenaMonTool
 
 athenaMonTool_LB = JetMonitoringTool("JetMonitoring_LB", HistoTools = [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True) ] ,IntervalType = 2)
 
 #cbg
 athenaMonTool_LB.FilterTools += [ monbadlb ]
 
-ToolSvc += athenaMonTool_LB
+#ToolSvc += athenaMonTool_LB
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 if DQMonFlags.useTrigger() :
@@ -151,7 +151,7 @@ if DQMonFlags.useTrigger() :
                                                ] , IntervalType = 6 )
     #cbg
     athenaMonTool_trig.FilterTools += [ monbadlb ]
-    ToolSvc += athenaMonTool_trig
+    #ToolSvc += athenaMonTool_trig
     athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
     #athenaMonTool_trig.TriggerChain =  "HLT_j25,HLT_j60,HLT_j200_jes_PS" 

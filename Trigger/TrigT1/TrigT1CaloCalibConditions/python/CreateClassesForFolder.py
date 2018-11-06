@@ -28,7 +28,7 @@ _container_header = """// -*- C++ -*-
 #include <map>
 #include <string>
 #include <vector>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"

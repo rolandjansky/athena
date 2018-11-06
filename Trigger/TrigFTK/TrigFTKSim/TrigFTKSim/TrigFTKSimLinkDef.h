@@ -11,9 +11,6 @@
 #ifndef FTK_STANDALONE
 #define FTK_STANDALONE
 #endif
-#pragma link off globals;
-#pragma link off classes;
-#pragma link off functions;
 
 #pragma link C++ class FTKPattern+;
 #pragma link C++ class std::vector<FTKPattern>+; 

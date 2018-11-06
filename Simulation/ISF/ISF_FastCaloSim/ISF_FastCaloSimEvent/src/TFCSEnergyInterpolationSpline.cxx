@@ -34,7 +34,7 @@ void TFCSEnergyInterpolationSpline::InitFromArrayInEkin(Int_t np, Double_t Ekin[
   InitFromArrayInLogEkin(np,logEkin.data(),response,opt,valbeg,valend);
 }
 
-void TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
+FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
 {
   float Emean;
   float logEkin=TMath::Log(truth->Ekin());
@@ -50,6 +50,8 @@ void TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,con
 
   ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
   simulstate.set_E(Emean);
+
+  return FCSSuccess;
 }
 
 void TFCSEnergyInterpolationSpline::Print(Option_t *option) const
@@ -130,7 +132,9 @@ void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TF
   for(float Ekin=test.Ekin_min()*0.25;Ekin<=test.Ekin_max()*4;Ekin*=1.05) {
     //Init LorentzVector for truth. For photon Ekin=E
     truth->SetPxPyPzE(Ekin,0,0,Ekin);
-    test.simulate(*simulstate,truth,extrapol);
+    if (test.simulate(*simulstate,truth,extrapol) != FCSSuccess) {
+      return;
+    }
     gr->SetPoint(ip,Ekin,simulstate->E()/Ekin);
     ++ip;
   }  
@@ -143,4 +147,3 @@ void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TF
   c->SetLogx();
   #endif
 }
-

@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "eflowRec/IPFSubtractionTool.h"
 
 class eflowCaloObjectContainer;
@@ -35,7 +34,7 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
   static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*);
   virtual StatusCode finalize();
 
  private:
@@ -44,21 +43,18 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
   void getClustersToConsider();
   void getTracksToRecover();
   int matchAndCreateEflowCaloObj();
-  void performRecovery(int const nOriginalObj,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void performRecovery(int const nOriginalObj);
   void subtractTrackFromClusters(const eflowTrackCaloPoints& trackCalo, eflowRingSubtractionManager& ranking, eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList);
   double getSumEnergy(const std::vector<xAOD::CaloCluster*>& clusters);
 
   void printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix);
-  void performSubtraction(eflowCaloObject* thisEflowCaloObject,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void performSubtraction(eflowCaloObject* thisEflowCaloObject);
 
 private:
 
   eflowCaloObjectContainer* m_eflowCaloObjectContainer;
   std::vector<eflowRecCluster*> m_clustersToConsider;
   std::vector<eflowRecTrack*> m_tracksToRecover;
-
-  double m_rCell;
-  double m_windowRms;
 
   /* Tool for getting e/p values and hadronic shower cell ordering principle parameters */
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool{this,"eflowCellEOverPTool","eflowCellEOverPTool","Energy Flow E/P Values and Shower Parameters Tool"};
@@ -80,6 +76,9 @@ private:
   
   /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
   Gaudi::Property<bool> m_useUpdated2015ChargedShowerSubtraction{this,"useUpdated2015ChargedShowerSubtraction",true,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region"};
+  
+  /** Toggle whether we have the HLLHC setup */
+  Gaudi::Property<bool> m_isHLLHC{this,"isHLLHC",false,"Toggle whether we have the HLLHC setup"};
   
 };
 

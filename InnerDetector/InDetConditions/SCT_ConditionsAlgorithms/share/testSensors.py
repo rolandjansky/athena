@@ -75,10 +75,6 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-
 from SCT_ConditionsTools.SCT_SensorsToolSetup import SCT_SensorsToolSetup
 sct_SensorsToolSetup = SCT_SensorsToolSetup()
 sct_SensorsToolSetup.setFolderTag("SctSensors-Sep03-14")

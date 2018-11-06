@@ -19,7 +19,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JEPEtSumsTools.h"

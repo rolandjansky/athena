@@ -20,6 +20,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -59,7 +60,7 @@ class CaloTransverseBalanceVecMon : public ManagedMonitorToolBase {
  
  // useful functions
   float deltaR(float a_eta,float a_phi,float b_eta,float b_phi);
-  void findLeadingPhoton(PhotonContainer* userPhotonContainer,PhotonContainer::const_iterator& leadingPhPr);
+  void findLeadingPhoton(const PhotonContainer* userPhotonContainer,PhotonContainer::const_iterator& leadingPhPr);
   void findleadingANDsubleadingjets
     (const std::vector<const Jet*>& userJetContainer,
      Jet const* & leadingJetPr,
@@ -73,7 +74,7 @@ class CaloTransverseBalanceVecMon : public ManagedMonitorToolBase {
 ///////////////////////////////////////////////////
   float m_photonPtCut;
 
- PhotonContainer * m_userPhotonContainer;
+ ConstDataVector<PhotonContainer> * m_userPhotonContainer;
 /// The missing ET object
  const MissingET * m_pMissing;
  std::vector<TH1F*> m_energy_s;

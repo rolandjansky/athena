@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LArBadFebMaskingTool_H
@@ -19,23 +19,22 @@
 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 
-class LArCablingService;
-class StoreGateSvc;
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "xAODEventInfo/EventInfo.h"
+#include <atomic>
+
 class CaloCell_ID;
 class LArOnlineID;
 class LArFebErrorSummary;
 
-class LArBadFebMaskingTool: public AthAlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class LArBadFebMaskingTool
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
- 
 public:    
   
   LArBadFebMaskingTool(const std::string& type, 
@@ -45,24 +44,25 @@ public:
 
   /** initialize the tool
   */
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   /** finalize   the tool
   */
-  virtual StatusCode finalize() ; 
+  virtual StatusCode finalize() override;
 
   /** update theCellContainer, masking Feb with errors
   */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
 
  private:
 
-  /** handle to bad channel tool (to get problematic Feb into)
+  /** handle to get bad febs
   */
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
-  /** handle to LAr cabling service
+  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"BadFebKey","LArBadFeb","Key of Bad-Feb object"};
+  /** handle to LAr cabling    
   */
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   /** flags to select which errors to mask
   */
   bool m_maskParity;
@@ -87,6 +87,7 @@ public:
   */
   //std::string m_larFebErrorSummaryKey;
   SG::ReadHandleKey<LArFebErrorSummary> m_larFebErrorSummaryKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 
   /** compute bit mask of errors to mask
   */
@@ -99,12 +100,11 @@ public:
 
   /** Number of events processed
   */
-  int m_evt;
+  mutable std::atomic<int> m_evt;
 
   /** Number of Feb masked
   */
-  int m_mask;
-
+  mutable std::atomic<int> m_mask;
 };
 
 #endif

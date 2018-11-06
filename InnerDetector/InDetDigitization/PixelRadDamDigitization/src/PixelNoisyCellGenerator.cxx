@@ -32,8 +32,9 @@ PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const 
   m_pixelCalibSvc("PixelCalibSvc", name),
   m_timeBCN(1),
   m_mergeCharge(false),
-  m_pixelID(0),
-  m_rndNoiseProb(5e-8)
+  m_pixelID{},
+  m_rndNoiseProb(5e-8),
+  m_pixMgr{}
 {
 	declareProperty("TimeBCN",      m_timeBCN,      "Number of BCID");	
   declareProperty("NoiseShape",   m_noiseShape,   "Vector containing noise ToT shape");

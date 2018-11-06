@@ -8,14 +8,15 @@
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "PixelCabling/IPixelCablingSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-
-class RegSelSiLUT;
 
 #include <string>
+
+class RegSelSiLUT;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +48,7 @@ private:
 
   // cablings
   ServiceHandle<IPixelCablingSvc> m_pixIdMapping;
-  ServiceHandle<ISCT_CablingSvc>  m_sctCablingSvc;
+  ToolHandle<ISCT_CablingTool>  m_sctCablingToolCB; // This class accesses SCT cabling during initialization.
 
 };
 

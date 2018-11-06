@@ -17,22 +17,17 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "MuonOverlayBase/IDC_MultiHitOverlayBase.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 class TgcIdHelper;
 
 class TgcOverlay : public IDC_MultiHitOverlayBase  {
 public:
-  
+
   TgcOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
-  /** Framework implemenrtation for the event loop */  
+  /** Framework implemenrtation for the event loop */
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
@@ -40,23 +35,17 @@ public:
 private:
   // ----------------------------------------------------------------
 
-  ServiceHandle<StoreGateSvc> m_storeGateTemp;
-  ServiceHandle<StoreGateSvc> m_storeGateTempBkg;
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  std::string m_mainInputTGC_Name;
-  std::string m_overlayInputTGC_Name;
-  std::string m_sdo;
+  SG::ReadHandleKey<TgcDigitContainer> m_mainInputDigitKey{this,"MainInputDigitKey","OriginalEvent_SG+TGC_DIGITS","ReadHandleKey for Main Input TgcDigitContainer"};
+  SG::ReadHandleKey<TgcDigitContainer> m_overlayInputDigitKey{this,"OverlayInputDigitKey","BkgEvent_0_SG+TGC_DIGITS","ReadHandleKey for Overlay Input TgcDigitContainer"};
+  SG::WriteHandleKey<TgcDigitContainer> m_outputDigitKey{this,"OutputDigitKey","StoreGateSvc+TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"};
+  std::string m_sdo{"TGC_SDO"};
 
-  const TgcIdHelper   * m_tgcHelper;
-  bool m_copySDO;
-
-  ToolHandle<IMuonDigitizationTool> m_digTool;
-  ToolHandle<IMuonDigitizationTool> m_rdoTool;
+  const TgcIdHelper   * m_tgcHelper{nullptr};
+  bool m_copySDO{true};
 
 };
 
 #endif/* TGCOVERLAY_H */
-
-

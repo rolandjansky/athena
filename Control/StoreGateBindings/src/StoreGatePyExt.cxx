@@ -47,6 +47,48 @@ namespace {
   static CLID longlong_clid= ClassID_traits<long long>::ID();
   static CLID float_clid= ClassID_traits<float>::ID();
   static CLID double_clid=ClassID_traits<double>::ID();
+
+
+/// Given a type object TP, return the name of the type as a python string.
+/// TP could also be a string.
+/// Ownership is transferred back to the caller.
+/// On error, returns 0 with PyErr set.
+PyObject* pynameFromType (PyObject* tp)
+{
+  PyObject* pyname = nullptr;
+
+  if ( ! PyType_Check( tp ) ) {
+    if ( ! PyString_Check( tp ) ) {
+      PyErr_SetString( PyExc_TypeError, 
+                       "contains() argument 1 must be type or class name" );
+      return nullptr;
+    }
+    else {
+      Py_INCREF( tp );
+      pyname = tp;
+    }
+  }
+  else {
+    pyname = PyObject_GetAttrString( tp, (char*)"__cppname__" );
+    if (!pyname) {
+      pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
+    }
+    if ( pyname && ! PyString_Check( pyname ) ) {
+      PyObject* pystr = PyObject_Str( pyname );
+      if ( pystr ) {
+        Py_DECREF( pyname );
+        pyname = pystr;
+      }
+    }
+
+    if ( PyErr_Occurred() )
+      return nullptr;
+  }
+
+  return pyname;
+}
+
+
 }
 
 PyObject* 
@@ -75,29 +117,9 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
   }
 
   // expect a type or type name and an optional string key
-  PyObject* pyname = 0;
-
-  if ( ! PyType_Check( tp ) ) {
-    if ( ! PyString_Check( tp ) ) {
-      PyErr_SetString( PyExc_TypeError, 
-                       "retrieve() argument 1 must be type or class name" );
-      return 0;
-    } else {
-      Py_INCREF( tp );
-      pyname = tp;
-    }
-  } else {
-    pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
-    if ( pyname && ! PyString_Check( pyname ) ) {
-      PyObject* pystr = PyObject_Str( pyname );
-      if ( pystr ) {
-        Py_DECREF( pyname );
-        pyname = pystr;
-      }
-    }
-
-    if ( PyErr_Occurred() )
-      return 0;
+  PyObject* pyname = pynameFromType( tp );
+  if (!pyname) {
+    return pyname;
   }
 
   if ( pykey != Py_None && ! PyString_Check( pykey ) ) {
@@ -332,29 +354,9 @@ AthenaInternal::py_sg_contains (StoreGateSvc* store,
   }
 
   // expect a type or type name and an optional string key
-  PyObject* pyname = 0;
-
-  if ( ! PyType_Check( tp ) ) {
-    if ( ! PyString_Check( tp ) ) {
-      PyErr_SetString( PyExc_TypeError, 
-                       "contains() argument 1 must be type or class name" );
-      return 0;
-    } else {
-      Py_INCREF( tp );
-      pyname = tp;
-    }
-  } else {
-    pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
-    if ( pyname && ! PyString_Check( pyname ) ) {
-      PyObject* pystr = PyObject_Str( pyname );
-      if ( pystr ) {
-        Py_DECREF( pyname );
-        pyname = pystr;
-      }
-    }
-
-    if ( PyErr_Occurred() )
-      return 0;
+  PyObject* pyname = pynameFromType( tp );
+  if (!pyname) {
+    return pyname;
   }
 
   if ( pykey != Py_None && ! PyString_Check( pykey ) ) {
@@ -483,14 +485,7 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
   if ( isPlainPyObj ) {
     pyname = PyString_FromString ((char*)"PyObject");
   } else {
-    pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
-    if ( pyname && ! PyString_Check( pyname ) ) {
-      PyObject* pystr = PyObject_Str( pyname );
-      if ( pystr ) {
-        Py_DECREF( pyname );
-        pyname = pystr;
-      }
-    }
+    pyname = pynameFromType( tp );
   }
 
   if ( PyErr_Occurred() )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_FrontEndSimTool_H
@@ -17,7 +17,7 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "InDetSimEvent/SiTotalCharge.h"
 
@@ -40,7 +40,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_rndmSvc("AtRndmGenSvc",name),
       m_rndmEngineName("PixelDigitization"),
       m_rndmEngine(nullptr),
-      m_pixelConditionsSvc("PixelConditionsSummarySvc",name),
       m_pixelCalibSvc("PixelCalibSvc",name),
       m_timeBCN(1),
       m_timeZero(5.0),
@@ -63,7 +62,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     declareInterface<FrontEndSimTool>(this);
     declareProperty("RndmSvc",                   m_rndmSvc,        "Random number service used in FE simulation");
     declareProperty("RndmEngine",                m_rndmEngineName, "Random engine name");
-    declareProperty("PixelConditionsSummarySvc", m_pixelConditionsSvc);
     declareProperty("PixelCalibSvc",             m_pixelCalibSvc);
 	  declareProperty("TimeBCN",                   m_timeBCN,        "Number of BCID");	
 	  declareProperty("TimeZero",                  m_timeZero,       "Time zero...?");
@@ -84,13 +82,13 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     static const InterfaceID& interfaceID() { return IID_IFrontEndSimTool; }
 
     virtual StatusCode initialize() {
-      CHECK(AthAlgTool::initialize()); 
+      ATH_CHECK(AthAlgTool::initialize()); 
 
-      CHECK(m_rndmSvc.retrieve());
+      ATH_CHECK(m_rndmSvc.retrieve());
 
-      CHECK(m_pixelConditionsSvc.retrieve());
+      ATH_CHECK(m_pixelConditionsTool.retrieve());
 
-      CHECK(m_pixelCalibSvc.retrieve());
+      ATH_CHECK(m_pixelCalibSvc.retrieve());
 
       m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
       if (!m_rndmEngine) {
@@ -205,7 +203,7 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     std::string                  m_rndmEngineName;
     CLHEP::HepRandomEngine      *m_rndmEngine;	
 
-    ServiceHandle<IInDetConditionsSvc>   m_pixelConditionsSvc;
+    ToolHandle<IInDetConditionsTool> m_pixelConditionsTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
     ServiceHandle<IPixelCalibSvc>        m_pixelCalibSvc;
 
     double m_timeBCN;

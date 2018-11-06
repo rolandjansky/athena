@@ -41,3 +41,9 @@ atlas_add_alias( acmd "acmd.py" )
 atlas_add_alias( vmem-sz "vmem-sz.py" )
 atlas_add_alias( getMetadata "getMetadata.py" )
 atlas_add_alias( meta-reader "meta-reader.py" )
+
+
+atlas_add_test( RootUtils
+   SCRIPT test/test_RootUtils.py
+   PROPERTIES TIMEOUT 300
+   EXTRA_PATTERNS "Ran 1 test in |CheckABICompatibility|standard library" )

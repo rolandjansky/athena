@@ -46,7 +46,9 @@ StatusCode TgcDigitToTgcRDO::initialize()
   }
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_rdoContainerKey );
   ATH_CHECK( m_digitContainerKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_digitContainerKey );
 
   return StatusCode::SUCCESS;
 }
@@ -77,8 +79,14 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
   ATH_MSG_DEBUG( "fill_TGCdata"  );
 
   SG::WriteHandle<TgcRdoContainer> rdoContainer (m_rdoContainerKey);
-  SG::ReadHandle<TgcDigitContainer> container (m_digitContainerKey);
   ATH_CHECK(rdoContainer.record((std::make_unique<TgcRdoContainer>())));
+  ATH_MSG_DEBUG("Recorded TgcRdoContainer called " << rdoContainer.name() << " in store " << rdoContainer.store());
+  SG::ReadHandle<TgcDigitContainer> container (m_digitContainerKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find TgcDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG("Found TgcDigitContainer called " << container.name() << " in store " << container.store());
 
  // init
   m_tgcRdoMap.clear();

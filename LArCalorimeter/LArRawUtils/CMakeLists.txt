@@ -16,8 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
-                          PRIVATE
                           Calorimeter/CaloTriggerTool
+                          PRIVATE
                           DetectorDescription/AtlasDetDescr
                           LArCalorimeter/LArCabling )
 

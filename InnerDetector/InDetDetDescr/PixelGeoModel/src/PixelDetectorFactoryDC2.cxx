@@ -52,7 +52,6 @@ PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps 
   // Create SiCommonItems ans store it in geometry manager. 
   // These are items that are shared by all elements
   SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
-  commonItems->setLorentzAngleSvc(athenaComps->lorentzAngleSvc());
   geometryManager->setCommonItems(commonItems);
  
   bool initialLayoutIdDict = (m_detectorManager->tag() == "initial_layout");

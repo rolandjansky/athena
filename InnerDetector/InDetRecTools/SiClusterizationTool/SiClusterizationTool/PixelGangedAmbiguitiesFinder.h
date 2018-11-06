@@ -22,11 +22,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
+
+namespace InDetDD {
+  class SiDetectorElement;
+  class SiDetectorManager;
+}
+
 
 namespace InDet{
 

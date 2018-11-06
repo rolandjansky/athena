@@ -16,7 +16,7 @@ atlas_depends_on_subdirs(
    Control/AthAllocators
    Control/AthContainers
    Control/AthLinks
-   Control/CLIDSvc
+   Control/AthenaKernel
    Control/CxxUtils
    Control/Navigation
    DetectorDescription/GeoPrimitives
@@ -24,12 +24,12 @@ atlas_depends_on_subdirs(
    Event/EventKernel
    Event/FourMom
    Event/NavFourMom
+   LArCalorimeter/LArRawConditions #not ideal .. LAr should depend on Calo. 
    PRIVATE
    AtlasTest/TestTools
-   Control/AthenaKernel
-   Control/SGTools
    Control/StoreGate
    DetectorDescription/IdDictParser
+   LArCalorimeter/LArRawConditions
    GaudiKernel )
 
 # External dependencies:
@@ -43,8 +43,7 @@ atlas_add_library( CaloEvent CaloEvent/*.h CaloEvent/*.icc src/*.cxx
    LINK_LIBRARIES CaloConditions CaloGeoHelpers CaloIdentifier AthAllocators
    AthContainers AthLinks CxxUtils Navigation GeoPrimitives
    Identifier EventKernel FourMom NavFourMom CaloDetDescrLib
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel
-   SGTools )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel )
 
 atlas_add_dictionary( CaloEventDict
    CaloEvent/CaloEventDict.h CaloEvent/selection.xml
@@ -99,5 +98,10 @@ atlas_add_test( CaloSamplingData_test
 
 atlas_add_test( CaloTowerSeg_test
    SOURCES test/CaloTowerSeg_test.cxx
+   LINK_LIBRARIES CaloEvent
+   EXTRA_PATTERNS "${_patterns}" )
+
+atlas_add_test( CaloTester_test
+   SOURCES test/CaloTester_test.cxx
    LINK_LIBRARIES CaloEvent
    EXTRA_PATTERNS "${_patterns}" )

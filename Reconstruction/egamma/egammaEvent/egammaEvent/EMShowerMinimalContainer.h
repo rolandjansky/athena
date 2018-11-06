@@ -17,7 +17,7 @@ CREATED:  Sep 2003
 // INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "egammaEvent/EMShowerMinimal.h"
 
 class EMShowerMinimalContainer : public DataVector<EMShowerMinimal> 

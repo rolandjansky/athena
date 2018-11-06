@@ -36,7 +36,6 @@
 
 // access all Hits inside container
 #include "EventContainers/SelectAllObject.h" 
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/errorcheck.h"
 // For the Athena-based random numbers.
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -59,7 +58,6 @@
 #endif
 
 
-//using xAOD::EventInfo;
 using CLHEP::RandGaussQ;
 using CLHEP::MeV;
  
@@ -164,6 +162,8 @@ StatusCode TileCellBuilderFromHit::initialize() {
       m_mbtsMgr = nullptr;
     }
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   CHECK( detStore()->retrieve(m_tileMgr) );
   CHECK( detStore()->retrieve(m_tileID) );
@@ -370,7 +370,7 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
     flag |= fl << (p - 1);
   }
 
-  // number of cosecutively masked modules (if it's > 15 we have error already set)
+  // number of consecutively masked modules (if it's > 15 we have error already set)
   flag |= (std::min(15, drConsecMaxMax) << 16);
 
   if (drConsecMaxMax > 1 && error < xAOD::EventInfo::Warning) {
@@ -393,12 +393,9 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
   ++m_eventErrorCounter[3]; // count separately total number of events
   
   // retrieve EventInfo
-  const xAOD::EventInfo* eventInfo = 0;
-  if (evtStore()->retrieve(eventInfo).isFailure()) {
-    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
-  }
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
 
-  if (eventInfo) {
+  if (eventInfo.isValid()) {
 
     if (flag != 0) {
       ATH_MSG_DEBUG( " set eventInfo for Tile for this event to 0x" << MSG::hex << flag << MSG::dec );

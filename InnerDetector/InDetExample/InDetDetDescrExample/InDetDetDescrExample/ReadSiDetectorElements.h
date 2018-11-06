@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetDescrExample_ReadSiDetectorElements_h
@@ -17,7 +17,6 @@
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 
 #include <vector>
@@ -56,9 +55,6 @@ public:
   bool m_doLoop;
   bool m_doInit;
   bool m_doExec;
-  ServiceHandle<ISiLorentzAngleSvc> m_siLorentzAngleSvc;
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
   bool m_useConditionsTools;
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};

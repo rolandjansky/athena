@@ -67,7 +67,7 @@ DbStatus DbContainerImp::close()   {
 /// In place allocation of raw memory for the transient object
 void* DbContainerImp::allocate(unsigned long siz, DbContainer& cntH, ShapeH shape)  {
   DbObjectHandle<DbObject> objH(cntH.type());
-  Token::OID_t objLink(cntH.token()->oid().first, int(nextRecordId()));
+  Token::OID_t objLink(cntH.token()->oid().first, nextRecordId());
   DbHeap::allocate(siz, &cntH, &objLink, &objH);
   if ( m_stack.size() < m_size+1 )  {
     m_stack.resize(m_size+1024);
@@ -85,7 +85,7 @@ void* DbContainerImp::allocate(unsigned long siz, DbContainer& cntH, ShapeH shap
 DbStatus DbContainerImp::allocate(DbContainer& cntH, const void* object, ShapeH shape, Token::OID_t& oid) {
   if ( object )  {
     oid.first  = cntH.token()->oid().first;
-    oid.second = int(nextRecordId());
+    oid.second = nextRecordId();
     if ( m_stack.size() < m_size+1 )  {
       m_stack.resize(m_size+1024);
     }

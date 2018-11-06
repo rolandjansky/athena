@@ -29,13 +29,13 @@ if hasattr(runArgs,"outputTXT_FTKIPFile") :
 else :
     OutputTXT_FTKIPFile = 'ftksim_wrap_raw.dat.bz2'
 
-
 theJob += DumpSp(OutputLevel             = INFO, 
                  maxEta                  = 3.3,
                  minPt                   = 0.8*GeV,
                  DoData                  = False,
                  OutFileName             = "ftksim_wrap.dat.bz2",
                  OutFileNameRawHits      = OutputTXT_FTKIPFile,
+                 PixelLorentzAngleTool   = ToolSvc.InDetTrigPixelLorentzAngleTool,
                  tracksName              = "Tracks")
 
 print theJob

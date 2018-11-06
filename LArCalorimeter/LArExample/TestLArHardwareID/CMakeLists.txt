@@ -18,13 +18,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArIdentifier
+                          LArCalorimeter/LArRecConditions
                           Tools/PathResolver )
 
 # Component(s) in the package:
 atlas_add_component( TestLArHardwareID
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CxxUtils AthenaBaseComps GaudiKernel CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib SGtests LArCablingLib LArIdentifier PathResolver )
+                     LINK_LIBRARIES CxxUtils AthenaBaseComps GaudiKernel CaloIdentifier CaloTriggerToolLib AthenaKernel StoreGateLib SGtests LArCablingLib LArIdentifier LArRecConditions PathResolver )
 
 # Install files from the package:
 atlas_install_headers( TestLArHardwareID )

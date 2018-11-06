@@ -111,13 +111,6 @@ bool PseudoJetContainer::extractConstituents(xAOD::Jet& jet,
   return extractConstituents(jet, inConstituents);
 }
 
-// returns the list of input constituents
-// typically to give to a fastjet::ClusterSequence 
-// std::vector<PseudoJet> PseudoJetContainer::asVectorPseudoJet() const {
-//   if (m_debug){checkInvariants("asVectorPseudoJet()");}
-//   return m_allConstituents;
-// }
-
 const std::vector<PseudoJet>* PseudoJetContainer::casVectorPseudoJet() const {
   if (m_debug){checkInvariants("asVectorPseudoJet()");}
   return &m_allConstituents;

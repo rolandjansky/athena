@@ -6,6 +6,7 @@
 #define SCT_SLHC_GeoModel_SCT_DETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -24,13 +25,13 @@ namespace InDetDDSLHC {
   class SCT_GeoModelAthenaComps;
 }
 
-class SCT_SLHC_DetectorTool : public GeoModelTool{
+class SCT_SLHC_DetectorTool : public GeoModelTool {
 
 public:
 
   // Standard Constructor
-  SCT_SLHC_DetectorTool( const std::string& type, const std::string& name, 
-		    const IInterface* parent );
+  SCT_SLHC_DetectorTool(const std::string& type, const std::string& name,
+                        const IInterface* parent);
 
   // Standard Destructor
   virtual ~SCT_SLHC_DetectorTool() override final;
@@ -39,13 +40,13 @@ public:
   virtual StatusCode clear() override final;
 
 private:
-  std::string m_detectorName;
-  bool m_alignable;
-  bool m_forceBuild;
+  StringProperty m_detectorName{this, "DetectorName", "SCT"};
+  BooleanProperty m_alignable{this, "Alignable", false};
+  BooleanProperty m_forceBuild{this, "ForceBuild", false};
 
-  const InDetDD::SCT_DetectorManager * m_manager;
+  const InDetDD::SCT_DetectorManager* m_manager;
   
-  InDetDDSLHC::SCT_GeoModelAthenaComps * m_athenaComps;
+  InDetDDSLHC::SCT_GeoModelAthenaComps* m_athenaComps;
 
   ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;

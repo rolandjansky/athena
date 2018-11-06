@@ -2,19 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
-// local includes
-#include "StripTdsOfflineTool.h"
-#include "StripOfflineData.h"
+#include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/StripOfflineData.h"
 
-//Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
@@ -24,12 +20,11 @@
 #include "MuonSimData/MuonSimData.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-// random numbers
+
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
 #include "TTree.h"
 #include "TVector3.h"
 
@@ -37,8 +32,6 @@
 #include <algorithm>
 #include <map>
 #include <utility>
-
-using namespace std;
 
 
 namespace NSWL1 {
@@ -52,11 +45,9 @@ namespace NSWL1 {
       StripHits(Identifier id, StripOfflineData* p, int c) { t_id = id; t_strip=p; t_cache_index=c; }
     };
 
-
-    typedef std::map < Identifier,std::vector<StripHits> > STRIP_MAP;
-    typedef std::map < Identifier,std::vector<StripHits> >::iterator STRIP_MAP_IT;
-    typedef std::pair< Identifier,std::vector<StripHits> > STRIP_MAP_ITEM;
-
+    using STRIP_MAP=std::map < Identifier,std::vector<StripHits> >;
+    using STRIP_MAP_IT=std::map < Identifier,std::vector<StripHits> >::iterator;
+    using STRIP_MAP_ITEM=std::pair< Identifier,std::vector<StripHits> >;
 
     StripTdsOfflineTool::StripTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
@@ -80,7 +71,7 @@ namespace NSWL1 {
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       // std::vector< std::vector<StripData*> >::iterator it = m_strip_cache.begin();
-      std::vector<StripData*>::iterator it = m_strip_cache.begin();
+      //std::vector<std::unique_ptr<StripData>>::iterator it = m_strip_cache.begin();
     }
 
     StripTdsOfflineTool::~StripTdsOfflineTool() {
@@ -97,7 +88,7 @@ namespace NSWL1 {
     void StripTdsOfflineTool::clear_cache() {
       ATH_MSG_INFO( "Clearing Strip Cache"); 
       for(unsigned int i = 0; i < m_strip_cache.size(); ++i)
-	delete m_strip_cache[i];
+	    //delete m_strip_cache[i];
       m_strip_cache.clear();     
     }
   
@@ -105,11 +96,11 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing " << name() ); 
     
     ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
-                       << setfill(' ') << setiosflags(ios::right) );
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+                       << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
  
 
@@ -125,8 +116,8 @@ namespace NSWL1 {
           return sc;
         }
 
-        char ntuple_name[40];
-        memset(ntuple_name,'\0',40*sizeof(char));
+        char ntuple_name[40]={'\0'};
+        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;
@@ -308,7 +299,7 @@ namespace NSWL1 {
     
     for (unsigned int p=0; p<m_strip_cache.size(); p++) {
       m_nStripHits++;
-      ATH_MSG_INFO("Hits :" << m_nStripHits << " index " <<  p << " Cache strip  " << m_strip_cache.at(p) << "  " << m_strip_cache.size() );	
+      ATH_MSG_INFO("Hits :" << m_nStripHits << " index " <<  p << " Cache strip  " << m_strip_cache.at(p).get() << "  " << m_strip_cache.size() );	
 
       m_stripCharge->push_back(m_strip_cache.at(p)->strip_charge());
       m_stripCharge_6bit->push_back(m_strip_cache.at(p)->strip_charge_6bit());
@@ -326,7 +317,7 @@ namespace NSWL1 {
   }
 
 
-  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<StripData*>& strips, std::vector<NSWL1::PadTrigger*>& padTriggers) {
+  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) {
       ATH_MSG_INFO( "gather_strip_data: start gathering all strip htis");
 
       // No sector implemented yet!!!
@@ -361,7 +352,7 @@ namespace NSWL1 {
       for (unsigned int i=0; i< m_strip_cache.size(); i++) 
 	{ 
 	  // Check if a stip should be read according to pad triggers
-	  strips.push_back(m_strip_cache.at(i));
+	  strips.push_back(std::move(m_strip_cache.at(i)));
 	}
       ATH_MSG_DEBUG( "delivered n. " << strips.size() << " STRIP hits." );
 
@@ -369,7 +360,7 @@ namespace NSWL1 {
   }
 
 
-    StripTdsOfflineTool::cStatus StripTdsOfflineTool::fill_strip_cache( std::vector<NSWL1::PadTrigger*>& padTriggers) {
+    StripTdsOfflineTool::cStatus StripTdsOfflineTool::fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) {
       ATH_MSG_DEBUG( "fill_strip_cache: clearing existing STRIP hit cache" );
       this->clear_cache();
 
@@ -413,7 +404,6 @@ namespace NSWL1 {
 	  //	  ATH_MSG_DEBUG( "Grabbed local pos" );
 	  rdoEl->surface(Id).localToGlobal(strip_lpos, strip_gpos, strip_gpos);
 	  //strip_gpos = rdoEl->localToGlobalCoords(pos,Id);
-	  	  
 
 
 
@@ -474,15 +464,17 @@ namespace NSWL1 {
 
 
 
-
-	  StripOfflineData* strip = new StripOfflineData(Id,m_sTgcIdHelper,digit);
-	  strip->set_locX(strip_lpos.x());
+      //S.I
+	  //StripOfflineData* strip = new StripOfflineData(Id,m_sTgcIdHelper,digit);
+	  auto strip=std::make_unique<StripOfflineData>(Id,m_sTgcIdHelper,digit);
+      //S.I
+      strip->set_locX(strip_lpos.x());
 	  strip->set_locY(strip_lpos.y());
 
 
 	  bool read_strip=false;
 	  bool tmp=false;
-	  for( auto p : padTriggers){
+	  for( const auto& p : padTriggers){
 	    //	    if(p->sectorId()!=stationPhi)
 	    //  {
 	    //		ATH_MSG_INFO("ReadStrip Trigger Candidate in different sector " << p->sectorId() << "  " <<stationPhi );
@@ -493,7 +485,7 @@ namespace NSWL1 {
 	      ATH_MSG_DEBUG(" ReadStrip Trigger Candidate in different side " << p->sideId() << "  " <<strip->sideId() );
 	      continue;
 	    }
-	    tmp=readStrip(p->bandId(),strip,p->m_pad_strip_info); //this readStrip is the function
+	    tmp=readStrip(p->bandId(),strip.get(),p->m_pad_strip_info); //this readStrip is the function
 	    if( tmp and read_strip) ATH_MSG_DEBUG("Multiple pad trigger candidate in a single wedge for strip "<<read_strip );
 	    read_strip=read_strip || tmp;
 	  }
@@ -514,9 +506,7 @@ namespace NSWL1 {
 	  strip->set_locX(strip_lpos.x());
 	  strip->set_locY(strip_lpos.y());
 	  strip->set_locZ(0             );
-
-
-	  m_strip_cache.push_back(strip);
+      m_strip_cache.push_back(std::move(strip));
 	}
 
       }
@@ -528,12 +518,12 @@ namespace NSWL1 {
 
 
 
-  bool  StripTdsOfflineTool::readStrip(unsigned int bandID,StripData* strip,std::vector<std::vector<float>> pad_strip_info)
+  bool  StripTdsOfflineTool::readStrip(unsigned int bandID,StripData* strip,const std::vector<std::vector<float>>& pad_strip_info)
   {
     /*!
-     * ReadStrip(BandId_t bandID,StripData* strip): Simple function to return wether a fired strip should 
+     * ReadStrip(uint16_t bandID,StripData* strip): Simple function to return wether a fired strip should 
      *be readout base on a pad trigger bandID
-     * Inputs: Pad bandID (BandId_t), and StripData strip.
+     * Inputs: Pad bandID (uint16_t), and StripData strip.
      */
 
     // test
@@ -555,6 +545,7 @@ namespace NSWL1 {
     // 	  }
     //   }
 
+    
     //End test
     if (strip->bandId() !=-1){
       ATH_MSG_DEBUG("StripTdsOfflineTool:ReadStrip: BandId already set\n" <<"moduleID:"<< strip->moduleId() +1 << "\n"
@@ -589,11 +580,10 @@ namespace NSWL1 {
 		 <<"loc_x:"<< strip->locX()<< "\n");
 
     for( auto pad_data: pad_strip_info){
-      if (pad_data.size()!=4)
-	{
+      if (pad_data.size()!=4){
 	  ATH_MSG_WARNING("StripTdsOfflineTool:ReadStrip: pad data of incorrect size:\n");
 	  continue;
-	}
+	  }
       float wedge = pad_data.at(0);
       float layer = pad_data.at(1);
       int loc_min_y = pad_data.at(2);

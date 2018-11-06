@@ -19,6 +19,8 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthLinks
    Event/xAOD/xAODCore
+   Trigger/TrigConfiguration/TrigConfHLTData
+   Trigger/TrigEvent/TrigNavStructure
    ${extra_deps} )
 
 # Component(s) in the package:
@@ -26,7 +28,7 @@ atlas_add_library( xAODTrigger
    xAODTrigger/*.h xAODTrigger/versions/*.h xAODTrigger/versions/*.icc
    Root/*.cxx
    PUBLIC_HEADERS xAODTrigger
-   LINK_LIBRARIES AthContainers AthLinks xAODCore ${extra_libs} )
+   LINK_LIBRARIES AthContainers AthLinks xAODCore TrigConfHLTData TrigNavStructure ${extra_libs} )
 
 atlas_add_dictionary( xAODTriggerDict
    xAODTrigger/xAODTriggerDict.h

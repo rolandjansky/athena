@@ -6,8 +6,12 @@ from AthenaCommon.AppMgr                    import theApp
 from AthenaCommon.AppMgr                    import ServiceMgr as svcMgr
 from AthenaCommon.AlgSequence               import AlgSequence
 from GaudiSvc.GaudiSvcConf                  import THistSvc
-import AthenaRootComps.ReadAthenaxAODHybrid
+import AthenaPoolCnvSvc.ReadAthenaPool
 
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+MCClassifier = MCTruthClassifier( name                      = "MCTruthClassifier",
+                                  ParticleCaloExtensionTool = "" )
+ToolSvc += MCClassifier
 # Ouput Message Level
 svcMgr.MessageSvc.OutputLevel = INFO
 

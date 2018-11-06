@@ -18,7 +18,8 @@
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CaloInterface/ILArNoisyROTool.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 namespace hltinterface{
   class GenericHLTContainer;
@@ -78,6 +79,11 @@ class TrigEFCaloHypoNoise : public HLT::HypoAlgo {
   long int m_publishTime;
 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
+  SG::ReadCondHandleKey<LArBadFebCont> m_knownBadFEBsVecKey {this, "BadFEBsKey", "LArKnownBadFEBs", "key to read the known Bad FEBs"};
+  SG::ReadCondHandleKey<LArBadFebCont> m_knownMNBFEBsVecKey {this, "MNBFEBsKey", "LArKnownMNBFEBs", "key to read the known MNB FEBs"};
+  std::set<unsigned int> m_knownBadFEBs;
+  std::vector<HWIdentifier> m_knownMNBFEBs;
+  bool m_hasFebs;
 
 };
 #endif

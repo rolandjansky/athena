@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #file  :   TileCondProxyConf.py
-#author:   nils.gollub@cern.ch 
+#author:   nils.gollub@cern.ch
 #modified: lukas.pribyl@cern.ch
 
 from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
@@ -35,8 +35,8 @@ def getTileCondProxy(technology, type, source, name, **kwargs):
         from TileConditions.TileCoolMgr import tileCoolMgr
         folder  = tileCoolMgr.getFolder(source)
         folder2 = tileCoolMgr.getFolderTwo(source)
-        tag     = tileCoolMgr.getTag(source)       
-        conn    = tileCoolMgr.getDbConn(source)      
+        tag     = tileCoolMgr.getTag(source)
+        conn    = tileCoolMgr.getDbConn(source)
         key     = tileCoolMgr.getKey(source)
 
         folderstr  = ""
@@ -49,15 +49,15 @@ def getTileCondProxy(technology, type, source, name, **kwargs):
             folderstr  = folder + " <key>" + folder + "</key>"
             folderstr2 = folder2 + " <key>" + folder2 + "</key>"
 
-        #=== add folders according to their COOL schema split type    
-        if tileCoolMgr.isSplitMC(source):     
-            conddb.addFolderSplitMC(conn, folderstr, folderstr2)
-        if tileCoolMgr.isOfflineOnly(source):     
-            conddb.addFolder(conn, folderstr)
-        if tileCoolMgr.isSplitOnline(source):     
-            conddb.addFolderSplitOnline(conn, folderstr, folderstr2)
-        if tileCoolMgr.isSqlite(source):     
-            conddb.addFolder(conn, folderstr)            
+        #=== add folders according to their COOL schema split type
+        if tileCoolMgr.isSplitMC(source):
+            conddb.addFolderSplitMC(conn, folderstr, folderstr2, className = 'CondAttrListCollection')
+        if tileCoolMgr.isOfflineOnly(source):
+            conddb.addFolder(conn, folderstr, className = 'CondAttrListCollection')
+        if tileCoolMgr.isSplitOnline(source):
+            conddb.addFolderSplitOnline(conn, folderstr, folderstr2, className = 'CondAttrListCollection')
+        if tileCoolMgr.isSqlite(source):
+            conddb.addFolder(conn, folderstr, className = 'CondAttrListCollection')
 
         #=== create the proxies
         if   type=='Flt':
@@ -66,7 +66,7 @@ def getTileCondProxy(technology, type, source, name, **kwargs):
             tool = TileCondProxyCoolBch(name, Source = key)
         elif type=='Ofc':
             tool = TileCondProxyCoolOfc(name, Source = key)
-            
+
     return tool
 
 #
@@ -75,7 +75,7 @@ def getTileCondProxy(technology, type, source, name, **kwargs):
 #    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
 #    iovDbSvc=svcMgr.IOVDbSvc
- 
+
 #    for f in iovDbSvc.Folders:
 #        for parts in f.replace('<',' ').replace('>',' ').split():
 #            if folder in parts:

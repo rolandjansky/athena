@@ -31,7 +31,7 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#define DEFAULT_L1MuctpiStoreLocationRPC "/Event/L1MuctpiStoreRPC"
+#define DEFAULT_L1MuctpiStoreLocationRPC "L1MuctpiStoreRPC"
 
 class RpcIdHelper;
 

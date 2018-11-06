@@ -55,6 +55,7 @@ class LArADC2MeVCondAlg: public AthAlgorithm {
   //Its stored in 18 COOL folders, so waiting for ReadCondHandleArray for migrating to a cond-algo
   ToolHandle<ILArFEBConfigReader> m_febCfgReader;
 
+  bool m_useFEBGainThresholds;
   size_t m_nGains;
   bool m_isSuperCell;
 

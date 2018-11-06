@@ -524,7 +524,7 @@ StatusCode TrigEDMChecker::execute() {
     ATH_MSG_DEBUG(trigCompositeSteering);
     const xAOD::EventInfo* evtInfo = nullptr;
     if (evtStore()->contains<xAOD::EventInfo>("EventInfo")) {
-      StatusCode sc = evtStore()->retrieve(evtInfo);
+      ATH_CHECK( evtStore()->retrieve(evtInfo) );
     }
     static int eventStatic = 0; // Might not always have EventInfo (early testing of Run-3 software)
     const std::string evtNumber = (evtInfo == nullptr ? std::to_string(eventStatic++) : std::to_string(evtInfo->eventNumber()));
@@ -1040,7 +1040,7 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 	StatusCode returnsc=StatusCode::SUCCESS;
 
 	for (int itag=0; itag<ntag; itag++){
-		const Rec::TrackParticleContainer*  pTrackParticleC;
+		const Rec::TrackParticleContainer*  pTrackParticleC = nullptr;
 		StatusCode sc = evtStore()->retrieve(pTrackParticleC, trackPtags[itag]);
 		if (sc.isFailure()) {
           ATH_MSG_INFO("REGTEST No TrackParticleContainer found with tag " << trackPtags[itag]);
@@ -2137,7 +2137,7 @@ StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
   ATH_MSG_INFO("REGTEST ==========START of TrigInDetTrackCollection DUMP===========");
 
   for (int iTag=0; iTag < ntag; iTag++) {
-    const TrigInDetTrackCollection* trigInDetTrackCollection;
+    const TrigInDetTrackCollection* trigInDetTrackCollection = nullptr;
     StatusCode sc = evtStore()->retrieve(trigInDetTrackCollection,TrigInDetTrackTags[iTag] );
     if (sc.isFailure()) {
       ATH_MSG_DEBUG("REGTEST No TrigInDetTrackCollection found with key " << TrigInDetTrackTags[iTag]);
@@ -4079,9 +4079,17 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
     for (const xAOD::TrigComposite* tc : *container ) {
       // Output my name
-      ss << "    \"" << tc << "\" [label=\"" << typeNameTC << "\\n" << key << ":" << std::to_string(index);
-      if (tc->name() != "") ss << "\\n" << tc->name();
-      ss << "\"]" << std::endl;    
+      ss << "    \"" << tc << "\" [label=\"Container=" << typeNameTC; 
+      if (tc->name() != "") ss << "\\nName=" << tc->name();
+      ss << "\\nKey=" << key << "\\nIndex=" << std::to_string(index);
+      std::vector<unsigned> decisions;
+      if (tc->getDetail("decisions", decisions) && decisions.size() > 0) {
+        ss << "\\nPass=";
+        for (unsigned decisionID : decisions) {
+          ss << std::hex << decisionID << "," ;
+        }
+      }
+      ss << "\"]" << std::endl;
       // Output all the things I link to
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
@@ -4100,16 +4108,18 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           // Look it up
           CLID checkCLID;
           const std::string* keyStr = evtStore()->keyToString(key, checkCLID);
-          if (checkCLID != linkCLID) {
-            ATH_MSG_ERROR("Inconsistent CLID " << checkCLID << "stored in storegate for key " << key
-              << " expecting " << linkCLID << " class name:" << tname);
+          if (keyStr != nullptr && checkCLID != linkCLID) {
+            std::string tnameOfCheck;
+            m_clidSvc->getTypeNameOfID(checkCLID, tnameOfCheck).ignore(); // Might be invalid. But we don't care.
+            ATH_MSG_ERROR("Inconsistent CLID " << checkCLID << " [" << tnameOfCheck << "] stored in storegate for key " << key
+              << ". We were expecting " << linkCLID << " [" << tname << "]");
           }
           // Print
           ss << "    \"" << tc << "\" -> \"";
-          ss << tname << "\\n";
-          if (keyStr != nullptr) ss << *keyStr << ":";
-          else ss << "[KEY "<< key <<" NOT IN STORE]:"; 
-          ss << index << "\" [label=\"" << link << "\"]" << std::endl; 
+          ss << "Container=" << tname << "\\nKey=";
+          if (keyStr != nullptr) ss << *keyStr;
+          else ss << "[KEY "<< key <<" NOT IN STORE]"; 
+          ss << "\\nIndex=" << index << "\" [label=\"" << link << "\"]" << std::endl; 
         }
       }
       ++index;

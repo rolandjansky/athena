@@ -691,7 +691,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
    LVL1::NimCTP* MuctpiNim(nullptr);
    if ( evtStore()->contains< LVL1::NimCTP >( LVL1::DEFAULT_NimCTPLocation ) ) {
 
-      evtStore()->retrieve( MuctpiNim, LVL1::DEFAULT_NimCTPLocation );
+      ATH_CHECK( evtStore()->retrieve( MuctpiNim, LVL1::DEFAULT_NimCTPLocation ) );
 
       
       if(ctpVersionNumber <= 3) {

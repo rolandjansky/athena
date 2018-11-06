@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/RNNIPTag.h"
-#include "JetTagTools/LightweightNeuralNetwork.h"
-#include "JetTagTools/parse_json.h"
-#include "JetTagTools/Exceptions.h"
+#include "JetTagCalibration/LightweightNeuralNetwork.h"
+#include "JetTagCalibration/parse_json.h"
+#include "JetTagCalibration/Exceptions.h"
 
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/GradedTrack.h"
@@ -15,7 +15,6 @@
 
 #include "JetTagInfo/TrackGrade.h"
 #include "JetTagInfo/TrackGradesDefinition.h"
-#include "JetTagCalibration/CalibrationBroker.h"
 
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
@@ -29,7 +28,6 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GaudiKernel/IToolSvc.h"
 
-// #include "TLorentzVector.h"
 #include "TObjString.h"
 
 #include <cmath>
@@ -157,7 +155,6 @@ namespace Analysis {
       //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
-      m_calibrationTool("Analysis::CalibrationBroker"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_trackSelectorTool("Analysis::TrackSelector"),
@@ -203,7 +200,6 @@ namespace Analysis {
     declareProperty("trackGradeFactory"         , m_trackGradeFactory      );
     declareProperty("TrackToVertexIPEstimator"  , m_trackToVertexIPEstimator);
     declareProperty("calibration_directory", m_calibrationDirectory);
-    declareProperty("calibrationTool", m_calibrationTool);
   }
 
 
@@ -257,9 +253,9 @@ namespace Analysis {
 
     /** prepare the track partitions: */
     int nbPart = m_trackGradePartitionsDefinition.size();
-    ATH_MSG_INFO("#BTAG# Defining " << nbPart <<" track partitions: ");
+    ATH_MSG_DEBUG("#BTAG# Defining " << nbPart <<" track partitions: ");
     for(int i=0;i<nbPart;i++) {
-      TrackGradePartition* part(0);
+      TrackGradePartition* part = nullptr;
       try {
         part = new TrackGradePartition(m_trackGradePartitionsDefinition[i],
                                        *m_trackGradeFactory);
@@ -284,17 +280,12 @@ namespace Analysis {
         ATH_MSG_ERROR("#BTAG# Terminating now... ");
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO((*part));
+      ATH_MSG_DEBUG((*part));
       m_trackGradePartitions.push_back(part);
     }
 
-    for (const auto& rnn_name_pair: m_network_cfg) {
-      if (rnn_name_pair.second.size() == 0) {
-        ATH_MSG_VERBOSE("registering RNN " << rnn_name_pair.first);
-        register_hist(rnn_name_pair.first);
-      }
-    }
-
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -484,17 +475,6 @@ namespace Analysis {
   {
   }
 
-
-  // _____________________________________________________________________
-  // Calibration stuff
-  void RNNIPTag::register_hist(const std::string& file_name) {
-    m_calibrationTool->registerHistogram(m_calibrationDirectory, file_name);
-    ATH_MSG_DEBUG(" #BTAG# Registered NN histograms with directory: " <<
-		  m_calibrationDirectory);
-
-    m_calibrationTool->printStatus();
-  }
-
   std::string RNNIPTag::get_calib_string(const std::string& author,
                                          const std::string& name)
   {
@@ -509,18 +489,17 @@ namespace Analysis {
     } else {
       ATH_MSG_DEBUG("reading out from DB");
     }
-    const auto stringpair = m_calibrationTool->retrieveTObject<TObject>(
+
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey); 
+
+    const auto string = readCdo->retrieveTObject<TObject>(
       m_calibrationDirectory, author, name);
-    if (stringpair.second == true) {
-      m_calibrationTool->updateHistogramStatus(
-        m_calibrationDirectory, author, name, false);
-    }
-    TObjString* cal_string = dynamic_cast<TObjString*>(stringpair.first);
+    TObjString* cal_string = dynamic_cast<TObjString*>(string);
 
     if (cal_string == 0){  //catch if no string was found
       std::string fuller_name = m_calibrationDirectory + "/" + author +
         "/" + name;
-      if (stringpair.first) {
+      if (string) {
         fuller_name.append(" [but an object was found]");
       }
       ATH_MSG_WARNING("can't retreve calibration: " + fuller_name);

@@ -16,7 +16,6 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
   TrigCountSpacePointsHypo(const std::string & name, ISvcLocator* pSvcLocator);
   
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();  
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   

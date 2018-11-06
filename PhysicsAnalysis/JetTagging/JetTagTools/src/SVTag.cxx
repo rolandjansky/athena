@@ -89,38 +89,6 @@ namespace Analysis
         ATH_MSG_INFO("#BTAG# Retrieved tool " << m_likelihoodTool);
       }
       m_likelihoodTool->defineHypotheses(m_hypotheses);
-      // define new lh variables:
-      for(unsigned int ih=0;ih<m_hypotheses.size();ih++) {
-	std::string hName;
-	if(m_SVmode=="SV1") {
-	  hName = m_hypotheses[ih]+"/N2T";
-	  m_likelihoodTool->defineHistogram(hName);
-	  hName = m_hypotheses[ih]+"/BidimME";
-	  m_likelihoodTool->defineHistogram(hName);
-	  if(m_useDRJPVSV) {
-	    hName = m_hypotheses[ih]+"/DRJPVSV";
-	    m_likelihoodTool->defineHistogram(hName);
-	  }
-	}
-	if(m_SVmode=="SV2") {
-	  if(m_usePtSV2){
-	     hName = m_hypotheses[ih]+"/TridimMENPt";
-	     m_likelihoodTool->defineHistogram(hName);
-	     hName = m_hypotheses[ih]+"/N2TEffSV2";
-	     m_likelihoodTool->defineHistogram(hName);
-	  }else{
-	     hName = m_hypotheses[ih]+"/TridimMEN2T";
-	     m_likelihoodTool->defineHistogram(hName);
-          }
-	}
-      }
-      // for efficiencies, add a few histograms:
-      for(unsigned int ih=0;ih<m_hypotheses.size();ih++) {
-	std::string hName = m_hypotheses[ih]+"/N2TEff"+m_SVmode;
-	m_likelihoodTool->defineHistogram(hName);
-	hName = m_hypotheses[ih]+"/N2TNorm"+m_SVmode;
-	m_likelihoodTool->defineHistogram(hName);
-      }
       m_likelihoodTool->printStatus();
     }
 

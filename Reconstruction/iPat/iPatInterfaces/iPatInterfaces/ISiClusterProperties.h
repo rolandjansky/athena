@@ -47,13 +47,13 @@ public:
        conservative cluster errors for use during pattern recognition  */
     virtual std::pair<double,double>	broadErrors (const InDet::SiCluster*	cluster,
 						     const SiliconDetector*	detector,
-						     const Amg::Vector3D&	trackIntersect) = 0;
+						     const Amg::Vector3D&	trackIntersect) const = 0;
 
     /**ISiClusterProperties interface:
        precise cluster position and errors including track-dependent corrections  */
     virtual HitOnTrack*			hitOnTrack (const InDet::SiCluster*	cluster,
 						    const SiliconDetector*	detector,
-						    const Trk::TrackParameters*	parameters) = 0;
+						    const Trk::TrackParameters*	parameters) const = 0;
 };
 
 

@@ -13,27 +13,19 @@
 
 ///Athena includes
 #include "InDetIdentifier/SCT_ID.h"
-
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-///Read Handle
 #include "StoreGate/ReadHandle.h"
 
 /** Constructor */
 SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   base_class(type, name, parent),
   m_sct_id{nullptr},
-  m_pManager{nullptr},
   m_tempMaskedChips{},
   m_abcdErrorChips{},
   m_mutex{},
   m_cache{},
   m_nRetrievalFailure{0}
 {
-  declareProperty("ContainerName", m_bsErrContainerName=std::string{"SCT_ByteStreamErrs"});
-  declareProperty("FracContainerName", m_bsFracContainerName=std::string{"SCT_ByteStreamFrac"});
 }
 
 /** Initialize */
@@ -58,11 +50,10 @@ SCT_ByteStreamErrorsTool::initialize() {
     return StatusCode::FAILURE;
   } 
   
-  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
-
-  // Read Handle Key
+  // Read (Cond)Handle Keys
   ATH_CHECK(m_bsErrContainerName.initialize());
   ATH_CHECK(m_bsFracContainerName.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return sc;
 }
@@ -115,7 +106,7 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   
-  //  if (isRODSimulatedData()) return false;
+  if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
   
   bool result{true};
 
@@ -150,8 +141,6 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
-  //  if (isRODSimulatedData()) return false;
-
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
     return isGood(elementIdHash);
@@ -172,6 +161,10 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
     ATH_MSG_WARNING("moduleId obtained from stripId " << stripId << " is invalid.");
     return false;
   }
+
+  const Identifier waferId{m_sct_id->wafer_id(stripId)};
+  const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
+  if (m_checkRODSimulatedData and isRODSimulatedData(waferHash)) return false;
 
   // tempMaskedChips and abcdErrorChips hold 12 bits.
   // bit 0 (LSB) is chip 0 for side 0.
@@ -209,7 +202,9 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
 
 int
 SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId) const {
-  const InDetDD::SiDetectorElement* siElement{m_pManager->getDetectorElement(stripId)};
+  const Identifier waferId{m_sct_id->wafer_id(stripId)};
+  const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
+  const InDetDD::SiDetectorElement* siElement{getDetectorElement(waferHash)};
   if (siElement==nullptr) {
     ATH_MSG_DEBUG ("InDetDD::SiDetectorElement is not obtained from stripId " << stripId);
     return -1;
@@ -310,7 +305,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   SG::ReadHandle<InDetBSErrContainer> errCont{m_bsErrContainerName};
 
   /** When running over ESD files without BSErr container stored, don't 
-   * want to flood the user with error messages.  Should just have a bunch
+   * want to flood the user with error messages. Should just have a bunch
    * of empty sets, and keep quiet.
    */
   if (not errCont.isValid()) {
@@ -331,7 +326,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
    */
   ATH_MSG_DEBUG("size of error container is " << errCont->size());
   for (const auto* elt : *errCont) {
-    addError(elt->first,elt->second, ctx);
+    addError(elt->first, elt->second, ctx);
     Identifier wafer_id{m_sct_id->wafer_id(elt->first)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
     int side{m_sct_id->side(m_sct_id->wafer_id(elt->first))};
@@ -340,7 +335,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     } else if (elt->second>=SCT_ByteStreamErrors::TempMaskedChip0 and elt->second<=SCT_ByteStreamErrors::TempMaskedChip5) {
       m_tempMaskedChips[slot][module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::TempMaskedChip0 + side*6));
     } else {
-      std::pair<bool, bool> badLinks{m_config->badLinks(module_id)};
+      std::pair<bool, bool> badLinks{m_config->badLinks(elt->first)};
       bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
       if (result) {
         /// error in a module using RX redundancy - add an error for the other link as well!!
@@ -367,7 +362,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
  */
 
 void 
-SCT_ByteStreamErrorsTool::addError(IdentifierHash id, int errorType, const EventContext& ctx) const {
+SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     m_bsErrors[errorType][ctx.slot()].insert(id);
   }
@@ -382,6 +377,14 @@ SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
   const SCT_ByteStreamFractionContainer* fracData{getFracData()};
   if (fracData==nullptr) return false;
   return fracData->majority(SCT_ByteStreamFractionContainer::SimulatedData);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const std::set<IdentifierHash>& errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
+  return (errorSet.count(elementIdHash)!=0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -409,6 +412,28 @@ const SCT_ByteStreamFractionContainer* SCT_ByteStreamErrorsTool::getFracData() c
     return nullptr;
   }
   return fracCont.ptr();
+}
+
+const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(const IdentifierHash& waferHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  if (slot>=m_cacheElements.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
+    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheElements[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_detectorElements.set(*condData);
+    m_cacheElements[slot] = evt;
+  }
+  return m_detectorElements->getDetectorElement(waferHash);
 }
 
 const std::set<IdentifierHash>& SCT_ByteStreamErrorsTool::getErrorSet(SCT_ByteStreamErrors::errorTypes errorType, const EventContext& ctx) const {

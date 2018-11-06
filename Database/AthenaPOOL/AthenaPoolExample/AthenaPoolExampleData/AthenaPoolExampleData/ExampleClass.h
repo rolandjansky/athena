@@ -51,6 +51,6 @@ private:
    int m_event;
    std::string m_text;
 };
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ExampleClass, 67289510, 1)
 #endif

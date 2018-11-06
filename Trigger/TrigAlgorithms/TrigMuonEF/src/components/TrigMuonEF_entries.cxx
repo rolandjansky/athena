@@ -6,6 +6,7 @@
 #include "../InDetTrkRoiMaker.h"
 #include "../TrigMuonEFCaloIsolation.h"
 #include "../TrigMuonEFIDTrackRoiMaker.h"
+#include "../TrigMuonEFTrackIsolationAlgMT.h"
 
 DECLARE_COMPONENT( TrigMuonEFTrackIsolationTool )
 DECLARE_COMPONENT( TrigMuonEFStandaloneTrackTool )
@@ -19,3 +20,4 @@ DECLARE_COMPONENT( TrigMuonEFFSRoiMaker )
 
 DECLARE_COMPONENT( TrigMuonEFIDTrackRoiMaker )
 
+DECLARE_COMPONENT( TrigMuonEFTrackIsolationAlgMT )

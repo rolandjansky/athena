@@ -32,6 +32,11 @@ fi
 export ATHENA_ADD_PRELOAD
 ATHENA_DROP_RELOAD=0
 
+export USEIMF=false
+export IMF_LIB1="libimf.so"
+export IMF_LIB2="libintlc.so.5"
+
+
 for a in ${@}
 do
     case "$a" in
@@ -39,6 +44,8 @@ do
 	--delete-check*) USETCMALLOC=0;;
 	--stdcmalloc)    USETCMALLOC=0;;
 	--tcmalloc)      USETCMALLOC=1;;
+	--stdcmath)      USEIMF=0;;
+	--imf)           USEIMF=1;;
 	--preloadlib*)     ATHENA_ADD_PRELOAD=${a#*=};;
 	--drop-and-reload) ATHENA_DROP_RELOAD=1;;
     esac
@@ -76,6 +83,26 @@ if [ "$USETCMALLOC" = "1" ] || [ "$USETCMALLOC" = "true" ] ; then
             export LD_PRELOAD="$TCMALLOCDIR/libtcmalloc_minimal.so"
         else
             export LD_PRELOAD="$TCMALLOCDIR/libtcmalloc_minimal.so:$LD_PRELOAD"
+        fi
+    fi
+fi
+
+if [ $USEIMF == "1" ] || [ $USEIMF == true ]; then
+fullimf1="$ATLASMKLLIBDIR_PRELOAD/$IMF_LIB1"
+fullimf2="$ATLASMKLLIBDIR_PRELOAD/$IMF_LIB2"
+    if [ ! -e "$fullimf1" ]; then
+        echo "ERROR: $fullimf1 does not exit"
+        exit 1
+    elif [ ! -e "$fullimf2" ]; then
+        echo "ERROR: $fullimf2 does not exit"
+        exit 1
+    else
+        echo "Preloading $IMF_LIB1"
+        echo "Preloading $IMF_LIB2"
+        if [ -z $LD_PRELOAD ]; then
+            export LD_PRELOAD="$fullimf1:$fullimf2"
+        else
+            export LD_PRELOAD="$fullimf1:$fullimf2:$LD_PRELOAD"
         fi
     fi
 fi
@@ -209,6 +236,11 @@ if opts.run_batch and not opts.dbg_stage:
    if os.isatty( sys.stdin.fileno() ):
       os.close( sys.stdin.fileno() )
 else:
+   # Make sure ROOT gets initialized early, so that it shuts down last.
+   # Otherwise, ROOT can get shut down before Gaudi, leading to crashes
+   # when Athena components dereference ROOT objects that have been deleted.
+   import ROOT
+
  # readline support
    import rlcompleter, readline
 

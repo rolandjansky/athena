@@ -19,6 +19,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
+#include "AthenaKernel/errorcheck.h"
 #include <vector>
 #include <cassert>
 #include <iostream>
@@ -223,6 +224,7 @@ void test2 (ISvcLocator* svcLoc)
 
 int main()
 {
+  errorcheck::ReportMessage::hideFunctionNames (true);
   ISvcLocator* svcLoc = nullptr;
   if (!Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc)) {
     return 1;

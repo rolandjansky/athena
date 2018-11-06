@@ -154,7 +154,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
       from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
       InDetTrigCutValues = EFIDTrackingCuts
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator, InDetTrigPatternUpdator, InDetTrigRotCreator, InDetTrigExtrapolator, InDetTrigTrackFitter, InDetTrigSCTConditionsSummarySvc
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator, InDetTrigPatternUpdator, InDetTrigRotCreator, InDetTrigExtrapolator, InDetTrigTrackFitter, InDetTrigSCTConditionsSummaryTool
 
 
       if InDetTrigFlags.loadTRTSeededSPFinder():
@@ -237,9 +237,9 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
       #                                                                  SCT_ClusterContainer   = 'SCT_TrigClusters')
 
       # if (DetFlags.haveRIO.SCT_on()):
-      #    InDetTrigSiComTrackFinder.SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+      #    InDetTrigSiComTrackFinder.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
       # else:
-      #    InDetTrigSiComTrackFinder.SctSummarySvc = None
+      #    InDetTrigSiComTrackFinder.SctSummaryTool = None
 
       # ToolSvc += InDetTrigSiComTrackFinder
       # if (InDetTrigFlags.doPrintConfigurables()):

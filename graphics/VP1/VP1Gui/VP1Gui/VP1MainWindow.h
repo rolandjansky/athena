@@ -15,8 +15,8 @@
 #ifndef VP1MainWindow_H
 #define VP1MainWindow_H
 
-// include VP1 Qt views
-#include "ui_vp1mainwindow.h"
+// include the related GUI
+#include "../src/ui_vp1mainwindow.h"
 
 // include VP1
 #include "VP1Gui/VP1TcpServer.h"

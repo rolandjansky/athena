@@ -23,10 +23,6 @@
 
 class SCT_ID;
 
-namespace InDetDD {
-  class SiDetectorManager;
-}
-
 class SCT_ChannelStatusAlg;
 class SCT_ConditionsSummary;
 
@@ -54,7 +50,6 @@ class ISCT_ClusteringTool : virtual public IAlgTool
  */
  virtual SCT_ClusterCollection *clusterize(
 			  const InDetRawDataCollection<SCT_RDORawData> & RDOs,
-			  const InDetDD::SiDetectorManager& manager,
 			  const SCT_ID& idHelper,
 			  const SCT_ChannelStatusAlg* status,
 			  const bool CTBBadChannels) const = 0;
@@ -69,7 +64,6 @@ class ISCT_ClusteringTool : virtual public IAlgTool
  */
  virtual SCT_ClusterCollection *clusterize(
 			  const InDetRawDataCollection<SCT_RDORawData> & rdoCollection,
-			  const InDetDD::SiDetectorManager& manager,
 			  const SCT_ID& idHelper) const = 0;
 };
 

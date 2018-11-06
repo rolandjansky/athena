@@ -28,6 +28,10 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
+
   class CaloCellNoiseAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
@@ -76,23 +80,29 @@
        float reference;
    };
    std::vector<CellInfo> m_CellList;
-
-   int  m_ncell;
+   int m_ncell;
 
    unsigned int m_lumiblock;
    unsigned int m_lumiblockOld;
    bool m_first;
 
-   float m_luminosity;
-   int m_nevt[200000];
-   int m_nevt_good[200000];
-   int m_layer[200000];
-   int m_identifier[200000];
-   float m_eta[200000];
-   float m_phi[200000];
-   float m_average[200000];
-   float m_rms[200000];
-   float m_reference[200000];
+   // Split this out into a separate, dynamically-allocated block.
+   // Otherwise, the CaloCellNoiseAlg is so large that it violates
+   // the ubsan sanity checks.
+   struct TreeData {
+     float m_luminosity {0};
+     int  m_ncell {0};
+     int m_nevt[200000] {0};
+     int m_nevt_good[200000] {0};
+     int m_layer[200000] {0};
+     int m_identifier[200000] {0};
+     float m_eta[200000] {0};
+     float m_phi[200000] {0};
+     float m_average[200000] {0};
+     float m_rms[200000] {0};
+     float m_reference[200000] {0};
+   };
+   std::unique_ptr<TreeData> m_treeData;
    TTree* m_tree;
 
    bool m_doMC;
@@ -104,6 +114,7 @@
    std::string  m_triggerChainProp;
    FloatArrayProperty m_cuts;
    ToolHandle<ICaloNoiseTool> m_noiseToolDB;
+   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
    std::string m_lumiFolderName;
    int m_addlumiblock;
    float m_deltaLumi;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARPEDESTALMC_H
@@ -8,8 +8,6 @@
 #include "LArElecCalib/ILArPedestal.h" 
 
 #include <vector>
-
-class LArCablingService ;
 
 /** Implementation of the interface ILArfSampl for MC: only one constant is needed for MC
  *
@@ -51,5 +49,8 @@ class LArPedestalMC: public ILArPedestal {
   std::vector<float> m_vPedestal, m_vPedestalRMS;
 };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArPedestalMC, 27770770,1)
+CONDCONT_DEF(LArPedestalMC,251521960, ILArPedestal);
+
 #endif 

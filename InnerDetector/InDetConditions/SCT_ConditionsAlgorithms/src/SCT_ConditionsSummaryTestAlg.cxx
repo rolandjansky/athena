@@ -13,41 +13,34 @@
 
 #include "SCT_ConditionsSummaryTestAlg.h"
 
-//Gaudi includes
-
 //Athena includes
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 
-SCT_ConditionsSummaryTestAlg::SCT_ConditionsSummaryTestAlg( 
-                                                           const std::string& name, 
-                                                           ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ) {
+//Gaudi includes
+
+SCT_ConditionsSummaryTestAlg::SCT_ConditionsSummaryTestAlg(const std::string& name,
+                                                           ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator) {
   //nop
 }
 
 //Initialize
 StatusCode 
-SCT_ConditionsSummaryTestAlg::initialize(){
-  
-  StatusCode sc(StatusCode::SUCCESS);
+SCT_ConditionsSummaryTestAlg::initialize() {
   ATH_MSG_INFO("Calling initialize");
-  sc = m_pSummaryTool.retrieve();
-  if (StatusCode::SUCCESS not_eq sc) {
-    ATH_MSG_ERROR("Could not retrieve the summary service");
-  }
-  return sc;
+  ATH_CHECK(m_pSummaryTool.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 //Execute
 StatusCode 
-SCT_ConditionsSummaryTestAlg::execute(){
+SCT_ConditionsSummaryTestAlg::execute() {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO("Calling execute");
   ATH_MSG_INFO("Dummy call to module id 0: module is ");
-  bool result=m_pSummaryTool->isGood(Identifier(0));
+  bool result{m_pSummaryTool->isGood(Identifier(0))};
   ATH_MSG_INFO((result ? "good" : "bad"));
   ATH_MSG_INFO("Dummy call to module id 1: module is ");
   result=m_pSummaryTool->isGood(Identifier(1));
@@ -68,13 +61,13 @@ SCT_ConditionsSummaryTestAlg::execute(){
   ATH_MSG_INFO("Strip  216808130 " << (result ? "good" : "bad"));
   result=m_pSummaryTool->isGood(Identifier(216808743), InDetConditions::SCT_STRIP);
   ATH_MSG_INFO("Strip  216808743 " << (result ? "good" : "bad"));
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
 //Finalize
 StatusCode
-SCT_ConditionsSummaryTestAlg::finalize(){
+SCT_ConditionsSummaryTestAlg::finalize() {
   ATH_MSG_INFO("Calling finalize");
   return StatusCode::SUCCESS;
 }

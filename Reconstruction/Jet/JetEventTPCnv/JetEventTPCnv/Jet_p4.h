@@ -58,6 +58,9 @@ public:
   /** Destructor: 
    */
   ~Jet_p4();
+  
+  //default assignment
+  Jet_p4 & operator=(const Jet_p4 &) = default;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -97,10 +100,10 @@ private:
   std::vector<TPObjRef> m_associations;
 
   // Signal states 
-  char  m_ratioE;  /**ratio for uncalibrated  E    */
-  char  m_ratioPx; /**ratio for uncalibrated  p_x  */
-  char  m_ratioPy; /**ratio for uncalibrated  p_y  */
-  char  m_ratioPz; /**ratio for uncalibrated  p_z  */
+  char  m_ratioE{};  /**ratio for uncalibrated  E    */
+  char  m_ratioPx{}; /**ratio for uncalibrated  p_x  */
+  char  m_ratioPy{}; /**ratio for uncalibrated  p_y  */
+  char  m_ratioPz{}; /**ratio for uncalibrated  p_z  */
 }; 
 
 /////////////////////////////////////////////////////////////////// 

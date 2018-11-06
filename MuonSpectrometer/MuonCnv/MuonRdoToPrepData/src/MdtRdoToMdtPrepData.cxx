@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Davide Costanzo
@@ -14,7 +14,7 @@
 MdtRdoToMdtPrepData::MdtRdoToMdtPrepData(const std::string& name,
                                          ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_tool( "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"), // 'this' as 2nd arg would make it private tool
+m_tool( "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool", this), 
 m_print_inputRdo(false),
 m_print_prepData(false),
 m_seededDecoding(false),

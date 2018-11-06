@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,30 +23,25 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
-// Validation mode - TTree includes
-#include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-
-// statics doubles
-Trk::ParticleMasses Trk::MaterialEffectsUpdator::s_particleMasses;
+//std
+#include<functional>
+#include <algorithm>
+namespace {
+const Trk::ParticleMasses s_particleMasses{};
+}
 
 // constructor
 Trk::MaterialEffectsUpdator::MaterialEffectsUpdator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
-//  TrkParametersManipulator(),
-  m_eLossUpdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
-  m_msUpdator("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
-  m_materialMapper("Trk::MaterialMapper/AtlasMaterialMapper"),
+  //  TrkParametersManipulator(),
   m_doCompoundLayerCheck(false),
   m_doEloss(true),
   m_doMs(true),
-  m_momentumCut(50. * Gaudi::Units::MeV),
-  m_momentumMax(10. * Gaudi::Units::TeV),
   m_forceMomentum(false),
-  m_forcedMomentum(2000. * Gaudi::Units::MeV),
   m_xKalmanStraggling(false),
   m_useMostProbableEloss(false),
   m_msgOutputValidationDirection(true),
@@ -54,35 +49,35 @@ Trk::MaterialEffectsUpdator::MaterialEffectsUpdator(const std::string &t, const 
   m_validationMode(false),
   m_validationIgnoreUnmeasured(true),
   m_landauMode(false),
-  m_validationDirection(1),
-  m_validationLayer(nullptr),
-  m_validationReferenceSurface{},
-  m_validationSteps(0),
-  m_validationPhi(0.),
-  m_validationEta(0.),
-  m_accumulatedElossSigma(0.) {
-  declareInterface<IMaterialEffectsUpdator>(this);
-  // configuration (to be changed to new genconf style)
-  declareProperty("CheckForCompoundLayers", m_doCompoundLayerCheck);
-  declareProperty("EnergyLoss", m_doEloss);
-  declareProperty("EnergyLossUpdator", m_eLossUpdator);
-  declareProperty("MultipleScattering", m_doMs);
-  declareProperty("MultipleScatteringUpdator", m_msUpdator);
-  // the momentum cut for particle interactions
-  declareProperty("MinimalMomentum", m_momentumCut);
-  declareProperty("MaximalMomentum", m_momentumMax);
-  declareProperty("ForceMomentum", m_forceMomentum);
-  declareProperty("ForcedMomentumValue", m_forcedMomentum);
-  declareProperty("MostProbableEnergyLoss", m_useMostProbableEloss);
-  declareProperty("ScreenOutputValidationDirection", m_msgOutputValidationDirection);
-  declareProperty("ScreenOutputCorrections", m_msgOutputCorrections);
-  // run validation mode true/false
-  declareProperty("ValidationMode", m_validationMode);
-  declareProperty("ValidationIgnoreUnmeasured", m_validationIgnoreUnmeasured);
-  declareProperty("ValidationDirection", m_validationDirection);
-  declareProperty("ValidationMaterialMapper", m_materialMapper);
-  declareProperty("LandauMode", m_landauMode);
-}
+  m_validationDirection(1), 
+  m_momentumCut(50. * Gaudi::Units::MeV),
+  m_momentumMax(10. * Gaudi::Units::TeV),
+  m_forcedMomentum(2000. * Gaudi::Units::MeV),
+  m_eLossUpdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
+  m_msUpdator("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
+  m_materialMapper("Trk::MaterialMapper/AtlasMaterialMapper"){
+    declareInterface<IMaterialEffectsUpdator>(this);
+    // configuration (to be changed to new genconf style)
+    declareProperty("CheckForCompoundLayers", m_doCompoundLayerCheck);
+    declareProperty("EnergyLoss", m_doEloss);
+    declareProperty("EnergyLossUpdator", m_eLossUpdator);
+    declareProperty("MultipleScattering", m_doMs);
+    declareProperty("MultipleScatteringUpdator", m_msUpdator);
+    // the momentum cut for particle interactions
+    declareProperty("MinimalMomentum", m_momentumCut);
+    declareProperty("MaximalMomentum", m_momentumMax);
+    declareProperty("ForceMomentum", m_forceMomentum);
+    declareProperty("ForcedMomentumValue", m_forcedMomentum);
+    declareProperty("MostProbableEnergyLoss", m_useMostProbableEloss);
+    declareProperty("ScreenOutputValidationDirection", m_msgOutputValidationDirection);
+    declareProperty("ScreenOutputCorrections", m_msgOutputCorrections);
+    // run vaidation mode true/false
+    declareProperty("ValidationMode", m_validationMode);
+    declareProperty("ValidationIgnoreUnmeasured", m_validationIgnoreUnmeasured);
+    declareProperty("ValidationDirection", m_validationDirection);
+    declareProperty("ValidationMaterialMapper", m_materialMapper);
+    declareProperty("LandauMode", m_landauMode);  
+  }
 
 // destructor
 Trk::MaterialEffectsUpdator::~MaterialEffectsUpdator() {
@@ -92,13 +87,14 @@ Trk::MaterialEffectsUpdator::~MaterialEffectsUpdator() {
 // initialize
 StatusCode
 Trk::MaterialEffectsUpdator::initialize() {
+
   ATH_MSG_INFO("Minimal momentum cut for material update : " << m_momentumCut << " MeV");
 
   // retrieve the EnergyLoss Updator and Material Effects updator
   if (m_doEloss) {
     if (m_eLossUpdator.retrieve().isFailure()) {
       ATH_MSG_FATAL(
-        "Failed to retrieve tool " << m_eLossUpdator << ". No multiple scattering effects will be taken into account.");
+                    "Failed to retrieve tool " << m_eLossUpdator << ". No multiple scattering effects will be taken into account.");
       m_doEloss = false;
       return StatusCode::FAILURE;
     } else {
@@ -112,7 +108,7 @@ Trk::MaterialEffectsUpdator::initialize() {
   if (m_doMs) {
     if (m_msUpdator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_msUpdator <<
-        ". No energy loss effects will be taken into account.");
+                    ". No energy loss effects will be taken into account.");
       m_doMs = false;
       return StatusCode::FAILURE;
     } else {
@@ -146,12 +142,13 @@ Trk::MaterialEffectsUpdator::finalize() {
   return StatusCode::SUCCESS;
 }
 
+
 const Trk::TrackParameters *
-Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
-                                    const Layer &lay,
-                                    PropDirection dir,
-                                    ParticleHypothesis particle,
-                                    MaterialUpdateMode matupmode) const {
+Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm,
+                                        const Layer &lay,
+                                        PropDirection dir,
+                                        ParticleHypothesis particle,
+                                        MaterialUpdateMode matupmode) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm->position())) {
@@ -167,7 +164,7 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
   // get the real pathlength
   double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
 
-  // set the output if restricted to the validation direction
+  // set the output if restricted to the direction
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
 
   // --------------------------------------------------------------------------------------------------
@@ -178,24 +175,24 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
     double sX0 = mprop->thicknessInX0();
     double tX0 = pathCorrection * mprop->thicknessInX0();
     ATH_MSG_VERBOSE(
-      "  [M] full material update,  layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index " <<
-      lay.layerIndex());
+                    "  [M] full material update,  layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index " <<
+                    lay.layerIndex());
     ATH_MSG_VERBOSE(
-      "      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": " << pathCorrection <<
-      ")");
+                    "      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": " << pathCorrection <<
+                    ")");
   }
   // --------------------------------------------------------------------------------------------------
-
-  m_validationLayer = (m_validationMode) ? &lay : 0;
-
-  return(update(parm, *mprop, pathCorrection, dir, particle, matupmode));
+  if (m_validationMode){
+    cache.validationLayer =  &lay ;
+  }
+  return(updateImpl(cache,parm, *mprop, pathCorrection, dir, particle, matupmode));
 }
 
 const Trk::TrackParameters *
-Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
-                                    const MaterialEffectsOnTrack &meff,
-                                    ParticleHypothesis particle,
-                                    MaterialUpdateMode matupmode) const {
+Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm,
+                                        const MaterialEffectsOnTrack &meff,
+                                        ParticleHypothesis particle,
+                                        MaterialUpdateMode matupmode) const {
   // no material properties - pass them back
   // TODO, if the parm doesn't have a surface (i.e. its in
   // curvilinear) then should we fall through?
@@ -226,21 +223,19 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
   double newP = p;
   double sigmaQoverP = 0;
   double sigmaQoverPSq = 0;
-
   // Landaus mpvs don't just add, if in Landau mode we need to do a different update
-  if (m_landauMode && m_accumulatedElossSigma != 0 && energyLossSigma != 0) {
+  if (m_landauMode && cache.accumulatedElossSigma != 0 && energyLossSigma != 0) {
     if (energyLoss > 0) {
-      energyLoss += energyLossSigma * log(1 + m_accumulatedElossSigma / (energyLossSigma))
-                    + m_accumulatedElossSigma * log(1 + energyLossSigma / m_accumulatedElossSigma);
+      energyLoss += energyLossSigma * log(1 + cache.accumulatedElossSigma / (energyLossSigma))
+        +cache.accumulatedElossSigma * log(1 + energyLossSigma / cache.accumulatedElossSigma);
     } else {
-      energyLoss -= energyLossSigma * log(1 + m_accumulatedElossSigma / energyLossSigma)
-                    + m_accumulatedElossSigma * log(1 + energyLossSigma / m_accumulatedElossSigma);
+      energyLoss -= energyLossSigma * log(1 + cache.accumulatedElossSigma / energyLossSigma)
+        + cache.accumulatedElossSigma * log(1 + energyLossSigma / cache.accumulatedElossSigma);
     }
-    m_accumulatedElossSigma += energyLossSigma;
+    cache.accumulatedElossSigma += energyLossSigma;
   } else if (m_landauMode) {
-    m_accumulatedElossSigma += energyLossSigma;
+    cache.accumulatedElossSigma += energyLossSigma;
   }
-
   double qOverPnew = parm->parameters()[Trk::qOverP];
 
   if (p > m_momentumCut && p < m_momentumMax && m_doEloss) {
@@ -277,11 +272,11 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
         // Trick to keep using existing MultipleScatteringUpdator interface
         // Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
         // and create a dummy materialProperties with the properties we are interested in
-        MaterialProperties mprop(meff.thicknessInX0(), 1., 0., 0., 0., 0.);
+        MaterialProperties mprop(meff.thicknessInX0(), 1., 1., 0., 0., 0.);
         angularVariation = m_msUpdator->sigmaSquare(mprop, updateMomentum, pathcorrection, Trk::muon);
         // sigmaDeltaPhiSq = angularVariation/(parm->sinTheta()*parm->sinTheta());
         sigmaDeltaPhiSq = angularVariation /
-                          (sin(parm->parameters()[Trk::theta]) * sin(parm->parameters()[Trk::theta]));
+          (sin(parm->parameters()[Trk::theta]) * sin(parm->parameters()[Trk::theta]));
         sigmaDeltaThetaSq = angularVariation;
       }else {
         // material update from mefots -> D.L.
@@ -302,15 +297,17 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
       COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::theta, Trk::theta), sign, sigmaDeltaThetaSq);
       if (!m_xKalmanStraggling && !m_landauMode) {
         COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::qOverP, Trk::qOverP), sign, sigmaQoverPSq);
-      } else if (m_xKalmanStraggling) { /* to be filled in*/
+      }else if (m_xKalmanStraggling) { /* to be filled in*/
       }else if (m_landauMode) {
         // subtract what we added up till now and add what we should add up till now
         // Landau's 68% limit is approx 1.6*sigmaParameter
+
+        /* Get the TLS to a local here once and use it for calculation*/
         (*updatedCovariance)(Trk::qOverP,
                              Trk::qOverP) -= sign *
-                                             std::pow(1.6 * (m_accumulatedElossSigma - p * p * sigmaQoverP) / (p * p),
-                                                      2);
-        (*updatedCovariance)(Trk::qOverP, Trk::qOverP) += sign * std::pow(1.6 * m_accumulatedElossSigma / (newP * newP),
+          std::pow(1.6 * (cache.accumulatedElossSigma - p * p * sigmaQoverP) / (p * p),
+                   2);
+        (*updatedCovariance)(Trk::qOverP, Trk::qOverP) += sign * std::pow(1.6 * cache.accumulatedElossSigma / (newP * newP),
                                                                           2);
       }
       // the checks for the remove Noise mode -----------------------------------------------------
@@ -326,53 +323,52 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
       if (m_msgOutputCorrections) {
         double sigmaAngle = sqrt(angularVariation);
         ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / sin(
-                          parm->parameters()[Trk::theta]) << " / " << sigmaAngle);
+                                                                               parm->parameters()[Trk::theta]) << " / " << sigmaAngle);
         ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << energyLoss << " / " << sigmaQoverP);
       }
       // -------------------------------------------------------------------------------------------
     }
     // ----------------------------------------- validation section ----------------------------------
     // validation if configured
-    if (m_validationMode && m_validationLayer) {
-      // all you have from MaterialProperties
-      double pathInX0 = meff.thicknessInX0();
+    if (m_validationMode){
+      if(cache.validationLayer) {
+        // all you have from MaterialProperties
+        double pathInX0 = meff.thicknessInX0();
 
-      Trk::AssociatedMaterial assMatHit(parm->position(),
-                                        pathInX0, pathInX0,
-                                        0, 0, 0, 0,
-                                        pathcorrection,
-                                        m_validationLayer->enclosingTrackingVolume(),
-                                        m_validationLayer);
+        Trk::AssociatedMaterial assMatHit(parm->position(),
+                                          pathInX0, pathInX0,
+                                          0, 0, 0, 0,
+                                          pathcorrection,
+                                          cache.validationLayer->enclosingTrackingVolume(),
+                                          cache.validationLayer);
 
 
-      // record the Material hit ----------------------------------------------------------------
-      m_materialMapper->recordMaterialHit(assMatHit, parm->position());
+        // record the Material hit ----------------------------------------------------------------
+        m_materialMapper->recordMaterialHit(assMatHit, parm->position());
 
-      // the steps
-      m_validationSteps++;
-      m_validationPhi += parm->position().phi();
-      m_validationEta += parm->position().eta();
-      // reset the validation layer
-      m_validationLayer = 0;
+        // the steps
+        cache.validationSteps++;
+        cache.validationPhi += parm->position().phi();
+        cache.validationEta += parm->position().eta();
+        // reset the validation layer
+        cache.validationLayer = 0;
+      }
     }
     // ----------------------------------------- validation section ----------------------------------
   }
-
-  // parm = Trk::TrkParametersManipulator::manipulateParameter(parm, qOverPmod, updatedError);
   // return parm;
   updatedParameters[Trk::qOverP] = qOverPnew;
-
   return parm->associatedSurface().createTrackParameters(updatedParameters[Trk::loc1], updatedParameters[Trk::loc2],
                                                          updatedParameters[Trk::phi], updatedParameters[Trk::theta],
                                                          updatedParameters[Trk::qOverP], updatedCovariance);
 }
 
 const Trk::TrackParameters *
-Trk::MaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
-                                       const Layer &lay,
-                                       PropDirection dir,
-                                       ParticleHypothesis particle,
-                                       MaterialUpdateMode matupmode) const {
+Trk::MaterialEffectsUpdator::preUpdateImpl(Cache& cache,const TrackParameters *parm,
+                                           const Layer &lay,
+                                           PropDirection dir,
+                                           ParticleHypothesis particle,
+                                           MaterialUpdateMode matupmode) const {
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
     return(parm);
@@ -407,25 +403,25 @@ Trk::MaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
     double sX0 = mprop->thicknessInX0();
     double tX0 = pathCorrection * mprop->thicknessInX0();
     ATH_MSG_VERBOSE(
-      "  [M] pre material update at layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index " <<
-      lay.layerIndex());
+                    "  [M] pre material update at layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index " <<
+                    lay.layerIndex());
     ATH_MSG_VERBOSE(
-      "      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": " << pathCorrection <<
-      ")");
+                    "      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": " << pathCorrection <<
+                    ")");
   }
   // --------------------------------------------------------------------------------------------------
-
-  m_validationLayer = (m_validationMode) ? &lay : 0;
-
-  return(update(parm, *mprop, pathCorrection, dir, particle, matupmode));
+  if(m_validationMode){
+    cache.validationLayer =  &lay ;
+  }
+  return(updateImpl(cache,parm, *mprop, pathCorrection, dir, particle, matupmode));
 }
 
 const Trk::TrackParameters *
-Trk::MaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
-                                        const Layer &lay,
-                                        PropDirection dir,
-                                        ParticleHypothesis particle,
-                                        MaterialUpdateMode matupmode) const {
+Trk::MaterialEffectsUpdator::postUpdateImpl(Cache& cache,const TrackParameters &parm,
+                                            const Layer &lay,
+                                            PropDirection dir,
+                                            ParticleHypothesis particle,
+                                            MaterialUpdateMode matupmode) const {
   // no material properties - pass the parameters back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
       !lay.isOnLayer(parm.position())) {
@@ -461,26 +457,27 @@ Trk::MaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
     double sX0 = mprop->thicknessInX0();
     double tX0 = pathCorrection * mprop->thicknessInX0();
     ATH_MSG_VERBOSE(
-      "  [M] post material update,  layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index " <<
-      lay.layerIndex());
+                    "  [M] post material update,  layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index " <<
+                    lay.layerIndex());
     ATH_MSG_VERBOSE(
-      "      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": " << pathCorrection <<
-      ")");
+                    "      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": " << pathCorrection <<
+                    ")");
   }
   // --------------------------------------------------------------------------------------------------
-  m_validationLayer = (m_validationMode) ? &lay : 0;
-
-  return(update(parm, *mprop, pathCorrection, dir, particle, matupmode));
+  if (m_validationMode){
+    cache.validationLayer =  &lay ;
+  }
+  return(updateImpl(cache,parm, *mprop, pathCorrection, dir, particle, matupmode));
 }
 
 // actual update method - manipulation
 const Trk::TrackParameters *
-Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
-                                    const MaterialProperties &matprop,
-                                    double pathcorrection,
-                                    PropDirection dir,
-                                    ParticleHypothesis particle,
-                                    MaterialUpdateMode matupmode) const {
+Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm,
+                                        const MaterialProperties &matprop,
+                                        double pathcorrection,
+                                        PropDirection dir,
+                                        ParticleHypothesis particle,
+                                        MaterialUpdateMode matupmode) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss)) {
     return((parm));
@@ -500,26 +497,27 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
   if (p > m_momentumCut && p < m_momentumMax) {
     // get the delta of the Energy
     EnergyLoss *energyLoss = (m_doEloss) ?
-                             m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle,
-                                                        m_useMostProbableEloss) :
-                             0;
+      m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle,
+                                 m_useMostProbableEloss) :
+      0;
     // update for mean energy loss
     double deltaE = energyLoss ? energyLoss->deltaE() : 0;
     double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
     delete energyLoss;
-    if (m_landauMode && m_accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
-      if (dir == Trk::oppositeMomentum) {
-        deltaE += sigmaDeltaE * log(1 + m_accumulatedElossSigma / sigmaDeltaE)
-                  + m_accumulatedElossSigma * log(1 + sigmaDeltaE / m_accumulatedElossSigma);
-      } else {
-        deltaE -= sigmaDeltaE * log(1 + m_accumulatedElossSigma / sigmaDeltaE)
-                  + m_accumulatedElossSigma * log(1 + sigmaDeltaE / m_accumulatedElossSigma);
-      }
 
-      m_accumulatedElossSigma += sigmaDeltaE;
+    if (m_landauMode && cache.accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
+      if (dir == Trk::oppositeMomentum) {
+        deltaE += sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE)
+          + cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
+      } else {
+        deltaE -= sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE)
+          + cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
+      }
+      cache.accumulatedElossSigma += sigmaDeltaE;
     }else if (m_landauMode) {
-      m_accumulatedElossSigma += sigmaDeltaE;
+      cache.accumulatedElossSigma += sigmaDeltaE;
     }
+
     double newP2 = (E + deltaE) * (E + deltaE) - m * m;
     if (E + deltaE < -m) {
       return 0; // protect against flip in correction
@@ -553,7 +551,7 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
         int sign = int(matupmode);
 
         double sigmaDeltaPhiSq = angularVariation /
-                                 (sin(parm->parameters()[Trk::theta]) * sin(parm->parameters()[Trk::theta]));
+          (sin(parm->parameters()[Trk::theta]) * sin(parm->parameters()[Trk::theta]));
         double sigmaDeltaThetaSq = angularVariation;
         // checks will only be done in the removeNoise mode
         COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi, Trk::phi), sign, sigmaDeltaPhiSq);
@@ -569,12 +567,12 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
           // Landau's 68% limit is approx 1.6*sigmaParameter
           (*updatedCovariance)(Trk::qOverP,
                                Trk::qOverP) -= sign *
-                                               std::pow(1.6 * (m_accumulatedElossSigma - p * p * sigmaQoverP) / (p * p),
-                                                        2);
+            std::pow(1.6 * (cache.accumulatedElossSigma - p * p * sigmaQoverP) / (p * p),
+                     2);
           (*updatedCovariance)(Trk::qOverP,
                                Trk::qOverP) += sign *
-                                               std::pow(1.6 * m_accumulatedElossSigma / ((p + deltaP) * (p + deltaP)),
-                                                        2);
+            std::pow(1.6 * cache.accumulatedElossSigma / ((p + deltaP) * (p + deltaP)),
+                     2);
         }
         // the checks for the remove Noise mode -----------------------------------------------------
         if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
@@ -590,7 +588,7 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
         if (outputFlag && m_msgOutputCorrections) {
           double sigmaAngle = sqrt(angularVariation);
           ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / sin(
-                            parm->parameters()[Trk::theta]) << " / " << sigmaAngle);
+                                                                                 parm->parameters()[Trk::theta]) << " / " << sigmaAngle);
           ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << deltaP << " / " << sigmaQoverP);
         }
         // -------------------------------------------------------------------------------------------
@@ -599,42 +597,44 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
       // validation if configured
       if (m_validationMode
           && dir == Trk::PropDirection(m_validationDirection)
-          && m_validationLayer
           && updatedCovariance) {
-        // all you have from MaterialProperties
-        double pathInX0 = pathcorrection * matprop.thicknessInX0();
-        double A = 0.;
-        double Z = 0.;
-        double rho = 0.;
-        double l0 = 0.;
-        // or better take the extended version for more information
-        const Trk::MaterialProperties *extProperties
-          = dynamic_cast<const Trk::MaterialProperties *>(&matprop);
 
-        if (extProperties) {
-          A = extProperties->averageA();
-          Z = extProperties->averageZ();
-          rho = extProperties->averageRho();
-          l0 = extProperties->l0();
+        if (cache.validationLayer){ 
+          // all you have from MaterialProperties
+          double pathInX0 = pathcorrection * matprop.thicknessInX0();
+          double A = 0.;
+          double Z = 0.;
+          double rho = 0.;
+          double l0 = 0.;
+          // or better take the extended version for more information
+          const Trk::MaterialProperties *extProperties
+            = dynamic_cast<const Trk::MaterialProperties *>(&matprop);
+
+          if (extProperties) {
+            A = extProperties->averageA();
+            Z = extProperties->averageZ();
+            rho = extProperties->averageRho();
+            l0 = extProperties->l0();
+          }
+
+          Trk::AssociatedMaterial assMatHit(parm->position(),
+                                            pathInX0, matprop.x0(),
+                                            l0, A, Z, rho,
+                                            pathcorrection,
+                                            cache.validationLayer->enclosingTrackingVolume(),
+                                            cache.validationLayer);
+
+
+          // record the Material hit ----------------------------------------------------------------
+          m_materialMapper->recordMaterialHit(assMatHit,
+                                              parm->position());
+          // the steps
+          cache.validationSteps++;
+          cache.validationPhi += parm->position().phi();
+          cache.validationEta += parm->position().eta();
+          // reset the cache.tion layer
+          cache.validationLayer = 0;
         }
-
-        Trk::AssociatedMaterial assMatHit(parm->position(),
-                                          pathInX0, matprop.x0(),
-                                          l0, A, Z, rho,
-                                          pathcorrection,
-                                          m_validationLayer->enclosingTrackingVolume(),
-                                          m_validationLayer);
-
-
-        // record the Material hit ----------------------------------------------------------------
-        m_materialMapper->recordMaterialHit(assMatHit,
-                                            parm->position());
-        // the steps
-        m_validationSteps++;
-        m_validationPhi += parm->position().phi();
-        m_validationEta += parm->position().eta();
-        // reset the validation layer
-        m_validationLayer = 0;
       }
       // ----------------------------------------- validation section ----------------------------------
     }
@@ -649,12 +649,12 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
 
 // actual update method
 const Trk::TrackParameters *
-Trk::MaterialEffectsUpdator::update(const TrackParameters &parm,
-                                    const MaterialProperties &matprop,
-                                    double pathcorrection,
-                                    PropDirection dir,
-                                    ParticleHypothesis particle,
-                                    MaterialUpdateMode matupmode) const {
+Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters &parm,
+                                        const MaterialProperties &matprop,
+                                        double pathcorrection,
+                                        PropDirection dir,
+                                        ParticleHypothesis particle,
+                                        MaterialUpdateMode matupmode) const {
   // no material properties - pass them back
   if (particle == Trk::geantino || (!m_doMs && !m_doEloss)) {
     return(&(parm));
@@ -677,26 +677,27 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters &parm,
 
     // get the delta of the Energy
     EnergyLoss *energyLoss = (m_doEloss) ?
-                             m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle,
-                                                        m_useMostProbableEloss) :
-                             0;
+      m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle,
+                                 m_useMostProbableEloss) :
+      0;
     // update for mean energy loss
     double deltaE = energyLoss ? energyLoss->deltaE() : 0;
     double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
     delete energyLoss;
-    if (m_landauMode && m_accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
+    if (m_landauMode && cache.accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
       if (dir == Trk::oppositeMomentum) {
-        deltaE += sigmaDeltaE * log(1 + m_accumulatedElossSigma / sigmaDeltaE)
-                  + m_accumulatedElossSigma * log(1 + sigmaDeltaE / m_accumulatedElossSigma);
+        deltaE += sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE)
+          + cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
       } else {
-        deltaE -= sigmaDeltaE * log(1 + m_accumulatedElossSigma / sigmaDeltaE)
-                  + m_accumulatedElossSigma * log(1 + sigmaDeltaE / m_accumulatedElossSigma);
+        deltaE -= sigmaDeltaE * log(1 + cache.accumulatedElossSigma / sigmaDeltaE)
+          + cache.accumulatedElossSigma * log(1 + sigmaDeltaE / cache.accumulatedElossSigma);
       }
 
-      m_accumulatedElossSigma += sigmaDeltaE;
+      cache.accumulatedElossSigma += sigmaDeltaE;
     }else if (m_landauMode) {
-      m_accumulatedElossSigma += sigmaDeltaE;
+      cache.accumulatedElossSigma += sigmaDeltaE;
     }
+
     double newP2 = (E + deltaE) * (E + deltaE) - m * m;
     if (E + deltaE < -m) {
       return 0; // protect against flip in correction
@@ -722,7 +723,7 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters &parm,
       int sign = int(matupmode);
       // checks will only be done in the removeNoise mode
       double sigmaDeltaPhiSq = angularVariation /
-                               (sin(parm.parameters()[Trk::theta]) * sin(parm.parameters()[Trk::theta]));
+        (sin(parm.parameters()[Trk::theta]) * sin(parm.parameters()[Trk::theta]));
       double sigmaDeltaThetaSq = angularVariation;
       // checks will only be done in the removeNoise mode
       COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi, Trk::phi), sign, sigmaDeltaPhiSq);
@@ -735,11 +736,11 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters &parm,
         // Landau's 68% limit is best modeled by 1.6*sigmaParameter
         (*updatedCovariance)(Trk::qOverP,
                              Trk::qOverP) -= sign *
-                                             std::pow(1.6 * (m_accumulatedElossSigma - p * p * sigmaQoverP) / (p * p),
-                                                      2);
+          std::pow(1.6 * (cache.accumulatedElossSigma - p * p * sigmaQoverP) / (p * p),
+                   2);
         (*updatedCovariance)(Trk::qOverP,
                              Trk::qOverP) += sign *
-                                             std::pow(1.6 * m_accumulatedElossSigma / ((p + deltaP) * (p + deltaP)), 2);
+          std::pow(1.6 * cache.accumulatedElossSigma / ((p + deltaP) * (p + deltaP)), 2);
       }
 
       // the checks for the remove Noise mode -----------------------------------------------------
@@ -754,56 +755,56 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters &parm,
       if (outputFlag && m_msgOutputCorrections) {
         double sigmaAngle = sqrt(angularVariation);
         ATH_MSG_VERBOSE("    sigma(phi) / sigma(theta) = " << sigmaAngle / sin(
-                          parm.parameters()[Trk::theta]) << " / " << sigmaAngle);
+                                                                               parm.parameters()[Trk::theta]) << " / " << sigmaAngle);
         ATH_MSG_VERBOSE("    deltaP / sigmaQoverP      = " << deltaP << " / " << sigmaQoverP);
       }
       // ----------------------------------------- validation section ----------------------------------
       // validation if configured
       if (m_validationMode
-          && dir == Trk::PropDirection(m_validationDirection)
-          && m_validationLayer) {
-        // all you have from MaterialProperties
-        double pathInX0 = pathcorrection * matprop.thicknessInX0();
-        double A = 0.;
-        double Z = 0.;
-        double rho = 0.;
-        double l0 = 0.;
-        // or better take the extended version for more information
-        const Trk::MaterialProperties *extProperties
-          = dynamic_cast<const Trk::MaterialProperties *>(&matprop);
+          && dir == Trk::PropDirection(m_validationDirection)){
 
-        if (extProperties) {
-          A = extProperties->averageA();
-          Z = extProperties->averageZ();
-          rho = extProperties->averageRho();
-          l0 = extProperties->l0();
+        if(cache.validationLayer) {
+          // all you have from MaterialProperties
+          double pathInX0 = pathcorrection * matprop.thicknessInX0();
+          double A = 0.;
+          double Z = 0.;
+          double rho = 0.;
+          double l0 = 0.;
+          // or better take the extended version for more information
+          const Trk::MaterialProperties *extProperties
+            = dynamic_cast<const Trk::MaterialProperties *>(&matprop);
+
+          if (extProperties) {
+            A = extProperties->averageA();
+            Z = extProperties->averageZ();
+            rho = extProperties->averageRho();
+            l0 = extProperties->l0();
+          }
+
+          Trk::AssociatedMaterial assMatHit(parm.position(),
+                                            pathInX0, matprop.x0(),
+                                            l0,
+                                            A, Z, rho, pathcorrection,
+                                            cache.validationLayer->enclosingTrackingVolume(),
+                                            cache.validationLayer);
+
+
+          // record the Material hit ----------------------------------------------------------------
+          m_materialMapper->recordMaterialHit(assMatHit,
+                                              parm.position());
+
+
+
+          // the steps
+          cache.validationSteps++;
+          cache.validationPhi += parm.position().phi();
+          cache.validationEta += parm.position().eta();
+          // reset the validation layer
+          cache.validationLayer = 0;
         }
-
-        Trk::AssociatedMaterial assMatHit(parm.position(),
-                                          pathInX0, matprop.x0(),
-                                          l0,
-                                          A, Z, rho, pathcorrection,
-                                          m_validationLayer->enclosingTrackingVolume(),
-                                          m_validationLayer);
-
-
-        // record the Material hit ----------------------------------------------------------------
-        m_materialMapper->recordMaterialHit(assMatHit,
-                                            parm.position());
-
-
-
-        // the steps
-        m_validationSteps++;
-        m_validationPhi += parm.position().phi();
-        m_validationEta += parm.position().eta();
-        // reset the validation layer
-        m_validationLayer = 0;
       }
-      // ----------------------------------------- validation section ----------------------------------
+      // ------------------------------------------validation section ----------------------------------
     }
-//    return parm.cloneToNew(updatedParameters, updatedCovariance);
-
     return parm.associatedSurface().createTrackParameters(updatedParameters[Trk::loc1], updatedParameters[Trk::loc2],
                                                           updatedParameters[Trk::phi], updatedParameters[Trk::theta],
                                                           updatedParameters[Trk::qOverP], updatedCovariance);
@@ -812,35 +813,16 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters &parm,
 }
 
 void
-Trk::MaterialEffectsUpdator::validationAction() const {
-  // if (m_validationMode && m_validationSteps)
-  //      m_materialMapper->finalizeEvent(m_validationEta/m_validationSteps, m_validationPhi/m_validationSteps);
-
-  m_validationEta = 0.;
-  m_validationPhi = 0.;
-  m_validationSteps = 0;
+Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache) const {
+  cache.validationEta = 0.;
+  cache.validationPhi = 0.;
+  cache.validationSteps = 0;
 }
 
 void
-Trk::MaterialEffectsUpdator::modelAction(const Trk::TrackParameters * /*parm*/) const {
-  //  if(!m_landauMode || parm == 0){
-  m_accumulatedElossSigma = 0;
+Trk::MaterialEffectsUpdator::modelActionImpl(Cache& cache, const Trk::TrackParameters * /*parm*/) const {
+  cache.accumulatedElossSigma = 0;
   return;
-  // }
-  /*  const Trk::MeasuredTrackParameters* mpars = dynamic_cast<const Trk::MeasuredTrackParameters*>(parm);
-     // initialize ErrorMatrix pointer
-     Trk::ErrorMatrix* updatedError      = 0;
-     double p = parm->momentum().mag();
-     Trk::DefinedParameter qOverPmod(parm->charge()/p, Trk::qOverP);
-     if (mpars){
-     // the new CovarianceMatrix - a copy first
-     Trk::CovarianceMatrix* updatedCovariance = new Trk::CovarianceMatrix(mpars->localErrorMatrix().covariance());
-     // update the covariance entries - angular variation in phi has dependency on theta direction
-     (*updatedCovariance)[Trk::qOverP][Trk::qOverP] += m_accumulatedElossSigma*m_accumulatedElossSigma/(p*p*p*p);
-     updatedError = new Trk::ErrorMatrix(updatedCovariance);
-
-     Trk::TrkParametersManipulator::manipulateParameter(parm, qOverPmod, updatedError);
-     }*/
 }
 
 bool

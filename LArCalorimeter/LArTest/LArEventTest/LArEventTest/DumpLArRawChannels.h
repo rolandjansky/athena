@@ -10,6 +10,10 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 
+#include "TTree.h"
+#include "GaudiKernel/ITHistSvc.h"
+
+
 //#include "LArDetDescr/LArDetDescrManager.h"
 #include <fstream>
 
@@ -33,6 +37,16 @@ class DumpLArRawChannels : public AthAlgorithm
   std::ofstream m_outfile;
   std::string m_key, m_FileName;
  private:
+
+  std::string m_ntup;
+  TTree* m_tree=nullptr;
+  int m_evt=0;
+  float m_e=0,m_t=0,m_Q=0;
+  unsigned m_gain=0;
+  unsigned m_id=0;
+
+  ServiceHandle<ITHistSvc> m_thistSvc;
+
   class mySort {
   public:
     bool operator()(const LArRawChannel* a, const LArRawChannel* b);

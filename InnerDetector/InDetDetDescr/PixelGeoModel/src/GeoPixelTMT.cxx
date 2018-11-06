@@ -24,6 +24,11 @@
 GeoPixelTMT::GeoPixelTMT()
 {
   m_physVol = Build();
+  m_physVol->ref();
+}
+
+GeoPixelTMT::~GeoPixelTMT(){
+  m_physVol->unref();
 }
 
 GeoVPhysVol* GeoPixelTMT::Build() {
@@ -73,8 +78,9 @@ GeoVPhysVol* GeoPixelTMT::Build() {
       shape = new GeoTrap(0.5*length, theta, phi, 0.5*widthy, 0.5*w1, 0.5*w1, angleydzn, 
 			  0.5*widthy, 0.5*w2, 0.5*w2, angleydzp);
       // Test GeoModel volume calculation. OK.
-     
     }
+    //assuming 'shape' cannot be null.
+    shape->ref();
 
     if (!perModule) { // For middle section and others
       totVolume += shape->volume();
@@ -83,16 +89,17 @@ GeoVPhysVol* GeoPixelTMT::Build() {
 
     } else { // Once per module, copied in +z and -z side.
       for (int ii = 0; ii < halfNModule; ii++) {
-	totVolume += shape->volume() * 2;// added twice below
-	double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
+        totVolume += shape->volume() * 2;// added twice below
+        double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
 
-	HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
-	lastShape = addShape(lastShape, shape, transPos); 
+        HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
+        lastShape = addShape(lastShape, shape, transPos); 
 
-	HepGeom::Transform3D transNeg = HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg);
-	lastShape = addShape(lastShape, shape, transNeg); 
+        HepGeom::Transform3D transNeg = HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg);
+        lastShape = addShape(lastShape, shape, transNeg); 
       }      
-    } 
+    }
+    shape->unref(); //this will delete shape if it was never added 
   }
 
   if(lastShape==0) {

@@ -29,11 +29,11 @@ def IOVDbSvcCfg(configFlags):
     #m_h_metaDataTool("IOVDbMetaDataTool"),
     #m_h_tagInfoMgr("TagInfoMgr", name),
 
-    isMC=configFlags.get("global.isMC")
+    isMC=configFlags.Input.isMC
 
     # Set up IOVDbSvc
     iovDbSvc=IOVDbSvc()
-    dbname=configFlags.get("IOVDb.DatabaseInstance")
+    dbname=configFlags.IOVDb.DatabaseInstance
 
     localfile="sqlite://;schema=mycool.db;dbname="
     iovDbSvc.dbConnection=localfile+dbname
@@ -44,7 +44,7 @@ def IOVDbSvcCfg(configFlags):
         iovDbSvc.CacheAlign=3
 
 
-    iovDbSvc.GlobalTag=configFlags.get("IOVDb.GlobalTag")
+    iovDbSvc.GlobalTag=configFlags.IOVDb.GlobalTag
 
     result.addService(iovDbSvc)
 
@@ -92,12 +92,16 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
             loadFolders.append((className, _extractFolder(fs)));
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
         #result.addCondAlgo(CondInputLoader(Load=loadFolders))
- 
 
+        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+        apcs=AthenaPoolCnvSvc()
+        result.addService(apcs)
+        from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+        result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
 
     
     if detDb is not None:
-        dbname=configFlags.get("IOVDb.DatabaseInstance")
+        dbname=configFlags.IOVDb.DatabaseInstance
         if not detDb in _dblist.keys():
             raise ConfigurationError("Error, db shorthand %s not known")
         dbstr="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
@@ -111,8 +115,19 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
         else:
             iovDbSvc.Folders.append(fs)
 
-    return result,None
-
+    return result
+    
+def addFoldersSplitOnline(flags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL"):
+    "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
+    
+    if flags.Common.isOnline and not configFlags.Input.isMC:
+        folders = online_folders
+    else:
+        # MC, so add addMCString
+        detDb = detDb+addMCString
+        folders = offline_folders
+    result = addFolders(flags, folders, className=className, detDb=detDb) 
+    return result
 
 _dblist={
     'INDET':'COOLONL_INDET',

@@ -34,6 +34,8 @@ public:
 // it is stored in m_tokenList member of the Track persistent rep
   virtual TPCnvTokenList_p1* 	getTokenListVar() { return &(getTLPersObject()->m_tokenList); }
 
+  void setUseDetectorElement(const bool useDetectorElement);
+
 protected:
 
   SiClusterCnv_p1		m_siClusterCnv;

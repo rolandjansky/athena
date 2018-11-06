@@ -29,10 +29,6 @@ class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
-
 
 
 
@@ -78,8 +74,6 @@ private:
 
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
-
-  const InDetDD::PixelDetectorManager* m_pixelManager;
 
   const AtlasDetectorID* m_id_helper;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCreatorAlg.h"
@@ -16,6 +16,7 @@
 #include "xAODMuon/SlowMuonAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include <vector>
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
@@ -24,7 +25,7 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("MuonCreatorTool",m_muonCreatorTool);
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("CreateSAmuons", m_doSA=false);
-
+  declareProperty("MakeClusters",m_makeClusters=true);
 }
 
 MuonCreatorAlg::~MuonCreatorAlg(){}
@@ -34,9 +35,11 @@ StatusCode MuonCreatorAlg::initialize()
 
   ATH_CHECK(m_muonCreatorTool.retrieve());
   ATH_CHECK(m_muonCollectionName.initialize());
-  ATH_CHECK(m_slowMuonCollectionName.initialize());
+  ATH_CHECK(m_slowMuonCollectionName.initialize(m_buildSlowMuon));
   ATH_CHECK(m_indetCandidateCollectionName.initialize(!m_doSA));
   ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
+  //Can't use a flag in intialize for an array of keys
+  if(!m_doSA) ATH_CHECK(m_tagMaps.initialize());
   m_segTrkContainerName = "Trk"+m_segContainerName.key();
   m_segContainerName = "xaod"+m_segContainerName.key();
   ATH_CHECK(m_segContainerName.initialize());
@@ -53,11 +56,9 @@ StatusCode MuonCreatorAlg::initialize()
   m_msOnlyExtrapolatedCollectionName = m_msOnlyExtrapolatedCollectionName.key()+"TrackParticles";
   ATH_CHECK(m_msOnlyExtrapolatedCollectionName.initialize());
   ATH_CHECK(m_msOnlyExtrapolatedTrkCollectionName.initialize());
-  if(m_clusterContainerName.key()!=""){
-    ATH_CHECK(m_clusterContainerName.initialize());
-    m_clusterContainerLinkName = m_clusterContainerName.key()+"_links";
-    ATH_CHECK(m_clusterContainerLinkName.initialize());
-  }
+  ATH_CHECK(m_clusterContainerName.initialize(m_makeClusters));
+  m_clusterContainerLinkName = m_clusterContainerName.key()+"_links";
+  ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
   return StatusCode::SUCCESS; 
 }
@@ -66,6 +67,7 @@ StatusCode MuonCreatorAlg::execute()
 {
 
   const InDetCandidateCollection *indetCandidateCollection = 0;
+  std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
   if(!m_doSA){
     SG::ReadHandle<InDetCandidateCollection> indetRH(m_indetCandidateCollectionName);
     if(!indetRH.isValid()){
@@ -75,18 +77,20 @@ StatusCode MuonCreatorAlg::execute()
     else{
       indetCandidateCollection = indetRH.cptr();
     }
+    std::vector<SG::ReadHandle<MuonCombined::InDetCandidateToTagMap> > mapHandles=m_tagMaps.makeHandles();
+    for(auto& h : mapHandles) tagMaps.push_back(h.cptr());
   }
 
   // Create the xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName);
   ATH_CHECK(wh_muons.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>()));
-  ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName.key() );    
+  ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName.key() );
   
   MuonCombined::IMuonCreatorTool::OutputData output(*(wh_muons.ptr()));
 
 
 
-  // Create the and record track particles:
+  // Create and record track particles:
   //combined tracks
   SG::WriteHandle<xAOD::TrackParticleContainer> wh_combtp(m_combinedCollectionName);
   SG::WriteHandle<TrackCollection> wh_combtrk(m_combinedTrkCollectionName);
@@ -121,18 +125,28 @@ StatusCode MuonCreatorAlg::execute()
   ATH_CHECK(wh_segmentTrk.record(std::make_unique<Trk::SegmentCollection>()));
   output.muonSegmentCollection=wh_segmentTrk.ptr();
 
-  xAOD::SlowMuonContainer *slowMuons=0;
-  xAOD::SlowMuonAuxContainer *slowMuonsAux=0;
-  if (m_buildSlowMuon){
-    slowMuons = new xAOD::SlowMuonContainer(); 
-    slowMuonsAux = new xAOD::SlowMuonAuxContainer();
-    slowMuons->setStore(slowMuonsAux);
-    output.slowMuonContainer = slowMuons;    
+  // calo clusters
+  SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters;
+  SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink;
+  if(m_makeClusters){
+    xAOD::CaloClusterContainer *caloclusters = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer *caloclustersaux = new xAOD::CaloClusterAuxContainer();
+    caloclusters->setStore(caloclustersaux);
+    wh_clusters=SG::WriteHandle<xAOD::CaloClusterContainer>(m_clusterContainerName);
+    wh_clusterslink=SG::WriteHandle<CaloClusterCellLinkContainer>(m_clusterContainerLinkName);
+    ATH_CHECK(wh_clusters.record(std::unique_ptr<xAOD::CaloClusterContainer>(caloclusters),std::unique_ptr<xAOD::CaloClusterAuxContainer>(caloclustersaux)));
+    output.clusterContainer = wh_clusters.ptr();
   }
 
   const MuonCandidateCollection *muonCandidateCollection =0;
 
-  if(!m_buildSlowMuon){
+  SG::WriteHandle<xAOD::SlowMuonContainer> wh_slowmuon;
+  if (m_buildSlowMuon){
+    wh_slowmuon=SG::WriteHandle<xAOD::SlowMuonContainer>(m_slowMuonCollectionName);
+    ATH_CHECK(wh_slowmuon.record(std::make_unique<xAOD::SlowMuonContainer>(),std::make_unique<xAOD::SlowMuonAuxContainer>()));
+    output.slowMuonContainer=wh_slowmuon.ptr();
+  }
+  else{
     SG::ReadHandle<MuonCandidateCollection> muonCandidateRH(m_muonCandidateCollectionName);
     if(!muonCandidateRH.isValid()){
       ATH_MSG_ERROR("Could not read "<< m_muonCandidateCollectionName);
@@ -140,41 +154,16 @@ StatusCode MuonCreatorAlg::execute()
     }
     muonCandidateCollection = muonCandidateRH.cptr();
   }
-
   
-  // calo clusters
-  if( m_clusterContainerName.key() != "" ){
-    xAOD::CaloClusterContainer *caloclusters = new xAOD::CaloClusterContainer();
-    xAOD::CaloClusterAuxContainer *caloclustersaux = new xAOD::CaloClusterAuxContainer();
-    caloclusters->setStore(caloclustersaux);
-    output.clusterContainer = caloclusters;
-    CaloClusterCellLinkContainer *clusterlinks = new CaloClusterCellLinkContainer();
-    SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters(m_clusterContainerName);
-    SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink(m_clusterContainerLinkName);
-    m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection,output);
+  m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection, tagMaps, output);
 
-    //record clusters and set the links
-    ATH_CHECK(wh_clusters.record(std::unique_ptr<xAOD::CaloClusterContainer>(caloclusters),std::unique_ptr<xAOD::CaloClusterAuxContainer>(caloclustersaux)));
+  if(m_makeClusters){
+    CaloClusterCellLinkContainer *clusterlinks = new CaloClusterCellLinkContainer();
     auto sg = wh_clusters.storeHandle().get();
-    for (xAOD::CaloCluster* cl : *caloclusters) {
+    for (xAOD::CaloCluster* cl : *(wh_clusters.ptr())) {
       cl->setLink(clusterlinks, sg);
     }
     ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
-
-
-  }  
-  else{
-
-    // build muons
-    if(!(muonCandidateCollection)){
-      ATH_MSG_WARNING("candidate collection missing, skip muon creation");
-    }
-    else m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection ,output);
-  }
-
-  if (m_buildSlowMuon){
-    SG::WriteHandle<xAOD::SlowMuonContainer> wh_slowmuon(m_slowMuonCollectionName);
-    ATH_CHECK(wh_slowmuon.record(std::unique_ptr<xAOD::SlowMuonContainer>(slowMuons),std::unique_ptr<xAOD::SlowMuonAuxContainer>(slowMuonsAux)));
   }
 
   return StatusCode::SUCCESS;

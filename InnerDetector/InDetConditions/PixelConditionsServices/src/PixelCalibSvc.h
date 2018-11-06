@@ -16,10 +16,9 @@
 #include "PixelConditionsTools/IPixelCalibDbTool.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 
 namespace InDetDD {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }  
 
 class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc {
@@ -53,7 +52,7 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc {
     const PixelID*                   m_pixid;
     mutable Identifier                   m_wafer_id; //<! wafer_id  
 
-    const InDetDD::SiDetectorManager * m_detManager;
+    const InDetDD::PixelDetectorManager * m_detManager;
 
     double m_totparA;
     double m_totparE;

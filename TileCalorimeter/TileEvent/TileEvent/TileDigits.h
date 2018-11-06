@@ -34,17 +34,21 @@ public:
 
     TileDigits() { }
 
-    TileDigits(const Identifier& id, const std::vector<double>& digits );
-
     TileDigits(const HWIdentifier& HWid, const std::vector<double>& digits );
   
-    TileDigits(const HWIdentifier& HWid, const std::vector<short>& digits );
+    // Needs to come after HWIdentifier for proper overload resolution
+    // with pyroot.
+    TileDigits(const Identifier& id, const std::vector<double>& digits );
 
-    TileDigits(const Identifier& id, const std::vector<float>& digits );
+    TileDigits(const HWIdentifier& HWid, const std::vector<short>& digits );
 
     TileDigits(const HWIdentifier& HWid, const std::vector<float>& digits );
 
     TileDigits(const HWIdentifier& HWid, std::vector<float>&& digits );
+
+    // Needs to come after HWIdentifier for proper overload resolution
+    // with pyroot.
+    TileDigits(const Identifier& id, const std::vector<float>& digits );
 
 
     /** @return number of samples */

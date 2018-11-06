@@ -72,10 +72,6 @@ unsigned int DataHeaderElement_p3::oid2() const {
    return(m_oid2);
 }
 
-void DataHeaderElement_p3::overwriteOid2(unsigned int oid2) {
-   m_oid2 = oid2;
-}
-
 
 DataHeader_p3::DataHeader_p3()
 	: m_DataHeader(), m_InputDataHeader(), m_GuidMap() {}

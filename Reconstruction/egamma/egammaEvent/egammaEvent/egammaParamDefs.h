@@ -76,7 +76,7 @@ namespace egammaParameters {
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
-  enum ParamDef {
+  enum ParamDef : unsigned int {
     // common enums    
     /** @brief ET in a cone of R=0.45 in calo, with exclusion of a window of size 7x5 in electromagnetic calorimeter and exclude CaloSampling::TileGap3*/
     etcone = 0,

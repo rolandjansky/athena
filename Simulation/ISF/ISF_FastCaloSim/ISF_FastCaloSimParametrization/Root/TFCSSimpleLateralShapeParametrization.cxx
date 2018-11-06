@@ -2,8 +2,11 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandGauss.h"
+
 #include "ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 #include "TMath.h"
@@ -13,28 +16,26 @@
 //=============================================
 
 TFCSSimpleLateralShapeParametrization::TFCSSimpleLateralShapeParametrization(const char* name, const char* title) :
-  TFCSLateralShapeParametrizationHitBase(name,title),
-  m_rnd(0)
+  TFCSLateralShapeParametrizationHitBase(name,title)
 {
     m_sigmaX = 0;
     m_sigmaY = 0;
 }
 
-TFCSSimpleLateralShapeParametrization::~TFCSSimpleLateralShapeParametrization()
-{
-  if(m_rnd) delete m_rnd;
-}
 
-
-void TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSSimpleLateralShapeParametrization::simulate_hit(Hit & hit, TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
+
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   hit.phi()=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
   hit.E()*=1;
 
   double x, y;
-  getHitXY(x, y);
+  getHitXY(simulstate.randomEngine(), x, y);
 
   // delta_eta and delta_phi;
   double delta_eta = x;
@@ -42,15 +43,13 @@ void TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulation
 
   hit.eta() += delta_eta;
   hit.phi() += delta_phi;
+
+  return FCSSuccess;
 }
 
 
 bool TFCSSimpleLateralShapeParametrization::Initialize(float input_sigma_x, float input_sigma_y)
 {
-  // Setup random numbers
-  m_rnd = new TRandom3();
-  m_rnd->SetSeed(0);
-
   m_sigmaX = input_sigma_x;
   m_sigmaY = input_sigma_y;
   return true;
@@ -58,11 +57,6 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(float input_sigma_x, floa
 
 bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, const char* histname)
 {
-    // Setup random numbers
-    m_rnd = new TRandom3();
-    m_rnd->SetSeed(0);
-
-
     // input file with histogram to fit
     TFile *f = new TFile(filepath);
     if (f == NULL) return false;
@@ -130,12 +124,8 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
     return true;
 }
 
-void TFCSSimpleLateralShapeParametrization::getHitXY(double &x, double &y)
+void TFCSSimpleLateralShapeParametrization::getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y)
 {
-
-
-    x = m_rnd->Gaus(0, m_sigmaX);
-    y = m_rnd->Gaus(0, m_sigmaY);
-
+    x = CLHEP::RandGauss::shoot(engine, 0, m_sigmaX);
+    y = CLHEP::RandGauss::shoot(engine, 0, m_sigmaY);
 }
-

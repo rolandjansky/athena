@@ -11,12 +11,15 @@
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
+#include "TrigNavStructure/StringSerializer.h"
+
 // Local include(s):
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 
 namespace xAOD {
 
   const std::string TrigComposite_v1::s_collectionSuffix = "__COLL";
+  bool TrigComposite_v1::s_throwOnCopyError = false; 
 
   TrigComposite_v1::TrigComposite_v1() {
   }
@@ -39,14 +42,29 @@ namespace xAOD {
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::string,
                                       name, setName )
 
-   template<>     
-   bool TrigComposite_v1::hasDetail<unsigned int>( const std::string& name ) const {
-     return hasDetail<int>(name);
+   template<>
+   bool TrigComposite_v1::hasDetail<uint32_t>( const std::string& name ) const {
+     return hasDetail<int32_t>(name);
    }
 
-   template<>     
-   bool TrigComposite_v1::hasDetail<std::vector<unsigned int>>( const std::string& name ) const {
-     return hasDetail<std::vector<int>>(name);
+   template<>
+   bool TrigComposite_v1::hasDetail<std::vector<uint32_t>>( const std::string& name ) const {
+     return hasDetail<std::vector<int32_t>>(name);
+   }
+
+   template<>
+   bool TrigComposite_v1::hasDetail<std::vector<uint16_t>>( const std::string& name ) const {
+     return hasDetail<std::vector<int32_t>>(name);
+   }
+
+   template<>
+   bool TrigComposite_v1::hasDetail<std::string>( const std::string& name ) const {
+     return hasDetail<std::vector<int32_t>>(name);
+   }
+
+   template<>
+   bool TrigComposite_v1::hasDetail<std::vector<std::string>>( const std::string& name ) const {
+     return hasDetail<std::vector<int32_t>>(name);
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -54,12 +72,13 @@ namespace xAOD {
    //                   Simple detail accessor functions
    //
 
-   bool TrigComposite_v1::setDetail( const std::string& name, int value ) {
+   bool TrigComposite_v1::setDetail( const std::string& name, int32_t value ) {
 
       // It should be pretty strange if this should fail:
       try {
-         auxdata< int >( name ) = value;
-      } catch(...) {
+         auxdata< int32_t >( name ) = value;
+      } catch(const std::exception& exc) {
+         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in int32_t: [" << exc.what() << "]" << std::endl;
          return false;
       }
 
@@ -67,8 +86,8 @@ namespace xAOD {
       return true;
    }
 
-   bool TrigComposite_v1::setDetail( const std::string& name, unsigned int value ) {
-     return setDetail(name, (int)value); // place for conversion if needed
+   bool TrigComposite_v1::setDetail( const std::string& name, uint32_t value ) {
+     return setDetail(name, (int32_t)value); // place for conversion if needed
    }
 
    bool TrigComposite_v1::setDetail( const std::string& name, float value ) {
@@ -76,7 +95,8 @@ namespace xAOD {
       // It should be pretty strange if this should fail:
       try {
          auxdata< float >( name ) = value;
-      } catch(...) {
+      } catch(const std::exception& exc) {
+         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in float: [" << exc.what() << "]" << std::endl;
          return false;
       }
 
@@ -85,12 +105,13 @@ namespace xAOD {
    }
 
    bool TrigComposite_v1::setDetail( const std::string& name,
-                                     const std::vector< int >& value ) {
+                                     const std::vector< int32_t >& value ) {
 
       // It should be pretty strange if this should fail:
       try {
-         auxdata< std::vector< int > >( name ) = value;
-      } catch(...) {
+         auxdata< std::vector< int32_t > >( name ) = value;
+      } catch(const std::exception& exc) {
+         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in vector<int32_t>: [" << exc.what() << "]" << std::endl;
          return false;
       }
 
@@ -100,13 +121,14 @@ namespace xAOD {
 
 
    bool TrigComposite_v1::setDetail( const std::string& name,
-                                     const std::vector< unsigned int >& value ) {
+                                     const std::vector< uint32_t >& value ) {
 
       // It should be pretty strange if this should fail:
-     std::vector<int> temp(value.begin(), value.end()); //
+     std::vector<int32_t> temp(value.begin(), value.end()); //
       try {
-         auxdata< std::vector< int > >( name ) = temp;
-      } catch(...) {
+         auxdata< std::vector< int32_t > >( name ) = temp;
+      } catch(const std::exception& exc) {
+         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in vector<uint32_t>: [" << exc.what() << "]" << std::endl;
          return false;
       }
 
@@ -114,6 +136,22 @@ namespace xAOD {
       return true;
    }
 
+   bool TrigComposite_v1::setDetail( const std::string& name,
+                                     const std::vector< uint16_t >& value ) {
+
+      std::vector<uint32_t> temp;
+      temp.reserve( value.size() / 2 );
+
+      // Pack shorts for space efficiency
+      for (size_t i = 0; i < value.size(); i += 2) {
+        const uint16_t a = value.at(i);
+        const uint16_t b = (i + 1 < value.size() ? value.at(i + 1) : std::numeric_limits<uint16_t>::max() );
+        const uint32_t combine = ( (b << 16) | (a & 0xffff) );
+        temp.push_back( combine );
+      }
+
+      return setDetail(name, temp);
+   }
 
    bool TrigComposite_v1::setDetail( const std::string& name,
                                      const std::vector< float >& value ) {
@@ -121,7 +159,8 @@ namespace xAOD {
       // It should be pretty strange if this should fail:
       try {
          auxdata< std::vector< float > >( name ) = value;
-      } catch(...) {
+      } catch(const std::exception& exc) {
+         std::cerr << "xAOD::TrigComposite_v1::setDetail ERROR Internal logic error found in vector<float>: [" << exc.what() << "]" << std::endl;
          return false;
       }
 
@@ -129,11 +168,25 @@ namespace xAOD {
       return true;
    }
 
+   bool TrigComposite_v1::setDetail( const std::string& name, const std::string& value ) {
+
+      std::vector<uint32_t> serialForm;
+      HLT::StringSerializer::serialize(value, serialForm);
+      return setDetail(name, serialForm);
+   }
+
+   bool TrigComposite_v1::setDetail( const std::string& name, const std::vector< std::string >& value ) {
+
+      std::vector<uint32_t> serialForm;
+      HLT::StringSerializer::serialize(value, serialForm);
+      return setDetail(name, serialForm);
+   }
+
    bool TrigComposite_v1::getDetail( const std::string& name,
-                                     int& value ) const {
+                                     int32_t& value ) const {
 
       // Object used to access the auxiliary data:
-      Accessor< int > acc( name );
+      Accessor< int32_t > acc( name );
 
       // Enable the check once it will work correctly:
       if( ! acc.isAvailable( *this ) ) {
@@ -147,14 +200,13 @@ namespace xAOD {
 
 
    bool TrigComposite_v1::getDetail( const std::string& name,
-                                     unsigned int& value ) const {
-     int v;
+                                     uint32_t& value ) const {
+     int32_t v = 0;
      const bool status = getDetail(name, v); 
      value = v; // place for cast
      return status;
      
    }
-
 
    bool TrigComposite_v1::getDetail( const std::string& name,
                                      float& value ) const {
@@ -174,10 +226,10 @@ namespace xAOD {
 
 
    bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< int >& value ) const {
+                                     std::vector< int32_t >& value ) const {
 
       // Object used to access the auxiliary data:
-      Accessor< std::vector< int > > acc( name );
+      Accessor< std::vector< int32_t > > acc( name );
 
       // Enable the check once it will work correctly:
       if( ! acc.isAvailable( *this ) ) {
@@ -190,16 +242,40 @@ namespace xAOD {
    }
 
    bool TrigComposite_v1::getDetail( const std::string& name,
-                                     std::vector< unsigned int >& value ) const {
+                                     std::vector< uint32_t >& value ) const {
 
-     std::vector<int> temp;
+     std::vector<int32_t> temp;
      const bool status = getDetail(name, temp);
      
      value.reserve(temp.size());
-     for ( int i: temp )
+     for ( int32_t i: temp )
        value.push_back(i);
      return status;
    }
+
+   bool TrigComposite_v1::getDetail( const std::string& name,
+                                     std::vector< uint16_t >& value ) const {
+
+     std::vector<uint32_t> temp;
+     const bool status = getDetail(name, temp);
+     value.reserve(temp.size() * 2);
+
+     // Unpack shorts
+     static const uint32_t mask = std::numeric_limits<uint16_t>::max();
+     for (size_t i = 0; i < temp.size(); ++i) {
+       const uint32_t packed = temp.at(i);
+       const uint16_t a = packed & mask;
+       const uint16_t b = packed >> 16;
+       value.push_back(a);
+       // Use this to tell if the second half of the int was used or not
+       if (b != std::numeric_limits<uint16_t>::max()) {
+         value.push_back(b);
+       }
+     }
+
+     return status;
+   }
+
 
    bool TrigComposite_v1::getDetail( const std::string& name,
                                      std::vector< float >& value ) const {
@@ -216,6 +292,125 @@ namespace xAOD {
       value = acc( *this );
       return true;
    }
+
+   bool TrigComposite_v1::getDetail( const std::string& name,
+                                     std::string& value ) const {
+
+      std::vector<uint32_t> temp;
+      const bool status = getDetail(name, temp);
+
+      HLT::StringSerializer::deserialize(temp.begin(), temp.end(), value);
+      return status;
+   }
+
+   bool TrigComposite_v1::getDetail( const std::string& name,
+                                     std::vector< std::string >& value ) const {
+
+      std::vector<uint32_t> temp;
+      const bool status = getDetail(name, temp);
+
+      HLT::StringSerializer::deserialize(temp.begin(), temp.end(), value);
+      return status;
+   }
+
+   //
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   //               Implementation for the link copy functions
+   //
+
+  void TrigComposite_v1::copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName) {
+    this->linkColNamesNC().push_back( newName );
+    this->linkColKeysNC().push_back(    other.linkColKeys().at(    index ) );
+    this->linkColIndicesNC().push_back( other.linkColIndices().at( index ) );
+    this->linkColClidsNC().push_back(   other.linkColClids().at(   index ) );
+  }
+
+  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
+    if (newName == "") {
+      newName = name;
+    }
+    if (newName == "self") {
+      if (s_throwOnCopyError) throw std::runtime_error("Cannot copy the 'self' link in a logical way.");
+      return false;
+    }
+    bool didCopy = false;
+    // Check for the existence of single link
+    std::vector<std::string>::const_iterator locationIt;
+    locationIt = std::find(other.linkColNames().begin(), other.linkColNames().end(), name);
+    if (locationIt != other.linkColNames().end()) {
+      size_t index = std::distance(other.linkColNames().begin(), locationIt);
+      if (this->hasObjectLink(newName)) {
+        if (s_throwOnCopyError) throw std::runtime_error("Already have link with name " + newName);
+      } else {
+        copyLinkInternal(other, index, newName);
+        didCopy = true;
+      }
+    }
+    if (!didCopy && s_throwOnCopyError) throw std::runtime_error("Could not find link with name " + name);
+    return didCopy;
+  }
+
+  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
+    return copyLinkFrom(*other, name, newName);
+  }
+
+  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
+    bool didCopy = false;
+    // Check for the existence of a collection.
+    if (newName == "") {
+      newName = name;
+    }
+    const std::string mangledName = name + s_collectionSuffix;
+    const std::string mangledNewName = newName + s_collectionSuffix;
+    if (other.hasObjectLink(mangledName)) {
+      if (this->hasObjectLink(mangledNewName)) {
+        if (s_throwOnCopyError) throw std::runtime_error("Already have link collection with name " + newName);
+      } else {
+        // Copy all links in the collection. Just iterating through the source vector
+        for (size_t index = 0; index < other.linkColNames().size(); ++index) {
+          if (other.linkColNames().at(index) == mangledName) {
+            copyLinkInternal(other, index, mangledNewName);
+          }
+        }
+        didCopy = true;
+      }
+    }
+    if (!didCopy && s_throwOnCopyError) throw std::runtime_error("Could not find link with name " + name);
+    return didCopy;
+  }
+    
+  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
+    return copyLinkCollectionFrom(*other, name, newName);
+  }
+
+  bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1& other) {
+    bool didCopy = false;
+    for (const std::string& name : other.linkColNames()) {
+      // Cannot copy any 'self' links as *this does not know its own location in its parent container
+      if (name == "self") continue;
+      // Check we don't have one (or more) entries with this raw name (raw = might be mangled).
+      if (this->hasObjectLink(name)) continue;
+      // Check if the link is for a single object or collection of objects by looking for the mangled suffix
+      const bool isCollection = (name.size() > s_collectionSuffix.size() && 
+                                 std::equal(s_collectionSuffix.rbegin(), s_collectionSuffix.rend(), name.rbegin()));
+      if (isCollection) {
+        // The copyLinkCollectionFrom call needs the un-mangled name as it is a public fn. It will re-mangle.
+        const std::string unmangledName = name.substr(0, name.size() - s_collectionSuffix.size());
+        copyLinkCollectionFrom(other, unmangledName);
+      } else { // !isCollection
+        copyLinkFrom(other, name);
+      }
+      didCopy = true;
+    }
+    return didCopy;
+  }
+
+  bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1* other) {
+    return copyAllLinksFrom(*other);
+  }
 
    //
    /////////////////////////////////////////////////////////////////////////////

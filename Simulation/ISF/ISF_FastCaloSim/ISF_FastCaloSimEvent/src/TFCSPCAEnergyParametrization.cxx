@@ -2,6 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandGauss.h"
+
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
@@ -11,7 +13,6 @@
 #include "TFile.h"
 #include "TKey.h"
 #include "TClass.h"
-#include "TRandom3.h"
 #include "TMatrixD.h"
 #include "TMatrixDSymEigen.h"
 #include "TMath.h"
@@ -58,82 +59,98 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
   }  
 }
 
-void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
+  
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
 
   int pcabin=simulstate.Ebin();
- 
-  TMatrixD* EV            =m_EV[pcabin-1]; 
-  TVectorD* MeanValues    =m_MeanValues[pcabin-1];
-  TVectorD* SigmaValues   =m_SigmaValues[pcabin-1];
-  TVectorD* Gauss_means   =m_Gauss_means[pcabin-1];
-  TVectorD* Gauss_rms     =m_Gauss_rms[pcabin-1];
-  std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
   
-  TRandom3* Random3=new TRandom3(); Random3->SetSeed(0);
-
-  std::vector<int> layerNr;
-  for(unsigned int i=0;i<m_RelevantLayers.size();i++)
-   layerNr.push_back(m_RelevantLayers[i]);
-  
-  double* vals_gauss_means=(double*)Gauss_means->GetMatrixArray();
-  double* vals_gauss_rms  =Gauss_rms->GetMatrixArray();
-
-  double *output_data = new double[layerNr.size()+1];
-  double *input_data = new double[layerNr.size()+1];
-
-  for(unsigned int l=0;l<=layerNr.size();l++)
+  if(pcabin==0)
   {
-   double mean=vals_gauss_means[l];
-   double rms =vals_gauss_rms[l];
-   double gauszz=Random3->Gaus(mean,rms);
-   input_data[l]=gauszz;
+   simulstate.set_E(0);
+   for(int s=0;s<CaloCell_ID_FCS::MaxSample;s++)
+   {
+    simulstate.set_E(s,0.0);
+    simulstate.set_Efrac(s,0.0);
+   }
   }
-
-  P2X(SigmaValues, MeanValues, EV, layerNr.size()+1, input_data, output_data, layerNr.size()+1);
-
-  double *simdata = new double[layerNr.size()+1];
-  double sum_fraction=0.0;
-  for(unsigned int l=0;l<=layerNr.size();l++)
+  else
   {
-   double simdata_uniform=(TMath::Erf(output_data[l]/1.414213562)+1)/2.f;
    
-   simdata[l]=cumulative[l]->rnd_to_fct(simdata_uniform);
+   TMatrixD* EV            =m_EV[pcabin-1]; 
+   TVectorD* MeanValues    =m_MeanValues[pcabin-1];
+   TVectorD* SigmaValues   =m_SigmaValues[pcabin-1];
+   TVectorD* Gauss_means   =m_Gauss_means[pcabin-1];
+   TVectorD* Gauss_rms     =m_Gauss_rms[pcabin-1];
+   std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
+
+   std::vector<int> layerNr;
+   for(unsigned int i=0;i<m_RelevantLayers.size();i++)
+    layerNr.push_back(m_RelevantLayers[i]);
    
-   if(l!=layerNr.size()) //sum up the fractions, but not the totalE
-    sum_fraction+=simdata[l];
-  }
+   double* vals_gauss_means=(double*)Gauss_means->GetMatrixArray();
+   double* vals_gauss_rms  =Gauss_rms->GetMatrixArray();
+
+   double *output_data = new double[layerNr.size()+1];
+   double *input_data = new double[layerNr.size()+1];
+
+   for(unsigned int l=0;l<=layerNr.size();l++)
+   {
+    double mean=vals_gauss_means[l];
+    double rms =vals_gauss_rms[l];
+    double gauszz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), mean, rms);
+    input_data[l]=gauszz;
+   }
+
+   P2X(SigmaValues, MeanValues, EV, layerNr.size()+1, input_data, output_data, layerNr.size()+1);
+
+   double *simdata = new double[layerNr.size()+1];
+   double sum_fraction=0.0;
+   for(unsigned int l=0;l<=layerNr.size();l++)
+   {
+    double simdata_uniform=(TMath::Erf(output_data[l]/1.414213562)+1)/2.f;
+    
+    simdata[l]=cumulative[l]->rnd_to_fct(simdata_uniform);
+   
+    if(l!=layerNr.size()) //sum up the fractions, but not the totalE
+     sum_fraction+=simdata[l];
+   }
+   
+   double scalefactor=1.0/sum_fraction;
+   if(!do_rescale) scalefactor=1.0;
   
-  double scalefactor=1.0/sum_fraction;
-  if(!do_rescale) scalefactor=1.0;
-  
-  for(unsigned int l=0;l<layerNr.size();l++)
-  {
-   simdata[l]*=scalefactor;
-  }
-  
-  double total_energy=simdata[layerNr.size()]*simulstate.E()/Ekin_nominal();
-  simulstate.set_E(total_energy);
-  ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
-  
-  for(int s=0;s<CaloCell_ID_FCS::MaxSample;s++)
-  {
-   double energyfrac=0.0;
    for(unsigned int l=0;l<layerNr.size();l++)
    {
-    if(layerNr[l]==s)
-     energyfrac=simdata[l];
+    simdata[l]*=scalefactor;
    }
-   simulstate.set_Efrac(s,energyfrac);
-   simulstate.set_E(s,energyfrac*total_energy);
-   simulstate.set_SF(scalefactor);
+   
+   double total_energy=simdata[layerNr.size()]*simulstate.E()/Ekin_nominal();
+   simulstate.set_E(total_energy);
+   ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
+  
+   for(int s=0;s<CaloCell_ID_FCS::MaxSample;s++)
+   {
+    double energyfrac=0.0;
+    for(unsigned int l=0;l<layerNr.size();l++)
+    {
+     if(layerNr[l]==s)
+      energyfrac=simdata[l];
+    }
+    simulstate.set_Efrac(s,energyfrac);
+    simulstate.set_E(s,energyfrac*total_energy);
+    simulstate.set_SF(scalefactor);
+   }
+
+   delete [] output_data;
+   delete [] input_data;
+   delete [] simdata;
+
   }
 
-  delete Random3;
-  delete [] output_data;
-  delete [] input_data;
-  delete [] simdata;
-
+  return FCSSuccess;
 }
 
 void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD *EV, int gNVariables, double *p, double *x, int nTest)
@@ -262,4 +279,3 @@ void TFCSPCAEnergyParametrization::clean()
  for(unsigned int i=0;i<m_EV.size();i++)
   delete m_EV[i];
 }
-

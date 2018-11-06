@@ -5,13 +5,10 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODTracking/TrackParticle.h"
 
-#include "JetTagCalibration/CalibrationBroker.h"
 #include "JetTagTools/MV2Tag.h"
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"
-
-#include "TObjString.h"
 
 #include <fstream>
 #include <sstream>
@@ -25,11 +22,11 @@
 #include "JetTagTools/JetTagUtils.h"
 
 #include "AthenaKernel/Units.h"
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
 #include "TList.h"
 #include "TString.h"
 #include "TObjString.h"
+#include "TObjArray.h"
+#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>
@@ -51,13 +48,9 @@ namespace Analysis {
 
   MV2Tag::MV2Tag(const std::string& name, const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_runModus("analysis") {
 
     declareInterface<IMultivariateJetTagger>(this);
-
-    // access to XML configuration files for TMVA from COOL:
-    declareProperty("calibrationTool", m_calibrationTool);
 
     // force MV2 to always use a calibration derived from MV2CalibAlias jet collection
     declareProperty("forceMV2CalibrationAlias", m_forceMV2CalibrationAlias = true);
@@ -89,25 +82,14 @@ namespace Analysis {
   StatusCode MV2Tag::initialize() {
 
     m_disableAlgo=false;
-    m_useEgammaMethodMV2=false;
     m_warnCounter=0;
 
     m_treeName = "BDT";
     m_varStrName = "variables";
 
-    // prepare calibration tool:
-    StatusCode sc = m_calibrationTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_calibrationTool);
-      return sc;
-    } else {
-      ATH_MSG_INFO("#BTAG# Retrieved tool " << m_calibrationTool);
-    }
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_treeName);
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_varStrName);
-    m_tmvaReaders.clear();
-    m_tmvaMethod.clear();
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
+
     m_egammaBDTs.clear();
     return StatusCode::SUCCESS;
   }
@@ -115,17 +97,7 @@ namespace Analysis {
 
   StatusCode MV2Tag::finalize() {
     ATH_MSG_DEBUG("#BTAG# Finalizing MV2.");
-    if (m_useEgammaMethodMV2) {
-      for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
-    }
-    else {
-      // delete readers:
-      std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.begin();
-      for( ; pos != m_tmvaReaders.end(); ++pos ) delete pos->second;
-      std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod.begin();
-      for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
-    }
-
+    for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     for (auto& iter: m_local_inputvals) {
         delete iter.second;
     }
@@ -138,7 +110,7 @@ namespace Analysis {
 
      /*
      * #index for this function
-     * #1: Preparation of MVA instance using tmva/MVAUtils BDT
+     * #1: Preparation of MVA instance using MVAUtils BDT
      * #2: set input variables from MultivariateTagManager inputs map
      * #3: Calcuation of MVA output variable(s)
      * #4: Fill MVA output variable(s) into xAOD
@@ -152,206 +124,84 @@ namespace Analysis {
       }
     }
 
-    // #1: Preparation of MVA instance using tmva/egammaBDT
+    // #1: Preparation of MVA instance using egammaBDT
     /* jet author: */
     std::string author(assigned_jet_author);
+    ATH_MSG_DEBUG("#BTAG# Jet author for MV2: " << author);
 
     if (m_forceMV2CalibrationAlias) {
       author = m_MV2CalibAlias;
     }
+    MVAUtils::BDT *bdt = nullptr; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
 
-    ATH_MSG_DEBUG("#BTAG# Jet author for MV2: " << author);
+    //Retrieval of Calibration Condition Data objects
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
+    //readCdo->printHistosStatus();
 
-    /* check if calibration has to be updated: */
-    std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
-
-    bool calibHasChanged = calib.second;
-
-    TMVA::Reader* tmvaReader=0;     std::map<std::string, TMVA::Reader*>::iterator pos;
-    TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
-    MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
-
-    /*KM: Retrieval of objects from the calibration file and store it back in the calibration broker temporarily*/
-    if(calibHasChanged) {
-      ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
-      if(!calib.first) {
-	ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for"<< m_taggerNameBase<<" "<<author);
-	m_disableAlgo=true;
-	return;
-      }
-      else {
-	const TString rootClassName=calib.first->ClassName();
-
-	if      (rootClassName=="TDirectoryFile") m_useEgammaMethodMV2=true;
-	else if (rootClassName=="TList")          m_useEgammaMethodMV2=false;//tmva method
-	else {
-	  ATH_MSG_WARNING("#BTAG# Unsupported ROOT class type: "<<rootClassName<<" is retrieved. Disabling algorithm..");
-	  m_disableAlgo=true;
-          return;
-	}
-
-      }
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, author, m_taggerNameBase+"Calib", false);
-
-      //const std::string treeName  ="BDT";
-      //const std::string varStrName="variables";
-      std::vector<std::string> inputVars; inputVars.clear();
-
-      if (!m_useEgammaMethodMV2) {
-	ATH_MSG_INFO("#BTAG# Booking TMVA::Reader for "<<m_taggerNameBase);
-	std::ostringstream iss; //iss.clear();
-	//now the new part istringstream
-	TList* list = (TList*)calib.first;
-
-      for(int i=0; i<list->GetSize(); ++i) {
-
-          TObjString* ss = (TObjString*)list->At(i);
-	      std::string sss = ss->String().Data();
-
-        //KM: if it doesn't find "<" in the string, it starts from non-space character
-	  int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
-	  std::string tmp = sss.erase(0,posi);
-
-	  iss << tmp.data();
-	  if (tmp.find("<Variable")!=std::string::npos ) {
-	    if ( tmp.find("Variable VarIndex")!=std::string::npos ) {
-	      std::string varIndex  =tmp.substr(tmp.find("=\"")+2, tmp.find("\" ")-(tmp.find("=\"")+2));
-	      std::string tmpVar  = tmp.erase(0,tmp.find("Expression=\"")+12);
-	      std::string varExpress=tmp.substr(0, tmp.find("\""));
-	      inputVars.push_back(varExpress);
-	    }
-	  }
-	  // else if (tmp.find("NClass")!=std::string::npos ) {
-	  //   std::string newString=tmp.substr(tmp.find("\"")+1,tmp.find("\" ")-(tmp.find("\"")+1));
-	  //   nClasses =stoi(newString);
-	  // }
-	}
-	m_calibrationTool->storeCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib", inputVars, iss.str(), 0);
-
-	iss.clear();
-      }
-      else {//if m_useEgammaMethodMV2
-	std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
-	std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
-	TTree *tree = (TTree*) calibTree.first;
-	TObjArray* toa= (TObjArray*) calibVariables.first;
-	std::string commaSepVars="";
-	if (toa) {
-	  TObjString *tos= 0;
-	  if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-	  commaSepVars=tos->GetString().Data();
-	}
-
-	//prepare inputVars
-	while (commaSepVars.find(",")!=std::string::npos) {
-	  inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-	  commaSepVars.erase(0,commaSepVars.find(",")+1);
-	}
-	inputVars.push_back(commaSepVars.substr(0,-1));
-
-	m_calibrationTool->storeCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib", inputVars, "", tree);
-      }
-    }//calibHasChanged
-
-    /*KM: Get back the calib objects from calibration broker*/
-    std::string alias = m_calibrationTool->channelAlias(author);
-    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, author, m_taggerNameBase+"Calib") ) {
-      std::vector<float*>  inputPointers; inputPointers.clear();
-      unsigned nConfgVar=0; bool badVariableFound=false;
-
-      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib");
-      std::vector<std::string> inputVars = calib.inputVars;
-      std::string str = calib.str;
-      TTree* tree = (TTree*)calib.obj;
-
-      if      (str=="" and tree!=0) {	m_useEgammaMethodMV2=true;        }
-      else if (str!="" and tree==0) {	m_useEgammaMethodMV2=false;       }
-      else{
-	ATH_MSG_WARNING("#BTAG# Unrecognized MV2 configuration disabling the algorithm..." );
-	m_disableAlgo=true;
-	return;
-      }
-      ATH_MSG_VERBOSE("#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 );
- 
-      if (!m_useEgammaMethodMV2) {
-	// now configure the TMVAReaders:
-	/// check if the reader for this tagger needs update
-	tmvaReader = new TMVA::Reader();
-
-      //Input variables :
-      //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
-      //currently default values are hard coded in the definition of ReplaceNaN_andAssign()
-
-      CreateLocalVariables( inputs );
-
-      SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
+    std::string alias = readCdo->getChannelAlias(author);
 
 
-      ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
-		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
+    TObjArray* toa=readCdo->retrieveTObject<TObjArray>(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
+    TTree *tree = readCdo->retrieveTObject<TTree>(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_treeName);
+    std::string commaSepVars="";
+    if (toa) {
+      TObjString *tos= nullptr;
+      if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
+      commaSepVars=tos->GetString().Data();
+    } else {
+      ATH_MSG_WARNING("#BTAG# calibVariables has no elements! PLEASE CHECK OUT!");
+      m_disableAlgo=true;
+      return;
+    }
 
-	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
-	  ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
-	  m_disableAlgo=true;
-	  return;
-	}
+    //prepare inputVars
+    std::vector<std::string> inputVars; inputVars.clear();
+    while (commaSepVars.find(",")!=std::string::npos) {
+      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
+      commaSepVars.erase(0,commaSepVars.find(",")+1);
+    }
+    inputVars.push_back(commaSepVars.substr(0,-1));
 
-	//tmvaReader->BookMVA("BDT", xmlFileName);
-	TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, str.data() );
-	kl = dynamic_cast<TMVA::MethodBase*>(method);
+    ATH_MSG_DEBUG("#BTAG# tree name= "<< tree->GetName() <<" inputVars.size()= "<< inputVars.size());// <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
+    for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
 
-	// add it or overwrite it in the map of readers:
-	pos = m_tmvaReaders.find(alias);
-	if(pos!=m_tmvaReaders.end()) {
-	  delete pos->second;
-	  m_tmvaReaders.erase(pos);
-	}
-	m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
-
-	it_mb = m_tmvaMethod.find(alias);
-	if(it_mb!=m_tmvaMethod.end()) {
-	  delete it_mb->second;
-	  m_tmvaMethod.erase(it_mb);
-	}
-	m_tmvaMethod.insert( std::make_pair( alias, kl ) );
-
-      }
-      else {//if m_useEgammaMethodMV2
-	ATH_MSG_INFO("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
-	if (tree) {
-	  bdt = new MVAUtils:: BDT(tree);
-	}
-	else {
-	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
-	  m_disableAlgo=true;
-          return;
-	}
+    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
+  
+    if (tree) {
+      ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
+      bdt = new MVAUtils:: BDT(tree);
+    }
+    else {
+      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
+      m_disableAlgo=true;
+      delete bdt;
+      return;
+    }
 
     CreateLocalVariables( inputs );
 
-    SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
-
-    ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
-		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
+    std::vector<float*>  inputPointers; inputPointers.clear();
+    unsigned nConfgVar=0; bool badVariableFound=false;
+    SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
+    ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
+		    <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
     if ( inputVars.size()!=nConfgVar or badVariableFound ) {
-	ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
-	m_disableAlgo=true;
-        delete bdt;
-        return;
+      ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+      m_disableAlgo=true;
+      delete bdt;
+      return;
     }
-	bdt->SetPointers(inputPointers);
+ 
+    bdt->SetPointers(inputPointers);
 
-	it_egammaBDT = m_egammaBDTs.find(alias);
-	if(it_egammaBDT!=m_egammaBDTs.end()) {
-	  delete it_egammaBDT->second;
-	  m_egammaBDTs.erase(it_egammaBDT);
-	}
-	m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
-
-      }
-      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,author, m_taggerNameBase+"Calib", false);
+    it_egammaBDT = m_egammaBDTs.find(alias);
+    if(it_egammaBDT!=m_egammaBDTs.end()) {
+      delete it_egammaBDT->second;
+      m_egammaBDTs.erase(it_egammaBDT);
     }
+    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
+
 
     // #2 fill inputs
     //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
@@ -362,52 +212,24 @@ namespace Analysis {
     /* compute MV2: */
     double mv2 = -10.;  double mv2m_pb=-10., mv2m_pu=-10., mv2m_pc=-10.;
 
-    //TMVA method
-    if (!m_useEgammaMethodMV2) {
-
-      pos = m_tmvaReaders.find(alias);
-      if(pos==m_tmvaReaders.end()) {
-        int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-        if(0==alreadyWarned) {
-          ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection alias, author: "<<alias<<" "<<author);
-	        m_undefinedReaders.push_back(alias);
-        }
-      } else {
-        it_mb = m_tmvaMethod.find(alias);
-        if( (it_mb->second)!=0 ){
-          if(m_taggerNameBase.find("MV2c")!=std::string::npos) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
-          else {
-            std::vector<float> outputs= pos->second->EvaluateMulticlass( it_mb->second );//this gives back float
-            if (outputs.size()==m_nClasses){
-            mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2];
-            } else ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not "<<m_nClasses<<"!!!" );
-          }
-        }
-        else ATH_MSG_WARNING("#BTAG#  kl==0 for alias, author: "<<alias<<" "<<author);
+    it_egammaBDT = m_egammaBDTs.find(alias);
+    if(it_egammaBDT==m_egammaBDTs.end()) {
+      int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
+      if(0==alreadyWarned) {
+         ATH_MSG_WARNING("#BTAG# no egammaBDT defined for jet collection alias, author: "<<alias<<" "<<author);
+         m_undefinedReaders.push_back(alias);
       }
-
     }
-    // use MVAUtils Egamma method
     else {
-      it_egammaBDT = m_egammaBDTs.find(alias);
-      if(it_egammaBDT==m_egammaBDTs.end()) {
-        int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-        if(0==alreadyWarned) {
-	         ATH_MSG_WARNING("#BTAG# no egammaBDT defined for jet collection alias, author: "<<alias<<" "<<author);
-	         m_undefinedReaders.push_back(alias);
-	      }
-      }
-      else {
-        if(it_egammaBDT->second !=0) {
-          if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
-	        else { //if it is MV2m
-      	    std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
-      	    //vector size is checked in the function above
-      	    mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
-	        }
-	      }
-	     else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
-      }
+      if(it_egammaBDT->second !=0) {
+        if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
+        else { //if it is MV2m
+  	  std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
+      	  //vector size is checked in the function above
+      	  mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
+        }
+       }
+       else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
     }
 
     if (m_taggerNameBase.find("MV2c")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
@@ -485,15 +307,8 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
   }
 
 
-  void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
+  void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
 
-
-    if (!m_useEgammaMethodMV2) {
-      if(!tmvaReader) {
-        ATH_MSG_WARNING("#BTAG# tmva method is chosen but tmvaReader==0!!");
-        return;
-      }
-    }
 
     for (unsigned ivar=0; ivar<inputVars.size(); ivar++) {
       //pt and abs(eta)
@@ -504,12 +319,7 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
         ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");
         badVariableFound=true;
       }else{
-        if(m_useEgammaMethodMV2){
         inputPointers.push_back(m_local_inputvals.at(inputVars.at(ivar)) );
-        }
-        else{
-        tmvaReader->AddVariable(inputVars.at(ivar).data(),m_local_inputvals.at(inputVars.at(ivar)));
-        }
         nConfgVar++;
       }
 

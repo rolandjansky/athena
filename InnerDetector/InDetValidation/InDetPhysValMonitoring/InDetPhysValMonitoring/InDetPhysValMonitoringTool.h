@@ -16,6 +16,7 @@
 
 //local include
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
+#include "InDetPhysValMonitoring/CutFlow.h"
 
 //#include "PATCore/IAsgSelectionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -36,7 +37,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 //STL includes
 #include <string>
@@ -126,6 +126,8 @@ private:
 	bool m_TrkSelectPV;   // make track selection relative to PV
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
 	ToolHandle<IAthSelectionTool> m_truthSelectionTool;
+        mutable std::mutex  m_mutex;
+        mutable CutFlow     m_truthCutFlow;
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;
@@ -134,7 +136,6 @@ private:
 
 	std::vector<std::string> m_trackCutflowNames;
 	std::vector<int> m_trackCutflow;
-	std::vector<unsigned int> m_truthCutCounters;
 	std::string m_pileupSwitch; // All, PileUp, or HardScatter
 	///Jet Things
         SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName

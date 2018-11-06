@@ -212,22 +212,12 @@ const CaloClusterContainer * UserAnalysisPreparationTool::selectedCaloClusters()
   /** container preparation */
 StatusCode UserAnalysisPreparationTool::electronPreparation( std::string key ) {
   ATH_MSG_DEBUG("in electronPreparation() ");
-  StatusCode sc = StatusCode::SUCCESS;
 
   /** create an empty container of all electrons and record it */
-  ElectronContainer * electrons = new ElectronContainer( SG::VIEW_ELEMENTS );
-  sc = evtStore()->record ( electrons, m_outputElectronKey );
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("Not able to create a collection of electrons in StoreGate: key= " << m_outputElectronKey);
-     return sc;
-  }
+  auto electrons = std::make_unique<ConstDataVector<ElectronContainer> >( SG::VIEW_ELEMENTS );
 
   const ElectronContainer * aod_electrons = 0;
-  sc = evtStore()->retrieve( aod_electrons, key );
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("No ESD/AOD/DPD electron container found: key = " << key);
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve( aod_electrons, key ) );
   ATH_MSG_DEBUG("AOD ElectronContainer size is " << aod_electrons->size());
   m_numElectrons.first += aod_electrons->size();
 
@@ -240,30 +230,19 @@ StatusCode UserAnalysisPreparationTool::electronPreparation( std::string key ) {
   }
   m_numElectrons.second += electrons->size();
 
-  sc = evtStore()->setConst( electrons );
-  if(sc.isFailure()) ATH_MSG_WARNING("Not able to lock the container of electrons ");
+  ATH_CHECK( evtStore()->record (std::move (electrons), m_outputElectronKey) );
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode UserAnalysisPreparationTool::photonPreparation( std::string key ) {
   ATH_MSG_DEBUG("in photonPreparation() ");
-  StatusCode sc = StatusCode::SUCCESS;
 
   /** create an empty container of all photons and record it */
-  PhotonContainer * photons = new PhotonContainer( SG::VIEW_ELEMENTS );
-  sc = evtStore()->record ( photons, m_outputPhotonKey );
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("Not able to create a collection of photons in StoreGate: key= " << m_outputPhotonKey);
-     return sc;
-  }
+  auto photons = std::make_unique<ConstDataVector<PhotonContainer> >( SG::VIEW_ELEMENTS );
 
   const PhotonContainer * aod_photons = 0;
-  sc = evtStore()->retrieve( aod_photons, key );
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("No ESD/AOD/DPD photon container found: key = ");
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve( aod_photons, key ) );
   ATH_MSG_DEBUG("AOD PhotonContainer size is " << aod_photons->size());
   m_numPhotons.first += aod_photons->size();
 
@@ -277,10 +256,9 @@ StatusCode UserAnalysisPreparationTool::photonPreparation( std::string key ) {
   }
   m_numPhotons.second += photons->size();
 
-  sc = evtStore()->setConst( photons );
-  if(sc.isFailure()) ATH_MSG_WARNING("Not able to lock the container of photons ");
+  ATH_CHECK( evtStore()->record ( std::move(photons), m_outputPhotonKey ) );
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode UserAnalysisPreparationTool::muonPreparation( std::string key ) {

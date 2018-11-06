@@ -39,7 +39,7 @@ class ForDetEnvelopeManager : public GeoVDetectorManager
 };
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ForDetEnvelopeManager, 238515740, 1)
 #endif
 

@@ -42,6 +42,12 @@ namespace InDetDD {
     		         const Trk::SurfaceBounds* bounds);
     
       ~SurfaceCache();
+      
+      ///delete copy c'tor
+      SurfaceCache(const SurfaceCache &) = delete;
+      
+      ///delete assignment
+      SurfaceCache & operator = (const SurfaceCache &) = delete;
     
       const Amg::Transform3D* transform() {return (m_transform);}
       
@@ -50,6 +56,7 @@ namespace InDetDD {
       const Amg::Vector3D*  normal() {return (m_normal);}
       
       const Trk::SurfaceBounds* bounds() {return (m_bounds);}
+      
     
     private:
       const Amg::Transform3D*       m_transform;

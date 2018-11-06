@@ -218,6 +218,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
 
     GeoLogVol* lvSection = new GeoLogVol(name,shape,mat);
     GeoPhysVol* pvSection = new GeoPhysVol(lvSection);
+    pvSection->ref();
     
     // Determine if this is a geometry where the first section can act as the mother of the following
     // sections. The following sections are only added to this if their ave CLHEP::radius is within the CLHEP::radial
@@ -241,6 +242,7 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
     GeoTransform* tfSection = 0;
     if (znew != 0 && (secNum==1 || !addToFirstSection)) tfSection = new GeoTransform(HepGeom::TranslateZ3D(znew));
     GeoNameTag* ntSection = new GeoNameTag(name);
+    ntSection->ref();
 
     if (addToFirstSection && secNum!=1) {
       if (!pvMotherSection) {
@@ -274,7 +276,10 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
       parent->add(tfSectionRot);
       parent->add(pvSection);
     }
-  }  
+
+    pvSection->unref();
+    ntSection->unref();
+  }
 }
 
 const BeamPipeDetectorManager * BeamPipeDetectorFactory::getDetectorManager() const

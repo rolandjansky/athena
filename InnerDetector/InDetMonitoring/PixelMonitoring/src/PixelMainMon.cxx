@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 
 #include "PixelMonitoring/PixelMainMon.h"
 
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "LWHists/TH1F_LW.h"
@@ -49,7 +48,6 @@
 
 PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent) :
     ManagedMonitorToolBase(type, name, parent),
-    m_pixelCondSummarySvc("PixelConditionsSummarySvc", name),
     m_ErrorSvc("PixelByteStreamErrorsSvc", name),
     m_pixelCableSvc("PixelCablingSvc", name),
     m_IBLParameterSvc("IBLParameterSvc", name),
@@ -67,7 +65,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_FSM_status(new dcsDataHolder()),
     m_moduleDCSDataHolder(new moduleDcsDataHolder()) {
   // all job options flags go here
-  declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
   declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
@@ -126,6 +123,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nActive_mod, 0, sizeof(m_nActive_mod));
   m_pixelid = 0;
   m_event = 0;
+  m_event5min = 0;
   m_startTime = 0;
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;
@@ -399,12 +397,7 @@ StatusCode PixelMainMon::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  if (m_pixelCondSummarySvc.retrieve().isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
-  }
+  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
 
   if (m_pixelCableSvc.retrieve().isFailure()) {
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCableSvc << endmsg;
@@ -718,10 +711,12 @@ StatusCode PixelMainMon::fillHistograms() {
   if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
+
     m_currentTime = thisEventInfo->timeStamp();
     m_currentBCID = thisEventInfo->bcid();
-    unsigned int currentdiff = (m_currentTime - m_firstBookTime) / 100;
-    unsigned int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
+    int currentdiff = (int)(m_currentTime - m_firstBookTime) / 100;
+    int currentdiff5min = (int)(m_currentTime - m_firstBookTime) / 300;
+
     // for 100 sec
     if (currentdiff > m_nRefresh) {
       m_doRefresh = true;
@@ -733,8 +728,10 @@ StatusCode PixelMainMon::fillHistograms() {
     if (currentdiff5min > m_nRefresh5min) {
       m_doRefresh5min = true;
       m_nRefresh5min = currentdiff5min;
+      m_event5min = 1;
     } else {
       m_doRefresh5min = false;
+      m_event5min++;
     }
   }
 
@@ -755,10 +752,10 @@ StatusCode PixelMainMon::fillHistograms() {
       pixlayeribl2d3ddbm = getPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     }
     if (pixlayeribl2d3ddbm == 99) continue;
-    if (m_pixelCondSummarySvc->isActive(id_hash) == true) {
+    if (m_pixelCondSummaryTool->isActive(id_hash) == true) {
       m_nActive_mod[pixlayeribl2d3ddbm]++;
     }
-    if (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true) {
+    if (m_pixelCondSummaryTool->isActive(id_hash) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
       m_nGood_mod[pixlayeribl2d3ddbm]++;
     }
   }
@@ -888,6 +885,11 @@ StatusCode PixelMainMon::procHistograms() {
     if (m_doRDO) {
       if (procHitsMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
+      }
+    }
+    if (m_doCluster) {
+      if (procClustersMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Cluster histograms" << endmsg;
       }
     }
     if (m_doTrack) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGMAP_H
@@ -12,7 +12,7 @@
 
 #include "MuonCablingData/MdtMapBase.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**********************************************
  *
@@ -72,10 +72,10 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   uint32_t getROBId(const IdentifierHash stationCode);
 
  /** return a vector of HashId lists for a  given list of ROD's */
-  const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list);
+  const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const;
 
  /** return a HashId list for a  given ROD */
-  const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBId);
+  const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBId) const;
 
   /** return the ROD id of a given chamber */
   std::vector<uint32_t> getAllROBId();
@@ -124,6 +124,9 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 
 };
 
+//#include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( MuonMDT_CablingMap , 51038731 , 1 )
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<MuonMDT_CablingMap>, 34552845, 0 )
 
 #endif

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARONOFFIDMAPPING_H
@@ -116,7 +116,7 @@ inline HWIdentifier LArOnOffIdMapping::createSignalChannelID(const Identifier & 
 
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArOnOffIdMapping,148608605 , 1)
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF(  LArOnOffIdMapping, 155467877 );

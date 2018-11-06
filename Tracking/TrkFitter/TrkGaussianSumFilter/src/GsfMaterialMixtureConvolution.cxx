@@ -97,9 +97,11 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
   /* -------------------------------------
      Preliminary checks
      ------------------------------------- */
-  
+ 
+  //Assembler Cache
+  IMultiComponentStateAssembler::Cache cache; 
   // Reset the assembler and check 
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
@@ -124,7 +126,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
       continue;
     }
 
-    bool componentAdded = m_stateAssembler->addMultiState( *updatedState );
+    bool componentAdded = m_stateAssembler->addMultiState( cache,*updatedState );
     
     // New memory allocated in the combiner so it is ok to delete the original state
     delete updatedState;
@@ -134,7 +136,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
     
   }
   
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
    
   if(!assembledState)
     return 0;
@@ -170,9 +172,10 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::preUpdate( c
   /* -------------------------------------
      Preliminary checks
      ------------------------------------- */
-
+  //Assembler Cache
+  IMultiComponentStateAssembler::Cache cache;
   // Reset the assembler and check 
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
@@ -197,7 +200,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::preUpdate( c
       continue;
     }
 
-    bool componentAdded = m_stateAssembler->addMultiState( *updatedState );
+    bool componentAdded = m_stateAssembler->addMultiState( cache,*updatedState );
     
     // New memory allocated in the combiner so it is ok to delete the original state
     delete updatedState;
@@ -207,7 +210,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::preUpdate( c
     
   }
   
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
   
  if(!assembledState)
     return 0;
@@ -244,8 +247,10 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
      Preliminary checks
      ------------------------------------- */
 
+  //Assembler Cache
+  IMultiComponentStateAssembler::Cache cache;
   // Reset the assembler and check 
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
@@ -270,7 +275,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
       continue;
     }
 
-    bool componentAdded = m_stateAssembler->addMultiState( *updatedState );
+    bool componentAdded = m_stateAssembler->addMultiState( cache,*updatedState );
     
     // New memory allocated in the combiner so it is ok to delete the original state
     delete updatedState;
@@ -280,7 +285,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
     
   }
   
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
   
   if(!assembledState)
     return 0;
@@ -310,9 +315,10 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
   /* -------------------------------------
      Preliminary checks
      ------------------------------------- */
-
+  //Assembler Cache
+  IMultiComponentStateAssembler::Cache cache;
   // Reset the assembler and check 
-  bool isAssemblerReset = m_stateAssembler->reset();
+  bool isAssemblerReset = m_stateAssembler->reset(cache);
 
   if ( !isAssemblerReset ){
     msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
@@ -377,7 +383,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
     bool componentAdded = false;
     
     if ( updatedState )
-      componentAdded = m_stateAssembler->addMultiState( *updatedState );
+      componentAdded = m_stateAssembler->addMultiState( cache,*updatedState );
     
     if ( !componentAdded )
       msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
@@ -387,7 +393,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
     
   } // end loop over components
   
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState();
+  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
   
   // Renormalise the state
   const Trk::MultiComponentState* renormalisedState = assembledState->clonedRenormalisedState();

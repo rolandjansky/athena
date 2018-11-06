@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // /***************************************************************************
 //                           CPMSim.cxx  -  description
 //                              -------------------
 //     begin                : Wed Mar 05 2014
-//     copyright            : (C) 2014 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //
@@ -81,29 +83,6 @@ StatusCode CPMSim::initialize()
   ATH_CHECK( m_configSvc.retrieve() );
   ATH_CHECK( m_CPMTool.retrieve() );
   return StatusCode::SUCCESS ;
-}
-
-
-//-------------------------------------------------
-// Optional debug of menu at start of run
-//-------------------------------------------------
-
-StatusCode CPMSim::beginRun()
-{
-  if (msgLvl (MSG::DEBUG)) printTriggerMenu();
-  return StatusCode::SUCCESS ;
-}
-
-
-
-//---------------------------------
-// finalise()
-//---------------------------------
-
-StatusCode CPMSim::finalize()
-{
-   ATH_MSG_INFO("Finalizing" );
-   return StatusCode::SUCCESS ;
 }
 
 

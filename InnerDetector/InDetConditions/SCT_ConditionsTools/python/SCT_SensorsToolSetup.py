@@ -60,11 +60,9 @@ class SCT_SensorsToolSetup:
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_SensorsTool
-            ToolSvc += SCT_SensorsTool(name = self.toolName)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_SensorsTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

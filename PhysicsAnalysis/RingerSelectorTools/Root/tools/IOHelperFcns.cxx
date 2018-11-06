@@ -38,7 +38,7 @@ namespace {
 
 // =============================================================================
 /**
- * @brief Filter index string from 
+ * @brief Filter index string from
  **/
 std::string& filterIdxStr(std::string &str)
 {
@@ -47,8 +47,8 @@ std::string& filterIdxStr(std::string &str)
   bool isCorrectFormat = true;
   std::stringstream ss(str);
   // We want to discard everything until @
-  std::getline ( ss, str, '@' ); 
-  std::getline ( ss, str, '@' ); 
+  std::getline ( ss, str, '@' );
+  std::getline ( ss, str, '@' );
   if ( str.empty() || str.front() != '(' || str.back() != ')'){
     isCorrectFormat = false;
   }
@@ -67,7 +67,7 @@ std::string& filterIdxStr(std::string &str)
 } //private namespace
 
 // =============================================================================
-std::string makeIdxStr(unsigned int idxV) 
+std::string makeIdxStr(unsigned int idxV)
 {
   std::stringstream ss;
   ss << "@(" << idxV << ")";
@@ -75,7 +75,7 @@ std::string makeIdxStr(unsigned int idxV)
 }
 
 // =============================================================================
-std::string makeIdxStr(std::vector<unsigned int> &idxV) 
+std::string makeIdxStr(std::vector<unsigned int> &idxV)
 {
   std::stringstream ss;
   ss << "@(";
@@ -90,7 +90,7 @@ std::string makeIdxStr(std::vector<unsigned int> &idxV)
 }
 
 // =============================================================================
-void getIdxVecFromStr(const char* cstr, std::vector<unsigned int> &vec) 
+void getIdxVecFromStr(const char* cstr, std::vector<unsigned int> &vec)
 {
   // Clear vector so that we can fill it with idx array
   vec.clear();
@@ -101,11 +101,11 @@ void getIdxVecFromStr(const char* cstr, std::vector<unsigned int> &vec)
   while ( ss.good() ) {
     std::getline(ss,str,',');
     vec.push_back(std::stoul(str));
-  } 
+  }
 }
 
 // =============================================================================
-unsigned int getIdxFromStr(const char* cstr, unsigned int n) 
+unsigned int getIdxFromStr(const char* cstr, unsigned int n)
 {
   std::string str(cstr);
   std::stringstream ss(filterIdxStr(str));
@@ -131,11 +131,11 @@ bool startsWith(const char *cStrStart, const char *cStr)
 unsigned version()
 {
 
-#ifndef PACKAGE_VERSION
-# error "PACKAGE_VERSION macro is undefined."
+#ifndef RINGER_SELECTOR_PACKAGE_VERSION
+# error "RINGER_SELECTOR_PACKAGE_VERSION macro is undefined."
 #endif
 
-  std::string versionStr = PACKAGE_VERSION;
+  std::string versionStr = RINGER_SELECTOR_PACKAGE_VERSION;
 
   versionStr.erase(std::remove_if( versionStr.begin(),
       versionStr.end(),
@@ -148,7 +148,7 @@ unsigned version()
 // =============================================================================
 void checkFile(const TFile& file){
   if (file.IsZombie()){
-    throw std::runtime_error(std::string("TFile \"") + 
+    throw std::runtime_error(std::string("TFile \"") +
         file.GetName() + "\"is not in good status");
   }
 }
@@ -203,7 +203,7 @@ TDirectory *makeDir(TDirectory* baseDir, const char *name)
     checkDir(newDir);
   } catch ( std::runtime_error & ) {
     throw std::runtime_error(std::string("Could not create a directory "
-          "on directory named ") + baseDir->GetName() ); 
+          "on directory named ") + baseDir->GetName() );
   }
   writeVersion(newDir);
   return newDir;
@@ -235,7 +235,7 @@ std::shared_ptr<THashList> getDirList(TDirectory* dir)
 unsigned getWrittenVersion(TDirectory *configDir)
 {
   unsigned writtenVersion(0);
-  readVar(configDir, "writtenOnPkgVersion", writtenVersion); 
+  readVar(configDir, "writtenOnPkgVersion", writtenVersion);
   return writtenVersion;
 }
 

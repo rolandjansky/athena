@@ -9,8 +9,6 @@ PhysValPFO_charged.OutputLevel = WARNING
 PhysValPFO_charged.DetailLevel = 10
 PhysValPFO_charged.EnableLumi = False
 
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += PhysValPFO_charged
 monMan.AthenaMonTools += [ PhysValPFO_charged ]
 
 PhysValPFO_neutral_EM = PhysValPFO("PhysValPFO_neutral")
@@ -20,5 +18,4 @@ PhysValPFO_neutral_EM.EnableLumi = False
 PhysValPFO_neutral_EM.PFOContainerName="JetETMissNeutralParticleFlowObjects";
 PhysValPFO_neutral_EM.useNeutralPFO = True
 
-ToolSvc += PhysValPFO_neutral_EM
 monMan.AthenaMonTools += [ PhysValPFO_neutral_EM ]

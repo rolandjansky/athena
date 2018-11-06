@@ -79,7 +79,7 @@ StatusCode TileCellCont::initialize() {
     mbtsMgr = 0;
   }
 
-  ToolHandle<ITileBadChanTool> badChanTool("TileBadChanTool");
+  ToolHandle<ITileBadChanTool> badChanTool("TileBadChanLegacyTool");
   if (badChanTool.retrieve().isFailure()) {
     std::cout << "TileCellCont:initialize ERROR: Can not retrieve TileBadChanTool" << std::endl;
     return StatusCode::FAILURE;
@@ -89,6 +89,7 @@ StatusCode TileCellCont::initialize() {
     std::cout << "TileCellCont:initialize ERROR: Can not initialize TileBadChanTool" << std::endl;
     return StatusCode::FAILURE;
   }
+
   if ( !m_src ){ // if nothing set, use 2017
        std::cout << "TileCellCont::initialize ERROR : TileHid2RESrc has to be initialized before this" << std::endl;
   }
@@ -137,7 +138,7 @@ StatusCode TileCellCont::initialize() {
         } else if (index >= 0) { // normal cell
           one_good = one_good || (!badChanTool->getChannelStatus(channelID).isBad());
           Rw2Pmt[channel] = pmt;
-          if (channel > 0 || ros != 2) { // ignoring D0 (first channel) in negative barrel 
+          if (channel > 0 || ros != 2) { // ignoring D0 (first channel) in negative barrel
             cell_hash = tileID->cell_hash(cell_id);
             tmp.push_back(int_pair(channel, cell_hash));
           }
@@ -242,4 +243,3 @@ unsigned int TileCellCont::find_rod(const unsigned int& rodid) const {
   unsigned int rodidx = m_hash.identifier(rodid);
   return rodidx;
 }
-

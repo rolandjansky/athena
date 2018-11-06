@@ -16,37 +16,35 @@
 
 #include <math.h>
 
+namespace{
 // static particle masses
-Trk::ParticleMasses Trk::EnergyLossUpdator::s_particleMasses;
+const Trk::ParticleMasses  s_particleMasses{};
 // statics doubles
-double Trk::EnergyLossUpdator::s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
-double Trk::EnergyLossUpdator::s_eulerConstant = 0.577215665; // as given by google.com ;-)
+constexpr double s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
 
 // from full with at half maximum to sigma for a gaussian
-double Trk::EnergyLossUpdator::s_fwhmToSigma = 0.424;  //   1./(2.*sqrt(2.*log(2.)));
+constexpr double s_fwhmToSigma = 0.424;  //   1./(2.*sqrt(2.*log(2.)));
 
 // mpv to sigma fit values
-double Trk::EnergyLossUpdator::s_mpv_p0 = 4.57270e-02;
-double Trk::EnergyLossUpdator::s_mpv_p1 = 8.11761e-03;
-double Trk::EnergyLossUpdator::s_mpv_p2 = -4.85133e-01;
+constexpr double s_mpv_p0 = 4.57270e-02;
+constexpr double s_mpv_p1 = 8.11761e-03;
+constexpr double s_mpv_p2 = -4.85133e-01;
+}
 
 // constructor
 Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
+  m_stragglingErrorScale(1.),
+  m_mpvScale(0.98),
   m_useTrkUtils(true),
   m_gaussianVavilovTheory(false),
   m_useBetheBlochForElectrons(true),
-  m_transKaz(0.),
-  m_transTmax(0.),
-  m_stragglingErrorScale(1.),
-  m_mpvScale(0.98),
   m_mpvSigmaParametric(false),
   m_detailedEloss(true),
   m_optimalRadiation(true) {
   declareInterface<Trk::IEnergyLossUpdator>(this);
   // scale from outside
   declareProperty("UseTrkUtils", m_useTrkUtils);
-  declareProperty("BetheBlochKAFactor", s_ka_BetheBloch);
   // some additional setup
   declareProperty("UseGaussVavilovTheory", m_gaussianVavilovTheory);
   declareProperty("UseBetheBlochForElectrons", m_useBetheBlochForElectrons);
@@ -93,10 +91,10 @@ Trk::EnergyLossUpdator::dEdX(const MaterialProperties &mat,
   double beta = p / E;
   double gamma = E / m;
 
-  m_transKaz = 0.;
-  m_transTmax = 0.;
+  double transKaz = 0.;
+  double transTmax = 0.;
   // add ionization and radiation
-  double dEdX = dEdXBetheBloch(mat, beta, gamma, particle) + dEdXBetheHeitler(mat, E, particle);
+  double dEdX = dEdXBetheBloch(mat, transKaz, transTmax,beta, gamma, particle) + dEdXBetheHeitler(mat, E, particle);
 
   // add e+e- pair production and photonuclear effect for muons at energies above 8 GeV
   if ((particle == Trk::muon) && (E > 8000.)) {
@@ -131,10 +129,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
 
   double deltaE = 0.;
   double sigmaDeltaE = 0.;
-  m_transKaz = 0.;
-  m_transTmax = 0.;
-
-  // preparation
+   // preparation
   double sign = (dir == Trk::oppositeMomentum) ? -1. : 1.;
 
   double pathLength = pathcorrection * mat.thicknessInX0() * mat.x0();
@@ -162,11 +157,12 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
     " Energy loss updator deltaE " << deltaE << " meanIoni " << meanIoni << " meanRad " << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad << " sign " << sign << " pathLength " <<
   pathLength);
 
-  Trk::EnergyLoss *eloss = !m_detailedEloss ? new Trk::EnergyLoss(deltaE, sigmaDeltaE) :
-                           new Trk::EnergyLoss(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni,
-                                               meanRad, sigRad, pathLength);
+  std::unique_ptr<Trk::EnergyLoss> eloss = !m_detailedEloss ? 
+    std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE) :
+    std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni,meanRad, sigRad, pathLength);
+  
   if (m_useTrkUtils) {
-    return eloss;
+    return eloss.release();
   }
 
 // Code below will not be used if the parameterization of TrkUtils is used
@@ -214,18 +210,21 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
   double sigmaDeltaE_ioni = 0.;
   if (particle != Trk::electron || m_useBetheBlochForElectrons) {
     if (!mpvSwitch) {
+  
+      // K A/Z and T max will be returned by the dEdXBetheBloch
+      double transKaz{0};
+      double transTmax{0};
       // use the dEdX function
-      deltaE_ioni = sign * pathLength * dEdXBetheBloch(mat, beta, gamma, particle);
-
+      deltaE_ioni = sign * pathLength * dEdXBetheBloch(mat, transKaz,transTmax,beta, gamma, particle);
       // the different straggling functions
       if (m_gaussianVavilovTheory) {
         // use the Gaussian approximation for the Vavilov Theory
-        double sigmaE2 = m_transKaz * pathLength * m_transTmax * (1. - beta * beta / 2.);
+        double sigmaE2 = transKaz * pathLength * transTmax * (1. - beta * beta / 2.);
         sigmaDeltaE_ioni = sqrt(sigmaE2);
       } else {
-//      Take FWHM maximum of Landau and convert to Gaussian
-//      For the FWHM of the Landau Bichsel/PDG is used: FWHM = 4 xi = 4 m_transKaz * pathLength
-        sigmaDeltaE_ioni = 4. * s_fwhmToSigma * m_transKaz * pathLength;
+        //      Take FWHM maximum of Landau and convert to Gaussian
+        //      For the FWHM of the Landau Bichsel/PDG is used: FWHM = 4 xi = 4 m_transKaz * pathLength
+        sigmaDeltaE_ioni = 4. * s_fwhmToSigma * transKaz * pathLength;
       }
     } else {
       double eta2 = beta * gamma;
@@ -278,6 +277,8 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
 
 double
 Trk::EnergyLossUpdator::dEdXBetheBloch(const MaterialProperties &mat,
+                                       double& transKaz,
+                                       double& transTmax,
                                        double beta,
                                        double gamma,
                                        ParticleHypothesis particle) const {
@@ -329,12 +330,12 @@ Trk::EnergyLossUpdator::dEdXBetheBloch(const MaterialProperties &mat,
     // divide by beta^2 for non-electrons
     kaz /= beta * beta;
     // store the transport variables
-    m_transKaz = kaz;
-    m_transTmax = tMax;
+    transKaz = kaz;
+    transTmax = tMax;
     // return
     return kaz * (log(2. * me * eta2 * tMax / (iPot * iPot)) - 2. * (beta * beta) - delta);
   }
-  m_transKaz = kaz;
+  transKaz = kaz;
   // for electrons use slightly different BetheBloch adaption
   // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm. 79 (1994), 157-164
   return kaz * (2. * log(2. * me / iPot) + 3. * log(gamma) - 1.95);

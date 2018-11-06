@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypo.TrigMuonHypoConf import *
-from TrigMuonHypo.TrigMuonHypoMonitoring import *
+from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool
+from TrigMuonHypo.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
@@ -387,7 +387,7 @@ muFastThresholdsForECWeakBRegion = {
     }
 
 
-def TrigMufastHypoToolFromName( thresholdHLT ):	
+def TrigMufastHypoToolFromName( toolName,  thresholdHLT ):	
         
     name = "TrigMufastHypoTool"
     config = TrigMufastHypoConfig()
@@ -398,7 +398,7 @@ def TrigMufastHypoToolFromName( thresholdHLT ):
     thresholds = config.decodeThreshold( threshold )
     print "TrigMufastHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
 
-    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds )
+    tool=config.ConfigurationHypoTool( toolName, thresholds )
     
     # Setup MonTool for monitored variables in AthenaMonitoring package
     TriggerFlags.enableMonitoring = ["Validation"]
@@ -406,33 +406,6 @@ def TrigMufastHypoToolFromName( thresholdHLT ):
     try:
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
                 tool.MonTool = TrigMufastHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
-
-    return tool
-
-
-def TrigmuCombHypoToolFromName( thresholdHLT ):	
-        
-    name = "TrigmuCombHypoTool"
-    config = TrigmuCombHypoConfig()
-    
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
-
-    tight = False
-    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds, tight )
-    
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
     except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
@@ -510,6 +483,32 @@ class TrigMufastHypoConfig():
         return tool
     
 
+def TrigmuCombHypoToolFromName( toolName, thresholdHLT ):	
+        
+    name = "TrigmuCombHypoTool"
+    config = TrigmuCombHypoConfig()
+    
+    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+    bname = thresholdHLT.split('_') 
+    threshold = bname[1]
+    thresholds = config.decodeThreshold( threshold )
+    print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+
+    tight = False
+    tool=config.ConfigurationHypoTool( toolName, thresholds, tight )
+    
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ["Validation"]
+
+    try:
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+    except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+
+    return tool
+
 
 class TrigmuCombHypoConfig():
 
@@ -567,1317 +566,201 @@ class TrigmuCombHypoConfig():
         return tool 
 
 
-class MufastHypoConfig(MufastHypo) :
+### for TrigMuisoHypo
+def TrigMuisoHypoToolFromName( toolName, thresholdHLT ):
 
-    __slots__ = []
-    
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        if len(args) == 4:
-            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
-        return super( MufastHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+    name = "TrigMuisoHypoTool"
+    config = TrigMuisoHypoConfig()
 
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastHypoConfig, self ).__init__( name )
+    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+    bnames = thresholdHLT.split('_') 
 
-        threshold = args[1]
+    print "TrigMuisoHypoConfig: Decoded ", thresholdHLT 
 
-        try:
-            values = muFastThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            if threshold in muFastThresholdsForECWeakBRegion:
-                spThres = muFastThresholdsForECWeakBRegion[threshold]
-                self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
-                self.PtThresholdForECWeakBRegionB = spThres[1] * GeV
-            else:
-                print 'MufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold
-                print 'MufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
-                spThres = values[0][1]
-                if threshold == '2GeV' or threshold == '3GeV':
-                    self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
-                    self.PtThresholdForECWeakBRegionB = spThres[0] * GeV
-                else:
-                    self.PtThresholdForECWeakBRegionA = spThres[1] * GeV
-                    self.PtThresholdForECWeakBRegionB = spThres[2] * GeV
-                print 'MufastHypoConfig: -> Thresholds for A/B=',self.PtThresholdForECWeakBRegionA,'/',self.PtThresholdForECWeakBRegionB
-            
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-            else:
-                raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % threshold)
+    tool = config.ConfigurationHypoTool( toolName, bnames )
 
-        validation = MufastHypoValidationMonitoring()
-        online     = MufastHypoOnlineMonitoring()
-        cosmic     = MufastHypoCosmicMonitoring()
-	
-        self.AthenaMonTools = [ validation, online, cosmic ]
-    
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
 
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ["Validation"]
 
-class MufastStauHypoConfig(MufastStauHypo) :
+    try:
+        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+            tool.MonTool = TrigMuisoHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+    except AttributeError:
+        tool.MonTool = ""
+        print name, ' Monitoring Tool failed'
 
-    __slots__ = []
-    
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        if len(args) == 4:
-            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
-        return super( MufastStauHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+    return tool
 
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastStauHypoConfig, self ).__init__( name )
 
-        threshold = args[1]
+class TrigMuisoHypoConfig() :
 
-        try:
-            values = muFastThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ] 
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-            else:
-                raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % threshold)
 
-        validation = MufastStauHypoValidationMonitoring()
-        online     = MufastStauHypoOnlineMonitoring()
-        cosmic     = MufastStauHypoCosmicMonitoring()
-	
-        self.AthenaMonTools = [ validation, online, cosmic ]
-        if (args[0]=='Tight'):
-            print "sofia OK"
-            self.EtaCut = True
- 
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+    def ConfigurationHypoTool( self, toolName, bnames ):	
 
-
-class MufastPEBHypoConfig(MufastPEBHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        return super( MufastPEBHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastPEBHypoConfig, self ).__init__( name )
-
-        validation = MufastPEBHypoValidationMonitoring()
-        online     = MufastPEBHypoOnlineMonitoring()
-        cosmic     = MufastPEBHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
-
-class MufastCALHypoConfig(MufastCALHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        #newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        return super( MufastCALHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastCALHypoConfig, self ).__init__( name )
-
-        validation = MufastCALHypoValidationMonitoring()
-        online     = MufastCALHypoOnlineMonitoring()
-        cosmic     = MufastCALHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
-
-class MufastOTRHypoConfig(MufastOTRHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        if len(args) == 4:
-            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
-        return super( MufastOTRHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastOTRHypoConfig, self ).__init__( name )
-
-        threshold = int(args[1])
-
-        self.SegmentsTh = threshold
-
-        validation = MufastOTRHypoValidationMonitoring()
-        online     = MufastOTRHypoOnlineMonitoring()
-        cosmic     = MufastOTRHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
-
-
-class MucombHypoConfig(MucombHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( MucombHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MucombHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-        print 'MucombHypoConfig configured for threshold: ',threshold
-
-        try:
-            values = muCombThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.AcceptAll = True
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.ApplyStrategyDependentCuts = True
-                self.Apply_pik_Cuts = False
-            else:
-                raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        conf = args[0]
-        if (conf.find("tight")!=-1): 
-            self.Apply_pik_Cuts        = True
-            self.MaxPtToApply_pik      = 25.
-            self.MaxChi2ID_pik         = 3.5
-
-        validation = MucombHypoValidationMonitoring()
-        online     = MucombHypoOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class MucombStauHypoConfig(MucombStauHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( MucombStauHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MucombStauHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            values = muCombThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-        except LookupError:
-            raise Exception('MuCombStau Hypo Misconfigured: threshold %r not supported' % threshold)
-
-
-        if ( muonByteStreamFlags.RpcDataType()=='atlas' ):
-            self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
-        else:
-            self.BackExtrapolator = MuonBackExtrapolatorForAlignedDet()	   
-
-        conf = args[0]
-        if (conf.find("tight")!=-1): 
-            self.Apply_pik_Cuts = True
-
-        validation = MucombStauHypoValidationMonitoring()
-        online     = MucombStauHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class MuisoHypoConfig(MuisoHypo):
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s' % (cls.getType())] + list(args)
-        if len(args) == 1:
-            newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( MuisoHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MuisoHypoConfig, self ).__init__( name )
-
-        validation = MuisoHypoValidationMonitoring()
-        online     = MuisoHypoOnlineMonitoring()
-        cosmic     = MuisoHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
+        tool = TrigMuisoHypoTool( toolName )  
+        
         # If configured with passthrough, set AcceptAll flag on
-        self.AcceptAll = False
-        if len(args) == 2:
-            if (args[1]=='passthrough'):
-                self.AcceptAll = True
+        tool.AcceptAll = False
+        for bname in bnames:
+            if 'passthrough' in bname:
+                tool.AcceptAll = True
                 print 'MuisoHypoConfig configured in pasthrough mode'
 
-        if "FTK" in name: # allows us to use different working points in FTK mode
-            self.IDConeSize   = 2;
-            self.MaxIDIso_1   = 0.12
-            self.MaxIDIso_2   = 0.12
-            self.MaxIDIso_3   = 0.12  
+        if "FTK" in toolName: # allows us to use different working points in FTK mode
+            tool.IDConeSize   = 2;
+            tool.MaxIDIso_1   = 0.12
+            tool.MaxIDIso_2   = 0.12
+            tool.MaxIDIso_3   = 0.12  
         else:
-            self.IDConeSize   = 2;
-            self.MaxIDIso_1   = 0.1
-            self.MaxIDIso_2   = 0.1
-            self.MaxIDIso_3   = 0.1
+            tool.IDConeSize   = 2;
+            tool.MaxIDIso_1   = 0.1
+            tool.MaxIDIso_2   = 0.1
+            tool.MaxIDIso_3   = 0.1
 
         print 'MuisoHypoConfig configuration done'
+ 
+        return tool
 
 
-class TrigMooreHypoConfig(TrigMooreHypo) :
+def TrigMuonEFMSonlyHypoToolFromName( toolName, thresholdHLT ) :
 
-    __slots__ = []
+    name = "TrigMuonEFMSonlyHypoTool"
+    config = TrigMuonEFMSonlyHypoConfig()
 
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMooreHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+    bname = thresholdHLT.split('_') 
+    threshold = bname[1]
+    thresholds = config.decodeThreshold( threshold )
+    print "TrigMuonEFMSonlyHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
 
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMooreHypoConfig, self ).__init__( name )
+    tool = config.ConfigurationHypoTool( toolName, thresholds )
+ 
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ["Validation"]
 
-        threshold = args[1]
-
-        try:
-            values = trigMuonEFSAThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            #values = dirThresholdValues[threshold]
-            #self.PtBins = values[2][0]
-            #self.PtThresholds = [ x * GeV for x in values[2][1] ]
-        except LookupError:
-            raise Exception('TrigMoore Hypo Misconfigured!')
-
-        validation = TrigMooreHypoValidationMonitoring()
-        online     = TrigMooreHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class TrigMuonEFSegmentFinderHypoConfig(TrigMuonEFSegmentFinderHypo):
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFSegmentFinderHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFSegmentFinderHypoConfig, self ).__init__( name )
-
-#        from TrigMuonHypo.TrigMuonHypoMonitoring import TrigMuonEFSegmentFinderHypoOnlineMonitoring,TrigMuonEFSegmentFinderHypoValidationMonitoring
-#        validation = TrigMuonEFSegmentFinderHypoValidationMonitoring()
-#        online     = TrigMuonEFSegmentFinderHypoOnlineMonitoring()
-#        cosmic     = TrigMuonEFSegmentFinderHypoCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("TrigMuonEFSegmentFinderHypo_Time")
-
-#        self.AthenaMonTools = [ validation, online, time, cosmic]
-
-        # AcceptAll flag: if true take events regardless of cuts
-        self.AcceptAll = False
-
-        # If configured with passthrough, set AcceptAll flag on
-        if (args[1]=='passthrough'):
-            self.AcceptAll = True
-
-        # Hypothesis configuration and cuts
-        # std. cuts SG-10-11-08)
-        self.Nseg = 1
-
-
-
-class TrigMuonEFTrackBuilderHypoConfig(TrigMuonEFTrackBuilderHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFTrackBuilderHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFTrackBuilderHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            values = trigMuonEFSAThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            self.AcceptAll = False
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.AcceptAll = True
-            else:
-                raise Exception('TrigMuonEFTrackBuilder Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        validation = TrigMuonEFTrackBuilderHypoValidationMonitoring()
-        online     = TrigMuonEFTrackBuilderHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-
-class TrigMuonEFExtrapolatorHypoConfig(TrigMuonEFExtrapolatorHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFExtrapolatorHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFExtrapolatorHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            values = trigMuonEFSAThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            self.AcceptAll = False
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.AcceptAll = True
-            else:
-                raise Exception('TrigMuonEFExtrapolator Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        validation = TrigMuonEFExtrapolatorHypoValidationMonitoring()
-        online     = TrigMuonEFExtrapolatorHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-        def setDefaults(cls,handle):
-            if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-                if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                    print handle.name," eta bins doesn't match the Pt thresholds!"             
-
-
-
-class TrigMuonEFCombinerHypoConfig(TrigMuonEFCombinerHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFCombinerHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFCombinerHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            values = efCombinerThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            self.AcceptAll = False
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.AcceptAll = True
-            else:
-                raise Exception('TrigMuonEFCombiner Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        validation = TrigMuonEFCombinerHypoValidationMonitoring()
-        online     = TrigMuonEFCombinerHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-#AOH
-#
-# Multi Muon hypothesis.
-# Thresholds must be inclusive, but no ordering required.
-#
-# arg[0] = "Muon"
-# arg[1] = [1st muon threshold]
-# arg[2] = [2nd muon threshold]
-# arg[3] = [3rd muon threshold]
-# ...
-# arg[N] = {Nth muon threshold]
-
-class TrigMuonEFCombinerMultiHypoConfig(TrigMuonEFCombinerMultiHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        #newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        newargs = ['%s_%s' % (cls.getType(),reduce(lambda s1,s2: s1+"_"+s2, args))] + list(args)
-        return super( TrigMuonEFCombinerMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFCombinerMultiHypoConfig, self ).__init__( name )
-
-        try:
-            import itertools as it
-            PtMultiplicity = list()
-            PtBins = list()
-            PtThresholds = list()
-            i = 0
-            for threshold in list(it.islice(args,1,None)) :
-                values = efCombinerThresholds[threshold]
-                PtMultiplicity += [ i for x in values[1] ] 
-                PtBins         += values[0]
-                PtThresholds   += [ x * GeV for x in values[1] ]                
-                i                   += 1                    
-            self.PtMultiplicity = PtMultiplicity
-            self.PtBins         = PtBins
-            self.PtThresholds   = PtThresholds                
-            self.AcceptAll      = False
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.AcceptAll = True
-            else:
-                raise Exception('TrigMuonEFCombiner Multi Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        validation = TrigMuonEFCombinerMultiHypoValidationMonitoring()
-        online     = TrigMuonEFCombinerMultiHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-        
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins') and hasattr(handle,'PtMultiplicity'):
-            nmult = max(handle.PtMultiplicity) - min(handle.PtMultiplicity) + 1
-            if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class TrigMuonEFExtrapolatorMultiHypoConfig(TrigMuonEFExtrapolatorMultiHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        #newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        newargs = ['%s_%s' % (cls.getType(),reduce(lambda s1,s2: s1+"_"+s2, args))] + list(args)
-        return super( TrigMuonEFExtrapolatorMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFExtrapolatorMultiHypoConfig, self ).__init__( name )
-
-        try:
-            import itertools as it
-            PtMultiplicity = list()
-            PtBins = list()
-            PtThresholds = list()
-            i = 0
-            for threshold in list(it.islice(args,1,None)) :
-                values = trigMuonEFSAThresholds[threshold]
-                PtMultiplicity += [ i for x in values[1] ] 
-                PtBins         += values[0]
-                PtThresholds   += [ x * GeV for x in values[1] ]                
-                i                   += 1                    
-            self.PtMultiplicity = PtMultiplicity
-            self.PtBins         = PtBins
-            self.PtThresholds   = PtThresholds                
-            self.AcceptAll      = False
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.AcceptAll = True
-            else:
-                raise Exception('TrigMuonEFExtrapolator Multi Hypo Misconfigure: threshold %r not supported' % threshold)
-
-        validation = TrigMuonEFExtrapolatorMultiHypoValidationMonitoring()
-        online     = TrigMuonEFExtrapolatorMultiHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-        
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins') and hasattr(handle,'PtMultiplicity'):
-            nmult = max(handle.PtMultiplicity) - min(handle.PtMultiplicity) + 1
-            if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class TrigMuonEFTrackBuilderMultiHypoConfig(TrigMuonEFTrackBuilderMultiHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        #newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        newargs = ['%s_%s' % (cls.getType(),reduce(lambda s1,s2: s1+"_"+s2, args))] + list(args)
-        return super( TrigMuonEFTrackBuilderMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFTrackBuilderMultiHypoConfig, self ).__init__( name )
-
-        try:
-            import itertools as it
-            PtMultiplicity = list()
-            PtBins = list()
-            PtThresholds = list()
-            i = 0
-            for threshold in list(it.islice(args,1,None)) :
-                values = trigMuonEFSAThresholds[threshold]
-                PtMultiplicity += [ i for x in values[1] ] 
-                PtBins         += values[0]
-                PtThresholds   += [ x * GeV for x in values[1] ]                
-                i                   += 1                    
-            self.PtMultiplicity = PtMultiplicity
-            self.PtBins         = PtBins
-            self.PtThresholds   = PtThresholds                
-            self.AcceptAll      = False
-        except LookupError:
-            if (threshold=='passthrough'):
-                self.PtBins = [-10000.,10000.]
-                self.PtThresholds = [ -1. * GeV ]
-                self.AcceptAll = True
-            else:
-                raise Exception('TrigMuonEFTrackBuilder Multi Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        validation = TrigMuonEFTrackBuilderMultiHypoValidationMonitoring()
-        online     = TrigMuonEFTrackBuilderMultiHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-        
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins') and hasattr(handle,'PtMultiplicity'):
-            nmult = max(handle.PtMultiplicity) - min(handle.PtMultiplicity) + 1
-            if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class StauHypoConfig(StauHypo) :
-
-    __slots__ = []
-    
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        return super( StauHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( StauHypoConfig, self ).__init__( name )
-
-        # Isolation Hypothesis configuration and cuts
-        self.PtThreshold = 30000.0
-        self.BetaMax     = 0.97
-        self.MMin        = 40000.0
-
-
-class TileMuHypoConfig(TileMuHypo) :
-
-    __slots__ = [] 
-            
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:            
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        elif len(args) == 3:
-            newargs = ['%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2])] + list(args)
-        else:
-            newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-
-        return super( TileMuHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TileMuHypoConfig, self ).__init__( name )
-            
-        # Isolation Hypothesis configuration and cuts
-        #self.AcceptAll = True
-        self.AcceptAll = False
-        #self.IOptIDScan = 0
-        self.IOptIDScan = 1
-        if len(args) > 2:
-          TrackType = args[2]
-          if (TrackType=='NoTrack'):
-            self.IOptIDScan = 0
-          if (TrackType=='SITRACK'):
-            self.IOptIDScan = 2
-          if (TrackType=='TRTXK'):
-            self.IOptIDScan = 3
-          if (TrackType=='TRTSEG'):
-            self.IOptIDScan = 4
-
-        #self.UseIDScan = True  # Not use! (2008/Jan/18)
-        #self.DelPhi_Cut = 0.1
-        #self.DelEta_Cut = 0.1
-        
-        self.Pt_Cut = 2000.0
-                            # Unit(Pt):MeV! It is the default value!
-        if len(args) == 2:
-          threshold = args[1]
-          if (threshold=='6GeV'):
-            self.Pt_Cut = 6000.0
-          if (threshold=='4GeV'):
-            self.Pt_Cut = 4000.0
-
-        # Add for histogram
-        validation = TileMuHypoValidationMonitoring()
-        online     = TileMuHypoOnlineMonitoring()
-        cosmic     = TileMuHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
-class TrigMuGirlHypoConfig(TrigMuGirlHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuGirlHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuGirlHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            values = efCombinerThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            self.AcceptAll = False
-        except LookupError:
-            raise Exception('TrigMuGirl Hypo Misconfigured: threshold %r not supported' % threshold)
-
-#        validation = TrigMuGirlHypoValidationMonitoring()
-#        online     = TrigMuGirlHypoOnlineMonitoring()
-#        self.AthenaMonTools = [ validation, online ]
-
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        time.TimerHistLimits = [0, 100]
-        time.NumberOfHistBins = 100
-        self.AthenaMonTools = [ time ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class TrigMuGirlStauHypoConfig(TrigMuGirlStauHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuGirlStauHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuGirlStauHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            values = efCombinerThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            self.AcceptAll = False
-        except LookupError:
-            raise Exception('TrigMuGirlStau Hypo Misconfigured: threshold %r not supported' % threshold)
-
-#        validation = TrigMuGirlHypoValidationMonitoring()
-#        online     = TrigMuGirlHypoOnlineMonitoring()
-#        self.AthenaMonTools = [ validation, online ]
-
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        time.TimerHistLimits = [0, 100]
-        time.NumberOfHistBins = 100
-        self.AthenaMonTools = [ time ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-
-class TrigMuTagIMOHypoConfig(TrigMuTagIMOHypo) :
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuTagIMOHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-    
-    def __init__( self, name = "TrigMuTagIMOHypoConfig", *args, **kwargs):
-        super( TrigMuTagIMOHypoConfig, self ).__init__( name )
-
-        threshold = args[1]
-
-        try:
-            # borrow muFast threshold
-            values = muFastThresholds[threshold]
-            self.PtBins = values[0]
-            self.PtThresholds = [ x * GeV for x in values[1] ]
-            self.AcceptAll = False
-        except LookupError:
-            raise Exception('TrigMuTagIMOHypo Misconfigured!')
-        
-        validation = TrigMuTagIMOHypoValidationMonitoring()
-        online     = TrigMuTagIMOHypoOnlineMonitoring()
-        cosmic     = TrigMuTagIMOHypoCosmicMonitoring()
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        time.TimerHistLimits = [0, 10]
-        time.NumberOfHistBins = 20
-        self.AthenaMonTools = [ time ]
-
-    def setDefaults(cls,handle):
-        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
-            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class MuonRoiFexConfig(MuonRoiFex) :
-
-    __slots__ = []
-    
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 1:
-            newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        return super( MuonRoiFexConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MuonRoiFexConfig, self ).__init__( name )
-
-        mode = args[0]
-
-        if (mode=='passthrough'):
-            self.AcceptAll     = True
-            self.RpcOnly       = False
-            self.RpcHorizontal = False
-        elif (mode=='RpcOnly'):
-            self.AcceptAll     = False
-            self.RpcOnly       = True
-            self.RpcHorizontal = False
-        elif (mode=='RpcHorizontal'):
-            self.AcceptAll            = False
-            self.RpcOnly              = False
-            self.RpcHorizontal        = True
-            self.dPhiForRpcHorizontal = 0.78
-        else:
-             raise Exception('MuonRoiFex Misconfigured!')
-
-# Working points for EF track isolation algorithm
-# syntax is:
-# 'WPname' : [cut on 0.2 cone, cut on 0.3 cone]
-# put < 0 for no cut
-# For a relative cut the WPname should contain 'Rel'
-trigMuonEFTrkIsoThresholds = {
-    'EFOnlyLoose'             : [ 4200.0,  -1.0 ],
-    'EFOnlyTight'             : [ 1500.0,  -1.0 ],
-    'Loose'                   : [ 2800.0,  -1.0 ],
-    'Tight'                   : [ -1.0,   1000.0],
-    'TauCP'                   : [ -1.0,      1.0],
-
-    'RelEFOnlyLoose'          : [ 0.2,  -1.0 ],
-    'RelEFOnlyMedium'         : [ 0.12, -1.0 ],
-    'RelEFOnlyTight'          : [ 0.06, -1.0 ],
-    
-    'EFOnlyLooseWide'         : [ -1.0,   4200.0],
-    'EFOnlyMediumWide'        : [ -1.0,   2100.0],
-    'EFOnlyTightWide'         : [ -1.0,   1500.0],
-
-    'MSEFOnlyLooseWide'         : [ -1.0,   3000.0],
-    
-    'RelEFOnlyLooseWide'      : [-1.0 ,  0.2  ],
-    'RelEFOnlyMediumWide'     : [-1.0 ,  0.12 ],
-    'RelEFOnlyTightWide'      : [-1.0 ,  0.06 ],
-
-    'VarEFOnlyLoose'             : [ 4200.0,  -1.0 ],
-    'VarEFOnlyTight'             : [ 1500.0,  -1.0 ],
-    'VarLoose'                   : [ 2800.0,  -1.0 ],
-    'VarTight'                   : [ -1.0,   1000.0],
-    'VarTauCP'                   : [ -1.0,      1.0],
-
-    'RelEFOnlyVarLoose'          : [ 0.2,  -1.0 ],
-#    'RelEFOnlyVarMedium'         : [ 0.18, -1.0 ], #MC15C
-    'RelEFOnlyVarMedium'         : [ -1.0,  0.16],  #ivarloose
-    'RelEFOnlyVarTight'          : [ 0.06, -1.0 ],
-    
-    'EFOnlyVarLooseWide'         : [ -1.0,   4200.0],
-    'EFOnlyVarMediumWide'        : [ -1.0,   2100.0],
-    'EFOnlyVarTightWide'         : [ -1.0,   1500.0],
-    
-    'RelEFOnlyVarLooseWide'      : [-1.0 ,  0.2  ],
-    'RelEFOnlyVarMediumWide'     : [-1.0 ,  0.12 ],
-#    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] #MC15C 
-    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ]  #ivarmedium
-    }
-
-
-
-trigMuonEFCaloIsoThresholds = {
-    
-    'Rel'                : [ 0.3, 0.3, 0.3 ],    
-    'AbsCalo'            : [ 5200.0,   4800.0, 4000.0],
-    
-    }
-
-"""
-Class for hypothesis cuts on EF track isolation algorithm.
-arg[0] = Muon
-arg[1] = working point
-See trigMuonEFTrkIsoThresholds for available working points
-Put passthrough in arg[1] for passthrough
-"""
-
-class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFTrackIsolationHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFTrackIsolationHypoConfig, self ).__init__( name )
-
-        try:
-            cuts = trigMuonEFTrkIsoThresholds[ args[1] ]
-            ptcone02 = cuts[0]
-            ptcone03 = cuts[1]
-
-            self.PtCone02Cut = ptcone02
-            self.PtCone03Cut = ptcone03
-            self.AcceptAll = False
-
-            if 'MS' in args[1]:
-                self.RequireCombinedMuon = False
-            else:
-                self.RequireCombinedMuon = True
-
-            if 'Rel' in args[1] :
-                self.DoAbsCut = False
-            else :
-                self.DoAbsCut = True
-            if 'Var' in args[1] :
-                self.useVarIso = True
-            else :
-                self.useVarIso = False                                
-        except LookupError:
-            if(args[1]=='passthrough') :
-                print 'Setting passthrough'
-                self.AcceptAll = True
-            else:
-                print 'args[1] = ', args[1]
-                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
-        
-
-        validation = TrigMuonEFTrackIsolationHypoValidationMonitoring()
-        online     = TrigMuonEFTrackIsolationHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-
-"""
-Class for hypothesis cuts on EF calo isolation algorithm.
-arg[0] = Muon
-arg[1]-arg[3] = working point (eta dependent)
-Put passthrough in arg[1] for passthrough
-"""
-
-class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        #newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-
-        return super( TrigMuonEFCaloIsolationHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFCaloIsolationHypoConfig, self ).__init__( name )
-
-        try:
-            cuts = trigMuonEFCaloIsoThresholds[ args[1] ]
-
-            # If configured with passthrough, set AcceptAll flag on
-            self.AcceptAll = False
-            if len(args) == 2:
-                if (args[1]=='passthrough'):
-                    self.AcceptAll = True
-                    print 'TrigMuonEFCaloIsolationConfig configured in passthrough mode'
-
-            #Default cuts (more than 95% eff on Z->mumu) tuned on 2011 run 178044 data <beta>~6
-            #These probably should be updated!
-            self.CaloConeSize = 2;
-            self.MaxCaloIso_1 = cuts[0]
-            self.MaxCaloIso_2 = cuts[1]
-            self.MaxCaloIso_3 = cuts[2]
-
-            if 'Rel' in args[1] :
-                self.DoAbsCut = False
-            else :
-                self.DoAbsCut = True
-                                            
-        except LookupError:
-            if(args[1]=='passthrough') :
-                print 'Setting passthrough'
-                self.AcceptAll = True
-            else:
-                print 'args[1] = ', args[1]
-                raise Exception('TrigMuonEFCaloIsolation Hypo Misconfigured')
-        
-
-        #validation = TrigMuonEFCaloIsolationHypoValidationMonitoring()
-        #online     = TrigMuonEFCaloIsolationHypoOnlineMonitoring()
-    
-        #self.AthenaMonTools = [ validation, online ]
-
-
-
-"""
-Class for hypothesis cuts on EF combiner dimuon mass hypo
-arg[0] = mass working point
-arg[1] = sign (NS/OS/SS)
-Put passthrough in arg[1] for passthrough
-"""
-trigMuonEFCombinerDiMuonMassThresholds = {
-     'Jpsi'    : [  2.5,    4.3 ],
-     'Upsi'    : [  8.0,   12.0 ],
-     'Z'       : [ 80.0,  100.0 ],
-    }
-
-class TrigMuonEFCombinerDiMuonMassHypoConfig(TrigMuonEFCombinerDiMuonMassHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFCombinerDiMuonMassHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFCombinerDiMuonMassHypoConfig, self ).__init__( name )
-
-        try:
-            cuts = trigMuonEFCombinerDiMuonMassThresholds[ args[0] ]
-            massThresLow  = cuts[0]
-            massThresHigh = cuts[1]
-
-            self.massThresLow  = massThresLow
-            self.massThresHigh = massThresHigh
-            self.AcceptAll = False
-
-            if 'NS' in args[1] :
-                self.signRequirement =  0
-            elif 'OS' in args[1] :
-                self.signRequirement = -1
-            elif 'SS' in args[1] :
-                self.signRequirement =  1
-            else :
-                print 'args[1] = ', args[1]
-                raise Exception('TrigMuonEFCombinerDiMuonMass Hypo Misconfigured')
-                                            
-        except LookupError:
-            if(args[0]=='passthrough') :
-                print 'Setting passthrough'
-                self.AcceptAll = True
-            else:
-                print 'args[0] = ', args[0]
-                raise Exception('TrigMuonEFCombinerDiMuonMass Hypo Misconfigured')
-        
-
-        validation = TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring()
-        online     = TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-#vvvvv   pvn
-class TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig(TrigMuonEFCombinerDiMuonMassPtImpactsHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig, self ).__init__( name )
-
-        try:
-            # in GeV
-
-            # HLT_2mu6_10invm30_pt2_z10
-            self.massThresLow  = 10.0
-            self.massThresHigh = 30.0
-            self.pairptThresLow  = -1
-            self.pairptThresHigh  = 2.0
-            self.deltaZThres = 10.0
-            self.deltaPhiThresLow = -1
-            self.deltaPhiThresHigh = -1
-            self.AcceptAll = False
-
-            # Only for debug
-            # This should be commented out once debugging is done
-            # self.pairptThresHigh  = 200.0
-                                            
-        except LookupError:
-            if(args[0]=='passthrough') :
-                print 'Setting passthrough'
-                self.AcceptAll = True
-            else:
-                print 'args[0] = ', args[0]
-                raise Exception('TrigMuonEFCombinerDiMuonMassPtImpacts Hypo Misconfigured')
-        
-        online     = TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ online ]
-
-#^^^^^   pvn
-
-
-class MufastNSWHypoConfig(MufastNSWHypo) :
-
-    __slots__ = []
-    
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        return super( MufastNSWHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastNSWHypoConfig, self ).__init__( name )
-
-        self.AcceptAll = False
-
-        validation = MufastNSWHypoValidationMonitoring()
-        online     = MufastNSWHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-
-class TrigMuonEFExtrapolatorNSWHypoConfig(TrigMuonEFExtrapolatorNSWHypo) :
-
-    __slots__ = []
-    
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s' % (cls.getType(),args[0])] + list(args)
-        return super( TrigMuonEFExtrapolatorNSWHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonEFExtrapolatorNSWHypoConfig, self ).__init__( name )
-
-        self.AcceptAll = False
-
-        validation = TrigMuonEFExtrapolatorNSWHypoValidationMonitoring()
-        online     = TrigMuonEFExtrapolatorNSWHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ validation, online ]
-
-class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
-  __slots__ = []
-
-  def __new__(cls, *args, **kwargs):
-    newargs = ['%s_%s' % (cls.getType(),reduce(lambda s1,s2: str(s1)+"_"+str(s2), args))] + list(args)
-    #newargs = ['%s' % (cls.getType())] + list(args)
-    return super( TrigMuonCaloTagHypoConfig, cls).__new__(cls, *newargs, **kwargs)
-
-  def __init__(self, name, *args, **kwargs):
-    super( TrigMuonCaloTagHypoConfig, self).__init__(name)
-
-    self.PtThresholds = [t*1000 for t in efCaloTagThresholds[args[1]][1][:args[2]]]
-    self.UseLH = False
-    self.TightCaloTag = True
-    self.MaxMissingCells = 3
-
-
-class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        return super( TrigMuonIDTrackMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( TrigMuonIDTrackMultiHypoConfig, self ).__init__( name )
-
-        try:
-            if args[0]=='passthrough':
-                self.AcceptAll = True
-            else:
-                self.AcceptAll = False
-
-                if args[1]=='FTF':
-                    self.TrkAlgo = "InDetTrigTrackingxAODCnv_Muon_FTF"
-                elif args[1]=='IDTrig':
-                    self.TrkAlgo = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
-                elif args[1]=='Muon':
-                    self.UseMuon = True
-                elif args[1]=='MuRoI':
-                    self.UseMuRoiDr = True
-                    self.UseMuRoiDrOnly = True
-                    pass
-                else:
-                    print 'args[1] = ', args[1]
-                    raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
-
-                split_args = args[0].split("_")
-                pattern_pt = re.compile("pt")
-                pattern_mass = re.compile("m")
-                pattern_dr = re.compile("dr")
-                for i in range(len(split_args)):
-                    if pattern_pt.search(split_args[i]) :
-                        ptargs = split_args[i].split("pt")
-                        threshold = ptargs[1]
-                        multiplicity = ptargs[0]
-                        if args[1]=='FTF':
-                            values = muCombThresholds[threshold+"GeV_v15a"]
-                        if args[1]=='IDTrig':
-                            values = efCombinerThresholds[threshold+"GeV_v15a"]
-                        if args[1]=='Muon':
-                            values = efCombinerThresholds[threshold+"GeV_v15a"]
-                        if i == 0:
-                            self.PtBins1 = values[0]
-                            self.PtThresholds1 = [ x * GeV for x in values[1] ]
-                            self.Multiplicity1 = int(multiplicity)
-                        if i == 1:
-                            self.PtBins2 = values[0]
-                            self.PtThresholds2 = [ x * GeV for x in values[1] ]
-                            self.Multiplicity2 = int(multiplicity)
-                        if i == 2:
-                            self.PtBins3 = values[0]
-                            self.PtThresholds3 = [ x * GeV for x in values[1] ]
-                            self.Multiplicity3 = int(multiplicity)
-                        if i > 2:
-                            raise Exception('TrigMuonIDTrackMultiHypo Misconfigured : more than 3 pt settings')
-                    elif pattern_mass.search(split_args[i]) :
-                        massargs = split_args[i].split("m")
-                        self.LowMassCut = int(massargs[0])
-                        self.HighMassCut = int(massargs[1])
-                    elif pattern_dr.search(split_args[i]) :
-                        drargs = split_args[i].split("dr")
-                        if drargs[0] == '0':self.MuRoiDrMin = 0.0;
-                        if drargs[0] == '005':self.MuRoiDrMin = 0.05;
-                        if drargs[0] == '01':self.MuRoiDrMin = 0.1;
-                        if drargs[0] == '015':self.MuRoiDrMin = 0.15;
-                        if drargs[0] == '02':self.MuRoiDrMin = 0.2;
-                        if drargs[0] == '025':self.MuRoiDrMin = 0.25;
-                        if drargs[0] == '03':self.MuRoiDrMin = 0.3;
-                        if drargs[0] == '035':self.MuRoiDrMin = 0.35;
-                        if drargs[0] == '04':self.MuRoiDrMin = 0.4;
-                        if drargs[0] == '045':self.MuRoiDrMin = 0.45;
-                        if drargs[0] == '05':self.MuRoiDrMin = 0.5;
-                        if drargs[0] == '1':self.MuRoiDrMin = 1.0;
-                        if drargs[1] == '0':self.MuRoiDrMax = 0.0;
-                        if drargs[1] == '005':self.MuRoiDrMax = 0.05;
-                        if drargs[1] == '01':self.MuRoiDrMax = 0.1;
-                        if drargs[1] == '015':self.MuRoiDrMax = 0.15;
-                        if drargs[1] == '02':self.MuRoiDrMax = 0.2;
-                        if drargs[1] == '025':self.MuRoiDrMax = 0.25;
-                        if drargs[1] == '03':self.MuRoiDrMax = 0.3;
-                        if drargs[1] == '035':self.MuRoiDrMax = 0.35;
-                        if drargs[1] == '04':self.MuRoiDrMax = 0.4;
-                        if drargs[1] == '045':self.MuRoiDrMax = 0.45;
-                        if drargs[1] == '05':self.MuRoiDrMax = 0.5;
-                        if drargs[1] == '1':self.MuRoiDrMax = 1.0;
-
-
-                                            
-        except LookupError:
-            print 'args[0] = ', args[0]
-            raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
-        
-        online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
-	
-        self.AthenaMonTools = [ online ]
-
-
-########MT EF hypo 
-class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
-
-    __slots__ = []
-
-    # nath: name threshold, for example HLT_mu6 etc
-    def TrigMuonEFMSonlyHypoToolFromName( self, name, nath ):	
-
-        from AthenaCommon.Constants import DEBUG
-        tool = TrigMuonEFMSonlyHypoTool( nath )  
-        tool.OutputLevel = DEBUG
-        bname = nath.split('_') 
-
-        # this needs to be correctly defined, as this is defined for test run
-        if len(bname) == 2: 
-            th = re.findall(r'[0-9]+', bname[1])           
-            threshold = str(th[0]) + 'GeV'
-            TrigMuonEFMSonlyHypoConfig().ConfigrationHypoTool( name, nath, threshold )
-        else:
-            print """ Configration ERROR: Can't configure threshold at TrigMuonEFMSonlyHypoTool """
-            return tool
-    
-        # Setup MonTool for monitored variables in AthenaMonitoring package
-        try:
-            TriggerFlags.enableMonitoring = ["Validation"]
+    try:
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring() 
-        except AttributeError:
+                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+    except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
     
-        return tool
+    return tool
     
-    def ConfigrationHypoTool( self, name, nath, threshold ): 
+class TrigMuonEFMSonlyHypoConfig(): 
         
-        tool = TrigMuonEFMSonlyHypoTool( nath )  
+
+    def decodeThreshold( self, threshold ):
+        """ decodes the thresholds of the form mu6, 2mu6, ... """
+        print "decoding ", threshold
+
+        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
+            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
+            return [ threshold[3:] ] * int( threshold[0] )
+        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
+            return threshold.strip('mu').split('mu')
     
-        try:
-            tool.AcceptAll = False
-            values = trigMuonEFSAThresholds[threshold]
-            tool.PtBins = values[0]
-            tool.PtThresholds = [ x * GeV for x in values[1] ]
-        except LookupError:
-            if (threshold=='passthrough'):
-                tool.PtBins = [-10000.,10000.]
-                tool.PtThresholds = [ -1. * GeV ]
-            else:
-                raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
-        return threshold
+        # If the form is muX(inclusive), return as 1 element list
+        return [ threshold[2:] ]        
+
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+
+        tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
+
+        nt = len(thresholds)
+        print "TrigMuonEFMSonlyHypoConfig: Set ", nt, " thresholds" 
+        print "But cann't use multi muon trigger due to not yet implemented it"
+        tool.PtBins = [ [ 0, 2.5 ] ] * nt
+        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+
+ 
+        for th, thvalue in enumerate(thresholds):
+            thvaluename = thvalue + 'GeV'
+            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+
+            try:
+                tool.AcceptAll = False
+                values = trigMuonEFSAThresholds[thvaluename]
+                tool.PtBins[th] = values[0]
+                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+
+            except LookupError:
+                if (threshold=='passthrough'):
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
+                else:
+                    raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
+
+        return tool
+
+def TrigMuonEFCombinerHypoToolFromName( toolName, thresholdHLT ) :
+
+    name = "TrigMuonEFCombinerHypoTool"
+    config = TrigMuonEFCombinerHypoConfig()
+
+    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+    bname = thresholdHLT.split('_') 
+    threshold = bname[1]
+    thresholds = config.decodeThreshold( threshold )
+    print "TrigMuonEFCombinerHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+
+    tool = config.ConfigurationHypoTool( toolName, thresholds )
+ 
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ["Validation"]
+
+    try:
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMuonEFCombinerHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+    except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+    return tool
+
+class TrigMuonEFCombinerHypoConfig(): 
+        
+
+    def decodeThreshold( self, threshold ):
+        """ decodes the thresholds of the form mu6, 2mu6, ... """
+        print "decoding ", threshold
+
+        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
+            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
+            return [ threshold[3:] ] * int( threshold[0] )
+        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
+            return threshold.strip('mu').split('mu')
+    
+        # If the form is muX(inclusive), return as 1 element list
+        return [ threshold[2:] ]        
+
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+
+        tool = TrigMuonEFCombinerHypoTool( thresholdHLT )  
+
+        nt = len(thresholds)
+        print "TrigMuonEFCombinerHypoConfig: Set ", nt, " thresholds" 
+        tool.PtBins = [ [ 0, 2.5 ] ] * nt
+        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+
+ 
+        for th, thvalue in enumerate(thresholds):
+            thvaluename = thvalue + 'GeV'
+            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+
+            try:
+                tool.AcceptAll = False
+                values = efCombinerThresholds[thvaluename]
+                tool.PtBins[th] = values[0]
+                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+
+            except LookupError:
+                if (threshold=='passthrough'):
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
+                else:
+                    raise Exception('MuonEFCB Hypo Misconfigured: threshold %r not supported' % threshold)
+
+        return tool
+

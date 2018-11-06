@@ -7,13 +7,13 @@
 
 namespace Ringer {
 #if !(RINGER_USE_NEW_CPP_FEATURES)
-const char* IDiscrWrapper::wrapName = "RingerDiscriminatorWrapper"; 
+const char* IDiscrWrapper::wrapName = "RingerDiscriminatorWrapper";
 #else
-constexpr const char* IDiscrWrapper::wrapName; 
+constexpr const char* IDiscrWrapper::wrapName;
 #endif
 
 // =============================================================================
-void IDiscrWrapper::writeCol(const IDiscrWrapperCollection &discrWrapperCol, 
+void IDiscrWrapper::writeCol(const IDiscrWrapperCollection &discrWrapperCol,
     const char *fileName)
 {
   TFile wrapperFile(fileName, "UPDATE");
@@ -29,7 +29,7 @@ void IDiscrWrapper::writeCol(const IDiscrWrapperCollection &discrWrapperCol,
   IOHelperFcns::writeVar( configDir, "discrWrapperSize", discrWrapperSize );
   for (size_t discrIdx = 0;  discrIdx < discrWrapperSize; ++discrIdx ) {
     // Write wrapper on the file:
-    discrWrapperCol[discrIdx]->write(configDir, 
+    discrWrapperCol[discrIdx]->write(configDir,
         IOHelperFcns::makeIdxStr(discrIdx).c_str());
   }
 
@@ -39,7 +39,7 @@ void IDiscrWrapper::writeCol(const IDiscrWrapperCollection &discrWrapperCol,
 }
 
 // =============================================================================
-void IDiscrWrapper::read(IDiscrWrapperCollection &discrWrapperCol, 
+void IDiscrWrapper::read(IDiscrWrapperCollection &discrWrapperCol,
     const char* fileName)
 {
   // Try to open file and check if nothing wrong happened:
@@ -65,7 +65,7 @@ void IDiscrWrapper::read(IDiscrWrapperCollection &discrWrapperCol,
     if ( discrDir == nullptr || discrDir == configDir )
     {
       throw std::runtime_error(std::string("Could not find directory \"")
-            + folderName + "\" containing Discriminatior Wrapper" 
+            + folderName + "\" containing Discriminatior Wrapper"
             "information.");
     }
     // Get basic preprocessing wrapper information:
@@ -73,21 +73,21 @@ void IDiscrWrapper::read(IDiscrWrapperCollection &discrWrapperCol,
     EtaDependency fileEtaDep;
     EtDependency fileEtDep;
     SegmentationType fileSegType;
-    IOHelperFcns::readVar<discrEnum_t, unsigned int>( discrDir, 
+    IOHelperFcns::readVar<discrEnum_t, unsigned int>( discrDir,
         "discrType",
         discrType);
     IOHelperFcns::readVar<SegmentationType, unsigned int>( discrDir,
         "segType",
         fileSegType);
-    IOHelperFcns::readVar<EtaDependency, unsigned int>( discrDir, 
+    IOHelperFcns::readVar<EtaDependency, unsigned int>( discrDir,
         "etaDependency",
         fileEtaDep);
-    IOHelperFcns::readVar<EtDependency, unsigned int>( discrDir, 
+    IOHelperFcns::readVar<EtDependency, unsigned int>( discrDir,
         "etDependency",
         fileEtDep);
     //ATH_MSG_DEBUG("It's type is " << toStr(discrType) << " and dependency is :["
     //    << toStr(fileSegType) << ","
-    //    << toStr(fileEtaDep) << "," 
+    //    << toStr(fileEtaDep) << ","
     //    << toStr(fileEtDep) << "]");
     // Create wrapper and append it to collection. Here we make some checks
     // whether the wrapper preprocessing type is not IDiscriminatorVarDep.
@@ -99,12 +99,12 @@ void IDiscrWrapper::read(IDiscrWrapperCollection &discrWrapperCol,
         // We create discrimination wrapper specialized for each segmentation
         // type for the NeuralNetwork, which is one discriminator that we shall
         // use frequently.
-        READ_ALL_DEP_WRAPPER(discrWrapperCol, 
-            Discrimination::NNFeedForwardVarDep, 
-            fileSegType, 
-            fileEtaDep, 
-            fileEtDep, 
-            discrDir, 
+        READ_ALL_DEP_WRAPPER(discrWrapperCol,
+            Discrimination::NNFeedForwardVarDep,
+            fileSegType,
+            fileEtaDep,
+            fileEtDep,
+            discrDir,
             version)
         break;
       }

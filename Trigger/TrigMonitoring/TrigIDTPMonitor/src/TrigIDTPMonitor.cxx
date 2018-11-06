@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -72,11 +72,6 @@ HLT::ErrorCode TrigIDTPMonitor::hltInitialize(){
 
 HLT::ErrorCode TrigIDTPMonitor::hltFinalize(){
   ATH_MSG_DEBUG( "Running TrigIDTPMonitor::hltFinalize" );
-  return HLT::OK;
-}
-
-HLT::ErrorCode TrigIDTPMonitor::hltBeginRun() {
-  ATH_MSG_INFO( "beginning run in this " << name() );
   return HLT::OK;
 }
 

@@ -6,13 +6,14 @@
 #ifndef IDPERFMON_SERVICES_H
 #define IDPERFMON_SERVICES_H
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Algorithm.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
+
+class IAtRndmGenSvc;
 
 class PerfMonServices
 {
@@ -29,7 +30,6 @@ class PerfMonServices
   static IMessageSvc*   getMessagingService()    { return s_pxMessageSvc;   }
   static INTupleSvc*    getRootTupleService()    { return s_pxNtupleSvc;    }
   static ITHistSvc*     getHistogramService()    { return s_pxTHistSvc;     }
-  //static IAtRndmGenSvc* getRandomNumberService() { return s_pxAtRndmGenSvc; }
 
   enum CONTAINERS
   {
@@ -67,7 +67,7 @@ class PerfMonServices
 
   template <class T>  static const T* getContainer( CONTAINERS eContainer )
   {
-    const T* pxContainer = NULL;
+    const T* pxContainer{};
     const std::string sContainerName = PerfMonServices::getContainerName( eContainer );
 
     if ( s_pxStoreGateSvc )
@@ -77,18 +77,8 @@ class PerfMonServices
       {
     	return pxContainer;
       }
-      else
-      { // if that failed then try the Atlfast types.
-	//pxContainer = NULL;
-	//const std::string sAtlfastContainerName = Services::getAtlfastContainerName( eContainer );
-
-	//if ( CheckServiceInit( xStatus, !pxContainer, sAtlfastContainerName ) )
-	//{
-	//  return pxContainer;
-	//}
-      }
     }
-    return NULL;
+    return nullptr;
   }
 
  protected:

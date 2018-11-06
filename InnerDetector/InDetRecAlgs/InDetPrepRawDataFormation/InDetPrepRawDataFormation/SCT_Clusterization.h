@@ -8,17 +8,9 @@
  *   @date 08 July 2008
  */
 
-
 #ifndef INDETPREPRAWDATAFORMATION_SCT_CLUSTERIZATION_H
 #define INDETPREPRAWDATAFORMATION_SCT_CLUSTERIZATION_H
-//STL
-#include <string>
-#include <map>
-#include <set>
 
-//Gaudi
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -38,16 +30,17 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
+//Gaudi
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <map>
+#include <string>
+
 class SCT_ID;
-class SCT_ChannelStatusAlg;
-class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
-
-namespace InDetDD{
-  class SiDetectorManager;
-}
-
 
 namespace InDet {
 /**
@@ -59,7 +52,7 @@ namespace InDet {
 class SCT_Clusterization : public AthAlgorithm {
 public:
   /// Constructor with parameters:
-  SCT_Clusterization(const std::string &name,ISvcLocator *pSvcLocator);
+  SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator);
   
   /**    @name Usual algorithm methods */
   //@{
@@ -71,7 +64,6 @@ public:
   virtual StatusCode finalize() override;
   //@}
 
-
 private:
   /**    @name Disallow default instantiation, copy, assignment */
   //@{
@@ -80,28 +72,22 @@ private:
   SCT_Clusterization &operator=(const SCT_Clusterization&) = delete;
   //@}
 
-  ToolHandle< ISCT_ClusteringTool >        m_clusteringTool;       //!< Clustering algorithm
-  std::string                              m_managerName;   //REMOVE LATER       //!< Detector manager name in StoreGate
-  const SCT_ID*                            m_idHelper;
+  ServiceHandle<IRegSelSvc> m_regionSelector; //!< region selector service
+  ToolHandle<ISCT_ClusteringTool> m_clusteringTool{this, "clusteringTool", "InDet::SCT_ClusteringTool"};
+  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
+  const SCT_ID* m_idHelper;
 
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
-
-  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey;
-  bool m_roiSeeded;                                //!< detector manager name in StoreGate
-  
-  
-  SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey;
-  SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
-  SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey;
-  const InDetDD::SiDetectorManager*        m_manager;
-  unsigned int                             m_maxRDOs;
-  ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsTool",
-      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
-  bool                                     m_checkBadModules;
-  std::set<IdentifierHash>                 m_flaggedModules;
-  unsigned int                             m_maxTotalOccupancyPercent;
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, "RoIs", "", "RoIs to read in"};
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "DataObjectName", "SCT_RDOs", "SCT RDOs"};
+  SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey{this, "ClustersName", "SCT_Clusters", "SCT cluster container"};
+  SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey{this, "ClustersLinkName_", "SCT_Clusters", "SCT cluster container link name (don't set this)"};
+  SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
   SG::UpdateHandleKey<SCT_ClusterContainerCache> m_clusterContainerCacheKey;
+
+  UnsignedIntegerProperty m_maxFiredStrips{this, "maxFiredStrips", 384, "Threshold of number of fired strips per wafer"}; // 0 disables the per-wafer cut
+  UnsignedIntegerProperty m_maxTotalOccupancyPercent{this, "maxTotalOccupancyInPercent", 100, "Threshold of percentage of fired strips for the whole SCT"}; // 100 disables the whole SCT cut
+  BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
+  BooleanProperty m_checkBadModules{this, "checkBadModules", true};
 };
 
 }

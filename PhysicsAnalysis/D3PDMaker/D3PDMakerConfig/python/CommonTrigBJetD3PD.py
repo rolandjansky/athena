@@ -166,17 +166,6 @@ def TrigBJetD3PDObjects( alg, level = 10, doAddL2ID = False, doAddEFID = False, 
     if (addNaviInfo):
         alg += InitTrigD3PDObject( level )
 
-    # Trigger navigation info
-    if (addNaviInfo):
-        from TriggerD3PDMaker.TrigNaviD3PDObject import ChainEntryD3PDObject, \
-                                                        CombLinksD3PDObjects
-        if not hasattr( alg, "trig_Nav_Filler" ):
-            alg += ChainEntryD3PDObject( level )           # prefix = "trig_Nav_"
-        # prefix = "trig_RoI_"
-        for roi in ['L2_b', 'EF_b', 'L2_j', 'EF_j']:
-            if not hasattr (alg, 'trig_RoI_%s_Filler' % roi):
-                alg += CombLinksD3PDObjects[ roi ]( level ) 
-
     # LVL1 Jet RoI
     if (addL1Jet):
       from TriggerD3PDMaker.JetROID3PDObject import JetROID3PDObject

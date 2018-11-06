@@ -17,7 +17,7 @@
 //*****************************************************************************
 
 // Tile includes
-#include "TileRecAlgs/TileRawChannelToHit.h"
+#include "TileRawChannelToHit.h"
 
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileFragHash.h"

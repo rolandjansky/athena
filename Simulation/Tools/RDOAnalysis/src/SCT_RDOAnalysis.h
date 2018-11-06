@@ -1,45 +1,44 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef SCT_RDO_ANALYSIS_H
 #define SCT_RDO_ANALYSIS_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/SCT_SimHelper.h"
-#include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadHandleKey.h"
 
-#include <string>
-#include <vector>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+
 #include "TH1.h"
 #include "TH2.h"
 
+#include <string>
+#include <vector>
+
 class TTree;
 class SCT_ID;
-class SCT_RDORawData;
 
 class SCT_RDOAnalysis : public AthAlgorithm {
 
 public:
   SCT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
-  ~SCT_RDOAnalysis(){}
+  ~SCT_RDOAnalysis() = default;
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
   virtual StatusCode finalize() override final;
 
 private:
-  SG::ReadHandleKey<SCT_RDO_Container> m_inputKey;
-  SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
-  const SCT_ID *m_sctID;
+  SG::ReadHandleKey<SCT_RDO_Container> m_inputKey{this, "InputKey", "SCT_RDOs"};
+  SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey{this, "InputTruthKey", "SCT_SDO_Map"};
+  const SCT_ID* m_sctID;
   // RDO
   std::vector<unsigned long long>* m_rdoID;
   std::vector<unsigned int>* m_rdoWord;
@@ -70,9 +69,9 @@ private:
   std::vector<int>* m_barcode;
   std::vector<int>* m_eventIndex;
   std::vector<float>* m_charge;
-  std::vector< std::vector<int> >* m_barcode_vec;
-  std::vector< std::vector<int> >* m_eventIndex_vec;
-  std::vector< std::vector<float> >* m_charge_vec;
+  std::vector<std::vector<int>>* m_barcode_vec;
+  std::vector<std::vector<int>>* m_eventIndex_vec;
+  std::vector<std::vector<float>>* m_charge_vec;
 
   // HISTOGRAMS
   TH1* m_h_rdoID;

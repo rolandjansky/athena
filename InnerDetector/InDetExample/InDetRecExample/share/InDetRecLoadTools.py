@@ -51,12 +51,16 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
         # --- a better solution is needed...
 
+        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
         if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
+                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       doRunI = True,
                                                                       useToT = False,
@@ -69,6 +73,7 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         else:
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
+                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       LoadNoTrackNetwork   = True,
                                                                       useToT = InDetFlags.doNNToTCalibration(),
@@ -91,12 +96,16 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         if (InDetFlags.doPrintConfigurables()):
             print NnClusterizationFactory
 elif InDetFlags.doPixelClusterSplitting():
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
     from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthClusterizationFactory
-    NnClusterizationFactory = InDet__TruthClusterizationFactory( name                 = "TruthClusterizationFactory")
+    NnClusterizationFactory = InDet__TruthClusterizationFactory( name                 = "TruthClusterizationFactory",
+                                                                 PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool)
     ToolSvc += NnClusterizationFactory
     if (InDetFlags.doPrintConfigurables()):
         print NnClusterizationFactory
-
 
 
 # --- load cabling (if needed)
@@ -115,8 +124,8 @@ from TrkEventCnvTools import TrkEventCnvToolsConfig
 #
 # ----------- control loading of ROT_creator
 #
-if InDetFlags.loadRotCreator():
 
+if InDetFlags.loadRotCreator():
     #
     # --- configure default ROT creator
     #
@@ -124,9 +133,14 @@ if InDetFlags.loadRotCreator():
         #
         # load Pixel ROT creator, we overwrite the defaults for the
         # tool to always make conservative pixel cluster errors
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
         if InDetFlags.doDBM():
             PixelClusterOnTrackToolDBM = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDBM",
+                                                                        LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                                         DisableDistortions = True,
                                                                         applyNNcorrection = False,
                                                                         NNIBLcorrection = False,
@@ -137,6 +151,7 @@ if InDetFlags.loadRotCreator():
                                                                         )
             ToolSvc += PixelClusterOnTrackToolDBM
         PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackTool",
+                                                                 LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                                  DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                  applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
@@ -161,6 +176,7 @@ if InDetFlags.loadRotCreator():
                 print PixelClusterOnTrackToolDBM
                 
         PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+                                                                 LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                                  DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                  applyNNcorrection = False,
                                                                  NNIBLcorrection = False,
@@ -177,16 +193,14 @@ if InDetFlags.loadRotCreator():
 
     if DetFlags.haveRIO.SCT_on():
         # SiLorentzAngleTool
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
         SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
                                                                 #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                 CorrectionStrategy = 0,  # do correct position bias
                                                                 ErrorStrategy      = 2,  # do use phi dependent errors
-                                                                LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
-        ToolSvc += SCT_ClusterOnTrackTool
+                                                                LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
         if (InDetFlags.doPrintConfigurables()):
             print SCT_ClusterOnTrackTool
     else:
@@ -232,11 +246,16 @@ if InDetFlags.loadRotCreator():
     # --- configure broad cluster ROT creator
     #
     if DetFlags.haveRIO.pixel_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
         #
         # tool to always make conservative pixel cluster errors
         if not InDetFlags.doDBMstandalone():
             from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
             BroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetBroadPixelClusterOnTrackTool",
+                                                                          LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                                           ErrorStrategy      = 0,
                                                                           DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                           applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
@@ -261,9 +280,8 @@ if InDetFlags.loadRotCreator():
     
     if DetFlags.haveRIO.SCT_on():
         # SiLorentzAngleTool
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         #
         # tool to always make conservative sct cluster errors
         #
@@ -272,8 +290,7 @@ if InDetFlags.loadRotCreator():
                                                                      #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                      CorrectionStrategy = 0,  # do correct position bias
                                                                      ErrorStrategy      = 0,  # do use broad errors
-                                                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
-        ToolSvc += BroadSCT_ClusterOnTrackTool
+                                                                     LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
         if (InDetFlags.doPrintConfigurables()):
             print BroadSCT_ClusterOnTrackTool
     else:
@@ -843,17 +860,27 @@ if InDetFlags.loadAssoTool():
 #
 # ----------- control loading of SummaryTool
 #
+
 if InDetFlags.loadSummaryTool():
 
     from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
     AtlasTrackSummaryTool = AtlasTrackSummaryTool()
     ToolSvc += AtlasTrackSummaryTool
 
+    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
+        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+        pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+        pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setup()
+
+
     #
     # Loading Pixel test tool
     #
     from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
     InDetTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
+                                                             PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                              CheckActiveAreas=InDetFlags.checkDeadElementsOnTrack(),
                                                              CheckDeadRegions=InDetFlags.checkDeadElementsOnTrack(),
                                                              CheckDisabledFEs=InDetFlags.checkDeadElementsOnTrack())
@@ -867,6 +894,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
     InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
+                                                          PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                           usePixel      = DetFlags.haveRIO.pixel_on(),
                                                           useSCT        = DetFlags.haveRIO.SCT_on(),                                                          
                                                           CountDeadModulesAfterLastHit = True,
@@ -891,7 +919,7 @@ if InDetFlags.loadSummaryTool():
     if DetFlags.haveRIO.pixel_on() :
         from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
         InDetRecTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetRecTestBLayerTool",
-                                                            PixelSummaryTool = InDetPixelConditionsSummaryTool,
+                                                            PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                             Extrapolator    = InDetExtrapolator)
         ToolSvc += InDetRecTestBLayerTool
         if (InDetFlags.doPrintConfigurables()):
@@ -1143,6 +1171,13 @@ if InDetFlags.doPattern():
                                                                  SCTManagerLocation    = InDetKeys.SCT_Manager(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                  SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+    if DetFlags.haveRIO.SCT_on():
+        # Condition algorithm for SiCombinatorialTrackFinder_xk
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+            from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
 
     if InDetFlags.doDBM():
         InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',

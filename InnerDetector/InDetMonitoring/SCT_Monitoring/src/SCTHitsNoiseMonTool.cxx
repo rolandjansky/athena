@@ -42,7 +42,6 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" // ?
 
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
@@ -324,7 +323,7 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
     declareProperty("doSpacePointBasedNoise", m_doSpacePointBasedNoise = true);
     declareProperty("doTimeBinFilteringForNoise", m_doTimeBinFilteringForNoise = true);
     declareProperty("doTrackHits", m_doTrackHits = true);
-    declareProperty("MaxTracks", m_maxTracks = 250);
+    declareProperty("MaxTracks", m_maxTracks = 1000);
     declareProperty("doLogXNoise", m_doLogXNoise = true);
 
     clear1D(m_tbinfrac);
@@ -356,6 +355,8 @@ StatusCode SCTHitsNoiseMonTool::initialize() {
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_clusContainerKey.initialize());
   ATH_CHECK(m_tracksName.initialize());
+
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }

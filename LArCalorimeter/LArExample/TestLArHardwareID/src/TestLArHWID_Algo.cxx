@@ -40,15 +40,15 @@ TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLo
   m_OnlineTest("OFF"),
   m_OfflineTest("OFF"),
   m_SubDetector("OFF"),
-  m_cablingSvc(0),
+  //m_cablingSvc(0),
   m_lvl1Helper(0),
   m_emHelper(0),
   m_hecHelper(0),
   m_fcalHelper(0),
   m_onlineHelper(0),
   m_hvHelper(0),
-  m_electrodeHelper(0),
-  m_hvcablingTool(0)
+  m_electrodeHelper(0)
+  //m_hvcablingTool(0)
 {
   declareProperty("Detector", m_Detector ) ; 
   if( m_Detector != "ALL"   &&
@@ -163,11 +163,13 @@ StatusCode TestLArHWID_Algo::initialize(){
 // ==============================================================
   ATH_MSG_INFO ( " initializing " );
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService", m_cablingSvc) );
-  ATH_MSG_ERROR ("initialize() failed locating ToolSvc" );
+  //ATH_CHECK( toolSvc()->retrieveTool("LArCablingService", m_cablingSvc) );
+  //ATH_MSG_ERROR ("initialize() failed locating ToolSvc" );
+  ATH_CHECK(m_cablingReadKey.initialize());
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArHVCablingTool", m_hvcablingTool) );
-  ATH_MSG_DEBUG ( "initialize() successfully retrieved LArHVCablingTool" );
+  //ATH_CHECK( toolSvc()->retrieveTool("LArHVCablingTool", m_hvcablingTool) );
+  //ATH_MSG_DEBUG ( "initialize() successfully retrieved LArHVCablingTool" );
+  ATH_CHECK(m_HVReadKey.initialize());
 
   // Calo
   if(m_Manager == "DIRECT") {
@@ -301,6 +303,13 @@ StatusCode TestLArHWID_Algo::execute(){
 // ====================================================================================
 
   ATH_MSG_INFO ( "=> TestLArHWID_Algo::Executing " );
+
+  // retrieve the cabling
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingReadKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  // retrieve the HV mapping
+  SG::ReadCondHandle<LArHVIdMapping> hvHdl{m_HVReadKey};
+  const LArHVIdMapping* hvmap{*hvHdl};
 
   // Output files for all Tests
   //---------------------------
@@ -547,7 +556,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      if( m_hvHelper->isEMBC( hvId ) ){ nEMBC++;}
 	      nEMB++;
 	      std::vector<HWIdentifier> electrodeIdVec = 
-		m_hvcablingTool->getLArElectrodeIDvec( hvId );
+		hvmap->getLArElectrodeIDvec( hvId );
 	      // HV line fields
 	      int PART= m_hvHelper->partition( hvId );
 	      int CANL= m_hvHelper->can_line( hvId );
@@ -589,7 +598,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      if( m_hvHelper->isEMECA( hvId ) ){ nEMECA++;}
 	      if( m_hvHelper->isEMECC( hvId ) ){ nEMECC++;}
 	      std::vector<HWIdentifier> electrodeIdVec = 
-		m_hvcablingTool->getLArElectrodeIDvec( hvId );
+		hvmap->getLArElectrodeIDvec( hvId );
 	      // HV line fields
 	      int PART= m_hvHelper->partition( hvId );
 	      int CANL= m_hvHelper->can_line( hvId );
@@ -632,7 +641,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      if( m_hvHelper->isFCALA( hvId ) ){ nFCALA++;}
 	      if( m_hvHelper->isFCALC( hvId ) ){ nFCALC++;}
 	      std::vector<HWIdentifier> electrodeIdVec = 
-		m_hvcablingTool->getLArElectrodeIDvec( hvId );
+		hvmap->getLArElectrodeIDvec( hvId );
 	      // HV line fields
 	      int PART= m_hvHelper->partition( hvId );
 	      int CANL= m_hvHelper->can_line( hvId );
@@ -675,7 +684,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      if( m_hvHelper->isHECA( hvId ) ){ nHECA++;}
 	      if( m_hvHelper->isHECC( hvId ) ){ nHECC++;}
 	      std::vector<HWIdentifier> electrodeIdVec = 
-		m_hvcablingTool->getLArElectrodeIDvec( hvId );
+		hvmap->getLArElectrodeIDvec( hvId );
 	      // HV line fields
 	      int PART= m_hvHelper->partition( hvId );
 	      int CANL= m_hvHelper->can_line( hvId );
@@ -815,7 +824,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    if( m_Detector == "EMB" || m_Detector == "ALL"){
 	      if( m_electrodeHelper->isEMB( elecId ) ){ 
 		nelEMB++;
-		HWIdentifier hvlineId = m_hvcablingTool->getLArHVLineID( elecId );
+		HWIdentifier hvlineId = hvmap->getLArHVLineID( elecId );
 		int DET = m_electrodeHelper->detector( elecId);
 		int SID = m_electrodeHelper->zside( elecId);
 		int MOD = m_electrodeHelper->module( elecId);
@@ -845,7 +854,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    if( m_Detector == "EMEC" || m_Detector == "ALL"){
 	      if( m_electrodeHelper->isEMEC( elecId ) ){ 
 		nelEMEC++;
-		HWIdentifier hvlineId = m_hvcablingTool->getLArHVLineID( elecId );
+		HWIdentifier hvlineId = hvmap->getLArHVLineID( elecId );
 		int DET = m_electrodeHelper->detector( elecId);
 		int SID = m_electrodeHelper->zside( elecId);
 		int MOD = m_electrodeHelper->module( elecId);
@@ -877,7 +886,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    if( m_Detector == "HEC" || m_Detector == "ALL"){
 	      if( m_electrodeHelper->isHEC( elecId ) ){ 
 		nelHEC++;
-		HWIdentifier hvlineId = m_hvcablingTool->getLArHVLineID( elecId );
+		HWIdentifier hvlineId = hvmap->getLArHVLineID( elecId );
 		int DET = m_electrodeHelper->detector( elecId);
 		int SID = m_electrodeHelper->zside( elecId);
 		int MOD = m_electrodeHelper->module( elecId);
@@ -913,7 +922,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    if( m_Detector == "FCAL" || m_Detector == "ALL"){
 	      if( m_electrodeHelper->isFCAL( elecId ) ){ 
 		nelFCAL++;
-		HWIdentifier hvlineId = m_hvcablingTool->getLArHVLineID( elecId );
+		HWIdentifier hvlineId = hvmap->getLArHVLineID( elecId );
 		int DET = m_electrodeHelper->detector( elecId);
 		int SID = m_electrodeHelper->zside( elecId);
 		int MOD = m_electrodeHelper->module( elecId);
@@ -1156,7 +1165,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelEMB+=electrodeIdVec.size();
 		  }
@@ -1171,7 +1180,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1213,7 +1222,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1258,7 +1267,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1301,7 +1310,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1364,7 +1373,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1414,7 +1423,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }		    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1464,10 +1473,10 @@ StatusCode TestLArHWID_Algo::execute(){
 		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nEMEC2 << " in EMEC2 " );
 		      nOLD = nEMEC2;
 		    }
-		    HWIdentifier onId = m_cablingSvc->createSignalChannelID( offId ) ; 
+		    HWIdentifier onId = cabling->createSignalChannelID( offId ) ; 
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
@@ -1515,13 +1524,13 @@ StatusCode TestLArHWID_Algo::execute(){
 		    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = electrodeIdVec.end();
 		    nelEMEC3+=electrodeIdVec.size();
-		    HWIdentifier onId = m_cablingSvc->createSignalChannelID( offId ) ; 
+		    HWIdentifier onId = cabling->createSignalChannelID( offId ) ; 
 		    for(; hv!=hvEnd;++hv){
 		      HWIdentifier electrodeId = *hv;
 		      int DET = m_electrodeHelper->detector( electrodeId );
@@ -1559,7 +1568,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelEMEC+=electrodeIdVec.size();
 		  } // EMEC-ALL
@@ -1577,7 +1586,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    for(; itId!=itIdEnd;++itId )
 	      {// Loop over HEC channels
 		const Identifier offId = *itId;
-		HWIdentifier onId = m_cablingSvc->createSignalChannelID( offId ) ; 
+		HWIdentifier onId = cabling->createSignalChannelID( offId ) ; 
 		int bec   = m_hecHelper->pos_neg( offId);
 		int sam   = m_hecHelper->sampling( offId);
 		int region= m_hecHelper->region( offId);
@@ -1600,7 +1609,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelHEC1+= electrodeIdVec.size();
 		    if( region == 0 ){nelHEC1r0 +=electrodeIdVec.size();}
@@ -1647,7 +1656,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelHEC2+= electrodeIdVec.size();
 		    if( region == 0 ){nelHEC2r0 +=electrodeIdVec.size();}
@@ -1695,7 +1704,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelHEC3+= electrodeIdVec.size();
 		    if( region == 0 ){nelHEC3r0 +=electrodeIdVec.size();}
@@ -1742,7 +1751,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelHEC0+= electrodeIdVec.size();
 		    if( region == 0 ){nelHEC0r0 +=electrodeIdVec.size();}
@@ -1787,7 +1796,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		    nelHEC+= electrodeIdVec.size();
 		  }
@@ -1820,7 +1829,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  
 		  // Test of getCellElectrodeIdVec()
 		  std::vector<HWIdentifier> IdVec;
-		  m_hvcablingTool->getElectrodeInCell( offId, IdVec );
+		  hvmap->getElectrodeInCell( offId, IdVec );
 		  std::vector<HWIdentifier> electrodeIdVec = IdVec;
 		  
 		  // Loop over vector of electrodes 
@@ -2103,7 +2112,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelEMB0+= hvlineIdVec.size();
 		    // Loop over vector of electrodes 
@@ -2143,7 +2152,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelEMB1+= hvlineIdVec.size();
 		    if( region == 0 ){nelEMB1r0+=hvlineIdVec.size();}
@@ -2185,7 +2194,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -2226,7 +2235,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    ATH_MSG_DEBUG ( "Processing offline Cell=" 
                                     << m_onlineHelper->show_to_string( offId ) << "..-> getHVLine()"
                                     );
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -2258,7 +2267,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    nEMB++;
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelEMB += hvlineIdVec.size();      
 		  }
@@ -2297,7 +2306,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }		      
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -2344,7 +2353,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -2394,7 +2403,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -2437,7 +2446,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -2474,7 +2483,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  }    
 		  // Test of getCellElectrodeIdVec()
 		  std::vector<HWIdentifier> IdVec;
-		  m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		  hvmap->getHVLineInCell( offId, IdVec );
 		  std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		  nelEMEC+=hvlineIdVec.size();
 		}
@@ -2491,7 +2500,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    for(; itId!=itIdEnd;++itId )
 	      {// Loop over HEC channels
 		const Identifier offId = *itId;
-		HWIdentifier onId = m_cablingSvc->createSignalChannelID( offId ) ; 
+		HWIdentifier onId = cabling->createSignalChannelID( offId ) ; 
 		int bec   = m_hecHelper->pos_neg( offId);
 		int sam   = m_hecHelper->sampling( offId);
 		int region= m_hecHelper->region( offId);
@@ -2514,7 +2523,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelHEC0+= hvlineIdVec.size();
 		    if( region == 0 ){nelHEC0r0 +=hvlineIdVec.size();}
@@ -2523,10 +2532,10 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
 		    // Get Module and HV eta sector info
-		    int AMOD= m_hvcablingTool->getCellModule( offId );
-		    int AETA= m_hvcablingTool->getCellEtaSector( offId );
-		    int AMIN= (m_hvcablingTool->getCellElectrodeMinMax( offId )).first;
-		    int AMAX= (m_hvcablingTool->getCellElectrodeMinMax( offId )).second;
+		    int AMOD= hvmap->getCellModule( offId );
+		    int AETA= hvmap->getCellEtaSector( offId );
+		    int AMIN= (hvmap->getCellElectrodeMinMax( offId )).first;
+		    int AMAX= (hvmap->getCellElectrodeMinMax( offId )).second;
 		    int SID= m_hecHelper->pos_neg(offId);
 		    std::string ASID;
 		    if( SID > 0 ){ASID = "A";}
@@ -2581,7 +2590,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelHEC1+= hvlineIdVec.size();
 		    if( region == 0 ){nelHEC1r0 +=hvlineIdVec.size();}
@@ -2590,10 +2599,10 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
 		    // Get Module and HV eta sector info
-		    int AMOD= m_hvcablingTool->getCellModule( offId );
-		    int AETA= m_hvcablingTool->getCellEtaSector( offId );
-		    int AMIN= (m_hvcablingTool->getCellElectrodeMinMax( offId )).first;
-		    int AMAX= (m_hvcablingTool->getCellElectrodeMinMax( offId )).second;
+		    int AMOD= hvmap->getCellModule( offId );
+		    int AETA= hvmap->getCellEtaSector( offId );
+		    int AMIN= (hvmap->getCellElectrodeMinMax( offId )).first;
+		    int AMAX= (hvmap->getCellElectrodeMinMax( offId )).second;
 		    int SID= m_hecHelper->pos_neg(offId);
 		    std::string ASID;
 		    if( SID > 0 ){ASID = "A";}
@@ -2648,7 +2657,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelHEC2+= hvlineIdVec.size();
 		    if( region == 0 ){nelHEC2r0 +=hvlineIdVec.size();}
@@ -2657,10 +2666,10 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
 		    // Get Module and HV eta sector info
-		    int AMOD= m_hvcablingTool->getCellModule( offId );
-		    int AETA= m_hvcablingTool->getCellEtaSector( offId );
-		    int AMIN= (m_hvcablingTool->getCellElectrodeMinMax( offId )).first;
-		    int AMAX= (m_hvcablingTool->getCellElectrodeMinMax( offId )).second;
+		    int AMOD= hvmap->getCellModule( offId );
+		    int AETA= hvmap->getCellEtaSector( offId );
+		    int AMIN= (hvmap->getCellElectrodeMinMax( offId )).first;
+		    int AMAX= (hvmap->getCellElectrodeMinMax( offId )).second;
 		    int SID= m_hecHelper->pos_neg(offId);
 		    std::string ASID;
 		    if( SID > 0 ){ASID = "A";}
@@ -2716,7 +2725,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelHEC3+= hvlineIdVec.size();
 		    if( region == 0 ){nelHEC3r0 +=hvlineIdVec.size();}
@@ -2725,10 +2734,10 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
 		    // Get Module and HV eta sector info
-		    int AMOD= m_hvcablingTool->getCellModule( offId );
-		    int AETA= m_hvcablingTool->getCellEtaSector( offId );
-		    int AMIN= (m_hvcablingTool->getCellElectrodeMinMax( offId )).first;
-		    int AMAX= (m_hvcablingTool->getCellElectrodeMinMax( offId )).second;
+		    int AMOD= hvmap->getCellModule( offId );
+		    int AETA= hvmap->getCellEtaSector( offId );
+		    int AMIN= (hvmap->getCellElectrodeMinMax( offId )).first;
+		    int AMAX= (hvmap->getCellElectrodeMinMax( offId )).second;
 		    int SID= m_hecHelper->pos_neg(offId);
 		    std::string ASID;
 		    if( SID > 0 ){ASID = "A";}
@@ -2782,7 +2791,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    }    
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    nelHEC+= hvlineIdVec.size();
 		  }
@@ -2815,7 +2824,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  }
 		  // Test of getCellElectrodeIdVec()
 		  std::vector<HWIdentifier> IdVec;
-		  m_hvcablingTool->getHVLineInCell( offId, IdVec );
+		  hvmap->getHVLineInCell( offId, IdVec );
 		  std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		  // Loop over vector of electrodes 
 		  std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
@@ -3071,7 +3080,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  Identifier ch_offl ; 
 		  try 
 		    {
-		      ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+		      ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 		    }
 		  catch(LArID_Exception & except)
 		    {
@@ -3085,7 +3094,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  // Reverse Test
 		  HWIdentifier id_test;
 		  try {
-		    id_test = m_cablingSvc->createSignalChannelID( ch_offl ) ;
+		    id_test = cabling->createSignalChannelID( ch_offl ) ;
 		  }
 		  catch(LArID_Exception & except){
 		    fileError << "ERROR " 
@@ -3102,14 +3111,14 @@ StatusCode TestLArHWID_Algo::execute(){
 		      fileError <<"ERROR "<<"[H6 ONLINE] Offline ID, returned online ID= " << m_onlineHelper->show_to_string(ch_offl) << ", " << m_onlineHelper->show_to_string(id_test) << std::endl ;
 		    }
 		  
-		  if(m_cablingSvc->isOnlineConnected(ch_id))
+		  if(cabling->isOnlineConnected(ch_id))
 		    {// if isOnlineConnected()
 		      nH6Conn++;
 		      mychDisc="connected";
 		      Identifier ch_offl ; 
 		      try 
 			{
-			  ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+			  ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 			}
 		      catch(LArID_Exception & except)
 			{
@@ -3132,7 +3141,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nFcal++; 
 		      mychStat="FCAL ";
 		      mychDisc="Unknown";
-		      if( m_cablingSvc->isOnlineConnected(ch_id))
+		      if( cabling->isOnlineConnected(ch_id))
 			{
 			  nFcalConn++;
 			  mychDisc="connected";
@@ -3157,7 +3166,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nHec++; 
 		      mychStat="HEC  ";
 		      mychDisc="Unknown";
-		      if( m_cablingSvc->isOnlineConnected(ch_id))
+		      if( cabling->isOnlineConnected(ch_id))
 			{
 			  nHecConn++;
 			  mychDisc="connected";
@@ -3182,7 +3191,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nEmec++; 
 		      mychStat="EMEC ";
 		      mychDisc="Unknown";
-		      if( m_cablingSvc->isOnlineConnected(ch_id))
+		      if( cabling->isOnlineConnected(ch_id))
 			{
 			  nEmecConn++;
 			  mychDisc="connected";
@@ -3221,7 +3230,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      //=================================================
 	      //	      
 	      else if( (l_version=="H8TestBeam" && m_onlineHelper->is_H8( ch_id ) )
-		       && m_cablingSvc->isOnlineConnected(ch_id) )
+		       && cabling->isOnlineConnected(ch_id) )
 		{//if is_H8()
 		  nch++;
 		  if( m_onlineHelper->is_H8onlineOnly(ch_id))
@@ -3229,10 +3238,10 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nNoCounterPart++;
 		    }
 		  Identifier ch_offl ; 
-		  ch_offl = m_cablingSvc->cnvToIdentifier(ch_id); 
+		  ch_offl = cabling->cnvToIdentifier(ch_id); 
 		  try 
 		    {
-		      ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+		      ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 		    }
 		  catch(LArID_Exception & except)
 		    {
@@ -3246,7 +3255,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  HWIdentifier id_test;
 		  try 
 		    {
-		      id_test = m_cablingSvc->createSignalChannelID( ch_offl ) ;
+		      id_test = cabling->createSignalChannelID( ch_offl ) ;
 		    }
 		  catch(LArID_Exception & except){
 		    fileError <<  "ERROR [H8 ONLINE] LArId exception converting offline id  " 
@@ -3262,7 +3271,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      fileError <<"ERROR "<<"[H8 ONLINE] Offline ID, returned online ID= " << m_onlineHelper->show_to_string(ch_offl) << ", " << m_onlineHelper->show_to_string(id_test) << std::endl ;
 		    }	  
 		  mychDisc="Unknown";
-		  if( !m_cablingSvc->isOnlineConnected(ch_id))
+		  if( !cabling->isOnlineConnected(ch_id))
 		    {
 		      nH8Disc++;
 		      mychDisc="disconnected";
@@ -3316,7 +3325,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
-		      if( !m_cablingSvc->isOnlineConnected(ch_id)){
+		      if( !cabling->isOnlineConnected(ch_id)){
 			nDisc++;
 			nEmbaDisc++;
 			mychDisc="disconnected";
@@ -3330,7 +3339,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      if( !m_onlineHelper->isNotWarmCableConnected(ch_id) ){
 			Identifier ch_offl ; 
 			try {
-			  ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+			  ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 			}
 			catch(LArID_Exception & except){
 			  nerror++;
@@ -3364,7 +3373,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			// Reverse Test
 			HWIdentifier id_test;
 			try {
-			  id_test = m_cablingSvc->createSignalChannelID( ch_offl ) ;
+			  id_test = cabling->createSignalChannelID( ch_offl ) ;
 			}
 			catch(LArID_Exception & except){
 			  fileError << "ERROR " 
@@ -3421,7 +3430,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
-		      if( !m_cablingSvc->isOnlineConnected(ch_id)){
+		      if( !cabling->isOnlineConnected(ch_id)){
 			nDisc++;
 			nEmecDisc++;
 			mychDisc="disconnected";
@@ -3435,7 +3444,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			// if ! NotWarmConnected()
 			Identifier ch_offl ; 
 			try {
-			  ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+			  ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 			}
 			catch(LArID_Exception & except){
 			  nerror++;
@@ -3449,7 +3458,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			// Reverse Test
 			HWIdentifier id_test;
 			try {
-			  id_test = m_cablingSvc->createSignalChannelID( ch_offl ) ;
+			  id_test = cabling->createSignalChannelID( ch_offl ) ;
 			}
 			catch(LArID_Exception & except){
 			  fileError << "ERROR " 
@@ -3521,7 +3530,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
-		      if( !m_cablingSvc->isOnlineConnected(ch_id)){
+		      if( !cabling->isOnlineConnected(ch_id)){
 			nDisc++;
 			nHecDisc++;
 			mychDisc="disconnected";
@@ -3534,7 +3543,7 @@ StatusCode TestLArHWID_Algo::execute(){
 
 		      Identifier ch_offl ; 
 		      try {
-			ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+			ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 		      }
 		      catch(LArID_Exception & except){
 			nerror++;
@@ -3570,7 +3579,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      // Reverse Test
 		      HWIdentifier id_test;
 		      try {
-			id_test = m_cablingSvc->createSignalChannelID( ch_offl ) ;
+			id_test = cabling->createSignalChannelID( ch_offl ) ;
 		      }
 		      catch(LArID_Exception & except){
 			fileError << "ERROR " 
@@ -3611,7 +3620,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
-		      if( !m_cablingSvc->isOnlineConnected(ch_id)){
+		      if( !cabling->isOnlineConnected(ch_id)){
 			nDisc++;
 			nFcalDisc++;
 			mychDisc="disconnected";
@@ -3623,7 +3632,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      }
 		      Identifier ch_offl ; 
 		      try {
-			ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+			ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 		      }
 		      catch(LArID_Exception & except){
 			nerror++;
@@ -3658,7 +3667,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		      // Reverse Test
 		      HWIdentifier id_test;
 		      try {
-			id_test = m_cablingSvc->createSignalChannelID( ch_offl ) ;
+			id_test = cabling->createSignalChannelID( ch_offl ) ;
 		      }
 		      catch(LArID_Exception & except){
 			fileError << "ERROR " 
@@ -3995,7 +4004,7 @@ StatusCode TestLArHWID_Algo::execute(){
     testId = m_onlineHelper->channel_Id(1,0,6,8,32);
     Identifier ch_offl ; 
     try {
-      ch_offl = m_cablingSvc->cnvToIdentifier(testId) ; 
+      ch_offl = cabling->cnvToIdentifier(testId) ; 
     }
     catch(LArID_Exception & except){
       nerror++;
@@ -4059,7 +4068,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		nch++;
 		Identifier ch_offl ; 
 		try {
-		  ch_offl = m_cablingSvc->cnvToIdentifier(ch_id) ; 
+		  ch_offl = cabling->cnvToIdentifier(ch_id) ; 
 		}
 		catch(LArID_Exception & except){
 		  nerror++;
@@ -4072,7 +4081,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		}
 		
 		mychDisc="Unknown";
-		if( !m_cablingSvc->isOnlineConnected(ch_id)){
+		if( !cabling->isOnlineConnected(ch_id)){
 		  nDisc++;
 		  mychDisc="disconnected";
 		}
@@ -4252,8 +4261,8 @@ StatusCode TestLArHWID_Algo::execute(){
 	      {// Loop over EM connected channels
 		nATLASconn++;
 		const Identifier ch_id = *itId;
-		HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
-		Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
+		HWIdentifier ch_onl = cabling->createSignalChannelID(ch_id) ; 
+		Identifier id_test = cabling->cnvToIdentifier( ch_onl ) ;
 		ATH_MSG_VERBOSE( m_emHelper->show_to_string( ch_onl )
                                  <<"  "<< m_emHelper->show_to_string(ch_id) );
 		if( ch_id != id_test ) { 
@@ -4292,7 +4301,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  if( m_emHelper->sampling(ch_id) == 3 ){
 		    nSam3++;
 		  }
-		  if( m_cablingSvc->isOnlineConnected( ch_onl )){
+		  if( cabling->isOnlineConnected( ch_onl )){
 		    nConn++;
 		  }
 		  else{
@@ -4323,7 +4332,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			nSam3++;
 		      }
 		    }
-		    if( m_cablingSvc->isOnlineConnected( ch_onl )){
+		    if( cabling->isOnlineConnected( ch_onl )){
 		      nConn++;
 		      mychDisc="Connected";
 		    }
@@ -4371,7 +4380,7 @@ StatusCode TestLArHWID_Algo::execute(){
 			nSam3++;
 		      }
 		    }
-		    if( m_cablingSvc->isOnlineConnected( ch_onl )){
+		    if( cabling->isOnlineConnected( ch_onl )){
 		      nConn++;
 		      mychDisc="Connected";
 		    }
@@ -4417,8 +4426,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		nch_old=nATLASconn;
 	      }
 	      Identifier ch_id = *itId;
-	      HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
-	      Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
+	      HWIdentifier ch_onl = cabling->createSignalChannelID(ch_id) ; 
+	      Identifier id_test = cabling->cnvToIdentifier( ch_onl ) ;
 	      ATH_MSG_VERBOSE( m_hecHelper->show_to_string( ch_onl )
                                <<"  "<< m_hecHelper->show_to_string(ch_id) );
 	      if( ch_id != id_test ) { 
@@ -4475,8 +4484,8 @@ StatusCode TestLArHWID_Algo::execute(){
 	      nch_old=nATLASconn;
 	    }
 	    Identifier ch_id = *itId;
-	    HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
-	    Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
+	    HWIdentifier ch_onl = cabling->createSignalChannelID(ch_id) ; 
+	    Identifier id_test = cabling->cnvToIdentifier( ch_onl ) ;
 	    ATH_MSG_VERBOSE(  m_fcalHelper->show_to_string( ch_onl ) 
                               <<"  "<< m_fcalHelper->show_to_string(ch_id) );
 	    if( ch_id != id_test ) { 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedInDetExtensionAlg.h"
@@ -27,6 +27,7 @@ StatusCode MuonCombinedInDetExtensionAlg::initialize()
   ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs && !m_useNSW));
   ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs && m_useNSW));
   ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs && m_useNSW));
+  ATH_CHECK(m_tagMap.initialize());
 
   return StatusCode::SUCCESS; 
 }
@@ -40,6 +41,9 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
     return StatusCode::FAILURE;
   }
 
+  SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap);
+  ATH_CHECK( tagMap.record (std::make_unique<MuonCombined::InDetCandidateToTagMap>()) );
+
   if(m_usePRDs){
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPRDContainer(m_MDT_ContainerName);
     SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName);
@@ -49,14 +53,14 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
       SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName);
       SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName);
       for(auto& tool : m_muonCombinedInDetExtensionTools)
-        tool->extendWithPRDs(*indetCandidateCollection,mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),stgcPRDContainer.cptr(),mmPRDContainer.cptr());
+        tool->extendWithPRDs(*indetCandidateCollection,tagMap.ptr(),mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),stgcPRDContainer.cptr(),mmPRDContainer.cptr());
      } else {
        for(auto& tool : m_muonCombinedInDetExtensionTools)
-         tool->extendWithPRDs(*indetCandidateCollection,mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),0,0);
+         tool->extendWithPRDs(*indetCandidateCollection,tagMap.ptr(),mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),0,0);
      }
   } else{
     for(auto& tool : m_muonCombinedInDetExtensionTools)
-      tool->extend(*indetCandidateCollection);
+      tool->extend(*indetCandidateCollection,tagMap.ptr());
   }
   
   return StatusCode::SUCCESS;

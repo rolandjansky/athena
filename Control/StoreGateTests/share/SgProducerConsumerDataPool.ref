@@ -1,0 +1,14 @@
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::: ChapPy is launching script [StoreGateTests/atn_test_sgProducerConsumerDataPool_jobOptions.py] :::
+Py:Athena            INFO including file "StoreGateTests/atn_test_sgProducerConsumerDataPool_jobOptions.py"
+################################################################################
+## StoreGate test... [producer/consumer-DataPool-bench]
+################################################################################
+:::   No DataPool  :::running [......] ==> [OK]
+::: With DataPool  :::running [.....] ==> [OK]
+All tests SUCCESSFULLY completed
+
+################################################################################
+## Bye.
+################################################################################
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

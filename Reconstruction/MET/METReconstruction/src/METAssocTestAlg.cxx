@@ -4,6 +4,7 @@
 
 #include "METAssocTestAlg.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 using namespace xAOD;
 
@@ -39,9 +40,13 @@ namespace met {
 
   StatusCode METAssocTestAlg::execute()
   {
-    const MissingETAssociationMap* map(NULL);
-    ATH_MSG_DEBUG( "Running METAssocTestAlg on " << "map " << m_mapname << "." );
-    ATH_CHECK( evtStore()->retrieve(map,  m_mapname) );
+
+
+    SG::ReadHandle<MissingETAssociationMap> map(m_mapname);
+    if (!map.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve met association map");
+      return StatusCode::FAILURE;
+    } 
 
     for(const auto& assoc : *map) {
       if(assoc->isMisc()) { // misc association gets special treatment
@@ -67,14 +72,15 @@ namespace met {
     JetFourMom_t jetconstp4 = jet.jetP4(JetConstitScaleMomentum);
     MissingETBase::Types::constvec_t jettrkvec = assoc.jetTrkVec();
 
+    xAOD::MissingETAssociationHelper helper;
+
     // switch on all overlapping objects
-    assoc.resetObjSelectionFlags();
     for(size_t iobj=0; iobj<assoc.objects().size(); ++iobj) {
-      assoc.setObjSelectionFlag(iobj,true);
+      helper.setObjSelectionFlag(&assoc,iobj,true);
     }
     // get cluster/inclusive pflow and track/charged pflow constituent sums
-    MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec();
-    MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec();
+    MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec(&helper);
+    MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec(&helper);
 
     ATH_MSG_VERBOSE("  Jet constituent-scale pt: " << jetconstp4.pt()     << ", E: " << jetconstp4.e() );
     ATH_MSG_VERBOSE("  Max constituent overlap pt:   " << overlapcalvec.cpt() << ", E: " << overlapcalvec.ce() );
@@ -101,16 +107,18 @@ namespace met {
     JetFourMom_t jetconstp4 = jet.jetP4(JetConstitScaleMomentum);
     MissingETBase::Types::constvec_t jettrkvec = assoc.jetTrkVec();
 
+    xAOD::MissingETAssociationHelper helper;
+
     // loop over individual objects and check that none of them has a larger
     // associated constituent sum than the jet
     for(size_t iobj=0; iobj<assoc.objects().size(); ++iobj) {
       ATH_MSG_VERBOSE("    Now on constituent " << iobj );
       const IParticle* obj = assoc.objects()[iobj];
       if(!obj) continue; // invalid ElementLink -- thinned?
-      assoc.resetObjSelectionFlags();
-      assoc.setObjSelectionFlag(iobj,true);
-      MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec();
-      MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec();
+      helper.resetObjSelectionFlags();
+      helper.setObjSelectionFlag(&assoc,iobj,true);
+      MissingETBase::Types::constvec_t overlapcalvec = assoc.overlapCalVec(&helper);
+      MissingETBase::Types::constvec_t overlaptrkvec = assoc.overlapTrkVec(&helper);
 
       ATH_MSG_VERBOSE("    Object pt:       " << obj->pt() << ", E: " << obj->e() << ", type: " << obj->type());
       ATH_MSG_VERBOSE("    Constituent pt:  " << overlapcalvec.cpt() << ", E: " << overlapcalvec.ce() );

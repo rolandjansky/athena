@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           Tester.h  -  description
                              -------------------
     begin                : Wed Dec 13 2000
-    copyright            : (C) 2000 by moyse
     email                : moyse@heppch.ph.qmw.ac.uk
  ***************************************************************************/
 

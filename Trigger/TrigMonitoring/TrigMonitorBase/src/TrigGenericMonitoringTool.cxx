@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -165,32 +165,30 @@ HBASE* TrigGenericMonitoringTool<M,P>::create( const HistogramDef& def, Types&&.
 }
 
 
-template<class M, class P> template<class H> 
+template<class M, class P> template<class H>
 TH1* TrigGenericMonitoringTool<M,P>::create1D( TH1*& histo, const HistogramDef& def ) 
 {
   histo = create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
   return histo;
 }
 
-template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::createProfile( TProfile*& histo, const HistogramDef& def ) 
-{
-  TH1* h = create<H,TH1>(def, def.xbins, def.xmin, def.xmax, def.ymin, def.ymax);
+template<class M, class P> template<class H>
+TH1* TrigGenericMonitoringTool<M,P>::createProfile( TProfile*& histo, const HistogramDef& def ) {
+  TH1* h = create<H,TH1>( def, def.xbins, def.xmin, def.xmax, def.ymin, def.ymax );
   histo = dynamic_cast<TProfile*>(h);
-  return h;
-}
-
-template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::create2D( TH2*& histo, const HistogramDef& def ) 
-{
-  histo = create<H,TH2>(def, def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
   return histo;
 }
 
-template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::create2DProfile( TProfile2D*& histo, const HistogramDef& def ) 
+template<class M, class P> template<class H>
+TH1* TrigGenericMonitoringTool<M,P>::create2D( TH2*& histo, const HistogramDef& def ) {
+  histo = create<H,TH2>( def, def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax  );
+  return histo;
+}
+
+template<class M, class P> template<class H>
+TH1* TrigGenericMonitoringTool<M,P>::create2DProfile( TProfile2D*& histo, const HistogramDef& def )
 {
-  TH1* h = create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
+  TH1* h = create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
                          def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
   histo = dynamic_cast<TProfile2D*>(h);
   return histo;
@@ -214,9 +212,10 @@ StatusCode TrigGenericMonitoringTool<M,P>::createFiller(const HistogramDef& def)
   else if (def.type == "TH1I") 
     histo = create1D<TH1I>(histo1D, def);
 
-  else if (def.type == "TProfile")
+  else if (def.type == "TProfile") {
     histo = createProfile<TProfile>(histoProfile, def);
-  
+  }
+
   //create 2D
   else if (def.type == "TH2F")
     histo = create2D<TH2F>(histo2D, def );
@@ -227,12 +226,13 @@ StatusCode TrigGenericMonitoringTool<M,P>::createFiller(const HistogramDef& def)
   else if (def.type == "TH2I") 
     histo = create2D<TH2I>(histo2D, def);
   
-  else if (def.type == "TProfile2D")
+  else if (def.type == "TProfile2D"){
     histo = create2DProfile<TProfile2D>(histo2DProfile, def);
+  }
   
   if (histo == 0 ) {
     ATH_MSG_WARNING("Can not create yet histogram of type: " << def.type);
-    ATH_MSG_WARNING("Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D");
+    ATH_MSG_WARNING("Try one of: TH1F,TH1D,TH1I,TH2F,TH2D,TH2I, TProfile, TProfile2D");
     return StatusCode::FAILURE;
   }
 

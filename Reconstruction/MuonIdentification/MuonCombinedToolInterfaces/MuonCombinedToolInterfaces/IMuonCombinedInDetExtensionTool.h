@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
@@ -30,12 +31,12 @@ namespace MuonCombined {
 
 
     /**IMuonCombinedInDetExtensionTool interface: build combined muons from ID candidates */    
-    virtual void extend( const InDetCandidateCollection& inDetCandidates ) = 0;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap) = 0;
     
     /*New interface including PRDs for MuGirl segment-finding*/
-    virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-				 const Muon::RpcPrepDataContainer* rpdPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, 
-				 const Muon::MMPrepDataContainer* mmPRDs) =0;
+    virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
+				 const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpdPRDs, 
+				 const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, const Muon::MMPrepDataContainer* mmPRDs) =0;
 
   };
 

@@ -33,17 +33,17 @@ public:
   { return StatusCode::SUCCESS; }
   
   virtual StatusCode initialize() override;
+  
+  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& ) override { return StatusCode::SUCCESS; }
+
    
 protected:
 
-  StatusCode decodeCTPToChainMapping();
+
   typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
 
   ///@{ @name Properties
-  Gaudi::Property<std::vector<std::string>> m_ctpToChainProperty{
-    this, "CTPToChainMapping", {}, "Mapping of the form: '34:HLT_x', '35:HLT_y', ..., both "
-                                   "CTP ID and chain may appear many times"};
 
   Gaudi::Property<bool> m_forceEnable{
     this, "ForceEnableAllChains", false, "Enables all chains in each event, testing mode"};

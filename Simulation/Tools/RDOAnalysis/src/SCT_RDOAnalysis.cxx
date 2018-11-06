@@ -1,100 +1,94 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "SCT_RDOAnalysis.h"
+
+#include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadHandle.h"
-#include "TTree.h"
+
 #include "TString.h"
+#include "TTree.h"
 
 #include <algorithm>
-#include <math.h>
-#include <functional>
+#include <cmath>
 #include <iostream>
+#include <functional>
 
 SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_inputKey("SCT_RDOs")
-  , m_inputTruthKey("SCT_SDO_Map")
-  , m_sctID(nullptr)
-  , m_rdoID(0)
-  , m_rdoWord(0)
-  , m_barrelEndcap(0)
-  , m_layerDisk(0)
-  , m_phiModule(0)
-  , m_etaModule(0)
-  , m_side(0)
-  , m_strip(0)
-  , m_groupSize(0)
-  , m_sdoID(0)
-  , m_sdoWord(0)
-  , m_barrelEndcap_sdo(0)
-  , m_layerDisk_sdo(0)
-  , m_phiModule_sdo(0)
-  , m_etaModule_sdo(0)
-  , m_side_sdo(0)
-  , m_strip_sdo(0)
-  , m_noise(0)
-  , m_belowThresh(0)
-  , m_disabled(0)
-  , m_barcode(0)
-  , m_eventIndex(0)
-  , m_charge(0)
-  , m_barcode_vec(0)
-  , m_eventIndex_vec(0)
-  , m_charge_vec(0)
+  , m_sctID{nullptr}
+  , m_rdoID{nullptr}
+  , m_rdoWord{nullptr}
+  , m_barrelEndcap{nullptr}
+  , m_layerDisk{nullptr}
+  , m_phiModule{nullptr}
+  , m_etaModule{nullptr}
+  , m_side{nullptr}
+  , m_strip{nullptr}
+  , m_groupSize{nullptr}
+  , m_sdoID{nullptr}
+  , m_sdoWord{nullptr}
+  , m_barrelEndcap_sdo{nullptr}
+  , m_layerDisk_sdo{nullptr}
+  , m_phiModule_sdo{nullptr}
+  , m_etaModule_sdo{nullptr}
+  , m_side_sdo{nullptr}
+  , m_strip_sdo{nullptr}
+  , m_noise{nullptr}
+  , m_belowThresh{nullptr}
+  , m_disabled{nullptr}
+  , m_barcode{nullptr}
+  , m_eventIndex{nullptr}
+  , m_charge{nullptr}
+  , m_barcode_vec{nullptr}
+  , m_eventIndex_vec{nullptr}
+  , m_charge_vec{nullptr}
 
-  , m_h_rdoID(0)
-  , m_h_rdoWord(0)
-  , m_h_barrelEndcap(0)
-  , m_h_layerDisk(0)
-  , m_h_phiModule(0)
-  , m_h_etaModule(0)
-  , m_h_side(0)
-  , m_h_strip(0)
-  , m_h_groupSize(0)
-  , m_h_phi_v_eta(0)
-  , m_h_brlLayer(0)
-  , m_h_brlPhiMod(0)
-  , m_h_brlEtaMod(0)
-  , m_h_brlSide(0)
-  , m_h_brlStrip(0)
-  , m_h_brlGroupSize(0)
-  , m_h_brl_phi_v_eta(0)
-  , m_h_ecDisk(0)
-  , m_h_ecPhiMod(0)
-  , m_h_ecEtaMod(0)
-  , m_h_ecSide(0)
-  , m_h_ecStrip(0)
-  , m_h_ecGroupSize(0)
-  , m_h_ec_phi_v_eta(0)
-  , m_h_sdoID(0)
-  , m_h_sdoWord(0)
-  , m_h_barrelEndcap_sdo(0)
-  , m_h_layerDisk_sdo(0)
-  , m_h_phiModule_sdo(0)
-  , m_h_etaModule_sdo(0)
-  , m_h_side_sdo(0)
-  , m_h_strip_sdo(0)
-  , m_h_barcode(0)
-  , m_h_eventIndex(0)
-  , m_h_charge(0)
-  , m_h_phi_v_eta_sdo(0)
+  , m_h_rdoID{nullptr}
+  , m_h_rdoWord{nullptr}
+  , m_h_barrelEndcap{nullptr}
+  , m_h_layerDisk{nullptr}
+  , m_h_phiModule{nullptr}
+  , m_h_etaModule{nullptr}
+  , m_h_side{nullptr}
+  , m_h_strip{nullptr}
+  , m_h_groupSize{nullptr}
+  , m_h_phi_v_eta{nullptr}
+  , m_h_brlLayer{nullptr}
+  , m_h_brlPhiMod{nullptr}
+  , m_h_brlEtaMod{nullptr}
+  , m_h_brlSide{nullptr}
+  , m_h_brlStrip{nullptr}
+  , m_h_brlGroupSize{nullptr}
+  , m_h_brl_phi_v_eta{nullptr}
+  , m_h_ecDisk{nullptr}
+  , m_h_ecPhiMod{nullptr}
+  , m_h_ecEtaMod{nullptr}
+  , m_h_ecSide{nullptr}
+  , m_h_ecStrip{nullptr}
+  , m_h_ecGroupSize{nullptr}
+  , m_h_ec_phi_v_eta{nullptr}
+  , m_h_sdoID{nullptr}
+  , m_h_sdoWord{nullptr}
+  , m_h_barrelEndcap_sdo{nullptr}
+  , m_h_layerDisk_sdo{nullptr}
+  , m_h_phiModule_sdo{nullptr}
+  , m_h_etaModule_sdo{nullptr}
+  , m_h_side_sdo{nullptr}
+  , m_h_strip_sdo{nullptr}
+  , m_h_barcode{nullptr}
+  , m_h_eventIndex{nullptr}
+  , m_h_charge{nullptr}
+  , m_h_phi_v_eta_sdo{nullptr}
 
-  , m_tree(0)
-  , m_ntupleFileName("/ntuples/file1")
-  , m_ntupleDirName("/SCT_RDOAnalysis/")
-  , m_ntupleTreeName("SCT_RDOAna")
-  , m_path("/SCT_RDOAnalysis/")
+  , m_tree{nullptr}
   , m_thistSvc("THistSvc", name)
 {
-  declareProperty("InputKey", m_inputKey);
-  declareProperty("InputTruthKey", m_inputTruthKey);
-  declareProperty("NtupleFileName", m_ntupleFileName);
-  declareProperty("NtupleDirectoryName", m_ntupleDirName);
-  declareProperty("NtupleTreeName", m_ntupleTreeName);
-  declareProperty("HistPath", m_path);
+  declareProperty("NtupleFileName", m_ntupleFileName="/ntuples/file1");
+  declareProperty("NtupleDirectoryName", m_ntupleDirName="/SCT_RDOAnalysis/");
+  declareProperty("NtupleTreeName", m_ntupleTreeName="SCT_RDOAna");
+  declareProperty("HistPath", m_path="/SCT_RDOAnalysis/");
 }
 
 StatusCode SCT_RDOAnalysis::initialize() {
@@ -143,8 +137,7 @@ StatusCode SCT_RDOAnalysis::initialize() {
     m_tree->Branch("barcode_vec", &m_barcode_vec);
     m_tree->Branch("eventIndex_vec", &m_eventIndex_vec);
     m_tree->Branch("charge_vec", &m_charge_vec);
-  }
-  else {
+  } else {
     ATH_MSG_ERROR("No tree found!");
   }
 
@@ -328,7 +321,7 @@ StatusCode SCT_RDOAnalysis::execute() {
 
   // RawData
   SG::ReadHandle<SCT_RDO_Container> p_SCT_RDO_cont (m_inputKey);
-  if(p_SCT_RDO_cont.isValid()) {
+  if (p_SCT_RDO_cont.isValid()) {
     // loop over RDO container
     SCT_RDO_Container::const_iterator rdoCont_itr(p_SCT_RDO_cont->begin());
     const SCT_RDO_Container::const_iterator rdoCont_end(p_SCT_RDO_cont->end());
@@ -395,7 +388,7 @@ StatusCode SCT_RDOAnalysis::execute() {
 
   // SimData
   SG::ReadHandle<InDetSimDataCollection> simDataMapSCT (m_inputTruthKey);
-  if(simDataMapSCT.isValid()) {
+  if (simDataMapSCT.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapSCT->begin());
     const InDetSimDataCollection::const_iterator sdo_end(simDataMapSCT->end());
@@ -403,7 +396,7 @@ StatusCode SCT_RDOAnalysis::execute() {
     std::vector<int> barcode_vec;
     std::vector<int> eventIndex_vec;
     std::vector<float> charge_vec;
-    for ( ; sdo_itr != sdo_end; ++sdo_itr ) {
+    for (; sdo_itr != sdo_end; ++sdo_itr) {
       const Identifier sdoID((*sdo_itr).first);
       const InDetSimData& sdo((*sdo_itr).second);
       const unsigned long long sdoID_int = sdoID.get_compact();
@@ -446,7 +439,7 @@ StatusCode SCT_RDOAnalysis::execute() {
       std::vector<InDetSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<InDetSimData::Deposit>::const_iterator dep_end(deposits.end());
 
-      for ( ; dep_itr != dep_end; ++dep_itr ) {
+      for (; dep_itr != dep_end; ++dep_itr) {
         const HepMcParticleLink& particleLink = (*dep_itr).first;
         const int bar(particleLink.barcode());
         const int eventIx(particleLink.eventIndex());

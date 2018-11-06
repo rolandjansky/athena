@@ -461,7 +461,6 @@ void TRT_DCS_ConditionsSvc::monitorBarrel(){
 	  m_h_Barrel_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
 	}
       }
-      return;
 
       // Fill Monitoring Histograms
 

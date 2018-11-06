@@ -15,6 +15,9 @@
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
 #include "InDetIdentifier/TRT_ID.h"
+#include "TrkTrack/Track.h"
+#include "TrkSegment/TrackSegment.h"
+
 #include <limits>
 #include <cmath>
 //================ Constructor =================================================
@@ -72,7 +75,7 @@ void InDet::InDetCosmicsEventPhaseTool::beginRun() {
     int nStrawsInLayer = TRTHelper->straw_max(*it);
     for (int i = 0; i <= nStrawsInLayer; i++) {
       Identifier id = TRTHelper->straw_id(*it, i);
-      if (abs(TRTHelper->barrel_ec(id)) != 1)                                                    // average only for
+      if (std::abs(TRTHelper->barrel_ec(id)) != 1)                                               // average only for
                                                                                                  // barrel straws
         continue;
       m_averageT0 += m_trtconddbsvc->getT0(id); // access straw T0 same as elsewhere, countAverageT0++;
@@ -85,9 +88,13 @@ void InDet::InDetCosmicsEventPhaseTool::beginRun() {
       rtShift += rtRelation->drifttime(0.);
     }
   }
-  m_averageT0 /= (double(countAverageT0));
+  if (countAverageT0 != 0){
+    m_averageT0 /= (double(countAverageT0));
+  } else {
+    m_averageT0 = std::numeric_limits<double>::infinity();
+  }
   double averageT0 = m_averageT0;
-  if (m_averageT0 != 0.) {
+  if (countAverageT0 != 0) {
     rtShift /= (double(countAverageT0));
   } else {
     rtShift = std::numeric_limits<double>::infinity();

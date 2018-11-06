@@ -28,7 +28,8 @@ namespace met {
   METPhotonAssociator::METPhotonAssociator(const std::string& name) :
     AsgTool(name),
     METAssociator(name),
-    METEgammaAssociator(name)
+    METEgammaAssociator(name),
+    m_phContKey("")
   {}
 
   // Destructor
@@ -42,6 +43,9 @@ namespace met {
   {
     ATH_CHECK( METEgammaAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_CHECK( m_phContKey.assign(m_input_data_key));
+    ATH_CHECK( m_phContKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -69,15 +73,15 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    const xAOD::PhotonContainer* phCont(0);
-    if( evtStore()->retrieve(phCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::PhotonContainer> phCont(m_phContKey);
+    if (!phCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input photon container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved photon collection");
 
-    if (fillAssocMap(metMap,phCont).isFailure()) {
+    if (fillAssocMap(metMap,phCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with photon container " << m_input_data_key);
       return StatusCode::FAILURE;
     }

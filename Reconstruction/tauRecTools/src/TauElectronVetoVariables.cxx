@@ -166,8 +166,8 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     }
 
     // get the extrapolation into the calo
-    const Trk::CaloExtension* caloExtension = 0;
-    if( !m_caloExtensionTool->caloExtension(*pTau.track(0)->track(),caloExtension) || caloExtension->caloLayerIntersections().empty() ){
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(*pTau.track(0)->track());
+    if( !caloExtension || caloExtension->caloLayerIntersections().empty() ){
       ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  " );
       return StatusCode::SUCCESS;
     }

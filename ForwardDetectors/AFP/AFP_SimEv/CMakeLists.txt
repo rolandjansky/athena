@@ -7,8 +7,7 @@ atlas_subdir( AFP_SimEv )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Simulation/HitManagement
                           PRIVATE
                           GaudiKernel )
@@ -21,12 +20,12 @@ atlas_add_library( AFP_SimEv
                    src/*.cxx
                    PUBLIC_HEADERS AFP_SimEv
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES SGTools HitManagement
+                   LINK_LIBRARIES HitManagement
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( AFP_SimEvDict
                       AFP_SimEv/AFP_SimEvDict.h
                       AFP_SimEv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools HitManagement GaudiKernel AFP_SimEv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} HitManagement GaudiKernel AFP_SimEv )
 

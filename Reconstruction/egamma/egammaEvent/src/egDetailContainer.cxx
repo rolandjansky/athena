@@ -21,7 +21,6 @@ PACKAGE:  offline/Reconstruction/egammaEvent
 //  END OF HEADER FILES INCLUDE
 
 egDetailContainer::egDetailContainer(SG::OwnershipPolicy ownPolicy ) : 
-  DataVector<egDetail>(ownPolicy)//,
-  //m_ownPolicy(ownPolicy)
+  DataVector<egDetail>(ownPolicy)
 {}
 

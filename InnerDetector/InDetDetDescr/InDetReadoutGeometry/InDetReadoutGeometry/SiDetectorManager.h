@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,10 +75,6 @@ class SiNumerology;
       virtual SiDetectorElement * getDetectorElement(const Identifier &id) const = 0;
       virtual SiDetectorElement * getDetectorElement(const IdentifierHash &idHash) const = 0;
     
-      /** access to individual elements using Identifier or IdentiferHash using SiDetectorElementCollection */
-      virtual const SiDetectorElement* getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const = 0;
-      virtual const SiDetectorElement* getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const = 0;
-
       /** access to whole collectiom */
       virtual const SiDetectorElementCollection * getDetectorElementCollection() const = 0;
       virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const = 0;
@@ -152,7 +148,7 @@ class SiNumerology;
 } // namespace InDetDD
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 CLASS_DEF(InDetDD::SiDetectorManager, 1441401, 1)
 #endif

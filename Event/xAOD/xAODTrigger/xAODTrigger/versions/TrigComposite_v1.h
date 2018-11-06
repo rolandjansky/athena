@@ -64,41 +64,61 @@ namespace xAOD {
       bool hasDetail( const std::string& name ) const;
 
       /// Set an integer detail on the object
-      bool setDetail( const std::string& name, int value );
+      bool setDetail( const std::string& name, int32_t value );
       /// Set an unsigned detail on the object
-      bool setDetail( const std::string& name, unsigned int value );
+      bool setDetail( const std::string& name, uint32_t value );
       /// Set a floating point detail on the object
       bool setDetail( const std::string& name, float value );
+      /// Set a string detail on the object
+      bool setDetail( const std::string& name,
+                      const std::string& value );
       /// Set a vector<int> detail on the object
       bool setDetail( const std::string& name,
-                      const std::vector< int >& value );
+                      const std::vector< int32_t >& value );
       /// Set a vector<unsigned int> detail on the object 
       bool setDetail( const std::string& name,
-                      const std::vector< unsigned int >& value );
+                      const std::vector< uint32_t >& value );
+      /// Set a vector<unsigned short> detail on the object. Note: For an even vector, the final entry cannot be (2^16)-1=65535
+      bool setDetail( const std::string& name,
+                      const std::vector< uint16_t >& value );
       /// Set a vector<float> detail on the object
       bool setDetail( const std::string& name,
                       const std::vector< float >& value );
+      /// Set a vector<string> detail on the object
+      bool setDetail( const std::string& name,
+                      const std::vector< std::string >& value );
 
       /// Get an integer detail from the object
-      bool getDetail( const std::string& name, int& value ) const;
+      bool getDetail( const std::string& name, int32_t& value ) const;
 
       /// Get an unsigned integer detail from the object
-      bool getDetail( const std::string& name, unsigned int& value ) const;
+      bool getDetail( const std::string& name, uint32_t& value ) const;
 
       /// Get a floating point detail from the object
       bool getDetail( const std::string& name, float& value ) const;
 
+      /// Get a string detail from the object
+      bool getDetail( const std::string& name, std::string& value ) const;
+
       /// Get a vector<int> detail from the object
       bool getDetail( const std::string& name,
-                      std::vector< int >& value ) const;
+                      std::vector< int32_t >& value ) const;
 
       /// Get a vector<insigned int> detail from the object
       bool getDetail( const std::string& name,
-                      std::vector< unsigned int>& value ) const;     
+                      std::vector< uint32_t >& value ) const;
+
+      /// Get a vector<unsigned short> detail from the object
+      bool getDetail( const std::string& name,
+                      std::vector< uint16_t >& value ) const;
+
       /// Get a vector<float> detail from the object
       bool getDetail( const std::string& name,
                       std::vector< float >& value ) const;
 
+      /// Get a vector<string> detail from the object
+      bool getDetail( const std::string& name,
+                      std::vector< std::string >& value ) const;
 
       /// Get a detail by name, missing detail will result on std::runtime_error exception
       template<typename T>
@@ -142,6 +162,40 @@ namespace xAOD {
       ElementLinkVector< CONTAINER >
       objectCollectionLinks( const std::string& collectionName ) const;
 
+      /// @}
+
+      /// @name Functions for accessing links to component objects and object collections
+      /// @{
+
+      /// Copy one named link from another object.
+      /// Will not overwrite an existing link
+      /// @param other TrigComposite object to copy the link from
+      /// @param name Name of link to copy
+      /// @param newName Optional parameter to rename the link during the copy
+      /// @return True on successful copy
+      bool copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName = "");
+      bool copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName = "");
+
+      /// Copy one named link collection from another object.
+      /// Will not overwrite or append to an existing collection of links
+      /// @param other TrigComposite object to copy the link collection from
+      /// @param name Name of link collection
+      /// @param newName Optional parameter to rename the link collection during the copy
+      /// @return True on successful copy
+      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName = "");
+      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName = "");
+
+      /// Copy all single links and collections of links from another object.
+      /// Will not overwrite existing links, or link collections, or append to existing link collections.
+      /// @param other TrigComposite object to copy all links and link collections from, which do not already exist.
+      /// @return True on successful copy of at least one link
+      bool copyAllLinksFrom(const xAOD::TrigComposite_v1& other);
+      bool copyAllLinksFrom(const xAOD::TrigComposite_v1* other);
+
+      /// @}
+
+      /// @name Functions for accessing raw data used to construct ElementLinks
+      /// @{
 
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
@@ -154,6 +208,9 @@ namespace xAOD {
 
       /// @}
 
+      /// For use in validation, when copying element links from one object to another
+      static bool s_throwOnCopyError;
+
    private:
       /// Raw access to the persistent link names (non-const)
       std::vector< std::string >& linkColNamesNC();
@@ -163,6 +220,9 @@ namespace xAOD {
       std::vector< uint16_t >& linkColIndicesNC();
       /// Raw access to the persistent link CLIDs (non-const)
       std::vector< uint32_t >& linkColClidsNC();
+
+      /// Helper function, copy one link into this object
+      void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName);
 
       static const std::string s_collectionSuffix;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 class PixelConditionsServicesSetup:
   """
@@ -16,6 +16,16 @@ class PixelConditionsServicesSetup:
     self._lock = False
     self.config(useDCS=True, onlineMode=False, prefix='')    #default offline settings
 
+    from AthenaCommon.AppMgr import ServiceMgr
+    self.svcMgr = ServiceMgr
+    from AthenaCommon.AppMgr import ToolSvc
+    self.toolSvc = ToolSvc
+    self.summaryTool = None
+    
+    self.isData = False
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.DataSource() == 'data':
+      self.isData = True
 
   def config(self, useDCS=True, onlineMode=False, prefix=''):
     if not self._lock:
@@ -39,61 +49,78 @@ class PixelConditionsServicesSetup:
     self._lock = True
 
 
-  def createSvc(self):
-    from AthenaCommon.AppMgr import ToolSvc,ServiceMgr,theApp
+  def createTool(self):
+    from AthenaCommon.AppMgr import ToolSvc
+
+    ########################
+    # DCS Conditions Setup #
+    ########################
     from IOVDbSvc.CondDB import conddb
+
+    PixelHVFolder = "/PIXEL/DCS/HV"
+    PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
+    PixelDBInstance = "DCS_OFL"
+
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline():
+       PixelHVFolder = "/PIXEL/HLT/DCS/HV"
+       PixelTempFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
+       PixelDBInstance = "PIXEL_ONL"
+
+    if not conddb.folderRequested(PixelHVFolder):
+      conddb.addFolder(PixelDBInstance, PixelHVFolder, className="CondAttrListCollection")
+    if not conddb.folderRequested(PixelTempFolder):
+      conddb.addFolder(PixelDBInstance, PixelTempFolder, className="CondAttrListCollection")
+      
+    if not self.onlineMode:   #this is only for testing in offline like setup 
+      if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+      if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+      condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    #Retire service later
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc as pixSummarySvc
-    PixelConditionsSummarySvc = \
-        pixSummarySvc(name=self.instanceName('PixelConditionsSummarySvc'),
-                      UseDCS = self.useDCS,
-                      UseByteStream=self.useBS,
-                      #UseSpecialPixelMap= not self.onlineMode,
-                      UseSpecialPixelMap=True,
-                      UseTDAQ=self.useTDAQ
-                      )
-    #active states used by dcs (if on)
+    if not hasattr(condSeq, 'PixelDCSCondHVAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
+      condSeq += PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder)
+
+    if not hasattr(condSeq, 'PixelDCSCondTempAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
+      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder)
+
+
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
+    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseDB=self.useDCS, IsDATA=self.isData)
+
+    ToolSvc += TrigPixelDCSConditionsTool
+
+    ############################
+    # Conditions Summary Setup #
+    ############################
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'),
+                                                                PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
+                                                                UseDCS=self.useDCS,
+                                                                UseByteStream=self.useBS,
+                                                                UseTDAQ=self.useTDAQ)
+
     if self.useDCS and not self.onlineMode:
-      PixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON' ]
-      PixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING' ]
+      TrigPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
+      TrigPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
 
-    ServiceMgr += PixelConditionsSummarySvc
+    ToolSvc += TrigPixelConditionsSummaryTool
+    self.summaryTool = TrigPixelConditionsSummaryTool
 
-    if self._print: print PixelConditionsSummarySvc
-
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool as pixSummaryTool
-    PixelConditionsSummaryTool = \
-        pixSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'),
-                      UseDCS = self.useDCS,
-                      UseByteStream=self.useBS,
-                      #UseSpecialPixelMap= not self.onlineMode,
-                      UseSpecialPixelMap=True,
-                      UseTDAQ=self.useTDAQ
-                      )
-    #active states used by dcs (if on)
-    if self.useDCS and not self.onlineMode:
-      PixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
-      PixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
-
-    ToolSvc += PixelConditionsSummaryTool
-
-    if self._print: print PixelConditionsSummaryTool
-    
-
-
-    # #create another instance of the PixelConditionsSummarySvc w/o BS
-    # #   service to be used with RegionSelector
-    # InDetTrigRSPixelConditionsSummarySvc = pixSummarySvc(name='InDetTrigRSPixelConditionsSummarySvc',
-    #                                                      UseDCS = self.useDCS,
-    #                                                      UseByteStream=self.useBS
-    #                                                      UseSpecialPixelMap= True,
-    #                                                      )
-    # ServiceMgr += InDetTrigRSPixelConditionsSummarySvc
-    # if self._print: print InDetTrigRSPixelConditionsSummarySvc
-
+    if self._print: print TrigPixelConditionsSummaryTool
+   
+    #####################
+    # Calibration Setup #
+    #####################
+    from AthenaCommon.AppMgr import ServiceMgr,theApp
+    from IOVDbSvc.CondDB import conddb
     if not self.onlineMode:
       from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
       PixelCalibSvc = PixelCalibSvc(name=self.instanceName('PixelCalibSvc'))
@@ -102,6 +129,8 @@ class PixelConditionsServicesSetup:
         conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
 
       if self._print: print PixelCalibSvc
+
+      svcMgr += PixelCalibSvc
 
       #only when inputsource=1
       #if not conddb.folderRequested("/PIXEL/PixReco"):
@@ -143,114 +172,37 @@ class PixelConditionsServicesSetup:
     if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
-#    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
 
-#    SpecialPixelMapSvc = SpecialPixelMapSvc(name='SpecialPixelMapSvc')
-#    ServiceMgr += SpecialPixelMapSvc
-#    SpecialPixelMapSvc.RegisterCallback = True;
-#    SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
-#    SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
-  
-#    SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
-#    SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
-#  
-#    SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
-#    SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
-#    ServiceMgr += SpecialPixelMapSvc
+    #######################
+    # Lorentz Angle Setup #
+    #######################
+    if not hasattr(condSeq, 'PixelSiPropertiesCondAlg'):
+      from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+      condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool)
 
-    #Alg is suppose to replace service, sync withh service for now
-#    if "InDetSpecialPixelMapCondAlg" not in condSeq:
-#       from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
-#       SpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="SpecialPixelMapCondAlg",
-#               DBFolders  = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong", "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong"  ],
-#               SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong", "NoiseMapShort", "NoiseMapLong" ],
-#               OverlayFolder       = "/PIXEL/PixMapOverlay",
-#               OverlayKey          = "PixMapOverlay")
-#       condSeq += SpecialPixelMapCondAlg
+    from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+    TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
 
-    #theApp.CreateSvc += [ 'SpecialPixelMapSvc/%s' % self.instanceName('SpecialPixelMapSvc') ]
+    ToolSvc += TrigSiPropertiesTool
 
-    
-#    if self._print:  print SpecialPixelMapSvc
+    if not hasattr(condSeq, 'PixelSiLorentzAngleCondAlg'):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+      condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
+                                            PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
+                                            SiPropertiesTool=TrigSiPropertiesTool,
+                                            UseMagFieldSvc = True,
+                                            UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
 
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    from AthenaCommon.GlobalFlags import globalflags
-    if self.useDCS or self.onlineMode:
-      #sim
-      if globalflags.DataSource() == 'geant4' or (not athenaCommonFlags.isOnline()):      
-        if not conddb.folderRequested('/PIXEL/DCS/TEMPERATURE'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
-        if not conddb.folderRequested('/PIXEL/DCS/HV'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/HV")
-        if not conddb.folderRequested('/PIXEL/DCS/FSMSTATUS'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
-        if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
-      else:
-        if not conddb.folderRequested('/PIXEL/HLT/DCS/TEMPERATURE'):
-          conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE")
-          #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/TEMPERATURE <tag>PixDCSTemp-UPD1-00</tag>")
-        if not conddb.folderRequested('/PIXEL/HLT/DCS/HV'):
-          conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/HV")
-          #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/HV <tag>PixDCSHV-UPD1-00</tag>")
-        
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    TrigPixelLorentzAngleTool = SiLorentzAngleTool(name=self.instanceName('PixelLorentzAngleTool'), DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
-      from PixelConditionsServices.PixelConditionsServicesConf import PixelDCSSvc
-      InDetPixelDCSSvc =  PixelDCSSvc(name = 'TrigPixelDCSSvc',
-                                      RegisterCallback     = True,
-                                      TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
-                                      HVFolder             = "/PIXEL/DCS/HV",
-                                      FSMStatusFolder      = "/PIXEL/DCS/FSMSTATUS",
-                                      FSMStateFolder       = "/PIXEL/DCS/FSMSTATE",
-                                      TemperatureFieldName = "temperature",
-                                      HVFieldName          = "HV",
-                                      FSMStatusFieldName   = "FSM_status",
-                                      FSMStateFieldName    = "FSM_state",
-                                      UseFSMStatus         = False,
-                                      UseFSMState          = False
-                                      )
-
-      if globalflags.DataSource() == 'data':
-        if (not athenaCommonFlags.isOnline()):
-          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/DCS/TEMPERATURE"
-          InDetPixelDCSSvc.HVFolder = "/PIXEL/DCS/HV"
-        else:
-          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
-          InDetPixelDCSSvc.HVFolder = "/PIXEL/HLT/DCS/HV"
-        
-      ServiceMgr += InDetPixelDCSSvc
+    ToolSvc += TrigPixelLorentzAngleTool
 
 
-    if self.useDCS or self.onlineMode:
-      if self._print: print InDetPixelDCSSvc
+  def instanceName(self, toolname):
+    return self.prefix+toolname
 
-
-    #this needs also updates how LorentzAngleSvc is accessed ()
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-    PixelLorentzAngleSvc = SiLorentzAngleSvc(name='PixelLorentzAngleSvc')
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
-    pixelSiliconConditionsSvc=PixelSiliconConditionsSvc(name=self.instanceName('PixelSiliconConditionsSvc'),
-                                                        PixelDCSSvc = 'TrigPixelDCSSvc')
-    ServiceMgr += pixelSiliconConditionsSvc
-
-    PixelLorentzAngleSvc.SiConditionsServices = pixelSiliconConditionsSvc
-    PixelLorentzAngleSvc.UseMagFieldSvc = True         #may need also MagFieldSvc instance
-
-    #if self.useDCS or self.onlineMode:
-      #if (globalflags.DataSource() == 'data'):
-    #else:
-      #pixelSiliconConditionsSvc.ForceUseGeoModel = True
-      #PixelLorentzAngleSvc.pixelForceUseGeoModel()
-    if self._print: 
-      print pixelSiliconConditionsSvc
-      print PixelLorentzAngleSvc
-
-
-
-  def instanceName(self,tool):
-    return self.prefix+tool
-
-
+  pass
 
 
 #to be moved to
@@ -309,8 +261,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryTool(self, instanceName):
     "Init summary conditions tool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetup.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetup.setup()
     summaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if self._print:  print summaryTool
@@ -319,8 +270,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryToolWithoutFlagged(self, instanceName):
     "Init summary conditions tool without flaggedConditionTool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
     summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     condTools = []
@@ -351,6 +301,10 @@ class SCT_ConditionsToolsSetup:
 
   def initConfigTool(self, instanceName):
     "Init configuration conditions tool"
+
+    # Set up SCT cabling
+    from AthenaCommon.Include import include
+    include('InDetRecExample/InDetRecCabling.py')
     
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from IOVDbSvc.CondDB import conddb
@@ -479,11 +433,8 @@ class SCT_ConditionsToolsSetup:
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
-    if not hasattr(self.toolSvc, instanceName):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-      self.toolSvc += SiLorentzAngleTool(name = instanceName,
-                                         DetectorName = "SCT")
-    SCTLorentzAngleTool = getattr(self.toolSvc, instanceName)
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     
   def instanceName(self, toolname):
@@ -540,7 +491,7 @@ class TRTConditionsServicesSetup:
     if not self._isMC:
       #only needed for data
       if not (conddb.folderRequested('/TRT/Onl/ROD/Compress')):
-        conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+        conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
     if not (conddb.folderRequested('/TRT/Calib/RT') or conddb.folderRequested('/TRT/Onl/Calib/RT')):
       conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/RT','/TRT/Calib/RT',className='TRTCond::RtRelationMultChanContainer')

@@ -4,6 +4,18 @@
 # # Purpose: Compare MuonGeoModel and AMDB detector element positions
 #
 # art-type: grid
+# art-include: master/Athena
+# art-include: 21.0/Athena
+# art-include: 21.3/Athena
+#
+# art-output: *.txt
 
-athena.py -c 'DetDescrVersion="ATLAS-GEO-16-00-01"' -b MuonGeomRTT/AmdcMGM_RTT_topOptions.py
+# Create empty PoolFileCatalog
+art.py createpoolfile
 
+set -x
+
+
+athena.py -c 'DetDescrVersion="ATLAS-R2-2015-03-01-00"' MuonGeoModelTest/runAmdcMGM.py
+
+echo "art-result: $?"

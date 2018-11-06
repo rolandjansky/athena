@@ -1,12 +1,12 @@
 
 
 def getDatabaseInstanceDefault(prevFlags):
-    isMC=prevFlags.get("global.isMC")
+    isMC=prevFlags.Input.isMC
     if (isMC):
         return "OFLP200"
     
     # real-data
-    projectName=prevFlags.get("global.ProjectName")
+    projectName=prevFlags.Input.ProjectName
     try:
         year=int(projectName[4:6]);
     except:

@@ -7,11 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ICondSvc.h"
 
@@ -33,7 +33,7 @@ class SCT_SiliconTempCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey{this, "WriteKey", "SCT_SiliconTempCondData", "Key of output (sensor) temperature conditions data"};
   ServiceHandle<ICondSvc> m_condSvc;
   ToolHandle<ISCT_DCSConditionsTool> m_sctDCSTool{this, "DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrived SCT DCS information"};
-  const SCT_ID* m_pHelper;//!< ID helper for SCT
+  const SCT_ID* m_pHelper; //!< ID helper for SCT
 };
 
 #endif // SCT_SILICONTEMPCONDALG

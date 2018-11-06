@@ -6,7 +6,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoring/MonitoredScope.h"
-
+#include "TrigConfL1Data/CTPConfig.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -32,8 +32,11 @@ StatusCode TAURoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TAURoIsUnpackingTool::updateConfiguration() {
+StatusCode TAURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
   using namespace TrigConf;
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::TAU; }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
 
   m_tauThresholds.clear();
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::TAU ), m_tauThresholds ) );

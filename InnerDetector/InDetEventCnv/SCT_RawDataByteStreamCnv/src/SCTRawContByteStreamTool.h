@@ -7,23 +7,23 @@
 
 ///Base classes 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
-///STL
-#include <cstdint>
-#include <string>
+
+///other athena
+#include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+
 ///Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-///other athena
-#include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
+
+///STL
+#include <cstdint>
+#include <mutex>
+#include <string>
 
 class SrcIdMap;
 class ISCT_RodEncoder;
-class ISCT_CablingSvc;
 class SCT_ID;
-namespace InDetDD {
-  class SCT_DetectorManager;
-}
 
 /** An AthAlgTool class to provide conversion from SCT RDO container
  *  to ByteStream, and fill it in RawEvent
@@ -52,17 +52,16 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   virtual StatusCode finalize();
 
   //! New convert method which makes use of the encoder class (as done for other detectors)
-  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log); 
+  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const;
   
  private: 
   
   ToolHandle<ISCT_RodEncoder> m_encoder{this, "Encoder", "SCT_RodEncoder", "SCT ROD Encoder for RDO to BS conversion"};
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
-  const InDetDD::SCT_DetectorManager* m_sct_mgr;
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_sct_idHelper;
   unsigned short m_RodBlockVersion;
-  FullEventAssembler<SrcIdMap> m_fea; 
-
+  mutable FullEventAssembler<SrcIdMap> m_fea; // This has to be data member.
+  mutable std::mutex m_mutex;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H

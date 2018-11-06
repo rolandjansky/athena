@@ -109,7 +109,7 @@ PP="$PP"'|PluginMgr +INFO loaded plugin info for'
 # ignore HistorySvc registered count
 PP="$PP"'|HistorySvc +INFO Registered'
 # ignore clid registry entries count
-PP="$PP"'|ClassIDSvc[ 0]+INFO  getRegistryEntries: read'
+PP="$PP"'|ClassIDSvc[ [:digit:]]+INFO  getRegistryEntries: read'
 # ignore existsDir path WARNINGS
 PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 # ignore warnings about duplicate services/converters.
@@ -193,6 +193,7 @@ PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 PP="$PP"'|DEBUG Calling destructor'
+PP="$PP"'|INFO Found MetaDataTools'
 
 PP="$PP"'|INFO TopAlg list empty.'
 
@@ -207,6 +208,9 @@ PP="$PP"'|no interpreter information for class TSelectorCint'
 # like
 #  Warning in <TInterpreter::ReadRootmapFile>: enum  xAOD::Type::ObjectType found in libxAODBaseDict.so  libEventKernelDict.so  libxAODBaseDict.so  libEventKernelDict.so  is already in libxAODBaseDict.so  libEventKernelDict.so 
 PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
+
+# Ignore sourceID message from EventSelector.
+PP="$PP"'|Disconnecting input sourceID'
 
 
 if [ "$extrapatterns" != "" ]; then
@@ -225,6 +229,9 @@ else
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
        reflog=../share/${test}.ref
+       if [ "$reflog_location" != "" ]; then
+         reflog=$reflog_location/${test}.ref
+       fi
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back

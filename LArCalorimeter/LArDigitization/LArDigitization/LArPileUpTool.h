@@ -1,5 +1,6 @@
+//Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -29,7 +30,7 @@
 #include "LArElecCalib/ILArfSampl.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRecConditions/ILArBadChanTool.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "StoreGate/DataHandle.h"
 
@@ -39,6 +40,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "LArRawConditions/LArADC2MeV.h"
+#include "LArRawConditions/LArAutoCorrNoise.h"
 
 class StoreGateSvc;
 class PileUpMergeSvc;
@@ -94,14 +98,19 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   StatusCode AddHit(const Identifier & cellId, float energy, float time, bool iSignal, unsigned int offset, unsigned int ical);
 
+
   StatusCode MakeDigit(const Identifier & cellId,
                    HWIdentifier & ch_id,
                    const std::vector<std::pair<float,float> >  *TimeE,
-                   const LArDigit * rndm_digit);
+                   //const LArDigit * rndm_digit);
+                   const LArDigit * rndm_digit, const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
 
-  StatusCode ConvertHits2Samples(const Identifier & cellId,
+
+  StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
                    CaloGain::CaloGain igain,
-                   const std::vector<std::pair<float,float> >  *TimeE);
+                   //const std::vector<std::pair<float,float> >  *TimeE);
+                   const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
+
 
   float  get_strip_xtalk(int eta);
   float  get_middleback_xtalk(int eta);
@@ -128,6 +137,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 //
   PileUpMergeSvc* m_mergeSvc;
   LArHitEMap* m_hitmap;   // map of hits in cell
+  LArHitEMap* m_hitmap_DigiHSTruth;   // map of hits in cell 
   std::vector <std::string> m_HitContainer; // hit container name list
   std::vector<int> m_CaloType;
 
@@ -136,7 +146,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 //
   std::string m_SubDetectors;      // subdetectors
   std::string m_DigitContainerName;    // output digit container name list
+  std::string m_DigitContainerName_DigiHSTruth;    // output digit container name list
   LArDigitContainer* m_DigitContainer;
+  LArDigitContainer* m_DigitContainer_DigiHSTruth;
   std::vector<std::string> m_EmBarrelHitContainerName;
   std::vector<std::string> m_EmEndCapHitContainerName;
   std::vector<std::string> m_HecHitContainerName;
@@ -178,7 +190,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   bool m_useBad;
   std::string m_RandomDigitContainer; // random digit container name list
 
-  std::string m_pedestalKey ;
   bool m_useMBTime;
   bool m_recordMap;
   bool m_useLArHitFloat;
@@ -192,14 +203,20 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
 // Detector Description objects
 
-  const DataHandle<ILArNoise>     m_dd_noise;
-  const DataHandle<ILArfSampl>    m_dd_fSampl;
-  const DataHandle<ILArPedestal>  m_dd_pedestal;
-  const DataHandle<ILArShape>     m_dd_shape;
-  ToolHandle<ILArADC2MeVTool>     m_adc2mevTool;
-  ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
+  //const DataHandle<ILArNoise>     m_dd_noise;
+  //const DataHandle<ILArfSampl>    m_dd_fSampl;
+  //const DataHandle<ILArPedestal>  m_dd_pedestal;
+  //const DataHandle<ILArShape>     m_dd_shape;
+  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoise","SG Key of ILArNoise object"};
+  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSampl","SG Key of LArfSampl object"};
+  SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
+  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShape","SG Key of LArShape object"};
+  SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
+
+  //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
+  SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
+  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey;
   ToolHandle<ITriggerTime> m_triggerTimeTool;
 
   const LArEM_ID*        m_larem_id;
@@ -212,11 +229,15 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   IAtRndmGenSvc* m_AtRndmGenSvc;
   CLHEP::HepRandomEngine* m_engine;
 
+  bool m_doDigiTruth;
+
   std::vector<double> m_Samples;
+  std::vector<double> m_Samples_DigiHSTruth;
   std::vector<double> m_Noise;
   double m_Rndm[32];
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
+  std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot;
   float m_trigtime;
   unsigned int m_n_cells;

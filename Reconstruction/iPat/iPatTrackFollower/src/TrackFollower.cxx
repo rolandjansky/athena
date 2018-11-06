@@ -30,6 +30,7 @@
 #include "iPatTrackFollower/LayerPredictor.h"
 #include "iPatTrackFollower/SiliconClusterMap.h"
 #include "iPatTrackFollower/TrackFollower.h"
+#include <memory>
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
@@ -320,7 +321,7 @@ TrackFollower::associate_trt (const Track& track)
 }
 
 Track*
-TrackFollower::extrapolate_inwards (const Track& track) const
+TrackFollower::extrapolate_inwards (const Track& track)
 {
     // extrapolate towards the vertex region
     ATH_MSG_DEBUG( "extrapolate_inwards"
@@ -343,82 +344,69 @@ TrackFollower::extrapolate_inwards (const Track& track) const
 
     // associate and build track for hits in one extrapolated layer at a time (expensive!)
     std::vector<SiliconLayer*>::iterator end = begin;
-    Track* extrapolatedTrack	= 0;
-    Track* newTrack		= 0;
+    std::unique_ptr<Track> extrapolatedTrack{};
+    std::unique_ptr<Track> newTrack{};
     TrackStatus status		= track.status();
     hit_citerator hitBegin	= track.hit_list_begin();
     hit_citerator hitEnd	= track.hit_list_end();
-    do
-    {
-	// move begin backwards to the preceding active layer.
-	// Include any leading material by going back again until
-	// an active layer is found and then go forwards one
-	while (begin != layers->begin() && (**(--begin)).isInactive()) ;
-	while (begin != layers->begin() && (**(--begin)).isInactive()) ;
-	if (begin != layers->begin()) ++begin;
+    do{
+      // move begin backwards to the preceding active layer.
+      // Include any leading material by going back again until
+      // an active layer is found and then go forwards one
+      while (begin != layers->begin() && (**(--begin)).isInactive()) ;
+      while (begin != layers->begin() && (**(--begin)).isInactive()) ;
+      if (begin != layers->begin()) ++begin;
 
-	if (begin == layers->begin())
-	{
-	    switch (status)
-	    {
-	    case truncated:    
-		status = truncated;
-		break;
-	    case segment:
-	    case long_segment:
-	    case pendingTRT:
-		status = pendingTRT;
-		break;
-	    case secondary:
-	    case primary:    
-		status = primary;
-		break;	
-	    default:
-		ATH_MSG_WARNING( " unexpected Track::extrapolate_inwards " );
-		delete layers;
-		return 0;
-	    };
-	}
-	
-	hit_list* hits	= associateSilicon(begin,end,false,track);
-	end = begin;
-	for (hit_citerator h = hitBegin; h != hitEnd; ++h)
-	    hits->push_back(new HitOnTrack(**h));
-
-	newTrack = m_trackBuilder->trackFromHits(status,hits,track);
-	if (newTrack)
-	{
-	    // keep newTrack provided it adds cluster(s)
-	    bool haveCluster = false;
-	    for (hit_citerator h = newTrack->hit_list_begin();
-		 h != newTrack->hit_list_end();
-		 ++h)
-	    {
-		if ((**h).isCluster()) haveCluster = true;
-		if ((**h).status() != scatterer) continue;
-		if (haveCluster)
-		{
-		    delete extrapolatedTrack;
-		    extrapolatedTrack = newTrack;
-		    hitBegin	= newTrack->hit_list_begin();
-		    hitEnd	= newTrack->hit_list_end();
-		}
-		else
-		{
-		    delete newTrack;
-		    newTrack = 0;
-		}
-		break;
-	    }
-	}
+      if (begin == layers->begin()){
+        switch (status){
+          case truncated:    
+            status = truncated;
+            break;
+          case segment:
+          case long_segment:
+          case pendingTRT:
+            status = pendingTRT;
+            break;
+          case secondary:
+          case primary:    
+            status = primary;
+            break;	
+          default:
+            ATH_MSG_WARNING( " unexpected Track::extrapolate_inwards " );
+            delete layers;
+            return 0;
+        };
+      }
+  
+      hit_list* hits	= associateSilicon(begin,end,false,track);
+      end = begin;
+      for (hit_citerator h = hitBegin; h != hitEnd; ++h) hits->push_back(new HitOnTrack(**h));
+      //
+      newTrack.reset(m_trackBuilder->trackFromHits(status,hits,track));
+      if (newTrack) {
+        // keep newTrack provided it adds cluster(s)
+        bool haveCluster = false;
+        for (hit_citerator h = newTrack->hit_list_begin();h != newTrack->hit_list_end();++h){
+          if ((**h).isCluster()) haveCluster = true;
+          if ((**h).status() != scatterer) continue;
+          if (haveCluster){
+            extrapolatedTrack = std::move(newTrack);
+            hitBegin	= newTrack->hit_list_begin();
+            hitEnd	= newTrack->hit_list_end();
+          }else{
+            newTrack.reset();
+          }
+          break;
+        }
+      }
     } while (newTrack && begin != layers->begin());
-
+    //
     delete layers;
-    return extrapolatedTrack;
+    return extrapolatedTrack.release();
 }
 
 Track*
-TrackFollower::extrapolate_outwards (const Track& track) const
+TrackFollower::extrapolate_outwards (const Track& track)
 {
     // extrapolate outwards from last assigned hit (to last SCT layer)
     ATH_MSG_DEBUG( "extrapolate_outwards"
@@ -469,7 +457,7 @@ TrackFollower::extrapolate_outwards (const Track& track) const
 }
 
 Track*
-TrackFollower::fast_interpolate_outwards (const Track& track) const
+TrackFollower::fast_interpolate_outwards (const Track& track)
 {
     // interpolate to give a track segment outwards from the first hit
     ATH_MSG_DEBUG( "fast_interpolate_outwards"
@@ -496,7 +484,7 @@ TrackFollower::fast_interpolate_outwards (const Track& track) const
 }
 
 Track*
-TrackFollower::interpolate (const Track& track) const
+TrackFollower::interpolate (const Track& track)
 {
     // interpolate to give a track segment joining the first and last hits
     ATH_MSG_DEBUG( "interpolate"
@@ -526,7 +514,7 @@ TrackFollower::interpolate (const Track& track) const
 }
 
 Track*
-TrackFollower::interpolate_from_beam_spot (const Track& track) const
+TrackFollower::interpolate_from_beam_spot (const Track& track)
 {
     // interpolate to give a long_segment joining beam-line to last hit
     ATH_MSG_DEBUG( "interpolate_from_beam_spot"
@@ -571,7 +559,7 @@ hit_list*
 TrackFollower::associateSilicon (std::vector<SiliconLayer*>::iterator	begin,
 				 std::vector<SiliconLayer*>::iterator	end,
 				 bool					extrapolate,
-				 const Track&				track) const
+				 const Track&				track)
 {
     // create an empty hit_list
     hit_list* hits							= new hit_list;

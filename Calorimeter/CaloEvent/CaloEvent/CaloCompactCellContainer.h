@@ -23,7 +23,7 @@
  * are produced by the @c CaloCompactCellTool in @c CaloTools.
  */
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloEvent/CaloCompactCell.h"
 #include <vector>
 

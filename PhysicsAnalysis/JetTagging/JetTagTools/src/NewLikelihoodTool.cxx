@@ -5,7 +5,6 @@
 #include "JetTagTools/NewLikelihoodTool.h"
 
 #include "JetTagTools/HistoHelperRoot.h"
-#include "JetTagCalibration/CalibrationBroker.h"
 
 #include <cmath>
 #include <string>
@@ -22,7 +21,6 @@ namespace Analysis {
     AthAlgTool(t,n,p),
     m_taggerName("undefined"),
     m_hypotheses(std::vector<std::string>()),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_normalizedProb(true),
     m_interpolate(false),
     m_smoothNTimes(1),
@@ -34,7 +32,6 @@ namespace Analysis {
     declareInterface<NewLikelihoodTool>(this);
     declareProperty("taggerName", m_taggerName);
     declareProperty("hypotheses", m_hypotheses);
-    declareProperty("calibrationTool",m_calibrationTool);
     declareProperty("normalizedProb", m_normalizedProb);
     declareProperty("interpolate",m_interpolate);
     declareProperty("smoothNTimes",m_smoothNTimes);
@@ -51,13 +48,8 @@ namespace Analysis {
   }
 
   StatusCode NewLikelihoodTool::initialize() {
-    /** retrieving calibrationTool: */
-    if ( m_calibrationTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_calibrationTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_calibrationTool);
-    }
+    ATH_CHECK(m_readKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -79,20 +71,12 @@ namespace Analysis {
     m_hypotheses = hyp;
   }
 
-  void NewLikelihoodTool::defineHistogram(const std::string& hname) {
-    m_histograms.push_back(hname);
-    std::vector<std::string> gradeList = this->gradeList(hname);
-    m_calibrationTool->registerHistogram(m_taggerName, hname);
-  }
-
   void NewLikelihoodTool::printStatus() const {
     msg(MSG::INFO) << "#BTAG# - hypotheses : ";
     for(unsigned int ih=0;ih<m_hypotheses.size();ih++) msg(MSG::INFO) << m_hypotheses[ih] << ", ";
     msg(MSG::INFO) << endmsg;
     msg(MSG::INFO) << "#BTAG# - histograms : " << endmsg;
     for(unsigned int ih=0;ih<m_histograms.size();ih++) msg(MSG::INFO) << m_histograms[ih] << endmsg;
-    msg(MSG::INFO) << "#BTAG# - status of underlying calibrations: " << endmsg;
-    m_calibrationTool->printStatus();
   }
 
   void NewLikelihoodTool::clear() {
@@ -140,10 +124,11 @@ namespace Analysis {
   }
 
   TH1* NewLikelihoodTool::prepareHistogram(const std::string& hypo, const std::string& hname) {
-    TH1* histoSum(0);
-    bool updated = false;
-    std::string channelName = m_calibrationTool->channelName(hname);
-    std::string histoName = m_calibrationTool->histoName(hname);
+    TH1* histoSum = nullptr;
+
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
+    std::string channelName = readCdo->channelName(hname);
+    std::string histoName = readCdo->histoName(hname);
     std::string actualName = hypo + "/" + histoName;
     std::string longName = channelName + "#" + actualName;
     ATH_MSG_VERBOSE("#BTAG# preparing histogram " << longName);
@@ -154,57 +139,41 @@ namespace Analysis {
     // - case with no grade:
     if(1==gradeList.size()) {
       ATH_MSG_DEBUG("#BTAG# Histo "<<actualName<<" has no grade: direct retrieval");
-      std::pair<TH1*, bool> rth = m_calibrationTool->retrieveHistogram(m_taggerName, 
+      histoSum = readCdo->retrieveHistogram(m_taggerName, 
                                                                        channelName, 
                                                                        actualName);
-      histoSum = rth.first;
-      updated = rth.second;
-      if(updated) {
-        ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << longName << " ...");
-        this->smoothAndNormalizeHistogram(histoSum, longName);
-        m_calibrationTool->updateHistogramStatus(m_taggerName, channelName, actualName, false);
-      }
     }
     // - case with 1 grade:
     if(2==gradeList.size()) {
       ATH_MSG_DEBUG("#BTAG# Histo "<<actualName<<" has only one grade: direct retrieval");
-      std::pair<TH1*, bool> rth = m_calibrationTool->retrieveHistogram(m_taggerName, 
+      histoSum = readCdo->retrieveHistogram(m_taggerName, 
                                                                        channelName, 
                                                                        actualName);
-      histoSum = rth.first;
-      updated = rth.second;
-      if(updated) {
-        ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << longName << " ...");
-        this->smoothAndNormalizeHistogram(histoSum, longName);
-        m_calibrationTool->updateHistogramStatus(m_taggerName, channelName, actualName, false);
-      }
+      //Part not fully migrated
+      //smoothAndNormalizeHistogram should not be called here but in condition algorithm
+      ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << longName << " ...");
+      this->smoothAndNormalizeHistogram(histoSum, longName);
     }
     // - for many grades, get individual histos and sum them up:
     if(gradeList.size()>2) {
-      TH1* histo(0);
-      bool AllUpdated = true;
+      TH1* histo = nullptr;
       ATH_MSG_DEBUG("Histo " << actualName << " has " << (gradeList.size()-1) << " grades:");
       for(unsigned int i=0;i<(gradeList.size()-1);i++) {
         actualName = hypo+"/"+gradeList[i]+gradeList[gradeList.size()-1];
         ATH_MSG_VERBOSE("#BTAG#  -> retrieving histo for grade " << i << " " << gradeList[i] << ": ");
-        std::pair<TH1*, bool> rthh = m_calibrationTool->retrieveHistogram(m_taggerName, 
+        histo = readCdo->retrieveHistogram(m_taggerName, 
                                                                           channelName, 
                                                                           actualName);
-        histo = rthh.first;
-        updated = rthh.second;
         if(histo) ATH_MSG_VERBOSE("#BTAG#     histo " << actualName 
-                  << " has " << histo->GetEntries() << " entries. Updated: " 
-                  << updated );
-        if(updated) {
-          m_calibrationTool->updateHistogramStatus(m_taggerName, channelName, actualName, false);
-        }
-        AllUpdated = AllUpdated && updated;
+                  << " has " << histo->GetEntries() << " entries."); 
         if(0==i) {
           histoSum = histo;
         } else {
           if(histo&&histoSum) histoSum->Add(histo,1.);
         }
       }
+      //Part not fully migrated
+      //smoothAndNormalizeHistogram should not be called here but in condition algorithm     
       ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << longName << " ...");
       this->smoothAndNormalizeHistogram(histoSum, longName);
     }

@@ -23,11 +23,16 @@ def useMessageLogger():
 
   from AthenaCommon.Configurable import Configurable
 
+  import logging
+  log = logging.getLogger( 'LoggedMessageSvc' )
   oldMsgSvc = svcMgr.MessageSvc
   del Configurable.allConfigurables[ oldMsgSvc.name() ]
   newMsgSvc = ConfDb.getConfigurable( theApp.MessageSvcType )( oldMsgSvc.name() )
   for name, value in svcMgr.MessageSvc.getValuedProperties().items():
-    setattr( newMsgSvc, name, value )
+    try:
+      setattr( newMsgSvc, name, value )
+    except:
+      log.info( 'When configuring LoggedMessageSvc, no Property \"%s\" found',name )
   del svcMgr.MessageSvc
   svcMgr += newMsgSvc
   MessageSvc = svcMgr.MessageSvc

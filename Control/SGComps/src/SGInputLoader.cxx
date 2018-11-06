@@ -161,20 +161,6 @@ SGInputLoader::loadObjs(const DataObjIDColl& objs) const {
       if (dp->provider() == 0) {
 	ATH_MSG_DEBUG("   obj " << obj << " has no provider, and is only Transient" );
       }
-
-      // Tell hive about the object.
-      evtStore()->addedNewTransObject(obj.clid(), vhk.key());
-
-      // Also add all aliases...
-      for (const std::string& alias : dp->alias()) {
-        evtStore()->addedNewTransObject(obj.clid(), alias);
-      }
-
-      // ... and linked classes.
-      for (CLID clid2 : dp->transientID()) {
-        if (clid2 != obj.clid())
-          evtStore()->addedNewTransObject(clid2, vhk.key());
-      }
     } else {
       ok = false;
       if (m_failEvt.value()) {

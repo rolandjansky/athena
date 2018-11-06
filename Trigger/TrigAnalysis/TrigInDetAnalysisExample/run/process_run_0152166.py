@@ -4,7 +4,6 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-#EventSelector.BackNavigation = True
 
 # Import relevant libs
 import os

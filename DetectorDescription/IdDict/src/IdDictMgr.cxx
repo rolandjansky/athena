@@ -1148,7 +1148,7 @@ MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_
 
 	    Range range(region.build_range ()); 
 	    // Check region selection
-	    if (range.match(region_id))result.add (range,true);
+	    if (range.match(region_id))result.add (std::move(range));
 	} 
     }
     else {
@@ -1183,7 +1183,7 @@ MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_
 			break;
 		    }
 		} 
-		result.add(new_range,true);
+		result.add(std::move(new_range));
 	    }
 	} 
     }
@@ -1215,7 +1215,7 @@ MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_
 
 	    Range range(region.build_range ()); 
 	    // Check region selection
-	    if (range.match(region_id) && region.group_name() == group_name)result.add (range,true);
+	    if (range.match(region_id) && region.group_name() == group_name)result.add (std::move(range));
 	} 
     }
     else {
@@ -1250,7 +1250,7 @@ MultiRange IdDictDictionary::build_multirange (const ExpandedIdentifier& region_
 			break;
 		    }
 		} 
-		result.add(new_range,true);
+		result.add(std::move(new_range));
 	    }
 	} 
     }
@@ -2324,7 +2324,7 @@ IdDictGroup::build_multirange () const
       if(region.m_is_empty) continue;
 
       Range r = region.build_range();
-      result.add (r, true);
+      result.add (std::move(r));
 
     } 
  

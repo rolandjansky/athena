@@ -32,14 +32,14 @@ public:
   ~PFCellLevelSubtractionTool();
 
   StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer);
   StatusCode finalize();
 
  private:
 
-  void calculateRadialEnergyProfiles(xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void calculateRadialEnergyProfiles();
   void calculateAverageEnergyDensity();
-  void performSubtraction(xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void performSubtraction();
   bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
   bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode);
   bool canAnnihilated(double expectedEnergy, double sigma, double clusterEnergy);
@@ -82,6 +82,9 @@ public:
   
   /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
   Gaudi::Property<bool> m_useUpdated2015ChargedShowerSubtraction{this,"useUpdated2015ChargedShowerSubtraction",true,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region"};
+
+  /** Toggle whether we have the HLLHC setup */
+  Gaudi::Property<bool> m_isHLLHC{this,"isHLLHC",false,"Toggle whether we have the HLLHC setup"};
 
 };
 

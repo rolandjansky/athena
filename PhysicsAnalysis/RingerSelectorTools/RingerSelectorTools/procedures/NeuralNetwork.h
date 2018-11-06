@@ -35,7 +35,7 @@ namespace Discrimination {
  *
  *  @date: Jan 2015
  **/
-class NNFeedForward : virtual public IDiscriminator, 
+class NNFeedForward : virtual public IDiscriminator,
                       public RedirectMsgStream
 {
 
@@ -45,23 +45,27 @@ class NNFeedForward : virtual public IDiscriminator,
     /**
      * @brief Main ctor
      **/
-    NNFeedForward(const std::vector<unsigned int> &nodes, 
-       const std::vector<float> &weights, 
+    NNFeedForward(const std::vector<unsigned int> &nodes,
+       const std::vector<float> &weights,
        const std::vector<float> &bias);
 
     NNFeedForward(): m_nLayers(0),
                      m_wM(nullptr),
                      m_bM(nullptr),
-                     m_mM(nullptr){;}
+                     m_mM(nullptr),
+                     m_removeOutputTansig(false){;}
     /**
      * @brief Propagates input through neural network
      **/
     virtual void execute(const std::vector<float> &input,
         std::vector<float> &output) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
 
-    void changeArchiteture(const std::vector<unsigned int> &nodes, 
-        const std::vector<float> &weights, 
+    void changeArchiteture(const std::vector<unsigned int> &nodes,
+        const std::vector<float> &weights,
         const std::vector<float> &bias);
+
+    bool getRemoveOutputTanh() const { return m_removeOutputTansig; }
+    void setRemoveOutputTanh( bool value = true ){ m_removeOutputTansig = value; }
 
     /**
      * @brief Main dtor
@@ -102,6 +106,8 @@ class NNFeedForward : virtual public IDiscriminator,
     float **m_bM;
     /// @brief Temporary multiplication matrix
     float **m_mM;
+    /// @brief Whether to compute output neuron tansig transfer function
+    bool m_removeOutputTansig;
 
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(NNFeedForward,0)
@@ -130,8 +136,8 @@ class NNFeedForwardVarDep : virtual public IDiscriminatorVarDep,
     /**
      * Main ctor
      **/
-    NNFeedForwardVarDep(const std::vector<unsigned int> &nodes, 
-        const std::vector<float> &weights, 
+    NNFeedForwardVarDep(const std::vector<unsigned int> &nodes,
+        const std::vector<float> &weights,
         const std::vector<float> &bias):
       NNFeedForward(nodes,weights,bias){;}
 

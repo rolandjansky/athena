@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,7 @@ class ISCT_Amp : virtual public IAlgTool {
   typedef SiTotalCharge::list_t list_t;
 
   //Retrieve interface ID
-  static const InterfaceID & interfaceID() {return IID_ISCT_Amp; }
+  static const InterfaceID& interfaceID() { return IID_ISCT_Amp; }
 
   // Destructor:
   virtual ~ISCT_Amp() {}
@@ -40,12 +40,12 @@ class ISCT_Amp : virtual public IAlgTool {
 
   // process the collection of charged diodes
   /** main purpose: CR-RC^3 response to a list of charges with times */
-  virtual float response(const list_t &Charges, const float timeOverThreshold) const =0;
-  virtual void response(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const =0;
+  virtual float response(const list_t& Charges, const float timeOverThreshold) const =0;
+  virtual void response(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const =0;
 
   /** Neighbour strip cross talk response strip to a list of charges with times */
-  virtual float crosstalk(const list_t &Charges, const float timeOverThreshold) const =0;
-  virtual void crosstalk(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const =0;
+  virtual float crosstalk(const list_t& Charges, const float timeOverThreshold) const =0;
+  virtual void crosstalk(const list_t& Charges, const float timeOverThreshold, std::vector<float> &resp) const =0;
 };
 
 #endif // SIDIGITIZATION_ISCT_AMP_H

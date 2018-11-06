@@ -12,8 +12,8 @@
 
 //#undef NDEBUG
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
@@ -22,7 +22,7 @@ namespace Ringer {
  * @brief Specialization for Threshold procedure.
  **/
 template<>
-class IRingerProcedureWrapper< Discrimination::IThreshold > : 
+class IRingerProcedureWrapper< Discrimination::IThreshold > :
   virtual public IRedirectMsgStream,
   virtual public IRingerProcedureWrapperBase
 {
@@ -53,9 +53,9 @@ class IRingerProcedureWrapper< Discrimination::IThreshold > :
     }
 
 #if RINGER_USE_NEW_CPP_FEATURES
-    static constexpr const char* wrapName = "RingerThresholdWrapper"; 
+    static constexpr const char* wrapName = "RingerThresholdWrapper";
 #else
-    static const char* wrapName; 
+    static const char* wrapName;
 #endif
 
     /** Ensure virtual destructor */
@@ -64,13 +64,13 @@ class IRingerProcedureWrapper< Discrimination::IThreshold > :
     /**
      * Write wrapper to file.
      **/
-    static void writeWrapper(const IRingerProcedureWrapper *thresWrapper, 
+    static void writeWrapper(const IRingerProcedureWrapper *thresWrapper,
         const char *fileName);
-    
+
     /**
      * Read wrapper from file.
      **/
-    static void read(IRingerProcedureWrapper *&thresWrapper, 
+    static void read(IRingerProcedureWrapper *&thresWrapper,
         const char* fileName);
 
   protected:
@@ -116,23 +116,23 @@ class RingerProcedureWrapper<
      * @brief typedef to the Ringer Interface variable dependency collection
      *
      * Collection Dimension: [etBin][etaBin]:
-     *  
+     *
      **/
-    typedef typename std::vector < 
-        std::vector < procedure_t* > 
+    typedef typename std::vector <
+        std::vector < procedure_t* >
       > ThresDepProcCollection;
     ///@}
 
     /// Ctors:
     ///@{
     /**
-     * @brief Build RProc Wrapper 
+     * @brief Build RProc Wrapper
      **/
     RingerProcedureWrapper(
         const ThresDepProcCollection &thresDepCol):
       m_thresCol(thresDepCol)
-    { 
-      checkThresCol(); 
+    {
+      checkThresCol();
       m_thres = m_thresCol[0][0];
     }
     ///@}
@@ -208,7 +208,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Read wrapper from TDirectory
      **/
-    static RingerProcedureWrapper* read(TDirectory *configDir, 
+    static RingerProcedureWrapper* read(TDirectory *configDir,
         unsigned version);
     ///@}
 
@@ -216,10 +216,10 @@ class RingerProcedureWrapper<
     /// Private Methods:
     ///@{
     /**
-     * @brief Check if threshold interface collection is in good status 
+     * @brief Check if threshold interface collection is in good status
      * (Throws otherwise)
      **/
-    void checkThresCol(); 
+    void checkThresCol();
     ///@}
 
     /// Private Properties:

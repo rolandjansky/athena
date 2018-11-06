@@ -12,6 +12,7 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
+#include <vector>
 
 class AtlasDetectorID;
 

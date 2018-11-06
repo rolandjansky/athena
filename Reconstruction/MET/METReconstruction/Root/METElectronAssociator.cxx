@@ -28,7 +28,8 @@ namespace met {
   METElectronAssociator::METElectronAssociator(const std::string& name) :
     AsgTool(name),
     METAssociator(name),
-    METEgammaAssociator(name)
+    METEgammaAssociator(name),
+    m_elContKey("")
   {}
 
   // Destructor
@@ -42,6 +43,9 @@ namespace met {
   {
     ATH_CHECK( METEgammaAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_CHECK( m_elContKey.assign(m_input_data_key));
+    ATH_CHECK( m_elContKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -69,14 +73,14 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    const ElectronContainer* elCont(0);
-    if( evtStore()->retrieve(elCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::ElectronContainer> elCont(m_elContKey);
+    if (!elCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input electron container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved electron collection");
-    if (fillAssocMap(metMap,elCont).isFailure()) {
+    if (fillAssocMap(metMap,elCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with electron container " << m_input_data_key);
       return StatusCode::FAILURE;
     }

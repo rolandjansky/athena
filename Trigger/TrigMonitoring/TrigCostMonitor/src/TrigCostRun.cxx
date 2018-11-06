@@ -36,7 +36,8 @@ TrigCostRun::TrigCostRun(const std::string& name,
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
    m_navigation("HLT::Navigation/Navigation", this),
    m_tools(this),
-   m_toolsSave(this)
+   m_toolsSave(this),
+   m_toolConf("Trig::TrigNtConfTool/TrigNtConfTool", this)
 {
   declareProperty("navigation",    m_navigation, "Trigger navigation tool");
   declareProperty("tools",         m_tools,      "Tools array");
@@ -92,6 +93,8 @@ StatusCode TrigCostRun::initialize()
   CHECK(m_toolsSave.retrieve());
   ATH_MSG_DEBUG("Retrieved " << m_toolsSave);
 
+  CHECK(m_toolConf.retrieve());
+  ATH_MSG_DEBUG("Retrieved " << m_toolConf);
 
   //
   // Pass global configuration pointer to sub-tools
@@ -180,9 +183,9 @@ StatusCode TrigCostRun::execute()
     m_navigation->reset();
   }
 
-  m_readL2.ProcessEvent(evtStore(), m_navigation);
-  m_readEF.ProcessEvent(evtStore(), m_navigation);
-  m_readHLT.ProcessEvent(evtStore(), m_navigation);
+  m_readL2.ProcessEvent(evtStore(), m_navigation, m_toolConf);
+  m_readEF.ProcessEvent(evtStore(), m_navigation, m_toolConf);
+  m_readHLT.ProcessEvent(evtStore(), m_navigation, m_toolConf);
 
   if(m_printEvent) {
     m_readL2.PrintEvent();
@@ -342,7 +345,8 @@ TrigCostRun::ReadHLTResult::ReadHLTResult()
 
 //-----------------------------------------------------------------------------
 bool TrigCostRun::ReadHLTResult::ProcessEvent(ServiceHandle<StoreGateSvc> &storeGate, 
-					      ToolHandle<HLT::Navigation> &navigation)
+					      ToolHandle<HLT::Navigation> &navigation,
+                ToolHandle<Trig::ITrigNtTool> &confTool)
 {
   //
   // Process one event:
@@ -351,7 +355,8 @@ bool TrigCostRun::ReadHLTResult::ProcessEvent(ServiceHandle<StoreGateSvc> &store
   //  - read TrigMonEvent  collection
   //  - read TrigMonConfig collection
   //
-  
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "In ProcessEvent" << endmsg;
+
   if (doLevel == false) return false;
   
   vecConfig.clear();
@@ -373,8 +378,12 @@ bool TrigCostRun::ReadHLTResult::ProcessEvent(ServiceHandle<StoreGateSvc> &store
   //
   // Read events and configs
   //
-  ReadConfig(storeGate);
-  ReadEvent (storeGate);
+  const bool gotConfigSG = ReadConfig(storeGate);
+  // If gotConfigSG is false, we will try again to read in from the DB configs for cost mon events stored in this dummy-export-event
+
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "gotConfigSG = " << gotConfigSG << endmsg;
+
+  ReadEvent(storeGate, gotConfigSG, confTool);
   
   return true;
 }
@@ -459,7 +468,12 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   // Append application ID with level string
   //
   appName = "APP_"+hltLevel+":"+appName;
-  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << endmsg;
+  size_t locationOfRack = appName.find("rack-");
+  std::string category = "APP_ID";
+  if (locationOfRack != std::string::npos) {
+    category = appName.substr(locationOfRack, 7); // Select e.g. "rack-10"
+  }
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << " category(rack):" << category << endmsg;
 
   //
   // Save a map between application name and application id (hashed name) in global config
@@ -472,7 +486,9 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   //
   // Get hash id for HLT result
   //
-  appId = TrigConf::HLTUtils::string2hash(appName, "APP_ID");
+  appId = TrigConf::HLTUtils::string2hash(appName, category);
+  // Giving a different category per rack helps spread out the hashes over more categories which reduced the
+  // probability of a hash collision terminating the job (the collision still occurs, however).
   
   return true;
 }
@@ -515,7 +531,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
     //
     const std::vector<uint32_t> &ids = ptr->getVarId();
     if(!std::count(ids.begin(), ids.end(), appId)) {
-      // FIXME: const_cast changing SG
+      // FIXME: const_cast changing SG (TimM: 02-11-18, deprecated and not for use in Run3. Hence not fixing)
       const_cast<TrigMonConfig*>(ptr)->add<TrigConfVar>(TrigConfVar(appName, appId));
       if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Attaching App Name map to Config " << appName << " = " << appId << endmsg;
     }
@@ -539,8 +555,72 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
 }
 
 //---------------------------------------------------------------------------------------
-bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGate)
-{
+bool TrigCostRun::ReadHLTResult::ReadConfigDB(ServiceHandle<StoreGateSvc> &storeGate, 
+  std::set<const TrigMonEvent*> trigMonEvents,
+  ToolHandle<Trig::ITrigNtTool> &confTool) {
+  //
+  // Read in trig config from data base
+  // If no configuration was exported from P1, then once we know what P1-monitoring-events
+  // are stored in this dummy-RAW-export event then we can load in these data from the DB.
+  // We put the config into storegate such that it can be then picked up by later tools &
+  // the D3PD maker
+  //
+
+  // Write me to storegate so that I can get picked up by the ntuple tools
+  TrigMonConfigCollection* trigMonConfigCollection = new TrigMonConfigCollection();
+
+  // Look at all events in this container event which come from a different LB
+  for (const TrigMonEvent* trigMonEvent : trigMonEvents) {
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << " Get config for event " << trigMonEvent->getEvent() << " lumi " << trigMonEvent->getLumi() << endmsg;
+
+    TrigMonConfig* trigMonConfig = new TrigMonConfig();
+
+    // Set the vital stats needed to identify the correct config
+    trigMonConfig->setEventID(trigMonEvent->getEvent(),
+                    trigMonEvent->getLumi(),
+                    trigMonEvent->getRun(),
+                    trigMonEvent->getSec(),
+                    trigMonEvent->getNanoSec());
+
+    confTool->SetOption(2); //2 = DBAccess
+    if (!confTool->Fill(trigMonConfig)) {    // false indicates nothing changed
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "   Keys did not change in this LB, no need to update. (SMK:" << trigMonConfig->getMasterKey() << " L1:" << trigMonConfig->getLV1PrescaleKey() << " HLT:" << trigMonConfig->getHLTPrescaleKey() << ")" << endmsg;
+      delete trigMonConfig;
+      continue;
+    }
+
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "   Loaded from DB-fetcher SMK:" << trigMonConfig->getMasterKey() << " L1:" << trigMonConfig->getLV1PrescaleKey() << " HLT:" << trigMonConfig->getHLTPrescaleKey() << endmsg;
+
+    // Have we already saved this config? Note this is set in the next fn so we could end up with dupes here (not harmful)
+    std::pair<int,int> prescaleKeys( trigMonConfig->getLV1PrescaleKey(), trigMonConfig->getHLTPrescaleKey() );
+    if ( exportedConfigs.find(prescaleKeys) != exportedConfigs.end() ) {
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "   Already exported for L1 " << trigMonConfig->getLV1PrescaleKey() << " HLT " << trigMonConfig->getHLTPrescaleKey() << endmsg;
+      delete trigMonConfig;
+      continue;
+    }
+
+    // Add to the export list
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "   Adding to SG" << endmsg;
+    trigMonConfigCollection->push_back(trigMonConfig);
+  }
+
+
+  if(storeGate->record(trigMonConfigCollection, keyConfig).isFailure()) {
+    log() << MSG::ERROR << "Failed to write TrigMonEventCollection: " << keyConfig << endmsg;
+    for (TrigMonConfig* trigMonConfig : *trigMonConfigCollection) delete trigMonConfig;
+    delete trigMonConfigCollection;
+    return false;
+  }
+
+  // No that we know it should (must!) be there - try again to read it!
+  return ReadConfig(storeGate);
+}
+
+//---------------------------------------------------------------------------------------
+bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGate, 
+  const bool gotConfigSG,
+  ToolHandle<Trig::ITrigNtTool> &confTool) {
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "In ReadEvent" << endmsg;
 
   if (doLevel == false) return false;
   
@@ -568,16 +648,40 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
   std::vector<std::string> &vars = globalConfig->getVarName();
   std::vector<uint32_t>    &vals = globalConfig->getVarId();
 
+  // If we did not get config data from the bytestream - fetch it for all the events we have in this carrier "event"
+  if (!gotConfigSG) {
+    std::set<uint32_t> lumiBlocks; // Only need one event per LB as a LB must have the same HLT config
+    std::set<const TrigMonEvent*> eventsToGetConfig; // Set of events we need to see if we have the config loaded for
+    for(TrigMonEventCollection::const_iterator it = eventCol->begin(); it != eventCol->end(); ++it) {
+      const TrigMonEvent *ptr = *it;
+      if(!ptr) continue;
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Check Conf for event " << ptr->getEvent() << " lumi " << ptr->getLumi() << "? -> ";
+
+      if (lumiBlocks.find(ptr->getLumi()) != lumiBlocks.end()) {
+        if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "No already have an event from lumi " << ptr->getLumi() << endmsg;
+        continue;
+      }
+
+      eventsToGetConfig.insert(ptr);
+      lumiBlocks.insert(ptr->getLumi());
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Yes checking this event" << endmsg;
+    }
+    // Read in all the configs for these events
+    ReadConfigDB(storeGate, eventsToGetConfig, confTool);
+  }
+
+  // Second loop - read events
   for(TrigMonEventCollection::const_iterator it = eventCol->begin(); it != eventCol->end(); ++it) {
     const TrigMonEvent *ptr = *it;
     if(!ptr) continue;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracting Cost Data for event " << ptr->getEvent() << endmsg;
 
     // Add my HLT node
-    // FIXME: const_cast changing SG
+    // FIXME: const_cast changing SG (TimM: 02-11-18, deprecated and not for use in Run3. Hence not fixing)
     const_cast<TrigMonEvent*>(ptr)->addWord(appId); //Backward compatability
 
     if(fill_size) {
-      // FIXME: const_cast changing SG
+      // FIXME: const_cast changing SG (TimM: 02-11-18, deprecated and not for use in Run3. Hence not fixing)
       const_cast<TrigMonEvent*>(ptr)->addVar(Trig::kEventBufferSize, float(eventCol->size()));
       fill_size = false;
     }
@@ -607,7 +711,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
         log() << MSG::INFO << "Reading lumi length" << endmsg;
         m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
       }
-      // FIXME: const-cast changing SG
+      // FIXME: const-cast changing SG (TimM: 02-11-18, deprecated and not for use in Run3. Hence not fixing)
       const_cast<TrigMonEvent*>(ptr)->addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
       if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endmsg;
       std::string msg = m_readLumiBlock.infos();

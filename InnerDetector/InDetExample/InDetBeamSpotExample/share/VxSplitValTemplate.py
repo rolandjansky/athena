@@ -229,7 +229,7 @@ InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchToo
                                                       Extrapolator = InDetExtrapolator,
                                                       usePixel      = DetFlags.haveRIO.pixel_on(),
                                                       useSCT        = DetFlags.haveRIO.SCT_on())
-InDetHoleSearchTool.SctSummarySvc = None
+InDetHoleSearchTool.SctSummaryTool = None
   
 ToolSvc += InDetHoleSearchTool
 if InDetFlags.doPrintConfigurables: print      InDetHoleSearchTool

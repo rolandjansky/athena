@@ -12,6 +12,8 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include <map>
+
 namespace InDetDD 
 {
 
@@ -319,15 +321,15 @@ namespace InDetDD
             throw std::runtime_error("Unable to apply Inner Detector alignments.");
         }
         // loop over all the AlignableTransform objects in the collection
-        bool isFirstL3SCTECA9 = true;
+        // use only the last ones.
+        // /Indet/AlignL3/SCTEA9 appear repeatedly in tags of the /Indet/AlignL3 folder
+        std::map<const std::string, const AlignableTransform*> stringToTransform;
         for (DataVector<AlignableTransform>::const_iterator pat=container->begin();
              pat!=container->end();++pat) {
-            // /Indet/AlignL3/SCTEA9 appear repeatedly in tags of the /Indet/AlignL3 folder
-            if ((*pat)->tag()=="/Indet/AlignL3/SCTEA9") {
-                if (not isFirstL3SCTECA9) continue;
-                else isFirstL3SCTECA9 = false;
-            }
-            bool status = processKey((*pat)->tag(),*pat,alignStore);
+            stringToTransform[(*pat)->tag()] = *pat;
+        }
+        for (std::pair<const std::string, const AlignableTransform*> value: stringToTransform) {
+            bool status = processKey(value.first, value.second, alignStore);
             alignmentChange = (alignmentChange || status);
         }
         return alignmentChange;

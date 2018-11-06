@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParameters/TrackParameters.h" 
 

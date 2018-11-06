@@ -91,6 +91,21 @@ ReadHandle<T>::ReadHandle (const ReadHandleKey<T>& key,
 
 
 /**
+ * @brief Constructor from a DataProxy.
+ * @param proxy The proxy to which to bind.
+ * @param mode Mode of this handle (read/write/update).
+ *
+ * This handle will be bound to the given proxy.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (SG::DataProxy* proxy)
+  : VarHandleBase (proxy, Gaudi::DataHandle::Reader)
+{
+}
+
+
+/**
  * @brief Copy constructor.
  */
 template <class T>

@@ -31,27 +31,29 @@
 // Headerfile
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/Identifier.h"
 #include "CaloConditions/Array.h"
 #include "CaloRec/ToolWithConstantsMixin.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "StoreGate/ReadCondHandle.h"
+
+#include "tbb/concurrent_unordered_map.h"
+
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
 
-class LArCablingService;
 class StoreGateSvc;
 class CaloCell_ID;
 class LArOnlineID;
 class CaloLVL1_ID;
-class ILArBadChanTool;
 class CaloTriggerTowerService;
 // class L1CaloTTIdTools;
 class CaloIdManager;
@@ -66,9 +68,9 @@ class L1CaloCondSvc;
  * Trigger energy is estimated with a Landau-Landau fit on ADC samples. Corrections depending on eta and on the energy are then applied.\n
  * Known cell energies in the trigger tower are removed to this trigger energy, and the result is uniformly divided into the missing layer.
  */
-class LArCellDeadOTXCorr : public AthAlgTool,
-	public CaloRec::ToolWithConstantsMixin,
-	virtual public ICaloCellMakerTool 
+class LArCellDeadOTXCorr
+: public extends<AthAlgTool, ICaloCellMakerTool>,
+  public CaloRec::ToolWithConstantsMixin
 {
 
 	public:
@@ -79,29 +81,26 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 
 		virtual ~LArCellDeadOTXCorr();
 
-		virtual StatusCode initialize() ; 
-		virtual StatusCode process( CaloCellContainer * CellCont) ;
-		virtual StatusCode finalize();
+		virtual StatusCode initialize() override;
+		virtual StatusCode process( CaloCellContainer * CellCont) override;
+		virtual StatusCode process( CaloCellContainer * CellCont, const EventContext& ctx ) const;
+		virtual StatusCode finalize() override;
 
 		using AthAlgTool::setProperty;
 
 		virtual StatusCode setProperty (const std::string& propname,
-				const std::string& value);
-		virtual StatusCode setProperty (const Property& p);
+				const std::string& value) override;
+		virtual StatusCode setProperty (const Property& p) override;
 
 
 	private:
-
-
-		// get a handle to the tool helper 
-
-		ToolHandle<ILArBadChanTool> m_badChannelTool;
-		ToolHandle<LArCablingService> m_cablingService;
-
+		SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"BadFebKey","LArBadFeb","Key of Bad-Feb object"};
+		SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
                 //std::string m_TTLocation;
                 SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_TTLocation;
 		std::vector<double> m_triggerNoiseCut;
-		bool m_useL1CaloDB;
+		bool m_useL1CaloDBProp;
+		mutable std::atomic<bool> m_useL1CaloDB;
 
 		CaloRec::Array<1> m_etaCalibrationSizes;
 		CaloRec::Array<1> m_energyCalibrationTypes;
@@ -115,9 +114,14 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 		std::vector<unsigned int> m_ignoredTTs;
 
 
-		std::map<Identifier, Identifier> m_cellTTMapping;
-		std::map<Identifier, std::pair<unsigned int, int> > m_idIndexMapping;
-
+                struct IdHash 
+                {
+                  size_t operator() (const Identifier& id) const
+                  { return id.get_compact(); }
+                };
+                mutable tbb::concurrent_unordered_map<Identifier,Identifier,IdHash> m_cellTTMapping;
+		mutable tbb::concurrent_unordered_map<Identifier, std::pair<unsigned int, int>, IdHash> m_idIndexMapping;
+                
 		const CaloIdManager* m_caloMgr;
 		const CaloLVL1_ID* m_lvl1Helper;
 		const CaloCell_ID* m_calo_id;
@@ -126,7 +130,8 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 
 
 		L1CaloCondSvc* m_l1CondSvc;
-		CaloTriggerTowerService*      m_ttSvc;
+		//CaloTriggerTowerService*      m_ttSvc;
+		ToolHandle<CaloTriggerTowerService> m_ttSvc;
 		// L1CaloTTIdTools* m_l1CaloTTIdTools;
 
 		double TTID_etaWidth(double eta) const;
@@ -148,15 +153,15 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 
 		// functions used to calculate trigger energy from parabola fit
 		double getA(double x1, double y1,
-				double x2, double y2,
-				double x3, double y3);
-
+                            double x2, double y2,
+                            double x3, double y3) const;
+                
 		double getB(double a,
-				double x1, double y1,
-				double x2, double y2);
+                            double x1, double y1,
+                            double x2, double y2) const;
 
 		double getC(double a, double b,
-				double x1, double y1);
+                            double x1, double y1) const;
 
 
 		/**
@@ -170,13 +175,16 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 		 *
 		 * Energy is first estimated with a Landau-Landau fit; then a calibration factor depending on eta and the energy is applied.
 		 */
-		double getL1Energy(const std::vector<uint_least16_t> & ADCsamples, int pedestal, double eta, int type);
+		double getL1Energy(const std::vector<uint_least16_t> & ADCsamples, int pedestal, double eta, int type) const;
 
-		void getInitialFitParameters(const std::vector<uint_least16_t> & ADCsamples, double & max, double& maxPos, unsigned int& TTADCMaxIndex);
+		void getInitialFitParameters(const std::vector<uint_least16_t> & ADCsamples,
+                                             double & max,
+                                             double& maxPos,
+                                             unsigned int& TTADCMaxIndex) const;
 
-		double getEtaCalibration(double eta, int type);
-		double getEnergyCalibration(double eta, int type, double energy);
-		double getMaxOverSumRatio(const std::vector<uint_least16_t>& ADCsamples, int pedestal);
+		double getEtaCalibration(double eta, int type) const;
+		double getEnergyCalibration(double eta, int type, double energy) const;
+		double getMaxOverSumRatio(const std::vector<uint_least16_t>& ADCsamples, int pedestal) const;
 
 		static const std::map<int,int> defineSizeType();
 

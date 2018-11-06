@@ -9,7 +9,7 @@ atlas_subdir( TrigT1RoIB )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthContainers
                           Event/EventInfo
                           GaudiKernel
                           Trigger/TrigT1/TrigT1Interfaces
@@ -23,7 +23,7 @@ atlas_add_component( TrigT1RoIB
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel DataModel EventInfo GaudiKernel TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers EventInfo GaudiKernel TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

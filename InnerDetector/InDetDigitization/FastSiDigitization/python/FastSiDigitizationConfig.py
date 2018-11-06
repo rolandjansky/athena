@@ -1,32 +1,32 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
 def FastPixel_FirstXing():
-    FirstXing = -50
+    FirstXing = 0
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.estimatedLuminosity()> 0.5e33:
-        FirstXing = -25
+        FirstXing = 0
     return FirstXing
 # The latest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
 def FastPixel_LastXing():
-    LastXing = 100
+    LastXing = 0
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.estimatedLuminosity()> 0.5e33:
         if jobproperties.Beam.bunchSpacing.get_Value() > 50 :
-            LastXing = 75
+            LastXing = 0
         else :
-            LastXing = 25
+            LastXing = 0
     return LastXing
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast SCT Digitization code.
 def FastSCT_FirstXing():
-    return -50
+    return 0
 # The latest bunch crossing time for which interactions will be sent
 # to the Fast SCT Digitization code.
 def FastSCT_LastXing():
-    return 25
+    return 0
 
 def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
@@ -74,6 +74,12 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)
 
 def commonPixelFastDigitizationConfig(name,**kwargs):
+
+    # Setup the DCS folders and tool used in the sctSiliconConditionsTool
+    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+    pixelDCSConditionsToolSetup.setup()
+
     kwargs.setdefault("ClusterMaker", "FastClusterMakerTool")
 
     # Import Digitization job properties
@@ -88,6 +94,13 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", FastPixel_FirstXing())
         kwargs.setdefault("LastXing",  FastPixel_LastXing() )
+
+    # SiLorentzAngleTool for PixelFastDigitizationTool
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+    kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
 
     from AthenaCommon import CfgMgr
     return CfgMgr.PixelFastDigitizationTool(name,**kwargs)
@@ -114,12 +127,22 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
         kwargs.setdefault("FirstXing", FastSCT_FirstXing())
         kwargs.setdefault("LastXing",  FastSCT_LastXing() )
 
+    # Set up SCT_SiliconConditionsTool
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
+    sct_SiliconConditionsToolSetup.setup()
+    # Set up SCT_SiPropertiesTool
+    from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+    sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
+    sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
+    sct_SiPropertiesToolSetup.setup()
+
     # SiLorentzAngleTool for SCT_FastDigitizationTool
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-    kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+    kwargs.setdefault("LorentzAngleTool", sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
     from AthenaCommon import CfgMgr
     return CfgMgr.SCT_FastDigitizationTool(name,**kwargs)

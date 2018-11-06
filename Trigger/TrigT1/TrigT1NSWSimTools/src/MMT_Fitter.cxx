@@ -5,7 +5,7 @@
 // Athena/Gaudi includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "MMT_Fitter.h"
+#include "TrigT1NSWSimTools/MMT_Fitter.h"
 
 
 using std::set;

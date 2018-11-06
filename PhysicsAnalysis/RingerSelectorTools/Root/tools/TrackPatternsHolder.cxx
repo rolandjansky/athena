@@ -20,7 +20,7 @@
 #if !defined(XAOD_STANDALONE) && !defined(RINGER_STANDALONE)
 # include "TrkTrackSummary/TrackSummary.h"
 #else
-// XXX This tool should be implemented in AsgTool enviroment... 
+// XXX This tool should be implemented in AsgTool enviroment...
 namespace Trk {
 namespace TrackSummary {
 const int SummaryTypeNotSet = -1;
@@ -34,25 +34,25 @@ namespace Ringer {
 namespace {
 float cutBinEta_TRT[] = {0.1, 0.625, 1.07, 1.304, 1.752, 2.0};
 } // private namespace
-const double TrackPatternsHolder::m_a0 = 33.14; 
-const double TrackPatternsHolder::m_b0 = -129.1; 
+const double TrackPatternsHolder::m_a0 = 33.14;
+const double TrackPatternsHolder::m_b0 = -129.1;
 const double TrackPatternsHolder::m_c0 = 1455.;
-const double TrackPatternsHolder::m_a1 = 29.42; 
-const double TrackPatternsHolder::m_b1 = 27.93; 
-const double TrackPatternsHolder::m_c1 = -89.96; 
+const double TrackPatternsHolder::m_a1 = 29.42;
+const double TrackPatternsHolder::m_b1 = 27.93;
+const double TrackPatternsHolder::m_c1 = -89.96;
 const double TrackPatternsHolder::m_d1 = 91.51;
-const double TrackPatternsHolder::m_a2 = 196.3; 
-const double TrackPatternsHolder::m_b2 = -403.; 
+const double TrackPatternsHolder::m_a2 = 196.3;
+const double TrackPatternsHolder::m_b2 = -403.;
 const double TrackPatternsHolder::m_c2 = 230.2;
-const double TrackPatternsHolder::m_a3 = -10.59; 
+const double TrackPatternsHolder::m_a3 = -10.59;
 const double TrackPatternsHolder::m_b3 = 37.29;
-const double TrackPatternsHolder::m_a4 = -640.9; 
-const double TrackPatternsHolder::m_b4 = 1323.; 
-const double TrackPatternsHolder::m_c4 = -851.8; 
+const double TrackPatternsHolder::m_a4 = -640.9;
+const double TrackPatternsHolder::m_b4 = 1323.;
+const double TrackPatternsHolder::m_c4 = -851.8;
 const double TrackPatternsHolder::m_d4 = 180.8;
-const double TrackPatternsHolder::m_a5 = 159.8; 
+const double TrackPatternsHolder::m_a5 = 159.8;
 const double TrackPatternsHolder::m_b5 = -70.9;
-const std::vector<float> TrackPatternsHolder::m_cutBinEta_TRT = 
+const std::vector<float> TrackPatternsHolder::m_cutBinEta_TRT =
   std::vector<float>(cutBinEta_TRT, cutBinEta_TRT + sizeof(cutBinEta_TRT) / sizeof(float));
 #else
 constexpr std::array<float,6> TrackPatternsHolder::m_cutBinEta_TRT;
@@ -135,7 +135,7 @@ void TrackPatternsHolder::extractPatternsFrom(
 }
 
 // =============================================================================
-void TrackPatternsHolder::exportPatternsTo(std::vector<float> &vec) const 
+void TrackPatternsHolder::exportPatternsTo(std::vector<float> &vec) const
 {
 
   // Copy originals:
@@ -178,7 +178,7 @@ void TrackPatternsHolder::exportPatternsTo(std::vector<float> &vec) const
   //@}
 
   // CutID dependent on eta & et
-  //@{ 
+  //@{
   // egammaPID::TrackMatchEta_Electron (CutID uses max value cut)
   vec.push_back(m_deltaeta); // Pattern 5
 
@@ -190,7 +190,7 @@ void TrackPatternsHolder::exportPatternsTo(std::vector<float> &vec) const
   //@}
 
   // Use of Transition Radiation Tracker
-  //@{ 
+  //@{
   double rTRT(0);
   double trt_estimated_hits(0);
   getTRTVar(rTRT,trt_estimated_hits);
@@ -208,9 +208,9 @@ void TrackPatternsHolder::getTRTVar(double &rTRT, double &estHitsTRT) const
 {
   int nTRTTotal(0);
   if (m_useTRTOutliers) {
-    if (m_useTRTXenonHits /*&& 
-        (static_cast<int>(m_nTRTXenonHits) != 
-         Trk::TrackSummary::SummaryTypeNotSet)*/) //<- is it always true ? 
+    if (m_useTRTXenonHits /*&&
+        (static_cast<int>(m_nTRTXenonHits) !=
+         Trk::TrackSummary::SummaryTypeNotSet)*/) //<- is it always true ?
     {
       nTRTTotal= m_nTRTXenonHits;
     } else {
@@ -239,22 +239,22 @@ void TrackPatternsHolder::getTRTVar(double &rTRT, double &estHitsTRT) const
   }
   switch (ibin_eta_TRT) {
   case 0:
-    estHitsTRT = nTRTTotal - 
+    estHitsTRT = nTRTTotal -
       (m_a0 + m_b0*m_eta + m_c0*m_eta*m_eta);
     break;
   case 1:
-    estHitsTRT = nTRTTotal - 
+    estHitsTRT = nTRTTotal -
       (m_a1 + m_b1*m_eta + m_c1*m_eta*m_eta + m_d1*m_eta*m_eta*m_eta);
     break;
   case 2:
-    estHitsTRT = nTRTTotal - 
+    estHitsTRT = nTRTTotal -
       (m_a2 + m_b2*m_eta + m_c2*m_eta*m_eta) ;
     break;
   case 3:
     estHitsTRT = nTRTTotal - (m_a3 + m_b3*m_eta);
     break;
   case 4:
-    estHitsTRT = nTRTTotal - 
+    estHitsTRT = nTRTTotal -
       (m_a4 + m_b4*m_eta + m_c4*m_eta*m_eta + m_d4*m_eta*m_eta*m_eta);
     break;
   case 5:

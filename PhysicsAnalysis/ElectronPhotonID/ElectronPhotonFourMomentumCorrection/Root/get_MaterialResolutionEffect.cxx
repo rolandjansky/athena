@@ -100,7 +100,6 @@ double get_MaterialResolutionEffect::getDelta(int particle_type, double energy, 
       double et2=et;
       if (et<5.) et2=5.1;
       if (et>2000) et2=1999.;
-      if (particle_type==3) particle_type=2;
       return 0.01*m_hsyst_IBL_PP0[particle_type]->GetBinContent(m_hsyst_IBL_PP0[particle_type]->GetXaxis()->FindBin(aeta),m_hsyst_IBL_PP0[particle_type]->GetYaxis()->FindBin(et2));
    }
 

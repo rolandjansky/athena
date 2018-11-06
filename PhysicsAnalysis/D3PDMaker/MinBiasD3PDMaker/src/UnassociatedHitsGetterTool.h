@@ -6,6 +6,8 @@
 #define MINBIASD3PDMAKER_UNASSOCIATEDHITSGETTERTOOL_H
 
 #include "D3PDMakerUtils/ObjGetterTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
@@ -58,6 +60,8 @@ private:
   bool m_firstTime;
   bool m_disabled;
 
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 }; // class UnassociatedHitsGetterTool
 
 } // namespace D3PD

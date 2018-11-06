@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARRINJCOMPLETE_H
@@ -8,8 +8,6 @@
 #include "LArElecCalib/ILArRinj.h" 
 #include "LArRawConditions/LArRinjP.h"
 #include "LArRawConditions/LArConditionsContainer.h"
-
-class LArCablingService ;
 
 /** This class implements the ILArRinj interface
  *
@@ -37,16 +35,10 @@ class LArRinjComplete: public ILArRinj,
   // retrieving Rinj using online ID
   
   virtual const float& Rinj(const HWIdentifier&  CellID) const ;
-  
-  virtual const float& Rinj(const Identifier&  CellID) const;
-  
+    
    // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float vRinj);
-  
- protected: 
-  
-
 };
 
 CLASS_DEF( LArRinjComplete,2370948,1)

@@ -75,7 +75,7 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
-  HLT::ErrorCode hltBeginRun();
+  HLT::ErrorCode hltStart();
 
  private:
 

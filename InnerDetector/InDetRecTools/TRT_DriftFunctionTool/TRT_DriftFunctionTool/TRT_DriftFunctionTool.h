@@ -29,9 +29,6 @@ class TRT_ID;
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/DataHandle.h"
 // AttributeList
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeListSpecification.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 /**
  @class TRT_DriftFunctionTool
@@ -107,8 +104,8 @@ private:
 
 
   /** DetectorManager and helper */
-  const InDetDD::TRT_DetectorManager* m_manager;
-  const TRT_ID* m_trtid;
+  const InDetDD::TRT_DetectorManager* m_manager{};
+  const TRT_ID* m_trtid{};
 
   bool m_setupToT;                     //!< true at first call
   bool m_setupHT;                      //!< true at first call

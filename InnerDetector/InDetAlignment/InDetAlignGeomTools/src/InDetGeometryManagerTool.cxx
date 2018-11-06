@@ -37,7 +37,6 @@ namespace InDet {
     : AthAlgTool(type,name,parent)
     , m_pixelDetManager(0)
     , m_sctDetManager(0)
-    , m_siDetManager{}
     , m_trtDetManager(0)
     , m_pixHelper()
     , m_sctHelper()

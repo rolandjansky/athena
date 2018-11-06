@@ -51,10 +51,6 @@ svcMgr += AtRanluxGenSvc()
 ## Jobs should stop if an include fails.
 jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 
-## Compatibility with jets
-from RecExConfig.RecConfFlags import jobproperties
-jobproperties.RecConfFlags.AllowBackNavigation = True
-
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
 evgenLog = logging.getLogger('Generate')
@@ -343,9 +339,6 @@ if evgenConfig.findJets:
 
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-#from PoolSvc.PoolSvcConf import PoolSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
 if hasattr(runArgs, "outputEVNTFile"):
   poolFile = runArgs.outputEVNTFile
 elif hasattr(runArgs, "outputEVNT_PreFile"):

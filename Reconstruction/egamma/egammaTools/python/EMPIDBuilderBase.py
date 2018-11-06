@@ -25,36 +25,26 @@ class EMPIDBuilderElectronBase ( EMPIDBuilder ) :
         mlog = logging.getLogger(name+'::__init__')
         mlog.debug("entering")
 
-        from AthenaCommon.AppMgr import ToolSvc
-
        # Electron Selectors
         try:
             # Cut based 
             from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors import ConfiguredAsgElectronIsEMSelector
             LooseElectronSelector = ConfiguredAsgElectronIsEMSelector("LooseElectronSelector", egammaPID.ElectronIDLoosePP)
-            ToolSvc+=LooseElectronSelector
             MediumElectronSelector = ConfiguredAsgElectronIsEMSelector("MediumElectronSelector", egammaPID.ElectronIDMediumPP)
-            ToolSvc+=MediumElectronSelector
             TightElectronSelector = ConfiguredAsgElectronIsEMSelector("TightElectronSelector", egammaPID.ElectronIDTightPP)
-            ToolSvc+=TightElectronSelector
-
 
             # Likelihood
             from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
             LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
             LooseLHSelector.primaryVertexContainer="PrimaryVertices" 
-            ToolSvc+=LooseLHSelector
             MediumLHSelector = ConfiguredAsgElectronLikelihoodTool("MediumLHSelector", LikeEnum.Medium)
             MediumLHSelector.primaryVertexContainer="PrimaryVertices"
-            ToolSvc+=MediumLHSelector
             TightLHSelector = ConfiguredAsgElectronLikelihoodTool("TightLHSelector", LikeEnum.Tight)
             TightLHSelector.primaryVertexContainer="PrimaryVertices"
-            ToolSvc+=TightLHSelector
 
             # Multi Lepton
             from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronMultiLeptonSelector
             MultiLeptonSelector=AsgElectronMultiLeptonSelector("MultiLeptonSelector")
-            ToolSvc+=MultiLeptonSelector
 
         except:
             mlog.error("could not get configure tools")
@@ -76,16 +66,11 @@ class EMPIDBuilderPhotonBase ( EMPIDBuilder ) :
         mlog = logging.getLogger(name+'::__init__')
         mlog.debug("entering")
 
-        from AthenaCommon.AppMgr import ToolSvc
-
         # photon Selectors
         try:
             from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
             LoosePhotonSelector = ConfiguredAsgPhotonIsEMSelector("LoosePhotonSelector", egammaPID.PhotonIDLoose)
-            ToolSvc+=LoosePhotonSelector
             TightPhotonSelector = ConfiguredAsgPhotonIsEMSelector("TightPhotonSelector", egammaPID.PhotonIDTight)
-            ToolSvc+=TightPhotonSelector
-
 
         except:
             mlog.error("could not get configure tools")
@@ -94,4 +79,3 @@ class EMPIDBuilderPhotonBase ( EMPIDBuilder ) :
 
         self.photonIsEMselectors= [LoosePhotonSelector,TightPhotonSelector]
         self.photonIsEMselectorResultNames = ["Loose","Tight"]
-

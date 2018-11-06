@@ -9,10 +9,6 @@
 // Include files...
 //==============================================================================
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
-
-#include <map>
-#include "TH1.h"
-
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -58,7 +54,6 @@ class MuonSelector : public EventAnalysis
   //  TrackIsolationTool* m_isolationTool;
   double m_coneSize;
 
-
   // Cut variables. To go into a struct.
   unsigned char m_ucJMuon_Cut;
   double        m_IsoCut;
@@ -85,7 +80,6 @@ class MuonSelector : public EventAnalysis
   bool m_doIsoSelection;
   bool m_doPtSelection;
   bool m_doIPSelection;
-
 
   // Lock cut selection after first muon.
   bool m_bLock;

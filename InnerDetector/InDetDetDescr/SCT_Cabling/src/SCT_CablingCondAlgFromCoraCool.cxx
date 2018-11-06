@@ -15,9 +15,6 @@
 #include "SCT_CablingCondAlgFromCoraCool.h"
 #include "SCT_CablingUtilities.h"
 
-// Gaudi include
-#include "GaudiKernel/EventIDRange.h"
-
 //indet includes
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -28,11 +25,14 @@
 //DB utilities
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+// Gaudi include
+#include "GaudiKernel/EventIDRange.h"
+
 //STL
-#include <set>
-#include <utility>
 #include <algorithm>
 #include <iostream>
+#include <set>
+#include <utility>
 
 //Constants at file scope
 //Run1: folder names in COMP200 database
@@ -75,7 +75,7 @@ static const int qc[]{-1,3,2,1,0};
 static const int qa[]{-1,2,1,0,3};
 
 //utility functions in file scope
-namespace{
+namespace {
   enum SubDetectors{ENDCAP_C=-2, BARREL=0, ENDCAP_A=2};
   // WJM: Reversed ordering for layer 6/(Disk 7) eta 0 on EC C (-2)
   //Possibly inverted modules in disk 6C (counting 0-8 for disks) at eta=1. At eta=0, all modules are inverted
@@ -169,27 +169,13 @@ namespace{
     validLinkNumber(const int link) {
     return ((link>-1) and (link<96)) or (link==defaultLink) or (link==disabledFibre);
   }
-  //make a number even
-  IdentifierHash even(const IdentifierHash& hash) {
-    return (hash>>1) << 1;
-  }
 }//end of anonymous namespace
 
 // Constructor
 SCT_CablingCondAlgFromCoraCool::SCT_CablingCondAlgFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_readKeyRod{"/SCT/DAQ/Config/ROD"},
-  m_readKeyRodMur{"/SCT/DAQ/Config/RODMUR"},
-  m_readKeyMur{"/SCT/DAQ/Config/MUR"},
-  m_readKeyGeo{"/SCT/DAQ/Config/Geog"},
-  m_writeKey{"SCT_CablingData"},
   m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKeyRod", m_readKeyRod, "Key of input (raw) conditions folder of Rods");
-  declareProperty("ReadKeyRodMur", m_readKeyRodMur, "Key of input (raw) conditions folder of RodMurs");
-  declareProperty("ReadKeyMur", m_readKeyMur, "Key of input (raw) conditions folder of Murs");
-  declareProperty("ReadKeyGeo", m_readKeyGeo, "Key of input (raw) conditions folder of Geography");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
 }
 
 //
@@ -242,11 +228,17 @@ SCT_CablingCondAlgFromCoraCool::finalize() {
 //
 StatusCode
 SCT_CablingCondAlgFromCoraCool::execute() {
-  const SCT_ID* idHelper{nullptr};
-  if (detStore()->retrieve(idHelper,"SCT_ID").isFailure()) {
-    ATH_MSG_ERROR("SCT mgr failed to retrieve");
-    return StatusCode::FAILURE;
+  // Write Cond Handle
+  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
+  if (writeHandle.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
+                  << ". In theory this should not be called, but may happen"
+                  << " if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS;
   }
+
+  const SCT_ID* idHelper{nullptr};
+  ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
 
   // Determine the folders are Run2 or Run1
   bool isRun2{m_readKeyRod.key()==rodFolderName2};
@@ -281,7 +273,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     for (S::const_iterator i{slots.begin()};i != slots.end();++i) {
       slotMap[*i]=counter++;
     }
-    ATH_MSG_INFO("Number of SCT rod slots inserted: "<<counter);
+    ATH_MSG_INFO("Number of SCT rod slots inserted: " << counter);
   }
   IntMap crateSlot2RobMap; //local data structure
   bool allInsertsSucceeded{true};
@@ -291,7 +283,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
   for (; rodIt != last_rod; ++rodIt) {
     AthenaAttributeList rodAttributes{rodIt->second};
     int rob{rodAttributes["ROB"].data<int>()};
-    if (not tempRobSet.insert(rob).second) ATH_MSG_WARNING("Duplicate rob? :"<<std::hex<<rob<<std::dec);
+    if (not tempRobSet.insert(rob).second) ATH_MSG_WARNING("Duplicate rob? :" << std::hex << rob << std::dec);
     int crate{isRun2 ? static_cast<int>(rodAttributes["crate"].data<unsigned char>()) : (rodAttributes["crate"].data<int>())};
     int crateSlot{isRun2 ? static_cast<int>(rodAttributes["slot"].data<unsigned char>()) : static_cast<int>(rodAttributes["slot"].data<short>())};
     //see note in header; these may be 0-15, but not necessarily, so we need to map these onto 0-15
@@ -302,14 +294,14 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     //use the return type of insert which is a pair with the second component(bool) indicating whether the insert was successful
     bool thisInsertSucceeded{crateSlot2RobMap.insert(IntMap::value_type(rodPosition, rob)).second};
     if (not thisInsertSucceeded) {
-      ATH_MSG_WARNING("Insert (rodPosition, rob) "<<rodPosition<<", "<<rob<<" failed.");
-      ATH_MSG_INFO("map(rod position) is already "<<crateSlot2RobMap[rodPosition]);
-      ATH_MSG_INFO("crate, slot, slots per crate: "<<crate<<", "<<slot<<", "<<slotsPerCrate);
+      ATH_MSG_WARNING("Insert (rodPosition, rob) " << rodPosition << ", " << rob << " failed.");
+      ATH_MSG_INFO("map(rod position) is already " << crateSlot2RobMap[rodPosition]);
+      ATH_MSG_INFO("crate, slot, slots per crate: " << crate << ", " << slot << ", " << slotsPerCrate);
     }
     allInsertsSucceeded = thisInsertSucceeded and allInsertsSucceeded;
     ++nrods;
   }
-  ATH_MSG_INFO(nrods<<" rods entered, of which "<<tempRobSet.size()<<" are unique.");
+  ATH_MSG_INFO(nrods << " rods entered, of which " << tempRobSet.size() << " are unique.");
   
   if (not allInsertsSucceeded) ATH_MSG_WARNING("Some Rod-Rob map inserts failed.");
 
@@ -361,7 +353,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     int order{isRun2 ? static_cast<int>(rodMurAttributes["position"].data<unsigned char>()) : (rodMurAttributes["position"].data<int>())};
     int fibreOrder{((((crate * slotsPerCrate) + slot ) * mursPerRod) + order) * fibresPerMur};
     bool thisInsertSucceeded{murPositionMap.insert(IntMap::value_type(mur, fibreOrder)).second};
-    if (not thisInsertSucceeded) ATH_MSG_WARNING("Insert (mur, fibre) "<<mur<<", "<<fibreOrder<<" failed.");
+    if (not thisInsertSucceeded) ATH_MSG_WARNING("Insert (mur, fibre) " << mur << ", " << fibreOrder << " failed.");
     allInsertsSucceeded = thisInsertSucceeded and allInsertsSucceeded;
   }
   if (not allInsertsSucceeded) ATH_MSG_WARNING("Some MUR-position map inserts failed.");
@@ -397,8 +389,8 @@ SCT_CablingCondAlgFromCoraCool::execute() {
   }
   // Define validity of the output cond obbject and record it
   EventIDRange rangeW{EventIDRange::intersect(rangeRod, rangeRodMur, rangeMur, rangeGeo)};
-  if(rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << rangeRod << " " << rangeRodMur << " " << rangeMur << " " << rangeGeo);
+  if(rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
+    ATH_MSG_FATAL("Invalid intersection range: "  << rangeW << " " << rangeRod << " " << rangeRodMur << " " << rangeMur << " " << rangeGeo);
     return StatusCode::FAILURE;
   }
 
@@ -435,7 +427,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     int rob{-1};
     IntMap::const_iterator pCrate{crateSlot2RobMap.find(encodedCrateSlot)};
     if (pCrate == crateSlot2RobMap.end()) {
-      ATH_MSG_WARNING("Failed to find a crate slot in the cabling, slot "<<encodedCrateSlot);
+      ATH_MSG_WARNING("Failed to find a crate slot in the cabling, slot " << encodedCrateSlot);
     } else {
       rob=pCrate->second;
       tempRobSet2.insert(rob);
@@ -468,7 +460,7 @@ SCT_CablingCondAlgFromCoraCool::execute() {
       rxLink[0]=murAttributes["rx0Fibre"].data<int>();rxLink[1]=murAttributes["rx1Fibre"].data<int>();
     }
     if (not (validLinkNumber(rxLink[0]) and validLinkNumber(rxLink[1]))) {
-      ATH_MSG_WARNING("Invalid link number in database in one of these db entries: rx0Fibre="<<rxLink[0]<<", rx1Fibre="<<rxLink[1]);
+      ATH_MSG_WARNING("Invalid link number in database in one of these db entries: rx0Fibre=" << rxLink[0] << ", rx1Fibre=" << rxLink[1]);
       continue;
     }
     //normal ordering is like rx0=0, rx1=1; i.e. odd links in rx1.
@@ -481,15 +473,15 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     
     int possibleLinks[2]{0,0};
     if (normalOrdering) {
-      possibleLinks[0]=(rxLink[0]!=disabledFibre)?rxLink[0]:(rxLink[1]-1);
-      possibleLinks[1]=(rxLink[1]!=disabledFibre)?rxLink[1]:(rxLink[0]+1);
+      possibleLinks[0]=(rxLink[0]!=disabledFibre) ? rxLink[0] : (rxLink[1]-1);
+      possibleLinks[1]=(rxLink[1]!=disabledFibre) ? rxLink[1] : (rxLink[0]+1);
     } else {
-      possibleLinks[0]=(rxLink[0]!=disabledFibre)?rxLink[0]:(rxLink[1]+1);
-      possibleLinks[1]=(rxLink[1]!=disabledFibre)?rxLink[1]:(rxLink[0]-1);
+      possibleLinks[0]=(rxLink[0]!=disabledFibre) ? rxLink[0] : (rxLink[1]+1);
+      possibleLinks[1]=(rxLink[1]!=disabledFibre) ? rxLink[1] : (rxLink[0]-1);
     }
     for (int side{0}; side!=2; ++side) {
       if ((-1==phi) and (-1==eta)) {
-        ATH_MSG_WARNING("Invalid eta, phi..skipping insertion to map for module "<<snString<<" (may be already present in map)");
+        ATH_MSG_WARNING("Invalid eta, phi..skipping insertion to map for module " << snString << " (may be already present in map)");
         continue;
       }
       Identifier offlineId{idHelper->wafer_id(bec,layer,phi,eta,side)};
@@ -506,13 +498,13 @@ SCT_CablingCondAlgFromCoraCool::execute() {
       if (flippedModule) {
         link = (link==possibleLinks[0]) ? possibleLinks[1] : possibleLinks[0];
       }
-      int onlineId{(rob & 0xFFFFFF)|(link<<24)};
+      int onlineId{(rob & 0xFFFFFF)|(link << 24)};
       //check uniqueness
-      if (not onlineIdSet.insert(onlineId).second) ATH_MSG_WARNING("Insert of online Id : "<<onlineId<<" failed.");
+      if (not onlineIdSet.insert(onlineId).second) ATH_MSG_WARNING("Insert of online Id : " << onlineId << " failed.");
       if (not offlineIdSet.insert(offlineId).second) {
-        ATH_MSG_WARNING("Insert of offline Id : "<<offlineId<<" failed.");
-        ATH_MSG_WARNING(bec<<" "<<layer<<" "<<phi<<" "<<eta<<" "<<side);
-        ATH_MSG_INFO("MUR, position "<<mur<<", "<<harnessPosition);
+        ATH_MSG_WARNING("Insert of offline Id : " << offlineId << " failed.");
+        ATH_MSG_WARNING(bec << " " << layer << " " << phi << " " << eta << " " << side);
+        ATH_MSG_INFO("MUR, position " << mur << ", " << harnessPosition);
       } 
       IdentifierHash offlineIdHash{idHelper->wafer_hash(offlineId)};
       insert(offlineIdHash, onlineId, SCT_SerialNumber(sn), writeCdo.get());
@@ -520,8 +512,6 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     }
   }
 
-  // Write Cond Handle
-  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_CablingData " << writeHandle.key() 
                   << " with EventRange " << rangeW
@@ -532,15 +522,15 @@ SCT_CablingCondAlgFromCoraCool::execute() {
 
   const int robLo{*(tempRobSet2.cbegin())};
   const int robHi{*(tempRobSet2.crbegin())};
-  ATH_MSG_INFO(numEntries<<" entries were made to the identifier map.");
-  ATH_MSG_INFO(tempRobSet2.size()<<" unique rob ids were used, spanning 0x"<<std::hex<<robLo<<" to 0x"<<robHi<<std::dec);
+  ATH_MSG_INFO(numEntries << " entries were made to the identifier map.");
+  ATH_MSG_INFO(tempRobSet2.size() << " unique rob ids were used, spanning 0x" << std::hex << robLo << " to 0x" << robHi << std::dec);
   if (tempRobSet.size() != tempRobSet2.size()) {
     ATH_MSG_WARNING("The following existing rods were not inserted : ");
-    std::cout<<std::hex;
-    std::set_difference(tempRobSet.cbegin(),tempRobSet.cend(),
-                        tempRobSet2.cbegin(),tempRobSet2.cend(),
+    std::cout << std::hex;
+    std::set_difference(tempRobSet.cbegin(), tempRobSet.cend(),
+                        tempRobSet2.cbegin(), tempRobSet2.cend(),
                         std::ostream_iterator<int>(std::cout,", "));
-    std::cout<<std::dec<<std::endl;
+    std::cout << std::dec << std::endl;
   }
   tempRobSet.clear();
   return (numEntries==0) ? (StatusCode::FAILURE) : (StatusCode::SUCCESS);
@@ -554,7 +544,7 @@ SCT_CablingCondAlgFromCoraCool::insert(const IdentifierHash& hash, const SCT_Onl
     return false;
   }
   if (not hash.is_valid()) {
-    ATH_MSG_FATAL("Invalid hash: "<<hash);
+    ATH_MSG_FATAL("Invalid hash: " << hash);
     return false;
   }
   // Check if the pointer of derived conditions object is valid.
@@ -566,10 +556,8 @@ SCT_CablingCondAlgFromCoraCool::insert(const IdentifierHash& hash, const SCT_Onl
   if (not data->setHashForOnlineId(hash, onlineId)) return false;
   if (not data->setOnlineIdForHash(onlineId, hash)) return false;
 
-  //only insert even hashes for serial numbers
-  IdentifierHash evenHash{even(hash)};
-  bool successfulInsert{data->setHashForSerialNumber(evenHash, sn)};
-  successfulInsert &= data->setSerialNumberForHash(sn, evenHash);
+  bool successfulInsert{data->setHashForSerialNumber(hash, sn)};
+  successfulInsert &= data->setSerialNumberForHash(sn, hash);
   // in this form, the data->getHashEntries() will be half the number of hashes
   if (successfulInsert) {
     data->setRod(onlineId.rod()); //move this here so insertion only happens for valid onlineId, hash

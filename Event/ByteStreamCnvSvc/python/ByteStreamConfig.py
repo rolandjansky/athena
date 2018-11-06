@@ -9,7 +9,7 @@ def TrigBSReadCfg( inputFlags ):
     """
     Creates accumulator for BS reading
     """
-    filenames = inputFlags.get("global.InputFiles")
+    filenames = inputFlags.Input.Files
     
     acc = ComponentAccumulator()
     
@@ -46,11 +46,9 @@ def TrigBSReadCfg( inputFlags ):
 
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
     iovMetaDataTool = IOVDbMetaDataTool()
-    acc.addPublicTool( iovMetaDataTool )    
 
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
     bsMetaDataTool = ByteStreamMetadataTool()
-    acc.addPublicTool( bsMetaDataTool )
 
     from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   
@@ -74,7 +72,7 @@ def TrigBSReadCfg( inputFlags ):
     
            
     # this is trigger specific and should only be loaded if some doTrigger flags is set
-    # or it shoudl be moved elsewhere, however, since there is no better location now let is stick here
+    # or it should be moved elsewhere, however, since there is no better location now let is stick here
     bsCnvSvc.InitCnvs += [ "EventInfo",
                         "ROIB::RoIBResult",
                         "HLT::HLTResult" ]
@@ -103,7 +101,7 @@ def TrigBSReadCfg( inputFlags ):
 
 
     
-    if inputFlags.get( "global.isMC" ) == False:        
+    if inputFlags.Input.isMC == False:        
         bsCnvSvc.GetDetectorMask=True
         # still need to figure out how conditions are setup in new system
         #from IOVDbSvc.CondDB import conddb
@@ -115,7 +113,7 @@ def TrigBSReadCfg( inputFlags ):
 if __name__ == "__main__":
     from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
     flags = ConfigFlagContainer()
-    flags.set("global.InputFiles", ["dummy.data"]) 
+    flags.Input.Files =  ["dummy.data"]
 
     acc = TrigBSReadCfg( flags )
     acc.store( file( "test.pkl", "w" ) )

@@ -74,7 +74,7 @@ public:
   virtual void print() const override;
 
 private:  //data
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey{"EventInfo"};
   SG::ReadHandleKey<fastjet::ClusterSequence> m_cnameRKey;
   SG::WriteHandleKey<fastjet::ClusterSequence> m_cnameWKey;
 

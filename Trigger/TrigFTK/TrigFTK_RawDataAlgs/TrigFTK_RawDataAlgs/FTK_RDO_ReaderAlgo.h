@@ -13,8 +13,9 @@
 #include "TrkTrack/TrackCollection.h" //
 #include "TrkToolInterfaces/IUpdator.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 
@@ -33,6 +34,10 @@ class AtlasDetectorID;
 class Identifier;
 class PixelID;
 class SCT_ID;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 namespace Trk {
   class IResidualPullCalculator;
@@ -102,8 +107,9 @@ private:
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelId;  
   const SCT_ID* m_sctId;  
-  const InDetDD::SiDetectorManager*  m_PIX_mgr;
-  const InDetDD::SiDetectorManager*  m_SCT_mgr;
+  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   ToolHandle<Trk::IResidualPullCalculator> m_residualCalc;
   //IFTK_DataProviderSvc* m_DataProviderSvc;

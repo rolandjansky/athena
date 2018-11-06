@@ -177,6 +177,8 @@ class L2EFChain_mu(L2EFChainDef):
       muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly" + "_v15a"
     elif int(self.chainPart['threshold'])  == 4:
       muFastThresh = '4GeV_v15a'
+    elif int(self.chainPart['threshold'])  == 3:
+      muFastThresh = '3GeV_v15a'
     elif int(self.chainPart['threshold']) == 2:
       muFastThresh = '2GeV_v15a'
     elif "3layersEC" in self.chainPart['extra']:
@@ -735,13 +737,6 @@ class L2EFChain_mu(L2EFChainDef):
       log.error("Chain built with %s but so far only l2muonSA is supported." % (self.chainPart['L2SAAlg']))
       return False
 
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonA     # ---> this is Run1 tracking - keep it here
-    theTrigL2SiTrackFinder_MuonA = TrigL2SiTrackFinder_MuonA()
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonB
-    theTrigL2SiTrackFinder_MuonB = TrigL2SiTrackFinder_MuonB()
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
-    theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
-
     from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
     if "FTKRefit" in self.chainPart['L2IDAlg']:
       [trkfast, trkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["refit","PT"]).getSequence()
@@ -791,6 +786,13 @@ class L2EFChain_mu(L2EFChainDef):
     EFinputTE = ''
 
     if "L2Star" in self.chainPart['L2IDAlg']:                             # ---> this is Run1 tracking - keep it here
+      from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonA     # ---> this is Run1 tracking - keep it here
+      theTrigL2SiTrackFinder_MuonA = TrigL2SiTrackFinder_MuonA()
+      from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonB
+      theTrigL2SiTrackFinder_MuonB = TrigL2SiTrackFinder_MuonB()
+      from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
+      theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
+
       self.L2sequenceList += [[['L2_mu_step1'],
                                [theTrigL2SiTrackFinder_MuonA, 
                                 theTrigL2SiTrackFinder_MuonB,

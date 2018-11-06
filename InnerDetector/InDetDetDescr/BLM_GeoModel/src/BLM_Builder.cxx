@@ -246,17 +246,22 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
       rm.rotateY(parameters->Rotation_Y()*CLHEP::deg);
       rm.rotateZ(parameters->Rotation_Z()*CLHEP::deg);
       GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
-
+      xform->ref();
       //building module
       int k=i+222;
 
       GeoNameTag* tag = new GeoNameTag("BLM Module");
-      GeoVPhysVol* blmModPhys = blm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
-      Phys->add(tag);
-      Phys->add(new GeoIdentifierTag(k));
-      Phys->add(xform);
-      Phys->add(blmModPhys);
-      ATH_MSG_DEBUG(" --> BUILD MODULE: " << i);
+      tag->ref();
+      if (mat_mgr){
+        GeoVPhysVol* blmModPhys = blm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+        Phys->add(tag);
+        Phys->add(new GeoIdentifierTag(k));
+        Phys->add(xform);
+        Phys->add(blmModPhys);
+        ATH_MSG_DEBUG(" --> BUILD MODULE: " << i);
+      }
+      tag->unref();
+      xform->unref();
     }
 
   //save Geometry_manager in storegate

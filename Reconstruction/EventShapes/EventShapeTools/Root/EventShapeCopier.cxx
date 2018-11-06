@@ -87,13 +87,6 @@ StatusCode EventShapeCopier::fillEventShape(xAOD::EventShape *evs) const {
 
   return StatusCode::SUCCESS;      
 }
-
-
-StatusCode EventShapeCopier::fillEventShape(xAOD::EventShape *evs, const xAOD::IParticleContainer*) const {
-  // Ignore IParticleContainer argument.
-
-  return fillEventShape( evs);
-}
   
 //**********************************************************************
 

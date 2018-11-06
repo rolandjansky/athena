@@ -85,7 +85,7 @@ StatusCode MDT_RegionSelectorTable::createTable() {
   
   const MuonGM::MuonDetectorManager*	p_MuonMgr = NULL;
   
-  StatusCode status = detStore()->retrieve( p_MuonMgr );
+  ATH_CHECK( detStore()->retrieve( p_MuonMgr ) );
   
   const MdtIdHelper*  p_IdHelper = p_MuonMgr->mdtIdHelper();
   

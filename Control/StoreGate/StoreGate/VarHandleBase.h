@@ -131,6 +131,17 @@ namespace SG {
 
 
     /**
+     * @brief Constructor from a DataProxy.
+     * @param proxy The proxy to which to bind.
+     * @param mode Mode of this handle (read/write/update).
+     *
+     * This handle will be bound to the given proxy.
+     */
+    explicit VarHandleBase (SG::DataProxy* proxy,
+                            Gaudi::DataHandle::Mode mode);
+
+
+    /**
      * @brief Copy constructor.
      */
     VarHandleBase( const VarHandleBase& rhs );

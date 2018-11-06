@@ -11,9 +11,18 @@
 // Local include(s):
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 
+#include <set>
+
 namespace xAOD{
    /// Declare the latest version of the class
    typedef TrigComposite_v1 TrigComposite;
+}
+
+namespace TrigCompositeUtils{ 
+   typedef xAOD::TrigComposite Decision;
+
+   typedef unsigned int DecisionID;
+   typedef std::set<DecisionID> DecisionIDContainer;
 }
 
 // Declare a CLID for the type:

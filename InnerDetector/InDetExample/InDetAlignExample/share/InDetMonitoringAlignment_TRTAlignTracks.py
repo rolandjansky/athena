@@ -9,7 +9,7 @@ InDetAlignMonResidualsTRTAlign = IDAlignMonResiduals (name = 'InDetAlignMonResid
                                                       trackSelection = InDetAlignMonTrackSelectionTool, 
                                                       TRT_Manager = InDetKeys.TRT_Manager())  
  
-ToolSvc += InDetAlignMonResidualsTRTAlign 
+#ToolSvc += InDetAlignMonResidualsTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
     print InDetAlignMonResidualsTRTAlign 
      
@@ -22,7 +22,7 @@ InDetAlignMonEfficienciesTRTAlign = IDAlignMonEfficiencies (name = 'InDetAlignMo
                                                             OutputLevel = ERROR,
                                                             TRT_Manager = InDetKeys.TRT_Manager())     
  
-ToolSvc += InDetAlignMonEfficienciesTRTAlign 
+#ToolSvc += InDetAlignMonEfficienciesTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
     print InDetAlignMonEfficienciesTRTAlign 
  
@@ -31,7 +31,7 @@ InDetAlignMonGenericTracksTRTAlign = IDAlignMonGenericTracks (name = 'InDetAlign
                                                               trackSelection = InDetAlignMonTrackSelectionTool, 
                                                               VxPrimContainerName = InDetKeys.PrimaryVertices())    
  
-ToolSvc += InDetAlignMonGenericTracksTRTAlign 
+#ToolSvc += InDetAlignMonGenericTracksTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
     print InDetAlignMonGenericTracksTRTAlign 
  
@@ -41,7 +41,7 @@ InDetTrackSplitterToolTRTAlign = InDet__InDetTrackSplitterTool(name = 'TrackSpli
                                                                OutputLowerTracksName = 'TRTAlign_Lower', 
                                                                OutputLevel = ERROR)  
  
-ToolSvc += InDetTrackSplitterToolTRTAlign 
+#ToolSvc += InDetTrackSplitterToolTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
     print InDetTrackSplitterToolTRTAlign 
      
@@ -59,7 +59,7 @@ InDetAlignMonTrackSegmentsTRTAlign = IDAlignMonTrackSegments ( name = 'InDetAlig
                                                                DeltaPhiRange2D = 0.05, 
                                                                OutputLevel = ERROR, 
                                                                D0Range = 800 ) 
-ToolSvc += InDetAlignMonTrackSegmentsTRTAlign 
+#ToolSvc += InDetAlignMonTrackSegmentsTRTAlign 
 if (InDetFlags.doPrintConfigurables()): 
     print InDetAlignMonTrackSegmentsTRTAlign 
 

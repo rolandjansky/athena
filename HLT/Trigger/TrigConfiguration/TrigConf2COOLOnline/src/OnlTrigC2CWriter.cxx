@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,10 +17,10 @@
 
 #include "TrigConf2COOLOnline/OnlTrigC2CWriter.h"
 
-#include "TrigConf2COOLOnline/TrigConfSmKeyNamed.h"
-#include "TrigConf2COOLOnline/TrigConfL1PsKeyNamed.h"
-#include "TrigConf2COOLOnline/TrigConfHltPsKeyNamed.h"
-#include "TrigConf2COOLOnline/TrigConfReleaseNamed.h"
+#include "TTCInfo/TrigConfSmKeyNamed.h"
+#include "TTCInfo/TrigConfL1PsKeyNamed.h"
+#include "TTCInfo/TrigConfHltPsKeyNamed.h"
+#include "TTCInfo/TrigConfReleaseNamed.h"
 
 #include "config/Configuration.h"
 
@@ -400,7 +400,7 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
             try {
                 sm->masterTableLoader().load(*m_CTPConfig);
             }
-            catch(std::exception e) {
+            catch(const std::exception& e) {
                 TrigConf::TriggerDBReadError issue(ERS_HERE, e.what());
                 ers::fatal(issue);
             }
@@ -412,7 +412,7 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
             try {
                 sm->prescaleSetLoader().load(l1pss);
             }
-            catch(std::exception e) {
+            catch(const std::exception& e) {
                 TrigConf::TriggerDBReadError issue(ERS_HERE, e.what());
                 ers::fatal(issue);
             }

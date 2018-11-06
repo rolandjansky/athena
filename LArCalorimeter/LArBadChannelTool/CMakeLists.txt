@@ -44,6 +44,12 @@ atlas_add_dictionary( BadChanDict
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRecConditions LArCablingLib LArBadChannelToolLib )
 
+
+atlas_add_test( LArBadChannelConfigTest
+   SCRIPT python -m LArBadChannelTool.LArBadChannelConfig
+   POST_EXEC_SCRIPT nopost.sh )
+
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

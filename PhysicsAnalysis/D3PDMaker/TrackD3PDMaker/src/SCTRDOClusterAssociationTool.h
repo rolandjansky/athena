@@ -9,6 +9,7 @@
  
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include <vector>
 
@@ -25,6 +26,7 @@
 #include "InDetRawData/SCT_RDO_Collection.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT_RDO_Collection.h" // Needed to pick up CLID.
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -69,6 +71,10 @@ namespace D3PD {
 
       // StoreGate keys
       std::string m_clusterContainer;
+
+      // Read Cond Handle
+      // For P->T converter of SCT_Clusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
  
       // NTuple variables 
  

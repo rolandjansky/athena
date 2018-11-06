@@ -49,7 +49,11 @@ TRT_ServMatFactoryDC2::~TRT_ServMatFactoryDC2()
 //## Other Operations (implementation)
 void TRT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 {
-
+  if (not mother){
+    msg(MSG::FATAL) <<"GeoPhysVol pointer 'mother' is null"<<endmsg;
+    return;
+  
+  }
   msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
 
 

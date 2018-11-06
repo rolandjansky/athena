@@ -16,9 +16,6 @@ from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_tau, TrigCaloCluster
 from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
 from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import (TrigL2SiTrackFinder_TauA,
-                                                            TrigL2SiTrackFinder_TauB,
-                                                            TrigL2SiTrackFinder_TauC)
 from TrigT2CaloTau.TrigT2CaloTauConfig import T2CaloTau_Tau_Med
 from TrigT2IDTau.T2IDTauConfig import T2IDTau_Tau_1GeV_dZ02_dR0103
 from TrigT2Tau.T2TauFinalConfig import T2TauFinal_Tau_dR03_1GeV_dZ02
@@ -418,6 +415,9 @@ class L2EFChain_tau(L2EFChainDef):
             theL2FinalHypo  = self.hypoProvider.GetHypo('L2', threshold, selection, '', 'r1')
             # Get the necessary fexes
 
+            from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import (TrigL2SiTrackFinder_TauA,
+                                                                        TrigL2SiTrackFinder_TauB,
+                                                                        TrigL2SiTrackFinder_TauC)
             t2calo_2012 = T2CaloTau_Tau_Med()
             l2sitrkfinder_tauB = TrigL2SiTrackFinder_TauB()
             t2id_2012 = T2IDTau_Tau_1GeV_dZ02_dR0103()

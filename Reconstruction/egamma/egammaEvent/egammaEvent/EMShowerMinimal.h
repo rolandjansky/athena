@@ -32,7 +32,7 @@ UPDATED:
           Jun 14, 2007 (FD) Doxygen documentation
 
 ********************************************************************/
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "AthLinks/ElementLink.h"
 #include "Navigation/NavigableTerminalNode.h"

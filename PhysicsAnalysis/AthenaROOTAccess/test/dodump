@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo $1 > VERSION
 athena.py -c 'vers="'$1'"' athena_dumper.py 2>&1 > dump-a.log &
 python ara_dumper1.py $1 2>&1 > dump-1.log &
 python ara_dumper2.py $1 2>&1 > dump-2.log &

@@ -13,7 +13,7 @@ def _larCablingCfg(configFlags,algo,folder):
                    "/LAR/Identifier/CalibIdMap":"LARIdentifierCalibIdMap-012"
                    }
 
-    if configFlags.get("global.isMC"):
+    if configFlags.Input.isMC:
         db='LAR_OFL'
         if folder in tagsperFolder:
             ft=tagsperFolder[folder]

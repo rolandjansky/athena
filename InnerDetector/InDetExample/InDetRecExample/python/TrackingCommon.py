@@ -91,6 +91,8 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
 
 def getEventInfoKey() :
     from AthenaCommon.GlobalFlags  import globalflags
+    from AthenaCommon.DetFlags import DetFlags
+
     isData = (globalflags.DataSource == 'data')
 
     eventInfoKey = "ByteStreamEventInfo"

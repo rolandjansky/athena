@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETAILEDMUONPATTERNTRUTHCOLLECTION_H
@@ -9,7 +9,7 @@
 #include "TrkTruthData/DetailedTrackTruth.h"
 #include "TrkTrack/TrackCollection.h"
 #include "AthLinks/DataLink.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 

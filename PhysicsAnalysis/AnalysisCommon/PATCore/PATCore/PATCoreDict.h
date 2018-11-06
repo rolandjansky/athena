@@ -21,14 +21,11 @@
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
 #include "PATCore/TSelectorToolBase.h"
-#include "PATCore/TResult.h"
-#include "PATCore/TCalculatorToolBase.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "PATCore/IAsgSelectionWithVertexTool.h"
 
 #ifndef ROOTCORE
 #include "PATCore/IAthSelectorTool.h"
-#include "PATCore/IAthCalculatorTool.h"
 #include "PATCore/IAthHistogramTool.h"
 #include "PATCore/IUserDataCalcTool.h"
 #endif

@@ -17,7 +17,7 @@ atlas_depends_on_subdirs(
    Event/EventInfo
    Generators/GenInterfaces )
 
-find_package( Boost COMPONENTS algorithm )
+find_package( Boost )
 find_package( CORAL COMPONENTS CoralBase )
 
 # Component(s) in the package:
@@ -27,6 +27,3 @@ atlas_add_component( HepMCWeightSvc
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps
    AthenaPoolUtilities IOVDbDataModel EventInfo )
-
-# Install files from the package:
-atlas_install_headers( HepMCWeightSvc )

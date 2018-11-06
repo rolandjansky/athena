@@ -13,10 +13,15 @@
 
 // Athena framework include:
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
+#include "AthContainers/DataVector.h"
+
+// xAOD include:
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
 
 // Interface includes:
 #include "CaloRingerTools/ICaloRingsBuilder.h"
-#include "CaloRingerTools/ICaloRingerInputReader.h"
 
 // Local includes:
 #include "RingerKnownParticles.h"
@@ -40,53 +45,71 @@ class BuildCaloRingsFctorBase {
      **/
     BuildCaloRingsFctorBase(
         ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg): 
-          m_builder(builder), 
+        MsgStream &msg):
+          m_builder(builder),
           m_msg(msg),
           m_part_counter(0),
-          m_part_size(0)
+          m_part_size(0),
+          m_crContH(nullptr),
+          m_rsContH(nullptr)
       {;}
 
-  
-    /// Properties 
+
+    /// Protected Properties
     /// @{
     /// @brief CaloRings which will be used
     ToolHandle<ICaloRingsBuilder> &m_builder;
     /// @brief Message Stream which will be used:
     MsgStream &m_msg;
     /// @brief Hold number of particles already procesed for this event:
-    mutable size_t m_part_counter; 
+    mutable size_t m_part_counter;
     /// @brief Hold number of particles to be processed:
-    size_t m_part_size; 
+    size_t m_part_size;
     /// @}
 
-    /// Methods 
+    /// Methods
     /// @{
     /**
-     * @brief Prepare to loop for nParticles
+     * @brief Set containers and prepare to loop for nParticles
      **/
-    void prepareToLoopFor(const size_t nParticles) { 
-      // Initiate container which will hold the CaloRings and reserve one slot per
-      // particle as initial guess:
-      if( m_builder->contExecute( nParticles ).isFailure() ){
-        throw std::runtime_error("Couldn't instantiate CaloRings builder container.");
-      }
-      // Reset counters, set number of particles to nParticles:
-      m_part_size = nParticles;
-      m_part_counter = 0;
-    }
+    StatusCode prepareToLoopFor( std::size_t nParticles );
+
+    /**
+     * @brief Increment particle looping counter
+     **/
+    void incrementCounter() const { ++m_part_counter; }
+
+    /**
+     * @brief Release the handles when finished looping
+     **/
+    void checkRelease() const;
+
     /// @}
     virtual ~BuildCaloRingsFctorBase(){;}
+
+  private:
+    /// Private Properties
+    /// @{
+    /// @brief Keep CaloRingsContainer handle in scope until finished looping
+    mutable SG::WriteHandle<xAOD::CaloRingsContainer>* m_crContH;
+    /// @brief Keep RingSetContainer handle in scope until finished looping
+    mutable SG::WriteHandle<xAOD::RingSetContainer>* m_rsContH;
+    /// @}
 
 };
 
 /**
- * @class BuildCaloRingsFctorWithCluster<particle_t>
+ * @class BuildCaloRingsFctorWithCluster<container_t>
  * @brief Template for CaloRings builder functor.
  **/
-template< typename particle_t >
+template< typename container_t >
 class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
 {
+  public:
+    /// @brief Particle type that the functor will decorate the CaloRingsLinks
+    typedef typename container_t::base_value_type particle_t;
+    /// @brief CaloRings links decorator handle type
+    typedef typename ::xAOD::caloRingsDecoH_t< container_t > decor_t;
 
   private:
     typedef BuildCaloRingsFctorBase base_t;
@@ -96,30 +119,12 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     using base_t::m_part_counter;
     using base_t::m_part_size;
 
+    using base_t::checkRelease;
+
     /// @brief Holds particle name:
-    static constexpr const char *m_particle_name = 
-      Ringer::GetParticleProp<particle_t>::name;
+    static constexpr const char *m_particle_name = Ringer::GetParticleProp<particle_t>::name;
     /// @brief Holds if particle has cluster access:
-    static constexpr bool m_particle_has_cluster = 
-      Ringer::GetParticleProp<particle_t>::hasCluster;
-
-  public:
-    /**
-     * @brief Main ctor, repass information for interface 
-     **/
-    BuildCaloRingsFctor(
-        ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg)
-    : BuildCaloRingsFctorBase(
-        builder,
-        msg){;}
-
-    /// Methods 
-    /// @{
-    /**
-     * @brief Looping functor method when it has access to cluster. 
-     **/
-    void operator() (particle_t *part) const;
+    static constexpr bool m_particle_has_cluster = Ringer::GetParticleProp<particle_t>::hasCluster;
 
     /**
      * @brief Shows current looping status.
@@ -127,9 +132,49 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     void displayLoopingMessage() const;
 
     /**
-     * @brief Prepare to loop for nParticles. 
+     * @brief Decorator key
      **/
-    using base_t::prepareToLoopFor;
+    SG::WriteDecorHandleKey< container_t > m_decorKey;
+
+    /**
+     * @brief Write decorator handle
+     **/
+    mutable decor_t* m_decor;
+
+  public:
+    /**
+     * @brief Main ctor, repass information for interface
+     **/
+    BuildCaloRingsFctor(
+        const std::string &decoContName,
+        ToolHandle<ICaloRingsBuilder> &builder,
+        MsgStream &msg)
+    : BuildCaloRingsFctorBase(
+        builder,
+        msg),
+      m_decorKey( decoContName + "." + xAOD::caloRingsLinksDecorKey() ){;}
+
+    /// Methods
+    /// @{
+    /**
+     * @brief Looping functor method when it has access to cluster.
+     **/
+    void operator() (const particle_t *part) const;
+
+    /**
+     * @brief Initialize the decorator keys
+     **/
+    StatusCode initialize();
+
+    /**
+     * @brief Prepare to loop for nParticles.
+     **/
+    StatusCode prepareToLoopFor( std::size_t nParticles );
+
+    /**
+     * @brief Release the handles when finished looping
+     **/
+    void checkRelease() const;
     /// @}
 };
 

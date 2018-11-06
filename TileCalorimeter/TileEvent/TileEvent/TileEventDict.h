@@ -26,5 +26,6 @@
 #include "TileEvent/TileCosmicMuon.h"
 
 #include "TileEvent/MBTSCollisionTime.h"
+#include "TileEvent/TileDQstatus.h"
 
 #endif 

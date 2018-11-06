@@ -26,13 +26,9 @@
 
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "JetTagCalibration/CalibrationBroker.h"
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
-#include "TMVA/MethodBase.h"
-#include "TList.h"
-#include "TString.h"
 #include "TObjString.h"
+#include "TObjArray.h"
+#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>
@@ -50,19 +46,14 @@ namespace Analysis
 
   MultiSVTag::MultiSVTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_runModus("analysis")
-   // m_secVxFinderName("InDetVKalVxInJetTool")
   {
     declareInterface<ITagTool>(this);
-    // access to XML configuration files for TMVA from COOL:
-    declareProperty("calibrationTool", m_calibrationTool);
     declareProperty("Runmodus",       m_runModus= "analysis");
     declareProperty("jetCollectionList", m_jetCollectionList);
     declareProperty("useForcedCalibration", m_doForcedCalib   = false);
     declareProperty("ForcedCalibrationName", m_ForcedCalibName = "AntiKt4TopoEM");//Cone4H1Tower
     declareProperty("SecVxFinderName",m_secVxFinderName);
-    //declareProperty("SVAlgType",      m_SVmode);
     declareProperty("taggerNameBase",m_taggerNameBase = "MultiSVbb1");
     declareProperty("taggerName", m_taggerName = "MultiSVbb1");
     declareProperty("xAODBaseName",m_xAODBaseName);
@@ -76,226 +67,102 @@ namespace Analysis
   StatusCode MultiSVTag::initialize() {
     // define tagger name:
 
-    //m_taggerNameBase = instanceName2;
-    //std::string tmp = "MultiSV1" ;
     m_disableAlgo=false;
-    m_useEgammaMethodMultiSV=false;
     m_warnCounter=0;
 
     m_treeName = "BDT";
     m_varStrName = "variables";
-    //m_taggerNameBase = tmp;
 
-    StatusCode sc = m_calibrationTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_calibrationTool);
-      return sc;
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_calibrationTool);
-    }
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_treeName);
-    m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib/"+m_varStrName);
-    ATH_MSG_DEBUG("#BTAG# m_taggerNameBase " << m_taggerNameBase);
-    m_tmvaReaders.clear();
-    m_tmvaMethod.clear();
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
     m_egammaBDTs.clear();
     return StatusCode::SUCCESS;
   }
 
   StatusCode MultiSVTag::finalize(){
-    if (m_useEgammaMethodMultiSV) {
-      for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
-    }
-    else {
-      // delete readers:
-      std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.begin();
-      for( ; pos != m_tmvaReaders.end(); ++pos ) delete pos->second;
-      std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod.begin();
-      for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
-    }
+    for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     return StatusCode::SUCCESS;
   }
 
   StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag){
+
+    //Retrieval of Calibration Condition Data objects
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
     /** author to know which jet algorithm: */
     std::string author = JetTagUtils::getJetAuthor(jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
     //....
-    std::string alias = m_calibrationTool->channelAlias(author);//why this gives always the same?
-    //TString xmlFileName = "btag"+m_taggerNameBase+"Config_"+alias+".xml";//from MV1, so should work
-    //ATH_MSG_DEBUG("#BTAG# xmlFileName= "<<xmlFileName);
+    std::string alias = readCdo->getChannelAlias(author);
 
-    TMVA::Reader* tmvaReader = nullptr;
-    std::map<std::string, TMVA::Reader*>::iterator pos;
-    TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
     MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
     ATH_MSG_DEBUG("#BTAG# Jet author for MultiSVTag: " << author << ", alias: " << alias );
     /* check if calibration (neural net structure or weights) has to be updated: */
-    std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
+    TObject* calib=readCdo->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
 
-    bool calibHasChanged = calib.second;
-    std::ostringstream iss;
-    std::map<std::string, TMVA::MethodBase*>::iterator itmap;
-    if(calibHasChanged) {
+    if(!calib) {
+      ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for "<< m_taggerNameBase );
+      return StatusCode::SUCCESS;
+    }
 
-      ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
-      if(!calib.first) {
-        ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for "<< m_taggerNameBase );
-        return StatusCode::SUCCESS;
-      }
-      const TString rootClassName=calib.first->ClassName();
-      if      (rootClassName=="TDirectoryFile") m_useEgammaMethodMultiSV=true;
-      else if (rootClassName=="TList")          m_useEgammaMethodMultiSV=false;//tmva method
-      else {
-	ATH_MSG_WARNING("#BTAG# Unsupported ROOT class type: "<<rootClassName<<" is retrieved. Disabling algorithm..");
-	m_disableAlgo=true;
-	return StatusCode::SUCCESS;
-      }
+    std::vector<float*>  inputPointers; inputPointers.clear();
+    std::vector<std::string> inputVars; inputVars.clear();
+    unsigned nConfgVar=0,calibNvars=0; bool badVariableFound=false;
 
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
-      std::vector<float*>  inputPointers; inputPointers.clear();
-      std::vector<std::string> inputVars; inputVars.clear();
-      unsigned nConfgVar=0,calibNvars=0; bool badVariableFound=false;
+    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
 
-      if (!m_useEgammaMethodMultiSV) {
-	ATH_MSG_INFO("#BTAG# Booking TMVA::Reader for "<<m_taggerNameBase);
-	std::ostringstream iss; //iss.clear();
-	//now the new part istringstream
-	TList* list = (TList*)calib.first;
-	for(int i=0; i<list->GetSize(); ++i) {
-	  TObjString* ss = (TObjString*)list->At(i);
-	  std::string sss = ss->String().Data();
-	  //KM: if it doesn't find "<" in the string, it starts from non-space character
-	  int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
-	  std::string tmp = sss.erase(0,posi);
-	  //std::cout<<tmp<<std::endl;
-	  iss << tmp.data();
-	  if (tmp.find("<Variable")!=std::string::npos ) {
-	    if ( tmp.find("Variables NVar")!=std::string::npos ) {
-	      std::string newString=tmp.substr(tmp.find("\"")+1,tmp.find("\" ")-(tmp.find("\"")+1));
-	      calibNvars=stoi(newString);
-	    }
-	    else if ( tmp.find("Variable VarIndex")!=std::string::npos ) {
-	      std::string varIndex  =tmp.substr(tmp.find("=\"")+2, tmp.find("\" ")-(tmp.find("=\"")+2));
-	      std::string tmpVar  = tmp.erase(0,tmp.find("Expression=\"")+12);
-	      std::string varExpress=tmp.substr(0, tmp.find("\""));
-	      inputVars.push_back(varExpress);
-	    }
-	  }
-	  // else if (tmp.find("NClass")!=std::string::npos ) {
-	  //   std::string newString=tmp.substr(tmp.find("\"")+1,tmp.find("\" ")-(tmp.find("\"")+1));
-	  //   nClasses =stoi(newString);
-	  // }
-	}
+    TTree *tree = readCdo->retrieveTObject<TTree>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
+    if (tree) {
+      bdt = new MVAUtils:: BDT(tree); 
+    }
+    else {
+      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
+      m_disableAlgo=true;
+      return StatusCode::SUCCESS;
+    }
 
-	// now configure the TMVAReaders:
-	/// check if the reader for this tagger needs update
-	tmvaReader = new TMVA::Reader();
-
-	SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
-	ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
-		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
-
-	if ( calibNvars!=nConfgVar or badVariableFound ) {
-	  ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
-	  m_disableAlgo=true;
-	  return StatusCode::SUCCESS;
-	}
-
-	//tmvaReader->BookMVA("BDT", xmlFileName);
-	TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, iss.str().data() );
-	kl = dynamic_cast<TMVA::MethodBase*>(method);
-
-	// add it or overwrite it in the map of readers:
-	pos = m_tmvaReaders.find(alias);
-	if(pos!=m_tmvaReaders.end()) {
-	  delete pos->second;
-	  m_tmvaReaders.erase(pos);
-	}
-	m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
-
-	it_mb = m_tmvaMethod.find(alias);
-	if(it_mb!=m_tmvaMethod.end()) {
-	  delete it_mb->second;
-	  m_tmvaMethod.erase(it_mb);
-	}
-	m_tmvaMethod.insert( std::make_pair( alias, kl ) );
-
-	iss.clear();
-      }
-      else {//if m_useEgammaMethodMultiSV
-	ATH_MSG_INFO("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
-
-	// TDirectoryFile* f= (TDirectoryFile*)calib.first;
-	// TTree *tree = (TTree*) f->Get(treeName.data());
-	std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
-	TTree *tree = (TTree*) calibTree.first;
-
-	if (tree) {
-	  bdt = new MVAUtils:: BDT(tree);
-	}
-	else {
-	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
-	  m_disableAlgo=true;
-	  return StatusCode::SUCCESS;
-	}
-
-	// TObjArray* toa= (TObjArray*) f->Get(varStrName.data());
-	std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
-	TObjArray* toa= (TObjArray*) calibVariables.first;
-	std::string commaSepVars="";
-	if (toa) {
-	  TObjString *tos= 0;
-	  if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
+    TObjArray* toa= readCdo->retrieveTObject<TObjArray>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
+    std::string commaSepVars="";
+    if (toa) {
+      TObjString *tos= nullptr;
+      if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
 	  commaSepVars=tos->GetString().Data();
-	}
+    }
 
-	while (commaSepVars.find(",")!=std::string::npos) {
-	  inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(","))); calibNvars++;
-	  commaSepVars.erase(0,commaSepVars.find(",")+1);
-	}
-	inputVars.push_back(commaSepVars.substr(0,-1)); calibNvars++;
+    while (commaSepVars.find(",")!=std::string::npos) {
+      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(","))); calibNvars++;
+      commaSepVars.erase(0,commaSepVars.find(",")+1);
+    }
+    inputVars.push_back(commaSepVars.substr(0,-1)); calibNvars++;
 
-	SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
-	ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
+    SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
+    ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
-	if ( calibNvars!=nConfgVar or badVariableFound ) {
+    if ( calibNvars!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
-	  m_disableAlgo=true;
-    delete bdt;
-	  return StatusCode::SUCCESS;
-	}
+      m_disableAlgo=true;
+      delete bdt;
+      return StatusCode::SUCCESS;
+    }
 
-	bdt->SetPointers(inputPointers);
+    bdt->SetPointers(inputPointers);
 
-	it_egammaBDT = m_egammaBDTs.find(alias);
-	if(it_egammaBDT!=m_egammaBDTs.end()) {
-	  delete it_egammaBDT->second;
-	  m_egammaBDTs.erase(it_egammaBDT);
-	}
-	m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
+    it_egammaBDT = m_egammaBDTs.find(alias);
+    if(it_egammaBDT!=m_egammaBDTs.end()) {
+      delete it_egammaBDT->second;
+      m_egammaBDTs.erase(it_egammaBDT);
+    }
+    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
-      }
-    }//calib has changed
-
-    //if(!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name())) {
-    //  if(iss.str().size()>0){
-      //  m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
-
-    //....
     //the jet
     double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
     m_jetpt = jetpt;
     ATH_MSG_DEBUG("#BTAG# Jet properties : eta = " << jeteta
                   << " phi = " << jetphi << " pT  = " <<jetpt/GeV);
-    //ATH_MSG_INFO("Factory PVX x = " << m_priVtx->x() << " y = " << m_priVtx->y() << " z = " << m_priVtx->z());
 
     TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag.pt(), jetToTag.eta(), jetToTag.phi(), jetToTag.m());
-   // CLHEP::HepLorentzVector jp4(jetToTag.jetP4().px(), jetToTag.jetP4().px(), jetToTag.jetP4().px(), jetToTag.e());
 
     int msv_n = 0;
     int all_trks = 0;
@@ -493,24 +360,6 @@ namespace Analysis
     //compute BDT weight
     double msvW = -9.;
     if( nvtx2trk>1 ){
-      if(!m_useEgammaMethodMultiSV){
-	std::map<std::string, TMVA::Reader*>::iterator pos2 = m_tmvaReaders.find(alias);
-	if(pos2==m_tmvaReaders.end()) {//    if(pos2==m_tmvaReaders[binnb-1].end()) {
-	  int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-	  if(0==alreadyWarned) {
-	    ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << alias);
-	    m_undefinedReaders.push_back(alias);
-	  }
-	}
-	else {
-	  std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(alias);
-	  if((itmap2->second)!=0){
-	    msvW = pos2->second->EvaluateMVA( itmap2->second ); //"BDT method"
-	    ATH_MSG_DEBUG("#BTAG# BB weight: "<<m_taggerNameBase<<" "<< msvW);
-	  }else ATH_MSG_WARNING("#BTAG#  kl==0 for alias, author: "<<alias<<" "<<author);
-	}
-      }
-      else {
 	it_egammaBDT = m_egammaBDTs.find(alias);
 	if(it_egammaBDT==m_egammaBDTs.end()) {
 	  int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
@@ -525,7 +374,6 @@ namespace Analysis
 	    ATH_MSG_DEBUG("#BTAG# BB weight: "<<m_taggerNameBase<<" "<< msvW);
 	  }else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
 	}
-      }
     }
 
     if(m_runModus=="analysis") {
@@ -538,43 +386,33 @@ namespace Analysis
     /// implementation for Analysis::ITagTool::finalizeHistos
   }
 
-  void MultiSVTag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
+  void MultiSVTag::SetVariableRefs(const std::vector<std::string> inputVars, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
 
-    if (!m_useEgammaMethodMultiSV) {
-      if(!tmvaReader) {
-	ATH_MSG_WARNING("#BTAG# tmva method is chosen but tmvaReader==0!!");
-	return;
-      }
-    }
-
-    //std::cout<<"MultiSV input vars: ";
     for (unsigned ivar=0; ivar<inputVars.size(); ivar++) {
-      //std::cout<<inputVars.at(ivar)<<", ";
-      if      (inputVars.at(ivar)=="pt"               ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_jetpt       ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jetpt       ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="Nvtx"             ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_nvtx        ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_nvtx        ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="MaxEfrc"          ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_maxefrc     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_maxefrc     ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="sumMass"          ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_summass     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_summass     ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="totalntrk"        ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_totalntrk   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_totalntrk   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="diffntrkSV0"      ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_diffntrkSV0 ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_diffntrkSV0 ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="diffntrkSV1"      ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_diffntrkSV1 ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_diffntrkSV1 ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="normDist"         ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_normDist    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_normDist    ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="maxVtxMass"       ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmax_mass   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmax_mass   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="maxSecVtxMass"    ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmx2_mass   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmx2_mass   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="EfrcmaxVtxMass"   ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmax_efrc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmax_efrc   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="EfrcmaxSecVtxMass") { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmx2_efrc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmx2_efrc   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="dlsmaxVtxMass"    ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmax_dist   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmax_dist   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="dlsmaxSecVtxMass" ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmx2_dist   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmx2_dist   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="dRmaxVtxMassj"    ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmax_DRjet  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmax_DRjet  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="dRmaxSecVtxMassj" ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mmx2_DRjet  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mmx2_DRjet  ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="d2Mass12"         ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mx12_2d12   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mx12_2d12   ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="DRMass12"         ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mx12_DR     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mx12_DR     ); nConfgVar++; }
-      else if (inputVars.at(ivar)=="AngleMass12"      ) { m_useEgammaMethodMultiSV ? inputPointers.push_back(&m_mx12_Angle  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mx12_Angle  ); nConfgVar++; }
+      if      (inputVars.at(ivar)=="pt"               ) { inputPointers.push_back(&m_jetpt       ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="Nvtx"             ) { inputPointers.push_back(&m_nvtx        ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="MaxEfrc"          ) { inputPointers.push_back(&m_maxefrc     ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="sumMass"          ) { inputPointers.push_back(&m_summass     ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="totalntrk"        ) { inputPointers.push_back(&m_totalntrk   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="diffntrkSV0"      ) { inputPointers.push_back(&m_diffntrkSV0 ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="diffntrkSV1"      ) { inputPointers.push_back(&m_diffntrkSV1 ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="normDist"         ) { inputPointers.push_back(&m_normDist    ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="maxVtxMass"       ) { inputPointers.push_back(&m_mmax_mass   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="maxSecVtxMass"    ) { inputPointers.push_back(&m_mmx2_mass   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="EfrcmaxVtxMass"   ) { inputPointers.push_back(&m_mmax_efrc   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="EfrcmaxSecVtxMass") { inputPointers.push_back(&m_mmx2_efrc   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="dlsmaxVtxMass"    ) { inputPointers.push_back(&m_mmax_dist   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="dlsmaxSecVtxMass" ) { inputPointers.push_back(&m_mmx2_dist   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="dRmaxVtxMassj"    ) { inputPointers.push_back(&m_mmax_DRjet  ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="dRmaxSecVtxMassj" ) { inputPointers.push_back(&m_mmx2_DRjet  ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="d2Mass12"         ) { inputPointers.push_back(&m_mx12_2d12   ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="DRMass12"         ) { inputPointers.push_back(&m_mx12_DR     ) ; nConfgVar++; }
+      else if (inputVars.at(ivar)=="AngleMass12"      ) { inputPointers.push_back(&m_mx12_Angle  ) ; nConfgVar++; }
       else {
 	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MultiSV... the algorithm will be 'disabled'.");//<<alias<<" "<<author);
 	badVariableFound=true;
       }
     }
-    //std::cout<<std::endl;
 
   }
 

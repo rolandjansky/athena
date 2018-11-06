@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "JetTagTools/LikelihoodComponents.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 #include <string>
 #include <vector>
 
@@ -20,8 +21,6 @@ class TH1;
 
 namespace Analysis {
  
-class CalibrationBroker;
-
 static const InterfaceID IID_NewLikelihoodTool("Analysis::NewLikelihoodTool", 1, 0);
   
 class NewLikelihoodTool : public AthAlgTool {
@@ -60,8 +59,9 @@ class NewLikelihoodTool : public AthAlgTool {
 
   std::string m_taggerName; // tagger this tool refers to
   std::vector<std::string> m_hypotheses; // likelihood hypotheses: usually B or U
-  /** Pointer to the calibration tool: */
-  ToolHandle<CalibrationBroker> m_calibrationTool;
+
+  /** Key of calibration data: */
+  SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
 
   /** Treatment of histograms: */
   bool m_normalizedProb;

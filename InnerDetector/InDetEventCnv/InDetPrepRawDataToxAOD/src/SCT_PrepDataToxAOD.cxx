@@ -34,7 +34,6 @@
 /////////////////////////////////////////////////////////////////////
 SCT_PrepDataToxAOD::SCT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_incidentSvc("IncidentSvc", name),
   m_SCTHelper(0),
   m_firstEventWarnings(true)
 { 
@@ -66,10 +65,6 @@ StatusCode SCT_PrepDataToxAOD::initialize()
 
   CHECK ( detStore()->retrieve(m_SCTHelper, "SCT_ID") );
 
-  CHECK ( m_incidentSvc.retrieve() );
-  // register to the incident service:
-  m_incidentSvc->addListener( this, IncidentType::EndEvent);
-
   //make sure we don't write what we don't have
   if (not  m_useTruthInfo) {
     m_writeSDOs = false;
@@ -84,6 +79,8 @@ StatusCode SCT_PrepDataToxAOD::initialize()
   ATH_CHECK( m_xAodContainer.initialize() );
   ATH_CHECK( m_xAodOffset.initialize() );
 
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -95,6 +92,7 @@ StatusCode SCT_PrepDataToxAOD::initialize()
 StatusCode SCT_PrepDataToxAOD::execute() 
 {     
   // the cluster ambiguity map
+  std::map< Identifier, const SCT_RDORawData* > idToRAWDataMap;
   if ( m_writeRDOinformation ) {
       SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer);
       if( rdoContainer.isValid() )
@@ -112,7 +110,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
 		  
 		  Identifier rdoId = rdo->identify();
 		  
-		  m_IDtoRAWDataMap.insert( std::pair< Identifier, const SCT_RDORawData*>( rdoId, rdo ) );      
+		  idToRAWDataMap.insert( std::pair< Identifier, const SCT_RDORawData*>( rdoId, rdo ) );
 	      } // collection
 	  } // Have container;
       }
@@ -121,12 +119,12 @@ StatusCode SCT_PrepDataToxAOD::execute()
 	  ATH_MSG_WARNING( "Failed to retrieve SCT RDO container" );
       }
   }
-  ATH_MSG_DEBUG("Size of RDO map is "<<m_IDtoRAWDataMap.size());
+  ATH_MSG_DEBUG("Size of RDO map is "<<idToRAWDataMap.size());
 
   // Mandatory. This is needed and required if this algorithm is scheduled.
   SG::ReadHandle<InDet::SCT_ClusterContainer> sctClusterContainer(m_clustercontainer);
   if( not sctClusterContainer.isValid() ) {
-    ATH_MSG_ERROR("Cannot retrieve SCT PrepDataContainer " << m_clustercontainer.key());
+    ATH_MSG_FATAL("Cannot retrieve SCT PrepDataContainer " << m_clustercontainer.key());
     return StatusCode::FAILURE;
   }
 
@@ -190,7 +188,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       if(localCov.size() == 1){
         xprd->setLocalPositionError( localCov(0,0), 0., 0. ); 
       } else if(localCov.size() == 4){
-        xprd->setLocalPositionError( localCov(0,0), localCov(1,1), localCov(0,1) );     
+        xprd->setLocalPositionError( localCov(0,0), localCov(1,1), localCov(0,1) );
       } else {
         xprd->setLocalPositionError(0.,0.,0.);
       }
@@ -200,7 +198,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       for( const auto &hitIdentifier : prd->rdoList() ){
         rdoIdentifierList.push_back( hitIdentifier.get_compact() );
       }
-      xprd->setRdoIdentifierList(rdoIdentifierList);      
+      xprd->setRdoIdentifierList(rdoIdentifierList);
 
       //Add SCT specific information
       const InDet::SiWidth cw = prd->width();
@@ -208,7 +206,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       AUXDATA(xprd, int, hitsInThirdTimeBin) = (int)(prd->hitsInThirdTimeBin());
 
       AUXDATA(xprd, int, bec)          =   m_SCTHelper->barrel_ec(clusterId)   ;
-      AUXDATA(xprd, int, layer)        =   m_SCTHelper->layer_disk(clusterId)  ;   
+      AUXDATA(xprd, int, layer)        =   m_SCTHelper->layer_disk(clusterId)  ;
       AUXDATA(xprd, int, phi_module)   =   m_SCTHelper->phi_module(clusterId)  ;
       AUXDATA(xprd, int, eta_module)   =   m_SCTHelper->eta_module(clusterId)  ;
       AUXDATA(xprd, int, side)         =   m_SCTHelper->side(clusterId)        ;
@@ -226,7 +224,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
    
       //Add details about the individual hits 
       if(m_writeRDOinformation)
-        addRDOInformation(xprd, prd);
+        addRDOInformation(xprd, prd, idToRAWDataMap);
    
       
       // Use the MultiTruth Collection to get a list of all true particle contributing to the cluster
@@ -290,7 +288,7 @@ void SCT_PrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xp
         if(deposit.first){
           sdoDepBC.push_back( deposit.first->barcode());
         } else {
-          sdoDepBC.push_back( -1 );   
+          sdoDepBC.push_back( -1 );
         }
         sdoDepEnergy.push_back( deposit.second  );
         ATH_MSG_DEBUG(" SDO Energy Deposit " << deposit.second  ) ;
@@ -418,8 +416,8 @@ std::vector<SiHit> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster( const I
 
       if( abs( int(diode.phiIndex()) -  m_SCTHelper->strip( hitIdentifier ) ) <=1)
       {
-        multiMatchingHits.push_back(&siHit);   
-        break;   
+        multiMatchingHits.push_back(&siHit);
+        break;
       }     
     }
   }
@@ -438,7 +436,7 @@ std::vector<SiHit> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster( const I
     std::vector<const SiHit* > ajoiningHits;
     ajoiningHits.push_back( *siHitIter );
   
-    siHitIter2 = siHitIter+1;    
+    siHitIter2 = siHitIter+1;
     while ( siHitIter2 != multiMatchingHits.end() ) {
     // Need to come from the same truth particle 
       if( (*siHitIter)->particleLink().barcode() != (*siHitIter2)->particleLink().barcode() ){
@@ -484,7 +482,7 @@ std::vector<SiHit> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster( const I
       float time(0);
       for( auto& siHit :  ajoiningHits){
         energyDep += siHit->energyLoss();
-        time += siHit->meanTime();    
+        time += siHit->meanTime();
       }
       time /= (float)ajoiningHits.size();
        
@@ -508,7 +506,8 @@ std::vector<SiHit> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster( const I
 }
 
 void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xprd, 
-                                           const InDet::SCT_Cluster* prd) const{
+                                           const InDet::SCT_Cluster* prd,
+                                           const std::map<Identifier, const SCT_RDORawData*>& idToRAWDataMap) const{
 
 
   std::vector<int> strip;
@@ -516,8 +515,8 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
   std::vector<int> groupsize;
   
   for( const auto &hitIdentifier : prd->rdoList() ){
-    auto result = m_IDtoRAWDataMap.find(hitIdentifier);
-    if( result != m_IDtoRAWDataMap.end() ){
+    auto result = idToRAWDataMap.find(hitIdentifier);
+    if( result != idToRAWDataMap.end() ){
       const SCT_RDORawData *sctRdo = result->second;
       const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(sctRdo);
       int tbin(-1);
@@ -532,7 +531,7 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
     } else {
       timebin.push_back( -1 );
       strip.push_back( -1 );
-      groupsize.push_back( -1 );     
+      groupsize.push_back( -1 );
     }
   }
   
@@ -541,18 +540,6 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
   AUXDATA(xprd,  std::vector<int> , rdo_groupsize) = groupsize;
   
 }
-
-void SCT_PrepDataToxAOD::handle(const Incident& inc) {
-  
-  /// clear map of RDOs<->identifiers
-  if ( m_writeRDOinformation && inc.type() == IncidentType::EndEvent ){
-    ATH_MSG_VERBOSE("'EndEvent' incident caught. Refreshing Cache.");
-    m_IDtoRAWDataMap.clear();
-  }     
-}
-
-
-
 
 /////////////////////////////////////////////////////////////////////
 //

@@ -5,6 +5,7 @@
 #include "InDetJiveXML/SiClusterRetriever.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "JiveXML/DataType.h"
 
 #include "CLHEP/Geometry/Point3D.h"
@@ -13,7 +14,6 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -50,7 +50,14 @@ namespace JiveXML {
 
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
-    
+
+    // Get SCT_DetectorElementCollection
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
 
     //Retrieve the cluster container
     const InDet::SiClusterContainer* SiClusterCont;
@@ -100,6 +107,8 @@ namespace JiveXML {
       //Only run on silicon (SCT) clusters
       if ( ! m_geo->SCTIDHelper()->is_sct(SiClusterColl->identify())) continue ;
 
+      const IdentifierHash waferHash = SiClusterColl->identifyHash();
+
       //Now loop over all clusters in that collection 
       InDet::SiClusterCollection::const_iterator SiClusterItr = SiClusterColl->begin();
       for (; SiClusterItr!=SiClusterColl->end(); SiClusterItr++){ 
@@ -109,7 +118,7 @@ namespace JiveXML {
         
         //and the detector element for that cluster via the id
         Identifier id = m_geo->SCTIDHelper()->wafer_id(cluster->identify());
-        InDetDD::SiDetectorElement* element = m_geo->SCTGeoManager()->getDetectorElement(id);
+        const InDetDD::SiDetectorElement* element = elements->getDetectorElement(waferHash);
         if (!element){
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not obtain Detector Element with ID " << id << endmsg;
           continue ;
@@ -185,6 +194,11 @@ namespace JiveXML {
     return FormatTool->AddToEvent(dataTypeName(), "", &dataMap);
   }
 
+  StatusCode SiClusterRetriever::initialize() {
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
+    return m_geo.retrieve();
+  }
 }
  
      

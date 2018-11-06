@@ -12,7 +12,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IUpdator.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
@@ -32,6 +31,8 @@
 #include "xAODTruth/TruthVertex.h"
 
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 #include "TMath.h"
 #define NINT(a) ((a) >= 0.0 ? (int)((a)+0.5) : (int)((a)-0.5))
@@ -106,6 +107,9 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
 
   MsgStream athlog(msgSvc(), name());
   ATH_MSG_INFO("FTK_RDO_ReaderAlgo::initialize()" );
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   //FIX THESE
   ATH_CHECK( service("StoreGateSvc", m_StoreGate ));
@@ -1792,11 +1796,13 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
     ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
     return;
   }
-  if( detStore()->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    ATH_MSG_WARNING( "Unable to retrieve SCT manager from DetectorStore" << endl);
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
+  if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
     return;
   }
-
 
   auto track_it   = trackCollection->begin();
   auto last_track = trackCollection->end();
@@ -1885,7 +1891,9 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
 	      Layer->push_back(layerPixel);
 	    }
 	    if (m_idHelper->is_sct(hitId)) {	      
-	      const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
+              const Identifier wafer_id = m_sctId->wafer_id(hitId);
+              const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+	      const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
 	      clustID->push_back(sielement->identifyHash());
 	      
 	      y_residual->push_back(999999);
@@ -1936,15 +1944,13 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
     ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
     return;
   }
-  if( detStore()->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    ATH_MSG_WARNING( "Unable to retrieve SCT manager from DetectorStore" << endl);
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
+  if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
     return;
   }
-
-
-
-
-
 
   auto track_it   = trackCollection->begin();
   auto last_track = trackCollection->end();
@@ -2037,7 +2043,9 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
 	      Layer->push_back(layerPixel);
 	    }
 	    if (m_idHelper->is_sct(hitId)) {
-	      const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
+              const Identifier wafer_id = m_sctId->wafer_id(hitId);
+              const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
+	      const InDetDD::SiDetectorElement* sielement = sctElements->getDetectorElement(wafer_hash);
 	      clustID->push_back(sielement->identifyHash());
 
 	      x_residual->push_back(res_x);

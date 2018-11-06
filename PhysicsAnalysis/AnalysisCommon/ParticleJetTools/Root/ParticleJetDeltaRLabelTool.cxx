@@ -41,6 +41,8 @@ namespace {
 
         for (size_t iC = 0; iC < p->nChildren(); iC++) {
             const TruthParticle* cc = p->child(iC);
+	    if(!cc) continue;
+
             if (cc->barcode() == c->barcode()) {
                 return true;
             }
@@ -75,6 +77,7 @@ namespace {
             ; ip++ ) {
 
             const TruthParticle* p = parents[ip];
+	    if(!p) continue;
 
             // the current child index
             size_t ic = 0;
@@ -83,6 +86,7 @@ namespace {
             while (ic != children.size()) {
 
                 const TruthParticle* c = children[ic];
+		if (!c) continue;
 
                 // if citer is (recursively) a child of piter
                 // remove it.
@@ -106,6 +110,8 @@ namespace {
 
 
 int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
+
+  ATH_MSG_VERBOSE("In " << name() << "::modify()");
 
     // Retrieve the particle and jet containers
     const TruthParticleContainer* taus = NULL;
@@ -185,6 +191,8 @@ ParticleJetDeltaRLabelTool::match(
         const TruthParticleContainer& parts,
         const JetContainer& jets) const {
 
+  ATH_MSG_VERBOSE("In " << name() << "::match()");
+  
     vector<vector<const TruthParticle*> > jetlabelparts(jets.size(), vector<const TruthParticle*>());
 
     // determine the match mode

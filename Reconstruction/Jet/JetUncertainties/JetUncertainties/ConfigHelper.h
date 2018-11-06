@@ -36,8 +36,8 @@ class ComponentHelper
         TString uncNameList;
         TString validName;
         TString subCompList;
-        int     splitNum;
-        int     groupNum;
+        int     splitNum{};
+        int     groupNum{};
         TString combMassStr;
         TString caloMassTerm;
         TString TAMassTerm;
@@ -45,14 +45,14 @@ class ComponentHelper
         TString TAMassDef;
 
         // Derived values to parse from the raw values
-        CompParametrization::TypeEnum parametrization;
-        CompMassDef::TypeEnum massDef;
-        CompScaleVar::TypeEnum scaleVar;
-        bool isSpecial;
-        PileupComp::TypeEnum pileupType;
-        FlavourComp::TypeEnum flavourType;
-        CombMassComp::TypeEnum combMassType;
-        bool interpolate;
+        CompParametrization::TypeEnum parametrization{};
+        CompMassDef::TypeEnum massDef{};
+        CompScaleVar::TypeEnum scaleVar{};
+        bool isSpecial{};
+        PileupComp::TypeEnum pileupType{};
+        FlavourComp::TypeEnum flavourType{};
+        CombMassComp::TypeEnum combMassType{};
+        bool interpolate{};
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
 };
@@ -70,13 +70,13 @@ class GroupHelper
         TString cat;
         TString corr;
         TString isRed;
-        int     groupNum;
-        int     subgroupNum;
+        int     groupNum{};
+        int     subgroupNum{};
 
         // Derived values to parse from the raw values
-        CompCategory::TypeEnum category;
-        CompCorrelation::TypeEnum correlation;
-        bool reducible;
+        CompCategory::TypeEnum category{};
+        CompCorrelation::TypeEnum correlation{};
+        bool reducible{};
 };
 
 class ConfigHelper : asg::AsgMessaging

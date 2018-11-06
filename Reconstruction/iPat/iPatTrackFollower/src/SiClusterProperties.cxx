@@ -44,19 +44,7 @@ SiClusterProperties::SiClusterProperties(const std::string&	type,
 	m_sctIdHelper		(nullptr),
 	m_sctBroadROT_Maker	(""),
 	m_sctPreciseROT_Maker	(""),
-	m_broadEtaError		(0.),
-	m_broadPhiError		(0.),
-	m_cluster		(nullptr),
-	m_element		(nullptr),
-	m_parameters		(nullptr),
-	m_preciseEtaError	(0.),
-	m_precisePhiError	(0.),
-	m_rotBroad		(nullptr),
-	m_rotPrecise		(nullptr),
-	m_sqrt12		(sqrt(12.)),
-	m_status		(pending),
-	m_trackCotTheta		(0.),
-	m_trackRadius		(0.)	
+	m_sqrt12		(sqrt(12.))
 {
     declareInterface<ISiClusterProperties>(this);
     declareProperty("PixelBroadROT_Maker",	m_pixelBroadROT_Maker);
@@ -159,93 +147,95 @@ SiClusterProperties::finalize()
 std::pair<double,double>
 SiClusterProperties::broadErrors (const InDet::SiCluster*	cluster,
 				  const SiliconDetector*	detector,
-				  const Amg::Vector3D&   	trackIntersect)
+				  const Amg::Vector3D&   	trackIntersect) const
 {
-    m_cluster		= cluster;
-    m_globalPosition	= cluster->globalPosition();
-    setProperties (detector,trackIntersect);
-    return std::make_pair(m_broadPhiError,m_broadEtaError);
+    State state;
+    state.m_cluster		= cluster;
+    state.m_globalPosition	= cluster->globalPosition();
+    setProperties (state,detector,trackIntersect);
+    return std::make_pair(state.m_broadPhiError,state.m_broadEtaError);
 }
 
 HitOnTrack*
 SiClusterProperties::hitOnTrack (const InDet::SiCluster*	cluster,
 				 const SiliconDetector*		detector,
-				 const Trk::TrackParameters*	parameters)
+				 const Trk::TrackParameters*	parameters) const
 {
-    m_cluster 		= cluster;
-    m_globalPosition	= cluster->globalPosition();
-    m_parameters	= parameters;
-    setProperties (detector,m_parameters->position(),m_parameters->momentum().unit());
+    State state;
+    state.m_cluster 		= cluster;
+    state.m_globalPosition	= cluster->globalPosition();
+    state.m_parameters	= parameters;
+    setProperties (state,detector,state.m_parameters->position(),state.m_parameters->momentum().unit());
     
-    if (m_rotBroad)
+    if (state.m_rotBroad)
     {	
 	return new HitOnTrack(detector->ring().isBarrel(),
 			      cluster->identify(),
 			      cluster,
-			      m_rotBroad,
-			      m_rotPrecise,
-			      m_status);
+			      state.m_rotBroad,
+			      state.m_rotPrecise,
+			      state.m_status);
     }
 
     // deprecated: this shouldn't be reached any more
     ATH_MSG_WARNING(" reached deprecated code ");
     
-    // return new HitOnTrack(m_globalPosition,
-    // 			  m_broadPhiError,
-    // 			  m_precisePhiError,
-    // 			  m_broadEtaError,
-    // 			  m_preciseEtaError,
-    // 			  cluster->detectorElement()->sinStereo(m_globalPosition),
+    // return new HitOnTrack(state.m_globalPosition,
+    // 			  state.m_broadPhiError,
+    // 			  state.m_precisePhiError,
+    // 			  state.m_broadEtaError,
+    // 			  state.m_preciseEtaError,
+    // 			  cluster->detectorElement()->sinStereo(state.m_globalPosition),
     // 			  0.,
     // 			  detector->ring().isBarrel(),
     // 			  cluster->detectorElement(),
     // 			  cluster->identify(),
     // 			  cluster,
     // 			  0,
-    // 			  m_status);
+    // 			  state.m_status);
     return 0;
 }
 
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
-SiClusterProperties::barrelPixelErrors (void)
+SiClusterProperties::barrelPixelErrors (State& state) const
 {
     // use broad errors for pixel cluster with unusual size or shape
-    m_rotBroad			= dynamic_cast<const InDet::SiClusterOnTrack*>
-				  (m_pixelBroadROT_Maker->correct(*m_cluster, *m_parameters));
-    int	size			= m_cluster->rdoList().size();
-    double phiClusterSize	= m_cluster->width().colRow().x();
-    double etaClusterSize	= m_cluster->width().colRow().y();
+    state.m_rotBroad			= dynamic_cast<const InDet::SiClusterOnTrack*>
+				  (m_pixelBroadROT_Maker->correct(*state.m_cluster, *state.m_parameters));
+    int	size			= state.m_cluster->rdoList().size();
+    double phiClusterSize	= state.m_cluster->width().colRow().x();
+    double etaClusterSize	= state.m_cluster->width().colRow().y();
 
     // cluster too wide in eta or phi or too few pixels at high eta
-    if (etaClusterSize		> 2 + static_cast<int>(m_trackCotTheta)
+    if (etaClusterSize		> 2 + static_cast<int>(state.m_trackCotTheta)
 	|| phiClusterSize	> 3
-	|| size			< static_cast<int>(m_trackCotTheta) - 2)
+	|| size			< static_cast<int>(state.m_trackCotTheta) - 2)
     {
-	m_status	= broad_pixel;
-	m_rotPrecise	= 0;
+	state.m_status	= broad_pixel;
+	state.m_rotPrecise	= 0;
     }
     else
     {
-	m_status	= pixel_cluster;
-	m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
-			  (m_pixelPreciseROT_Maker->correct(*m_cluster, *m_parameters));
+	state.m_status	= pixel_cluster;
+	state.m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
+			  (m_pixelPreciseROT_Maker->correct(*state.m_cluster, *state.m_parameters));
     }
 }
 
 void
-SiClusterProperties::barrelPixelProperties (void)
+SiClusterProperties::barrelPixelProperties (State& state) const
 {
     // note extra broadening of broad eta error to ~account for pixel inefficiency
     // (which often causes cluster splitting in eta)
-    m_status		= broad_pixel;
-    m_broadEtaError	= (m_cluster->width().z()+0.050*CLHEP::mm)/m_sqrt12;
-    m_broadPhiError	= m_cluster->width().phiR()/m_sqrt12;
+    state.m_status		= broad_pixel;
+    state.m_broadEtaError	= (state.m_cluster->width().z()+0.050*CLHEP::mm)/m_sqrt12;
+    state.m_broadPhiError	= state.m_cluster->width().phiR()/m_sqrt12;
 }
 
 void
-SiClusterProperties::barrelSCT_Errors (void)
+SiClusterProperties::barrelSCT_Errors (State& state) const
 {
     // something from old iPatRec code I'd like to see in the ROT:
     //      since clusters of width>2 on stiff tracks (pT>1GeV) are
@@ -255,155 +245,155 @@ SiClusterProperties::barrelSCT_Errors (void)
     //      treated like singles.
 
     // anyway use broad errors for clusters with more than 2 strips
-    m_rotBroad		= dynamic_cast<const InDet::SiClusterOnTrack*>
-			  (m_sctBroadROT_Maker->correct(*m_cluster, *m_parameters));
-    if (m_cluster->rdoList().size() > 2)
+    state.m_rotBroad		= dynamic_cast<const InDet::SiClusterOnTrack*>
+			  (m_sctBroadROT_Maker->correct(*state.m_cluster, *state.m_parameters));
+    if (state.m_cluster->rdoList().size() > 2)
     {
-	m_status	= broad_strip;
-	m_rotPrecise	= 0;
+	state.m_status	= broad_strip;
+	state.m_rotPrecise	= 0;
     }
     else
     {
-	m_status       	= strip_cluster;
-	m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
-			  (m_sctPreciseROT_Maker->correct(*m_cluster, *m_parameters));
+	state.m_status       	= strip_cluster;
+	state.m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
+			  (m_sctPreciseROT_Maker->correct(*state.m_cluster, *state.m_parameters));
     }
 }
 
 void
-SiClusterProperties::barrelSCT_Properties (void)
+SiClusterProperties::barrelSCT_Properties (State& state) const
 {
-    m_status	       	= broad_strip;
-    m_broadPhiError	= m_cluster->width().phiR()/m_sqrt12;
+    state.m_status	       	= broad_strip;
+    state.m_broadPhiError	= state.m_cluster->width().phiR()/m_sqrt12;
 }
 
 void
-SiClusterProperties::endcapPixelErrors (void)
+SiClusterProperties::endcapPixelErrors (State& state) const
 {
     // broad errors for clusters with more than 2 pixels in either direction
-    m_rotBroad			= dynamic_cast<const InDet::SiClusterOnTrack*>
-				  (m_pixelBroadROT_Maker->correct(*m_cluster, *m_parameters));
+    state.m_rotBroad			= dynamic_cast<const InDet::SiClusterOnTrack*>
+				  (m_pixelBroadROT_Maker->correct(*state.m_cluster, *state.m_parameters));
     
-    double phiClusterSize	= m_cluster->width().colRow().x();
-    double etaClusterSize	= m_cluster->width().colRow().y();
+    double phiClusterSize	= state.m_cluster->width().colRow().x();
+    double etaClusterSize	= state.m_cluster->width().colRow().y();
     if (phiClusterSize > 2 || etaClusterSize > 2)
     {
-	m_status       	= broad_pixel;
-	m_rotPrecise	= 0;
+	state.m_status       	= broad_pixel;
+	state.m_rotPrecise	= 0;
     }
     else
     {
-	m_status	= pixel_cluster;
-	m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
-			  (m_pixelPreciseROT_Maker->correct(*m_cluster, *m_parameters));
+	state.m_status	= pixel_cluster;
+	state.m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
+			  (m_pixelPreciseROT_Maker->correct(*state.m_cluster, *state.m_parameters));
     }
 }
 
 void
-SiClusterProperties::endcapPixelProperties (void)
+SiClusterProperties::endcapPixelProperties (State& state) const
 {
-    m_status	       	= broad_pixel;
-    m_broadEtaError	= m_cluster->width().z()/m_sqrt12;
-    m_broadPhiError	= m_cluster->width().phiR()/m_sqrt12;
+    state.m_status	       	= broad_pixel;
+    state.m_broadEtaError	= state.m_cluster->width().z()/m_sqrt12;
+    state.m_broadPhiError	= state.m_cluster->width().phiR()/m_sqrt12;
 }
 
 void
-SiClusterProperties::endcapSCT_Errors (void)
+SiClusterProperties::endcapSCT_Errors (State& state) const
 {
     // use broad errors for clusters with more than 2 strips
-    m_rotBroad		= dynamic_cast<const InDet::SiClusterOnTrack*>
-			  (m_sctBroadROT_Maker->correct(*m_cluster, *m_parameters));
-    if (m_cluster->rdoList().size() > 2)
+    state.m_rotBroad		= dynamic_cast<const InDet::SiClusterOnTrack*>
+			  (m_sctBroadROT_Maker->correct(*state.m_cluster, *state.m_parameters));
+    if (state.m_cluster->rdoList().size() > 2)
     {
-	m_status	= broad_strip;
-	m_rotPrecise	= 0;
+	state.m_status	= broad_strip;
+	state.m_rotPrecise	= 0;
     }
     else
     {
-	m_status       	= strip_cluster;
-	m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
-			  (m_sctPreciseROT_Maker->correct(*m_cluster, *m_parameters));
+	state.m_status       	= strip_cluster;
+	state.m_rotPrecise	= dynamic_cast<const InDet::SiClusterOnTrack*>
+			  (m_sctPreciseROT_Maker->correct(*state.m_cluster, *state.m_parameters));
     }
 }
 
 void
-SiClusterProperties::endcapSCT_Properties (void)
+SiClusterProperties::endcapSCT_Properties (State& state) const
 {
     // 'natural' error for wedge shape + smearing
     // crude approximation to use in initial track finding stages
-    m_status	       	= broad_strip;
-    double	error	= m_cluster->width().phiR()/m_sqrt12 *
-			  m_trackRadius/m_globalPosition.perp();
-    m_broadPhiError	= std::sqrt(error*error + 0.012*0.012);	//CLHEP::mm
+    state.m_status	       	= broad_strip;
+    double	error	= state.m_cluster->width().phiR()/m_sqrt12 *
+			  state.m_trackRadius/state.m_globalPosition.perp();
+    state.m_broadPhiError	= std::sqrt(error*error + 0.012*0.012);	//CLHEP::mm
 } 
 
 void
-SiClusterProperties::setProperties (const SiliconDetector*	detector,
-				    const Amg::Vector3D& 	trackIntersect)
+SiClusterProperties::setProperties (State& state,
+                                    const SiliconDetector*	detector,
+				    const Amg::Vector3D& 	trackIntersect) const
 {
     // only broad errors will be required when track direction is unknown
-    m_precisePhiError	= 0.;
-    m_preciseEtaError	= 0.;
     const InDetDD::SiDetectorElement& element	= detector->element();
-    m_globalPosition	= m_cluster->globalPosition();
+    state.m_globalPosition	= state.m_cluster->globalPosition();
 
     if (element.isBarrel())
     {
 	if (element.isPixel())
 	{
-	    barrelPixelProperties();
+	    barrelPixelProperties(state);
 	}
 	else
 	{
-	    barrelSCT_Properties();
+	    barrelSCT_Properties(state);
 	}
     }
     else
     {
 	if (element.isPixel())
 	{
-	    endcapPixelProperties();
+	    endcapPixelProperties(state);
 	}
 	else
 	{
-	    m_trackRadius = trackIntersect.perp();
-	    endcapSCT_Properties();
+	    state.m_trackRadius = trackIntersect.perp();
+	    endcapSCT_Properties(state);
 	}
     }
 }
 
 void
-SiClusterProperties::setProperties (const SiliconDetector*	detector,
+SiClusterProperties::setProperties (State& state,
+                                    const SiliconDetector*	detector,
 				    const Amg::Vector3D& 	trackIntersect,
-				    const Amg::Vector3D&	trackDirection)
+				    const Amg::Vector3D&	trackDirection) const
 {
     const InDetDD::SiDetectorElement& element	= detector->element();
     if (element.isBarrel())
     {
 	if (element.isPixel())
 	{
-	    m_trackCotTheta	= std::abs(trackDirection.z()/trackDirection.perp());
-	    barrelPixelProperties();
-	    barrelPixelErrors();
+	    state.m_trackCotTheta	= std::abs(trackDirection.z()/trackDirection.perp());
+	    barrelPixelProperties(state);
+	    barrelPixelErrors(state);
 	}
 	else
 	{
-	    barrelSCT_Properties();
-	    barrelSCT_Errors();
+	    barrelSCT_Properties(state);
+	    barrelSCT_Errors(state);
 	}
     }
     else
     {
 	if (element.isPixel())
 	{
-	    endcapPixelProperties();
-	    endcapPixelErrors();
+	    endcapPixelProperties(state);
+	    endcapPixelErrors(state);
 	}
 	else
 	{
-	    m_trackRadius = trackIntersect.perp();
-	    endcapSCT_Properties();
-	    endcapSCT_Errors();
+	    state.m_trackRadius = trackIntersect.perp();
+	    endcapSCT_Properties(state);
+	    endcapSCT_Errors(state);
 	}
     }
 }   

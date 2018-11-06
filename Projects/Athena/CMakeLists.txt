@@ -24,9 +24,9 @@ if( LCG_NIGHTLY )
     set( DQM-COMMON_VERSION "99-00-00" )
     set( TDAQ_VERSION "99-00-00" )
 else()
-    set( TDAQ-COMMON_VERSION "02-07-00" )
-    set( DQM-COMMON_VERSION "01-07-00" )
-    set( TDAQ_VERSION "08-00-00" )
+    set( TDAQ-COMMON_VERSION "02-09-00" )
+    set( DQM-COMMON_VERSION "01-09-00" )
+    set( TDAQ_VERSION "08-01-01" )
 endif()
 
 set( TDAQ-COMMON_ROOT

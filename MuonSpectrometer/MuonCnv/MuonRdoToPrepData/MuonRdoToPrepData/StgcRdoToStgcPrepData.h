@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCRDOTOSTGCPREPDATA_H
@@ -9,8 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
 class StgcRdoToStgcPrepData : public AthAlgorithm {
@@ -25,10 +24,7 @@ public:
 
 private:
 
-  bool m_seededDecoding;
   ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_decoderTool; //!< Tool used to do actual decoding.
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
   SG::WriteHandleKey<Muon::sTgcPrepDataContainer> m_prdContainer;
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTBLEAKHITCOLLECTION_H
@@ -7,16 +7,12 @@
 
 #include "LArG4TBSimEvent/LArTBLeakHit.h"
 #include "HitManagement/AthenaHitsVector.h"
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef AthenaHitsVector<LArTBLeakHit> LArTBLeakHitCollection;
 typedef AthenaHitsVector<LArTBLeakHit>::iterator LArTBLeakHitIterator;
 typedef AthenaHitsVector<LArTBLeakHit>::const_iterator LArTBLeakHitConstIterator;
 
-#ifndef __CINT__
-  CLASS_DEF(LArTBLeakHitCollection, 196013649 , 1 ) 
-#endif
+CLASS_DEF(LArTBLeakHitCollection, 196013649 , 1 ) 
 
 #endif 

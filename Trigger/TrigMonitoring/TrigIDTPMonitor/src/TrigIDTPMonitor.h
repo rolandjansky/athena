@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -36,7 +36,6 @@ class TrigIDTPMonitor: public HLT::FexAlgo{
   ~TrigIDTPMonitor();
 
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun(); 
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode acceptInput(const HLT::TriggerElement* inputTE, bool& pass);
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);

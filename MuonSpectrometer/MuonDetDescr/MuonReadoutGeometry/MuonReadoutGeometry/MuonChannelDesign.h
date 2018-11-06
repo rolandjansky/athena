@@ -146,7 +146,9 @@ namespace MuonGM {
         else chNum = -1;
       }
       else {
-        xMid = pos.x() - pos.y()*tan(sAngle);
+//        xMid = pos.x() - pos.y()*tan(sAngle);
+// For all MM planes the local position is already rotated
+        xMid = pos.x();
         chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
       }
       if (chNum<1) return -1;
@@ -248,7 +250,9 @@ namespace MuonGM {
 
     } else if ( type==MuonChannelDesign::etaStrip ) {
 
-      if (sAngle==0.) {
+      if (sAngle==0.||inputPitch<1.0) {
+
+// MM == inputPitch<1.0 always use same code to calculate strip position for layers with and without stereo angle
 
 	double x = firstPos + inputPitch*(st-1);
         if (inputPitch == 3.2) { // check if sTGC, preferably 2 unique values

@@ -36,10 +36,6 @@
 #include <vector>                       
 #include <thread>
 
-#ifndef __CLING__
-#include <tbb/spin_rw_mutex.h>
-#endif
-
 #include "AthenaKernel/StoreID.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
@@ -56,7 +52,6 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/SGIterator.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
 #include "SGTools/DataStore.h"
 #include "SGTools/SGVersionedKey.h"
@@ -70,6 +65,8 @@ namespace SG {
   class DataProxy;
   class TransientAddress;
   struct RemapImpl;
+  class AuxVectorBase;
+  class AuxElement;
 }
 
 class DataObject;
@@ -121,148 +118,18 @@ class SGImplSvc :
 {
 
 public:
-#ifndef BOOST_NO_CXX11_TEMPLATE_ALIASES
-#ifndef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-  /////////////////////////////////////////////////////////////////////////
-  /// \name Basic Client Interface: data object creation
-  //@{
+  SGImplSvc (const SGImplSvc&) = delete;
+  SGImplSvc& operator= (const SGImplSvc&) = delete;
 
-  /** Create an object with one of its constructors and record it with a key.
-   * @param key              a string (or an object convertible to a string) 
-   *  identifying the object within the event
-   * @param constructorArgs  a variable list of args passed to the constructor
-   * @returns a "pointer" to the created object (set to 0 if creation failed)
-   * Example: 
-   *   struct Foo {
-   *     int m_i;
-   *     int i() const { return m_i; }
-   *     Foo(int i) : m_i(i) {}
-   *  };
-   *  CLASS_DEF(Foo, 123456, 1);
-   *    ....
-   *  auto pFoo = pSG.create<Foo>("aFoo", 23);
-   *  assert(pFoo->i()==23);
-   *  assert(pSG.transientContains<Foo>("aFoo")); 
-   */  
-
-  template <typename T, typename TKEY, typename... ARGS>
-  SG::WPtr<T> create(const TKEY& key, ARGS... constructorArgs);
-  //@}
-#endif   /* needs C++11 variadic templates to call arbitrary constructors */
-#endif   /* needs "templated typedef" to define SG::WPtr (for now) */
-
-  /////////////////////////////////////////////////////////////////////////
-  /// \name Basic Client Interface: data object registration
-  //@{
-
-  /// Record an object with a key.
-  template <typename T, typename TKEY> 
-  StatusCode record(T* p2BRegistered, const TKEY& key);
-
-  /// Record a const object with a key
-  template <typename T, typename TKEY> 
-  StatusCode record(const T* p2BRegistered, const TKEY& key);
-
-  /// Record an object with a key, take ownership of the auto_pointed obj
-  template <typename T, typename TKEY> 
-  StatusCode record(std::auto_ptr<T> p2BRegistered, const TKEY& key);
-
-  /// Record an object with a key, allow possibility of specifying 
-  /// const-access. 
-  template <typename T, typename TKEY> 
-  StatusCode record(T* p2BRegistered, const TKEY& key, 
-                    bool allowMods, bool resetOnly=true, bool noHist=false);
-
-#if __cplusplus > 201100
-  /// Record an object with a key, take ownership of the unique_ptr obj
-  template <typename T, typename TKEY> 
-  StatusCode record(std::unique_ptr<T> pUnique, const TKEY& key);
-
-  /// Record a const object with a key
-  template <typename T, typename TKEY> 
-  StatusCode record(std::unique_ptr<const T> pUnique, const TKEY& key);
-
-  /// Record an object with a key, allow possibility of specifying 
-  /// const-access. 
-  template <typename T, typename TKEY> 
-  StatusCode record(std::unique_ptr<T> pUnique, const TKEY& key, 
-                    bool allowMods, bool resetOnly=true, bool noHist=false);
-#endif
-
-  //@}
 
   /////////////////////////////////////////////////////////////////////////
   /// \name Basic Client Interface: data object access
   //@{
 
-  /// Retrieve the default object into a const T*
-  template <typename T> 
-  StatusCode retrieve(const T*& ptr) const;
-
-  /// Retrieve the default object into a T*
-  template <typename T>
-  StatusCode retrieve(T*& ptr) const;
-
-  /// Variant of the above which doesn't return a status code.
-  /// Just returns null if the object isn't found.
-  template <typename T>
-  T* retrieve () const;
-
-  /// Variant of the above which doesn't print a warning message.
-  /// Just returns null if the object isn't found. Compare to contains
-  template <typename T>
-  T* tryRetrieve () const;
-  template <typename T>
-  const T* tryConstRetrieve() const;
-
-  /// Retrieve an object with "key", into a const T*
-  template <typename T, typename TKEY> 
-  StatusCode retrieve(const T*& ptr, const TKEY& key) const;
-
-  /// Retrieve an object with "key", into a T*
-  template <typename T, typename TKEY>
-  StatusCode retrieve(T*& ptr, const TKEY& key) const;
-
-  /// Variant of the above which doesn't return a status code.
-  /// Just returns null if the object isn't found.
-  template <typename T, class TKEY>
-  T* retrieve (const TKEY& key) const;
-
-  /// Variant of the above which doesn't print a warning message.
-  /// Just returns null if the object isn't found. Compare to contains
-  template <typename T, class TKEY>
-  T* tryRetrieve (const TKEY& key) const;
-  template <typename T, class TKEY>
-  const T* tryConstRetrieve(const TKEY& key) const;
-
-  /**
-   * @brief try to associate a data object to its auxiliary store
-   *        if ignoreMissing=false @returns false if the aux store is not found.
-   * @param key The key to use for the lookup.
-   **/
-  template <class DOBJ>
-  bool associateAux (DataHandle<DOBJ>&, bool ignoreMissing=true) const;
-  template <class DOBJ>
-  bool associateAux (const DataHandle<DOBJ>&, bool ignoreMissing=true) const;
-
-  /// retrieve a data object deriving from DataVectorAuxBase,
-  /// associate the data object to its matching IAuxStore.
-  /// The matching is done by name, with the IAuxStore assumed to have key
-  /// key + "Aux"
-  /// returns null if the object or its IAuxStore isn't found.
-  template <typename T, class TKEY>
-  T* retrieveAux (const TKEY& key) const;
-  template <typename T, class TKEY>
-  const T* constRetrieveAux (const TKEY& key) const;
-
-
-
-
-
   /// Retrieve all objects of type T: returns an SG::ConstIterator range
-  template <typename T> 
-  StatusCode retrieve(SG::ConstIterator<T>& begin, 
-                      SG::ConstIterator<T>& end) const;
+  StatusCode retrieve (CLID clid,
+                       SG::detail::IteratorBase& cibegin, 
+                       SG::detail::IteratorBase& ciend) const;
 
   /** Look up a keyed object in TDS (compare also tryRetrieve)
    *  returns false if object not available in TDS or persistent stores 
@@ -271,51 +138,11 @@ public:
   template <typename T, typename TKEY> 
   bool contains(const TKEY& key) const;
 
-  /** A "once-per-job" retrieve that binds a data object to a DataHandle,
-   *  typically a data member of an Algorithm/AlgTool. 
-   *  At the end of every event, or more in general
-   *  when the data object is not valid anymore, the DataHandle is reset,
-   *  so that the next time the handle is accessed it will point to the
-   *  current version of that data object.
-   *  For example if MyAlg.h has a data member
-   *    DataHandle<Foo> m_myFoo;
-   *  after bind is called once per job, usually in MyAlg::initialize:
-   *    sc = p_store->bind(m_myFoo, "MyFoo");
-   *  m_myFoo will provide to access the current MyFoo e.g. in MyAlg::execute():
-   *    m_myFoo->useMe();
-   */
-  template <typename T, typename TKEY> 
-  StatusCode bind(const DataHandle<T>& handle, const TKEY& key);
-
   //@}
 
   /////////////////////////////////////////////////////////////////////////
   /// \name Advanced Client Interface: data object registration
   //@{
-
-  /// Record an object with a key, overwriting any existing object with same key
-  template <typename T, typename TKEY> 
-  StatusCode overwrite(T* p2BRegistered, const TKEY& key);
-
-  /// Record an object with a key, overwriting any existing object with same key
-  template <typename T, typename TKEY> 
-  StatusCode overwrite(T* p2BRegistered, const TKEY& key, 
-                       bool allowMods, bool noHist=false);
-
-  /// Record an object with a key, overwriting any existing object with same key, take ownership of the auto_pointed obj
-  template <typename T, typename TKEY> 
-  StatusCode overwrite(std::auto_ptr<T> p2BRegistered, const TKEY& key);
-
-#if __cplusplus > 201100
-  /// Record an object with a key, overwriting any existing object with same key
-  template <typename T, typename TKEY> 
-  StatusCode overwrite(std::unique_ptr<T> pUnique, const TKEY& key, 
-                       bool allowMods, bool noHist=false);
-
-  /// Record an object with a key, overwriting any existing object with same key, take ownership of the unique_ptr obj
-  template <typename T, typename TKEY> 
-  StatusCode overwrite(std::unique_ptr<T> pUnique, const TKEY& key);
-#endif
 
   /// Create a proxy object using an IOpaqueAddress and a transient key
   StatusCode recordAddress(const std::string& skey,
@@ -323,36 +150,26 @@ public:
   /// Create a proxy object using an IOpaqueAddress
   StatusCode recordAddress(IOpaqueAddress* pAddress, bool clearAddressFlag=true);
 
-  /// make a soft link to the object T* already registered (non-const)
-  template <typename T, typename TLINK> 
-  StatusCode symLink (const T* p2BRegistered, TLINK* p2BLinked );
-
-  /// make a soft link to the object T* already registered (const link)
-  template <typename T, typename TLINK> 
-  StatusCode symLink (const T* p2BRegistered, const TLINK* p2BLinked );
+  /// make a soft link to the object T* already registered
+  StatusCode symLink (const void* p2BRegistered, CLID linkID );
 
   /// make a soft link to the object pointed by id/key
-  template <typename TKEY> 
-  StatusCode symLink (const CLID& id, const TKEY& key, const CLID& linkid);
+  StatusCode symLink (const CLID id, const std::string& key, const CLID linkid);
 
   /// make an alias to a DataObject (provide data type and old key)
-  template <typename T, typename TKEY, typename AKEY>
-  StatusCode setAlias(const T* p2BAliased, const TKEY& key, const AKEY& aliasKey);
+  StatusCode setAlias(CLID clid, const std::string& key, const std::string& aliasKey);
 
   /// make an alias to a DataObject (provide only valid pointer)
-  template <typename T, typename AKEY>
-  StatusCode setAlias(const T* p2BAliased, const AKEY& aliasKey);
+  StatusCode setAlias(const void* p2BAliased, const std::string& aliasKey);
 
   /// prevent downstream clients from modifying the pointed-at dobj
   StatusCode setConst(const void* pointer);
 
   /// Remove pObject,  will remove its proxy if not reset only.
-  template <typename T>
-  StatusCode remove(const T* pObject);
+  StatusCode remove(const void* pObject);
 
   /// Remove pObject and its proxy no matter what.       
-  template <typename T>          
-  StatusCode removeDataAndProxy(const T* pObject);
+  StatusCode removeDataAndProxy(const void* pObject);
 
   /// @brief swap the content of 2 keys
   ///  payload A indexed by keyA will now be accessed via keyB and vice versa
@@ -368,108 +185,24 @@ public:
   /// \name Advanced Client Interface: data object access
   //@{
 
-  /// Retrieve version with highest cycle number for a given T,KEY combination
-  /// If there is only one available version of this data object
-  /// the returned ObjectWithVersion<T>.versionedKey is set to requestedKey
-  /// NOTICE that this method is significantly slower than 
-  ///     retrieve(const T*, const TKEY&)
-  /// which returns the last recorded version rather than the one with the
-  /// highest cycle number.
-  /// @returns StatusCode::FAILURE if no dataObject found
-  template <typename T, class TKEY>
-  StatusCode retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-                                    const TKEY& requestedKey) const;
-
-  /// Retrieve all versions of a given T,KEY combination
-  /// sets allVersions, a ref to a vector of ObjectWithVersion<T>
-  /// If there is only one available version of this dataObject
-  /// allVersions[0].versionedKey is set to requestedKey.
-  /// @returns StatusCode::FAILURE if no dataObject found
-  //FIXME using a vector exposes ObjectWithVersion definition and hence
-  //FIXME VersionedKey.h. Should try an iface like
-  //FIXME  retrieveAllVersions(const TKEY& requestedKey,
-  //FIXME                      ObjectWithVersion<T>& begin,
-  //FIXME                      ObjectWithVersion<T>& end)
-  template <typename T, class TKEY>
-  StatusCode
-  retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-                      const TKEY& requestedKey) const;
-
-  
-
-  /// EXPERTS ONLY: reads from disk your very own private copy of a StoreGate 
-  /// object of type T and given key, if available and locked.
-  /// readPrivateCopy does not look up the object in SG transient memory
-  /// so it will fail to return a newly recorded object.
-  /// You are responsible for managing the returned object and for keeping it
-  /// in sync with the "main" copy in transient memory, if any.
-  /// DEPRECATED Use readUniquePrivateCopy
-  /// @param key The key to use for the lookup.
-  /// @return null auto_ptr if the object isn't found or if it is unlocked.
-  template <typename T>
-  std::auto_ptr<T> readPrivateCopy (const std::string& key);
-
-  /// EXPERTS ONLY: reads from disk your very own private copy of a StoreGate 
-  /// object of type T and given key, if available and locked.
-  /// readPrivateCopy does not look up the object in SG transient memory
-  /// so it will fail to return a newly recorded object.
-  /// You are responsible for managing the returned object and for keeping it
-  /// in sync with the "main" copy in transient memory, if any.
-  /// @param key The key to use for the lookup.
-  /// @return null auto_ptr if the object isn't found or if it is unlocked.
-  template <typename T>
-  std::unique_ptr<T> readUniquePrivateCopy (const std::string& key);
-
   /// readPrivateCopy implementation (possibly useful from python hence public)
   DataObject*
   typeless_readPrivateCopy(const CLID& clid, const std::string& key);
 
 
-  /// EXPERTS ONLY: like readPrivateCopy this method returns your own private
-  /// copy of a data object of type T and given key, if available and locked.
-  /// The difference is that it will return you also an object in SG transient 
-  /// memory. Since we are taking ownership of it, the object in SG
-  /// will be released after retrievePrivateCopy returns, making
-  /// all cached references to the object potentially invalid and
-  /// obviously preventing it from being written out.
-  /// Sequencing becomes critical. Caveat emptor!
-  /// DEPRECATED Use retrieveUniquePrivateCopy
-  /// @param key The key to use for the lookup.
-  /// @return null auto_ptr if the object isn't found or if it is unlocked.
-  template <typename T>
-  std::auto_ptr<T> retrievePrivateCopy (const std::string& key);
+  DataObject*
+  typeless_retrievePrivateCopy (const CLID clid, const std::string& key);
 
-  /// EXPERTS ONLY: like readPrivateCopy this method returns your own private
-  /// copy of a data object of type T and given key, if available and locked.
-  /// The difference is that it will return you also an object in SG transient 
-  /// memory. Since we are taking ownership of it, the object in SG
-  /// will be released after retrievePrivateCopy returns, making
-  /// all cached references to the object potentially invalid and
-  /// obviously preventing it from being written out.
-  /// Sequencing becomes critical. Caveat emptor!
-  /// @param key The key to use for the lookup.
-  /// @return null auto_ptr if the object isn't found or if it is unlocked.
-  template <typename T>
-  std::unique_ptr<T> retrieveUniquePrivateCopy (const std::string& key);
 
   /// Retrieve the main @c CLID of the object recorded in @c StoreGate
   /// with the given "key" 
   /// WARNING: slow!
-  template<typename TKEY>
-  CLID clid( const TKEY& key ) const;
+  CLID clid( const std::string& key ) const;
 
   /// Retrieve all the @c CLID s (including symlinks) of the object recorded in @c StoreGate
   /// with the given "key" 
   /// WARNING: slow!
-  template<typename TKEY>
-  std::vector<CLID> clids( const TKEY& key ) const;  
-
-  /** Return the number of instances of an object of type T 
-   * int i = p_store->typeCount<T>();     
-   * Note that this will return the number of proxies in transient memory
-   * only, will not check with proxy providers. */
-  template <typename T>
-  int typeCount() const;
+  std::vector<CLID> clids( const std::string& key ) const;  
 
   /** Return the number of instances of type T (input CLID) */
   int typeCount(const CLID& id) const;
@@ -477,21 +210,12 @@ public:
   /** Look up a keyed object in TDS by CLID.
    *  returns false if object not available in TDS or persistent stores 
    *  Usage: if (!p_store->contains(FooID, "fooKey")) { ... } */
-  template <typename TKEY>
-  bool contains(const CLID& id, const TKEY& key) const;
+  bool contains(const CLID id, const std::string& key) const;
 
-
-  /** Look up a transient data object in TDS only (no Proxy lookup)
-   *  returns false if object not available in TDS 
-   *  Usage: if (!p_store->contains<Foo>("fooKey")) { ... } */
-  ///
-  template <typename T, typename TKEY> 
-  bool transientContains(const TKEY& key) const;
 
   /** Look up a transient data object in TDS only by CLID.
    *  returns false if object not available in TDS */
-  template <typename TKEY>
-  bool transientContains(const CLID& id, const TKEY& key) const;
+  bool transientContains(const CLID id, const std::string& key) const;
 
   /** dump objects in store. request forwarded to DataStore
    * this is triggered at EndEvent setting the Dump property to true */
@@ -503,17 +227,6 @@ public:
   StoreID::type storeID() const;
 
 
-  /** provide list of all StoreGate keys associated with an object.
-   *  usage: p_store->keys<T>(vkeys, optional flags);
-   *  @param vkeys will be filled with the (possibly empty) list of keys
-   *  @param includeAlias (default false) add alias keys as well
-   *  @param onlyValid (default true) add only keys of valid dobjs
-   */
-  template <typename T>
-  void
-  keys(std::vector<std::string>& vkeys, 
-       bool includeAlias = false, bool onlyValid = true); 
- 
   /** provide list of all StoreGate keys associated with an object.
    *  usage: p_store->keys(CLID, vkeys, optionalFlags);
    *  @param id CLID for which we are requesting list of keys
@@ -536,38 +249,18 @@ public:
   /// \name IOVSvc interface
   //@{
 
-  template <typename H, typename TKEY>
-  StatusCode regHandle( const DataHandle<H>& handle, const TKEY& key );
-
-  /// non-const method - will return an error
-  template <typename H, typename TKEY>
-  StatusCode regHandle( DataHandle<H>& handle, const TKEY& key);
-
-  /// register a callback function, with handle + key
-  template <typename T, typename H, typename TKEY>
-  StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                    const T* obj, const DataHandle<H>& handle, 
-                    const TKEY& key, bool trigger=false);
-
-  /// register a callback function, with handle + key. Non const. Error
-  template <typename T, typename H, typename TKEY>
-  StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                    const T* obj, DataHandle<H>& handle, 
-                    const TKEY& key, bool trigger=false);
-
   /// register a callback function(2) with an already registered function(1)
-  template <typename T1, typename T2>
-  StatusCode regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
-                    const T1* obj1,
-                    StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-                    const T2* obj2, bool trigger=false);
+  StatusCode regFcn (const CallBackID c1,
+                     const CallBackID c2,
+                     const IOVSvcCallBackFcn& fcn,
+                     bool trigger = false);
 
   /// register a callback function(2) with an already registered AlgTool
-  template <typename T2>
-  StatusCode regFcn(const std::string& toolName,
-                    StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-                    const T2* obj2, bool trigger=false);
-
+  StatusCode regFcn (const std::string& toolName,
+                     const CallBackID c2,
+                     const IOVSvcCallBackFcn& fcn,
+                     bool trigger = false);
+  
   //@}
   /////////////////////////////////////////////////////////////////////////
 
@@ -613,15 +306,6 @@ public:
                                const std::string& key,
                                bool allowMods,
                                bool returnExisting) override final;
-
-
-  /**
-   * @brief Inform HIVE that an object has been updated.
-   * @param id The CLID of the object.
-   * @param key The key of the object.
-   */
-  virtual
-  StatusCode updatedObject (CLID id, const std::string& key) override final;
 
 
   /// Get proxy given a hashed key+clid.
@@ -744,35 +428,6 @@ public:
 
   /**
    * @brief Declare a remapping.
-   * @brief clid Class ID of the container being remapped.
-   * @brief source Key of the container being remapped.
-   * @brief target Key of the container being remapped to.
-   * @brief index_offset Amount by which the index should be adjusted
-   *        between the two containers.
-   *
-   * This can be used to change the container to which @c ElementLink's
-   * (and @c DataLink's) point on output.
-   *
-   * For example, suppose you have two containers of type T, A and B.
-   * There possibly are @c ElementLink's pointing at elements contained
-   * in them.  You want to change to a single container C, containing
-   * the contents of A and B concatenated.  To get @c ElementLink's
-   * updated on output, you can do:
-   *
-   *@code
-   *   m_sg->remap (ClassID_traits<T>::ID(), "A", "C", 0);
-   *   m_sg->remap (ClassID_traits<T>::ID(), "B", "C", a.size());
-   @endcode
-  */
-  template <class TKEY>
-  void remap (CLID clid,
-              const TKEY& source,
-              const TKEY& target,
-              off_t index_offset);
-
-
-  /**
-   * @brief Declare a remapping.
    * @brief source Key hash of the container being remapped.
    * @brief target Key hash of the container being remapped to.
    * @brief index_offset Amount by which the index should be adjusted
@@ -834,29 +489,10 @@ public:
   /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
   virtual StatusCode clearStore(bool forceRemove=false) override final;
 
-  /** Get data objects registered in store since last getNewDataObjects call (or since init for 1st call)
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Status code indicating failure or success.
-   */
-  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override final;
-
-  /** Check if something has been added to the store since last getNewDataObjects call
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Boolean indicating the presence of new products
-   */
-  virtual bool newDataObjectsPresent() override final; 
-
-  /** make newly recorded DataObjects know to the WhiteBoard, by copying
-   *    from thread local storage to m_newDataObjects
+  /** Reset handles added since the last call to commit.
    */
   virtual void commitNewDataObjects() override final;
   //@}
-  /// a new data object has been retrieved from persistency
-  void addedNewPersObject(CLID clid, SG::DataProxy* dp) const;
-  ///a new object transient object has been recorded
-  void addedNewTransObject(CLID clid, const std::string& key) const;
 
 
   /**
@@ -906,16 +542,6 @@ public:
                      
   ///////////////////////////////////////////////////////////////////////
 private:
-
-  // Helper for record.
-  template <typename T, typename TKEY> 
-  StatusCode record1(DataObject* obj, T* pObject, const TKEY& key, 
-                     bool allowMods, bool resetOnly=true, bool noHist=false);
-
-  // Helper for overwrite.
-  template <typename T, typename TKEY> 
-  StatusCode overwrite1(DataObject* obj, T* pObject, const TKEY& key, 
-                        bool allowMods, bool noHist=false);
 
   StatusCode record_HistObj(const CLID& id, const std::string& key,
                             const std::string& store, bool allowMods, 
@@ -1024,7 +650,16 @@ private:
   bool bindHandleToProxy(const CLID& id, const std::string& key,
                          IResetable* ir, SG::DataProxy*& dp);
 
-  /// remove proxy from store, unless it is reset only.         
+  /// Also do registration with IOVSvc.
+  bool bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                     IResetable* ir, SG::DataProxy *&dp);
+  bool bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                     IResetable* ir, SG::DataProxy *&dp,
+                                     const CallBackID c,
+                                     const IOVSvcCallBackFcn& fcn,
+                                     bool trigger);
+
+/// remove proxy from store, unless it is reset only.         
   /// provide pTrans!=0 (must match proxy...) to save time
   /// @param forceRemove remove the proxy no matter what        
   StatusCode removeProxy(SG::DataProxy* proxy, const void* pTrans, 
@@ -1037,16 +672,15 @@ private:
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);
 
-  template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*) const;
-  template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*) const;
-  template <class DOBJ>
-  bool associateAux_impl(DataHandle<DOBJ>& , const SG::NoAuxStore*) const { return true; }
-  template <class DOBJ>
-  bool associateAux_impl(const DataHandle<DOBJ>&, const SG::NoAuxStore*) const { return true; }
+  bool associateAux_impl (SG::AuxVectorBase* ptr,
+                          const std::string& key,
+                          CLID auxclid) const;
 
-  /// Add automatically-made symlinks for DP.
+  bool associateAux_impl (SG::AuxElement* ptr,
+                          const std::string& key,
+                          CLID auxclid) const;
+
+/// Add automatically-made symlinks for DP.
   void addAutoSymLinks (const std::string& key, CLID clid, SG::DataProxy* dp,
                         const std::type_info* tinfo,
                         bool warn_nobib = true);
@@ -1090,12 +724,6 @@ private:
   /// Allocation arena to associate with this store.
   SG::Arena m_arena;
 
-  ///list of recently added data objects, needed to implement getNewDataObjects
-  DataObjIDColl m_newDataObjects;
-#ifndef __CLING__
-  tbb::spin_rw_mutex m_newDataLock;
-#endif
-
   /// The Hive slot number for this store, or -1 if this isn't a Hive store.
   int m_slotNumber;
 
@@ -1119,64 +747,11 @@ public:
   ///////////////////////////////////////////////////////////////////////
   /// \name Obsolete and Deprecated methods 
   //@{
-  /// DEPRECATED: Retrieve the default object into a const DataHandle
-  template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& handle) const;
 
-  /// DEPRECATED: Retrieve the default object into a DataHandle
-  template <typename T> 
-  StatusCode retrieve(DataHandle<T>& handle) const;
-
-  /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
-  template <typename T, typename TKEY> 
-  StatusCode retrieve(const DataHandle<T>& handle, const TKEY& key) const;
-  /// DEPRECATED: Retrieve an object with "key", into a DataHandle
-  template <typename T, typename TKEY> 
-  StatusCode retrieve(DataHandle<T>& handle, const TKEY& key) const;
-
-  /// DEPRECATED Retrieve all objects of type T: use iterators version instead
-  template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& begin, 
-                      const DataHandle<T>& end) const;
-  /// DEPRECATED, use version taking ref to vector
-  template <typename T>
-  std::vector<std::string> //FIXME inefficient. Should take ref to vector
-  keys(bool allKeys = false); 
- 
   /// DEPRECATED, use version taking ref to vector
   std::vector<std::string> //FIXME inefficient. Should take ref to vector 
-  keys(const CLID& id, bool allKeys = false);
-
-  /// DEPRECATED:  use recordAddress instead
-  inline 
-  StatusCode createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true);
-
-  /// OBSOLETE try to locate a proxy or create it if needed
-  /// use new signature with two bool flags
-  SG::DataProxy* setupProxy(const CLID& dataID, 
-                            const std::string& gK, 
-                            DataObject* pDObj);
+  keys(const CLID id, bool allKeys = false);
   //@}
-
-  /// \name Obsolete and Deprecated methods 
-  //@{
-  /// DEPRECATED put a dobj pointer in a bucket as appropriate
-  /// see tools/StorableConversion.h for replacement
-  template <typename T>
-  static 
-  DataObject* asStorable(T* pDObj);
-  /// DEPRECATED gets a dobj pointer from a bucket as appropriate
-  /// see tools/StorableConversion.h for replacement
-  template <typename T>
-  static 
-  bool fromStorable(DataObject* pObject, T*& pData);
-  //@}
-
-
-private:
-  SGImplSvc (const SGImplSvc&);
-  SGImplSvc& operator= (const SGImplSvc&);
-
 };
 
 

@@ -98,7 +98,7 @@ Desrciption of Properties
 
 - MuCTPIInput_TGC
     - location of MuCTPI inputs in the store gate  	
-    - default : "/Event/L1MuctpiStoreTGC" (defined in jobOption)
+    - default : "L1MuctpiStoreTGC" (defined in jobOption)
   
 - InputData_perEvent
    - location of input data in the store gate	

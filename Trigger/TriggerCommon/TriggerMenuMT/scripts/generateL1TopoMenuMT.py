@@ -3,8 +3,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-from TriggerMenu.TriggerConfigL1Topo import TriggerConfigL1Topo
-from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
+from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
+from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
 
 def generateL1TopoMenu(menu):
 
@@ -28,8 +28,8 @@ def generateL1TopoMenu(menu):
 def main():
 
     if len(sys.argv)==1:
-        generateL1TopoMenu(menu="MC_pp_v7")
-        generateL1TopoMenu(menu="Physics_pp_v7")
+        #generateL1TopoMenu(menu="MC_pp_v7")
+        #generateL1TopoMenu(menu="Physics_pp_v7")
         generateL1TopoMenu(menu="LS2_v1" )
         return 0
 

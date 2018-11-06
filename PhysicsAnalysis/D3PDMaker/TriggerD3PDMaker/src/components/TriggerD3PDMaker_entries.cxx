@@ -20,10 +20,6 @@
 #include "../MuCTPI_RDOFillerTool.h"
 #include "../CTP_RDOFillerTool.h"
 
-// Navigation filler tools:
-#include "../ChainEntryFillerTool.h"
-#include "../CombLinksFillerTool.h"
-
 // Additional tools:
 #include "../TrigConfMetadataTool.h"
 #include "../TrigDecisionFillerTool.h"
@@ -50,9 +46,6 @@ DECLARE_COMPONENT( D3PD::JetET_ROIFillerTool )
 DECLARE_COMPONENT( D3PD::EnergySum_ROIFillerTool )
 DECLARE_COMPONENT( D3PD::MuCTPI_RDOFillerTool )
 DECLARE_COMPONENT( D3PD::CTP_RDOFillerTool )
-
-DECLARE_COMPONENT( D3PD::ChainEntryFillerTool )
-DECLARE_COMPONENT( D3PD::CombLinksFillerTool )
 
 DECLARE_COMPONENT( D3PD::TrigConfMetadataTool )
 DECLARE_COMPONENT( D3PD::TrigDecisionFillerTool )

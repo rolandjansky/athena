@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 // /***************************************************************************
 //                           JetCMX.cxx  -  description
 //                              -------------------
 //     begin                : Mon Jul 28 2014
-//     copyright            : (C) 2014 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //
@@ -75,30 +77,6 @@ StatusCode JetCMX::initialize()
   ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS ;
 }
-
-
-//-------------------------------------------------
-// Optional debug of menu at start of run
-//-------------------------------------------------
-
-StatusCode JetCMX::beginRun()
-{
-  if (msgLvl(MSG::DEBUG)) printTriggerMenu();
-  return StatusCode::SUCCESS ;
-}
-
-
-
-//---------------------------------
-// finalise()
-//---------------------------------
-
-StatusCode JetCMX::finalize()
-{
-   ATH_MSG_INFO("Finalizing" );
-   return StatusCode::SUCCESS ;
-}
-
 
 //----------------------------------------------
 // execute() method called once per event

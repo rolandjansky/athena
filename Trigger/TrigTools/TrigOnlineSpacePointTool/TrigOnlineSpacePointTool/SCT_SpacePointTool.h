@@ -4,20 +4,23 @@
 
 #ifndef SCT_SpacePointTool_H
 #define SCT_SpacePointTool_H
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
-#include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "InDetIdentifier/SCT_ID.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrigInDetEvent/TrigSiSpacePointCollection.h"
+
 #include "GaudiKernel/ToolHandle.h"
+
 #include <vector>
 
-class TrigSiSpacePoint;
-class TrigTimer;
 class IBeamCondSvc;
 class ITrigL2LayerNumberTool;
-
+class SCT_GCBuilder;
+class SCT_ID;
+class TrigTimer;
 
 class SCT_SpacePointTool : public AthAlgTool {
   public:
@@ -82,7 +85,6 @@ class SCT_SpacePointTool : public AthAlgTool {
     SCT_GCBuilder* m_builder;
 
     const SCT_ID* m_id_sct;
-    const InDetDD::SiDetectorManager * m_mgr;
     IdContext m_cntx_sct; 
 
     bool m_unassociatedPhi;
@@ -102,6 +104,7 @@ class SCT_SpacePointTool : public AthAlgTool {
 
     ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
 #define SCTSP_NTIMERS 7
     TrigTimer* m_timer[SCTSP_NTIMERS];

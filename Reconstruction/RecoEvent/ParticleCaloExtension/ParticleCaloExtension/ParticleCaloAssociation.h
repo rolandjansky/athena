@@ -7,10 +7,7 @@
 
 #include <vector>
 #include "AthContainers/DataVector.h"
-
-namespace Trk {
-  class CaloExtension;
-}
+#include  "TrkCaloExtension/CaloExtension.h"
 
 namespace Rec {
   
@@ -22,8 +19,11 @@ namespace Rec {
     typedef std::vector<T> Data;
 
     /** constructor taking CaloExtension, a vector of cells and a cone size as arguments */
-    ParticleCaloAssociation( const Trk::CaloExtension& caloExtension, Data&& data, float coneSize );
+    ParticleCaloAssociation( const Trk::CaloExtension* caloExtension, Data&& data, float coneSize );
 
+    virtual ~ParticleCaloAssociation(){
+        delete m_caloExtension;
+    }
     /** return calo extension */
     const Trk::CaloExtension& caloExtension() const;
 
@@ -86,8 +86,8 @@ namespace Rec {
   }
 
   template<class T>
-  inline ParticleCaloAssociation<T>::ParticleCaloAssociation( const Trk::CaloExtension& caloExtension, Data&& data, float coneSize ) :
-    m_caloExtension(&caloExtension),
+  inline ParticleCaloAssociation<T>::ParticleCaloAssociation( const Trk::CaloExtension* caloExtension, Data&& data, float coneSize ) :
+    m_caloExtension(caloExtension),
     m_data(data),
     m_associationConeSize(coneSize) {
 

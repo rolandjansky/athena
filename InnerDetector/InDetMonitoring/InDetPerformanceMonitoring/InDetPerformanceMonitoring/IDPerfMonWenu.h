@@ -12,25 +12,21 @@
 
 #include <vector>
 #include <memory>
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include "GaudiKernel/PhysicalConstants.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
+
+//#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/Egamma.h"
+
 #include "xAODEgamma/EgammaContainer.h"
-#include "xAODEgamma/Photon.h"
+
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
+
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 class TH1;
-
 class TH1F;
 class TH2;
 class TH2F;

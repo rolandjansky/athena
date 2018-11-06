@@ -8,7 +8,9 @@
 #include "xAODCore/AddDVProxy.h"
 
 // Local include(s):
+#include "xAODHIEvent/versions/HIEventShapeContainer_v1.h"
 #include "xAODHIEvent/versions/HIEventShapeContainer_v2.h"
 
 // Set up the collection proxies:
+ADD_NS_DV_PROXY( xAOD, HIEventShapeContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, HIEventShapeContainer_v2 );

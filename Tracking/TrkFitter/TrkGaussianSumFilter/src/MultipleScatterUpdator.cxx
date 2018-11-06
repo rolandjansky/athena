@@ -21,12 +21,6 @@ decription           : Implementation code for multiple scatter updator
 
 #include <cmath>
 
-Trk::ParticleMasses Trk::MultipleScatterUpdator::s_particleMasses;
-double Trk::MultipleScatterUpdator::s_multipleScatterMainFactor = 13.6 * Gaudi::Units::MeV;
-double Trk::MultipleScatterUpdator::s_multipleScatterLogFactor = 0.038;
-double Trk::MultipleScatterUpdator::s_main_RossiGreisen = 17.5 * Gaudi::Units::MeV;
-double Trk::MultipleScatterUpdator::s_log_RossiGreisen = 0.125;
-
 Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
@@ -37,10 +31,6 @@ Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, con
   declareInterface<IMaterialEffectsUpdator>(this);
 
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
-  declareProperty("MultipleScatterMainFactor",        s_multipleScatterMainFactor);
-  declareProperty("MultipleScatterLogFactor",         s_multipleScatterLogFactor);
-  declareProperty("RossiGreisenMainFactor",           s_main_RossiGreisen);
-  declareProperty("RossiGreisenLogFactor",            s_log_RossiGreisen);
 
 }
 
@@ -137,7 +127,9 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
   const Amg::Vector3D& globalMomentum = trackParameters.momentum();
   double p = globalMomentum.mag();
 
-  double pathcorrection = pathLength/materialProperties.thickness();
+  double pathcorrection = 1.;
+  if(materialProperties.thickness() != 0) 
+    pathcorrection = pathLength/materialProperties.thickness();
 
   //Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
   //and create a dummy materialProperties with the properties we are interested in

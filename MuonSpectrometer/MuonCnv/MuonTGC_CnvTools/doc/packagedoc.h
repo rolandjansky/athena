@@ -241,9 +241,7 @@ The formats in Byte Stream is written in http://cern.ch/Atlas-TGC/doc/ROBformat.
 - TGC Chamber format is written in Online ID by ROD. 
 
 Rawdata format data is decoded by TGC_RodDecoderRawdata and readout format data is decoded by TGC_RodDecoderReadout. 
-Switching of the format to be decoded is currently (February 2009) done in 
-MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonReadBSConfig.py
-based on muonRecFlags.doTGC_rawdataROD flag defined in MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecFlags.py.
+Switching of the format to be decoded is based on muonRecFlags.doTGC_rawdataROD flag defined in MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecFlags.py.
 
 TGC has 24 (12 sectors x 2 sides) Readout Buffers (ROBs). 
 

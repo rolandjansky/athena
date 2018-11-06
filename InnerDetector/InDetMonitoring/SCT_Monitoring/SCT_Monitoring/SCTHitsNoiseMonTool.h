@@ -28,6 +28,9 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
@@ -515,6 +518,9 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_clusContainerKey;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 };
 
 #endif

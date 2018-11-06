@@ -29,7 +29,7 @@ namespace InDet{
     public:
       
       SiDetElementLink_xk();
-      SiDetElementLink_xk(InDetDD::SiDetectorElement*&,const double*);
+      SiDetElementLink_xk(const InDetDD::SiDetectorElement*,const double*);
       SiDetElementLink_xk(const SiDetElementLink_xk&);
       ~SiDetElementLink_xk();
       SiDetElementLink_xk& operator  = (const SiDetElementLink_xk&);
@@ -113,7 +113,7 @@ namespace InDet{
     }
 
   inline InDet::SiDetElementLink_xk::SiDetElementLink_xk
-    (InDetDD::SiDetectorElement*& el,const double* P)
+    (const InDetDD::SiDetectorElement* el,const double* P)
     {
       m_detelement = el; set(P); m_used = false; m_way = 0.;
     } 

@@ -42,11 +42,6 @@ public:
   MuonCluster(const std::string& name, ISvcLocator* svc);
   ~MuonCluster();
 
-  /** hltBeginRun() */
-  HLT::ErrorCode hltBeginRun();
-  /** hltEndRun() */
-  HLT::ErrorCode hltEndRun();
-
   /** hltInitialize() */
   HLT::ErrorCode hltInitialize();
   /** hltFinalize() */

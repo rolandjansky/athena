@@ -45,13 +45,11 @@ class SCT_SiPropertiesToolSetup:
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
-            ToolSvc += SiPropertiesTool(name = self.toolName,
-                                        DetectorName = "SCT",
-                                        ReadKey = "SCTSiliconPropertiesVector")
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SiPropertiesTool(name = self.toolName,
+                                         DetectorName = "SCT",
+                                         ReadKey = "SCTSiliconPropertiesVector")
 
     def setup(self):
         self.setAlg()

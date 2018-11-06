@@ -11,26 +11,26 @@
 
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
 #define INDETRAWDATABYTESTREAM_SCT_RODDECODER_H
-//STL
-#include <string>
-#include <cstdint>
 
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "Identifier/IdContext.h"
+#include "Identifier/IdentifierHash.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
-class ISCT_CablingSvc;
-class SCT_ID;
+#include "GaudiKernel/ToolHandle.h"
 
-namespace InDetDD {
-  class SCT_DetectorManager; 
-}
+//STL
+#include <atomic>
+#include <cstdint>
+#include <string>
+#include <vector>
+
+class SCT_ID;
 
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 /** @class SCT_RodDecoder
@@ -43,14 +43,14 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
 
   struct CacheHelper{//temp object to help with trigger caching
     IdentifierHash skipHash, lastHash;
-    std::vector<IdentifierHash>* vecHash;
+    const std::vector<IdentifierHash>* vecHash;
   };
 
  public: 
   //@name Usual AlgTool methods
   //@{
   /** constructor*/
-  SCT_RodDecoder(const std::string& type, const std::string& name, const IInterface* parent ) ;
+  SCT_RodDecoder(const std::string& type, const std::string& name, const IInterface* parent);
   
   /** destructor  */
   virtual ~SCT_RodDecoder() = default;
@@ -63,73 +63,70 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   
   /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
    *  with the RDO built by the makeRDO(..) method
+   * rdoIdc, errs, and bsFracCont are updated based on robFrag and vecHash.
    **/
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                     ISCT_RDO_Container& rdoIdc,
                                     InDetBSErrContainer* errs,
                                     SCT_ByteStreamFractionContainer* bsFracCont,
-                                    std::vector<IdentifierHash>* vecHash = 0) override;
+                                    const std::vector<IdentifierHash>* vecHash = nullptr) const override;
 
  private:
   /// method that builds the RawData RDO and add it to the collection 
-  int makeRDO(int strip, int groupSize, int tbin, 
+  /// rdoIdc and cache are updated based on other arguments
+  int makeRDO(int strip, int groupSize, int tbin,
               uint32_t onlineId, int ERRORS,
               ISCT_RDO_Container& rdoIdc,
-              CacheHelper&,
-              const std::vector<int>& errorHit);
+              CacheHelper& cache,
+              const std::vector<int>& errorHit) const;
 
   /// add an error for each wafer in a problematic ROD.
   void addRODError(uint32_t rodid, int errorType,
-                   InDetBSErrContainer* errs);
+                   InDetBSErrContainer* errs) const;
+  bool addSingleError(const IdentifierHash& idHash,
+                      int bsErrorType,
+                      InDetBSErrContainer* errs) const;
 
-  bool addSingleError(const IdentifierHash idHash,
-                      const int bsErrorType,
-                      InDetBSErrContainer* errs);
   /** Set first temporarily masked chip information from byte stream trailer */
-  void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip, InDetBSErrContainer* errs);
+  void setFirstTempMaskedChip(const IdentifierHash& hashId, unsigned int firstTempMaskedChip, InDetBSErrContainer* errs) const;
+
   const SCT_ID* m_sct_id;
   IdContext m_cntx_sct;
-  const InDetDD::SCT_DetectorManager *m_indet_mgr;
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configTool{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
-  bool m_condensedMode ;
-  bool m_superCondensedMode ;
   /** Summary of the decoding process */
-  //  unsigned int m_hitnumber;             //!< Total number of decoded hits
-  unsigned int m_singleCondHitNumber;   //!< Total number of single hit decoded in condensed mode
-  unsigned int m_pairedCondHitNumber;   //!< Total number of paired hit decoded in condensed mode
-  unsigned int m_firstExpHitNumber;     //!< Total number of first hit decoded in expanded mode
-  unsigned int m_evenExpHitNumber;      //!< Total number of paired hit decoded in expanded mode
-  unsigned int m_lastExpHitNumber;      //!< Total number of last hit decoded in expanded mode
-  unsigned int m_headnumber;            //!< Total number of decoded header data
-  unsigned int m_trailnumber;           //!< Total number of decoded trailer data
-  unsigned int m_head_error_bcid;       //!< Total number of bcid error in the header data
-  unsigned int m_head_error_lvl1id;     //!< Total number of lvl1id error in the header data 
-  unsigned int m_head_error_timeout;    //!< Total number of timeout error in the header data
-  unsigned int m_head_error_formatter;  //!< Total number of formatter error in the header data
-  unsigned int m_head_error_preamb;     //!< Total number of preamble error in the header data  
-  unsigned int m_trail_error_overflow;  //!< Total number of overflow error in the trailer data
-  unsigned int m_trail_error_limit;     //!< Total number of header trailer limit error in the trailer data 
-  unsigned int m_trail_error_bit;       //!< Total number of trailer bit error 
-  unsigned int m_config_data_bit;       //!< Total number of configuration data
-  unsigned int m_flag_error_bit;        //!< Total number of flag error data
-  unsigned int m_cond_hit1_error;       //!< Total number of first hit data error
-  unsigned int m_cond_hit2_error;       //!< Total number second hit data errors 
-  unsigned int m_chip_number_error;     //!< Total number of chip number error  
-  unsigned int m_unknown_data_format;   //!< Total number of unknown data format
-  unsigned int m_nHits;
-  unsigned int m_nRDOs;
-  unsigned int m_maskedLinkNumber;
-  unsigned int m_maskedRODNumber;
-  unsigned int m_RODClockErrorNumber;
-  unsigned int m_truncatedRODNumber;
-  unsigned int m_numMissingLinkHeader;
-  unsigned int m_numUnknownOfflineId;
+  mutable std::atomic_uint m_singleCondHitNumber;   //!< Total number of single hit decoded in condensed mode
+  mutable std::atomic_uint m_pairedCondHitNumber;   //!< Total number of paired hit decoded in condensed mode
+  mutable std::atomic_uint m_firstExpHitNumber;     //!< Total number of first hit decoded in expanded mode
+  mutable std::atomic_uint m_evenExpHitNumber;      //!< Total number of paired hit decoded in expanded mode
+  mutable std::atomic_uint m_lastExpHitNumber;      //!< Total number of last hit decoded in expanded mode
+  mutable std::atomic_uint m_headnumber;            //!< Total number of decoded header data
+  mutable std::atomic_uint m_trailnumber;           //!< Total number of decoded trailer data
+  mutable std::atomic_uint m_head_error_bcid;       //!< Total number of bcid error in the header data
+  mutable std::atomic_uint m_head_error_lvl1id;     //!< Total number of lvl1id error in the header data
+  mutable std::atomic_uint m_head_error_timeout;    //!< Total number of timeout error in the header data
+  mutable std::atomic_uint m_head_error_formatter;  //!< Total number of formatter error in the header data
+  mutable std::atomic_uint m_head_error_preamb;     //!< Total number of preamble error in the header data
+  mutable std::atomic_uint m_trail_error_overflow;  //!< Total number of overflow error in the trailer data
+  mutable std::atomic_uint m_trail_error_limit;     //!< Total number of header trailer limit error in the trailer data
+  mutable std::atomic_uint m_trail_error_bit;       //!< Total number of trailer bit error
+  mutable std::atomic_uint m_config_data_bit;       //!< Total number of configuration data
+  mutable std::atomic_uint m_flag_error_bit;        //!< Total number of flag error data
+  mutable std::atomic_uint m_cond_hit1_error;       //!< Total number of first hit data error
+  mutable std::atomic_uint m_cond_hit2_error;       //!< Total number second hit data errors
+  mutable std::atomic_uint m_chip_number_error;     //!< Total number of chip number error
+  mutable std::atomic_uint m_unknown_data_format;   //!< Total number of unknown data format
+  mutable std::atomic_uint m_nHits;
+  mutable std::atomic_uint m_nRDOs;
+  mutable std::atomic_uint m_maskedLinkNumber;
+  mutable std::atomic_uint m_maskedRODNumber;
+  mutable std::atomic_uint m_RODClockErrorNumber;
+  mutable std::atomic_uint m_truncatedRODNumber;
+  mutable std::atomic_uint m_numMissingLinkHeader;
+  mutable std::atomic_uint m_numUnknownOfflineId;
   
-  bool m_triggerMode;
-
-  ServiceHandle<IIncidentSvc> m_incidentSvc;
+  std::vector<bool> m_swapPhiReadoutDirection;
 };
 
 #endif //SCT_RAWDATABYTESTREAM_SCT_RODDECODER_H

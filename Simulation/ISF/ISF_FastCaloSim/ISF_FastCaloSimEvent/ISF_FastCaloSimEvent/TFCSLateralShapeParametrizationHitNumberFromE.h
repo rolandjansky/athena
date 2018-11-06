@@ -8,7 +8,6 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 
 #include "TH2.h"
-#include "TRandom3.h"
 
 
 class TFCSLateralShapeParametrizationHitNumberFromE:public TFCSLateralShapeParametrizationHitBase {
@@ -27,15 +26,15 @@ public:
   ///    constant=0.035;
   TFCSLateralShapeParametrizationHitNumberFromE(const char* name=nullptr, const char* title=nullptr,double stochastic=0.1,double constant=0);
 
-  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
-  void Print(Option_t *option = "") const;
+  void Print(Option_t *option = "") const override;
 private:
   // simple shape information should be stored as private member variables here
   double m_stochastic;
   double m_constant;
 
-  ClassDef(TFCSLateralShapeParametrizationHitNumberFromE,1)  //TFCSLateralShapeParametrizationHitNumberFromE
+  ClassDefOverride(TFCSLateralShapeParametrizationHitNumberFromE,1)  //TFCSLateralShapeParametrizationHitNumberFromE
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

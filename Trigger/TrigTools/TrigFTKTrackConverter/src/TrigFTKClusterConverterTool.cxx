@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -20,12 +20,12 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenParticle.h"
 
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGateSvc.h" 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
@@ -62,7 +62,9 @@ TrigFTKClusterConverterTool::TrigFTKClusterConverterTool(const std::string& t,
   m_doTruth(false),
   m_ftkPixelTruthName("PRD_MultiTruthPixel_FTK"),
   m_ftkSctTruthName("PRD_MultiTruthSCT_FTK"),
-  m_mcTruthName("TruthEvent") {
+  m_mcTruthName("TruthEvent"),
+  m_mutex{},
+  m_cacheSCTElements{} {
 
   declareInterface< ITrigFTKClusterConverterTool >( this );
   declareProperty( "PixelOfflineCalibSvc",m_offlineCalibSvc);
@@ -123,12 +125,9 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
     return sc;
   } 
 
-  sc = detStore->retrieve(m_SCT_Manager);
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve SCT DetectorManager from detStore.");
-    return sc;
-  } 
-	
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
 	//Get ID helper
 	if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
 		ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
@@ -142,6 +141,7 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
     return sc; 
   } 
 
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   ATH_MSG_INFO("TrigFTKClusterConverterTool initialized ");
@@ -156,7 +156,7 @@ StatusCode TrigFTKClusterConverterTool::finalize() {
 
 InDet::SCT_Cluster* TrigFTKClusterConverterTool::createSCT_Cluster(IdentifierHash hash, float hCoord, int w){
   
-  const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = getSCTDetectorElement(hash);
   float locPos = hCoord+0.1; // adding 0.1 to prevent rounding errors
 
   int strip = (int)(locPos);
@@ -296,7 +296,7 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
 
   InDet::SiWidth siWidth(Amg::Vector2D(phiWidth,etaWidth),Amg::Vector2D(phiW,etaW)); 
 
-  double shift = pDE->getLorentzCorrection();
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(hash);
   Amg::Vector2D position(phiPos+shift,etaPos);
 
   std::vector<Identifier> rdoList;
@@ -464,3 +464,23 @@ StatusCode TrigFTKClusterConverterTool::getMcTruthCollections(StoreGateSvc* evtS
   return sc;
 }
 
+const InDetDD::SiDetectorElement* TrigFTKClusterConverterTool::getSCTDetectorElement(const IdentifierHash hash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheSCTElements.size()) {
+    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheSCTElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_SCTDetectorElements.set(*condData);
+    m_cacheSCTElements[slot] = evt;
+  }
+  return (m_SCTDetectorElements.isValid() ? m_SCTDetectorElements->getDetectorElement(hash) : nullptr);
+}

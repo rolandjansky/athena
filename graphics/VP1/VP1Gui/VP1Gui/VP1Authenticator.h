@@ -14,7 +14,7 @@
 #ifndef VP1AUTHENTICATOR_H
 #define VP1AUTHENTICATOR_H
 
-#include "ui_vp1authenticator.h"
+#include "../src/ui_vp1authenticator.h"
 
 #include <QObject>
 #include <QDialog>

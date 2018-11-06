@@ -239,18 +239,23 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       rm.rotateY(parameters->Rotation_Y()*CLHEP::deg);
       rm.rotateZ(parameters->Rotation_Z()*CLHEP::deg);
       GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos));
-      
+      xform->ref();
       ATH_MSG_DEBUG(" --> Module " << i << " build!");
 
       //building module
       int k=i+951;
       
       GeoNameTag* tag = new GeoNameTag("BCM Module"); 
-      GeoVPhysVol* bcmModPhys = bcm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
-      Phys->add(tag);
-      Phys->add(new GeoIdentifierTag(k));
-      Phys->add(xform);
-      Phys->add(bcmModPhys);	      
+      tag->ref();
+      if (mat_mgr){
+        GeoVPhysVol* bcmModPhys = bcm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+        Phys->add(tag);
+        Phys->add(new GeoIdentifierTag(k));
+        Phys->add(xform);
+        Phys->add(bcmModPhys);	
+      }
+      tag->unref();
+      xform->unref();  
     }
   
   ATH_MSG_DEBUG("Registering BCM_GeometryManager."); 

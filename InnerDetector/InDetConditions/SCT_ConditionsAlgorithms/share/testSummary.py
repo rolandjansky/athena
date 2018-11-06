@@ -48,9 +48,11 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+# Set up SCT cabling
+runNumber=310809
+rec.RunNumber.set_Value_and_Lock(runNumber)
+from AthenaCommon.Include import include
+include('InDetRecExample/InDetRecCabling.py')
 
 from AthenaCommon.AlgSequence import AlgSequence
 
@@ -97,7 +99,7 @@ job+= SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSumma
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
-ServiceMgr.EventSelector.RunNumber  = 310809
+ServiceMgr.EventSelector.RunNumber = runNumber
 import time, calendar
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
 # run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC

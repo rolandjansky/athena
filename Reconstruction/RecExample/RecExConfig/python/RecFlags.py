@@ -1007,6 +1007,7 @@ class doCaloRinger(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+
 #
 # Defines a sub-container for the algorithm switches
 #class RecAlgs(JobPropertyContainer):

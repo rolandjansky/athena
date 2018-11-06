@@ -131,8 +131,9 @@ namespace HistValFunctions {
   void compareFields(TH1 * t1, TH1 * t2);
 
   //____________________________________________________________________
+  // Disable ubsan to turn off warnings about casting TH1F to TH1_FieldsAccess.
   template <class TH, class THLW>
-  static inline void compareMetaData(TH* hroot, THLW * hlw, bool ignorename = false)
+  static inline void compareMetaData NO_SANITIZE_UNDEFINED (TH* hroot, THLW * hlw, bool ignorename = false)
   {
     assert (hroot&&hlw);
     if (!hroot||!hlw)

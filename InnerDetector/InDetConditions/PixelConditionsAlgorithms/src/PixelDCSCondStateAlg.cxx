@@ -14,7 +14,7 @@ PixelDCSCondStateAlg::PixelDCSCondStateAlg(const std::string& name, ISvcLocator*
 }
 
 StatusCode PixelDCSCondStateAlg::initialize() {
-  ATH_MSG_INFO("PixelDCSCondStateAlg::initialize()");
+  ATH_MSG_DEBUG("PixelDCSCondStateAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -35,7 +35,7 @@ StatusCode PixelDCSCondStateAlg::initialize() {
 }
 
 StatusCode PixelDCSCondStateAlg::execute() {
-  ATH_MSG_INFO("PixelDCSCondStateAlg::execute()");
+  ATH_MSG_DEBUG("PixelDCSCondStateAlg::execute()");
 
   //===========
   // FSM_STATE
@@ -135,7 +135,7 @@ StatusCode PixelDCSCondStateAlg::execute() {
 }
 
 StatusCode PixelDCSCondStateAlg::finalize() {
-  ATH_MSG_INFO("PixelDCSCondStateAlg::finalize()");
+  ATH_MSG_DEBUG("PixelDCSCondStateAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

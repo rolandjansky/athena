@@ -15,7 +15,7 @@
 #include "AthenaKernel/ITriggerTime.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "EventInfo/EventID.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 

@@ -7,10 +7,15 @@ def getMdtRdoToMdtDigit(name="MdtRdoToMdtDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeRpcRDO", False)
     kwargs.setdefault("DecodeTgcRDO", False)
     kwargs.setdefault("DecodeCscRDO", False)
-    kwargs.setdefault("RetrievePrivateCopy", True)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("RetrievePrivateCopy", not overlayFlags.isDataOverlay())
     kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
+
+
+def getMdtRdoToMdtDigitAlg(name="MdtRdoToMdtDigitOverlayAlg", **kwargs):
+    kwargs.setdefault("MuonRdoToMuonDigitTool", "MdtRdoToMdtDigitOverlay")
+    return CfgMgr.MuonRdoToMuonDigit(name, **kwargs)
 
 
 def getRpcRdoToRpcDigit(name="RpcRdoToRpcDigitOverlay", **kwargs):
@@ -18,10 +23,15 @@ def getRpcRdoToRpcDigit(name="RpcRdoToRpcDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeRpcRDO", True)
     kwargs.setdefault("DecodeTgcRDO", False)
     kwargs.setdefault("DecodeCscRDO", False)
-    kwargs.setdefault("RetrievePrivateCopy", True)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("RetrievePrivateCopy", not overlayFlags.isDataOverlay())
     kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
+
+
+def getRpcRdoToRpcDigitAlg(name="RpcRdoToRpcDigitOverlayAlg", **kwargs):
+    kwargs.setdefault("MuonRdoToMuonDigitTool", "RpcRdoToRpcDigitOverlay")
+    return CfgMgr.MuonRdoToMuonDigit(name, **kwargs)
 
 
 def getTgcRdoToTgcDigit(name="TgcRdoToTgcDigitOverlay", **kwargs):
@@ -29,10 +39,15 @@ def getTgcRdoToTgcDigit(name="TgcRdoToTgcDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeRpcRDO", False)
     kwargs.setdefault("DecodeTgcRDO", True)
     kwargs.setdefault("DecodeCscRDO", False)
-    kwargs.setdefault("RetrievePrivateCopy", True)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("RetrievePrivateCopy", not overlayFlags.isDataOverlay())
     kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
+
+
+def getTgcRdoToTgcDigitAlg(name="TgcRdoToTgcDigitOverlayAlg", **kwargs):
+    kwargs.setdefault("MuonRdoToMuonDigitTool", "TgcRdoToTgcDigitOverlay")
+    return CfgMgr.MuonRdoToMuonDigit(name, **kwargs)
 
 
 def getSigMdtDigitToMdtRDO(name="SigMdtDigitToMdtRDO", **kwargs):

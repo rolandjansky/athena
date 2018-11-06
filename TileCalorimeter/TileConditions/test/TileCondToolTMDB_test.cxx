@@ -4,16 +4,10 @@
 
 #undef NDEBUG
 
-//=== AttributeList
-//#include "CoralBase/Attribute.h"
 #include "TileConditions/TileCondToolTMDB.h"
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-#include "TileConditions/ITileCondProxy.h"
 
 #include "CoralBase/Blob.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeListSpecification.h"
 
 #include "TestTools/FLOATassert.h"
 #include "TestTools/initGaudi.h"
@@ -22,7 +16,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
 #include <cassert>
@@ -32,9 +25,27 @@
 #include <vector>
 
 
-static const unsigned int OBJVERSION(0);
-static const int NCHANNELS(4);
-//static const int NGAINS(1);
+static const std::string TILE_JO_NAME("jobOptions_TileCondToolTMDBTest.py");
+static const std::string TILE_TMDB("TileTMDB");
+static const unsigned int OBJ_VERSION(0);
+static const int N_CHANNELS(4);
+static const unsigned int DEF_DRAWER_IDX(0);
+
+static const EventIDRange EVENT_RANGE {
+  EventIDBase{
+    EventIDBase::UNDEFNUM / 8, // Run number
+    EventIDBase::UNDEFEVT,
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFNUM / 8}, // Lumi block
+
+  EventIDBase{
+    EventIDBase::UNDEFNUM / 2,  // Run number
+    EventIDBase::UNDEFEVT,
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFNUM,
+    EventIDBase::UNDEFNUM / 2}  // Lumi block
+};
 
 
 /** Class provides dummy algorithm
@@ -44,9 +55,9 @@ class DummyAlgorithm: public AthAlgorithm {
   public:
     DummyAlgorithm(const std::string& name, ISvcLocator* svcloc)
       : AthAlgorithm(name, svcloc) {
-    
-    } 
-  
+
+    }
+
     virtual StatusCode execute() {
       return StatusCode::SUCCESS;
     }
@@ -54,7 +65,7 @@ class DummyAlgorithm: public AthAlgorithm {
 
 enum DRAWER {DELAY_DRAWER_IDX = 0, CALIB_DRAWER_IDX = 1, THRESHOLD_DRAWER_IDX = 2, TMF_DRAWER_IDX = 3};
 
-static const std::vector<std::vector<float> > defaults = {
+static const std::vector<std::vector<float> > DEFAULTS = {
   {10}, // DELAY
   {1, 2}, // CALIB
   {100}, // THRESHOLD
@@ -62,83 +73,86 @@ static const std::vector<std::vector<float> > defaults = {
 };
 
 
-template<typename T = TileCalibDrawerFlt>
-class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
-  public:
-  
-    TileCondProxyMock(const std::string& type, const std::string& name, const IInterface* parent)
-      :AthAlgTool(type, name, parent)
-    {
-        declareInterface<ITileCondProxy<T> >(this);
-    };
-
-    virtual ~TileCondProxyMock() {};
-  
-    StatusCode initialize() { 
-
-      for ( const std::vector<float>& def : defaults) {
-        coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
-        spec->extend("TileCalibBlob", "blob");
-        m_lists.push_back( new coral::AttributeList(*spec) );
-        coral::Blob& blob = (*m_lists.back())["TileCalibBlob"].template data<coral::Blob>();
-        std::vector<std::vector<float> > defs(1, def);
-        m_drawers.push_back(TileCalibDrawerFlt::getInstance(blob, defs, NCHANNELS, OBJVERSION));
-      }
-
-      m_drawers.at(DELAY_DRAWER_IDX)->setData(TMDB::D5L, 0, 0, 10);
-      m_drawers.at(DELAY_DRAWER_IDX)->setData(TMDB::D5R, 0, 0, 20);
-      m_drawers.at(DELAY_DRAWER_IDX)->setData(TMDB::D6L, 0, 0, 30);
-      m_drawers.at(DELAY_DRAWER_IDX)->setData(TMDB::D6R, 0, 0, 40);
-
-      m_drawers.at(THRESHOLD_DRAWER_IDX)->setData(TMDB::D6LOW, 0, 0, 100);
-      m_drawers.at(THRESHOLD_DRAWER_IDX)->setData(TMDB::D6HIGH, 0, 0, 200);
-      m_drawers.at(THRESHOLD_DRAWER_IDX)->setData(TMDB::D5D6LOW, 0, 0, 1000);
-      m_drawers.at(THRESHOLD_DRAWER_IDX)->setData(TMDB::D5D6HIGH, 0, 0, 2000);
-
-      return StatusCode::SUCCESS; 
-    };
-
-    StatusCode finalize() { 
-      for (T* drawer : m_drawers) delete drawer;
-      for (coral::AttributeList* list : m_lists) delete list;
-
-      return StatusCode::SUCCESS; 
-    };
-  
-  const T* getCalibDrawer(unsigned int drawerIdx ) const { return m_drawers.at(drawerIdx);};
-
-  private:
-  std::vector<coral::AttributeList*> m_lists;
-  std::vector<T*> m_drawers;
-};
-
-
-
-typedef TileCondProxyMock< TileCalibDrawerFlt > TileCondProxyMockFlt;
-DECLARE_COMPONENT( TileCondProxyMockFlt )
-
-
-
 void test1() {
 
-  std::cout << "test1\n";
+  std::cout << "test1 TileCondToolTMDB\n";
 
+
+  std::ofstream jo(TILE_JO_NAME);
+  jo << "ApplicationMgr.ExtSvc += { \"StoreGateSvc/ConditionStore\" };" << std::endl;
+  jo.close();
 
   ISvcLocator* svcLoc;
-  if (!Athena_test::initGaudi(svcLoc)) {
+  if (!Athena_test::initGaudi(TILE_JO_NAME, svcLoc)) {
     std::cerr << "ERROR This test can not be run, can not get ServiceLocator" << std::endl;
   }
 
+  ServiceHandle<StoreGateSvc> conditionStore("ConditionStore", "");
+  assert(conditionStore.retrieve().isSuccess());
 
-  DummyAlgorithm* alg = new DummyAlgorithm("DummyAlgorithm", svcLoc);
+  SG::WriteCondHandleKey<TileCalibDataFlt> calibDataKey{TILE_TMDB};
+  assert(calibDataKey.initialize().isSuccess());
+
+  SG::WriteCondHandle<TileCalibDataFlt> calibData{calibDataKey};
+
+  std::unique_ptr<TileCalibDataFlt> data = std::make_unique<TileCalibDataFlt>();
+
+  unsigned int drawerIdx(DEF_DRAWER_IDX);
+  for(const std::vector<float>& def : DEFAULTS) {
+
+    std::vector<std::vector<float> > defs(1, def);
+    std::unique_ptr<coral::Blob> blob = std::make_unique<coral::Blob>(0);
+    std::unique_ptr<TileCalibDrawerFlt> calibDrawer(TileCalibDrawerFlt::getInstance(*blob, defs, N_CHANNELS, OBJ_VERSION));
+    // Trick to make calib drawer to own blob
+    std::unique_ptr<TileCalibDrawerFlt> tmdbDrawer = std::make_unique<TileCalibDrawerFlt>(*calibDrawer);
+
+    if (drawerIdx == DELAY_DRAWER_IDX) {
+      tmdbDrawer->setData(TMDB::D5L, 0, 0, 10);
+      tmdbDrawer->setData(TMDB::D5R, 0, 0, 20);
+      tmdbDrawer->setData(TMDB::D6L, 0, 0, 30);
+      tmdbDrawer->setData(TMDB::D6R, 0, 0, 40);
+    } else if (drawerIdx == THRESHOLD_DRAWER_IDX) {
+      tmdbDrawer->setData(TMDB::D6LOW, 0, 0, 100);
+      tmdbDrawer->setData(TMDB::D6HIGH, 0, 0, 200);
+      tmdbDrawer->setData(TMDB::D5D6LOW, 0, 0, 1000);
+      tmdbDrawer->setData(TMDB::D5D6HIGH, 0, 0, 2000);
+    }
+
+    data->setCalibDrawer(drawerIdx, tmdbDrawer.release());
+    ++drawerIdx;
+  }
+
+  for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
+    if (!data->getCalibDrawer(drawerIdx)) {
+      unsigned int defaultDrawerIdx = TileCalibUtils::getDefaultDrawerIdx(drawerIdx);
+      data->setCalibDrawer(drawerIdx, data->getCalibDrawer(defaultDrawerIdx));
+    }
+  }
+
+  assert(calibData.record(EVENT_RANGE, data.release()).isSuccess());
+
+  EventIDBase eventId;
+  eventId.set_run_number(EventIDBase::UNDEFNUM / 4);
+  eventId.set_lumi_block(EventIDBase::UNDEFNUM / 4);
+
+  EventContext ctx;
+  ctx.setEventID(eventId);
+  ctx.setExtension( Atlas::ExtendedEventContext(&*conditionStore) );
+  Gaudi::Hive::setCurrentContext(ctx);
+
+
+  std::unique_ptr<DummyAlgorithm> alg = std::make_unique<DummyAlgorithm>("DummyAlgorithm", svcLoc);
   alg->addRef();
 
-  TileCondToolTMDB* tool = new TileCondToolTMDB("TileCondToolTMDB", "TileCondToolTMDBTest", alg);
+  std::unique_ptr<TileCondToolTMDB> tool = std::make_unique<TileCondToolTMDB>("TileCondToolTMDB",
+                                                                              "TileCondToolTMDBTest",
+                                                                              alg.get());
   tool->addRef();
-  assert(tool->setProperty("ProxyThreshold", "TileCondProxyMock<TileCalibDrawerFlt>/TileCondProxyMockFlt"));
-  assert(tool->setProperty("ProxyDelay", "TileCondProxyMock<TileCalibDrawerFlt>/TileCondProxyMockFlt"));
-  assert(tool->setProperty("ProxyCalib", "TileCondProxyMock<TileCalibDrawerFlt>/TileCondProxyMockFlt"));
-  assert(tool->setProperty("ProxyTMF", "TileCondProxyMock<TileCalibDrawerFlt>/TileCondProxyMockFlt"));
+
+  assert(tool->setProperty("TileTMDBThreshold", TILE_TMDB));
+  assert(tool->setProperty("TileTMDBDelay", TILE_TMDB));
+  assert(tool->setProperty("TileTMDBTMF", TILE_TMDB));
+  assert(tool->setProperty("TileTMDBCalib", TILE_TMDB));
   assert(tool->initialize());
 
 
@@ -192,16 +206,12 @@ void test1() {
 
   std::vector<float> samples = {10, 20, 40, 80, 40, 20, 10};
   amplitude = tool->channelCalib(TMF_DRAWER_IDX, TMDB::D5L, samples);
-  assert(Athena_test::isEqual(amplitude, 2121.0));
-
-  delete tool;
-  delete alg;
+  assert(Athena_test::isEqual(amplitude, 1062.0));
 
 }
 
 
 int main() {
-
 
   test1();
 

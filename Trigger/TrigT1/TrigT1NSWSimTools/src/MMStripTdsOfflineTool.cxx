@@ -7,8 +7,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 // local includes
-#include "MMStripTdsOfflineTool.h"
-#include "MMStripOfflineData.h"
+#include "TrigT1NSWSimTools/MMStripTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/MMStripOfflineData.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"

@@ -193,7 +193,7 @@ class Navigable : virtual public INavigable
                   size_t                  sizeHint = 0);
   // add element to the Navigable: use element index (direct access!)
   void putElement(const CONT*          objectContainer,
-		  external_index_type& theIndex,
+		  const external_index_type& theIndex,
 		  const RPAR&          objectParameter=RPAR(),
                   size_t               sizeHint = 0);
   // insert element without checking if already in store: use element pointer
@@ -203,13 +203,13 @@ class Navigable : virtual public INavigable
                      size_t                  sizeHint = 0);
   // insert element without checking if already in store: use index
   void insertElement(const CONT*          objectContainer,
-		     external_index_type& theIndex,
+		     const external_index_type& theIndex,
 		     const RPAR&          objectParameter=RPAR(),
                      size_t               sizeHint = 0);
   // insert element without checking if already in store: use index
   // store is supplied explicitly.
   void insertElement(const CONT*          objectContainer,
-		     external_index_type& theIndex,
+		     const external_index_type& theIndex,
                      IProxyDict*          sg,
 		     const RPAR&          objectParameter=RPAR(),
                      size_t               sizeHint = 0);
@@ -226,7 +226,7 @@ class Navigable : virtual public INavigable
   void reweight(const constituent_type* constituentObject,
 		const RPAR& objectParameter=RPAR());
   void reweight(const CONT* objectContainer,
-		external_index_type& theIndex,
+		const external_index_type& theIndex,
 		const RPAR& objectParameter=RPAR());
   void reweight(object_iter& objectIter,
 		const RPAR& objectParameter=RPAR());
@@ -234,7 +234,7 @@ class Navigable : virtual public INavigable
 
   // remove object from the Navigable
   bool remove(const constituent_type* aConstituent);
-  bool remove(const CONT* objectContainer, external_index_type& theIndex);
+  bool remove(const CONT* objectContainer, const external_index_type& theIndex);
   bool removeAll() { m_constituents.clear(); return this->size() == 0 ; }
 
   /// replace old object container with a new container
@@ -245,7 +245,7 @@ class Navigable : virtual public INavigable
   // check if constituent is already there  
   bool contains(const constituent_type* aConstituent) const;
   bool contains(const CONT* objectContainer,
-		external_index_type& theIndex) const;
+		const external_index_type& theIndex) const;
 
   ////////////////////////////
   // Access to Constituents //
@@ -263,7 +263,7 @@ class Navigable : virtual public INavigable
   // public container access: relational parameter retrieval
   RPAR getParameter(const constituent_type* aConstituent) const;
   RPAR getParameter(const CONT* objectContainer,
-		    external_index_type& theIndex) const;
+		    const external_index_type& theIndex) const;
   RPAR getParameter(object_iter& theIter) const;
 
   //  RPAR getParameter(const ElementLink<CONT>* theLink) const;

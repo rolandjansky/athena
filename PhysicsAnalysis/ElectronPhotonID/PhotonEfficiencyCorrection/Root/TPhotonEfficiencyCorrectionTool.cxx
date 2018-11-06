@@ -14,20 +14,8 @@
 // This class header
 #include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
 
-// STL includes
-#include <iostream>
-#include <math.h>
-// ROOT includes
-#include "TString.h"
-#include "TSystem.h"
-#include "TObjString.h"
-#include "TROOT.h"
-#include "TFile.h"
-#include "TClass.h"
-#include "TMD5.h"
 
 Root::TPhotonEfficiencyCorrectionTool::TPhotonEfficiencyCorrectionTool(const char* name):
-    Root::TCalculatorToolBase(name),
     Root::TElectronEfficiencyCorrectionTool(name){
     }
 
@@ -36,18 +24,15 @@ Root::TPhotonEfficiencyCorrectionTool::~TPhotonEfficiencyCorrectionTool(){
 
 int Root::TPhotonEfficiencyCorrectionTool::initialize(){
     //Apparently the TResult needs a "specific convention" for the 1st  2
-    m_result.addResult("efficiency_SF", "efficiency scale factor");
-    m_result.addResult("efficiency_SF_err", "efficiency scale factor uncertainty");
-    m_result.setResult(0, -999.0);
-    m_result.setResult(1, 1.0);
-    return Root::TElectronEfficiencyCorrectionTool::initialize();
+   return Root::TElectronEfficiencyCorrectionTool::initialize();
 }
 
 int Root::TPhotonEfficiencyCorrectionTool::finalize(){
     return Root::TElectronEfficiencyCorrectionTool::finalize();
 }
 
-const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::ParticleDataType::DataType dataType,
+typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
+const Result Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::ParticleDataType::DataType dataType,
                                   const unsigned int runnumber,
                                   const double cluster_eta,
                                   const double et /* in MeV */
@@ -64,15 +49,8 @@ const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PAT
             MCToysIndex
             );
 
-    // Write the retrieved values into the return object
-    /*
-     * From the TResult comments
-     * Get the zeroth entry, by convention, this is the efficiency or scale factor or MVA response or..
-     * Get the first entry, by convention, this is the total uncertainty
-     */
-    if(result.size()>static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)){
-        m_result.setResult(0, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)]);
-        m_result.setResult(1, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)]);
-    }
-    return m_result;
+    Result output;
+    output.scaleFactor= result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)];
+    output.totalUncertainty=result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)];
+    return output;
 }

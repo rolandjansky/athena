@@ -338,7 +338,7 @@ WriteHandle<T>::recordNonConst (SG::DataObjectSharedPtr<T> data)
  * @param returnExisting Allow an existing object?
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -363,7 +363,7 @@ WriteHandle<T>::put (std::unique_ptr<T> data,
  * @param returnExisting Allow an existing object?
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -388,7 +388,7 @@ WriteHandle<T>::put (std::unique_ptr<const T> data,
  * @param returnExisting Allow an existing object?
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -415,7 +415,7 @@ WriteHandle<T>::put (std::unique_ptr<const ConstDataVector<T> > data,
  * @param returnExisting Allow an existing object?
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -442,7 +442,7 @@ WriteHandle<T>::put (const EventContext& ctx,
  * @param returnExisting Allow an existing object?
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -467,7 +467,7 @@ WriteHandle<T>::put (const EventContext& ctx,
  * @param data The object to record.
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -490,7 +490,7 @@ WriteHandle<T>::put (SG::DataObjectSharedPtr<T> data) const
  * @param data The object to record.
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -514,7 +514,7 @@ WriteHandle<T>::put (const EventContext& ctx,
  * @param auxstore Auxiliary store object.
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -538,7 +538,7 @@ WriteHandle<T>::put (std::unique_ptr<T> data,
  * @param auxstore Auxiliary store object.
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -565,7 +565,7 @@ WriteHandle<T>::put (std::unique_ptr<const T> data,
  * @param auxstore Auxiliary store object.
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.
@@ -590,7 +590,7 @@ WriteHandle<T>::put (const EventContext& ctx,
  * @param auxstore Auxiliary store object.
  *
  * Unlike record(), this does not change the handle object.
- * That means that will not be able to get the object back
+ * That means that one will not be able to get the object back
  * by dereferencing the handle.
  * Returns the object placed in the store, or nullptr if there
  * was an error.

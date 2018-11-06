@@ -23,7 +23,7 @@
 
 namespace InDetDD
 {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }
 
 
@@ -42,7 +42,7 @@ class PixelDistortionsTestReadWrite: public AthAlgorithm{
  private:
 
   //mutable MsgStream m_log;
-  const InDetDD::SiDetectorManager * m_detManager;
+  const InDetDD::PixelDetectorManager * m_detManager;
 
   PublicToolHandle<IModuleDistortionsTool >  m_pixelDistoTool
      {this,"PixelDistortionsTool","PixelDistortionsTool",""};

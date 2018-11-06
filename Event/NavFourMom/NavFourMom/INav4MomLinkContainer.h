@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "AthLinks/ElementLink.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "NavFourMom/INav4MomLink.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"

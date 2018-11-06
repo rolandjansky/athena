@@ -40,6 +40,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "PoolSvc.ReadCatalog":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
                "TagInfoMgr.ExtraTagValuePairs":unifySetOfPairs,
+               "AthenaOutputStream.ItemList":unifySet,
                }
 
 
@@ -47,5 +48,6 @@ def unifyProperty(propname,prop1,prop2):
     if propname not in _propsToUnify:
         from AthenaConfiguration.ComponentAccumulator import DeduplicationFailed
         raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propname \
-                                      +"If this property should be merged, consider adding it to AthenaConfiguration/UnifyProperties.py")
+                                      + str(prop1) +"\n and \n" +str(prop2) \
+                                      + "\nIf this property should be merged, consider adding it to AthenaConfiguration/UnifyProperties.py")
     return _propsToUnify[propname](prop1,prop2)

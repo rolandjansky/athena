@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,8 @@
 
 class TileHWID;
 
-#include <vector> 
+#include <vector>
+#include <string>
 
 /**
 * @class TileFragHash
@@ -36,7 +37,10 @@ class TileFragHash  {
   void initialize(const TileHWID * tileHWID, TYPE type=Default ); 
 
   /**Convert ID to int */
-  int operator() (const ID& id) const ;
+  int operator() (const ID& id) const { return hash(id); }
+
+  /**Convert ID to int (same as the converter, but easier to call from python) */
+  int hash (const ID& id) const;
 
   /** reverse conversion */
   ID identifier(int i) const;   
@@ -49,8 +53,13 @@ class TileFragHash  {
 
   /**return hash type */
   TYPE type() const {return m_type;}
-  
- private:
+
+
+  /** Printable representation of a type. */
+  static std::string typeToString (TYPE type);
+
+
+private:
   /** total number of IDs */
   int m_size;  // total number of IDs
   int m_offset; // different offset for different types of collections

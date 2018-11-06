@@ -98,7 +98,7 @@ StatusCode TGC_RegionSelectorTable::createTable() {
 
   const MuonGM::MuonDetectorManager*	p_MuonMgr = NULL;
   
-  StatusCode status = detStore()->retrieve( p_MuonMgr );
+  ATH_CHECK( detStore()->retrieve( p_MuonMgr ) );
 	
   RegSelSiLUT* tgclut = new RegSelSiLUT();
 

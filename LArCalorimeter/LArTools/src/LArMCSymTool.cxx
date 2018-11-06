@@ -126,24 +126,18 @@ StatusCode LArMCSymTool::finalize()
 
 HWIdentifier LArMCSymTool::symOnline(const HWIdentifier & id)  const
 {
-  if (id == m_hwid) {
-   return m_hwid_sym;
-  }
-  m_hwid_sym.clear();
+
   const Identifier offid = m_cablingService->cnvToIdentifier(id);
-  if (offid.is_valid()) {
-    m_hwid_sym = symOnline(offid);
+  if (!offid.is_valid()) {
+    return HWIdentifier();
   }
-  m_hwid = id;
-  return m_hwid_sym;
+  return symOnline(offid);
 }
 
 HWIdentifier LArMCSymTool::symOnline(const Identifier & id) const
 {
- if (id == m_offid) {
-   return m_hwid_sym2;
- }
 
+  
  IdentifierHash idHash;
  int offset=-1;
  if(m_lar_em_id->is_lar_em(id)) 
@@ -163,9 +157,7 @@ HWIdentifier LArMCSymTool::symOnline(const Identifier & id) const
  }
  if (offset <0) ATH_MSG_ERROR( "problem offset " << offset  );
  const unsigned int index = idHash+offset;
- m_offid = id;
- m_hwid_sym2 = m_listOnline[index];
- return m_hwid_sym2;
+ return  m_listOnline[index];
 }
 
 

@@ -7,7 +7,10 @@
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
 #include "InDetJiveXML/IInDetGeoModelTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace JiveXML
 {
@@ -47,8 +50,8 @@ namespace JiveXML
       /// Return the name of the data type
       virtual std::string dataTypeName() const { return m_typeName; }
 
-      /// initialize only geo model tool
-      virtual StatusCode initialize() { return m_geo.retrieve(); }
+      /// initialize
+      virtual StatusCode initialize();
 
     private:
       
@@ -63,7 +66,8 @@ namespace JiveXML
       /// The StoreGate key for the PRD MultiTruthMap with the track associations
       std::string m_SiTruthMapName;
      
-
+      /// Condition object key of SiDetectorElementCollection for SCT
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     };
 }
 #endif

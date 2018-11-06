@@ -13,7 +13,7 @@
  * Description:
  *      Inherits from TrigEgammaAnalysisBaseTool.
  **********************************************************************/
-#include "egammaMVACalib/IegammaMVATool.h"
+#include "egammaMVACalibAnalysis/IegammaMVATool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "PATCore/AcceptData.h"

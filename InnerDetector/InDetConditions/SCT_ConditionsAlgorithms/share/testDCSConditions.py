@@ -70,9 +70,10 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+# Set up SCT_DCSConditionsTool and required conditions folders and conditions algorithms
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
 
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service
@@ -81,12 +82,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTestAlg
-topSequence+= SCT_DCSConditionsTestAlg()
-
-# Set up SCT_DCSConditionsTool and required conditions folders and conditions algorithms
-from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-sct_DCSConditionsToolSetup.setup()
+topSequence+= SCT_DCSConditionsTestAlg(SCT_DCSConditionsTool=sct_DCSConditionsToolSetup.getTool())
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector

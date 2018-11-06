@@ -6,8 +6,6 @@
 + AtlasGeometryCommon/GeoModelEnvelopes
 + AtlasGeometryCommon/Interpreters
 + AtlasGeometryCommon/SubDetectorEnvelopes
-+ AtlasTest/NightlyTestTools/ATNight
-+ AtlasTest/NightlyTestTools/Nicos
 + AtlasTest/TestTools
 + Calorimeter/CaloCnv/CaloDetMgrDetDescrCnv
 + Calorimeter/CaloCnv/CaloIdCnv
@@ -29,6 +27,7 @@
 + Control/AthLinks
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
++ Control/AthenaConfiguration
 + Control/AthenaCommon
 + Control/AthenaExamples/AthExHelloWorld
 + Control/AthenaInterprocess
@@ -40,7 +39,6 @@
 + Control/CLIDComps
 + Control/CLIDSvc
 + Control/CxxUtils
-+ Control/DataModel
 + Control/DataModelAthenaPool
 + Control/DataModelRoot
 + Control/GaudiSequencer
@@ -71,9 +69,7 @@
 + Database/APR/RootCollection
 + Database/APR/RootStorageSvc
 + Database/APR/StorageSvc
-+ Database/APR/XMLCatalog
 + Database/AthenaPOOL/AthenaPoolCnvSvc
-+ Database/AthenaPOOL/AthenaPoolKernel
 + Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
 + Database/AthenaPOOL/DBDataModel
@@ -218,7 +214,6 @@
 + LArCalorimeter/LArG4/LArG4RunControl
 + LArCalorimeter/LArG4/LArG4SD
 + LArCalorimeter/LArG4/LArG4ShowerLib
-+ LArCalorimeter/LArG4/LArG4ShowerLibData
 + LArCalorimeter/LArG4/LArG4ShowerLibSvc
 + LArCalorimeter/LArGeoModel/LArGeoAlgsNV
 + LArCalorimeter/LArGeoModel/LArGeoBarrel
@@ -331,7 +326,6 @@
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PROCTools
-+ Tools/PyCmt
 + Tools/PyJobTransforms
 + Tools/PyUtils
 + Tools/Scripts

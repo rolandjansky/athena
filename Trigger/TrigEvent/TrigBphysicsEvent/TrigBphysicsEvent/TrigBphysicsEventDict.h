@@ -8,7 +8,7 @@
 
 #include "TrigBphysicsEvent/TrigJpsi.h"
 #include "TrigBphysicsEvent/TrigJpsiContainer.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 void dummyTriggerForTrigPartTypedefs(TrigJpsiContainer a, DataVector<TrigJpsi> b){
 	TrigJpsiContainer aa = a;
 	DataVector<TrigJpsi> bb = b;

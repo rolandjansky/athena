@@ -200,7 +200,7 @@ monMan.LumiBlock           = 1
 
 from MuonCalibMonitoring.MuonCalibMonitoringConf import CscCalibMonToolPed
 CscCalibMonTool = CscCalibMonToolPed ("CscCalibMonToolPed" )
-ToolSvc += CscCalibMonTool
+#ToolSvc += CscCalibMonTool
 monMan.AthenaMonTools += [CscCalibMonTool]
 CscCalibMonTool.GetDebugForAllChannels = False
 CscCalibMonTool.StatusReportFileName = outputPre + "CalibReport.txt"

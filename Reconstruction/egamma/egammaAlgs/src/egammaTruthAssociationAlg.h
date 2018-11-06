@@ -15,6 +15,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -35,7 +37,9 @@
 class egammaTruthAssociationAlg : public AthAlgorithm {
 
 public:
-  
+
+  typedef Trk::IParticleCaloExtensionTool::Cache Cache;
+
   /** @brief constructor */
   egammaTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
   
@@ -87,7 +91,7 @@ private:
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
-  template<class T> MCTruthInfo_t particleTruthClassifier(const T*) ;
+  template<class T> MCTruthInfo_t particleTruthClassifier(const T*, Cache *) ;
      
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/

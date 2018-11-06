@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
  /***************************************************************************
                            CPMSim.h  -  description
                               -------------------
      begin                : Wed Mar 05 2014
-     copyright            : (C) 2014 Alan Watson
      email                : Alan.Watson@CERN.CH
   ***************************************************************************/
 
@@ -74,9 +76,7 @@
    //------------------------------------------------------
 
    StatusCode initialize() ;
-   StatusCode beginRun() ;
    StatusCode execute() ;
-   StatusCode finalize() ;
 
  private: // Private methods
    /** Store TOB RoI objects in the TES. */

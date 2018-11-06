@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -48,7 +48,6 @@ namespace InDet {
 					   const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
     m_extrapolator(""),
-    m_pixelCondSummaryTool("",this),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelper(nullptr),
     m_pixelId(nullptr),
@@ -56,7 +55,6 @@ namespace InDet {
   {
     declareInterface<IInDetTestBLayerTool>(this);
     declareProperty("Extrapolator"   , m_extrapolator);
-    declareProperty("PixelSummaryTool", m_pixelCondSummaryTool);
     declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
@@ -102,7 +100,7 @@ namespace InDet {
       }
     }
 
-    // Get PixelConditionsSummarySvc
+    // Get PixelConditionsSummaryTool
     if( m_pixelCondSummaryTool.empty() ){
       ATH_MSG_INFO( "PixelConditionsSummary not configured " );
       m_configured=false;

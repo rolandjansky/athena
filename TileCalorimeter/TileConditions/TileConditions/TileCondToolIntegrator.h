@@ -5,15 +5,13 @@
 #ifndef TILECONDITIONS_TILECONDTOOLINTEGRATOR_H
 #define TILECONDITIONS_TILECONDTOOLINTEGRATOR_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileConditions/TileCalibData.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Tile includes
-#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-#include "TileConditions/ITileCondProxy.h"
 
 #include <vector>
 
@@ -25,8 +23,8 @@ class TileCondToolIntegrator: public AthAlgTool {
     TileCondToolIntegrator(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCondToolIntegrator();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     float getGain(      unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
     float getGainError( unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
@@ -39,8 +37,10 @@ class TileCondToolIntegrator: public AthAlgTool {
 
   private:
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryIntegrator;
+    //=== TileCalibData
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibIntegratorKey{this,
+        "TileIntegrator", "TileIntegrator", "Input Tile integrator constants"};
+
 
 };
 

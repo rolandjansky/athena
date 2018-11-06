@@ -19,15 +19,12 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Reconstruction/egamma/egammaInterfaces )
 
-# External dependencies:
-find_package( CLHEP )
-
 # Component(s) in the package:
 atlas_add_component( egammaCaloTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloUtilsLib AthenaBaseComps SGTools FourMomUtils xAODCaloEvent GaudiKernel )
+                     INCLUDE_DIRS 
+                     LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloUtilsLib AthenaBaseComps SGTools FourMomUtils xAODCaloEvent GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( egammaCaloTools )

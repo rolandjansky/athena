@@ -3,7 +3,7 @@
 */
 
 // Tile includes
-#include "TileRecAlgs/TileCellSelector.h"
+#include "TileCellSelector.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileCell.h"

@@ -24,18 +24,19 @@
 
 #include "eformat/Version.h"
 
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/IdContext.h" 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <deque>
 
 class FastSCT_Clusterization;
+class ISCT_CablingTool;
 
 class FastSCT_RodDecoder : public AthAlgTool 
 {
@@ -53,19 +54,19 @@ public:
   virtual StatusCode finalize();
 
   bool fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob,
-                       uint32_t robid, ISCT_CablingSvc* cablingSvc, 
+                       uint32_t robid, ISCT_CablingTool* cablingTool, 
 		       std::vector<bool>&, FastSCT_Clusterization* );
 
   int addNewStrip(int strip, int, uint32_t onlineId, int ERRORS, float errorHit[20],
-		  std::vector<bool>&);
+		  std::vector<bool>&, const InDetDD::SiDetectorElementCollection* elements);
 
  private:
-  const InDetDD::SCT_DetectorManager *m_indet_mgr; 
   const SCT_ID* m_sct_id; 
   IdContext m_cntx_sct; 
   FastSCT_Clusterization* m_pClusterization;
-  ISCT_CablingSvc* m_cablingSvc;
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ISCT_CablingTool* m_cablingTool;
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 };
 
 #endif

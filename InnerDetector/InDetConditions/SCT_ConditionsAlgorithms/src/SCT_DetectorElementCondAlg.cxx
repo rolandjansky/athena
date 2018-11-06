@@ -10,6 +10,8 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkGeometry/Layer.h"
 
 SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -57,7 +59,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
 
   const InDetDD::SiDetectorElementCollection* oldColl{m_detManager->getDetectorElementCollection()};
   if (oldColl==nullptr) {
-    ATH_MSG_ERROR("Null pointer is returned by getDetectorElementCollection()");
+    ATH_MSG_FATAL("Null pointer is returned by getDetectorElementCollection()");
     return StatusCode::FAILURE;
   }
 
@@ -69,13 +71,13 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   SG::ReadCondHandle<GeoAlignmentStore> readHandle{m_readKey};
   const GeoAlignmentStore* readCdo{*readHandle};
   if (readCdo==nullptr) {
-    ATH_MSG_ERROR("Null pointer to the read conditions object of " << m_readKey.key());
+    ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKey.key());
     return StatusCode::FAILURE;
   }
 
   // Define validity of the output cond object and record it
   if (not readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
 
@@ -90,7 +92,6 @@ StatusCode SCT_DetectorElementCondAlg::execute()
       const InDetDD::SiCommonItems* oldCommonItems{oldEl->getCommonItems()};
       m_commonItems = new InDetDD::SiCommonItems(oldCommonItems->getIdHelper());
       m_commonItems->setSolenoidFrame(oldCommonItems->solenoidFrame());
-      // SiLorentzAngleSvc is not set.
     }
 
     *newEl = new InDetDD::SiDetectorElement(oldEl->identify(),
@@ -103,6 +104,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   }
 
   // Set neighbours and other side
+  // Set layer to surface
   InDetDD::SiDetectorElementCollection::const_iterator oldIt{oldColl->begin()};
   for (InDetDD::SiDetectorElement* newEl: *writeCdo) {
     if (oldToNewMap[(*oldIt)]!=newEl) {
@@ -113,6 +115,11 @@ StatusCode SCT_DetectorElementCondAlg::execute()
     newEl->setNextInPhi(oldToNewMap[(*oldIt)->nextInPhi()]);
     newEl->setPrevInPhi(oldToNewMap[(*oldIt)->prevInPhi()]);
     newEl->setOtherSide(oldToNewMap[(*oldIt)->otherSide()]);
+    // Layer of old element is set by InDet::SiLayerBuilder::registerSurfacesToLayer.
+    const Trk::Layer* layer{(*oldIt)->surface().associatedLayer()};
+    if (layer) {
+      newEl->surface().associateLayer(*layer);
+    }
     oldIt++;
   }
 
@@ -124,7 +131,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   // Record WriteCondHandle
   const std::size_t size{writeCdo->size()};
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record " << writeHandle.key() 
+    ATH_MSG_FATAL("Could not record " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;

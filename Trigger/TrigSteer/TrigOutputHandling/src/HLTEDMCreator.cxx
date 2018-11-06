@@ -52,6 +52,11 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigPhotonContainer );
   INIT_XAOD( TrackParticleContainer );
 
+  INIT_XAOD( L2StandAloneMuonContainer );
+  INIT_XAOD( L2CombinedMuonContainer );
+  INIT_XAOD( L2IsoMuonContainer );
+  INIT_XAOD( MuonContainer );
+
 #undef INIT
 #undef INIT_XAOD
   
@@ -179,7 +184,7 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
 
       // Store the remapped TCs
       SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( writeHandleKey.key() + "_remap" );
-      output.record( writeHandle );
+      CHECK(output.record( writeHandle ));
     }
   }
 
@@ -252,6 +257,11 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
   CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )
   CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer )
+
+  CREATE_XAOD( L2StandAloneMuonContainer, L2StandAloneMuonAuxContainer );
+  CREATE_XAOD( L2CombinedMuonContainer, L2CombinedMuonAuxContainer );
+  CREATE_XAOD( L2IsoMuonContainer, L2IsoMuonAuxContainer );
+  CREATE_XAOD( MuonContainer, MuonAuxContainer );
 
   // After view collections are merged, need to update collection links
   CHECK( fixLinks( ConstHandlesGroup<xAOD::TrigCompositeContainer>( m_TrigCompositeContainer, m_TrigCompositeContainerInViews, m_TrigCompositeContainerViews ) ) );

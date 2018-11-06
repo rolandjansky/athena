@@ -19,7 +19,7 @@ namespace Ringer {
  * @class RedirectMsgStream
  * @brief Redirect Msg Stream to calling AsgSelector
  *
- *  We do this so that we can display messages as if we were AsgSelector 
+ *  We do this so that we can display messages as if we were AsgSelector
  * with our algorithms.
  *
  *  If we are not running using a AsgSelector, use ostream otherwise.
@@ -42,10 +42,10 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
 #endif
     }
     /// Check if message level is enabled
-    bool msgLvl(MSG::Level level) const { 
+    bool msgLvl(MSG::Level level) const {
 #if !defined(RINGER_STANDALONE)
       if ( isStreamAvailable() ) {
-        return m_msg->level() <= level; 
+        return m_msg->level() <= level;
       }
       return false;
 #else
@@ -58,7 +58,7 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
 #if !defined(RINGER_STANDALONE)
       if ( isStreamAvailable() )
         return m_msg->level();
-      else 
+      else
         throw std::runtime_error(std::string("Stream not available"));
 #else
       return MSG::currentLevel;
@@ -69,19 +69,19 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
     /// Ctors:
     /// @{
     /**
-     * @brief Redirects output as if it run by Asg selector. 
+     * @brief Redirects output as if it run by Asg selector.
      *
      *   When no MsgStream available, build one if on Asg environment,
      * otherwise use std::cout.
-     **/ 
+     **/
     RedirectMsgStream(MsgStream *msg):
       m_msg(msg){;}
     /**
-     * @brief Redirects output as if it run by Asg selector. 
+     * @brief Redirects output as if it run by Asg selector.
      *
      *   When no MsgStream available, build one if on Asg environment,
      * otherwise use std::cout.
-     **/ 
+     **/
     RedirectMsgStream():
       m_msg(nullptr){;}
     /// @}
@@ -95,9 +95,9 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
 
 #if !defined(RINGER_STANDALONE)
     /// Returns MsgSteam with its current level
-    MsgStream& msg() const { 
+    MsgStream& msg() const {
       if ( isStreamAvailable() ) {
-        return (*m_msg); 
+        return (*m_msg);
       } else {
         throw std::runtime_error(std::string(
               "Cannot display message, MsgStream not set."
@@ -106,7 +106,7 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
     }
 
     /// Returns MsgStream and set its level
-    MsgStream& msg(MSG::Level level) const { 
+    MsgStream& msg(MSG::Level level) const {
       if ( isStreamAvailable() ) {
 #if !defined(XAOD_ANALYSIS) && !defined(XAOD_STANDALONE)
         return m_msg->report(level);
@@ -122,18 +122,18 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
 
 #else
     /// Returns MsgSteam with its current level
-    MsgStream& msg() const { 
+    MsgStream& msg() const {
       if ( isStreamAvailable() ) {
-        return (*m_msg); 
+        return (*m_msg);
       } else {
         return std::cout;
       }
     }
 
     /// Returns m_msg, otherwise returns
-    MsgStream& msg(MSG::Level level) const { 
+    MsgStream& msg(MSG::Level level) const {
       if ( isStreamAvailable() ) {
-        return (*m_msg) << level; 
+        return (*m_msg) << level;
       } else {
         return std::cout << level;
       }

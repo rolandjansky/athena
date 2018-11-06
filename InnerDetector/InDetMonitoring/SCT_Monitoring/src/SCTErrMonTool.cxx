@@ -34,9 +34,9 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "cArrayUtilities.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include <vector>
 #include <set>
@@ -210,7 +210,6 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   // m_errThreshold{}, property
   // m_effThreshold{}, property
   // m_noiseThreshold{}, property
-  m_sctManager( 0 ),
   m_disabledGeoSCT(),
   m_errorGeoSCT(),
   m_disabledModulesMapSCT(nullptr),
@@ -261,13 +260,12 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
 // ====================================================================================================
 //====================================================================================================
 StatusCode SCTErrMonTool::initialize() {
-  if (detStore()->retrieve(m_sctManager, "SCT").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
 
   ATH_CHECK( m_dataObjectName.initialize() );
   ATH_CHECK( m_eventInfoKey.initialize() );
+
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return ManagedMonitorToolBase::initialize();
 }
@@ -560,9 +558,6 @@ SCTErrMonTool::bookHistograms() {
   if (ManagedMonitorToolBase::newLumiBlockFlag()) {
     m_numberOfEventsLumi = 0;
   }
-  const InDetDD::SCT_DetectorManager *mgr; // confusingly this is in a dedicated namespace
-  ATH_CHECK(detStore()->retrieve(mgr, "SCT"));
-  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
 
   // Services for Summary Histograms: SCT_ModuleConditionsTool from CondDB
   ATH_MSG_INFO("Checking for CondDB");
@@ -2410,7 +2405,7 @@ SCTErrMonTool::fillConfigurationDetails() {
     msg(MSG::DEBUG) << "Inside fillConfigurationDetails()" << endmsg;
   }
   unsigned int nBadMods = m_ConfigurationTool->badModules()->size(); // bad modules
-  const std::map<Identifier, std::pair<bool, bool> > *badLinks = m_ConfigurationTool->badLinks(); // bad links
+  const std::map<IdentifierHash, std::pair<bool, bool> > *badLinks = m_ConfigurationTool->badLinks(); // bad links
   unsigned int nBadLink0(0), nBadLink1(0), nBadLinkBoth(0);
   for (auto link: *badLinks) {
     std::pair<bool, bool> status = link.second;
@@ -2698,6 +2693,13 @@ bool SCTErrMonTool::SyncErrorSCT()
 
   m_errorGeoSCT.clear();
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
+    return false;
+  }
+
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
       const std::set<IdentifierHash> * sctErrors = m_byteStreamErrTool->getErrorSet( i );
@@ -2713,7 +2715,7 @@ bool SCTErrMonTool::SyncErrorSCT()
           {
             moduleGeo_t moduleGeo;
 
-            InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
+            const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( (*fit) );
             newElement->getEtaPhiRegion( deltaZ,
                                          moduleGeo.first.first,  moduleGeo.first.second,
                                          moduleGeo.second.first, moduleGeo.second.second,
@@ -2733,6 +2735,14 @@ bool SCTErrMonTool::SyncDisabledSCT()
   double deltaZ = 0;
 
   m_disabledGeoSCT.clear();
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    return false;
+  }
+
   const std::set<Identifier>* badModules = m_ConfigurationTool->badModules();
   std::set<Identifier>::const_iterator fit = badModules->begin();
   std::set<Identifier>::const_iterator fitEnd = badModules->end();
@@ -2747,7 +2757,8 @@ bool SCTErrMonTool::SyncDisabledSCT()
         altered = true;
         moduleGeo_t moduleGeo;
 
-        InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
+        const IdentifierHash waferHash = m_pSCTHelper->wafer_hash( (*fit) );
+        const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( waferHash );
         newElement->getEtaPhiRegion( deltaZ,
                                      moduleGeo.first.first,  moduleGeo.first.second,
                                      moduleGeo.second.first, moduleGeo.second.second,

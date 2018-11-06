@@ -40,9 +40,9 @@ class LArfSamplComplete: public ILArfSampl ,
   
   // retrieving fSampl using online ID
   
-  virtual const float& FSAMPL(const HWIdentifier&  CellID) const ;
+  virtual const float& FSAMPL(const HWIdentifier&  CellID) const override;
   
-  virtual const float& FSAMPL(const Identifier&  CellID) const;
+  virtual const float& FSAMPL(const Identifier&  CellID) const override;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

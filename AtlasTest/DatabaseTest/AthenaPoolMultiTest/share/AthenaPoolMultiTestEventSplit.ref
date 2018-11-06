@@ -428,21 +428,34 @@ Splitter48           INFO EventInfo event: 19 run: 0
 Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
+Stream2              INFO AthenaOutputStream Stream2 ::stop()
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 8
+Stream1              INFO AthenaOutputStream Stream1 ::stop()
 Stream1              INFO Records written: 8
+Stream3              INFO AthenaOutputStream Stream3 ::stop()
 Stream3              INFO Records written: 6
+Others               INFO AthenaOutputStream Others ::stop()
 Others               INFO Records written: 2
+Bad                  INFO AthenaOutputStream Bad ::stop()
 Bad                  INFO Records written: 1
 CollBit1.Regist...   INFO Collection Events output: 7
+CollBit1.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 Coll23.Registra...   INFO Collection Events output: 14
+Coll23.Registra...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split23.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 Coll456.Registr...   INFO Collection Events output: 3
+Coll456.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split456.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 CollBar.Registr...   INFO Collection Events output: 1
+CollBar.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitBar.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 Coll1and7.Regis...   INFO Collection Events output: 1
+Coll1and7.Regis...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1plus7' already registered ( POOL : "registerPFN" from "FileCatalog" )
 Coll348.Registr...   INFO Collection Events output: 9
+Coll348.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split348.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 CollTrig.CollTr...   INFO Collection Events output: 20
+CollTrig.CollTr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitTrig.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 CollBad.Registr...   INFO Collection Events output: 0
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
+CollBad.Registr...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_SplitBad.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()

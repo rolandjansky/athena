@@ -20,12 +20,9 @@
 #include <list>
 #include "JetTagTools/ITagTool.h"
 #include "xAODTracking/TrackParticle.h"
-#include "egammaMVACalib/egammaMVACalib.h"
 #include "MVAUtils/BDT.h"
 #include "StoreGate/ReadHandleKey.h"
-
-#include "TMVA/MethodBase.h"
-#include "TMVA/IMethod.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 
 #include "JetTagTools/IMultivariateJetTagger.h"
 
@@ -42,12 +39,9 @@ namespace CP { class IMuonSelectionTool; }
 
 namespace Analysis
 {
-
   class SoftMuonInfo;
   class NewLikelihoodTool;
-  //  class LikelihoodMultiDTool;
   class HistoHelperRoot;
-  class CalibrationBroker;
 
   class SoftMuonTag : public AthAlgTool, virtual public ITagTool
   {
@@ -78,8 +72,8 @@ namespace Analysis
     std::string m_treeName;
     std::string m_varStrName;
 
-    /** pointer to calibration in COOL: */
-    ToolHandle<CalibrationBroker> m_calibrationTool;
+    /** Key of calibration data: */
+    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
     bool m_forceMV2CalibrationAlias;
     bool m_useEgammaMethodMV2;
     //bool m_decorateBTaggingObj;
@@ -88,8 +82,6 @@ namespace Analysis
     std::string m_MV2cXX;
     std::string m_xAODBaseName;
 
-    std::map<std::string, TMVA::Reader*> m_tmvaReaders;
-    std::map<std::string, TMVA::MethodBase*> m_tmvaMethod;
     std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
@@ -186,10 +178,8 @@ namespace Analysis
     bool m_writeInfoPlus;
     std::string m_originalMuCollectionName;
     std::string m_muonAssociationName;
-    //const MuonContainer* m_originalMuCollection;
       
     void ReplaceNaN_andAssign(std::map<std::string, double> var_map);
-    //void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader,
     void SetVariableRefs(const std::vector<std::string> inputVars,
 			 unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
     void ClearInputs();

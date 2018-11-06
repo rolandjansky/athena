@@ -45,21 +45,14 @@ public:
         virtual ~AsgElectronEfficiencyCorrectionTool();
 
 
-public:
         /// Gaudi Service Interface method implementations
         virtual StatusCode initialize();
-
-        /// Gaudi Service Interface method implementations
-        virtual StatusCode finalize();
 
         /// Metadata methods
         virtual StatusCode beginInputFile();    
         virtual StatusCode beginEvent();
 
-public:
-
         int getNumberOfToys( ){return m_number_of_toys;} ;
-
 
         CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& inputObject, double& efficiencyScaleFactor) const;
         CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::Electron& inputObject) const;

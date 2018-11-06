@@ -12,11 +12,11 @@
 
 #include "SCT_StripVetoTestAlg.h"
 
-// STL includes
-#include <vector>
-
 // Athena includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
+
+// STL includes
+#include <vector>
 
 SCT_StripVetoTestAlg::SCT_StripVetoTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator) {

@@ -17,11 +17,12 @@ atlas_depends_on_subdirs(
    TileCalorimeter/TileEvent
    TileCalorimeter/TileIdentifier
    PRIVATE
+   Tools/PathResolver
+   AtlasTest/TestTools
    Calorimeter/CaloDetDescr
    Calorimeter/CaloIdentifier
-   Control/CLIDSvc
-   Control/SGTools
    Control/StoreGate
+   DetectorDescription/IdDictParser
    Event/ByteStreamCnvSvc
    TileCalorimeter/TileCalib/TileCalibBlobObjs
    TileCalorimeter/TileConditions
@@ -41,7 +42,7 @@ atlas_add_library( TileByteStreamLib
    ByteStreamData GaudiKernel TileEvent TileIdentifier ByteStreamCnvSvcBaseLib
    CaloDetDescrLib StoreGateLib ByteStreamCnvSvcLib TileConditionsLib
    TileL2AlgsLib TileRecUtilsLib
-   PRIVATE_LINK_LIBRARIES CaloIdentifier SGTools TileCalibBlobObjs
+   PRIVATE_LINK_LIBRARIES CaloIdentifier TileCalibBlobObjs
    TileDetDescr )
 
 atlas_add_component( TileByteStream
@@ -49,5 +50,16 @@ atlas_add_component( TileByteStream
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES TileByteStreamLib )
 
+
+atlas_add_test( TileRawChannel2Bytes4_test
+                SOURCES test/TileRawChannel2Bytes4_test.cxx
+                LINK_LIBRARIES TileByteStreamLib )
+
+atlas_add_test( TileROD_Decoder_test
+                SOURCES test/TileROD_Decoder_test.cxx
+                LINK_LIBRARIES TileByteStreamLib IdDictParser PathResolver TestTools
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_data( share/*.dump )

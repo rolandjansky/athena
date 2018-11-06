@@ -44,10 +44,11 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_maxPixLay(-1),
   m_maxLogProb(-1),
   m_maxGangedFakes(-1),
-  m_trkSummaryTool("Trk::TrackSummaryTool"),
-  m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
+  m_trkSummaryTool("Trk::TrackSummaryTool", this),
+  m_selectortool("InDet::InDetTrtDriftCircleCutTool", this),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_iBeamCondSvc("BeamCondSvc",n),
+  m_extrapolator("Trk::Extrapolator", this),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
@@ -533,7 +534,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
   if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
     // get expected number of TRT hits
     double nTrtExpected = 30.;
-    nTrtExpected = m_selectortool->minNumberDCs(const_cast<const Trk::TrackParameters*>(track.trackParameters()->front()));
+    nTrtExpected = m_selectortool->minNumberDCs(track.trackParameters()->front());
     ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
        << fabs(track.trackParameters()->front()->eta()));
     double ratio = (nTrtExpected != 0) ? iTRT_Hits / nTrtExpected : 0;

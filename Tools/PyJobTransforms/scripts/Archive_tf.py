@@ -36,28 +36,30 @@ def main():
     sys.exit(trf.exitCode)
 
 def getTransform():
-    trf = transform(executor = archiveExecutor(name = 'Archiver', exe = 'zip'))
+    executorSet = set()
+    executorSet.add(archiveExecutor(name = 'Archiver', exe = 'zip', inData = ['Data'], outData = ['Arch']))
+    executorSet.add(archiveExecutor(name = 'Unarchiver', exe = 'unarchive', inData = ['Arch'], outData = ['outNULL']))
 
+    trf = transform(executor = executorSet)
     addMyArgs(trf.parser)
     return trf
 
 
 def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
-    parser.defineArgGroup('Archive_tf', 'Archive transform options')
-    parser.defineArgGroup('Tar archiver', 'Options')
-    parser.add_argument('--exe', group='Archive_tf',
-                        help='Archiving command. Default is zip', choices=['zip', 'tar'],
-                        default='zip')
-    parser.add_argument('--inputDataFile', '--inputFile', nargs='+', 
+    parser.defineArgGroup('Archiver', 'Options')
+    parser.defineArgGroup('Unarchiver', 'Options')
+    parser.add_argument('--inputDataFile', '--inputFile', nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
-                        help='Input file(s)', group='Archive_tf')
+                        help='Input file(s)', group='Archiver')
+    parser.add_argument('--inputArchFile',
+                        type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
+                        help='Input archive file', group='Unarchiver')
+    parser.add_argument('--path', group='Unarchiver',
+                        help='Specifies a different directory to extract to. The default is the current working directory', default='.')
     parser.add_argument('--outputArchFile', '--outputFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='output', type='misc'),
-                        help='Output archive file', group='Archive_tf')
-    parser.add_argument('--compressionType', group='Tar archiver',
-                        help='Underlying compression type of tar. Default is none', choices=['gzip', 'bzip2', 'none'],
-                        default='none')
+                        help='Output archive file', group='Archiver')
 
 if __name__ == '__main__':
     main()

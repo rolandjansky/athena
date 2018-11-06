@@ -13,7 +13,7 @@
 #ifndef CALOID_CALOIDMANAGER_H
 # define CALOID_CALOIDMANAGER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class CaloCell_ID;
 class CaloCell_SuperCell_ID;

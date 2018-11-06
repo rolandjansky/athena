@@ -10,7 +10,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamData/RawEvent.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 

@@ -18,6 +18,7 @@
 #include "TrkDetDescrUtils/SharedObject.h"
 // STL
 #include <vector>
+#include <utility> //for std::pair
 
 class PixelID;
 class SCT_ID;

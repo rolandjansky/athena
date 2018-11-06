@@ -117,27 +117,9 @@ namespace InDetDD {
     return m_elementCollection[idHash];
   }
 
-  const SiDetectorElement* PixelDetectorManager::getDetectorElement(const Identifier &id,
-                                                                    const SiDetectorElementCollection* /*coll*/) const
-  {
-    return getDetectorElement(id);
-  }
-
-  const SiDetectorElement* PixelDetectorManager::getDetectorElement(const IdentifierHash &idHash,
-                                                                    const SiDetectorElementCollection* /*coll*/) const
-  {
-    return getDetectorElement(idHash);
-  }
-
   SiDetectorElement* PixelDetectorManager::getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module) const
   {
     return getDetectorElement(m_idHelper->wafer_id(barrel_endcap, layer_wheel, phi_module, eta_module));
-  }
-
-  const SiDetectorElement* PixelDetectorManager::getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module,
-                                                                    const SiDetectorElementCollection* /*coll*/) const
-  {
-    return getDetectorElement(barrel_endcap, layer_wheel, phi_module, eta_module);
   }
 
   const SiDetectorElementCollection* PixelDetectorManager::getDetectorElementCollection() const

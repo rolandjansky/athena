@@ -29,8 +29,9 @@ CREATED:  18th Aug, 2005
 
 #include "FourMomUtils/xAODP4Helpers.h"
 
-eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev) :
+eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev, bool isHLLHC) :
     m_rMax(rMaxOverStdDev * stdDev),
+    m_isHLLHC(isHLLHC),
     m_allClustersIntegral(eflowCalo::nRegions, 0.0),
     m_nUnitCellPerWindowOverCellEtaPhiArea(eflowCalo::nRegions),
     m_integrator(std::make_unique<eflowCellIntegrator<0> >(stdDev, error)),
@@ -62,6 +63,7 @@ eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double r
 
 eflowLayerIntegrator::eflowLayerIntegrator(const eflowLayerIntegrator& originalEflowLayerIntegrator){
   m_rMax = originalEflowLayerIntegrator.m_rMax;
+  m_isHLLHC = originalEflowLayerIntegrator.m_isHLLHC;
   m_allClustersIntegral =  originalEflowLayerIntegrator.m_allClustersIntegral;
   m_nUnitCellPerWindowOverCellEtaPhiArea = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
   m_integrator = std::make_unique<eflowCellIntegrator<0> >(*originalEflowLayerIntegrator.m_integrator);
@@ -78,6 +80,7 @@ eflowLayerIntegrator& eflowLayerIntegrator::operator=(const eflowLayerIntegrator
   //if not assigning to self, then we copy the data to the new object
   else {
     m_rMax = originalEflowLayerIntegrator.m_rMax;
+    m_isHLLHC = originalEflowLayerIntegrator.m_isHLLHC;
     m_allClustersIntegral =  originalEflowLayerIntegrator.m_allClustersIntegral;
     m_nUnitCellPerWindowOverCellEtaPhiArea = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
     m_integrator = std::make_unique<eflowCellIntegrator<0> >(*originalEflowLayerIntegrator.m_integrator);
@@ -100,7 +103,14 @@ void eflowLayerIntegrator::resetAllClustersIntegralForNewTrack(const eflowTrackC
   }
   /* Calculate the caloDepthArray */
   double em2Eta = trackCalo.getEM2eta();
-  if ( fabs(em2Eta) > 2.5 ) { em2Eta = 2.49; }   //sometimes track extrapolator returns e.g. 2.51 for em2Eta, which causes depth array to be filled with zeroes.
+  if (!m_isHLLHC) {
+    if ( fabs(em2Eta) > 2.5 ) em2Eta = 2.49;  //sometimes track extrapolator returns e.g. 2.51 for em2Eta, which causes depth array to be filled with zeroes.
+  }
+  else{
+    if(em2Eta<-998.) em2Eta = trackCalo.getFCAL0eta();
+    if ( fabs(em2Eta) > 4.0 ) { em2Eta = 3.99; }   //sometimes track extrapolator returns e.g. 4.01 for em2Eta, which causes depth array to be filled with zeroes.
+  }
+
   m_caloModel.calcDepthArray(em2Eta, 1.0e-4);
 }
 

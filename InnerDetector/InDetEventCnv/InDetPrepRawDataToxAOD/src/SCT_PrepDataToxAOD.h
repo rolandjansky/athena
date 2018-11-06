@@ -11,10 +11,9 @@
 #define SCT_PREPDATATOXAOD_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
@@ -22,6 +21,7 @@
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -39,7 +39,7 @@ namespace InDet
 }
 
 
-class SCT_PrepDataToxAOD : public AthAlgorithm, virtual public IIncidentListener {
+class SCT_PrepDataToxAOD : public AthAlgorithm {
 
 public:
   // Constructor with parameters:
@@ -50,8 +50,6 @@ public:
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
-  virtual void handle(const Incident& inc);
-  
 private:
 
 
@@ -67,10 +65,9 @@ private:
   std::vector<SiHit>  findAllHitsCompatibleWithCluster(const InDet::SCT_Cluster* prd,
                                                        const SiHitCollection* collection) const;
 
-  void addRDOInformation(xAOD::TrackMeasurementValidation*, const InDet::SCT_Cluster*) const;
+  void addRDOInformation(xAOD::TrackMeasurementValidation*, const InDet::SCT_Cluster*,
+                         const std::map<Identifier, const SCT_RDORawData*>& idToRAWDataMap) const;
  
- 
-  ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
  
   const SCT_ID *m_SCTHelper;
   SG::ReadHandleKey<InDet::SCT_ClusterContainer>  m_clustercontainer;
@@ -81,13 +78,14 @@ private:
   SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer>  m_xAodContainer;
   SG::WriteHandleKey<std::vector<unsigned int> >  m_xAodOffset;
 
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
   bool  m_useTruthInfo;
   bool  m_writeRDOinformation;
   bool  m_writeSDOs;
   bool  m_writeSiHits;
   
-  std::map< Identifier, const SCT_RDORawData* > m_IDtoRAWDataMap;
-
   // --- private members
   bool m_firstEventWarnings;
   

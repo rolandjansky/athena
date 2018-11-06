@@ -1,0 +1,68 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
+import argparse
+import logging
+
+
+# Logging configuration
+logging_file = 'run.log'
+# Creating or cleaning log file
+with open(logging_file, 'w'):
+    pass
+handler = logging.FileHandler(logging_file)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('iconfTool')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+
+
+from gui.wrappers import GuiLoader, DoublePad
+from models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
+from utils import serialization
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', type=str, help='Input file path')
+    parser.add_argument('-d', '--diff', type=str, help='Diff input file path')
+    parser.add_argument('-nr', '--no-replace', action='store_true',
+                        help='Disable replacing references in structure')
+    parser.add_argument('-c', '--config', type=str,
+                        help='Path to configuration file, where marked '
+                             'elements identificators are saved')
+    args = parser.parse_args()
+
+    if not args.input:
+        msg = 'Missing input file'
+        logger.error(msg)
+        exit(msg)
+
+    if args.config:
+        try:
+            checked_elements = serialization.load_strings_set(args.config)
+        except TypeError:
+            logger.warning(
+                'Cannot load checked elements from configuration file')
+            checked_elements = set()
+    else:
+        checked_elements = set()
+
+    if args.diff:
+        loader = ComponentsDiffFileLoader(args.input, args.diff,
+                                          args.no_replace, checked_elements)
+        gui_loader = DoublePad(loader)
+    else:
+        loader = ComponentsFileLoader(args.input, args.no_replace)
+        gui_loader = GuiLoader(loader)
+
+    gui_loader.load_gui()
+
+    if args.config:
+        serialization.save_object(args.config, checked_elements)

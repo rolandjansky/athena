@@ -1,22 +1,22 @@
-Events to copy: 14350 14356 14382 
+Events to copy: 186882810 187403142 187419528 
 Checking file test.data
 Created DataWriter for file test_defl.data in directory .
 
 File:test.data
 Event index: 1
-Run:         20720
-Event ID:    14350
-LumiBlock:   18
+Run:         327265
+Event ID:    186882810
+LumiBlock:   100
 
 File:test.data
 Event index: 2
-Run:         20720
-Event ID:    14356
-LumiBlock:   19
+Run:         327265
+Event ID:    187403142
+LumiBlock:   100
 
 File:test.data
-Event index: 3
-Run:         20720
-Event ID:    14382
-LumiBlock:   19
+Event index: 4
+Run:         327265
+Event ID:    187419528
+LumiBlock:   100
 Wrote 3 events to file test_defl.data

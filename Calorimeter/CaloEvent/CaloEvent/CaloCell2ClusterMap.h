@@ -19,10 +19,9 @@
  */
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Navigation/Navigable.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "CLIDSvc/CLASS_DEF.h"
 
 class CaloCell2ClusterMap : public DataVector< Navigable<CaloClusterContainer> > 
 {

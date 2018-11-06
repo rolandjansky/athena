@@ -30,7 +30,6 @@
 
 // STL
 #include <algorithm>
-#include <limits>
 #include <math.h>
 #include <cfloat>
 
@@ -43,48 +42,9 @@ CaloRingsBuilder::CaloRingsBuilder(const std::string& type,
   : ::AthAlgTool(type, name, parent),
     m_rsCont(nullptr),
     m_crCont(nullptr),
-    m_cellCont(nullptr),
     m_nRingSets(0)
 {
-
-  // declare interface
   declareInterface<ICaloRingsBuilder>(this);
-
-  declareProperty("RingSetContainerName",
-      m_rsContName = "RingSets",
-      "Name of the RingSets Container");
-
-  declareProperty("CaloRingsContainerName",
-      m_crContName = "CaloRings",
-      "Name of the CaloRings Container");
-
-  declareProperty("CellsContainerName", m_cellsContName = "AllCalo",
-      "Key to obtain the cell's container");
-
-  // RingSet configuration properties:
-  declareProperty("EtaWidth", m_etaWidth,
-      "Each RingSet ring eta width");
-  declareProperty("PhiWidth", m_phiWidth,
-      "Each RingSet ring phi width");
-  declareProperty("CellMaxDEtaDist", m_cellMaxDEtaDist = 0,
-      "Maximum cell distance in eta to seed");
-  declareProperty("CellMaxDPhiDist", m_cellMaxDPhiDist = 0,
-      "Maximum cell distance in phi to seed");
-  declareProperty("NRings", m_nRings,
-      "Each RingSet number of rings");
-  declareProperty("MinPartEnergy", m_minEnergy = std::numeric_limits<float>::lowest(),
-      "Minimum particle/cluster energy to build rings (GeV) ");
-  declareProperty("Layers", m_layers,
-      "Concatenated list of layers which will be used "
-      "to build the RingSets");
-  declareProperty("RingSetNLayers", m_nLayers,
-      "Each RingSet number of layers from the Layers "
-      "configurable property to use.");
-
-  // Whether to use layer centers or cluster center:
-  declareProperty("useShowerShapeBarycenter", m_useShowShapeBarycenter = false,
-      "Switch to use shower barycenter for each layer, "
-      "instead of the cluster center.");
 }
 
 // =====================================================================================
@@ -149,6 +109,12 @@ StatusCode CaloRingsBuilder::initialize()
   // Print our collection
   xAOD::RingSetConf::print(m_rsRawConfCol, msg(), MSG::DEBUG);
 
+  // This will check that the properties were initialized properly
+  // by job configuration.
+  ATH_CHECK( m_crContName.initialize() );
+  ATH_CHECK( m_rsContName.initialize() );
+  ATH_CHECK( m_cellsContName.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -159,26 +125,17 @@ StatusCode CaloRingsBuilder::finalize()
 }
 
 // =====================================================================================
-StatusCode CaloRingsBuilder::contExecute(const size_t nReserve)
+StatusCode CaloRingsBuilder::preExecute( xAOD::CaloRingsContainer* crCont
+                                       , xAOD::RingSetContainer* rsCont
+                                       , std::size_t nReserve )
 {
-
-  // Retrieve CaloCells
-  m_cellCont = 0;
-  if ( evtStore()->retrieve( m_cellCont, m_cellsContName ).isFailure() || !m_cellCont) {
-    ATH_MSG_ERROR("No Calo Cell Container " << m_cellsContName << " found.");
+  if ( crCont && rsCont ){
+    m_crCont = crCont;
+    m_rsCont = rsCont;
+  } else {
+    ATH_MSG_ERROR( "Attempted to set CaloRingsContainer and/or RingSetContainer to invalid pointers");
     return StatusCode::FAILURE;
   }
-
-  // Prepare to record CaloRingsContainer:
-  m_crCont= new xAOD::CaloRingsContainer();
-  xAOD::CaloRingsAuxContainer* crAux = new xAOD::CaloRingsAuxContainer();
-  m_crCont->setStore( crAux );
-
-  // Prepare to record RingSetContainer:
-  m_rsCont= new xAOD::RingSetContainer();
-  xAOD::RingSetAuxContainer* rsAux = new xAOD::RingSetAuxContainer();
-  m_rsCont->setStore( rsAux );
-
   // Reserve container space if required:
   if (nReserve) {
     // Reserve one CaloRings per particle
@@ -187,13 +144,6 @@ StatusCode CaloRingsBuilder::contExecute(const size_t nReserve)
     // the number of RawConfig available in our raw configuration collection.
     m_rsCont->reserve( nReserve * m_nRingSets );
   }
-
-  // Record CaloRings Containers:
-  CHECK( evtStore()->record( crAux, m_crContName + "Aux.") );
-  CHECK( evtStore()->record( m_crCont, m_crContName)  );
-  // Record RingSet containers
-  CHECK( evtStore()->record( rsAux, m_rsContName + "Aux.") );
-  CHECK( evtStore()->record( m_rsCont, m_rsContName)  );
 
   return StatusCode::SUCCESS;
 }
@@ -352,7 +302,14 @@ StatusCode CaloRingsBuilder::buildRingSet(
   // Get this RingSet size:
   const auto nRings = rawConf.nRings;
 
-  CaloCellList cells( m_cellCont );
+  // Retrieve CaloCells
+  SG::ReadHandle<CaloCellContainer> cellsCont(m_cellsContName);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!cellsCont.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_cellsContName.key());
+    return StatusCode::FAILURE;
+  }
+  CaloCellList cells( cellsCont.ptr() );
 
   // loop over cells
   for ( const int layer : rawConf.layers) { // We use int here because the

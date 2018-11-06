@@ -11,6 +11,9 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+
 #include "TrigFTKSim/FTKMergerAlgo.h"
 #include "TrigFTKSim/FTKTruthTrack.h"
 #include "TrigFTKPool/FTKAthTrack.h"
@@ -98,8 +101,6 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_FTKSCTClu_CollName("FTK_SCT_Cluster"), // default name for the FTK SCT cluster collection
   m_FTKSCTCluContainer(0x0),
   m_idHelper(0),
-  m_PIX_mgr(0),
-  m_SCT_mgr(0),
   m_pixel_id(0),
   m_sct_id(0),
   m_out_trktrack_Name("FTK_Trk_Tracks"), // name of the collection used to store RAW Trk::Tracks
@@ -303,16 +304,8 @@ StatusCode FTKMergerAlgo::initialize(){
       log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
       return StatusCode::FAILURE;
     }
-    if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-      log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
-      return StatusCode::FAILURE;
-    }
     if (m_detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
       log << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-      log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
       return StatusCode::FAILURE;
     }
     if (m_detStore->retrieve(m_sct_id, "SCT_ID").isFailure()) {

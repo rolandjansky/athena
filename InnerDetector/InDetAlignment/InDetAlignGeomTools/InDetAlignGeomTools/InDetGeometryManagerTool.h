@@ -101,7 +101,6 @@ namespace InDet
 
     const InDetDD::PixelDetectorManager * m_pixelDetManager; //!< pointer to PIX detector manager
     const InDetDD::SCT_DetectorManager  * m_sctDetManager;   //!< pointer to SCT detector manager
-    const InDetDD::SCT_DetectorManager  * m_siDetManager;   //!< pointer to SCT detector manager
     const InDetDD::TRT_DetectorManager  * m_trtDetManager;   //!< pointer to TRT detector manager
 
     const PixelID   * m_pixHelper; //!< pointer to PIX detector manager

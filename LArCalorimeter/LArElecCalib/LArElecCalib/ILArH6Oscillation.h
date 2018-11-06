@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARH6OSCILLATION_H
 #define LARELECCALIB_ILARH6OSCILLATION_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/Identifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"

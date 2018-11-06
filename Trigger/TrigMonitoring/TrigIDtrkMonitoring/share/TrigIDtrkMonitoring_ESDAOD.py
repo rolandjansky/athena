@@ -43,7 +43,6 @@ from IOVDbSvc.CondDB import conddb
 
 ## Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.BackNavigation = True
 ServiceMgr.EventSelector.InputCollections = poolRDO # JWH
 
 # Particle Properties

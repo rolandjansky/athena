@@ -41,8 +41,6 @@ def evgenD3PD (file,
     #--------------------------------------------------------------------------
     if rec.doTruth():
         # compatibility with jets
-        from RecExConfig.RecConfFlags import jobproperties
-        jobproperties.RecConfFlags.AllowBackNavigation = True
         from JetRec.JetRecFlags import jobproperties as jobpropjet
         jobpropjet.JetRecFlags.inputFileType = "GEN"
 

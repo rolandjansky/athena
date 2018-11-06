@@ -28,13 +28,9 @@ SCT_TdaqEnabledTestAlg::SCT_TdaqEnabledTestAlg(const std::string& name, ISvcLoca
 //Initialize
 StatusCode
 SCT_TdaqEnabledTestAlg::initialize() {
-  StatusCode sc{StatusCode::SUCCESS, true};
   ATH_MSG_INFO("Calling initialize");
-  sc = m_pTdaqEnabledTool.retrieve();
-  if (StatusCode::SUCCESS not_eq sc) {
-    ATH_MSG_ERROR("Could not retrieve the veto service");
-  }
-  return sc;
+  ATH_CHECK(m_pTdaqEnabledTool.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 //Execute
@@ -42,7 +38,6 @@ StatusCode
 SCT_TdaqEnabledTestAlg::execute() {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  StatusCode sc{StatusCode::SUCCESS, true};
   ATH_MSG_INFO("Calling execute");
   ATH_MSG_INFO("Dummy call to module idHash 0: module is ");
   bool result{m_pTdaqEnabledTool->isGood(IdentifierHash{0})};
@@ -69,7 +64,7 @@ SCT_TdaqEnabledTestAlg::execute() {
       --printNgood;
     }
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //Finalize

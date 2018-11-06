@@ -39,11 +39,9 @@ namespace Trk {
   public:
     SimpleTrigTrackCollMerger(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~SimpleTrigTrackCollMerger();
-    HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltEndRun();
 
   private:
     HLT::ErrorCode mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol);

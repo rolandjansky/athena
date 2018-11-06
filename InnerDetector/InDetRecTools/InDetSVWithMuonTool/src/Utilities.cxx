@@ -5,10 +5,8 @@
 // Header include
 #include "InDetSVWithMuonTool/InDetSVWithMuonTool.h"
 //-------------------------------------------------
-// Other stuff
-//#include <cmath>
-//#include<iostream>
-
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+#include  "xAODTracking/Vertex.h"
 
 namespace InDet{  
 

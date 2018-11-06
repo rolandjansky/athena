@@ -8,8 +8,6 @@ atlas_subdir( LArSimEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           DetectorDescription/Identifier
                           Simulation/HitManagement
                           PRIVATE
@@ -26,12 +24,12 @@ atlas_add_library( LArSimEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel SGTools Identifier HitManagement StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel Identifier HitManagement StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArSimEventDict
                       LArSimEvent/LArSimEventDict.h
                       LArSimEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel SGTools Identifier HitManagement StoreGateLib SGtests LArSimEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier HitManagement StoreGateLib SGtests LArSimEvent )
 

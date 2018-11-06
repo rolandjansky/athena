@@ -24,13 +24,12 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "EventPrimitives/EventPrimitives.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -56,8 +55,6 @@ GetDetectorLocalFrames::GetDetectorLocalFrames(std::string const&  name, ISvcLoc
   /** ID Tools */
   m_PixelHelper(0),
   m_pixelDetectorManager(0),
-  m_SCTHelper(0),
-  m_SCTDetectorManager(0),
   m_TRTHelper(0),
   m_TRTDetectorManager(0)
 
@@ -82,16 +79,7 @@ StatusCode GetDetectorLocalFrames::initialize(){
   }
   
   /** Retrive SCT info */
-  if (detStore()->retrieve(m_SCTHelper, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the SCT ID" << endmsg;
-
-  if ((detStore()->retrieve(m_SCTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving SCT_DetectorManager" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   /** Retrive Pixel info */
   if (detStore()->retrieve(m_PixelHelper, "PixelID").isFailure()) {
@@ -170,15 +158,17 @@ void GetDetectorLocalFrames::writePixelFames(){
 /** Writing the SCT Positions */
 void GetDetectorLocalFrames::writeSCTFrames(){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSCTFrames()" << endmsg;
-  
-  //Loop over SCT elements
-  std::vector<Identifier>::const_iterator sctIt = m_SCTHelper->wafer_begin();
-  std::vector<Identifier>::const_iterator sctItE = m_SCTHelper->wafer_end();
-  for(; sctIt != sctItE; sctIt++  ) {
-    
-    //InDetDD::SiDetectorElement* si_hit = m_SCTDetectorManager->getDetectorElement( *sctIt );
-    // Get local Frame
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements{*sctDetEleHandle};
+  if (not sctDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " is not available.");
+    return;
   }
+  //Loop over SCT elements
+  //  for (const InDetDD::SiDetectorElement* element: *elements) {
+    // Get local Frame
+  //  }
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeSCTFrames()" << endmsg;
   return;

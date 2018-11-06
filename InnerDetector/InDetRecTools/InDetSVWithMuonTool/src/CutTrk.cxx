@@ -5,6 +5,7 @@
 // Header include
 #include "InDetSVWithMuonTool/InDetSVWithMuonTool.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include <iostream>
 //-------------------------------------------------
 namespace InDet{

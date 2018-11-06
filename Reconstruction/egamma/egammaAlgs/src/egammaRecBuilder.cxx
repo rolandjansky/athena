@@ -1,14 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "egammaRecBuilder.h"
+#include "smallChrono.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
@@ -25,32 +28,10 @@
 using CLHEP::MeV;
 using CLHEP::GeV;
 
-namespace{
-  class smallChrono{
-  public:
-    smallChrono(IChronoStatSvc* timingProfile, const std::string& name): 
-      m_time(timingProfile),
-      m_name(name){
-      if(m_time){
-	m_time->chronoStart(m_name);
-      }
-    }
-    ~smallChrono(){
-      if(m_time){
-	m_time->chronoStop(m_name);
-      }
-    }
-  private:
-    IChronoStatSvc* m_time;
-    const std::string m_name;
-  };
-}
-
-
 egammaRecBuilder::egammaRecBuilder(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_timingProfile(0)
+  m_timingProfile("ChronoStatSvc", name)
 {
 }
 
@@ -71,8 +52,10 @@ StatusCode egammaRecBuilder::initialize()
   // retrieve conversion builder
   CHECK(  RetrieveEMConversionBuilder() );
 
+
+  ATH_MSG_DEBUG("Doing time profiling :" << m_doChrono);
   // retrieve timing profile
-  CHECK( service("ChronoStatSvc",m_timingProfile) );
+  if (m_doChrono) CHECK (m_timingProfile.retrieve());
 
   ATH_MSG_DEBUG("Initialization completed successfully");
   return StatusCode::SUCCESS;
@@ -160,9 +143,9 @@ StatusCode egammaRecBuilder::execute(){
   
   ///Append track Matching information
   if (m_doTrackMatching){
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters");
+    smallChrono timer(*m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters", m_doChrono);
     for (auto egRec : *egammaRecs) {
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+      if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
 	return StatusCode::FAILURE;
       }
@@ -171,9 +154,9 @@ StatusCode egammaRecBuilder::execute(){
   //Do the conversion matching
   if (m_doConversions){
     ATH_MSG_DEBUG("Running ConversionBuilder");  
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters");
+    smallChrono timer(*m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters", m_doChrono);
     for (auto egRec : *egammaRecs) {
-      if (m_conversionBuilder->executeRec(egRec).isFailure()){
+      if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
 	return StatusCode::FAILURE;  
       }

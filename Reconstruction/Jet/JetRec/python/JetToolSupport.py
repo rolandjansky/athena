@@ -67,6 +67,8 @@ class JetToolManager:
   allGetters = []  
   # Map of modifier lists
   modifiersMap = {}
+  # List of event density tools
+  allEDTools = []
 
   vertexContainer = "PrimaryVertices"
   trackContainer = "InDetTrackParticles"

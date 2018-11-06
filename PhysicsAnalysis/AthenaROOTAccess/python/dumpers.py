@@ -68,6 +68,7 @@ _skipTypes = ['DataVector<Trk::Segment>',
               'CaloCellLinkContainer',
               'CaloClusterCellLinkContainer',
               'CaloCompactCellContainer',
+              'BCM_RDO_Container',
               ]
 
 _skipBranches = []
@@ -279,6 +280,13 @@ class Evdump:
             token.find ('(DataHeader)') > 0 or
             token == 'POOLContainer_DataHeader'):
             return
+
+        # Skip _v1 types for HIEventShapeContainer.
+        # Persistency of these was fubar.
+        if (token.find ('FA2C3CB2-71A6-11E4-BB30-02163E010E29') >= 0 or
+            token.find ('06FA81A6-71A7-11E4-9A9D-02163E010E29') >= 0):
+            return
+
         cnt = token
         i1 = cnt.find("[CNT=")
         if i1 >= 0:

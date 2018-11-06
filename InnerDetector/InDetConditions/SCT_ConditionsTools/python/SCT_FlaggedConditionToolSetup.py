@@ -8,11 +8,9 @@ class SCT_FlaggedConditionToolSetup:
         self.tool = None
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_FlaggedConditionTool
-            ToolSvc += SCT_FlaggedConditionTool(name = self.toolName)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_FlaggedConditionTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

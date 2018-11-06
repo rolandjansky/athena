@@ -22,7 +22,7 @@
 
 // Tile includes
 //#include "TileEvent/TileContainer.h"
-#include "TileRecAlgs/TileMuonReceiverReadCnt.h"
+#include "TileMuonReceiverReadCnt.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"

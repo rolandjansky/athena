@@ -64,6 +64,7 @@ namespace Analysis {
   }
 
   int JetConeLabeling::modifyJet(xAOD::Jet& jet) const {
+    ATH_MSG_VERBOSE("In " << name() << "::modifyJet()");
     //JetTruthMatching and setting of the TruthInfo object 
     bool jetIsMatched( true );
     //const Analysis::TruthInfo* mcinfo = NULL;//jet.tagInfo<Analysis::TruthInfo>("TruthInfo");// AA - need jet input

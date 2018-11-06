@@ -69,6 +69,7 @@
         source="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > muSATrackLink"
         target="muSATrackLink" >
     <![CDATA[
+       muSATrackLink.clear();
        muSATrackLink.reserve (onfile.muSATrackLink.size());
        for (const ElementLink<xAOD::L2StandAloneMuonContainer_v1>& el : 
             onfile.muSATrackLink)

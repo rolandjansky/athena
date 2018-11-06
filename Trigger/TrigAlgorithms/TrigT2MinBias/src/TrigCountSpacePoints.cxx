@@ -247,13 +247,6 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
-HLT::ErrorCode TrigCountSpacePoints::hltBeginRun() {
-  // This initialisation has been moved into the event loop.
-  // @see TrigCountSpacePoints::checkDetectorMask
-  ATH_MSG_DEBUG(" TrigCountSpacePoints will be initialized in hltExecute"); 
-  return HLT::OK;
-}
-//---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;

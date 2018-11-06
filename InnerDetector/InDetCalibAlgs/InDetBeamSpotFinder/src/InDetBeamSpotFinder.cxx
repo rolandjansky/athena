@@ -64,7 +64,7 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
 
   ATH_CHECK( service("THistSvc",m_thistSvc) );
   ATH_CHECK( m_toolSvc.retrieve() );
-  ATH_CHECK( m_bcTool.retrieve() );
+  if( m_useFilledBCIDsOnly ) ATH_CHECK( m_bcTool.retrieve() );
   ATH_CHECK( m_eventInfo.initialize() );
   ATH_CHECK( m_vertexContainer.initialize() );
 
@@ -205,7 +205,10 @@ void InDet::InDetBeamSpotFinder::convertVtxTypeNames(){
 bool InDet::InDetBeamSpotFinder::passEventSelection(const xAOD::EventInfo & eventInfo){
   int bcid = eventInfo.bcid();
   if (m_useFilledBCIDsOnly && !m_bcTool->isFilled(bcid)) { return false; }
-  return ( std::find(m_BCIDsToAccept.begin(), m_BCIDsToAccept.end(), bcid) != m_BCIDsToAccept.end());
+  if( m_BCIDsToAccept.begin() !=  m_BCIDsToAccept.end() )
+    return ( std::find(m_BCIDsToAccept.begin(), m_BCIDsToAccept.end(), bcid) != m_BCIDsToAccept.end());
+  else 
+    return true;
 }
 
 bool InDet::InDetBeamSpotFinder::passVertexSelection(const xAOD::Vertex * vtx ) {

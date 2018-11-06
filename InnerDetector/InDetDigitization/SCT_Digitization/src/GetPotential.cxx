@@ -4,8 +4,8 @@
 
 #include "SCT_DetailedSurfaceChargesGenerator.h"
 
-double SCT_DetailedSurfaceChargesGenerator::GetPotentialValue(int& ix, int& iy) {
-double PotentialArray[81][115] = {
+double SCT_DetailedSurfaceChargesGenerator::GetPotentialValue(int ix, int iy) const {
+static const double PotentialArray[81][115] = {
 //--- PotentialArray[81][115] 
 //      ix = 0 -  80 : 5um step, 40um - 440 um
 //      iy = 0 - 114 : 2.5um step, 0um - 285 um

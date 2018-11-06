@@ -10,22 +10,14 @@ logging.getLogger().info("Importing %s",__name__)
 
 logMinBiasDef = logging.getLogger("TriggerMenu.minbias.MinBiasDef")
 
-from AthenaCommon import CfgGetter
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.SystemOfUnits import GeV
 
-import re
+from TriggerMenu.menu.HltConfig import L2EFChainDef,mergeRemovingOverlap
 
-from TriggerJobOpts.TriggerFlags            import TriggerFlags
-
-from TriggerMenu.minbias.MinBiasSliceFlags  import MinBiasSliceFlags
-
-from TriggerMenu.menu.HltConfig import *
-
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-
-#theTrigEFIDInsideOut_FullScan = TrigEFIDSequence("FullScan","fullScan")
-
-from TrigT2MinBias.TrigT2MinBiasConfig import *
+from TrigT2MinBias.TrigT2MinBiasConfig import (MbMbtsHypo,L2MbMbtsFex,L2MbSpFex,L2MbSpFex_SCTNoiseSup,L2MbSpFex_ncb,
+                                               L2MbSpHypo_blayer,L2MbSpHypo_veto,L2MbSpFex_noPix,L2MbSpMhNoPixHypo_hip,
+                                               L2MbSpFex_BLayer,L2MbSpHypo_ncb,L2MbSpHypo,L2MbSpHypo_PT,L2MbSpMhNoPixHypo_veto,
+                                               L2MbMbtsHypo_PT,L2MbZdcFex_LG,L2MbZdcHypo_PT,L2MbZdcFex_HG,trigT2MinBiasProperties)
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
 #fexes.efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 #fexes.efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
@@ -35,26 +27,21 @@ efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
-from TrigMinBias.TrigMinBiasConfig import *
-
+from TrigMinBias.TrigMinBiasConfig import (EFMbTrkFex,EFMbTrkHypoExclusiveLoose,EFMbTrkHypoExclusiveTight,EFMbTrkHypo,
+                                           EFMbVxFex,MbVxHypo,MbTrkHypo)
 
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
 from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfOutputTEs=1)
 terminateAlgo = PrescaleAlgo('terminateAlgo')
 
-
 # for HI
 from TrigHIHypo.TrigHIHypoConfig import HIEFTrackHypo_AtLeastOneTrack
 atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTrack')
 
-from TrigHIHypo.TrigHIHypoConfig import *
+from TrigHIHypo.TrigHIHypoConfig import HIL2VtxMultHypo
 #hypos.update(hi_hypos)
 
-#L2 pileup suppression
-from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
-
-theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
 
 ###########################################################################
 #  All min bias
@@ -146,24 +133,30 @@ class L2EFChain_MB(L2EFChainDef):
             doBLayer=True
 
         doVetoSp=False
-        if 'vetosp' in self.chainPart['extra']:
+        if 'vetosp' in self.chainPart['veto']:
             doVetoSp=True
-
+        doVetoSpN=False
+        if 'vetosp' in self.chainPart['hypoL2Info']:
+            doVetoSpN=True
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra'] or "vetospmbts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['veto'] or "vetospmbts2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
 
-        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
+        if "vetombts1side2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
-
+        if "vetombts8" in self.chainPart['veto']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsFex=L2MbMbtsFex
+            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_8_8_NTime_veto")
+        doexclusivelooseN=False
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
         if "noisesup" in self.chainPart['extra']:
@@ -180,18 +173,20 @@ class L2EFChain_MB(L2EFChainDef):
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
-                chainSuffix = "sptrk"
+                if not doVetoSpN: chainSuffix = "sptrk"
+                else: chainSuffix = "sptrk_"+self.chainPart['hypoL2Info']
             elif doVetoSp:
                 chainSuffix = "sp_vetosp"
             else:
                 chainSuffix = "sp"
         
         if doMbtsVeto:
-            if "vetombts2in" in self.chainPart['extra']:
+            if "vetombts2in" in self.chainPart['veto']:
                 chainSuffix = chainSuffix+"_vetombts2in"
-            if "vetombts1side2in" in self.chainPart['extra']:
+            if "vetombts1side2in" in self.chainPart['veto']:
                 chainSuffix = chainSuffix+"_vetombts1side2in"
-
+            if "vetombts8" in self.chainPart['veto']:
+                chainSuffix = chainSuffix+"_vetombts8"
         if doMbtsVeto and doVetoSp: # this will never be done w tracks
             chainSuffix = "sp_vetospmbts2in"
 
@@ -203,19 +198,24 @@ class L2EFChain_MB(L2EFChainDef):
             theL2Hypo = L2MbSpHypo_veto
         else:
             theL2Hypo = L2MbSpHypo
-
+        if doVetoSpN: 
+            l2hypo2 = self.chainPart['hypoL2Info']
+            l2th=l2hypo2.lstrip('vetosp')
+            theL2Hypo2 = L2MbSpMhNoPixHypo_veto("L2MbSpMhNoPixHypo_veto_"+l2th,float(l2th))
+            #chainSuffix = chainSuffix+'_vetosp'+l2th
         ########## EF algos ##################
         #if "sptrk" in self.chainPart['recoAlg']:
+        chainSuffixEF=chainSuffix
         if "costr" in self.chainPart['trkInfo']:
-            chainSuffix = chainSuffix+"_costr"
+            chainSuffixEF = chainSuffixEF+"_costr"
                 
             from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
             efid_costr=TrigEFIDInsideOut_CosmicsN()
             theEFFex1 = efid_costr.getSequence()
             from TrigMinBias.TrigMinBiasConfig import MbTrkFex_1, MbTrkHypo_1
-            theEFFex2 =  MbTrkFex_1("MbTrkFex_"+chainSuffix)
+            theEFFex2 =  MbTrkFex_1("MbTrkFex_"+chainSuffixEF)
             theEFFex2.InputTrackContainerName = "InDetTrigTrackSlimmerIOTRT_CosmicsN_EFID"
-            theEFHypo = MbTrkHypo_1("MbTrkHypo_"+chainSuffix)
+            theEFHypo = MbTrkHypo_1("MbTrkHypo_"+chainSuffixEF)
             theEFHypo.AcceptAll_EF=False
             theEFHypo.Required_ntrks=1
             theEFHypo.Max_z0=1000.0
@@ -227,6 +227,7 @@ class L2EFChain_MB(L2EFChainDef):
 
             theEFFex2 =  EFMbTrkFex
             efhypo = self.chainPart['hypoEFInfo']
+            efextra = self.chainPart['extra']
             if efhypo:
                 if "pt" in self.chainPart['hypoEFInfo']:
                     efth=efhypo.lstrip('pt')
@@ -234,22 +235,31 @@ class L2EFChain_MB(L2EFChainDef):
                     theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
                     theEFHypo.Min_pt = threshold
                     theEFHypo.Max_z0 = 401.
-                    chainSuffix = chainSuffix+'_pt'+efth
+                    chainSuffixEF = chainSuffixEF+'_pt'+efth
                 elif "trk" in self.chainPart['hypoEFInfo']:
                     efth=efhypo.lstrip('trk')
                     theEFHypo = MbTrkHypo('EFMbTrkHypo_trk%i'% int(efth))
                     theEFHypo.Required_ntrks = int(efth)
                     theEFHypo.Min_pt = 0.200
                     theEFHypo.Max_z0 = 401.
-                    chainSuffix = chainSuffix+'_trk'+efth
+                    chainSuffixEF = chainSuffixEF+'_trk'+efth
             elif 'exclusiveloose' in self.chainPart['extra']:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypoExclusiveLoose
-                chainSuffix = chainSuffix+"_exclusiveloose"
+                efthX=efextra.lstrip('exclusiveloose')
+                chainSuffixEF = chainSuffixEF+"_exclusiveloose"
+                
+                if efthX:
+                    doexclusivelooseN=True
+                    threshold=int(efthX)
+                    theEFHypo2 = MbTrkHypo('EFMbTrkHypo2_pt1_trk%i'% threshold)
+                    theEFHypo2.Min_pt = 1.
+                    theEFHypo2.Required_ntrks = int(efthX)
+                    theEFHypo2.Max_z0 = 401.
             elif 'exclusivetight' in self.chainPart['extra']:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypoExclusiveTight
-                chainSuffix = chainSuffix+"_exclusivetight"
+                chainSuffixEF = chainSuffixEF+"_exclusivetight"
             else:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypo
@@ -274,23 +284,41 @@ class L2EFChain_MB(L2EFChainDef):
             self.L2sequenceList += [['L2_mb_dummy',
                                      efiddataprep,
                                      'L2_mb_iddataprep']] 
-
-        self.L2sequenceList += [[['L2_mb_iddataprep'],
-                                 [theL2Fex, theL2Hypo],
-                                 'L2_mb_step1']]
-
+        if doVetoSpN:
+            self.L2sequenceList += [[['L2_mb_iddataprep'],
+                                     [theL2Fex, theL2Hypo],
+                                     'L2_mb_spveto']]
+            self.L2sequenceList += [[['L2_mb_spveto'],
+                                     [theL2Hypo2],
+                                     'L2_mb_step1']]
+        else:    
+            self.L2sequenceList += [[['L2_mb_iddataprep'],
+                                     [theL2Fex, theL2Hypo],
+                                     'L2_mb_step1']]
         if doSptrk:
             self.EFsequenceList += [[['L2_mb_step1'],
                                      theEFFex1+[theEFFex2, theEFHypo],
                                      'EF_mb_step1']]
-            if 'peb' in self.chainPart['addInfo']:
+            if doexclusivelooseN:      
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [theEFHypo2],
+                                         'EF_mb_step2']]                         
+            if 'hipeb' in self.chainPart['addInfo']:
+                from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+                HISubDetListWriter = TrigSubDetListWriter("HISubDetListWriter")
+                HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC','Muons']
+                HISubDetListWriter.MaxRoIsPerEvent=1
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [ HISubDetListWriter ],
+                                         'EF_mb_step2']]
+            elif 'peb' in self.chainPart['addInfo']:
                 from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
                 ALFASubDetListWriter = TrigSubDetListWriter("ALFASubDetListWriter")
                 ALFASubDetListWriter.SubdetId = ['TDAQ_HLT','TDAQ_CTP','InnerDetector','DBM','FORWARD_ALPHA','FORWARD_LUCID','FORWARD_ZDC','FORWARD_BCM']
                 ALFASubDetListWriter.MaxRoIsPerEvent=1
                 self.EFsequenceList += [[['EF_mb_step1'],
                                          [ ALFASubDetListWriter ],
-                                         'EF_mb_step2']]
+                                         'EF_mb_step2']]                             
 
         ########### Signatures ###########
         
@@ -298,10 +326,14 @@ class L2EFChain_MB(L2EFChainDef):
         if doMbtsVeto:
             self.L2signatureList += [ [['L2_mb_mbtsveto']] ]
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
+        if doVetoSpN:
+            self.L2signatureList += [ [['L2_mb_spveto']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         if doSptrk:
             self.EFsignatureList += [ [['EF_mb_step1']] ]
-            if 'peb' in self.chainPart['addInfo']:
+            if doexclusivelooseN:
+                self.EFsignatureList += [ [['EF_mb_step2']] ]
+            if 'peb' in self.chainPart['addInfo'] or 'hipeb' in self.chainPart['addInfo']:
                 self.EFsignatureList += [ [['EF_mb_step2']] ]
 
         self.TErenamingDict = {
@@ -309,12 +341,15 @@ class L2EFChain_MB(L2EFChainDef):
             'L2_mb_mbtsveto': mergeRemovingOverlap('L2_mbtsveto_', chainSuffix),        
             'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', chainSuffix),
-            'EF_mb_step1': mergeRemovingOverlap('EF_', chainSuffix),
+            'EF_mb_step1': mergeRemovingOverlap('EF_', chainSuffixEF),
             }
 
-        if 'peb' in self.chainPart['addInfo']:
-            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_peb')
-
+        if doVetoSpN:
+            self.TErenamingDict ['L2_mb_spveto'] = mergeRemovingOverlap('L2_', chainSuffix + '_vetosp')
+        if 'peb' in self.chainPart['addInfo'] or 'hipeb' in self.chainPart['addInfo']:
+            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffixEF+'_peb')
+        if doexclusivelooseN:
+            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffixEF+efthX)    
 ###########################
     def setup_mb_idperf(self):
         doHeavyIon=False
@@ -326,7 +361,6 @@ class L2EFChain_MB(L2EFChainDef):
             chainSuffix = "idperf"
             if not doHeavyIon:
                 theEFFex1 =  efid
-                theEFFex2 =  efid2P
             else:
                 theEFFex1 =  efid_heavyIon
 
@@ -351,9 +385,6 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_perf(self):
-        doHeavyIon=False
-        if 'ion' in self.chainPart['extra']:
-            doHeavyIon=True
 
         ########## L2 algos ##################
         if "perf" in self.chainPart['recoAlg']:
@@ -399,9 +430,6 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_zdcperf(self):
-        doHeavyIon=False
-        if 'ion' in self.chainPart['extra']:
-            doHeavyIon=True
 
         ########## L2 algos ##################
         if "zdcperf" in self.chainPart['recoAlg']:
@@ -438,18 +466,15 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_mbts(self):
-        doHeavyIon=False
-        if 'ion' in self.chainPart['extra']:
-            doHeavyIon=True
 
         theL2Fex  = L2MbMbtsFex
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
 
-        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
+        if "vetombts1side2in" in self.chainPart['veto']: #do EFID
             doMbtsVeto=True
             theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
 
@@ -492,9 +517,9 @@ class L2EFChain_MB(L2EFChainDef):
                     logMinBiasDef.error("Something weird in the setup_mb_mbts(), please check")
             else:
                 theL2Hypo = theL2MbtsVetoHypo
-                if "vetombts2in" in self.chainPart['extra']:
+                if "vetombts2in" in self.chainPart['veto']:
                     chainSuffix = chainSuffix+"_vetombts2in"
-                if "vetombts1side2in" in self.chainPart['extra']:
+                if "vetombts1side2in" in self.chainPart['veto']:
                     chainSuffix = chainSuffix+"_vetombts1side2in"
                 
         ########## EF algos ##################
@@ -555,6 +580,10 @@ class L2EFChain_MB(L2EFChainDef):
             if "pusup" in self.chainPart['pileupInfo']:
                 doPusup=True
                 chainSuffixL2=l2hypo2+'_'+chainSuffixL2
+                #L2 pileup suppression
+                from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
+
+                theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
                 theL2Fex2  = theL2PileupSup
                 theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_"+l2th2, int(l2th2))
         ########## EF algos ##################
@@ -655,7 +684,8 @@ class L2EFChain_MB(L2EFChainDef):
 
             theL2Fex1  = L2MbSpFex_noPix
             theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))
-
+            from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
+            theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
             theL2Fex2  = theL2PileupSup
             theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_PT")
             theL2Hypo2.AcceptAll = True

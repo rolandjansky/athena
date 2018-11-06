@@ -23,4 +23,5 @@
 #include "CoolLumiUtilities/LumiBlobUtil.h"
 
 #include "CoolLumiUtilities/CoolLumiUtilsTest.h"
+#include "CoolLumiUtilities/OnlineLumiCalibrationCondData.h"
 #endif // COOLLUMIUTILITIES_COOLLUMIUTILITIESDICT_H

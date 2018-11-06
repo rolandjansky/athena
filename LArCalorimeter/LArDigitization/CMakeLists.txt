@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArSimEvent
                           LArCalorimeter/LArRecConditions
+			  LArCalorimeter/LArRawConditions
                           PRIVATE
                           Generators/GeneratorObjects )
 
@@ -38,7 +39,7 @@ atlas_add_library( LArDigitizationLib
                    PUBLIC_HEADERS LArDigitization
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel SGTools Identifier xAODEventInfo GaudiKernel LArIdentifier LArRawEvent LArSimEvent LArRecConditions CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
+                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel SGTools Identifier xAODEventInfo GaudiKernel LArIdentifier LArRawEvent LArSimEvent LArRecConditions LArRawConditions CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects )
 
 atlas_add_component( LArDigitization

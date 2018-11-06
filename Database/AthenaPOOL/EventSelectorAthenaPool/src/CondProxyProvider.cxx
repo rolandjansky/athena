@@ -98,13 +98,16 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
       ATH_MSG_FATAL("Cannot get DetectorStoreSvc.");
       return(StatusCode::FAILURE);
    }
+
+   if (m_poolCollectionConverter == nullptr) {
+     return StatusCode::FAILURE;
+   }
+   
    // Create DataHeader iterators
    m_headerIterator = &m_poolCollectionConverter->executeQuery();
    if (!m_headerIterator->next()) {
-      if (m_poolCollectionConverter != 0) {
-         m_poolCollectionConverter->disconnectDb().ignore();
-         delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
-      }
+     m_poolCollectionConverter->disconnectDb().ignore();
+     delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
       m_inputCollectionsIterator++;
       if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
          // Create PoolCollectionConverter for input file

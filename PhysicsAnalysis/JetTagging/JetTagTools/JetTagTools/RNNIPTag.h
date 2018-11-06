@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "JetTagTools/ITagTool.h"
+#include "JetTagCalibration/JetTagCalibCondData.h"
 
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
@@ -44,7 +45,6 @@ namespace Analysis {
   class TrackGradePartition;
   class SVForIPTool;
   class ITrackGradeFactory;
-  class CalibrationBroker;
 
   // track struct, and sorting functions
   struct IPxDInfo;
@@ -117,6 +117,8 @@ namespace Analysis {
     /** Name of the track-to-jet association in the BTagging object */
     std::string m_trackAssociationName;
 
+    /** Key of calibration data: */
+    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
     /** forcing the calibration folder of a given collection */
     std::string m_ForcedCalibName;
 
@@ -145,12 +147,11 @@ namespace Analysis {
 
     // load the calibration file from the COOL db
     void update_networks_for(const std::string& author);
-    void register_hist(const std::string& name = "/rnnip");
+    //void register_hist(const std::string& name = "/rnnip");
     std::string get_calib_string(
       const std::string& author,
       const std::string& name = "/rnnip");
     std::string m_calibrationDirectory;
-    ToolHandle<CalibrationBroker> m_calibrationTool;
 
     /** names of fools for getting the secondary vertex information */
     std::string m_secVxFinderNameForV0Removal;

@@ -170,8 +170,26 @@ namespace Trk {
         composition( amc.composition ? new MaterialComposition(*amc.composition) : 0 )
       {}
 
+	/** Move Constructor */
+      Material(Material&& amc):
+        X0(amc.X0),
+        L0(amc.L0),
+        A(amc.A),
+        Z(amc.Z),
+        rho(amc.rho),
+        dEdX(amc.dEdX),
+        zOaTr(amc.zOaTr),
+        composition(amc.composition)	
+      {
+	amc.composition = nullptr;
+      }
+
+
       /** Destructor - delete the composition if there */
-	  ~Material() { delete composition;  }
+      ~Material() { 
+	if (composition)
+	  delete composition;
+      }
 
       /** Assignment operator */
       Material& operator=(const Material& amc) {
@@ -187,6 +205,24 @@ namespace Trk {
               composition =  amc.composition ? new MaterialComposition(*amc.composition) : 0;
           }
           return (*this);
+      }
+
+	/** Move Assignment operator */
+      Material& operator=(Material&& amc)
+      {
+	X0 = amc.X0;
+        L0 = amc.L0;
+        A = amc.A;
+        Z = amc.Z;
+        rho = amc.rho;
+        dEdX = amc.dEdX;
+        zOaTr = amc.zOaTr;
+	if(composition && composition != amc.composition){
+	  delete composition;
+	}
+	composition = amc.composition;
+	amc.composition = nullptr;
+	return *this;
       }
 
       /** scaling method */

@@ -34,7 +34,7 @@
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMECPresamplerHVManager.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 // Name of the folder for LAr Alignment information :

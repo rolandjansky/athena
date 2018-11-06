@@ -44,6 +44,7 @@ EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::s
   m_numberOfSteps(50),
   m_numberOfCharges(10),
   m_disableDistortions(false),
+  m_module{},
   m_doBichsel(false),
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation

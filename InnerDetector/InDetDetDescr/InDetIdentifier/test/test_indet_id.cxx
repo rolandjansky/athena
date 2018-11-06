@@ -812,7 +812,7 @@ check_pixel_timing(IdDictMgr& idd)
 	    eta_index  = pixel_id.eta_index(pixid);
 	    wafer_id   = pixel_id.wafer_id(pixid);
 	    n         += eta_index + phi_index + pixid.get_compact() + wafer_id.get_compact() +
-              pixel_id.pixel_id(wafer_id, eta_index, phi_index).get_compact();
+              pixel_id.pixel_id(wafer_id, phi_index, eta_index).get_compact();
 	}
     }
 
@@ -2070,7 +2070,7 @@ check_trt_timing(IdDictMgr& idd)
 	    phi_module     = trt_id.phi_module(layer_id);
 	    straw_layer    = trt_id.straw_layer(layer_id);
 	    n         += barrel_ec + layer_or_wheel + straw_layer + phi_module +
-              trt_id.layer_id(barrel_ec, layer_or_wheel, phi_module, straw_layer).get_compact();
+              trt_id.layer_id(barrel_ec, phi_module, layer_or_wheel, straw_layer).get_compact();
 	}
     }
 

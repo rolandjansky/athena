@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
+from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
 #from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionTest
 
 from AthenaCommon.AppMgr import ToolSvc
@@ -19,8 +20,18 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
         #handle.OutputLevel = DEBUG
         #return
         
+class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
+    __slots__ = []
+    def __init__(self, name = "TrigDecMakerMT"):
+        super( TrigDecisionMakerMT, self ).__init__( name )
 
+        from AthenaCommon.Logging import logging  # loads logger
+        log = logging.getLogger( name )
 
+    def setDefaults(self, handle):
+        pass
+
+# Following not yet ported to the AthenaMT / Run 3 alg
 
 class TrigDecisionStream ( object) :
     def __init__ ( self, streamName = "Stream1", fileName = "HLT.root",
@@ -29,10 +40,6 @@ class TrigDecisionStream ( object) :
         import AthenaPoolCnvSvc.WriteAthenaPool
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.PoolSvc.WriteCatalog = catalog
-
-        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-        svcMgr += AthenaPoolCnvSvc()
-        svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 
         # revert later from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
         # revert later self.stream = createOutputStream( streamName )
@@ -67,10 +74,6 @@ class TrigConditionStream ( object) :
         from PoolSvc.PoolSvcConf import PoolSvc
         svcMgr += PoolSvc()
         svcMgr.PoolSvc.WriteCatalog = catalog
-
-        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-        svcMgr += AthenaPoolCnvSvc()
-        svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 
         from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputConditionStream
         self.stream = AthenaPoolOutputConditionStream( streamName )
@@ -195,7 +198,6 @@ class ReadTrigDecisionFromFile ( object ) :
         import AthenaPoolCnvSvc.ReadAthenaPool
 
         svcMgr.EventSelector.InputCollections = [ fileName ]
-        svcMgr.EventSelector.BackNavigation = TRUE; # // switch on BackNavigation of AddressProvider
         svcMgr.PoolSvc.ReadCatalog = [ catalog ]
 
 

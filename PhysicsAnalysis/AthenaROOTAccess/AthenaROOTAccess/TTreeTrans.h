@@ -271,17 +271,6 @@ public:
 
 
   /**
-   * @brief Inform HIVE that an object has been updated.
-   * @param id The CLID of the object.
-   * @param key The key of the object.
-   *
-   * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
-   */
-  virtual
-  StatusCode updatedObject (CLID id, const std::string& key) override;
-
-
-  /**
    * @brief Find the key for a string/CLID pair.
    * @param str The string to look up.
    * @param clid The CLID associated with the string.

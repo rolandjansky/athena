@@ -13,24 +13,24 @@
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include <string>
-#include <iostream>
-#include <fstream>
-#include "CLHEP/Geometry/Transform3D.h"
-//#include "CLHEP/Matrix/Vector.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
+#include "CLHEP/Geometry/Transform3D.h"
+
+#include <string>
+#include <iostream>
+#include <fstream>
 
 namespace InDetDD {
   class TRT_DetectorManager; 
-  class SCT_DetectorManager; 
   class PixelDetectorManager; 
 }
 
 class TRT_ID;
-class SCT_ID;
 class PixelID;
 class Identifier;
 
@@ -59,6 +59,7 @@ class GetDetectorLocalFrames:public AthAlgorithm {
     /** Pixel Data */
     
     /** SCT Data */
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     
     /** TRT Data */
     int m_trt_barrel_ec;
@@ -71,9 +72,6 @@ class GetDetectorLocalFrames:public AthAlgorithm {
     const PixelID *m_PixelHelper;
     const InDetDD::PixelDetectorManager *m_pixelDetectorManager;
     
-    const SCT_ID *m_SCTHelper;
-    const InDetDD::SCT_DetectorManager *m_SCTDetectorManager;
-
     const TRT_ID *m_TRTHelper;
     const InDetDD::TRT_DetectorManager *m_TRTDetectorManager;
     

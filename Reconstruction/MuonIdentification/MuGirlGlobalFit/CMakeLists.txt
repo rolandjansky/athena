@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Tracking/TrkFitter/TrkFitterUtils
                           PRIVATE
-                          Control/DataModel
+                          Control/AthContainers
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
@@ -35,7 +35,7 @@ atlas_add_component( MuGirlGlobalFit
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MuonIdHelpersLib MuGirlInterfaces MuidInterfaces TrkFitterUtils DataModel MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces iPatTrackParameters TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack TrkTrack TrkExInterfaces TrkExUtils )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MuonIdHelpersLib MuGirlInterfaces MuidInterfaces TrkFitterUtils AthContainers MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces iPatTrackParameters TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack TrkTrack TrkExInterfaces TrkExUtils )
 
 # Install files from the package:
 atlas_install_headers( MuGirlGlobalFit )

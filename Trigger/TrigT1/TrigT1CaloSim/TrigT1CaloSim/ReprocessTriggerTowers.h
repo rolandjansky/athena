@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
  /***************************************************************************
                            ReprocessTriggerTowers.h  -  description
                               -------------------
      begin                : Tue May 18 2010
-     copyright            : (C) 2010 by Alan Watson
      email                : Alan.Watson@CERN.CH
   ***************************************************************************/
 

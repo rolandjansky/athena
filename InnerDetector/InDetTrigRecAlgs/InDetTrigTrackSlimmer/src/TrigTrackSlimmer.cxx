@@ -34,16 +34,6 @@ namespace InDet
   TrigTrackSlimmer::~TrigTrackSlimmer()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackSlimmer::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackSlimmer::beginRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
-
   ///////////////////////////////////////////////////////////////////
   // Initialisation
   ///////////////////////////////////////////////////////////////////
@@ -143,16 +133,6 @@ namespace InDet
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackSlimmer::hltEndRun() {
-   
-    msg() << MSG::INFO << "TrigTrackSlimmer::endRun()" << endmsg;
-   
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
 } // end namespace
 
 

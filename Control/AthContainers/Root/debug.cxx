@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -62,7 +62,14 @@ void print_aux_vars (const SG::auxid_set_t& auxids)
   for (SG::auxid_t id : ids) {
     std::cout << id << " "
               << reg.getClassName(id) << "::" << reg.getName(id) << " "
-              << "[" << reg.getTypeName(id) << "]\n";
+              << "[" << reg.getTypeName(id);
+
+    SG::AuxTypeRegistry::Flags flags = reg.getFlags(id);
+    if (flags & SG::AuxTypeRegistry::Flags::Atomic) {
+      std::cout << " (atomic)";
+    }
+
+    std::cout << "]\n";
   }
 }
 
@@ -211,12 +218,13 @@ std::string aux_var_as_string (SG::auxid_t auxid, const void* p)
   CONVERT1 (char)
   CONVERT1 (unsigned char)
   CONVERT1 (long)
-    CONVERT1 (unsigned long)
+  CONVERT1 (unsigned long)
   CONVERT1 (long long)
   CONVERT1 (unsigned long long)
   CONVERT1 (float)
   CONVERT1 (double)
   CONVERT1 (bool)
+  CONVERT1 (std::string)
   //else
     os << "<??? " << AthContainers_detail::typeinfoName(*ti) << ">";
   return os.str();

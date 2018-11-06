@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FEI4SimTool.h"
@@ -117,7 +117,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
     if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
 
-    if (!m_pixelConditionsSvc->isActive(moduleHash,diodeID)) {
+    if (!m_pixelConditionsTool->isActive(moduleHash,diodeID)) {
       SiHelper::disabled((*i_chargedDiode).second,true,true);
       continue;
     }

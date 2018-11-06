@@ -9,6 +9,8 @@ using namespace std;
 using namespace Analysis;
 
 int JetPartonTruthLabel::modifyJet(xAOD::Jet &jet) const {
+  ATH_MSG_VERBOSE("In " << name() << "::modifyJet()");
+
 	int label = -1;
 
 	vector<const xAOD::TruthParticle*> partons;

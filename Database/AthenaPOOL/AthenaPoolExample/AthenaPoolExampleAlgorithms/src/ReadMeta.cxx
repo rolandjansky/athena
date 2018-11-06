@@ -82,8 +82,8 @@ StatusCode ReadMeta::beginInputFile()
       }
       //const ExampleHitContainer* ep;
       ExampleHitContainer* ep_out = 0;
-      for (std::list<SG::ObjectWithVersion<ExampleHitContainer> >::const_iterator iter = allVersions.begin(); iter != allVersions.end(); iter++) {
-         const ExampleHitContainer* ep = iter->dataObject;
+      for (SG::ObjectWithVersion<ExampleHitContainer>& obj : allVersions) {
+         const ExampleHitContainer* ep = obj.dataObject.cptr();
          if (!m_pMetaDataStore->contains<ExampleHitContainer>("PedestalWriteData")) {
             ep_out = new ExampleHitContainer();
             const ExampleHit* entry = *ep->begin();

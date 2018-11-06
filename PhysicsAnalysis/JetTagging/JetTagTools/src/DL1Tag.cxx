@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -20,11 +20,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODTracking/TrackParticle.h"
 
-#include "JetTagCalibration/CalibrationBroker.h"
 #include "JetTagTools/DL1Tag.h"
-#include "JetTagTools/LightweightNeuralNetwork.h"
-#include "JetTagTools/parse_json.h"
-#include "JetTagTools/Exceptions.h"
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"
@@ -57,8 +53,6 @@ namespace Analysis {
   DL1Tag::DL1Tag(const std::string& name, const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
     m_calibrationDirectory("DL1"),
-    m_calibrationSubDirectory("AntiKt4TopoEM"),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_n_compute_errors(0),
     m_runModus("analysis")
   {
@@ -67,8 +61,6 @@ namespace Analysis {
 
     // access to JSON NN configuration file from COOL:
     declareProperty("calibration_directory", m_calibrationDirectory);
-    declareProperty("calibration_subdirectory", m_calibrationSubDirectory);
-    declareProperty("calibrationTool", m_calibrationTool);
     declareProperty("forceDL1CalibrationAlias", m_forceDL1CalibrationAlias = true);
     declareProperty("DL1CalibAlias", m_DL1CalibAlias = "AntiKt4TopoEM");
     declareProperty("xAODBaseName", m_xAODBaseName);
@@ -86,39 +78,19 @@ namespace Analysis {
   }
 
   StatusCode DL1Tag::initialize() {
-    // prepare calibraiton tool
-    StatusCode sc = m_calibrationTool.retrieve();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "#BTAG# Failed to retrieve tool " << m_calibrationTool );
-      return sc;
-    }
-    else {
-      ATH_MSG_INFO( "#BTAG# Retrieved: " << m_calibrationTool );
-    }
+    // prepare readKey for calibration data:
+    ATH_CHECK(m_readKey.initialize());
 
     // Read in the configuration of the neural net for DL1:
     if (m_LocalNNConfigFile.size() != 0) { // retrieve map of NN config and default values from local JSON file
       std::ifstream nn_config_ifstream(m_LocalNNConfigFile);
       build_nn("local", nn_config_ifstream);
     }
-    else { // load the configuration from the COOL db:
-      load_calibration_file();
+    else { // done in condition algorithm
     }
 
     ATH_MSG_INFO(" Initialization of DL1Tag successful" );
     return StatusCode::SUCCESS;
-  }
-
-
-  void DL1Tag::load_calibration_file() {
-    std::string file_name = "/net_configuration"; // directory of NN calibration (starting from specific jet collection directory) in COOL db
-    m_calibrationTool->registerHistogram(m_calibrationDirectory, file_name);  //register the calibration file for later access
-
-    ATH_MSG_DEBUG(" #BTAG# Registered NN histograms with directory: " <<
-		  m_calibrationDirectory << " and subdirectory " <<
-		  m_calibrationSubDirectory);
-
-    m_calibrationTool->printStatus();
   }
 
 
@@ -131,7 +103,7 @@ namespace Analysis {
     }
 
     lwt::JSONConfig nn_config = lwt::parse_json(nn_config_istream);
-    ATH_MSG_DEBUG("making NN with " << nn_config.layers.size() << " layers");
+    ATH_MSG_DEBUG("#BTAG# making NN with " << nn_config.layers.size() << " layers");
 
     if (!(std::find((nn_config.outputs).begin(), (nn_config.outputs).end(), "bottom") != (nn_config.outputs).end())) {
       ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
@@ -142,49 +114,33 @@ namespace Analysis {
     m_map_defaults.insert(std::make_pair(jetauthor, nn_config.defaults));
   }
 
+  void DL1Tag::load_calibration(const std::string& jetauthor) {
+    SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
+    lwt::JSONConfig nn_config = readCdo->retrieveDL1NN(m_calibrationDirectory , jetauthor);
 
-  void DL1Tag::cache_calibration(const std::string& jetauthor) {
-    bool update = m_calibrationTool->retrieveHistogram(m_calibrationDirectory, jetauthor, "net_configuration").second;
-
-    // check if this network is alread cached, so do nothing
-    if ( (!update) && (m_NeuralNetworks.count(jetauthor) == 1) ) {
-      return;
-    }
-    // get the NN configuration
-    std::string calib = get_calib_string(jetauthor);
-    ATH_MSG_DEBUG("Reading NN for " + jetauthor + ": "
-                  << calib.size() << " characters");
-
-    // Read in the configuration of the neural net for DL1 and build net:
-    std::istringstream nn_config_sstream(calib);
-    build_nn(jetauthor, nn_config_sstream);
-  }
-
-  std::string DL1Tag::get_calib_string(std::string jetauthor) {
-    std::string file_name = "/net_configuration";
-    std::pair<TObject*, bool> stringpair = m_calibrationTool->retrieveTObject<TObject>(m_calibrationDirectory, jetauthor, file_name);
-    if (stringpair.second == true) {
-      m_calibrationTool->updateHistogramStatus(m_calibrationDirectory, jetauthor, "net_configuration",false);
-    }
-    TObjString* cal_string = dynamic_cast<TObjString*>(stringpair.first);
-
-    if (cal_string == 0){  //catch if no string was found
+    if (nn_config.layers.size() == 0){  //catch if no NN config was found
       std::string fuller_name = m_calibrationDirectory + "/" +
-	jetauthor + "/net_configuration";
-      if (stringpair.first) {
-	fuller_name.append(" [but an object was found]");
-      }
-      throw std::logic_error("Cannot retrieve string: " + fuller_name);
+      jetauthor + "/net_configuration";
+      throw std::logic_error("Cannot retrieve NN config build from string: " + fuller_name);
     }
-    std::string calibration(cal_string->GetString().Data());
-    return calibration;
-  }
 
+    ATH_MSG_DEBUG("#BTAG# making NN with " << nn_config.layers.size() << " layers");
+
+    if (!(std::find((nn_config.outputs).begin(), (nn_config.outputs).end(), "bottom") != (nn_config.outputs).end())) {
+      ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
+    }
+
+    m_NeuralNetworks.insert(std::make_pair(jetauthor, new lwt::LightweightNeuralNetwork(nn_config.inputs, nn_config.layers, nn_config.outputs)));
+    m_map_variables.insert(std::make_pair(jetauthor, nn_config.inputs));
+    m_map_defaults.insert(std::make_pair(jetauthor, nn_config.defaults));
+
+  }
 
   StatusCode DL1Tag::finalize() { // all taken care of in destructor
     if (m_n_compute_errors > 0) {
       ATH_MSG_WARNING("Neural network was unable to compute. Number of errors: "+ std::to_string(m_n_compute_errors));
     }
+
     ATH_MSG_INFO(" #BTAG# Finalization of DL1Tag successfull" );
     return StatusCode::SUCCESS;
   }
@@ -236,7 +192,7 @@ namespace Analysis {
 			" No likelihood value given back. ");
       }
       try {
-	cache_calibration(jetauthor);
+	load_calibration(jetauthor);
       } catch (std::exception& e) {
 	ATH_MSG_WARNING(
 	  "problem loading calibration for " + jetauthor +

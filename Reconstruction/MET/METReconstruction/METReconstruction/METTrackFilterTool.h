@@ -34,6 +34,7 @@
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
+
 namespace InDet {
   class IInDetTrackSelectionTool;
 }
@@ -114,16 +115,21 @@ namespace met{
     bool m_trk_doPVsel;
     // double m_trk_d0Max;
     // double m_trk_z0Max;
-    std::string m_pv_inputkey;
-    std::string m_el_inputkey;
-    std::string m_mu_inputkey;
+    std::string m_pv_input;
+    std::string m_el_input;
+    std::string m_mu_input;
+
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_el_inputkey;
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_mu_inputkey;
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_cl_inputkey;
 
     bool m_doVxSep;
     bool m_doLepRecovery;
     bool m_useIsolationTools;
 
     bool m_trk_doEoverPsel;
-    std::string m_cl_inputkey;
+    std::string m_cl_input;
 
     double m_cenTrackPtThr;
     double m_forTrackPtThr;

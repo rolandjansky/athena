@@ -83,8 +83,6 @@ namespace Analysis {
     : AthAlgTool(t,n,p),
       m_runModus("analysis"),
       m_histoHelper(0),
-      //m_secVxFinderNameForV0Removal("InDetVKalVxInJetTool"),
-      //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
       m_sortPt(false),
       m_sortD0sig(false),
       m_sortZ0D0sig(false),
@@ -95,7 +93,6 @@ namespace Analysis {
       m_likelihoodTool("Analysis::NewLikelihoodTool"),
       m_SVForIPTool("Analysis::SVForIPTool"),
       m_trackGradeFactory("Analysis::BasicTrackGradeFactory"),
-      // VD:trackToVertexIPestimator missing
       m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool"),
       m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool")
   {
@@ -135,8 +132,6 @@ namespace Analysis {
     declareProperty("purificationDeltaR"      , m_purificationDeltaR = 0.8);
     declareProperty("jetPtMinRef"             , m_jetPtMinRef = 15.*Gaudi::Units::GeV);
 
-    //declareProperty("SecVxFinderNameForV0Removal",m_secVxFinderNameForV0Removal);
-    //declareProperty("SecVxFinderNameForIPSign"   ,m_secVxFinderNameForIPSign)
     declareProperty("SecVxFinderName"         ,m_secVxFinderName);
 
     declareProperty("NtrkMin"                 , m_NtrkMin =6 );
@@ -217,13 +212,6 @@ namespace Analysis {
       m_hypotheses.push_back("C");
     }
 
-    /** retrieving TrackToVertex: */
-    /*if ( m_trackToVertexTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_trackToVertexTool);
-      return StatusCode::FAILURE;
-    } else {
-      
-    }*/
     // FF: comment out V0 finding
     if (m_SVForIPTool.retrieve().isFailure() )  {
        ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_SVForIPTool);
@@ -268,7 +256,7 @@ namespace Analysis {
 
     /** prepare the track partitions: */
     int nbPart = m_trackGradePartitionsDefinition.size();
-    ATH_MSG_INFO("#BTAG# Defining " << nbPart <<" track partitions: ");
+    ATH_MSG_DEBUG("#BTAG# Defining " << nbPart <<" track partitions: ");
     for(int i=0;i<nbPart;i++) {
       TrackGradePartition* part(0);
       try {
@@ -295,7 +283,7 @@ namespace Analysis {
         ATH_MSG_ERROR("#BTAG# Terminating now... ");
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO((*part));
+      ATH_MSG_DEBUG((*part));
       m_trackGradePartitions.push_back(part);
     }
 
@@ -308,19 +296,6 @@ namespace Analysis {
         ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_likelihoodTool);
       }
       m_likelihoodTool->defineHypotheses(m_hypotheses);
-      // define new lh variables:
-      for(unsigned int i=0;i<m_trackGradePartitions.size();i++) {
-        for(unsigned int ih=0;ih<m_hypotheses.size();ih++) {
-          std::string hName;
-          if(m_impactParameterView=="1D") 
-            hName = m_hypotheses[ih]+"/"+m_trackGradePartitions[i]->suffix()+"/SipZ0";
-          if(m_impactParameterView=="2D") 
-            hName = m_hypotheses[ih]+"/"+m_trackGradePartitions[i]->suffix()+"/SipA0";
-          if(m_impactParameterView=="3D") 
-            hName = m_hypotheses[ih]+"/"+m_trackGradePartitions[i]->suffix()+"/Sip3D";
-          m_likelihoodTool->defineHistogram(hName);
-        }
-      }
       m_likelihoodTool->printStatus();
     }
 
@@ -331,8 +306,7 @@ namespace Analysis {
 
     /** book calibration histograms if needed */
     if( m_runModus == "reference" ) {
-      //FF: comment out reference mode running for now
-      ATH_MSG_INFO("#BTAG# running IPTag in reference mode");
+      ATH_MSG_DEBUG("#BTAG# running IPTag in reference mode");
      for(uint j=0;j<m_jetCollectionList.size();j++) {
 
         //int nbGrades=trackFactoryGradesDefinition.numberOfGrades();
@@ -373,11 +347,6 @@ namespace Analysis {
 	}
       // ms m_histoHelper->print();
     }
-  /* ms
-    m_nbjet = 0;
-    m_ncjet = 0;
-    m_nljet = 0;
-  */
 
     if (m_impactParameterView=="3D") { 
       if ( m_InDetTrackSelectorTool.retrieve().isFailure() )  {
@@ -427,8 +396,6 @@ namespace Analysis {
     if( m_runModus == "reference" ) {
       // here we require a jet selection:
       if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
-        // and also a truth match:
-        //const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
 	label = xAOD::jetFlavourLabel(&jetToTag);
 	double deltaRtoClosestB = 999., deltaRtoClosestC = 999., deltaRtoClosestT = 999.;
     	double deltaRmin(0.);
@@ -436,10 +403,7 @@ namespace Analysis {
     	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
 	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
 	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
-	  //double deltaRtoClosestB = mcinfo->deltaRMinTo("B");
-   	  //double deltaRtoClosestC = mcinfo->deltaRMinTo("C");
     	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
-          //double deltaRtoClosestT = mcinfo->deltaRMinTo("T");
           deltaRmin = deltaRtoClosestT < deltaRmin ? deltaRtoClosestT : deltaRmin;
         } else {
           ATH_MSG_ERROR("#BTAG# No TruthInfo ! Cannot run in reference mode !");
@@ -488,7 +452,6 @@ namespace Analysis {
     int nbTrak = 0;
     m_trackSelectorTool->primaryVertex(m_priVtx->position());
     m_trackSelectorTool->prepare();
-    //std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
       BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
     double sumTrkpT = 0; unsigned ntrk=0;
@@ -587,7 +550,6 @@ namespace Analysis {
     vectZ0.reserve(nbTrackMean);
     vectZ0Signi.reserve(nbTrackMean);
     vectGrades.reserve(nbTrackMean);
-    //////////vectTP.reserve(nbTrackMean);
     vectFromV0.reserve(nbTrackMean);
     vectWeightB.reserve(nbTrackMean);
     vectWeightU.reserve(nbTrackMean);
@@ -690,11 +652,7 @@ namespace Analysis {
     if (m_sortD0sig)   std::sort( vectObj.begin() , vectObj.end() , StructD0Sigsorting );
     if (m_sortZ0D0sig) std::sort( vectObj.begin() , vectObj.end() , StructZ0D0Sigsorting );
     
-
-    //std::cout << std::endl;
-    //std::cout << " " << m_NtrkMax << " , " << m_trkFract << " , " << m_NtrkMin << std::endl;
     int resizeVal=vectObj.size();
-    //int tmpSize=resizeVal;
     if (m_NtrkMax!=1000) {
       if ( m_trkFract==1.0 ) {
 	if ( m_NtrkMax<resizeVal ) resizeVal=m_NtrkMax;
@@ -714,7 +672,7 @@ namespace Analysis {
       /** fill reference histograms: */
       ///* ms
       if( m_runModus == "reference" ) {
-	if( pref != "" ) { // current jet passes selection for Sig or Bkg
+	if( !pref.empty() ) { // current jet passes selection for Sig or Bkg
 	  ATH_MSG_DEBUG("#BTAG# filling ref histo for " << pref);
           const TrackGradesDefinition & trackFactoryGradesDefinition = m_trackGradeFactory->getTrackGradesDefinition();
           const std::vector<TrackGrade> & gradeList = trackFactoryGradesDefinition.getList();
@@ -954,17 +912,6 @@ namespace Analysis {
     twu = tmp[1];
     twc = 0.;
     if(m_useCHypo) twc = tmp[2];
-    /*
-    double w = -100.;
-    if(pb<=0.) {
-      w = -30.;
-    } else if (pu<=0.) {
-      w = +100.;
-    } else {
-      w = log(pb/pu);
-    }
-    return w;
-    */
   }
 
 

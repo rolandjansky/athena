@@ -14,13 +14,13 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/EventTag/TagEvent
                           Trigger/TrigAnalysis/TrigDecisionTool
+                          LumiBlock/LumiBlockComps
                           PRIVATE
                           Control/AthenaKernel
                           Database/AthenaPOOL/DBDataModel
                           Event/EventInfo
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODTracking
-                          LumiBlock/LumiBlockComps
                           Reconstruction/RecEvent
                           Trigger/TrigConfiguration/TrigConfInterfaces )
 

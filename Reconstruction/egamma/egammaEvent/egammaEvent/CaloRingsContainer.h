@@ -8,7 +8,7 @@
 // INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "egammaEvent/CaloRings.h"
 
 class CaloRingsContainer : public DataVector<CaloRings> 
@@ -18,15 +18,6 @@ class CaloRingsContainer : public DataVector<CaloRings>
 
   /** Main constructor */
   CaloRingsContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
-
-  /** reimplementation of push_back (temporary)*/
-  void push_back(const CaloRings *);
-
-  void push_back(CaloRings *);
-
-  /** wether it owns or not the cel SG::OWN_ELEMENTS or VIEW_ELEMENTS */
-  SG::OwnershipPolicy  m_ownPolicy ;
-
 };
 
 SG_BASE(CaloRingsContainer, DataVector<CaloRings>);

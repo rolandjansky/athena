@@ -70,9 +70,11 @@ namespace CoreDumpSvcHandler
   void action( int sig, siginfo_t *info, void* extra )
   {
     // Protect against additional signals while we are handling this one
-    static bool inHandler = false;
-    if ( !inHandler ) inHandler = true;
-    else return;
+    static std::atomic<int> inHandler {0};
+    if (inHandler++ > 0) {
+      if (inHandler > 100) _exit (99);
+      return;
+    }
     
     // setup timeout
     int timeoutMilliseconds = int(coreDumpSvc->m_timeout * 1e-6);
@@ -87,16 +89,22 @@ namespace CoreDumpSvcHandler
       coreDumpSvc->print();
     }
 
-    if (!callOldHandler) return;
+    if (callOldHandler) {
     
-    // Call previous signal handler
-    // Need to distinguish between the two different types
-    if (oldSigHandler[sig].sa_flags & SA_SIGINFO) {
-      if (oldSigHandler[sig].sa_handler) oldSigHandler[sig].sa_sigaction(sig,info,extra);
+      // Call previous signal handler
+      // Need to distinguish between the two different types
+      if (oldSigHandler[sig].sa_flags & SA_SIGINFO) {
+        if (oldSigHandler[sig].sa_handler) oldSigHandler[sig].sa_sigaction(sig,info,extra);
+      }
+      else {
+        if (oldSigHandler[sig].sa_handler) oldSigHandler[sig].sa_handler(sig);
+      }      
     }
-    else {
-      if (oldSigHandler[sig].sa_handler) oldSigHandler[sig].sa_handler(sig);
-    }      
+
+    if (coreDumpSvc && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
+      // Exit now on a fatal signal; otherwise, we can hang.
+      _exit (99);
+    }
   }
 
 }

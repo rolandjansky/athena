@@ -18,7 +18,7 @@
 
 CscRdoToCscPrepData::CscRdoToCscPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_muonRdoToPrepDataTool ("Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool"),
+    m_muonRdoToPrepDataTool ("Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool", this),
     m_print_inputRdo(false),
     m_print_prepData(false),
     m_seededDecoding(false),

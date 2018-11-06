@@ -30,16 +30,6 @@ CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLoc
   m_lumiblock(0),
   m_lumiblockOld(0),
   m_first(false),
-  m_luminosity(0),
-  m_nevt(),
-  m_nevt_good(),
-  m_layer(),
-  m_identifier(),
-  m_eta(),
-  m_phi(),
-  m_average(),
-  m_rms(),
-  m_reference(),
   m_tree(NULL),
   m_doMC(false),
   m_readNtuple(false),
@@ -105,6 +95,7 @@ StatusCode CaloCellNoiseAlg::initialize()
 {
   ATH_MSG_DEBUG ("CaloCellNoiseAlg initialize()" );
 
+  m_treeData = std::make_unique<TreeData>();
   const CaloIdManager* mgr = nullptr;
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
@@ -122,7 +113,7 @@ StatusCode CaloCellNoiseAlg::initialize()
 
   m_first = true;
   m_lumiblock = 0;
-  m_luminosity = 0.;
+  m_treeData->m_luminosity = 0.;
   m_lumiblockOld = 0;
 
   ATH_CHECK( service("THistSvc",m_thistSvc) );
@@ -133,6 +124,8 @@ StatusCode CaloCellNoiseAlg::initialize()
   }
 
   ATH_CHECK( m_noiseToolDB.retrieve() );
+
+  ATH_CHECK( m_cablingKey.initialize());
 
   ATH_MSG_INFO ( " end of CaloCellNoiseAlg::initialize " );
   return StatusCode::SUCCESS; 
@@ -200,10 +193,10 @@ StatusCode CaloCellNoiseAlg::execute()
 
   if ( lumiblock != m_lumiblockOld) {
     float luminosity =  this->getLuminosity();
-    ATH_MSG_INFO ( " New lumiblock seen " << lumiblock << " " << m_lumiblock << " " << luminosity << " " << m_luminosity <<  " m_first " << m_first );
+    ATH_MSG_INFO ( " New lumiblock seen " << lumiblock << " " << m_lumiblock << " " << luminosity << " " << m_treeData->m_luminosity <<  " m_first " << m_first );
     // lumiblock, m_lumiblock are unsigned.
     if ( ( lumiblock - m_lumiblock >= static_cast<unsigned int>(m_addlumiblock) ||
-           std::fabs(luminosity-m_luminosity)>(m_luminosity*m_deltaLumi) ||
+           std::fabs(luminosity-m_treeData->m_luminosity)>(m_treeData->m_luminosity*m_deltaLumi) ||
            m_first )
          && m_doLumiFit)
     {
@@ -215,7 +208,7 @@ StatusCode CaloCellNoiseAlg::execute()
          }
       }
       m_lumiblock = lumiblock;
-      m_luminosity = luminosity;
+      m_treeData->m_luminosity = luminosity;
     }
     m_lumiblockOld = lumiblock;
   }
@@ -224,7 +217,7 @@ StatusCode CaloCellNoiseAlg::execute()
     m_ncell = m_calo_id->calo_cell_hash_max();
     ATH_MSG_DEBUG ( " number of cells " << m_ncell );
     if (m_ncell>200000) {
-      ATH_MSG_WARNING ( " too many celly " << m_ncell );
+      ATH_MSG_WARNING ( " too many cells " << m_ncell );
       return StatusCode::SUCCESS;
     }
     m_CellList.reserve(m_ncell);
@@ -261,17 +254,17 @@ StatusCode CaloCellNoiseAlg::execute()
     }
 
     m_tree = new TTree("mytree","Calo Noise ntuple");
-    m_tree->Branch("luminosity",&m_luminosity,"luminosity/F");
-    m_tree->Branch("ncell",&m_ncell,"ncell/I");
-    m_tree->Branch("identifier",m_identifier,"identifier[ncell]/I");
-    m_tree->Branch("layer",m_layer,"layer[ncell]/I");
-    m_tree->Branch("eta",m_eta,"eta[ncell]/F");
-    m_tree->Branch("phi",m_phi,"phi[ncell]/F");
-    m_tree->Branch("nevt",m_nevt,"nevt[ncell]/I");
-    m_tree->Branch("nevt_good",m_nevt_good,"nevt[ncell]/I");
-    m_tree->Branch("average",m_average,"average[ncell]/F");
-    m_tree->Branch("rms",m_rms,"rms[ncell]/F");
-    m_tree->Branch("reference",m_reference,"reference[ncell]/F");
+    m_tree->Branch("luminosity",&m_treeData->m_luminosity,"luminosity/F");
+    m_tree->Branch("ncell",&m_treeData->m_ncell,"ncell/I");
+    m_tree->Branch("identifier",m_treeData->m_identifier,"identifier[ncell]/I");
+    m_tree->Branch("layer",m_treeData->m_layer,"layer[ncell]/I");
+    m_tree->Branch("eta",m_treeData->m_eta,"eta[ncell]/F");
+    m_tree->Branch("phi",m_treeData->m_phi,"phi[ncell]/F");
+    m_tree->Branch("nevt",m_treeData->m_nevt,"nevt[ncell]/I");
+    m_tree->Branch("nevt_good",m_treeData->m_nevt_good,"nevt[ncell]/I");
+    m_tree->Branch("average",m_treeData->m_average,"average[ncell]/F");
+    m_tree->Branch("rms",m_treeData->m_rms,"rms[ncell]/F");
+    m_tree->Branch("reference",m_treeData->m_reference,"reference[ncell]/F");
 
     if( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree).isFailure()) {
       ATH_MSG_WARNING ( " cannot register ntuple " );
@@ -367,17 +360,18 @@ StatusCode CaloCellNoiseAlg::fillNtuple()
 {
   ATH_MSG_INFO ( "  in fillNtuple " );
 
- for (int i=0;i<m_ncell;i++) {
-   m_identifier[i] = m_CellList[i].identifier;
-   m_layer[i] = m_CellList[i].sampling;
-   m_eta[i] = m_CellList[i].eta;
-   m_phi[i] = m_CellList[i].phi;
-   m_nevt[i] = m_CellList[i].nevt;
-   m_nevt_good[i] = m_CellList[i].nevt_good;
-   m_average[i] = (float) (m_CellList[i].average);
-   m_rms[i] = (float) (sqrt(m_CellList[i].rms));
-   m_reference[i] = (float) (m_CellList[i].reference);
-   ATH_MSG_DEBUG ( " hash,Nevt,Average,RMS " << i << " " << m_nevt[i] << " " << m_average[i] << " " << m_rms[i] );
+  m_treeData->m_ncell = m_ncell;
+  for (int i=0;i<m_ncell;i++) {
+   m_treeData->m_identifier[i] = m_CellList[i].identifier;
+   m_treeData->m_layer[i] = m_CellList[i].sampling;
+   m_treeData->m_eta[i] = m_CellList[i].eta;
+   m_treeData->m_phi[i] = m_CellList[i].phi;
+   m_treeData->m_nevt[i] = m_CellList[i].nevt;
+   m_treeData->m_nevt_good[i] = m_CellList[i].nevt_good;
+   m_treeData->m_average[i] = (float) (m_CellList[i].average);
+   m_treeData->m_rms[i] = (float) (sqrt(m_CellList[i].rms));
+   m_treeData->m_reference[i] = (float) (m_CellList[i].reference);
+   ATH_MSG_DEBUG ( " hash,Nevt,Average,RMS " << i << " " << m_treeData->m_nevt[i] << " " << m_treeData->m_average[i] << " " << m_treeData->m_rms[i] );
  }
  m_tree->Fill();
 
@@ -401,6 +395,9 @@ StatusCode CaloCellNoiseAlg::readNtuple()
 //_________________________________________________
 StatusCode CaloCellNoiseAlg::fitNoise()
 {
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=(*cablingHdl);
+ 
  ATH_MSG_INFO ( " in  CaloCellNoiseAlg::fitNoise() " );
 
  FILE* fp = fopen("calonoise.txt","w");
@@ -410,11 +407,11 @@ StatusCode CaloCellNoiseAlg::fitNoise()
  TBranch* b3 = m_tree->GetBranch("average");
  TBranch* b4 = m_tree->GetBranch("rms");
  TBranch* b5 = m_tree->GetBranch("nevt_good");
- b1->SetAddress(&m_luminosity);
- b2->SetAddress(&m_nevt);
- b3->SetAddress(&m_average);
- b4->SetAddress(&m_rms);
- b5->SetAddress(&m_nevt_good);
+ b1->SetAddress(&m_treeData->m_luminosity);
+ b2->SetAddress(&m_treeData->m_nevt);
+ b3->SetAddress(&m_treeData->m_average);
+ b4->SetAddress(&m_treeData->m_rms);
+ b5->SetAddress(&m_treeData->m_nevt_good);
  int nentries = m_tree->GetEntries();
  ATH_MSG_DEBUG ( " Number of entries in ntuple " << nentries );
 
@@ -433,10 +430,10 @@ StatusCode CaloCellNoiseAlg::fitNoise()
      b2->GetEntry(i);
      b4->GetEntry(i);
 
-     if (m_nevt[icell]>m_nmin) {
-        x.push_back(sqrt(m_luminosity));
-        y.push_back(m_rms[icell]);
-        ey.push_back(m_rms[icell]/sqrt(2.*m_nevt[icell]));
+     if (m_treeData->m_nevt[icell]>m_nmin) {
+        x.push_back(sqrt(m_treeData->m_luminosity));
+        y.push_back(m_treeData->m_rms[icell]);
+        ey.push_back(m_treeData->m_rms[icell]/sqrt(2.*m_treeData->m_nevt[icell]));
      }
    }
 
@@ -479,7 +476,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
 // for LAR try phi patching for missing cells, just to be sure that DB is filled with reasonnable entries in case
 //   the cell come back to life
  for (int icell=0;icell<m_ncell;icell++) {
-    if (anoise[icell]<3. || m_nevt_good[icell]==0) {
+    if (anoise[icell]<3. || m_treeData->m_nevt_good[icell]==0) {
        IdentifierHash idHash = icell;
        Identifier id=m_calo_id->cell_id(idHash);
        if (m_calo_id->is_lar(id)) {
@@ -500,7 +497,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
                int index = (int)(idHash2);
                if (index>=0 && index<m_ncell) {
                  ATH_MSG_DEBUG( " noise " << anoise[index]  );
-                 if (anoise[index]>3. && m_nevt_good[index]>0) {
+                 if (anoise[index]>3. && m_treeData->m_nevt_good[index]>0) {
                     nring+=1;
                     sum+=anoise[index];
                  }
@@ -521,6 +518,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
  for (int icell=0;icell<m_ncell;icell++) {
    IdentifierHash idHash = icell;
    Identifier id=m_calo_id->cell_id(idHash);
+   HWIdentifier hwid=cabling->createSignalChannelID(id);
    int subCalo;
    IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
    const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
@@ -572,9 +570,9 @@ StatusCode CaloCellNoiseAlg::fitNoise()
 
 // noise and ADC2MeV in gain ref
           float noise0=-1.;
-          if (m_doMC) noise0 = m_dd_noise->noise(id,gainref);
+          if (m_doMC) noise0 = m_dd_noise->noise(hwid,gainref);
           else {
-           float noise = m_dd_pedestal->pedestalRMS(id,gainref);
+           float noise = m_dd_pedestal->pedestalRMS(hwid,gainref);
            if (noise>= (1.0+LArElecCalib::ERRORCODE)) noise0 = noise;
           }
           const std::vector<float> *
@@ -585,13 +583,13 @@ StatusCode CaloCellNoiseAlg::fitNoise()
 // noise and ADC2MeV in gain
 
           float noise1=-1;
-          if (m_doMC) noise1 = m_dd_noise->noise(id,gain);
+          if (m_doMC) noise1 = m_dd_noise->noise(hwid,gain);
           else {
-             float noise = m_dd_pedestal->pedestalRMS(id,gain);
+             float noise = m_dd_pedestal->pedestalRMS(hwid,gain);
              if (noise>= (1.0+LArElecCalib::ERRORCODE)) noise1 = noise;
           }
           const std::vector<float> *
-            polynom_adc2mev1 = &(m_adc2mevTool->ADC2MEV(id,gain));
+            polynom_adc2mev1 = &(m_adc2mevTool->ADC2MEV(hwid,gain));
           float adc2mev1=-1;
           if (polynom_adc2mev1->size()>1) adc2mev1=(*polynom_adc2mev1)[1];
 

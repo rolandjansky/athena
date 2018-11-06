@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
+find_package( ROOT COMPONENTS Core )
 find_package( CLHEP )
 
 # Component(s) in the package:
@@ -52,4 +53,16 @@ atlas_add_component( TileRecUtils
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+atlas_add_dictionary( TileRecUtilsDict
+                      TileRecUtils/TileRecUtilsDict.h
+                      TileRecUtils/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} TileRecUtilsLib )
+
+
+atlas_add_test( TileCellBuilder_test
+  SCRIPT test/TileCellBuilder_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment" )
 

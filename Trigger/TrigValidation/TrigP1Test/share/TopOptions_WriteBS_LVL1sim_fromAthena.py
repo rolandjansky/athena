@@ -130,12 +130,6 @@ from LArByteStream.LArByteStreamConf import LArRawDataContByteStreamTool
 ToolSvc+=LArRawDataContByteStreamTool()               
 ToolSvc.LArRawDataContByteStreamTool.InitializeForWriting=True
 
-# -------------------------------------------------------------
-# SCT Cablings
-# -------------------------------------------------------------
-if hasattr(ToolSvc,"SCT_CablingSelector"):
-    ToolSvc.SCT_CablingSelector.Filename = "SCT_Jan08Cabling.dat"
-
 theApp.CreateSvc  += ["StoreGateSvc/StoreGateSvc" ]
 ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
 ByteStreamAddressProviderSvc.TypeNames += [ 

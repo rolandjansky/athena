@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARFSAMPL_H
 #define LARCONDITIONS_ILARFSAMPL_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/Identifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
@@ -32,7 +32,7 @@ class ILArfSampl {
 
   // online ID
   virtual const float& FSAMPL(const HWIdentifier& id )  const = 0 ;
-  
+
   // offline ID 
   virtual const float& FSAMPL(const Identifier& id )  const=0;
 

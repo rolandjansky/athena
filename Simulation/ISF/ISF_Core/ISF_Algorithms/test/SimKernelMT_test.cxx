@@ -219,6 +219,9 @@ protected:
     SmartIF<IService>& serviceSmartPointer = m_svcLoc->service(name);
     service = dynamic_cast<T*>(serviceSmartPointer.get());
     EXPECT_NE(nullptr, service);
+    if(!service) {
+      return nullptr;
+    }
     EXPECT_TRUE( service->setProperties().isSuccess() );
     EXPECT_TRUE( service->configure().isSuccess() );
     EXPECT_TRUE( m_svcMgr->addService(service).isSuccess() );
@@ -238,6 +241,9 @@ protected:
 
     T* tool = dynamic_cast<T*>(toolInterface);
     EXPECT_NE(nullptr, tool);
+    if(!tool) {
+      return nullptr;
+    }
 
     EXPECT_TRUE( tool->setProperties().isSuccess() );
     EXPECT_TRUE( tool->configure().isSuccess() );
@@ -428,6 +434,7 @@ TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
   EXPECT_TRUE( m_alg->setProperty("InputConverter", mockInputConverterName).isSuccess() );
   EXPECT_TRUE( m_alg->initialize().isSuccess() );
 
+  ASSERT_NE( m_mockInputConverter, nullptr );
   EXPECT_CALL( *m_mockInputConverter, convert(ContainsOneGenEventEq(*genEvent),
                                               ::testing::_,
                                               ::testing::_) )
@@ -487,6 +494,7 @@ TEST_F(SimKernelMT_test, identifySimulator_particleInsideInnerDetectorAndInnerDe
                                   123  // BCID
                                   );
 
+  ASSERT_NE( m_mockSimulationSelector, nullptr );
   EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(particle) )
     .WillOnce(::testing::Return(true));
 
@@ -515,6 +523,7 @@ TEST_F(SimKernelMT_test, identifySimulator_particleInsideInnerDetectorAndInnerDe
                                   123  // BCID
                                   );
 
+  ASSERT_NE( m_mockSimulationSelector, nullptr );
   EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(particle) )
     .WillOnce(::testing::Return(false));
 
@@ -545,6 +554,7 @@ TEST_F(SimKernelMT_test, identifySimulator_particleInsideCaloAndOnlyInnerDetecto
                                   123  // BCID
                                   );
 
+  ASSERT_NE( m_mockSimulationSelector, nullptr );
   EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(::testing::_) )
     .Times(0);
 
@@ -575,6 +585,7 @@ TEST_F(SimKernelMT_test, identifySimulator_particleInsideCaloAndCaloSimulationSe
                                   123  // BCID
                                   );
 
+  ASSERT_NE( m_mockSimulationSelector, nullptr );
   EXPECT_CALL( *m_mockSimulationSelector, passSelectorCuts(particle) )
     .WillOnce(::testing::Return(true));
 
@@ -625,6 +636,7 @@ TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationSelectors_expect
                                      truthBinding
                                      );
 
+  ASSERT_NE( m_mockSimulationSvc, nullptr );
   EXPECT_CALL( *m_mockSimulationSvc, simulate(convertedParticle) )
     .Times(1)
     .WillOnce(::testing::Return(StatusCode::SUCCESS));
