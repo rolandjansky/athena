@@ -104,9 +104,6 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Track Particle  container  size: "  <<trackTES->size() );
 
   //Local counters
-  auto allClusters= m_AllClusters.buffer();
-  auto selectedClusters = m_SelectedClusters.buffer();
-  auto allTracks = m_AllTracks.buffer();
   auto selectedTracks = m_SelectedTracks.buffer()  ;
   auto allSiTracks = m_AllSiTracks.buffer();  
   auto selectedSiTracks = m_SelectedSiTracks.buffer();  
@@ -121,9 +118,9 @@ StatusCode egammaSelectedTrackCopy::execute()
     }
   }
 
-  allClusters+=(*clusterTES).size();
-  selectedClusters+=passingClusters.size();
-  allTracks+=(*trackTES).size();
+  m_AllClusters+=clusterTES->size();
+  m_SelectedClusters+=passingClusters.size();
+  m_AllTracks+=trackTES->size();
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
