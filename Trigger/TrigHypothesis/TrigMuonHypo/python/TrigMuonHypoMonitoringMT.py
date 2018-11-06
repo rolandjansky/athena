@@ -73,7 +73,7 @@ class TrigMuonEFMSonlyHypoMonitoring(GenericMonitoringTool):
 class TrigMuonEFCombinerHypoMonitoring(GenericMonitoringTool):
 
     def __init__ (self, name="TrigMuonEFCombinerHypoMonitoring"):
-        super(TrigMuonEFMSonlyHypoMonitoring, self).__init__(name)
+        super(TrigMuonEFCombinerHypoMonitoring, self).__init__(name)
         self.HistPath = name  
 
         self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFCombinerHypo; P_{T} (MeV)",

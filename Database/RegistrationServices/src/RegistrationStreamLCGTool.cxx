@@ -260,7 +260,8 @@ RegistrationStreamLCGTool::initCollection()
            m_collection = m_poolSvc->createCollection(collectionType,
                                                       connection,
                                                       m_outputCollection.value(),
-                                                      openMode);
+                                                      openMode,
+                                                      IPoolSvc::kOutputStream);
        }
        catch (std::exception& e) {
            msg(MSG::ERROR) << "::initCollection: Caught exception from Pool collection creation. Message: " 

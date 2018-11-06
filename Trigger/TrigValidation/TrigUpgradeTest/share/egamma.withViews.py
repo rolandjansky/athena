@@ -246,7 +246,7 @@ summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTResultCreatorByteStream
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 egammaViewsMerger.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
@@ -267,16 +267,8 @@ egammaViewsMerger.OutputLevel = VERBOSE
 
 svcMgr.StoreGateSvc.OutputLevel = INFO
 
-streamingTool = HLTResultCreatorByteStream(OutputLevel=VERBOSE)
 
-
-
-streamingTool.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
-                                         "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
-                                         "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
-                                         "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
-
-summary.OutputTools = [ egammaViewsMerger, streamingTool ]
+summary.OutputTools = [ egammaViewsMerger ]
 
 
 summary.OutputLevel = DEBUG
@@ -294,7 +286,6 @@ steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
-mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
 mon.ChainsList = list( set( topSequence.L1DecoderTest.ChainToCTPMapping.keys() ) )
 #mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
@@ -343,7 +334,7 @@ StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 print "ESD file content " 
 print StreamESD.ItemList
 
-from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool
+from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, HLTResultMTMaker, StreamTagMakerTool, TriggerBitsMakerTool, TriggerEDMSerialiserTool
 summMaker = DecisionSummaryMakerAlg()
 summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
 summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
@@ -352,6 +343,13 @@ print summMaker
 
 ################################################################################
 # test online HLT Result maker
+
+serialiser = TriggerEDMSerialiserTool(OutputLevel=VERBOSE)
+
+serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
+                                      "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
+                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
@@ -363,8 +361,8 @@ bitsmaker.ChainDecisions = "HLTFinalDecisions"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 bitsmaker.OutputLevel = DEBUG
 
-hltResultMaker =  HLTResultMTMakerAlg()
-hltResultMaker.MakerTools = [ stmaker, bitsmaker ]
+hltResultMaker =  HLTResultMTMaker()
+hltResultMaker.MakerTools = [ stmaker, bitsmaker, serialiser ]
 hltResultMaker.OutputLevel = DEBUG
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -379,6 +377,8 @@ hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPER
                                       defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
                                                        xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
 
+hltResultMakerAlg =  HLTResultMTMakerAlg()
+hltResultMakerAlg.ResultMaker = hltResultMaker
 
 
 
@@ -386,7 +386,7 @@ hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPER
 ################################################################################
 # assemble top list of algorithms
 
-hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD, summMaker, hltResultMaker ] )
+hltTop = seqOR( "hltTop", [ steps, summMaker, mon, hltResultMakerAlg, summary, StreamESD ] )
 topSequence += hltTop
 
 ###### Begin Cost Monitoring block

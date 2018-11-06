@@ -11,6 +11,6 @@ def TrigIDJpsiMonitoringTool():
 		TrigJpsiMon = TrigJpsiMonTool(name		= 'TrigJpsiMon',
 					      histoPathBase 	= "/Trigger/HLT/IDJpsiMon")
 		
-		ToolSvc += TrigJpsiMon
-		list = [ "TrigJpsiMonTool/TrigJpsiMon" ]
+		#ToolSvc += TrigJpsiMon
+		list = [ TrigJpsiMon ]
 		return list

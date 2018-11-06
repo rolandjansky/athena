@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENT_MUONCALOENERGYCONTAINER_H
 #define MUONEVENT_MUONCALOENERGYCONTAINER_H
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "muonEvent/CaloEnergy.h"
 
 /** @class MuonCaloEnergyContainer

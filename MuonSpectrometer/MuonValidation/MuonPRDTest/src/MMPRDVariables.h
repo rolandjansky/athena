@@ -17,8 +17,9 @@ class MMPRDVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-                       std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MMPRDVariables"),
+							  std::string containername,
+							  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nPRDs(0), 
     m_NSWMM_prd_stationName(0),
@@ -27,6 +28,7 @@ class MMPRDVariables : public ValAlgVariables
     m_NSWMM_prd_multiplet(0),
     m_NSWMM_prd_gas_gap(0),
     m_NSWMM_prd_channel(0),
+    m_NSWMM_prd_time(0),
     m_NSWMM_prd_globalPosX(0),
     m_NSWMM_prd_globalPosY(0),
     m_NSWMM_prd_globalPosZ(0),
@@ -67,6 +69,7 @@ class MMPRDVariables : public ValAlgVariables
   std::vector<int> *m_NSWMM_prd_multiplet;
   std::vector<int> *m_NSWMM_prd_gas_gap;
   std::vector<int> *m_NSWMM_prd_channel;
+  std::vector<int> *m_NSWMM_prd_time;
 
   std::vector<double> *m_NSWMM_prd_globalPosX;
   std::vector<double> *m_NSWMM_prd_globalPosY;

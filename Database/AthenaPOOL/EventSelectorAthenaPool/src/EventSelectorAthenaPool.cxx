@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -488,6 +488,15 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          delete (char*)tokenStr; tokenStr = nullptr;
          return(StatusCode::FAILURE);
       }
+      // Remove any old AttributeList
+      if (const AthenaAttributeList* oldAttrList =
+          eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
+      {
+         if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
+           ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
+           return(StatusCode::FAILURE);
+         }
+      }
       AthenaAttributeList* athAttrList = new AthenaAttributeList();
       if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
          ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
@@ -644,13 +653,6 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                ATH_MSG_WARNING("Failed to postNext() CounterTool.");
             }
             break;
-         }
-         const DataHandle<AthenaAttributeList> oldAttrList;
-         if (eventStore()->retrieve(oldAttrList, m_attrListKey.value()).isSuccess()) {
-            if (!eventStore()->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
-               ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-               return(StatusCode::FAILURE);
-            }
          }
       } else {
          if (!m_skipEventSequence.empty() && m_evtCount == m_skipEventSequence.front()) {
@@ -999,6 +1001,15 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
 }
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::recordAttributeList() const {
+   // Remove any old AttributeList
+   if (const AthenaAttributeList* oldAttrList =
+       eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
+   {
+      if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
+         ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
+         return(StatusCode::FAILURE);
+      }
+   }
    // Get access to AttributeList
    ATH_MSG_DEBUG("Get AttributeList from the collection");
    // MN: accessing only attribute list, ignoring token list
@@ -1090,9 +1101,8 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
 void EventSelectorAthenaPool::handle(const Incident& inc)
 {
    SG::SourceID fid;
-   Atlas::ExtendedEventContext *eec = inc.context().getExtension<Atlas::ExtendedEventContext>();
-   if( eec ) {
-      fid = eec->proxy()->sourceID();
+   if ( inc.context().hasExtension<Atlas::ExtendedEventContext>() ) {
+     fid = inc.context().getExtension<Atlas::ExtendedEventContext>().proxy()->sourceID();
    }
    if( fid.empty() ) {
       ATH_MSG_WARNING("could not read event source ID from incident event context");

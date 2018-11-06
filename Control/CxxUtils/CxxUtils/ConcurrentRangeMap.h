@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -65,6 +65,8 @@ namespace CxxUtils {
  *  bool operator() (const KEY& k1,   const RANGE& r2) const;
  *  bool operator() (const RANGE& r1, const RANGE& r2) const;
  *  bool inRange (const KEY& k, const RANGE& r) const;
+ *  // Required only for extendLastRange --- which see.
+ *  bool extendRange (Range& range, const Range& newRange) const;
  @endcode
  *
  * In order to implement updating concurrently with reading, we need to
@@ -234,6 +236,40 @@ public:
 
 
   /**
+   * @brief Extend the range of the last entry of the map.
+   * @param newRange New range to use for the last entry.
+   * @param ctx Execution context.
+   *
+   * The range of the last entry in the map is updated to @c newRange.
+   * Does nothing if the map is empty.
+   * This will make a new version of implementation data.
+   *
+   * The semantics of what it means to extend a range are given by the
+   * @c extendRange method of the @c COMPARE object:
+   *
+   *@code
+   *  bool extendRange (Range& range, const Range& newRange) const;
+   @endif
+   *
+   * This is called with the existing range and the end range, and returns
+   * a success flag.
+   * It should generally be safe to extend a range by making the end later.
+   * Suggested semantics are:
+   *  - Return false if the start keys don't match.
+   *  - If the end value of @c newRange is later then then end value of @c range,
+   *    then update the end value of @c range to match @c newRange and
+   *    return true.
+   *  - Otherwise do nothing and return true.
+   *
+   * If the extendRange call returns true, then this function returns an iterator
+   * pointing at the last element.  Otherwise, it returns nullptr.
+   */
+  const_iterator extendLastRange (const RANGE& newRange,
+                                  const typename Updater_t::Context_t& ctx =
+                                    Updater_t::defaultContext());
+
+
+  /**
    * @brief Remove unused entries from the front of the list.
    * @param keys List of keys that may still be in use.
    *             (Must be sorted.)
@@ -298,7 +334,7 @@ public:
   void quiescent (const typename Updater_t::Context_t& ctx =
                     Updater_t::defaultContext());
 
-  
+
 private:
   /**
    * @brief Return the begin/last pointers.
@@ -333,6 +369,21 @@ private:
    */
   bool anyInRange (const key_type& r,
                    const std::vector<key_query_type>& keys) const;
+
+
+  /**
+   * @brief Install a new implementation instance and make it visible.
+   * @param new_impl The new instance.
+   * @param new_begin Begin pointer for the new instance.
+   * @param new_end End pointer for the new instance.
+   *                (Usual STL meaning of end.  If the instance is empty,
+   *                then new_end should match new_begin.)
+   * @param ctx Execution context.
+   */
+  void installImpl (std::unique_ptr<Impl> new_impl,
+                    value_type* new_begin,
+                    value_type* new_end,
+                    const typename Updater_t::Context_t& ctx);
 
 
   /// Updater object.  This maintains ownership of the current implementation

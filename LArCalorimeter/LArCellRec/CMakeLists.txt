@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecConditions
+                          LArCalorimeter/LArCOOLConditions
                           LArCalorimeter/LArSimEvent
                           Event/xAOD/xAODTrigL1Calo
                           PRIVATE
@@ -34,6 +35,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           LArCalorimeter/LArRecEvent
                           LArCalorimeter/LArCabling
+                          LArCalorimeter/LArCOOLConditions
                           Trigger/TrigT1/TrigT1CaloCalibConditions
                           Trigger/TrigT1/TrigT1CaloCondSvc )
 
@@ -48,17 +50,17 @@ atlas_add_component( LArCellRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier CaloRecLib CaloUtilsLib AthAllocators AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArSimEvent CaloTriggerToolLib AthenaPoolUtilities xAODEventInfo xAODTrigL1Calo GeneratorObjects LArRecEvent LArCablingLib TrigT1CaloCalibConditions TrigT1CaloCondSvcLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier CaloRecLib CaloUtilsLib AthAllocators AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCOOLConditions LArSimEvent CaloTriggerToolLib AthenaPoolUtilities xAODEventInfo xAODTrigL1Calo GeneratorObjects LArRecEvent LArCablingLib TrigT1CaloCalibConditions TrigT1CaloCondSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
 
-atlas_add_test( LArBadFebMaskingTool_test
-  SCRIPT test/LArBadFebMaskingTool_test.sh
-  PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|Cache alignment" )
+#atlas_add_test( LArBadFebMaskingTool_test
+#  SCRIPT test/LArBadFebMaskingTool_test.sh
+#  PROPERTIES TIMEOUT 600
+#  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|Cache alignment" )
 
 
 #atlas_add_test( LArCellDeadOTXCorr_test

@@ -63,14 +63,6 @@ topAlg+=ValgrindHelperAlg()
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-
-## tweak the default commit interval for montecarlo needs
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
-
-from PoolSvc.PoolSvcConf import PoolSvc
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-
 Stream1 = AthenaPoolOutputStream("Stream1")
 Stream1.ItemList += ["EventInfo#*", "McEventCollection#*" ]
 # Stream1.ForceRead=True

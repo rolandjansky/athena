@@ -9,9 +9,9 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "InDetRawData/TRT_RDORawData.h"
 #include "ByteStreamData/RawEvent.h" 
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreClearedIncident.h"
+#include "StoreGate/WriteHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -27,7 +27,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 TRTRawDataProviderTool::TRTRawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool( type, name, parent ),
-     m_decoder   ("TRT_RodDecoder"),
+     m_decoder   ("TRT_RodDecoder",this),
      m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
      m_robIdSet(),
      m_LastLvl1ID(),
@@ -81,21 +81,12 @@ StatusCode TRTRawDataProviderTool::initialize()
      ATH_MSG_INFO( "Retrieved service " << m_bsErrSvc );
 
 
-
-
-  // Register incident handler
-  ServiceHandle<IIncidentSvc> iincSvc( "IncidentSvc", name());
-  if ( !iincSvc.retrieve().isSuccess())
-  {
-     ATH_MSG_WARNING( "Unable to retrieve the IncidenSvc" );
-  }
-  else
-  {
-     iincSvc->addListener( this, "StoreCleared" );
-  }
-
   //initialize LastLvl1ID, to keep track of new events.
   m_LastLvl1ID = 0xffffffff;
+
+  //initialize write handles
+  ATH_CHECK(m_lvl1idkey.initialize());
+  ATH_CHECK(m_bcidkey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -216,14 +207,19 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 
     if ( m_storeInDetTimeColls )
     {
-      sc = evtStore()->record( m_LVL1Collection, "TRT_LVL1ID" );  
+
+      SG::WriteHandle<InDetTimeCollection> lvl1id(m_lvl1idkey);
+      auto mylvl1 = std::make_unique<InDetTimeCollection>(*m_LVL1Collection);
+      sc = lvl1id.record(std::move(mylvl1));
       if ( sc.isFailure() ) 
       {   
 	ATH_MSG_WARNING( "failed to record LVL1ID TimeCollection" );
 	return sc;   
       }
 
-      sc = evtStore()->record( m_BCCollection, "TRT_BCID" );
+      SG::WriteHandle<InDetTimeCollection> bcid(m_bcidkey);
+      auto mybc = std::make_unique<InDetTimeCollection>(*m_BCCollection);
+      sc = bcid.record(std::move(mybc));
       if ( sc.isFailure() ) 
       {   
 	ATH_MSG_WARNING( "failed to record BCID TimeCollection" );
@@ -241,23 +237,3 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
  
   return StatusCode::SUCCESS; 
 }
-
-
-
-/*
- * Incident handler -
- * Clear the set of ROB IDs already decoded when StoreGate clears
- * its information
- */
-void TRTRawDataProviderTool::handle(const Incident& incident)
-{
-  if ( incident.type() == "StoreCleared" )
-  {
-    if ( const StoreClearedIncident* inc =
-	 dynamic_cast<const StoreClearedIncident*> (&incident) )
-    {
-       if ( inc->store() == &*evtStore() )
-	m_robIdSet.clear();
-    }
-  }
-} 

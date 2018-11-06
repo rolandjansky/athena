@@ -37,12 +37,12 @@
 using namespace std;
 
 namespace Trk {
-  
+
   //________________________________________________________________________
-  ShiftingDerivCalcTool::ShiftingDerivCalcTool(const std::string& type, 
+  ShiftingDerivCalcTool::ShiftingDerivCalcTool(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent)
-    
+
     : AthAlgTool(type,name,parent)
     , m_trackFitterTool("Trk::GlobalChi2Fitter/MCTBFitter")
     , m_SLTrackFitterTool("Trk::GlobalChi2Fitter/MCTBSLFitter")
@@ -110,32 +110,32 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  ShiftingDerivCalcTool::~ShiftingDerivCalcTool() 
+  ShiftingDerivCalcTool::~ShiftingDerivCalcTool()
   {
     deleteChi2VAlignParam();
     delete [] m_unshiftedTrackChi2MeasType;
   }
-  
+
   //________________________________________________________________________
   StatusCode ShiftingDerivCalcTool::initialize()
   {
-     
+
     msg(MSG::DEBUG)  << "in ShiftingDerivCalcTool initialize()"<<endmsg;
     ATH_CHECK(m_trackFitterTool.retrieve());
     ATH_CHECK(m_SLTrackFitterTool.retrieve());
     ATH_CHECK(m_residualCalculator.retrieve());
     ATH_CHECK(m_alignModuleTool.retrieve());
-   
+
     ParticleSwitcher particleSwitch;
     m_particleHypothesis = particleSwitch.particle[m_particleNumber];
     msg(MSG::INFO) << "ParticleNumber: "     << m_particleNumber     << endmsg;
     msg(MSG::INFO) << "ParticleHypothesis: " << m_particleHypothesis << endmsg;
-  
-   
+
+
     if(!m_doFits){
       m_nFits = 2;
     }
-   
+
     m_nChamberShifts = m_nFits;
     m_traSize = 5.*m_traSize/(double)m_nFits;
     m_rotSize = 5.*m_rotSize/(double)m_nFits;
@@ -159,44 +159,46 @@ namespace Trk {
     ATH_MSG_INFO("number tracks fail max iterations:                 "<<m_ntracksFailMaxIter<<
      "\nnumber tracks fail track refit:                    "<<m_ntracksFailTrackRefit<<
      "\nnumber tracks fail align param cut:                "<<m_ntracksFailAlignParamCut<<
-     "\nnumber tracks fail final attempt:                  "<<m_ntracksFailFinalAttempt);   
+     "\nnumber tracks fail final attempt:                  "<<m_ntracksFailFinalAttempt);
 
     return StatusCode::SUCCESS;
   }
 
   //________________________________________________________________________
-  bool ShiftingDerivCalcTool::scanShifts(const AlignTrack* alignTrack, 
+  bool ShiftingDerivCalcTool::scanShifts(const AlignTrack* alignTrack,
            const std::vector<const AlignModule*>& alignModules)
   {
     ATH_MSG_DEBUG("in scanShifts");
 
-    const Trk::Track* trackForRefit = 
+    const Trk::Track* trackForRefit =
       (m_removeScatteringBeforeRefit) ? alignTrack->trackWithoutScattering():
       dynamic_cast<const Trk::Track*>(alignTrack);
-        
+
     // see whether straight track or not
-    m_fitter = alignTrack->isSLTrack() ? 
+    m_fitter = alignTrack->isSLTrack() ?
       m_SLTrackFitterTool : m_trackFitterTool;
     ATH_MSG_DEBUG("refitting unshifted track with "<<m_fitter<<" (isSLTrack="
-      <<alignTrack->isSLTrack()<<")");   
-    
+      <<alignTrack->isSLTrack()<<")");
+
     ATH_MSG_DEBUG("setting minNIterations to "<<m_nIterations);
-    m_fitter->setMinIterations(m_nIterations);
 
     // refit track
-    const Track* refittedTrack = m_fitter->fit( *trackForRefit,
+
+    IGlobalTrackFitter::AlignmentCache alignCache;
+    alignCache.m_minIterations = m_nIterations;
+    const Track* refittedTrack = m_fitter->alignmentFit(alignCache, *trackForRefit,
             m_runOutlierRemoval,
-            m_particleHypothesis);  
-    if (!refittedTrack) { 
-      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;     
+            m_particleHypothesis);
+    if (!refittedTrack) {
+      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;
       return false;
-    } 
-    else 
+    }
+    else
       ATH_MSG_DEBUG("initial track refit successful");
 
-    m_nIterations = m_fitter->iterationsOfLastFit();
+    m_nIterations = alignCache.m_iterationsOfLastFit;
     if (m_nIterations>m_maxIter) {
-      ATH_MSG_DEBUG("exceeded maximum number of iterations"); 
+      ATH_MSG_DEBUG("exceeded maximum number of iterations");
       return false;
     }
     ATH_MSG_DEBUG("initial nIterations: "<<m_nIterations);
@@ -205,7 +207,7 @@ namespace Trk {
     int imod(0);
     for (std::vector<const AlignModule*>::const_iterator moduleIt=alignModules.begin();
    moduleIt!=alignModules.end(); ++moduleIt,imod++) {
-      
+
       // loop over AlignPar
       int ipar(0);
       DataVector<AlignPar>* alignPars=m_alignModuleTool->getAlignPars(*moduleIt);
@@ -225,10 +227,10 @@ namespace Trk {
       return false;
     }
 
-    int nIter=m_fitter->iterationsOfLastFit();
+    int nIter=alignCache.m_iterationsOfLastFit;
     ATH_MSG_DEBUG("nIter: "<<nIter);
     if (nIter>m_maxIter) {
-      ATH_MSG_DEBUG("exceeded maximum number of iterations"); 
+      ATH_MSG_DEBUG("exceeded maximum number of iterations");
       m_nIterations=0;
       return false;
     }
@@ -241,40 +243,42 @@ namespace Trk {
     ATH_MSG_DEBUG("done with scanShifts, m_nIterations="<<m_nIterations);
     return true;
   }
-  
+
   //________________________________________________________________________
   bool ShiftingDerivCalcTool::setUnshiftedResiduals(AlignTrack* alignTrack)
   {
-    
+
     // see whether straight track or not
-    m_fitter = alignTrack->isSLTrack() ? 
+    m_fitter = alignTrack->isSLTrack() ?
       m_SLTrackFitterTool : m_trackFitterTool;
     ATH_MSG_DEBUG("refitting unshifted track with "<<m_fitter<<" (isSLTrack="
-      <<alignTrack->isSLTrack()<<")");   
-    
+      <<alignTrack->isSLTrack()<<")");
+
     // refit track
     ATH_MSG_DEBUG("\nsetting min number iterations to "<<m_nIterations);
-    m_fitter->setMinIterations(m_nIterations);
+    IGlobalTrackFitter::AlignmentCache alignCache;
+    alignCache.m_minIterations = m_nIterations;
 
-    const Trk::Track* trackForRefit = 
+    const Trk::Track* trackForRefit =
       (m_removeScatteringBeforeRefit) ? alignTrack->trackWithoutScattering():
       dynamic_cast<const Trk::Track*>(alignTrack);
     if (!trackForRefit) ATH_MSG_ERROR("no track for refit!");
 
-    const Track* refittedTrack = m_fitter->fit( *trackForRefit,
+    const Track* refittedTrack = m_fitter->alignmentFit( alignCache,
+            *trackForRefit,
             m_runOutlierRemoval,
             m_particleHypothesis);
-    
-    if (!refittedTrack) { 
-      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;     
+
+    if (!refittedTrack) {
+      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;
       return false;
-    } 
-    else 
+    }
+    else
       ATH_MSG_DEBUG("initial track refit successful");
 
     // dump local track chi2 for debugging
     double localChi2=m_residualCalculator->setResiduals(alignTrack,refittedTrack);
-    msg()<<MSG::DEBUG<<"local Chi2(unshifted) in setChi2VAlignParam="<<localChi2<<endmsg;    
+    msg()<<MSG::DEBUG<<"local Chi2(unshifted) in setChi2VAlignParam="<<localChi2<<endmsg;
     m_unshiftedTrackChi2 = localChi2;
     for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++) {
       ATH_MSG_DEBUG("getting chi2 for measType "<<i);
@@ -286,11 +290,11 @@ namespace Trk {
     const int NMEAS=alignTrack->nAlignTSOSMeas();
 
     // unshiftedResiduals owned by AlignTrack
-    m_unshiftedResiduals=new Amg::VectorX(NMEAS); 
+    m_unshiftedResiduals=new Amg::VectorX(NMEAS);
 
     // unshiftedResErrors owned by ShiftingDerivCalcTool
     if (m_unshiftedResErrors) delete m_unshiftedResErrors;
-      m_unshiftedResErrors=new Amg::VectorX(NMEAS); 
+      m_unshiftedResErrors=new Amg::VectorX(NMEAS);
 
     // loop over atsos and determine residuals and errors
     int imeas=0;
@@ -305,57 +309,57 @@ namespace Trk {
           (*m_unshiftedResErrors)[imeas]=std::sqrt(errSq);
           //ATH_MSG_DEBUG("weight: "<<1./errSq<<", unshiftedRes["<<imeas<<"]="
           //      <<(*m_unshiftedResiduals)[imeas]
-          //      <<", resNorm="<<itRes->residualNorm());       
+          //      <<", resNorm="<<itRes->residualNorm());
       }
     }
     if (imeas!=NMEAS) {
       msg(MSG::ERROR)<<"problem with nmeas, imeas="<<imeas<<", NMEAS="<<NMEAS<<endmsg;
       exit(3);
     }
-    alignTrack->setResidualVector(m_unshiftedResiduals); 
+    alignTrack->setResidualVector(m_unshiftedResiduals);
 
     delete refittedTrack; refittedTrack=0;
 
     return true;
   }
-  
+
 //________________________________________________________________________
 bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
-{         
+{
   ATH_MSG_DEBUG("in ShiftingDerivCalcTool setDerivatives");
   m_ntracksProcessed++;
 
-  // loop over AlignTSOSCollection, 
+  // loop over AlignTSOSCollection,
   // find modules that are in the AlignModuleList,
-  std::vector<const AlignModule*> alignModules;    
-  for (AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos(); 
-      atsosItr != alignTrack->lastAtsos(); ++atsosItr) { 
+  std::vector<const AlignModule*> alignModules;
+  for (AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos();
+      atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
 
     ATH_MSG_VERBOSE("getting module");
     const AlignModule* module=(*atsosItr)->module();
     if (module)
       ATH_MSG_VERBOSE("have ATSOS for module "<<module->identify());
-    else 
+    else
       ATH_MSG_VERBOSE("no module!");
 
-    if (!(*atsosItr)->isValid() || !module) continue;      
-    if (find(alignModules.begin(),alignModules.end(),module) == alignModules.end())   
-    alignModules.push_back(module);      
+    if (!(*atsosItr)->isValid() || !module) continue;
+    if (find(alignModules.begin(),alignModules.end(),module) == alignModules.end())
+    alignModules.push_back(module);
   }
-    
+
   // find perigee of best track fit and use as starting perigee for all fits
   m_nIterations=m_minIter;
   if (m_setMinIterations && !scanShifts(alignTrack, alignModules)) {
     return false;
-  };    
-  
+  };
+
   m_ntracksPassInitScan++;
 
-  // set unshifted residuals (this is done in AlignTrackDresser but redone here with track refit)    
+  // set unshifted residuals (this is done in AlignTrackDresser but redone here with track refit)
   if (!setUnshiftedResiduals(alignTrack)) {
     ATH_MSG_WARNING("problem with refitting track!");
     return false;
-  };    
+  };
 
   m_ntracksPassSetUnshiftedRes++;
 
@@ -367,9 +371,9 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
   deleteChi2VAlignParam();
   for (std::vector<const AlignModule*>::const_iterator moduleIt=alignModules.begin();
     moduleIt!=alignModules.end(); ++moduleIt) {
-    
-    ATH_MSG_DEBUG("finding derivatives for module "<<(**moduleIt).identify());      
-    
+
+    ATH_MSG_DEBUG("finding derivatives for module "<<(**moduleIt).identify());
+
     std::vector<Amg::VectorX> deriv_vec;
     std::vector<Amg::VectorX> derivErr_vec;
     std::vector<double> actualsecderiv_vec;
@@ -384,8 +388,8 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
       for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++)
         m_tmpChi2VAlignParamMeasType[i] = new double*[nAlignPar];
     }
-    
-    
+
+
     // get derivatives and arrays of chi2 vs. align params
     bool resetIPar=false;
     std::vector<Amg::VectorX> tmpderiv_vec;
@@ -394,7 +398,8 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
     m_secPass=false;
 
     // first attempt with normal number of fitter iterations
-    bool success=getAllDerivatives(alignTrack, *moduleIt,
+    bool success=getAllDerivatives(
+           alignTrack, *moduleIt,
            tmpderiv_vec,tmpderivErr_vec,tmpactualsecderiv_vec,
            resetIPar);
     if (!success){
@@ -406,15 +411,15 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
 
     m_ntracksPassGetDeriv++;
 
-    if (resetIPar) {    
+    if (resetIPar) {
       // second attempt with increased number of fitter iterations
       m_secPass=true;
       success=getAllDerivatives(alignTrack,*moduleIt,
               tmpderiv_vec,tmpderivErr_vec,tmpactualsecderiv_vec,
-              resetIPar); 
+              resetIPar);
     }
 
-    if (!success){ 
+    if (!success){
       delete derivatives;
       delete derivativeErr;
       delete actualSecondDerivatives;
@@ -423,15 +428,15 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
 
     m_ntracksPassGetDerivSecPass++;
 
-    if (resetIPar) {  
+    if (resetIPar) {
       // third and last attempt with number of fitter iterations set to maximum
       m_nIterations=m_maxIter;
       success=getAllDerivatives(alignTrack,*moduleIt,
               tmpderiv_vec,tmpderivErr_vec,tmpactualsecderiv_vec,
-              resetIPar); 
+              resetIPar);
     }
 
-    if (!success){ 
+    if (!success){
       delete derivatives;
       delete derivativeErr;
       delete actualSecondDerivatives;
@@ -457,24 +462,24 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
     // set the chi2 vs. align param arrays
     ATH_MSG_DEBUG("setting chi2 vs. align param arrays");
     m_chi2VAlignParamVec.push_back(m_tmpChi2VAlignParam);
-    m_chi2VAlignParamXVec.push_back(m_tmpChi2VAlignParamX);   
+    m_chi2VAlignParamXVec.push_back(m_tmpChi2VAlignParamX);
     (**moduleIt).setChi2VAlignParamArray (m_tmpChi2VAlignParam);
     (**moduleIt).setChi2VAlignParamXArray(m_tmpChi2VAlignParamX);
-    
+
     // arrays for measurement types
     if (m_doChi2VAlignParamMeasType) {
       ATH_MSG_DEBUG("pushing back for measType");
       m_chi2VAlignParamVecMeasType.push_back(m_tmpChi2VAlignParamMeasType);
-      for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++) 
+      for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++)
         (**moduleIt).setChi2VAlignParamArrayMeasType(i,m_tmpChi2VAlignParamMeasType[i]);
     }
     ATH_MSG_DEBUG("done setting arrays");
 
-    derivatives->push_back(make_pair(*moduleIt,deriv_vec));      
+    derivatives->push_back(make_pair(*moduleIt,deriv_vec));
     derivativeErr->push_back(make_pair(*moduleIt,derivErr_vec));
     actualSecondDerivatives->push_back(make_pair(*moduleIt,actualsecderiv_vec));
   }
-  
+
   m_ntracksPassDerivatives++;
 
   alignTrack->setDerivatives(derivatives);
@@ -483,41 +488,40 @@ bool ShiftingDerivCalcTool::setDerivatives(AlignTrack* alignTrack)
 
   // restore unshifted residuals in AlignTSOS
   setUnshiftedResiduals(alignTrack);
-  ATH_MSG_DEBUG("setting min iterations to 0");
-  m_fitter->setMinIterations(0);
 
-  return true;    
+  return true;
 }
-  
+
 //________________________________________________________________________
-Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack, 
-              int ipar, const AlignPar* alignPar, 
+Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
+              AlignTrack* alignTrack,
+              int ipar, const AlignPar* alignPar,
               Amg::VectorX& derivativeErr,
               bool& resetIPar,
               double& actualSecondDeriv)
 {
-  const Trk::Track* trackForRefit = 
+  const Trk::Track* trackForRefit =
     (m_removeScatteringBeforeRefit) ? alignTrack->trackWithoutScattering():
-    dynamic_cast<const Trk::Track*>(alignTrack);        
+    dynamic_cast<const Trk::Track*>(alignTrack);
 
   ATH_MSG_DEBUG("m_nIterations: "<<m_nIterations);
-  
+
   // gets derivatives of residuals w.r.t. a specific alignment parameter given by alignPar
-  if (!m_fitter) 
+  if (!m_fitter)
     ATH_MSG_ERROR("set m_fitter before calling getDerivatives (by calling setUnshiftedResiduals)");
-  
-  const AlignModule* module=alignPar->alignModule();    
-  
+
+  const AlignModule* module=alignPar->alignModule();
+
   // set derivatives for 2 shifts up and 2 shifts down
   const int NFITS = m_nFits;
   const int NMEAS = alignTrack->nAlignTSOSMeas();
   module->setNChamberShifts(m_nFits);
-  
+
   ATH_MSG_DEBUG("NMEAS="<<NMEAS);
   double** residuals=new double*[NFITS];
   double** resErrors=new double*[NFITS];
   double* chi2Array =new double[NFITS];
-  double* chi2ArrayX=new double[NFITS];   
+  double* chi2ArrayX=new double[NFITS];
 
   if (m_doChi2VAlignParamMeasType) {
     for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++)
@@ -528,9 +532,9 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
     residuals[ifit]=new double[NMEAS];
     resErrors[ifit]=new double[NMEAS];
   }
-  
+
   // set the values for the unshifted track
-  const int unshiftedTrackIndex = m_doFits ? (m_nFits-1)/2 : 1;    
+  const int unshiftedTrackIndex = m_doFits ? (m_nFits-1)/2 : 1;
   chi2Array [unshiftedTrackIndex] = m_unshiftedTrackChi2;
   ATH_MSG_DEBUG("chi2Array["<<unshiftedTrackIndex<<"]="<<chi2Array[unshiftedTrackIndex]);
   chi2ArrayX[unshiftedTrackIndex] = 0.;
@@ -541,16 +545,19 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
       ATH_MSG_DEBUG("chi2ArrayMeasType["<<i<<"]["<<unshiftedTrackIndex<<"]="<<m_unshiftedTrackChi2MeasType[i]);
     }
   }
-  
-  
+
+
   // get shift size
   double shiftsize=shiftSize(alignPar);
-  
+
+  IGlobalTrackFitter::AlignmentCache alignCache;
+
+
   ATH_MSG_VERBOSE("doing refits");
   for (int ifit=0;ifit<NFITS;ifit++) {
-    
+
     ATH_MSG_VERBOSE("ifit="<<ifit);
-    int jfit=ifit;  
+    int jfit=ifit;
     if (ifit>unshiftedTrackIndex) {
       jfit=NFITS-ifit+unshiftedTrackIndex;
     }
@@ -560,27 +567,29 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
         resErrors[ifit][i]=(*m_unshiftedResErrors)[i];
       }
       // change back in case it got changed on the other side of zero
-      shiftsize=shiftSize(alignPar); 
-      continue; 
+      shiftsize=shiftSize(alignPar);
+      continue;
     }
-    
+
     // shift module and fit track
     double currentshift = 0.;
     if(m_doFits)
-      currentshift = shiftsize * (double)(jfit-unshiftedTrackIndex);      
+      currentshift = shiftsize * (double)(jfit-unshiftedTrackIndex);
     else
       currentshift = (ifit==0) ? -1.*shiftsize : shiftsize;
-    
+
     ATH_MSG_DEBUG("current shift="<<currentshift<<" in getDerivatives");
-    
+
     m_alignModuleTool->shiftModule(module,alignTrack,
     alignPar->paramType(),currentshift);
 
+
     ATH_MSG_VERBOSE("fitting after shift");
-    const Track* refittedTrack=m_fitter->fit(*trackForRefit,
+    const Track* refittedTrack=m_fitter->alignmentFit(alignCache,
+               *trackForRefit,
                m_runOutlierRemoval,m_particleHypothesis);
-    if (m_setMinIterations && m_fitter->iterationsOfLastFit()>m_nIterations) {
-      m_nIterations=m_fitter->iterationsOfLastFit();
+    if (m_setMinIterations && alignCache.m_iterationsOfLastFit>m_nIterations) {
+      m_nIterations=alignCache.m_iterationsOfLastFit;
       if (m_nIterations>m_maxIter) {
         ATH_MSG_DEBUG("exceeded max number of iterations");
         m_alignModuleTool->restoreModule(module);
@@ -603,7 +612,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
       m_alignModuleTool->restoreModule(module);
       continue;
     }
-    
+
     if (!refittedTrack) {
       msg(MSG::WARNING) << "track refit failed for jfit "<<jfit <<endmsg;
       delete [] residuals; delete [] resErrors;
@@ -620,7 +629,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
       ATH_MSG_VERBOSE("track refit successful");
 
     double chi2=refittedTrack->fitQuality()->chiSquared();
-    
+
     ATH_MSG_VERBOSE("jfit = "<<jfit);
     double localChi2=m_residualCalculator->setResiduals(alignTrack,refittedTrack);
     ATH_MSG_DEBUG("localChi2/fittedChi2="<<localChi2<<"/"<<chi2);
@@ -635,20 +644,20 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
                       <<m_tmpChi2VAlignParamMeasType[i][ipar][jfit]);
       }
     }
-    
+
     ATH_MSG_DEBUG("positions["<<jfit<<"]="<<chi2ArrayX[jfit]);
 
     int imeas(0);
     AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos();
-    for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) { 
+    for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
       if (!(*atsosItr)->isValid()) continue;
       for (vector<Residual>::const_iterator itRes=(**atsosItr).firstResidual();
            itRes!=(**atsosItr).lastResidual();itRes++,imeas++) {
-  
+
         if (refittedTrack) {
           residuals[jfit][imeas]=itRes->residual();
           resErrors[jfit][imeas]=std::sqrt(itRes->errSq());
-        } 
+        }
         else {
           residuals[jfit][imeas]=resErrors[jfit][imeas]=0.;
         }
@@ -656,7 +665,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
         ATH_MSG_DEBUG("resErrors["<<jfit<<"]["<<imeas<<"]="<<resErrors[jfit][imeas]);
       }
     }
-    
+
     delete refittedTrack; refittedTrack=0;
     ATH_MSG_VERBOSE("calling restoreModule");
     m_alignModuleTool->restoreModule(module);
@@ -664,11 +673,11 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
 
   int iimeas(0);
   AlignTSOSCollection::const_iterator aatsosItr=alignTrack->firstAtsos();
-  for (; aatsosItr != alignTrack->lastAtsos(); ++aatsosItr) { 
+  for (; aatsosItr != alignTrack->lastAtsos(); ++aatsosItr) {
     if (!(*aatsosItr)->isValid()) continue;
     for (vector<Residual>::const_iterator itRes=(**aatsosItr).firstResidual();
          itRes!=(**aatsosItr).lastResidual();itRes++,iimeas++) {
-      for (int ifit=0;ifit<NFITS;ifit++) {    
+      for (int ifit=0;ifit<NFITS;ifit++) {
         ATH_MSG_DEBUG("["<<ifit<<"]["<<iimeas<<"]   res="<<residuals[ifit][iimeas]<<
           ",   resErr="<<resErrors[ifit][iimeas]);
       }
@@ -678,7 +687,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
   if (resetIPar) {
     //resetIPar=false;
     delete [] residuals; delete [] resErrors;
-    delete [] chi2Array; delete [] chi2ArrayX;      
+    delete [] chi2Array; delete [] chi2ArrayX;
     if (m_secPass) ATH_MSG_WARNING("failed second pass!");
     ATH_MSG_DEBUG("returning to reset IPar");
     Amg::VectorX derivatives;
@@ -693,23 +702,23 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
   double slope=fit->GetParameter(1);
   actualSecondDeriv=fit->GetParameter(2);
   delete gr;
-  
+
   ATH_MSG_DEBUG("discontinuity check: chi2="<<chi2);
-  alignTrack->setTrackAlignParamQuality(alignPar->paramType(),chi2);  
+  alignTrack->setTrackAlignParamQuality(alignPar->paramType(),chi2);
 
   // EventInfo
   if (chi2>1.e-6 || std::fabs(slope)<1.e-10) {
     const xAOD::EventInfo* eventInfo;
     StatusCode sc=evtStore()->retrieve(eventInfo);
     if (sc.isFailure())
-    ATH_MSG_ERROR("Couldn't retrieve event info");    
+    ATH_MSG_ERROR("Couldn't retrieve event info");
     int run=eventInfo->runNumber();
     int evt=eventInfo->eventNumber();
     ATH_MSG_DEBUG("discontinuity check: chi2="<<chi2<<", run/evt "<<run<<"/"<<evt);
   }
 
   //reset in case it got changed somewhere
-  shiftsize = shiftSize(alignPar); 
+  shiftsize = shiftSize(alignPar);
 
   //-----------------------------------------//
   //--   get derivatives from residuals    --//
@@ -724,13 +733,13 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
     delete [] residuals; delete [] resErrors;
     delete [] chi2Array; delete [] chi2ArrayX;
 
-    m_nIterations=m_fitter->iterationsOfLastFit()+5;
+    m_nIterations=alignCache.m_iterationsOfLastFit+5;
     if (m_nIterations>m_maxIter) {
       ATH_MSG_DEBUG("exceeded max number of iterations");
       resetIPar=false;
     }
     ATH_MSG_DEBUG("increasing m_nIterations to "<<m_nIterations<<" (not changing in fit yet)");
-    resetIPar=true;      
+    resetIPar=true;
     ATH_MSG_INFO("fail align param cut, secPass "<<m_secPass);
     if (m_secPass) {
       m_ntracksFailAlignParamCut++;
@@ -743,10 +752,10 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
   TCanvas* canv(0);
   std::vector<TGraph*> vecGraphs;
   AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos();
-  for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {   
+  for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
     if (!(*atsosItr)->isValid()) continue;
     for (int idim=0;idim<(*atsosItr)->nResDim();idim++) {
-    
+
       double* gr_x    = new double[NFITS];
       double* gr_y    = new double[NFITS]; // residuals only have float precision if determined from ESD
       int ngoodfits=0;
@@ -766,7 +775,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
       }
       else if (m_doFits && ngoodfits>3) {
         TGraph* gr=new TGraph(ngoodfits,gr_x,gr_y);
-  
+
       if (m_doResidualPlots)
         gr->Fit("pol2","VF");
       else
@@ -778,7 +787,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
         <<", chi2="<<fit->GetChisquare());
       derivatives[imeas]=fit->GetParameter(1)*resErrors[unshiftedTrackIndex][imeas]; // first derivative at x=0
       derivativeErr[imeas]=fit->GetParError(1)*resErrors[unshiftedTrackIndex][imeas];
-  
+
 
       // plot residuals vs. chamber position
       if (m_doResidualPlots) {
@@ -789,7 +798,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
 
         gr->GetXaxis()->SetTitle("shift in chamber pos. from nominal (CLHEP::mm)");
         gr->GetYaxis()->SetTitle("residual (CLHEP::mm)");
-    
+
         TPaveText* pave=new TPaveText(.4,.65,.97,.92,"NDC");
         pave->SetFillColor(0);
         pave->SetBorderSize(1);
@@ -807,19 +816,19 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
         aptxt  <<"alignPar "<<alignPar->paramType()<<", RIO in "<<(*atsosItr)->identify();
         chi2txt<<"chi2="<<fit->GetChisquare();
 
-        pave->AddText(firstderivtxt.str().c_str());     
+        pave->AddText(firstderivtxt.str().c_str());
         pave->AddText(secndderivtxt.str().c_str());
         pave->AddText(aptxt.str().c_str());
         pave->AddText(chi2txt.str().c_str());
         pave->Draw();
 
-        std::stringstream canvName; 
+        std::stringstream canvName;
         canvName<<"resPlots_ap"<<alignPar->paramType()<<"_measType"
         <<(*atsosItr)->measType()<<"_"<<imeas<<".eps";
         canv->Print(canvName.str().c_str());
         canv->Clear();
 
-        delete pave;      
+        delete pave;
       }
       vecGraphs.push_back(gr);
     }
@@ -832,17 +841,17 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
     delete [] gr_x;
 
     ++imeas;
-    }   
+    }
   }
 
-  // delete TGraphs and TCanvas 
-  for (int i=0;i<(int)vecGraphs.size();i++) 
+  // delete TGraphs and TCanvas
+  for (int i=0;i<(int)vecGraphs.size();i++)
     delete vecGraphs[i];
   delete canv;
-  
+
   delete [] residuals;
   delete [] resErrors;
-  
+
   // set chi2 v alignparam
   for (int ifit=0;ifit<NFITS;ifit++) {
     m_tmpChi2VAlignParamX[ipar]=chi2ArrayX;
@@ -852,16 +861,16 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
   ATH_MSG_DEBUG("derivativeErr: "<<derivativeErr);
   return derivatives;
 }
-  
+
 //________________________________________________________________________
 double ShiftingDerivCalcTool::shiftSize(const AlignPar* alignPar) const {
-  bool rotation = 
-    alignPar->paramType() == AlignModule::RotX || 
-    alignPar->paramType() == AlignModule::RotY || 
-    alignPar->paramType() == AlignModule::RotZ; 
-  
+  bool rotation =
+    alignPar->paramType() == AlignModule::RotX ||
+    alignPar->paramType() == AlignModule::RotY ||
+    alignPar->paramType() == AlignModule::RotZ;
+
   double shift = rotation ? m_rotSize : m_traSize;
-  
+
   //ok... this is kind of ugly.
   double sigma=alignPar->sigma();
   return shift * sigma;
@@ -873,12 +882,12 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
   Amg::MatrixX* pW = new Amg::MatrixX(alignTrack->nAlignTSOSMeas(),alignTrack->nAlignTSOSMeas());
   //AmgSymMatrix* pW = new AmgSymMatrix(alignTrack->nAlignTSOSMeas());
   Amg::MatrixX& W = *pW;
-  
+
   if (alignTrack->localErrorMatrixInv()) {
     ATH_MSG_ERROR("Need to assign this matrix correctly: ShiftingDerivCalcTool.cxx:888");
     W = *(alignTrack->localErrorMatrixInv());
     //W.assign(*(alignTrack->localErrorMatrixInv()));
-  } else{ 
+  } else{
     delete pW;
     return false;
   }
@@ -888,9 +897,9 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
   const double epsilon=1e-10;
   for( int irow=0; irow<W.rows(); ++irow) {
     Wisvalid = Wisvalid && W(irow,irow)>0;
-    if( !(W(irow,irow)>0) ) 
+    if( !(W(irow,irow)>0) )
       msg(MSG::WARNING) << "matrix invalid: " << W(irow,irow) << endmsg;
-    
+
     for(int icol=0; icol<=irow; ++icol) {
 
     // this one must be true if everything else succeeded
@@ -902,19 +911,19 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
     }
   }
 
-  if (Wisvalid)   
+  if (Wisvalid)
   alignTrack->setWeightMatrix(pW);
 
   Amg::MatrixX* pWfirst=new Amg::MatrixX(*pW);
-  alignTrack->setWeightMatrixFirstDeriv(pWfirst);  
+  alignTrack->setWeightMatrixFirstDeriv(pWfirst);
   delete pW;
 
   return true;
 }
-    
+
 //________________________________________________________________________
-void ShiftingDerivCalcTool::deleteChi2VAlignParam() 
-{    
+void ShiftingDerivCalcTool::deleteChi2VAlignParam()
+{
   for (int i=0;i<(int)m_chi2VAlignParamVec.size();i++) {
     delete [] m_chi2VAlignParamVec[i];  m_chi2VAlignParamVec[i]=0;
     delete [] m_chi2VAlignParamXVec[i]; m_chi2VAlignParamXVec[i]=0;
@@ -931,7 +940,8 @@ void ShiftingDerivCalcTool::deleteChi2VAlignParam()
 }
 
 //________________________________________________________________________
-bool ShiftingDerivCalcTool::getAllDerivatives(AlignTrack* alignTrack,
+bool ShiftingDerivCalcTool::getAllDerivatives(
+          AlignTrack* alignTrack,
           const AlignModule* alignModule,
           std::vector<Amg::VectorX>& deriv_vec,
           std::vector<Amg::VectorX>& derivErr_vec,
@@ -963,7 +973,7 @@ bool ShiftingDerivCalcTool::getAllDerivatives(AlignTrack* alignTrack,
     deriv_vec.push_back(vec);
     derivErr_vec.push_back(derivErr);
     actualsecderiv_vec.push_back(actualSecondDeriv);
-      
+
     for (int i=0;i<m_nFits;i++) {
       ATH_MSG_DEBUG("m_tmpChi2VAlignParam["<<ipar<<"]["
                 <<i<<"]="<<m_tmpChi2VAlignParam[ipar][i]);

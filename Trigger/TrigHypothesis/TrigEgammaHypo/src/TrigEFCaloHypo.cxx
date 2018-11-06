@@ -22,6 +22,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/EventContext.h"
 //
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigEgammaHypo/TrigEFCaloHypo.h"
@@ -204,6 +205,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltFinalize(){
 HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 					    bool& pass){
     // ----------------------------------------------------------------------
+    const EventContext ctx = Gaudi::Hive::currentContext(); 
 
     // Time total TrigEFCaloHypo execution time.
   if (timerSvc()) m_totalTimer->start();    
@@ -356,29 +358,29 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       if(m_applyIsEM){
           ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
           unsigned int isEM = 0;
-          if(m_SelectorTool->execute(&eg, isEM).isFailure())
+          if(m_SelectorTool->execute(ctx, &eg, isEM).isFailure())
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
           else isEMTrig = isEM;
       }
       else if(m_applyPhotonIsEM){
           ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
           unsigned int isEM = 0;
-          if(m_PhSelectorTool->execute(&eg, isEM).isFailure())
+          if(m_PhSelectorTool->execute(ctx, &eg, isEM).isFailure())
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
           else isEMTrig = isEM;
       }
       else if(m_applyLH){
           if(useLumiTool){
-              asg::AcceptData acc = m_LHSelectorTool->accept(&eg,avg_mu);
-              lhval = m_LHSelectorTool->calculate(&eg);
+              asg::AcceptData acc = m_LHSelectorTool->accept(ctx, &eg, avg_mu);
+              lhval = m_LHSelectorTool->calculate(ctx, &eg);
               ATH_MSG_DEBUG("LHValue with mu " << lhval);
               m_lhval.push_back(lhval);
               isLHAcceptTrig = (bool) (acc);
           }
           else {
               ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-              asg::AcceptData lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
-              lhval = m_LHSelectorTool->calculate(&eg);
+              asg::AcceptData lhacc = m_LHSelectorTool->accept(ctx, &eg); // use method for calo-only
+              lhval = m_LHSelectorTool->calculate(ctx, &eg);
               ATH_MSG_DEBUG("LHValue without mu " << lhval);
               m_lhval.push_back(lhval);
               isLHAcceptTrig = (bool) (lhacc);

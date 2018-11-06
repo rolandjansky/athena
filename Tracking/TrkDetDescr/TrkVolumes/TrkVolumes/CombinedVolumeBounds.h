@@ -12,7 +12,7 @@
 // Trk
 #include "TrkVolumes/VolumeBounds.h"
 #include "TrkVolumes/Volume.h"
-#include "TrkDetDescrUtils/EightObjectsAccessor.h"
+#include "TrkDetDescrUtils/ObjectsAccessor.h"
 
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -67,7 +67,7 @@ namespace Trk {
     
     /** Provide accessor for BoundarySurfaces */
     virtual
-    const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
+    ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
                                                   const Amg::Vector3D& dir,
                                                   bool forceInside=false) const override;
                                                 
@@ -116,10 +116,10 @@ namespace Trk {
 
  inline bool CombinedVolumeBounds::intersection() const { return m_intersection; }
 
- inline const ObjectAccessor& CombinedVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
+ inline ObjectAccessor CombinedVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
                                                                           const Amg::Vector3D&,
                                                                           bool) const
-  { return(m_objectAccessor); }
+  { return Trk::ObjectAccessor(m_objectAccessor); }
 
  inline const std::vector<bool> CombinedVolumeBounds::boundsOrientation() const
   { return(m_boundsOrientation); }

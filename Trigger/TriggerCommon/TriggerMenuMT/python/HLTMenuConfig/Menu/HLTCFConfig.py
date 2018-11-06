@@ -23,26 +23,6 @@ def makeSummary(name, flatDecisions):
     summary.HLTSummary = "MonitoringSummary"+name
     return summary
 
-def makeMonitor(name, decisions, EnabledChainNames):
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT(name, OutputLevel = 2)
-    flatDecisions=[]
-    for step in decisions: flatDecisions.extend (step)
-    mon.FinalDecisions = flatDecisions
-    mon.L1Decisions = "HLTChainsResult" # connection with L1Decoder
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = EnabledChainNames
-    tools=[]
-    for step in range (0, len(decisions)):
-        print "adding collector ",step
-        print decisions[step]
-        collect = DecisionCollectorTool("StepCollector%d"%step)
-        collect.Decisions = decisions[step]
-        print collect
-        tools.append(collect)
-    mon.CollectorTools=tools
-    print mon
-    return mon
 
 def makeStreamESD(name, flatDecisions):
     import AthenaPoolCnvSvc.WriteAthenaPool
@@ -179,20 +159,24 @@ def makeHLTTree(HLTChains):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    #hltTop += makeMonitor("TriggerMonitorFinal", finalDecisions, EnabledChainNames)
-    from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg
+    from TriggerJobOpts.TriggerConfig import collectHypos, triggerMonitoringCfg, triggerSummaryCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-
     ConfigFlags.lock()
+    
     l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
     if len(l1decoder)  != 1 :
         raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
 
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, collectHypos(steps), l1decoder[0] )
-    monAcc.appendToGlobals()
+    hypos = collectHypos(steps)
+    summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
+    hltTop += summaryAlg
+    summaryAcc.appendToGlobals()
+    
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, l1decoder[0] )
+    monAcc.appendToGlobals()    
     hltTop += monAlg
-    #hltTop += makeStreamESD("StreamESD", flatDecisions)       
+    #hltTop += makeStreamESD("StreamESD", flatDecisions)
+    
     topSequence += hltTop
 
         

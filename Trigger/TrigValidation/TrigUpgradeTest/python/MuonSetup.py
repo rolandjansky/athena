@@ -86,10 +86,8 @@ def makeMuonPrepDataAlgs( doL2SA, doEFSA ):
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool",
-                                                       #OutputLevel         = INFO,
-                                                       RawDataProviderTool = MuonMdtRawDataProviderTool,
-                                                       useBStoRdoTool      = True)
+  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool")
+                                                       #OutputLevel         = INFO )
   ToolSvc += MdtRdoToMdtPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
@@ -107,6 +105,7 @@ def makeMuonPrepDataAlgs( doL2SA, doEFSA ):
                                                 ProviderTool = MuonMdtRawDataProviderTool )
                                                 #OutputLevel  = INFO)
   if doEFSA == True:
+    viewAlgs_MuEFSA.append( MdtRawDataProvider )
     viewAlgs_MuEFSA.append( MdtRdoToMdtPrepData )
   if doL2SA == True:
     viewAlgs_MuL2SA.append( MdtRdoToMdtPrepDataTool )

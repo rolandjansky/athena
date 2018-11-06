@@ -24,9 +24,9 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "L1MET",
                                                       OutputTrigRoI = "METRoI") ]
 
-    from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
-    acc.merge(TGCCablingConfig(flags ))
-    acc.merge(RPCCablingConfig(flags ))
+    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg    
+    acc.mergeAll( TGCCablingConfigCfg( flags ) )
+    acc.mergeAll( RPCCablingConfigCfg( flags ) )
     decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "L1MU",
                                                       OutputTrigRoIs = "MURoIs",
                                                       MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        

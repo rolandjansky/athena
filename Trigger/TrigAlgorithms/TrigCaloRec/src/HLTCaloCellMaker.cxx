@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  *   */
 
 /*
@@ -17,6 +17,7 @@
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
+    m_tileEMScaleKey ("TileEMScale"),
     m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name ),
     m_roiMode(true)
 {
@@ -25,6 +26,7 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cells container");
   declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
   declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
+  declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
 }
 
 HLTCaloCellMaker::~HLTCaloCellMaker()
@@ -37,6 +39,7 @@ StatusCode HLTCaloCellMaker::initialize() {
     ATH_CHECK( m_cellContainerKey.initialize() );
   else
     ATH_CHECK( m_cellContainerVKey.initialize() );
+  ATH_CHECK( m_tileEMScaleKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
   return StatusCode::SUCCESS;
 }

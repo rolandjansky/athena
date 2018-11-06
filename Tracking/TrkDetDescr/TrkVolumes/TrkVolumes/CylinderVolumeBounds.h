@@ -97,9 +97,9 @@ namespace Trk {
     const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
-    const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
-                                                  const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const override;
+    ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
+                                           const Amg::Vector3D& dir,
+                                           bool forceInside=false) const override;
                                                            
     /**This method returns the inner radius*/
     double  innerRadius() const;

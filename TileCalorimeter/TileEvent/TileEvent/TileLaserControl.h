@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -10,7 +10,10 @@
 #ifndef TILELASERCONTROL_H
 #define TILELASERCONTROL_H
 
+
+#include <string>
 #include <time.h>
+
 
 class TileLaserControl {
 
@@ -63,7 +66,13 @@ class TileLaserControl {
         m_lastAlphaMeas = lastAlphaMeas;
     }
       
-  private:
+
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserPmt */
+  operator std::string() const;
+
+
+private:
     
     double m_pumpDiodeTemp;
     int m_timeLastMeasP;

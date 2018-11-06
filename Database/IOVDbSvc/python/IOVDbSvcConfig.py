@@ -115,8 +115,19 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
         else:
             iovDbSvc.Folders.append(fs)
 
-    return result,None
-
+    return result
+    
+def addFoldersSplitOnline(flags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL"):
+    "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
+    
+    if flags.Common.isOnline and not configFlags.Input.isMC:
+        folders = online_folders
+    else:
+        # MC, so add addMCString
+        detDb = detDb+addMCString
+        folders = offline_folders
+    result = addFolders(flags, folders, className=className, detDb=detDb) 
+    return result
 
 _dblist={
     'INDET':'COOLONL_INDET',

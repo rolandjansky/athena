@@ -27,6 +27,7 @@
 + Control/AthLinks
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
++ Control/AthenaConfiguration
 + Control/AthenaCommon
 + Control/AthenaExamples/AthExHelloWorld
 + Control/AthenaInterprocess

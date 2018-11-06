@@ -132,21 +132,21 @@ class TileCalibUtils{
   static unsigned int badtiming_definition_chan() {return BADTIMING_DEFINITION_CHAN;}
 
 
-  static const unsigned int MAX_ROS      ;  /**< @brief Number of ROSs               */
-  static const unsigned int MAX_DRAWER   ;  /**< @brief Number of drawers in ROS 1-4 */
-  static const unsigned int MAX_DRAWR0   ;  /**< @brief Number of drawers in ROS 0   */
-  static const unsigned int MAX_CHAN     ;  /**< @brief Number of channels in drawer */
-  static const unsigned int MAX_GAIN     ;  /**< @brief Number of gains per channel  */
-  static const unsigned int MAX_DRAWERIDX;  /**< @brief Maximal drawer index         */
-  static const unsigned int LAS_PART_CHAN;  /**< @brief Empty channel number to store laser partition variation */
-  static const unsigned int TRIPS_DRAWERIDX; /**< @brief DrawerIdx used for storing trips probabilities */
-  static const unsigned int TRIPS_ROS;      /**< @brief Ros used for storing trips probabilities */
-  static const unsigned int TRIPS_DRAWER;   /**< @brief Drawer used for storing trips probabilities */
-  static const unsigned int DEFINITIONS_DRAWERIDX;   /**< @brief Drawer used for storing of bad and noisy channel definitions */
-  static const unsigned int BAD_DEFINITION_CHAN;   /**< @brief Channel used for storing of bad channel definitions */
-  static const unsigned int NOISY_DEFINITION_CHAN;   /**< @brief Channel used for storing of noisy channel definitions */
-  static const unsigned int NOGAINL1_DEFINITION_CHAN;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
-  static const unsigned int BADTIMING_DEFINITION_CHAN;   /**< @brief Channel used for storing of bad timing channel definitions */
+  static const unsigned int MAX_ROS      =  5;  /**< @brief Number of ROSs               */
+  static const unsigned int MAX_DRAWER   = 64;  /**< @brief Number of drawers in ROS 1-4 */
+  static const unsigned int MAX_DRAWR0   = 20;  /**< @brief Number of drawers in ROS 0   */
+  static const unsigned int MAX_CHAN     = 48;  /**< @brief Number of channels in drawer */
+  static const unsigned int MAX_GAIN     =  2;  /**< @brief Number of gains per channel  */
+  static const unsigned int MAX_DRAWERIDX = 276;  /**< @brief Maximal drawer index         */
+  static const unsigned int LAS_PART_CHAN= 43;  /**< @brief Empty channel number to store laser partition variation */
+  static const unsigned int TRIPS_DRAWERIDX= 2; /**< @brief DrawerIdx used for storing trips probabilities */
+  static const unsigned int TRIPS_ROS    =  0;      /**< @brief Ros used for storing trips probabilities */
+  static const unsigned int TRIPS_DRAWER =  2;   /**< @brief Drawer used for storing trips probabilities */
+  static const unsigned int DEFINITIONS_DRAWERIDX = 1;   /**< @brief Drawer used for storing of bad and noisy channel definitions */
+  static const unsigned int BAD_DEFINITION_CHAN = 0;   /**< @brief Channel used for storing of bad channel definitions */
+  static const unsigned int NOISY_DEFINITION_CHAN = 1;   /**< @brief Channel used for storing of noisy channel definitions */
+  static const unsigned int NOGAINL1_DEFINITION_CHAN = 2;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
+  static const unsigned int BADTIMING_DEFINITION_CHAN = 3;   /**< @brief Channel used for storing of bad timing channel definitions */
 
 };
 

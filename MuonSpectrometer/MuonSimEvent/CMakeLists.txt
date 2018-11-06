@@ -7,8 +7,7 @@ atlas_subdir( MuonSimEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Database/AtlasSealCLHEP
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
@@ -26,12 +25,12 @@ atlas_add_library( MuonSimEvent
                    PUBLIC_HEADERS MuonSimEvent
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier GeneratorObjects HitManagement MuonIdHelpersLib
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GeneratorObjects HitManagement MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( MuonSimEventDict
                       MuonSimEvent/MuonSimEventDict.h
                       MuonSimEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier GeneratorObjects MuonIdHelpersLib HitManagement MuonSimEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GeneratorObjects MuonIdHelpersLib HitManagement MuonSimEvent )
 

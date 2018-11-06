@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _LArGeoTBH1GeoOptions_h_
-#define _LArGeoTBH1GeoOptions_h_
+#ifndef LARG4RUNCONTROL_LARGEOTBH1GEOOPTIONS_H
+#define LARG4RUNCONTROL_LARGEOTBH1GEOOPTIONS_H
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // ----------------------------------------------------------------------//
@@ -47,7 +47,7 @@ class LArGeoTBH1GeoOptions {
 };
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF(LArGeoTBH1GeoOptions, 104187856, 1)
 #endif
 

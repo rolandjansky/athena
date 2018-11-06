@@ -166,7 +166,7 @@ ZmumuMon = DiMuMon (name = "ZmumuMon_NoTrig",
                                doSaveFits = False,
                                OutputLevel = VERBOSE)
 
-ToolSvc += ZmumuMon
+#ToolSvc += ZmumuMon
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager

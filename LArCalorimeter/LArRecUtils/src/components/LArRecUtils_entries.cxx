@@ -28,6 +28,8 @@
 #include "../LArHVPathologyDbCondAlg.h"
 #include "../LArHVIdMappingAlg.h"
 #include "../LArHVCondAlg.h"
+#include "../LArHVScaleCorrCondAlg.h"
+#include "../LArAutoCorrNoiseCondAlg.h"
 
 
 DECLARE_COMPONENT( LArADC2MeVTool )
@@ -88,3 +90,5 @@ DECLARE_COMPONENT( LArHVPathologyDbCondAlg )
 DECLARE_COMPONENT( LArHVIdMappingAlg )
 DECLARE_COMPONENT( LArOFCCondAlg )
 DECLARE_COMPONENT( LArHVCondAlg )
+DECLARE_COMPONENT( LArHVScaleCorrCondAlg )
+DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )

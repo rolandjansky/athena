@@ -95,7 +95,17 @@ StatusCode AthReentrantAlgorithm::sysExecute (const EventContext& ctx)
   // the algorithm.  If the context is referencing any dynamic memory,
   // then we can end up with a double-delete.  So clear out any extension ---
   // we won't actually use the context we pass to here for anything anyway.
-  ctx2.setExtension (boost::any());
+
+  if (ctx.hasExtension<Atlas::ExtendedEventContext>()) {
+    ctx2.setExtension( Atlas::ExtendedEventContext() );
+  } else if (ctx.hasExtension()) {
+    ATH_MSG_ERROR("EventContext " << ctx
+                  << " has an extended context of an unknown type: \""
+                  << System::typeinfoName( ctx.getExtensionType() )
+                  << "\". Can't progress.");
+    return StatusCode::FAILURE;
+  }
+
   return ::ReEntAlgorithm::sysExecute (ctx2);
 }
 

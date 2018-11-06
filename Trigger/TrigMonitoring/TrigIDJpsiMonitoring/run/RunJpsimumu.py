@@ -7,8 +7,8 @@ HLTMonManager = topSequence.HLTMonManager
 
 from TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConf import TrigJpsiMonTool
 TestMonTool = TrigJpsiMonTool( name="TestMonTool")
-ToolSvc += TestMonTool
-HLTMonManager.AthenaMonTools += [ "TrigJpsiMonTool/TestMonTool" ]
+#ToolSvc += TestMonTool
+HLTMonManager.AthenaMonTools += [ TestMonTool ]
 
 ##### Trigger Decision Part #####################
 

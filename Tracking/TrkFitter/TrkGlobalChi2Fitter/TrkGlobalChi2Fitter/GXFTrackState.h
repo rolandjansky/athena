@@ -25,7 +25,7 @@ namespace Trk {
   class TrackStateOnSurface;
   class GXFMaterialEffects;
   class TransportJacobian;
-  
+
   class GXFTrackState
   {
   public:
@@ -39,7 +39,7 @@ namespace Trk {
 
     //! Constructor for measurement
     GXFTrackState(const MeasurementBase*,const TrackParameters *trackpar=0,bool ownmb=false);
-   
+
     //! constructor for hole on track
     GXFTrackState(const TrackParameters*);
 
@@ -50,23 +50,23 @@ namespace Trk {
     //! assignment operator
     GXFTrackState& operator=(GXFTrackState& rhs);
 
-    
-    
+
+
     //! replace measurement by new, eg recalibrated one
     void setMeasurement(const MeasurementBase*);
-    
+
     //! read access for data member: Measurement
     const MeasurementBase* measurement(bool takeownership=false);
-    
+
     TrackState::TrackStateType trackStateType();
-    void setTrackStateType(TrackState::TrackStateType);    
-    
+    void setTrackStateType(TrackState::TrackStateType);
+
     //! set method for data member: TPs
     void setTrackParameters(const TrackParameters*);
     //! read access method for data member: TPs
     const TrackParameters* trackParameters(bool takeownership=false);
-    
-    
+
+
     void setMaterialEffects(GXFMaterialEffects*);
     //! read access method for data member: MaterialEffects
     GXFMaterialEffects* materialEffects();
@@ -79,11 +79,11 @@ namespace Trk {
     //! read access method for data member: TransportJacobian
     double (*(jacobian)())[5];
 
-    CLHEP::HepMatrix& derivatives();
-    void setDerivatives(CLHEP::HepMatrix&);
+    Amg::MatrixX& derivatives();
+    void setDerivatives(Amg::MatrixX&);
 
     AmgSymMatrix(5)* trackCovariance(bool takeownership=false);
-    void setTrackCovariance(AmgSymMatrix(5)*);    
+    void setTrackCovariance(AmgSymMatrix(5)*);
 
     const FitQualityOnSurface *fitQuality(bool takeownership=false);
     void setFitQuality(const FitQualityOnSurface *);
@@ -117,10 +117,10 @@ namespace Trk {
     const TrackParameters*     m_trackpar;    //!< track parameters
     GXFMaterialEffects* m_materialEffects;  //!< Material effects on track (ie scatterer, brem)
     double      m_jacobian[5][5];     //!< Transport jacobian wrt previous state
-    CLHEP::HepMatrix           *m_derivs;           //!< Derivatives of local parameters wrt fit parameters
+    Amg::MatrixX*       m_derivs;           //!< Derivatives of local parameters wrt fit parameters
     AmgSymMatrix(5)*    m_covariancematrix;    //!< Covariance matrix of track parameters at this surface
     const FitQualityOnSurface* m_fitqual;
-    double           m_measerror[5];     //!< Measurement errors (corrected for stereo angle)       
+    double           m_measerror[5];     //!< Measurement errors (corrected for stereo angle)
     double                     m_sinstereo;       //!< stereo angle
     TrackState::MeasurementType m_mType;      //!< Measurement type, eg pixel, SCT, ...
     bool m_recalib;                        //!< Has this measurement already been recalibrated?
@@ -128,6 +128,7 @@ namespace Trk {
     bool m_ownmb;
     bool m_ownfq;
     bool m_owncov;
+    bool m_ownder{};
     bool m_measphi;
     Amg::Vector3D m_globpos;
   };
@@ -135,37 +136,37 @@ namespace Trk {
 
 inline double (*(GXFTrackState::jacobian)())[5]  { return m_jacobian; }
 
-inline CLHEP::HepMatrix& GXFTrackState::derivatives()  { return *m_derivs; }
+inline Amg::MatrixX& GXFTrackState::derivatives()  { return *m_derivs; }
 
-inline AmgSymMatrix(5)* GXFTrackState::trackCovariance(bool takeownership)  { 
+inline AmgSymMatrix(5)* GXFTrackState::trackCovariance(bool takeownership)  {
   AmgSymMatrix(5)* tmpcov=m_covariancematrix;
   if (takeownership) {
-    m_owncov=false; 
+    m_owncov=false;
     //m_covariancematrix=0;
   }
-  return tmpcov; 
+  return tmpcov;
 }
 
 inline const TrackParameters* GXFTrackState::trackParameters(bool takeownership)   {if (takeownership) m_owntp=false; return m_trackpar; }
 
 inline GXFMaterialEffects* GXFTrackState::materialEffects() {
-  return m_materialEffects; 
+  return m_materialEffects;
 }
 
 inline TrackState::MeasurementType GXFTrackState::measurementType() {
-  return m_mType; 
+  return m_mType;
 }
 
 inline TrackState::TrackStateType GXFTrackState::trackStateType()  {
-  return m_tsType; 
+  return m_tsType;
 }
 
 inline void GXFTrackState::setMeasurementType(TrackState::MeasurementType mt){
-  m_mType = mt; 
+  m_mType = mt;
 }
 
 inline bool GXFTrackState::isRecalibrated(){
-  return m_recalib;  
+  return m_recalib;
 }
 
 }

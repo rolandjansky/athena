@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -29,7 +29,7 @@
 #include "TileEvent/TileContainer.h"
 #include "TileIdentifier/TileHWID.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <map> 
 #include <stdint.h>

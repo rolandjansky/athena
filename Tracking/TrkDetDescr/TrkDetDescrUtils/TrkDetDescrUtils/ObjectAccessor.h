@@ -1,81 +1,47 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+/* Dear emacs, this is -*-c++-*- */
+#ifndef _ObjectAccessor_H_
+#define _ObjectAccessor_H_
 
-///////////////////////////////////////////////////////////////////
-// ObjectAccessor.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+#include <array>
+#include <ostream>
 
-#ifndef TRKDETDESCRUTILS_OBJECTACCESSOR_H
-#define TRKDETDESCRUTILS_OBJECTACCESSOR_H
-//Gaudi
-#include "GaudiKernel/MsgStream.h"
-// STL
-#include <iostream>
-#include <vector>
+class MsgStream;
 
 namespace Trk {
+class ObjectAccessor
+{
+public:
+  typedef int value_type;
+  // @TODO ideally would use "using const_iterator std::array_base<value_type>::const_iterator" if it existed
+  typedef  const value_type * const_iterator;
 
-  /**
-    @class ObjectAccessor
-    
-    Base class for accessors to std::vectors,
-    these should be optimized for different cases and
-    surface types.
-        
-    @author Andreas.Salzburger@cern.ch
-    */
-    
-    class ObjectAccessor {
-      
-      public:
-        /** Default constructor*/
-        ObjectAccessor(bool inverse=false) :
-         m_inverseCase(inverse)
-       {}
+  template <size_t DIM>
+  ObjectAccessor( const std::array<value_type, DIM> &a, bool is_reverse=false)
+    : m_begin(a.begin()),
+      m_end(a.end()),
+      m_inverseRetrieval(is_reverse)
+  {}
 
-        /** Copy constructor */
-        ObjectAccessor(const ObjectAccessor& oa);
+  template <size_t DIM>
+  ObjectAccessor( const std::pair<std::array<value_type, DIM> , bool>  &a)
+    : m_begin(a.first.begin()),
+      m_end(a.first.end()),
+      m_inverseRetrieval(a.second)
+  {}
 
-        /** Destructor*/
-        virtual ~ObjectAccessor(){}
-    
-        /** Assignment operator*/
-        ObjectAccessor& operator=(const ObjectAccessor& oa);
+  ObjectAccessor::const_iterator begin() const { return m_begin; }
+  ObjectAccessor::const_iterator end()   const { return m_end; }
 
-        /** Interface method for surface the accessor int*/
-        virtual int accessor() const = 0;
-        
-        /** Resets the accessor: begin*/
-        virtual bool begin() const = 0;
-        
-        /** End of accessor */
-        virtual bool end() const = 0;
-        
-        /** Required: operator++*/
-        virtual const ObjectAccessor& operator++ () const = 0;
-   
-        /** Output Method for MsgStream, to be overloaded by child classes */
-        virtual MsgStream& dump(MsgStream& sl) const = 0;
-        /** Output Method for std::ostream, to be overloaded by child classes */
-        virtual std::ostream& dump(std::ostream& sl) const = 0;
+  bool inverseRetrieval() const { return m_inverseRetrieval; }
 
-        /** Flag if object has to retrieved by backward search */
-        virtual bool inverseRetrieval() const;
+private:
+  ObjectAccessor::const_iterator m_begin;
+  ObjectAccessor::const_iterator m_end;
+  bool m_inverseRetrieval;
+};
 
-      private:
-        bool m_inverseCase; //!< boolean flag to mark inverse retrieval
-        
-    };
- 
-  inline bool ObjectAccessor::inverseRetrieval() const 
-    {  return m_inverseCase; }
-
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& operator << ( MsgStream& sl, const ObjectAccessor& oac);
 std::ostream& operator << ( std::ostream& sl, const ObjectAccessor& oac);
 
-} // end of namespace Trk
-
+}
 #endif
-

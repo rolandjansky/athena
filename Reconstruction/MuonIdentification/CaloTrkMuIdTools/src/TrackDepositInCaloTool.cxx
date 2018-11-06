@@ -22,14 +22,13 @@
 #include "TileDetDescr/TileCellDim.h"
 #include "CaloUtils/CaloCellList.h"
 
-//#include "TrackToCalo/CaloCellHelpers.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "ParticleCaloExtension/ParticleCellAssociationCollection.h"
 #include "ParticleCaloExtension/ParticleCellIntersection.h"
 #include "ParticleCaloExtension/ParticleCaloAssociation.h"
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
-
+#include "GaudiKernel/ITHistSvc.h"
 // --- ROOT ---
 #include "TH1F.h"
 #include "TH2F.h"

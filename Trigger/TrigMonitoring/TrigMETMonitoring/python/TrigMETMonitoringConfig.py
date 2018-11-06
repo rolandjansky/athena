@@ -89,6 +89,6 @@ def HLTMETMonitoringTool():
                                   prescaled_met          = [],
                                   );
 	from AthenaCommon.AppMgr import ToolSvc
-	ToolSvc += HLTMETMon;
-	list = [ "HLTMETMonTool/HLTMETMon" ];
+	#ToolSvc += HLTMETMon;
+	list = [ HLTMETMon ];
 	return list

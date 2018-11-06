@@ -71,7 +71,7 @@ from SCT_Monitoring.SCT_MonitoringConf import SCTInitialiseTool
 SCTInitTool = SCTInitialiseTool (
   name = "SCTInitialiseTool"
   )
-ToolSvc += SCTInitTool
+#ToolSvc += SCTInitTool
 SCTMonMan.AthenaMonTools += [SCTInitTool]
 
 #from AthenaCommon.AppMgr import ToolSvc as toolSvc
@@ -89,7 +89,7 @@ SCTHitsTool.tracksName=InDetKeys.SCTTracks()
 #SCTHitsTool.tracksName="ExtendedTracks"
 
 
-ToolSvc += SCTHitsTool
+#ToolSvc += SCTHitsTool
 SCTMonMan.AthenaMonTools += [SCTHitsTool]
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonTool
@@ -105,7 +105,7 @@ SCTTracksMonTool.CheckRate= 1000;
 SCTTracksMonTool.doPositiveEndcap= True;
 SCTTracksMonTool.doNegativeEndcap= True;
 SCTTracksMonTool.doUnbiasedCalc= True;
-ToolSvc += SCTTracksMonTool;
+#ToolSvc += SCTTracksMonTool;
 SCTMonMan.AthenaMonTools += [SCTTracksMonTool]
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
@@ -117,7 +117,7 @@ SCTErrMonTool.histoPathBase="/stat";
 SCTErrMonTool.CheckRate= 1000;
 SCTErrMonTool.doPositiveEndcap= True;
 SCTErrMonTool.doNegativeEndcap= True;
-ToolSvc += SCTErrMonTool;
+#ToolSvc += SCTErrMonTool;
 SCTMonMan.AthenaMonTools +=[SCTErrMonTool]
 
                
@@ -154,7 +154,7 @@ if (InDetFlags.doPrintConfigurables()):
 SCTHitEffMonTool.HoleSearch=SCT_MonHoleSearch
 if globalflags.DataSource != "data":
     SCTHitEffMonTool.IsSim                   = True
-ToolSvc+=SCTHitEffMonTool
+#ToolSvc+=SCTHitEffMonTool
 SCTMonMan.AthenaMonTools += [SCTHitEffMonTool]
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTTimeDependentMonTool

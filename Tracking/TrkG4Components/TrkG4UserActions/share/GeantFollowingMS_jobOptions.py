@@ -338,7 +338,6 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 ## --- commit interval (test)
 #ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'THistSvc'):

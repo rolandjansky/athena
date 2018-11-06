@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -33,7 +33,7 @@ namespace Amg {
 
 struct Vector3DComparer
 {
-	bool operator()(Amg::Vector3D const &v1, Amg::Vector3D const &v2)
+	bool operator()(Amg::Vector3D const &v1, Amg::Vector3D const &v2) const
 	{
 		if ( v1.z() > v2.z() ) {
 			return false;
@@ -56,7 +56,7 @@ struct Vector3DComparer
 
 struct VectorVector3DComparer
 {
-	bool operator()(std::vector<Amg::Vector3D> const &vv1, std::vector<Amg::Vector3D> const &vv2)
+	bool operator()(std::vector<Amg::Vector3D> const &vv1, std::vector<Amg::Vector3D> const &vv2) const
 	{
           std::vector<Amg::Vector3D>::const_iterator v1 = vv1.begin();
           std::vector<Amg::Vector3D>::const_iterator v2 = vv2.begin();

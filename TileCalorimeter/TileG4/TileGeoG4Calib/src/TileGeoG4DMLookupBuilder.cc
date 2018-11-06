@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -100,12 +100,12 @@ TileGeoG4DMLookupBuilder::~TileGeoG4DMLookupBuilder() {
 
 ///////////////// B U I L D E R
 
-void TileGeoG4DMLookupBuilder::BuildLookup(bool is_tb) {
+void TileGeoG4DMLookupBuilder::BuildLookup(bool is_tb, int plateToCell) {
   // initializations
   m_sectionMap = new TileGeoG4CalibSectionMap();
   
   // Building Section Look-up tables for Calibration Hits
-  CreateGeoG4CalibSections(is_tb);
+  CreateGeoG4CalibSections(is_tb, plateToCell);
 }
 
 //////////////////// G E T   S E C T I O N
@@ -159,7 +159,7 @@ bool TileGeoG4DMLookupBuilder::GetPlateToCell() {
 
 //////////////// C R E A T E    S E C T I O N S
 
-void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb) {
+void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb, int plateToCell) {
   if (!m_dbManager || !m_sectionMap) {
     G4cout << "ERROR: CreateGeoG4CalibSections() - Initialization failed"
            << "  DbManager = " << m_dbManager
@@ -167,10 +167,16 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb) {
     abort();
   }
   
-  //_plateToCell parameter
-  m_plateToCell = m_dbManager-> GetSwitchPlateToCell();
-  //geometry
+  //plateToCell parameter
+  if (plateToCell == -1) {
+    m_plateToCell = m_dbManager->GetSwitchPlateToCell();
+    G4cout << "Using plateToCell flag from GeoModel" << G4endl;
+  } else {
+    m_plateToCell = (plateToCell>0);
+    G4cout << "Using plateToCell flag from jobOptions" << G4endl;
+  }
 
+  //geometry
   m_tdbManager->SetCurrentEnvByType(1);
   rBMin = m_tdbManager->GetEnvRin() * CLHEP::cm;
   rBMax = m_tdbManager->GetEnvRout() * CLHEP::cm;
@@ -310,7 +316,7 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb) {
     calibSection->samples.push_back(calibSample);
 
     //check cells2sample structure
-    if (m_verboseLevel < 10) {
+    if (m_verboseLevel >= 10) {
       for (int samp = 0; samp < static_cast<int>(calibSection->samples.size()); samp++) {
         for (int cell = 0; cell < static_cast<int>(calibSection->samples[samp]->cells.size()); cell++) {
           G4cout << "samp=" << samp << "  cell_ind=" << cell
@@ -407,7 +413,7 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb) {
     }
 
     // check plateCells2sample structure
-    if (m_verboseLevel > 10) {
+    if (m_verboseLevel >= 10) {
       for (int psamp = 0; psamp < static_cast<int>(calibSection->samples.size()); psamp++) {
         for (int pcell = 0; pcell < static_cast<int>(calibSection->samples[psamp]->plateCells.size()); pcell++) {
           G4cout << "psamp=" << psamp << "  cell_ind=" << pcell
@@ -448,7 +454,7 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb) {
     }
     
     // check girder cells in the section
-    if (m_verboseLevel > 10) {
+    if (m_verboseLevel >= 10) {
       for (int gcell = 0; gcell < static_cast<int>(calibSection->girderCells.size()); gcell++) {
         G4cout << "cell_ind=" << gcell
                << " :  detector   = " << calibSection->girderCells[gcell]->detector

@@ -41,7 +41,6 @@ if run_default_rel19:
   tool1.UseTruthInformation = True
 
   from AthenaCommon.AppMgr import ToolSvc
-  ToolSvc += tool1
 
   monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
   monMan.AthenaMonTools += [ tool1 ]

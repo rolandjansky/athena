@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -174,7 +174,7 @@ MDTMLOverview::execute( const std::string& name, const TObject& object, const dq
   std::string message;
   std::string eta="ETA_";
   std::string ml="__ML";
-  char eta_num[2];
+  char eta_num[3];
   std::string ml_num;
   double num_ml_off=1;
   int counter=0;
@@ -188,7 +188,7 @@ MDTMLOverview::execute( const std::string& name, const TObject& object, const dq
       if(counter>=20) break;
     }while(fabs(counter-new_empty_bins[i])>0.3);
       
-    sprintf(eta_num,"%d",counter);
+    snprintf(eta_num,sizeof(eta_num),"%d",counter);
     if( (counter-new_empty_bins[i])>=0)ml_num="1";
     if( (counter-new_empty_bins[i])<0) ml_num="2";
     message=eta+(std::string)eta_num+ml+ml_num;
