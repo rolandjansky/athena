@@ -51,6 +51,7 @@
 
 using namespace std;
 
+
 StatusCode HLTMuonMonTool::initMuonEFDQA()
 {
   return StatusCode::SUCCESS;
@@ -149,15 +150,15 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
     addHistogram(new TH1F("RecAwareCBmuon_eta", "RecCBmuon_eta ; #eta", 200,-5.,5.), m_histdirmuonef);
     addHistogram(new TH1F("RecAwareCBmuon_phi", "RecCBmuon_phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
 
-    // correlation histograms -- EFMS vs Reco muons which passed LVL2 MuFast
-    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PtCor", "PtCor_SAwrtRecMuFastAware ; RecSAmuon_Pt [GeV/c]; EFSAmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), m_histdirmuonef);
-    addHistogram(new TH2F("EF_SAwrtRecL2Aware_EtaCor", "EtaCor_SAwrtRecMuFastAware ; RecSAmuon_Eta ; EFSAmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), m_histdirmuonef);
-    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PhiCor", "PhiCor_SAwrtRecMuFastAware ; RecSAmuon_Phi [rad]; EFSAmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
-    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPt", "dPt_SAwrtRecMuFastAware ; dPt [GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
-    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dEta", "dEta_SAwrtRecMuFastAware ; dEta", 200,-5.,5.), m_histdirmuonef);
-    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPhi", "dPhi_SAwrtRecMuFastAware ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
+    // correlation histograms -- EFMS vs Reco muons which passed LVL2 L2MuonSA
+    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PtCor", "PtCor_SAwrtRecL2MuonSAAware ; RecSAmuon_Pt [GeV/c]; EFSAmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), m_histdirmuonef);
+    addHistogram(new TH2F("EF_SAwrtRecL2Aware_EtaCor", "EtaCor_SAwrtRecL2MuonSAAware ; RecSAmuon_Eta ; EFSAmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), m_histdirmuonef);
+    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PhiCor", "PhiCor_SAwrtRecL2MuonSAAware ; RecSAmuon_Phi [rad]; EFSAmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPt", "dPt_SAwrtRecL2MuonSAAware ; dPt [GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dEta", "dEta_SAwrtRecL2MuonSAAware ; dEta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPhi", "dPhi_SAwrtRecL2MuonSAAware ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
 
-    // Muon EF SA Efficiencies: SA Muons wrt Reco muons which passed LVL2 MuFast
+    // Muon EF SA Efficiencies: SA Muons wrt Reco muons which passed LVL2 L2MuonSA
     addHistogram(new TH1F("EffSA_L2Aware_pt", "pt ; p_{T}[GeV/c]", 100,0.,100.), m_histdirmuonef);
     addHistogram(new TH1F("EffSA_L2Aware_eta", "eta ; #eta", 200,-5.,5.), m_histdirmuonef);
     addHistogram(new TH1F("EffSA_L2Aware_phi", "phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
@@ -226,8 +227,21 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
     addHistogram( new TH1F("EF_SA_Over_Moore_SA_10GeV_Cut",     "EF_SA_Over_Moore_SA_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
     addHistogram( new TH1F("EF_CB_Over_Muid_10GeV_Cut",         "EF_CB_Over_Muid_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
 
+    //single chain monitoring ATR-17713
+    std::vector<string> triggerlist;
+    triggerlist.insert(triggerlist.end(), m_chainsGeneric.begin(), m_chainsGeneric.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+    triggerlist.insert(triggerlist.end(), m_chainsMSonly.begin(), m_chainsMSonly.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFFS.begin(), m_chainsEFFS.end());
+    triggerlist.insert(triggerlist.end(), m_chainsLowpt.begin(), m_chainsLowpt.end());
+    for (std::string trig : triggerlist){
+      addHistogram( new TH1F(Form("EF_pt_%s",trig.c_str()),    Form("TrigMuonEF pT %s; p_{T}; Entries", trig.c_str()),    105, 0., 105.), m_histdirmuonef );
+      addHistogram( new TH1F(Form("EF_eta_%s",trig.c_str()),    Form("TrigMuonEF #eta %s; #eta; Entries", trig.c_str()),    108, -2.7, 2.7), m_histdirmuonef );
+      addHistogram( new TH1F(Form("EF_phi_%s",trig.c_str()),    Form("TrigMuonEF #phi[rad] %s; #phi [rad]; Entries", trig.c_str()),   96, -CLHEP::pi,CLHEP::pi), m_histdirmuonef );
+    }
+
   }
-  //else if( newLumiBlockFlag() ){  }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 
@@ -300,7 +314,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   int nMuonEFiMS=0, nMuonEFiSA=0, nMuonEFiCB=0;
   int nMuonEFMS=0, nMuonEFSA=0, nMuonEFCB=0;
   int nmethod = 0;   
-
   // Section 1: simple histograms
   // First try from xAOD::Muon
   const xAOD::MuonContainer* muonEFcontainer(0);
@@ -320,8 +333,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	//float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * ((*muon).charge()))  ;
 	const xAOD::TrackParticle* trk = muon->primaryTrackParticle();
 	if(!trk) {
-		ATH_MSG_WARNING("Could not retrieve linked primary track particle");
-		continue;
+	  ATH_MSG_WARNING("Could not retrieve linked primary track particle");
+	  continue;
 	}
 	float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV *trk->charge());
 	float eta        = float(muon->eta());
@@ -685,7 +698,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     xAOD::MuonContainer::const_iterator contItr  = muonCont->begin();
     xAOD::MuonContainer::const_iterator contItrE = muonCont->end();
     
-    
     for (; contItr != contItrE; contItr++){
 
       float pt  = - 999999.;
@@ -745,7 +757,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       // TrigMuonEF TrackBuilder
       for(int i_offl=0;i_offl<(int)m_pt_RecMSmuon.size();i_offl++) {
-
         float pt_offl  = m_pt_RecMSmuon.at(i_offl);
         float eta_offl = m_eta_RecMSmuon.at(i_offl);
         float phi_offl = m_phi_RecMSmuon.at(i_offl);
@@ -793,7 +804,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       // TrigMuonEF Extrapolator
       for(int i_offl=0;i_offl<(int)m_pt_RecSAmuon.size();i_offl++) {
-
         float pt_offl     = m_pt_RecSAmuon.at(i_offl);
         float eta_offl    = m_eta_RecSAmuon.at(i_offl);
         float phi_offl    = m_phi_RecSAmuon.at(i_offl);
@@ -842,7 +852,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       // TrigMuonEF Combiner
       for(int i_offl=0;i_offl<(int)m_pt_RecCBmuon.size();i_offl++) {
-
         float pt_offl  = m_pt_RecCBmuon.at(i_offl);
         float eta_offl = m_eta_RecCBmuon.at(i_offl);
         float phi_offl = m_phi_RecCBmuon.at(i_offl);
@@ -907,18 +916,17 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
   StatusCode sc_mf = evtStore()->retrieve(mfContainer,lastmfContainer);
   if ( sc_mf.isFailure() ) {
-    ATH_MSG_WARNING( "Failed to retrieve HLT muFast container" );
+    ATH_MSG_WARNING( "Failed to retrieve HLT L2MuonSA container" );
     return StatusCode::SUCCESS;    
   }
 
   // Loop over muonFeatureContainer
-  int nMuFast=0;
-  for(; mfContainer != lastmfContainer; mfContainer++) {
+  int nL2MuonSA=0;
+  for(auto jtr=mfContainer; jtr != lastmfContainer; jtr++) {
 
-    xAOD::L2StandAloneMuonContainer::const_iterator mf     = mfContainer->begin();
-    xAOD::L2StandAloneMuonContainer::const_iterator lastmf = mfContainer->end();
-
-    for(; mf != lastmf; mf++) {
+    const xAOD::L2StandAloneMuonContainer* lastmf(nullptr);
+    ATH_CHECK( evtStore()->retrieve(lastmf, jtr.key()));
+    for(auto mf=lastmf->begin(); mf!=lastmf->end(); mf++) {
  
       if( (*mf)==0 ) continue;
 
@@ -927,7 +935,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       float phi    = (*mf)->phi();
      
       if( fabs(pt)>FAILED_PT_THRES ){
-	nMuFast++;
+	nL2MuonSA++;
 	m_pt_LVL2FASTmuon.push_back(pt);
 	m_eta_LVL2FASTmuon.push_back(eta);
 	m_phi_LVL2FASTmuon.push_back(phi);
@@ -937,14 +945,14 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   } // loop over muonFeatureContainer
 
 
-  // SELECTION OF RECO  MUON OBJECTS WICH PASSED LVL2 MuFast
+  // SELECTION OF RECO  MUON OBJECTS WICH PASSED LVL2 L2MuonSA
 
-  int n_Recmuons_PassesdLVL2MuFast = 0;
+  int n_Recmuons_PassesdLVL2L2MuonSA = 0;
 
   // Safe condition in case of MuComb container is empty
-  if(nMuFast != 0 && n_RecSAmuon != 0){
+  if(nL2MuonSA != 0 && n_RecSAmuon != 0){
 
-    for (int j=0; j<nMuFast; j++) {
+    for (int j=0; j<nL2MuonSA; j++) {
 
       double deltaR = 999.;
       double dR = 0, dphi = 0., deta = 0.;
@@ -972,7 +980,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	eta_ToUPDATE = m_eta_RecSAmuon.at(kmin);
 	phi_ToUPDATE = m_phi_RecSAmuon.at(kmin);
        
-	n_Recmuons_PassesdLVL2MuFast++;
+	n_Recmuons_PassesdLVL2L2MuonSA++;
       }     
        
       m_pt_lvl2_RecoSA_corr.push_back(pt_ToUPDATE);
@@ -982,8 +990,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     }//end of loop on j
   }
 
-  // **************************************     Efficiency of EF wrt Reco muons which passed LVL2 MuFast  ***************************************
-  // Efficiency of EF wrt Reco muons which passed LVL2 MuFast
+  // **************************************     Efficiency of EF wrt Reco muons which passed LVL2 L2MuonSA  ***************************************
+  // Efficiency of EF wrt Reco muons which passed LVL2 L2MuonSA
 
   // (YY commented for suppressing warning) int n_L2AwareMuons_passedEFSA = 0;
  
@@ -995,9 +1003,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     nMuonEFSAtoLoop = nMuonEFSA;
   }
   // Safe condition 
-  if(n_Recmuons_PassesdLVL2MuFast != 0 && nMuonEFSAtoLoop != 0){
+  if(n_Recmuons_PassesdLVL2L2MuonSA != 0 && nMuonEFSAtoLoop != 0){
 
-    for (int j=0; j<nMuFast; j++) {
+    for (int j=0; j<nL2MuonSA; j++) {
 
       if (m_index_lvl2_RecoSA_corr.at(j) < 0)
 	continue;
@@ -1049,8 +1057,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     }
   }
 
-
-  // **************************************     Efficiency of EF wrt Reco muons which passed LVL2 MuFast  ***************************************
+  // **************************************     Efficiency of EF wrt Reco muons which passed LVL2 L2MuonSA  ***************************************
 
   // Retrieve L2CombinedMuonContainer
 
@@ -1063,17 +1070,16 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     return StatusCode::SUCCESS;    
   }
  
- 
   // Loop over CombinedMuonFeatureContainer
   int nMuComb=0;
-  for(; combContainer != lastcombContainer; combContainer++) {
+  for(auto itr=combContainer; itr != lastcombContainer; itr++) {
    
-    xAOD::L2CombinedMuonContainer::const_iterator comb     = combContainer->begin();
-    xAOD::L2CombinedMuonContainer::const_iterator lastcomb = combContainer->end();
+    const xAOD::L2CombinedMuonContainer *lastcomb(nullptr);
+    ATH_CHECK( evtStore()->retrieve(lastcomb, itr.key()));
    
-    for(; comb != lastcomb; comb++) {
+    for(auto comb=lastcomb->begin(); comb != lastcomb->end(); comb++) {
      
-      if( (*comb)==0 ) continue;
+      if( (*comb)==nullptr ) continue;
      
       float pt  = (*comb)->pt() / 1000.;  // convert to GeV
       float eta = (*comb)->eta();
@@ -1088,7 +1094,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
      
     }
   }
-
 
   int n_Recmuons_PassesdLVL2MuComb = 0;
 
@@ -1132,13 +1137,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       m_index_lvl2_RecoCB_corr.push_back(kmin);
     }//end of loop on j
   }
-   
-
-
 
   // Efficiency of EF wrt Reco muons which passed LVL2 MuComb
-
-
 
   // (YY commented for suppressing warning) int n_L2AwareMuons_passedEFCB = 0;
  
@@ -1220,7 +1220,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     nMuonEFMStoLoop = nMuonEFMS;
   }
 
-
   // Safe condition in case of MuonEF container is empty
   if(nMuonEFMStoLoop != 0 && n_RecMSmuon != 0){
 
@@ -1275,12 +1274,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     } // close loop on j
   }
  
- 
   //  return StatusCode::SUCCESS;
   //}
-
-
-
 
   // Beginning of Muon Stand Alone Correlations
 
@@ -1293,7 +1288,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   }else if (nmethod == 1){
     nMuonEFSAtoLoop = nMuonEFSA;
   }
-
 
   // Safe condition in case of MuonEF container is empty
   if(nMuonEFSAtoLoop != 0 && n_RecSAmuon != 0){
@@ -1349,13 +1343,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     } // close loop on j
   }
  
- 
   //  return StatusCode::SUCCESS;
   //}
-
-
-
-
 
   // Beginning of Muon Combined Correlation
 
@@ -1369,7 +1358,6 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   }else if (nmethod == 1){
     nMuonEFCBtoLoop = nMuonEFCB;
   }
-
 
   // Safe condition in case of MuonEF container is empty
   if(nMuonEFCBtoLoop != 0 && n_RecCBmuon != 0){
@@ -1425,9 +1413,23 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
     } // close loop on j
   }
+
+    //single chain monitoring ATR-17713
+    std::vector<string> triggerlist;
+    triggerlist.insert(triggerlist.end(), m_chainsGeneric.begin(), m_chainsGeneric.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+    triggerlist.insert(triggerlist.end(), m_chainsMSonly.begin(), m_chainsMSonly.end());
+    triggerlist.insert(triggerlist.end(), m_chainsEFFS.begin(), m_chainsEFFS.end());
+    triggerlist.insert(triggerlist.end(), m_chainsLowpt.begin(), m_chainsLowpt.end());
+    
+    sc = fillEFSingleChainHistos(triggerlist);
+    if ( sc.isFailure() ) {
+      ATH_MSG_WARNING( "fillEFSingleChainHistos() failed." );
+      return StatusCode::SUCCESS;
+    }
  
   return StatusCode::SUCCESS;
-}
+}//fillMuonEFDQA
 
 
 StatusCode HLTMuonMonTool::procMuonEFDQA()
@@ -1482,6 +1484,29 @@ StatusCode HLTMuonMonTool::procMuonEFDQA()
     
 
   }
-  //else if( endOfLumiBlockFlag() ){  }
+  //else if(endOfLumiBlockFlag()){  }
+  return StatusCode::SUCCESS;
+}//procMuonEFDQA
+
+
+StatusCode HLTMuonMonTool :: fillEFSingleChainHistos(const std::vector<std::string> &triggerlist ){
+
+  for(std::string trig : triggerlist){
+    ATH_MSG_DEBUG("Retrieving feature container for " << trig);
+    const Trig::FeatureContainer fc = getTDT()->features( trig, TrigDefs::alsoDeactivateTEs);
+    const std::vector< Trig::Feature<xAOD::MuonContainer> > fEFs = fc.get<xAOD::MuonContainer>( "", TrigDefs::alsoDeactivateTEs );
+    for(const Trig::Feature<xAOD::MuonContainer> &fEF : fEFs){
+      const xAOD::MuonContainer *cont = fEF.cptr(); 
+      for( const xAOD::Muon* ef : *cont ){
+	const HLT::TriggerElement *efTE = fEF.te();
+	if(efTE->getActiveState()){//pass
+	  hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->pt()/CLHEP::GeV );
+	  hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->eta() );
+	  hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->phi() );
+	}
+      }
+    }
+  }
+  
   return StatusCode::SUCCESS;
 }
