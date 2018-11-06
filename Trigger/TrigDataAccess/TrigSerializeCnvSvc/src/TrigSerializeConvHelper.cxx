@@ -2,22 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "TrigSerializeCnvSvc/TrigSerializeConvHelper.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ClassID.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
 #include "TrigSerializeResult/ITrigSerializerToolBase.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
 #include "TrigSerializeCnvSvc/ITrigSerGuidHelper.h"
 
-//
-#include "TROOT.h"
-#include "TClass.h"
+#include "DataModelRoot/RootType.h"
 
 
 TrigSerializeConvHelper::TrigSerializeConvHelper(const std::string& toolname, const std::string& type, const IInterface* parent) :
@@ -120,9 +113,8 @@ StatusCode TrigSerializeConvHelper::initialize(){
 }
 
 StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaqueAddress* iAddr, void *&ptr, bool isxAOD){
-    
   ptr = 0;
-  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createObj for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
+  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createObj for clname: " << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
   
   //could alse get DATA (perhaps as boost::any) from the IOA
   TrigStreamAddress *addr = dynamic_cast<TrigStreamAddress*>(iAddr);
@@ -137,10 +129,7 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
   std::vector<uint32_t> v = addr->get();
   
   //we need to find the name of the ob
-
   std::string cl = clname;
-
-  
 
   if (m_doTP and !isxAOD)
     cl = m_TPTool->persClassName(clname);
@@ -165,9 +154,9 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
       }
     } else {
       //get the pers version from the BS
-      std::string nclass;
+      std::string nclass = cl;
       StatusCode ai = m_guidTool->IntsToClassName(guid, nclass);
-      if (ai.isFailure()){
+      if (ai.isFailure()) {
 	//better do not decode
 	return StatusCode::FAILURE;
       }
@@ -201,9 +190,8 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "was converted to " << transclass << " at " << transObj << endmsg;
 
     //persistent object not needed anymore
-    TClass *persClObj = gROOT->GetClass(cl.c_str());
-    if (persClObj)
-      persClObj->Destructor(ptr);
+    RootType persClObj(cl);
+    persClObj.Destruct(ptr);
 
     ptr = transObj;
   }
@@ -259,9 +247,8 @@ StatusCode TrigSerializeConvHelper::createRep(const std::string &clname,
 
   if (m_doTP and !isxAOD){
     //we don't need the persistent object anymore
-    TClass *persClObj = gROOT->GetClass(cl.c_str());
-    if (persClObj)
-      persClObj->Destructor(pObj);
+     RootType persClObj(cl);
+     persClObj.Destruct(pObj);
   }
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pObj: " << pObj << " of " << cl

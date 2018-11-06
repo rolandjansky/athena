@@ -9,7 +9,6 @@
 #include "StorageSvc/DbReflex.h"
 
 
-
 TrigSerializeGuidHelper::TrigSerializeGuidHelper(const std::string& name, const std::string& type,
 						 const IInterface* parent) :
   AthAlgTool(name, type, parent)
@@ -52,7 +51,7 @@ StatusCode TrigSerializeGuidHelper::ClassNameToInts(const std::string &clname, u
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::string &clname){
+StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::string &clname) {
 
   Guid guid;
   guid.setData1(iarr[0]);
@@ -68,16 +67,24 @@ StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::s
   guid.setData4(iarr[3] & 0xFF, 7);
 
   if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "constructed " << guid.toString() << " from ints" << endmsg; 
-  RootType cltype(pool::DbReflex::forGuid(guid));
-  
-  clname = cltype.Name(Reflex::SCOPED);
-  /*
-  std::string scope = cltype.DeclaringScope().Name();
-  if (!scope.empty()) {
-    clname = scope+"::"+clname;
+    msg(MSG::DEBUG) << "constructed " << guid.toString() << " from ints" << endmsg;
+
+  if( clname != "" ) {
+     // Instead of getting a typename for a known guid (quite costly in ROOT6)
+     // and comparing names,
+     // get a class by name and compare guids
+     Guid  g( pool::DbReflex::guid( RootType(clname) ) );
+     if( g != guid ) {
+        // the typename was wrong, will need to look it up by GUID
+        clname = "";
+     }
   }
-  */
+
+  if( clname == "" ) {
+     RootType cltype( pool::DbReflex::forGuid(guid) );
+     clname = cltype.Name(Reflex::SCOPED);
+  }
+
   if (msgLvl(MSG::DEBUG))
     msg(MSG::DEBUG) << "corresponds to " << clname << endmsg; 
 
