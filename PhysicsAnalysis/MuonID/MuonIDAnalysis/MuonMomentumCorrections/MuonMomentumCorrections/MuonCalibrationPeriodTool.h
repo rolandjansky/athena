@@ -76,7 +76,24 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         std::string m_sagittaRelease17;
         std::string m_sagittaRelease18;
         std::string m_release;
- 
+        
+        bool m_StatComb1516;
+        bool m_SagittaCorr1516;
+        bool m_SagittaMCDistortion1516;
+        bool m_SagittaCorrPhaseSpace1516;
+        
+        bool m_StatComb17;
+        bool m_SagittaCorr17;
+        bool m_SagittaMCDistortion17;
+        bool m_SagittaCorrPhaseSpace17;
+        
+        bool m_StatComb18;
+        bool m_SagittaCorr18;
+        bool m_SagittaMCDistortion18;
+        bool m_SagittaCorrPhaseSpace18;
+        
+        
+        
         // Monte Carlo runNumbers correspond to different production campaigns
         std::vector<unsigned int> m_MCperiods1516;
         std::vector<unsigned int> m_MCperiods17;
