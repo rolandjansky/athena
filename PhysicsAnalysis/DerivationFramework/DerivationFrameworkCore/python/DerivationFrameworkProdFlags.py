@@ -1438,7 +1438,7 @@ class WriteDAOD_EXOT27Stream(JobProperty):
     StreamName = 'StreamDAOD_EXOT27'
     FileName = ''
     isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT26.p7"
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT27.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT27Stream)
 listAODtoDPD.append(WriteDAOD_EXOT27Stream.StreamName)
