@@ -3,8 +3,8 @@
 */
 // Rewritten from LArHVScaleCorrTool
 
-#ifndef LARRECUTILS_LArHVSCALEcORRCONDALG_H
-#define LARRECUTILS_LArHVSCALECORRCONDALG_H
+#ifndef LARRECUTILS_LARHVSCALECORRCONDALG_H
+#define LARRECUTILS_LARHVSCALECORRCONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -98,7 +98,6 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   */
 
 
-  bool m_doTdrift;
   unsigned int m_deltatupdate;
   bool m_updateIfChanged;
   bool m_undoOnlineHVCorr;
