@@ -2,15 +2,13 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTRAWEVENTTOOL_H
-#define SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTRAWEVENTTOOL_H
+#ifndef SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTBYTESTREAMTOOL_H
+#define SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTBYTESTREAMTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 
-#include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "InDetRawData/SCT_RDO_Container.h"
-
-class InterfaceID;
+#include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 
 /** Interface to an AthAlgTool class providing conversion from SCT RDO container
  *  to ByteStream.
@@ -33,4 +31,4 @@ class ISCTRawContByteStreamTool: virtual public IAlgTool {
   
 };
 
-#endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTRAWEVENTTOOL_H
+#endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTBYTESTREAMTOOL_H

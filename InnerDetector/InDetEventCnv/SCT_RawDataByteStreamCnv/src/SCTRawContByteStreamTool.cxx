@@ -2,16 +2,19 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/** header file */
 #include "SCTRawContByteStreamTool.h"
 
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
-#include "eformat/SourceIdentifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
+
 #include "StoreGate/ReadCondHandle.h"
+#include "eformat/SourceIdentifier.h"
+
+#include <cstdint>
 
 /// ------------------------------------------------------------------------
 /// contructor 

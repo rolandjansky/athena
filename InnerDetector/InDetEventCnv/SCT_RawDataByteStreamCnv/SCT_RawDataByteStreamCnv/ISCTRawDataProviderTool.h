@@ -12,8 +12,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-#include <string>
-
 /** @class ISCTRawDataProviderTool
  *
  * @brief Interface for Athena Algorithm Tool to fill Collections of SCT RDO Containers.

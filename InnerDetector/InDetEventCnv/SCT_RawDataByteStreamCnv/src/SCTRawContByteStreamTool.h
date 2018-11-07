@@ -2,28 +2,23 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
-#define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
+#ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H
+#define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H
 
-///Base classes 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
 
-///other athena
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 
-///Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
-///STL
-#include <cstdint>
 #include <mutex>
 #include <string>
 
-class SrcIdMap;
 class ISCT_RodEncoder;
+class ISCT_CablingTool;
 class SCT_ID;
+class SrcIdMap;
 
 /** An AthAlgTool class to provide conversion from SCT RDO container
  *  to ByteStream, and fill it in RawEvent
@@ -57,4 +52,4 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   mutable std::mutex m_mutex;
 };
 
-#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
+#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H
