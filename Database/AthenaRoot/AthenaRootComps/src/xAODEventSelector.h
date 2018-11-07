@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // xAODEventSelector.h 
@@ -238,7 +238,6 @@ class xAODEventSelector :
 
 #ifndef XAOD_ANALYSIS
   //these are here just for compatibility with RecExCommon ... we were trying to use this selector in recexcommon jobs for a bit
-  bool m_backNavigation=false;
   StringProperty m_collectionType;
 #endif
 
