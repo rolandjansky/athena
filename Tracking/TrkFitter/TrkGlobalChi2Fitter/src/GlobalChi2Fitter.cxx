@@ -72,7 +72,6 @@
 #include "IdDictDetDescr/IdDictManager.h"
 
 #include "TDecompChol.h"
-#include "TrkAlgebraUtils/AlSymMat.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include <exception>
 
@@ -4644,8 +4643,6 @@ public:
         }
       }
 
-
-
       // Solve assuming the matrix is SPD.
       // Cholesky Decomposition is used
       if(weightAMG.determinant() !=0 )
@@ -6327,21 +6324,28 @@ public:
             }
             double *myarray = a.GetMatrixArray();
             double *myarrayinv = fullcov.GetMatrixArray();
-            AlSymMat weight(a.GetNcols());
+            Amg::MatrixX weightAMG(a.GetNcols(), a.GetNcols());
+            Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(a.GetNcols(), a.GetNcols());
             for (int i = 0; i < a.GetNcols(); ++i) {
               for (int j = 0; j <= i; ++j) {
-                weight[i][j] = myarray[i * a.GetNcols() + j];
-              }
-            }
-            int ok = weight.invert();
-            for (int i = 0; i < a.GetNcols(); ++i) {
-              for (int j = 0; j <= i; ++j) {
-                myarrayinv[i * a.GetNcols() + j] = myarrayinv[j * a.GetNcols() + i] = weight[i][j];
+                weightAMG(i,j) = weightAMG(j,i)  = myarray[i * a.GetNcols() + j];
               }
             }
 
-            // bool ok=newlu.Invert(fullcov);
-            if (ok) {
+            // Solve assuming the matrix is SPD.
+            // Cholesky Decomposition is used
+            if(weightAMG.determinant() !=0 )
+            {
+              // Solve for x  where Wx = I
+              // this is cheaper than invert as invert makes no assumptions about the
+              // matrix being symmetric
+              weightInvAMG = weightAMG.llt().solve(weightInvAMG);
+              for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
+                for (int j = 0; j <= i; ++j) {
+                  myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
+                }
+              }
+            } else {
               ATH_MSG_DEBUG( "matrix inversion failed!" );
               m_matrixinvfailed++;
               cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
