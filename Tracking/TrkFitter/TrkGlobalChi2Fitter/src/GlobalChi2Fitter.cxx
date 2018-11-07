@@ -4635,20 +4635,31 @@ public:
       cache.m_ainv.ResizeTo(cache.m_a.GetNcols(), cache.m_a.GetNcols());
       double *myarray = cache.m_a.GetMatrixArray();
       double *myarrayinv = cache.m_ainv.GetMatrixArray();
-      AlSymMat weight(cache.m_a.GetNcols());
+
+      Amg::MatrixX weightAMG(cache.m_a.GetNcols(), cache.m_a.GetNcols());
+      Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(cache.m_a.GetNcols(), cache.m_a.GetNcols());
       for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
         for (int j = 0; j <= i; ++j) {
-          weight[i][j] = myarray[i * cache.m_a.GetNcols() + j];
+          weightAMG(i,j) = weightAMG(j,i)  = myarray[i * cache.m_a.GetNcols() + j];
         }
       }
-      int ok = weight.invert();
-      for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
-        for (int j = 0; j <= i; ++j) {
-          myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weight[i][j];
+
+
+
+      // Solve assuming the matrix is SPD.
+      // Cholesky Decomposition is used
+      if(weightAMG.determinant() !=0 )
+      {
+        // Solve for x  where Wx = I
+        // this is cheaper than invert as invert makes no assumptions about the
+        // matrix being symmetric
+        weightInvAMG = weightAMG.llt().solve(weightInvAMG);
+        for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
+          for (int j = 0; j <= i; ++j) {
+            myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
+          }
         }
-      }
-      // bool ok=lu.Invert(ainv);
-      if (ok) {
+      } else {
         ATH_MSG_DEBUG  ("matrix inversion failed!");
         m_matrixinvfailed++;
         cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
@@ -7326,9 +7337,8 @@ public:
     // Calculate track errors at each state, except scatterers and brems
     //
 
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "CalculateTrackErrors" << endmsg;
-    }
+
+    ATH_MSG_DEBUG( "CalculateTrackErrors" );
 
     std::vector<GXFTrackState *> &states = trajectory.trackStates();
     int nstatesupstream = trajectory.numberOfUpstreamStates();
@@ -7530,18 +7540,12 @@ public:
     };
 
     const AmgVector(5) &vec = tmpprevpar->parameters();
-    bool cylsurf = true;
-    if( surf->type() == Trk::Surface::Cylinder )
-      cylsurf = true;
-    bool discsurf = false;
-    if( surf->type() == Trk::Surface::Cylinder )
-      discsurf = true;
-    bool thiscylsurf = false;
-    if( tmpprevpar->associatedSurface().type() == Trk::Surface::Cylinder )
-      thiscylsurf = true;
-    bool thisdiscsurf = false;
-    if( tmpprevpar->associatedSurface().type() == Trk::Surface::Disc )
-      thisdiscsurf = true;
+
+    bool cylsurf = surf->type() == Trk::Surface::Cylinder;
+    bool discsurf = surf->type() == Trk::Surface::Disc;
+    const Surface& previousSurface = tmpprevpar->associatedSurface();
+    bool thiscylsurf = previousSurface.type() == Trk::Surface::Cylinder;
+    bool thisdiscsurf = previousSurface.type() == Trk::Surface::Disc;
 
     for (int i = 0; i < 5; i++) {
       AmgVector(5) vecpluseps = vec, vecminuseps = vec;
@@ -7553,11 +7557,11 @@ public:
       vecpluseps[paraccessor.pardef[i]] += eps[i];
       vecminuseps[paraccessor.pardef[i]] -= eps[i];
       if (thiscylsurf && i == 0) {
-        if (vecpluseps[0] / tmpprevpar->associatedSurface().bounds().r() > M_PI) {
-          vecpluseps[0] -= 2 * M_PI * tmpprevpar->associatedSurface().bounds().r();
+        if (vecpluseps[0] / previousSurface.bounds().r() > M_PI) {
+          vecpluseps[0] -= 2 * M_PI * previousSurface.bounds().r();
         }
-        if (vecminuseps[0] / tmpprevpar->associatedSurface().bounds().r() < -M_PI) {
-          vecminuseps[0] += 2 * M_PI * tmpprevpar->associatedSurface().bounds().r();
+        if (vecminuseps[0] / previousSurface.bounds().r() < -M_PI) {
+          vecminuseps[0] += 2 * M_PI * previousSurface.bounds().r();
         }
       }
       if (thisdiscsurf && i == 1) {
