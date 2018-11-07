@@ -30,7 +30,7 @@ class SeedPtMin(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 25*Units.GeV
+    StoredValue  = 20*Units.GeV
 
 class RecoOutputPtMin(JobProperty):
     """ Minimum pT for seeds after iteration
@@ -102,8 +102,8 @@ class HarmonicsForSubtraction(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    StoredValue  = [2,3,4]
-    #StoredValue  = []
+    #StoredValue  = [2,3,4]
+    StoredValue  = []
 
 class ModulationScheme(JobProperty):
     """ 1, 2 or 3 correspond to total calo, total calo w/ fcal phase, fcal only
@@ -236,12 +236,7 @@ class HIJetRecFlags(JobPropertyContainer):
     """ The HIJetRec property container.
     """
     pass
-class TWConfigFile(JobProperty):
-    """ Name of main track jets used in iteration and ghost matching
-    """
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'cluster.geo.root'
+
 # add the flags container to the top container 
 jobproperties.add_Container(HIJetRecFlags)
 
@@ -277,8 +272,7 @@ list_jobproperties = [UnsubtractedSuffix,
                       WriteUnsubtracted,
                       WriteSeeds,
                       UseHITracks,
-                      MomentsSkipped,
-                      TWConfigFile
+                      MomentsSkipped
                       ]
 
 for i in list_jobproperties:
