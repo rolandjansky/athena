@@ -23,7 +23,7 @@ namespace H5Utils {
   /// @brief clssses to add type traits for H5
   /// @{
 
-  namespace traits {
+  namespace internal {
 
     /** @brief data_buffer_t
      *
@@ -32,13 +32,13 @@ namespace H5Utils {
      **/
     union data_buffer_t
     {
-      int _int;
-      long long _llong;
-      unsigned int _uint;
-      unsigned char _uchar;
-      float _float;
-      double _double;
-      bool _bool;
+      int u_int;
+      long long u_llong;
+      unsigned int u_uint;
+      unsigned char u_uchar;
+      float u_float;
+      double u_double;
+      bool u_bool;
     };
 
     /**
@@ -48,31 +48,31 @@ namespace H5Utils {
     template <typename T> struct H5Traits;
     template <> struct H5Traits<int> {
       static const H5::DataType type;
-      static int& ref(data_buffer_t& buf) { return buf._int; }
+      static int& ref(data_buffer_t& buf) { return buf.u_int; }
     };
     template <> struct H5Traits<long long> {
       static const H5::DataType type;
-      static long long& ref(data_buffer_t& buf) { return buf._llong; }
+      static long long& ref(data_buffer_t& buf) { return buf.u_llong; }
     };
     template <> struct H5Traits<unsigned int> {
       static const H5::DataType type;
-      static unsigned int& ref(data_buffer_t& buf) { return buf._uint; }
+      static unsigned int& ref(data_buffer_t& buf) { return buf.u_uint; }
     };
     template <> struct H5Traits<unsigned char> {
       static const H5::DataType type;
-      static unsigned char& ref(data_buffer_t& buf) { return buf._uchar; }
+      static unsigned char& ref(data_buffer_t& buf) { return buf.u_uchar; }
     };
     template <> struct H5Traits<float> {
       static const H5::DataType type;
-      static float& ref(data_buffer_t& buf) { return buf._float; }
+      static float& ref(data_buffer_t& buf) { return buf.u_float; }
     };
     template <> struct H5Traits<double> {
       static const H5::DataType type;
-      static double& ref(data_buffer_t& buf) { return buf._double; }
+      static double& ref(data_buffer_t& buf) { return buf.u_double; }
     };
     template <> struct H5Traits<bool> {
       static const H5::DataType type;
-      static bool& ref(data_buffer_t& buf) { return buf._bool; }
+      static bool& ref(data_buffer_t& buf) { return buf.u_bool; }
     };
 
   }

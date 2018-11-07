@@ -11,7 +11,7 @@
 
 
 namespace H5Utils {
-  namespace common {
+  namespace internal {
   // packing utility
     H5::CompType packed(H5::CompType in) {
       // TODO: Figure out why a normal copy constructor doesn't work here.

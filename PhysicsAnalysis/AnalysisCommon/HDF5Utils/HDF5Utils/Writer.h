@@ -31,9 +31,6 @@ namespace H5Utils {
 
   namespace internal {
 
-    using traits::data_buffer_t;
-    using traits::H5Traits;
-
     /** @brief DataConsumer classes
      *
      * These are the constituents of the `Consumers` class, which is
@@ -161,9 +158,14 @@ namespace H5Utils {
 
     /// Data flattener class: this is used by the writer to read in the
     /// elements one by one and put them in an internal buffer.
+    ///
+    /// We use a struct rather than a full blown class. Like all
+    /// things in the internal namespace, you should not mess with
+    /// this unless you really know what you are doing.
+    ///
     template <size_t N, typename F, typename T, size_t M = N>
     struct DataFlattener {
-      std::vector<traits::data_buffer_t> buffer;
+      std::vector<data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
       DataFlattener(const F& filler, T args,
                     const std::array<hsize_t,M>& extent):
@@ -186,7 +188,7 @@ namespace H5Utils {
     };
     template <typename F, typename T, size_t M>
     struct DataFlattener<0, F, T, M> {
-      std::vector<traits::data_buffer_t> buffer;
+      std::vector<data_buffer_t> buffer;
       std::vector<std::array<hsize_t, 0> > element_offsets;
       DataFlattener(const F& f, T args,
                     const std::array<hsize_t,M>& /*extent*/):
@@ -208,11 +210,11 @@ namespace H5Utils {
           "writer");
       }
 
-      H5::CompType type(consumers.size() * sizeof(traits::data_buffer_t));
+      H5::CompType type(consumers.size() * sizeof(data_buffer_t));
       size_t dt_offset = 0;
       for (const SharedConsumer<I>& filler: consumers) {
         type.insertMember(filler->name(), dt_offset, filler->getType());
-        dt_offset += sizeof(traits::data_buffer_t);
+        dt_offset += sizeof(data_buffer_t);
       }
       return type;
     }
@@ -241,8 +243,8 @@ namespace H5Utils {
 
 
     template<typename I>
-    std::vector<traits::data_buffer_t> buildDefault(const std::vector<SharedConsumer<I> >& f) {
-      std::vector<traits::data_buffer_t> def;
+    std::vector<data_buffer_t> buildDefault(const std::vector<SharedConsumer<I> >& f) {
+      std::vector<data_buffer_t> def;
       for (const SharedConsumer<I>& filler: f) {
         def.push_back(filler->getDefault());
       }
@@ -292,7 +294,7 @@ namespace H5Utils {
     const internal::DSParameters<I,N> m_par;
     hsize_t m_offset;
     hsize_t m_buffer_rows;
-    std::vector<traits::data_buffer_t> m_buffer;
+    std::vector<internal::data_buffer_t> m_buffer;
     std::vector<SharedConsumer<I> > m_consumers;
     H5::DataSet m_ds;
     H5::DataSpace m_file_space;
@@ -309,22 +311,23 @@ namespace H5Utils {
     m_consumers(consumers.getConsumers()),
     m_file_space(H5S_SIMPLE)
   {
-    using common::packed;
+    using internal::packed;
+    using internal::data_buffer_t;
     if (batch_size < 1) {
       throw std::logic_error("batch size must be > 0");
     }
     // create space
-    H5::DataSpace space = common::getUnlimitedSpace(internal::vec(extent));
+    H5::DataSpace space = internal::getUnlimitedSpace(internal::vec(extent));
 
     // create params
-    H5::DSetCreatPropList params = common::getChunckedDatasetParams(
+    H5::DSetCreatPropList params = internal::getChunckedDatasetParams(
       internal::vec(extent), batch_size);
-    std::vector<traits::data_buffer_t> default_value = internal::buildDefault(
+    std::vector<data_buffer_t> default_value = internal::buildDefault(
       consumers.getConsumers());
     params.setFillValue(m_par.type, default_value.data());
 
     // create ds
-    common::throwIfExists(name, group);
+    internal::throwIfExists(name, group);
     m_ds = group.createDataSet(name, packed(m_par.type), space, params);
     m_file_space = m_ds.getSpace();
     m_file_space.selectNone();
@@ -336,9 +339,9 @@ namespace H5Utils {
     try {
       flush();
     } catch (H5::Exception& err) {
-      common::printDestructorError(err.getDetailMsg());
+      internal::printDestructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      common::printDestructorError(err.what());
+      internal::printDestructorError(err.what());
     }
   }
 

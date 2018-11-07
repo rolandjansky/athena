@@ -31,9 +31,6 @@ namespace H5Utils {
 
   namespace internal {
 
-    using traits::data_buffer_t;
-    using traits::H5Traits;
-
 
     /** @brief Buffer element harvester
      *
@@ -87,7 +84,7 @@ namespace H5Utils {
     }
     template <typename T>
     data_buffer_t VariableFiller<T>::get_buffer() const {
-      return internal::get_buffer_from_func<T>(m_getter);
+      return get_buffer_from_func<T>(m_getter);
     }
     template <typename T>
     H5::DataType VariableFiller<T>::get_type() const {
@@ -175,7 +172,7 @@ namespace H5Utils {
     std::vector<hsize_t> m_dim_stride;
     hsize_t m_batch_size;
     hsize_t m_offset;
-    std::vector<traits::data_buffer_t> m_buffer;
+    std::vector<internal::data_buffer_t> m_buffer;
     VariableFillers m_fillers;
     H5::DataSet m_ds;
   };

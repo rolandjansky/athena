@@ -8,7 +8,7 @@ files to HDF5 and to simplify writing HDF5 directly from jobs.
 Root to HDF5 Converter
 ----------------------
 
-Run `bin/ttree2hdf5` to convert your root tree to an HDF5 file.
+Run `ttree2hdf5` to convert your root tree to an HDF5 file.
 
 Branches that contain basic types (one value per entry in the tree)
 are stored as a 1D array of compound data type. Branches that store
@@ -115,17 +115,33 @@ ensure that all jets are written before exiting the job, but this will
 also be handled by the destructor.
 
 
+
 Hacking This Code
 =================
 
 I've _tried_ to make this code as modular and straightforward as
 possible. Of course if anything is unclear you should
-[file an issue][1].
+[file an issue][1] or a [jira ticket][1j].
 
-The main algorithm `ttree2hdf5` is a thin wrapper on
-`copy_root_tree`. Reading the code in `src/copy_root_tree.cxx` should
-be a decent introduction to the higher level classes you'll need to
-interact with.
+Repository Layout
+-----------------
+
+The user facing code is in a few headers in `HDF5Utils`:
+
+   - `Writer.h`: defines `Consumers` and `Writer`. Use this.
+   - `HdfTuple.h`: older interface to write hdf5 files, not recommended
+   - `H5Traits.h`: structures to add type safety. Not for users.
+   - `common.h`: utility functions, also not for users.
+
+We don't recommend that you touch anything in the `internal`
+namespace: these things are only in headers because the code uses lots
+of templates.
+
+### Utilities ###
+
+The utility `ttree2hdf5` is a thin wrapper on `copyRootTree`. Reading
+the code in `src/copyRootTree.cxx` should be a decent introduction to
+the higher level classes you'll need to interact with.
 
 To Do
 -----
@@ -144,6 +160,7 @@ package, and some modifications were required to build in the ATLAS
 environment. As such the two projects may diverge.
 
 [1]: https://github.com/dguest/ttree2hdf5/issues
+[1j]: https://its.cern.ch/jira/projects/ATLASG/
 [2]: https://github.com/dguest/th2hdf5
 [3]: https://github.com/dguest/ttree2hdf5
 

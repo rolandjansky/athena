@@ -53,27 +53,27 @@ namespace H5Utils {
       throw std::logic_error("batch size must be > 0");
     }
     // create space
-    H5::DataSpace space = common::getUnlimitedSpace(max_length);
+    H5::DataSpace space = internal::getUnlimitedSpace(max_length);
 
     // create params
-    H5::DSetCreatPropList params = common::getChunckedDatasetParams(
+    H5::DSetCreatPropList params = internal::getChunckedDatasetParams(
       max_length, batch_size);
 
     // calculate striding
-    m_dim_stride = common::getStriding(max_length);
+    m_dim_stride = internal::getStriding(max_length);
 
     // create ds
-    common::throwIfExists(name, group);
-    m_ds = group.createDataSet(name, common::packed(m_type), space, params);
+    internal::throwIfExists(name, group);
+    m_ds = group.createDataSet(name, internal::packed(m_type), space, params);
   }
 
   WriterXd::~WriterXd() {
     try {
       flush();
     } catch (H5::Exception& err) {
-      common::printDestructorError(err.getDetailMsg());
+      internal::printDestructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      common::printDestructorError(err.what());
+      internal::printDestructorError(err.what());
     }
   }
 
@@ -85,7 +85,7 @@ namespace H5Utils {
 
     // build buffer and _then_ insert it so that exceptions don't leave
     // the buffer in a weird state
-    std::vector<traits::data_buffer_t> temp;
+    std::vector<internal::data_buffer_t> temp;
 
     std::fill(indices.begin(), indices.end(), 0);
     for (size_t gidx = 0; gidx < m_dim_stride.front(); gidx++) {

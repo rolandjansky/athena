@@ -6,7 +6,7 @@
 #include "H5Cpp.h"
 
 namespace H5Utils {
-  namespace traits {
+  namespace internal {
 
     // bool is a special case, we need to define it with a more
     // complicated function

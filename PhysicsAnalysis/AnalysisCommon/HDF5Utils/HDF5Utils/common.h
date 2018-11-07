@@ -16,7 +16,7 @@ namespace H5 {
 #include <vector>
 
 namespace H5Utils {
-  namespace common {
+  namespace internal {
 
     // packing utility, to create a compact on-disk representation of
     // the HDF5 type.
