@@ -40,7 +40,8 @@ namespace SG {
     virtual void declare(IDataHandleHolder*)  = 0;
 
     virtual void setOwner( IDataHandleHolder* o ) = 0;
-    virtual IDataHandleHolder* owner() const = 0;
+    virtual const IDataHandleHolder* owner() const = 0;
+    virtual IDataHandleHolder* owner() = 0;
 
   };
 
@@ -131,7 +132,8 @@ namespace SG {
     virtual void declare( IDataHandleHolder* ) override;
 
     virtual void setOwner( IDataHandleHolder* o ) override { m_owner = o; }
-    virtual IDataHandleHolder* owner() const override { return m_owner; }
+    virtual const IDataHandleHolder* owner() const override { return m_owner; }
+    virtual IDataHandleHolder* owner() override { return m_owner; }
 
   private:
     
