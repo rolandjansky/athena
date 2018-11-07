@@ -36,7 +36,7 @@ class TrigL2TauCaloHypoAlgMT : public ::HypoBase {
   TrigL2TauCaloHypoAlgMT();
   ToolHandleArray< ITrigL2TauCaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
-  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "caloclusters", "caloclusters", "caloclusters in view" };  
+  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "caloclusters", "caloclusters", "caloclusters in view" };
   
 
 }; 

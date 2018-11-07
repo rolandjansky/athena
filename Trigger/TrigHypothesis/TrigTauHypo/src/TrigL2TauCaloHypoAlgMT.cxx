@@ -89,7 +89,7 @@ StatusCode TrigL2TauCaloHypoAlgMT::execute_r( const EventContext& context ) cons
     auto d = newDecisionIn( decisions.get(), name() );
 
 
-    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );
+    toolInput.emplace_back( d, roi, clusterHandle.cptr(), previousDecision );
 
      {
        auto el = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );

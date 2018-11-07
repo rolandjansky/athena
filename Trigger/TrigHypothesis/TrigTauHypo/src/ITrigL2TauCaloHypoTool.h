@@ -24,18 +24,18 @@ class ITrigL2TauCaloHypoTool
   virtual ~ITrigL2TauCaloHypoTool(){}
 
   struct ClusterInfo {
-  ClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::CaloCluster* c,
+  ClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const DataVector<xAOD::CaloCluster> *c,
 	       const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
       roi( r ), 
-      cluster(c), 
+      clustervector(c), 
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
     
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
-    const xAOD::CaloCluster* cluster;
+    const DataVector<xAOD::CaloCluster>* clustervector;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
