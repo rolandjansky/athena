@@ -115,8 +115,8 @@ StatusCode TrigSerializeConvHelper::initialize(){
 
 StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaqueAddress* iAddr, void *&ptr, bool isxAOD){
   ptr = 0;
-  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createObj for clname: " << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
-  
+  ATH_MSG_DEBUG("in TrigSerializeConvHelper::createObj for clname " << clname << " is xAOD? " << (isxAOD?"yes":"no"));
+
   //could alse get DATA (perhaps as boost::any) from the IOA
   TrigStreamAddress *addr = dynamic_cast<TrigStreamAddress*>(iAddr);
   if (!addr) {

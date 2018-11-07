@@ -34,8 +34,7 @@ StatusCode TrigSerializeGuidHelper::ClassNameToInts(const std::string &clname, u
   RootPropertyList pl = t.Properties();
   if (pl.HasProperty("ClassID")){
      std::string gecko = pl.PropertyAsString("ClassID");
-     if (msgLvl(MSG::DEBUG))
-        msg(MSG::DEBUG) << clname << " to ROOT known as " << cl << " has " << "ClassID=" << gecko << endmsg;
+     ATH_MSG_DEBUG( clname << " to ROOT known as " << cl << " has " << "ClassID=" << gecko );
 
      const Guid guid(gecko );
      iarr[0] = guid.data1();
@@ -44,7 +43,7 @@ StatusCode TrigSerializeGuidHelper::ClassNameToInts(const std::string &clname, u
      iarr[3] = guid.data4(4) << 24 | guid.data4(5) << 16 | guid.data4(6) << 8 | guid.data4(7);
   }
   else{
-    msg(MSG::WARNING) << "property list has no ClassID for class name " << clname << " aka (" << cl << ")" << endmsg;
+    ATH_MSG_WARNING( "property list has no ClassID for class name " << clname << " aka (" << cl << ")" );
     return StatusCode::FAILURE;
   }
 
@@ -66,8 +65,7 @@ StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::s
   guid.setData4(iarr[3] >> 8, 6);
   guid.setData4(iarr[3] & 0xFF, 7);
 
-  if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "constructed " << guid.toString() << " from ints" << endmsg;
+  ATH_MSG_DEBUG( "constructed " << guid.toString() << " from ints" );
 
   if( clname != "" ) {
      // Instead of getting a typename for a known guid (quite costly in ROOT6)
@@ -85,8 +83,7 @@ StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::s
      clname = cltype.Name(Reflex::SCOPED);
   }
 
-  if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "corresponds to " << clname << endmsg; 
+  ATH_MSG_DEBUG( "corresponds to " << clname );
 
   if (clname.empty()){
     return StatusCode::FAILURE;
