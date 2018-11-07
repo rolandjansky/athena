@@ -4,7 +4,8 @@
 
 #include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
 #include "TLorentzVector.h"
-
+#include "xAODBPhys/BPhysHelper.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace Analysis {   
     // *********************************************************************************
@@ -86,6 +87,25 @@ namespace Analysis {
            if(min <=0.0 || m >= min) return true;
         }
         return false;
+    }
+
+    const xAOD::Vertex* JpsiUpsilonCommon::ClosestPV(xAOD::BPhysHelper& bHelper, const xAOD::VertexContainer* importedPVerticesCollection){
+       const xAOD::Vertex* vtx_closest = nullptr; // vertex closest to bVertex track
+       double dc = 1e10;
+       for (const xAOD::Vertex* vtx : *importedPVerticesCollection) {
+          TVector3 posPV(vtx->position().x(),vtx->position().y(),vtx->position().z());
+          auto &helperpos = bHelper.vtx()->position();
+          TVector3 posV(helperpos.x(), helperpos.y(), helperpos.z());
+          TVector3 nV = bHelper.totalP().Unit();
+          TVector3 dposV = posPV-posV;
+          double dposVnV = dposV*nV;
+          double d = std::sqrt(std::abs(dposV.Mag2()-dposVnV*dposVnV));
+          if (d<dc) {
+             dc = d;
+             vtx_closest = vtx;
+          }
+       }
+       return vtx_closest;
     }
 }
 
