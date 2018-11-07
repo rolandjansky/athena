@@ -551,27 +551,14 @@ TScopeAdapter TScopeAdapter::ByName(
       const std::string& name, Bool_t load, Bool_t quiet )
 {
    return TScopeAdapter(name, load, quiet);
-
-   /* MN: causes problems in ROOT6, do we need it?
-   if (klass.GetClass() && klass->GetListOfAllPublicMethods()->GetSize() == 0) {
-   // sometimes I/O interferes, leading to zero methods: reload from CINT
-      ClassInfo_t* cl = gInterpreter->ClassInfo_Factory( name.c_str() );
-      if ( cl ) {
-         gInterpreter->SetClassInfo( klass, kTRUE );
-         gInterpreter->ClassInfo_Delete(cl);
-      }
-   }
-   return klass.GetClass();
-   */
 }
 
 //____________________________________________________________________________
 TScopeAdapter TScopeAdapter::TypeAt( size_t nth )
 {
-// this is dreadful, but is the way checkDictionary() works ... it better make
-// sure that it does not load extra classes inside its loop (seems to be how
-// it should be, but is not how it is)
-   return TScopeAdapter( gClassTable->At( nth ) ); 
+   const char *class_name = gClassTable->At( nth );
+   // prevent autoloading, as it could change gClassTable 
+   return class_name? TScopeAdapter( string(class_name), false, false ) : TScopeAdapter(); 
 }
 
 //____________________________________________________________________________
