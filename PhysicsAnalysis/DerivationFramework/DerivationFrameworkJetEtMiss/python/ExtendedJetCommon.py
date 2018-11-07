@@ -317,21 +317,36 @@ def updateJVT(jetalg,algname,sequence):
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
 
     jvttoolname = 'DFJetJvt_'+jetalg
+    jvtefftoolname = 'DFJetJvtEff_'+jetalg
     from AthenaCommon.AppMgr import ToolSvc
+
+    #setup the jvt updating tools if not already done
     if hasattr(ToolSvc,jvttoolname):
         jetaugtool.JetJvtTool = getattr(ToolSvc,jvttoolname)
     else:
-        jvttool = CfgMgr.JetVertexTaggerTool()
+        jvttool = CfgMgr.JetVertexTaggerTool() # this should pass in the right name
         ToolSvc += jvttool
         jetaugtool.JetJvtTool = jvttool
+
+    #now do the same for the efftool
+    if hasattr(ToolSvc,jvtefftoolname):
+        jetaugtool.JetJvtEffTool = getattr(ToolSvc,jvtefftoolname)
+        extjetlog.info('Setup the jvt eff tool {}'.format(jvtefftoolname))
+    else:
+        extjetlog.info('Setting up the jvt eff tool {}'.format(jvtefftoolname))
+        jvtefftool = CfgMgr.CP__JetJvtEfficiency(jvtefftoolname)
+        if 'PFlow' in jetalg:
+          jvtefftool.SFFile="JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root"
+        ToolSvc += jvtefftool
+        jetaugtool.JetJvtEffTool = jvtefftool
 
     extjetlog.info('ExtendedJetCommon: Updating JVT for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo']
+    supportedJets = ['AntiKt4EMTopo','AntiKt4EMPFlow']
     if not jetalg in supportedJets:
-        extjetlog.warning('*** JVT update requested for unsupported jet collection! ***')
+        extjetlog.warning('*** JVT update requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
