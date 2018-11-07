@@ -324,7 +324,7 @@ def updateJVT(jetalg,algname,sequence):
     if hasattr(ToolSvc,jvttoolname):
         jetaugtool.JetJvtTool = getattr(ToolSvc,jvttoolname)
     else:
-        jvttool = CfgMgr.JetVertexTaggerTool() # this should pass in the right name
+        jvttool = CfgMgr.JetVertexTaggerTool(jvttoolname) 
         ToolSvc += jvttool
         jetaugtool.JetJvtTool = jvttool
 
