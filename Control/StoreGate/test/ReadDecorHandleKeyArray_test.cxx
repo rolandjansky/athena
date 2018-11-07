@@ -131,28 +131,6 @@ void test2()
   h.m_inputHandles.push_back (&r1);
   h.m_outputHandles.push_back (&w1);
   assert (k1.initialize().isSuccess());
-
-  // Not sure this works. Shouldn't there be dependencies set? Now none are made
-  
-  // std::cout << "h.m_deps.size() = " << h.m_deps.size() << std::endl;
-
-  // assert (h.m_deps.size() == 2);
-  // assert (h.m_deps[0].fullKey() == "MyObj/StoreGateSvc+aaa");
-
-  // // Don't really know what the stuff below is testing.
-  // h.m_deps.clear();
-  // SG::ReadHandleKey<MyObj> r2 ("aaa");
-  // h.m_inputHandles.push_back (&r2);
-  // assert (k1.initialize().isSuccess());
-  // assert (h.m_deps.empty());
-  // h.m_inputHandles.pop_back();
-
-  // h.m_deps.clear();
-  // SG::WriteHandleKey<MyObj> w2 ("aaa");
-  // h.m_outputHandles.push_back (&w2);
-  // assert (k1.initialize().isSuccess());
-  // assert (h.m_deps.empty());
-  // h.m_outputHandles.pop_back();
 }
 
 

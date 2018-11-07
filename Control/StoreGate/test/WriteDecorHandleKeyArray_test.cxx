@@ -102,13 +102,6 @@ void test1()
   assert (k1[1].key() == "ccc.fee2");
   assert (k1[1].contHandleKey().key() == "ccc");
 
-  // Can't get this to work
-  // // let's try making the handles
-  // SGTest::TestStore dumstore;
-  // EventContext ctx;
-  // ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
-  // std::vector<SG::WriteDecorHandle<MyObj, float> > handles = k1.makeHandles(ctx);
-  // assert (handles.size() == 2);
 }
 
 void test1a()
@@ -139,13 +132,6 @@ void test1a()
   assert (k1[1].key() == "ccc.fee2");
   assert (k1[1].contHandleKey().key() == "ccc");
 
-  // Can't get this to work
-  // // let's try making the handles
-  // SGTest::TestStore dumstore;
-  // EventContext ctx;
-  // ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
-  // std::vector<SG::WriteDecorHandle<MyObj, float> > handles = k1.makeHandles(ctx);
-  // assert (handles.size() == 2);
 }
 
 
