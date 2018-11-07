@@ -16,7 +16,7 @@ namespace H5Utils {
     H5::CompType packed(H5::CompType in) {
       // TODO: Figure out why a normal copy constructor doesn't work here.
       //       The normal one seems to create shallow copies.
-      auto out = H5::CompType(H5Tcopy(in.getId()));
+      H5::CompType out(H5Tcopy(in.getId()));
       out.pack();
       return out;
     }

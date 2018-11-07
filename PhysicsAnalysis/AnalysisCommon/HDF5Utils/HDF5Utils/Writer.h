@@ -61,10 +61,10 @@ namespace H5Utils {
       DataConsumer(const std::string&,
                    const std::function<T(I)>&,
                    const T default_value = T());
-      data_buffer_t getBuffer(I) const;
-      data_buffer_t getDefault() const;
-      H5::DataType getType() const;
-      std::string name() const;
+      data_buffer_t getBuffer(I) const override;
+      data_buffer_t getDefault() const override;
+      H5::DataType getType() const override;
+      std::string name() const override;
     private:
       std::function<T(I)> m_getter;
       std::string m_name;
@@ -113,7 +113,7 @@ namespace H5Utils {
   template <typename I>
   using SharedConsumer = std::shared_ptr<internal::IDataConsumer<I> >;
   template <typename I>
-  class Consumers: public std::vector<SharedConsumer<I> >
+  class Consumers
   {
   public:
 
@@ -128,7 +128,10 @@ namespace H5Utils {
       add(name, std::function<T(I)>(func), def);
     }
 
+    std::vector<SharedConsumer<I> > getConsumers() const;
+
   private:
+    std::vector<SharedConsumer<I> > m_consumers;
     std::set<std::string> m_used;
   };
   ///@}
@@ -142,17 +145,19 @@ namespace H5Utils {
     if (m_used.count(name)) {
       throw std::logic_error("tried to insert '" + name + "' twice");
     }
-    this->push_back(
+    m_consumers.push_back(
       std::make_shared<internal::DataConsumer<T, I> >(name, fun, def_val));
     m_used.insert(name);
+  }
+  template <typename I>
+  std::vector<SharedConsumer<I> > Consumers<I>::getConsumers() const {
+    return m_consumers;
   }
 
 
   /// @brief internal code for the `Writer` class
   /// @{
   namespace internal {
-    template <size_t N>
-    using DimArray = std::array<hsize_t,N>;
 
     /// Data flattener class: this is used by the writer to read in the
     /// elements one by one and put them in an internal buffer.
@@ -160,13 +165,14 @@ namespace H5Utils {
     struct DataFlattener {
       std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
-      DataFlattener(const F& filler, T args, const DimArray<M>& dims):
+      DataFlattener(const F& filler, T args,
+                    const std::array<hsize_t,M>& extent):
         buffer() {
         hsize_t offset = 0;
         for (const auto& arg: args) {
-          const size_t this_dim_max = dims.at(N-1);
+          const size_t this_dim_max = extent.at(N-1);
           if (offset > this_dim_max) return;
-          DataFlattener<N-1, F, decltype(arg), M> in(filler, arg, dims);
+          DataFlattener<N-1, F, decltype(arg), M> in(filler, arg, extent);
           buffer.insert(buffer.end(), in.buffer.begin(), in.buffer.end());
           for (const auto& in_ele: in.element_offsets){
             std::array<hsize_t, N> element_pos;
@@ -182,7 +188,8 @@ namespace H5Utils {
     struct DataFlattener<0, F, T, M> {
       std::vector<traits::data_buffer_t> buffer;
       std::vector<std::array<hsize_t, 0> > element_offsets;
-      DataFlattener(const F& f, T args, const DimArray<M>& /*dims*/):
+      DataFlattener(const F& f, T args,
+                    const std::array<hsize_t,M>& /*extent*/):
         buffer(),
         element_offsets(1) {
         for (const auto& filler: f) {
@@ -194,7 +201,7 @@ namespace H5Utils {
     /// Adapter to translate configuration info into the objects
     /// needed by the writer.
     template<typename I>
-    H5::CompType buildType(const Consumers<I>& consumers) {
+    H5::CompType buildType(const std::vector<SharedConsumer<I> >& consumers) {
       if (consumers.size() < 1) {
         throw std::logic_error(
           "you must specify at least one consumer when initializing the HDF5"
@@ -203,7 +210,7 @@ namespace H5Utils {
 
       H5::CompType type(consumers.size() * sizeof(traits::data_buffer_t));
       size_t dt_offset = 0;
-      for (const auto& filler: consumers) {
+      for (const SharedConsumer<I>& filler: consumers) {
         type.insertMember(filler->name(), dt_offset, filler->getType());
         dt_offset += sizeof(traits::data_buffer_t);
       }
@@ -213,7 +220,7 @@ namespace H5Utils {
     /// Constant parameters for the writer
     template <typename I, size_t N>
     struct DSParameters {
-      DSParameters(const Consumers<I>& fillers,
+      DSParameters(const std::vector<SharedConsumer<I> >& fillers,
                    const std::array<hsize_t,N>& extent,
                    hsize_t batch_size);
       H5::CompType type;
@@ -223,10 +230,10 @@ namespace H5Utils {
 
     // DS parameters
     template <typename I, size_t N>
-    DSParameters<I,N>::DSParameters(const Consumers<I>& consumers,
-                                    const std::array<hsize_t,N>& extent_,
-                                    hsize_t batch_size_):
-      type(buildType(consumers)),
+    DSParameters<I,N>::DSParameters(const std::vector<SharedConsumer<I> >& cons,
+      const std::array<hsize_t,N>& extent_,
+      hsize_t batch_size_):
+      type(buildType(cons)),
       extent(extent_),
       batch_size(batch_size_)
     {
@@ -234,9 +241,9 @@ namespace H5Utils {
 
 
     template<typename I>
-    std::vector<traits::data_buffer_t> buildDefault(const Consumers<I>& f) {
+    std::vector<traits::data_buffer_t> buildDefault(const std::vector<SharedConsumer<I> >& f) {
       std::vector<traits::data_buffer_t> def;
-      for (const auto& filler: f) {
+      for (const SharedConsumer<I>& filler: f) {
         def.push_back(filler->getDefault());
       }
       return def;
@@ -286,7 +293,7 @@ namespace H5Utils {
     hsize_t m_offset;
     hsize_t m_buffer_rows;
     std::vector<traits::data_buffer_t> m_buffer;
-    Consumers<I> m_consumers;
+    std::vector<SharedConsumer<I> > m_consumers;
     H5::DataSet m_ds;
     H5::DataSpace m_file_space;
   };
@@ -296,10 +303,10 @@ namespace H5Utils {
                        const Consumers<I>& consumers,
                        const std::array<hsize_t,N>& extent,
                        hsize_t batch_size):
-    m_par(consumers, extent, batch_size),
+    m_par(consumers.getConsumers(), extent, batch_size),
     m_offset(0),
     m_buffer_rows(0),
-    m_consumers(consumers),
+    m_consumers(consumers.getConsumers()),
     m_file_space(H5S_SIMPLE)
   {
     using common::packed;
@@ -312,7 +319,8 @@ namespace H5Utils {
     // create params
     H5::DSetCreatPropList params = common::getChunckedDatasetParams(
       internal::vec(extent), batch_size);
-    auto default_value = internal::buildDefault(consumers);
+    std::vector<traits::data_buffer_t> default_value = internal::buildDefault(
+      consumers.getConsumers());
     params.setFillValue(m_par.type, default_value.data());
 
     // create ds
