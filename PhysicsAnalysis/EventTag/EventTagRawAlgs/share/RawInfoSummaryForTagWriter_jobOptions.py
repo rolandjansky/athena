@@ -19,13 +19,14 @@ if rec.doInDet():
 #MBTS threshold
 risftwriter.MBTS_Threshold = (60.0/222.0)
         
-topSequence += risftwriter
-
+if rec.doInDet() and rec.doCalo():
+    topSequence += risftwriter
+    
     
 # store the object in the ESD
-from RecExConfig.ObjKeyStore import objKeyStore
-objKeyStore.addStreamESD( "RawInfoSummaryForTag", "RawInfoSummaryForTag" )
-objKeyStore.addStreamAOD( "RawInfoSummaryForTag", "RawInfoSummaryForTag" )
+    from RecExConfig.ObjKeyStore import objKeyStore
+    objKeyStore.addStreamESD( "RawInfoSummaryForTag", "RawInfoSummaryForTag" )
+    objKeyStore.addStreamAOD( "RawInfoSummaryForTag", "RawInfoSummaryForTag" )
 
 
 
