@@ -1,6 +1,7 @@
 #********************************************************************
 # HIGG6D2.py (for H+ -> tau-lep)
-# reductionConf flag HIGG6D2 in Reco_tf.py   
+# reductionConf flag HIGG6D2 in Reco_tf.py
+# author: sina.bahrasemani@cern.ch
 #********************************************************************
 
 # Set up common services and job object. 
@@ -68,33 +69,6 @@ augmentationTools.append(HIGG6D2TauWrapper)
 # SKIMMING 
 #=======================================================================
 
-
-# Tau truth matching tool
-#=======================================================================
-
-#truth matching
-#if is_MC:
-#    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-#    HIGG6D2TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG6D2TauTruthMatchingTool",
-#                                                                         WriteTruthTaus = True)
-#
-#
-#    ToolSvc += HIGG6D2TauTruthMatchingTool
-#
-#    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-#    HIGG6D2TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG6D2TauTruthMatchingWrapper",
-#                                                                                TauTruthMatchingTool = HIGG6D2TauTruthMatchingTool,
-#                                                                                TauContainerName     = "TauJets")
-#
-#    ToolSvc += HIGG6D2TauTruthMatchingWrapper
-#    augmentationTools.append(HIGG6D2TauTruthMatchingWrapper)
-
-
-# MC selection 
-#====================================================================
-MCselection = '1'
-#if is_MC: MCselection = '(EventInfo.eventTypeBitmask==1)'
-
 # tau selection - tau pt>25GeV, with Ntracks=1,3 and |q_\tau|=1 and |eta|<2.6
 #====================================================================
 tauSel = "(TauJets.pt > 25*GeV"\
@@ -104,42 +78,35 @@ tauSel = "(TauJets.pt > 25*GeV"\
          
 # Trigger selection 
 #====================================================================
+## REFERENCE: https://twiki.cern.ch/twiki/bin/view/Atlas/LowestUnprescaled
 if jobproperties.Beam.energy()==6500000.0:
   # 13 TeV name should be HLT_xxx
-  singleElectronTriggerRequirement = "(HLT_e24_lhmedium_L1EM20VH"\
-                                     "|| HLT_e60_lhmedium"\
-                                     "|| HLT_e120_lhloose"\
-                                     "|| HLT_e24_lhtight_nod0_ivarloose"\
-                                     "|| HLT_e60_lhmedium_nod0"\
-                                     "|| HLT_e60_medium"\
-                                     "|| HLT_e140_lhloose_nod0"\
-                                     "|| HLT_e300_etcut"\
-                                     "|| HLT_e26_lhtight_nod0_ivarloose)"
+  singleElectronTriggerRequirement = [
+    "HLT_e24_lhmedium_L1EM20VH",
+    "HLT_e24_lhtight_nod0_ivarloose",
+    "HLT_e26_lhtight_nod0_ivarloose",
+    "HLT_e26_lhtight_nod0"
+    "HLT_e60_lhmedium_nod0",
+    "HLT_e60_medium",
+    "HLT_e60_lhmedium",
+    "HLT_e120_lhloose",
+    "HLT_e140_lhloose_nod0",
+    "HLT_e300_etcut",
+  ]
+  singleMuonTriggerRequirement = [
+    "HLT_mu20_iloose_L1MU15",
+    "HLT_mu60_0eta105_msonly",
+    "HLT_mu24_iloose",
+    "HLT_mu24_ivarloose",
+    "HLT_mu40",
+    "HLT_mu50",
+    "HLT_mu24_ivarmedium",
+    "HLT_mu24_imedium",
+    "HLT_mu26_ivarmedium",
+    "HLT_mu26_imedium",
+  ]
   
-  singleMuonTriggerRequirement = "(HLT_mu20_iloose_L1MU15"\
-                                 "|| HLT_mu40"\
-                                 "|| HLT_mu60_0eta105_msonly"\
-                                 "|| HLT_mu24_iloose"\
-                                 "|| HLT_mu24_ivarloose"\
-                                 "|| HLT_mu40"\
-                                 "|| HLT_mu50"\
-                                 "|| HLT_mu24_ivarmedium"\
-                                 "|| HLT_mu24_imedium"\
-                                 "|| HLT_mu26_ivarmedium)"
-
-  singleLepTrigger='('+singleElectronTriggerRequirement+'||'+singleMuonTriggerRequirement+')'
-    
-  TauMETtrigSel = "(HLT_tau35_medium1_tracktwo_L1TAU20_xe70_L1XE45"\
-                  "|| HLT_tau35_medium1_tracktwo_xe70_L1XE45"\
-                  "|| HLT_xe70"\
-                  "|| HLT_xe80"\
-                  "|| HLT_xe100"\
-                  "|| HLT_j30_xe10_razor170"\
-                  "|| HLT_j30_xe10_razor185"\
-                  "|| HLT_j30_xe60_razor170 )"
-  
-  BjetTrigger = 'HLT_j75_bmedium_3j75'
- 
+  singleLepTrigger = " ({0})".format("||".join(singleElectronTriggerRequirement+singleMuonTriggerRequirement))
   
 # lepton selection
 #========================================================================
@@ -169,9 +136,9 @@ jetSelEMCalib = "count(({0}.DFCommonJets_Calib_pt > 20.0*GeV)&& (abs({0}.DFCommo
 jetSel = "({0}) || ({1})".format(jetSelEM, jetSelEMCalib)
 
 
-# - - - - - - - -  SKIMMING TOOL 
-expression = "({0}) &&  ( ( ({1}) && (count({2}) >= 1) ) || ({3}) ) && ({4}) && ({5})".format(
-  jetSel, lepSel, tauSel, lepSel2, MCselection, singleLepTrigger)
+# - - - - Skimming Tool 
+expression = "({0}) &&  ( ( ({1}) && (count({2}) >= 1) ) || ({3}) )  && ({4})".format(
+  jetSel, lepSel, tauSel, lepSel2, singleLepTrigger)
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG6D2SkimmingTool = DerivationFramework__xAODStringSkimmingTool(
@@ -235,7 +202,6 @@ HIGG6D2EMTopoJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
   ThinningService=HIGG6D2ThinningHelper.ThinningSvc(),
   JetKey="AntiKt4EMTopoJets",
   InDetTrackParticlesKey="InDetTrackParticles",
-  #SelectionString="AntiKt4EMTopoJets.pt > 10*GeV", #<! doesn't make a big difference
   ApplyAnd=True)
 
 thinningTools.append(HIGG6D2EMTopoJetTPThinningTool)
@@ -250,7 +216,6 @@ HIGG6D2LCTopoJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
   ThinningService=HIGG6D2ThinningHelper.ThinningSvc(),
   JetKey="AntiKt4LCTopoJets",
   InDetTrackParticlesKey="InDetTrackParticles",
-  #SelectionString="AntiKt4LCTopoJets.pt > 10*GeV", #<! doesn't make a big difference
   ApplyAnd=True)
 
 thinningTools.append(HIGG6D2LCTopoJetTPThinningTool)
@@ -329,29 +294,28 @@ ToolSvc += HIGG6D2ElectronTPThinningTool
 
 # Truth particles thinning
 #====================================================================
-
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 HIGG6D2TruthThinningTool = DerivationFramework__MenuTruthThinning(
-  name                       = "HIGG6D2TruthThinningTool",
-  ThinningService            = "HIGG6D2ThinningSvc",
-  WritePartons               = False,
-  WriteHadrons               = False,
-  WriteBHadrons              = True,
-  WriteGeant                 = False,
-  GeantPhotonPtThresh        = -1.0,
-  WriteTauHad                = True,
-  PartonPtThresh             = -1.0,
-  WriteBSM                   = True,
-  WriteBosons                = True,
-  WriteBSMProducts           = True,
-  WriteTopAndDecays          = True,
-  WriteEverything            = False,
-  WriteAllLeptons            = False,
-  WriteLeptonsNotFromHadrons = True,
-  WriteStatus3               = True,
-  WriteFirstN                = -1,
-  PreserveGeneratorDescendants = True,
-  PreserveDescendants = False)
+  name="HIGG6D2TruthThinningTool",
+  ThinningService="HIGG6D2ThinningSvc",
+  WritePartons=False,
+  WriteHadrons=False,
+  WriteBHadrons=True,
+  WriteGeant=False,
+  GeantPhotonPtThresh=-1.0,
+  WriteTauHad=True,
+  PartonPtThresh=-1.0,
+  WriteBSM=True,
+  WriteBosons=True,
+  WriteBSMProducts=True,
+  WriteTopAndDecays=True,
+  WriteEverything=False,
+  WriteAllLeptons=False,
+  WriteLeptonsNotFromHadrons=True,
+  WriteStatus3=True,
+  WriteFirstN=-1,
+  PreserveGeneratorDescendants=True,
+  PreserveDescendants=False)
 
 if is_MC:
     ToolSvc += HIGG6D2TruthThinningTool
@@ -447,16 +411,9 @@ if is_MC:
   HIGG6D2SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink","MuonTruthParticles.truthOrigin.truthType"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 
-# Add MET_RefFinalFix
-## FIX ME: this one adds AllVariables to the above collections which is not allowed !! 
-# addMETOutputs(HIGG6D2SlimmingHelper,["AntiKt4LCTopo","AntiKt4EMTopo","Track"])
-
 HIGG6D2SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeEGammaTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeTauTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeEtMissTriggerContent = True
-
-# HIGG6D2SlimmingHelper.IncludeJetTriggerContent = True
-
 
 HIGG6D2SlimmingHelper.AppendContentToStream(HIGG6D2Stream)
