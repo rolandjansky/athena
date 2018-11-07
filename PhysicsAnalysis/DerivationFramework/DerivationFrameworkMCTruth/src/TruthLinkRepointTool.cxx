@@ -40,14 +40,14 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 {
   // Retrieve the truth collections
   const DataHandle<xAOD::TruthParticleContainer> target(nullptr);
-  CHECK(evtStore()->retrieve(target, m_targetKey));
+  ATH_CHECK(evtStore()->retrieve(target, m_targetKey));
 
   SG::AuxElement::Decorator< ElementLink<xAOD::TruthParticleContainer> > output_decorator(m_decOutput);
 
   // Handle separate cases: Photons, Electrons, Muons, Jets
   if (std::string::npos!=m_recoKey.find("Electron")){
     const DataHandle<xAOD::ElectronContainer> inputCont(nullptr);
-    CHECK(evtStore()->retrieve(inputCont, m_recoKey));
+    ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input); 
       int index = find_match(truthPart,target);
@@ -55,7 +55,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Photon")){
     const DataHandle<xAOD::PhotonContainer> inputCont(nullptr);
-    CHECK(evtStore()->retrieve(inputCont, m_recoKey));
+    ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
       int index = find_match(truthPart,target);
@@ -63,7 +63,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Muon")){
     const DataHandle<xAOD::MuonContainer> inputCont(nullptr);
-    CHECK(evtStore()->retrieve(inputCont, m_recoKey));
+    ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
       int index = find_match(truthPart,target);
