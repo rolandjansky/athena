@@ -1430,6 +1430,19 @@ class WriteDAOD_EXOT26Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT26Stream)
 listAODtoDPD.append(WriteDAOD_EXOT26Stream.StreamName)
 
+class WriteDAOD_EXOT27Stream(JobProperty):
+    """EXOT27: My test for monoHbb"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT27'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT26.p7"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT27Stream)
+listAODtoDPD.append(WriteDAOD_EXOT27Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
