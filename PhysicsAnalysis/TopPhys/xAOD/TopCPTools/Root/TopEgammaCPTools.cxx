@@ -257,7 +257,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Scale factors are still from 20.7!
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
-    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH");
+    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH", "");
     // The tools want the files in vectors: remove this with function
     std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
     // Charge Id efficiency scale factor
@@ -265,7 +265,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
     // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
     CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
     //top::check( ChargeMisIDCorrections->setProperty("OutputLevel",  MSG::VERBOSE ) , "Failed to setProperty" );
-    m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", "MediumLLH");
+    m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
     top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile) , "Failed to setProperty" );
     top::check( ChargeMisIDCorrections->initialize() , "Failed to setProperty" );
   }
@@ -339,7 +339,7 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   return tool;
 }
 
-std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID) {
+  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO) {
 
   const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/";
 
@@ -356,13 +356,18 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
   } else if (type == "ChargeID") {
     if (ID != "MediumLLH") ATH_MSG_WARNING("Only Medium WP available at the moment " + ID);
     file_path = "charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolFixedCutTight_MediumCFT.root";
+    file_path = el_calib_path + file_path;
   } else if (type == "ChargeMisID") {
-    if (ID != "MediumLLH") ATH_MSG_WARNING("Only Medium WP available at the moment " + ID);
-    file_path = "charge_misID/ChargeCorrectionSF.Medium_FixedCutTightIso_CFTMedium.root";
+    file_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/";
+    file_path += "chargeEfficiencySF.";
+    file_path += ID;
+    file_path += "_d0z0_v13_";
+    file_path += ISO;
+    file_path += ".root";
   } else {
     ATH_MSG_ERROR("Unknown electron SF type");
   }
-  return PathResolverFindCalibFile(el_calib_path + file_path);
+  return PathResolverFindCalibFile(file_path);
 }
 
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
