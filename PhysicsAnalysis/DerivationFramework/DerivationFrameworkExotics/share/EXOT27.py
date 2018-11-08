@@ -81,17 +81,6 @@ EXOT27AcceptAlgs.append("EXOT27PreliminaryKernel")
 ################################################################################
 # Create the new jet sequence in JetCommon (if it doesn't already exist)
 JetCommon.OutputJets.setdefault("EXOT27Jets", [])
-# I don't know if we actually care about the track jets any more but I'm adding
-# them in for now. Same goes for the truth jets
-replace_jet_list = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
-if JetCommon.jetFlags.useTruth:
-  replace_jet_list += ["AntiKt4TruthJets"]
-ExtendedJetCommon.replaceAODReducedJets(
-    jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
-
-logger.info("Output jets:")
-logger.info(JetCommon.OutputJets["EXOT27Jets"])
-
 # Create the VR track jets
 # The 'addVRJets' function creates the track jets and then ghost associates them
 # to the AntiKt10LCTopo jets. Two issues with this - one, it doesn't give us the
@@ -100,49 +89,44 @@ logger.info(JetCommon.OutputJets["EXOT27Jets"])
 # Therefore instead use the buildVRJets function directly. Note that this has a
 # do_ghost parameter and I'm not sure what it does - it doesn't control the
 # creation of the ghosts for the VR jets...
-# NOTE: This seems to fail if the track jets are not build as it tries to access
-# a non-existent pseudojet getter!
-# vr_track_jets, vr_track_jets_ghosts = HbbCommon.buildVRJets(
-#     sequence = EXOT27Seq, do_ghost = False, logger = logger)
-# JetCommon.OutputJets["EXOT27Jets"].append(vr_track_jets)
+vr_track_jets, vr_track_jets_ghosts = HbbCommon.buildVRJets(
+    sequence = EXOT27Seq, do_ghost = False, logger = logger)
+JetCommon.OutputJets["EXOT27Jets"].append(vr_track_jets)
 
-HbbCommon.addVRJets(EXOT27Seq)
-JetCommon.OutputJets["EXOT27Jets"].append("AntiKtVR30Rmax4Rmin02TrackJets")
+# I don't know if we actually care about the track jets any more but I'm adding
+# them in for now. Same goes for the truth jets
+# We need the AntiKt10LCTopo jets here though so that the trimmed jets are
+# produced correctly
+replace_jet_list = [
+  "AntiKt2PV0TrackJets",
+  "AntiKt4PV0TrackJets",
+  "AntiKt10LCTopoJets"]
+if JetCommon.jetFlags.useTruth:
+  replace_jet_list += ["AntiKt4TruthJets"]
+ExtendedJetCommon.replaceAODReducedJets(
+    jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
 
 
-ExtendedJetCommon.addDefaultTrimmedJets(
-    sequence=EXOT27Seq, outputlist="EXOT27Jets")
+# Includes the 5% pT trimmed R=1.0 jets
+ExtendedJetCommon.addDefaultTrimmedJets(EXOT27Seq, "EXOT27Jets")
 
+# Add the default VR calo jets (rho=600 GeV)
 HbbCommon.addVRCaloJets(EXOT27Seq, "EXOT27Jets")
+
+# Add the default soft drop collection
+ExtendedJetCommon.addCSSKSoftDropJets(EXOT27Seq, "EXOT27Jets")
 
 to_be_associated_to = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-  "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets"
+  "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
+  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
   ]
-# to_associate = [
-#   vr_track_jets_ghosts
-#   ]
+to_associate = [
+  vr_track_jets_ghosts
+  ]
     
-# for collection in to_be_associated_to:
-#   EXOT27Utils.addPseudojetgettersToJetCollection(collection, to_associate)
-
-for i, v in enumerate(jtm.AntiKtVR30Rmax4Rmin02TrackJets.PseudoJetGetters):
-  if isinstance(v, basestring) and '/' not in v:
-    jtm.AntiKtVR30Rmax4Rmin02TrackJets.PseudoJetGetters[i] = jtm[v]
-
-logger.info("Private sequence: ")
-logger.info(EXOT27Seq)
-logger.info(str(EXOT27Seq))
-logger.info(repr(EXOT27Seq))
-logger.info(dir(EXOT27Seq) )
-for alg in EXOT27Seq:
-  logger.info(alg)
-logger.info("Private sequence end")
-
-logger.info("jtm tools")
-logger.info(jtm.tools)
-for k, v in jtm.AntiKtVR30Rmax4Rmin02TrackJets.properties().iteritems():
-  logger.info("{0:<30}: {1}".format(k, v) )
+for collection in to_be_associated_to:
+  EXOT27Utils.addPseudojetgettersToJetCollection(collection, to_associate)
 
 ################################################################################
 # Setup thinning (remove objects from collections)
@@ -237,14 +221,14 @@ EXOT27SlimmingHelper.AllVariables = [
   "METAssoc_AntiKt4EMTopo",
   "TruthParticles",
   "TruthLabelBQuarksFinal",
-  "AntiKtVR30Rmax4Rmin02TrackJets"
+  vr_track_jets
   ]
 JetCommon.addJetOutputs(
     slimhelper = EXOT27SlimmingHelper,
     contentlist=["EXOT27Jets"],
     smartlist = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
     )
-logging.info("BQuarksFinal OutputName: {0}".format(jtm.CopyTruthTagBQuarksFinal.OutputName) )
+EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
 
 ################################################################################
 # Finalise
