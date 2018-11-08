@@ -236,6 +236,11 @@ def TrigInDetConfig( flags ):
   #theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   #acc.addEventAlgo(theTrackParticleCreatorAlg)
 
+  acc.merge( MainServicesSerialCfg( ) )
+  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+  gmc,geoSvc = GeoModelCfg( ConfigFlags )
+  acc.merge( gmc )
+
 
   return acc
 
@@ -251,8 +256,7 @@ if __name__ == "__main__":
     acc = ComponentAccumulator()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    acc.merge( TrigInDetConfig( ConfigFlags ))
-    acc.merge( MainServicesSerialCfg( ))
+    acc.merge( TrigInDetConfig( ConfigFlags ) )
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
