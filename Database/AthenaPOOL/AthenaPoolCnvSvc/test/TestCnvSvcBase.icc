@@ -32,7 +32,7 @@ public:
   virtual std::string getOutputContainer(const std::string& /*typeName*/,
                                          const std::string& /*key*/ = "") const override
   { std::abort(); }
-  virtual pool::DbType technologyType() const override
+  virtual pool::DbType technologyType(const std::string& /*containerName*/) const override
   { std::abort(); }
   virtual IPoolSvc* getPoolSvc() override
   { std::abort(); }

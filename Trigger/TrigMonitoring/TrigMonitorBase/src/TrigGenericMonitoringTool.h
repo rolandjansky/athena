@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMONITORBASE_TRIGGENERICMONITORINGTOOL_H
@@ -292,7 +292,7 @@ private:
     P m_variable1{0};
     P m_variable2{0};
     P m_variable3{0};
-  };  
+  };
   
   StatusCode createFiller(const HistogramDef& def); //!< creates filler and adds to the list of active fillers
   
@@ -318,9 +318,9 @@ private:
   TH1* create1D( TH1*& histo, const HistogramDef& def );
   template<class H> 
   TH1* createProfile( TProfile*& histo, const HistogramDef& def );
-  template<class H> 
+  template<class H>
   TH1* create2D( TH2*& histo, const HistogramDef& def );
-  template<class H> 
+  template<class H>
   TH1* create2DProfile( TProfile2D*& histo, const HistogramDef& def );
 };
 

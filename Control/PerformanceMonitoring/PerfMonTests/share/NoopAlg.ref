@@ -7,9 +7,9 @@ Py:Athena            INFO including file "PerfMonTests/atn_test_perfMonSvc_noopa
 
 ################################################################################
 ## testing PerfMonSvc [PerfMonTests/test_perfMonSvc_noopalg.py]
-                  ==> [perfmon.noopalg.root]... (10000)
- :::running [..............] ==> [OK]
- :::running [.......................] ==> [OK]
+                  ==> [perfmon.noopalg.root]... (5000)
+ :::running [...............................] ==> [OK]
+ :::running [............................] ==> [OK]
  :::running [perfmon.py]...
 ## [DONE]
 

@@ -23,7 +23,7 @@
 
 export NAME="slice_minbias_hmt_grid"
 export SLICE="minbiasEnhanced"
-export MENU="Physics_pp_v7"
+export MENU="Physics_pp_v7_primaries"
 export EVENTS="50"
 export COST_MONITORING="False"
 

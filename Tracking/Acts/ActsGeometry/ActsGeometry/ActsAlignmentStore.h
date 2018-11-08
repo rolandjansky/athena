@@ -7,7 +7,7 @@
 
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "GeoModelUtilities/TransformMap.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 
 #include "Acts/Utilities/Definitions.hpp"

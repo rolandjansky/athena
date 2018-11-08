@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETKEYDESCRIPTOR_H
@@ -79,7 +79,7 @@ class JetKeyDescriptor
   
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(JetKeyDescriptor,71458009,1)
 
 struct JetKeyConstants {

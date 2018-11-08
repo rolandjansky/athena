@@ -84,7 +84,7 @@ fullItemList+=["xAOD::ShallowAuxContainer#scopy_cvecWDAux."]
 fullItemList+=["DMTest::CVec#scopy_ctrig"]
 fullItemList+=["xAOD::ShallowAuxContainer#scopy_ctrigAux."]
 fullItemList+=["DMTest::C#scopy_cinfo"]
-fullItemList+=["xAOD::ShallowAuxContainer#scopy_cinfoAux."]
+fullItemList+=["xAOD::ShallowAuxInfo#scopy_cinfoAux."]
 fullItemList+=["DMTest::HVec#scopy_hvec"]
 fullItemList+=["xAOD::ShallowAuxContainer#scopy_hvecAux."]
 

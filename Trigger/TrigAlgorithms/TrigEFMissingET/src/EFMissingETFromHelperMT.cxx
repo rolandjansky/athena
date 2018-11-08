@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -71,17 +71,12 @@ StatusCode EFMissingETFromHelperMT::finalize()
 
 
 
-StatusCode EFMissingETFromHelperMT::execute()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode EFMissingETFromHelperMT::update(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper ) const
 {
-  return EFMissingETFromHelperMT::execute(met, metHelper);
+  return EFMissingETFromHelperMT::executeMT(met, metHelper);
 }
 
-StatusCode EFMissingETFromHelperMT::execute(xAOD::TrigMissingET *met ,
+StatusCode EFMissingETFromHelperMT::executeMT(xAOD::TrigMissingET *met ,
     TrigEFMissingEtHelper *metHelper) const
 {
   ATH_MSG_DEBUG( "EFMissingETFromHelperMT::execute() called" );

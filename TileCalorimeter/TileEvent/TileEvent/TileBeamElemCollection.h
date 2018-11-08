@@ -22,6 +22,13 @@ public:
   TileBeamElemCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(ownPolicy) { }
 
+  /**
+   * @brief Copy constructor.
+   * @param other Collection to copy.
+   * Does a deep copy of the contents.
+   */
+  TileBeamElemCollection (const TileBeamElemCollection& other);
+
   ~TileBeamElemCollection() { }
 };
 

@@ -22,7 +22,7 @@ MetadataTest::MetadataTest(const std::string& name, ISvcLocator* pSvcLocator) :
    AthAlgorithm(name, pSvcLocator),
    m_hkey("CutBookkeepers","MetaDataStore"),
    m_eihkey("StreamAOD","MetaDataStore"),
-   //m_eihkey2("DataStream","MetaDataStore"),
+   m_eihkey2("DataStream","MetaDataStore"),
    m_esidone(false)
 {
 }
@@ -35,7 +35,7 @@ StatusCode MetadataTest::start()
   // Get proper dbkey.
    ATH_CHECK( m_hkey.initialize() );  
    ATH_CHECK( m_eihkey.initialize() );
-   //ATH_CHECK( m_eihkey2.initialize() );
+   ATH_CHECK( m_eihkey2.initialize() );
    m_esidone = false;
    return StatusCode::SUCCESS;
 }
@@ -70,7 +70,6 @@ StatusCode MetadataTest::execute()
      } else {
        ATH_MSG_ERROR("Did not retrieve EventStreamInfo " << m_eihkey.objKey());
      }
-/*
      m_eihkey2.setDbKey(sid);
      SG::ReadMetaHandle<EventStreamInfo> eikey2(m_eihkey2,this->getContext());
      const EventStreamInfo* esi2(*eikey2);
@@ -79,7 +78,6 @@ StatusCode MetadataTest::execute()
      } else {
        ATH_MSG_ERROR("Did not retrieve EventStreamInfo " << m_eihkey2.objKey());
      }
-*/
      m_esidone=true;
    }
 

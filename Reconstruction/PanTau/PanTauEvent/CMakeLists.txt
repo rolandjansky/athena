@@ -8,8 +8,7 @@ atlas_subdir( PanTauEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Event/FourMom
                           Event/xAOD/xAODPFlow
                           Event/xAOD/xAODTau
@@ -30,12 +29,12 @@ atlas_add_library( PanTauEvent
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools FourMom xAODPFlow xAODTau tauEvent
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaKernel FourMom xAODPFlow xAODTau tauEvent
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel JetEvent Particle )
 
 atlas_add_dictionary( PanTauEventDict
                       PanTauEvent/PanTauEventDict.h
                       PanTauEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers SGTools FourMom xAODPFlow xAODTau tauEvent GaudiKernel JetEvent Particle PanTauEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthenaKernel FourMom xAODPFlow xAODTau tauEvent GaudiKernel JetEvent Particle PanTauEvent )
 

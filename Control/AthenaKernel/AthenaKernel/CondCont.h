@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 //
 /**
@@ -137,6 +137,12 @@ public:
   virtual void list (std::ostream& ost) const = 0;
 
 
+  /**
+   * @brief Dump the container to cout.  For calling from the debugger.
+   */
+  void print() const;
+
+  
   /**
    * @brief Return the number of conditions objects in the container.
    */
@@ -277,6 +283,20 @@ public:
 
 
   /**
+   * @brief Extend the range of the last IOV.
+   * @param newRange New validity range.
+   * @param ctx Event context.
+   *
+   * Returns failure if the start time of @c newRange does not match the start time
+   * of the last IOV in the container.  Otherwise, the end time for the last
+   * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+   * is before the end of the last IOV, then nothing is changed.)
+   */
+  virtual StatusCode extendLastRange (const EventIDRange& newRange,
+                                      const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+
+
+  /**
    * @brief Make a run+lbn key from an EventIDBase.
    * @param Event ID to convert.
    */
@@ -333,6 +353,17 @@ public:
     bool inRange (key_type t, const RangeKey& r) const
     {
       return t >= r.m_start && t< r.m_stop;
+    }
+    bool extendRange (RangeKey& r, const RangeKey& newRange) const
+    {
+      if (r.m_start != newRange.m_start) {
+        return false;
+      }
+      if (newRange.m_stop > r.m_stop) {
+        r.m_stop = newRange.m_stop;
+        r.m_range = newRange.m_range;
+      }
+      return true;
     }
   };
 
@@ -716,6 +747,10 @@ public:
    * @brief Return the maximum size of the map.
    */
   virtual size_t maxSize() const override;
+
+
+  virtual StatusCode extendLastRange (const EventIDRange& newRange,
+                                      const EventContext& ctx = Gaudi::Hive::currentContext()) override;
 
 
 protected:

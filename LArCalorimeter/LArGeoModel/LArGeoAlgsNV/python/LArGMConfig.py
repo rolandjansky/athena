@@ -16,10 +16,10 @@ def LArGMCfg(configFlags):
     if doAlignment:
         if configFlags.Input.isMC:
             #Monte Carlo case:
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL")[0])
+            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL"))
         else:
             #Regular offline data processing
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL")[0])
+            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
 
             
     return result

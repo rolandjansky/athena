@@ -142,7 +142,7 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   }
 
   // get the surface accessor
-  const Trk::ObjectAccessor &surfAcc =
+  Trk::ObjectAccessor surfAcc =
     vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
   // initialize the currentBoundary surface
   const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = 0;
@@ -160,13 +160,13 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   ATH_MSG_VERBOSE("g  [N] Starting parameters are :" << parms);
 
   // loop over the the boundary surfaces according to the accessor type
-  for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
+  for (const Trk::ObjectAccessor::value_type &surface_id : surfAcc) {
     ++tryBoundary;
     // ----------------- output to screen if outputLevel() says so --------
-    ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surfAcc.accessor()
+    ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
                              << " of Volume: '" << vol.volumeName() << "'.");
     // get the boundary Surface according to the surfaceAccessor
-    currentBoundary = vol.boundarySurface(surfAcc);
+    currentBoundary = vol.boundarySurface(surface_id);
     const Trk::Surface &currentSurface = currentBoundary->surfaceRepresentation();
 
     const Trk::TrackParameters *trackPar = 0;
@@ -219,7 +219,7 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
   // ---------------------------------------------------
   // get the object accessor from the Volume
-  const Trk::ObjectAccessor &surfAcc =
+  Trk::ObjectAccessor surfAcc =
     vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
   // the object accessor already solved the outside question
   bool outsideVolume = surfAcc.inverseRetrieval();
@@ -251,18 +251,18 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
   auto backwardSecondBoundSwitch=m_backwardSecondBoundSwitch.buffer();
   auto backwardThirdBoundSwitch=m_backwardThirdBoundSwitch.buffer();
 
-  for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
+  for (const Trk::ObjectAccessor::value_type &surface_id : surfAcc) {
     ++tryBoundary;
     // get the boundary surface associated to the surfaceAccessor
-    currentBoundary = vol.boundarySurface(surfAcc);
+    currentBoundary = vol.boundarySurface(surface_id);
 
     // ----------------- output to screen if outputLevel() says so --------
     if (!currentBoundary) {
-      ATH_MSG_WARNING("  [N] " << tryBoundary << ". try - BoundarySurface " << surfAcc.accessor()
+      ATH_MSG_WARNING("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
                                << " of Volume: '" << vol.volumeName() << "' NOT FOUND.");
       continue;
     } else {
-      ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surfAcc.accessor()
+      ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
                                << " of Volume: '" << vol.volumeName() << "'.");
     }
 
@@ -300,7 +300,7 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
       }
 
       validationFill(trackPar);
-      return Trk::NavigationCell(nextVolume, trackPar, Trk::BoundarySurfaceFace(surfAcc.accessor()));
+      return Trk::NavigationCell(nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
     }
 
     // ---------------------------------------------------

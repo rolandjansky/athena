@@ -79,7 +79,7 @@ namespace pool  {
     /// Standard Constructor
     RootOOTreeIndex() : RootOODb(ROOTTREEINDEX_StorageType)   {  }
     /// Label of the specific class
-    static const char* catalogLabel()  {   return "ROOT_TreeIndex";        }
+    static const char* catalogLabel()  {   return "ROOT_Tree";        }
   };
 
 }       // end namespace pool

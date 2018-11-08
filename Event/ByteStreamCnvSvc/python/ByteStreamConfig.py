@@ -46,11 +46,9 @@ def TrigBSReadCfg( inputFlags ):
 
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
     iovMetaDataTool = IOVDbMetaDataTool()
-    acc.addPublicTool( iovMetaDataTool )    
 
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
     bsMetaDataTool = ByteStreamMetadataTool()
-    acc.addPublicTool( bsMetaDataTool )
 
     from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   
@@ -74,7 +72,7 @@ def TrigBSReadCfg( inputFlags ):
     
            
     # this is trigger specific and should only be loaded if some doTrigger flags is set
-    # or it shoudl be moved elsewhere, however, since there is no better location now let is stick here
+    # or it should be moved elsewhere, however, since there is no better location now let is stick here
     bsCnvSvc.InitCnvs += [ "EventInfo",
                         "ROIB::RoIBResult",
                         "HLT::HLTResult" ]

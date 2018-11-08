@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -303,13 +303,55 @@ void test2 (TestRCUSvc& rcusvc)
 }
 
 
+std::string dump_cc (const CondCont<B>& cc)
+{
+  std::ostringstream ss;
+  for (const EventIDRange& r : cc.ranges()) {
+    const B* p = nullptr;
+    assert (cc.find (r.start(), p));
+    ss << r << " [" << p->m_x << "]\n";
+  }
+  return ss.str();
+}
+
+
+// Test an extensible container.
+void test3 (TestRCUSvc& rcusvc)
+{
+  std::cout << "test3\n";
+  DataObjID id ("key");
+  CondCont<B> cc (rcusvc, id);
+
+  const B* b = nullptr;
+  assert (!cc.find (runlbn (10, 15), b));
+
+  assert (cc.insert (EventIDRange (runlbn (10, 15), runlbn (10, 20)),
+                     std::make_unique<B>(1)));
+  assert (cc.insert (EventIDRange (runlbn (10, 30), runlbn (10, 35)),
+                     std::make_unique<B>(2)));
+  assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:35]} [2]\n");
+
+  assert (cc.extendLastRange (EventIDRange (runlbn (10, 30), runlbn (10, 37))).isSuccess());
+  assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:37]} [2]\n");
+
+  assert (cc.extendLastRange (EventIDRange (runlbn (10, 30), runlbn (10, 33))).isSuccess());
+  assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:37]} [2]\n");
+
+  assert (cc.extendLastRange (EventIDRange (runlbn (10, 31), runlbn (10, 33))).isFailure());
+  assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:37]} [2]\n");
+}
+
+
+//*******************************************************************************
+
+
 std::shared_timed_mutex start_mutex;
 
 
-class test3_Base
+class testThread_Base
 {
 public:
-  test3_Base (int slot);
+  testThread_Base (int slot);
   const EventContext& ctx() const { return m_ctx; }
   void setContext();
 
@@ -319,23 +361,23 @@ private:
 };
 
 
-test3_Base::test3_Base (int slot)
+testThread_Base::testThread_Base (int slot)
   : m_ctx (0, slot)
 {
 }
 
 
-void test3_Base::setContext()
+void testThread_Base::setContext()
 {
   Gaudi::Hive::setCurrentContext (m_ctx);
 }
 
 
-class test3_Writer
-  : public test3_Base
+class testThread_Writer
+  : public testThread_Base
 {
 public:
-  test3_Writer (int slot, CondCont<B>& map);
+  testThread_Writer (int slot, CondCont<B>& map);
   void operator()();
   EventIDRange makeRange (int i);
 
@@ -344,14 +386,14 @@ private:
 };
 
 
-test3_Writer::test3_Writer (int slot, CondCont<B>& map)
-  : test3_Base (slot),
+testThread_Writer::testThread_Writer (int slot, CondCont<B>& map)
+  : testThread_Base (slot),
     m_map (map)
 {
 }
 
 
-void test3_Writer::operator()()
+void testThread_Writer::operator()()
 {
   setContext();
   std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
@@ -371,7 +413,7 @@ void test3_Writer::operator()()
 }
 
 
-EventIDRange test3_Writer::makeRange (int i)
+EventIDRange testThread_Writer::makeRange (int i)
 {
   EventIDBase start (0, 0, EventIDBase::UNDEFNUM, 0, i*10);
   EventIDBase stop  (0, 0, EventIDBase::UNDEFNUM, 0, (i+1)*10);
@@ -379,11 +421,11 @@ EventIDRange test3_Writer::makeRange (int i)
 }
 
 
-class test3_Iterator
-  : public test3_Base
+class testThread_Iterator
+  : public testThread_Base
 {
 public:
-  test3_Iterator (int slot, CondCont<B>& map);
+  testThread_Iterator (int slot, CondCont<B>& map);
   void operator()();
 
 private:
@@ -391,14 +433,14 @@ private:
 };
 
 
-test3_Iterator::test3_Iterator (int slot, CondCont<B>& map)
-  : test3_Base (slot),
+testThread_Iterator::testThread_Iterator (int slot, CondCont<B>& map)
+  : testThread_Base (slot),
     m_map (map)
 {
 }
 
 
-void test3_Iterator::operator()()
+void testThread_Iterator::operator()()
 {
   setContext();
   std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
@@ -433,11 +475,11 @@ void test3_Iterator::operator()()
 }
 
 
-class test3_Reader
-  : public test3_Base
+class testThread_Reader
+  : public testThread_Base
 {
 public:
-  test3_Reader (int slot, CondCont<B>& map);
+  testThread_Reader (int slot, CondCont<B>& map);
   void operator()();
 
 private:
@@ -446,15 +488,15 @@ private:
 };
 
 
-test3_Reader::test3_Reader (int slot, CondCont<B>& map)
-  : test3_Base (slot),
+testThread_Reader::testThread_Reader (int slot, CondCont<B>& map)
+  : testThread_Base (slot),
     m_map (map),
     m_seed (slot * 123)
 {
 }
 
 
-void test3_Reader::operator()()
+void testThread_Reader::operator()()
 {
   setContext();
   std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
@@ -479,7 +521,7 @@ void test3_Reader::operator()()
 }
 
 
-void test3_iter (TestRCUSvc& rcusvc)
+void testThread_iter (TestRCUSvc& rcusvc)
 {
   DataObjID id ("key");
   CondCont<B> condcont (rcusvc, id, nullptr, 20);
@@ -488,10 +530,10 @@ void test3_iter (TestRCUSvc& rcusvc)
   std::thread threads[nthread];
   start_mutex.lock();
 
-  threads[0] = std::thread (test3_Writer (0, condcont));
-  threads[1] = std::thread (test3_Iterator (1, condcont));
-  threads[2] = std::thread (test3_Reader (2, condcont));
-  threads[3] = std::thread (test3_Reader (3, condcont));
+  threads[0] = std::thread (testThread_Writer (0, condcont));
+  threads[1] = std::thread (testThread_Iterator (1, condcont));
+  threads[2] = std::thread (testThread_Reader (2, condcont));
+  threads[3] = std::thread (testThread_Reader (3, condcont));
 
   // Try to get the threads starting as much at the same time as possible.
   start_mutex.unlock();
@@ -500,12 +542,12 @@ void test3_iter (TestRCUSvc& rcusvc)
 }
 
 
-void test3 (TestRCUSvc& rcusvc)
+void testThread (TestRCUSvc& rcusvc)
 {
-  std::cout << "test3\n";
+  std::cout << "testThread\n";
 
   for (int i=0; i < 10; i++) {
-    test3_iter (rcusvc);
+    testThread_iter (rcusvc);
   }
 }
 
@@ -525,5 +567,6 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test1 (rcusvc);
   test2 (rcusvc);
   test3 (rcusvc);
+  testThread (rcusvc);
   return 0;
 }

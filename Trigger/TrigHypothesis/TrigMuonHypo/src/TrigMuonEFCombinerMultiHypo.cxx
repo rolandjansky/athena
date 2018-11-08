@@ -38,7 +38,6 @@ TrigMuonEFCombinerMultiHypo::TrigMuonEFCombinerMultiHypo(const std::string & nam
   m_bins = 0;
   m_mult = 0;
   m_storeGate=0;
-
 }
 
 TrigMuonEFCombinerMultiHypo::~TrigMuonEFCombinerMultiHypo(){
@@ -87,8 +86,8 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltInitialize(){
       return HLT::BAD_JOB_SETUP;
     }
 
-    msg() << MSG::INFO << "DoNscan: "<<m_nscan<<endmsg;
 
+    ATH_MSG_INFO("DoNscan: "<<m_nscan);
   }
 
   msg() << MSG::INFO
