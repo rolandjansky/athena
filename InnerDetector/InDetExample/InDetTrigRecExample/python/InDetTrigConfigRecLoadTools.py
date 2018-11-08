@@ -92,31 +92,31 @@ if InDetTrigFlags.loadRotCreator():
     
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
-    if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
+    do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+    from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    if do_runI :
       TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
-                                                                    PixelLorentzAngleTool= TrigPixelLorentzAngleTool,
-                                                                    NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                    doRunI = True,
-                                                                    useToT = False,
-                                                                    useRecenteringNNWithoutTracks = True,
-                                                                    useRecenteringNNWithTracks = False,
+                                                                    PixelLorentzAngleTool              = TrigPixelLorentzAngleTool,
+                                                                    doRunI                             = True,
+                                                                    useToT                             = False,
+                                                                    useRecenteringNNWithoutTracks      = True,
+                                                                    useRecenteringNNWithTracks         = False,
                                                                     correctLorShiftBarrelWithoutTracks = 0,
-                                                                    correctLorShiftBarrelWithTracks = 0.030,
-                                                                    LoadNoTrackNetwork   = True,
-                                                                    LoadWithTrackNetwork = True)
+                                                                    correctLorShiftBarrelWithTracks    = 0.030,
+                                                                    NnCollectionReadKey                = 'PixelClusterNN',
+                                                                    NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
     else:
-        TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= TrigPixelLorentzAngleTool,
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      useToT = InDetTrigFlags.doNNToTCalibration(),
-                                                                      LoadWithTrackNetwork = True)
-           
+        TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                         = "TrigNnClusterizationFactory",
+                                                                      PixelLorentzAngleTool        = TrigPixelLorentzAngleTool,
+                                                                      useToT                       = InDetTrigFlags.doNNToTCalibration(),
+                                                                      NnCollectionReadKey          = 'PixelClusterNN',
+                                                                      NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
+
     ToolSvc += TrigNnClusterizationFactory
     
     from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
-      conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
     if InDetTrigFlags.doTIDE_RescalePixelCovariances() :
       if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
         conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
