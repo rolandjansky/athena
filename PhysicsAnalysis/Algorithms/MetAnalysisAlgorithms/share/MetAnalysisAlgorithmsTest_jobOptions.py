@@ -23,6 +23,16 @@ sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
 algSeq += sysLoader
 
+# Include, and then set up the jet analysis algorithm sequence:
+from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
+jetContainer = 'AntiKt4EMTopoJets'
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+print( jetSequence ) # For debugging
+
+# Add all algorithms to the job:
+algSeq += jetSequence
+
 # Set up a selection alg for demonstration purposes
 # Also to avoid warnings from building MET with very soft electrons
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
@@ -48,12 +58,12 @@ print( viewalg ) # For debugging
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType, metSuffix = 'AntiKt4EMTopo' )
-metSequence.configure( inputName = { 'jets'      : 'AntiKt4EMTopoJets',
+metSequence = makeMetAnalysisSequence( dataType, metSuffix = jetContainer[:-4] )
+metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
                                      'muons'     : 'Muons',
                                      'electrons' : 'METElectrons_%SYS%' },
                        outputName = 'AnalysisMET_%SYS%',
-                       affectingSystematics = { 'jets'      : '(^$)',
+                       affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
                                                 'muons'     : '(^$)',
                                                 'electrons' : '(^$)' } )
 print( metSequence ) # For debugging

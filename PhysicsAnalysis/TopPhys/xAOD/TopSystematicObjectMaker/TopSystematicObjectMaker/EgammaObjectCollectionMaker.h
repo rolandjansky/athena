@@ -95,6 +95,7 @@ namespace top{
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightCaloOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutLoose;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutHighPtCaloOnly;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCHighPtCaloOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
 

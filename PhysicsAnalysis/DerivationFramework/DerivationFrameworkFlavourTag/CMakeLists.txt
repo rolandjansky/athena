@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library(   DerivationFrameworkFlavourTagLib
                      src/*.cxx
+		     PUBLIC_HEADERS DerivationFrameworkFlavourTag
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
                      xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
                      BoostedJetTaggersLib JetCalibToolsLib FlavorTagDiscriminants )

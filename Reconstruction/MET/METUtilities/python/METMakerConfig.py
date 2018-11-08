@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
     from AthenaCommon import CfgMgr
 
@@ -14,7 +13,7 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
     metMaker = CfgMgr.met__METMaker('METMaker_'+suffix,
                                     DoPFlow=doPFlow,
                                     DoSoftTruth=doTruth,
-                                    JetSelection=jetSelection,
+                                    JetSelection=jetSelection
                                     );
     ToolSvc += metMaker
 
@@ -38,6 +37,7 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
         jetColl = suffix+'Jets'
         if doTruth:
             jetColl = suffix.split('_')[1]+'Jets'
+
     makerAlg = CfgMgr.met__METMakerAlg('METMakerAlg_'+suffix,
                                        METMapName='METAssoc_'+suffix,
                                        METCoreName='MET_Core_'+suffix,

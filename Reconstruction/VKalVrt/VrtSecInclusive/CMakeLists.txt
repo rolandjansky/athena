@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODEgamma
+                          Event/xAOD/xAODJet
                           GaudiKernel
                           Generators/GeneratorObjects
                           Reconstruction/RecoTools/ITrackToVertex
@@ -42,13 +43,13 @@ atlas_add_library( VrtSecInclusiveLib
                    src/*.cxx
                    PUBLIC_HEADERS VrtSecInclusive
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTracking xAODTruth xAODMuon xAODEgamma GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces StoreGateLib SGtests TrkVKalVrtFitterLib AtlasDetDescr InDetIdentifier
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTracking xAODTruth xAODMuon xAODEgamma xAODJet GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces StoreGateLib SGtests TrkVKalVrtFitterLib AtlasDetDescr InDetIdentifier
                    PRIVATE_LINK_LIBRARIES xAODEventInfo TrkTrackSummary VxVertex )
 
 atlas_add_component( VrtSecInclusive
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODEventInfo xAODTracking xAODTruth xAODMuon xAODEgamma GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVKalVrtFitterLib TrkVertexFitterInterfaces xAODEventInfo TrkTrackSummary VxVertex VrtSecInclusiveLib AtlasDetDescr InDetIdentifier )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODEventInfo xAODTracking xAODTruth xAODMuon xAODEgamma xAODJet GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVKalVrtFitterLib TrkVertexFitterInterfaces xAODEventInfo TrkTrackSummary VxVertex VrtSecInclusiveLib AtlasDetDescr InDetIdentifier )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

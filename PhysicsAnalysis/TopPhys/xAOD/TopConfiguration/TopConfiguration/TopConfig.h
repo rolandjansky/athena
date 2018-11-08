@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 809688 2017-08-23 16:14:15Z iconnell $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -11,10 +10,6 @@
  *
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
- *
- * $Revision: 809688 $
- * $Date: 2017-08-23 17:14:15 +0100 (Wed, 23 Aug 2017) $
- *
  *
  **/
 
@@ -904,10 +899,10 @@ class TopConfig final {
   // Function to set the options for global trigger tool
   void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
   inline bool useGlobalTrigger() const { return m_trigGlobalConfiguration.isActivated; } // Was this requested by the user
-  inline std::string getGlobalTriggerElectronTriggerString()      const { return m_trigGlobalConfiguration.electron_trigger; } // Trigger string to be parsed
-  inline std::string getGlobalTriggerElectronTriggerLooseString() const { return m_trigGlobalConfiguration.electron_trigger_loose;} // Trigger string to be parsed  
-  inline std::string getGlobalTriggerMuonTriggerString()          const { return m_trigGlobalConfiguration.muon_trigger; } // Trigger string to be parsed  
-  inline std::string getGlobalTriggerMuonTriggerLooseString()     const { return m_trigGlobalConfiguration.muon_trigger_loose; } // Trigger string to be parsed  
+  inline auto const & getGlobalTriggerElectronTriggers() const { return m_trigGlobalConfiguration.electron_trigger; }
+  inline auto const & getGlobalTriggerElectronTriggersLoose() const { return m_trigGlobalConfiguration.electron_trigger_loose; }
+  inline auto const & getGlobalTriggerMuonTriggers() const { return m_trigGlobalConfiguration.muon_trigger; }
+  inline auto const & getGlobalTriggerMuonTriggersLoose() const { return m_trigGlobalConfiguration.muon_trigger_loose; }
   inline bool useGlobalTriggerConfiguration() const { return m_trigGlobalConfiguration.isConfigured; } // Was this subsequently configured
   inline std::vector<std::string> getGlobalTriggerElectronSystematics() const { return m_trigGlobalConfiguration.electron_trigger_systematics; }
   inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const { return m_trigGlobalConfiguration.muon_trigger_systematics; }
@@ -1345,14 +1340,15 @@ class TopConfig final {
   // manage systematic variations through this tool
 
   struct{
+    typedef std::unordered_map<std::string, std::vector<std::string>> triggermap_t;
     // -- Set from cutfile --//
     // Boolean to be set to true if the user activates a flag
     bool isActivated  = false;
-    // Trigger strings formatted as PERIOD1@trigger1,trigger2 PERIOD2@trigger3,trigger4
-    std::string electron_trigger;
-    std::string electron_trigger_loose;
-    std::string muon_trigger;
-    std::string muon_trigger_loose;
+    // Maps of periods -> list of triggers
+    triggermap_t electron_trigger;
+    triggermap_t electron_trigger_loose;
+    triggermap_t muon_trigger;
+    triggermap_t muon_trigger_loose;
 
     // -- Set from TopCPTools  --//
     // Boolean to be set to true if we set this information

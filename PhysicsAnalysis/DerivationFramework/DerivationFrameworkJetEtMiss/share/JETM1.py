@@ -17,14 +17,30 @@ from DerivationFrameworkJetEtMiss import TriggerLists
 triggers = TriggerLists.jetTrig()
 
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
-orstr =' || '
-trigger = '('+orstr.join(triggers)+')'
-expression = trigger+' || (EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+expression = ' (EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "JETM1TrigSkimmingTool1",
+                                                                TriggerListOR          = triggers )
+ToolSvc += JETM1TrigSkimmingTool
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1SkimmingTool1",
+JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1OfflineSkimmingTool1",
                                                                     expression = expression)
-ToolSvc += JETM1SkimmingTool
+ToolSvc += JETM1OfflineSkimmingTool
+
+# OR of the above two selections
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
+ToolSvc+=JETM1ORTool
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+
+jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
+DerivationFrameworkJob += jetm1Seq
 
 #====================================================================
 # SET UP STREAM
@@ -34,12 +50,14 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_JETM1Stream )
 JETM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM1Stream.AcceptAlgs(["JETM1Kernel"])
 
+
 #=======================================
 # ESTABLISH THE THINNING HELPER
 #=======================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM1ThinningHelper = ThinningHelper( "JETM1ThinningHelper" )
 JETM1ThinningHelper.AppendToStream( JETM1Stream )
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -62,6 +80,17 @@ JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM1ElectronTPThinningTool
 thinningTools.append(JETM1ElectronTPThinningTool)
+
+
+
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM
+#=======================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
+                                                         SkimmingTools = [JETM1ORTool],
+                                                         ThinningTools = thinningTools)
 
 # Truth particle thinning
 doTruthThinning = True
@@ -87,22 +116,6 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
 
     ToolSvc += JETM1TruthThinningTool
     thinningTools.append(JETM1TruthThinningTool)
-
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-
-jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
-DerivationFrameworkJob += jetm1Seq
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
-                                                         SkimmingTools = [JETM1SkimmingTool],
-                                                         ThinningTools = thinningTools)
 
 #====================================================================
 # Special jets

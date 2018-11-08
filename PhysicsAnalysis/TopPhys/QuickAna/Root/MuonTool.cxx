@@ -65,6 +65,8 @@ namespace ana
 
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear_17, CP::MuonCalibrationAndSmearingTool));
     ATH_CHECK (m_calib_smear_17.setProperty ("Year", "Data17"));
+    ATH_CHECK (m_calib_smear_17.setProperty ("SagittaRelease", "sagittaBiasDataAll_30_07_18"));
+    ATH_CHECK (m_calib_smear_17.setProperty ("SagittaCorr", true));
     ATH_CHECK (m_calib_smear_17.initialize());
     registerTool (&*m_calib_smear_17);
 

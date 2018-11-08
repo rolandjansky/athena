@@ -130,6 +130,9 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
+    bool eleIsoSFExist(std::string eleWP);
+    bool muIsoSFExist(std::string muWP);
+
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
@@ -313,6 +316,8 @@ namespace ST {
 
     float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) override final;
 
+    float GetCorrectedActualInteractionsPerCrossing(bool includeDataSF=false) override final;
+
     double GetSumOfWeights(int channel) override final;
 
     unsigned int GetRandomRunNumber(bool muDependentRRN = true) override final;
@@ -326,7 +331,7 @@ namespace ST {
     StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
                               const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) override final;
 
-    StatusCode NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons = nullptr, const xAOD::MuonContainer *muons = nullptr) const override final;
+    StatusCode NearbyLeptonCorrections( xAOD::ElectronContainer *electrons = nullptr, xAOD::MuonContainer *muons = nullptr) const override final;
 
     CP::SystematicCode resetSystematics() override final;
 
@@ -403,7 +408,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool();
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/mc16_13TeV/", bool usePathResolver = true);
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -486,6 +491,7 @@ namespace ST {
     bool m_doPhiReso;
 
     bool m_autoconfigPRW;
+    std::string m_autoconfigPRWPath;
     std::string m_mcCampaign;
 
     std::vector<std::string> m_prwConfFiles;
@@ -493,7 +499,6 @@ namespace ST {
     std::string m_prwActualMu2017File;
     std::string m_prwActualMu2018File;
 
-    double m_muUncert;
     double m_prwDataSF;
     double m_prwDataSF_UP;
     double m_prwDataSF_DW;
@@ -513,6 +518,7 @@ namespace ST {
     std::string m_eleIdBaseline;
     std::string m_eleConfig;
     std::string m_eleConfigBaseline;
+    std::string m_eleBaselineIso_WP;
     bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
@@ -520,13 +526,14 @@ namespace ST {
     std::string m_photonIdBaseline;
     std::string m_tauId;
     std::string m_tauIdBaseline;
-    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix)
     std::string m_eleIso_WP;
     std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
+    std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
     std::string m_photonTriggerName;
+    std::string m_muBaselineIso_WP;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
@@ -568,7 +575,6 @@ namespace ST {
     bool   m_photonBaselineCrackVeto;
     bool   m_photonCrackVeto;
     bool   m_photonAllowLate;
-    std::string m_photonEffMapFilePath;
 
     double m_tauPrePtCut;
     double m_tauPt;
@@ -576,7 +582,6 @@ namespace ST {
     std::string m_tauConfigPath;
     std::string m_tauConfigPathBaseline;
     bool   m_tauDoTTM;
-    bool   m_tauRecalcOLR;
 
     double m_jetPt;
     double m_jetEta;
@@ -629,8 +634,11 @@ namespace ST {
     bool m_doElIsoSignal;
     bool m_doPhIsoSignal;
     bool m_doMuIsoSignal;
-    bool m_doIsoCloseByOR;
-
+    
+    bool m_useSigLepForIsoCloseByOR;
+    std::string m_IsoCloseByORpassLabel;
+    
+    
     std::string m_metJetSelection;
 
     int  m_showerType;
@@ -755,6 +763,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     //
@@ -806,6 +815,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
+  const static SG::AuxElement::ConstAccessor<float> acc_DetEta("DetectorEta");
 
 
 } // namespace ST

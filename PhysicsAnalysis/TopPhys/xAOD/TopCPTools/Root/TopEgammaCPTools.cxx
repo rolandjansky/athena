@@ -19,7 +19,6 @@
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
-#include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
 #include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
@@ -117,18 +116,6 @@ StatusCode EgammaCPTools::setupCalibration() {
 	       "Failed to initialize " + egamma_calib_name);
     m_egammaCalibrationAndSmearingTool = egammaCalibrationAndSmearingTool;
   }
-
-  // - Electron Charge ID Selector Tool
-  // The only supported working point is Medium with 97% integrated efficiency
-  // Note: this working point is to be applied on top of MediumLLH + d0z0 cuts + isolFixedCutTight
-  // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronChargeFlipTaggerTool
-  std::string toolName="ECIDS_medium";
-  AsgElectronChargeIDSelectorTool* electronChargeIDSelectorTool = new AsgElectronChargeIDSelectorTool(toolName);
-  std::string trainingfile="ElectronPhotonSelectorTools/ChargeID/ECIDS_20161125for2017Moriond.root";
-  float BDT_OP=-0.28087; //Set your operating point with the table above.
-  top::check( electronChargeIDSelectorTool->setProperty("TrainingFile",trainingfile) , "Failed to setProperty" );
-  top::check( electronChargeIDSelectorTool->setProperty("CutOnBDT",BDT_OP) , "Failed to setProperty" );
-  top::check( electronChargeIDSelectorTool->initialize() , "Failed to initialize" );
 
   // The terribly named ElectronPhotonShowerShapeFudgeTool...
   // We apply this only to photons to correct the shower shape
@@ -264,9 +251,10 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType);
   m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
 
-  // Charge ID cannot use maps at the moment so we defualt to the old method
+  // Charge ID cannot use maps at the moment so we default to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
+  // Scale factors are still from 20.7!
   if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH");
@@ -320,10 +308,6 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
       top::check(asg::setProperty(tool, "ForceDataType", data_type), "Failed to set ForceDataType to " + name);
       // Set the correlation model for all tools
       top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"), "Failed to set CorrelationModel to " + name);
-      // Before settings the keys, we need to take into account FixedCutHighPtCaloOnly does not have any trigger isolation scale factors
-      if(trigger_key != "" && trigger_key != "None" && iso_key == "FixedCutHighPtCaloOnly"){
-	iso_key = ""; // Remove isolation from trigger key configuration (only valid with triggers which are not isolation dependent)
-      }
       // Set the keys which configure the tool options (empty string means we do not include this key)
       if(reco_key != "" && reco_key != "None"){
 	ATH_MSG_INFO(" Adding RecoKey    : " + reco_key);
@@ -341,6 +325,13 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
       if(trigger_key != "" && trigger_key != "None"){
 	ATH_MSG_INFO(" Adding TriggerKey : " + trigger_key);
         top::check(asg::setProperty(tool, "TriggerKey", trigger_key), "Failed to set TriggerKey to " + name);
+      }
+      // temporary fix because trigger SFs haven't been updated yet
+      // see ANALYSISTO-688
+      if(trigger_key !="" && trigger_key != "None" && iso_key.find("FC") != std::string::npos) {
+	// in this case we replace "FC" by "FixedCutTight", following the old naming convention
+	iso_key = iso_key.replace(iso_key.find("FC"),2,"FixedCut");
+	top::check(asg::setProperty(tool, "IsoKey", iso_key), "Failed to set IsoKey to " + name);
       }
       // Initialise this tool
       top::check(tool->initialize(), "Failed to initialize " + name);
@@ -377,20 +368,20 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ID"){
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "isolation"){
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "trigger"){
-      file_path = "map6.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

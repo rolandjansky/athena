@@ -58,7 +58,7 @@ namespace
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root";
-  const char *jesFile = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
+  const char *jesFile = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
   const char *jesFile_AFII = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config";
   const std::string uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config";
   const char *mcType = "MC16";
@@ -134,9 +134,9 @@ namespace ana
     const std::string configFile = m_isAFII ? jesFile_AFII : jesFile;
 
     const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
-                                          : "JetArea_Residual_EtaJES_GSC";
+                                          : "JetArea_Residual_EtaJES_GSC_Smear";
 
-    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-81") );
+    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-82") );
 #endif
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
@@ -194,10 +194,10 @@ namespace ana
 
     // JVT efficiency SF
     //  From https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JVTCalibration
-    // @TODO update tool creation mechanism
+    const std::string jvtEffFile = "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root";
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvtEffTool, CP::JetJvtEfficiency) );
     // The default working point is the recommended one
-    //ATH_CHECK( m_jvtEffTool.setProperty("WorkingPoint","Default") );
+    ATH_CHECK( m_jvtEffTool.setProperty("SFFile", jvtEffFile) );
     ATH_CHECK( m_jvtEffTool.initialize() );
     registerTool (&*m_jvtEffTool);
 
@@ -520,7 +520,7 @@ namespace ana
                  "FixedCutBEff_77"))
 
   QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_HZZ",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
+    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MANUAL,
                  "FixedCutBEff_85"))
 
   QUICK_ANA_JET_DEFINITION_MAKER( "AntiKt4EMTopo_SUSY",

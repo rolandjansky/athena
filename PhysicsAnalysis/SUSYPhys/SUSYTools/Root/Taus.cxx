@@ -76,31 +76,6 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   ATH_MSG_VERBOSE( "Starting FillTau on tau with pT = " << input.pt()/1000 << " GeV" );
   ATH_MSG_VERBOSE( "TAU pT before smearing " << input.pt()/1000 << " GeV");
 
-  // Re-decorate BDT score if requested (Bugfix for 20.7.8.2 derivations)
-  if(m_tauIDrecalc){
-    if(input.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore)){
-      ATH_MSG_VERBOSE( "TAU Unflattened BDT Score " << input.discriminant(xAOD::TauJetParameters::BDTJetScore));
-      
-      // if(input.hasDiscriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans)) 
-      // 	ATH_MSG_VERBOSE( "TAU Buggy Flattened BDT score " << input.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
-      
-      // We actually need to decorate some information to the tau to work properly
-      const xAOD::EventInfo* evtInfo = 0;
-      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-      
-      static SG::AuxElement::Accessor<float> acc_mu("MU");
-      acc_mu(input) = evtInfo->averageInteractionsPerCrossing();
-      static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
-      acc_numTrack(input) = input.nTracks();
-      
-      // No re-calculating the BDT score in R21
-      // ATH_MSG_VERBOSE( "TAU Fixed Flattened BDT score " << input.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
-    }
-    else
-      ATH_MSG_ERROR(" Missing BDT Score: Cannot re-calculate decision ");
-  }
-  
-
   // If the MVA calibration is being used, be sure to apply the calibration to data as well
   if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0) {
 

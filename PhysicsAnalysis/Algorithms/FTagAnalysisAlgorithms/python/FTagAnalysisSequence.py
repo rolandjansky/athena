@@ -41,7 +41,6 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer, btagWP = "FixedCutBEf
     # Set up the ftag selection algorithm(s):
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagSelectionAlg' )
     addPrivateTool( alg, 'selectionTool', 'BTaggingSelectionTool' )
-    alg.selectionDecoration = 'good_ftag'
     alg.selectionTool.TaggerName = btagger
     alg.selectionTool.OperatingPoint = btagWP
     alg.selectionTool.JetAuthor = jetContainer
@@ -66,6 +65,13 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer, btagWP = "FixedCutBEf
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
                     affectingSystematics = '(^FT_EFF_.*)' )
         pass
+
+    # Set up an algorithm used for debugging the f-tag selection:
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'FTagCutFlowDumperAlg' )
+    alg.histPattern = 'ftag_cflow_%SYS%'
+    alg.selection = ['ftag_select']
+    alg.selectionNCuts = [4]
+    seq.append( alg, inputPropName = 'input' )
 
     # Return the sequence:
     return seq

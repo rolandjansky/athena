@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopCPTools/TopTriggerCPTools.h"
@@ -122,51 +122,12 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   // Get trigger strings from configuration
   std::map<std::string,std::string> triggerCombination, triggerCombinationLoose;
   std::vector<std::string> electronSystematics, muonSystematics, electronToolNames, muonToolNames;
-  std::string electron_triggers, electron_triggersLoose, muon_triggers, muon_triggersLoose;
-  std::vector<std::string> e_trigs, m_trigs, e_trigsLoose, m_trigsLoose;
-  std::map<std::string, std::vector<std::string> > electronTriggerCombination, muonTriggerCombination, electronTriggerCombinationLoose, muonTriggerCombinationLoose;
-  
-  if(m_config->doTightEvents()){
-    electron_triggers      = m_config->getGlobalTriggerElectronTriggerString();
-    muon_triggers          = m_config->getGlobalTriggerMuonTriggerString();
-    boost::split(e_trigs, electron_triggers, boost::is_any_of(" "));
-    boost::split(m_trigs, muon_triggers,     boost::is_any_of(" "));
-  }
-
-  if(m_config->doLooseEvents()){
-    electron_triggersLoose = m_config->getGlobalTriggerElectronTriggerLooseString();
-    muon_triggersLoose     = m_config->getGlobalTriggerMuonTriggerLooseString();
-    boost::split(e_trigsLoose, electron_triggersLoose, boost::is_any_of(" "));
-    boost::split(m_trigsLoose, muon_triggersLoose,     boost::is_any_of(" "));
-  }
-
-  for(auto& t : e_trigs){
-    std::vector<std::string> tmp, tmp1;
-    boost::split(tmp, t, boost::is_any_of("@"));
-    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
-    electronTriggerCombination[tmp.at(0)] = tmp1;
-  }
-
-  for(auto& t : m_trigs){
-    std::vector<std::string> tmp, tmp1;
-    boost::split(tmp, t, boost::is_any_of("@"));
-    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
-    muonTriggerCombination[tmp.at(0)] = tmp1;
-  }
-
-  for(auto& t : e_trigsLoose){
-    std::vector<std::string> tmp, tmp1;
-    boost::split(tmp, t, boost::is_any_of("@"));
-    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
-    electronTriggerCombinationLoose[tmp.at(0)] = tmp1;
-  }
-
-  for(auto& t : m_trigsLoose){
-    std::vector<std::string> tmp, tmp1;
-    boost::split(tmp, t, boost::is_any_of("@"));
-    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
-    muonTriggerCombinationLoose[tmp.at(0)] = tmp1;
-  }
+  std::unordered_map<std::string, std::vector<std::string>> const emptymap;
+  std::unordered_map<std::string, std::vector<std::string>> const &
+       electronTriggerCombination = (m_config->doTightEvents() ? m_config->getGlobalTriggerElectronTriggers() : emptymap),
+       muonTriggerCombination = (m_config->doTightEvents() ? m_config->getGlobalTriggerMuonTriggers() : emptymap),
+       electronTriggerCombinationLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggerElectronTriggersLoose() : emptymap),
+       muonTriggerCombinationLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggerMuonTriggersLoose() : emptymap);
 
   // Get quality
   std::string electronID, electronIDLoose, electronIsolation, electronIsolationLoose, muonQuality, muonQualityLoose;
@@ -199,12 +160,19 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	{
 	  ATH_MSG_INFO("TIGHT " << year << " " << trigKey << " " << electronID << " " << electronIsolation );
 	  auto t = m_electronToolsFactory.emplace(m_electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(j)+"_"+std::to_string(nTools));
-	  top::check(t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt"), "Fail");
+	  top::check(t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map0.txt"), "Fail");
 	  top::check(t->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)), "Failed to set TriggerKey");
 	  if (electronID != "None")
 	    top::check(t->setProperty("IdKey", electronID), "Failed to set IdKey");
-	  if (electronIsolation != "None")
+	  if (electronIsolation != "None"){
+	    // temporary fix because trigger SFs haven't been updated yet
+	    // see ANALYSISTO-688
+	    if(electronIsolation.find("FC") != std::string::npos) {
+	      // in this case we replace "FC" by "FixedCutTight", following the old naming convention
+	      electronIsolation = electronIsolation.replace(electronIsolation.find("FC"),2,"FixedCut");
+	    }
 	    top::check(t->setProperty("IsoKey", electronIsolation), "Failed to set IsoKey");
+	  }
 	  top::check(t->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
 	  top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
 	  top::check(t->setProperty("OutputLevel", MSG::INFO), "Failed to set OutputLevel");
@@ -234,12 +202,19 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	{	  
 	  ATH_MSG_INFO("LOOSE " << year << " " << trigKey << " " << electronIDLoose << " " << electronIsolationLoose );
 	  auto tLoose = m_electronToolsFactoryLoose.emplace(m_electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEffLoose_"+std::to_string(j)+"_"+std::to_string(nTools));
-	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt"), "Fail");
+	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map0.txt"), "Fail");
 	  top::check(tLoose->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)),"Failed to set TriggerKey");
 	  if (electronIDLoose != "None")
 	    top::check(tLoose->setProperty("IdKey", electronIDLoose),"Failed to set IdKey");
-	  if (electronIsolationLoose != "None")
+	  if (electronIsolationLoose != "None"){
+	    // temporary fix because trigger SFs haven't been updated yet
+	    // see ANALYSISTO-688
+	    if(electronIsolationLoose.find("FC") != std::string::npos) {
+	      // in this case we replace "FC" by "FixedCutTight", following the old naming convention
+	      electronIsolationLoose = electronIsolationLoose.replace(electronIsolationLoose.find("FC"),2,"FixedCut");
+	    }
 	    top::check(tLoose->setProperty("IsoKey", electronIsolationLoose),"Failed to set IsoKey");
+	  }
 	  top::check(tLoose->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
 	  top::check(tLoose->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
 	  top::check(tLoose->setProperty("OutputLevel", MSG::INFO), "Failed to set OutputLevel");
@@ -346,6 +321,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     top::check(globalTriggerEffTool->setProperty("MuonTools", muonTools), "Failed to attach muon tools");
     top::check(globalTriggerEffTool->setProperty("ListOfLegsPerTool", legsPerTool), "Failed to define list of legs per tool");
     top::check(globalTriggerEffTool->setProperty("TriggerCombination", triggerCombination), "Failed to define trigger combination");
+    top::check(globalTriggerEffTool->setProperty("TriggerMatchingTool", m_trigMatchTool), "Failed to set TriggerMatchingTool");
     // Setting MSG::ERROR to avoid flooding output with invalid efficiency warnings before event selection is complete
     top::check(globalTriggerEffTool->setProperty("OutputLevel", MSG::ERROR), "Failed to set message level");
     top::check(globalTriggerEffTool->initialize(), "Failed to initalise");
@@ -358,6 +334,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "Failed to attach muon tools");
     top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "Failed to define list of legs per tool");
     top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombinationLoose), "Failed to define trigger combination");
+    top::check(globalTriggerEffToolLoose->setProperty("TriggerMatchingTool", m_trigMatchTool), "Failed to set TriggerMatchingTool");
     // Setting MSG::ERROR to avoid flooding output with invalid efficiency warnings before event selection is complete
     top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::ERROR), "Failed to set message level");
     top::check(globalTriggerEffToolLoose->initialize(), "Failed to initalise");

@@ -22,8 +22,8 @@ const static SG::AuxElement::Decorator<float> dec_theta("DFCommonPFlow_theta");
 const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWeight");
 
   PFlowAugmentationTool::PFlowAugmentationTool(const std::string& t,
-					       const std::string& n,
-					       const IInterface* p) : 
+                 const std::string& n,
+                 const IInterface* p) : 
     AthAlgTool(t,n,p),
     m_weightPFOTool("CP::WeightPFOTool/WeightPFOTool")
   {
@@ -57,8 +57,8 @@ const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWe
     }
     for (const auto& vx : *pvcont) {
       if (vx->vertexType() == xAOD::VxType::PriVtx) {
-	pv = vx;
-	break;
+        pv = vx;
+        break;
       }//If we have a vertex of type primary vertex
     }//iterate over the vertices and check their type
 
@@ -67,26 +67,26 @@ const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWe
     if (pv == nullptr) {
       ATH_MSG_DEBUG("Could not find a primary vertex in this event" );
       for (auto theVertex : *pvcont) {
-	if (xAOD::VxType::NoVtx == theVertex->vertexType() ) {
-	  pv = theVertex;
-	  break;
-	}
+        if (xAOD::VxType::NoVtx == theVertex->vertexType() ) {
+          pv = theVertex;
+          break;
+        }
       }
       if (nullptr == pv) {
-	ATH_MSG_WARNING("Found neither PriVtx nor NoVtx in this event" );
+        ATH_MSG_WARNING("Found neither PriVtx nor NoVtx in this event" );
       }
     }
 
     const xAOD::PFOContainer* cpfos = evtStore()->retrieve< const xAOD::PFOContainer >("JetETMissChargedParticleFlowObjects");
     for ( const xAOD::PFO* cpfo : *cpfos ) {
       if ( cpfo == 0 ) {
-	ATH_MSG_WARNING("Have NULL pointer to charged PFO");
-	continue;
+        ATH_MSG_WARNING("Have NULL pointer to charged PFO");
+        continue;
       }
       const xAOD::TrackParticle* ptrk = cpfo->track(0);
       if ( ptrk == 0 ) {
-	ATH_MSG_WARNING("Skipping charged PFO with null track pointer.");
-	continue;
+        ATH_MSG_WARNING("Skipping charged PFO with null track pointer.");
+        continue;
       }
 
       // decorate the track properties	
@@ -99,11 +99,11 @@ const static SG::AuxElement::Decorator<float> dec_envWeight("DFCommonPFlow_envWe
       //vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we correct the track z0 to be w.r.t z = 0
       float z0 = ptrk->z0() + ptrk->vz();
       if (pv) {
-	z0 = z0 - pv->z();
-	float theta = ptrk->theta();
-	if ( fabs(z0*sin(theta)) < m_z0sinthcut ) {
-	  matchedToPrimaryVertex = true;
-	}
+        z0 = z0 - pv->z();
+        float theta = ptrk->theta();
+        if ( fabs(z0*sin(theta)) < m_z0sinthcut ) {
+          matchedToPrimaryVertex = true;
+        }
       }// if pv available
 
       //find the weights from the tool

@@ -684,15 +684,26 @@ namespace top{
     // First loop
     for (auto x : *resultContainer) {
       float prob = x->eventProbability();
+      short minuitDidNotConverge = x->minuitDidNotConverge();
+      short fitAbortedDueToNaN = x->fitAbortedDueToNaN();
+      short atLeastOneFitParameterAtItsLimit = x->atLeastOneFitParameterAtItsLimit();
+      short invalidTransferFunctionAtConvergence = x->invalidTransferFunctionAtConvergence();
       sumEventProbability += prob;
+      ++iPerm;
+
+      // check if the best value has the highest event probability AND converged
+      if (minuitDidNotConverge) continue;
+      if (fitAbortedDueToNaN) continue;
+      if (atLeastOneFitParameterAtItsLimit) continue;
+      if (invalidTransferFunctionAtConvergence) continue;
       
       if (prob > bestEventProbability) {
         bestEventProbability = prob;
-        bestPermutation = iPerm;
+        // Using iPerm -1 because it has already been incremented before
+        bestPermutation = iPerm-1;
       }
-      ++iPerm;
     }
-    
+
     // Second loop
     iPerm = 0;
     for (auto x : *resultContainer) {
@@ -705,8 +716,6 @@ namespace top{
       }
       ++iPerm;
     }
-    
-    
 
     // Save to StoreGate / TStore
     

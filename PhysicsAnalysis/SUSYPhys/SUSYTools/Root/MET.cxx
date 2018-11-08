@@ -240,7 +240,9 @@ StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
     ATH_MSG_WARNING( "Requested CST MET and a JVT cut.  This is not a recommended configuration - please consider switching to TST." );
   }
 
-  ATH_CHECK( m_metSignif->varianceMET( &met, m_jetTerm, softTerm, m_outMETTerm) );
+  const xAOD::EventInfo* evtInfo = 0;
+  ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+  ATH_CHECK( m_metSignif->varianceMET( &met, evtInfo->averageInteractionsPerCrossing(), m_jetTerm, softTerm, m_outMETTerm) );
   metSignificance = m_metSignif->GetSignificance();
   ATH_MSG_VERBOSE( "Obtained MET Significance: " << metSignificance  );
 

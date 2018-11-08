@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include
+# art-include: 21.2/AthDerivation
 # art-description: DAOD building HION3 data18
 # art-type: grid
 # art-output: *.pool.root
@@ -9,7 +9,7 @@
 
 set -e
 
-Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_5TeV.00340910.physics_Main.merge.AOD.f911_m1917._lb0525._0003.1 --outputDAODFile art.pool.root --reductionConf HION3 --maxEvents -1 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12Onl-08-40"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( "InDetTrackParticlesFixer", Containers = [ "InDetTrackParticlesAux." ] )' 
+Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_5TeV.00340910.physics_Main.merge.AOD.f911_m1917._lb0525._0003.1 --outputDAODFile art.pool.root --reductionConf HION3 --maxEvents -1 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12Onl-08-46"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( "InDetTrackParticlesFixer", Containers = [ "InDetTrackParticlesAux." ] )' 
 
 echo "art-result: $? reco"
 

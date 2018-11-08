@@ -11,7 +11,9 @@
 
 // Local include(s):
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+// EDM include(s):
 
+#include "xAODEventInfo/EventInfo.h"
 
 namespace CP {
 
@@ -55,23 +57,49 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
     virtual StatusCode beginEvent() override;
     
     private:
+        
+        unsigned int getPeriod() const;
+        const CP::IMuonCalibrationAndSmearingTool* getTool() const;
+        
         // Have three tool instances for each Monte Carlo campaign
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_1516;
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_17;
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_18;
         
-        // The runNumber/periodNumber is checked at the beginning 
-        // of each event. 
-        const CP::IMuonCalibrationAndSmearingTool* m_activeTool;
         
+        mutable const CP::IMuonCalibrationAndSmearingTool* m_activeTool;
+        const xAOD::EventInfo* m_evInfo;
+        
+        // Sagitta and calibration releases which are parsed to
+        // the three instances of the tool
         std::string m_sagittaRelease1516;
         std::string m_sagittaRelease17;
         std::string m_sagittaRelease18;
         std::string m_release;
- 
+        
+        bool m_StatComb1516;
+        bool m_SagittaCorr1516;
+        bool m_SagittaMCDistortion1516;
+        bool m_SagittaCorrPhaseSpace1516;
+        
+        bool m_StatComb17;
+        bool m_SagittaCorr17;
+        bool m_SagittaMCDistortion17;
+        bool m_SagittaCorrPhaseSpace17;
+        
+        bool m_StatComb18;
+        bool m_SagittaCorr18;
+        bool m_SagittaMCDistortion18;
+        bool m_SagittaCorrPhaseSpace18;
+        
+        
+        
+        // Monte Carlo runNumbers correspond to different production campaigns
         std::vector<unsigned int> m_MCperiods1516;
         std::vector<unsigned int> m_MCperiods17;
         std::vector<unsigned int> m_MCperiods18;
+        // Optionally one can use the random run number to assign the right tool in MC
+        bool m_useRndRun;
  
   }; 
 

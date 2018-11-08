@@ -372,6 +372,8 @@ namespace ST {
  
     virtual float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) = 0;
 
+    virtual float GetCorrectedActualInteractionsPerCrossing(bool includeDataSF=false) = 0;
+
     virtual double GetSumOfWeights(int channel) = 0;
     
     virtual unsigned int GetRandomRunNumber(bool muDependentRRN = true) = 0;
@@ -385,7 +387,7 @@ namespace ST {
     virtual StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
 				      const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) = 0;
 
-    virtual StatusCode NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons = nullptr, const xAOD::MuonContainer *muons = nullptr) const = 0;
+    virtual StatusCode NearbyLeptonCorrections(xAOD::ElectronContainer *electrons = nullptr, xAOD::MuonContainer *muons = nullptr) const = 0;
 
     virtual CP::SystematicCode resetSystematics() = 0;
 

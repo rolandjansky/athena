@@ -1,9 +1,9 @@
 import os
 
 makeDataDAODs=True
-makeMCDAODs=False
-makeTruthDAODs=False
-makeTrains=False
+makeMCDAODs=True
+makeTruthDAODs=True
+makeTrains=True
 
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
@@ -25,7 +25,8 @@ formatList = ['PHYSVAL',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12', 'BPHY14','BPHY15','BPHY16',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
               'TCAL1',
-              'HION3'
+              'HION3',
+              'SUSY19'
               #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
 ]
 
@@ -55,24 +56,25 @@ delayedStreamLabel = "data16DELAYED"
 blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
 mcFileBPHY14 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.13151497._000097.pool.root.1"
-mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
+mcFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14859811._000014.pool.root.1"
+mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.15268048._000134.pool.root.1"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1"
-dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13679930._004714.pool.root.1"
+dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13725673._000089.pool.root.1"
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
 dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
 dataFileZeroBias = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00339070.physics_ZeroBias.merge.AOD.f887_m1892._lb0998-lb1007._0001.1"
 heavyIonFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_5TeV.00340910.physics_Main.merge.AOD.f911_m1917._lb0525._0003.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
-dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
-mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\" \' "
+dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-46\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
+mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-46\" \' "
 
 def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFileName = "test_"+label+formatName+".sh"
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
-   outputFile.write("# art-include"+"\n")
+   outputFile.write("# art-include: 21.2/AthDerivation"+"\n")
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
@@ -123,8 +125,9 @@ def generateTrains(formatList,label,inputFile,isMC):
 if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
-         if formatName=="EXOT23":
-            generateText(formatName,dataLabel,dataFileRPVLL,False,False,"-1")
+         if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
+            generateText(formatName,dataLabel+"RPVLL",dataFileRPVLL,False,False,"-1")
+            if formatName == "SUSY6": generateText(formatName,dataLabel,dataFile,False,False,"-1") 
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
          elif formatName in ['BPHY7']:
@@ -145,8 +148,11 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,heavyIonFile,False,False,"-1")
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
-         if formatName=="EXOT23":
-            generateText(formatName,mcLabel,mcFileEXOT23,False,True,"-1")
+         if formatName in ["SUSY15","SUSY6","EXOT15"]:
+            generateText(formatName,mcLabel+"RPVLL",mcFileRPVLL,False,True,"-1")
+            if formatName == "SUSY6":generateText(formatName,mcLabel,mcFile,False,True,"-1") 
+         elif formatName == "EXOT23":
+            generateText(formatName,mcLabel+"RPVLL",mcFileEXOT23,False,True,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,mcLabel,mcFile,False,True,"500")
          elif formatName=="BPHY8":
@@ -164,3 +170,5 @@ if (makeTrains):
       generateTrains(train,dataLabel,dataFile,False)
       generateTrains(train,mcLabel,mcFile,True)
    generateTrains(['TOPQ1','TOPQ2','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
+   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],mcLabel,mcFileEXOT23,True)
+   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],dataLabel,dataFileRPVLL,False)

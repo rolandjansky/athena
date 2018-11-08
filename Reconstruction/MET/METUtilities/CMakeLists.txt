@@ -41,6 +41,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
+   Reconstruction/Jet/JetResolution
    Reconstruction/Jet/JetCalibTools
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
@@ -58,7 +59,7 @@ atlas_add_library( METUtilitiesLib
    PUBLIC_HEADERS METUtilities
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} 
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
-   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
+   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolutionLib JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
    METInterface MuonAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 
@@ -94,7 +95,7 @@ if( XAOD_ANALYSIS )
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
           LINK_LIBRARIES ${ROOT_LIBRARIES} ${readLib} AsgTools xAODBase
           xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-          JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
+          JetCalibToolsLib METInterface PATInterfaces JetResolutionLib METUtilitiesLib )
   endforeach()
 endif()
 

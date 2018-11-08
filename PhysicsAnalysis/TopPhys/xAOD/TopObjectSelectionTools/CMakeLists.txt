@@ -20,6 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TrigDecisionTool
                           TriggerMatchingTool
                           TrigTauMatching
+                          TriggerAnalysisInterfaces
+                          TrigGlobalEfficiencyCorrection
                           GoodRunsLists
                           JetAnalysisInterfaces
                           JetSubStructureMomentTools
@@ -60,6 +62,7 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TrigDecisionToolLib
                                   TriggerMatchingToolLib
                                   TrigTauMatchingLib
+                                  TrigGlobalEfficiencyCorrectionLib
                                   GoodRunsListsLib
                                   JetAnalysisInterfacesLib
                                   JetSubStructureMomentToolsLib

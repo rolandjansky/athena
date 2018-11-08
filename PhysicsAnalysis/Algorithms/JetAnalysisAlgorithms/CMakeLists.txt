@@ -41,10 +41,18 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   atlas_add_test( testJob
-      SCRIPT JetAnalysisAlgorithmsTest_eljob.py --unit-test )
+   atlas_add_test( testJobData
+      SCRIPT JetAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 300 )
+   atlas_add_test( testJobFullSim
+      SCRIPT JetAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 300 )
+   atlas_add_test( testJobFastSim
+      SCRIPT JetAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 300 )
 else()
    atlas_add_test( testJob
       SCRIPT athena.py
-      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_jobOptions.py )
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_jobOptions.py
+      PROPERTIES TIMEOUT 300 )
 endif()

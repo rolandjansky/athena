@@ -249,6 +249,7 @@ def buildVRJets(sequence, do_ghost, logger):
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
+    from BTagging.BTaggingFlags import BTaggingFlags
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -257,8 +258,7 @@ def buildVRJets(sequence, do_ghost, logger):
                  "BTagSVName"   : "SecVtx",
         },
         SetupScheme = "",
-        TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                      'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
+        TaggerList = BTaggingFlags.StandardTaggers,
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
     )
 
@@ -397,6 +397,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
     VRJetBTagName = "BTagging_%s" % (VRJetName)
 
     #make the btagging tool for VR jets
+    from BTagging.BTaggingFlags import BTaggingFlags
     btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
                  options={"name"         : VRJetBTagName.lower(),
                           "BTagName"     : VRJetBTagName,
@@ -404,8 +405,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
                           "BTagSVName"   : "SecVtx",
                           },
                  SetupScheme = "",
-                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                 TaggerList = BTaggingFlags.StandardTaggers
                  )
 
     if VRJetAlgName in DFJetAlgs:
@@ -612,6 +612,17 @@ def addHbbTagger(
     else:
         logger.info('{} already scheduled for {}'.format(
             tagger_alg_name, jet_collection))
+
+def addRecommendedXbbTaggers(sequence, ToolSvc, logger=None):
+    addHbbTagger(sequence, ToolSvc, logger)
+    addHbbTagger(
+        sequence, ToolSvc,
+        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
+        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
+
+xbbTaggerExtraVariables = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD"]
 
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets

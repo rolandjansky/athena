@@ -75,7 +75,6 @@ Photon.Iso: ${PH_ISO}
 Tau.Pt: 20000.
 Tau.Eta: 2.5
 Tau.Id: Medium
-Tau.IDRedecorate: False
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
@@ -102,7 +101,6 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -132,7 +130,6 @@ OR.EleFatJetDR: 1.
 OR.JetFatJetDR: 1.
 #
 SigLep.RequireIso: true
-SigLepPh.IsoCloseByOR: false
 #
 MET.EleTerm: RefEle
 MET.GammaTerm: RefGamma
@@ -149,8 +146,6 @@ MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
 #
 METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
-#
-PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
 Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0

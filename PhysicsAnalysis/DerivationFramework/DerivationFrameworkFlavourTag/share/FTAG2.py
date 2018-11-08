@@ -166,7 +166,7 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "AntiKt8EMTopoExKt3SubJets",
                                         "BTagging_AntiKt8EMTopoExKt2Sub",
                                         "BTagging_AntiKt8EMTopoExKt3Sub",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
                                         ]
 
 FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",

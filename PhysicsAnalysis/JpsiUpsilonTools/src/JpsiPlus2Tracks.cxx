@@ -97,8 +97,8 @@ namespace Analysis {
     m_jpsiMassLower(0.0),
     m_TrkParticleCollection("InDetTrackParticles"),
     m_MuonsUsedInJpsi("NONE"),
-    m_excludeJpsiMuonsOnly(false),
-    m_excludeCrossJpsiTracks(true),
+    m_excludeJpsiMuonsOnly(true),
+    m_excludeCrossJpsiTracks(false),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
@@ -282,7 +282,7 @@ namespace Analysis {
         std::vector<double> massCuts;
 
         TrackBag muonTracks;
-        if (m_excludeJpsiMuonsOnly) {
+        if (importedMuonCollection != NULL && m_excludeJpsiMuonsOnly) {
           for(auto muon : *importedMuonCollection){
             if(!muon->inDetTrackParticleLink().isValid()) continue;
             auto track = muon->inDetTrackParticleLink().cachedElement();

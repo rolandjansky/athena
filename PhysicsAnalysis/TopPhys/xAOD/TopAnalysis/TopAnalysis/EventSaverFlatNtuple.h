@@ -321,11 +321,16 @@ private:
     float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN;
     float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP;
     float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN;
+    // Old trigger SFs
+    float m_weight_oldTriggerSF;
+    float m_weight_oldTriggerSF_EL_Trigger_UP;
+    float m_weight_oldTriggerSF_EL_Trigger_DOWN;
+    float m_weight_oldTriggerSF_MU_Trigger_STAT_UP;
+    float m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN;
+    float m_weight_oldTriggerSF_MU_Trigger_SYST_UP;
+    float m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN;
 
     ///-- individual components for lepton SF --///
-    float m_weight_indiv_SF_EL_Trigger;
-    float m_weight_indiv_SF_EL_Trigger_UP;
-    float m_weight_indiv_SF_EL_Trigger_DOWN;
     float m_weight_indiv_SF_EL_Reco;
     float m_weight_indiv_SF_EL_Reco_UP;
     float m_weight_indiv_SF_EL_Reco_DOWN;
@@ -343,11 +348,6 @@ private:
     float m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;
     float m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;
     float m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;
-    float m_weight_indiv_SF_MU_Trigger;
-    float m_weight_indiv_SF_MU_Trigger_STAT_UP;
-    float m_weight_indiv_SF_MU_Trigger_STAT_DOWN;
-    float m_weight_indiv_SF_MU_Trigger_SYST_UP;
-    float m_weight_indiv_SF_MU_Trigger_SYST_DOWN;
     float m_weight_indiv_SF_MU_ID;
     // Muon ID SF systematics (regular)
     float m_weight_indiv_SF_MU_ID_STAT_UP;
@@ -463,6 +463,8 @@ private:
     std::vector<float> m_el_faketype;
     std::vector<float> m_el_topoetcone20;
     std::vector<float> m_el_ptvarcone20;
+    std::vector<float> m_el_etcone20;
+    std::vector<float> m_el_ptcone30;
     std::vector<char>  m_el_isTight;
     std::vector<char>  m_el_CF; // pass charge ID selector (has no charge flip)
     std::unordered_map<std::string, std::vector<char> > m_el_trigMatched;
@@ -475,6 +477,8 @@ private:
     std::vector<int>   m_el_true_firstEgMotherPdgId;
     std::vector<char>  m_el_true_isPrompt;
     std::vector<char>  m_el_true_isChargeFl;
+    std::vector<char>  m_el_ECIDS;
+    std::vector<double>  m_el_ECIDSResult;
 
     //muons
     std::vector<float> m_mu_pt;
@@ -484,6 +488,8 @@ private:
     std::vector<float> m_mu_charge;
     std::vector<float> m_mu_topoetcone20;
     std::vector<float> m_mu_ptvarcone30;
+    std::vector<float> m_mu_etcone20;
+    std::vector<float> m_mu_ptcone30;
     std::vector<char>  m_mu_isTight;
     std::unordered_map<std::string, std::vector<char> > m_mu_trigMatched;
     std::vector<float> m_mu_d0sig;
@@ -528,22 +534,22 @@ private:
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
     // R21 b-tagging
-    std::vector<float> m_jet_MV2c10mu;
-    std::vector<float> m_jet_MV2c10rnn;
+    std::vector<float> m_jet_MV2r;
+    std::vector<float> m_jet_MV2rmu;
     std::vector<float> m_jet_DL1;
-    std::vector<float> m_jet_DL1mu;
-    std::vector<float> m_jet_DL1rnn;
+    std::vector<float> m_jet_DL1r;
+    std::vector<float> m_jet_DL1rmu;
     std::vector<float> m_jet_MV2cl100;
     std::vector<float> m_jet_MV2c100;
     std::vector<float> m_jet_DL1_pu;
     std::vector<float> m_jet_DL1_pc;
     std::vector<float> m_jet_DL1_pb;
-    std::vector<float> m_jet_DL1mu_pu;
-    std::vector<float> m_jet_DL1mu_pc;
-    std::vector<float> m_jet_DL1mu_pb;
-    std::vector<float> m_jet_DL1rnn_pu;
-    std::vector<float> m_jet_DL1rnn_pc;
-    std::vector<float> m_jet_DL1rnn_pb;
+    std::vector<float> m_jet_DL1r_pu;
+    std::vector<float> m_jet_DL1r_pc;
+    std::vector<float> m_jet_DL1r_pb;
+    std::vector<float> m_jet_DL1rmu_pu;
+    std::vector<float> m_jet_DL1rmu_pc;
+    std::vector<float> m_jet_DL1rmu_pb;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -583,6 +589,7 @@ private:
     bool m_useRCAdditionalJSS; // write RCJSS additional variables
     bool m_useVarRCJSS; // write Variable-R RCJSS variables
     bool m_useVarRCAdditionalJSS; // write Variable-R RCJSS additional variables
+    bool m_useElectronChargeIDSelection; // write ECID tool output variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
@@ -812,7 +819,10 @@ private:
     std::vector<float> m_mc_eta;
     std::vector<float> m_mc_phi;
     std::vector<float> m_mc_e;
+    std::vector<double> m_mc_charge;
     std::vector<int> m_mc_pdgId;
+    std::vector<int> m_mc_status;
+    std::vector<int> m_mc_barcode;
 
     //PDFInfo
     std::vector<float> m_PDFinfo_X1;
@@ -922,11 +932,19 @@ protected:
   const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN; }
   const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP; }
   const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN; }
+  // Old trigger SFs
+  const float& weight_oldTriggerSF() const { return m_weight_oldTriggerSF; }
+  const float& weight_oldTriggerSF_EL_Trigger_UP() const { return m_weight_oldTriggerSF_EL_Trigger_UP; }
+  const float& weight_oldTriggerSF_EL_Trigger_DOWN() const { return m_weight_oldTriggerSF_EL_Trigger_DOWN; }
+  const float& weight_oldTriggerSF_MU_Trigger_STAT_UP() const { return m_weight_oldTriggerSF_MU_Trigger_STAT_UP; }
+  const float& weight_oldTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN; }
+  const float& weight_oldTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_oldTriggerSF_MU_Trigger_SYST_UP; }
+  const float& weight_oldTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN; }
   
   ///-- individual components for lepton SF --///
-  const float& weight_indiv_SF_EL_Trigger() const { return m_weight_indiv_SF_EL_Trigger;}
-  const float& weight_indiv_SF_EL_Trigger_UP() const { return m_weight_indiv_SF_EL_Trigger_UP;}
-  const float& weight_indiv_SF_EL_Trigger_DOWN() const { return m_weight_indiv_SF_EL_Trigger_DOWN;}
+  const float& weight_indiv_SF_EL_Trigger() const { return weight_oldTriggerSF(); }
+  const float& weight_indiv_SF_EL_Trigger_UP() const { return weight_oldTriggerSF_EL_Trigger_UP(); }
+  const float& weight_indiv_SF_EL_Trigger_DOWN() const { return weight_oldTriggerSF_EL_Trigger_DOWN(); }
   const float& weight_indiv_SF_EL_Reco() const { return m_weight_indiv_SF_EL_Reco;}
   const float& weight_indiv_SF_EL_Reco_UP() const { return m_weight_indiv_SF_EL_Reco_UP;}
   const float& weight_indiv_SF_EL_Reco_DOWN() const { return m_weight_indiv_SF_EL_Reco_DOWN;}
@@ -944,11 +962,11 @@ protected:
   const float& weight_indiv_SF_EL_ChargeMisID_STAT_DOWN() const { return m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;}
   const float& weight_indiv_SF_EL_ChargeMisID_SYST_UP() const { return m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;}
   const float& weight_indiv_SF_EL_ChargeMisID_SYST_DOWN() const { return m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;}
-  const float& weight_indiv_SF_MU_Trigger() const { return m_weight_indiv_SF_MU_Trigger;}
-  const float& weight_indiv_SF_MU_Trigger_STAT_UP() const { return m_weight_indiv_SF_MU_Trigger_STAT_UP;}
-  const float& weight_indiv_SF_MU_Trigger_STAT_DOWN() const { return m_weight_indiv_SF_MU_Trigger_STAT_DOWN;}
-  const float& weight_indiv_SF_MU_Trigger_SYST_UP() const { return m_weight_indiv_SF_MU_Trigger_SYST_UP;}
-  const float& weight_indiv_SF_MU_Trigger_SYST_DOWN() const { return m_weight_indiv_SF_MU_Trigger_SYST_DOWN;}
+  const float& weight_indiv_SF_MU_Trigger() const { return weight_oldTriggerSF(); }
+  const float& weight_indiv_SF_MU_Trigger_STAT_UP() const { return weight_oldTriggerSF_MU_Trigger_STAT_UP(); }
+  const float& weight_indiv_SF_MU_Trigger_STAT_DOWN() const { return weight_oldTriggerSF_MU_Trigger_STAT_DOWN(); }
+  const float& weight_indiv_SF_MU_Trigger_SYST_UP() const { return weight_oldTriggerSF_MU_Trigger_SYST_UP(); }
+  const float& weight_indiv_SF_MU_Trigger_SYST_DOWN() const { return weight_oldTriggerSF_MU_Trigger_SYST_DOWN(); }
   const float& weight_indiv_SF_MU_ID() const { return m_weight_indiv_SF_MU_ID;}
   // Muon ID SF systematics (regular)
   const float& weight_indiv_SF_MU_ID_STAT_UP() const { return m_weight_indiv_SF_MU_ID_STAT_UP;}
@@ -1342,7 +1360,10 @@ protected:
   const std::vector<float>& mc_eta() const { return m_mc_eta;}
   const std::vector<float>& mc_phi() const { return m_mc_phi;}
   const std::vector<float>& mc_e() const { return m_mc_e;}
+  const std::vector<double>& mc_charge() const { return m_mc_charge;}
   const std::vector<int>& mc_pdgId() const { return m_mc_pdgId;}
+  const std::vector<int>& mc_status() const { return m_mc_status;}
+  const std::vector<int>& mc_barcode() const { return m_mc_barcode;}
 
   //PDFInfo
   const std::vector<float>& PDFinfo_X1() const { return m_PDFinfo_X1;}

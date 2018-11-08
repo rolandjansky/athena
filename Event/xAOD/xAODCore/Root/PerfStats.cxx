@@ -310,6 +310,35 @@ namespace xAOD {
       return 0;
    }
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 14, 0 )
+   /* Some methods that are pure virtual in the basaclass and need
+      a definition - forwarding them to the actuall ROOT TPerfStats
+      new in ROOT 6.14
+   */
+   void PerfStats::PrintBasketInfo( Option_t *option ) const {
+      if( m_otherPerfStats )  m_otherPerfStats->PrintBasketInfo( option );
+   }
+
+   void PerfStats::UpdateBranchIndices( TObjArray *branches ) {
+      if( m_otherPerfStats )  m_otherPerfStats->UpdateBranchIndices( branches );
+   }
+
+   #define FWD_CALL(CALL) \
+      void PerfStats::CALL( TBranch *b, size_t basketNumber ) { \
+         if( m_otherPerfStats ) m_otherPerfStats->CALL( b, basketNumber ); \
+      } \
+      void PerfStats::CALL( size_t bi, size_t basketNumber ) { \
+         if( m_otherPerfStats ) m_otherPerfStats->CALL( bi, basketNumber ); \
+      }   struct dummyforsemi
+
+   FWD_CALL(SetLoaded);
+   FWD_CALL(SetLoadedMiss);
+   FWD_CALL(SetMissed);
+   FWD_CALL(SetUsed);
+   #undef FWD_CALL
+
+#endif //ROOT_VERSION
+
    /// The constructor needs to do a few things. If there is already
    /// another TVirtualPerfStats object defined under gPerfStats, then
    /// it stores that pointer in order to be able to forward monitoring

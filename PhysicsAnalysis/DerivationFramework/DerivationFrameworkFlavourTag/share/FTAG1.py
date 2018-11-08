@@ -136,6 +136,23 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
+#==============================================================================
+# Soft Tagging
+#==============================================================================
+from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+
+BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+ToolSvc += BJetSVFinderTool
+BJetSVFinderTool.ConeForTag = 0.6
+
+softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+
+FTAG1Seq += softTagAlg
 
 #===================================================================
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
@@ -334,6 +351,15 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
   }
+#----------------------------------------------------------------------
+# Add soft b-tagging containers
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+
+FTAG1SlimmingHelper.StaticContent = StaticContent
 #----------------------------------------------------------------------
 
 addJetOutputs(FTAG1SlimmingHelper,["FTAG1"])

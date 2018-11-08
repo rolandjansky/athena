@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 810977 2017-10-09 16:30:28Z iconnell $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -13,7 +12,6 @@
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/logic/tribool.hpp>
 
 #include "TopConfiguration/Tokenize.h"
 
@@ -662,12 +660,11 @@ namespace top{
       this->electronIsolationLoose(cut_wp);
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    // Print out a warning for FixedCutHighPtCaloOnly
-    if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
-      std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
+    // Print out a warning for FCHighPtCaloOnly
+    if (this->electronIsolation() == "FCHighPtCaloOnly" || this->electronIsolationLoose() == "FCHighPtCaloOnly"){
+      std::cout << "TopConfig - ElectronIsolation - FCHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
-    if( m_useElectronChargeIDSelection )throw std::runtime_error{"TopConfig: UseElectronChargeIDSelection True \n Electron Charge ID selection not available in this release."};
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 
@@ -1054,11 +1051,28 @@ namespace top{
 
     //--- Check for configuration on the global lepton triggers ---//
     if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
+      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & result, std::string const & key) {
+          /* parse a string of the form "2015@triggerfoo,triggerbar,... 2016@triggerfoo,triggerbaz,... ..." */
+          std::vector<std::string> pairs;
+          boost::split(pairs, settings->value(key), boost::is_any_of(" "));
+          for (std::string const & pair : pairs) {
+            if (pair.empty())
+              continue;
+            auto i = pair.find('@');
+            if (!(i != std::string::npos && pair.find('@', i + 1) == std::string::npos))
+              throw std::invalid_argument(std::string() + "Malformed trigger list in configuration item `" + key + "'");
+            auto&& period = pair.substr(0, i), triggerstr = pair.substr(i + 1);
+            auto&& triggers = result[period];
+            if (!triggers.empty())
+              throw std::invalid_argument(std::string() + "Period `" + period + "' appears multiple times in configuration item `" + key + "'");
+            boost::split(triggers, triggerstr, boost::is_any_of(","));
+          }
+        };
       m_trigGlobalConfiguration.isActivated = true;
-      m_trigGlobalConfiguration.electron_trigger       = settings->value( "ElectronTriggers" );
-      m_trigGlobalConfiguration.electron_trigger_loose = settings->value( "ElectronTriggersLoose" );
-      m_trigGlobalConfiguration.muon_trigger           = settings->value( "MuonTriggers" );
-      m_trigGlobalConfiguration.muon_trigger_loose     = settings->value( "MuonTriggersLoose" );
+      parseTriggerString(m_trigGlobalConfiguration.electron_trigger, "ElectronTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.electron_trigger_loose, "ElectronTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.muon_trigger, "MuonTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.muon_trigger_loose, "MuonTriggersLoose");
     }
     
   }

@@ -76,11 +76,15 @@ namespace top {
 	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN(0.),
 	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP(0.),
 	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN(0.),
+	m_weight_oldTriggerSF(0.),
+	m_weight_oldTriggerSF_EL_Trigger_UP(0.),
+	m_weight_oldTriggerSF_EL_Trigger_DOWN(0.),
+	m_weight_oldTriggerSF_MU_Trigger_STAT_UP(0.),
+	m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN(0.),
+	m_weight_oldTriggerSF_MU_Trigger_SYST_UP(0.),
+	m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN(0.),
 
         // individual components electrons
-        m_weight_indiv_SF_EL_Trigger(0.),
-        m_weight_indiv_SF_EL_Trigger_UP(0.),
-        m_weight_indiv_SF_EL_Trigger_DOWN(0.),
         m_weight_indiv_SF_EL_Reco(0.),
         m_weight_indiv_SF_EL_Reco_UP(0.),
         m_weight_indiv_SF_EL_Reco_DOWN(0.),
@@ -99,11 +103,6 @@ namespace top {
         m_weight_indiv_SF_EL_ChargeMisID_SYST_UP(0.),
         m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN(0.),
 
-        m_weight_indiv_SF_MU_Trigger(0.),
-        m_weight_indiv_SF_MU_Trigger_STAT_UP(0.),
-        m_weight_indiv_SF_MU_Trigger_STAT_DOWN(0.),
-        m_weight_indiv_SF_MU_Trigger_SYST_UP(0.),
-        m_weight_indiv_SF_MU_Trigger_SYST_DOWN(0.),
         // Muon ID SF systematics (regular)
         m_weight_indiv_SF_MU_ID(0.),
         m_weight_indiv_SF_MU_ID_STAT_UP(0.),
@@ -145,6 +144,7 @@ namespace top {
 	m_useRCAdditionalJSS(false),
 	m_useVarRCJSS(false),
 	m_useVarRCAdditionalJSS(false),
+	m_useElectronChargeIDSelection(false),
 	m_met_met(0.),
         m_met_phi(0.)
     {
@@ -225,6 +225,9 @@ namespace top {
 	  m_useVarRCAdditionalJSS=config->useVarRCJetAdditionalSubstructure();
 	} // end make VarRC jets
 
+	if (config->useElectronChargeIDSelection()){
+	  m_useElectronChargeIDSelection = true;
+	}
 
         //make a tree for each systematic
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
@@ -278,6 +281,10 @@ namespace top {
                 m_truthTreeManager->makeOutputVariable(m_mc_phi, "mc_phi");
                 m_truthTreeManager->makeOutputVariable(m_mc_e, "mc_e");
                 m_truthTreeManager->makeOutputVariable(m_mc_pdgId, "mc_pdgId");
+		m_truthTreeManager->makeOutputVariable(m_mc_charge,  "mc_charge");
+		m_truthTreeManager->makeOutputVariable(m_mc_status,  "mc_status");
+		m_truthTreeManager->makeOutputVariable(m_mc_barcode, "mc_barcode");
+
             }
 
             // PDF information
@@ -360,6 +367,7 @@ namespace top {
 
 		if(m_config->useGlobalTriggerConfiguration())
 		  systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF,                      "weight_globalLeptonTriggerSF");
+                systematicTree->makeOutputVariable(m_weight_oldTriggerSF,                      "weight_oldTriggerSF");
 
                 // nominal b-tagging SFs
                 for( auto& tagWP : m_config -> bTagWP_available()){
@@ -429,12 +437,15 @@ namespace top {
 		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP");
 		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN");
 		    }
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_EL_Trigger_UP,        "weight_oldTriggerSF_EL_Trigger_UP");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_EL_Trigger_DOWN,      "weight_oldTriggerSF_EL_Trigger_DOWN");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_STAT_UP,   "weight_oldTriggerSF_MU_Trigger_STAT_UP");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN, "weight_oldTriggerSF_MU_Trigger_STAT_DOWN");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_SYST_UP,   "weight_oldTriggerSF_MU_Trigger_SYST_UP");
+                    systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN, "weight_oldTriggerSF_MU_Trigger_SYST_DOWN");
 		    
                     // write also out the individual components:
 
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger,         "weight_indiv_SF_EL_Trigger");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger_UP,      "weight_indiv_SF_EL_Trigger_UP");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger_DOWN,    "weight_indiv_SF_EL_Trigger_DOWN");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco,            "weight_indiv_SF_EL_Reco");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco_UP,         "weight_indiv_SF_EL_Reco_UP");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco_DOWN,       "weight_indiv_SF_EL_Reco_DOWN");
@@ -453,11 +464,6 @@ namespace top {
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_SYST_UP,  "weight_indiv_SF_EL_ChargeMisID_SYST_UP");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN,"weight_indiv_SF_EL_ChargeMisID_SYST_DOWN");
 
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger,         "weight_indiv_SF_MU_Trigger");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_STAT_UP,      "weight_indiv_SF_MU_Trigger_STAT_UP");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_STAT_DOWN,    "weight_indiv_SF_MU_Trigger_STAT_DOWN");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_SYST_UP,      "weight_indiv_SF_MU_Trigger_SYST_UP");
-                    systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Trigger_SYST_DOWN,    "weight_indiv_SF_MU_Trigger_SYST_DOWN");
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID,              "weight_indiv_SF_MU_ID");
                     // Muon ID SF systematics (regular)
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_STAT_UP,      "weight_indiv_SF_MU_ID_STAT_UP");
@@ -624,6 +630,10 @@ namespace top {
                 systematicTree->makeOutputVariable(m_el_CF, "el_CF");
                 systematicTree->makeOutputVariable(m_el_d0sig, "el_d0sig");
                 systematicTree->makeOutputVariable(m_el_delta_z0_sintheta, "el_delta_z0_sintheta");
+		if (m_useElectronChargeIDSelection) {
+		  systematicTree->makeOutputVariable(m_el_ECIDS,"el_ECIDS");
+		  systematicTree->makeOutputVariable(m_el_ECIDSResult,"el_ECIDSResult");
+		}
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
@@ -697,22 +707,22 @@ namespace top {
                 }
 		// R21 - new b-tagging variables
 		if(m_config->getReleaseSeries() == 25){
-		  systematicTree->makeOutputVariable(m_jet_MV2c10mu, "jet_MV2c10mu");
-		  systematicTree->makeOutputVariable(m_jet_MV2c10rnn, "jet_MV2c10rnn");
+		  systematicTree->makeOutputVariable(m_jet_MV2r, "jet_MV2r");
+		  systematicTree->makeOutputVariable(m_jet_MV2rmu, "jet_MV2rmu");
 		  systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu, "jet_DL1mu");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn, "jet_DL1rnn");
+		  systematicTree->makeOutputVariable(m_jet_DL1r, "jet_DL1r");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu, "jet_DL1rmu");
 		  systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
 		  systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
 		  systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
 		  systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
 		  systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu_pu, "jet_DL1mu_pu");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu_pc, "jet_DL1mu_pc");
-		  systematicTree->makeOutputVariable(m_jet_DL1mu_pb, "jet_DL1mu_pb");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pu, "jet_DL1rnn_pu");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pc, "jet_DL1rnn_pc");
-		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pb, "jet_DL1rnn_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1r_pu, "jet_DL1r_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1r_pc, "jet_DL1r_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1r_pb, "jet_DL1r_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu_pu, "jet_DL1rmu_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu_pc, "jet_DL1rmu_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1rmu_pb, "jet_DL1rmu_pb");
 		}
 
             }
@@ -1390,6 +1400,8 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_el_charge, "el_charge");
        m_upgradeTreeManager->makeOutputVariable(m_el_true_type,      "el_true_type");
        m_upgradeTreeManager->makeOutputVariable(m_el_true_origin,    "el_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_el_etcone20, "el_etcone20");
+       m_upgradeTreeManager->makeOutputVariable(m_el_ptcone30, "el_ptcone30");
        //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
        //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
        //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
@@ -1403,6 +1415,8 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_charge, "mu_charge");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_etcone20, "mu_etcone20");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_ptcone30, "mu_ptcone30");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
        m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z,    "mu_prodVtx_z");
        m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_perp, "mu_prodVtx_perp");
@@ -1515,6 +1529,7 @@ namespace top {
 
 	    if(m_config->useGlobalTriggerConfiguration())
 	      m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
+            m_weight_oldTriggerSF = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::nominal);
 
             for( auto& tagWP : m_config -> bTagWP_available()) {
 	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
@@ -1582,10 +1597,13 @@ namespace top {
 		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
 		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
 		}
+                m_weight_oldTriggerSF_EL_Trigger_UP        = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
+                m_weight_oldTriggerSF_EL_Trigger_DOWN      = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
+                m_weight_oldTriggerSF_MU_Trigger_STAT_UP   = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
+                m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
+                m_weight_oldTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
+                m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
 		
-                m_weight_indiv_SF_EL_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
-                m_weight_indiv_SF_EL_Trigger_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_UP);
-                m_weight_indiv_SF_EL_Trigger_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_DOWN);
                 m_weight_indiv_SF_EL_Reco         = m_sfRetriever -> electronSF(event,top::topSFSyst::nominal,            top::topSFComp::RECO);
                 m_weight_indiv_SF_EL_Reco_UP      = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_Reco_UP,      top::topSFComp::RECO);
                 m_weight_indiv_SF_EL_Reco_DOWN    = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_Reco_DOWN,    top::topSFComp::RECO);
@@ -1603,17 +1621,11 @@ namespace top {
                 m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_ChargeMisID_STAT_DOWN,top::topSFComp::CHARGEMISID);
                 m_weight_indiv_SF_EL_ChargeMisID_SYST_UP   = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_ChargeMisID_SYST_UP,  top::topSFComp::CHARGEMISID);
                 m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN = m_sfRetriever -> electronSF(event,top::topSFSyst::EL_SF_ChargeMisID_SYST_DOWN,top::topSFComp::CHARGEMISID);
-                ATH_MSG_DEBUG("Electron Trigger SF = "<<m_weight_indiv_SF_EL_Trigger<<" + "<<m_weight_indiv_SF_EL_Trigger_UP<<" - "<<m_weight_indiv_SF_EL_Trigger_DOWN);
                 ATH_MSG_DEBUG("Electron Reco SF = "<<m_weight_indiv_SF_EL_Reco<<" + "<<m_weight_indiv_SF_EL_Reco_UP<<" - "<<m_weight_indiv_SF_EL_Reco_DOWN);
                 ATH_MSG_DEBUG("Electron ID SF = "<<m_weight_indiv_SF_EL_ID<<" + "<<m_weight_indiv_SF_EL_ID_UP<<" - "<<m_weight_indiv_SF_EL_ID_DOWN);
                 ATH_MSG_DEBUG("Electron Charge ID SF = "<<m_weight_indiv_SF_EL_ChargeID<<" + "<<m_weight_indiv_SF_EL_ChargeID_UP<<" - "<<m_weight_indiv_SF_EL_ChargeID_DOWN);
                 ATH_MSG_DEBUG("Electron Charge Mis ID SF = "<<m_weight_indiv_SF_EL_ChargeMisID<<" + "<<m_weight_indiv_SF_EL_ChargeMisID_STAT_UP<<" - "<<m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN<<" + "<<m_weight_indiv_SF_EL_ChargeMisID_SYST_UP<<" - "<<m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN);
 
-                m_weight_indiv_SF_MU_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
-                m_weight_indiv_SF_MU_Trigger_STAT_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_STAT_UP);
-                m_weight_indiv_SF_MU_Trigger_STAT_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
-                m_weight_indiv_SF_MU_Trigger_SYST_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_SYST_UP);
-                m_weight_indiv_SF_MU_Trigger_SYST_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
                 m_weight_indiv_SF_MU_ID             = m_sfRetriever -> muonSF(event,top::topSFSyst::nominal,            top::topSFComp::ID);
                 // Muon ID SF systematics (regular)
                 m_weight_indiv_SF_MU_ID_STAT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_STAT_UP, top::topSFComp::ID);
@@ -1637,8 +1649,6 @@ namespace top {
                 m_weight_indiv_SF_MU_TTVA_SYST_UP   = m_sfRetriever -> muonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_UP,      top::topSFComp::TTVA);
                 m_weight_indiv_SF_MU_TTVA_SYST_DOWN = m_sfRetriever -> muonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_DOWN,    top::topSFComp::TTVA);
 
-
-                ATH_MSG_DEBUG("Muon Trigger SF = "<<m_weight_indiv_SF_MU_Trigger<<" + "<< m_weight_indiv_SF_MU_Trigger_STAT_UP<<" - "<<  m_weight_indiv_SF_MU_Trigger_STAT_DOWN<<"     + "<< m_weight_indiv_SF_MU_Trigger_SYST_UP<<" - "<< m_weight_indiv_SF_MU_Trigger_SYST_DOWN);
 
                 ATH_MSG_DEBUG("Muon ID SF = "<<m_weight_indiv_SF_MU_ID<<" + "<< m_weight_indiv_SF_MU_ID_STAT_UP<<" - "<<  m_weight_indiv_SF_MU_ID_STAT_DOWN<<"     + "<< m_weight_indiv_SF_MU_ID_SYST_UP<<" - "<< m_weight_indiv_SF_MU_ID_SYST_DOWN);
 
@@ -1804,6 +1814,10 @@ namespace top {
                 m_el_trigMatched[trigger.first].resize(n_electrons);
             m_el_d0sig.resize(n_electrons);
             m_el_delta_z0_sintheta.resize(n_electrons);
+	    if (m_useElectronChargeIDSelection) {
+	      m_el_ECIDS.resize(n_electrons);
+	      m_el_ECIDSResult.resize(n_electrons);
+	    }
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
@@ -1813,6 +1827,9 @@ namespace top {
 	      m_el_true_isPrompt.resize(n_electrons);
 	      m_el_true_isChargeFl.resize(n_electrons);
             }
+
+	    static SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
+	    static SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
 
             for (const auto* const elPtr : event.m_electrons) {
                 m_el_pt[i] = elPtr->pt();
@@ -1839,6 +1856,11 @@ namespace top {
                 if( elPtr->isAvailable<float>("delta_z0_sintheta") )
                     m_el_delta_z0_sintheta[i] = elPtr->auxdataConst<float>("delta_z0_sintheta");
 
+		if (m_useElectronChargeIDSelection) {
+		  m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
+		  m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
+		}
+
                 //retrieve the truth-matching variables from MCTruthClassifier
                 if (m_config->isMC()) {
                   m_el_true_type[i] = 0;
@@ -1851,7 +1873,7 @@ namespace top {
 		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
                   static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
                   static SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
-
+		  
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
 		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);
@@ -1979,22 +2001,22 @@ namespace top {
             m_jet_passfjvt.resize(event.m_jets.size());
 	    // R21 b-tagging
 	    if(m_config->getReleaseSeries() == 25){
-	      m_jet_MV2c10mu.resize(event.m_jets.size());
-	      m_jet_MV2c10rnn.resize(event.m_jets.size());
+	      m_jet_MV2r.resize(event.m_jets.size());
+	      m_jet_MV2rmu.resize(event.m_jets.size());
 	      m_jet_DL1.resize(event.m_jets.size());
-	      m_jet_DL1mu.resize(event.m_jets.size());
-	      m_jet_DL1rnn.resize(event.m_jets.size());
+	      m_jet_DL1r.resize(event.m_jets.size());
+	      m_jet_DL1rmu.resize(event.m_jets.size());
 	      m_jet_MV2cl100.resize(event.m_jets.size());
 	      m_jet_MV2c100.resize(event.m_jets.size());
 	      m_jet_DL1_pu.resize(event.m_jets.size());
 	      m_jet_DL1_pc.resize(event.m_jets.size());
 	      m_jet_DL1_pb.resize(event.m_jets.size());
-	      m_jet_DL1mu_pu.resize(event.m_jets.size());
-	      m_jet_DL1mu_pc.resize(event.m_jets.size());
-	      m_jet_DL1mu_pb.resize(event.m_jets.size());
-	      m_jet_DL1rnn_pu.resize(event.m_jets.size());
-	      m_jet_DL1rnn_pc.resize(event.m_jets.size());
-	      m_jet_DL1rnn_pb.resize(event.m_jets.size());
+	      m_jet_DL1r_pu.resize(event.m_jets.size());
+	      m_jet_DL1r_pc.resize(event.m_jets.size());
+	      m_jet_DL1r_pb.resize(event.m_jets.size());
+	      m_jet_DL1rmu_pu.resize(event.m_jets.size());
+	      m_jet_DL1rmu_pc.resize(event.m_jets.size());
+	      m_jet_DL1rmu_pb.resize(event.m_jets.size());
 	    }
             if (m_config->isMC()) {
               m_jet_truthflav.resize(event.m_jets.size());
@@ -2074,33 +2096,33 @@ namespace top {
 		// BTagging variables supported for R21 but method is only in newer version so preprocessor requirement
 		#if ROOTCORE_RELEASE_SERIES >= 25
 		if(m_config->getReleaseSeries() == 25){
-		  m_jet_MV2c10mu[i] = -999;
-		  m_jet_MV2c10rnn[i] = -999;
+		  m_jet_MV2r[i] = -999;
+		  m_jet_MV2rmu[i] = -999;
 		  // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
 		  m_jet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
-		  m_jet_DL1mu[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1mu");
-		  m_jet_DL1rnn[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rnn");
+		  m_jet_DL1r[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
+		  m_jet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");
 		  m_jet_MV2cl100[i] = -999;
 		  m_jet_MV2c100[i] = -999;
 		  m_jet_DL1_pu[i] = -999;
 		  m_jet_DL1_pc[i] = -999;
 		  m_jet_DL1_pb[i] = -999;
-		  m_jet_DL1mu_pu[i] = -999;
-		  m_jet_DL1mu_pc[i] = -999;
-		  m_jet_DL1mu_pb[i] = -999;
-		  m_jet_DL1rnn_pu[i] = -999;
-                  m_jet_DL1rnn_pc[i] = -999;
-		  m_jet_DL1rnn_pb[i] = -999;
+		  m_jet_DL1r_pu[i] = -999;
+		  m_jet_DL1r_pc[i] = -999;
+		  m_jet_DL1r_pb[i] = -999;
+		  m_jet_DL1rmu_pu[i] = -999;
+                  m_jet_DL1rmu_pc[i] = -999;
+		  m_jet_DL1rmu_pb[i] = -999;
 
 		  if(btag){
 		    // MVX
 		    mvx = -999;
-		    btag->MVx_discriminant("MV2c10mu", mvx);
-		    m_jet_MV2c10mu[i] = mvx;
+		    btag->MVx_discriminant("MV2r", mvx);
+		    m_jet_MV2r[i] = mvx;
 		    
 		    mvx = -999;
-		    btag->MVx_discriminant("MV2c10rnn", mvx);
-		    m_jet_MV2c10rnn[i] = mvx;
+		    btag->MVx_discriminant("MV2rmu", mvx);
+		    m_jet_MV2rmu[i] = mvx;
 		    
 		    mvx = -999;
                     btag->MVx_discriminant("MV2cl100", mvx);
@@ -2113,21 +2135,21 @@ namespace top {
 		    // DL1
 		    double _pu, _pc, _pb = -999;
 
-		    // DL1rnnCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
-		    // so just providing the DL1rnn weights to construct tagger offline
-		    btag->pu("DL1rnn",_pu);
-		    btag->pb("DL1rnn",_pb);
-                    btag->pc("DL1rnn",_pc);
-		    m_jet_DL1rnn_pu[i] = _pu;
-                    m_jet_DL1rnn_pc[i] = _pc;
-                    m_jet_DL1rnn_pb[i] = _pb;		    
-		    // DL1mu - as above
-		    btag->pu("DL1mu",_pu);
-                    btag->pb("DL1mu",_pb);
-                    btag->pc("DL1mu",_pc);
-		    m_jet_DL1mu_pu[i] = _pu;
-		    m_jet_DL1mu_pc[i] = _pc;
-		    m_jet_DL1mu_pb[i] = _pb;
+		    // DL1rmuCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
+		    // so just providing the DL1rmu weights to construct tagger offline
+		    btag->pu("DL1rmu",_pu);
+		    btag->pb("DL1rmu",_pb);
+                    btag->pc("DL1rmu",_pc);
+		    m_jet_DL1rmu_pu[i] = _pu;
+                    m_jet_DL1rmu_pc[i] = _pc;
+                    m_jet_DL1rmu_pb[i] = _pb;		    
+		    // DL1r - as above
+		    btag->pu("DL1r",_pu);
+                    btag->pb("DL1r",_pb);
+                    btag->pc("DL1r",_pc);
+		    m_jet_DL1r_pu[i] = _pu;
+		    m_jet_DL1r_pc[i] = _pc;
+		    m_jet_DL1r_pb[i] = _pb;
 		    // DL1 - as above
 		    btag->pu("DL1",_pu);
                     btag->pb("DL1",_pb);
@@ -3066,6 +3088,10 @@ namespace top {
                 m_mc_phi.resize(truthSize);
                 m_mc_e.resize(truthSize);
                 m_mc_pdgId.resize(truthSize);
+		m_mc_charge.resize(truthSize);
+		m_mc_status.resize(truthSize);
+		m_mc_barcode.resize(truthSize);
+		
                 for (const auto* const mcPtr : *truth) {
 
                     // Fix for
@@ -3082,6 +3108,10 @@ namespace top {
                     m_mc_phi[i] = mcPtr->phi();
                     m_mc_e[i] = mcPtr->e();
                     m_mc_pdgId[i] = mcPtr->pdgId();
+		    m_mc_charge[i] = mcPtr->charge();
+		    m_mc_status[i] = mcPtr->status();
+		    m_mc_barcode[i] = mcPtr->barcode();
+
                     ++i;
                 }
             }
@@ -3822,6 +3852,8 @@ namespace top {
        m_el_eta.resize(upgradeEvent.m_electrons->size());
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
+       m_el_etcone20.resize(upgradeEvent.m_electrons->size());
+       m_el_ptcone30.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
        m_el_true_type.resize(upgradeEvent.m_electrons->size());
        m_el_true_origin.resize(upgradeEvent.m_electrons->size());
@@ -3842,6 +3874,18 @@ namespace top {
 	 //m_el_true_firstEgMotherTruthType[i] = 0;
 	 //m_el_true_firstEgMotherTruthOrigin[i] = 0;
 	 //m_el_true_isPrompt[i] = 0;
+
+     if (elPtr->isAvailable<float>("etcone20")) {
+         m_el_etcone20[i] = elPtr->auxdata<float>("etcone20");
+     } else {
+         m_el_etcone20[i] = -999;
+     }
+     if (elPtr->isAvailable<float>("ptcone30")) {
+         m_el_ptcone30[i] = elPtr->auxdata<float>("ptcone30");
+     } else {
+         m_el_ptcone30[i] = -999;
+     }
+
 	 if (!m_config->HLLHCFakes()) {
 	     if (elPtr->isAvailable<unsigned int>("particleType")) {
 	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
@@ -3912,6 +3956,8 @@ namespace top {
        m_mu_eta.resize(upgradeEvent.m_muons->size());
        m_mu_phi.resize(upgradeEvent.m_muons->size());
        m_mu_e.resize(upgradeEvent.m_muons->size());
+       m_mu_etcone20.resize(upgradeEvent.m_muons->size());
+       m_mu_ptcone30.resize(upgradeEvent.m_muons->size());
        m_mu_charge.resize(upgradeEvent.m_muons->size());
        m_mu_true_type.resize(upgradeEvent.m_muons->size());
        m_mu_true_origin.resize(upgradeEvent.m_muons->size());
@@ -3952,7 +3998,17 @@ namespace top {
            m_mu_prodVtx_z[i] = muPtr->auxdata<float>("prodVtx_z");
          }
          if (muPtr->isAvailable<float>("prodVtx_perp")) {
-           m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+             m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+         }
+         if (muPtr->isAvailable<float>("etcone20")) {
+             m_mu_etcone20[i] = muPtr->auxdata<float>("etcone20");
+         } else {
+             m_mu_etcone20[i] = -999;
+         }
+         if (muPtr->isAvailable<float>("ptcone30")) {
+             m_mu_ptcone30[i] = muPtr->auxdata<float>("ptcone30");
+         } else {
+             m_mu_ptcone30[i] = -999;
          }
          if (muPtr->isAvailable<float>("prodVtx_phi")) {
            m_mu_prodVtx_phi[i] = muPtr->auxdata<float>("prodVtx_phi");

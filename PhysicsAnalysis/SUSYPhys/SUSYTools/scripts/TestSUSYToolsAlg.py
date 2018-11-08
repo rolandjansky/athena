@@ -89,7 +89,7 @@ if options.daod == 0:
 # Running over SUSY DAOD (uses data18/mc16e inputs)
 else:
     config.PRWLumiCalc = [
-        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20180906/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20180924/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"
         ]
     if options.type == "DATA":
         config.DataSource = 0

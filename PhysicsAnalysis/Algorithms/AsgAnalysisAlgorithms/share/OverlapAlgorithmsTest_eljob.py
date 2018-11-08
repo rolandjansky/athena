@@ -9,6 +9,9 @@
 # extend the list of arguments with your private ones later on.
 import optparse
 parser = optparse.OptionParser()
+parser.add_option( '-d', '--data-type', dest = 'data_type',
+                   action = 'store', type = 'string', default = 'data',
+                   help = 'Type of data to run over. Valid options are data, mc, afii' )
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
@@ -24,9 +27,9 @@ ROOT.xAOD.Init().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+
+dataType = options.data_type
+
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
@@ -92,7 +95,7 @@ algSeq += photonSequence
 
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequence = makeMuonAnalysisSequence( dataType )
+muonSequence = makeMuonAnalysisSequence( dataType, 'Tight.Iso' )
 muonSequence.configure( inputName = 'Muons',
                         outputName = 'AnalysisMuons_%SYS%' )
 algSeq += muonSequence
@@ -107,7 +110,7 @@ algSeq += jetSequence
 
 # Include, and then set up the tau analysis algorithm sequence:
 from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-tauSequence = makeTauAnalysisSequence( dataType )
+tauSequence = makeTauAnalysisSequence( dataType, 'Tight' )
 tauSequence.configure( inputName = 'TauJets',
                        outputName = 'AnalysisTauJets_%SYS%' )
 algSeq += tauSequence

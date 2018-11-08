@@ -138,18 +138,29 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_2mu6_mu4_bTau_L12MU6_3MU4",
                      "HLT_mu6_2mu4_bTau_L1MU6_3MU4",
                      "HLT_mu11_2mu4noL1_bTau_L1MU11_2MU6",
-                     "HLT_mu11_mu6_bTau",
                      "HLT_mu11_mu6noL1_bTau_L1MU11_2MU6",
                      "HLT_3mu4_bPhi",
                      "HLT_mu11_mu6_bPhi",
-                     "HLT_mu11_mu6noL1_bPhi_L1MU11_2MU6",
                      "HLT_mu11_nomucomb_mu6_nomucomb_bPhi",
                      "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bPhi",
-                     "HLT_mu11_mu6_bDimu2700" ]
+                     "HLT_mu6_2mu4_bTau_L1MU6_3MU4",
+                     "HLT_mu20_mu6btrk_bTauTight",
+                     "HLT_mu20_2mu2btrk_bTauTight",
+                     "HLT_mu11_2mu2btrk_bTauTight_L1MU11_2MU6",
+                     "HLT_3mu4_bPhi",
+                     "HLT_mu11_mu6_bPhi",
+                     "HLT_mu11_mu6noL1_bPhi_L1MU11_2MU6",
+                     "HLT_mu11_mu6_bPhi_L1LFV-MU11",
+                     "HLT_2mu6_bPhi_L1LFV-MU6" ]
+
+
+
+
+triggersToMetadata_filter = list( set(triggersToMetadata) )
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
 BPHY7TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY7TriggerCount",
-                                                                          TriggerList = triggersToMetadata,
+                                                                          TriggerList = triggersToMetadata_filter,
                                                                           FolderName = "BPHY7")
 
 ToolSvc += BPHY7TriggerCountToMetadata
@@ -607,7 +618,7 @@ AllVariables += ["CombinedMuonTrackParticles",
 ExtraVariables = ["Photons.pt.eta.phi.m",
                   "Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink",
                   "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", 
-                  "AntiKt4EMTopoJets.JvtJvfcorr", 
+                  "AntiKt4EMTopoJets.JvtJvfcorr.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF", 
                   "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
 ExtraVariables += ["Muons.etaLayer1Hits.etaLayer2Hits.etaLayer3Hits.etaLayer4Hits.phiLayer1Hits.phiLayer2Hits.phiLayer3Hits.phiLayer4Hits",

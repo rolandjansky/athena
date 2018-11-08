@@ -3,8 +3,9 @@
 # art-description: DxAOD MC16d TOPQ1 FullSim 410470 PFlow Jets
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
-# art-input: mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_s3126_r10201_p3554
-# art-input-nfiles: 5 
+# art-input: user.iconnell.410470.DAOD_TOPQ1.e6337_s3126_r10201_p3554.ART.v2
+# art-input-nfiles: 2 
+# art-include: 21.2/AnalysisTop
 
 import ROOT
 from PathResolver import PathResolver
@@ -15,7 +16,13 @@ os.system('art.py createpoolfile')
 
 # -- Settings --
 cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
-inputfilenames = glob.glob("*.root*")
+#inputfilenames = glob.glob("*.root*")
+
+try:  
+   inputfilenames=os.environ["ArtInFile"]
+except KeyError: 
+   print "Please set the environment variable ArtInFile"
+   sys.exit(1)
 
 # -- Get the validation file path from the most recent location --
 cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
@@ -30,11 +37,17 @@ print "Running on full statistics"
 # -- Copy the cutfile locally to be updated -- 
 shutil.copyfile(cutfilepath, cutfilename)
 
-# -- Write the input file path to a temporary file --
-inputfilepath = open("input.txt","w")
-for filename in inputfilenames:
-    inputfilepath.write(filename+"\n")
-inputfilepath.close()
+ # -- Write the input file path to a temporary file --
+lines = inputfilenames.split(",")
+with open('input.txt', 'w') as inputfilepath:
+    for line in lines:
+       print "line : ", line
+       inputfilepath.write(line+'\n')
+
+f = open('input.txt', 'r')
+print "Printing input.txt"
+print f.read()
+f.close()
 
 # -- Run top-xaod --
 cmd  = "top-xaod %s input.txt"%(cutfilename)

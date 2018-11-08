@@ -510,8 +510,8 @@ StatusCode SUSYToolsAlg::execute() {
   double metsig_cst(0.);
 
   ATH_CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
-        			metsig_cst,
-                             	false, false) );
+				    metsig_cst,
+				    false, false) );
 
   ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
 

@@ -159,7 +159,7 @@ int main()
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.00885311},
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
     {"TauScaleFactorJetIDHadTau",               1.030     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.0563107 },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.053000  },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
   });
 
@@ -175,7 +175,7 @@ int main()
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.0155508 },
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
     {"TauScaleFactorJetIDHadTau",               1.150     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.0965217 },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.097     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
   });
   
@@ -191,7 +191,7 @@ int main()
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",      0.00591177},
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",     0.        },
     {"TauScaleFactorJetIDHadTau",                1.094     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",      0.0703839 },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",      0.069     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",    0.0282150 }
   });
 

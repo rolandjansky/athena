@@ -95,5 +95,9 @@ atlas_add_executable( mini-to-plots
                                      PathResolver
                                      ${ROOT_LIBRARIES}
                                      TopExamples )
+atlas_add_executable( combineATOutputs
+                      util/combineATOutputs.cxx
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                     TopExamples )
 
 atlas_install_scripts( scripts/* )

@@ -368,20 +368,23 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     const std::string calibChoice = m_config->largeRJESJMSConfig(); 
     if (calibChoice == "CombMass") {
       //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
-      calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
+      //calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
+      calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config";
     }
-    else if (calibChoice == "TrackAssistedMass") {
-      calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config";
+    else if (calibChoice == "TAMass") {
+      //calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config";
+      calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_TA_12Oct2018.config";
     }
     else if (calibChoice == "CaloMass") {
-      calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
+      //calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
+      calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config";
     }
     else {
-      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombMass) : "+calibChoice);
+      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass and CombMass) : "+calibChoice);
       return StatusCode::FAILURE;
     }
     const std::string calibSequenceLargeR = "EtaJES_JMS";
-    const std::string calibAreaLargeR = "00-04-81";
+    const std::string calibAreaLargeR = "00-04-82";
     JetCalibrationTool* jetCalibrationToolLargeR
       = new JetCalibrationTool("JetCalibrationToolLargeR");
     top::check(asg::setProperty(jetCalibrationToolLargeR, "JetCollection", jetCalibrationNameLargeR),
@@ -455,10 +458,10 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
   const std::string jvt_tool_name = "JetJvtEfficiencyTool";
   const std::string JVT_SFFile =
     (m_config->sgKeyJets()=="AntiKt4LCTopoJets")?
-    "JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root":      // LC jets
+    "JetJvtEfficiency/Moriond2018/JvtSFFile_LC.root":      // LC jets
     (m_config->useParticleFlowJets())? 
-    "JetJvtEfficiency/Moriond2017/JvtSFFile_EMPFlow.root": // pflow jets
-    "JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root";      // default is EM jets
+    "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root": // pflow jets
+    "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root";      // default is EM jets
 
   if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(jvt_tool_name)) {
     m_jetJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(jvt_tool_name);

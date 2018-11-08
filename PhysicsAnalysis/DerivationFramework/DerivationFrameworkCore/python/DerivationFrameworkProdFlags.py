@@ -1062,6 +1062,19 @@ class WriteDAOD_SUSY18Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY18Stream)
 listAODtoDPD.append(WriteDAOD_SUSY18Stream.StreamName)
 
+class WriteDAOD_SUSY19Stream(JobProperty):
+    """SUSY19: 1lepton + 1 track"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_SUSY19'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSUSY/SUSY19.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY19Stream)
+listAODtoDPD.append(WriteDAOD_SUSY19Stream.StreamName)
+
 #################################
 # Defined by the Exotics group
 #################################
@@ -2487,6 +2500,19 @@ class WriteDAOD_TRIG5Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG5Stream)
 listAODtoDPD.append(WriteDAOD_TRIG5Stream.StreamName)
+
+class WriteDAOD_TRIG6Stream (JobProperty):
+     """TRIG6 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_TRIG6'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkTrigger/TRIG6.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG6Stream)
+listAODtoDPD.append(WriteDAOD_TRIG6Stream.StreamName)
 
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listAODtoDPD,listAllKnownDPD)

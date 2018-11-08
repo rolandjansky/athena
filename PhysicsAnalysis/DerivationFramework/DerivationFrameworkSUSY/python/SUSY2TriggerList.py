@@ -37,7 +37,19 @@ trielemuon_trigger = [
     "HLT_e12_lhmedium_nod0_2mu10",
 ]
 
+triphotonmuon_trigger = [
+    "HLT_g25_medium_mu24",
+]
+
+triphotonelectron_trigger = [
+    "HLT_e24_lhmedium_nod0_L1EM20VH_g25_medium",
+    "HLT_e20_lhmedium_nod0_g35_loose",
+    "HLT_e20_lhmedium_g35_loose",
+]
+
 
 singleLeptonTriggers = SingleLepton_2018+SingleLepton_2017+SingleLepton_2016+SingleLepton_2015
 diLeptonTriggers = DiLepton_2018+DiLepton_2017+DiLepton_2016+DiLepton_2015
-triggersNavThin = trielectron_trigger+trimuon_trigger+trielemuon_trigger+singleLeptonTriggers+diLeptonTriggers
+SUSY2AllTriggers = trielectron_trigger + trimuon_trigger + trielemuon_trigger + singleLeptonTriggers + diLeptonTriggers + triphotonmuon_trigger + triphotonelectron_trigger
+LeptonTriggers =  trielectron_trigger+trimuon_trigger+trielemuon_trigger+singleLeptonTriggers+diLeptonTriggers
+PhotonTriggers =  triphotonmuon_trigger+triphotonelectron_trigger

@@ -8,7 +8,6 @@
 #include <string>
 
 #include "PersistentDataModel/Token.h"
-//#include "AttributeList/AttributeList.h"
 
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/IFCContainer.h"
@@ -24,19 +23,14 @@
 
 #include "TInterpreter.h"
 #include "TClass.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#include "Cintex/Cintex.h"
-#endif
 
 using namespace std;
 using namespace pool;
 
 int main(int argc, char** )
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  ROOT::Cintex::Cintex::Enable();
-#endif
   gInterpreter->EnableAutoLoading();
+  gInterpreter->ProcessLine("gROOT->GetVersion();");  //needed to fix ROOT 6.14.4 crash  https://sft.its.cern.ch/jira/browse/ROOT-9720
   TClass::GetClass("map<string,string>");
 
   bool crude = argc>1;
@@ -121,10 +115,8 @@ int main(int argc, char** )
     setenv( "POOL_COLLECTION_WRITE_CATALOG", "xmlcatalog_file:CollectionCatalog0.xml", 1);
     setenv( "POOL_COLLECTION_READ_CATALOGS", "xmlcatalog_file:CollectionCatalog1.xml xmlcatalog_file:CollectionCatalog2.xml", 1);
     
-    ICollection* collection = 0;
-    
-    
-    
+    ICollection* collection = nullptr;
+       
     cout << "Open collection 0 with physical name .... ";
     string physicalName =  collType+"|"+collConnection+"|"+"Collection0";
     if(crude) {
@@ -134,9 +126,10 @@ int main(int argc, char** )
        collection = factory->openWithPhysicalName(physicalName, 0);
     }
     cout << (collection ? "OK":"KO") << endl;
-    
-    
-    
+    delete collection;
+    collection = nullptr;
+
+
     cout << "Open collection 1 with guid .... ";
     if(crude) {
        CollectionDescription	desc( guid, "" ); 
@@ -144,6 +137,8 @@ int main(int argc, char** )
     } else
        collection = factory->openWithGuid(guid, 0);
     cout << (collection ? "OK":"KO") << endl;
+    delete collection;
+    collection = nullptr;
     
     
     
@@ -154,8 +149,9 @@ int main(int argc, char** )
     } else
        collection = factory->openWithLogicalName("logicalName2", 0);
     cout << (collection ? "OK":"KO") << endl;
-    
-    
+    delete collection;
+    collection = nullptr;
+        
  
     cout << "Try to create the existing collection 0 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection0";
@@ -171,8 +167,9 @@ int main(int argc, char** )
     }catch( std::exception&){
       cout << "OK, exception has been thrown" << endl;
     }
-    
-    
+    delete collection;
+    collection = nullptr;
+
     
     cout << "Try to replace the replicated collection 1 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection1";
@@ -188,9 +185,10 @@ int main(int argc, char** )
     }catch( std::exception&){
       cout << "OK, exception has been thrown" << endl;
     }
-    
-    
-    
+    delete collection;
+    collection = nullptr;
+
+
     cout << "Try to replace unique collection 0 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection0";
     try{
@@ -201,13 +199,15 @@ int main(int argc, char** )
      	  CollectionDescription	desc( "Collection0", collType, collConnection ); 
 	  collection = factory->createAndRegister( desc, 0, true, "", collMetaData );
        }
+       delete collection;
+       collection = nullptr;
        cout << "OK, this works" << endl;
     }catch( std::exception& e){
        cout << "ERROR, this should work" << endl;
        std::cout << "Exception: "<<e.what()<<std::endl;
     }
     
-    
+
     cout << "Try to update the NON replicated collection 0 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection0";
     try{
@@ -218,6 +218,8 @@ int main(int argc, char** )
 	  collection = factory->openWithPhysicalName( physicalName, 0, 
 						       ICollection::UPDATE );
        cout << "OK, this works" << endl;
+       delete collection;
+       collection = nullptr;
     }catch( std::exception&e ){
        cout << "ERROR, this should work" << endl;
        std::cout << "Exception: "<<e.what()<<std::endl; 
@@ -235,8 +237,9 @@ int main(int argc, char** )
     }catch( std::exception&){
       cout << "OK, exception has been thrown" << endl;
     }
-    
-    
+    delete collection;
+    collection = nullptr;
+
     
     cout << "Try to update unique collection 0 ... ";
     try{
@@ -247,6 +250,8 @@ int main(int argc, char** )
 	  collection = factory->openWithLogicalName( "logicalName0", 0,// logical name 
 						     false );        // readOnly
        cout << "OK it works" << endl;
+       delete collection;
+       collection = nullptr;
     }catch( std::exception&){
       cout << "ERROR, this should work" << endl;
     }

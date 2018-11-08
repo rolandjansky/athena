@@ -30,7 +30,8 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
     Trk__TrackToVertexIPEstimator)
 
 # flavor tagging
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger, addExKtCoM
+from DerivationFrameworkFlavourTag.HbbCommon import (
+    addVRJets, addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
@@ -207,11 +208,7 @@ for jc in FTAG5BTaggedJets:
 # Add Hbb tagger
 #================================================================
 
-addHbbTagger(FTAG5Seq, ToolSvc, ftag5_log)
-addHbbTagger(
-    FTAG5Seq, ToolSvc, ftag5_log,
-    nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
-    nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
+addRecommendedXbbTaggers(FTAG5Seq, ToolSvc, ftag5_log)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -259,21 +256,15 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
 ]
+FTAG5SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
 # add the extra variables that come from the BTagJetAugmenterAlg
+extra_btag = list(complex_jet_discriminants)
+extra_btag += ['JetFitter_JFvertices', 'SV1_vertices']
 for jc in FTAG5BTaggedJets:
     FTAG5SlimmingHelper.ExtraVariables.append('.'.join([
-    	"BTagging_"+jc.replace("Jets","")] + complex_jet_discriminants))
+    	"BTagging_"+jc.replace("Jets","")] + extra_btag))
 
 # add some more extra variables for ghost associated particles
 ghost_particles = [

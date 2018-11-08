@@ -52,6 +52,12 @@ def setup(HIGG4DxName, ToolSvc):
     ToolSvc += HIGG4DxJetBDTSigLooseSelectionWrapper
     augmentationTools.append(HIGG4DxJetBDTSigLooseSelectionWrapper)
 
+    HIGG4DxJetRNNSigLooseSelectionWrapper = DerivationFramework__TauSelectionWrapper( name                   = "HIGG4DxJetRNNSigLooseSelectionWrapper",
+                                                                                     IsTauFlag               = 29,
+                                                                                     CollectionName          = "TauJets",
+                                                                                     StoreGateEntryName      = "HIGG4DxJetRNNSigLoose")
+    ToolSvc += HIGG4DxJetRNNSigLooseSelectionWrapper
+    augmentationTools.append(HIGG4DxJetRNNSigLooseSelectionWrapper)
 
 
     # Tau primary vertex refit

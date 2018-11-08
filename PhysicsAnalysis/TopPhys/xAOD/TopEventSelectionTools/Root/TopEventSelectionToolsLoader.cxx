@@ -8,6 +8,8 @@
 #include "TopEventSelectionTools/ExamplePlots.h"
 #include "TopEventSelectionTools/JetFlavorPlots.h"
 #include "TopEventSelectionTools/FakesMMConfigs.h"
+#include "TopEventSelectionTools/GlobalTrigDecisionSelector.h"
+#include "TopEventSelectionTools/GlobalTrigMatchSelector.h"
 #include "TopEventSelectionTools/GRLSelector.h"
 #include "TopEventSelectionTools/GoodCaloSelector.h"
 #include "TopEventSelectionTools/HTSelector.h"
@@ -147,6 +149,10 @@ namespace top {
       return new top::JetFlavorPlots(name, outputFile, param, config, wk);
     else if (toolname == "GRL")
         return new top::GRLSelector();
+    else if (toolname == "GTRIGDEC")
+        return new top::GlobalTrigDecisionSelector();
+    else if (toolname == "GTRIGMATCH")
+        return new top::GlobalTrigMatchSelector();
     else if (toolname == "TRIGDEC")
         return new top::TrigDecisionSelector(name,config);
     else if (toolname == "TRIGDEC_LOOSE")
