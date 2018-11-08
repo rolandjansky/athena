@@ -43,13 +43,6 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
   getService("MdtCalibrationSvc")
   include("AmdcAth/AmdcAth_jobOptions.py")
   
-  # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
-  kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.MDT_on() and recAlgs.doTrigger())
-  #kwargs.setdefault("RawDataProviderTool", "MdtRawDataProviderTool")
-### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
-##  if not kwargs["useBStoRdoTool"]:
-##    kwargs["RawDataProviderTool"] = None # empty tool
-
   if source == 'data':
     kwargs.setdefault("UseTwin", True)
 

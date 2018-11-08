@@ -24,7 +24,6 @@ PURPOSE:
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -36,7 +35,6 @@ LArCellGainPathology::LArCellGainPathology(
 			     const std::string& name, 
 			     const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_cablingService("LArCablingService"),
     m_calo_id(nullptr),
     m_onlineID(nullptr)
 { 
@@ -57,7 +55,7 @@ StatusCode LArCellGainPathology::initialize()
   m_calo_id = caloIdMgr->getCaloCell_ID();
 
   // translate offline ID into online ID
-  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
   return StatusCode::SUCCESS;
 
@@ -72,6 +70,9 @@ StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
 {
   ATH_MSG_DEBUG (" in  LArCellGainPathology::process ");
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+
 // loop over all Febs
 
   std::vector<HWIdentifier>::const_iterator feb = m_onlineID->feb_begin();
@@ -79,32 +80,29 @@ StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
 
 
   for ( ; feb != feb_end; feb++) {
-
-
 // for debug
-      HWIdentifier febId = (*feb);
-      unsigned int ifeb = febId.get_identifier32().get_compact();
-      ATH_MSG_DEBUG (" process Feb: " << ifeb << " ");
+      ATH_MSG_DEBUG (" process Feb: " << 
+		     feb->get_identifier32().get_compact());
 
 // get information for channel 0-63  64-127
    
       for (int i=0;i<2;i++) {
        int cha1 = i*64;
        int cha2 = i*64+63;
-       HWIdentifier hwid1 = m_onlineID->channel_Id(febId,cha1);
-       HWIdentifier hwid2 = m_onlineID->channel_Id(febId,cha2);
-       this->ApplyPathology(theCont,hwid1,hwid2);
+       HWIdentifier hwid1 = m_onlineID->channel_Id(*feb,cha1);
+       HWIdentifier hwid2 = m_onlineID->channel_Id(*feb,cha2);
+       this->ApplyPathology(theCont,hwid1,hwid2,cabling);
       }
   }
 
   return StatusCode::SUCCESS;
 }
 
-void LArCellGainPathology::ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id2)
+void LArCellGainPathology::ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id2,const LArOnOffIdMapping* cabling)
 {
 
-    CaloCell* cell1 = this->GetCell(theCont, id1);
-    CaloCell* cell2 = this->GetCell(theCont, id2);
+  CaloCell* cell1 = this->GetCell(theCont, id1,cabling);
+  CaloCell* cell2 = this->GetCell(theCont, id2,cabling);
 
     if (!cell1 || !cell2) return;
 
@@ -135,11 +133,11 @@ void LArCellGainPathology::ApplyPathology(CaloCellContainer* theCont, HWIdentifi
 
 }
 
-CaloCell* LArCellGainPathology::GetCell(CaloCellContainer* theCont, HWIdentifier id)
+CaloCell* LArCellGainPathology::GetCell(CaloCellContainer* theCont, HWIdentifier id,const LArOnOffIdMapping* cabling)
 {
   CaloCell* aCell =0;
-  if (m_cablingService->isOnlineConnected(id)) {
-    Identifier id_off = m_cablingService->cnvToIdentifier(id);
+  if (cabling->isOnlineConnected(id)) {
+    Identifier id_off = cabling->cnvToIdentifier(id);
     IdentifierHash theCellHashID = m_calo_id->calo_cell_hash(id_off);
     int index = theCont->findIndex(theCellHashID);
     if (index>=0) {

@@ -757,7 +757,7 @@ namespace TrigCostRootAnalysis {
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
-      path = PathResolverFindDataFile(file); // Get from CALIB area
+      path = PathResolverFindCalibFile("TrigCostRootAnalysis/" + file); // Get from CALIB area
       if (path == Config::config().getStr(kBlankString)) { // One more place we can look
         path = std::string(Config::config().getStr(kAFSDataDir) + "/" + file);
       }
@@ -1171,7 +1171,7 @@ namespace TrigCostRootAnalysis {
       } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
-        std::string locAthena = PathResolverFindDataFile(Config::config().getStr(kEBXMLName));
+        std::string locAthena = PathResolverFindCalibFile("TrigCostRootAnalysis" + Config::config().getStr(kEBXMLName));
         if (locAthena == Config::config().getStr(kBlankString)) {
           Error("TrigXMLService::parseEnhancedBiasXML", "Athena cannot find Enhanced Bias weighting file %s. Critical error.", Config::config().getStr(kEBXMLName).c_str());
           abort();

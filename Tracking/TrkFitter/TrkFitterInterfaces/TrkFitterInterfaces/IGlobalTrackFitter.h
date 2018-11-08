@@ -23,34 +23,48 @@ namespace Trk {
 
     /** @class IGlobalTrackFitter
 
-        provides additional abstract interfaces for information 
+        provides additional abstract interfaces for information
         provided from global-least-squares track fit algorithms working
         in the ATLAS EDM.
     */
-    class IGlobalTrackFitter : virtual public ITrackFitter { 
+    class IGlobalTrackFitter : virtual public ITrackFitter {
+
 
     friend class ShiftingDerivCalcTool;
     friend class Chi2DerivCalcTool;
 
   public:
 
+    struct AlignmentCache{
+
     /** access to the matrix of derivatives used during the latest
         global-chi2 track fit. */
-    virtual Amg::MatrixX*		DerivMatrix() const = 0;
+     Amg::MatrixX*	m_derivMatrix = nullptr;
 
     /** access to the global fitter's full covariance matrix. */
-    virtual Amg::MatrixX*	FullCovarianceMatrix() const = 0;
+     Amg::MatrixX*	m_fullCovarianceMatrix = nullptr;
 
     /** returns the number of iterations used by the last fit
         (count starts at 1 for a single-iteration fit) */
-    virtual int iterationsOfLastFit() const = 0;
-
-  private:
-
-    /** sets the minimum number of iterations to be used in the 
+     int m_iterationsOfLastFit  = 1;
+    /** sets the minimum number of iterations to be used in the
         track fit. */
-    virtual void setMinIterations(int iterations) = 0;
+     int m_minIterations = 0;
 
+     ~AlignmentCache(){
+       delete m_derivMatrix;
+       delete m_fullCovarianceMatrix;
+     }
+
+    };
+
+    /** RE-FIT A TRACK FOR ALIGNMENT.
+        Since it is not our but the fitter model's decision if to
+        re-fit on PRD or ROT level, it is made pure virtual. */
+    virtual Track* alignmentFit( AlignmentCache&,
+                        const Track&,
+                        const RunOutlierRemoval  runOutlier=false,
+                        const ParticleHypothesis matEffects=Trk::nonInteracting) const = 0;
 
   };
 }

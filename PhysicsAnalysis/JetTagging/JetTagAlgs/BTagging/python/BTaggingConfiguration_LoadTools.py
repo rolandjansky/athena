@@ -203,7 +203,7 @@ def SetupConditionAlgorithm(ConfInstance=None):
         readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
         connSchema = "GLOBAL"
     Taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'JetVertexCharge', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn']
-    jettagcalibcondalg = "JetTagCalibHistosKey"
+    jettagcalibcondalg = "JetTagCalibCondAlg"
     histoskey = "JetTagCalibHistosKey"
     conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
     JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = Taggers, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)

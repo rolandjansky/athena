@@ -134,8 +134,8 @@ if (IDtrkMon):
     HLTIDtrkMon.PtMin       = 0.
     HLTIDtrkMon.EtaMax      = 5.0
     HLTIDtrkMon.SiHitMin    = 3
-    ToolSvc += HLTIDtrkMon;
-    HLTMonManager.AthenaMonTools += [ "HLTIDtrkMonTool/HLTIDtrkMon" ];
+    #ToolSvc += HLTIDtrkMon;
+    HLTMonManager.AthenaMonTools += [ HLTIDtrkMon ];
 
     
 ##### HLTIDtrkMon Part ####################
@@ -217,8 +217,8 @@ if (IDtrkDump):
 
 
     
-    ToolSvc += HLTIDtrkDump;
-    HLTMonManager.AthenaMonTools += [ "HLTIDtrkDumpTool/HLTIDtrkDump" ];
+    #ToolSvc += HLTIDtrkDump;
+    HLTMonManager.AthenaMonTools += [ HLTIDtrkDump ];
     
 
 ##### Histogram File Part #################

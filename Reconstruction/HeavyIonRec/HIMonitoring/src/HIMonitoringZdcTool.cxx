@@ -2,26 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <sstream>
-
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "HIMonitoring/HIMonitoringZdcTool.h"
 #include <xAODForward/ZdcModule.h>
-#include <xAODForward/ZdcModuleAuxContainer.h>
 #include <xAODForward/ZdcModuleContainer.h>
-#include <xAODForward/xAODForwardDict.h>
-#include <ZdcAnalysis/ZdcAnalysisTool.h>
-#include "TCanvas.h"
-#include "TROOT.h"
+
 #include "TStyle.h"
-#include "TLatex.h"
-#include "LWHists/TH1D_LW.h"
+
 #include "LWHists/TH2D_LW.h"
-#include "LWHists/TProfile_LW.h"
 
 HIMonitoringZdcTool::
 HIMonitoringZdcTool( const std::string & type, const std::string & name,
@@ -186,14 +175,14 @@ StatusCode HIMonitoringZdcTool::procHistograms( )
 
 	if( endOfRunFlag() ) 
 	{
-        for(int k = 0; k < Nside; k++)
+        for(int k = 0; k < s_Nside; k++)
         {
             if(m_hSumSideAmp[k]->GetEntries() > 0) m_hSumSideAmp[k]->Scale(1./m_hSumSideAmp[k]->GetEntries());
      //       if(hSumSideAmp_NEW[k]->GetEntries() > 0) hSumSideAmp_NEW[k]->Scale(1./hSumSideAmp_NEW[k]->GetEntries());
             if(m_hSumSideAmpG0[k]->GetEntries() > 0) m_hSumSideAmpG0[k]->Scale(1./m_hSumSideAmpG0[k]->GetEntries());
             if(m_hSumSideAmpG1[k]->GetEntries() > 0) m_hSumSideAmpG1[k]->Scale(1./m_hSumSideAmpG1[k]->GetEntries());
             
-            for(int i = 0; i < Nmod; i++)
+            for(int i = 0; i < s_Nmod; i++)
             {
                 if(m_hamp[i][k]->GetEntries() > 0) m_hamp[i][k]->Scale(1./m_hamp[i][k]->GetEntries());
    //             if(m_hamp_NEW[i][k]->GetEntries() > 0) m_hamp_NEW[i][k]->Scale(1./m_hamp_NEW[i][k]->GetEntries());
@@ -237,7 +226,7 @@ void HIMonitoringZdcTool::book_hist()
 	m_hSideAC_NEW = TH2D_LW::create(nameSideAC.str().c_str(), nameSideAC.str().c_str(),10241,-0.5,10240.5,10241,-0.5,10240.5);
 	regHist(m_hSideAC_NEW, path, run).ignore();
 	*/
-	for(int k = 0; k<Nside; k++){
+	for(int k = 0; k<s_Nside; k++){
 		
 		nameEM_HAD1.str("");
 		nameEM_HAD1<<"hEM_HAD1_side"<<k;
@@ -289,7 +278,7 @@ void HIMonitoringZdcTool::book_hist()
 		m_hSumSideAmpG1[k] = new TH1D(nameSumSideAmpG1.str().c_str(), nameSumSideAmpG1.str().c_str(),4097,-0.5,4096.5);
 		regHist(m_hSumSideAmpG1[k], path, run).ignore();
 		
-		for(int i = 0; i<Nmod; i++){
+		for(int i = 0; i<s_Nmod; i++){
 			histnameamp.str("");
 			histnameamp<<"h_amplitude_mod"<<i<<"_side"<<k;
 			m_hamp[i][k] = new TH1D(histnameamp.str().c_str(), histnameamp.str().c_str(), 1025, -5, 10245);

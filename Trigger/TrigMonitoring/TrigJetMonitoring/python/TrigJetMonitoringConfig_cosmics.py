@@ -245,7 +245,7 @@ def TrigJetMonitoringTool():
             #DoOFMaxJetTimeCut = True,
             #OFMaxTimens = 50.
         );
-  from AthenaCommon.AppMgr import ToolSvc
-  ToolSvc += HLTJetMon;
-  list = [ "HLTJetMonTool/HLTJetMon" ];
+  #from AthenaCommon.AppMgr import ToolSvc
+  #ToolSvc += HLTJetMon;
+  list = [ HLTJetMon ];
   return list

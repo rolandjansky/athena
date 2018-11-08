@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArHitContainer
@@ -18,7 +18,7 @@
 #include "HitManagement/AthenaHitsVector.h"
 #include "LArSimEvent/LArHit.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class LArHitContainer:public AthenaHitsVector<LArHit>
 

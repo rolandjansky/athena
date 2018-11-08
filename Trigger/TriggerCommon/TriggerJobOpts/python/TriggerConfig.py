@@ -33,6 +33,14 @@ def collectHypos( steps ):
                     hypos[stepSeq.name()].append( alg )
     return hypos
 
+def __decisionsFromHypo( hypo ):
+    """ return all chains served by this hypo and the key of produced decision object """
+    if hypo.getType() == 'ComboHypo':
+        return hypo.MultiplicitiesMap.keys(), hypo.HypoOutputDecisions[0]            
+    else: # regular hypos
+        return [ t.name() for t in hypo.HypoTools ], hypo.HypoOutputDecisions
+
+
 
 def collectFilters( steps ):
     """
@@ -78,18 +86,29 @@ def collectDecisionObjects( steps, l1decoder ):
             decisionObjects.update( filt.Output )
     
     return decisionObjects
+
     
 def triggerSummaryCfg(flags, hypos):
     """ 
     Configures an algorithm(s) that should be run after the slection process
     Returns: ca, algorithm
     """
-    acc = ComponentAccumulator()    
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-    summaryAlg = TriggerSummaryAlg()
-    summaryAlg.InputDecision = "HLTChains"
-    
-    return acc, summaryAlg
+    acc = ComponentAccumulator()
+    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    decisionSummaryAlg = DecisionSummaryMakerAlg()
+    allChains = {}
+    for stepName, stepHypos in sorted( hypos.items() ):
+        for hypo in stepHypos:
+            hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
+            allChains.update( dict.fromkeys( hypoChains, hypoOutputKey ) ) 
+
+    for c, cont in allChains.iteritems():
+        __log.info("Final decision of chain  " + c + " will be red from " + cont ) 
+    decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
+    decisionSummaryAlg.FinalStepDecisions = allChains
+    return acc, decisionSummaryAlg
+        
+
 
 def triggerMonitoringCfg(flags, hypos, l1Decoder):
     """
@@ -102,35 +121,24 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    allChains = {} # collects the last decision obj for each chain
+    allChains = set() # collects the last decision obj for each chain
 
     for stepName, stepHypos in sorted( hypos.items() ):
-        decisions = []
+        stepDecisionKeys = []
         for hypo in stepHypos:
-
-
-            if hypo.getType() == 'ComboHypo':
-                decisions.append( hypo.HypoOutputDecisions[0] )
-                for chain, m in hypo.MultiplicitiesMap.iteritems():
-                    allChains[chain] = hypo.HypoOutputDecisions[0]
-            
-            else: # regular hypos
-                decisions.append( hypo.HypoOutputDecisions )
-                for t in hypo.HypoTools:
-                    allChains[t.name()] = hypo.HypoOutputDecisions
-
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=decisions )
+            hypoChains, hypoOutputKey  = __decisionsFromHypo( hypo )
+            stepDecisionKeys.append( hypoOutputKey )
+            allChains.update( hypoChains )                              
+        
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=stepDecisionKeys )
         __log.info( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
     
-    mon.FinalChainStep = allChains
-    mon.FinalDecisions = list( set( allChains.values() ) )
+    #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['Chains'] if l1Decoder.getProperties()['Chains'] != '<no value>' else l1Decoder.getDefaultProperty('Chains')
-    __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )    
-    mon.ChainsList = list( set( allChains.keys() + l1Decoder.ChainToCTPMapping.keys()) )
-
-    
+    allChains.update( l1Decoder.ChainToCTPMapping.keys() )
+    mon.ChainsList = list( allChains )    
     return acc, mon
 
 def setupL1DecoderFromMenu( flags, l1Decoder ):

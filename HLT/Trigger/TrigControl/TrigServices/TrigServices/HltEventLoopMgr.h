@@ -8,6 +8,7 @@
 // Trigger includes
 #include "TrigKernel/IHltTHistSvc.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
+#include "TrigKernel/HltPscErrorCode.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 
 // Athena includes
@@ -109,6 +110,10 @@ public:
   virtual StatusCode stopRun();
 
 private:
+  // ------------------------- Helper types ------------------------------------
+  /// Enum type returned by the drainScheduler method
+  enum class DrainSchedulerStatusCode {FAILURE=-2, RECOVERABLE=-1, SCHEDULER_EMPTY=0, SUCCESS=1};
+
   // ------------------------- Helper methods ----------------------------------
 
   /// Check if running in partition
@@ -138,20 +143,28 @@ private:
   /// Print the SOR record
   void printSORAttrList(const coral::AttributeList& atr) const;
 
-  /// Handle a failure to process an event
-  void failedEvent(const EventContext& eventContext,
-                   const EventInfo* eventInfo=nullptr,
-                   const HLT::HLTResultMT* hltResult=nullptr) const;
+  /** @brief Handle a failure to process an event
+   *  @return FAILURE breaks the event loop
+   **/
+  StatusCode failedEvent(hltonl::PSCErrorCode errorCode,
+                         const EventContext& eventContext);
 
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
-  // ------------------------- Reimplemented AthenaHiveEventLoopMgr helpers ----
   /// Drain the scheduler from all actions that may be queued
-  int drainScheduler();
+  DrainSchedulerStatusCode drainScheduler();
 
   /// Clear an event slot in the whiteboard
   StatusCode clearWBSlot(size_t evtSlot) const;
+
+  /// Try to recover from a situation where scheduler and whiteboard see different number of free slots
+  StatusCode recoverFromStarvation();
+
+  /** @brief Try to drain the scheduler and clear all event data slots.
+   *  Method of the last resort, used in attempts to recover from framework errors
+   **/
+  StatusCode drainAllSlots();
 
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
@@ -208,6 +221,13 @@ private:
   /// Hard event processing timeout
   FloatProperty m_softTimeoutFraction;
 
+  /// Tolerable number of recovered framework errors
+  IntegerProperty m_maxFrameworkErrors;
+  /// Name of the debug stream for events with HLT framework errors
+  StringProperty m_fwkErrorDebugStreamName;
+  /// Name of the debug stream for events with HLT algorithm errors
+  StringProperty m_algErrorDebugStreamName;
+
   /// StoreGate key for recording EventContext
   SG::WriteHandleKey<EventContext> m_eventContextWHKey;
   /// StoreGate key for reading EventInfo
@@ -251,6 +271,8 @@ private:
   int m_softTimeoutValue;
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer;
+  /// Counter of framework errors
+  int m_nFrameworkErrors;
 };
 
 //==============================================================================

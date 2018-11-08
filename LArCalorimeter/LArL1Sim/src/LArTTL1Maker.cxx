@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -23,7 +23,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArRawEvent/LArTTL1.h"
-#include "LArRawEvent/LArTTL1Container.h"
+
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArDigitization/LArHitList.h"
 
@@ -32,7 +32,6 @@
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "LArIdentifier/LArIdManager.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 //
 // ........ Event Header Files:
@@ -43,13 +42,8 @@
 //
 // ........ Gaudi needed includes
 //
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IService.h"
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 
 // Pile up
@@ -74,8 +68,13 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   , m_atRndmGenSvc("AtRndmGenSvc",name)
   , m_rndmEngineName("LArTTL1Maker")
   , m_rndmEngine(0)
-  , m_hitmap(0)
+  , m_ttSvc("CaloTriggerTowerService")
   , m_fSamplKey("LArfSampl")
+  , m_hitmap(0)
+  , m_EmTTL1ContainerName{"LArTTL1EM"}
+  , m_HadTTL1ContainerName{"LArTTL1HAD"}
+  , m_xxxHitContainerName{{std::string("LArHitEMB"),std::string("LArHitEMEC"), std::string("LArHitHEC"),std::string("LArHitFCAL")}}
+
 // + -------------------------------------------------------------------- +
 // + Author ........: F. Ledroit                                          +
 // + Creation date .: 09/01/2003                                          +
@@ -88,27 +87,24 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   m_chronSvc              = 0;
   m_mergeSvc              = 0;
   m_useTriggerTime        = false;
-  m_triggerTimeToolName   = "CosmicTriggerTimeTool";
-  p_triggerTimeTool       = 0;
+  //m_triggerTimeToolName   = "CosmicTriggerTimeTool";
+  //p_triggerTimeTool       = 0;
   m_useMapfromStore = true;
 
   m_BeginRunPriority      = 100;
 
-  m_cablingSvc            = 0;
-  m_ttSvc                 = 0;
   m_lvl1Helper            = 0;
   m_emHelper              = 0;
   m_hecHelper             = 0;
   m_fcalHelper            = 0;
 
-  m_SubDetectors             = "LAr_All";
   m_EmTTL1ContainerName      = "LArTTL1EM";
   m_HadTTL1ContainerName     = "LArTTL1HAD";
 
-  m_EmBarrelHitContainerName = "LArHitEMB";
-  m_EmEndCapHitContainerName = "LArHitEMEC";
-  m_HecHitContainerName      = "LArHitHEC";
-  m_ForWardHitContainerName  = "LArHitFCAL";
+  //m_EmBarrelHitContainerName = "LArHitEMB";
+  //m_EmEndCapHitContainerName = "LArHitEMEC";
+  //m_HecHitContainerName      = "LArHitHEC";
+  //m_ForWardHitContainerName  = "LArHitFCAL";
 
   m_NoiseOnOff               = true;
   m_PileUp                   = false;
@@ -137,13 +133,12 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   // ........ declare the private data as properties
   //
 
-  declareProperty("SubDetectors",m_SubDetectors);
   declareProperty("RndmSvc", m_atRndmGenSvc);
 
-  declareProperty("EmBarrelHitContainerName",m_EmBarrelHitContainerName);
-  declareProperty("EmEndCapHitContainerName",m_EmEndCapHitContainerName);
-  declareProperty("HecHitContainerName",m_HecHitContainerName);
-  declareProperty("ForWardHitContainerName",m_ForWardHitContainerName);
+  declareProperty("EmBarrelHitContainerName", m_xxxHitContainerName[0]);
+  declareProperty("EmEndCapHitContainerName",m_xxxHitContainerName[1]);
+  declareProperty("HecHitContainerName",m_xxxHitContainerName[2]);
+  declareProperty("ForWardHitContainerName",m_xxxHitContainerName[3]);
 
   declareProperty("EmTTL1ContainerName",m_EmTTL1ContainerName);
   declareProperty("HadTTL1ContainerName",m_HadTTL1ContainerName);
@@ -152,7 +147,7 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   declareProperty("PileUp",m_PileUp);
   declareProperty("UseTriggerTime",m_useTriggerTime);
-  declareProperty("TriggerTimeToolName",m_triggerTimeToolName);
+  declareProperty("TriggerTimeToolName",m_triggerTimeTool);
 
   declareProperty("EmBarrelCalibrationCoeffs",m_calibCoeffEmb);
   declareProperty("EmEndCapCalibrationCoeffs",m_calibCoeffEmec);
@@ -167,7 +162,8 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   declareProperty("useMapFromStore",m_useMapfromStore,"Use LArHitEMap already filled from detector store");
 
-   declareProperty("TruthHitsContainer",m_truthHitsContainer="","Specify a value to get a pair of LArTTL1 containers with the truth hits in them");
+  declareProperty("TruthHitsContainer",m_truthHitsContainer="","Specify a value to get a pair of LArTTL1 containers with the truth hits in them");
+  declareProperty("LArfSamplKey",m_fSamplKey);
 
 //
 return;
@@ -224,7 +220,7 @@ StatusCode LArTTL1Maker::initialize()
 //
   if (m_useTriggerTime) 
   {
-    ATH_MSG_INFO ( "use Trigger Time service " <<  m_triggerTimeToolName );
+    ATH_MSG_INFO ( "use Trigger Time service " <<  m_triggerTimeTool );
   }
   else
   {
@@ -275,23 +271,12 @@ StatusCode LArTTL1Maker::initialize()
   }
 
   if (m_useTriggerTime) {
-    IToolSvc* p_toolSvc = 0;
-    ATH_CHECK( service("ToolSvc", p_toolSvc) );
-
-    IAlgTool* algtool(0);
-    ListItem theTool(m_triggerTimeToolName.value());
-    StatusCode sc = p_toolSvc->retrieveTool(theTool.type(), theTool.name(),algtool);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR
-        ( "Unable to find tool for " << m_triggerTimeToolName.value() );
-      p_triggerTimeTool = 0;
-    }
-    else {
-      p_triggerTimeTool=dynamic_cast<ITriggerTime*>(algtool);
-      ATH_MSG_DEBUG ( "retrieved TriggerTime tool: " 
-                      << m_triggerTimeToolName.value() );
-    }
+    ATH_CHECK(m_triggerTimeTool.retrieve());
   }
+  else {
+    m_triggerTimeTool.disable();
+  }
+  
 
   //
   // ..... need LAr and CaloIdManager to retrieve all needed helpers
@@ -324,11 +309,7 @@ StatusCode LArTTL1Maker::initialize()
   ATH_CHECK( detStore()->retrieve(m_fcalHelper) );
   ATH_MSG_DEBUG ( "Successfully retrieved LArFCAL helper from DetectorStore" );
   
-  // ..... need cabling services, to get channels associated to each TT
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
-  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
-  ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
+  ATH_CHECK( m_ttSvc.retrieve());
   
   // Incident Service: 
   IIncidentSvc* incSvc = nullptr;
@@ -344,6 +325,20 @@ StatusCode LArTTL1Maker::initialize()
     return StatusCode::FAILURE ;
   }
 
+  ATH_CHECK(m_fSamplKey.initialize());
+
+  //Initialize read-handle keys
+  if (!m_PileUp) {
+    for (auto& dhk : m_xxxHitContainerName) {
+      ATH_CHECK(dhk.initialize());
+    }
+  }
+
+  
+  ATH_CHECK(m_EmTTL1ContainerName.initialize());
+  ATH_CHECK(m_HadTTL1ContainerName.initialize());
+
+
   ATH_MSG_DEBUG  ( "Initialization completed successfully"  );
   return StatusCode::SUCCESS;
 }
@@ -353,12 +348,6 @@ StatusCode LArTTL1Maker::initialize()
 void LArTTL1Maker::handle(const Incident& /* inc*/ )
 {
   ATH_MSG_DEBUG ( "LArTTL1Maker handle()" );
-
-  StatusCode sc = this->retrieveDatabase();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ( " Error from retrieveDatabase " );
-  }
-
 
   //
   // ...... init hit map 
@@ -376,17 +365,6 @@ void LArTTL1Maker::handle(const Incident& /* inc*/ )
 
   return;
 }
-
-StatusCode LArTTL1Maker::retrieveDatabase()
-{
-// can not do all that in initialize with the new calibration classes/Iov service
-
-  ATH_MSG_DEBUG ( "LArTTL1Maker retrieveDatabase()" );
-  ATH_CHECK (detStore()->retrieve(m_dd_fSampl,m_fSamplKey) );
-  return StatusCode::SUCCESS;
-}
-
-
 
 StatusCode LArTTL1Maker::execute()
 {
@@ -406,6 +384,10 @@ StatusCode LArTTL1Maker::execute()
   if(m_chronoTest) {
     m_chronSvc->chronoStart( "fill LArHitEMap " );
   }
+  
+  SG::ReadCondHandle<ILArfSampl> fSamplhdl(m_fSamplKey);
+  const ILArfSampl* fSampl=*fSamplhdl;
+
 
   int totHit=0;
   if ( this->fillEMap(totHit) == StatusCode::FAILURE ) return StatusCode::FAILURE;
@@ -425,27 +407,21 @@ StatusCode LArTTL1Maker::execute()
   // .....get the trigger time if requested
   //
   double trigtime=0;
-  if (m_useTriggerTime && p_triggerTimeTool) {
-     trigtime = p_triggerTimeTool->time();
+  if (m_useTriggerTime) {
+     trigtime = m_triggerTimeTool->time();
   }
   ATH_MSG_DEBUG ( "Trigger time used : " << trigtime );
 
   //
   // ....... create the LAr TTL1 Containers
   //
-  LArTTL1Container *ttL1ContainerEm = new LArTTL1Container();
-  if ( ttL1ContainerEm == 0 ){
-    ATH_MSG_ERROR ( "Could not allocate a new LArTTL1Container"  );
-    return StatusCode::FAILURE;	  
-  }
-  LArTTL1Container *ttL1ContainerHad = new LArTTL1Container();
-  if ( ttL1ContainerHad == 0 ){
-    ATH_MSG_ERROR  ( "Could not allocate a second new LArTTL1Container" );
-    delete ttL1ContainerEm;
-    return StatusCode::FAILURE;	  
-  }
 
+  SG::WriteHandle<LArTTL1Container> ttL1ContainerEm(m_EmTTL1ContainerName);
+  ATH_CHECK(ttL1ContainerEm.record(std::make_unique<LArTTL1Container>()));
 
+  SG::WriteHandle<LArTTL1Container> ttL1ContainerHad(m_HadTTL1ContainerName);
+  ATH_CHECK(ttL1ContainerHad.record(std::make_unique<LArTTL1Container>()));
+  
    LArTTL1Container *truth_ttL1ContainerEm=0;
    LArTTL1Container *truth_ttL1ContainerHad=0;
    if(m_truthHitsContainer.size()>0) {
@@ -453,13 +429,7 @@ StatusCode LArTTL1Maker::execute()
       truth_ttL1ContainerHad = new LArTTL1Container();
    }
 
-  //
-  // ...... register the TTL1 containers into the TES 
-  //
-   ATH_CHECK( evtStore()->record( ttL1ContainerEm ,  m_EmTTL1ContainerName) );
-   ATH_CHECK( evtStore()->record( ttL1ContainerHad ,  m_HadTTL1ContainerName) );
 
-  //
   // ... initialise vectors for sums of energy in each TT
   //
   unsigned int nbTT = (unsigned int)m_lvl1Helper->tower_hash_max() ;
@@ -533,7 +503,7 @@ StatusCode LArTTL1Maker::execute()
 	  // ....... determine the sampling fraction
 	  //........ and the relative (layer) gains for this cellId
 	  //	
-	  const float cellSampFraction = m_dd_fSampl->FSAMPL(cellId);
+	  const float cellSampFraction = fSampl->FSAMPL(cellId);
           const float inv_cellSampFraction = 1. / cellSampFraction;
 	  //	  std::cout << "cellid, SF= " << m_lvl1Helper->show_to_string(cellId) << " " << cellSampFraction << std::endl;
 	  float relGain = 0.;
@@ -943,14 +913,7 @@ StatusCode LArTTL1Maker::execute()
                   << " , "
                   << ttL1ContainerHad->size() );
 
-  //
-  // ...... lock the TTL1 containers
-  //
-  ATH_CHECK( evtStore()->setConst( ttL1ContainerEm ) );
-  ATH_CHECK( evtStore()->setConst( ttL1ContainerHad ) );
-
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -1369,25 +1332,25 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
     //
     // ............ loop over the wanted hit containers (one per sub-detector)
     //
-    
-    for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-    {
-      //
-      // ..... Get the pointer to the Hit Container from StoreGate
-      //
-      ATH_MSG_VERBOSE ( " asking for: " << m_HitContainer[iHitContainer] );
-      
+
+    // std::vector<const LArHitContainer*> hitContainers;
+    // SG::ReadHandle<LArHitContainer>  emBarrelHitsHdl(m_EmBarrelHitContainerName);
+    // hitContainers.push_back(emBarrelHitsHdl);
+    // SG::ReadHandle<LArHitContainer>  emEndCapHitsHdl(m_EmEndCapHitContainerName);
+    // hitContainers.push_back(emEndCapHitsHdl);
+    // SG::ReadHandle<LArHitContainer>  hecHitsHdl( m_HecHitContainerName);
+    // hitContainers.push_back(hecCapHitsHdl);
+    // SG::ReadHandle<LArHitContainer>  fcalHitsHdl( m_ForWardHitContainerName);
+    // hitContainers.push_back(fcalHitsHdl);
+
+    for (auto& dhk : m_xxxHitContainerName) 
+    {      
       if (!m_PileUp) {
-	const LArHitContainer* hit_container = nullptr;
-	ATH_CHECK( evtStore()->retrieve( hit_container, 
-                                         m_HitContainer[iHitContainer] )  );
-	
-        ATH_MSG_VERBOSE ( "number of hits: " << hit_container->size() );
-	
 	//
 	// ....... loop over hits and get informations
 	//
 	
+	SG::ReadHandle<LArHitContainer> hit_container(dhk);
 	LArHitContainer::const_iterator hititer;
 	for(hititer=hit_container->begin();hititer != hit_container->end();hititer++) {
 	  cellId = (*hititer)->cellID();
@@ -1419,8 +1382,7 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
 	// ...retrieve list of pairs (time,container) from PileUp service
 	//
 	
-	if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
-					      ,hitContList).isSuccess()) && hitContList.size()==0) {
+	if (!(m_mergeSvc->retrieveSubEvtsData(dhk.key(),hitContList).isSuccess()) && hitContList.size()==0) {
 	  ATH_MSG_ERROR ( "Could not fill TimedHitContList" );
 	  return StatusCode::FAILURE;
 	}
@@ -2214,61 +2176,7 @@ StatusCode LArTTL1Maker::initHitMap()
   static std::vector<bool> SubDetFlag;
   for (int i=0; i < LArHitEMap::NUMDET ; i++)
   {
-   SubDetFlag.push_back(false);
-  }
-
-//
-// ......... make the LArHit container name list
-//
-  if ( m_SubDetectors == "LAr_All" )
-  {
-    m_HitContainer.push_back(m_EmBarrelHitContainerName);
-    SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-    m_HitContainer.push_back(m_HecHitContainerName);
-    SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-    m_HitContainer.push_back(m_ForWardHitContainerName);
-    SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_Em" )
-  {
-    m_HitContainer.push_back(m_EmBarrelHitContainerName);
-    SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_EmBarrel" )
-  {
-    m_HitContainer.push_back(m_EmBarrelHitContainerName);
-    SubDetFlag[LArHitEMap::EMBARREL_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_EmEndCap" )
-  {
-    m_HitContainer.push_back(m_EmEndCapHitContainerName);
-    SubDetFlag[LArHitEMap::EMENDCAP_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_HEC" )
-  {
-    m_HitContainer.push_back(m_HecHitContainerName);
-    SubDetFlag[LArHitEMap::HADENDCAP_INDEX] = true;
-  }
-  else if ( m_SubDetectors == "LAr_Fcal" )
-    {
-    m_HitContainer.push_back(m_ForWardHitContainerName);
-    SubDetFlag[LArHitEMap::FORWARD_INDEX] = true;
-    }
-  else
-  {
-    //
-    //........ Unknown case
-    //
-    ATH_MSG_FATAL 
-      ( "Invalid SubDetector property : " << m_SubDetectors
-        << "Valid ones are: LAr_All, LAr_Em, LAr_EmBarrel, "
-        << "LAr_EmEndCap, LAr_HEC and LAr_Fcal " );
-
-    return(StatusCode::FAILURE);
+   SubDetFlag.push_back(true);
   }
 
 //

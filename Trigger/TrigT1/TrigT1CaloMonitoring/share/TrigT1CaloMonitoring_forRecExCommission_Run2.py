@@ -99,7 +99,7 @@ if l1caloRawMon:
             PathInRootFile="L1Calo/PPrStabilityMon",
             # OutputLevel = DEBUG
         )
-        ToolSvc += L1PPrStabilityMonTool
+        #ToolSvc += L1PPrStabilityMonTool
         L1CaloMan.AthenaMonTools += [L1PPrStabilityMonTool]
 
         # --- BunchCrossing Tool configuration ---
@@ -127,7 +127,7 @@ if l1caloRawMon:
                 PathInRootFile="L1Calo/PPM/Stability",
                 #OutputLevel = DEBUG
             )
-            ToolSvc += L1PPrStabilityMonTool
+            #ToolSvc += L1PPrStabilityMonTool
             L1CaloMan.AthenaMonTools += [L1PPrStabilityMonTool]
 
         #======================================================================
@@ -150,14 +150,14 @@ if l1caloRawMon:
             #OnlineTest = True,
             #OutputLevel = DEBUG
         )
-        ToolSvc += L1PPrMonTool
+        #ToolSvc += L1PPrMonTool
         L1CaloMan.AthenaMonTools += [L1PPrMonTool]
 
         if isData:
 
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPMSimBSMon
             PPMSimBSMonTool = LVL1__PPMSimBSMon("PPMSimBSMonTool")
-            ToolSvc += PPMSimBSMonTool
+            #ToolSvc += PPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [PPMSimBSMonTool]
             #ToolSvc.PPMSimBSMonTool.OutputLevel = DEBUG
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1TriggerTowerTool
@@ -174,7 +174,7 @@ if l1caloRawMon:
                 ErrorPathInRootFile="L1Calo/PPM/SpareChannels/Errors",
                 #OutputLevel = DEBUG	
             )
-            ToolSvc += L1PPrSpareMonTool
+            #ToolSvc += L1PPrSpareMonTool
             L1CaloMan.AthenaMonTools += [L1PPrSpareMonTool]
 
         #======================================================================
@@ -184,20 +184,20 @@ if l1caloRawMon:
         #------------------------------------ JEM -----------------------------
         from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPJEMMon
         L1JEPJEMMonTool = LVL1__JEPJEMMon("L1JEPJEMMonTool")
-        ToolSvc += L1JEPJEMMonTool
+        #ToolSvc += L1JEPJEMMonTool
         L1CaloMan.AthenaMonTools += [L1JEPJEMMonTool]
 
         #----------------------------------- CMX ------------------------------
         from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPCMXMon
         L1JEPCMXMonTool = LVL1__JEPCMXMon("L1JEPCMXMonTool")
-        ToolSvc += L1JEPCMXMonTool
+        #ToolSvc += L1JEPCMXMonTool
         L1CaloMan.AthenaMonTools += [L1JEPCMXMonTool]
 
         if isData:
             #--------------------- Transmission and Performance ---------------
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimMon
             JEPSimMonTool = LVL1__JEPSimMon("JEPSimMonTool")
-            ToolSvc += JEPSimMonTool
+            #ToolSvc += JEPSimMonTool
             L1CaloMan.AthenaMonTools += [JEPSimMonTool]
             # ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
 
@@ -228,14 +228,14 @@ if l1caloRawMon:
             # CPMTowers, CMXCPTobs and CMXCPHits
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPMon
             L1CPMMonTool = LVL1__CPMon("L1CPMMonTool")
-            ToolSvc += L1CPMMonTool
+            #ToolSvc += L1CPMMonTool
             L1CaloMan.AthenaMonTools += [L1CPMMonTool]
 
         if isData:
 
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPSimMon
             CPSimMonTool = LVL1__CPSimMon("CPSimMonTool")
-            ToolSvc += CPSimMonTool
+            #ToolSvc += CPSimMonTool
             L1CaloMan.AthenaMonTools += [CPSimMonTool]
             # ToolSvc.CPMSimBSMonTool.OutputLevel = DEBUG
 
@@ -253,7 +253,7 @@ if l1caloRawMon:
                 #OnlineTest = True,
                 #OutputLevel = DEBUG,
             )
-            ToolSvc += L1BSRODMonTool
+            #ToolSvc += L1BSRODMonTool
             L1CaloMan.AthenaMonTools += [L1BSRODMonTool]
 
             #==================================================================
@@ -261,7 +261,7 @@ if l1caloRawMon:
             #==================================================================
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__OverviewMon
             L1OverviewMonTool = LVL1__OverviewMon("L1OverviewMonTool")
-            ToolSvc += L1OverviewMonTool
+            #ToolSvc += L1OverviewMonTool
             L1CaloMan.AthenaMonTools += [L1OverviewMonTool]
 
             from TrigT1CaloMonitoringTools.TrigT1CaloMonitoringToolsConf import LVL1__TrigT1CaloMonErrorTool
@@ -269,7 +269,7 @@ if l1caloRawMon:
                 name="TrigT1CaloMonErrorTool",
                 FlagCorruptEvents="None"
             )
-            ToolSvc += L1MonErrorTool
+            #ToolSvc += L1MonErrorTool
             # pass
 
         # if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
@@ -282,7 +282,7 @@ if l1caloRawMon:
             
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__TagProbeEfficiencyMon
             TagProbeEfficiencyMonTool = LVL1__TagProbeEfficiencyMon("TagProbeEfficiencyMonTool")
-            ToolSvc += TagProbeEfficiencyMonTool
+            #ToolSvc += TagProbeEfficiencyMonTool
             L1CaloMan.AthenaMonTools += [TagProbeEfficiencyMonTool]
 
 

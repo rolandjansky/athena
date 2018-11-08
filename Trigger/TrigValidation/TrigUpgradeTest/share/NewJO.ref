@@ -2,8 +2,8 @@ Storing config in the config newJOtest.pkl
 Py:Athena            INFO now loading newJOtest.pkl  ... 
 TrigSignatureMoniMT                                INFO Chain name                   L1,      AfterPS, [... steps ...], Output
 TrigSignatureMoniMT                                INFO All                           20        20        0         0         15        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        15        0         15        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        14        0         14        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        8         0         8         
 TrigSignatureMoniMT                                INFO HLT_g10_etcut                 20        20        8         8         8         
 TrigSignatureMoniMT                                INFO HLT_g15_etcut                 20        20        5         8         8         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        15        0         15        
-TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        8         0         8         
-TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        14        0         14        

@@ -37,11 +37,6 @@ if DQMonFlags.doMonitoring():
    include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
    include("AthenaMonitoring/FilledBunchFilterTool_jobOptions.py")
 
-   # Ugly hack to get list of tools in job at this point
-   # We will compare the list at the end of the script to get the monitoring
-   # tools
-   monToolSet_before = set(ToolSvc.getChildren())
-
    #---------------------------#
    # Inner detector monitoring #
    #---------------------------#
@@ -254,9 +249,17 @@ if DQMonFlags.doMonitoring():
    #--------------------------#
    if rec.triggerStream()=='express':
       include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
-   monToolSet_after = set(ToolSvc.getChildren())
+
    local_logger.debug('DQ Post-Setup Configuration')
-   for tool in monToolSet_after-monToolSet_before:
+
+   # now the DQ tools are private, extract them from the set of monitoring algorithms
+   toolset = set()
+   from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+   for _ in topSequence:
+      if isinstance(_, AthenaMonManager):
+         toolset.update(_.AthenaMonTools)
+
+   for tool in toolset:
       # stop lumi access if we're in MC or enableLumiAccess == False
       if 'EnableLumi' in dir(tool):
          if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
@@ -281,7 +284,5 @@ if DQMonFlags.doMonitoring():
             local_logger.debug('Applying postexec transform to  ===> %s', tool)
             postprocfunc(tool)
             del postprocfunc
-
-   del monToolSet_before, monToolSet_after
 
 del local_logger

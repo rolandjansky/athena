@@ -8,5 +8,5 @@ if MuonDQAFlags.doMuonEvtMon:
    ) 
    MuonDQA__MuonEventInfoMonTool.LastEvent = MuonDQAFlags.EvtMax 
    MuonDQA__MuonEventInfoMonTool.TriggerTagAdd = True
-   ToolSvc += MuonDQA__MuonEventInfoMonTool
+   #ToolSvc += MuonDQA__MuonEventInfoMonTool
    monMan.AthenaMonTools += [ MuonDQA__MuonEventInfoMonTool ]  

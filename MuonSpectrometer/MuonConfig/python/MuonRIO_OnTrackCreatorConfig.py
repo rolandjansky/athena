@@ -12,7 +12,7 @@ def CscClusterOnTrackCreatorCfg(flags,**kwargs):
     
     result=ComponentAccumulator()
     
-    acc, qrat = MuonConfig.MuonSegmentFindingConfig.QratCscClusterFitterCfg(flags)
+    acc, qrat = QratCscClusterFitterCfg(flags)
     result.addPublicTool(qrat)
     result.merge(acc)
     

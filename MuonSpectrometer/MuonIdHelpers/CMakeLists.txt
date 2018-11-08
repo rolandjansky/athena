@@ -12,8 +12,7 @@ if( NOT XAOD_STANDALONE )
    atlas_depends_on_subdirs(
       PUBLIC
       Control/AthenaBaseComps
-      Control/CLIDSvc
-      Control/SGTools
+      Control/AthenaKernel
       DetectorDescription/AtlasDetDescr
       DetectorDescription/IdDict
       DetectorDescription/Identifier
@@ -26,7 +25,7 @@ endif()
 if( NOT XAOD_STANDALONE )
    set( extra_sources src/*.cxx )
    set( extra_libraries
-      LINK_LIBRARIES AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier
+      LINK_LIBRARIES AthenaKernel AthenaBaseComps AtlasDetDescr IdDict Identifier
       PRIVATE_LINK_LIBRARIES IdDictParser GaudiKernel )
 endif()
 

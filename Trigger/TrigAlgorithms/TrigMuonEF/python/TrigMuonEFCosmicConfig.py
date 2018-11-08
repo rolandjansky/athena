@@ -369,7 +369,6 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
             self.useCscSeededDecoding = True
             
             # use ROB based seeded decoding instead of PRD based
-            self.useMdtRobDecoding = True
             self.useTgcRobDecoding = False # neither available nor needed
             self.useCscRobDecoding = False # neither available nor needed
             

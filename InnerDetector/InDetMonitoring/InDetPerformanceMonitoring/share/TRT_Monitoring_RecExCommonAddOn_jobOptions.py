@@ -42,7 +42,7 @@ TRT_Electron_Monitoring_Tool = TRT_Electron_Monitoring_Tool (
 							     isOnline			  = True,
 							     doExpert                     = True)
 
-ToolSvc += TRT_Electron_Monitoring_Tool
+#ToolSvc += TRT_Electron_Monitoring_Tool
 
 TRTElectronMonManager.AthenaMonTools += [ TRT_Electron_Monitoring_Tool]
 

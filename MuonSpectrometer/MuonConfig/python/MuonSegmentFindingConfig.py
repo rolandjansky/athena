@@ -801,7 +801,7 @@ def MuonSegmentFindingCfg(flags, **kwargs):
 
 if __name__=="__main__":
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonSegmentFinding.py
+    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonSegmentFindingConfig.py
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 

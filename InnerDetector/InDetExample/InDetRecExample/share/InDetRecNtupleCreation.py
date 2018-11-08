@@ -494,7 +494,7 @@ if InDetFlags.doPhysValMon():
 #    ToolSvc += InDetPhysValMonToolDBM
 #    InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonToolDBM]
 
-  ToolSvc += InDetPhysValMonTool
+  #ToolSvc += InDetPhysValMonTool
   InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonTool]
   if (InDetFlags.doPrintConfigurables()):
     print InDetPhysValMonTool
@@ -505,7 +505,7 @@ if InDetFlags.doPhysValMon():
     InDetPhysValMonToolPU = InDetPhysValMonitoringTool (useTrackSelection   = True,
                                                         TrackSelectionTool   = InDetTrackSelectorTool,
                                                         TruthParticleContainerName = "SpclMCPU")
-    ToolSvc += InDetPhysValMonToolPU
+    #ToolSvc += InDetPhysValMonToolPU
     InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonToolPU]
     if (InDetFlags.doPrintConfigurables()):
       print InDetPhysValMonToolPU	

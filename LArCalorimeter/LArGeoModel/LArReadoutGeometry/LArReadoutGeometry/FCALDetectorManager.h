@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FCALDetectorManager_h
 #define FCALDetectorManager_h 1
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArReadoutGeometry/FCALModule.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include "GeoModelKernel/GeoVDetectorManager.h"
 class FCALHVManager;

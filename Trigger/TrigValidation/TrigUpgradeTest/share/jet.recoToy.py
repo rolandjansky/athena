@@ -45,7 +45,8 @@ if TriggerFlags.doCalo:
      svcMgr.TrigCaloDataAccessSvc.OutputLevel=INFO
      svcMgr.TrigCaloDataAccessSvc.MonTool = mon
     
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
+     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+FSJETRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc

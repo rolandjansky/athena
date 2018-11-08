@@ -87,7 +87,29 @@ CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
 testChains =[x for x, y in CTPToChainMapping.items()]
 topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
 
+def __mon(finalCollName, stepColls=[]):
+    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    summMaker = DecisionSummaryMakerAlg()
+    summMaker.FinalDecisionKeys = [ finalCollName ]
+    summMaker.FinalStepDecisions = dict.fromkeys( testChains, finalCollName )  
+    
+    ### final monitor algorithm  
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
 
+    if len(stepColls) == 0:
+      stepColls=[ finalCollName ]
+    
+    for n, coll in  enumerate(stepColls):
+      stepCollector = DecisionCollectorTool("Step%dCollector" % n )
+      stepCollector.Decisions = [ coll ]
+      mon.CollectorTools += [ stepCollector ]
+
+    
+    return [ summMaker, mon ]
 
 
 # ===============================================================================================
@@ -199,7 +221,8 @@ if TriggerFlags.doMuon:
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
       L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
                                                             MdtPrepDataProvider = viewAlgs_MuL2SA[1],
-                                                            MDT_RawDataProvider = viewAlgs_MuL2SA[2])
+                                                            MDT_RawDataProvider = viewAlgs_MuL2SA[2],
+                                                            DecodeBS = DetFlags.readRDOBS.MDT_on())
       ToolSvc += L2MdtDataPreparator
       
       muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
@@ -615,21 +638,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     summary = summarySteps("FinalAlg", ["L2MuonFastDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    mon.CollectorTools = [ step1Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps]+ __mon("L2MuonFastDecisions")+ [ summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -645,21 +656,10 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "EFMuonSADecisions"]
-    mon.CollectorTools = [ step1Collector ]
-
+  
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps] + __mon("EFMuonSADecisions") + [ summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -678,23 +678,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "EFMuonSADecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps] + __mon("EFMuonSADecisions", ["L2MuonFastDecisions", "EFMuonSADecisions"]) + [summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -715,23 +701,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["MuonL2CBDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "MuonL2CBDecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    mon.CollectorTools = [ step1Collector, step2Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps]+ __mon("MuonL2CBDecisions",["L2MuonFastDecisions", "MuonL2CBDecisions"] ) +[summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -753,25 +725,10 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    step3Collector = DecisionCollectorTool("Step3Collector")
-    step3Collector.Decisions = [ "EFMuonSADecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
 
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon( "EFMuonSADecisions", [ "L2MuonFastDecisions",  "MuonL2CBDecisions", "EFMuonSADecisions"]) + [summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -793,25 +750,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["MuonL2IsoDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "MuonL2IsoDecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    step3Collector = DecisionCollectorTool("Step3Collector")
-    step3Collector.Decisions = [ "MuonL2IsoDecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ]+ __mon( "MuonL2IsoDecisions", [ "L2MuonFastDecisions", "MuonL2CBDecisions", "MuonL2IsoDecisions"]) +[ summary, StreamESD ] )
     topSequence += hltTop   
 
  
@@ -833,25 +774,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    step3Collector = DecisionCollectorTool("Step3Collector")
-    step3Collector.Decisions = [ "EFMuonSADecisions", "MuonL2IsoDecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon("EFMuonSADecisions", ["L2MuonFastDecisions", "MuonL2CBDecisions", "EFMuonSADecisions"]) +[ summary, StreamESD ] )
     topSequence += hltTop   
 
    
@@ -859,3 +784,5 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
     return Trk__TrkMaterialProviderTool(name,**kwargs)
+
+

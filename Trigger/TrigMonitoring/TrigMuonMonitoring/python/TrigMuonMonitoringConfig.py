@@ -22,8 +22,8 @@ def TrigMuonMonitoringTool():
 	from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool	
 	HLTMuonMon.BCTool = BunchCrossingTool()
 	from AthenaCommon.AppMgr import ToolSvc
-	ToolSvc += HLTMuonMon;
-	list = [ "HLTMuonMonTool/HLTMuonMon" ];
+	#ToolSvc += HLTMuonMon;
+	list = [ HLTMuonMon ];
 	return list
 
 
