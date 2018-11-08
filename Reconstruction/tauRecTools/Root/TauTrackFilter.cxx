@@ -90,14 +90,12 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
     ATH_MSG_VERBOSE("TauTrackFilter Executing");
 
     // get track particle container
-    // wait - is this even used?
-    const xAOD::TrackParticleContainer *trackContainer = NULL;
+    // not used, but keeping check that this container already exists 
     SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleInHandle( m_trackParticleInputContainer );
     if (!trackParticleInHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackParticleInHandle.key());
       return StatusCode::FAILURE;
     }
-    trackContainer = trackParticleInHandle.cptr();
 
     TLorentzVector tau;
     tau.SetPtEtaPhiE(pTau.pt()/1000, //GeV
