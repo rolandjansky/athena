@@ -85,6 +85,8 @@ class TileCellSelector: public AthAlgorithm {
     std::vector<float> m_chanTDsp;
     std::vector<float> m_chanQua;
     std::vector<bool> m_chanSel;
+    std::vector<bool> m_chanToSkip;
+    std::vector<bool> m_drawerToSkip;
 
     std::string m_cellsContName;
     std::string m_digitsContName;
@@ -101,7 +103,7 @@ class TileCellSelector: public AthAlgorithm {
     int m_ptnEneChan[3];
     int m_ptnTimeCell;
     int m_ptnTimeChan[3];
-#define ptnlength 3
+#define ptnlength 5
     bool m_bitEneCell[ptnlength];
     bool m_bitTimeCell[ptnlength];
     bool m_bitEneChan[3][ptnlength];
@@ -128,6 +130,8 @@ class TileCellSelector: public AthAlgorithm {
     bool m_printOnly;
 
     std::vector<int> m_drawer;
+    std::vector<int> m_drawerToCheck;
+    std::vector<int> m_chanToCheck;
 
     int m_maxVerboseCnt;
     std::vector<int> m_nDrawerOff;
