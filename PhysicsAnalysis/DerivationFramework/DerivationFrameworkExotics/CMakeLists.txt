@@ -48,6 +48,6 @@ atlas_add_component( DerivationFrameworkExotics
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel PATInterfaces TrkExUtils InDetTrackSelectionToolLib JetEDM DerivationFrameworkExoticsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py python/EXOT27Utils.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( data )

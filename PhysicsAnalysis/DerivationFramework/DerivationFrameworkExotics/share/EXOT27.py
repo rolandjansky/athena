@@ -12,13 +12,20 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning, DerivationFramework__MuonTrackParticleThinning, DerivationFramework__TauTrackParticleThinning, DerivationFramework__JetTrackParticleThinning
 
 # CP group common variables
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-# from DerivationFrameworkJetEtMiss.PFlowJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
+import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
+import DerivationFrameworkJetEtMiss.ExtendedJetCommon as ExtendedJetCommon
+# import DerivationFrameworkJetEtMiss.PFlowJetCommon as PFlowJetCommon
+import DerivationFrameworkJetEtMiss.METCommon as METCommon
+import DerivationFrameworkEGamma.EGammaCommon as EGammaCommon
+import DerivationFrameworkMuons.MuonsCommon as MuonsCommon
+import DerivationFrameworkFlavourTag.HbbCommon as HbbCommon
+from JetRec.JetRecStandardToolManager import jtm
 
+import DerivationFrameworkExotics.EXOT27Utils as EXOT27Utils
+
+# Create a logger for this stream
+import AthenaCommon
+logger = AthenaCommon.Logging.logging.getLogger("EXOT27")
 
 ################################################################################
 # Setup the stream and our private sequence
@@ -69,11 +76,57 @@ EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
     )
 EXOT27AcceptAlgs.append("EXOT27PreliminaryKernel")
 
+################################################################################
+# Augmenting (add new objects)
+################################################################################
+# Create the new jet sequence in JetCommon (if it doesn't already exist)
+JetCommon.OutputJets.setdefault("EXOT27Jets", [])
+# I don't know if we actually care about the track jets any more but I'm adding
+# them in for now. Same goes for the truth jets
+replace_jet_list = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
+if JetCommon.jetFlags.useTruth:
+  replace_jet_list += ["AntiKt4TruthJets"]
+ExtendedJetCommon.replaceAODReducedJets(
+    jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
+ExtendedJetCommon.addDefaultTrimmedJets(
+    sequence=EXOT27Seq, outputlist="EXOT27Jets")
+
+# Create the VR track jets
+# The 'addVRJets' function creates the track jets and then ghost associates them
+# to the AntiKt10LCTopo jets. Two issues with this - one, it doesn't give us the
+# ghosts for the VR jets back and two, we don't actually want to write out the
+# AntiKt10LCTopo jets so this is a waste of time to run...
+# Therefore instead use the buildVRJets function directly. Note that this has a
+# do_ghost parameter and I'm not sure what it does - it doesn't control the
+# creation of the ghosts for the VR jets...
+vr_track_jets, vr_track_jets_ghosts = HbbCommon.buildVRJets(
+    sequence = EXOT27Seq, do_ghost = False, logger = logger)
+# NOTE: This seems to fail if the track jets are not build as it tries to access
+# a non-existent pseudojet getter!
+
+JetCommon.OutputJets["EXOT27Jets"].append(vr_track_jets)
+
+
+HbbCommon.addVRCaloJets(EXOT27Seq, "EXOT27Jets")
+
+to_be_associated_to = [
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+  "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets"
+  ]
+to_associate = [
+  vr_track_jets_ghosts
+  ]
+    
+for collection in to_be_associated_to:
+  EXOT27Utils.addPseudojetgettersToJetCollection(collection, to_associate)
+
 
 ################################################################################
 # Setup thinning (remove objects from collections)
 ################################################################################
 EXOT27ThinningHelper = ThinningHelper("EXOT27ThinningHelper")
+# Thin the navigation with the chains we're interested in
+EXOT27ThinningHelper.TriggerChains = "|".join(trigger_list)
 EXOT27ThinningHelper.AppendToStream(EXOT27Stream)
 EXOT27ThinningTools = []
 
@@ -158,9 +211,17 @@ EXOT27SlimmingHelper.SmartCollections = [
   ]
 EXOT27SlimmingHelper.AllVariables = [
   "MET_Core_AntiKt4EMTopo",
-  "METAssoc_AntiKt4EMTopo"
+  "METAssoc_AntiKt4EMTopo",
+  "TruthParticles",
+  "TruthLabelBQuarksFinal",
+  "AntiKtVR30Rmax4Rmin02TrackJets"
   ]
-EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
+JetCommon.addJetOutputs(
+    slimhelper = EXOT27SlimmingHelper,
+    contentlist=["EXOT27Jets"],
+    smartlist = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+    )
+logging.info("BQuarksFinal OutputName: {0}".format(jtm.CopyTruthTagBQuarksFinal.OutputName) )
 
 ################################################################################
 # Finalise
