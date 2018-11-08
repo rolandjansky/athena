@@ -15,7 +15,7 @@ public:
 
   typedef TileRawDataCollection<TileHit> MyBase;
   typedef MyBase::ID ID;
-  typedef TileHit _TElement;
+  typedef TileHit TElement;
 
   TileHitCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(id,ownPolicy) { }

@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -32,7 +32,7 @@ template <typename COLLECTION>
 class TileRawDataNonConstContainer
 {
 public:
-  typedef typename COLLECTION::_TElement element_t;
+  typedef typename COLLECTION::TElement element_t;
 
   TileRawDataNonConstContainer (SG::OwnershipPolicy ownPolicy);
   void push_back (element_t* rc);
