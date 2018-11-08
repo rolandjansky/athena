@@ -12,14 +12,14 @@ def RegSelConfig( flags ):
 
     regSel = RegSelSvc()
     regSel.DeltaZ = 225 * mm
-    
+
     # there will be ifology here enabling only the configured detectors
     from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
     larTable =  LArRegionSelectorTable(name="LArRegionSelectorTable")
     acc.addPublicTool( larTable )
     regSel.LArRegionSelectorTable      = larTable
-    
-    
+
+
     from TileRawUtils.TileRawUtilsConf import TileRegionSelectorTable
     tileTable =  TileRegionSelectorTable(name="TileRegionSelectorTable")
     acc.addPublicTool( tileTable )
@@ -28,22 +28,16 @@ def RegSelConfig( flags ):
     #regSel.TileRegionSelectorTable     = tileTable
 
     regSel.enableCalo = True
-    
+
     acc.addService( regSel )
     return acc
 
-
 if __name__ == "__main__":
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    
-    ConfigFlags.lock()
-
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
 
-
-    acc.addConfig( RegSelConfig, ConfigFlags )
-
-    f=open('RegSelConfig.pkl','w')
-    acc.store(f)
-    f.close()
+    acc = RegSelConfig( ConfigFlags )
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"
