@@ -67,8 +67,8 @@ namespace top{
       /// Store the four-momentum of b quark that is NOT from top in Wt(b) ST events
       bool Wt_b(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& b_beforeFSR, TLorentzVector& b_afterFSR, int& b_pdgId);
 
-      /// Store the photon along with ttbar in ttgamma events
-      bool topPhWb( const xAOD::TruthParticleContainer* truthParticles, int topId, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& Ph_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId, bool& has_ph, int& BranchType, int& IniPartonType);
+      /// Store the four-momentum of photon coming from virtual top in ttgamma events
+      bool topPhWb( const xAOD::TruthParticleContainer* truthParticles, int topId, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& Ph_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId, bool& has_ph, int& BranchType, int& IniPartonType, bool& missingTop);
  
       ///Return particle after FSR (before the decay vertex)
       const xAOD::TruthParticle* findAfterFSR(const xAOD::TruthParticle* particle);
