@@ -41,8 +41,8 @@ def setupMenu(flags):
 
 
 if __name__ == "__main__":
-    print "Hello"
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags    
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     setupMenu(ConfigFlags)
     ConfigFlags.lock()
     ConfigFlags.dump()
