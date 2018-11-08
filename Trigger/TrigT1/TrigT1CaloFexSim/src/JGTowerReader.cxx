@@ -200,31 +200,22 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     }
   }
 
-  // find all seeds
-  ATH_MSG_DEBUG("JFexAlg: SeedFinding");
-  // the diameter of seed, and its range to be local maximum
-  // Careful to ensure the range set to be no tower double counted
   if(m_makeSquareJets) {
-    ATH_MSG_DEBUG("jSeeds: m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
+    // find all seeds
+    // the diameter of seed, and its range to be local maximum
+    // Careful to ensure the range set to be no tower double counted
+    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
     CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr));
-  }
-  if(m_makeRoundJets) {
-    ATH_MSG_DEBUG("jJetSeeds: m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-    CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr));
-  }
-  
-  // build initial JFexjet
-  if(m_makeSquareJets) {
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
     CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr)); 
   }
-  
-  // build round JFexJe
   if(m_makeRoundJets) {
+    ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
+    CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr));
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
     CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr)); 
   }
-
+  
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
   CHECK(METAlg::BuildMET(jTs, jMET, jT_noise));
 
