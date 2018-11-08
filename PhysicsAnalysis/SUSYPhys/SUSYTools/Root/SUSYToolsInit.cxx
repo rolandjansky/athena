@@ -341,6 +341,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "JVTEfficiencyTool";
     m_jetJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/"+toolName);
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("WorkingPoint",m_JVT_WP) );
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("MaxPtForJvt",m_JvtPtMax) );
     // Set the decoration to the name we used to use
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","jvtscalefact") );
     // Set the jvt moment (the one we update!)
@@ -358,6 +359,23 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
 
     ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Initialise jet f-JVT efficiency tool for scale factors
+
+  if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
+    toolName = "FJVTEfficiencyTool";
+    m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/"+toolName);
+    if(m_fwdjetTightOp)
+      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tight") );
+    else
+      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Medium") );
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("MaxPtForJvt",m_fwdjetPtMax) );
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
+    // Set the decoration to the name we used to use
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/fJvtSFFile.root"));
+    ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////

@@ -253,6 +253,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetJvtUpdateTool(""),
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
+    m_jetFJvtEfficiencyTool(""),
     //
     m_WTaggerTool(""),
     m_ZTaggerTool(""),
@@ -521,6 +522,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
   m_jetJvtUpdateTool.declarePropertyFor( this, "JetJvtUpdateTool", "The JetJvtUpdateTool" );
   m_jetJvtEfficiencyTool.declarePropertyFor( this, "JetJvtEfficiencyTool", "The JetJvtEfficiencyTool" );
+  m_jetFJvtEfficiencyTool.declarePropertyFor( this, "JetFJvtEfficiencyTool", "The JetFJvtEfficiencyTool" );
   m_jetFwdJvtTool.declarePropertyFor( this, "JetFwdJvtEfficiencyTool", "The JetFwdJvtTool" );
   //
   m_muonSelectionTool.declarePropertyFor( this, "MuonSelectionTool", "The MuonSelectionTool for signal muons" );
@@ -1133,6 +1135,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
   configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Medium");
+  configFromFile(m_JvtPtMax, "Jet.JvtPtMax", rEnv, 60.0e3);
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Summer2018/R4_StrongReduction_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
@@ -1630,6 +1633,14 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured JVTEfficiency for systematic var. " << systConfig.name() );
     }
   }
+  if (!m_jetFJvtEfficiencyTool.empty()) {
+    CP::SystematicCode ret = m_jetFJvtEfficiencyTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure FJVTEfficiency for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured FJVTEfficiency for systematic var. " << systConfig.name() );
+    }
+  }
   if (!m_muonCalibrationAndSmearingTool.empty()) {
     CP::SystematicCode ret =   m_muonCalibrationAndSmearingTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
@@ -1971,6 +1982,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Jet;
       sysInfo.affectedWeights.insert(ST::Weights::Jet::JVT);
+    }
+  }
+  if (!m_jetFJvtEfficiencyTool.empty()) {
+    if ( m_jetFJvtEfficiencyTool->isAffectedBySystematic( sys ) ) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::Jet;
+      sysInfo.affectedWeights.insert(ST::Weights::Jet::FJVT);
     }
   }
   if (!m_jetUncertaintiesTool.empty()) {

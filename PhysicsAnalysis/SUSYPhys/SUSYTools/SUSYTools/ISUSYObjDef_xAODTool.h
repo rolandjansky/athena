@@ -89,6 +89,7 @@ namespace ST {
       static const unsigned int Btag = 1001;
       static const unsigned int JVT = 1002;
       static const unsigned int Btag_Track = 1003;
+      static const unsigned int FJVT = 1004;
     }
     
     namespace Muon {
@@ -285,6 +286,10 @@ namespace ST {
 
     virtual double JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
 
+    virtual double FJVT_SF(const xAOD::JetContainer* jets) = 0;
+
+    virtual double FJVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
+
     virtual float BtagSF(const xAOD::JetContainer* jets) const = 0;
 
     virtual float BtagSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) = 0;
@@ -334,9 +339,9 @@ namespace ST {
 
     virtual double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) = 0;
 
-    virtual double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true) = 0;
+    virtual double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) = 0;
 
-    virtual double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true) = 0;
+    virtual double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) = 0;
 
     virtual bool IsMETTrigPassed(unsigned int runnumber = 0, bool j400_OR = false) const = 0;
     virtual bool IsMETTrigPassed(const std::string& triggerName, bool j400_OR = false) const = 0;
