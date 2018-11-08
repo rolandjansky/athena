@@ -277,10 +277,16 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSpec) {
 // This is called before DataObjects are being converted.
    // Reset streaming parameters to CnvSvc properties.
-   m_dhContainerPrefix = "POOLContainer";
    m_containerPrefix = m_containerPrefixProp.value();
    m_containerNameHint = m_containerNameHintProp.value();
    m_branchNameHint = m_branchNameHintProp.value();
+   // Get Technology from m_containerPrefix
+   std::size_t colonPos = m_containerPrefix.find(":");
+   if (colonPos != std::string::npos) {
+      m_dhContainerPrefix = m_containerPrefix.substr(0, colonPos + 1) + "POOLContainer";
+   } else {
+      m_dhContainerPrefix = "POOLContainer";
+   }
 
    // Override streaming parameters from StreamTool if requested.
    std::string::size_type pos1 = outputConnectionSpec.find("[");
@@ -644,7 +650,14 @@ std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
    return(ret);
 }
 //______________________________________________________________________________
-pool::DbType AthenaPoolCnvSvc::technologyType() const {
+pool::DbType AthenaPoolCnvSvc::technologyType(const std::string& containerName) const {
+   if (containerName.find("ROOTKEY:") == 0) {
+      return(pool::DbType(pool::ROOTKEY_StorageType));
+   } else if (containerName.find("ROOTTREE:") == 0) {
+      return(pool::DbType(pool::ROOTTREE_StorageType));
+   } else if (containerName.find("ROOTTREEINDEX:") == 0) {
+      return(pool::DbType(pool::ROOTTREEINDEX_StorageType));
+   }
    return(m_dbType);
 }
 //__________________________________________________________________________
@@ -1106,8 +1119,8 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
 	m_dbType(),
 	m_outputConnectionSpec(),
-	m_dhContainerPrefix("POOLContainer"),
-	m_collContainerPrefix("POOLCollectionTree"),
+	m_dhContainerPrefix(),
+	m_collContainerPrefix("ROOTTREE:POOLCollectionTree"),
 	m_lastFileName(),
 	m_poolSvc("PoolSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
@@ -1122,7 +1135,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_domainMaxFileSize(10000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
-   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "CollectionTree");
+   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREE:CollectionTree");
    declareProperty("TopLevelContainerName", m_containerNameHintProp = "");
    declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
    declareProperty("PoolAttributes", m_poolAttr);

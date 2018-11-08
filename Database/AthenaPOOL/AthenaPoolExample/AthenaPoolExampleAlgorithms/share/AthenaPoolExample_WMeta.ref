@@ -143,7 +143,7 @@ CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [20?]  (3 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:EventInfo_p4
@@ -155,7 +155,7 @@ CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'ExampleHitContainer_p1_MyHits'
 CollectionTree(...  DEBUG Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [202]  (4 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [20?]  (4 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[1 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:ExampleHitContainer_p1
@@ -167,7 +167,7 @@ POOLContainerFo...  DEBUG Opening
 POOLContainerFo...  DEBUG    attributes# = 1
 POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [202]  (5 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [20?]  (5 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[2 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:DataHeaderForm_p5
@@ -179,7 +179,7 @@ POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [202]  (6 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [20?]  (6 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:DataHeader_p5
@@ -680,7 +680,7 @@ MetaData(Exampl...  DEBUG Opening
 MetaData(Exampl...  DEBUG    attributes# = 1
 MetaData(Exampl...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWriteData'
 MetaData(Exampl...  DEBUG Opened container MetaData(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (7 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [20?]  (7 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO EventStreamInfo_p3 [????]
@@ -689,7 +689,7 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (8 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (8 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:EventStreamInfo_p3
@@ -699,14 +699,14 @@ MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (9 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (a , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (a , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21

@@ -32,7 +32,7 @@ DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo'])
-Stream3              INFO Data output: AthenaPoolMultiTest_Split2.root
+Stream3              INFO Data output: AthenaPoolMultiTest_Split3.root
 Stream3              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Others with no Algs
 Others.OthersTool    INFO Initializing Others.OthersTool - package version AthenaServices-00-00-00
@@ -428,16 +428,11 @@ Splitter48           INFO EventInfo event: 19 run: 0
 Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
-Stream2              INFO AthenaOutputStream Stream2 ::stop()
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 8
-Stream1              INFO AthenaOutputStream Stream1 ::stop()
 Stream1              INFO Records written: 8
-Stream3              INFO AthenaOutputStream Stream3 ::stop()
 Stream3              INFO Records written: 6
-Others               INFO AthenaOutputStream Others ::stop()
 Others               INFO Records written: 2
-Bad                  INFO AthenaOutputStream Bad ::stop()
 Bad                  INFO Records written: 1
 CollBit1.Regist...   INFO Collection Events output: 7
 CollBit1.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:Collection_Split1.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
