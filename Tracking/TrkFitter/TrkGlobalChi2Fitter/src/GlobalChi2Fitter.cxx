@@ -1300,11 +1300,18 @@ namespace Trk {
 
 
 
-    const TrackParameters *firstidpar = (*indettrack->trackParameters())[1];
+    const TrackParameters *firstidpar = 0;
+    // Dont understand why the second track parameters are taken
+    // Is it assumed the ID track is slimmed?
+    if( indettrack->trackParameters()->size() > 1)
+      firstidpar = (*indettrack->trackParameters())[1];
+    else
+      firstidpar = indettrack->trackParameters()->back();
+
     const TrackParameters *lastidpar = 0;
-    if(cache.m_caloEntrance)
-      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *cache.m_caloEntrance, alongMomentum,
-                                                                           Trk::muon);
+    if(firstidpar && cache.m_caloEntrance)
+      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *cache.m_caloEntrance,
+                                                      alongMomentum, Trk::muon);
     if (!lastidpar) {
       lastidpar = indettrack->trackParameters()->back()->clone();
     }
