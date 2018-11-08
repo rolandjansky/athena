@@ -88,8 +88,9 @@ if JetCommon.jetFlags.useTruth:
   replace_jet_list += ["AntiKt4TruthJets"]
 ExtendedJetCommon.replaceAODReducedJets(
     jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
-ExtendedJetCommon.addDefaultTrimmedJets(
-    sequence=EXOT27Seq, outputlist="EXOT27Jets")
+
+logger.info("Output jets:")
+logger.info(JetCommon.OutputJets["EXOT27Jets"])
 
 # Create the VR track jets
 # The 'addVRJets' function creates the track jets and then ghost associates them
@@ -99,13 +100,18 @@ ExtendedJetCommon.addDefaultTrimmedJets(
 # Therefore instead use the buildVRJets function directly. Note that this has a
 # do_ghost parameter and I'm not sure what it does - it doesn't control the
 # creation of the ghosts for the VR jets...
-vr_track_jets, vr_track_jets_ghosts = HbbCommon.buildVRJets(
-    sequence = EXOT27Seq, do_ghost = False, logger = logger)
 # NOTE: This seems to fail if the track jets are not build as it tries to access
 # a non-existent pseudojet getter!
+# vr_track_jets, vr_track_jets_ghosts = HbbCommon.buildVRJets(
+#     sequence = EXOT27Seq, do_ghost = False, logger = logger)
+# JetCommon.OutputJets["EXOT27Jets"].append(vr_track_jets)
 
-JetCommon.OutputJets["EXOT27Jets"].append(vr_track_jets)
+HbbCommon.addVRJets(EXOT27Seq)
+JetCommon.OutputJets["EXOT27Jets"].append("AntiKtVR30Rmax4Rmin02TrackJets")
 
+
+ExtendedJetCommon.addDefaultTrimmedJets(
+    sequence=EXOT27Seq, outputlist="EXOT27Jets")
 
 HbbCommon.addVRCaloJets(EXOT27Seq, "EXOT27Jets")
 
@@ -113,13 +119,30 @@ to_be_associated_to = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets"
   ]
-to_associate = [
-  vr_track_jets_ghosts
-  ]
+# to_associate = [
+#   vr_track_jets_ghosts
+#   ]
     
-for collection in to_be_associated_to:
-  EXOT27Utils.addPseudojetgettersToJetCollection(collection, to_associate)
+# for collection in to_be_associated_to:
+#   EXOT27Utils.addPseudojetgettersToJetCollection(collection, to_associate)
 
+for i, v in enumerate(jtm.AntiKtVR30Rmax4Rmin02TrackJets.PseudoJetGetters):
+  if isinstance(v, basestring) and '/' not in v:
+    jtm.AntiKtVR30Rmax4Rmin02TrackJets.PseudoJetGetters[i] = jtm[v]
+
+logger.info("Private sequence: ")
+logger.info(EXOT27Seq)
+logger.info(str(EXOT27Seq))
+logger.info(repr(EXOT27Seq))
+logger.info(dir(EXOT27Seq) )
+for alg in EXOT27Seq:
+  logger.info(alg)
+logger.info("Private sequence end")
+
+logger.info("jtm tools")
+logger.info(jtm.tools)
+for k, v in jtm.AntiKtVR30Rmax4Rmin02TrackJets.properties().iteritems():
+  logger.info("{0:<30}: {1}".format(k, v) )
 
 ################################################################################
 # Setup thinning (remove objects from collections)
