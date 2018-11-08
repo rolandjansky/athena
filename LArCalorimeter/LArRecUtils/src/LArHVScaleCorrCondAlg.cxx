@@ -130,10 +130,11 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
   const LArHVData *hvdata = *hvDataHdl;
 
   // Online HVScaleCorr (if needed to subtract)
-  const LArHVScaleCorrFlat *onlHVCorr = nullptr;
+  const ILArHVScaleCorr *onlHVCorr = nullptr;
   if(m_undoOnlineHVCorr) {
      SG::ReadCondHandle<ILArHVScaleCorr> onlHVCorrHdl(m_onlineHVScaleCorrKey);
-     onlHVCorr = dynamic_cast<const LArHVScaleCorrFlat*>(*onlHVCorrHdl);
+     // onlHVCorr = dynamic_cast<const LArHVScaleCorrFlat*>(*onlHVCorrHdl);
+     onlHVCorr = *onlHVCorrHdl;
      if(!onlHVCorr) {
          ATH_MSG_ERROR("Do not have online HV corr. conditions object, but asked to undo !!!!");
          return StatusCode::FAILURE;
@@ -251,7 +252,7 @@ StatusCode LArHVScaleCorrCondAlg::finalize()
 
 
 // *** compute global ADC2MeV factor from subfactors *** 
-StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData *hvdata, const LArHVScaleCorrFlat *onlHVCorr) const {
+StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData *hvdata, const ILArHVScaleCorr *onlHVCorr) const {
   
   unsigned nChannelsUpdates=0;
 
