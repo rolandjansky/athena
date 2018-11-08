@@ -9,6 +9,9 @@ def fillGeneratorsMap( sigMap, signature ):
     
     Here the files naming convention is employed: the chains mentioned in Trigger.menu.XYZ are served by the function in HLTMenuConfig.XYZ.generateChains"""
 
+    if signature in sigMap:
+        return
+
     capitalizedSignature = signature.capitalize()
     importString = 'TriggerMenuMT.HLTMenuConfig.{}.generate{}'.format(capitalizedSignature, capitalizedSignature)
 
@@ -43,8 +46,6 @@ def generateMenu( flags ):
         variableName = name.split('.')[-1]
         fillGeneratorsMap( signatureToGenerator, variableName )
 
-        print(cfgFlag.get())
-
         for chain in cfgFlag.get():
 
             chainDict = toChainDictTranslator.getChainDict( chain )
@@ -66,45 +67,6 @@ def generateMenu( flags ):
     # pass all menuChain to CF builder
 
     _log.info('CF is built')
-
-###########################################################################################################
-    # # join flags
-    # menuFlags = [f.get() for name, f in flags._flagdict.iteritems() if "Trigger.menu." in name ]
-    # flatMenu = reduce( lambda x,y: x+y, menuFlags, [] )
-    #
-    # # convert to chainDefs
-    # from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    # toChainDictTranslator = DictFromChainName()
-    # flatChainDicts = [ toChainDictTranslator.getChainDict( chain ) for chain in flatMenu ]
-    #
-    # for counter, d in enumerate( flatChainDicts, 1 ) :
-    #     d["chainCounter"] = counter
-    #     # todo topo threshold
-
-    # _log.info("Translated menu flags to chainDicts")
-###########################################################################################################
-
-
-
-    # # import signature fragments and fill the map[signature, generating function]
-    # signatureToGenerator = {}
-    # signatures = [ name.split('.')[-1]  for name in flags._flagdict.iterkeys() if 'Trigger.menu.' in name ]
-    # for s in signatures:
-    #     fillGeneratorsMap( signatureToGenerator, s )
-    # _log.info('Retrieved generators')
-        
-    # # for each chain call generating function and pass to CF builder
-    # menuChains = []
-    # for chain in flatChainDicts:
-    #     if chain['sourceVariableName'] in signatureToGenerator:
-    #         menuChains.append(  signatureToGenerator[ chain['sourceVariableName'] ]( flags, chain ) )
-    #     else:
-    #         _log.warning( 'Missing generator for the chain ' + chain['chainName'] )
-    
-    # _log.info( 'Obtained Menu Chain objects' )
-    # # pass all menuChain to CF builder
-    #
-    # _log.info( 'CF is built' )
             
     return None # will return once the CF build is realy invoked
 
