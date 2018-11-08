@@ -24,6 +24,7 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "StoreGate/DataHandle.h"  
 
+#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
@@ -56,6 +57,7 @@ class CaloRescaleNoise : public AthAlgorithm {
 
   ToolHandle<ICaloNoiseTool> m_noiseTool;
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;
+  ToolHandle<LArCablingService> m_cabling;
   std::string m_keyHVScaleCorr;
   const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
 
