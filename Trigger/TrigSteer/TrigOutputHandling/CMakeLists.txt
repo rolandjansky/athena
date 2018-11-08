@@ -37,3 +37,12 @@ atlas_add_library( TrigOutputHandlingLib
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx                      
                      LINK_LIBRARIES TrigOutputHandlingLib )
+
+atlas_add_test( void_record_test
+      SOURCES test/void_record_test.cxx
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} xAODTrigger
+      AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore 
+      ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+      EXTRA_PATTERNS "^ClassIDSvc *VERBOSE|added entry for CLID|no dictionary for class|when retrieved"
+       )
