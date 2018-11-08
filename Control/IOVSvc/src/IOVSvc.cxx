@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -30,6 +30,33 @@ using SG::TransientAddress;
 using namespace std;
 
 const std::string defaultStore = "StoreGateSvc";
+
+
+namespace {
+
+
+/**
+ * @brief Helper to check two EventIDBase objects for equality.
+ *        Check either/both of run+lbn or timestamp.
+ *        Don't use operator== for EventIDBase; that compares run+event+lbn only.
+ */
+bool eventIDMatch (const EventIDBase& e1, const EventIDBase& e2)
+{
+  if (e1.isRunLumi()) {
+    if (e1.run_number() != e2.run_number()) return false;
+    if (e1.lumi_block() != e2.lumi_block()) return false;
+  }
+  if (e1.isTimeStamp()) {
+    if (e1.time_stamp() != e2.time_stamp()) return false;
+    if (e1.time_stamp_ns_offset() != e2.time_stamp_ns_offset()) return false;
+  }
+  return true;
+}
+
+
+} // anonymous namespace
+
+
 
 //
 ///////////////////////////////////////////////////////////////////////////
@@ -354,6 +381,8 @@ IOVSvc::preLoadDataTAD( const TransientAddress *tad,
 StatusCode 
 IOVSvc::setRange(const CLID& clid, const std::string& key,
                  IOVRange& iovr) {
+
+  std::lock_guard<std::recursive_mutex> lock(m_lock);
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
@@ -868,6 +897,18 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
      
   ATH_MSG_DEBUG( " new range for ID " << id << " : " << range 
                  << " IOA: " << ioa);
+
+  // If the start of the new range matches the start of the last range, then
+  // extend the last range rather than trying to insert a new range.
+  // This can happen when a folder is tagged as `extensible' in IOVDbSvc.
+  EventIDRange r;
+  if (ccb->range (range.start(), r) &&
+      eventIDMatch (r.start(), range.start()))
+  {
+    if (ccb->extendLastRange (range).isSuccess()) {
+      return StatusCode::SUCCESS;
+    }
+  }
 
   if (ccb->proxy() == nullptr) { 
     SG::DataProxy* dp = p_detStore->proxy (id.clid(), sgKey);
