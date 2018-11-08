@@ -121,13 +121,13 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
   // -----------------------------
 
   std::vector<const IsoMuonFeature*> vec_isoMuonFeatures;
-
-  for(; isoContainer != lastisoContainer; isoContainer++) {
-    IsoMuonFeatureContainer::const_iterator iso     = isoContainer->begin();
-    IsoMuonFeatureContainer::const_iterator lastiso = isoContainer->end();
-    for(; iso != lastiso; iso++) {
-      if( (*iso)==0 ) continue;
-      vec_isoMuonFeatures.push_back( *iso );
+  vec_isoMuonFeatures.clear();
+  for(auto itr=isoContainer; itr!= lastisoContainer; itr++) {
+    const IsoMuonFeatureContainer* iso(nullptr);
+    ATH_CHECK( evtStore()->retrieve(iso, itr.key()));
+    for(auto jtr=iso->begin(); jtr!= iso->end(); jtr++) {
+      if( (*jtr)==nullptr ) continue;
+      vec_isoMuonFeatures.push_back( *jtr );
     }
   }
 
@@ -256,7 +256,6 @@ StatusCode HLTMuonMonTool::procMuIsoDQA()
 
     hist("muIso_effi_toOffl_pt", m_histdireff)->Sumw2();
     hist("muIso_effi_toOffl_pt", m_histdireff)->Divide( hist("muIso_effi_toOffl_pt_numer", m_histdirmuiso ), hist("muIso_effi_toOffl_pt_denom", m_histdirmuiso ), 1, 1, "B" ); 
-
   }
   //else if ( endOfLumiBlockFlag() ) {  }
   return StatusCode::SUCCESS;

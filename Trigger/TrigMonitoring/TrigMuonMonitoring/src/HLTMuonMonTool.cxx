@@ -37,7 +37,7 @@ using namespace std;
 
 /** Constructor, calls base class constructor with parameters
  *
- *  several properties are "declared" here, allowing selection
+ *  several properties are "declared" here, allowing selectio
  *  of the filepath for histograms, the first and second plane
  *  numbers to be used, and the timebin.
  */
@@ -51,7 +51,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
    m_bunchTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
    //   m_muonSelectorTool("Rec::MuonSelectorTool") // YY added -> removed
    
-  //initialization of muFast parameters
+  //initialization of L2MuonSA parameters
 
   //initialization of muComb parameters
 
@@ -74,12 +74,27 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
   declareProperty("monitoring_muonEFFS", m_chainsEFFS);
+  declareProperty("monitoring_muonLowpt", m_chainsLowpt);
   declareProperty("monitoring_muon_Support", m_chainSupport);
   declareProperty("HI_pp_mode", m_HI_pp_mode);
-  
-  //construction of muFast parameters
+
+  declareProperty("AccessHypoTEs", m_access_hypoTE=true);
+  //construction of L2MuonSA parameters
+  declareProperty("monitoring_muonNonIso_L2SAHypo", m_hyposGeneric_L2SA);
+  declareProperty("monitoring_muonIso_L2SAHypo", m_hyposEFiso_L2SA);
+  declareProperty("monitoring_MSonly_L2SAHypo", m_hyposMSonly_L2SA);
+  declareProperty("monitoring_muonEFFS_L2SAHypo", m_hyposEFFS_L2SA);
+  declareProperty("monitoring_muonLowpt_L2SAHypo", m_hyposLowpt_L2SA);
+  declareProperty("monitoring_muon_Support_L2SAHypo", m_hyposSupport_L2SA);
 
   //construction of muComb parameters
+  declareProperty("monitoring_muonNonIso_L2CBHypo", m_hyposGeneric_L2CB);
+  declareProperty("monitoring_muonIso_L2CBHypo", m_hyposEFiso_L2CB);
+  declareProperty("monitoring_MSonly_L2CBHypo", m_hyposMSonly_L2CB);
+  declareProperty("monitoring_muonEFFS_L2CBHypo", m_hyposEFFS_L2CB);
+  declareProperty("monitoring_muonLowpt_L2CBHypo", m_hyposLowpt_L2CB);
+  declareProperty("monitoring_muon_Support_L2CBHypo", m_hyposSupport_L2CB);
+
 
   //construction of muIso parameters
 
@@ -101,7 +116,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   m_maxindep = 0;
   m_maxESbr = 0;
   m_requestESchains = 0;
-  m_fMuFast = 0;
+  m_fL2MuonSA = 0;
   m_fMuComb = 0;
   m_fEFCB = 0;
   m_fMuGirl = 0;
@@ -121,7 +136,7 @@ HLTMuonMonTool::~HLTMuonMonTool()
   ATH_MSG_VERBOSE(" destruction of HLTMuonMonTool");
   //destruction of common parameters
 
-  //destruction of muFast parameters
+  //destruction of L2MuonSA parameters
 
   //destruction of muComb parameters
 
@@ -146,7 +161,6 @@ StatusCode HLTMuonMonTool::init()
   ATH_MSG_DEBUG("init being called");
   // some switches and flags
   m_requestESchains = true;
-  
   //initialization for common tools
   StatusCode scAS;
 
@@ -191,6 +205,8 @@ StatusCode HLTMuonMonTool::init()
 	m_histChainGeneric.push_back("muChain"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsGeneric[ich], 0));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsGeneric[ich], "muChain"+std::to_string(ich+1)));
+	if(ich<m_hyposGeneric_L2SA.size()) m_hypomapL2SA[m_chainsGeneric[ich]] = m_hyposGeneric_L2SA[ich];
+	if(ich<m_hyposGeneric_L2CB.size()) m_hypomapL2CB[m_chainsGeneric[ich]] = m_hyposGeneric_L2CB[ich];
   }
   
   // Generic (Isolated muons)
@@ -201,6 +217,8 @@ StatusCode HLTMuonMonTool::init()
 	m_histChainEFiso.push_back("muChainEFiso"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsEFiso[ich], 1));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsEFiso[ich], "muChainEFiso"+std::to_string(ich+1)));
+	if(ich<m_hyposEFiso_L2SA.size()) m_hypomapL2SA[m_chainsEFiso[ich]] = m_hyposEFiso_L2SA[ich];
+	if(ich<m_hyposEFiso_L2CB.size()) m_hypomapL2CB[m_chainsEFiso[ich]] = m_hyposEFiso_L2CB[ich];
   }
  
 
@@ -214,6 +232,8 @@ StatusCode HLTMuonMonTool::init()
 	m_histChainMSonly.push_back("muChainMSonly"+std::to_string(ich+1));
 	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsMSonly[ich], 0));
 	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsMSonly[ich], "muChainMSonly"+std::to_string(ich+1)));
+	if(ich<m_hyposMSonly_L2SA.size()) m_hypomapL2SA[m_chainsMSonly[ich]] = m_hyposMSonly_L2SA[ich];
+	if(ich<m_hyposMSonly_L2CB.size()) m_hypomapL2CB[m_chainsMSonly[ich]] = m_hyposMSonly_L2CB[ich];
   }
 
 
@@ -477,7 +497,7 @@ StatusCode HLTMuonMonTool::init()
   m_allESchain.push_back("HLT_Jpsimumu_idperf");
 
   // initialising algorithm index for summary histos
-  m_fMuFast = (float)iMuFast;
+  m_fL2MuonSA = (float)iL2MuonSA;
   m_fMuComb = (float)iMuComb;
   m_fEFCB = (float)iEFCB;
   m_fEFSA = (float)iEFSA;
@@ -496,10 +516,10 @@ StatusCode HLTMuonMonTool::init()
     m_iMSL = 54;  // 60 GeV
     m_iMSH = 75;  // 100 GeV  
   }else{
-    m_iSTDL = 91;  // 40 GeV
-  m_iSTDH = 120; // 100 GeV
-  m_iMSL = 105;  // 60 GeV
-  m_iMSH = 120;  // 100 GeV
+    m_iSTDL = 105;//60GeV 91;  // 40 GeV
+    m_iSTDH = 120; // 100 GeV
+    m_iMSL = 105;  // 60 GeV
+    m_iMSH = 120;  // 100 GeV
   /* m_iSTDL = 71;  // 22.5 GeV
   m_iSTDH = 100;  // 50 GeV
   m_iMSL = 91;  // 40 GeV
@@ -557,11 +577,11 @@ StatusCode HLTMuonMonTool::init()
     m_bins_phi[iphi] = (dphi*static_cast<Double_t>(iphi)-(TMath::Pi()));
   }
 
-  //muFast
-  StatusCode scMuFast;
-  scMuFast=initMuFastDQA();
-  if( scMuFast.isFailure() ){
-    ATH_MSG_VERBOSE("initMuFastDQA failed");
+  //L2MuonSA
+  StatusCode scL2MuonSA;
+  scL2MuonSA=initL2MuonSADQA();
+  if( scL2MuonSA.isFailure() ){
+    ATH_MSG_VERBOSE("initL2MuonSADQA failed");
   }
   //muComb
   StatusCode scMuComb;
@@ -600,8 +620,16 @@ StatusCode HLTMuonMonTool::init()
     ATH_MSG_VERBOSE("initMuZTPDQA failed");
   }
 
-  StatusCode sc = scMuFast & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  StatusCode sc = scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
   return sc;
+  
+  // if(sc==1){
+  //   return StatusCode::SUCCESS;
+  // }else if(sc>1){
+  //   return StatusCode::RECOVERABLE;
+  // }
+
+  // return StatusCode::FAILURE;
 }
 
 
@@ -614,7 +642,7 @@ StatusCode HLTMuonMonTool::book()
   ATH_MSG_DEBUG("book being called");
   
   m_histdir="HLT/MuonMon/Common";
-  m_histdirmufast="HLT/MuonMon/muFast";
+  m_histdirmufast="HLT/MuonMon/L2MuonSA";
   m_histdirmucomb="HLT/MuonMon/muComb";
   m_histdirmuiso="HLT/MuonMon/muIso";
   m_histdirtilemu="HLT/MuonMon/TileMu";
@@ -666,11 +694,11 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookChainDQA failed");
   }
 
-  //muFast
-  StatusCode scMuFast;
-  scMuFast=bookMuFastDQA();
-  if( scMuFast.isFailure() ){
-    ATH_MSG_VERBOSE("bookMuFastDQA failed");
+  //L2MuonSA
+  StatusCode scL2MuonSA;
+  scL2MuonSA=bookL2MuonSADQA();
+  if( scL2MuonSA.isFailure() ){
+    ATH_MSG_VERBOSE("bookL2MuonSADQA failed");
   }
   //muComb
   StatusCode scMuComb;
@@ -709,8 +737,15 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookMuZTPDQA failed");
   }
 
-  StatusCode sc = scCommon & scChain & scMuFast & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  StatusCode sc = scCommon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
   return sc;
+  // if(sc==1){
+  //   return StatusCode::SUCCESS;
+  // }else if(sc>1){
+  //   return StatusCode::RECOVERABLE;
+  // }
+
+  // return StatusCode::FAILURE;
 }
 
 /*---------------------------------------------------------*/
@@ -734,13 +769,12 @@ StatusCode HLTMuonMonTool::fill()
   }
   hist("Common_Counter", m_histdir )->Fill((float)EVENT);
   if(!m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(0);
-
   /*
   auto chainGroup = getTDT()->getChainGroup("HLT_mu.*");
   for(auto &trig : chainGroup->getListOfTriggers()) {
     auto cg = getTDT()->getChainGroup(trig);
     std::string thisTrig = trig;
-    std::cout<<"testchenyhlt chainlist "<<thisTrig.c_str()<<std::endl;
+    ATH_MSG_DEBUG("muonhlt chainlist "<<thisTrig.c_str());
   }*/
   std::vector<std::string>::const_iterator it;
   int itr;
@@ -750,6 +784,7 @@ StatusCode HLTMuonMonTool::fill()
   for(it=m_chainsMSonly.begin(), itr=0; it != m_chainsMSonly.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
   for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
   for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++, itr++ )mchainlist.push_back((*it).c_str());
+  for(it=m_chainsLowpt.begin(), itr=0; it != m_chainsLowpt.end() ; it++, itr++ )mchainlist.push_back((*it).c_str());
   for(int i=0; i<(int)mchainlist.size(); i++){
     TString s=mchainlist[i];
     hist("Monitoring_Chain",m_histdir)->GetXaxis()->SetBinLabel(i+1,s);
@@ -771,17 +806,17 @@ StatusCode HLTMuonMonTool::fill()
     scChain=StatusCode::RECOVERABLE;
   }
 
-  // muFast
-  StatusCode scMuFast;
+  // L2MuonSA
+  StatusCode scL2MuonSA;
   try {
-    scMuFast=fillMuFastDQA();
-    if( scMuFast.isFailure() ) {
-      ATH_MSG_VERBOSE("fillMuFastDQA failed");
+    scL2MuonSA=fillL2MuonSADQA();
+    if( scL2MuonSA.isFailure() ) {
+      ATH_MSG_VERBOSE("fillL2MuonSADQA failed");
     }
   }
   catch(...) {
-    ATH_MSG_ERROR("Exception thrown by fillMuFastDQA");
-    scMuFast=StatusCode::RECOVERABLE;
+    ATH_MSG_ERROR("Exception thrown by fillL2MuonSADQA");
+    scL2MuonSA=StatusCode::RECOVERABLE;
   }
 
   // muComb
@@ -863,12 +898,12 @@ StatusCode HLTMuonMonTool::fill()
     scMuZTP=StatusCode::RECOVERABLE;
   }
 
-  StatusCode sc = scCommon & scRecMuon & scChain & scMuFast & scMuComb & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  StatusCode sc = scCommon & scRecMuon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
 
   ATH_MSG_DEBUG( " scCommon " << scCommon  
 		<< " scRecMuon " << scRecMuon 
 		<< " scChain " << scChain
-                << " scMuFast " << scMuFast
+                << " scL2MuonSA " << scL2MuonSA
                 << " scMuComb " << scMuComb
                 << " scMuIso " << scMuIso
                 << " scTileMu " << scTileMu
@@ -876,8 +911,15 @@ StatusCode HLTMuonMonTool::fill()
                 << " scMuGirl " << scMuGirl
                 << " scMuZTP " << scMuZTP
                 << " sc " << sc);
-
   return sc;
+  
+  // if(sc==1){
+  //   return StatusCode::SUCCESS;
+  // }else if(sc>1){
+  //   return StatusCode::RECOVERABLE;
+  // }
+
+  // return StatusCode::FAILURE;
 }
 
 /*---------------------------------------------------------*/
@@ -901,17 +943,17 @@ StatusCode HLTMuonMonTool::proc()
     scChain=StatusCode::RECOVERABLE;
   }
 
-  // muFast
-  StatusCode scMuFast;
+  // L2MuonSA
+  StatusCode scL2MuonSA;
   try {
-    scMuFast=procMuFastDQA();
-    if( scMuFast.isFailure() ){
-      ATH_MSG_VERBOSE("procMuFastDQA failed");
+    scL2MuonSA=procL2MuonSADQA();
+    if( scL2MuonSA.isFailure() ){
+      ATH_MSG_VERBOSE("procL2MuonSADQA failed");
     }
   }
   catch(...) {
-    ATH_MSG_ERROR("Exception thrown by procMuFastDQA");
-    scMuFast=StatusCode::RECOVERABLE;
+    ATH_MSG_ERROR("Exception thrown by procL2MuonSADQA");
+    scL2MuonSA=StatusCode::RECOVERABLE;
   }
 
   // muComb
@@ -994,6 +1036,34 @@ StatusCode HLTMuonMonTool::proc()
 
   //
 
-  StatusCode sc = scChain & scMuFast & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  StatusCode sc = scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
   return sc;
+  // if(sc==1){
+  //   return StatusCode::SUCCESS;
+  // }else if(sc>1){
+  //   return StatusCode::RECOVERABLE;
+  // }
+
+  // return StatusCode::FAILURE;
+}
+
+
+const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const HLT::TriggerElement *te, std::string step, std::string chainname){
+
+  //m_ExpertMethods->enable();
+  std::string hyponame = "";
+  if(step=="L2MuonSA") hyponame = m_hypomapL2SA[chainname];
+  if(step=="L2muComb") hyponame = m_hypomapL2CB[chainname];
+  const HLT::TriggerElement *hypote = NULL;
+  std::vector<HLT::TriggerElement*> TEsuccessors = m_ExpertMethods->getNavigation()->getDirectSuccessors(te);
+  for(auto te2 : TEsuccessors){
+    //ATH_MSG_DEBUG("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
+    if(Trig::getTEName(*te2)==hyponame){
+      ATH_MSG_DEBUG("[" << chainname<< "] selected HypoTE: " << te2->getId() << " " <<  Trig::getTEName(*te2) <<  " isPassed=" << te2->getActiveState() );
+      hypote = te2;
+    }
+  }
+
+
+  return hypote;
 }
