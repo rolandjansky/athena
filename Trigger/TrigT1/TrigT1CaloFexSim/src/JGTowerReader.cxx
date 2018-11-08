@@ -126,21 +126,9 @@ StatusCode JGTowerReader::execute() {
   const xAOD::EventInfo* eventInfo = 0;
   CHECK( evtStore()->retrieve( eventInfo, "EventInfo" ) );
 
-  //events with bcid distance from bunch train <20 vetoed 
   ToolHandle<Trig::IBunchCrossingTool> m_bcTool("Trig::MCBunchCrossingTool/BunchCrossingTool");
   int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-
-  ATH_MSG_DEBUG ("dist from front of bunch train is " << distFrontBunchTrain << "...");
-  if(distFrontBunchTrain<0) {
-    ATH_MSG_DEBUG ("... hasn't worked, ignoring");
-  }
-  else if(distFrontBunchTrain<20) {
-    ATH_MSG_DEBUG ("... skipping event");
-    return StatusCode::SUCCESS;
-  }
-  else {
-    ATH_MSG_DEBUG ("... continuing");
-  }
+  CHECK(HistBookFill("distFrontBunchTrain",100,0,100, distFrontBunchTrain, 1.));
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, "SCell") );
