@@ -3,6 +3,7 @@
 # Script for building the release on top of externals built using the
 # script in this directory.
 #
+_time_="/usr/bin/time -f time::\t%C::\treal:\t%E\tuser:\t%U\tsys:\t%S\n "
 
 # Function printing the usage information for the script
 usage() {
@@ -119,7 +120,7 @@ if [ -n "$EXE_CMAKE" ]; then
     fi
 
     # Now run the actual CMake configuration:
-    time cmake -G "${GENERATOR}" \
+    $_time_ cmake -G "${GENERATOR}" \
          -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
          ${USE_LAUNCHERS} \
          ${AthAnalysisSrcDir} 2>&1 | tee cmake_config.log
@@ -137,26 +138,26 @@ if [ -n "$EXE_MAKE" ]; then
         # In order to build the project in a nightly setup, allowing for some
         # build steps to fail while still continuing, we need to use "make"
         # directly. Only allowing the usage of the Makefile generator.
-        time make -k 2>&1 | tee cmake_build.log
+        $_time_ make -k 2>&1 | tee cmake_build.log
     else
         # However in a non-nightly setup we can just rely on CMake to start
         # the build for us. In this case we can use any generator we'd like
         # for the build. Notice however that the installation step can still
         # be only done correctly by using GNU Make directly.
-        time cmake --build . 2>&1 | tee cmake_build.log
+        $_time_ cmake --build . 2>&1 | tee cmake_build.log
     fi
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time make install/fast \
+    $_time_ make install/fast \
          DESTDIR=${BUILDDIR}/install/AthAnalysis/${NICOS_PROJECT_VERSION} \
          2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    time cpack 2>&1 | tee cmake_cpack.log
+    $_time_ cpack 2>&1 | tee cmake_cpack.log
     FILES=$(ls AthAnalysis*.rpm AthAnalysis*.dmg AthAnalysis*.tar.gz)
     cp ${FILES} ${BUILDDIR}/
 fi
