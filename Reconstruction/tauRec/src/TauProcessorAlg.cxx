@@ -33,7 +33,7 @@ m_maxEta(2.5),
 m_minPt(10000),
 m_doCreateTauContainers(false),
 m_data(),
-m_cellMakerTool("")
+m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
   declareProperty("MaxEta", m_maxEta);

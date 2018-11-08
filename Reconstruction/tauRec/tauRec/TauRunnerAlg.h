@@ -53,9 +53,8 @@ class TauRunnerAlg: public AthAlgorithm
 								const T*& oldContainer);
  private:
        
-	ToolHandleArray<ITauToolBase>  m_tools;
+	ToolHandleArray<ITauToolBase>  m_tools{this, "TauRunnerTools", {}, "Tools building taus"};
 
-        //ToolHandleArray<ITauToolExecBase>  m_tools;
 	TauEventData m_data;
 
 	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauInputContainer{this,"Key_tauInputContainer","tmp_TauJets","input temp tau key"};

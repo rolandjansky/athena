@@ -173,6 +173,10 @@ if _doPi0Clus:
 from tauRec.TauRecRunner import TauRecRunner
 TauRecRunner(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 
+#print "top sequence details"
+#for t in topSequence:
+#    print t
+
 #  set algCardinality = 1 to disable cloning for all Algs
 algCardinality = nThreads
 

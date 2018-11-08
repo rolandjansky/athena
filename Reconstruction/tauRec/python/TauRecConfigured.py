@@ -34,7 +34,6 @@ class TauRecConfigured ( Configured ) :
         # add calo cell finalizer tool
         TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name='tauRec_tauPi0CellContainerFinalizer')
         from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += TauCellContainerFinalizer
 
         self._TauProcessorAlgHandle = TauProcessorAlg ( name=self.name+'Alg',
                                                         Key_jetInputContainer="AntiKt4LCTopoJets",

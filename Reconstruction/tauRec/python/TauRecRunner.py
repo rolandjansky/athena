@@ -126,7 +126,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
 
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
-            TauRecRunConfigured.AddToolsToToolSvc(self, tools)
             #self.TauBuilderToolHandle().Tools = tools
             
         except Exception:

@@ -120,8 +120,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
 
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
-            TauRecConfigured.AddToolsToToolSvc(self, tools)
-            
+                        
         except Exception:
             mlog.error("could not append tools to TauBuilder")
             print traceback.format_exc()
