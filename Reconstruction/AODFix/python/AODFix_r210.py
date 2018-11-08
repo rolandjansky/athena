@@ -71,8 +71,7 @@ class AODFix_r210(AODFix_base):
                 self.inDetVars_postSystemRec( topSequence )
                 pass
 
-            from RecExConfig.RecFlags import rec
-            if rec.doTau() and "tauid" not in oldMetadataList:
+            if "tauid" not in oldMetadataList and not self.isHI:
                 self.tauid_postSystemRec(topSequence)
                 pass
 
