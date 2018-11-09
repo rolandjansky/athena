@@ -59,6 +59,7 @@ namespace InDet{
 
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
+      void cleanSpuriousSCTHits(bool clean);
 
       bool initialize
 	(bool,bool,
@@ -137,6 +138,14 @@ namespace InDet{
       int                               m_itos[100]       ; //
       SiTrajectoryElement_xk            m_elements   [300]; // mC
       const InDet::SiTools_xk*          m_tools           ; //
+
+      // Removes spurious SCT clusters found during the
+      // forward extension under following conditions
+      //   1) last element is SCT and second to last is pixel
+      //         (i.e. has a single SCT cluster)
+      //   2) enforces clusters on both axial/stereo of a given layer
+      //         (i.e. forbids single SCT clusters on the last layer found during the extension)
+      bool m_cleanSpuriousSCTClusters;
 
       ///////////////////////////////////////////////////////////////////
       // Methods

@@ -24,6 +24,11 @@ void InDet::SiTrajectory_xk::setParameters()
   for(int i=0; i!=300; ++i) m_elements[i].setParameters();
 } 
 
+void InDet::SiTrajectory_xk::cleanSpuriousSCTHits(bool clean)
+{
+  m_cleanSpuriousSCTClusters = clean;
+}
+
 ///////////////////////////////////////////////////////////////////
 // Erase trajector element
 ///////////////////////////////////////////////////////////////////
@@ -1237,6 +1242,21 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       lbest   = L ;
       Xi2best = X ;
       ndbest  = nd; if(fl==lElement && nd < ndcut) ndcut = nd;
+
+      if( m_cleanSpuriousSCTClusters ){
+        if( Ml>L ){
+          InDet::SiTrajectoryElement_xk& El  = m_elements[m_elementsMap[ MP[Ml] ]];
+          InDet::SiTrajectoryElement_xk& Ell = m_elements[m_elementsMap[ MP[Ml-1] ]];
+          if( El.isSCT() ){
+            if( Ell.isPixel()    ) Ml=Ml-1;
+            else if( Ell.isSCT() ){
+              if( El.getSCTLayer()!=Ell.getSCTLayer() || El.getSCTLayerSide()==Ell.getSCTLayerSide() ) Ml=Ml-2;
+              else if( !El.cluster() || !Ell.cluster() ) Ml=Ml-2;
+            }
+          }
+        }
+        if( Ml<L ) Ml=L;
+      }
 
       for(int j=L+1; j<=Ml; ++j) {
 
