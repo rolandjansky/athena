@@ -10,6 +10,10 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODMuon/MuonContainer.h"
 #include <algorithm>
+#include "xAODTracking/VertexContainer.h"
+namespace xAOD{
+   class BPhysHelper;
+}
 
 namespace Analysis {
 
@@ -25,7 +29,7 @@ namespace Analysis {
         static bool   cutRange(double value, double min, double max);
         static bool   cutAcceptGreaterOR(const std::vector<double> &values, double min);
         static bool   cutAcceptGreater(double value, double min);
-
+        static const xAOD::Vertex* ClosestPV(xAOD::BPhysHelper&, const xAOD::VertexContainer*);
         template< size_t N>
         static bool isContainedIn(const xAOD::TrackParticle*, const std::array<const xAOD::TrackParticle*, N>& );
    };

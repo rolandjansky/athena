@@ -43,7 +43,8 @@ namespace DerivationFramework {
     declareProperty("MassMax"              , m_massMax               = 6000);                   
     declareProperty("MassMin"              , m_massMin               = 2000);                   
     declareProperty("Chi2Max"              , m_chi2Max               = 200);
-    declareProperty("DoVertexType"              , m_DoVertexType          = 7);
+    declareProperty("DoVertexType"         , m_DoVertexType          = 7);
+    declareProperty("LxyMin"               , m_lxyMin                = std::numeric_limits<double>::lowest());
     declareProperty("Do3d"                 , m_do3d = false);
     
   }
@@ -192,7 +193,12 @@ namespace DerivationFramework {
         onia.setPass(false);; // flag as failed
         continue;
       }
-      
+      // 3) lxy cut
+      if( onia.lxy(xAOD::BPhysHelper::PV_MAX_SUM_PT2) < m_lxyMin) {
+        onia.setPass(false);; // flag as failed
+        continue;
+      }
+
     } // end of loop over onia candidates
     
     // all OK
