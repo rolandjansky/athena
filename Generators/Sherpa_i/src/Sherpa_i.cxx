@@ -18,6 +18,7 @@
 #include <cstdio>
 #include <cstring>
 #include <signal.h>
+#include <stdlib.h>
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
@@ -32,6 +33,7 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("ExtraFiles", m_extrafiles);
   declareProperty("NCores", m_ncores=1);
   declareProperty("MemoryMB", m_memorymb=2500.);
+  declareProperty("PluginCode", m_plugincode = "");
 
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
   declareProperty("CleanupGeneratedFiles", m_cleanup=false);
@@ -40,6 +42,11 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
 
 
 StatusCode Sherpa_i::genInitialize(){
+  if (m_plugincode != "") {
+    compilePlugin(m_plugincode);
+    m_params.push_back("SHERPA_LDADD=Sherpa_iPlugin");
+  }
+  
   ATH_MSG_INFO("Sherpa initialising...");
 
   p_rndEngine = atRndmGenSvc().GetEngine("SHERPA");
@@ -177,6 +184,9 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   else{
     params.push_back("OUTPUT=15");
   }
+
+  // disregard manual RUNDATA setting if run card given in JO
+  if (m_runcard != "") m_params.push_back("RUNDATA=Run.dat");
   
   // allow to overwrite all parameters from JO file
   params.insert(params.begin()+params.size(), m_params.begin(), m_params.end());
@@ -208,8 +218,26 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
 
 }
 
-
-
+void Sherpa_i::compilePlugin(std::string pluginCode) {
+  // TODO: not very pretty, should we eventually do this in Python instead (base fragment)
+  FILE *file = fopen("Sherpa_iPlugin.C","w");
+  fputs(pluginCode.c_str(),file);
+  fclose(file);
+  std::string prefix = SHERPA_ROOT; // from Sherpa_i/CMakeLists.txt compile def
+  std::string command;
+  // Python -> C++ string conversion seems to add quote character as first
+  // and last line if the string contains quotes (like always in a plugin)
+  // thus removing them here
+  command += "tail -n +2 Sherpa_iPlugin.C | head -n -1 > Sherpa_iPlugin.C.tmp; mv Sherpa_iPlugin.C.tmp Sherpa_iPlugin.C; ";
+  command += "g++ -shared -std=c++0x -g ";
+  command += "-I`"+prefix+"/bin/Sherpa-config --incdir` ";
+  command += "`"+prefix+"/bin/Sherpa-config --ldflags` ";
+  command += "-fPIC -o libSherpa_iPlugin.so Sherpa_iPlugin.C";
+  ATH_MSG_INFO("Now compiling plugin library using: "+command);
+  if (system(command.c_str())!=0) {
+    ATH_MSG_ERROR("Error compiling plugin library.");
+  }
+}
 
 /**
    Use ATLAS random number generator for Sherpa's internal random numbers

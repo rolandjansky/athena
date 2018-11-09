@@ -26,6 +26,7 @@ public:
   StatusCode genFinalize();
   StatusCode fillEvt(HepMC::GenEvent* evt);
   void getParameters(int &argc, char** &argv);
+  void compilePlugin(std::string);
 
 protected:
   
@@ -48,6 +49,9 @@ protected:
 
   /// Memory required for integration/evgen
   double m_memorymb;
+
+  /// Optional code for plugin library to compile and load at run time
+  std::string m_plugincode;
 
   double m_xsscale;
   bool m_cleanup;
