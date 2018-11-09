@@ -70,6 +70,10 @@ namespace InDet{
 
       bool isNextClusterHoleB(bool&,double&);
       bool isNextClusterHoleF(bool&,double&);
+      int getSCTLayerSide();
+      int getSCTLayer();
+      bool isPixel();
+      bool isSCT();
 
       ///////////////////////////////////////////////////////////////////
       // Methods update with cluster information

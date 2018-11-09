@@ -1851,3 +1851,27 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
   }
   return true;
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+// Checks if element is SCT
+/////////////////////////////////////////////////////////////////////////////////
+
+int InDet::SiTrajectoryElement_xk::getSCTLayerSide()
+{
+  return m_detelement->getSCTLayerSide();
+}
+
+int InDet::SiTrajectoryElement_xk::getSCTLayer()
+{
+  return m_detelement->getSCTLayer();
+}
+
+bool InDet::SiTrajectoryElement_xk::isPixel()
+{
+  return m_detelement->isPixel();
+}
+
+bool InDet::SiTrajectoryElement_xk::isSCT()
+{
+  return m_detelement->isSCT();
+}
