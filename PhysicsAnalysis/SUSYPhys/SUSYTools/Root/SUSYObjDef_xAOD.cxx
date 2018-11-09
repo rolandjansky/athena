@@ -635,6 +635,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Tight");
+  ph_id_support.push_back("TightPtIncl"); // Should not be mixed with Tight
 
   mu_id_support = 4; //maximum value supported
 
