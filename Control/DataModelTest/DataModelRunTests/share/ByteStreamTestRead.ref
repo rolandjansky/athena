@@ -1,13 +1,13 @@
-Thu Nov  8 03:53:46 CET 2018
+Fri Nov  9 19:19:08 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc8-opt] [atlas-work3/3a1173767ab] -- built on [2018-11-07T2213]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc62-dbg] [atlas-work3/7a133dcd071] -- built on [2018-11-09T1652]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/ByteStreamTestRead_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
-Py:ConfigurableDb    INFO Read module info for 5556 configurables from 46 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5557 configurables from 49 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -15,7 +15,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r4)
-                                          running on lxplus076.cern.ch on Thu Nov  8 03:54:04 2018
+                                          running on lxplus050.cern.ch on Fri Nov  9 19:19:25 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -49,15 +49,15 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-11-06T2342/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus076.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-11-08T0031/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus050.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 3412 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3449 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
@@ -84,8 +84,7 @@ Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
 ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-00-00
-APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=10DE610D-5634-4D42-80D4-80B0A8C16452
-APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=2577D84A-BC0F-4CD2-9539-9F0A4EFC64AA
+APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=EAD7484F-1F40-4344-A667-BB9C47536BE6
 APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=740C4020-F0A3-40B3-88E1-B15A8055DB64
 HLT_DMTest__CVec_cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1

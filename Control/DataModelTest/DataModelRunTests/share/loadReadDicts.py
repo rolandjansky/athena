@@ -22,6 +22,9 @@ class LoadReadDicts (Alg):
         cppyy.loadDictionary("libDataModelTestDataCommonDict")
         cppyy.loadDictionary("libDataModelTestDataReadDict")
         ROOT.DMTest.B
+        ROOT.gROOT.GetClass('DMTest::HAuxContainer_v1')
+        ROOT.gROOT.GetClass('DataVector<DMTest::H_v1>')
+        ROOT.gROOT.GetClass('DMTest::HView_v1')
         ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
         ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataReadSerCnv.so')
         return StatusCode.Success
