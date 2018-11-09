@@ -179,6 +179,17 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJetsFromEventView( const EventContext& c
     for ( const xAOD::Jet *jet : *jetContainer ) {
       ATH_MSG_DEBUG( "   *** pt=" << jet->p4().Et() << " eta="<< jet->eta()<< " phi=" << jet->phi() );
 
+      // Check the jet has not been already retrieved
+      bool alreadyRetrieved = false;
+      for ( const xAOD::Jet *savedJet : *output ) {
+	if ( savedJet->p4().Et() == jet->p4().Et() &&
+	     savedJet->eta() == jet->eta() &&
+	     savedJet->phi() == jet->phi() )
+	  alreadyRetrieved = true;
+      }
+
+      if ( alreadyRetrieved ) continue;
+      // Make a Copy
       xAOD::Jet *copyJet = new xAOD::Jet();
       output->push_back( copyJet );
       *copyJet = *jet;
