@@ -17,8 +17,16 @@ public:
 
   ~BareDataBucket() {
     if ( m_own )
-      delete [] static_cast<char*>( m_data );
+      m_type.Destruct( m_data );
   }
+
+  // DataObject overrides
+  virtual const CLID& clID() const override {
+    return m_clid;
+  }
+  
+  // DataBuckedBase overrides
+
   virtual void* object() override { 
     return m_data; 
   }
@@ -40,9 +48,7 @@ public:
   }
 
   virtual DataBucketBase* clone() const override {
-    char* cloneData = new char[m_size];
-    std::memcpy( cloneData, m_data, m_size );
-    return new BareDataBucket( cloneData, m_size, m_clid, m_type );
+    return nullptr;
   }
   
   virtual void relinquish() override { 
