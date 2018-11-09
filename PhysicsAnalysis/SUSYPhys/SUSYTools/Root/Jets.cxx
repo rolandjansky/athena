@@ -826,7 +826,7 @@ namespace ST {
     ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
     for (const auto& jet : *jets) {
       // Only jets that were good for every cut except JVT
-      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(jet->eta())>m_fwdjetEtaMin) {
+      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
         fjvtjets.push_back(jet);
       }
     }
