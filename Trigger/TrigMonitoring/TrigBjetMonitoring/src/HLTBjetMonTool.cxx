@@ -236,7 +236,6 @@ StatusCode HLTBjetMonTool::book(){
       ATH_MSG_INFO("         Chain Name sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
       if ( (size_TriggerChainBjet+size_TriggerChainMujet) <= 0) {
 	ATH_MSG_INFO( " No trigger chain is configured for this run ==> Stop monitoring " );
-	// Not really a failure
 	return StatusCode::FAILURE;
       }
       for (int i =0; i<size_TriggerChainBjet; i++){
@@ -759,6 +758,7 @@ StatusCode HLTBjetMonTool::book(){
       // Temporary work-around to retrieve online PV for FTK chains suggested by John Baines 2017/09/12
       // Dummy vertices not treated here for the moment
 
+      /*
       if (FTKchain) {
         const xAOD::VertexContainer * onlinepvFTK = 0;
         if ( evtStore()->contains<xAOD::VertexContainer>("HLT_xAOD__VertexContainer_PrimVertexFTK") ) {
@@ -778,7 +778,8 @@ StatusCode HLTBjetMonTool::book(){
           } // not onlinepvFTK->empty()
 	} // if contains
       } // FTK chain
-  
+      */  
+
       Trig::FeatureContainer fc = m_trigDec->features(trigItem);
       const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
       ATH_MSG_DEBUG("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
