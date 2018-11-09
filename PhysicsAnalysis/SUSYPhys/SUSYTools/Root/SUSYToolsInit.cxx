@@ -384,6 +384,22 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
     m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
+    //
+    if (m_muOverrideSmearingDefaults){
+      ATH_MSG_WARNING("You have enabled overriding the muon calibration and smearing tool defaults. Note that *all* configurable parameters will be set by SUSYTools");
+      m_muonCalibrationAndSmearingTool.setProperty("StatComb1516", m_muStatComb1516);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr1516", m_muSagittaCorr1516);
+      m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion1516", m_muSagittaMCDistortion1516);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace1516", m_muSagittaCorrPhaseSpace1516);
+      m_muonCalibrationAndSmearingTool.setProperty("StatComb17", m_muStatComb17);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr17", m_muSagittaCorr17);
+      m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion17", m_muSagittaMCDistortion17);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17);
+      m_muonCalibrationAndSmearingTool.setProperty("StatComb18", m_muStatComb18);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr18", m_muSagittaCorr18);
+      m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion18", m_muSagittaMCDistortion18);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace18", m_muSagittaCorrPhaseSpace18);
+    }
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
 
