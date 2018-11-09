@@ -18,7 +18,7 @@ int main() {
     return 0;
   }
   assert(pSvcLoc);
-  MsgStream log(Athena::getMessageSvc(), "Holder_test");
+  MsgStream log(Athena::getMessageSvc(), "void_record_test");
   
   StoreGateSvc* pStore = 0;
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
@@ -47,8 +47,9 @@ int main() {
   log << MSG::INFO << storeRT.Name() << endmsg;
   BareDataBucket storeDataBucket( rawStorePtr, 1, ClassID_traits<xAOD::TrigCompositeContainer>::ID(), storeRT ); 
 
-  pStore->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( &containerDataBucket ), "test", false, false );
   pStore->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( &storeDataBucket ), "testAux.", false, false );
+  pStore->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( &containerDataBucket ), "test", false, false );
+
 
   VALUE( pStore->accessData( ClassID_traits<xAOD::TrigCompositeContainer>::ID(),  "test") ) NOT_EXPECTED ( nullptr );
   VALUE ( pStore->accessData( ClassID_traits<xAOD::TrigCompositeAuxContainer>::ID(),  "testAux.") ) NOT_EXPECTED ( nullptr );
