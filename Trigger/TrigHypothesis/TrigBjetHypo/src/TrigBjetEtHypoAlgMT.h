@@ -50,6 +50,7 @@ class TrigBjetEtHypoAlgMT : public ::HypoBase {
 
  private:
   Gaudi::Property< bool > m_useView {this,"UseView",false,"Use configuration that supports Event View"};
+  Gaudi::Property< bool > m_multipleDecisions {this,"MultipleDecisions",false,"Create multiple decisions, one per input RoI"};
   Gaudi::Property< std::string > m_roiLink {this,"RoILink","roi","RoI link to attach to the output decision"};
   Gaudi::Property< std::string > m_jetLink {this,"JetLink","jets","Jets link to attach to the output decision"};
 

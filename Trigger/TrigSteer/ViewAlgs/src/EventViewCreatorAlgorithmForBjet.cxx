@@ -18,7 +18,7 @@ EventViewCreatorAlgorithmForBjet::EventViewCreatorAlgorithmForBjet( const std::s
 EventViewCreatorAlgorithmForBjet::~EventViewCreatorAlgorithmForBjet(){}
 
 StatusCode EventViewCreatorAlgorithmForBjet::initialize() {
-  ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs );
+  ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs << " jets=" << m_inViewJets );
   ATH_CHECK( m_viewsKey.initialize() );
   ATH_CHECK( m_inViewRoIs.initialize() );
   ATH_CHECK( m_inViewJets.initialize() );
@@ -78,7 +78,8 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
       ATH_CHECK( roiELInfo.isValid() );
       // associate this RoI to output decisions
       auto roiDescriptor = *roiELInfo.link;
-      ATH_MSG_DEBUG( "Placing TrigRoiDescriptor " << *roiDescriptor );
+      ATH_MSG_DEBUG( "Placing TrigRoiDescriptor " );
+      ATH_MSG_DEBUG( "   " << *roiDescriptor );
 
       TrigCompositeUtils::Decision* newDecision = nullptr;      
       if ( prevRoIDescriptor != roiDescriptor ) {
@@ -119,8 +120,11 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
       	viewMap[roiDescriptor]=viewVector->size()-1;
 	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
 
+	ATH_MSG_DEBUG("UNO");
 	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
+	ATH_MSG_DEBUG("DUE");
 	ATH_CHECK( placeRoIInView( roiDescriptor, viewVector->back(), contexts.back() ) );	
+	ATH_MSG_DEBUG("TRE");
 	ATH_CHECK( placeJetInView( jet, viewVector->back(), contexts.back() ) );
       }
     }
@@ -199,6 +203,7 @@ void EventViewCreatorAlgorithmForBjet::insertDecisions( const TrigCompositeUtils
 }	
 
 StatusCode EventViewCreatorAlgorithmForBjet::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {
+  ATH_MSG_DEBUG( "ECCOMI !" );
   // see if there is a view linked to the decision object, if so link it to the view that is just made
   TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
   if ( parentViewLinkInfo.isValid() ) {
@@ -221,6 +226,7 @@ StatusCode EventViewCreatorAlgorithmForBjet::linkViewToParent( const TrigComposi
 
 StatusCode EventViewCreatorAlgorithmForBjet::placeRoIInView( const TrigRoiDescriptor* roi, SG::View* view, const EventContext& context ) const {
   // fill the RoI output collection
+  ATH_MSG_DEBUG( "Adding RoI To View : " << m_inViewRoIs.key() );
   auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
   oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
   oneRoIColl->push_back( roi );

@@ -18,10 +18,11 @@ StatusCode TrigBjetEtHypoAlgMT::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  ATH_MSG_DEBUG(  "declareProperty review:"   );
-  ATH_MSG_DEBUG(  "   " << m_useView          );
-  ATH_MSG_DEBUG(  "   " << m_roiLink          );
-  ATH_MSG_DEBUG(  "   " << m_jetLink          );
+  ATH_MSG_DEBUG(  "declareProperty review:"    );
+  ATH_MSG_DEBUG(  "   " << m_useView           );
+  ATH_MSG_DEBUG(  "   " << m_roiLink           );
+  ATH_MSG_DEBUG(  "   " << m_jetLink           );
+  ATH_MSG_DEBUG(  "   " << m_multipleDecisions );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve()   );
@@ -66,12 +67,13 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
   // Retrieve RoI to be linked to the output decision
+  const TrigRoiDescriptorCollection *roiContainer = nullptr;
   if ( not m_useView ) {
     ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << m_inputRoIKey );
     SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( m_inputRoIKey,context );
     CHECK( roiContainerHandle.isValid() );
     
-    const TrigRoiDescriptorCollection *roiContainer = roiContainerHandle.get();
+    roiContainer = roiContainerHandle.get();
     ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
     for ( const TrigRoiDescriptor *roi : *roiContainer )
       ATH_MSG_DEBUG( "   ** eta="<< roi->eta() << " phi=" << roi->phi() );
@@ -82,34 +84,53 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
   // ========================================================================================================================== 
 
   // Decisions
-  std::unique_ptr< TrigCompositeUtils::DecisionContainer > decisions = std::make_unique< TrigCompositeUtils::DecisionContainer >();
-  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > aux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer >();
-  decisions->setStore( aux.get() );
+  std::unique_ptr< TrigCompositeUtils::DecisionContainer > outputDecision( new TrigCompositeUtils::DecisionContainer() );
+  std::unique_ptr< TrigCompositeUtils::DecisionAuxContainer > outputAuxDecision( new TrigCompositeUtils::DecisionAuxContainer() );
+  outputDecision->setStore( outputAuxDecision.get() );
 
   // ==========================================================================================================================
   //    ** Compute Decisions
   // ==========================================================================================================================
 
-  // Taken from Jet Code here 
-  const TrigCompositeUtils::Decision *prevDecision = prevDecisionContainer->at(0);
-  TrigCompositeUtils::Decision *newDecision = TrigCompositeUtils::newDecisionIn( decisions.get() );
-
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs { 
-    TrigCompositeUtils::decisionIDs( prevDecision ).begin(),
-      TrigCompositeUtils::decisionIDs( prevDecision ).end() 
-      };
-
-  // Decide (Hypo Tool)
-  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {
+  const unsigned int nDecisions = m_multipleDecisions ? jetCollection->size() : 1;
+  
+  unsigned int counter = 0;
+  for ( const ToolHandle< TrigBjetEtHypoTool >& tool : m_hypoTools ) {   
     const HLT::Identifier  decisionId = tool->getId();
-    // Check previous decision is 'passed'
-    if ( not TrigCompositeUtils::passed( decisionId.numeric() , previousDecisionIDs ) )
-      continue;
-    bool pass = false;
-    CHECK( tool->decide( jetCollection,pass ) );
-    if ( pass ) TrigCompositeUtils::addDecisionID( decisionId,newDecision );
-  }
 
+    ATH_MSG_DEBUG( "Creating " << nDecisions << " output decision" );
+    std::vector< TrigCompositeUtils::Decision* > newDecisions;
+    for ( unsigned int index(0); index<nDecisions; index++ ) {
+      const std::string decisionName = name()+"_roi_"+std::to_string(index);
+      ATH_MSG_DEBUG( "   ** " << decisionName );
+      newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get(),decisionName ) );
+    }
+
+    bool pass = false;
+    CHECK( tool->decide( jetCollection,pass ) );   
+    if ( pass ) {
+      for( unsigned int index(0); index<nDecisions; index++ ) 
+	TrigCompositeUtils::addDecisionID( decisionId,newDecisions.at(index) );
+    }
+
+    // ==========================================================================================================================  
+    //    ** Linking objects to decision (inside Hypo Tool loop)
+    // ==========================================================================================================================  
+    
+    if ( not m_useView ) {
+       for( unsigned int index(0); index<nDecisions; index++ )
+	newDecisions.at(index)->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
+      ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision." );
+      
+       for( unsigned int index(0); index<nDecisions; index++ )
+	newDecisions.at(index)->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),index ) );
+      ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
+    }
+    
+    for( unsigned int index(0); index<nDecisions; index++ )
+      TrigCompositeUtils::linkToPrevious( newDecisions.at(index),decisionInput().key(),counter );
+    counter++;
+  }
 
   // ==========================================================================================================================
   //    ** Store Output
@@ -117,20 +138,8 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
 
   // Save Output Decisions
   SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle =  SG::makeHandle( decisionOutput(), context );
-  CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  CHECK( handle.record( std::move(outputDecision),std::move(outputAuxDecision) ) );
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
-
-  // ==========================================================================================================================  
-  //    ** Linking objects to decision 
-  // ==========================================================================================================================  
-
-  if ( not m_useView ) {
-    newDecision->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),0 ) );
-    ATH_MSG_DEBUG( "Linking RoIs `" << m_roiLink.value() << "` to output decision." );
-    
-    newDecision->setObjectLink( m_jetLink.value(),ElementLink< xAOD::JetContainer >( m_inputJetsKey.key(),0 ) );
-    ATH_MSG_DEBUG( "Linking Jets `" << m_jetLink.value() << "` to output decision." );
-  }
 
   return StatusCode::SUCCESS;
 }

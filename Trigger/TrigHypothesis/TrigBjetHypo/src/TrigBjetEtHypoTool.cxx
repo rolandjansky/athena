@@ -70,16 +70,15 @@ StatusCode TrigBjetEtHypoTool::decide( const xAOD::JetContainer* jetCollection,b
 
       ATH_MSG_DEBUG( "REGTEST: Pass " << pass );
     }
-
-    if ( pass ) {
-      ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" ); 
-    } else { 
-      ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" ); 
-    }
-
-    ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
   }
 
+  if ( pass ) {
+    ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" ); 
+  } else { 
+    ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" ); 
+  }
+  
+  ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
   return StatusCode::SUCCESS;
 }
 

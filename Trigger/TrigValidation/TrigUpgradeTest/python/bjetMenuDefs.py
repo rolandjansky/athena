@@ -99,6 +99,7 @@ def bJetStep1Sequence():
     hypo.RoIs = jetSplitter.OutputRoi
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
+    hypo.MultipleDecisions = True # For creating multiple decisions in the next step
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
