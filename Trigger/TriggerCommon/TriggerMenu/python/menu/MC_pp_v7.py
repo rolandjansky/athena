@@ -416,6 +416,17 @@ def setupMenu():
         ['j100_a10t_lcw_jes_30smcINF',      'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
 
 
+<<<<<<< HEAD
+=======
+        # Large-R jets with jet moment cuts - for testing JetAttrs hypo (Aug. 2018, AS)
+        ['j0_subj360Iktdr',                          'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_subj360I0width5',                       'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_subj360Iktdr2I3width6IIsubj300Iwidth',  'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j0_a10t_lcw_jes_subj360I0width5',          'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+
+
+
+>>>>>>> 39ed1a0ddc... Multiple conditions called based on chain struture; Large-R test chain added to menu
         #####
         ######################### Multi-jet small-R trigger chains
         #####

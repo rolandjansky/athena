@@ -184,6 +184,10 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'smc'          : 'nosmc',
+<<<<<<< HEAD
+=======
+    'jetattrs'     : 'nojetattrs',
+>>>>>>> 39ed1a0ddc... Multiple conditions called based on chain struture; Large-R test chain added to menu
     'trkopt'       : 'notrk',
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',
