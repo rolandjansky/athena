@@ -72,7 +72,6 @@
 #include "IdDictDetDescr/IdDictManager.h"
 
 #include "TDecompChol.h"
-#include "TrkAlgebraUtils/AlSymMat.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include <exception>
 
@@ -444,7 +443,7 @@ namespace Trk {
     DataVector<const TrackParameters>::const_iterator parit = indettrack->trackParameters()->begin();
 
     while (!firstidpar && parit != indettrack->trackParameters()->end()) {
-      if ((**parit).covariance() && !dynamic_cast<const PerigeeSurface *>(&(**parit).associatedSurface())) {
+      if ((**parit).covariance() &&  (**parit).associatedSurface().type() == Trk::Surface::Perigee ) {
         firstidpar = *parit;
       }
       parit++;
@@ -453,7 +452,7 @@ namespace Trk {
     parit = indettrack->trackParameters()->end();
     do {
       parit--;
-      if ((**parit).covariance() && !dynamic_cast<const PerigeeSurface *>(&(**parit).associatedSurface())) {
+      if ((**parit).covariance() && (**parit).associatedSurface().type() == Trk::Surface::Perigee ) {
         lastidpar = *parit;
       }
     } while (!lastidpar && parit != indettrack->trackParameters()->begin());
@@ -672,7 +671,7 @@ namespace Trk {
     DataVector<const TrackParameters>::const_iterator parit = indettrack->trackParameters()->begin();
 
     while (!firstidpar && parit != indettrack->trackParameters()->end()) {
-      if ((**parit).covariance() && !dynamic_cast<const PerigeeSurface *>(&(**parit).associatedSurface())) {
+      if ((**parit).covariance() && (**parit).associatedSurface().type() == Trk::Surface::Perigee ) {
         firstidpar = *parit;
       }
       parit++;
@@ -680,7 +679,7 @@ namespace Trk {
     parit = indettrack->trackParameters()->end();
     do {
       parit--;
-      if ((**parit).covariance() && !dynamic_cast<const PerigeeSurface *>(&(**parit).associatedSurface())) {
+      if ((**parit).covariance() && (**parit).associatedSurface().type() == Trk::Surface::Perigee ) {
         lastidpar = *parit;
       }
     } while (!lastidpar && parit != indettrack->trackParameters()->begin());
@@ -736,23 +735,24 @@ namespace Trk {
     }
     const std::vector<const TrackStateOnSurface *> *matvec = 0;
     if (tmppar) {
+      const Surface& associatedSurface = tmppar->associatedSurface();
       Surface *muonsurf = 0;
-      const CylinderSurface *cylmuonsurf = dynamic_cast<const CylinderSurface *>(&tmppar->associatedSurface());
-      const DiscSurface *discmuonsurf = dynamic_cast<const DiscSurface *>(&tmppar->associatedSurface());
-      if (cylmuonsurf) {
-        Amg::Transform3D *trans = new Amg::Transform3D(cylmuonsurf->transform());
-        const CylinderBounds &cylbounds = cylmuonsurf->bounds();
-        double radius = cylbounds.r();
-        double hlength = cylbounds.halflengthZ();
-        muonsurf = new CylinderSurface(trans, radius + 1, hlength);
-      }else if (discmuonsurf) {
-        double newz =
-          ((discmuonsurf->center().z() > 0) ? discmuonsurf->center().z() + 1 : discmuonsurf->center().z() - 1);
-        Amg::Vector3D newpos(discmuonsurf->center().x(), discmuonsurf->center().y(), newz);
-        Amg::Transform3D *trans = new Amg::Transform3D(discmuonsurf->transform());
-        trans->translation() << newpos;
-        const DiscBounds *discbounds = dynamic_cast<const DiscBounds *>(&discmuonsurf->bounds());
-        if (discbounds) {
+      if (associatedSurface.type() == Trk::Surface::Cylinder) {
+        if( associatedSurface.bounds().type() == Trk::SurfaceBounds::Cylinder ){
+          const CylinderBounds* cylbounds = static_cast<const CylinderBounds*>(&associatedSurface.bounds());
+          Amg::Transform3D *trans = new Amg::Transform3D(associatedSurface.transform());
+          double radius = cylbounds->r();
+          double hlength = cylbounds->halflengthZ();
+          muonsurf = new CylinderSurface(trans, radius + 1, hlength);
+        }
+      }else if (associatedSurface.type() == Trk::Surface::Disc) {
+        if (associatedSurface.bounds().type() == Trk::SurfaceBounds::Disc ) {
+          double newz =
+            ((associatedSurface.center().z() > 0) ? associatedSurface.center().z() + 1 : associatedSurface.center().z() - 1);
+          Amg::Vector3D newpos(associatedSurface.center().x(), associatedSurface.center().y(), newz);
+          Amg::Transform3D *trans = new Amg::Transform3D(associatedSurface.transform());
+          trans->translation() << newpos;
+          const DiscBounds *discbounds = static_cast<const DiscBounds *>(&associatedSurface.bounds());
           double rmin = discbounds->rMin();
           double rmax = discbounds->rMax();
           muonsurf = new DiscSurface(trans, rmin, rmax);
@@ -1022,8 +1022,12 @@ namespace Trk {
       jac4 = jac4.inverse();
       double dloc1 = idscatpar->parameters()[Trk::loc1] - scat2->parameters()[Trk::loc1];
       double dloc2 = idscatpar->parameters()[Trk::loc2] - scat2->parameters()[Trk::loc2];
-      const Trk::CylinderSurface *cylsurf = dynamic_cast<const Trk::CylinderSurface *>(&scat2->associatedSurface());
-      const Trk::DiscSurface *discsurf = dynamic_cast<const Trk::DiscSurface *>(&scat2->associatedSurface());
+      const Trk::CylinderSurface *cylsurf = nullptr;
+      if(scat2->associatedSurface().type() == Trk::Surface::Cylinder)
+        cylsurf = static_cast<const Trk::CylinderSurface *>(&scat2->associatedSurface());
+      const Trk::DiscSurface *discsurf = nullptr;
+      if(scat2->associatedSurface().type() == Trk::Surface::Cylinder)
+        discsurf= static_cast<const Trk::DiscSurface *>(&scat2->associatedSurface());
 
       if (cylsurf) {
         double length = 2 * M_PI * cylsurf->bounds().r();
@@ -1174,7 +1178,7 @@ namespace Trk {
     }
     if ((pull1 > 5 || pull2 > 5) &&
         (pull1 > 25 || pull2 > 25 ||
-         dynamic_cast<const StraightLineSurface *>(&closestmuonmeas->associatedSurface()))) {
+         closestmuonmeas->associatedSurface().type() == Trk::Surface::Line )) {
       if (startPar != lastidpar && startPar != indettrack->perigeeParameters()) {
         delete startPar;
       }
@@ -1211,7 +1215,7 @@ namespace Trk {
       }
       makeProtoState(cache, trajectory, *itStates2);
 
-      if (itStates2 == endState2 - 1 && dynamic_cast<const AtaStraightLine *>(tpar) && tpar->position().perp() > 9000 &&
+      if (itStates2 == endState2 - 1 && tpar->associatedSurface().type() == Trk::Surface::Line && tpar->position().perp() > 9000 &&
           std::abs(tpar->position().z()) < 13000) {
         const TrackParameters *pseudopar = tpar->clone();
         Amg::MatrixX covMatrix(1, 1);
@@ -1228,9 +1232,8 @@ namespace Trk {
         pseudostate->setMeasurementErrors(errors);
         trajectory.addMeasurementState(pseudostate);
         ispseudo = true;
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "Adding pseudomeasurement" << endmsg;
-        }
+        ATH_MSG_DEBUG( "Adding pseudomeasurement" );
+
       }
       if (std::abs(trajectory.trackStates().back()->position().z()) > 20000 && std::abs(previousz) < 12000) {
         largegap = true;
@@ -1297,11 +1300,18 @@ namespace Trk {
 
 
 
-    const TrackParameters *firstidpar = (*indettrack->trackParameters())[1];
+    const TrackParameters *firstidpar = 0;
+    // Dont understand why the second track parameters are taken
+    // Is it assumed the ID track is slimmed?
+    if( indettrack->trackParameters()->size() > 1)
+      firstidpar = (*indettrack->trackParameters())[1];
+    else
+      firstidpar = indettrack->trackParameters()->back();
+
     const TrackParameters *lastidpar = 0;
-    if(cache.m_caloEntrance)
-      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *cache.m_caloEntrance, alongMomentum,
-                                                                           Trk::muon);
+    if(firstidpar && cache.m_caloEntrance)
+      lastidpar = m_extrapolator->extrapolateToVolume(*firstidpar, *cache.m_caloEntrance,
+                                                      alongMomentum, Trk::muon);
     if (!lastidpar) {
       lastidpar = indettrack->trackParameters()->back()->clone();
     }
@@ -1536,17 +1546,17 @@ namespace Trk {
     for (itStates2 = beginStates2; itStates2 != endState2; ++itStates2) {
       const MeasurementBase *pseudo =
         dynamic_cast<const PseudoMeasurementOnTrack *>((*itStates2)->measurementOnTrack());
-      const StraightLineSurface *slsurf =
-        (*itStates2)->measurementOnTrack() ? dynamic_cast<const StraightLineSurface *>(&(*itStates2)->measurementOnTrack()
-                                                                                        ->associatedSurface()) : 0;
-      if (slsurf && !firstismuon && !newpseudo &&
+
+      bool isStraightLine = (*itStates2)->measurementOnTrack() ? (*itStates2)->measurementOnTrack()->associatedSurface().type() == Trk::Surface::Line : false;
+
+      if (isStraightLine && !firstismuon && !newpseudo &&
           (((itStates2 == beginStates2 || itStates2 == beginStates2 + 1) &&
             std::abs((*itStates2)->measurementOnTrack()->globalPosition().z()) < 10000) /* || !nphi*/)) {
         // pseudo=(*itStates2)->measurementOnTrack();
         const TrackParameters *par2 =
           ((*itStates2)->trackParameters() &&
            nphi > 99) ? (*itStates2)->trackParameters()->clone() : m_propagator->propagateParameters(
-            *secondscatstate->trackParameters(), *slsurf, alongMomentum, false, *trajectory.m_fieldprop, Trk::nonInteracting);
+            *secondscatstate->trackParameters(), (*itStates2)->measurementOnTrack()->associatedSurface(), alongMomentum, false, *trajectory.m_fieldprop, Trk::nonInteracting);
         if (!par2) {
           continue;
         }
@@ -1563,7 +1573,7 @@ namespace Trk {
         errors[1] = 10;
         firstpseudostate->setMeasurementErrors(errors);
         trajectory.addMeasurementState(firstpseudostate);
-        msg(MSG::DEBUG) << "Adding PseudoMeasurement" << endmsg;
+        ATH_MSG_DEBUG( "Adding PseudoMeasurement" );
         continue;
       }
       if (pseudo && !firstismuon) {
@@ -2084,8 +2094,16 @@ namespace Trk {
          return 0;
          } */
       const RIO_OnTrack *rot = 0;
-      const PlaneSurface *plsurf = dynamic_cast<const PlaneSurface *>(&prdsurf);
-      const StraightLineSurface *slsurf = !plsurf ? dynamic_cast<const StraightLineSurface *>(&prdsurf) : 0;
+      const PlaneSurface *plsurf = nullptr;
+      if(prdsurf.type() == Trk::Surface::Plane)
+        plsurf = static_cast<const PlaneSurface *>(&prdsurf);
+
+      const StraightLineSurface *slsurf = nullptr;
+      if(prdsurf.type() == Trk::Surface::Line)
+        slsurf= static_cast<const StraightLineSurface *>(&prdsurf);
+
+
+
       if (!slsurf && !plsurf) {
         ATH_MSG_ERROR("Surface is neither PlaneSurface nor StraightLineSurface!");
       }
@@ -2263,7 +2281,7 @@ namespace Trk {
                                                                   parameterVector[Trk::qOverP], new AmgSymMatrix(5)(
                                                                     *hitparam->covariance())));
       const RIO_OnTrack *rot = 0;
-      if (!m_broadROTcreator.empty() && dynamic_cast<const StraightLineSurface *>(&prdsurf)) {
+      if (!m_broadROTcreator.empty() && prdsurf.type() == Trk::Surface::Line) {
         rot = m_broadROTcreator->correct(**it, *hitparam);
       } else {
         rot = m_ROTcreator->correct(**it, *trackparForCorrect);
@@ -2336,12 +2354,17 @@ namespace Trk {
       MeasurementSet rots_tbd;
       for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
           if (!(*itSet)) {
-            msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
+            ATH_MSG_WARNING( "There is an empty MeasurementBase object in the track! Skip this object.." );
           } else {
             const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(*itSet);
             if (rot && m_DetID->is_mm(rot->identify())) {
-              const PlaneSurface* surf = dynamic_cast<const PlaneSurface *>(&rot->associatedSurface());
-              if (not surf) throw std::runtime_error("dynamic cast to PlaneSurface failed in GlobalChi2Fitter::fit");
+              //const PlaneSurface* surf = dynamic_cast<const PlaneSurface *>(&rot->associatedSurface());
+              //if (not surf) throw std::runtime_error("dynamic cast to PlaneSurface failed in GlobalChi2Fitter::fit");
+              if( rot->associatedSurface().type() != Trk::Surface::Plane ){
+                rots_new.push_back(*itSet);
+                continue;
+              }
+              const PlaneSurface* surf = static_cast<const PlaneSurface *>(&rot->associatedSurface());
               AtaPlane atapl(surf->center(), param.parameters()[Trk::phi], param.parameters()[Trk::theta], param.parameters()[Trk::qOverP], *surf);
               rot = m_ROTcreator->correct(*(rot->prepRawData()), atapl);
               rots_tbd.push_back(rot);
@@ -2612,7 +2635,7 @@ namespace Trk {
             }
             hittype = TrackState::MDT;
           }else if (m_DetID->is_tgc(hitid)) {
-            if (!dynamic_cast<const TrapezoidBounds *>(&measbase2->associatedSurface().bounds())) {
+            if (measbase2->associatedSurface().bounds().type() != Trk::SurfaceBounds::Trapezoid ) {
               string2 = "TGC wire hit";
             } else {
               if (msgLvl(MSG::DEBUG)) {
@@ -2796,8 +2819,12 @@ namespace Trk {
           if (!layIndex.value() || !(*layerIter)->layerMaterialProperties()) {
             continue;
           }
-          const CylinderLayer *cyllay = dynamic_cast<const CylinderLayer *>((*layerIter));
-          const DiscLayer *disclay = dynamic_cast<const DiscLayer *>((*layerIter));
+          const CylinderLayer *cyllay = nullptr;
+          if( (*layerIter)->surfaceRepresentation().type() == Trk::Surface::Cylinder  )
+            cyllay = static_cast<const CylinderLayer *>((*layerIter));
+          const DiscLayer *disclay = nullptr;
+          if( (*layerIter)->surfaceRepresentation().type() == Trk::Surface::Disc  )
+            disclay = static_cast<const DiscLayer *>((*layerIter));
           if (disclay) {
             if (disclay->center().z() < 0) {
               cache.m_negdiscs.push_back(disclay);
@@ -2832,8 +2859,12 @@ namespace Trk {
         if (!layIndex.value() || !layer->layerMaterialProperties()) {
           continue;
         }
-        const CylinderSurface *cylsurf = dynamic_cast<const CylinderSurface *>(&layer->surfaceRepresentation());
-        const DiscSurface *discsurf = dynamic_cast<const DiscSurface *>(&layer->surfaceRepresentation());
+        const CylinderSurface *cylsurf = nullptr;
+        if( layer->surfaceRepresentation().type() == Trk::Surface::Cylinder  )
+          cylsurf = static_cast<const CylinderSurface *>(&layer->surfaceRepresentation());
+        const DiscSurface *discsurf = nullptr;
+        if( layer->surfaceRepresentation().type() == Trk::Surface::Disc )
+          discsurf = static_cast<const DiscSurface *>(&layer->surfaceRepresentation());
 
         if (discsurf) {
           if (discsurf->center().z() < 0 &&
@@ -2952,10 +2983,18 @@ public:
 
     bool
     operator () (const Layer *one, const Layer *two) const {
-      const CylinderSurface *cyl1 = dynamic_cast<const CylinderSurface *>(&one->surfaceRepresentation());
-      const DiscSurface *disc1 = dynamic_cast<const DiscSurface *>(&one->surfaceRepresentation());
-      const CylinderSurface *cyl2 = dynamic_cast<const CylinderSurface *>(&two->surfaceRepresentation());
-      const DiscSurface *disc2 = dynamic_cast<const DiscSurface *>(&two->surfaceRepresentation());
+      const CylinderSurface *cyl1 = nullptr;
+      if( one->surfaceRepresentation().type() == Trk::Surface::Cylinder )
+        cyl1 = static_cast<const CylinderSurface *>(&one->surfaceRepresentation());
+      const DiscSurface *disc1 = nullptr;
+      if( one->surfaceRepresentation().type() == Trk::Surface::Disc )
+        disc1 = static_cast<const DiscSurface *>(&one->surfaceRepresentation());
+      const CylinderSurface *cyl2 = nullptr;
+      if( two->surfaceRepresentation().type() == Trk::Surface::Cylinder )
+        cyl2 = static_cast<const CylinderSurface *>(&two->surfaceRepresentation());
+      const DiscSurface *disc2 = nullptr;
+      if( two->surfaceRepresentation().type() == Trk::Surface::Disc )
+        disc2 = static_cast<const DiscSurface *>(&two->surfaceRepresentation());
 
       if (cyl1 && cyl2) {
         return(cyl1->bounds().r() < cyl2->bounds().r());
@@ -3607,21 +3646,25 @@ public:
                                                          Trk::nonInteracting);
           }
           if (tmppar) {
-            const CylinderSurface *cylcalosurf = dynamic_cast<const CylinderSurface *>(&tmppar->associatedSurface());
-            const DiscSurface *disccalosurf = dynamic_cast<const DiscSurface *>(&tmppar->associatedSurface());
+            const CylinderSurface *cylcalosurf = nullptr;
+            if(tmppar->associatedSurface().type() ==  Trk::Surface::Cylinder)
+              cylcalosurf = static_cast<const CylinderSurface *>(&tmppar->associatedSurface());
+            const DiscSurface *disccalosurf = nullptr;
+            if(tmppar->associatedSurface().type() ==  Trk::Surface::Disc)
+              disccalosurf = static_cast<const DiscSurface *>(&tmppar->associatedSurface());
             if (cylcalosurf) {
               Amg::Transform3D *trans = new Amg::Transform3D(cylcalosurf->transform());
               const CylinderBounds &cylbounds = cylcalosurf->bounds();
               double radius = cylbounds.r();
               double hlength = cylbounds.halflengthZ();
               calosurf = new CylinderSurface(trans, radius - 1, hlength);
-            }else {
+            } else if (disccalosurf) {
               double newz =
                 ((disccalosurf->center().z() > 0) ? disccalosurf->center().z() - 1 : disccalosurf->center().z() + 1);
               Amg::Vector3D newpos(disccalosurf->center().x(), disccalosurf->center().y(), newz);
               Amg::Transform3D *trans = new Amg::Transform3D(disccalosurf->transform());
               trans->translation() << newpos;
-              const DiscBounds *discbounds = dynamic_cast<const DiscBounds *>(&disccalosurf->bounds());
+              const DiscBounds *discbounds = static_cast<const DiscBounds *>(&disccalosurf->bounds());
               double rmin = discbounds->rMin();
               double rmax = discbounds->rMax();
               calosurf = new DiscSurface(trans, rmin, rmax);
@@ -4012,7 +4055,7 @@ public:
           addlayer = true;
         }
 
-        if (dynamic_cast<const AtaCylinder *>(layerpar)) {
+        if ( layerpar->associatedSurface().type() == Trk::Surface::Cylinder ) {
           // Hep3Vector diffvec=states[i]->position()-layerparams[layerno]->position();
           double cylinderradius = layerpar->associatedSurface().bounds().r();
           double trackimpact = std::abs(-refpar->position().x() * sinphi + refpar->position().y() * cosphi);
@@ -4090,7 +4133,9 @@ public:
   const TrackParameters *
   GlobalChi2Fitter::makePerigee( Cache& cache,
     const TrackParameters &param, ParticleHypothesis matEffects) const {
-    const PerigeeSurface *persurf = dynamic_cast<const PerigeeSurface *>(&param.associatedSurface());
+    const PerigeeSurface *persurf = nullptr;
+    if( param.associatedSurface().type() == Trk::Surface::Perigee)
+      persurf = static_cast<const PerigeeSurface *>(&param.associatedSurface());
     const TrackParameters *per = 0;
 
     if (persurf && (!cache.m_acceleration || persurf->center().perp() > 5)) {
@@ -4420,9 +4465,13 @@ public:
         delete tmppar;
       }
       // std::cout << "persurf: " << persurf << " nearest par: " << *nearestpar << std::endl;
-      per =
-        dynamic_cast<const Perigee *>(m_propagator->propagateParameters(*nearestpar, persurf, Trk::anyDirection, false,
-                                                                        *trajectory.m_fieldprop, Trk::nonInteracting));
+      const Trk::TrackParameters* tmpPars = m_propagator->propagateParameters(*nearestpar, persurf, Trk::anyDirection, false,
+                                                                        *trajectory.m_fieldprop, Trk::nonInteracting);
+
+      // Parameters are at a Perigee surface so they are perigee parameters
+      if( tmpPars )
+        per = static_cast< const Perigee* >( tmpPars );
+
       if (!mymatvec.empty()) {
         delete nearestpar;
       }
@@ -4592,20 +4641,29 @@ public:
       cache.m_ainv.ResizeTo(cache.m_a.GetNcols(), cache.m_a.GetNcols());
       double *myarray = cache.m_a.GetMatrixArray();
       double *myarrayinv = cache.m_ainv.GetMatrixArray();
-      AlSymMat weight(cache.m_a.GetNcols());
+
+      Amg::MatrixX weightAMG(cache.m_a.GetNcols(), cache.m_a.GetNcols());
+      Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(cache.m_a.GetNcols(), cache.m_a.GetNcols());
       for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
         for (int j = 0; j <= i; ++j) {
-          weight[i][j] = myarray[i * cache.m_a.GetNcols() + j];
+          weightAMG(i,j) = weightAMG(j,i)  = myarray[i * cache.m_a.GetNcols() + j];
         }
       }
-      int ok = weight.invert();
-      for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
-        for (int j = 0; j <= i; ++j) {
-          myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weight[i][j];
+
+      // Solve assuming the matrix is SPD.
+      // Cholesky Decomposition is used
+      if(weightAMG.determinant() !=0 )
+      {
+        // Solve for x  where Wx = I
+        // this is cheaper than invert as invert makes no assumptions about the
+        // matrix being symmetric
+        weightInvAMG = weightAMG.llt().solve(weightInvAMG);
+        for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
+          for (int j = 0; j <= i; ++j) {
+            myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
+          }
         }
-      }
-      // bool ok=lu.Invert(ainv);
-      if (ok) {
+      } else {
         ATH_MSG_DEBUG  ("matrix inversion failed!");
         m_matrixinvfailed++;
         cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
@@ -5353,7 +5411,9 @@ public:
       GXFTrackState *thisstate = trajectory.trackStates()[i];
       GXFMaterialEffects *meff = thisstate->materialEffects();
       if (meff) {
-        const PlaneSurface *plsurf = dynamic_cast<const PlaneSurface *>(thisstate->surface());
+        const PlaneSurface *plsurf = nullptr;
+        if( thisstate->surface()->type() == Trk::Surface::Plane )
+          plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
         if (meff->deltaE() == 0 || (!trajectory.prefit() && plsurf)) {
           weightchanged = true;
           if (!myarray) {
@@ -5443,7 +5503,9 @@ public:
              message << "scatno is out of range " << scatno << " !< " <<  cache.m_phiweight.size();
              throw std::range_error(message.str());
             }
-            const PlaneSurface *plsurf = dynamic_cast<const PlaneSurface *>(thisstate->surface());
+            const PlaneSurface *plsurf = nullptr;
+            if( thisstate->surface()->type() == Trk::Surface::Plane )
+              plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
             if (thisstate->materialEffects()->deltaE() == 0 || plsurf) {
               myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] /= cache.m_phiweight[scatno];
               cache.m_phiweight[scatno] = 1;
@@ -6269,21 +6331,28 @@ public:
             }
             double *myarray = a.GetMatrixArray();
             double *myarrayinv = fullcov.GetMatrixArray();
-            AlSymMat weight(a.GetNcols());
+            Amg::MatrixX weightAMG(a.GetNcols(), a.GetNcols());
+            Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(a.GetNcols(), a.GetNcols());
             for (int i = 0; i < a.GetNcols(); ++i) {
               for (int j = 0; j <= i; ++j) {
-                weight[i][j] = myarray[i * a.GetNcols() + j];
-              }
-            }
-            int ok = weight.invert();
-            for (int i = 0; i < a.GetNcols(); ++i) {
-              for (int j = 0; j <= i; ++j) {
-                myarrayinv[i * a.GetNcols() + j] = myarrayinv[j * a.GetNcols() + i] = weight[i][j];
+                weightAMG(i,j) = weightAMG(j,i)  = myarray[i * a.GetNcols() + j];
               }
             }
 
-            // bool ok=newlu.Invert(fullcov);
-            if (ok) {
+            // Solve assuming the matrix is SPD.
+            // Cholesky Decomposition is used
+            if(weightAMG.determinant() !=0 )
+            {
+              // Solve for x  where Wx = I
+              // this is cheaper than invert as invert makes no assumptions about the
+              // matrix being symmetric
+              weightInvAMG = weightAMG.llt().solve(weightInvAMG);
+              for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
+                for (int j = 0; j <= i; ++j) {
+                  myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
+                }
+              }
+            } else {
               ATH_MSG_DEBUG( "matrix inversion failed!" );
               m_matrixinvfailed++;
               cache.m_fittercode = FitterStatusCode::MatrixInversionFailure;
@@ -6522,8 +6591,9 @@ public:
       const Layer *startlayer = firstmeasstate->trackParameters()->associatedSurface().associatedLayer();
       if (startlayer && startlayer->layerMaterialProperties()) {
         double startfactor = startlayer->layerMaterialProperties()->alongPostFactor();
-        const DiscSurface *discsurf = dynamic_cast<const DiscSurface *>(startlayer);
-        if (discsurf && discsurf->center().z() * discsurf->normal().z() < 0) {
+        const Surface& discsurf = startlayer->surfaceRepresentation();
+        if( discsurf.type() == Trk::Surface::Disc &&
+              discsurf.center().z() * discsurf.normal().z() < 0) {
           startfactor = startlayer->layerMaterialProperties()->oppositePostFactor();
         }
         if (startfactor > 0.5) {
@@ -6542,8 +6612,9 @@ public:
       const Layer *endlayer = lastmeasstate->trackParameters()->associatedSurface().associatedLayer();
       if (endlayer && endlayer->layerMaterialProperties()) {
         double endfactor = endlayer->layerMaterialProperties()->alongPreFactor();
-        const DiscSurface *discsurf = dynamic_cast<const DiscSurface *>(endlayer);
-        if (discsurf && discsurf->center().z() * discsurf->normal().z() < 0) {
+        const Surface& discsurf = endlayer->surfaceRepresentation();
+        if( discsurf.type() == Trk::Surface::Disc &&
+              discsurf.center().z() * discsurf.normal().z() < 0) {
           endfactor = endlayer->layerMaterialProperties()->oppositePreFactor();
         }
         if (endfactor > 0.5) {
@@ -7277,9 +7348,8 @@ public:
     // Calculate track errors at each state, except scatterers and brems
     //
 
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "CalculateTrackErrors" << endmsg;
-    }
+
+    ATH_MSG_DEBUG( "CalculateTrackErrors" );
 
     std::vector<GXFTrackState *> &states = trajectory.trackStates();
     int nstatesupstream = trajectory.numberOfUpstreamStates();
@@ -7481,11 +7551,12 @@ public:
     };
 
     const AmgVector(5) &vec = tmpprevpar->parameters();
-    const Trk::CylinderSurface *cylsurf = dynamic_cast<const Trk::CylinderSurface *>(surf);
-    const Trk::DiscSurface *discsurf = dynamic_cast<const Trk::DiscSurface *>(surf);
-    const Trk::CylinderSurface *thiscylsurf =
-      dynamic_cast<const Trk::CylinderSurface *>(&tmpprevpar->associatedSurface());
-    const Trk::DiscSurface *thisdiscsurf = dynamic_cast<const Trk::DiscSurface *>(&tmpprevpar->associatedSurface());
+
+    bool cylsurf = surf->type() == Trk::Surface::Cylinder;
+    bool discsurf = surf->type() == Trk::Surface::Disc;
+    const Surface& previousSurface = tmpprevpar->associatedSurface();
+    bool thiscylsurf = previousSurface.type() == Trk::Surface::Cylinder;
+    bool thisdiscsurf = previousSurface.type() == Trk::Surface::Disc;
 
     for (int i = 0; i < 5; i++) {
       AmgVector(5) vecpluseps = vec, vecminuseps = vec;
@@ -7497,11 +7568,11 @@ public:
       vecpluseps[paraccessor.pardef[i]] += eps[i];
       vecminuseps[paraccessor.pardef[i]] -= eps[i];
       if (thiscylsurf && i == 0) {
-        if (vecpluseps[0] / thiscylsurf->bounds().r() > M_PI) {
-          vecpluseps[0] -= 2 * M_PI * thiscylsurf->bounds().r();
+        if (vecpluseps[0] / previousSurface.bounds().r() > M_PI) {
+          vecpluseps[0] -= 2 * M_PI * previousSurface.bounds().r();
         }
-        if (vecminuseps[0] / thiscylsurf->bounds().r() < -M_PI) {
-          vecminuseps[0] += 2 * M_PI * thiscylsurf->bounds().r();
+        if (vecminuseps[0] / previousSurface.bounds().r() < -M_PI) {
+          vecminuseps[0] += 2 * M_PI * previousSurface.bounds().r();
         }
       }
       if (thisdiscsurf && i == 1) {
@@ -7554,7 +7625,7 @@ public:
         double diff = newparpluseps->parameters()[paraccessor.pardef[j]] -
                       newparminuseps->parameters()[paraccessor.pardef[j]];
         if (cylsurf && j == 0) {
-          double length = 2 * M_PI * cylsurf->bounds().r();
+          double length = 2 * M_PI * surf->bounds().r();
           if (fabs(fabs(diff) - length) < fabs(diff)) {
             if (diff > 0) {
               diff -= length;
