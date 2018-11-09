@@ -71,10 +71,6 @@ namespace Analysis {
   }
 
   DL1Tag::~DL1Tag() {
-    for ( auto network : m_NeuralNetworks) {
-      delete network.second;
-      network.second = 0;
-    }
   }
 
   StatusCode DL1Tag::initialize() {
@@ -96,7 +92,6 @@ namespace Analysis {
 
   void DL1Tag::build_nn(const std::string& jetauthor, std::istream& nn_config_istream) {
     if (m_NeuralNetworks.count(jetauthor)) {
-      delete m_NeuralNetworks[jetauthor];
       m_map_variables.erase(jetauthor);
       m_map_defaults.erase(jetauthor);
       m_NeuralNetworks.erase(jetauthor);
@@ -129,8 +124,8 @@ namespace Analysis {
     if (!(std::find((nn_config.outputs).begin(), (nn_config.outputs).end(), "bottom") != (nn_config.outputs).end())) {
       ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
     }
-
-    m_NeuralNetworks.insert(std::make_pair(jetauthor, new lwt::LightweightNeuralNetwork(nn_config.inputs, nn_config.layers, nn_config.outputs)));
+    auto lwNN = std::make_unique<lwt::LightweightNeuralNetwork>(nn_config.inputs, nn_config.layers, nn_config.outputs);
+    m_NeuralNetworks.insert(std::make_pair(jetauthor, std::move(lwNN)));
     m_map_variables.insert(std::make_pair(jetauthor, nn_config.inputs));
     m_map_defaults.insert(std::make_pair(jetauthor, nn_config.defaults));
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_MV2TAG_H
@@ -75,7 +75,7 @@ namespace Analysis {
     //const xAOD::Vertex* m_priVtx;
 
     /** reader to define the MVA algorithms */
-    std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
+    std::map<std::string, const MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
 
@@ -98,11 +98,11 @@ namespace Analysis {
     void SetVariableRefs(const std::vector<std::string> inputVars,
 			  unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
 
-    std::vector<float> GetMulticlassResponse(MVAUtils::BDT* bdt) const {
+    std::vector<float> GetMulticlassResponse(const MVAUtils::BDT* bdt) const {
       std::vector<float> v(m_nClasses,-1);
       return (bdt->GetPointers().size() ? bdt->GetMultiResponse(bdt->GetPointers(),m_nClasses) : v);
     }
-    double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
+    double GetClassResponse (const MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
   }; // End class
 
 
