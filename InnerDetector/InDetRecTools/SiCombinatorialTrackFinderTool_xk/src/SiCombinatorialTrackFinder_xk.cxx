@@ -61,6 +61,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_qualityCut  = 9.3                ;
   m_fieldService = 0                 ; 
   m_passThroughExtension = false     ;
+  m_cleanSpuriousSCTHits = false     ;
   declareInterface<ISiCombinatorialTrackFinder>(this);
 
   declareProperty("SCTManagerLocation"   ,m_sctm               );
@@ -77,8 +78,9 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("PixelSummarySvc"      ,m_pixelCondSummarySvc);
   declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
-  declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
+  declareProperty("MagFieldSvc"          ,m_fieldServiceHandle );
   declareProperty("PassThroughExtension" ,m_passThroughExtension);
+  declareProperty("CleanSpuriousSCTHits" ,m_cleanSpuriousSCTHits);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -205,6 +207,9 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   // Set tool to trajectory
   //
   m_trajectory.setTools(&m_tools);
+
+  // Turn on/off cleaning of spurious SCT hits
+  m_trajectory.cleanSpuriousSCTHits(m_cleanSpuriousSCTHits);
 
   // Get output print level
   //
