@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileBeamElemCollection_H       
@@ -15,7 +15,7 @@ public:
 
   typedef TileRawDataCollection<TileBeamElem> MyBase;
   typedef MyBase::ID ID;
-  typedef TileBeamElem _TElement;
+  typedef TileBeamElem TElement;
 
   TileBeamElemCollection (  ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  ) 
     : MyBase(id,ownPolicy) { }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 /* General magnetic field in any point access              */
 /* If external magnetic field handler is provided as       */
@@ -10,8 +10,8 @@
 /* 							   */
 /*  Thread-safe implementation				   */
 /*---------------------------------------------------------*/
-#ifndef _TrkVKalVrtCore_VKalVrtBMag_H
-#define _TrkVKalVrtCore_VKalVrtBMag_H
+#ifndef TRKVKALVRTCORE_VKALVRTBMAG_H
+#define TRKVKALVRTCORE_VKALVRTBMAG_H
 
 
 namespace Trk {
@@ -47,7 +47,6 @@ namespace Trk {
    private:
      const double m_cnstBMAG;
      const double m_vkalCnvMagFld;
-     const double m_mm;
      double m_saveXpos;
      double m_saveYpos;
      double m_saveZpos;

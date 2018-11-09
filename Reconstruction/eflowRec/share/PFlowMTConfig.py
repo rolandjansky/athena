@@ -187,10 +187,6 @@ topSequence += PFAlgorithm
 from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
 PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
 
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool        
-PFlowTrackVertexAssociationTool = CP__TightTrackVertexAssociationTool(name="PFlowTightCPTool", dzSinTheta_cut=2.0, doPV=True)
-PFOChargedCreatorAlgorithm.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
-
 topSequence += PFOChargedCreatorAlgorithm
 
 from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm

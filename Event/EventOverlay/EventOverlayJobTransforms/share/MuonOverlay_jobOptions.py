@@ -26,11 +26,6 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         muonByteStreamFlags.RpcDataType = "atlas"#FIXME should not be setting jobproperties at this point in the configuration.
         muonByteStreamFlags.MdtDataType = "atlas"#FIXME should not be setting jobproperties at this point in the configuration.
 
-    if overlayFlags.doBkg==True:
-        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
-        job += DeepCopyObjects("BkgRdo4")
-        job.BkgRdo4.MuonObjects = True
-
     import MuonCnvExample.MuonCablingConfig
 
     digitizationFlags.doMuonNoise=False #FIXME should not be setting jobproperties at this point in the configuration.

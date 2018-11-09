@@ -15,7 +15,7 @@ public:
 
   typedef TileRawDataCollection<TileRawChannel> MyBase;
   typedef MyBase::ID ID;
-  typedef TileRawChannel _TElement;
+  typedef TileRawChannel TElement;
 
   TileRawChannelCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(id,ownPolicy),

@@ -1,3 +1,5 @@
+#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "TrigBjetHypo/TrigBjetHypoAllTE.h"
 #include "TrigBjetHypo/TrigBjetHypo.h"
 #include "TrigBjetHypo/TrigBjetFex.h"
 #include "TrigBjetHypo/TrigBtagFex.h"
@@ -18,6 +20,8 @@
 #include "../TrigBtagFexMT.h"
 #include "../TrigRoiBuilderMT.h"
 
+
+DECLARE_COMPONENT( TrigBjetHypoAllTE )
 DECLARE_COMPONENT( TrigBjetHypo )
 DECLARE_COMPONENT( TrigBjetFex )
 DECLARE_COMPONENT( TrigBtagFex )
@@ -37,3 +41,4 @@ DECLARE_COMPONENT( TrigBjetEtHypoTool )
 DECLARE_COMPONENT( TrigGSCFexMT )
 DECLARE_COMPONENT( TrigBtagFexMT )
 DECLARE_COMPONENT( TrigRoiBuilderMT )
+

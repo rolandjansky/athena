@@ -82,7 +82,6 @@ if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 #if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
 readBS = overlayFlags.isDataOverlay()
-overlayFlags.doBkg=False #ACH
 
 #GlobalFlags.InputFormat.set_bytestream()
 globalflags.InputFormat.set_Value_and_Lock('bytestream')

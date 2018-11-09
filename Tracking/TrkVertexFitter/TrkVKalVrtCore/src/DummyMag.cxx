@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Create object vkalMagFld which containg magnetic field.
@@ -18,8 +18,7 @@ namespace Trk {
 
 vkalMagFld::vkalMagFld():
    m_cnstBMAG(1.997),                  /* Const mag. field in Tesla */
-   m_vkalCnvMagFld(vkalMagCnvCst),     /* Conversion constant is defined in CommonPars.h */
-   m_mm(1.)
+   m_vkalCnvMagFld(vkalMagCnvCst)      /* Conversion constant is defined in CommonPars.h */
 {
 
 //   vkalCnvMagFld = 0.0029979246;   /* For GeV and cm and Tesla*/

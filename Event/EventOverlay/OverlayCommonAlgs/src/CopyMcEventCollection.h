@@ -1,39 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// Dear emacs, this is -*-c++-*-
-
-// Copy McEventCollection in overlaying jobs.
-//
-// Andrei Gaponenko <agaponenko@lbl.gov>, 2008
 
 #ifndef OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H
 #define OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H
 
-#include <string>
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GeneratorObjects/McEventCollection.h"
 
-#include "OverlayAlgBase/OverlayAlgBase.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
-
-class CopyMcEventCollection : public OverlayAlgBase  {
+class CopyMcEventCollection : public AthAlgorithm
+{
 public:
 
-  CopyMcEventCollection(const std::string &name,ISvcLocator *pSvcLocator);
+  CopyMcEventCollection(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode overlayInitialize();
-  virtual StatusCode overlayExecute();
-  virtual StatusCode overlayFinalize();
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
 
-protected:
-  std::string m_infoType;
-  bool m_realdata;
-  bool m_checkeventnumbers;
+private:
+  SG::ReadHandleKey<McEventCollection> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+TruthEvent", "ReadHandleKey for Background McEventCollection" };
+  SG::ReadHandleKey<McEventCollection> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+TruthEvent", "ReadHandleKey for Signal McEventCollection" };
+  SG::WriteHandleKey<McEventCollection> m_outputKey{ this, "OutputKey", "StoreGateSvc+TruthEvent", "WriteHandleKey for Output McEventCollection" };
+
   bool m_removeBkgHardScatterTruth;
-  ServiceHandle<StoreGateSvc> m_storeGateData2;
-  ToolHandle< xAODMaker::IEventInfoCnvTool > m_cnvTool;
 
 };
 
-#endif/*OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H*/
+#endif // OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H
