@@ -99,7 +99,7 @@ class ArtClean(object):
     def clean_release(self, release, days, package=None):
         """Clean a release dir."""
         log = logging.getLogger(MODULE)
-        log.debug("Starting to clean up release, keeping %d days, for %s in %s", days, "All" if package is None else package, release)
+        log.info("Starting to clean up release, keeping %d days, for %s in %s", days, "All" if package is None else package, release)
         now = datetime.datetime.now()
         count = 0
         date = '1970-01-01'
