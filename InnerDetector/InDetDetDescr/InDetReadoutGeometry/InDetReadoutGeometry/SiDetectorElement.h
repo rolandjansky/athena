@@ -145,6 +145,9 @@ namespace InDetDD {
       bool isNextToInnermostPixelLayer() const;
       bool isDBM() const;
 
+      int getSCTLayer() const;
+      int getSCTLayerSide() const;
+
       // Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
     
       /// Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
