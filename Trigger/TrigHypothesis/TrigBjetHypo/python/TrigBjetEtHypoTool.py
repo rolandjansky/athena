@@ -31,6 +31,7 @@ def TrigBjetEtHypoToolFromName_j( name, conf ):
     tool = TrigBjetEtHypoTool( name )
     tool.OutputLevel = DEBUG
     tool.AcceptAll   = False
+    tool.Multeplicity = int( conf_dict['multiplicity'] )
     tool.EtThreshold  = float(conf_dict['threshold']) * GeV
 
     print "TrigBjetEtHypoToolFromName_j: name = %s, cut_j = %s "%(name,tool.EtThreshold)
@@ -58,6 +59,7 @@ def TrigBjetEtHypoToolFromName_gsc( name, conf ):
     tool = TrigBjetEtHypoTool( name )
     tool.OutputLevel = DEBUG
     tool.AcceptAll   = False
+    tool.Multeplicity = int( conf_dict['multiplicity'] )
     tool.EtThreshold  = float(conf_dict['gscThreshold']) * GeV
 
     print "TrigBjetEtHypoToolFromName_gsc: name = %s, cut_j = %s "%(name,tool.EtThreshold)

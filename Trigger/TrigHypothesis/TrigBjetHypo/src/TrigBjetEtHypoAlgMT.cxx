@@ -101,9 +101,9 @@ StatusCode TrigBjetEtHypoAlgMT::execute_r( const EventContext& context ) const {
     ATH_MSG_DEBUG( "Creating " << nDecisions << " output decision" );
     std::vector< TrigCompositeUtils::Decision* > newDecisions;
     for ( unsigned int index(0); index<nDecisions; index++ ) {
-      const std::string decisionName = name()+"_roi_"+std::to_string(index);
-      ATH_MSG_DEBUG( "   ** " << decisionName );
-      newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get(),decisionName ) );
+      //      const std::string decisionName = name()+"_roi_"+std::to_string(index);
+      //      ATH_MSG_DEBUG( "   ** " << decisionName );
+      newDecisions.push_back( TrigCompositeUtils::newDecisionIn( outputDecision.get() ) );//,decisionName ) );
     }
 
     bool pass = false;
