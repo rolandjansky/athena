@@ -7,11 +7,6 @@ from Digitization.DigitizationFlags import digitizationFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 if DetFlags.overlay.LVL1_on():
-
-    if overlayFlags.doBkg==True:
-       from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
-       job += DeepCopyObjects("BkgRdo5")
-       job.BkgRdo5.Level1Objects = True
           
     if overlayFlags.isDataOverlay():
        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")

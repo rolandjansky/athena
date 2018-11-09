@@ -236,12 +236,12 @@ class LibraryEstimator:
                  'G4AtlasAlg', 'G4SimTPCnvDict', 'G4StepLimitation',
                  'G4AtlasApps_TestConfiguration', 'G4AtlasTests_load', 'G4digitMuon',
                  'G4AtlasAlg_load', 'G4ProcessHelper', 'G4AtlasAlg_entries', 'G4SimMem',
-                 'G4SElectronMinus', 'G4STauMinus', 'G4FieldDict', 'G4HitMerger',
+                 'G4SElectronMinus', 'G4STauMinus', 'G4FieldDict',
                  'G4CommandInterface', 'G4BiasedMuBremsstrahlung', 'G4HitFilter',
                  'G4AtlasRunManager', 'G4mplAtlasTransportation', 'G4AtlasUtilitiesDict',
                  'G4AtlasTests_TestConfiguration', 'G4SMuonMinus',
                  'G4mplAtlasIonisationModel', 'G4mplAtlasIonisationWithDeltaModel',
-                 'G4simHiggs', 'G4HitMerge_trf', 'G4BiasedMuPairProductionModel',
+                 'G4simHiggs', 'G4BiasedMuPairProductionModel',
                  'G4CosmicOrFilter', 'G4UIcmdWithStrings', 'G4STauPlus',
                  'G4AtlantisDumper', 'G4mplEqMagElectricField', 'G4StepLimitProcess']
         if name in atlasg4:

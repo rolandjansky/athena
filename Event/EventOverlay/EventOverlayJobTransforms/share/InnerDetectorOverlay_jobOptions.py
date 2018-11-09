@@ -5,14 +5,8 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon import CfgGetter
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-from AthenaCommon.Resilience import treatException,protectedInclude
 
 if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-
-    if overlayFlags.doBkg==True:
-        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
-        job += DeepCopyObjects("BkgRdo1")
-        job.BkgRdo1.InDetObjects = True
 
     digitizationFlags.doInDetNoise=False # FIXME THIS SHOULD BE SET EARLIER IN THE CONFIGURATION
 

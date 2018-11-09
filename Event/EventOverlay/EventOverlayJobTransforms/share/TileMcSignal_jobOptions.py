@@ -5,11 +5,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon import CfgGetter
 
 if DetFlags.overlay.Tile_on():
-#copy stuff back into the MC before persstency
-   from OverlayCommonAlgs.OverlayCommonAlgsConf import RemoveObjects
-   job += RemoveObjects("RemoveTileOldMC")
-   if globalflags.DataSource()=='data':
-      job.RemoveTileOldMC.RemoveTileMC=True
+   # TODO: we used to remove some containers here which is no longer possible
 
    from TileRecUtils.TileRecFlags import jobproperties
    job += CfgGetter.getAlgorithm("TileHitVecToCnt/tilehitvect", tryDefaultConfigurable=True)
@@ -121,4 +117,3 @@ if DetFlags.overlay.Tile_on():
       ToolSvc +=  ToolSvc.TileRawChannelBuilderOptATLAS.clone("newTileRawChannelBuilderOptATLAS")
       ToolSvc.newTileRawChannelBuilderOptATLAS.EvtStore="BkgEvent_0_SG"
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderOptATLAS ]
-
