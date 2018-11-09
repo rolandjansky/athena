@@ -77,20 +77,22 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
 
   std::vector<std::uint32_t> listOfAllRODs;
   m_cabling->getAllRods(listOfAllRODs);
-  for (std::uint32_t rod: listOfAllRODs) {
+  for (std::uint32_t rod : listOfAllRODs) {
     rdoMap[rod].clear();
   }
 
   /**loop over the collections in the SCT RDO container */
-  for (const InDetRawDataCollection<SCT_RDORawData>* sctRawColl: *sctRDOCont) {
+  for (const InDetRawDataCollection<SCT_RDORawData>* sctRawColl : *sctRDOCont) {
     if (sctRawColl == nullptr) {
       ATH_MSG_WARNING("Null pointer to SCT RDO collection.");
       continue;
-    } else {
+    } 
+    else {
       /** Collection Id */
       Identifier idColl{sctRawColl->identify()};
       IdentifierHash idCollHash{m_sctIDHelper->wafer_hash(idColl)};
       uint32_t robid{m_cabling->getRobIdFromHash(idCollHash)};
+      
       if (robid == 0) continue;
       
       /** Building the rod ID */
@@ -99,7 +101,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
       uint32_t rodid{srcIDROD.code()};
       
       /** loop over RDOs in the collection;  */
-      for (const SCT_RDORawData* rdo: *sctRawColl) {
+      for (const SCT_RDORawData* rdo : *sctRawColl) {
         /** fill ROD/ RDO map */
         rdoMap[rodid].push_back(rdo);
       }
@@ -107,7 +109,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
   }  /** End loop over collections */
 
   /** now encode data for each ROD in turn */
-  for (std::pair<uint32_t, std::vector<const SCT_RDORawData*>> rodToRDOs: rdoMap) {
+  for (std::pair<uint32_t, std::vector<const SCT_RDORawData*>> rodToRDOs : rdoMap) {
     rod = m_fullEventAssembler.getRodData(rodToRDOs.first); /** get ROD data address */
     m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
   }
