@@ -30,5 +30,5 @@ atlas_add_component( TauDQA
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps AthenaMonitoringLib xAODEgamma xAODJet xAODTau xAODTruth TauHistUtils McParticleEvent TrkValHistUtils )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps AthenaMonitoringLib xAODEgamma xAODJet xAODTau xAODTruth TauHistUtils McParticleEvent TrkValHistUtils TauAnalysisToolsLib )
 
