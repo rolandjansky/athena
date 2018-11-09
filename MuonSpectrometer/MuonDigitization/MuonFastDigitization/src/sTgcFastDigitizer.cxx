@@ -5,7 +5,7 @@
 #include "sTgcFastDigitizer.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
 
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -167,7 +167,7 @@ StatusCode sTgcFastDigitizer::execute() {
   std::vector<sTgcPrepData*> sTgcprds;
   std::vector<int> sTgcflag;
 
-  const DataHandle< GenericMuonSimHitCollection > collGMSH;
+  const DataHandle< sTGCSimHitCollection > collGMSH;
   if ( evtStore()->retrieve( collGMSH,"sTGCSensitiveDetector").isFailure()) {
     ATH_MSG_WARNING("No sTgc hits found in SG");
     return StatusCode::FAILURE;
@@ -177,24 +177,24 @@ StatusCode sTgcFastDigitizer::execute() {
   sTgcHitIdHelper* hitHelper=sTgcHitIdHelper::GetHelper();
   sTgcSimIdToOfflineId simToOffline(*m_idHelper);
 
-  const GenericMuonSimHit* previousHit = 0;
+  //const GenericMuonSimHit* previousHit = 0;
 
   std::map<Identifier,int> hitsPerChannel;
   int nhits = 0;
   IdentifierHash hashLast = 0;
 
-  GenericMuonSimHitCollection::const_iterator itersTgc;
+  sTGCSimHitCollection::const_iterator itersTgc;
   for (itersTgc=collGMSH->begin();itersTgc!=collGMSH->end();++itersTgc) {
     std::vector<sTgcPrepData*> sTgc_prdeta;
-    const GenericMuonSimHit& hit = *itersTgc;
+    const sTGCSimHit& hit = *itersTgc;
 
-    float globalHitTime = hit.globalpreTime();
+    float globalHitTime = hit.globalTime();
     float tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
   
     // bunch time
     float bunchTime = globalHitTime - tofCorrection;
   
-    int simId = hit.GenericId();
+    int simId = hit.sTGCId();
     Identifier layid = simToOffline.convert(simId);
     ATH_MSG_VERBOSE("sTgc hit: r " << hit.globalPosition().perp() << " z " << hit.globalPosition().z() << " mclink " << hit.particleLink() 
 		    << " -- " << m_idHelperTool->toString(layid));
@@ -342,14 +342,14 @@ StatusCode sTgcFastDigitizer::execute() {
     // if(hit.depositEnergy()==0.) continue;
 
 
-    if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
-      Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-      if( diff.mag() < 0.1 ) {
-	ATH_MSG_VERBOSE("second hit from a muon: prev " <<  previousHit->localPosition() << " current " << hit.localPrePosition() 
-			<< " diff " << diff );
-	continue;
-      }
-    }
+    //if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
+    //  Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
+    //  if( diff.mag() < 0.1 ) {
+    //    ATH_MSG_VERBOSE("second hit from a muon: prev " <<  previousHit->localPosition() << " current " << hit.localPrePosition() 
+    //    		<< " diff " << diff );
+    //    continue;
+    //  }
+    //}
 
     // select whether to produce only strips or strips + wires or strips + wires + pads
     int ftype = m_channelTypes == 3 ? 0 : 1;
@@ -424,9 +424,9 @@ StatusCode sTgcFastDigitizer::execute() {
       /// now fill most of the ntuple
       Amg::Vector3D repos = detEl->globalPosition();
 
-      m_slx = hit.localPosition().x();
-      m_sly = hit.localPosition().y();
-      m_slz = hit.localPosition().z();
+      m_slx = 0.;
+      m_sly = 0.;
+      m_slz = 0.;
       // Local position wrt Det element (NOT to surface)
       m_dlx = lpos.x();
       m_dly = lpos.y();
@@ -436,9 +436,9 @@ StatusCode sTgcFastDigitizer::execute() {
       m_tsulx = hitOnSurface.x();
       m_tsuly = hitOnSurface.y();
       m_tsulz = hitOnSurface.z();
-      m_resx = hit.localPosition().x() - lpos.x();
-      m_resy = hit.localPosition().y() - lpos.y();
-      m_resz = hit.localPosition().z() - lpos.z();
+      m_resx = 0.;
+      m_resy = 0.;
+      m_resz = 0.;
       m_suresx = posOnSurf.x()-hitOnSurface.x();
       m_suresy = posOnSurf.y()-hitOnSurface.y();
       m_errx = -99999.;
@@ -481,7 +481,7 @@ StatusCode sTgcFastDigitizer::execute() {
       m_dgpr  = repos.perp();
       m_dgpp  = repos.phi();
       m_edep  = hit.depositEnergy();
-      m_e     = hit.kineticEnergy();
+      m_e     = 0.;
       m_at    = inAngle_time;
       m_as    = inAngle_space;
       m_surfcentx = surf.center().x();
@@ -489,11 +489,11 @@ StatusCode sTgcFastDigitizer::execute() {
       m_surfcentz = surf.center().z();
 
        // cut on the kineticEnergy = 50MeV  
-      if(hit.kineticEnergy()< m_energyThreshold ) {
-	m_exitcode = 5;
-	m_ntuple->Fill();      
-	continue; 
-      }
+      //if(hit.kineticEnergy()< m_energyThreshold ) {
+      //  m_exitcode = 5;
+      //  m_ntuple->Fill();      
+      //  continue; 
+      //}
 
       // cut on depositEnergy(0.52KeV) to simulation the detector efficiency(95% for strips)
       if( type ==1 && hit.depositEnergy()<m_energyDepositThreshold)  {
@@ -666,7 +666,7 @@ StatusCode sTgcFastDigitizer::execute() {
       ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
       ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
 
-      ATH_MSG_VERBOSE("Local hit in Det Element frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
+      //ATH_MSG_VERBOSE("Local hit in Det Element frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
       ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
 
       ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << m_errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/m_errx);
@@ -689,7 +689,7 @@ StatusCode sTgcFastDigitizer::execute() {
       simData.setTime(globalHitTime);
       h_sdoContainer->insert ( std::make_pair ( id, simData ) );
 
-      previousHit = &hit;
+      //previousHit = &hit;
 
     } // end of loop channelType
   } // end of loop SimHits
