@@ -52,6 +52,7 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
                                const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
                                const xAOD::VertexContainer *vertex);
+    StatusCode executeMT(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper);
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMHELPER
