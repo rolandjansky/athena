@@ -86,49 +86,54 @@ namespace DerivationFramework {
             }
             return indexStr;
         }
-        
+
+        const xAOD::TrackParticle* GetMuonTrack(const xAOD::Muon* mu) const{
+            auto& link = mu->inDetTrackParticleLink();
+            return link.isValid() ? *link : nullptr;
+        }
+
         std::vector<const xAOD::TrackParticle*> trackParticles(std::string specify) {
             std::vector<const xAOD::TrackParticle*> theTracks;
             bool oppCh(false);
             if (muons.at(0)->charge()*muons.at(1)->charge() < 0) oppCh=true;
             if (specify=="pair1") {
-                theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
+                theTracks.push_back(GetMuonTrack(muons.at(0)));
+                theTracks.push_back(GetMuonTrack(muons.at(1)));
             }
             if (specify=="pair2") {
-                theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                theTracks.push_back(GetMuonTrack(muons.at(2)));
+                theTracks.push_back(GetMuonTrack(muons.at(3)));
             }
             if (specify=="DC") {
                 if (oppCh) {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 } else {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 }
             }
             if (specify=="AC") {
-                theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
+                theTracks.push_back(GetMuonTrack(muons.at(0)));
+                theTracks.push_back(GetMuonTrack(muons.at(3)));
+                theTracks.push_back(GetMuonTrack(muons.at(1)));
+                theTracks.push_back(GetMuonTrack(muons.at(2)));
             }
             if (specify=="SS") {
                 if (oppCh) {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 } else {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 }
             }
             return theTracks;

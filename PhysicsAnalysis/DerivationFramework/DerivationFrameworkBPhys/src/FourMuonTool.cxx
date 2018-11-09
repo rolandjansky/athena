@@ -192,8 +192,8 @@ namespace DerivationFramework {
             muonDecorator(**muItr) = -1; // all muons must be decorated
             if (  ((*muItr)->muonType() != xAOD::Muon::Combined ) && ((*muItr)->muonType() != xAOD::Muon::SegmentTagged ) ) continue;
             if (!(*muItr)->inDetTrackParticleLink().isValid()) continue; // No muons without ID tracks
-            const xAOD::TrackParticle* muonTrk(0);
-            muonTrk = (*muItr)->inDetTrackParticleLink().cachedElement();
+            auto& link = (*muItr)->inDetTrackParticleLink();
+            const xAOD::TrackParticle* muonTrk = *link;
             if ( muonTrk==NULL) continue;
             if ( !m_trkSelector->decision(*muonTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
             if ( fabs(muonTrk->pt())<m_ptCut ) continue; //  pt cut
