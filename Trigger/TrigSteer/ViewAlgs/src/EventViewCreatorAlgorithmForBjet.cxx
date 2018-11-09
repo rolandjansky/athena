@@ -120,11 +120,8 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
       	viewMap[roiDescriptor]=viewVector->size()-1;
 	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
 
-	ATH_MSG_DEBUG("UNO");
 	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-	ATH_MSG_DEBUG("DUE");
 	ATH_CHECK( placeRoIInView( roiDescriptor, viewVector->back(), contexts.back() ) );	
-	ATH_MSG_DEBUG("TRE");
 	ATH_CHECK( placeJetInView( jet, viewVector->back(), contexts.back() ) );
       }
     }
