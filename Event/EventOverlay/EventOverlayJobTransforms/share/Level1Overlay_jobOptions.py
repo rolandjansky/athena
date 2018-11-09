@@ -31,7 +31,8 @@ if DetFlags.overlay.LVL1_on():
         job.LArTTL1Maker.PileUp = True
         # If we are doing MC overlay
         if not overlayFlags.isDataOverlay():
-            job.LArTTL1Maker.EvtStore = overlayFlags.evtStore()
+            job.LArTTL1Maker.EmTTL1ContainerName = overlayFlags.evtStore() + "+LArTTL1EM"
+            job.LArTTL1Maker.HadTTL1ContainerName = overlayFlags.evtStore() + "+LArTTL1HAD"
     
     if DetFlags.simulateLVL1.Tile_on():
         include( "TileSimAlgs/TileTTL1_jobOptions.py" )
