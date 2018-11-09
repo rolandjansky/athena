@@ -15,7 +15,7 @@ class PlanarFlowTool :
       // Constructor and destructor
       PlanarFlowTool(std::string name);
 
-      int modifyJet(xAOD::Jet &jet) const;
+      int modifyJet(xAOD::Jet &injet) const;
 };
 
 

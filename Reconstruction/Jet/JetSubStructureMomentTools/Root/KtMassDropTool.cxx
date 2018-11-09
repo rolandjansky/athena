@@ -13,12 +13,19 @@ KtMassDropTool::KtMassDropTool(std::string name) :
   ATH_MSG_DEBUG("Initializing KtMassDrop tool.");
 }
 
-int KtMassDropTool::modifyJet(xAOD::Jet &jet) const {
-  if(checkForConstituents(jet) == false) return 1;
+int KtMassDropTool::modifyJet(xAOD::Jet &injet) const {
+    
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
 
-  JetSubStructureUtils::KtMassDrop ktmassdrop;
-  double val = ktmassdrop.result(jet);
-  ATH_MSG_VERBOSE("Adding jet ktMassDrop: " << val);
-  jet.setAttribute("Mu12", val);
+  double KtMD_value = -999;
+
+  if (decorate) {
+    JetSubStructureUtils::KtMassDrop ktmassdrop;
+    KtMD_value = ktmassdrop.result(jet);
+  }
+
+  ATH_MSG_VERBOSE("Adding jet ktMassDrop: " << KtMD_value);
+  injet.setAttribute(m_prefix+"Mu12", KtMD_value);
   return 0;
 }
