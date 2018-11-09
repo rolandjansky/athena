@@ -279,8 +279,9 @@ step2filter = parOR("step2filter", [ findAlgorithm(egammaEFCaloStep, "filterL2El
 step0rfilter = parOR("step0rfilter", [ findAlgorithm(egammaCaloStepRR, "Rerurn_filterL1RoIsAlg") ] )
 
 
-
+# TODO re-enable re-run once filter behaviour is understood
 steps = seqAND("HLTSteps", [ step0filter, step0, step1filter, step1, step2filter, step2,  step0rfilter, step0r ]  )
+#
 
 
 
@@ -391,7 +392,6 @@ deserialiser.OutputLevel=DEBUG
 
 ################################################################################
 # assemble top list of algorithms
-
 hltTop = seqOR( "hltTop", [ steps, mon, summary,  summMaker, hltResultMakerAlg, deserialiser, StreamESD ] )
 
 
