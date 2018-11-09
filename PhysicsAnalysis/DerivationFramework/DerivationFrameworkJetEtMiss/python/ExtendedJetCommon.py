@@ -14,6 +14,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODCol
 from DerivationFrameworkFlavourTag.HbbCommon import (
     buildVRJets, linkVRJetsToLargeRJets)
 from JetRec.JetRecFlags import jetFlags
+from JetJvtEfficiency.JetJvtEfficiencyToolConfig import *
 
 from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
@@ -317,7 +318,9 @@ def updateJVT(jetalg,algname,sequence):
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
 
     jvttoolname = 'DFJetJvt_'+jetalg
-    jvtefftoolname = 'DFJetJvtEff_'+jetalg
+    #use the standard name defined by the config helper
+    jvtefftoolname = getJvtEffToolName(jetalg)
+
     from AthenaCommon.AppMgr import ToolSvc
 
     #setup the jvt updating tools if not already done
@@ -328,18 +331,16 @@ def updateJVT(jetalg,algname,sequence):
         ToolSvc += jvttool
         jetaugtool.JetJvtTool = jvttool
 
-    #now do the same for the efftool
+    #now do the same for the efftool, but this has an auto-config function
     if hasattr(ToolSvc,jvtefftoolname):
         jetaugtool.JetJvtEffTool = getattr(ToolSvc,jvtefftoolname)
         extjetlog.info('Setup the jvt eff tool {}'.format(jvtefftoolname))
     else:
         extjetlog.info('Setting up the jvt eff tool {}'.format(jvtefftoolname))
-        jvtefftool = CfgMgr.CP__JetJvtEfficiency(jvtefftoolname)
-        if 'PFlow' in jetalg:
-          jvtefftool.SFFile="JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root"
+        jvtefftool = getJvtEffTool(jetalg)
         ToolSvc += jvtefftool
         jetaugtool.JetJvtEffTool = jvtefftool
-
+        
     extjetlog.info('ExtendedJetCommon: Updating JVT for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
