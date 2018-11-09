@@ -12,10 +12,12 @@
 
 class BareDataBucket: public DataBucketBase {
 public:
+  BareDataBucket() = delete;
+
   BareDataBucket( void * data, size_t sz, CLID clid, const RootType& type )
     : m_data(data), m_size(sz), m_clid(clid), m_type( type ){}
 
-  ~BareDataBucket() {
+  virtual ~BareDataBucket() {
     if ( m_own )
       m_type.Destruct( m_data );
   }
@@ -58,11 +60,11 @@ public:
   virtual void lock() override { /*not lockable I think */ };
 
 private:
-  void* m_data;
-  size_t m_size;
-  CLID m_clid;
+  void* m_data = 0;
+  size_t m_size = 0;
+  CLID m_clid  = 0;
   RootType m_type;
-  bool m_own = true;
+  bool m_own = false;
 };
 
 #endif
