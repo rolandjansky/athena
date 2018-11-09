@@ -122,6 +122,9 @@ _add_test( AtlCopyBSEvent5_test
 #   "AtlCopyBSEvent -e all -o empty.data /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1"
 #   DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
 
+
+ atlas_add_test( ByteStreamConfigTest    SCRIPT python -m ByteStreamCnvSvc.ByteStreamConfig    POST_EXEC_SCRIPT nopost.sh )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

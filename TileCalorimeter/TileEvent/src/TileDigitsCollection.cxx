@@ -89,4 +89,3 @@ void TileDigitsCollection::clear()
 
   TileDigitsCollection::MyBase::clear();
 }
-

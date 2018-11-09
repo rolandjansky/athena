@@ -29,7 +29,7 @@ from art_base import ArtBase
 from art_configuration import ArtConfiguration
 from art_header import ArtHeader
 from art_rucio import ArtRucio
-from art_misc import count_files, cp, ls, mkdir, make_executable, rm, run_command, run_command_parallel, touch
+from art_misc import CVMFS_DIRECTORY, build_script_directory, count_files, cp, ls, mkdir, make_executable, rm, run_command, run_command_parallel, touch
 
 MODULE = "art.grid"
 
@@ -56,7 +56,6 @@ def copy_job(art_directory, indexed_package, dst, no_unpack, tmp, seq):
 class ArtGrid(ArtBase):
     """Class for grid submission."""
 
-    CVMFS_DIRECTORY = '/cvmfs/atlas-nightlies.cern.ch/repo/sw'
     EOS_OUTPUT_DIR = '/eos/atlas/atlascerngroupdisk/data-art/grid-output'
 
     ARTPROD = 'artprod'
@@ -66,7 +65,7 @@ class ArtGrid(ArtBase):
     RESULT_WAIT_INTERVAL = 5 * 60  # seconds, 5 mins
     KINIT_WAIT = 12  # 12 * RESULT_WAIT_INTERVAL, 1 hour
 
-    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory=None, skip_setup=False, submit_directory=None, max_jobs=0):
+    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory=None, skip_setup=False, submit_directory=None, max_jobs=0, run_all_tests=False):
         """Keep arguments."""
         super(ArtGrid, self).__init__(art_directory)
         self.nightly_release = nightly_release
@@ -78,6 +77,7 @@ class ArtGrid(ArtBase):
         self.skip_setup = skip_setup
         self.submit_directory = submit_directory
         self.max_jobs = multiprocessing.cpu_count() if max_jobs <= 0 else max_jobs
+        self.run_all_tests = run_all_tests
 
         self.rucio = ArtRucio(self.art_directory, self.nightly_release_short, project, platform, nightly_tag)
 
@@ -87,22 +87,11 @@ class ArtGrid(ArtBase):
 
     def get_script_directory(self):
         """Return calculated script directory, sometimes overriden by commandline."""
-        if self.script_directory is None:
-            self.script_directory = ArtGrid.CVMFS_DIRECTORY
-            self.script_directory = os.path.join(self.script_directory, self.nightly_release)  # e.g. 21.0
-            self.script_directory = os.path.join(self.script_directory, self.nightly_tag)  # e.g. 2017-10-25T2150
-            self.script_directory = os.path.join(self.script_directory, self.project)  # e.g. Athena
-            try:
-                self.script_directory = os.path.join(self.script_directory, os.listdir(self.script_directory)[0])  # e.g. 21.0.3
-                self.script_directory = os.path.join(self.script_directory, os.listdir(self.script_directory)[0])  # InstallArea
-            except OSError:
-                self.script_directory = os.path.join(self.script_directory, '*', '*')
-            self.script_directory = os.path.join(self.script_directory, self.platform)  # x86_64-slc6-gcc62-opt
-        return self.script_directory
+        return build_script_directory(self.script_directory, self.nightly_release, self.nightly_tag, self.project, self.platform)
 
     def is_script_directory_in_cvmfs(self):
         """Return true if the script directory is in cvmfs."""
-        return self.get_script_directory().startswith(ArtGrid.CVMFS_DIRECTORY)
+        return self.get_script_directory().startswith(CVMFS_DIRECTORY)
 
     def exit_if_no_script_directory(self):
         """Exit with ERROR is script directory does not exist."""
@@ -187,7 +176,7 @@ class ArtGrid(ArtBase):
         # copy results for all packages
         result = 0
         for indexed_package, root in test_directories.items():
-            number_of_tests = len(self.get_files(root, "grid", "all", self.nightly_release, self.project, self.platform))
+            number_of_tests = len(self.get_files(root, "grid", "all", self.nightly_release, self.project, self.platform, self.run_all_tests))
             if number_of_tests > 0:
                 result |= self.copy_package(indexed_package, dst, user, no_unpack, tmp, seq, keep_tmp)
         return result
@@ -350,9 +339,8 @@ class ArtGrid(ArtBase):
         """Submit a single package."""
         log = logging.getLogger(MODULE)
         result = {}
-        number_of_tests = len(self.get_files(root, job_type, "all", self.nightly_release, self.project, self.platform))
+        number_of_tests = len(self.get_files(root, job_type, "all", self.nightly_release, self.project, self.platform, self.run_all_tests))
         if number_of_tests > 0:
-            print 'art-package:', package
             self.status('included')
             log.info('root %s with %d jobs', root, number_of_tests)
             log.info('Handling %s for %s project %s on %s', package, self.nightly_release, self.project, self.platform)
@@ -363,7 +351,7 @@ class ArtGrid(ArtBase):
             result = self.task(script_directory, package, job_type, sequence_tag, inform_panda, no_action, config_file)
         return result
 
-    def task_list(self, job_type, sequence_tag, inform_panda, package=None, no_action=False, wait_and_copy=True, config_file=None):
+    def task_list(self, job_type, sequence_tag, inform_panda, packages=[], no_action=False, wait_and_copy=True, config_file=None):
         """Submit a list of packages."""
         log = logging.getLogger(MODULE)
         log.info("Inform Panda %s", inform_panda)
@@ -386,7 +374,7 @@ class ArtGrid(ArtBase):
 
         all_results = {}
 
-        if package is None:
+        if not packages:
             # submit tasks for all packages
             for package, root in test_directories.items():
                 if configuration is not None and configuration.get(self.nightly_release, self.project, self.platform, package, 'exclude', False):
@@ -394,9 +382,10 @@ class ArtGrid(ArtBase):
                 else:
                     all_results.update(self.task_package(root, package, job_type, sequence_tag, inform_panda, no_action, config_file))
         else:
-            # Submit single package
-            root = test_directories[package]
-            all_results.update(self.task_package(root, package, job_type, sequence_tag, inform_panda, no_action, config_file))
+            # Submit list of packages
+            for package in packages:
+                root = test_directories[package]
+                all_results.update(self.task_package(root, package, job_type, sequence_tag, inform_panda, no_action, config_file))
 
         if no_action:
             log.info("--no-action specified, so not waiting for results")
@@ -556,13 +545,14 @@ class ArtGrid(ArtBase):
 
         Returns jedi_id or 0 if submission failed.
 
-        # art-task-grid.sh [--no-action] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <number_of_tests>
+        # art-task-grid.sh [--no-action --run-all-tasks] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <number_of_tests>
         #
-        # art-task-grid.sh [--no-action] single [--inds <input_file> --n-files <number_of_files> --split <split> --in] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
+        # art-task-grid.sh [--no-action --run-all-tasks] single [--inds <input_file> --n-files <number_of_files> --split <split> --in] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
         """
         log = logging.getLogger(MODULE)
         cmd = ' '.join((os.path.join(self.art_directory, 'art-task-grid.sh'),
                         '--no-action' if no_action else '',
+                        '--run-all-tests' if self.run_all_tests else '',
                         sub_cmd))
 
         if sub_cmd == 'single':
@@ -642,7 +632,7 @@ class ArtGrid(ArtBase):
 
         test_directories = self.get_test_directories(self.get_script_directory())
         test_directory = test_directories[package]
-        number_of_batch_tests = len(self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform))
+        number_of_batch_tests = len(self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform, self.run_all_tests))
 
         user = os.getenv('USER', 'artprod') if self.skip_setup else ArtGrid.ARTPROD
         outfile = self.rucio.get_outfile_name(user, package, sequence_tag)
@@ -661,7 +651,7 @@ class ArtGrid(ArtBase):
 
         # submit single tests, index > 1
         index = 1
-        for job_name in self.get_files(test_directory, job_type, "single", self.nightly_release, self.project, self.platform):
+        for job_name in self.get_files(test_directory, job_type, "single", self.nightly_release, self.project, self.platform, self.run_all_tests):
             job = os.path.join(test_directory, job_name)
             header = ArtHeader(job)
             inds = header.get(ArtHeader.ART_INPUT)
@@ -693,7 +683,7 @@ class ArtGrid(ArtBase):
         test_directories = self.get_test_directories(self.get_script_directory())
         test_directory = test_directories[package]
 
-        test_list = self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform)
+        test_list = self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform, self.run_all_tests)
 
         # NOTE: grid counts from 1
         index = int(job_index)
@@ -719,6 +709,10 @@ class ArtGrid(ArtBase):
     def job(self, test_directory, package, job_name, job_type, out, inform_panda, in_file):
         """Run a job."""
         log = logging.getLogger(MODULE)
+
+        print('# ' + '=' * 78)
+        print('\t\tART job name:\t ' + str(job_name))
+        print('# ' + '=' * 78)
 
         log.info("art-job-name: %s", job_name)
         panda_id = os.getenv('PandaID', '0')
@@ -962,26 +956,43 @@ class ArtGrid(ArtBase):
 
         return 0
 
-    def compare(self, package, test_name, days, user, files, entries=-1, mode='detailed', shell=False):
-        """Compare current output against a job of certain days ago."""
+    def __nightly_tag_and_ref_directory(self, days, ref_dir=None):
+        """
+        Retrieve nightly tag and name for ref directory and create it.
+
+        Returns (previous_nightly_tag, ref_dir), either of which can be None
+        """
         log = logging.getLogger(MODULE)
-        user = ArtGrid.ARTPROD if user is None else user
 
         previous_nightly_tag = self.get_previous_nightly_tag(days)
         log.info("LOG Previous Nightly Tag: %s", str(previous_nightly_tag))
 
+        if ref_dir is None and previous_nightly_tag is not None:
+            ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
+            mkdir(ref_dir)
+
+        log.info("LOG Ref Dir: %s", str(ref_dir))
+        return (previous_nightly_tag, ref_dir)
+
+    def download(self, package, test_name, days, user, ref_dir=None, shell=False):
+        """
+        Download the output of a reference job.
+
+        Returns ref_dir
+        """
+        log = logging.getLogger(MODULE)
+        user = ArtGrid.ARTPROD if user is None else user
+
+        (previous_nightly_tag, ref_dir) = self.__nightly_tag_and_ref_directory(days, ref_dir)
         if previous_nightly_tag is None:
             log.error("No previous nightly tag found")
-            return 1
-
-        ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
-        mkdir(ref_dir)
+            return None
 
         log.info("Shell = %s", shell)
         tmp_tar = self.__get_tar(user, package, test_name, nightly_tag=previous_nightly_tag, shell=shell)
         if tmp_tar is None:
-            log.error("No comparison tar file found")
-            return 1
+            log.error("No reference tar file found")
+            return None
 
         tar = tarfile.open(tmp_tar)
         for member in tar.getmembers():
@@ -989,7 +1000,19 @@ class ArtGrid(ArtBase):
         tar.close()
         os.remove(tmp_tar)
 
-        return self.compare_ref('.', ref_dir, files, entries, mode)
+        return ref_dir
+
+    def compare(self, package, test_name, days, user, files, diff_pool, diff_root, entries=-1, mode='detailed', shell=False):
+        """Compare current output against a job of certain days ago."""
+        log = logging.getLogger(MODULE)
+        user = ArtGrid.ARTPROD if user is None else user
+
+        ref_dir = self.download(package, test_name, days, user, shell=shell)
+        if ref_dir is None:
+            log.error("No comparison done")
+            return 1
+
+        return self.compare_ref('.', ref_dir, files, diff_pool, diff_root, entries, mode)
 
     def __get_tar(self, user, package, test_name, grid_index=-1, tmp=None, tar=True, nightly_tag=None, shell=False):
         """Open tar file for particular release."""
@@ -1055,7 +1078,7 @@ class ArtGrid(ArtBase):
 
         21:00 is the cutoff time. Any submission before 21:00 counts as the previous day.
         """
-        directory = os.path.join(ArtGrid.CVMFS_DIRECTORY, self.nightly_release)
+        directory = os.path.join(CVMFS_DIRECTORY, self.nightly_release)
         tags = os.listdir(directory)
         tags.sort(reverse=True)
         tags = [x for x in tags if re.match(r'\d{4}-\d{2}-\d{2}T\d{2}\d{2}', x)]

@@ -10,6 +10,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
+#include "LArCabling/LArCablingService.h"
 
 class FCAL_HV_Energy_Rescale: public AthAlgorithm
 { 
@@ -35,6 +36,7 @@ class FCAL_HV_Energy_Rescale: public AthAlgorithm
 
 private:
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;
+  ToolHandle<LArCablingService> m_cabling;
   std::string m_folder;
 
 }; 

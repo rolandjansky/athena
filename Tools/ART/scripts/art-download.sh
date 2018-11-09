@@ -19,7 +19,7 @@ DIRECTORY=$1
 shift
 
 export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"
-# shellcheck source=/dev/null
+## shellcheck source=/dev/null
 source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 
 unset ALRB_noGridMW

@@ -26,7 +26,6 @@
   <class name="ILArPhysCaliTdiff" />
   <class name="ILArRamp" />
   <class name="ILArRinj" />
-  <class name="ILArRterm" />
   <class name="ILArShape" />
   <class name="ILArTdrift" />
   <class name="ILArTshaper" />

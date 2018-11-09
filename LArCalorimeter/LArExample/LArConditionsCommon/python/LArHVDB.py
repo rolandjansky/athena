@@ -23,7 +23,6 @@ if not conddb.isMC and not conddb.isOnline:
 
     from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
     hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
-    hvcond.OutputLevel=DEBUG
     condseq += hvcond
 
     from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg

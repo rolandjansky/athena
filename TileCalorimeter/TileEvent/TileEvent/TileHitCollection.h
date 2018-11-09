@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileHitCollection_H       
@@ -15,13 +15,22 @@ public:
 
   typedef TileRawDataCollection<TileHit> MyBase;
   typedef MyBase::ID ID;
-  typedef TileHit _TElement;
+  typedef TileHit TElement;
 
-  TileHitCollection ( ID& id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
+  TileHitCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(id,ownPolicy) { }
   TileHitCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(ownPolicy) { }
 
+
+  /**
+   * @brief Copy constructor.
+   * @param other Collection to copy.
+   * Does a deep copy of the contents.
+   */
+  TileHitCollection (const TileHitCollection& other);
+
+  
   ~TileHitCollection() { }
 };
 

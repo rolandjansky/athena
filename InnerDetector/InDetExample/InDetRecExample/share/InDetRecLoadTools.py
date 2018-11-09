@@ -175,18 +175,23 @@ if InDetFlags.loadRotCreator():
             if InDetFlags.doDBM():
                 print PixelClusterOnTrackToolDBM
                 
-        PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
-                                                                 LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
-                                                                 applyNNcorrection = False,
-                                                                 NNIBLcorrection = False,
-                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
-                                                                 ErrorStrategy = 2,
-                                                                 PositionStrategy = 1 
-                                                                 )
+        if InDetFlags.doDigitalROTCreation():
 
-        ToolSvc += PixelClusterOnTrackToolDigital
+            PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+                                                                            LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
+                                                                            DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                            applyNNcorrection = False,
+                                                                            NNIBLcorrection = False,
+                                                                            SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                            RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
+                                                                            ErrorStrategy = 2,
+                                                                            PositionStrategy = 1 
+                                                                            )
+
+            ToolSvc += PixelClusterOnTrackToolDigital
+
+        else :
+          PixelClusterOnTrackToolDigital = None
     else:
         PixelClusterOnTrackTool = None
         PixelClusterOnTrackToolDigital = None
@@ -236,11 +241,17 @@ if InDetFlags.loadRotCreator():
         InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
         ToolSvc += InDet_SeedToTrackConversion
     
-    InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
-                                              ToolPixelCluster = PixelClusterOnTrackToolDigital,
-                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                              Mode             = 'indet')
-    ToolSvc += InDetRotCreatorDigital
+    if PixelClusterOnTrackToolDigital != None :
+        InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
+                                                         ToolPixelCluster = PixelClusterOnTrackToolDigital,
+                                                         ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
+                                                         Mode             = 'indet')
+        ToolSvc += InDetRotCreatorDigital
+
+    else:
+        
+        InDetRotCreatorDigital=InDetRotCreator
+
 
     #
     # --- configure broad cluster ROT creator

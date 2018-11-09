@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvc/IOVSvcTool.h"
@@ -1408,18 +1408,6 @@ IOVSvcTool::regFcn(SG::DataProxy* dp,
   } else {
     m_names[dp] = fullname;
   }
-
-  // if using old compiler, can't detect between non-virtual functions,
-  // so issue an error.
-
-#if (__GNUC__ < 3)
-  if (c.offset() == 0x7fff) {
-    m_log << MSG::ERROR << "Callback function " << c.name() 
-          << " is not virtual." << " Cannot bind it to " << fullname << endmsg;
-    return StatusCode::FAILURE;
-  }
-#endif
-
 
   // check if this prox/function pair already registered
   

@@ -334,7 +334,7 @@ StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
 print "ESD file content " 
 print StreamESD.ItemList
 
-from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, StreamTagMakerTool, TriggerBitsMakerTool, TriggerEDMSerialiserTool
+from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg, HLTResultMTMakerAlg, HLTResultMTMaker, StreamTagMakerTool, TriggerBitsMakerTool, TriggerEDMSerialiserTool
 summMaker = DecisionSummaryMakerAlg()
 summMaker.FinalDecisionKeys = [ theElectronHypo.HypoOutputDecisions ]
 summMaker.FinalStepDecisions =  dict( [ ( tool.getName(), theElectronHypo.HypoOutputDecisions ) for tool in theElectronHypo.HypoTools ] )
@@ -361,7 +361,7 @@ bitsmaker.ChainDecisions = "HLTFinalDecisions"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 bitsmaker.OutputLevel = DEBUG
 
-hltResultMaker =  HLTResultMTMakerAlg()
+hltResultMaker =  HLTResultMTMaker()
 hltResultMaker.MakerTools = [ stmaker, bitsmaker, serialiser ]
 hltResultMaker.OutputLevel = DEBUG
 
@@ -377,6 +377,8 @@ hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPER
                                       defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
                                                        xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
 
+hltResultMakerAlg =  HLTResultMTMakerAlg()
+hltResultMakerAlg.ResultMaker = hltResultMaker
 
 
 
@@ -384,7 +386,7 @@ hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPER
 ################################################################################
 # assemble top list of algorithms
 
-hltTop = seqOR( "hltTop", [ steps, summMaker, mon, hltResultMaker, summary, StreamESD ] )
+hltTop = seqOR( "hltTop", [ steps, summMaker, mon, hltResultMakerAlg, summary, StreamESD ] )
 topSequence += hltTop
 
 ###### Begin Cost Monitoring block

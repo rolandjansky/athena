@@ -290,7 +290,7 @@ HLT::ErrorCode T2MbtsFex::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
  
-  // Retrieve TileTBID helper from det store
+ // Retrieve TileTBID helper from det store
   // (The MBTS was added to the Test Beam (TB) list.)
   if(m_detStore->retrieve(m_tileTBID).isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve TileTBID helper from DetectorStore");

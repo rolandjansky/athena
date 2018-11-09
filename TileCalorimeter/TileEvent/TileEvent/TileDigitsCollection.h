@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDigitsCollection_H
@@ -21,7 +21,7 @@ public:
 
   typedef TileRawDataCollection<TileDigits> MyBase;
   typedef MyBase::ID ID;
-  typedef TileDigits _TElement;
+  typedef TileDigits TElement;
 
   TileDigitsCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  )
     : MyBase(id,ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
@@ -64,10 +64,12 @@ public:
    * Set vector of extra words for this collection
    * @param extra - all words from frag trailer
    */
-  void setFragExtraWords(const std::vector<uint32_t> & extra) { m_FragExtraWords = extra;
-                                  if (extra.size() < 2) m_FragExtraWords.resize(2); }
-  void setFragExtraWords(std::vector<uint32_t> && extra) { m_FragExtraWords = std::move(extra);
-                                  if (m_FragExtraWords.size() < 2) m_FragExtraWords.resize(2); }
+  void setFragExtraWords(const std::vector<uint32_t> & extra) {
+    m_FragExtraWords = extra;
+    if (extra.size() < 2) m_FragExtraWords.resize(2); }
+  void setFragExtraWords(std::vector<uint32_t> && extra) {
+    m_FragExtraWords = std::move(extra);
+    if (extra.size() < 2) m_FragExtraWords.resize(2); }
   /**
    * Get Frag extra words for this collection
    * @return vector with all words
@@ -117,7 +119,8 @@ public:
   void setFragChipHeaderWordsHigh(std::vector<uint32_t>&& chipHWordsH) {
         m_FragChipHeaderWordsHIGH = std::move(chipHWordsH);
   }
-  
+
+
   /**
    * Get chip headers for this collcetion
    * If calib mode, this is LOW gain headers
@@ -144,6 +147,8 @@ public:
   void setFragChipCRCWords(std::vector<uint32_t>&& chipCRCWords) {
        m_FragChipCRCWords = std::move(chipCRCWords);
   }
+
+
   /**
    * High gain CRC
    */

@@ -46,10 +46,12 @@ def TrigBSReadCfg( inputFlags ):
 
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
     iovMetaDataTool = IOVDbMetaDataTool()
-
+    acc.addPublicTool( iovMetaDataTool )
+    
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
     bsMetaDataTool = ByteStreamMetadataTool()
-
+    acc.addPublicTool( bsMetaDataTool )
+    
     from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   
     acc.addService( metaDataStore )
@@ -111,10 +113,9 @@ def TrigBSReadCfg( inputFlags ):
     return acc
 
 if __name__ == "__main__":
-    from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
-    flags = ConfigFlagContainer()
-    flags.Input.Files =  ["dummy.data"]
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags    
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
 
-    acc = TrigBSReadCfg( flags )
+    acc = TrigBSReadCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
     print "All OK"

@@ -1243,7 +1243,10 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
   //* get detailed information *//
   const xAOD::BTagging* btag = jet->btagging(); 
 
-
+  if (not btag){
+    ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillDetailedHistograms; filling these histograms will be skipped");
+    return;
+  }
   //* detailed information for impact parameter-based informations *//
   unsigned int ntrk  = btag->nIP3D_TrackParticles();                  // number of tracks used for tagging in the jet
   double pb          = btag->IP3D_pb();                               // b likelihood
@@ -1384,7 +1387,10 @@ void JetTagMonitoring::fillBadTrackBits(const std::bitset<17> failedCuts, double
 void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
 
   const xAOD::BTagging* btag = jet->btagging();
-
+  if (not btag){
+    ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillGoodJetHistos; filling these histograms will be skipped");
+    return;
+  }
   double sv1ip3d = btag->SV1plusIP3D_discriminant();
   double mv_tmp = 0;
   btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
@@ -1491,7 +1497,9 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   m_track_selector_suspect->Fill(jet->eta(), jet->phi(), 1.);
   
   const xAOD::BTagging* btag = jet->btagging();
-
+  if (not btag){
+    ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
+  }
   double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
   double mv_tmp = 0;
   btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);

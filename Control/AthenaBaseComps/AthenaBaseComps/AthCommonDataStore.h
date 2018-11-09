@@ -273,6 +273,7 @@ public:
     //     << "\n";
     // debug() << ost.str() << endmsg;
 
+    hndArr.setOwner(this);
     m_vhka.push_back(&hndArr);
 
     Property* p =  PBASE::declareProperty(name, hndArr, doc);

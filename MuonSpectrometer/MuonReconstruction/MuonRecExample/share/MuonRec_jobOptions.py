@@ -144,6 +144,7 @@ if muonRecFlags.doStandalone():
 
         if muonRecFlags.doNSWNewThirdChain():
             topSequence.MuonSegmentTruthAssociationAlg.doNSW=True
+            topSequence.MuonStandaloneDetailedTrackTruthMaker.doNSW=True
 
         try:
             from RecExConfig.InputFilePeeker import inputFileSummary

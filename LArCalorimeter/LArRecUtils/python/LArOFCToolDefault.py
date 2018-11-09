@@ -16,6 +16,7 @@ def LArOFCToolDefault (name="LArOFCToolDefault", **kw):
 
     mlog = logging.getLogger( 'LArOFCToolDefault::__init__ ' )
     mlog.info("entering")
+    mlog.warning("The LArOFCTool is deprecated! Use LArOFCCondAlg!") 
 
     # do the configuration
     if globalflags.DataSource()=='data':

@@ -5,12 +5,7 @@ from LArROD.LArRODFlags import larRODFlags
 
 # calorimeter
 if DetFlags.overlay.LAr_on():
-
-   # Remove some objects from MC event store before re-running digitization
-   from OverlayCommonAlgs.OverlayCommonAlgsConf import RemoveObjects
-   job += RemoveObjects("RemoveLArOldMC")
-   if globalflags.DataSource()=='data':
-      job.RemoveLArOldMC.RemoveLArMC=True
+   # TODO: we used to remove some containers here which is no longer possible
 
    from LArDigitization.LArDigitizationConf import LArDigitMaker
    theLArDigits = LArDigitMaker("digitmaker2")
@@ -74,4 +69,3 @@ if DetFlags.overlay.LAr_on():
    from LArROD.LArDigits import DefaultLArDigitThinner
    newLArDigitThinner = DefaultLArDigitThinner('newLArDigitThinner') # automatically added to topSequence
    job.newLArDigitThinner.EvtStore = "BkgEvent_0_SG"
-

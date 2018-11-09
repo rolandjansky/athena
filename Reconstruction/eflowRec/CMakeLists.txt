@@ -13,9 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
                           Control/AthenaBaseComps
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/CxxUtils
-                          Control/SGTools
                           DetectorDescription/GeoPrimitives
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgamma
@@ -46,7 +45,7 @@ atlas_add_component( eflowRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils SGTools GeoPrimitives xAODCaloEvent xAODEgamma xAODMuon xAODPFlow xAODTracking GaudiKernel TrackVertexAssociationToolLib Particle RecoToolInterfaces TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers InDetTrackSelectionToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils AthenaKernel GeoPrimitives xAODCaloEvent xAODEgamma xAODMuon xAODPFlow xAODTracking GaudiKernel TrackVertexAssociationToolLib Particle RecoToolInterfaces TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers InDetTrackSelectionToolLib )
 
 # Install files from the package:
 atlas_install_headers( eflowRec )

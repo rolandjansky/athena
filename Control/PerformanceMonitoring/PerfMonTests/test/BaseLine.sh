@@ -7,6 +7,5 @@
 # Run the test:
 mkdir -p BaseLine
 cd BaseLine
-echo PYTHONPATH $PYTHONPATH
 chappy.py PerfMonTests/atn_test_perfMonSvc_baseline_bench.py
 

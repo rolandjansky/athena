@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileSimEvent
                           TileCalorimeter/TileIdentifier
                           PRIVATE
+                          Control/CxxUtils
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Control/AthAllocators
@@ -42,7 +43,7 @@ atlas_add_library( TileRecUtilsLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileSimEvent TileIdentifier CaloUtilsLib TileConditionsLib CaloDetDescrLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileSimEvent TileIdentifier CaloUtilsLib TileConditionsLib CaloDetDescrLib StoreGateLib SGtests CxxUtils
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloEvent AthAllocators xAODEventInfo TileCalibBlobObjs TileDetDescr PathResolver )
 
 atlas_add_component( TileRecUtils
