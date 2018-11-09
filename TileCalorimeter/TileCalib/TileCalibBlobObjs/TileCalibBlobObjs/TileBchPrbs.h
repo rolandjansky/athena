@@ -67,6 +67,7 @@ class TileBchPrbs
     BrokenClearFibre           = 2108,
     IgnoreCs                   = 2109,
     UnstableCs                 = 2110,
+    WrongBCID                  = 2111,
     
     //============================================
     //=== Level-1 Trigger (all channel) - online
@@ -83,6 +84,7 @@ class TileBchPrbs
     IgnoredInHlt               = 4001,
     DisableForL1               = 4002,
     OnlineBadTiming            = 4105,
+    OnlineWrongBCID            = 4111,
 
     //================================
     //=== Other ONLINE ADC

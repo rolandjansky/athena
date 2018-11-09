@@ -22,9 +22,16 @@ StatusCode ShowerShapesHistograms::initializePlots() {
   histoMap["fside"]   = (new TH1D(Form("%s_%s",m_name.c_str(),"fside"  ), ";f_{side}; f_{side} Events"                  , 350,  0.  ,  3.5   ));
   histoMap["wtots1"]  = (new TH1D(Form("%s_%s",m_name.c_str(),"wtots1" ), ";w_{s, tot}; w_{s, tot} Events"              , 100,  0.  , 10.    ));
   histoMap["ws3"]     = (new TH1D(Form("%s_%s",m_name.c_str(),"ws3"    ), ";w_{s, 3}; w_{s, 3} Events"                  , 100,  0.  ,  1.    ));
-  histoMap["lateral"] = (new TH1D(Form("%s_%s",m_name.c_str(),"lateral"), ";Lateral of seed; Events", 10, 0, 1));
+  histoMap["lateral"] = (new TH1D(Form("%s_%s",m_name.c_str(),"lateral"), ";Lateral of seed; Events", 50, 0, 1));
+  histoMap["second_R"] = (new TH1D(Form("%s_%s",m_name.c_str(),"second_R"), ";Second R; Events", 150,0. , 15000.));
+  histoMap["EMFrac"] = (new TH1D(Form("%s_%s",m_name.c_str(),"EMFrac"), ";EMFrac; Events", 50, 0, 1));
+  histo2DMap["lateral_second_R_2D"] = (new TH2D(Form("%s_%s",m_name.c_str(),"lateral_second_R_2D"), ";Lateral of seed; Second R", 50, 0, 1, 150,0.,15000.));
 
   ATH_CHECK(m_rootHistSvc->regHist(m_folder+"lateral", histoMap["lateral"]));
+  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"second_R", histoMap["second_R"]));
+  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"EMFrac", histoMap["EMFrac"]));
+  ATH_CHECK(m_rootHistSvc->regHist(m_folder+"lateral_second_R_2D", histo2DMap["lateral_second_R_2D"]));
+ 
   ATH_CHECK(m_rootHistSvc->regHist(m_folder+"rhad", histoMap["rhad"]));
   ATH_CHECK(m_rootHistSvc->regHist(m_folder+"hadleak", histoMap["hadleak"]));
   ATH_CHECK(m_rootHistSvc->regHist(m_folder+"reta", histoMap["reta"]));
@@ -56,11 +63,22 @@ void ShowerShapesHistograms::fill(const xAOD::Egamma& egamma) {
   }
  
   double lateral(0.);
-  
+  double emfrac(0.);
+  double second_r(0.);
   const std::vector<const xAOD::CaloCluster*> topoclusters = xAOD::EgammaHelpers::getAssociatedTopoClusters(egamma.caloCluster());
 
   topoclusters.at(0)->retrieveMoment(xAOD::CaloCluster::LATERAL,lateral);
   histoMap["lateral"]->Fill(lateral);
+
+  if (topoclusters.at(0)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM ,emfrac)) {
+    histoMap["EMFrac"]->Fill(emfrac);
+  }
+
+  if (topoclusters.at(0)->retrieveMoment(xAOD::CaloCluster::SECOND_R,second_r)) {
+    histoMap["second_R"]->Fill(second_r);
+  }
+
+  histo2DMap["lateral_second_R_2D"]->Fill(lateral,second_r);  
 
   if(egamma.showerShapeValue(rhad, xAOD::EgammaParameters::Rhad)) histoMap["rhad"]->Fill(rhad);
   if(egamma.showerShapeValue(Reta, xAOD::EgammaParameters::Reta)) histoMap["reta"]->Fill(Reta);

@@ -267,18 +267,19 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   bool psTripDCSSCT();
   bool eventVsWafer();
 
-  void fillModule( moduleGeo_t module,  TH2F* histo );
+  void fillWafer( moduleGeo_t module,  TH2F* histo );
   double calculateDetectorCoverage(const TH2F * histo );
 
   const InDetDD::SCT_DetectorManager * m_sctManager;
 
   enum ProblemForCoverage {
-    disabled,//Disable
-    badLinkError, //link bad
-    badRODError, // ROD bad
-    badError, // link bad + ROD bad = bad error
-    psTripDCS, // power supply trip DCS
-    summary, //total coverage using SCT_ConditionsSummarySvc
+    all, //All SCT module for counting good module
+    disabled, //Disabled
+    badLinkError, //BadLinkLevelError
+    badRODError, //BadRODLevelError
+    badError, //BadError = BadLinkLevelError + BadRODLevelError
+    psTripDCS, //Power supply trip using SCT_DCSConditionsSvc
+    summary, //Total coverage using SCT_ConditionsSummarySvc
     numberOfProblemForCoverage
   };
 
@@ -291,14 +292,10 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   const unsigned int m_nBinsPhi;
   const double m_WafersThreshold;
 
-  //TProfile * m_DisabledDetectorCoverageVsLB;
-  //TProfile * m_ErrorDetectorCoverageVsLB;
-  TProfile * m_RODoutDetectorCoverageVsLB;
-  TProfile * m_pstripDCSDetectorCoverageVsLB;
-  TProfile * m_summaryDetectorCoverageVsLB;
-  TProfile * m_pstripWaferVsLB;
+  TProfile * m_detectorCoverageVsLbs[numberOfProblemForCoverage];
+  TProfile * m_PSTripModulesVsLbs;
 
-  int  m_pswafer;
+  float m_PSTripModules;
 };
 
 #endif
