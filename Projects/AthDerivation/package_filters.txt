@@ -210,6 +210,7 @@
 + PhysicsAnalysis/AnalysisCommon/PAT.*
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
