@@ -169,10 +169,10 @@ StatusCode TrigBtagFexMT::execute() {
   
   xAOD::BTagging *trigBTagging = new xAOD::BTagging();
   trigBTaggingContainer->push_back(trigBTagging);
-  */
+
   // EXECUTE OFFLINE TOOLS
   if ( m_setupOfflineTools == true ) {
-    /*  
+
     // Execute track association 
     if (!m_bTagTrackAssocTool.empty()) {
       StatusCode jetIsAssociated;
@@ -208,9 +208,9 @@ StatusCode TrigBtagFexMT::execute() {
     if(sc.isFailure()) {
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endmsg;
     }
-    */
+
   }
-  /*
+
   // Dump results 
   ATH_MSG_DEBUG( "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
 		 << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
@@ -240,8 +240,9 @@ StatusCode TrigBtagFexMT::execute() {
 
   SG::WriteHandle< xAOD::BTagVertexContainer > outputBtagVtxContainerHandle = SG::makeHandle( m_outputBtagVertexContainerKey,ctx );  
   ATH_CHECK( outputBtagVtxContainerHandle.record( std::move(trigBTagVertexContainer),std::move(trigBTagSecVertexAuxContainer) ) );
-  */
+
   return StatusCode::SUCCESS;
+  */
 }
 
 

@@ -51,7 +51,7 @@ StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Running with "<< prevDecisionContainer->size() <<" previous decisions");
 
   return StatusCode::SUCCESS;
-
+  /*
   SG::ReadHandle< xAOD::BTaggingContainer > bTagHandle = SG::makeHandle( m_bTagKey, context );
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roisKey, context );
   
@@ -98,6 +98,7 @@ StatusCode TrigBjetHypoAlgMT::execute_r( const EventContext& context ) const {
   }
 
   return StatusCode::SUCCESS;
+  */
 }
 
 
