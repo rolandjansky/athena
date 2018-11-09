@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv_p1.h 
@@ -21,11 +21,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // NavFourMom includes
-#define private public
-#define protected public
 #include "NavFourMom/INav4MomAssocs.h"
-#undef private
-#undef protected
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/INav4MomAssocs_p1.h"
