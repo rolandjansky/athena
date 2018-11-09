@@ -30,7 +30,7 @@ class SeedPtMin(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 20*Units.GeV
+    StoredValue  = 25*Units.GeV
 
 class RecoOutputPtMin(JobProperty):
     """ Minimum pT for seeds after iteration
@@ -88,7 +88,7 @@ class AntiKtRValues(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    StoredValue  = [0.2,0.3,0.4,1.0]
+    StoredValue  = [0.2,0.3,0.4]
 
 class DoCellBasedSubtraction(JobProperty):
     """ option to use cell based subtraction
@@ -102,8 +102,8 @@ class HarmonicsForSubtraction(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['list']
-    #StoredValue  = [2,3,4]
-    StoredValue  = []
+    StoredValue  = [2,3,4]
+    #StoredValue  = []
 
 class ModulationScheme(JobProperty):
     """ 1, 2 or 3 correspond to total calo, total calo w/ fcal phase, fcal only
@@ -117,7 +117,7 @@ class Remodulate(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class ExtraFlowMoments(JobProperty):
     """ Calculate extra flow moments
@@ -131,7 +131,7 @@ class DoHIBTagging(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 
 class HIClusterKey(JobProperty):
@@ -236,7 +236,12 @@ class HIJetRecFlags(JobPropertyContainer):
     """ The HIJetRec property container.
     """
     pass
-
+class TWConfigFile(JobProperty):
+    """ Name of main track jets used in iteration and ghost matching
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'cluster.geo.root'
 # add the flags container to the top container 
 jobproperties.add_Container(HIJetRecFlags)
 
@@ -272,7 +277,8 @@ list_jobproperties = [UnsubtractedSuffix,
                       WriteUnsubtracted,
                       WriteSeeds,
                       UseHITracks,
-                      MomentsSkipped
+                      MomentsSkipped,
+                      TWConfigFile
                       ]
 
 for i in list_jobproperties:
