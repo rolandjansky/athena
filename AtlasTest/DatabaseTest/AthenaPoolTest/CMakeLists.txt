@@ -57,6 +57,7 @@ atlas_add_component( AthenaPoolTest
                      src/TrkTrackFakeReader.cxx
                      src/TrkTrackFakeWriter.cxx
                      src/FakeTrackBuilder.cxx
+                     src/RDOReaderDoubleSelector.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack )
@@ -85,18 +86,31 @@ function (athenapooltest_run_test testName jo pattern)
 endfunction (athenapooltest_run_test)
 
 
+# Write with DoubleEventSelector
+athenapooltest_run_test( AthenaPoolTestWriteDoubleSelector AthenaPoolTestWriteDoubleSelector
+                         "AthenaPoolTestReadDoubleSelector" )
+athenapooltest_run_test( AthenaPoolTestReadDoubleSelector AthenaPoolTestReadDoubleSelector
+                         "AthenaPoolTestReadDoubleSelector"
+                          DEPENDS AthenaPoolTestWriteDoubleSelector )
+
 # Write/read out some simple objects:
 athenapooltest_run_test( AthenaPoolTestWrite AthenaPoolTestWrite
-                         "^..AthenaPoolTestD" )
+                         "^..AthenaPoolTestD"
+                         DEPENDS AthenaPoolTestReadDoubleSelector)
 athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
                          "AthenaPoolTestD"
                          DEPENDS AthenaPoolTestWrite )
 
 # Add on test of navigation still using simple objects:
 # AthenaPoolTestWrite - Step2 - rewrite part in another file
+# DoubleEventSelector
+athenapooltest_run_test( AthenaPoolTestStep2WriteDoubleSelector AthenaPoolTestStep2WriteDoubleSelector
+                         "AthenaPoolTestReadDoubleSelector"
+                         DEPENDS AthenaPoolTestRead )
+# normal EventSelector
 athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
                          "^..AthenaPoolTestD"
-                         DEPENDS AthenaPoolTestRead )
+                         DEPENDS AthenaPoolTestStep2WriteDoubleSelector )
 
 # Copy the Step2 file
 #athenapooltest_run_test( AthenaPoolTestCopy AthenaPoolTestCopy
@@ -135,6 +149,20 @@ athenapooltest_run_test( LArCellContWriter LArCellContWriter_jobOptions
 athenapooltest_run_test( LArCellContRead LArCellContReader_jobOptions
                          "LArCellContFake"
                          DEPENDS LArCellContWriter )
+
+# Read two RDOs with the DoubleEventSelector
+athenapooltest_run_test( ReadRDODoubleSelector ReadRDODoubleSelector
+                         "ReadRDODoubleSelector"
+                         DEPENDS LArCellContRead )
+athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
+                         "ReadCombinedRDO"
+                         DEPENDS ReadRDODoubleSelector )
+
+# Test overlay with DoubleEventSelector
+# TODO: need some upstream changes
+# athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
+#                          "DoubleEventSelectorOverlayTest"
+#                          DEPENDS ReadCombinedRDO )
 
 # Test of explicit collection write/read
 #athenapooltest_run_test( LArCellContWriteReg LArCellContWriter_jobOptionsReg

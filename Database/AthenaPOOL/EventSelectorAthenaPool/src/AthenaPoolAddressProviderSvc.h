@@ -71,6 +71,10 @@ private: // properties
    /// Assumes nice/homogeneous input files and may not work for all use cases: default = false.
    BooleanProperty m_dataHeaderIterator;
 
+   /// Attribute list key of a secondary input file. If non-zero,
+   /// creates a new IOpaqueAddress for that file and records it.
+   Gaudi::Property<std::string> m_secondaryAttrListKey;
+
 private: // internal helper functions
    /// Return pointer to active event SG
    StoreGateSvc* eventStore() const;

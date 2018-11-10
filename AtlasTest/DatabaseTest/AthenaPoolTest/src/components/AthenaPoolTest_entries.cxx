@@ -14,6 +14,7 @@
 #include "../EventInfoReader.h"
 #include "../PileUpEventInfoWriter.h"
 #include "../PileUpEventInfoReader.h"
+#include "../RDOReaderDoubleSelector.h"
 
 DECLARE_COMPONENT( AthenaPoolTestDataWriter )
 DECLARE_COMPONENT( AthenaPoolTestDataReader )
@@ -31,4 +32,5 @@ DECLARE_COMPONENT( EventInfoWriter )
 DECLARE_COMPONENT( EventInfoReader )
 DECLARE_COMPONENT( PileUpEventInfoWriter )
 DECLARE_COMPONENT( PileUpEventInfoReader )
+DECLARE_COMPONENT( RDOReaderDoubleSelector )
 

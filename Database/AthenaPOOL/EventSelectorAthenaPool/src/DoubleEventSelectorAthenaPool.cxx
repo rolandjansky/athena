@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DoubleEventSelectorAthenaPool.cxx
@@ -62,7 +62,8 @@ DoubleEventSelectorAthenaPool::DoubleEventSelectorAthenaPool(const std::string& 
   declareProperty("CollectionTree",      m_collectionTree = "POOLContainer");
   declareProperty("Connection",          m_connection);
   declareProperty("RefName",             m_refName);
-  declareProperty("AttributeListKey",    m_attrListKey = "Input");
+  declareProperty("PrimaryAttributeListKey",    m_primaryAttrListKey = "Input1");
+  declareProperty("SecondaryAttributeListKey",    m_secondaryAttrListKey = "Input2");
   declareProperty("PrimaryInputCollections",    m_primaryInputCollectionsProp);
   declareProperty("SecondaryaryInputCollections",    m_secondaryInputCollectionsProp);
   declareProperty("Query",               m_query = "");
@@ -604,7 +605,8 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       return(StatusCode::FAILURE);
     }
     AthenaAttributeList* athAttrList = new AthenaAttributeList();
-    if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
+    ATH_MSG_DEBUG("Try to record m_primaryAttrListKey to StoreGate.");
+    if (!eventStore()->record(athAttrList, m_primaryAttrListKey.value()).isSuccess()) {
       ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
       delete (char*)tokenStr; tokenStr = nullptr;
       delete athAttrList; athAttrList = nullptr;
@@ -637,7 +639,8 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       return(StatusCode::FAILURE);
     }
     AthenaAttributeList* athAttrList = new AthenaAttributeList();
-    if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) {
+    ATH_MSG_DEBUG("Try to record m_secondaryAttrListKey to StoreGate.");
+    if (!eventStore()->record(athAttrList, m_secondaryAttrListKey.value()).isSuccess()) {
       ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
       delete (char*)tokenStr; tokenStr = nullptr;
       delete athAttrList; athAttrList = nullptr;
@@ -755,6 +758,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       tech = token.technology();
     }
     if (guid != m_primaryGuid) {
+      ATH_MSG_DEBUG("guid != m_primaryGuid");
       if (m_primaryGuid != Guid::null()) {
         if (m_processPrimaryMetadata.value()) {
           // Fire EndInputFile incident
@@ -797,6 +801,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
       tech = token.technology();
     }
     if (guid != m_secondaryGuid) {
+      ATH_MSG_DEBUG("guid != m_secondaryGuid");
       if (m_secondaryGuid != Guid::null()) {
         if (m_processSecondaryMetadata.value()) {
           // Fire EndInputFile incident
@@ -849,7 +854,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
           return(StatusCode::FAILURE);
         }
       } else {
-        if (!recordAttributeList(m_primaryHeaderIterator).isSuccess()) {
+        if (!recordAttributeList(m_primaryHeaderIterator, m_primaryAttrListKey).isSuccess()) {
           ATH_MSG_ERROR("Failed to record Primary AttributeList.");
           return(StatusCode::FAILURE);
         }
@@ -869,7 +874,7 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
           return(StatusCode::FAILURE);
         }
       } else {
-        if (!recordAttributeList(m_secondaryHeaderIterator).isSuccess()) {
+        if (!recordAttributeList(m_secondaryHeaderIterator, m_secondaryAttrListKey).isSuccess()) {
           ATH_MSG_ERROR("Failed to record SecondaryAttributeList.");
           return(StatusCode::FAILURE);
         }
@@ -897,9 +902,16 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
         }
         break;
       }
-      const DataHandle<AthenaAttributeList> oldAttrList;
-      if (eventStore()->retrieve(oldAttrList, m_attrListKey.value()).isSuccess()) {
-        if (!eventStore()->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
+      const DataHandle<AthenaAttributeList> primaryOldAttrList;
+      if (eventStore()->retrieve(primaryOldAttrList, m_primaryAttrListKey.value()).isSuccess()) {
+        if (!eventStore()->removeDataAndProxy(primaryOldAttrList.cptr()).isSuccess()) {
+          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
+          return(StatusCode::FAILURE);
+        }
+      }
+      const DataHandle<AthenaAttributeList> secondaryOldAttrList;
+      if (eventStore()->retrieve(secondaryOldAttrList, m_secondaryAttrListKey.value()).isSuccess()) {
+        if (!eventStore()->removeDataAndProxy(secondaryOldAttrList.cptr()).isSuccess()) {
           ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
           return(StatusCode::FAILURE);
         }
@@ -957,24 +969,24 @@ StatusCode DoubleEventSelectorAthenaPool::rewind(IEvtSelector::Context& /*ctxt*/
 }
 //________________________________________________________________________________
 StatusCode DoubleEventSelectorAthenaPool::createAddress(const IEvtSelector::Context& /*ctxt*/,
-                                                        IOpaqueAddress*& iop) const {
+                                                              IOpaqueAddress*& iop) const {
   std::string tokenStr;
   const DataHandle<AthenaAttributeList> attrList;
-  if (eventStore()->retrieve(attrList, m_attrListKey.value()).isSuccess()) {
+  if (eventStore()->retrieve(attrList, m_primaryAttrListKey.value()).isSuccess()) {
     try {
       if (m_refName.value().empty()) {
         tokenStr = (*attrList)["eventRef"].data<std::string>();
-        ATH_MSG_DEBUG("found AthenaAttribute, name = eventRef = " << tokenStr);
+        ATH_MSG_DEBUG("found PrimaryAthenaAttribute, name = eventRef = " << tokenStr);
       } else {
         tokenStr = (*attrList)[m_refName.value() + "_ref"].data<std::string>();
-        ATH_MSG_DEBUG("found AthenaAttribute, name = " << m_refName.value() << "_ref = " << tokenStr);
+        ATH_MSG_DEBUG("found PrimaryAthenaAttribute, name = " << m_refName.value() << "_ref = " << tokenStr);
       }
     } catch (std::exception &e) {
       ATH_MSG_ERROR(e.what());
       return(StatusCode::FAILURE);
     }
   } else {
-    ATH_MSG_WARNING("Cannot find AthenaAttribute, key = " << m_attrListKey.value());
+    ATH_MSG_WARNING("Cannot find PrimaryAthenaAttribute, key = " << m_primaryAttrListKey.value());
     tokenStr = m_primaryPoolCollectionConverter->retrieveToken(m_primaryHeaderIterator, m_refName.value());
   }
   iop = new GenericAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, "EventSelector");
@@ -1310,14 +1322,14 @@ PoolCollectionConverter* DoubleEventSelectorAthenaPool::getCollectionCnv(std::ve
   return(nullptr);
 }
 //__________________________________________________________________________
-StatusCode DoubleEventSelectorAthenaPool::recordAttributeList(pool::ICollectionCursor* HeaderIterator) const {
+StatusCode DoubleEventSelectorAthenaPool::recordAttributeList(pool::ICollectionCursor* HeaderIterator, Gaudi::Property<std::string> attrListKey) const {
   // Get access to AttributeList
   ATH_MSG_DEBUG("Get AttributeList from the collection");
   // MN: accessing only attribute list, ignoring token list
   const coral::AttributeList& attrList = HeaderIterator->currentRow().attributeList();
   ATH_MSG_DEBUG("AttributeList size " << attrList.size());
   AthenaAttributeList* athAttrList = new AthenaAttributeList(attrList);
-  if (!eventStore()->record(athAttrList, m_attrListKey.value()).isSuccess()) { // TO CHECK Can this happen twice per event???
+  if (!eventStore()->record(athAttrList, attrListKey.value()).isSuccess()) {
     ATH_MSG_ERROR("Cannot record AttributeList to StoreGate.");
     delete athAttrList; athAttrList = nullptr;
     return(StatusCode::FAILURE);
@@ -1438,23 +1450,63 @@ StatusCode DoubleEventSelectorAthenaPool::io_finalize() {
 */
 void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
 {
-  SG::SourceID fid;
-  Atlas::ExtendedEventContext *eec = inc.context().getExtension<Atlas::ExtendedEventContext>();
-  if( eec ) {
-    fid = eec->proxy()->sourceID();
-  }
-  if( fid.empty() ) {
-    ATH_MSG_WARNING("could not read event source ID from incident event context");
+  if (not inc.context().hasExtension<Atlas::ExtendedEventContext>()) {
+    ATH_MSG_WARNING("No extended event context available.");
     return;
   }
 
-  ATH_MSG_DEBUG("**  MN Incident handler " << inc.type() << " Event source ID=" << fid );
+  const SGImplSvc *sg = static_cast<SGImplSvc *>(inc.context().getExtension<Atlas::ExtendedEventContext>().proxy());
+
+  // Primary guid
+  SG::SourceID fid1;
+  SG::DataProxy* dp1 = sg->proxy(ClassID_traits<DataHeader>::ID(), "EventSelector", true);
+  if (dp1) {
+    const DataHeader* dh1 = SG::DataProxy_cast<DataHeader> (dp1);
+    if (dh1) {
+      fid1 =  dh1->begin()->getToken()->dbID().toString();
+    }
+  }
+
+  if( fid1.empty() ) {
+    ATH_MSG_WARNING("could not read event source ID from incident event context with key EventSelector");
+    return;
+  }
+
+  ATH_MSG_DEBUG("**  MN Incident handler " << inc.type() << " Event source ID=" << fid1 );
   if( inc.type() == IncidentType::BeginProcessing ) {
     // increment the events-per-file counter for FID
-    m_activeEventsPerSource[fid]++;
+    m_activeEventsPerSource[fid1]++;
   } else if( inc.type() == IncidentType::EndProcessing ) {
-    m_activeEventsPerSource[fid]--;
-    disconnectIfFinished( fid );
+    m_activeEventsPerSource[fid1]--;
+    disconnectIfFinished( fid1 );
+  }
+  if( msgLvl(MSG::DEBUG) ) {
+    for( auto& source: m_activeEventsPerSource )
+      msg(MSG::DEBUG) << "SourceID: " << source.first << " active events: " << source.second << endmsg;
+  }
+
+  // Secondary guid
+  SG::SourceID fid2;
+  SG::DataProxy* dp2 = sg->proxy(ClassID_traits<DataHeader>::ID(), "SecondaryEventSelector", true);
+  if (dp2) {
+    const DataHeader* dh2 = SG::DataProxy_cast<DataHeader> (dp2);
+    if (dh2) {
+      fid2 =  dh2->begin()->getToken()->dbID().toString();
+    }
+  }
+
+  if( fid2.empty() ) {
+    ATH_MSG_WARNING("could not read event source ID from incident event context with key SecondaryEventSelector");
+    return;
+  }
+
+  ATH_MSG_DEBUG("**  MN Incident handler " << inc.type() << " Event source ID=" << fid2 );
+  if( inc.type() == IncidentType::BeginProcessing ) {
+    // increment the events-per-file counter for FID
+    m_activeEventsPerSource[fid2]++;
+  } else if( inc.type() == IncidentType::EndProcessing ) {
+    m_activeEventsPerSource[fid2]--;
+    disconnectIfFinished( fid2 );
   }
   if( msgLvl(MSG::DEBUG) ) {
     for( auto& source: m_activeEventsPerSource )
@@ -1464,28 +1516,19 @@ void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
 
 //__________________________________________________________________________
 /* Disconnect APR Database identifieed by a SG::SourceID when it is no longer in use:
-   m_primaryGuid is not pointing to it and there are no events from it being processed
+   m_guid is not pointing to it and there are no events from it being processed
    (if the EventLoopMgr was not firing Begin/End incidents, this will just close the DB)
 */
 bool DoubleEventSelectorAthenaPool::disconnectIfFinished( SG::SourceID fid ) const
 {
-  if( m_activeEventsPerSource[fid] <= 0 && m_primaryGuid != fid ) {
-    // Explicitly disconnect file corresponding to old FID to release memory
-    if( !m_keepInputFilesOpen.value() ) {
-      ATH_MSG_INFO("Disconnecting input sourceID: " << fid );
-      m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + fid, IPoolSvc::kInputStream).ignore();
-      m_activeEventsPerSource.erase( fid );
-      return true;
-    }
-  }
-  if( m_activeEventsPerSource[fid] <= 0 && m_secondaryGuid != fid ) {
-    // Explicitly disconnect file corresponding to old FID to release memory
-    if( !m_keepInputFilesOpen.value() ) {
-      ATH_MSG_INFO("Disconnecting input sourceID: " << fid );
-      m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + fid, IPoolSvc::kInputStream).ignore();
-      m_activeEventsPerSource.erase( fid );
-      return true;
-    }
-  }
-  return false;
+   if( m_activeEventsPerSource[fid] <= 0 && m_primaryGuid != fid && m_secondaryGuid != fid ) {
+      // Explicitly disconnect file corresponding to old FID to release memory
+      if( !m_keepInputFilesOpen.value() ) {
+         ATH_MSG_INFO("Disconnecting input sourceID: " << fid );
+         m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + fid, IPoolSvc::kInputStream).ignore();
+         m_activeEventsPerSource.erase( fid );
+         return true;
+      }
+   }
+   return false;
 }

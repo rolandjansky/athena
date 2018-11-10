@@ -84,7 +84,7 @@ svcMgr.AthenaSealSvc.CheckDictionary = True
 # Stream's output file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1", noTag=True )
-Stream1.OutputFile =   "SimplePoolFile.root"
+Stream1.OutputFile =   "InDetRDO.root"
 # List of DO's to write out
 Stream1.ItemList+=["PixelRDO_Container#*"]
 Stream1.ItemList+=["SCT_RDO_Container#*"]
