@@ -210,7 +210,6 @@ void EventViewCreatorAlgorithmForBjet::insertDecisions( const TrigCompositeUtils
 }	
 
 StatusCode EventViewCreatorAlgorithmForBjet::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {
-  ATH_MSG_DEBUG( "ECCOMI !" );
   // see if there is a view linked to the decision object, if so link it to the view that is just made
   TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
   if ( parentViewLinkInfo.isValid() ) {
