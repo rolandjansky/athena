@@ -92,6 +92,15 @@ StatusCode TrigGSCFexMT::execute() {
   for ( const xAOD::Jet *jet : *jetContainer )
     ATH_MSG_DEBUG( "  ** Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta()<< " phi="<< jet->phi() );
 
+  // Primary Vertex
+  ATH_MSG_DEBUG( "Ready to retrieve primary vertex : " << m_VertexContainerKey );
+  SG::ReadHandle< xAOD::VertexContainer > vertexContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
+  CHECK( vertexContainerHandle.isValid() );
+
+  const xAOD::VertexContainer *vertexContainer = vertexContainerHandle.get();
+  for ( const xAOD::Vertex *primVtx : *vertexContainer )
+    ATH_MSG_DEBUG( "  ** PV = " << primVtx->x() << "," << primVtx->y() << "," << primVtx->z() );
+
   //  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
   //  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
 

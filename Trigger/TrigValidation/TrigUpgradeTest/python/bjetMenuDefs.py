@@ -81,11 +81,12 @@ def bJetStep1Sequence():
 
     # Shortlis of jets
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
-    jetSplitter = TrigJetSplitterMT("jetSplitter")
-    jetSplitter.ImposeZconstraint = False
+    jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
+    jetSplitter.ImposeZconstraint = True 
     jetSplitter.Jets = sequenceOut
     jetSplitter.OutputJets = "SplitJets"
     jetSplitter.OutputRoi = "SplitJets"
+    jetSplitter.OutputVertex = "PrimaryVertex" # TMP
 
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
     bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,jetSplitter] )
@@ -97,8 +98,10 @@ def bJetStep1Sequence():
     hypo.OutputLevel = DEBUG
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
+    hypo.PrimaryVertex = jetSplitter.OutputVertex
     hypo.RoILink = "initialRoI" # To be used in following step EventView
     hypo.JetLink = "jets" # To be used in following step with EventView
+    hypo.PrimaryVertexLink = "primaryVertex" # To be used in following step with EventView  
     hypo.MultipleDecisions = True # For creating multiple decisions in the next step
 
     # Sequence     
@@ -132,6 +135,9 @@ def bJetStep2Sequence():
     # Jets
     InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
     InputMakerAlg.JetsLink = "jets" # Jets linked to previous decision
+    # Primary Vertex
+    InputMakerAlg.InViewPrimaryVertex = "InViewPrimaryVertex" # Name Primary Vertex are inserted in the view      
+    InputMakerAlg.PrimaryVertexLink = "primaryVertex" # Primary Vertex linked to previous decision
 
     # Precision Tracking
 
@@ -141,6 +147,7 @@ def bJetStep2Sequence():
     theGSC.OutputLevel = DEBUG
     theGSC.RoIs = InputMakerAlg.InViewRoIs
     theGSC.JetKey = InputMakerAlg.InViewJets
+    theGSC.PriVtxKey = InputMakerAlg.InViewPrimaryVertex
     theGSC.JetOutputKey = "GSCJets"
 
     step2Sequence = seqAND("step2Sequence",[theGSC]);
@@ -151,10 +158,13 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2")
     hypo.OutputLevel = DEBUG
-    hypo.Jets = theGSC.JetOutputKey
     hypo.RoIs = "initialRoI" #InputMakerAlg.InViewRoIs
-    hypo.RoILink = "initialRoI" # To be used in following step EventView
-    hypo.JetLink = "jets" # To be used in following step with EventView
+    hypo.Jets = theGSC.JetOutputKey
+    hypo.PrimaryVertex = InputMakerAlg.InViewPrimaryVertex
+
+    hypo.RoILink = InputMakerAlg.RoIsLink #"initialRoI" # To be used in following step EventView
+    hypo.JetLink = InputMakerAlg.JetsLink #"jets" # To be used in following step with EventView
+    hypo.PrimaryVertexLink = InputMakerAlg.PrimaryVertexLink
     hypo.UseView = True
 
     # Sequence

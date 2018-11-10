@@ -22,6 +22,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 class TrigJetSplitterMT : public AthAlgorithm {
@@ -39,7 +42,7 @@ class TrigJetSplitterMT : public AthAlgorithm {
   StatusCode shortListJets( const xAOD::JetContainer*,
                             std::unique_ptr< xAOD::JetContainer >&,
                             std::unique_ptr< TrigRoiDescriptorCollection >&,
-                            const Amg::Vector3D* primaryVertex = nullptr ) const;
+			    const xAOD::Vertex* ) const;
 
  private:
   Gaudi::Property< bool > m_imposeZconstraint {this,"ImposeZconstraint",false,"Impose Constraint on PV z, thus selecting Jets pointing to PV"};
@@ -52,6 +55,7 @@ class TrigJetSplitterMT : public AthAlgorithm {
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Jets","Input Jet Container Key"};
   SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_outputRoiKey {this,"OutputRoi","SplitJet","Output RoI Container Key -- Same as OutputJets"};
+  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexKey {this,"OutputVertex","PrimaryVertex","Output Vertex Key"}; // TMP
 };
 
 #endif

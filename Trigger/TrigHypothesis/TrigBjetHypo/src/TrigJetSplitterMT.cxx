@@ -40,6 +40,7 @@ StatusCode TrigJetSplitterMT::initialize() {
   CHECK( m_inputJetsKey.initialize() );
   CHECK( m_outputJetsKey.initialize() );
   CHECK( m_outputRoiKey.initialize() );
+  CHECK( m_outputVertexKey.initialize() ); // TMP
 
   return StatusCode::SUCCESS;
 }
@@ -68,13 +69,15 @@ StatusCode TrigJetSplitterMT::execute() {
 
   // Retrieve Primary Vertex
   // Right now vertexing is not available. Using dummy vertex at (0,0,0) // TMP
-  const xAOD::VertexContainer *vertexContainer = nullptr; // TMP
-  const Amg::Vector3D *primaryVertex = nullptr; // TMP
+  std::unique_ptr< xAOD::VertexContainer > vertexContainer( new xAOD::VertexContainer() ); 
+  std::unique_ptr< xAOD::VertexAuxContainer > vertexAuxContainer( new xAOD::VertexAuxContainer() );
+  vertexContainer->setStore( vertexAuxContainer.get() );
+  vertexContainer->push_back( new xAOD::Vertex() );
+
+  xAOD::Vertex *primaryVertex = vertexContainer->at(0);
 
   if ( m_imposeZconstraint ) {
-    ATH_MSG_DEBUG( "Retrieving primary vertex." );
     // Here we should retrieve the primary vertex // TO-DO
-    primaryVertex = new Amg::Vector3D( 0,0,0 ); // TMP
     // Add protection against failure during primary vertex retrieval. // TO-DO
     ATH_MSG_DEBUG( "  ** PV = (" << primaryVertex->x() <<
                    "," << primaryVertex->y() <<
@@ -109,6 +112,11 @@ StatusCode TrigJetSplitterMT::execute() {
   CHECK( outputRoIContainerHandle.record( std::move( outputRoiContainer ) ) );
   ATH_MSG_DEBUG( "Exiting with " << outputRoIContainerHandle->size() << " RoIs" );
 
+  // TMP Primary Vertex
+  SG::WriteHandle< xAOD::VertexContainer > outputPrimaryVertexContainerHandle = SG::makeHandle( m_outputVertexKey,context );
+  CHECK( outputPrimaryVertexContainerHandle.record( std::move(vertexContainer),std::move(vertexAuxContainer) ) );
+  ATH_MSG_DEBUG( "Exiting with " << outputPrimaryVertexContainerHandle->size() << " Primary Vertices" );
+
   return StatusCode::SUCCESS;
 }
 
@@ -122,7 +130,7 @@ StatusCode TrigJetSplitterMT::finalize() {
 StatusCode TrigJetSplitterMT::shortListJets( const xAOD::JetContainer* jetCollection,
 					     std::unique_ptr< xAOD::JetContainer >& outputJets,
 					     std::unique_ptr< TrigRoiDescriptorCollection >& roiContainer,
-					     const Amg::Vector3D* primaryVertex ) const {
+					     const xAOD::Vertex* primaryVertex ) const {
 
   // Make a copy of the jet containers
   for ( const xAOD::Jet *jet : *jetCollection ) {

@@ -29,8 +29,7 @@
    * @brief Used at the start of a sequence to create the EventViews: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence.
    **/
 
-class EventViewCreatorAlgorithmForBjet : public ::InputMakerBase
-{
+class EventViewCreatorAlgorithmForBjet : public ::InputMakerBase {
  public:
     EventViewCreatorAlgorithmForBjet( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~EventViewCreatorAlgorithmForBjet();
@@ -48,7 +47,10 @@ class EventViewCreatorAlgorithmForBjet : public ::InputMakerBase
     SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };
     // **** b-jet Specific stuff
     SG::WriteHandleKey< ConstDataVector<xAOD::JetContainer> > m_inViewJets {this,"InViewJets","Unspecified","Name with which the Jets should be inserted into the views"};
-    Gaudi::Property< std::string > m_jetsLink{ this, "JetsLink", "Unspecified", "Name of EL to Jet object lined to the decision" };
+    SG::WriteHandleKey< ConstDataVector<xAOD::VertexContainer> > m_inViewPrimaryVertex {this,"InViewPrimaryVertex","Unspecified","Name with which the Prmary Vertex should be inserted into the views"};
+
+    Gaudi::Property< std::string > m_jetsLink {this,"JetsLink","Unspecified","Name of EL to Jet object linked to the decision"};
+    Gaudi::Property< std::string > m_primaryVertexLink {this,"PrimaryVertexLink","Unspecified","Name of EL to primary vertex linked to the decision"};
     // ****
 
     ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
@@ -69,6 +71,9 @@ class EventViewCreatorAlgorithmForBjet : public ::InputMakerBase
     StatusCode placeJetInView( const xAOD::Jet* theObject,
 			       SG::View* view,
 			       const EventContext& context ) const;
+    StatusCode placeVertexInView( const xAOD::Vertex* theObject,
+				  SG::View* view,
+				  const EventContext& context ) const;
 };
 
 #endif
