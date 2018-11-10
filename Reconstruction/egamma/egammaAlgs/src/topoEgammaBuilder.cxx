@@ -51,65 +51,19 @@ StatusCode topoEgammaBuilder::initialize()
     //
     //////////////////////////////////////////////////
     // retrieve tools
-    CHECK( RetrieveEMClusterTool() );
-    CHECK( RetrieveAmbiguityTool() );
+    ATH_CHECK( m_clusterTool.retrieve() );
+    ATH_CHECK( m_ambiguityTool.retrieve() );
     ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
-    CHECK( RetrieveTools(m_egammaTools) );
+    ATH_CHECK( m_egammaTools.retrieve() );
     ATH_MSG_DEBUG("Retrieving " << m_electronTools.size() << " tools for electrons");
-    CHECK( RetrieveTools(m_electronTools) );
+    ATH_CHECK( m_electronTools.retrieve() );
     ATH_MSG_DEBUG("Retrieving " << m_photonTools.size() << " tools for photons");
-    CHECK( RetrieveTools(m_photonTools) );
+    ATH_CHECK( m_photonTools.retrieve() );
 
     // retrieve timing profile
     if (m_doChrono) CHECK( m_timingProfile.retrieve() );
 
     ATH_MSG_DEBUG("Initialization completed successfully");
-    return StatusCode::SUCCESS;
-}
-
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools){
-    for (const auto tool : tools){
-        if ( tool.retrieve().isFailure() ){
-            ATH_MSG_FATAL( "Could not get tool: " << tool);
-            return StatusCode::FAILURE;
-        }
-        else ATH_MSG_DEBUG("Retrieved Tool " << tool); 
-    }
-    return StatusCode::SUCCESS;
-}
-
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrieveEMClusterTool(){
-    // retrieve Ambiguity tool
-    if (m_clusterTool.empty()) {
-        ATH_MSG_ERROR("EMClusterTool is empty");
-        return StatusCode::FAILURE;
-    }
-    if((m_clusterTool.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve "<<m_clusterTool);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Retrieved Tool "<<m_clusterTool);
-
-    return StatusCode::SUCCESS;
-}
-
-
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrieveAmbiguityTool(){
-    // retrieve Ambiguity tool
-    if (m_ambiguityTool.empty()) {
-        ATH_MSG_ERROR("EMAmbiguityTool is empty");
-        return StatusCode::FAILURE;
-    }
-
-    if((m_ambiguityTool.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve "<<m_ambiguityTool);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Retrieved Tool "<<m_ambiguityTool);
-
     return StatusCode::SUCCESS;
 }
 
