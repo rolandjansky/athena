@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.h 786167 2016-11-23 21:52:33Z ssnyder $
 #ifndef TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 #define TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 
