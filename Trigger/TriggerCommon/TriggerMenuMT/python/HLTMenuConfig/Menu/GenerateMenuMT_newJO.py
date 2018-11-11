@@ -50,8 +50,6 @@ def generateMenu( flags ):
             _log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
             continue
 
-        print("HELLO!!!!!!!!!!")
-
         for chain in cfgFlag.get():
 
             chainDict = toChainDictTranslator.getChainDict( chain )
