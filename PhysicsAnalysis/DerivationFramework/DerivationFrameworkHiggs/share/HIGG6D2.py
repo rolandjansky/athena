@@ -45,25 +45,6 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG6D2Stream )
 HIGG6D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG6D2Stream.AcceptAlgs(["HIGG6D2Kernel"])
 
-  
-#======================================================================
-# AUGMENTATION
-#=======================================================================
-
-
-# TAU SELECTOR TOOL 
-#=======================================================================
-augmentationTools = []
-from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
-HIGG6D2TauWrapper = DerivationFramework__TauSelectionWrapper(
-  name="HIGG6D2TauSelectionWrapper",
-  #IsTauFlag=IsTauFlag.JetBDTSigLoose,
-  IsTauFlag=19,
-  CollectionName="TauJets",
-  StoreGateEntryName="HIGG6D2JetBDTSigLoose")
-
-ToolSvc += HIGG6D2TauWrapper
-augmentationTools.append(HIGG6D2TauWrapper)
 
 #======================================================================
 # SKIMMING 
@@ -73,7 +54,7 @@ augmentationTools.append(HIGG6D2TauWrapper)
 #====================================================================
 tauSel = "(TauJets.pt > 25*GeV"\
          "&& (abs(TauJets.eta)<2.6)"\
-         "&& (abs(TauJets.charge)==1 || abs(TauJets.charge)==3)"\
+         "&& (abs(TauJets.charge)==1)"\
          "&& ((TauJets.nTracks == 1) || (TauJets.nTracks == 3) ) )"
          
 # Trigger selection 
@@ -241,19 +222,6 @@ HIGG6D2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
 thinningTools.append(HIGG6D2TauTPThinningTool)
 ToolSvc += HIGG6D2TauTPThinningTool
 
-# Clusters for Tau TES
-#====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG6D2CaloClusterThinning = DerivationFramework__CaloClusterThinning(
-  name="HIGG6D2PClusterThinning",
-  ThinningService=HIGG6D2ThinningHelper.ThinningSvc(),
-  SGKey="TauJets",
-  TopoClCollectionSGKey="CaloCalTopoClusters",
-  SelectionString= "(TauJets.pt > 20*GeV)",
-  ApplyAnd=False,
-)
-ToolSvc += HIGG6D2CaloClusterThinning
-thinningTools.append(HIGG6D2CaloClusterThinning)
 
 # MuonTrackParticleThinning
 #====================================================================
@@ -329,9 +297,8 @@ if is_MC:
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "HIGG6D2Kernel",
-  AugmentationTools = augmentationTools,
-  SkimmingTools = [HIGG6D2SkimmingTool],
-  ThinningTools = thinningTools
+  SkimmingTools=[HIGG6D2SkimmingTool],
+  ThinningTools=thinningTools
 )
 
 #====================================================================
@@ -356,12 +323,19 @@ HIGG6D2SlimmingHelper.SmartCollections = [
   "PrimaryVertices",
 ]
 
+if is_MC:
+  HIGG6D2SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"]
+  
 ## Add extra variables
 HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta"]
-HIGG6D2SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
+
 HIGG6D2SlimmingHelper.ExtraVariables += [
-  "TauJets.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis."\
-  "mDetectorAxis.BDTEleScore.pantau_CellBasedInput_isPanTauCandidate.pantau_CellBasedInput_DecayMode"\
+  "BTagging_AntiKt4EMTopo.MV2cl100_discriminant.MV2c10rnn_discriminant.MV2c10_discriminant.MV2c10mu_discriminant"\
+  ".DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.DL1rnn_pb.DL1rnn_pc.DL1rnn_pu"\
+  ]
+
+HIGG6D2SlimmingHelper.ExtraVariables += [
+  "TauJets.BDTEleScore.pantau_CellBasedInput_isPanTauCandidate.pantau_CellBasedInput_DecayMode"\
   ".ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased."\
   "pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n.pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn.pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn",
   "TauNeutralParticleFlowObjects.pt.eta.phi.m.rapidity.bdtPi0Score"]
@@ -370,15 +344,16 @@ HIGG6D2SlimmingHelper.ExtraVariables += [
   "Electrons.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium."\
   "DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ.charge.LHLoose.LHMedium.LHTight.LHValue"
 ]
+
 HIGG6D2SlimmingHelper.ExtraVariables += [
   "Muons.DFCommonGoodMuons",
   "CombinedMuonTrackParticles.d0.z0.vz",
   "InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers"
 ]
+
 HIGG6D2SlimmingHelper.ExtraVariables += ["PrimaryVertices.x.y.z.vertexType"]
 
 HIGG6D2SlimmingHelper.AllVariables = [
-  "CaloCalTopoClusters",
   "TauChargedParticleFlowObjects"
 ]
 
@@ -402,9 +377,7 @@ if is_MC:
     "METMap_Truth",
     "MET_Track",
     "TruthVertices",
-    "CaloCalTopoClusters",
     "TauChargedParticleFlowObjects",
-    #"AntiKt4TruthJets"
   ]
   HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4LCTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
