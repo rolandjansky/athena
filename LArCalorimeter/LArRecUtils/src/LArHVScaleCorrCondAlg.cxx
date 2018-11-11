@@ -5,8 +5,8 @@
 #include "LArHVScaleCorrCondAlg.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -104,7 +104,6 @@ StatusCode LArHVScaleCorrCondAlg::initialize() {
 
   ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_hvKey.initialize());
-  if(!m_updateIfChanged) ATH_CHECK(m_eventInfoKey.initialize());
   if(m_undoOnlineHVCorr) ATH_CHECK(m_onlineHVScaleCorrKey.initialize());
 
   ATH_CHECK(m_outputHVScaleCorrKey.initialize());
@@ -118,21 +117,22 @@ StatusCode LArHVScaleCorrCondAlg::initialize() {
 
 StatusCode LArHVScaleCorrCondAlg::execute() {
   
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // test validity of write handle
-  SG::WriteCondHandle<ILArHVScaleCorr>  writeHandle(m_outputHVScaleCorrKey);
+  SG::WriteCondHandle<ILArHVScaleCorr>  writeHandle(m_outputHVScaleCorrKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG( "Found valid " << writeHandle.fullKey() << " handle.");
     return StatusCode::SUCCESS;
   }
 
   // get DCS HVData
-  SG::ReadCondHandle<LArHVData> hvDataHdl(m_hvKey);
+  SG::ReadCondHandle<LArHVData> hvDataHdl(m_hvKey, ctx);
   const LArHVData *hvdata = *hvDataHdl;
 
   // Online HVScaleCorr (if needed to subtract)
   const ILArHVScaleCorr *onlHVCorr = nullptr;
   if(m_undoOnlineHVCorr) {
-     SG::ReadCondHandle<ILArHVScaleCorr> onlHVCorrHdl(m_onlineHVScaleCorrKey);
+     SG::ReadCondHandle<ILArHVScaleCorr> onlHVCorrHdl(m_onlineHVScaleCorrKey, ctx);
      // onlHVCorr = dynamic_cast<const LArHVScaleCorrFlat*>(*onlHVCorrHdl);
      onlHVCorr = *onlHVCorrHdl;
      if(!onlHVCorr) {
@@ -157,7 +157,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
     const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
     if (updatedCells.size()) {
       const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
-      StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr);
+      StatusCode sc=this->getScale(ctx, hashranges, vScale, hvdata, onlHVCorr);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
 	return sc;
@@ -169,18 +169,14 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
     }
   }//end if updateIfChanges
   else {
+    // FIXME: statics are not MT-safe!!!
     static unsigned int timestamp_old = 0; 
     static unsigned int lumiblock_old = 0;
     static unsigned int run_old = 0;
-    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey);
-    if (not eventInfo.isValid()) {
-      ATH_MSG_WARNING(" Cannot access to event info, will recompute on every event");
-      m_updateIfChanged = true;
-      return StatusCode::SUCCESS;
-    }
-    const unsigned int lumiblock = eventInfo->lumiBlock();
-    const unsigned int run       = eventInfo->runNumber();
-    const unsigned int timestamp = eventInfo->timeStamp();
+
+    const unsigned int lumiblock = ctx.eventID().lumi_block();
+    const unsigned int run       = ctx.eventID().run_number();
+    const unsigned int timestamp = ctx.eventID().time_stamp();
   
     ATH_MSG_DEBUG("run|lbn|timestamp [CURRENT][CACHED] --> [ " 
 		  << run << " | " << lumiblock << " | " << timestamp << " ] [ " 
@@ -209,7 +205,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
 	}
 	std::string chronoName = "LArHVScaleCorrCondAlg";
 	chrono -> chronoStart( chronoName); 
-	StatusCode sc=this->getScale(m_completeRange, vScale, hvdata, onlHVCorr);
+	StatusCode sc=this->getScale(ctx, m_completeRange, vScale, hvdata, onlHVCorr);
 	if (sc.isFailure()) {
 	  ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
 	  return sc;
@@ -224,7 +220,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
   }//end else m_updateIfChanged
 
   // and now record output object
-  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*larCablingHdl;
   if(!cabling) {
      ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
@@ -252,7 +248,8 @@ StatusCode LArHVScaleCorrCondAlg::finalize()
 
 
 // *** compute global ADC2MeV factor from subfactors *** 
-StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData *hvdata, const ILArHVScaleCorr *onlHVCorr) const {
+StatusCode LArHVScaleCorrCondAlg::getScale(const EventContext& ctx,
+                                           const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData *hvdata, const ILArHVScaleCorr *onlHVCorr) const {
   
   unsigned nChannelsUpdates=0;
 
@@ -434,7 +431,9 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::
     
       ++nChannelsUpdates;
       if(onlHVCorr) { // undo the online one
-         float hvonline = onlHVCorr->HVScaleCorr(offid);
+         SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey, ctx);
+         const HWIdentifier chid = cabling->createSignalChannelID(offid);
+         float hvonline = onlHVCorr->HVScaleCorr(chid);
          if (hvonline>0. && hvonline<100.) mycorr = mycorr/hvonline;
 
       }
