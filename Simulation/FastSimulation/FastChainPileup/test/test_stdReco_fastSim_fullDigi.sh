@@ -30,7 +30,7 @@ echo "art-result: $? EVNTtoRDO step"
 Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
  --outputAODFile=AOD_fastSim_fullDigi.pool.root \
     --autoConfiguration=everything \
-    --maxEvents=500 \
+    --maxEvents 100 \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
     --imf False
 
