@@ -43,8 +43,14 @@ def generateMenu( flags ):
             continue
 
         # fill the map[signature, generating function]
-        variableName = name.split('.')[-1]
-        fillGeneratorsMap( signatureToGenerator, variableName )
+        signature = name.split('.')[-1]
+        fillGeneratorsMap( signatureToGenerator, signature )
+
+        if signature not in signatureToGenerator:
+            _log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
+            continue
+
+        print("HELLO!!!!!!!!!!")
 
         for chain in cfgFlag.get():
 
@@ -57,10 +63,7 @@ def generateMenu( flags ):
             flatChainDicts.append( chainDict )
 
             # call generating function and pass to CF builder
-            if variableName in signatureToGenerator:
-                menuChains.append( signatureToGenerator[variableName](flags, chainDict) )
-            else:
-                _log.warning('Missing generator for the chain {}'.format(chainDict['chainName']))
+            menuChains.append( signatureToGenerator[signature](flags, chainDict) )
 
     _log.info('Obtained Menu Chain objects')
 
