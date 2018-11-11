@@ -51,6 +51,39 @@ atlas_add_component( TileByteStream
    LINK_LIBRARIES TileByteStreamLib )
 
 
+set( extra_patterns "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment|INFO opening|loading cache|start processing|done processing|WARNING ../MuRcvDigitsCnt|WARNING ../MuRcvRawChCnt|TileL2Builder initialization completed|Initializing TileMuRcvContByteStreamTool|filled inputFileSummary from file|Picked valid file" )
+
+atlas_add_test( TileDigitsContByteStreamCnv_test
+   SCRIPT test/TileDigitsContByteStreamCnv_test.sh
+   PROPERTIES TIMEOUT 500
+   EXTRA_PATTERNS ${extra_patterns} )
+
+atlas_add_test( TileRawChannelContByteStreamCnv_test
+   SCRIPT test/TileRawChannelContByteStreamCnv_test.sh
+   PROPERTIES TIMEOUT 500
+   EXTRA_PATTERNS ${extra_patterns} )
+
+atlas_add_test( TileBeamElemContByteStreamCnv_test
+   SCRIPT test/TileBeamElemContByteStreamCnv_test.sh
+   PROPERTIES TIMEOUT 500
+   EXTRA_PATTERNS ${extra_patterns} )
+
+atlas_add_test( TileL2ContByteStreamCnv_test
+   SCRIPT test/TileL2ContByteStreamCnv_test.sh
+   PROPERTIES TIMEOUT 500
+   EXTRA_PATTERNS ${extra_patterns} )
+
+atlas_add_test( TileLaserObjByteStreamCnv_test
+   SCRIPT test/TileLaserObjByteStreamCnv_test.sh
+   PROPERTIES TIMEOUT 500
+   EXTRA_PATTERNS ${extra_patterns} )
+
+atlas_add_test( TileMuRcvContByteStreamCnv_test
+   SCRIPT test/TileMuRcvContByteStreamCnv_test.sh
+   PROPERTIES TIMEOUT 500
+   EXTRA_PATTERNS ${extra_patterns} )
+
+
 atlas_add_test( TileRawChannel2Bytes4_test
                 SOURCES test/TileRawChannel2Bytes4_test.cxx
                 LINK_LIBRARIES TileByteStreamLib )
