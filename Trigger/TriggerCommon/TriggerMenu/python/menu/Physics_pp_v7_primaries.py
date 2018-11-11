@@ -349,11 +349,6 @@ def setupMenu():
         
     TriggerFlags.CalibSlice.signatures   = [
 
-        #Special re-run chains
-        ['larnoiseburst_rerun',                  '',             [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
-        ['larnoiseburst_loose_rerun',            '',       [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
- 
-
 ]
 
     TriggerFlags.CosmicSlice.signatures  = [
