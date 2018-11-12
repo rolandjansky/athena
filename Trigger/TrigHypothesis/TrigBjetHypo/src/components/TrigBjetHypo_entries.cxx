@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigBjetHypo/TrigBjetHypoAllTE.h"
 #include "TrigBjetHypo/TrigBjetHypo.h"
 #include "TrigBjetHypo/TrigBjetFex.h"
