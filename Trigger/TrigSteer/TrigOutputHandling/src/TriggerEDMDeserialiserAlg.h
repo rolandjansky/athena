@@ -16,9 +16,20 @@
 
 /**
  * @class TriggerEDMDeserialiserAlg unpacks EDM from the HLTResultMT 
+ * Each serialised collection is a chunk of words with the content as described below.
+ * The [] == one word, 
+ * the [...] more words.
+ * Format is as follows:
+ * [fragment size in words][CLID][size of serialised colection name][...serialised collection name ...][data payload in bytes][....data paload...]
+ * It follows form the TrigEDMSerialisationTool implemetation.
  **/
 class TriggerEDMDeserialiserAlg : public AthReentrantAlgorithm {
 public:
+  enum Offsets {
+    CLIDOffset = 1,
+    NameLengthOffset = 2,
+    NameOffset = 3
+  };
   TriggerEDMDeserialiserAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TriggerEDMDeserialiserAlg() override;
 
@@ -27,10 +38,11 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::ReadHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of object that is red"  };
-  Gaudi::Property<std::string > m_prefix{ this, "Prefix", "", "Seet for testing to avoid clash with the input collections" };
-  Gaudi::Property<int > m_moduleID{ this, "ModuleID", 0, "Unpacks from a module of given ID, main part of HLT result is there, in TLA usecases the module ID will be different" };
-
+  SG::ReadHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of object that is read"  };
+  Gaudi::Property<std::string > m_prefix{ this, "Prefix", "", "Set for testing to avoid clash with the input collections" };
+  Gaudi::Property<int > m_moduleID{ this, "ModuleID", 0, "Module ID of HLT result ROB, default 0 is the main HLT result, others are for TLA, calibration etc." };
+  Gaudi::Property<int> m_initialSerialisationBufferSize{ this, "InitialSerialisationBufferSize", 1024*1024, "Initial serialisation buffer size (1MB), can be set large to avoid reallocations" };
+  
   ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class namex" };
 
   ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", "Service that translates persistent to transient respresenation" };
@@ -49,7 +61,7 @@ private:
    * CLID of the collection stored in the next fragment
    **/
   inline CLID collectionCLID( PayloadIterator start  ) const {
-    return *( start + 1 );
+    return *( start + CLIDOffset );
   }
   /**
    * Len of serialised name payload
@@ -61,13 +73,13 @@ private:
    **/
   std::string collectionName( PayloadIterator start ) const;
   /**
-   * size of the buffer that is needed to decoder next fragment
+   * size of the buffer that is needed to decode next fragment data content
    * @warning measured in bytes
    **/  
   size_t dataSize( PayloadIterator start ) const;
 
   /**
-   * copies fragment to the buffer, no size checkecking, use above to do so
+   * copies fragment to the buffer, no size checking, use above to do so
    **/  
   void toBuffer( PayloadIterator start, char* buffer ) const;
   

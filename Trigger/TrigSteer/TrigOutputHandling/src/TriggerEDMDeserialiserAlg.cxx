@@ -36,7 +36,7 @@ StatusCode TriggerEDMDeserialiserAlg::finalize()
 StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) const
 {
 
-  size_t  buffSize = 1024*1024; // 1MB
+  size_t  buffSize = m_initialSerialisationBufferSize;
   std::unique_ptr<char[]> buff( new char[buffSize] );
 
   // returns a char* buffer that is at minimum as bg as specified in the argument
@@ -67,9 +67,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
 
     
     RootType classDesc = RootType::ByName( transientType+"_v1" ); // TODO remove this dirty hack, needsdiscussion how to find the real type
-    size_t backSize{ bsize };
-    void* obj = m_serializerSvc->deserialize( buff.get(), backSize, classDesc );
-    ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << backSize << " from available " << bsize  );
+    size_t usedBytes{ bsize };
+    void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
+    ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " from available " << bsize  );
     // for the moment I do not know what do with the raw prt
 
     if ( obj ) {
@@ -87,22 +87,22 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
 }
 
 size_t TriggerEDMDeserialiserAlg::nameLength( TriggerEDMDeserialiserAlg::PayloadIterator start ) const {
-  return *( start +2 );
+  return *( start + NameLengthOffset);
 }
 
 std::string TriggerEDMDeserialiserAlg::collectionName( TriggerEDMDeserialiserAlg::PayloadIterator start ) const {
   StringSerializer ss;
   std::vector<std::string> labels;
-  ss.deserialize( start+3, start + 3 + nameLength(start), labels );
+  ss.deserialize( start + NameOffset, start + NameOffset + nameLength(start), labels );
   return labels[0];
 }
 size_t TriggerEDMDeserialiserAlg::dataSize( TriggerEDMDeserialiserAlg::PayloadIterator start ) const {
-  return *( start + 3 + nameLength( start ) );
+  return *( start + NameOffset + nameLength( start ) );
 }
 
 void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIterator start, char* buffer ) const {
   // move to the beginning of the buffer memory
-  PayloadIterator dataStart =  start + 3 + nameLength(start) + 1;
+  PayloadIterator dataStart =  start + NameOffset + nameLength(start) + 1 /*skip size*/;
   // we rely on continous memory layout of std::vector ...
   std::memcpy( buffer, &(*dataStart), dataSize( start ) );
 }
