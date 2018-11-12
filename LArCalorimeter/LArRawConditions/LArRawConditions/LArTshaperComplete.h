@@ -38,8 +38,6 @@ class LArTshaperComplete: public ILArTshaper,
   
   virtual const float& Tshaper(const HWIdentifier&  CellID) const ;
   
-  virtual const float& Tshaper(const Identifier&  CellID) const;
-  
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float vTshaper);
