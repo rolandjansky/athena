@@ -15,11 +15,7 @@
 namespace LVL1 {
 
 OverlayTTL1::OverlayTTL1(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-
-{
-  declareProperty("EnableTileTTL1Overlay", m_enableTileTTL1Overlay=false);
-}
+  : AthAlgorithm(name, pSvcLocator) { }
 
 OverlayTTL1::~OverlayTTL1() {}
 
@@ -29,17 +25,25 @@ StatusCode OverlayTTL1::initialize()
 
   // StoreGate keys
   ATH_CHECK( m_bkgEmTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgEmTTL1Key);
   ATH_CHECK( m_bkgHadTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgHadTTL1Key);
   ATH_CHECK( m_signalEmTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalEmTTL1Key);
   ATH_CHECK( m_signalHadTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalHadTTL1Key);
   ATH_CHECK( m_outputEmTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputEmTTL1Key);
   ATH_CHECK( m_outputHadTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputHadTTL1Key);
 
-  if (m_enableTileTTL1Overlay) {
-    ATH_CHECK( m_bkgTileTTL1Key.initialize() );
-    ATH_CHECK( m_signalTileTTL1Key.initialize() );
-    ATH_CHECK( m_outputTileTTL1Key.initialize() );
-  }
+  // Tile can be disabled
+  ATH_CHECK( m_bkgTileTTL1Key.initialize(!m_bkgTileTTL1Key.key().empty()) );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgTileTTL1Key);
+  ATH_CHECK( m_signalTileTTL1Key.initialize(!m_signalTileTTL1Key.key().empty()) );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalTileTTL1Key);
+  ATH_CHECK( m_outputTileTTL1Key.initialize(!m_outputTileTTL1Key.key().empty()) );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputTileTTL1Key);
 
   return StatusCode::SUCCESS;
 }
@@ -50,7 +54,7 @@ StatusCode OverlayTTL1::execute()
   ATH_CHECK( overlayLArTTL1(m_bkgEmTTL1Key, m_signalEmTTL1Key, m_outputEmTTL1Key, "EM") );
   ATH_CHECK( overlayLArTTL1(m_bkgHadTTL1Key, m_signalHadTTL1Key, m_outputHadTTL1Key, "Hadronic") );
 
-  if (m_enableTileTTL1Overlay) {
+  if (!m_outputTileTTL1Key.key().empty()) {
     ATH_CHECK( overlayTileTTL1(m_bkgTileTTL1Key, m_signalTileTTL1Key, m_outputTileTTL1Key) );
   }
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAOUTPUTSTREAM_H
@@ -140,9 +140,9 @@ public:
 
    /// \name implement IAlgorithm
    //@{
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual StatusCode execute() override;
    //@}
    /// Stream the data
    virtual StatusCode write();
@@ -157,10 +157,10 @@ public:
       return &m_objects;
    }
    /// Incident service handle listening for LastInputFile
-   void handle(const Incident& incident);
+   virtual void handle(const Incident& incident) override;
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
-   virtual StatusCode io_reinit();
-   virtual StatusCode io_finalize();
+   virtual StatusCode io_reinit() override;
+   virtual StatusCode io_finalize() override;
 
 private:
    /// Add item data objects to output streamer list

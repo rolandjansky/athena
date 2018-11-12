@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_VARHANDLEKEYARRAY_H
@@ -38,6 +38,10 @@ namespace SG {
     virtual void renounce() = 0;
     virtual bool renounced() const = 0;
     virtual void declare(IDataHandleHolder*)  = 0;
+
+    virtual void setOwner( IDataHandleHolder* o ) = 0;
+    virtual const IDataHandleHolder* owner() const = 0;
+    virtual IDataHandleHolder* owner() = 0;
 
   };
 
@@ -127,11 +131,14 @@ namespace SG {
 
     virtual void declare( IDataHandleHolder* ) override;
 
+    virtual void setOwner( IDataHandleHolder* o ) override { m_owner = o; }
+    virtual const IDataHandleHolder* owner() const override { return m_owner; }
+    virtual IDataHandleHolder* owner() override { return m_owner; }
+
   private:
     
-
-
     bool m_isRenounced{ false };
+    IDataHandleHolder* m_owner{ nullptr };
 
   };
   

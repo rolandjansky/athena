@@ -14,7 +14,6 @@
 #include "../LArFEBConfigReader.h"
 #include "../LArFlatConditionSvc.h"
 #include "../LArFCalTowerBuilderToolTestAlg.h"
-#include "../LArHVScaleRetriever.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
@@ -48,7 +47,6 @@ DECLARE_COMPONENT( LArFCalTowerBuilderTool )
 DECLARE_COMPONENT( LArFEBConfigReader )
 DECLARE_COMPONENT( LArFlatConditionSvc )
 DECLARE_COMPONENT( LArFCalTowerBuilderToolTestAlg )
-DECLARE_COMPONENT( LArHVScaleRetriever )
 DECLARE_COMPONENT( LArCondAlgAutoCorrSC )
 DECLARE_COMPONENT( LArCondAlgDAC2uAFlat )
 DECLARE_COMPONENT( LArCondAlgDAC2uASC )

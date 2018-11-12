@@ -16,7 +16,7 @@ def LArAutoCorrNoiseToolDefault (name="LArAutoCorrNoiseToolDefault", **kw):
 
     mlog = logging.getLogger( 'LArAutoCorrNoiseToolDefault::__init__ ' )
     mlog.info("entering")
-
+    mlog.warning("The LArAutoCorrNoiseToolDefault is depricated. Please use LArAutoCorrNoiseCondAlg")
     # do the configuration
     if globalflags.DataSource()=='data':
         tool.MCSym = False

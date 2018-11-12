@@ -1286,7 +1286,10 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
     increment_by_eta(m_NbremFits,track);
 
     ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
-    newTrack = fit(prds, *par, true, Trk::electron);
+    // TODO revert once GlobalChi2Fitter properly handles brem fits when 
+    //      starting from prds
+    // newTrack = fit(prds, *par, true, Trk::electron);
+    newTrack = fit(*track, true, Trk::electron);
 
   }
   else
@@ -1304,7 +1307,11 @@ const Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const
       increment_by_eta(m_NrecoveryBremFits,track);
 
       ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
-      newTrack = fit(prds, *par, true, Trk::electron);
+      // TODO revert once GlobalChi2Fitter properly handles brem fits when 
+      //      starting from prds
+      // newTrack = fit(prds, *par, true, Trk::electron);
+      newTrack = fit(*track, true, Trk::electron);
+
     }
   }
   

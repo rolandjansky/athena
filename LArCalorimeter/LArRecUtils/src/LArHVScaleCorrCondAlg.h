@@ -121,7 +121,7 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   HASHRANGEVEC m_hashRanges[2];//x2 for the side
   HASHRANGEVEC m_completeRange;
   HASHRANGEVEC cellsIDsToPartition(const std::set<Identifier>& cellsIDvec) const;
-  StatusCode getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData* hvdata, const LArHVScaleCorrFlat *onlHVCorr) const;
+  StatusCode getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData* hvdata, const ILArHVScaleCorr *onlHVCorr) const;
 };
 
 #endif

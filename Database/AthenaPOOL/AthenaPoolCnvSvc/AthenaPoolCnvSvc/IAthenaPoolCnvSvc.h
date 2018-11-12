@@ -51,7 +51,7 @@ public:
 		   const std::string& key = "") const = 0;
 
    /// Access to the technology type for the current output connection
-   virtual pool::DbType technologyType() const = 0;
+   virtual pool::DbType technologyType(const std::string& containerName) const = 0;
 
    /// @return pointer to PoolSvc instance.
    virtual IPoolSvc* getPoolSvc() = 0;

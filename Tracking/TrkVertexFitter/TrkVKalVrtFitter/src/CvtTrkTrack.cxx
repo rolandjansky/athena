@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrkTrack parameters to internal VKalVrt parameters
@@ -73,6 +73,7 @@ namespace Trk{
        tmpMat.TrkPnt=mPer;
        tmpMat.prtMass = 139.5702;
        if(counter<(int)m_MassInputParticles.size())tmpMat.prtMass = m_MassInputParticles[counter];
+       tmpMat.trkSavedLocalVertex.setZero();
        tmpMat.TrkID=counter; m_trkControl.push_back(tmpMat);
        counter++;
     }

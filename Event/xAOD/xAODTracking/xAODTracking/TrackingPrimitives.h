@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPrimitives.h 576255 2013-12-19 12:54:41Z emoyse $
@@ -9,7 +9,9 @@
 #define XAODTRACKING_XAODPRIMITIVES_H
 
 // EDM include(s):
-#include "EventPrimitives/EventPrimitives.h" 
+#include "EventPrimitives/EventPrimitives.h"
+#include "AthContainers/tools/AuxDataTraits.h"
+#include "CxxUtils/checker_macros.h"
 
 #ifndef AmgMatrixDef
 #define AmgMatrixDef
@@ -418,5 +420,28 @@ namespace xAOD {
     };
   } // namespace VxType
 } //  namespace xAOD 
+
+
+namespace SG {
+
+
+// The default Matrix constructor does not initialize the matrix contents.
+// Specialize this for Matrix, so that when fill() gets used inside DataVector,
+// we'll fill with a fully initialized instance.
+template <typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAXROWS, int MAXCOLS>
+struct Zero<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAXROWS, MAXCOLS> >
+{
+  typedef Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAXROWS, MAXCOLS> Matrix;
+  static Matrix zero ATLAS_CHECK_THREAD_SAFETY ()
+  {
+    Matrix m;
+    m.setZero();
+    return m;
+  }
+};
+
+
+} // namespace SG
+
 
 #endif // XAODTRACKING_XAODPRIMITIVES_H

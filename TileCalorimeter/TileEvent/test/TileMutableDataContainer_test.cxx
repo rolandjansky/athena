@@ -68,7 +68,7 @@ class TestCollection
   : public TileRawDataCollection<TestElement>
 {
 public:
-  typedef TestElement _TElement;
+  typedef TestElement TElement;
   using TileRawDataCollection<TestElement>::TileRawDataCollection;
 };
 

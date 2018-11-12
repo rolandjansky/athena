@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocs.h 
@@ -113,6 +113,9 @@ class INav4MomAssocs : public AssociationMap< INavigable4MomentumCollection,
    *   to copy them.
    */
   void addAssocStore( const DataLink<INav4MomAssocs>& assocStore );
+
+  /// Return links to all other association stores.
+  std::vector<DataLink<INav4MomAssocs> > getAssocStores() const;
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

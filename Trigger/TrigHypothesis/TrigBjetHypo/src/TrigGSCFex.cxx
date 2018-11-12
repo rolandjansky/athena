@@ -49,7 +49,11 @@ TrigGSCFex::TrigGSCFex(const std::string& name, ISvcLocator* pSvcLocator) :
 
   // Run-2 monitoring
   
-  //declareMonitoredVariable("sv_mass", m_mon_sv_mass, AutoClear);
+  declareMonitoredVariable("gsc_ntrk",    m_mon_gsc_ntrk,    AutoClear);
+  declareMonitoredVariable("gsc_width",   m_mon_gsc_width,   AutoClear);
+  declareMonitoredVariable("gsc_ptsum",   m_mon_gsc_ptsum,   AutoClear);
+  declareMonitoredVariable("gsc_ptdiff",  m_mon_gsc_ptdiff,  AutoClear);
+  declareMonitoredVariable("gsc_ptratio", m_mon_gsc_ptratio, AutoClear);
 
 
 }
@@ -77,21 +81,15 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
 
   if(m_setupOfflineTools) {
 
-    if(! m_jetGSCCalib_tool.empty()){
+    if(m_jetGSCCalib_tool.empty()){
       if(m_jetGSCCalib_tool.retrieve().isFailure()) {
 	msg() << MSG::FATAL << "Failed to locate tool " << m_jetGSCCalib_tool << endmsg;
 	return HLT::BAD_JOB_SETUP;
+      } else 
+	msg() << MSG::INFO << "Retrieved tool " << m_jetGSCCalib_tool << endmsg;	
+    } else if(msgLvl() <= MSG::DEBUG)
+      ATH_MSG_DEBUG( "No GSCCalibrationTool tool to retrieve" );
 
-      } else {
-	msg() << MSG::INFO << "Retrieved tool " << m_jetGSCCalib_tool << endmsg;
-      }
-    } else {
-      if(msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "No GSCCalibrationTool tool to retrieve" << endmsg;
-      }
-    }
-  } else {
-    m_jetGSCCalib_tool.disable();
   }
 
   return HLT::OK;
@@ -153,7 +151,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   //	    << " phi: " << jet.p4().Phi()
   //	    << " m: "   << jet.p4().M()
   //	    << std::endl;
-  //
+
   //std::cout << "primaryVertex z" << primaryVertex->z() << std::endl;
 
   // Compute and store GSC moments from precision tracks
@@ -211,34 +209,56 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 
   // EXECUTE OFFLINE TOOLS
 
+
   // calJet is a pointer to the new, calibrated jet
   xAOD::Jet* calJet = nullptr;
   m_jetGSCCalib_tool->calibratedCopy(jet,calJet);
-  // Now we have a new fully calibrated jet!
 
-//std::cout << "TrigGSCFex: New jet"
+//  std::cout << "TrigGSCFex: New jet"
 //	    << " pt: "  << calJet->p4().Pt()
 //	    << " eta: " << calJet->p4().Eta()
 //	    << " phi: " << calJet->p4().Phi()
 //	    << " m: "   << calJet->p4().M()
 //	    << std::endl;
-
-
+  
   xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
   xAOD::JetContainer* jc = new xAOD::JetContainer;
   jc->setStore(&trigJetTrigAuxContainer);
-  jc->push_back ( calJet );
+  jc->push_back ( new xAOD::Jet(*calJet) );
+  delete calJet;
 
+//  std::cout << "TrigGSCFex: New jet back"
+//	    << " pt: "  << jc->back()->p4().Pt()
+//	    << " eta: " << jc->back()->p4().Eta()
+//	    << " phi: " << jc->back()->p4().Phi()
+//	    << " m: "   << jc->back()->p4().M()
+//	    << std::endl;
+//
+
+  // do not allow GSC track to give large negative energy corrections
+  // to jets with only a few tracks
+  if(jc->back()->p4().Et() < jet.p4().Et()*0.95 && nTrk<= 3){
+    float newET = jet.p4().Et()*0.95;
+    xAOD::JetFourMom_t p4 = jet.jetP4();
+    p4.SetPt(sqrt(newET*newET - (jet.m())*(jet.m())));
+    jc->back()->setJetP4( p4 );
+  }
+  
   HLT::ErrorCode hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
   if (hltStatus != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << calJet->eta() << ", " << calJet->phi() << endmsg;
+    msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jc->back()->eta() << ", " << jc->back()->phi() << endmsg;
     return hltStatus;
   }
 
 
   // Fill monitoring variables
-  //trigBTagging->variable<float>("SV1", "masssvx",  m_mon_sv_mass);
-
+  m_mon_gsc_ntrk  = nTrk;
+  m_mon_gsc_width = width;
+  m_mon_gsc_ptsum = ptsum; 
+  m_mon_gsc_ptdiff = jet.p4().Pt() - jc->back()->p4().Pt(); 
+  if( jc->back()->p4().Pt() != 0 ) m_mon_gsc_ptratio = ( m_mon_gsc_ptdiff )/( jc->back()->p4().Pt() ) ; 
+  else m_mon_gsc_ptratio = -999.;
+  
   return HLT::OK;
 }
 

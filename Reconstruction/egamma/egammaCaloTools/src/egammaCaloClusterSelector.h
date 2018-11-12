@@ -17,8 +17,6 @@
 // STL includes
 #include <string>
 
-using CLHEP::GeV;
-
 /**
  * @class egammaCaloClusterSelector
  * @brief A tool which specifies whether a cluster passes a selection

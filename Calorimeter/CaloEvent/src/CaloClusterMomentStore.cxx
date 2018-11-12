@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -68,3 +68,8 @@ bool CaloClusterMomentStore::retrieveMomentTypes(moment_type_list&
     } 
   return oldSize < rMomList.size();
 }
+
+
+#ifdef __clang__
+CaloClusterMomentStore::CaloClusterMomentIterator::~CaloClusterMomentIterator() {}
+#endif

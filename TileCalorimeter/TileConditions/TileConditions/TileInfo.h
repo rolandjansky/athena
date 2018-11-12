@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEINFO_H
@@ -397,7 +397,11 @@ class TileInfo : public DataObject {
   /** NGO Need description. Do we need this function? */
   double ttl1Phase(const int /* posneg */, const int /* ieta */, const int /* iphi */) const {return 0.;}
 
-
+  /**
+   * @brief Conversion from ADC sigma noise to OF sigma noise
+   * @return Conversion factor from ADC sigma noise to OF sigma noise
+   */
+  float getNoiseScaleFactor(void) const;
 
  private:
 
@@ -524,5 +528,12 @@ class TileInfo : public DataObject {
   std::vector <std::vector <std::vector <TMatrixD *> > > m_decoCovaria;
 
 };
+
+
+// inlines
+inline
+float TileInfo::getNoiseScaleFactor(void) const {
+  return m_noiseScaleFactor[m_noiseScaleIndex];
+}
 
 #endif  //TILECONDITIONS_TILEINFO_H

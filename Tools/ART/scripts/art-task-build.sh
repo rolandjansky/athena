@@ -1,13 +1,21 @@
 #!/bin/bash
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-# arguments: RELEASE_BASE, PROJECT, PLATFORM
+# arguments: [--run-all-tests] RELEASE_BASE, PROJECT, PLATFORM
+# NOTE: options have to be in order
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
 echo "INFO: Script executed by $(whoami) on $(date)"
 
+RUN_ALL_TESTS=""
+if [ "$1" == "--run-all-tests" ]; then
+    RUN_ALL_TESTS="--run-all-tests"
+    shift
+    echo "RUN_ALL_TESTS=${RUN_ALL_TESTS}"
+fi
+
 RELEASE_BASE=$1
-PROJECT=$2
-PLATFORM=$3
+ART_PROJECT=$2
+ART_PLATFORM=$3
 
 BRANCH="$(echo "${RELEASE_BASE}" | tr '/' ' ' | awk '{print $5}')"
 echo BRANCH "${BRANCH}"
@@ -21,7 +29,7 @@ else
 fi
 
 export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"
-# shellcheck source=/dev/null 
+## shellcheck source=/dev/null
 source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 if [ "${BRANCH}" == "master" ]; then
    lsetup -a testing asetup
@@ -30,7 +38,7 @@ else
    lsetup -a current asetup
    echo "INFO: setting up for ${BRANCH}"
 fi
-asetup "${PROJECT}" --platform "${PLATFORM}" --releasebase "${RELEASE_BASE}"/build/install --noLcgReleaseBase
+asetup "${ART_PROJECT}" --platform "${ART_PLATFORM}" --releasebase "${RELEASE_BASE}"/build/install --noLcgReleaseBase
 
 
 # setup AtlasBuildBranch since that is not set bu the above asetup for the local build setup
@@ -62,7 +70,7 @@ fi
 # run build tests
 SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${PLATFORM}/${AtlasBuildStamp}
 OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${PLATFORM}/src ${OUTDIR}"
+CMD="art.py run ${RUN_ALL_TESTS} ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${ART_PLATFORM}/src ${OUTDIR}"
 echo "${CMD}"
 RESULT=$(eval "${CMD}")
 echo "${RESULT}"

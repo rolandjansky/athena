@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // P4PtEtaPhiMCnv_p1.cxx 
@@ -16,11 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // NavFourMom includes
-#define private public
-#define protected public
 #include "FourMom/P4PtEtaPhiM.h"
-#undef protected
-#undef private
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
@@ -44,10 +40,10 @@ P4PtEtaPhiMCnv_p1::persToTrans( const P4PtEtaPhiM_p1* persObj,
 				P4PtEtaPhiM* transObj, 
 				MsgStream &/*log*/ )
 {
-  transObj->m_pt  = persObj->m_pt;
-  transObj->m_eta = persObj->m_eta;
-  transObj->m_phi = persObj->m_phi;
-  transObj->m_m   = persObj->m_mass;
+  transObj->setPt  (persObj->m_pt);
+  transObj->setEta (persObj->m_eta);
+  transObj->setPhi (persObj->m_phi);
+  transObj->setM   (persObj->m_mass);
   return;
 }
 
@@ -56,10 +52,10 @@ P4PtEtaPhiMCnv_p1::transToPers( const P4PtEtaPhiM* transObj,
 				P4PtEtaPhiM_p1* persObj, 
 				MsgStream &/*log*/ )
 {
-  persObj->m_pt   = transObj->m_pt;
-  persObj->m_eta  = transObj->m_eta;
-  persObj->m_phi  = transObj->m_phi;
-  persObj->m_mass = transObj->m_m;
+  persObj->m_pt   = transObj->pt();
+  persObj->m_eta  = transObj->eta();
+  persObj->m_phi  = transObj->phi();
+  persObj->m_mass = transObj->m();
   return;
 }
 
