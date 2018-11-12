@@ -107,7 +107,7 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
         unpack.Decisions="L1MU"
  
     if unpack.name() is "JRoIsUnpackingTool":
-        unpack.FSDecisions="L1J"
+        unpack.Decisions="L1J"
  
  
 for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
