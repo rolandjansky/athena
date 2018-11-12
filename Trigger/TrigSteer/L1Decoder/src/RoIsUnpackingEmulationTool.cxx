@@ -62,7 +62,10 @@ StatusCode RoIsUnpackingEmulationTool::decodeThresholdToChainMapping() {
     ATH_MSG_WARNING( "No chains configured in ThresholdToChainMapping: " << m_thresholdToChainProperty );
   }
   for ( auto el: m_thresholdToChainMapping ) {
-    ATH_MSG_DEBUG( "Threshold " << el.first << " mapped to chains " << el.second );
+    ATH_MSG_DEBUG( "Threshold " << el.first << " mapped to chains ");
+    for (auto id: el.second){
+      ATH_MSG_DEBUG(" "<<id.name());
+    }
   }
 
 

@@ -110,10 +110,10 @@ atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-atlas_add_test( generateMenuMT SCRIPT scripts/testMenuMT.sh 
-                PROPERTIES TIMEOUT 500 
-                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf generateMenuMT.log"
-              )
+#atlas_add_test( generateMenuMT SCRIPT scripts/testMenuMT.sh 
+#                PROPERTIES TIMEOUT 500 
+#                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf generateMenuMT.log"
+#              )
 
 
 
