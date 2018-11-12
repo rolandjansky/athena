@@ -40,7 +40,8 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   virtual StatusCode finalize();
 
   //! New convert method which makes use of the encoder class (as done for other detectors)
-  StatusCode convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* rawEvtWrite, MsgStream& log) const;
+  StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
+                     RawEventWrite* rawEvtWrite, MsgStream& log) const;
   
  private: 
   

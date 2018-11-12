@@ -26,7 +26,7 @@ class ISCTRawContByteStreamTool: virtual public IAlgTool {
   DeclareInterfaceID(ISCTRawContByteStreamTool, 1, 0);
 
   /** convert() method */
-  virtual StatusCode convert(SCT_RDO_Container* sctRDOCont, 
+  virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
                              RawEventWrite* rawEvtWritecont, MsgStream& log) const = 0;
   
 };

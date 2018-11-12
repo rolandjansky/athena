@@ -58,7 +58,8 @@ SCTRawContByteStreamTool::finalize() {
 /// ROD in turn.
 
 StatusCode
-SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* rawEvtWrite, MsgStream& log) const {
+SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont, 
+                                  RawEventWrite* rawEvtWrite, MsgStream& log) const {
   std::lock_guard<std::mutex> lock(m_mutex);
 
   m_fullEventAssembler.clear();
