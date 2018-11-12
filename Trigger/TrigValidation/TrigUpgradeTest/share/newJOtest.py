@@ -106,7 +106,7 @@ acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
 
 
 # setup algorithm sequences here, need few additional components
-from TrigUpgradeTest.RegSelConfig import RegSelConfig
+from RegionSelector.RegSelConfig import RegSelConfig
 acc.merge( RegSelConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
