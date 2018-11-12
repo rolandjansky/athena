@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_XAODTRACKINGDICT_H
@@ -14,41 +14,46 @@
 
 // System include(s):
 #include <bitset>
- 
+
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
- 
+
 // Local include(s):
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v3.h"
-#include "xAODTracking/NeutralParticleContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/versions/NeutralParticleContainer_v1.h"
 #include "xAODTracking/versions/NeutralParticleAuxContainer_v1.h"
+#include "xAODTracking/NeutralParticleContainer.h"
+#include "xAODTracking/NeutralParticleAuxContainer.h"
 #include "xAODTracking/versions/Vertex_v1.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/versions/VertexContainer_v1.h"
 #include "xAODTracking/versions/VertexContainer_v1.h"
 #include "xAODTracking/versions/VertexAuxContainer_v1.h"
-#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/versions/TrackMeasurementValidationContainer_v1.h"
 #include "xAODTracking/versions/TrackMeasurementValidationAuxContainer_v1.h"
-#include "xAODTracking/TrackStateValidationContainer.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 #include "xAODTracking/versions/TrackStateValidationContainer_v1.h"
 #include "xAODTracking/versions/TrackStateValidationAuxContainer_v1.h"
+#include "xAODTracking/TrackStateValidationContainer.h"
+#include "xAODTracking/TrackStateValidationAuxContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
-#include "xAODTracking/SCTRawHitValidation.h"
-#include "xAODTracking/SCTRawHitValidationContainer.h"
-#include "xAODTracking/SCTRawHitValidationAuxContainer.h"
 #include "xAODTracking/versions/SCTRawHitValidation_v1.h"
 #include "xAODTracking/versions/SCTRawHitValidationContainer_v1.h"
 #include "xAODTracking/versions/SCTRawHitValidationAuxContainer_v1.h"
+#include "xAODTracking/SCTRawHitValidation.h"
+#include "xAODTracking/SCTRawHitValidationContainer.h"
+#include "xAODTracking/SCTRawHitValidationAuxContainer.h"
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKING {
@@ -69,7 +74,7 @@ namespace {
      std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > >                nl5;
      std::vector< ElementLinkVector< xAOD::NeutralParticleContainer_v1 > >          nl6;
      std::vector< std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > > > nl7;
-     
+
 #ifndef XAOD_ANALYSIS
      std::bitset< 11 >                                                            dummy1;
      TrackCollection                                                              c2;

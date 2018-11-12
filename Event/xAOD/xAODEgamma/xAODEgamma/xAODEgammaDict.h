@@ -21,16 +21,19 @@
 
 // Local include(s):
 #include "xAODEgamma/EgammaContainer.h"
+#include "xAODEgamma/EgammaAuxContainer.h"
 #include "xAODEgamma/versions/EgammaContainer_v1.h"
 #include "xAODEgamma/versions/EgammaAuxContainer_v1.h"
 
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/versions/ElectronContainer_v1.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v1.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v2.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v3.h"
 
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODEgamma/versions/PhotonContainer_v1.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v1.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v2.h"
@@ -78,7 +81,7 @@ struct GCCXML_DUMMY_INSTANTIATION_XAODEGAMMA {
   std::vector< ElementLink< xAOD::CaloClusterContainer > > auxlink4;
   ElementLink< xAOD::VertexContainer > auxlink5;
   std::vector< ElementLink< xAOD::VertexContainer > > auxlink6;
-     
+
   std::set<const xAOD::TrackParticle*> setTP;
 
 };

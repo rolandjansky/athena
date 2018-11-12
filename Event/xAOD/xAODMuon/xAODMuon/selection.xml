@@ -1,14 +1,23 @@
 <?xml version="1.0"?>
 <lcgdict>
 
+  <!-- Versionless typedefs: -->
   <typedef name="xAOD::Muon" />
   <typedef name="xAOD::MuonContainer" />
+  <typedef name="xAOD::MuonAuxContainer" />
 
+  <typedef name="xAOD::MuonSegment" />
+  <typedef name="xAOD::MuonSegmentContainer" />
+  <typedef name="xAOD::MuonSegmentAuxContainer" />
+
+  <typedef name="xAOD::SlowMuon" />
+  <typedef name="xAOD::SlowMuonContainer" />
+  <typedef name="xAOD::SlowMuonAuxContainer" />
 
   <!-- MuonAux _v2 dictionaries: -->
   <class name="xAOD::MuonAuxContainer_v2"
          id="AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1"/>
-  
+
   <!-- MuonAux _v3 dictionaries: -->
   <class name="xAOD::MuonAuxContainer_v3"
                 id="ECC65005-302B-4662-ACBA-D2CE5A0218B8"/>
@@ -31,7 +40,7 @@
       m_p4Cached1 = false;
     ]]>
   </read>
-  
+
   <class name="xAOD::MuonAuxContainer_v1"
          id="EC9B677A-B3BA-4C75-87D3-373FC478291E"/>
 
