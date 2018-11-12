@@ -16,8 +16,7 @@
 
 #include <cstdint>
 
-/// ------------------------------------------------------------------------
-/// contructor 
+// Contructor 
 
 SCTRawContByteStreamTool::SCTRawContByteStreamTool
 (const std::string& type, const std::string& name,const IInterface* parent):
@@ -29,33 +28,26 @@ SCTRawContByteStreamTool::SCTRawContByteStreamTool
   return;
 }
 
-/// ------------------------------------------------------------------------
-/// initialize the tool
+// Initialize
 
 StatusCode
 SCTRawContByteStreamTool::initialize() {
-  /** Retrieve id mapping  */
+  // Retrieve ID mapping
   ATH_CHECK(m_cabling.retrieve());
   ATH_MSG_INFO("Retrieved service " << m_cabling);
 
-  /** Get the SCT Helper */
+  // Get the SCT Helper
   ATH_CHECK(detStore()->retrieve(m_sctIDHelper, "SCT_ID"));
 
   return StatusCode::SUCCESS;
 }
 
-/// ------------------------------------------------------------------------
-/// finalize the tool
+// Finalize
 
 StatusCode
 SCTRawContByteStreamTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-/// ------------------------------------------------------------------------
-/// convert() method which maps rodid's to vectors of RDOs in those RODs,
-/// then loops through the map, using the RodEncoder to fill data for each
-/// ROD in turn.
 
 StatusCode
 SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont, 
@@ -65,54 +57,53 @@ SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont,
   m_fullEventAssembler.clear();
   FullEventAssembler<SrcIdMap>::RODDATA* rod;
   
-  /** set ROD Minor version */
+  // Set ROD Minor version
   m_fullEventAssembler.setRodMinorVersion(m_rodBlockVersion);
   ATH_MSG_DEBUG(" Setting Minor Version Number to " << m_rodBlockVersion);
   
-  /** mapping between ROD IDs and the hits in that ROD */
+  // Mapping between ROD IDs and the hits in that ROD
   std::map<uint32_t, std::vector<const SCT_RDORawData*> > rdoMap;
 
-  /** The following few lines are to make sure there is an entry in the rdoMap for 
-   *  every ROD, even if there are no hits in it for a particular event 
-   *  (as there might be ByteStream errors e.g. TimeOut errors). */
-
+  // The following few lines are to make sure there is an entry in the rdoMap for 
+  // every ROD, even if there are no hits in it for a particular event 
+  // (as there might be ByteStream errors e.g. TimeOut errors).
   std::vector<std::uint32_t> listOfAllRODs;
   m_cabling->getAllRods(listOfAllRODs);
   for (std::uint32_t rod : listOfAllRODs) {
     rdoMap[rod].clear();
   }
 
-  /**loop over the collections in the SCT RDO container */
+  // Loop over the collections in the SCT RDO container
   for (const InDetRawDataCollection<SCT_RDORawData>* sctRawColl : *sctRDOCont) {
     if (sctRawColl == nullptr) {
       ATH_MSG_WARNING("Null pointer to SCT RDO collection.");
       continue;
     } 
     else {
-      /** Collection Id */
+      // Collection ID
       Identifier idColl{sctRawColl->identify()};
       IdentifierHash idCollHash{m_sctIDHelper->wafer_hash(idColl)};
       uint32_t robid{m_cabling->getRobIdFromHash(idCollHash)};
       
       if (robid == 0) continue;
       
-      /** Building the rod ID */
+      // Building the ROD ID
       eformat::helper::SourceIdentifier srcIDROB{robid};
       eformat::helper::SourceIdentifier srcIDROD{srcIDROB.subdetector_id(), srcIDROB.module_id()};
       uint32_t rodid{srcIDROD.code()};
       
-      /** loop over RDOs in the collection;  */
+      // Loop over RDOs in the collection
       for (const SCT_RDORawData* rdo : *sctRawColl) {
-        /** fill ROD/ RDO map */
+        // Fill the ROD/RDO map
         rdoMap[rodid].push_back(rdo);
       }
     }
-  }  /** End loop over collections */
+  }  // End loop over collections
 
-  /** now encode data for each ROD in turn */
+  // Now encode data for each ROD in turn
   for (auto rodToRDOs : rdoMap) {
-    rod = m_fullEventAssembler.getRodData(rodToRDOs.first); /** get ROD data address */
-    m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
+    rod = m_fullEventAssembler.getRodData(rodToRDOs.first); // Get ROD data address
+    m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); // Encode ROD data
   }
   m_fullEventAssembler.fill(rawEvtWrite, log);
   
