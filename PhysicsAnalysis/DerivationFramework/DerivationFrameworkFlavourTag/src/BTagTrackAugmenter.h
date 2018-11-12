@@ -47,16 +47,9 @@ public:
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
 private:
-  std::string m_jet_collection;
-  std::string m_track_associator;
   bool m_save_track_vectors;
   ToolHandle< Trk::ITrackToVertexIPEstimator > m_track_to_vx;
   ToolHandle< Trk::IExtrapolator >  m_extrapolator;
-
-  // to get ghost tracks
-  typedef ElementLink<DataVector<xAOD::IParticle> > ParticleLink;
-  typedef std::vector<ParticleLink> PartLinks;
-  SG::AuxElement::ConstAccessor<PartLinks> m_ghost_accessor;
 
   // decorators for tracks
   SG::AuxElement::Decorator< float > m_dec_z0_raw;
