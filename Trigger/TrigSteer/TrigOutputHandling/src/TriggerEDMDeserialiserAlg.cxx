@@ -7,6 +7,7 @@
 #include "SGTools/DataProxy.h"
 #include "TrigSerializeResult/StringSerializer.h"
 #include "TriggerEDMDeserialiserAlg.h"
+#include "BareDataBucket.h"
 
 
 
@@ -75,11 +76,14 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
     // for the moment I do not know what do with the raw prt
 
     if ( obj ) {
-      // TODO, here will be recording of that object, for now just destroy it
-      classDesc.Destruct( obj );
-
+      BareDataBucket* dataBucket = new BareDataBucket( obj, usedBytes, clid, classDesc);
+      const std::string outputName = m_prefix + name;
+      auto proxyPtr = evtStore()->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( dataBucket ), outputName, false, false );
+      if ( proxyPtr == nullptr )  {
+	ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << name << " failed" );
+      }
     } else {
-      ATH_MSG_WARNING( "Deserialisation of obejcts of CLID " << clid << " and name " << name << " failed" );
+      ATH_MSG_WARNING( "Deserialisation of object of CLID " << clid << " and name " << name << " failed" );
     }
     
     start = toNextFragment( start );
