@@ -109,7 +109,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* sctRDOCont, RawEventWrite* 
   }  /** End loop over collections */
 
   /** now encode data for each ROD in turn */
-  for (std::pair<uint32_t, std::vector<const SCT_RDORawData*>> rodToRDOs : rdoMap) {
+  for (auto rodToRDOs : rdoMap) {
     rod = m_fullEventAssembler.getRodData(rodToRDOs.first); /** get ROD data address */
     m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
   }
