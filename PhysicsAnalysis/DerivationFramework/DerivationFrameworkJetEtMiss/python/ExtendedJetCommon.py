@@ -14,7 +14,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODCol
 from DerivationFrameworkFlavourTag.HbbCommon import (
     buildVRJets, linkVRJetsToLargeRJets)
 from JetRec.JetRecFlags import jetFlags
-from JetJvtEfficiency.JetJvtEfficiencyToolConfig import *
+from JetJvtEfficiency.JetJvtEfficiencyToolConfig import (getJvtEffTool, getJvtEffToolName)
 
 from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
