@@ -76,6 +76,10 @@ StatusCode EFMissingETFromHelper::execute()
   return StatusCode::SUCCESS;
 }
 
+StatusCode EFMissingETFromHelper::executeMT(xAOD::TrigMissingET *met, TrigEFMissingEtHelper *metHelper)
+{
+    return execute(met, metHelper, nullptr, nullptr, nullptr, nullptr);
+}
 
 StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     TrigEFMissingEtHelper *metHelper ,
