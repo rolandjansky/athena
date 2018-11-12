@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -346,17 +346,17 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     } //set default values for jets that SV is not found
 
   /// @brief JetFitter : Delta eta between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
-  float m_mon_jf_deta; 
+  float mon_jf_deta;
   /// @brief JetFitter : Delta phi between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
-  float m_mon_jf_dphi;
+  float mon_jf_dphi;
   float jf_check;
   
   //Check JetFitter algorithm
-  m_mon_jf_deta = -10.;
-  m_mon_jf_dphi = -10.;
-  trigBTagging->variable<float>  ("JetFitter", "deltaeta",  m_mon_jf_deta);
-  trigBTagging->variable<float>  ("JetFitter", "deltaphi",  m_mon_jf_dphi); 
-  jf_check = std::hypot( m_mon_jf_deta,m_mon_jf_dphi);
+  mon_jf_deta = -10.;
+  mon_jf_dphi = -10.;
+  trigBTagging->variable<float>  ("JetFitter", "deltaeta",  mon_jf_deta);
+  trigBTagging->variable<float>  ("JetFitter", "deltaphi",  mon_jf_dphi);
+  jf_check = std::hypot( mon_jf_deta,mon_jf_dphi);
   if( jf_check > 14 ){ jf_check = -1. ; }
 
 
@@ -374,7 +374,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       if(m_mon_jf_mass > 9000) m_mon_jf_mass = 9000;
       trigBTagging->variable<float>  ("JetFitter", "energyFraction",  m_mon_jf_efrc);
    
-      m_mon_jf_dR = std::hypot( m_mon_jf_deta,m_mon_jf_dphi);
+      m_mon_jf_dR = std::hypot( mon_jf_deta,mon_jf_dphi);
       if( m_mon_jf_dR > 14 ){ m_mon_jf_dR = -1. ; }
       trigBTagging->variable<float>  ("JetFitter", "significance3d",  m_mon_jf_sig3); 
     }
