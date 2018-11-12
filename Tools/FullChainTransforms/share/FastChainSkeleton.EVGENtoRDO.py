@@ -14,7 +14,10 @@ digilog = fast_chain_log
 #digilog = logging.getLogger('Digi_trf')
 #logConfigDigitization = logging.getLogger( 'ConfigDigitization' )
 
+fast_chain_log.info( '****************** STARTING EVNTtoRDO *****************' )
 
+fast_chain_log.info( '**** Transformation run arguments' )
+fast_chain_log.info( str(runArgs) )
 
 from G4AtlasApps.SimFlags import simFlags
 
@@ -28,6 +31,9 @@ from G4AtlasApps.SimFlags import simFlags
 
 #####################CommonSkeletonJobOptions.py##########################
 
+from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
+pmon_properties.PerfMonFlags.doMonitoring=True
+pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
 
 
@@ -40,6 +46,7 @@ from G4AtlasApps.SimFlags import simFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from Digitization.DigitizationFlags import digitizationFlags
 #from AthenaCommon.BFieldFlags import jobproperties ##Not sure if this is appropriate for G4 sim
 
 ## Max/skip events
@@ -210,11 +217,15 @@ if hasattr(runArgs, "inputEVNT_TRFile"):
     if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
         include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
+# get top sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
 # Avoid command line preInclude for cavern background
 if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     # If it was already there, then we have a stopped particle file
     if hasattr(runArgs, "inputEVNT_TRFile") and\
-        not hasattr(topSeq,'TrackRecordGenerator'):
+        not hasattr(topSequence,'TrackRecordGenerator'):
         include('SimulationJobOptions/preInclude.G4ReadCavern.py')
     # If there's a stopped particle file, don't do all the cavern stuff
     if hasattr(runArgs, "outputEVNT_TRFile") and\
@@ -390,6 +401,7 @@ if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
         fast_chain_log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
+        digitizationFlags.dataRunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
         fast_chain_log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
@@ -398,16 +410,12 @@ elif hasattr(runArgs,'jobNumber'):
 
 ## removed code block for handling cosmics track record
 
-# get top sequence
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
-
 ## Set Overall per-Algorithm time-limit on the AlgSequence
-topSeq.TimeOut = 43200 * Units.s
+topSequence.TimeOut = 43200 * Units.s
 
 try:
     from RecAlgs.RecAlgsConf import TimingAlg
-    topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
+    topSequence+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
 except:
     fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
 
@@ -439,8 +447,6 @@ import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon import AthenaCommonFlags
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 
 # TODO: ELLI: remove this once the envelopes are stored in the DDDB
 #             -> currently a fallback python definition is used
@@ -658,7 +664,7 @@ else :
 from ISF_Example.ISF_Input import ISF_Input
 
 from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg")
+topSequence += getAlgorithm("BeamEffectsAlg")
 
 #--------------------------------------------------------------
 # ISF kernel configuration
@@ -748,7 +754,7 @@ print topSequence
 
 ## check to see if  pileup emulation is being used, if so do post-ISF-config
 ## actions to enable simulation of pileup collection
-if 'AthSequencer/EvgenGenSeq' in topSeq.getSequence():
+if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
     fast_chain_log.info("Pileup emulation enabled - setup GenEventStackFiller")
     #include("FastChainPileup/FastPileupSimConfig.py")
 
@@ -811,22 +817,7 @@ if hasattr(runArgs, "postSimExec"):
 ##     for key in runArgs.autoConfiguration:
 ##         rec.AutoConfiguration.append(key)
 
-from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doMonitoring=True
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
-
-
 #################Back to MyCustomSkeleton##################################
-
-if hasattr(runArgs, "jobNumber"):
-    if runArgs.jobNumber < 1:
-        raise ValueError('jobNumber must be a postive integer. %s lies outside this range', str(runArgs.jobNumber))
-
-fast_chain_log.info( '****************** STARTING DIGITIZATION *****************' )
-
-
-fast_chain_log.info( '**** Transformation run arguments' )
-fast_chain_log.info( str(runArgs) )
 
 #==============================================================
 # Job Configuration parameters:
@@ -1059,24 +1050,13 @@ else:
 #--------------------------------------------------------------
 # Go for it
 #--------------------------------------------------------------
-if hasattr(runArgs,"DataRunNumber"):
-    if runArgs.DataRunNumber>0:
-        fast_chain_log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
-        digitizationFlags.dataRunNumber=runArgs.DataRunNumber
-
 print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
 
 
 
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
-
-## Set Overall per-Algorithm time-limit on the AlgSequence
-topSeq.TimeOut = 43200 * Units.s
-
 try:
     from RecAlgs.RecAlgsConf import TimingAlg
-    topSeq+=TimingAlg("DigiTimerBegin", TimingObjOutputName = "HITStoRDO_timings")
+    topSequence+=TimingAlg("DigiTimerBegin", TimingObjOutputName = "HITStoRDO_timings")
 except:
     fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
 
@@ -1241,16 +1221,12 @@ from AthenaCommon import CfgGetter
 
 # Set up ComTimeRec for cosmics digitization
 if jobproperties.Beam.beamType == "cosmics" :
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
     from CommissionRec.CommissionRecConf import ComTimeRec
     comTimeRec = ComTimeRec("ComTimeRec")
     topSequence += comTimeRec
 
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
 from Digitization.DigitizationFlags import digitizationFlags
-job += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
+topSequence += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
     print "WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf."
 elif 'doSplitDigi' in digitizationFlags.experimentalDigi():
