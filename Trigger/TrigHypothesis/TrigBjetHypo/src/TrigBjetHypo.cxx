@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypo.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
 //
-// AUTHOR:   Andrea Coccaro
-// EMAIL:    Andrea.Coccaro@ge.infn.it
+// AUTHORs:   John Alison    johnda@uchicago.edu
+//            Andrea Coccaro Andrea.Coccaro@ge.infn.it
 // 
 // ************************************************
 
@@ -32,17 +32,20 @@ TrigBjetHypo::TrigBjetHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
   m_cutCounter(0)
 {
-  declareProperty ("JetKey",    m_jetKey     = ""   ); //"EFJet" or "" needed for default config, "SplitJet" for new config
-  declareProperty ("AcceptAll", m_acceptAll         );
-  declareProperty ("CutXIP2D",  m_xcutIP2D   = -20  );
-  declareProperty ("CutXIP3D",  m_xcutIP3D   = -20  );
-  declareProperty ("CutXCOMB",  m_xcutCOMB   = -20  );
-  declareProperty ("CutXCHI2",  m_xcutCHI2   = -20  );
-  declareProperty ("CutMV2c20", m_xcutMV2c20 = -20  );
-  declareProperty ("MethodTag", m_methodTag  = ""   );
-  declareProperty ("Instance",  m_instance          );
+  declareProperty ("JetKey"          , m_jetKey     = ""          ); //"EFJet" or "" needed for default config, "SplitJet" for new config
+  declareProperty ("AcceptAll"       , m_acceptAll                );
+  declareProperty ("CutXIP2D"        , m_xcutIP2D   = -20         );
+  declareProperty ("CutXIP3D"        , m_xcutIP3D   = -20         );
+  declareProperty ("CutXCOMB"        , m_xcutCOMB   = -20         );
+  declareProperty ("CutXCHI2"        , m_xcutCHI2   = -20         );
+  declareProperty ("CutMV2c20"       , m_xcutMV2c20 = -20         );
+  declareProperty ("CutMV2c10"       , m_xcutMV2c10 = -20         );
+  declareProperty ("CutMV2c10_hybrid", m_xcutMV2c10_hybrid = -20  );
+  declareProperty ("MethodTag"       , m_methodTag  = ""          );
+  declareProperty ("Instance"        , m_instance                 );
 
-  declareProperty ("UseBeamSpotFlag", m_useBeamSpotFlag = false);
+  declareProperty ("UseBeamSpotFlag",       m_useBeamSpotFlag = false);
+  declareProperty ("OverrideBeamSpotValid", m_overRideBeamSpotValid = false);
 
   declareMonitoredVariable("Method", m_monitorMethod);
   declareMonitoredVariable("CutCounter", m_cutCounter);
@@ -72,6 +75,8 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
   ATH_MSG_DEBUG(" JetKey = "          << m_jetKey );
 
   if (m_xcutMV2c20 != -20) ATH_MSG_DEBUG( " CutMV2c20 = "  << m_xcutMV2c20 );
+  if (m_xcutMV2c10 != -20) ATH_MSG_DEBUG( " CutMV2c10 = "  << m_xcutMV2c10 );
+  if (m_xcutMV2c10_hybrid != -20) ATH_MSG_DEBUG( " CutMV2c10_hybrid = "  << m_xcutMV2c10_hybrid );
   if (m_xcutCOMB   != -20) ATH_MSG_DEBUG( " CutXCOMB  = "  << m_xcutCOMB );
   if (m_xcutCHI2   != -20) ATH_MSG_DEBUG( " CutXCHI2  = "  << m_xcutCHI2 );
   if (m_xcutIP3D   != -20) ATH_MSG_DEBUG( " CutXIP3D  = "  << m_xcutIP3D );
@@ -116,7 +121,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
       if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
       
-      if (!beamSpotStatus) {
+      if (!beamSpotStatus && !m_overRideBeamSpotValid) {
 	
 	m_cutCounter=0;
 	pass = false;
@@ -149,7 +154,6 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
- 
   if((getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) && trigBTaggingContainer) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;
@@ -157,13 +161,13 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   }
   if(msgLvl() <= MSG::DEBUG && trigBTaggingContainer != 0) {
     ATH_MSG_DEBUG( "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" );
-   }
-  if(trigBTaggingContainer != 0 && trigBTaggingContainer->size() > 1) {
+  }
+  if(trigBTaggingContainer && trigBTaggingContainer != 0 && trigBTaggingContainer->size() > 1) {
     if(msgLvl() <= MSG::ERROR)
       msg() << MSG::ERROR << "More than one BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;
   }
-  if(trigBTaggingContainer->size() == 0) {
+  if(!trigBTaggingContainer) {
     if(msgLvl() <= MSG::ERROR)
       msg() << MSG::ERROR << "No BTagging object to analyse: this should never happen" << endmsg;
     return HLT::NAV_ERROR;
@@ -190,14 +194,55 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(x>m_xcutMV2c20) {
 	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
 	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
       }
     }
+  }
+  else if (m_methodTag == "MV2c10") {
+
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) {
+
+      double x = (*trigBTagging)->auxdata<double>("MV2c10_discriminant");
+
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10 x =  " << x;
+      if(x>m_xcutMV2c10) {
+        //HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+        result = true;
+      }
+      else {
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
+      }
+    }
   } 
+  // Temporary use mv2c00 for hybrid tuning
+  //  else if (m_methodTag == "MV2c10_hybrid") {
+  else if (m_methodTag == "MV2c00") {
+    
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) {
+
+      // Temporary use mv2c00 for hybrid tuning
+      //      double x = (*trigBTagging)->auxdata<double>("MV2c10_hybrid_discriminant");
+      double x = (*trigBTagging)->auxdata<double>("MV2c00_discriminant");
+
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10_hybrid x =  " << x;
+      if(x>m_xcutMV2c10_hybrid) {
+        //HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);                                                                                                                            
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+        result = true;
+      }
+      else {
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
+      }
+    }
+
+  }
   else if (m_methodTag == "COMB") {
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
       double w=((*trigBTagging)->IP3D_pb()/(*trigBTagging)->IP3D_pu()) * ((*trigBTagging)->SV1_pb()/(*trigBTagging)->SV1_pu());
@@ -278,7 +323,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   //if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
   //  msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endmsg;
   //}
-   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
     ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   ATH_MSG_DEBUG( "TrigPassBits was saved" );

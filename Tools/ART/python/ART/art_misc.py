@@ -15,6 +15,7 @@ from datetime import datetime
 
 MODULE = "art.misc"
 EOS_MGM_URL = 'root://eosatlas.cern.ch/'
+CVMFS_DIRECTORY = '/cvmfs/atlas-nightlies.cern.ch/repo/sw'
 
 KByte = 1024
 MByte = KByte * 1024
@@ -49,6 +50,23 @@ def get_atlas_env():
     except KeyError, e:
         log.critical("Environment variable not set %s", e)
         sys.exit(1)
+
+
+def build_script_directory(script_directory, nightly_release, nightly_tag, project, platform):
+    """Return calculated script directory, sometimes overriden by commandline."""
+    if script_directory is None:
+        script_directory = CVMFS_DIRECTORY
+        script_directory = os.path.join(script_directory, nightly_release)  # e.g. 21.0
+        script_directory = os.path.join(script_directory, nightly_tag)  # e.g. 2017-10-25T2150
+        script_directory = os.path.join(script_directory, project)  # e.g. Athena
+        try:
+            script_directory = os.path.join(script_directory, os.listdir(script_directory)[0])  # e.g. 21.0.3
+            script_directory = os.path.join(script_directory, os.listdir(script_directory)[0])  # InstallArea
+        except OSError:
+            script_directory = os.path.join(script_directory, '*', '*')
+        script_directory = os.path.join(script_directory, platform)  # x86_64-slc6-gcc62-opt
+        script_directory = os.path.join(script_directory, 'src')    # src
+    return script_directory
 
 
 def run_command(cmd, dir=None, shell=False, env=None, verbose=True):

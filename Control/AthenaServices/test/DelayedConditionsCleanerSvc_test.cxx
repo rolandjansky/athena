@@ -76,6 +76,8 @@ public:
 
   virtual size_t nInserts() const override { return 0; }
   virtual size_t maxSize() const override { return 0; }
+  virtual StatusCode extendLastRange (const EventIDRange& /*newRange*/,
+                                      const EventContext& /*ctx*/) override { std::abort(); }
 
   
   virtual size_t entriesRunLBN() const override

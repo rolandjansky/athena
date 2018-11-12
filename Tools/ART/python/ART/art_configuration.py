@@ -61,12 +61,11 @@ class ArtConfiguration(object):
         if package not in self.config:
             return []
 
-        keys = []
+        keys = set()
         for pattern in self.config[package]:
             if fnmatch.fnmatch(self.release_key(nightly_release, project, platform), pattern):
                 for key in self.config[package][pattern].keys():
-                    if key not in keys:
-                        keys.append(key)
+                    keys.add(key)
 
         return keys
 
@@ -99,13 +98,13 @@ class ArtConfiguration(object):
 
         if package is None:
             log.debug("%s used for package", ArtConfiguration.ALL)
-            package = ArtConfiguration.ALL
+            return self.get(nightly_release, project, platform, ArtConfiguration.ALL, key, default_value)
 
         if package not in self.config:
             log.debug("%s not in config", package)
             return default_value
 
-        value = default_value
+        value = None
         for pattern in sorted(self.config[package], self.release_key_compare):
             release_key = self.release_key(nightly_release, project, platform)
             log.debug("release_key %s", release_key)
@@ -115,6 +114,9 @@ class ArtConfiguration(object):
                 release = self.config[package][pattern]
                 if key in release:
                     value = release[key]
+
+        if value is None:
+            value = default_value if package == ArtConfiguration.ALL else self.get(nightly_release, project, platform, ArtConfiguration.ALL, key, default_value)
 
         log.debug("Value %s", value)
         return value

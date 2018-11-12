@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IToolSvc.h"
@@ -132,7 +132,7 @@ namespace Analysis {
     if (m_forceMV2CalibrationAlias) {
       author = m_MV2CalibAlias;
     }
-    MVAUtils::BDT *bdt = nullptr; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
+    std::unique_ptr<MVAUtils::BDT> bdt(nullptr); std::map<std::string, const MVAUtils::BDT*>::iterator it_egammaBDT;
 
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
@@ -169,12 +169,11 @@ namespace Analysis {
   
     if (tree) {
       ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
-      bdt = new MVAUtils:: BDT(tree);
+      bdt = std::make_unique<MVAUtils::BDT>(tree);
     }
     else {
       ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
       m_disableAlgo=true;
-      delete bdt;
       return;
     }
 
@@ -189,19 +188,10 @@ namespace Analysis {
     if ( inputVars.size()!=nConfgVar or badVariableFound ) {
       ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
       m_disableAlgo=true;
-      delete bdt;
       return;
     }
  
     bdt->SetPointers(inputPointers);
-
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT!=m_egammaBDTs.end()) {
-      delete it_egammaBDT->second;
-      m_egammaBDTs.erase(it_egammaBDT);
-    }
-    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
-
 
     // #2 fill inputs
     //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
@@ -212,25 +202,12 @@ namespace Analysis {
     /* compute MV2: */
     double mv2 = -10.;  double mv2m_pb=-10., mv2m_pu=-10., mv2m_pc=-10.;
 
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT==m_egammaBDTs.end()) {
-      int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-      if(0==alreadyWarned) {
-         ATH_MSG_WARNING("#BTAG# no egammaBDT defined for jet collection alias, author: "<<alias<<" "<<author);
-         m_undefinedReaders.push_back(alias);
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(bdt.get());//this gives back double
+      else { //if it is MV2m
+        std::vector<float> outputs= GetMulticlassResponse(bdt.get());//this gives back float
+      	//vector size is checked in the function above
+      	mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
       }
-    }
-    else {
-      if(it_egammaBDT->second !=0) {
-        if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
-        else { //if it is MV2m
-  	  std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
-      	  //vector size is checked in the function above
-      	  mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
-        }
-       }
-       else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
-    }
 
     if (m_taggerNameBase.find("MV2c")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
     else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias<<", "<<author);

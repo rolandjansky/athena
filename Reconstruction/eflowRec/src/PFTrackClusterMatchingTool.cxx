@@ -58,10 +58,10 @@ StatusCode PFTrackClusterMatchingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<eflowRecCluster*> PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, const eflowRecClusterContainer* clusters, int nMatches) {
+std::vector<eflowRecCluster*> PFTrackClusterMatchingTool::doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int nMatches) {
   std::vector<eflowRecCluster*> vec_clusters;
   for (unsigned int iCluster = 0; iCluster < clusters->size(); ++iCluster) {
-    eflowRecCluster* thisEFRecCluster = const_cast<eflowRecCluster*>(clusters->at(iCluster));
+    eflowRecCluster* thisEFRecCluster = clusters->at(iCluster);
     vec_clusters.push_back(thisEFRecCluster);
   }
   const std::vector<eflowRecCluster*> const_clusters = vec_clusters;

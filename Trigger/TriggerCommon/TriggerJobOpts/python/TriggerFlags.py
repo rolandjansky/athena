@@ -400,6 +400,9 @@ class run2Config(JobProperty):
         '2016',
         '2017',
         ]
+    def _do_action(self):
+        from TriggerMenu.egamma.EgammaSliceFlags import run2ConfigAction as egammaRun2ConfigAction
+        egammaRun2ConfigAction(self.get_Value())
 
 _flags.append(run2Config)
 
@@ -1023,7 +1026,7 @@ class triggerMenuSetup(JobProperty):
        
         ]
 
-    _default_menu='MC_pp_v7_tight_mc_prescale'
+    _default_menu='Physics_pp_v7_primaries'
     _default_cosmic_menu='Physics_pp_v5_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     

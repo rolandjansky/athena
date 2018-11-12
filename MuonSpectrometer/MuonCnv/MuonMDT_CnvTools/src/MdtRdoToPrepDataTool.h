@@ -18,16 +18,17 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
 
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <string>
 class AtlasDetectorID;
 class Identifier;
 class MdtIdHelper;
 class MdtDigit;
 class MdtCalibrationSvc;
-class MuonMDT_CablingSvc;
 class MdtCalibrationSvcSettings;
 class MdtCalibHit;
-//class MuonMDT_CablingSvc;
 //class MdtRDO_Decoder;
 class MdtCsm;
 class StoreGateSvc;
@@ -142,9 +143,6 @@ namespace Muon
     ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder;
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
     
-    //retreive the cabling svc
-    MuonMDT_CablingSvc* m_mdtCabling;
-
     //keepTrackOfFullEventDecoding
     bool m_fullEventDone;
 
@@ -166,6 +164,8 @@ namespace Muon
 
     std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+
+    SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
   }; 
 } // end of namespace

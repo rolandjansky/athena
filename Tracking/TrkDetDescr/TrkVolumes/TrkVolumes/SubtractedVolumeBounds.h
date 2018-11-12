@@ -12,7 +12,7 @@
 // Trk
 #include "TrkVolumes/VolumeBounds.h"
 #include "TrkVolumes/Volume.h"
-#include "TrkDetDescrUtils/EightObjectsAccessor.h"
+#include "TrkDetDescrUtils/ObjectsAccessor.h"
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -66,9 +66,9 @@ namespace Trk {
     const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
-    const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
-                                                  const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const override;
+    ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
+                                           const Amg::Vector3D& dir,
+                                           bool forceInside=false) const override;
                                                 
     /**This method returns the outer Volume*/
     Volume* outer() const;
@@ -112,10 +112,10 @@ namespace Trk {
  
  inline Volume* SubtractedVolumeBounds::inner() const { return m_inner; }
 
- inline const ObjectAccessor& SubtractedVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
-                                                                          const Amg::Vector3D&,
-                                                                          bool) const
-  { return(m_objectAccessor); }
+ inline ObjectAccessor SubtractedVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
+                                                                       const Amg::Vector3D&,
+                                                                       bool) const
+ { return Trk::ObjectAccessor(m_objectAccessor); }
                         
  inline const std::vector<bool> SubtractedVolumeBounds::boundsOrientation() const
   { return(m_boundsOrientation); }

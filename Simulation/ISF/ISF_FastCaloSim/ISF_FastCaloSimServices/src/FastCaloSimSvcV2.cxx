@@ -79,7 +79,7 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   
   const CaloDetDescrManager* calo_dd_man  = CaloDetDescrManager::instance();
   const FCALDetectorManager * fcalManager=NULL;
-  detStore()->retrieve(fcalManager);
+  ATH_CHECK(detStore()->retrieve(fcalManager));
   
   m_caloGeo = new CaloGeometryFromCaloDDM();
   m_caloGeo->LoadGeometryFromCaloDDM(calo_dd_man);
@@ -193,7 +193,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   ATH_MSG_VERBOSE("NEW PARTICLE! FastCaloSimSvcV2 called with ISFParticle: " << isfp);
  
   Amg::Vector3D particle_position =  isfp.position();  
-  
+  Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
   
    //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
   // float eta_isfp = particle_position.eta();  
@@ -212,7 +212,9 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate(m_randomEngine);
 
-  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " eta: " << particle_position.eta());
+  ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << "direction phi: " << particle_direction.phi());
+  m_param->setLevel(MSG::DEBUG);
+
   FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
   if (status != FCSSuccess) {
     return StatusCode::FAILURE;

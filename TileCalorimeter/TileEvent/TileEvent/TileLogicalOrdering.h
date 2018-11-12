@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEEVENT_TILERAWDATAORDERING_H
@@ -12,7 +12,7 @@
    * @version  0-0-2 , Jan 30, 2003
    */
 
-template <class _TElement>
+template <class TELEMENT>
 class TileLogicalOrdering
 {
 
@@ -23,7 +23,7 @@ class TileLogicalOrdering
 
     /** Operator for sorting 
      */ 
-    bool operator () (const _TElement* ch1, const _TElement* ch2)
+    bool operator () (const TELEMENT* ch1, const TELEMENT* ch2)
        { return ( ch1->identify() < ch2->identify() ); }
 
 };

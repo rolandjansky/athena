@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -27,22 +27,4 @@
 #include "TileEvent/TileBeamElemContainer.h"
 #include "SGTools/BaseInfo.h"
  
-void TileRawChannelCollection::clear()
-{
-  m_FragGlobalCRC   = 0;
-  m_FragBCID        = 0;
-  m_FragMemoryPar   = 0;
-  m_FragSstrobe     = 0;
-  m_FragDstrobe     = 0;
-  m_FragHeaderBit   = 0;
-  m_FragHeaderPar   = 0;
-  m_FragSampleBit   = 0;
-  m_FragSamplePar   = 0;
-  m_FragFEChipMask  = 0xFFFF;
-  m_FragRODChipMask = 0xFFFF;
-  m_FragDSPBCID     = 0xDEAD;
-
-  TileRawChannelCollection::MyBase::clear();
-}
-
 SG_ADD_BASE (TileContainer<TileCell>, DataVector<TileCell>);

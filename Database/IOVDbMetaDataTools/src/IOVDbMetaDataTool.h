@@ -80,16 +80,6 @@ public:
     /// Function called when the tool should write out its metadata
     StatusCode metaDataStop() {return StatusCode::SUCCESS;}
 
-    /// Function called when a new input file is opened
-    StatusCode beginInputFile(const SG::SourceID&) {return this->beginInputFile();}
-
-    /// Function called when the currently open input file got completely
-    /// processed
-    StatusCode endInputFile(const SG::SourceID&) {return this->endInputFile();}
-
-    /// Function called when the tool should write out its metadata
-    StatusCode metaDataStop(const SG::SourceID&) {return this->metaDataStop();}
-
     /// Incident service handle listening for BeginInputFile and EndInputFile.
     void handle(const Incident& incident);
 

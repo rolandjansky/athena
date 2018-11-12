@@ -41,13 +41,12 @@ class EFMissingETFromHelperMT : public extends<EFMissingETBaseTool, IMissingETTo
                           const std::string& name,
                           const IInterface* parent);
 
-    ~EFMissingETFromHelperMT();
+    virtual ~EFMissingETFromHelperMT();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met,
+    virtual StatusCode executeMT(xAOD::TrigMissingET *met,
                                TrigEFMissingEtHelper *metHelper) const;
 
     virtual StatusCode update( xAOD::TrigMissingET *met,

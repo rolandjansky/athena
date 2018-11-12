@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -1806,6 +1806,20 @@ Range::identifier_factory& Range::identifier_factory::operator = (const identifi
 } 
  
 //----------------------------------------------- 
+Range::identifier_factory& Range::identifier_factory::operator = (identifier_factory&& other) 
+{ 
+  if (&other != this) {
+    m_indices = std::move(other.m_indices);
+    m_id      = std::move(other.m_id);
+    m_min     = std::move(other.m_min);
+    m_max     = std::move(other.m_max);
+    m_range   = other.m_range; 
+  }
+ 
+  return (*this); 
+} 
+ 
+//----------------------------------------------- 
 void Range::identifier_factory::operator ++ () 
 { 
   if (m_id.fields () == 0) return; 
@@ -1968,6 +1982,20 @@ Range::const_identifier_factory& Range::const_identifier_factory::operator = (co
     m_min     = other.m_min; 
     m_max     = other.m_max; 
     m_range   = other.m_range; 
+  }
+ 
+  return (*this); 
+} 
+ 
+//----------------------------------------------- 
+Range::const_identifier_factory& Range::const_identifier_factory::operator = (const_identifier_factory&& other) 
+{ 
+  if (&other != this) {
+    m_indices = std::move(other.m_indices);
+    m_id      = std::move(other.m_id);
+    m_min     = std::move(other.m_min);
+    m_max     = std::move(other.m_max);
+    m_range   = other.m_range;
   }
  
   return (*this); 
@@ -2707,6 +2735,24 @@ MultiRange::identifier_factory& MultiRange::identifier_factory::operator = (cons
 } 
  
 //----------------------------------------------- 
+MultiRange::identifier_factory& MultiRange::identifier_factory::operator = (identifier_factory&& other) 
+{ 
+  if (this != &other) {
+    m_id 		= std::move(other.m_id);
+    m_sort 		= other.m_sort;
+    m_id_fac_it  	= std::move(other.m_id_fac_it);
+    m_id_fac_end 	= std::move(other.m_id_fac_end);
+    m_range_it 		= other.m_range_it;
+    m_range_end		= other.m_range_end;
+    m_id_vec_it 	= other.m_id_vec_it;
+    m_id_vec_end 	= other.m_id_vec_end;
+    m_multirange	= other.m_multirange;
+    other.m_multirange = nullptr;
+  }
+  return (*this); 
+} 
+ 
+//----------------------------------------------- 
 void MultiRange::identifier_factory::operator ++ () 
 { 
  
@@ -2922,6 +2968,24 @@ MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::oper
 //  		  << m_multirange->m_it_count 
 //  		  << std::endl;
     }
+  } 
+  return (*this); 
+} 
+ 
+//----------------------------------------------- 
+MultiRange::const_identifier_factory& MultiRange::const_identifier_factory::operator = (const_identifier_factory&& other) 
+{ 
+  if (this != &other) {
+    m_id 		= std::move(other.m_id);
+    m_sort 		= other.m_sort;
+    m_id_fac_it  	= std::move(other.m_id_fac_it);
+    m_id_fac_end 	= std::move(other.m_id_fac_end);
+    m_range_it 		= other.m_range_it;
+    m_range_end		= other.m_range_end;
+    m_id_vec_it 	= other.m_id_vec_it;
+    m_id_vec_end 	= other.m_id_vec_end;
+    m_multirange	= other.m_multirange;
+    other.m_multirange = nullptr;
   } 
   return (*this); 
 } 

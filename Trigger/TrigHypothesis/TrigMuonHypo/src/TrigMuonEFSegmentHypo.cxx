@@ -62,13 +62,13 @@ HLT::ErrorCode TrigMuonEFSegmentHypo::hltFinalize()
 
 HLT::ErrorCode TrigMuonEFSegmentHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass){
 
+
   ATH_MSG_DEBUG("in execute()");
 
   //resetting the monitoring variables
   m_fex_pt.clear();
   m_fex_eta.clear();
   m_fex_phi.clear();
-  
   if(m_acceptAll) {
     pass = true;
     ATH_MSG_DEBUG("Accept property is set: taking all the events");
@@ -91,18 +91,14 @@ HLT::ErrorCode TrigMuonEFSegmentHypo::hltExecute(const HLT::TriggerElement* outp
   if(debug) ATH_MSG_DEBUG("Found MuonContainer, n(muons) = " << muonContainer->size());
 
   // loop on the muons within the RoI
-  unsigned int j=0;
   for(auto muon : *muonContainer) {
-
-    ATH_MSG_DEBUG("Looking at muon " << j++ );
     const xAOD::Muon::MuonType muontype = muon->muonType();
     ATH_MSG_DEBUG("Muon type " << (int)muontype << "  is seg: " << (muontype == xAOD::Muon::MuonType::SegmentTagged));
-    if(muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) { // combined or segment tagged muon
-
+    if(muontype == xAOD::Muon::MuonType::SegmentTagged ) { //check latest changes for combined takking
       // apparently match chi2 not stored yet?
       //float matchchi2(-1);
       //muon->parameter(matchchi2, xAOD::Muon::msInnerMatchChi2);
-      if (debug) ATH_MSG_DEBUG("Retrieved muon with pt " << muon->pt()/CLHEP::GeV << " GeV."); //Match chi2 = " << matchchi2 << endmsg;
+      if (debug) ATH_MSG_DEBUG("Retrieved muon with pt " << muon->pt()/CLHEP::GeV << " GeV."); //Match chi2 = " << matchchi2 << endreq;
 
       m_fex_pt.push_back(muon->pt()/CLHEP::GeV);
       const float eta = muon->eta();
@@ -128,10 +124,9 @@ HLT::ErrorCode TrigMuonEFSegmentHypo::hltExecute(const HLT::TriggerElement* outp
 	}
       }
       if(debug) ATH_MSG_DEBUG(" REGTEST muon pt is " << muon->pt()/CLHEP::GeV << " CLHEP::GeV "
-		  //<< " with Charge " << muon->Charge()
-		      << " and threshold cut is " << threshold/CLHEP::GeV << " CLHEP::GeV"
+			      << " and threshold cut is " << threshold/CLHEP::GeV << " CLHEP::GeV"
 			      << " so hypothesis is " << (hypo_ok?"true":"false"));
-    }//combined or segment tagged muon
+    }
     else{
       if(m_rejectCBmuons){
 	result = true;

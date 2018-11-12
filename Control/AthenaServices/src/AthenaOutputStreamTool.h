@@ -50,7 +50,7 @@ public:
    /// Connect to the output stream
    ///   Must connectOutput BEFORE streaming
    ///   Only specify "outputName" if one wants to override jobOptions
-   StatusCode connectOutput(const std::string& outputName);
+   StatusCode connectOutput(const std::string& outputName = "");
 
    /// Commit the output stream after having streamed out objects
    ///   Must commitOutput AFTER streaming

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLETRUTH_TRACKPARTICLETRUTHVECTOR_H
@@ -8,7 +8,7 @@
 #include "ParticleTruth/TrackParticleTruth.h"
 #include "Particle/TrackParticleContainer.h"
 #include "AthLinks/ElementLink.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <map>
 

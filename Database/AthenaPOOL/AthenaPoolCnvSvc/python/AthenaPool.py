@@ -2,7 +2,7 @@
 
 ## @file AthenaPool_jobOptions.py
 ## @brief Core job options file for AthenaPOOL to setup the basic sercives.
-## @author Peter van Gemmeren <gemmeren@bnl.gov>
+## @author Peter van Gemmeren <gemmeren@anl.gov>
 ## $Id: AthenaPool.py,v 1.10 2008-11-18 22:44:00 binet Exp $
 ###############################################################
 #
@@ -36,33 +36,11 @@ def _loadBasicAthenaPool():
 
     svcMgr += CfgMgr.AthenaPoolCnvSvc()
 
-    """
-    from AthenaCommon.AppMgr import theApp
-    theApp.Dlls += [
-        ## FIXME
-        # needed: why isn't this guy being picked up through genmap ??
-        "DBDataModelAthenaPoolPoolCnv", 
-        ]
-    """
-
     if not hasattr (svcMgr, 'EventPersistencySvc'):
         svcMgr += CfgMgr.EvtPersistencySvc( "EventPersistencySvc" )
     svcMgr.EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
     if not hasattr (svcMgr, 'ProxyProviderSvc'):
         svcMgr += CfgMgr.ProxyProviderSvc()
-
-    """
-    #
-    # Make sure AthenaSealSvc is loaded for dict check
-    svcMgr += CfgMgr.AthenaSealSvc()
-
-    #
-    # Make sure AthenaPoolServices is loaded for custom streamer
-    svcMgr += CfgMgr.AthenaRootStreamerSvc()
-
-    # Load streamer allowing conversion of old CLHEP classes
-    import AtlasSealCLHEP.OldCLHEPStreamers
-    """
 
     # Add in MetaDataSvc
     svcMgr += CfgMgr.MetaDataSvc( "MetaDataSvc" )

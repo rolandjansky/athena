@@ -5,6 +5,8 @@
 #ifndef TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
 #define TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
 
+#include <atomic>
+
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthService.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"
@@ -69,9 +71,9 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   private: 
 
-  Gaudi::Property<bool> m_monitorAll{this, "MonitorAll", true, "Monitor every HLT event, e.g. for offline validation."};
-  Gaudi::Property<bool> m_printTimes{this, "PrintTimes", true, "Sends per-algorithm timing to MSG::INFO."};
-  Gaudi::Property<int>  m_eventSlots{this, "EventSlots", 0, "Number of concurrent processing slots."};
+  Gaudi::Property<bool>      m_monitorAll{this, "MonitorAll", true, "Monitor every HLT event, e.g. for offline validation."};
+  Gaudi::Property<bool>      m_printTimes{this, "PrintTimes", true, "Sends per-algorithm timing to MSG::INFO."};
+  Gaudi::Property<unsigned>  m_eventSlots{this, "EventSlots", 0, "Number of concurrent processing slots."};
 
   /**
    * @return If the event is flagged as being monitored. Allows for a quick return if not
@@ -79,10 +81,19 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
    */
   bool isMonitoredEvent(const EventContext& context) const;
 
-  std::vector<uint8_t> m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored. Storing bool in one byte vector.
+  /**
+   * Sanity check that the job is respecting the number of slots which were declared at config time
+   * @return Success if the m_eventMonitored array is range, Failure if access request would overflow
+   * @param[in] context The event context
+   */
+  StatusCode checkSlot(const EventContext& context) const;
 
-  TrigCostDataStore m_algStartTimes; //!< Thread-safe store of algorithm start times.
-  TrigCostDataStore m_algStopTimes; //!< Thread-safe store of algorithm stop times.
+
+  std::unique_ptr< std::atomic<bool>[] >  m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
+
+  TrigCostDataStore<TrigTimeStamp> m_algStartTimes; //!< Thread-safe store of algorithm start times.
+  TrigCostDataStore<TrigTimeStamp> m_algStopTimes; //!< Thread-safe store of algorithm stop times.
+  TrigCostDataStore<std::thread::id> m_algThreadID; //!< Thread-safe store of algorithm's thread ID hash.
 
 };
 

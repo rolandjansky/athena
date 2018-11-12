@@ -11,6 +11,11 @@ from AthenaCommon.DetFlags import DetFlags
 from RecExConfig.RecFlags import rec as recFlags
 from MuonCnvFlags import muonCnvFlags
 
+from AthenaCommon.AlgSequence import AthSequencer
+from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingAlg
+condSequence = AthSequencer("AthCondSeq")
+condSequence += MuonMDT_CablingAlg("MuonMDT_CablingAlg")
+
 # defaults have to be re-set now since the jobproperties and trigger flags are now available # SS
 muonCnvFlags.setDefaults()
 
@@ -138,16 +143,20 @@ if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.rea
       from IOVDbSvc.CondDB import conddb 
       IOVDbSvc = ServiceMgr.IOVDbSvc 
       if globalflags.DataSource()=='data': 
-          conddb.addFolder("MDT","/MDT/CABLING/MAP_SCHEMA") 
-          conddb.addFolder("MDT","/MDT/CABLING/MEZZANINE_SCHEMA") 
+          conddb.addFolder("MDT","/MDT/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
+          conddb.addFolder("MDT","/MDT/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection') 
           MDTCablingDbTool.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
           MDTCablingDbTool.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
+          MuonMDT_CablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
+          MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
       else: 
-          conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MAP_SCHEMA") 
-          conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MEZZANINE_SCHEMA")    
+          conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
+          conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection')    
           MDTCablingDbTool.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
           MDTCablingDbTool.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA" 
-          
+          MuonMDT_CablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
+          MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
+
       ToolSvc += MDTCablingDbTool 
        
        

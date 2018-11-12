@@ -37,6 +37,7 @@
 class CondAttrListCollection;
 class EventContext;
 class EventInfo;
+class HLTResultMTMaker;
 class IAlgExecStateSvc;
 class IAlgorithm;
 class IAlgResourcePool;
@@ -53,7 +54,6 @@ namespace coral {
 }
 namespace HLT {
   class HLTResultMT;
-  class ResultBuilderMT;
 }
 
 /** @class HltEventLoopMgr
@@ -189,7 +189,7 @@ private:
   ToolHandle<TrigCOOLUpdateHelper> m_coolHelper;
 
   /// Tool to create HLTResult
-  ToolHandle<HLT::ResultBuilderMT> m_hltResultBuilder;
+  ToolHandle<HLTResultMTMaker> m_hltResultMaker;
 
   // ------------------------- Optional services/tools -------------------------
   /// Reference to a THistSvc which implements also the Hlt additions

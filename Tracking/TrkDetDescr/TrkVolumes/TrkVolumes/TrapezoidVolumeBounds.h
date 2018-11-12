@@ -11,7 +11,7 @@
     
 // Trk
 #include "TrkVolumes/VolumeBounds.h"
-#include "TrkDetDescrUtils/SixObjectsAccessor.h"
+#include "TrkDetDescrUtils/ObjectsAccessor.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -80,9 +80,9 @@ namespace Trk {
     const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
-    const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
-                                                  const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const override;
+    ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
+                                           const Amg::Vector3D& dir,
+                                           bool forceInside=false) const override;
                                             
     /**This method returns the minimal halflength in local x*/
     double minHalflengthX() const;
@@ -154,10 +154,10 @@ namespace Trk {
  inline double TrapezoidVolumeBounds::alpha() const { return m_alpha; }
  inline double TrapezoidVolumeBounds::beta() const { return m_beta; } 
  
-inline const ObjectAccessor& TrapezoidVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
-                                                        const Amg::Vector3D&,
-                                                        bool) const
- { return(m_objectAccessor); }
+ inline ObjectAccessor TrapezoidVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
+                                                                      const Amg::Vector3D&,
+                                                                      bool) const
+ { return Trk::ObjectAccessor(m_objectAccessor); }
 
 
 }

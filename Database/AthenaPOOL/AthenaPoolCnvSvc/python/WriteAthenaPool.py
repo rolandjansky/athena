@@ -45,7 +45,6 @@ def _configureWriteAthenaPool():
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'" ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'" ]
 
-    svcMgr.AthenaPoolCnvSvc.PoolContainerPrefix = "CollectionTree"
     svcMgr.AthenaPoolCnvSvc.TopLevelContainerName = ""
     svcMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<type>/<key>"
 

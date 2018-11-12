@@ -64,9 +64,6 @@ public:
   StatusCode finalize();
 
 private:
-  // Enable/disable Tile TTL1 overlay
-  bool m_enableTileTTL1Overlay;
-
   // locations of background TTL1 data
   SG::ReadHandleKey<LArTTL1Container> m_bkgEmTTL1Key{this,"BkgEmTTL1Key","OriginalEvent_SG+LArTTL1EM","ReadHandleKey for Background Input EM LArTTL1Container"};
   SG::ReadHandleKey<LArTTL1Container> m_bkgHadTTL1Key{this,"BkgHadTTL1Key","OriginalEvent_SG+LArTTL1HAD","ReadHandleKey for Background Input Had LArTTL1Container"};

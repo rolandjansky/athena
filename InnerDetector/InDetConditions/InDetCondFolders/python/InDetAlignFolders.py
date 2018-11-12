@@ -4,6 +4,7 @@ from IOVDbSvc.CondDB import conddb
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.DetFlags          import DetFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 
 # Top sequence
 from AthenaCommon.AlgSequence import AlgSequence
@@ -37,13 +38,13 @@ conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",classN
 
 # TRT Condition Algorithm
 from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTAlignCondAlg
-TRTAlignCondAlg = TRTAlignCondAlg(name = "TRTAlignCondAlg")
+TRTAlignCondAlg = TRTAlignCondAlg(name = "TRTAlignCondAlg",
+                                  UseDynamicFolders = InDetGeometryFlags.useDynamicAlignFolders())
 
 # Control loading of the dynamic folder scheme;
 # In future we might want to add also to MC DB
 # related to JIRA ATLASSIM-2746
 
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 if InDetGeometryFlags.useDynamicAlignFolders():
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection")
 
@@ -54,7 +55,6 @@ if InDetGeometryFlags.useDynamicAlignFolders():
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL1/TRT","/TRT/AlignL1/TRT",className="CondAttrListCollection")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL2","/TRT/AlignL2",className="AlignableTransformContainer")
-    TRTAlignCondAlg.UseDynamicFolders=True
     TRTAlignCondAlg.ReadKeyDynamicGlobal="/TRT/AlignL1/TRT"
     TRTAlignCondAlg.ReadKeyDynamicRegular="/TRT/AlignL2"
 
@@ -65,11 +65,10 @@ else:
     else:
         conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align")
 
-    if DetFlags.simulate.any_on():
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align")
-    else:
+    if (not DetFlags.simulate.TRT_on()) or DetFlags.overlay.TRT_on():
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align",className="AlignableTransformContainer")
-        TRTAlignCondAlg.UseDynamicFolders=False
+    else:
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align")
 
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")

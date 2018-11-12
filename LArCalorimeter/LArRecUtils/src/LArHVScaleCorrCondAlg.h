@@ -3,8 +3,8 @@
 */
 // Rewritten from LArHVScaleCorrTool
 
-#ifndef LARRECUTILS_LArHVSCALEcORRCONDALG_H
-#define LARRECUTILS_LArHVSCALECORRCONDALG_H
+#ifndef LARRECUTILS_LARHVSCALECORRCONDALG_H
+#define LARRECUTILS_LARHVSCALECORRCONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -98,7 +98,6 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   */
 
 
-  bool m_doTdrift;
   unsigned int m_deltatupdate;
   bool m_updateIfChanged;
   bool m_undoOnlineHVCorr;
@@ -122,7 +121,7 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   HASHRANGEVEC m_hashRanges[2];//x2 for the side
   HASHRANGEVEC m_completeRange;
   HASHRANGEVEC cellsIDsToPartition(const std::set<Identifier>& cellsIDvec) const;
-  StatusCode getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData* hvdata, const LArHVScaleCorrFlat *onlHVCorr) const;
+  StatusCode getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData* hvdata, const ILArHVScaleCorr *onlHVCorr) const;
 };
 
 #endif

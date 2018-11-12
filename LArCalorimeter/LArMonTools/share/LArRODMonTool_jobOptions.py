@@ -119,9 +119,4 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  ProcessNEvents = EventBlockSize
                                  )
 
-from AthenaCommon.BeamFlags import jobproperties
-theLArRODMonTool.LArPedestalKey='LArPedestal'
-
 LArMon.AthenaMonTools+=[ theLArRODMonTool ] 
-
-#theLArRODMonTool.OutputLevel = DEBUG

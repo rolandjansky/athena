@@ -39,6 +39,7 @@ atlas_add_library( ActsGeometryLib
                    PUBLIC_HEADERS ActsGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
+                   AthenaKernel
                    ActsInteropLib
                    ActsCore
                    ActsLegacy

@@ -33,7 +33,6 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
 FullColl            DEBUG handle() incident type: MetaDataStop
 FullColl.Regist...   INFO Collection Events output: 0
-FullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:CheckNull.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 ReadData             INFO in finalize()
 ReadData            DEBUG Calling destructor
 FullColl            DEBUG In finalize

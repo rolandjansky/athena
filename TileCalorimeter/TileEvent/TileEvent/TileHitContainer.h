@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileHitContainer_H
@@ -15,6 +15,13 @@ public:
   
   TileHitContainer(bool createColl=false, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) 
     : TileRawDataContainer<TileHitCollection> (createColl, ownPolicy) { }
+
+  TileHitContainer(bool createColl,
+                   TYPE type,
+                   UNIT unit=TileRawChannelUnit::ADCcounts,
+                   SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) 
+    : TileRawDataContainer<TileHitCollection> (createColl, type, 
+                                               unit, ownPolicy) { }
 
   ~TileHitContainer() { }
 };

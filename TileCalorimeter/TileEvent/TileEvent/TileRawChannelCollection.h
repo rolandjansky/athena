@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileRawChannelCollection_H       
@@ -15,7 +15,7 @@ public:
 
   typedef TileRawDataCollection<TileRawChannel> MyBase;
   typedef MyBase::ID ID;
-  typedef TileRawChannel _TElement;
+  typedef TileRawChannel TElement;
 
   TileRawChannelCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(id,ownPolicy),
@@ -51,6 +51,14 @@ public:
       m_FragFEChipMask(0xFFFF),
       m_FragRODChipMask(0xFFFF)
     { }
+
+
+  /**
+   * @brief Copy constructor.
+   * @param other Collection to copy.
+   * Does a deep copy of the contents.
+   */
+  TileRawChannelCollection (const TileRawChannelCollection& other);
 
   ~TileRawChannelCollection() { }
 

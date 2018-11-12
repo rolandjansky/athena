@@ -59,7 +59,7 @@ StatusCode ViewTestAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  ATH_MSG_INFO( name() << " running with store " << getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
+  ATH_MSG_INFO( name() << " running with store " << getContext().getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
 
   return StatusCode::SUCCESS;
 }

@@ -1019,13 +1019,11 @@ if rec.doFileMetaData():
             from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
             svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
         # Trigger tool
-        #ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
-        tmdt = CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
-        svcMgr.MetaDataSvc.MetaDataTools += [ tmdt ]
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        #ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
-        #svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
-        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" ) ]
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -1425,15 +1423,13 @@ if rec.doWriteAOD():
 
     if rec.doFileMetaData():
         # Trigger tool
-        #ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
 
-        #svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
-        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool") ]
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        #ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
 
-        #svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
-        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool") ]
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
         StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())

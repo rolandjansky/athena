@@ -122,8 +122,10 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
     LArADC2MeVCondAlgDefault()
 
-    # Tool for noise autocorrelation generation
-    kwargs.setdefault('AutoCorrNoiseTool', 'LArAutoCorrNoiseToolDefault')
+
+    # AutoCorrNoiseCondAlgo
+    from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
+    LArAutoCorrNoiseCondAlgDefault()
 
     # bad channel masking
     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker

@@ -8,67 +8,24 @@
 #include <tbb/concurrent_hash_map.h>
 #include <tbb/concurrent_vector.h>
 
+#include "AlgorithmIdentifier.h"
+
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 
 #include "GaudiKernel/EventContext.h"
 #include "AthViews/View.h"
 
-  /** 
-   * @class TrigCostDataStore
-   * @brief Thread safe and multi-slot hash-map to cache TrigTimeStamp objects during event execution
-   *
-   * The TrigTimeStamp objects are later used to construct a trigger cost summary for the event.
-   * Data are partitioned based on the slot of the event context and both the name and store of the 
-   * audited algorithm, these three pieces of data uniquely identify an algorithm execution.
-   */
+/** 
+ * @class TrigCostDataStore
+ * @brief Thread safe and multi-slot hash-map to cache PAYLOAD objects/primitives during event execution
+ *
+ * The TrigTimeStamp objects are later used to construct a trigger cost summary for the event.
+ * Data are partitioned based on the slot of the event context and both the name and store of the 
+ * audited algorithm, these three pieces of data uniquely identify an algorithm execution.
+ */
+template<typename PAYLOAD>
 class TrigCostDataStore {
   public:
-
-  /** 
-   * @class AlgorithmIdentifier
-   * @brief Small structure to hold an algorithm's name and store, plus some details on its EventView.
-   */
-  struct AlgorithmIdentifier {
-    AlgorithmIdentifier(const std::string& caller, const std::string& storeName, const int16_t viewID = -1) :
-      m_caller(caller), 
-      m_store(storeName),
-      m_viewID(viewID),
-      m_hash(std::hash<std::string>{}(m_caller + m_store))
-      {}
-
-    const std::string m_caller; //!< Name of the algorithm
-    const std::string m_store; //!< Name of the algorithm's store. '0_StoreGateSvc_Impl' for main store.
-    const int16_t m_viewID; //!< If within an event view, then the ViewID. -1 if the main store.
-    const size_t m_hash; //!< Hash of algorithm + store. Event-unique quantity.
-  };
-
-  /** 
-   * @class AlgorithmIdentifierHashCompare
-   * @brief Static hash and equal members as required by tbb::concurrent_hash_map
-   */
-  struct AlgorithmIdentifierHashCompare {
-    /** 
-     * @brief Hash function for AlgorithmIdentifier to assign bucket in hash map
-     * @param[in] ai AlgorithmIdentifier to calculate hash for
-     * @returns Cached std::hash<std::string> of algorithm name combined with algorithm store
-     */
-    static size_t hash(const AlgorithmIdentifier& ai) {
-      return ai.m_hash;
-    }
-
-    /** 
-     * @brief Equality function for AlgorithmIdentifier to check for uniqueness within hash bucket
-     * @param[in] x First AlgorithmIdentifier to check equality of
-     * @param[in] y Second AlgorithmIdentifier to check equality of
-     * @returns True if both the algorithm name and algorithm store strings are identical
-     */
-    static bool equal(const AlgorithmIdentifier& x, const AlgorithmIdentifier& y) {
-      return (x.m_caller == y.m_caller && x.m_store == y.m_store);
-    }
-  };
-
-  typedef tbb::concurrent_hash_map< AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare> AITimerMapTBB;
-  typedef std::vector< AITimerMapTBB > VectorAITimerMapTBB;
 
   /**
    * @brief Default constructor
@@ -94,7 +51,7 @@ class TrigCostDataStore {
    * @param[in] payload The payload to record
    * @returns Success unless and out-of-range slot, then Failure
    */
-  StatusCode insert(const EventContext& context, const std::string& caller,  MsgStream& msg, const TrigTimeStamp& payload);
+  StatusCode insert(const EventContext& context, const std::string& caller,  MsgStream& msg, const PAYLOAD& payload);
 
   /**
    * @brief Retrieve a payload from the map given an algorithm name and event context
@@ -104,7 +61,7 @@ class TrigCostDataStore {
    * @param[out] payload Reference to payload to return
    * @returns Success if the payload was located, else Failure
    */
-  StatusCode retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, TrigTimeStamp& payload) const;
+  StatusCode retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const;
 
   /**
    * @brief Retrieve a payload from the map given an algorithm name and store name. Note, this overrides the store in the context
@@ -115,7 +72,7 @@ class TrigCostDataStore {
    * @param[out] payload Reference to payload to return
    * @returns Success if the payload was located, else Failure
    */
-  StatusCode retrieve(const EventContext& context, const std::string& storeName, const std::string& caller, MsgStream& msg, TrigTimeStamp& payload) const;
+  StatusCode retrieve(const EventContext& context, const std::string& storeName, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const;
 
   /**
    * @brief Retrieve a payload from the map given an AlgorithmIdentifier
@@ -125,7 +82,7 @@ class TrigCostDataStore {
    * @param[out] payload Reference to payload to return
    * @returns Success if the payload was located, else Failure
    */
-  StatusCode retrieve(const EventContext& context, const AlgorithmIdentifier& ai, MsgStream& msg, TrigTimeStamp& payload) const;
+  StatusCode retrieve(const EventContext& context, const AlgorithmIdentifier& ai, MsgStream& msg, PAYLOAD& payload) const;
 
   /**
    * @brief Clears all data stored in an event slot
@@ -143,7 +100,9 @@ class TrigCostDataStore {
    * @param[out] end Return of iterator to end of map
    * @returns Success if the slot is populated, else Failure
    */
-  StatusCode getIterators(const EventContext& context, MsgStream& msg, AITimerMapTBB::const_iterator& begin, AITimerMapTBB::const_iterator& end);
+  StatusCode getIterators(const EventContext& context, MsgStream& msg, 
+    typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_iterator& begin, 
+    typename tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_iterator& end);
 
   private:
 
@@ -155,8 +114,10 @@ class TrigCostDataStore {
    */
   StatusCode checkSlot(const size_t slot, MsgStream& msg) const;
 
-  VectorAITimerMapTBB m_store; //!< Underlying thread-safe data store for all slots: vector< hashmap< AlgorithmIdentifier, payload > >
+  std::vector< tbb::concurrent_hash_map< AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare> > m_store; //!< Underlying thread-safe data store for all slots: vector< hashmap< AlgorithmIdentifier, payload > >
 };
+
+#include "TrigCostDataStore.icc"
 
 #endif // TRIGCOSTMONITORMT_TRIGCOSTDATASTORE_H
 

@@ -4,9 +4,9 @@
 ART-internal - ATLAS Release Tester (internal command).
 
 Usage:
-  art-internal.py build job   [-v -q]                 <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
-  art-internal.py grid batch  [-v -q --skip-setup -n] <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <job_index>
-  art-internal.py grid single [-v -q --skip-setup --in=<in_file> -n] <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
+  art-internal.py build job   [-v -q --run-all-tests] <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
+  art-internal.py grid batch  [-v -q --skip-setup -n --run-all-tests] <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_type> <job_index>
+  art-internal.py grid single [-v -q --skip-setup --in=<in_file> -n --run-all-tests] <script_directory> <sequence_tag> <package> <outfile> <inform_panda> <job_name>
 
 Options:
   -h --help         Show this screen.
@@ -14,6 +14,7 @@ Options:
   --in=<in_file>    Normally percentage IN
   -n --no-action    No real submit will be done
   -q --quiet        Show less information, only warnings and errors
+  --run-all-tests   Runs all tests, ignoring art-include
   -v --verbose      Show more information, debug level
   --version         Show version.
 
@@ -60,7 +61,8 @@ def build_job(script_directory, sequence_tag, package, outfile, job_type, job_in
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
-    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory).job(sequence_tag, package, outfile, job_type, job_index))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory, run_all_tests=run_all_tests).job(sequence_tag, package, outfile, job_type, job_index))
 
 
 @dispatch.on('grid', 'batch')
@@ -74,7 +76,8 @@ def grid_batch(script_directory, sequence_tag, package, outfile, inform_panda, j
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     skip_setup = kwargs['skip_setup']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, skip_setup).batch(sequence_tag, package, outfile, inform_panda, job_type, job_index))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=skip_setup, run_all_tests=run_all_tests).batch(sequence_tag, package, outfile, inform_panda, job_type, job_index))
 
 
 @dispatch.on('grid', 'single')
@@ -89,7 +92,8 @@ def grid_single(script_directory, sequence_tag, package, outfile, inform_panda, 
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     skip_setup = kwargs['skip_setup']
     in_file = kwargs['in']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, skip_setup).single(sequence_tag, package, outfile, inform_panda, job_name, in_file))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=skip_setup, run_all_tests=run_all_tests).single(sequence_tag, package, outfile, inform_panda, job_name, in_file))
 
 
 if __name__ == '__main__':
