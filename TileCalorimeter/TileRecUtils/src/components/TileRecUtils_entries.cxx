@@ -24,6 +24,7 @@
 #include "../TileL2Dumper.h"
 #include "../TileLaserObjectDumper.h"
 #include "../TileMuonReceiverDumper.h"
+#include "../TileRawChannelBuilderTest.h"
 
 DECLARE_COMPONENT( TileRawChannelBuilderFlatFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilter )
@@ -51,4 +52,5 @@ DECLARE_COMPONENT( TileBeamElemDumper )
 DECLARE_COMPONENT( TileL2Dumper )
 DECLARE_COMPONENT( TileLaserObjectDumper )
 DECLARE_COMPONENT( TileMuonReceiverDumper )
+DECLARE_COMPONENT( TileRawChannelBuilderTest )
 
