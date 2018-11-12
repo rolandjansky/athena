@@ -29,6 +29,7 @@ class TrigL1TopoWriteValData:public AthAlgorithm {
  private:
   StatusCode doWriteValData();
   StringProperty m_simTopoCTPLocation;
+  StringProperty m_simTopoOverflowCTPLocation;
   StringProperty m_HltResultName;
 };
 

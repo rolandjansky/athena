@@ -1,6 +1,7 @@
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from HIGlobal.HIGlobalFlags import jobproperties
 from JetRec.JetRecFlags import jetFlags
+from HIJetRec.HIJetRecConfig import *
 jetFlags.useCells.set_Value(True);
 
 

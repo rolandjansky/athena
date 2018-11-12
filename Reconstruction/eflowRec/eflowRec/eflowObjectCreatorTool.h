@@ -83,6 +83,9 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   /* Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
   bool m_LCMode;
 
+  /* Bool to determine whether to calculate and attach DigiTruth moments */
+  bool m_doDigiTruth;
+
   /* ToolHandle to tracking CP loose vertex selection tool */
   ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssociationTool;
 
