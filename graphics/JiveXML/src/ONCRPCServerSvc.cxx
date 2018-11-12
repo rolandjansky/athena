@@ -343,7 +343,7 @@ namespace JiveXML {
     //error is reported
     
     //Timeout of 1 second and 0 nanoseconds
-    struct timespec timeout = { 1, 0 };
+    struct timespec timeout = { 5, 0 };
     //Try to obtain the lock
 #ifndef __APPLE__
     int retVal = pthread_mutex_timedlock(&m_accessLock, &timeout);

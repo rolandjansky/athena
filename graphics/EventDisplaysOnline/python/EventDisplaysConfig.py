@@ -13,7 +13,7 @@ def GetRunType():
     import os
     partition = os.environ['TDAQ_PARTITION']
   except KeyError :
-    partition = "EventDisplays"
+    partition = "ATLAS"
     mlog.warning("TDAQ_PARTITION not defined in environment, using %s as default"%partition)
   
   mlog.debug('Probing partition %s for RunType'%partition)
