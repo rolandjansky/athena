@@ -85,7 +85,7 @@ if (not B) {
 
 } else {
   
-  m_dR = B->R();
+  m_dR = pla->center().perp();
   
   std::vector < std::pair < double, double > > corners = B->corners();
   

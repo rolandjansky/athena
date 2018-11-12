@@ -84,9 +84,6 @@ namespace Trk {
       /**This method returns the bigger radius*/
       double maxR() const;
       
-      /**This method returns the radius of a tilt*/
-      double R() const;
-      
       /**This method returns the opening angle*/
       double phi() const;
       
@@ -234,8 +231,6 @@ namespace Trk {
   inline double AnnulusBounds::minR() const { return m_boundValues[AnnulusBounds::bv_minR]; }
   
   inline double AnnulusBounds::maxR() const { return m_boundValues[AnnulusBounds::bv_maxR]; }
-
-  inline double AnnulusBounds::R() const { return m_boundValues[AnnulusBounds::bv_R]; }
   
   inline double AnnulusBounds::phi() const    { return m_boundValues[AnnulusBounds::bv_phi]; }
   
