@@ -50,7 +50,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
   auto resultHandle = SG::makeHandle( m_resultKey, context );
   std::unordered_map<uint16_t, Payload >::const_iterator mapElement = resultHandle->getSerialisedData().find(m_moduleID);
   if ( mapElement == resultHandle->getSerialisedData().end() ) {
-    ATH_MSG_WARNING("Payload of ID " << m_moduleID << " absent in this event");
+    // TODO revise this behavior for TLA usecases
+    ATH_MSG_ERROR("Payload of ID " << m_moduleID << " absent in this event");
+    return StatusCode::FAILURE;
   }
   const Payload& data = mapElement->second;
   PayloadIterator start = data.begin();
