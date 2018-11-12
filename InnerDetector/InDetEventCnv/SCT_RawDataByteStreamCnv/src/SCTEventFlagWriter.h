@@ -13,7 +13,8 @@
 
 class ISCT_ByteStreamErrorsTool;
 
-/** @class SCTEventFlagWriter
+/** 
+ * @class SCTEventFlagWriter
  *
  * @brief Athena Algorithm to flag an event bad if number of error exceed threshold. 
  *

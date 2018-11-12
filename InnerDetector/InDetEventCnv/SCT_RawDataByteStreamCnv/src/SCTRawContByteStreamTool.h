@@ -26,7 +26,8 @@ class ISCT_CablingTool;
 class SCT_ID;
 class SrcIdMap;
 
-/** @class SCTRawContByteStreamTool
+/** 
+ * @class SCTRawContByteStreamTool
  * 
  * @brief Athena Algorithm Tool to provide conversion from SCT RDO container to ByteStream.
  *
@@ -37,7 +38,8 @@ class SrcIdMap;
  * Contains convert method that maps ROD ID's to vectors of RDOs in those RODs, then
  * loops through the map, using RodEncoder to fill data for each ROD in turn.
  */
-class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStreamTool> {
+class SCTRawContByteStreamTool : public extends<AthAlgTool, ISCTRawContByteStreamTool> 
+{
  public:
 
   /** Constructor */
@@ -46,10 +48,14 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   /** Destructor */
   virtual ~SCTRawContByteStreamTool() = default;
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  /** Initialize */
+  virtual StatusCode initialize() override;
 
-  /** @brief Main Convert method 
+  /** Execute */
+  virtual StatusCode finalize() override;
+
+  /** 
+   * @brief Main Convert method 
    *
    * Maps ROD ID's to vectors of RDOs in those RODs, then loops through the map, 
    * using RodEncoder to fill data for each ROD in turn.
@@ -70,13 +76,13 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
-   * IdentifierHash or hash IDs. Also allows decoding of these IDs. */ 
+      IdentifierHash or hash IDs. Also allows decoding of these IDs. */ 
   const SCT_ID* m_sctIDHelper;
 
   unsigned short m_rodBlockVersion;
 
   /** Conversion between Lower level Source ID to higher level source ID, used to assemble
-   * fragments from ROD fragments to assemble full ATLAS raw events. */ 
+      fragments from ROD fragments to assemble full ATLAS raw events. */ 
   mutable FullEventAssembler<SrcIdMap> m_fullEventAssembler;
 
   mutable std::mutex m_mutex;

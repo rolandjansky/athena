@@ -16,7 +16,8 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 
-/** @class ISCTRawContByteStreamTool
+/** 
+ * @class ISCTRawContByteStreamTool
  * 
  * @brief Interface for Athena Algorithm Tool to provide conversion from SCT RDO container to ByteStream.
  *
@@ -24,19 +25,19 @@
  *
  * The class inherits from IAlgTool.
  */
-class ISCTRawContByteStreamTool: virtual public IAlgTool {
+class ISCTRawContByteStreamTool : virtual public IAlgTool 
+{
  public:
-
-  /** Destructor */
-  virtual ~ISCTRawContByteStreamTool() = default;
 
   /** Creates the InterfaceID and interfaceID() method */
   DeclareInterfaceID(ISCTRawContByteStreamTool, 1, 0);
 
+  /** Destructor */
+  virtual ~ISCTRawContByteStreamTool() = default;
+
   /** Convert method */
   virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
                              RawEventWrite* rawEvtWritecont, MsgStream& log) const = 0;
-  
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTBYTESTREAMTOOL_H

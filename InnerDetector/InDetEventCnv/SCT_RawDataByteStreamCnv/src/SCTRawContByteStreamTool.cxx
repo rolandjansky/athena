@@ -14,24 +14,21 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "eformat/SourceIdentifier.h"
 
-#include <cstdint>
-
 // Contructor 
 
-SCTRawContByteStreamTool::SCTRawContByteStreamTool
-(const std::string& type, const std::string& name,const IInterface* parent):
+SCTRawContByteStreamTool::SCTRawContByteStreamTool(const std::string& type, const std::string& name,
+                                                   const IInterface* parent) :
   base_class(type, name, parent),
   m_sctIDHelper{nullptr},
   m_mutex{}
 {
   declareProperty("RodBlockVersion", m_rodBlockVersion=0);
-  return;
 }
 
 // Initialize
 
-StatusCode
-SCTRawContByteStreamTool::initialize() {
+StatusCode SCTRawContByteStreamTool::initialize() 
+{
   // Retrieve ID mapping
   ATH_CHECK(m_cabling.retrieve());
   ATH_MSG_INFO("Retrieved service " << m_cabling);
@@ -44,14 +41,16 @@ SCTRawContByteStreamTool::initialize() {
 
 // Finalize
 
-StatusCode
-SCTRawContByteStreamTool::finalize() {
+StatusCode SCTRawContByteStreamTool::finalize() 
+{
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont, 
-                                  RawEventWrite* rawEvtWrite, MsgStream& log) const {
+// Convert method
+
+StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont, 
+                                             RawEventWrite* rawEvtWrite, MsgStream& log) const 
+{
   std::lock_guard<std::mutex> lock(m_mutex);
 
   m_fullEventAssembler.clear();

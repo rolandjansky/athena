@@ -12,7 +12,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-/** @class ISCTRawDataProviderTool
+/** 
+ * @class ISCTRawDataProviderTool
  *
  * @brief Interface for Athena Algorithm Tool to fill Collections of SCT RDO Containers.
  *
@@ -20,7 +21,6 @@
  */
 class ISCTRawDataProviderTool : virtual public IAlgTool
 {
-
  public:
 
   /** Creates the InterfaceID and interfaceID() method */
