@@ -75,6 +75,45 @@ namespace top {
     std::unordered_set<std::string> tmpAllTriggers_Tight;
     std::unordered_set<std::string> tmpAllTriggers_Loose;
 
+    // get full list of global triggers
+    std::vector<std::string> globalTriggers_Tight;
+    std::vector<std::string> globalTriggers_Loose;
+    std::vector<std::string> globalElectronTriggers_Tight;
+    std::vector<std::string> globalElectronTriggers_Loose;
+    std::vector<std::string> globalMuonTriggers_Tight;
+    std::vector<std::string> globalMuonTriggers_Loose;
+    if (m_config->useGlobalTrigger()) {
+      std::set<std::string> tmp;
+      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggers(), m_config->getGlobalTriggerMuonTriggers()}) {
+        for (auto const & pair : triggermap) {
+          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
+          tmp.insert(triggers.begin(), triggers.end());
+        }
+      }
+      globalTriggers_Tight.assign(tmp.begin(), tmp.end());
+      for (auto const & trigger : globalTriggers_Tight) {
+        if (isElectronTrigger(trigger))
+          globalElectronTriggers_Tight.push_back(trigger);
+        if (isMuonTrigger(trigger))
+          globalMuonTriggers_Tight.push_back(trigger);
+      }
+      tmp.clear();
+      // and the usual copy-paste-s/Tight/Loose/g story:
+      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggersLoose(), m_config->getGlobalTriggerMuonTriggersLoose()}) {
+        for (auto const & pair : triggermap) {
+          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
+          tmp.insert(triggers.begin(), triggers.end());
+        }
+      }
+      globalTriggers_Loose.assign(tmp.begin(), tmp.end());
+      for (auto const & trigger : globalTriggers_Loose) {
+        if (isElectronTrigger(trigger))
+          globalElectronTriggers_Loose.push_back(trigger);
+        if (isMuonTrigger(trigger))
+          globalMuonTriggers_Loose.push_back(trigger);
+      }
+    }
+
     m_allTriggers_Tight.clear();
     m_electronTriggers_Tight.clear();
     m_muonTriggers_Tight.clear();
@@ -147,6 +186,18 @@ namespace top {
 
         if (starts_with(cut, "GTRIGDEC ")) {
           selectionHasTriggerCut = true;
+          allTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalTriggers_Tight.begin(), globalTriggers_Tight.end())));
+          allTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalTriggers_Loose.begin(), globalTriggers_Loose.end())));
+          electronTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalElectronTriggers_Tight.begin(), globalElectronTriggers_Tight.end())));
+          electronTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalElectronTriggers_Loose.begin(), globalElectronTriggers_Loose.end())));
+          muonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalMuonTriggers_Tight.begin(), globalMuonTriggers_Tight.end())));
+          muonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalMuonTriggers_Loose.begin(), globalMuonTriggers_Loose.end())));
         }
 
         if (starts_with(cut, "TRIGDEC_TIGHT ")) {
@@ -350,20 +401,8 @@ namespace top {
     } // Loop over all selections
 
     // Add triggers configured for the global trigger SF tool
-    if (m_config->useGlobalTrigger()) {
-      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggers(), m_config->getGlobalTriggerMuonTriggers()}) {
-        for (auto const & pair : triggermap) {
-          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
-          tmpAllTriggers_Tight.insert(triggers.begin(), triggers.end());
-        }
-      }
-      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggersLoose(), m_config->getGlobalTriggerMuonTriggersLoose()}) {
-        for (auto const & pair : triggermap) {
-          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
-          tmpAllTriggers_Loose.insert(triggers.begin(), triggers.end());
-        }
-      }
-    }
+    tmpAllTriggers_Tight.insert(globalTriggers_Tight.begin(), globalTriggers_Tight.end());
+    tmpAllTriggers_Loose.insert(globalTriggers_Loose.begin(), globalTriggers_Loose.end());
 
     // Turn list into vector
     {
