@@ -42,6 +42,7 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue, float wei);
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
  private: 
+  bool m_vetoBCID;
   bool m_outputNoise;
   bool m_debugJetAlg;
   bool m_dumpTowersEtaPhi;
@@ -66,6 +67,14 @@ class JGTowerReader: public ::AthAlgorithm {
   float m_gJet_r;
   std::string m_noise_file;
  
+  //job options for gFEX MET algorithms
+  bool m_useRMS;
+  bool m_useMedian;
+  bool m_useNegTowers;
+  bool m_combine_rhoNoise;
+  bool m_combine_skNoise;
+  bool m_combine_jwojNoise;
+
   const CaloCell_SuperCell_ID* m_scid;
   const JTower_ID* m_jTowerId;
   const GTower_ID* m_gTowerId;
@@ -86,6 +95,10 @@ class JGTowerReader: public ::AthAlgorithm {
   JetAlg::Seed*   gSeeds=new JetAlg::Seed;
   METAlg::MET*    jMET=new  METAlg::MET;
   METAlg::MET*    gMET=new  METAlg::MET;
+  METAlg::MET*    gMET_rho=new  METAlg::MET;
+  METAlg::MET*    gMET_sk=new  METAlg::MET;
+  METAlg::MET*    gMET_jwoj=new  METAlg::MET;
+  METAlg::MET*    gMET_pufit=new  METAlg::MET;
   std::vector<JetAlg::L1Jet>  jL1Jets;
   std::vector<JetAlg::L1Jet>  jJet_L1Jets;
   std::vector<JetAlg::L1Jet>  gL1Jets;
