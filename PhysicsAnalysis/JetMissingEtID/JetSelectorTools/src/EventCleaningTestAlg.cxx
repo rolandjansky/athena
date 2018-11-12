@@ -51,7 +51,7 @@ StatusCode EventCleaningTestAlg::initialize()
 StatusCode EventCleaningTestAlg::execute()
 {
   // Jets
-  const xAOD::JetContainer* jets = 0;
+  const xAOD::JetContainer* jets = nullptr;
   ATH_CHECK( evtStore()->retrieve(jets, m_collection) );
 
   // Apply the event cleaning
@@ -60,7 +60,7 @@ StatusCode EventCleaningTestAlg::execute()
 
   //Decorate event
   if(m_doEvent){
-    const xAOD::EventInfo* eventInfo = 0;
+    const xAOD::EventInfo* eventInfo = nullptr;
     ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
     (*m_dec_eventClean)(*eventInfo) = result;
   }
