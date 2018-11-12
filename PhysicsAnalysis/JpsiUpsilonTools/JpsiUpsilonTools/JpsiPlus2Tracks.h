@@ -59,9 +59,9 @@ namespace Analysis {
         static bool   oppositeCharges(const xAOD::TrackParticle*, const xAOD::TrackParticle*);
 
         bool  passCuts(xAOD::BPhysHelper &bHelper, const std::vector<double> &masses, const std::string &str) const;
-
+        bool  vertexCuts(xAOD::BPhysHelper &bHelper) const;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&,
-                          bool, double, const xAOD::TrackParticleContainer*);
+                          bool, double, const xAOD::TrackParticleContainer*, const xAOD::Vertex* pv) const;
         //-------------------------------------------------------------------------------------
         
     private:
@@ -104,6 +104,10 @@ namespace Analysis {
         // (to reduce the pileup contribution before vertexing)
         std::vector<double> m_manualMassHypo;
         int m_requiredNMuons;
+        // fit with PV
+        bool m_vertexFittingWithPV;
+        std::string m_PVerticesCollection;
+
     };
 } // end of namespace
 #endif

@@ -214,6 +214,14 @@ for collection in JetCollectionList :
         ExtraContentAll.append(collection+'.'+j)
 HION5SlimmingHelper.ExtraVariables = ExtraContentAll
 
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HION5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+HION5SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+HION5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
+
 addMETOutputs(HION5SlimmingHelper,met_ptCutList)
 #HION5SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt4HIJets","AntiKt4HITrackJets","HIClusters"]
 HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets"]

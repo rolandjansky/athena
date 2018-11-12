@@ -817,7 +817,7 @@ namespace CP {
       else return true;
     }
     // ::
-    if( mu.muonType() == xAOD::Muon::CaloTagged && fabs(mu.eta())<0.105 ) return true;
+    if( mu.muonType() == xAOD::Muon::CaloTagged && fabs(mu.eta())<0.105 && passedCaloTagQuality(mu)) return true;
     // ::
     if( mu.muonType() == xAOD::Muon::SegmentTagged && fabs(mu.eta())<0.105 ) return true;
     // ::

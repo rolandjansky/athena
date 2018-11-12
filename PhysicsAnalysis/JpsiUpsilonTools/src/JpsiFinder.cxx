@@ -310,8 +310,7 @@ namespace Analysis {
             for (muItr=importedMuonCollection->begin(); muItr!=importedMuonCollection->end(); ++muItr) {
                 if ( *muItr == NULL ) continue;
                 if (!(*muItr)->inDetTrackParticleLink().isValid()) continue; // No muons without ID tracks
-                const xAOD::TrackParticle* muonTrk(0);
-                muonTrk = (*muItr)->inDetTrackParticleLink().cachedElement();
+                const xAOD::TrackParticle* muonTrk = *((*muItr)->inDetTrackParticleLink());
                 if ( muonTrk==NULL) continue;
                 if ( !m_trkSelector->decision(*muonTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
                 if ( fabs(muonTrk->pt())<m_thresholdPt ) continue; // higher pt cut if needed
@@ -362,31 +361,31 @@ namespace Analysis {
         if (m_mumu) {
             for (jpsiItr=jpsiCandidates.begin(); jpsiItr!=jpsiCandidates.end(); ++jpsiItr) {
                 if ( (m_combOnly && !m_useCombMeasurement) || m_atLeastOneComb || m_allMuons) {
-                  (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticleLink().cachedElement();
-                  (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticleLink().cachedElement();
+                  (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
+                  (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
                   (*jpsiItr).collection1 = importedTrackCollection;
                   (*jpsiItr).collection2 = importedTrackCollection;
                 }
                 if (m_combOnly && m_useCombMeasurement) {
                     if (!(*jpsiItr).muon1->combinedTrackParticleLink().isValid()) {
-                      (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticleLink().cachedElement();
+                      (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
                       (*jpsiItr).collection1 = importedTrackCollection;
                     }
                     
                     if (!(*jpsiItr).muon2->combinedTrackParticleLink().isValid()) {
-                      (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticleLink().cachedElement();
+                      (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
                       (*jpsiItr).collection2 = importedTrackCollection;
                     }
                     
                     if ((*jpsiItr).muon1->combinedTrackParticleLink().isValid()) {
-                        (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->combinedTrackParticleLink().cachedElement();
+                        (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->trackParticle( xAOD::Muon::CombinedTrackParticle );
                         bool foundCollection(false);
                         // Look for correct muon track container
                         for (muTrkCollItr=importedMuonTrackCollections.begin(); muTrkCollItr!=importedMuonTrackCollections.end(); ++muTrkCollItr) {
                             if (isContainedIn((*jpsiItr).trackParticle1,*muTrkCollItr)) { (*jpsiItr).collection1 = *muTrkCollItr; foundCollection=true; break;}
                         }
                         if (!foundCollection) { // didn't find the correct muon track container so go back to ID
-                            (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->inDetTrackParticleLink().cachedElement();
+                            (*jpsiItr).trackParticle1 = (*jpsiItr).muon1->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
                             (*jpsiItr).collection1 = importedTrackCollection;
                             ATH_MSG_WARNING("Muon track from muon of author " << (*jpsiItr).muon1->author() << " not found in muon track collections you have provided.");
                             ATH_MSG_WARNING("Defaulting to ID track collection - combined measurement will not be used");
@@ -394,14 +393,14 @@ namespace Analysis {
                     }
                     
                     if ((*jpsiItr).muon2->combinedTrackParticleLink().isValid()) {
-                        (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->combinedTrackParticleLink().cachedElement();
+                        (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->trackParticle( xAOD::Muon::CombinedTrackParticle );
                         bool foundCollection(false);
                         // Look for correct muon track container
                         for (muTrkCollItr=importedMuonTrackCollections.begin(); muTrkCollItr!=importedMuonTrackCollections.end(); ++muTrkCollItr) {
                             if (isContainedIn((*jpsiItr).trackParticle2,*muTrkCollItr)) { (*jpsiItr).collection2 = *muTrkCollItr; foundCollection=true; break;}
                         }
                         if (!foundCollection) { // didn't find the correct muon track container so go back to ID
-                            (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->inDetTrackParticleLink().cachedElement();
+                            (*jpsiItr).trackParticle2 = (*jpsiItr).muon2->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
                             (*jpsiItr).collection2 = importedTrackCollection;
                             ATH_MSG_WARNING("Muon track from muon of author " << (*jpsiItr).muon2->author() << " not found in muon track collections you have provided.");
                             ATH_MSG_WARNING("Defaulting to ID track collection - combined measurement will not be used");
@@ -661,7 +660,8 @@ namespace Analysis {
                 for(trkItr=tracks.begin();trkItr<tracks.end();trkItr++){
                     bool trackIsMuon(false);
                     for(muItr=muons.begin();muItr<muons.end();muItr++){
-                      if ( (*muItr)->inDetTrackParticleLink().cachedElement() == (*trkItr) ) {
+                      auto& link = ( *muItr )->inDetTrackParticleLink();
+                      if ( link.isValid() &&  *link == (*trkItr) ) {
                           trackIsMuon=true; 
                           break;
                         }
@@ -676,7 +676,7 @@ namespace Analysis {
                 for(muItr=muons.begin();muItr<muons.end();muItr++){
                     pair.muon1 = *muItr;
                     // Muon track 1st
-                    pair.trackParticle1 = (*muItr)->inDetTrackParticleLink().cachedElement();
+                    pair.trackParticle1 = (*muItr)->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
                     pair.trackParticle2 = *trkItr;
                     pair.pairType = MUTRK;
                     myPairs.push_back(pair);

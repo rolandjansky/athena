@@ -97,9 +97,9 @@ namespace DerivationFramework {
 
     bool VertexPlus1TrackCascade::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::MuonContainer* theColl) {
         bool isContained(false);
-        xAOD::MuonContainer::const_iterator muItr;
-        for (muItr=theColl->begin(); muItr!=theColl->end(); ++muItr) {
-            if ( (*muItr)->inDetTrackParticleLink().cachedElement() == theTrack ) {isContained=true; break;}
+        for (auto muItr=theColl->cbegin(); muItr!=theColl->cend(); ++muItr) {
+            auto& link = ( *muItr )->inDetTrackParticleLink();
+            if ( link.isValid() && ( *link == theTrack ) ) {isContained=true; break;}
         }
         return isContained;
     }

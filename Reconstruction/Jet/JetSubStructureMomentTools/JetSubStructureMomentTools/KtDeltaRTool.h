@@ -14,12 +14,9 @@ public:
 
   // Ctor.
   KtDeltaRTool(const std::string& t);
-
-  // Initialization.
-  StatusCode initialize();
-
+  
   // Add moment to a jet.
-  int modifyJet(xAOD::Jet&) const;
+  int modifyJet(xAOD::Jet& injet) const;
 
   // Display properties.
   void print() const;

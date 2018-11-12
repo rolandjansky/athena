@@ -62,6 +62,7 @@ namespace DerivationFramework {
       double m_massMax;                     //!< invariant mass range
       double m_massMin;                     //!< invariant mass range
       double m_chi2Max;                     //!< max chi2 cut
+      double m_lxyMin;                      //!< min lxy cut
       int m_DoVertexType;                   //!< Allows user to skip certain vertexes - bitwise test 7==all(111)
       bool m_do3d;
   }; 
