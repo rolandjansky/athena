@@ -427,10 +427,7 @@ class Prescales:
     #   - If only the first value is specified,
     #     the default value of pass-through (=0) will be used
     #----------------------------------------------------------
-    HLTPrescales = {
-        'larnoiseburst_rerun'       : [ 0, 0 , 1, "LArNoiseBurst"],
-        'larnoiseburst_loose_rerun' : [ 0, 0 , 1, "LArNoiseBurst"],
-        }
+    HLTPrescales = {}
 
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}
