@@ -96,11 +96,8 @@ namespace {
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent), m_gm(0), m_phelper(0), 
-    m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
     m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_clusterTool("CscClusterUtilTool/CscClusterUtilTool"),
-    m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
     m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name)
 {
   declareInterface<ICscSegmentUtilTool>(this);
@@ -121,12 +118,17 @@ CscSegmentUtilTool::CscSegmentUtilTool
   declareProperty("IPconstraint", m_IPconstraint = true);
   declareProperty("IPerror", m_IPerror = 250.);
   declareProperty("allEtaPhiMatches", m_allEtaPhiMatches = true);  
-  declareProperty("precision_fitter", m_pfitter_prec);
   declareProperty("rot_creator", m_rotCreator);
   declareProperty("TightenChi2", m_TightenChi2 = true);
   declareProperty("Remove4Overlap", m_remove4Overlap = true);
   declareProperty("Remove3Overlap", m_remove3Overlap = true);
   declareProperty("UnspoiledHits", m_nunspoil = -1);
+
+  // Retrieve ToolHandles from CscClusterOnTrackCreator
+  m_pfitter_prec = m_rotCreator.GetQratCscClusterFitter();
+  m_clusterTool  = m_rotCreator.GetCscClusterUtilTool();
+  m_stripFitter  = m_rotCreator.GetCalibCscStripFitter();
+
 }
 
 //******************************************************************************

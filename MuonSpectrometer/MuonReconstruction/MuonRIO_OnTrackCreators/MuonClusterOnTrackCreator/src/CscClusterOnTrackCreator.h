@@ -96,6 +96,12 @@ namespace Muon {
     */
     virtual const MuonClusterOnTrack* correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const; 
   
+    // These tools are used elsewhere with default setups, so we should just pass them out
+    ToolHandle<ICscStripFitter>     GetCalibCscStripFitter()  {return m_stripFitter;}
+    ToolHandle<ICscClusterFitter>   GetQratCscClusterFitter() {return m_clusterFitter;}
+    ToolHandle<ICscClusterUtilTool> GetCscClusterUtilTool()   {return m_clusterUtilTool;}
+
+
   private:
     const MuonGM::MuonDetectorManager*   m_muonMgr;          // Muon GeoModel
     const CscIdHelper*                   m_cscIdHelper;
