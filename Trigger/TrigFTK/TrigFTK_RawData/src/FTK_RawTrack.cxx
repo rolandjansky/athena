@@ -305,7 +305,7 @@ void FTK_RawTrack::setPhi(float track_phi){
 
 void FTK_RawTrack::setInvPt(float track_invpt){
 
-  uint16_t invpt = Eigen::half(track_invpt).x;
+  uint16_t invpt = Eigen::half(0.5*track_invpt).x;// 1/(2pt) is stored in dataword from version 2 onwards
 
   m_word_th6 = invpt | m_word_th6;
   return;
