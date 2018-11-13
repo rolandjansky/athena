@@ -511,7 +511,7 @@ namespace top{
 			hasB = true;
 			topChildren = findAfterFSR(topChildren);// b After FSR
 			b_p4 = topChildren->p4();
-			// In MG5 production it is not expected to have any b radiation 'recorded'
+			// In MG5 generation of ttgamma it is not expected to have any b radiation 'recorded'
 			for (size_t b = 0; b<topChildren->nChildren(); b++){// b Children
 			  const xAOD::TruthParticle* bChildren = topChildren->child(b);
 			  if(bChildren && bChildren->pdgId()==22){

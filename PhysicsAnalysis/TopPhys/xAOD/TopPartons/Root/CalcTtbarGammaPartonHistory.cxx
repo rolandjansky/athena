@@ -12,9 +12,9 @@ namespace top{
   void CalcTtbarGammaPartonHistory::ttbarGammaHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* ttbarGammaPartonHistory){
 
      ttbarGammaPartonHistory->IniVarTtGamma();
-
+//std::cout<<"Event:"<<std::endl;
      TLorentzVector ph_t; bool has_ph_t; 
-     int branchtype_t=-1; 
+     int branchtype_t=-1;  int branchtype_tbar=-1;
      /// Definition of top-branch type: also applicable for branchtype_tbar
 	/// -1:undefined
 	///  0: missing top
@@ -43,10 +43,10 @@ namespace top{
      int WpDecay1_pdgId;
      int WpDecay2_pdgId; 
      bool missTop; bool missTbar;
-
+//std::cout<<"Top:"<<std::endl;
      bool event_top = CalcTopPartonHistory::topPhWb(truthParticles, 6, t_before, t_after, ph_t, Wp, b, WpDecay1, WpDecay1_pdgId, WpDecay2, WpDecay2_pdgId, has_ph_t, branchtype_t, init_type, missTbar);
 
-     TLorentzVector ph_tbar; bool has_ph_tbar; int branchtype_tbar=0;
+     TLorentzVector ph_tbar; bool has_ph_tbar;
      TLorentzVector tbar_before, tbar_after;
      TLorentzVector Wm;
      TLorentzVector bbar;
@@ -54,7 +54,7 @@ namespace top{
      TLorentzVector WmDecay2;
      int WmDecay1_pdgId;
      int WmDecay2_pdgId;
-
+//std::cout<<"Tbar:"<<std::endl;
      bool event_topbar = CalcTopPartonHistory::topPhWb(truthParticles, -6, tbar_before, tbar_after, ph_tbar, Wm, bbar, WmDecay1, WmDecay1_pdgId, WmDecay2, WmDecay2_pdgId, has_ph_tbar, branchtype_tbar, init_type, missTop);
 
      if(event_top && missTbar && has_ph_t && branchtype_t!=10 && branchtype_t!=50 && branchtype_t!=15 && branchtype_t!=55){
@@ -91,9 +91,9 @@ namespace top{
 		}
 		if(WmDecay1_pdgId>=1 && WmDecay1_pdgId<=4) branchtype_tbar = 50;
 		else if(WmDecay1_pdgId>=11 && WmDecay1_pdgId<=16) branchtype_tbar = 10;
+
+		if(branchtype_tbar==50 || branchtype_tbar==10){event_topbar = true; has_ph_tbar = false;}
 	}
-	event_topbar = true;
-	has_ph_tbar = false;
      }
      else if(event_topbar && missTop && has_ph_tbar && branchtype_tbar!=10 && branchtype_tbar!=50 && branchtype_tbar!=15 && branchtype_tbar!=55){
 	bool Wonshell = false;
@@ -126,11 +126,10 @@ namespace top{
 			Wp = WpDecay1 + WpDecay2;
 		 }
 		}
-		if(WmDecay1_pdgId>=1 && WmDecay1_pdgId<=4) branchtype_t = 50;
-		else if(WmDecay1_pdgId>=11 && WmDecay1_pdgId<=16) branchtype_t = 10;
+		if(abs(WmDecay1_pdgId)>=1 && abs(WmDecay1_pdgId)<=4) branchtype_t = 50;
+		else if(abs(WmDecay1_pdgId)>=11 && abs(WmDecay1_pdgId)<=16) branchtype_t = 10;
+		if(branchtype_t==50 || branchtype_t==10){event_top = true; has_ph_t = false;}
 	}
-	event_top = true;
-	has_ph_t = false;
      }
 
      TLorentzVector ph; 
@@ -161,7 +160,12 @@ namespace top{
 	/// 13: Dilepton b radiation
 
      if( (event_top && !event_topbar) || (!event_top && event_topbar) || (!event_top && !event_topbar) ) {// missing top
-	category = 0; ph_source = 3; init_type = 0;
+	for(const xAOD::TruthParticle* particle : *truthParticles){
+		if(particle->barcode() != 3) continue;
+		if(abs(particle->pdgId())==21) init_type = 1;//gg
+		else if(abs(particle->pdgId())<6) init_type = 2;//qq
+	}
+	category = 0; ph_source = 3;
 	branchtype_t = 0; branchtype_tbar = 0;
         ttbarGammaPartonHistory->auxdecor< int >( "MC_branchtype_t" ) = branchtype_t;
         ttbarGammaPartonHistory->auxdecor< int >( "MC_branchtype_tbar" ) = branchtype_tbar;
@@ -170,7 +174,7 @@ namespace top{
 	ttbarGammaPartonHistory->auxdecor< int >( "MC_ph_from_t_tbar" ) = ph_source;
      }// one of the top is virtual
 
-     else if(event_top && event_topbar && (has_ph_t || has_ph_tbar)){
+     else if(event_top && event_topbar){ // && (has_ph_t || has_ph_tbar)
 
      	if(has_ph_t && has_ph_tbar){// isr should give the same photon to both tops
 	 if(ph_t.Pt()>ph_tbar.Pt()){ph = ph_t;}// FOR EXTRA SAFETY
@@ -204,6 +208,7 @@ namespace top{
 		else if((branchtype_t==14 && branchtype_tbar==10) || (branchtype_t==10 && branchtype_tbar==14)){category = 12;}//	W Radiation dileptonic
 		else if((branchtype_t==18 && branchtype_tbar==10) || (branchtype_t==10 && branchtype_tbar==18)){category = 13;}//	W Radiation dileptonic
 		else if(branchtype_t==1 || branchtype_tbar==1){category=-1;}// missing W
+		else {category=0;}// missing top
 	}
 	else if(ph_source==-1){category=-2;} // undefined
 
@@ -233,7 +238,7 @@ namespace top{
 	fillEtaBranch(ttbarGammaPartonHistory, "MC_ttbar_afterFSR_eta", temp);
      }
 
-
+//std::cout<<"\n"<<std::endl;
 //------------------------------------------------------------------------------------------
      if(event_top){
      	ttbarGammaPartonHistory->auxdecor< float >( "MC_t_beforeFSR_m" ) = t_before.M();
