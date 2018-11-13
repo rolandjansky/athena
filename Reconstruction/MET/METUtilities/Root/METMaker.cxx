@@ -164,7 +164,7 @@ namespace met {
       m_JvtCutTight  = 0.91; m_JvtTightPtMax  = 40.0e3;
       m_JvtCutMedium = 0.59; m_JvtMediumPtMax = 60.0e3;
       m_JvtCut       = 0.11; m_JvtPtMax = 120e3; }
-    if (m_jetSelection == "LooseJVT04_WIP")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.4; m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "LooseJVT04_WIP")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.4; m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "TightJVT04_WIP")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; m_JvtCut = 0.4; m_JvtPtMax = 60e3; ATH_MSG_WARNING("Caution: For testing with PFlow collections only!"); }
     else if (m_jetSelection == "TighterJVT04_WIP"){ m_CenJetPtCut = 20e3; m_FwdJetPtCut = 35e3;  m_JvtCut = 0.4; m_JvtPtMax = 60e3; ATH_MSG_WARNING("Caution: For testing with PFlow collections only!"); }
     else if (m_jetSelection == "TenaciousJVT641_WIP")  {
@@ -192,7 +192,7 @@ namespace met {
     }   
     else { 
       if (m_jetSelection == "Default") ATH_MSG_WARNING( "WARNING:  Default is now deprecated" ); 
-      ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, PFlow, Expert" ); 
+      ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, Tighter, Tenacious, PFlow, Expert" ); 
       return StatusCode::FAILURE; 
     }   
 
