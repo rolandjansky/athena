@@ -242,6 +242,9 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
     ATH_MSG_DEBUG("Digitized Elements without Hits");
   }
 
+  delete m_thpcsi;
+  m_thpcsi = nullptr;
+
   ATH_MSG_VERBOSE("Digitize success!");
   return StatusCode::SUCCESS;
 }
@@ -288,6 +291,9 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
     delete hit;
   }
   m_hitCollPtrs.clear();
+
+  delete m_thpcsi;
+  m_thpcsi = nullptr;
 
   ATH_MSG_DEBUG("Digitize success!");
   return StatusCode::SUCCESS;
@@ -404,8 +410,6 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
 
   TimedHitCollection<SiHit>::const_iterator i, e;
   if (thpcsi->nextDetectorElement(i, e) == false) { // no more hits
-    delete thpcsi;
-    thpcsi = nullptr;
     return false;
   }
 
