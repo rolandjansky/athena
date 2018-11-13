@@ -185,6 +185,16 @@ namespace top {
         }
 
         if (starts_with(cut, "GTRIGDEC ")) {
+          if (selectionHasTriggerCut || selectionHasTriggerCut_Loose || selectionHasTriggerCut_Tight) {
+            ATH_MSG_ERROR("A *TRIGDEC* selector has already been used for selection "<<sel.m_name<<" - you can't have two.");
+            ATH_MSG_ERROR("Exiting...");
+            exit(1);
+          }
+          if (!m_config->useGlobalTrigger()) {
+            ATH_MSG_ERROR("The GTRIGDEC selector cannot be used without UseGlobalLeptonTriggerSF.");
+            ATH_MSG_ERROR("Exiting...");
+            exit(1);
+          }
           selectionHasTriggerCut = true;
           allTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
               std::vector<std::string>(globalTriggers_Tight.begin(), globalTriggers_Tight.end())));
@@ -302,7 +312,7 @@ namespace top {
         } // Cut requested is TRIGDEC_LOOSE
         else if (starts_with(cut, "TRIGDEC ")) {
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR("TRIGDEC has already been used for selection "<<sel.m_name<<" - you can't use it twice.");
+            ATH_MSG_ERROR("TRIGDEC/GTRIGDEC has already been used for selection "<<sel.m_name<<" - you can't use it twice.");
             ATH_MSG_ERROR("Exiting...");
             exit(1);
           }
