@@ -1,4 +1,7 @@
 /*
+
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
 SoftKiller.h: Implementation of the SoftKiller algorithm for athena simulation
 Author: Ava Myers (amyers@cern.ch)
 

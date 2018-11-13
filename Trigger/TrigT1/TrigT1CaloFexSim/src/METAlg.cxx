@@ -5,6 +5,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include "TrigT1CaloFexSim/METAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
@@ -146,13 +147,15 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::
   return StatusCode::SUCCESS;
 }
 
-StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers){
+StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, float pTcone_cut, bool useNegTowers){
   
   unsigned int size = towers->size();
   
-  std::vector<float> Et_values = Run_JwoJ(towers, useNegTowers);
+  std::vector<float> Et_values = Run_JwoJ(towers, pTcone_cut,  useNegTowers);
   
   //set fit parameters for calculating MET
+  //Look up table for parameters a,b,c depending on scalar sumEt
+  //Optimized for resolution in external framework
   float a;
   float b;
   float c;
@@ -199,18 +202,18 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* m
   }
   
   float EtMiss = a*Et_values[1] + b*Et_values[2] + c;
-  met->et = EtMiss;
+  met->et = EtMiss*Gaudi::Units::GeV;
   
-  std::cout<<"Calculating MET with optimized Jets Without Jets: "<<std::endl;
-  std::cout<<"MET = "<<EtMiss<<std::endl;
+  //std::cout<<"Calculating MET with optimized Jets Without Jets: "<<std::endl;
+  //std::cout<<"MET = "<<EtMiss<<std::endl;
   return StatusCode::SUCCESS;
 }
 
 StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, METAlg::MET* met, bool useNegTowers){
   float EtMiss = Run_PUfit(towers, 3, useNegTowers);
   met->et = EtMiss;
-  std::cout<<"Calculating MET with PUfit:"<<std::endl;
-  std::cout<<"MET = "<<EtMiss<<std::endl;
+  //std::cout<<"Calculating MET with PUfit:"<<std::endl;
+  //std::cout<<"MET = "<<EtMiss<<std::endl;
   return StatusCode::SUCCESS;
 }
 

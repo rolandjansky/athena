@@ -1,4 +1,7 @@
 /*
+
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
 JwoJ.h: Implementation of the Jets without Jets algorithm
 Author: Ava Myers (amyers@cern.ch)
 Optimized for resolution (Rebecca Linck) -> uses total reconstructed MET as "soft term"
@@ -17,7 +20,7 @@ BuildBlocksFromTowers: Takes JGTowers from a JGTowerContainer and combines them 
 #include <algorithm>
 #include "TMath.h"
 #include "Objects.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 //--------------------------------------------------------------------
 void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, bool useNegTowers){
   
@@ -54,12 +57,12 @@ void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::
   
   std::sort(blocks.rbegin(), blocks.rend());
 }
-std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, bool useNegTowers){
+std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, float pTcone_cut, bool useNegTowers){
   
   std::vector<TowerObject::Block> blocks;
   BuildBlocksFromTowers(blocks, *towers, 3, 3, useNegTowers);
   
-  float pTcone_cut = 25000;
+  pTcone_cut*=Gaudi::Units::GeV;
   std::vector<float> Et_vals;
   float Ht = 0; float Htx = 0; float Hty = 0;
   float Et = 0; float Etx = 0; float Ety = 0;
@@ -104,7 +107,8 @@ std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, bool useNegTow
   float MHT = TMath::Sqrt(Htx*Htx + Hty*Hty);
   float MET = TMath::Sqrt(Etx*Etx + Ety*Ety);
   Et_tot = TMath::Sqrt(Etx_tot*Etx_tot + Ety_tot*Ety_tot);
-  
+
+  //convert to GeV for fitting process  
   Et_vals.push_back(scalar_Et*0.001);
   Et_vals.push_back(MHT*0.001);
   Et_vals.push_back(MET*0.001);

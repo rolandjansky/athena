@@ -31,6 +31,6 @@ class METAlg{
   static StatusCode BuildMET(const xAOD::JGTowerContainer*towers,METAlg::MET* met,std::vector<float> noise, bool useNegTowers);
   static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useRMS, bool useMedian, bool useNegTowers);
   static StatusCode Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
-  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
+  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, float pTcone_cut, bool useNegTowers);
   static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
 };

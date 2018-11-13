@@ -74,6 +74,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_combine_rhoNoise;
   bool m_combine_skNoise;
   bool m_combine_jwojNoise;
+  float m_pTcone_cut;
 
   const CaloCell_SuperCell_ID* m_scid;
   const JTower_ID* m_jTowerId;

@@ -67,6 +67,7 @@ histSvc("THistSvc",name){
   declareProperty("useRMS", m_useRMS=false);
   declareProperty("useMedian", m_useMedian=false);
   declareProperty("useNegTowers", m_useNegTowers=false);
+  declareProperty("pTcone_cut", m_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
 }
 
 
@@ -271,7 +272,7 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(METAlg::BuildMET(gTs,gMET,gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
   CHECK(METAlg::SubtractRho_MET(gTs, gMET_rho, m_useRMS, m_useMedian, m_useNegTowers) ); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
   CHECK(METAlg::Softkiller_MET(gTs,gMET_sk, m_useNegTowers) ); //pileup subtracted SoftKiller (with avg rho)
-  CHECK(METAlg::JwoJ_MET(gTs,gMET_jwoj, m_useNegTowers) ); //Jets without Jets
+  CHECK(METAlg::JwoJ_MET(gTs,gMET_jwoj,m_pTcone_cut, m_useNegTowers) ); //Jets without Jets
   CHECK(METAlg::Pufit_MET(gTs,gMET_pufit, m_useNegTowers) ); //L1 version of PUfit, using gTowers
   
   return StatusCode::SUCCESS;

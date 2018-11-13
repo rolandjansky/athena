@@ -1,4 +1,7 @@
 /*
+
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
 Objects.h: Contains definitions of objects necessary for MET algorithms
 
 Author: Ava Myers (amyers@cern.ch)
