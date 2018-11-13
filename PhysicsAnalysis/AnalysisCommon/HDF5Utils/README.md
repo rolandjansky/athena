@@ -61,7 +61,7 @@ cons.add("index", [](const xAOD::Jet* j){ return j->index();}, -1);
 The `add(...)` method has signature
 
 ```C++
-Consumers<C>::add(string name, function<S(C)>, string default_value);
+Consumers<C>::add(string name, function<S(C)>, S default_value);
 ```
 
 where `C` is the type to be consumed (i.e. `xAOD::Jet`) and `S` is the
