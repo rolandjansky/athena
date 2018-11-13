@@ -142,6 +142,14 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
 
   } 
 
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  const LArOnOffIdMapping* cabling=*larCablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
+     return StatusCode::FAILURE;
+  }
+
+
   // Define validity of the output cond object
   EventIDRange rangeW;
   if(!hvDataHdl.range(rangeW)) {
@@ -157,7 +165,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
     const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
     if (updatedCells.size()) {
       const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
-      StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr);
+      StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr, cabling);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
 	return sc;
@@ -209,7 +217,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
 	}
 	std::string chronoName = "LArHVScaleCorrCondAlg";
 	chrono -> chronoStart( chronoName); 
-	StatusCode sc=this->getScale(m_completeRange, vScale, hvdata, onlHVCorr);
+	StatusCode sc=this->getScale(m_completeRange, vScale, hvdata, onlHVCorr,cabling);
 	if (sc.isFailure()) {
 	  ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
 	  return sc;
@@ -224,12 +232,6 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
   }//end else m_updateIfChanged
 
   // and now record output object
-  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
-  const LArOnOffIdMapping* cabling=*larCablingHdl;
-  if(!cabling) {
-     ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
-     return StatusCode::FAILURE;
-  }
   std::unique_ptr<LArHVCorr> hvCorr = std::make_unique<LArHVCorr>(std::move(vScale), cabling, m_calocell_id );
   //LArHVScaleCorrFlat * hvCorr = new LArHVScaleCorrFlat(vScale);
   const EventIDRange crangeW(rangeW);
@@ -252,7 +254,7 @@ StatusCode LArHVScaleCorrCondAlg::finalize()
 
 
 // *** compute global ADC2MeV factor from subfactors *** 
-StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData *hvdata, const ILArHVScaleCorr *onlHVCorr) const {
+StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData *hvdata, const ILArHVScaleCorr *onlHVCorr, const LArOnOffIdMapping* cabling) const {
   
   unsigned nChannelsUpdates=0;
 
@@ -434,7 +436,7 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, std::
     
       ++nChannelsUpdates;
       if(onlHVCorr) { // undo the online one
-         float hvonline = onlHVCorr->HVScaleCorr(offid);
+	float hvonline = onlHVCorr->HVScaleCorr(cabling->createSignalChannelID(offid));
          if (hvonline>0. && hvonline<100.) mycorr = mycorr/hvonline;
 
       }
