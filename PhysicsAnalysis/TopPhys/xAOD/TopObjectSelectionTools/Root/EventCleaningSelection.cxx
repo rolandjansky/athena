@@ -91,7 +91,7 @@ namespace top {
         }
       }
       globalTriggers_Tight.assign(tmp.begin(), tmp.end());
-      for (auto const & trigger : globalTriggers_Tight) {
+      for (std::string const & trigger : globalTriggers_Tight) {
         if (isElectronTrigger(trigger))
           globalElectronTriggers_Tight.push_back(trigger);
         if (isMuonTrigger(trigger))
@@ -106,7 +106,7 @@ namespace top {
         }
       }
       globalTriggers_Loose.assign(tmp.begin(), tmp.end());
-      for (auto const & trigger : globalTriggers_Loose) {
+      for (std::string const & trigger : globalTriggers_Loose) {
         if (isElectronTrigger(trigger))
           globalElectronTriggers_Loose.push_back(trigger);
         if (isMuonTrigger(trigger))
