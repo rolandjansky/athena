@@ -35,6 +35,9 @@ BTaggingStandardAux = \
     , "DL1rmu_pu"
     , "DL1rmu_pc"
     , "DL1rmu_pb"
+    , "DL1mu_pu"
+    , "DL1mu_pc"
+    , "DL1mu_pb"
     ]
 
 # These are roughly the inputs to MV2 or DL1

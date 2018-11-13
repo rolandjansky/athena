@@ -14,7 +14,7 @@
 #   define EIGEN_DONT_VECTORIZE
 # endif
 #endif // __GCCXML__
- 
+
 // Local include(s):
 
 #include "xAODMuon/versions/MuonContainer_v1.h"

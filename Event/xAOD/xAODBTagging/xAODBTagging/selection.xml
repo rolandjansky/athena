@@ -1,6 +1,15 @@
 <!-- $Id: selection.xml 688348 2015-08-10 09:03:52Z kleney $ -->
 <lcgdict>
 
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::BTagging" />
+  <typedef name="xAOD::BTaggingContainer" />
+  <typedef name="xAOD::BTaggingAuxContainer" />
+
+  <typedef name="xAOD::BTagVertex" />
+  <typedef name="xAOD::BTagVertexContainer" />
+  <typedef name="xAOD::BTagVertexAuxContainer" />
+
   <!-- BTagging_v1 dictionaries: -->
   <class name="xAOD::BTagging_v1" />
   <class name="xAOD::BTaggingContainer_v1"
@@ -20,7 +29,7 @@
 
   <!-- BTagVertex_v1 dictionaries: -->
   <class name="xAOD::BTagVertex_v1" />
-  <class name="xAOD::BTagVertexContainer_v1" 
+  <class name="xAOD::BTagVertexContainer_v1"
          id="E225A9EC-9782-43F7-B7BF-1B215187C11C" />
   <class name="xAOD::BTagVertexAuxContainer_v1"
          id="09CD44BA-0F40-4FDB-BB30-2F4226FF3E18" />
@@ -38,7 +47,7 @@
   <class name="std::vector< std::vector< int > >" />
 
   <!--Add Helper Functions -->
-  <function pattern="xAOD::SecVtxHelper::*" /> 
+  <function pattern="xAOD::SecVtxHelper::*" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

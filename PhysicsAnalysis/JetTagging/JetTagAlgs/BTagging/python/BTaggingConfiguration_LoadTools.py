@@ -19,9 +19,8 @@ from BTagging.BTaggingFlags import BTaggingFlags
 # =================================================
 
 # list of taggers that use MultivariateTagManager
-mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2rmu','MV2r','MV2m','MV2c10hp','DL1','DL1r','DL1rmu']
+mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2rmu','MV2r','MV2m','MV2c10hp','DL1','DL1r','DL1rmu','DL1mu']
 mvtm_flip_taggers = [x+'Flip' for x in mvtm_taggers]
-
 
 def Initiate(ConfInstance=None):
   """Sets up the basic global tools required for B-Tagging. This function is idempotent; it will not run again if it has run once. It is

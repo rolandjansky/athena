@@ -1,7 +1,16 @@
 <!-- $Id: selection.xml 706724 2015-11-09 14:16:39Z wlampl $ -->
 <lcgdict>
 
-  <!-- CaloCluster(Container> --> 
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::CaloCluster" >
+  <typedef name="xAOD::CaloClusterContainer" >
+  <typedef name="xAOD::CaloClusterAuxContainer" >
+
+  <typedef name="xAOD::CaloTower" >
+  <typedef name="xAOD::CaloTowerContainer" >
+  <typedef name="xAOD::CaloTowerAuxContainer" >
+
+  <!-- CaloCluster(Container> -->
 
   <class name="xAOD::CaloCluster_v1" >
     <field name="m_p4" transient="true" />
@@ -64,13 +73,13 @@
   <class name="xAOD::CaloClusterBadChannelData_v1" />
   <class name="std::vector<xAOD::CaloClusterBadChannelData_v1>" />
   <class name="std::vector< std::vector<xAOD::CaloClusterBadChannelData_v1> >" />
-  
+
 
   <!-- CaloTower(Container) -->
   <class name="xAOD::CaloTower_v1" >
     <field name="m_isComplete" transient="true" />
     <field name="v_fourmom" transient="true" />
-    <field name="m_eta" transient="true" />       
+    <field name="m_eta" transient="true" />
     <field name="m_phi" transient="true" />
     <field name="m_invcosheta" transient="true" />
   </class>
