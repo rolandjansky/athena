@@ -374,7 +374,7 @@ namespace top {
       tmp.clear();
       tmp.assign(tmpAllTriggers_Loose.begin(), tmpAllTriggers_Loose.end());
       std::sort(tmp.begin(), tmp.end());
-      m_allTriggers_Tight.swap(tmp);
+      m_allTriggers_Loose.swap(tmp);
     }
 
     ATH_MSG_INFO("All requested Tight triggers are:");
