@@ -8,6 +8,7 @@
 # specify branches of athena that are being targeted:
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
+# art-output: config.txt
 
 FastChain_tf.py --simulator G4HS_FastPileup \
     --digiSteeringConf "SplitNoMergeSF" \
@@ -23,7 +24,7 @@ FastChain_tf.py --simulator G4HS_FastPileup \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
     --preSimInclude FastChainPileup/FastPileup.py \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
-    --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --DataRunNumber '284500' \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
     --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py" \
