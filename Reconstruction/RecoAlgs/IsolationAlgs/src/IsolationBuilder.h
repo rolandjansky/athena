@@ -24,6 +24,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/AuxElement.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
 
@@ -176,11 +177,12 @@ class IsolationBuilder
       "The extra correction types to store but not apply for forward electrons"};
 
   struct CaloIsoHelpKey {
-    std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
+    CaloIsoHelpKey(IDataHandleHolder* owningAlg); // constructor
+    SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> isoDeco;
     std::map<xAOD::Iso::IsolationCaloCorrection, 
 	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
     std::map<xAOD::Iso::IsolationCaloCorrection, 
-	     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > > noncoreCorDeco;
+	     SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> > noncoreCorDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::CaloCorrection CorrList;
     // xAOD::CaloCorrection CorrListExtra; // should ideally pass this, but not possible yet
@@ -193,8 +195,9 @@ class IsolationBuilder
   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> > m_muCaloIso;
 
   struct TrackIsoHelpKey {
-    std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
-    std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDecoV;
+    TrackIsoHelpKey(IDataHandleHolder* owningAlg); // constructor
+    SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> isoDeco;
+    SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> isoDecoV;
     std::map<xAOD::Iso::IsolationTrackCorrection, 
 	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;

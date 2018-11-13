@@ -132,6 +132,22 @@ StatusCode IsolationBuilder::execute()
   return StatusCode::SUCCESS;
 }
 
+// constructor
+IsolationBuilder::CaloIsoHelpKey::CaloIsoHelpKey(IDataHandleHolder* owningAlg)
+{
+  isoDeco.setOwner(owningAlg);
+  corrBitsetDeco.setOwner(owningAlg);
+}
+
+// constructor
+IsolationBuilder::TrackIsoHelpKey::TrackIsoHelpKey(IDataHandleHolder* owningAlg)
+{
+  isoDeco.setOwner(owningAlg);
+  isoDecoV.setOwner(owningAlg);
+  corrBitsetDeco.setOwner(owningAlg);
+}
+
+// constructor
 IsolationBuilder::CaloIsoHelpHandles::CaloIsoHelpHandles(const IsolationBuilder::CaloIsoHelpKey& keys) :
   corrBitsetDeco(keys.corrBitsetDeco)
 {
@@ -188,8 +204,8 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     //   Note: it is a configuration error if different types
     //         are included in one inner vector
 
-    CaloIsoHelpKey cisoH;
-    TrackIsoHelpKey tisoH;
+    CaloIsoHelpKey cisoH(this);
+    TrackIsoHelpKey tisoH(this);
     
     //std::vector<SG::AuxElement::Decorator<float>*> Deco;
     xAOD::Iso::IsolationFlavour isoFlav =
@@ -212,21 +228,15 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
       if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
 	cisoH.isoTypes.push_back(isoType);
 	cisoH.isoDeco.emplace_back(isoName);
-	ATH_MSG_DEBUG("initializing " << cisoH.isoDeco.back().key());
-	ATH_CHECK(cisoH.isoDeco.back().initialize());
       } else if (isoFlav == xAOD::Iso::ptcone) {
 	tisoH.isoTypes.push_back(isoType);
 	tisoH.isoDeco.emplace_back(isoName);
-	ATH_MSG_DEBUG("initializing " << tisoH.isoDeco.back().key());
-	ATH_CHECK(tisoH.isoDeco.back().initialize());
 	auto coneSize = static_cast<int>(round(100*xAOD::Iso::coneSize(isoType)));
 	std::string isoNameV = prefix + "ptvarcone" + std::to_string(coneSize);
 	if (customConfig != "") {
 	  isoNameV += "_" + customConfig;
 	}
 	tisoH.isoDecoV.emplace_back(isoNameV);
-	ATH_MSG_DEBUG("initializing " << tisoH.isoDecoV.back().key());
-	ATH_CHECK(tisoH.isoDecoV.back().initialize());
       } else {
 	ATH_MSG_FATAL("Configuration error: Isolation flavor " << isoFlav << " not supported.");
 	return StatusCode::FAILURE;
@@ -244,6 +254,10 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     }
 
     if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
+
+      // let's initialize the decos
+      ATH_MSG_DEBUG("Initializing cisoH.isoDeco");
+      ATH_CHECK(cisoH.isoDeco.initialize());
   
       cisoH.corrBitsetDeco = bitsetName;
       ATH_MSG_DEBUG("Initializing " << cisoH.corrBitsetDeco.key());
@@ -273,6 +287,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	    isoCorName += "_" + customConfig;
 	  }
 	  cisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	  cisoH.coreCorDeco[isoCor].setOwner(this);
 	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
 	  ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
 	} else if (isoCor == xAOD::Iso::pileupCorrection) {
@@ -280,17 +295,18 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	  continue;
 	} else {	  
 	  // noncore correction
-	  cisoH.noncoreCorDeco.emplace(isoCor, std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> >{});
+	  cisoH.noncoreCorDeco.emplace(isoCor, SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer>{});
 	  auto& vec = cisoH.noncoreCorDeco[isoCor];
+	  vec.setOwner(this);
 	  for (auto type : cisoH.isoTypes) {
 	    std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
 	    if (customConfig != "") {
 	      corName += "_" + customConfig;
 	    }
 	    vec.emplace_back(corName);
-	    ATH_MSG_DEBUG("initializing " << vec.back().key());
-	    ATH_CHECK(vec.back().initialize());
 	  }
+	  ATH_MSG_DEBUG("Initializing " << xAOD::Iso::toString(isoCor) << " Corrections");
+	  ATH_CHECK(vec.initialize());
 	}
       }
       for (size_t corrType = 0; corrType < corIntsExtra[flavor].size(); corrType++) {
@@ -316,6 +332,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	    isoCorName += "_" + customConfig;
 	  }
 	  cisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	  cisoH.coreCorDeco[isoCor].setOwner(this);
 	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
 	  ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
 	} else if (isoCor == xAOD::Iso::pileupCorrection) {
@@ -323,17 +340,18 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	  continue;
 	} else {	  
 	  // noncore correction
-	  cisoH.noncoreCorDeco.emplace(isoCor, std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> >{});
+	  cisoH.noncoreCorDeco.emplace(isoCor, SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer>{});
 	  auto& vec = cisoH.noncoreCorDeco[isoCor];
+	  vec.setOwner(this);
 	  for (auto type : cisoH.isoTypes) {
 	    std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
 	    if (customConfig != "") {
 	      corName += "_" + customConfig;
 	    }
 	    vec.emplace_back(corName);
-	    ATH_MSG_DEBUG("initializing " << vec.back().key());
-	    ATH_CHECK(vec.back().initialize());
 	  }
+	  ATH_MSG_DEBUG("Initializing " << xAOD::Iso::toString(isoCor) << " Corrections");
+	  ATH_CHECK(vec.initialize());
 	}
       }
       if (caloIsoMap) {
@@ -344,6 +362,12 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
       }
     } else if (isoFlav == xAOD::Iso::ptcone) {
 
+      // let's initialize the decos
+      ATH_MSG_DEBUG("Initializing tisoH.isoDeco");
+      ATH_CHECK(tisoH.isoDeco.initialize());
+      ATH_MSG_DEBUG("Initializing tisoH.isoDecoV");
+      ATH_CHECK(tisoH.isoDecoV.initialize());
+      
       tisoH.corrBitsetDeco = bitsetName;
       ATH_MSG_DEBUG("Initializing " << tisoH.corrBitsetDeco.key());
       ATH_CHECK(tisoH.corrBitsetDeco.initialize());
@@ -361,6 +385,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	  isoCorName += "_" + customConfig;
 	}
 	tisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	tisoH.coreCorDeco[isoCor].setOwner(this);
 	ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
 	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
       }
@@ -378,6 +403,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	  isoCorName += "_" + customConfig;
 	}
 	tisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	tisoH.coreCorDeco[isoCor].setOwner(this);
 	ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
 	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
       }
