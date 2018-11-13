@@ -6,7 +6,7 @@ class _BTaggingFlags:
     StandardTaggers = \
       [ 'IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN',
         'SoftMu', 'MV2c10', 'MV2r', 'MV2rmu', 'JetVertexCharge',
-        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1r', 'DL1rmu',  'RNNIP' ]
+        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1r', 'DL1rmu',  'RNNIP','DL1mu' ]
 
     ExpertTaggers = \
       StandardTaggers + \
@@ -46,7 +46,7 @@ class _BTaggingFlags:
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
               'MV2c10Flip','MV2rFlip','MV2rmuFlip','MV2c100Flip','MV2cl100Flip',
               'RNNIP', 'RNNIPNeg', 'RNNIPFlip',
-              'DL1', 'DL1Flip','DL1r', 'DL1rmuFlip','DL1rmu', 'DL1rFlip',
+              'DL1', 'DL1Flip','DL1r', 'DL1rmuFlip','DL1rmu', 'DL1rFlip','DL1mu',
               'TagNtupleDumper',
               'JetVertexCharge']
 
@@ -162,6 +162,8 @@ class _BTaggingFlags:
       self.DL1CalibAlias = 'AntiKt4EMTopo'
       self.DL1 = True
       self.DL1Flip = False
+
+      self.DL1mu = True
 
       self.DL1rmu = True
       self.DL1rmuFlip = False
@@ -348,7 +350,7 @@ class _BTaggingFlags:
           setattr(self, attr, 'MV1')
 
       for attr in self._HighPriorityTaggers:
-        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2r','MV2c100','MV2rmu','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2rmuFlip','MV2rFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1rmu', 'DL1rmuFlip','DL1r', 'DL1rFlip', 'SoftMu'])
+        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2r','MV2c100','MV2rmu','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2rmuFlip','MV2rFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1rmu', 'DL1rmuFlip','DL1r', 'DL1rFlip','DL1mu', 'SoftMu'])
       for attr in self._MediumPriorityTaggers:
         setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
