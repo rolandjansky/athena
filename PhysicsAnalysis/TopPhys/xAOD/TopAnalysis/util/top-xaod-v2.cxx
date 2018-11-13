@@ -1138,7 +1138,7 @@ void ProcessRecoEventTight(AnalysisTopTools analysisTopTools, unsigned int &even
   const xAOD::SystematicEventContainer* allSystematics = analysisTopTools.topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEvents() );
   for (auto currentSystematic : *allSystematics) {
     ///-- Make a top::Event --///
-    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( *currentSystematic );
+    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( currentSystematic );
     ///-- Apply event selection --///
     const bool passAnyEventSelection = analysisTopTools.topEventSelectionManager->apply( topEvent,*currentSystematic );
     currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
@@ -1168,7 +1168,7 @@ void ProcessRecoEventLoose(AnalysisTopTools analysisTopTools, unsigned int &even
   const xAOD::SystematicEventContainer* allSystematicsLoose = analysisTopTools.topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEventsLoose() );
   for (auto currentSystematic : *allSystematicsLoose) {
     ///-- Make a top::Event --///
-    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( *currentSystematic );
+    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( currentSystematic );
     ///-- Apply event selection --///
     const bool passAnyEventSelection = analysisTopTools.topEventSelectionManager->apply(topEvent,*currentSystematic );
     currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
