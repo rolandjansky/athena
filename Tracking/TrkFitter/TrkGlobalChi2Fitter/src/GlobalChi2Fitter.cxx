@@ -4651,13 +4651,15 @@ public:
       }
 
       // Solve assuming the matrix is SPD.
-      // Cholesky Decomposition is used
-      if(weightAMG.determinant() !=0 )
+      // Cholesky Decomposition is used --  could use LDLT
+      
+      Eigen::LLT<Eigen::MatrixXd> lltOfW(weightAMG);
+      if( lltOfW.info() == Eigen::Success  )
       {
         // Solve for x  where Wx = I
         // this is cheaper than invert as invert makes no assumptions about the
         // matrix being symmetric
-        weightInvAMG = weightAMG.llt().solve(weightInvAMG);
+        weightInvAMG = lltOfW.solve(weightInvAMG);
         for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
           for (int j = 0; j <= i; ++j) {
             myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
@@ -6341,12 +6343,13 @@ public:
 
             // Solve assuming the matrix is SPD.
             // Cholesky Decomposition is used
-            if(weightAMG.determinant() !=0 )
+            Eigen::LLT<Eigen::MatrixXd> lltOfW(weightAMG);
+            if( lltOfW.info() == Eigen::Success  )
             {
               // Solve for x  where Wx = I
               // this is cheaper than invert as invert makes no assumptions about the
               // matrix being symmetric
-              weightInvAMG = weightAMG.llt().solve(weightInvAMG);
+              weightInvAMG = lltOfW.solve(weightInvAMG);
               for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
                 for (int j = 0; j <= i; ++j) {
                   myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
