@@ -1184,7 +1184,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (m_metJetSelection.size()) {
       ATH_CHECK( m_metMaker.setProperty("JetSelection", m_metJetSelection) );
     }
-    if (m_doFwdJVT || m_metJetSelection == "Tenacious") {
+    if (m_doFwdJVT || m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641") {
      ATH_CHECK( m_metMaker.setProperty("JetRejectionDec", "passFJvt") );
     }
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
