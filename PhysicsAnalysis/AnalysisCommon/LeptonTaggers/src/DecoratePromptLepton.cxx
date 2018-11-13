@@ -283,8 +283,10 @@ bool Prompt::DecoratePromptLepton::initializeTMVAReaderTau()
   for(Prompt::Def::Var &var: m_allVars) {
     Float_t *new_var = new Float_t(0.0);
 
-    m_TMVAReaderOneTrack  ->AddVariable(Prompt::Def::AsStr(var), new_var);
-    m_TMVAReaderThreeTrack->AddVariable(Prompt::Def::AsStr(var), new_var);
+    TString inputName = Prompt::Def::AsStr(var);
+    if(inputName=="MV2rmu")  inputName = "MV2c10rnn"; // MV2c10rnn has been renamed to MV2rmu. The code has been updated and the xmls need to be modified too. This hack is needed until the xmls are changed, and should be removed once it is done.
+    m_TMVAReaderOneTrack  ->AddVariable(inputName, new_var);
+    m_TMVAReaderThreeTrack->AddVariable(inputName, new_var);
 
     m_varTMVA.push_back(new_var);
   }
@@ -672,7 +674,7 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   //
   // r21 MV2 vars
   //
-  std::vector<VarPair> MV2Vars = {std::make_pair(Prompt::Def::MV2c10rnn, -100.0),std::make_pair(Prompt::Def::MV2c10, -100.0)};
+  std::vector<VarPair> MV2Vars = {std::make_pair(Prompt::Def::MV2rmu, -100.0),std::make_pair(Prompt::Def::MV2c10, -100.0)};
 
   for(VarPair &var: MV2Vars) {
     if(!btag->MVx_discriminant(Prompt::Def::AsStr(var.first), var.second)) {	
