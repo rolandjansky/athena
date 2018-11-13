@@ -10,6 +10,7 @@
 
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
+#include "TopEvent/SystematicEvent.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include "TopConfiguration/TopConfig.h"
 #include "AthContainers/AuxElement.h"
@@ -83,20 +84,11 @@ namespace top {
   }
 
   float ScaleFactorRetriever::globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const {
-    // SF
     float sf(1.0);
-    // We need to retrieve the systematic according to top::Event
-    std::string systematicName = m_config->systematicName(event.m_hashValue);
-    
-    // We need to check if this is a loose event
-    bool isLoose = event.m_isLoose;
     std::string prefix = "AnalysisTop_Trigger_SF_";
-    if(isLoose) prefix += "Loose_";
 
-    if(systematicName != "nominal") prefix += systematicName;
-    
-    const xAOD::EventInfo* eventInfo = nullptr;
-    top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
+    xAOD::SystematicEvent const * eventInfo = event.m_systematicEvent;
+    top::check( eventInfo , "Failed to retrieve SystematicEvent");
 
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch(SFSyst){
