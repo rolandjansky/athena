@@ -142,7 +142,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
 
   } 
 
-  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*larCablingHdl;
   if(!cabling) {
      ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
@@ -165,7 +165,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
     const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
     if (updatedCells.size()) {
       const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
-      StatusCode sc=this->getScale(ctx,hashranges, vScale, hvdata, onlHVCorr, cabling);
+      StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr, cabling);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
 	return sc;
@@ -213,7 +213,7 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
 	}
 	std::string chronoName = "LArHVScaleCorrCondAlg";
 	chrono -> chronoStart( chronoName); 
-	StatusCode sc=this->getScale(ctx,m_completeRange, vScale, hvdata, onlHVCorr,cabling);
+	StatusCode sc=this->getScale(m_completeRange, vScale, hvdata, onlHVCorr,cabling);
 	if (sc.isFailure()) {
 	  ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
 	  return sc;
@@ -251,7 +251,7 @@ StatusCode LArHVScaleCorrCondAlg::finalize()
 
 // *** compute global ADC2MeV factor from subfactors *** 
 
-StatusCode LArHVScaleCorrCondAlg::getScale(const EventContext& ctx, const HASHRANGEVEC& hashranges, 
+StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges, 
 					   std::vector<float> &vScale, const LArHVData *hvdata, 
 					   const ILArHVScaleCorr *onlHVCorr, const LArOnOffIdMapping* cabling) const {
 
