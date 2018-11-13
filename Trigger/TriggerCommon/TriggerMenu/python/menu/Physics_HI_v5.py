@@ -206,6 +206,11 @@ def setupMenu():
 	['j10_a10_lcw_subjes_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_a10_lcw_subjes_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_a10_lcw_subjes_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    
+    ['j10_a10_lcw_subjes_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j15_a10_lcw_subjes_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j20_a10_lcw_subjes_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j30_a10_lcw_subjes_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
         
     #forward - to be added back if needed
     #['j10_320eta490_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
