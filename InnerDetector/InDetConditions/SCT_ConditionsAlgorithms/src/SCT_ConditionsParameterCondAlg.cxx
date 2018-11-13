@@ -150,7 +150,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
       float parameters[3]{0.0, 0.0, 0.0};
       float chipsum{0.0};
       for (; channelItr != channelEnd; ++channelItr) {
-        // Can get AttributeList from second (see http://lcgapp.cern.ch/doxygen/CORAL/CORAL_1_9_3/doxygen/html/classcoral_1_1_attribute_list.html)
+        // Can get AttributeList from second (see https://svnweb.cern.ch/trac/lcgcoral/browser/coral/trunk/src/CoralBase/CoralBase/AttributeList.h )
         //short id      = channelItr->second[2].data<short>(); //chip 0-11
         float vthr{mVperDacBit * channelItr->second[10].data<short>()};  //threshold setting
         short rcFunctionIndex{channelItr->second[15].data<short>()}; //response curve function
