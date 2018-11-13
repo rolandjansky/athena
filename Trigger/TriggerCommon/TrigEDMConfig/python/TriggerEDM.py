@@ -31,11 +31,10 @@
 #	Muon
 #	Steer
 #	Tau
-#	Calo       <-- new
-#	Tracking   <-- new
-#	Combined   <-- new
+#	Calo      
+#	Tracking   
+#	Combined   
 #	Unknown    <-- should be temporary until you figure out what to classify it as
-#	Other?...maybe inDet(ID?), Truth
 
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 
@@ -1008,7 +1007,7 @@ TriggerLvl1List=[
 
 
 TriggerIDTruth= [
-    ('TrigInDetTrackTruthMap#TrigInDetTrackTruthMap', 'ESD AODFULL AODSLIM', 'Unknown')
+    ('TrigInDetTrackTruthMap#TrigInDetTrackTruthMap', 'ESD AODFULL AODSLIM', 'Tracking') # changed from Unknown to Tracking (ATR-18320)
     ]
 
 
@@ -1506,7 +1505,7 @@ EDMDetails['xAOD::CMXRoIAuxContainer']                    = {'persistent': "", '
 # =============================================================================
 
 #
-# Rustem Ospanov: move list of EDM libraries from HLTTriggerGetter.py to TriggerEDM.py
+# Move list of EDM libraries from HLTTriggerGetter.py to TriggerEDM.py
 #
 EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'TrigBphysicsEvent', 'TrigCaloEvent',
@@ -1556,7 +1555,7 @@ def getCategory(s):
     s = s.strip()
                  
     # To-do
-    # seperate the first part of the string at the fisrt '_'
+    # seperate the first part of the string at the first '_'
     # search in EDMDetails for the key corresponding to the persistent value
     # if a key is found, use this as the first part of the original string
     # put the string back together
@@ -1571,9 +1570,8 @@ def getCategory(s):
         if s.count('_'): s = s[s.index('_')+1:]
         if s.count('_'): s = s[s.index('_')+1:]
         s = "HLT_"+s
-    if s.count('.') : s = s[:s.index('.')] 
         
-                 
+    if s.count('.') : s = s[:s.index('.')]                         
     if s.count('::'): s = s[s.index(':')+2:]
     if s.count('<'):  s = s[s.index('<')+1:]
     if s.count('>'):  s = s[:s.index('>')]
@@ -1583,7 +1581,7 @@ def getCategory(s):
 
     category = '' 
     bestMatch = ''
-
+ 
     """ Loop over all objects already defined in lists (and hopefully categorized!!) """
     for item in TriggerList:
         t,k = getTypeAndKey(item[0])
@@ -1601,7 +1599,7 @@ def getCategory(s):
         if (s == k):
             bestMatch = k
             category = item[2]
-                 
+
     if category == '': return 'NOTFOUND'
     return category
 
@@ -1613,7 +1611,7 @@ def getTypeAndKey(s):
     return s[:s.index('#')], s[s.index('#')+1:]
 
 def keyToLabel(key):
-    """ The key is usually HLT_blablah, this function returns second part of it or empty string
+    """ The key is usually HLT_*, this function returns second part of it or empty string
     """
     if '_' not in key:
         return ''
