@@ -80,6 +80,14 @@ StatusCode FlavorTaggingCPTools::initialize() {
   top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
   top::check(setTaggerWorkingPoints("AntiKt2PV0TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKt2PV0TrackJets WP");
 
+  // Calibrated and uncalibrated working points for VR track jets for all algorithms
+  top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+  top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+  top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "MV2r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+  top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "MV2rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+  top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+  top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+
   // BTagging Selectors should be created for DL1 algorithm to get the correct weight (in case charm-fraction is adjusted)
   std::vector<std::string> DL1_algorithms = {"DL1",
 					     "DL1r",
@@ -218,7 +226,11 @@ StatusCode FlavorTaggingCPTools::initialize() {
     if (m_config->useTrackJets()) {
       std::vector<std::string> track_WPs = {};
       std::vector<std::string> track_WPs_calib = {};
-      if (m_config->sgKeyTrackJets() == "AntiKt2PV0TrackJets") {
+      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") {
+        track_WPs       = m_trackAntiKtVR_WPs;
+        track_WPs_calib = m_trackAntiKtVR_WPs_calib;
+      }
+      else if (m_config->sgKeyTrackJets() == "AntiKt2PV0TrackJets") {
         track_WPs       = m_trackAntiKt2_WPs;
         track_WPs_calib = m_trackAntiKt2_WPs_calib;
       }
@@ -399,6 +411,17 @@ StatusCode FlavorTaggingCPTools::setTaggerWorkingPoints(std::string jetcollectio
   else if(jetcollection == "AntiKt4EMPFlowJets" && !isCalibrated){
     // use m_pflow_WPs
     for(auto s : list_of_WP) m_pflow_WPs.push_back(tagger+"_"+s);
+  }
+  else if(jetcollection == "AntiKtVR30Rmax4Rmin02TrackJets" && isCalibrated){
+    // use m_trackAntiKt2_WPs_calib
+    for(auto s : list_of_WP){
+      m_trackAntiKtVR_WPs_calib.push_back(tagger+"_"+s);
+      m_trackAntiKtVR_WPs.push_back(tagger+"_"+s);
+    }
+  }
+  else if(jetcollection == "AntiKtVR30Rmax4Rmin02TrackJets" && !isCalibrated){
+    // use m_trackAntiKt2_WPs
+    for(auto s : list_of_WP) m_trackAntiKtVR_WPs.push_back(tagger+"_"+s);
   }
   else if(jetcollection == "AntiKt2PV0TrackJets" && isCalibrated){
     // use m_trackAntiKt2_WPs_calib
