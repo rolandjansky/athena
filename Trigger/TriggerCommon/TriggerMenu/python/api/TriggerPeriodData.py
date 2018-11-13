@@ -99,10 +99,14 @@ class TriggerPeriodData:
         'J':(355331,355468,18781),
         'K':(355529,356259,19958),
         'L':(357050,359171,19935),
+        'M':(359191,360414,20904),
+        'N':(361635,361696,9464 ),
+        'O':(361738,363400,19822),
+        'Q':(363664,364292,19618),
     }
     
     grlbase = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
-    y2018grlpath = grlbase+"data18_13TeV/20180906/data18_13TeV.periodAllYear_DetStatus-v102-pro22-03_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
+    y2018grlpath = grlbase+"data18_13TeV/20181105/data18_13TeV.periodAllYear_DetStatus-v102-pro22-04_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2017grlpath = grlbase+"data17_13TeV/20180619/data17_13TeV.periodAllYear_DetStatus-v99-pro22-01_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2016grlpath = grlbase+"data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlbase+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
@@ -201,9 +205,13 @@ class TriggerPeriodData:
             if period & TriggerPeriod.y2018lowmu       :
                 ranges.append( self.periodMap2018['G4'] )
                 ranges.append( self.periodMap2018['J'] )
-            if period & TriggerPeriod.y2018periodKL   :
+            if period & TriggerPeriod.y2018periodKQ   :
                 ranges.append( self.periodMap2018['K'] )
                 ranges.append( self.periodMap2018['L'] )
+                ranges.append( self.periodMap2018['M'] )
+                ranges.append( self.periodMap2018['N'] )
+                ranges.append( self.periodMap2018['O'] )
+                ranges.append( self.periodMap2018['Q'] )
             for run in self.grl.keys()[:]:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 
