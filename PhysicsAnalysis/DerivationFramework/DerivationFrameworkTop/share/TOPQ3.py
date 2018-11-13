@@ -85,10 +85,10 @@ TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3SkimmingKern
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-ReTag(['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
-      ['AntiKt4EMPFlowJets'],
-      TOPQ3Sequence)
+TaggerList = BTaggingFlags.StandardTaggers
+ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ3Sequence)
 
 # Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
 # if not hasattr(TOPQ3Sequence,"ELReset"):

@@ -87,10 +87,13 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-ReTag(['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
-      ['AntiKt4EMPFlowJets'],
-      TOPQ1Sequence)
+#ReTag(['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
+#      ['AntiKt4EMPFlowJets'],
+#      TOPQ1Sequence)
+TaggerList = BTaggingFlags.StandardTaggers
+ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ1Sequence)
 
 # Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
 # if not hasattr(TOPQ1Sequence,"ELReset"):
@@ -110,7 +113,8 @@ if DFisMC:
 DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
 
 # add for TOPQDERIV-62 (see enf of TOPQCommonJets.py)
-DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
+# FD comment for the moment as it crashes in ART tests
+#DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
 # Then apply thinning
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools)
