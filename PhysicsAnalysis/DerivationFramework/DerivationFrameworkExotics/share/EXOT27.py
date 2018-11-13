@@ -23,6 +23,10 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
 from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
+# Create the necessary TauTruthLinks
+if DerivationFrameworkIsMonteCarlo: 
+  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+  scheduleTauTruthTools()
 
 import DerivationFrameworkExotics.EXOT27Utils as EXOT27Utils
 
@@ -63,6 +67,10 @@ if DerivationFrameworkIsMonteCarlo:
     "TruthParticles",
     "MET_Truth",
     ]
+# Extra variables for MET
+EXOT27ExtraVariables["Muons"].update(["clusterLink", "EnergyLoss", "energyLossType"])
+EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink", "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
+EXOT27ExtraVariables["AntiKt4EMTopoJets"].update(["NumTrkPt500", "SumPtTrkPt500", "EnergyPerSampling", "EMFrac"])
 def outputContainer(container, warnIfNotSmart=True):
   if container in EXOT27SmartContainers + EXOT27AllVariables:
     logger.debug("Container '{0}' already requested for output!")
@@ -121,10 +129,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # Use buildVRJets instead of addVRJets so we can manually control the ghost
 # association to the large-R jets
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
-vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
+vrTrackJets, vrTrackJetGhosts = EXOT27Utils.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets)
-vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
+vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = EXOT27Utils.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets)
 
@@ -140,6 +148,8 @@ if JetCommon.jetFlags.useTruth:
   replace_jet_list += ["AntiKt4TruthJets"]
 ExtendedJetCommon.replaceAODReducedJets(
     jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
+# Add the b-tagging for the AntiKt2 jets
+outputContainer("BTagging_AntiKt2Track")
 
 
 # Includes the 5% pT trimmed R=1.0 jets
@@ -255,7 +265,7 @@ EXOT27ThinningTools += [
 # What I have here is extremely simplistic - designed to at least have what I
 # need for my immediate studies
 if DerivationFrameworkIsMonteCarlo:
-  truth_sel_list = ["abs(TruthParticles.pdgId) == {0}".format(ii) for ii in [5,6, 23, 24, 25]]
+  truth_sel_list = ["abs(TruthParticles.pdgId) == {0}".format(ii) for ii in range(5,26)]
   truth_sel = "||".join(map("({0})".format, truth_sel_list) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
@@ -315,7 +325,7 @@ JetCommon.addJetOutputs(
     "AntiKt10LCTopoJets",
     "AntiKt10TruthJets",
     "AntiKtVR600Rmax10Rmin2LCTopoJets",
-    "AntiKtVR600Rmax10Rmin2Pv0TrackTrimmedPtFrac5SmallR20Jets",
+    "AntiKtVR600Rmax10Rmin2PV0TrackTrimmedPtFrac5SmallR20Jets",
     "AntiKtVR600Rmax10Rmin2TruthTrimmedPtFrac5SmallR20Jets",
     "AntiKt10LCTopoCSSKJets"]
     )
