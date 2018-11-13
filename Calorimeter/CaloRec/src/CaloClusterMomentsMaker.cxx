@@ -538,11 +538,11 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	  ncell++;
 	}
       } //end of loop over all cells
-
-      const auto hvFrac=m_larHVFraction->getLArHVFrac(theCluster->getCellLinks(),ctx);
-      eBadLArHV= hvFrac.first;
-      nBadLArHV=hvFrac.second;
-      
+      if (m_calculateLArHVFraction) {
+	const auto hvFrac=m_larHVFraction->getLArHVFrac(theCluster->getCellLinks(),ctx);
+	eBadLArHV= hvFrac.first;
+	nBadLArHV=hvFrac.second;
+      }
 
       if ( w > 0 ) {
 	mass = w*w - mx*mx - my*my - mz*mz;
