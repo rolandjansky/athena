@@ -269,7 +269,7 @@ def buildVRJets(sequence, do_ghost, logger):
     # We want to include ghost associated tracks in the pv0 tracks so that
     # we can use the looser ghost association criteria for b-tagging.
     if VRJetInputs == "pv0track":
-        pseudoJetGetters.append(jtm["gtrackget"])
+        pseudoJetGetters = pseudoJetGetters + ["gtrackget"]
 
     if VRJetAlgName in DFJetAlgs:
         print "Algorithm", VRJetAlgName, "already built before"

@@ -4,6 +4,8 @@ import DerivationFrameworkJetEtMiss.ExtendedJetCommon as ExtendedJetCommon
 from JetRec.JetRecConf import JetAlgorithm
 # Create a logger for this stream
 import AthenaCommon
+from BTagging.BTaggingConfiguration import getConfiguration
+ConfInst=getConfiguration()
 logger = AthenaCommon.Logging.logging.getLogger("EXOT27Utils")
 
 def getJetRecTool(collection, getParent=True):
@@ -109,28 +111,122 @@ def linkPseudoJetGettersToExistingJetCollection(
 
   return originalUngroomedName, [g.Label for g in newGetters]
 
-""" Not to be used!!
-def addPseudoJetGettersToNewJetCollection(
-    collection, getters, addToParent=True):
-  # First, get the jet rec tool from jtm. The JetRec functions appear to always
-  # add this tool using the collection name so retrieve it this way
-  jetRecTool = getJetRecTool(collection, addToParent)
-  # May have to unlock the tool to do this... Maybe this is awful practice, I
-  # don't know...
-  locked = jetRecTool.isLocked()
-  if locked:
-    logger.debug("Temporarily unlocking tool {0}".format(jetRecTool.getFullName() ) )
-    jetRecTool.unlock()
-  for getter in getters:
-    # By convention, getters are stored in lower case
-    getter_l = getter.lower()
-    try:
-      the_getter = jtm[getter_l]
-    except KeyError as e:
-      raise KeyError("Unable to locate PseudoJetGetter: {0}".format(getter_l) )
-    if not the_getter.getFullName() in jetRecTool.PseudoJetGetters:
-      jetRecTool.PseudoJetGetters.append(the_getter.getFullName() )
-  if locked:
-    logger.debug("Re-locking tool {0}".format(jetRecTool.getFullName() ) )
-    jetRecTool.lock()
-"""
+def buildVRJets(sequence, do_ghost, logger):
+  # Copied from HbbCommon. There was something odd in the original function that
+  # broke for me - the fact that the *name* 'gtrackget' was passed added to the
+  # getters array rather than the tool from jtm caused a crash as the job
+  # attempted to retrieve 'gtrackget'. I'm not sure why this works in other
+  # formats, but I don't have time right now to figure it out. I also don't want
+  # to modify something that could affect other formats. TODO!!! This can only
+  # ever be a temporary thing.
+    from JetRec.JetRecStandard import jtm
+    from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs, globalflags, jetFlags
+
+    VRJetName="AntiKtVR30Rmax4Rmin02Track"
+    VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+    VRJetAlg="AntiKt"
+    VRJetRadius=0.4
+    VRJetInputs='pv0track'
+    VRJetOptions = dict(
+        ghostArea = 0 , ptmin = 2000,
+        variableRMinRadius = 0.02, variableRMassScale = 30000,
+        calibOpt = "none")
+
+    # Change some options if we have do_ghost set to true. Hopefully
+    # this will be the only VR collection in the future.
+    if do_ghost:
+        ghost_suffix = "GhostTag"
+        VRJetName += ghost_suffix
+        VRGhostLabel += ghost_suffix
+        VRJetOptions['ptmin'] = 5000
+
+    #==========================================================
+    # Build VR jets
+    #==========================================================
+
+    VRJetAlgName = "jfind_%sJets" % (VRJetName)
+    VRJetRecToolName = "%sJets" % (VRJetName)
+    VRJetBTagName = "BTagging_%s" % (VRJetName)
+
+    from AthenaCommon.AppMgr import ToolSvc
+
+    #make the btagging tool for VR jets
+    from BTagging.BTaggingFlags import BTaggingFlags
+    btag_vrjets = ConfInst.setupJetBTaggerTool(
+        ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
+        options={"name"         : VRJetBTagName.lower(),
+                 "BTagName"     : VRJetBTagName,
+                 "BTagJFVtxName": "JFVtx",
+                 "BTagSVName"   : "SecVtx",
+        },
+        SetupScheme = "",
+        TaggerList = BTaggingFlags.StandardTaggers,
+        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
+    )
+
+    from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+
+    pseudoJetGetters = jtm.gettersMap[VRJetInputs]
+
+    # We want to include ghost associated tracks in the pv0 tracks so that
+    # we can use the looser ghost association criteria for b-tagging.
+    if VRJetInputs == "pv0track":
+        pseudoJetGetters.append(jtm["gtrackget"])
+
+    if VRJetAlgName in DFJetAlgs:
+        print "Algorithm", VRJetAlgName, "already built before"
+
+        if hasattr(sequence, VRJetAlgName):
+            print "   Sequence", sequence, "already has an instance of algorithm", VRJetAlgName
+        else:
+            print "   Add algorithm", VRJetAlgName, "to sequence", sequence
+            sequence += DFJetAlgs[VRJetAlgName]
+    else:
+        print "Create algorithm", VRJetAlgName
+
+        if hasattr(jtm, VRJetRecToolName):
+            print "   JetRecTool", VRJetRecToolName, "is alredy in jtm.tools in sequence ", sequence
+        else:
+            print "   Create JetRecTool", VRJetRecToolName
+            #can only run trackjetdrlabeler with truth labels, so MC only
+
+            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
+
+            if globalflags.DataSource()!='data':
+                mods.append(jtm.trackjetdrlabeler)
+
+            jtm.addJetFinder(
+                VRJetRecToolName,
+                VRJetAlg,
+                VRJetRadius,
+                pseudoJetGetters,
+                modifiersin=mods,
+                ivtxin=0,
+                **VRJetOptions)
+
+        from JetRec.JetRecConf import JetAlgorithm
+        jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])
+        sequence += jetalg_smallvr30_track
+        DFJetAlgs[VRJetAlgName] = jetalg_smallvr30_track
+
+    #==========================================================
+    # Build PseudoJet Getter
+    #==========================================================
+
+    pjgettername = VRGhostLabel.lower()
+
+    if hasattr(jtm, pjgettername):
+        print "Found", pjgettername, "in jtm in sequence", sequence
+    else:
+        print "Add", pjgettername, "to jtm in sequence", sequence
+
+        from JetRec.JetRecConf import PseudoJetGetter
+        jtm += PseudoJetGetter(
+          pjgettername,                                                          # give a unique name
+          InputContainer = jetFlags.containerNamePrefix() + VRJetName + "Jets",  # SG key
+          Label = VRGhostLabel,                                                  # this is the name you'll use to retrieve ghost associated VR track jets
+          OutputContainer = "PseudoJet" + VRGhostLabel,
+          SkipNegativeEnergy = True,
+          GhostScale = 1.e-20,                                                   # this makes the PseudoJet Ghosts, and thus the reco flow will treat them as such
+        )
+    return VRJetName, VRGhostLabel
