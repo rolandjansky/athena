@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """This service runs in the online Athena event display threads. It
 manages the distribution of incoming events to the right event display streams.
