@@ -46,9 +46,16 @@ def _createCfgFlags():
 
 
 #LAr Flags:
-    from LArCellRec.LArConfigFlags import createLArConfigFlags
-    lcf=createLArConfigFlags()
-    acf.join(lcf)
+    try:
+        import LArCellRec # Suppress flake8 unused import warning: # noqa: F401
+        haveLArCellRec = True
+    except ImportError:
+        haveLArCellRec = False
+
+    if haveLArCellRec:
+        from LArCellRec.LArConfigFlags import createLArConfigFlags
+        lcf=createLArConfigFlags()
+        acf.join(lcf)
 
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
@@ -61,12 +68,26 @@ def _createCfgFlags():
 
 
 # Trigger
-    from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
-    acf.join( createTriggerFlags() )
+    try:
+        import TriggerJobOpts # Suppress flake8 unused import warning: # noqa: F401
+        haveTriggerJobOpts = True
+    except ImportError:
+        haveTriggerJobOpts = False
+
+    if haveTriggerJobOpts:
+        from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
+        acf.join( createTriggerFlags() )
 
 # Muon 
-    from MuonConfig.MuonConfigFlags import createMuonConfigFlags
-    acf.join( createMuonConfigFlags() )
+    try:
+        import MuonConfig # Suppress flake8 unused import warning: # noqa: F401
+        haveMuonConfig = True
+    except ImportError:
+        haveMuonConfig = False
+
+    if haveMuonConfig:
+        from MuonConfig.MuonConfigFlags import createMuonConfigFlags
+        acf.join( createMuonConfigFlags() )
 
     return acf
 
