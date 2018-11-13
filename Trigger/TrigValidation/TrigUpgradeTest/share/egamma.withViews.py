@@ -1,3 +1,4 @@
+
 #
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
@@ -390,7 +391,7 @@ deserialiser.OutputLevel=DEBUG
 
 # add prefix + remove version to class name
 l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
-StreamESD.ItemList += l
+#StreamESD.ItemList += l
 
 
 
