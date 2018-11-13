@@ -126,24 +126,3 @@ LArShapeMC::ShapeDer(const HWIdentifier& CellID,
   do_get_shape (get(SymCellID, gain).m_vShapeDer, CellID, tbin, mode, true, v);
   return v;
 }
-
-
-LArShapeMC::ShapeRef_t
-LArShapeMC::Shape(const Identifier&  CellID,
-                  int gain,
-                  int tbin=0,
-                  int mode=0 ) const
-{
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  return Shape(SymCellID, gain, tbin, mode);
-}
-
-LArShapeMC::ShapeRef_t
-LArShapeMC::ShapeDer(const Identifier&  CellID,
-                     int gain,
-                     int tbin=0,
-                     int mode=0) const
-{
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID); 
-  return ShapeDer(SymCellID, gain, tbin, mode);
-}
