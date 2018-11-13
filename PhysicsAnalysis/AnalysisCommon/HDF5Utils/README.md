@@ -42,7 +42,12 @@ Writing Directly From Jobs
 --------------------------
 
 This package provides a wrapper on the HDF5 C++ bindings to simplify
-dumping data. To dump some jet information, for example, first set up
+dumping data. It makes no attempt to replicate the element links or
+other advanced features of the xAODs: the focus is primary to provide
+something close to the final format for training machine learning
+algorithms.
+
+To dump some jet information, for example, first set up
 the output file:
 
 ```C++
@@ -114,7 +119,13 @@ To be safe, you should probably call `writer.flush()` to
 ensure that all jets are written before exiting the job, but this will
 also be handled by the destructor.
 
+### Writing multiple types of objects ###
 
+This package doesn't provide a convenient way to store multiple
+variable-length object arrays such that they are aligned by index. You
+are free to create several writers, each of which will write a dataset
+corresponding to a different type of object. These can write to the
+same file, but aligning the indices after the fact is up to you!
 
 Hacking This Code
 =================
