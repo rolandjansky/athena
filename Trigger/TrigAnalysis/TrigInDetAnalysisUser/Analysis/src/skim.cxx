@@ -35,8 +35,15 @@ void remove_duplicates(std::vector<T>& vec) {
   vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 }
 
+std::string time_str() { 
+  time_t _t;
+  time(&_t);
+  std::string s(ctime(&_t));
+  return s.substr(0,s.find("\n"));
+}
+
 int usage(int e=0) { 
-    std::cerr << "usage: skim <filename>  -f <outfile> [-d|--delete] <chain1> <chain2> ... -f <outfile> -r <chain>" << std::endl;
+    std::cerr << "usage: skim <filename> [OPTIONS]" << std::endl;
     std::cerr << "\nremoves chains from the ntple\n";
     std::cerr << "\nOptions:\n";
     std::cerr << "\t-d | --delete\tremoves specified chains\n";
@@ -171,6 +178,9 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+
+  std::cout << "skim::start       " << time_str() << std::endl; 
+
   //  if ( require_chains.size()>0 ) require = true;
 
   if ( require  ) std::cout << "require chains " << require_chains << std::endl;
@@ -298,11 +308,12 @@ int main(int argc, char** argv) {
 	  TIDA::Chain* offline = 0;
 
 	  std::vector<std::string> chainnames = track_ev->chainnames();
-	  
+
+	  /// get the offline chain
+
 	  for ( size_t ic=chainnames.size() ; ic-- ; ) {
 	    if ( chainnames[ic] == "Offline" ) {
 	      offline = &(track_ev->chains()[ic]);
-	      //	      track_ev->erase( "Offline" );
 	      break;
 	    }
 	  }
@@ -324,20 +335,13 @@ int main(int argc, char** argv) {
 		      philims.push_back( std::pair<double,double>( roi[isub]->phiMinus(), roi[isub]->phiPlus() ) ); 
 		    }
 		  }
-		  else { 
-		    philims.push_back( std::pair<double,double>( roi.phiMinus(), roi.phiPlus() ) ); 
-		  }
+		  else philims.push_back( std::pair<double,double>( roi.phiMinus(), roi.phiPlus() ) ); 
 		}
 	      }
 	    }
 
-	    //	    std::cout << "philims: " << philims.size() << std::endl;
-
 	    remove_duplicates( philims );
 
-	    //	    std::cout << "philims: " << philims.size() << std::endl;
-
-	    
 	    for ( size_t iroi=0 ; iroi<offline->size() ; iroi++ ) {
 
 	      std::vector<TIDA::Track>& tracks = offline->rois()[iroi].tracks();
@@ -403,8 +407,10 @@ int main(int argc, char** argv) {
     
   }
 
-  std::cout << "Events in:  " << ev_in  << std::endl;
-  std::cout << "Events out: " << ev_out << std::endl;
+  std::cout << "skim::done        " << time_str() << std::endl; 
+
+  std::cout << "skim::events in:  " << ev_in  << std::endl;
+  std::cout << "skim::events out: " << ev_out << std::endl;
   
   fout.Write();
   fout.Close();
