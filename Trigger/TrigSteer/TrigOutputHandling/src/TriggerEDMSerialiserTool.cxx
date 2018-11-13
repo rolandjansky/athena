@@ -24,7 +24,7 @@ TriggerEDMSerialiserTool::~TriggerEDMSerialiserTool() {}
 StatusCode TriggerEDMSerialiserTool::initialize() {
   
   ATH_CHECK( m_serializerSvc.retrieve() );
-
+  ATH_CHECK( m_clidSvc.retrieve() );
   for ( std::string typeAndKey: m_collectionsToSerialize ) {
     const std::string type = typeAndKey.substr( 0, typeAndKey.find('#') );
     if ( type.find('_') == std::string::npos ) {
@@ -65,16 +65,16 @@ StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vec
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMSerialiserTool::fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
+StatusCode TriggerEDMSerialiserTool::fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
   ATH_CHECK( sz != 0 );
   ATH_CHECK( data != nullptr );
     
   buffer.push_back( sz ); // size in bytes
-  const size_t neededSize = sz/sizeof(uint32_t) + (sz%sizeof(uint32_t) ? 1 : 0);
+  const size_t neededSize = std::ceil( double(sz)/sizeof(uint32_t) );
   // ideally we could use the vector<uint32_t> right away
   auto intTempBuffer  = std::make_unique<uint32_t[]>( neededSize );
   intTempBuffer[ neededSize-1 ]  = 0; // empty last bytes
-  std::memcpy(data, intTempBuffer.get(), sz);
+  std::memcpy( intTempBuffer.get(), data, sz);
     
   // copy to buffer
   buffer.insert( buffer.end(), intTempBuffer.get(), intTempBuffer.get()+neededSize  );
@@ -84,7 +84,9 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( void* data, size_t sz, std::ve
 
 StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
 
-    
+  ATH_CHECK ( resultToFill.getSerialisedData().find(m_moduleID)  == resultToFill.getSerialisedData().end() ); // do not want overwrite
+  
+  std::vector<uint32_t> payload;    
   for ( const Address& address: m_toSerialize ) {
     ATH_MSG_DEBUG( "Streaming " << address.type << "#" << address.key  );
     // obtain object
@@ -119,12 +121,14 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     ATH_CHECK( makeHeader( address, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
     fragment[0] = fragment.size();
-
-    resultToFill.addSerialisedData( m_moduleID, fragment );
-
+    ATH_MSG_DEBUG("Fragment size " << fragment.size() );
+    payload.insert( payload.end(), fragment.begin(), fragment.end() );
+    
     if ( mem ) delete [] static_cast<const char*>( mem );
-    ATH_MSG_DEBUG( "Navigation size after inserting " << address.type << "#" << address.key << " " << resultToFill.getSerialisedData( m_moduleID ).size()*sizeof(uint32_t) << " bytes" );
+    ATH_MSG_DEBUG( "Payload size after inserting " << address.type << "#" << address.key << " " << payload.size()*sizeof(uint32_t) << " bytes" );
   }
+
+  resultToFill.addSerialisedData( m_moduleID, payload );
   
   return StatusCode::SUCCESS;
 }

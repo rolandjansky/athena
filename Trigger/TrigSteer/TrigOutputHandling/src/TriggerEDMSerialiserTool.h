@@ -13,7 +13,6 @@
 
 // OutputHandling includes
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
-#include "TrigSteeringEvent/HLTResult.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
@@ -66,7 +65,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * This function is candidate to be made global function at some point
    * and we will need also readPayload function
    */  
-  StatusCode fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const ;
+  StatusCode fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const ;
 
   
 }; 
