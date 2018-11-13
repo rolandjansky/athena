@@ -342,7 +342,7 @@ namespace JiveXML {
     //obtain a lock. If the lock can not be obtained after a certain time, an
     //error is reported
     
-    //Timeout of 1 second and 0 nanoseconds
+    //Timeout of 5 second and 0 nanoseconds
     struct timespec timeout = { 5, 0 };
     //Try to obtain the lock
 #ifndef __APPLE__
