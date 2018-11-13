@@ -5,6 +5,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
+#include "TopEvent/RunNumberFaker.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
@@ -123,6 +124,8 @@ namespace top{
     std::vector<const xAOD::Muon*> selectedMuonsLoose;
     std::vector<const xAOD::Electron*> selectedElectrons;
     std::vector<const xAOD::Electron*> selectedElectronsLoose;
+    RunNumberFaker runNumberFaker(evtStore());
+    runNumberFaker.activate();
 
     top::check(evtStore()->retrieve(muons, "Muons_"), "Failed to retrieve Nominal muons");
     // Put into a vector
@@ -280,6 +283,8 @@ namespace top{
     std::vector<const xAOD::Muon*> selectedMuonsLoose;
     std::vector<const xAOD::Electron*> selectedElectrons;
     std::vector<const xAOD::Electron*> selectedElectronsLoose;
+    RunNumberFaker runNumberFaker(evtStore());
+    runNumberFaker.activate();
 
     ///-- Nominal muons + systematic electrons
     top::check(evtStore()->retrieve(muons, "Muons_"), "Failed to retrieve Nominal muons");
@@ -363,6 +368,8 @@ namespace top{
     std::vector<const xAOD::Muon*> selectedMuonsLoose;
     std::vector<const xAOD::Electron*> selectedElectrons;
     std::vector<const xAOD::Electron*> selectedElectronsLoose;
+    RunNumberFaker runNumberFaker(evtStore());
+    runNumberFaker.activate();
 
     ///--- Nominal electrons + systematics muons
     top::check(evtStore()->retrieve(electrons, "Electrons_"), "Failed to retrieve Nominal electrons");
