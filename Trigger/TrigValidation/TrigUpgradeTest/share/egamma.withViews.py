@@ -1,3 +1,4 @@
+
 #
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
@@ -347,9 +348,9 @@ print summMaker
 
 serialiser = TriggerEDMSerialiserTool(OutputLevel=VERBOSE)
 
-serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions",
+serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions_remap",
                                       "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.",
-                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex_remap",
                                       "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 
 stmaker = StreamTagMakerTool()
@@ -387,6 +388,10 @@ from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
 deserialiser = TriggerEDMDeserialiserAlg()
 deserialiser.Prefix="SERIALISED_"
 deserialiser.OutputLevel=DEBUG
+
+# add prefix + remove version to class name
+l = [ c.split("#")[0].split("_")[0] + "#" + deserialiser.Prefix + c.split("#")[1] for c in serialiser.CollectionsToSerialize ] 
+#StreamESD.ItemList += l
 
 
 
