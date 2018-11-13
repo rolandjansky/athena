@@ -3,7 +3,6 @@
 # Script for building the release on top of externals built using one of the
 # scripts in this directory.
 #
-_time_="/usr/bin/time -f time::\t%C::\treal:\t%E\tuser:\t%U\tsys:\t%S\n "
 
 # Function printing the usage information for the script
 usage() {
@@ -103,7 +102,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    $_time_ cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthenaP1SrcDir} 2>&1 | tee cmake_config.log
 fi
@@ -116,17 +115,17 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    $_time_ make -k 2>&1 | tee cmake_build.log
+    time make -k 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    $_time_ make install/fast \
+    time make install/fast \
 	DESTDIR=${BUILDDIR}/install/AthenaP1/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    $_time_ cpack 2>&1 | tee cmake_cpack.log
+    time cpack 2>&1 | tee cmake_cpack.log
     cp AthenaP1*.rpm ${BUILDDIR}/
 fi
