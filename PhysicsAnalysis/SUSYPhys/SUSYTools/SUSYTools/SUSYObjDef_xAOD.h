@@ -568,19 +568,11 @@ namespace ST {
     double m_muCosmicd0;
     double m_badmuQoverP;
     //--- Config options for muon smearing tool (expert level)
-    bool m_muOverrideSmearingDefaults;
-    bool m_muStatComb1516;
-    bool m_muSagittaCorr1516;
-    bool m_muSagittaMCDistortion1516;
-    bool m_muSagittaCorrPhaseSpace1516;
+    bool m_muOverride2017SmearingDefaults;
     bool m_muStatComb17;
     bool m_muSagittaCorr17;
     bool m_muSagittaMCDistortion17;
     bool m_muSagittaCorrPhaseSpace17;
-    bool m_muStatComb18;
-    bool m_muSagittaCorr18;
-    bool m_muSagittaMCDistortion18;
-    bool m_muSagittaCorrPhaseSpace18;
 
     double m_photonBaselinePt;
     double m_photonBaselineEta;

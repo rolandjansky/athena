@@ -177,19 +177,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
     m_badmuQoverP(-99.),
-    m_muOverrideSmearingDefaults(false),
-    m_muStatComb1516(false),
-    m_muSagittaCorr1516(true),
-    m_muSagittaMCDistortion1516(false),
-    m_muSagittaCorrPhaseSpace1516(true),
+    m_muOverride2017SmearingDefaults(false),
     m_muStatComb17(false),
     m_muSagittaCorr17(true),
     m_muSagittaMCDistortion17(false),
     m_muSagittaCorrPhaseSpace17(true),
-    m_muStatComb18(false),
-    m_muSagittaCorr18(false),
-    m_muSagittaMCDistortion18(true),
-    m_muSagittaCorrPhaseSpace18(true),
     //
     m_photonBaselinePt(-99.),
     m_photonBaselineEta(-99.),
@@ -476,19 +468,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonRequireHighPtCuts",  m_murequirepassedHighPtCuts);
   declareProperty( "MuonForceNoId", m_force_noMuId );
   declareProperty( "MuonTTVASF", m_doTTVAsf );
-  declareProperty( "OverrideMuSmearingDefaults", m_muOverrideSmearingDefaults);
-  declareProperty( "StatComb1516", m_muStatComb1516);
-  declareProperty( "SagittaCorr1516", m_muSagittaCorr1516);
-  declareProperty( "doSagittaMCDistortion1516", m_muSagittaMCDistortion1516);
-  declareProperty( "SagittaCorrPhaseSpace1516", m_muSagittaCorrPhaseSpace1516);
+  declareProperty( "Override2017MuSmearingDefaults", m_muOverride2017SmearingDefaults);
   declareProperty( "StatComb17", m_muStatComb17);
   declareProperty( "SagittaCorr17", m_muSagittaCorr17);
   declareProperty( "doSagittaMCDistortion17", m_muSagittaMCDistortion17);
   declareProperty( "SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17);
-  declareProperty( "StatComb18", m_muStatComb18);
-  declareProperty( "SagittaCorr18", m_muSagittaCorr18);
-  declareProperty( "doSagittaMCDistortion18", m_muSagittaMCDistortion18);
-  declareProperty( "SagittaCorrPhaseSpace18", m_muSagittaCorrPhaseSpace18);
 
   //PHOTONS
   declareProperty( "PhotonBaselinePt", m_photonBaselinePt);
@@ -1138,19 +1122,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_badmuQoverP, "BadMuon.qoverp", rEnv, 0.2);
   //
-  configFromFile(m_muOverrideSmearingDefaults, "Muon.OverrideSmearingDefaults", rEnv, false);
-  configFromFile(m_muStatComb1516, "Muon.StatComb1516", rEnv, false);
-  configFromFile(m_muSagittaCorr1516, "Muon.SagittaCorr1516", rEnv, true);
-  configFromFile(m_muSagittaMCDistortion1516, "Muon.SagittaMCDistortion1516", rEnv, false);
-  configFromFile(m_muSagittaCorrPhaseSpace1516, "Muon.SagittaCorrPhaseSpace1516", rEnv, true);
+  configFromFile(m_muOverride2017SmearingDefaults, "Muon.Override2017SmearingDefaults", rEnv, false);
   configFromFile(m_muStatComb17, "Muon.StatComb17", rEnv, false);
   configFromFile(m_muSagittaCorr17, "Muon.SagittaCorr17", rEnv, true);
   configFromFile(m_muSagittaMCDistortion17, "Muon.SagittaMCDistortion17", rEnv, false);
   configFromFile(m_muSagittaCorrPhaseSpace17, "Muon.SagittaCorrPhaseSpace17", rEnv, true);
-  configFromFile(m_muStatComb18, "Muon.StatComb18", rEnv, false);
-  configFromFile(m_muSagittaCorr18, "Muon.SagittaCorr18", rEnv, false);
-  configFromFile(m_muSagittaMCDistortion18, "Muon.SagittaMCDistortion18", rEnv, true);
-  configFromFile(m_muSagittaCorrPhaseSpace18, "Muon.SagittaCorrPhaseSpace18", rEnv, true);
   //
   configFromFile(m_photonBaselinePt, "PhotonBaseline.Pt", rEnv, 25000.);
   configFromFile(m_photonBaselineEta, "PhotonBaseline.Eta", rEnv, 2.37);
