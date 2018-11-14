@@ -50,6 +50,7 @@ unsigned int m_nTowers = m_nPhiBins*m_nEtaBins;
 float m_towerEtaWidth = 2*m_maxEta/m_nEtaBins;
 float m_towerPhiWidth = TMath::TwoPi()/m_nPhiBins;
 
+
 float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bool useNegTowers=false){
   
   m_nSigma = input_sigma;
@@ -197,7 +198,8 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
     pyMiss -= hsTowers.at(ii).py;
     sumEt += hsTowers.at(ii).sumEt;
   }
-  
+
+  delete pufitGrid;
   return TMath::Sqrt(pxMiss*pxMiss + pyMiss*pyMiss);
 
 }

@@ -25,6 +25,7 @@ Rho_med(): Calculates rho as the median tower energy density in the barrel, agai
 #include <vector>
 #include "TMath.h"
 
+
 float Rho_bar(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   float rho = 0;
   float et_max = 3000;  //an upper threshold such that the average rho is not biased by hard scatter events

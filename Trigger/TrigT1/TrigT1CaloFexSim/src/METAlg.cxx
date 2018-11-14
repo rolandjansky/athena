@@ -89,9 +89,8 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg:
   met->et = EtMiss;
   met->phi = phi_met;
   //ATH_MSG_INFO("Dumping event rho: " << rho ); 
-  //std::cout << "Calculating MET for rho =  " << rho << std::endl;
-  //std::cout << "MET = " << EtMiss << std::endl;
-  
+
+  delete h_Et;  
   return StatusCode::SUCCESS;
 }
 
@@ -141,9 +140,8 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::
   
   met->et = EtMiss;
   met->phi = phi_met;
-  
-  //std::cout<<"Calculating MET with pileup subtracted SoftKiller: "<<std::endl;
-  //std::cout<<"MET = "<<EtMiss<<std::endl;
+
+  delete grid;
   return StatusCode::SUCCESS;
 }
 
@@ -204,16 +202,13 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* m
   float EtMiss = a*Et_values[1] + b*Et_values[2] + c;
   met->et = EtMiss*Gaudi::Units::GeV;
   
-  //std::cout<<"Calculating MET with optimized Jets Without Jets: "<<std::endl;
-  //std::cout<<"MET = "<<EtMiss<<std::endl;
   return StatusCode::SUCCESS;
 }
 
 StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, METAlg::MET* met, bool useNegTowers){
   float EtMiss = Run_PUfit(towers, 3, useNegTowers);
   met->et = EtMiss;
-  //std::cout<<"Calculating MET with PUfit:"<<std::endl;
-  //std::cout<<"MET = "<<EtMiss<<std::endl;
+
   return StatusCode::SUCCESS;
 }
 

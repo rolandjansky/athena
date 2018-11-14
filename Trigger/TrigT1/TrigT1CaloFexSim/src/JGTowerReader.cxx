@@ -81,6 +81,7 @@ JGTowerReader::~JGTowerReader() {
   delete gMET_sk;
   delete gMET_jwoj;
   delete gMET_pufit;
+
   jL1Jets.clear();
   jJet_L1Jets.clear();
   gL1Jets.clear();
@@ -110,7 +111,13 @@ StatusCode JGTowerReader::initialize() {
      gT_noise.push_back(noise_base);
      gJet_thr.push_back(noise_base*m_gJet_thr);
   } 
-  
+
+  met_algs["rho_sub"] = gMET_rho;  //pileup subtraction                                                                                                                                               
+  met_algs["SK"] = gMET_sk;      //softkiller                                                                                                                                                         
+  met_algs["JwoJ"] = gMET_jwoj;    //jets without jets                                                                                                                                                
+  met_algs["Noise"] = gMET;  //4 sigma noise cut                                                                                                                                                      
+  met_algs["PUfit"] = gMET_pufit;  //pufit  
+
   return StatusCode::SUCCESS;
 }
 
@@ -269,11 +276,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
   
   //gFEX MET algorithms
-  CHECK(METAlg::BuildMET(gTs,gMET,gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
-  CHECK(METAlg::SubtractRho_MET(gTs, gMET_rho, m_useRMS, m_useMedian, m_useNegTowers) ); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
-  CHECK(METAlg::Softkiller_MET(gTs,gMET_sk, m_useNegTowers) ); //pileup subtracted SoftKiller (with avg rho)
-  CHECK(METAlg::JwoJ_MET(gTs,gMET_jwoj,m_pTcone_cut, m_useNegTowers) ); //Jets without Jets
-  CHECK(METAlg::Pufit_MET(gTs,gMET_pufit, m_useNegTowers) ); //L1 version of PUfit, using gTowers
+  CHECK(METAlg::BuildMET(gTs,met_algs["Noise"],gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
+  CHECK(METAlg::SubtractRho_MET(gTs, met_algs["rho_sub"], m_useRMS, m_useMedian, m_useNegTowers) ); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
+  CHECK(METAlg::Softkiller_MET(gTs, met_algs["SK"], m_useNegTowers) ); //pileup subtracted SoftKiller (with avg rho)
+  CHECK(METAlg::JwoJ_MET(gTs,met_algs["JwoJ"],m_pTcone_cut, m_useNegTowers) ); //Jets without Jets
+  CHECK(METAlg::Pufit_MET(gTs,met_algs["PUfit"], m_useNegTowers) ); //L1 version of PUfit, using gTowers
   
   return StatusCode::SUCCESS;
 }
@@ -368,11 +375,11 @@ StatusCode JGTowerReader::ProcessObjects(){
   xAOD::EnergySumRoI* gFexMETCont = new xAOD::EnergySumRoI();
   gFexMETCont->setStore(gFexMETContAux);
 
-  CHECK(HistBookFill("gMET_et", 50, 0, 500, gMET->et/1000., 1.));
-  CHECK(HistBookFill("gMET_phi", 31, -3.1416, 3.1416, gMET->phi, 1.));
-  gFexMETCont->setEnergyX(gMET->et*cos(gMET->phi));
-  gFexMETCont->setEnergyY(gMET->et*sin(gMET->phi));
-  gFexMETCont->setEnergyT(gMET->et);
+  CHECK(HistBookFill("gMET_et", 50, 0, 500, met_algs["Noise"]->et, 1.));
+  CHECK(HistBookFill("gMET_phi", 31, -3.1416, 3.1416, met_algs["Noise"]->phi, 1.));
+  gFexMETCont->setEnergyX(met_algs["Noise"]->et*cos(met_algs["Noise"]->phi));
+  gFexMETCont->setEnergyY(met_algs["Noise"]->et*sin(met_algs["Noise"]->phi));
+  gFexMETCont->setEnergyT(met_algs["Noise"]->et);
   CHECK(evtStore()->record(gFexMETCont,"gFexMET"));  
   CHECK(evtStore()->record(gFexMETContAux,"gFexMETAux."));
 
@@ -381,11 +388,11 @@ StatusCode JGTowerReader::ProcessObjects(){
   xAOD::EnergySumRoI* gFexMET_rhoCont = new xAOD::EnergySumRoI();
   gFexMET_rhoCont->setStore(gFexMET_rhoContAux);
 
-  CHECK(HistBookFill("gMET_rho_et", 50, 0, 500, gMET->et/1000., 1.));
-  CHECK(HistBookFill("gMET_rho_phi", 31, -3.1416, 3.1416, gMET->phi, 1.));
-  gFexMET_rhoCont->setEnergyX(gMET_rho->et*cos(gMET_rho->phi));
-  gFexMET_rhoCont->setEnergyY(gMET_rho->et*sin(gMET_rho->phi));
-  gFexMET_rhoCont->setEnergyT(gMET_rho->et);
+  CHECK(HistBookFill("gMET_rho_et", 50, 0, 500, met_algs["rho_sub"]->et, 1.));
+  CHECK(HistBookFill("gMET_rho_phi", 31, -3.1416, 3.1416, met_algs["rho_sub"]->phi, 1.));
+  gFexMET_rhoCont->setEnergyX(met_algs["rho_sub"]->et*cos(met_algs["rho_sub"]->phi));
+  gFexMET_rhoCont->setEnergyY(met_algs["rho_sub"]->et*sin(met_algs["rho_sub"]->phi));
+  gFexMET_rhoCont->setEnergyT(met_algs["rho_sub"]->et);
   CHECK(evtStore()->record(gFexMET_rhoCont,"gFexMET_rho"));
   CHECK(evtStore()->record(gFexMET_rhoContAux,"gFexMET_rhoAux."));
 
@@ -394,10 +401,10 @@ StatusCode JGTowerReader::ProcessObjects(){
   xAOD::EnergySumRoI* gFexMET_skCont = new xAOD::EnergySumRoI();
   gFexMET_skCont->setStore(gFexMET_skContAux);
 
-  CHECK(HistBookFill("gMET_sk_et", 50, 0, 500, gMET_sk->et/1000., 1.));
-  CHECK(HistBookFill("gMET_sk_phi", 31, -3.1416, 3.1416, gMET_sk->phi, 1.));
-  gFexMET_skCont->setEnergyX(gMET_sk->et*cos(gMET_sk->phi));
-  gFexMET_skCont->setEnergyY(gMET_sk->et*sin(gMET_sk->phi));
+  CHECK(HistBookFill("gMET_sk_et", 50, 0, 500, met_algs["SK"]->et, 1.));
+  CHECK(HistBookFill("gMET_sk_phi", 31, -3.1416, 3.1416, met_algs["SK"]->phi, 1.));
+  gFexMET_skCont->setEnergyX(met_algs["SK"]->et*cos(met_algs["SK"]->phi));
+  gFexMET_skCont->setEnergyY(met_algs["SK"]->et*sin(met_algs["SK"]->phi));
   CHECK(evtStore()->record(gFexMET_skCont,"gFexMET_sk"));
   CHECK(evtStore()->record(gFexMET_skContAux,"gFexMET_skAux."));
 
@@ -406,11 +413,11 @@ StatusCode JGTowerReader::ProcessObjects(){
   xAOD::EnergySumRoI* gFexMET_jwojCont = new xAOD::EnergySumRoI();
   gFexMET_jwojCont->setStore(gFexMET_jwojContAux);
 
-  CHECK(HistBookFill("gMET_jwoj_et", 50, 0, 500, gMET_jwoj->et/1000., 1.));
-  CHECK(HistBookFill("gMET_jwoj_phi", 31, -3.1416, 3.1416, gMET_jwoj->phi, 1.));
-  gFexMET_jwojCont->setEnergyX(gMET_jwoj->et);
+  CHECK(HistBookFill("gMET_jwoj_et", 50, 0, 500, met_algs["JwoJ"]->et, 1.));
+  CHECK(HistBookFill("gMET_jwoj_phi", 31, -3.1416, 3.1416, met_algs["JwoJ"]->phi, 1.));
+  gFexMET_jwojCont->setEnergyX(met_algs["JwoJ"]->et);
   gFexMET_jwojCont->setEnergyY(0.0);
-  gFexMET_jwojCont->setEnergyT(gMET_jwoj->et);
+  gFexMET_jwojCont->setEnergyT(met_algs["JwoJ"]->et);
   CHECK(evtStore()->record(gFexMET_jwojCont,"gFexMET_jwoj"));
   CHECK(evtStore()->record(gFexMET_jwojContAux,"gFexMET_jwojAux."));
 
@@ -419,11 +426,11 @@ StatusCode JGTowerReader::ProcessObjects(){
   xAOD::EnergySumRoI* gFexMET_pufitCont = new xAOD::EnergySumRoI();
   gFexMET_pufitCont->setStore(gFexMET_pufitContAux);
 
-  CHECK(HistBookFill("gMET_pufit_et", 50, 0, 500, gMET_pufit->et/1000., 1.));
-  CHECK(HistBookFill("gMET_pufit_phi", 31, -3.1416, 3.1416, gMET_pufit->phi, 1.));
-  gFexMET_pufitCont->setEnergyX(gMET_pufit->et);
+  CHECK(HistBookFill("gMET_pufit_et", 50, 0, 500, met_algs["PUfit"]->et/1000., 1.));
+  CHECK(HistBookFill("gMET_pufit_phi", 31, -3.1416, 3.1416, met_algs["PUfit"]->phi, 1.));
+  gFexMET_pufitCont->setEnergyX(met_algs["PUfit"]->et);
   gFexMET_pufitCont->setEnergyY(0.0);
-  gFexMET_pufitCont->setEnergyT(gMET_pufit->et);
+  gFexMET_pufitCont->setEnergyT(met_algs["PUfit"]->et);
   CHECK(evtStore()->record(gFexMET_pufitCont,"gFexMET_pufit"));
   CHECK(evtStore()->record(gFexMET_pufitContAux,"gFexMET_pufitAux."));
 

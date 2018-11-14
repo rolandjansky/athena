@@ -34,13 +34,11 @@ FlattenHistogram: converts the output of ConstructGrid into the input of Et_medi
 #include <vector>
 #include "TMath.h"
 
-TH2F* sk_grid = new TH2F("h_SKgrid","", 12, -2.4, 2.4, 16, -3.14, 3.14);
 
 TH2F* ConstructGrid(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   int NEta = 12;
   int NPhi = 16;
   
-  delete sk_grid;
   TH2F* sk_grid = new TH2F("h_SKgrid","",NEta, -2.4, 2.4, NPhi, -3.14, 3.14);
   
   for(unsigned int t = 0; t < towers->size(); t++){
