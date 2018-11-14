@@ -7,8 +7,7 @@
 
 #include <vector>
 #include <map>
-#include <string>
-#include "MCTruthClassifier/MCTruthClassifier.h"
+
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthParticle.h>
 #include "AsgTools/IAsgTool.h"
