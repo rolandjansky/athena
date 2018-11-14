@@ -1431,7 +1431,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT26Strea
 listAODtoDPD.append(WriteDAOD_EXOT26Stream.StreamName)
 
 class WriteDAOD_EXOT27Stream(JobProperty):
-    """EXOT27: My test for monoHbb"""
+    """EXOT27: Derivation for Mono-Hbb and Mono-sWW analyses"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
