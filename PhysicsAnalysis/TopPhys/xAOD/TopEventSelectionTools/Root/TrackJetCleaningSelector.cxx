@@ -11,10 +11,7 @@ namespace top {
 
   TrackJetCleaningSelector::TrackJetCleaningSelector(std::shared_ptr<top::TopConfig> config) :
     m_config(config)
-  {
-    m_pt_signal=10e3;
-    m_pt_baseline=5e3;
-    
+  {    
   }
 
   bool TrackJetCleaningSelector::apply(const top::Event& event) const {
@@ -24,7 +21,7 @@ namespace top {
     // Selection is applied only if Variable-R track jets are used
     if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") {
       static SG::AuxElement::Accessor<char> acc_passDRcut("passDRcut");
-      for (const auto& jet : event.m_trackJets) {
+      for (const xAOD::Jet* jet : event.m_trackJets) {
         top::check(acc_passDRcut.isAvailable(*jet),"passDRcut info not found in variable-R track jet. Needed for cleaning algorithm.");
 	if(!acc_passDRcut(*jet) ) return false;
       }

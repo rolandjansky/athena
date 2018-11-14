@@ -28,9 +28,6 @@ private:
 
     std::shared_ptr<top::TopConfig> m_config;
     
-    float m_pt_signal;
-    float m_pt_baseline;
-    
 };
 
 }

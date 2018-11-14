@@ -32,15 +32,11 @@ namespace top {
       
       // we can't yet use jet cleaning for particle-flow jets
       if (!m_config->useParticleFlowJets()) {
-        if (m_useLooseBad){
-          top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
-          top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
-        }
-        if (!m_useLooseBad){
-          top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
-          top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
-        }
+	if (m_useLooseBad)top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
+	else top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
       }
+      if (m_useLooseBad)top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
+      else top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
     }
   }
 
@@ -59,7 +55,7 @@ namespace top {
     else{
       for (const auto* const jetPtr : event.m_jets){
 	// we can't yet use jet cleaning for particle-flow jets, so do nothing in this case
-	if (m_config->useParticleFlowJets()) return true;
+	top::check(!m_config->useParticleFlowJets(),"Jet cleaning can't be used for PFlow jets");
 	
 	if (m_useLooseBad) {
 	  if (m_jetCleaningToolLooseBad->keep(*jetPtr) == 0) {

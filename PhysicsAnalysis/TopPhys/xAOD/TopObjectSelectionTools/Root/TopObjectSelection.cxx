@@ -418,7 +418,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
   
   
   
-  for (const auto& jetPtr : *jets) {
+  for (const xAOD::Jet* jetPtr : *jets) {
     char decoration = m_trackJetSelection->passSelection(*jetPtr);
     jetPtr->auxdecor<char>( m_passPreORSelection ) = decoration;
     if (m_doLooseCuts) {
@@ -432,7 +432,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
       
       float dr_jets;
       bool passDRcut = true;
-      for( const auto& jet2 : *jets ) {
+      for( const xAOD::Jet* jet2 : *jets ) {
 	
 	if (jet2->pt()<pt_baseline) continue;
 	if (jetPtr == jet2) continue;
