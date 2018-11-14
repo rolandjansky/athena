@@ -6925,15 +6925,21 @@ public:
     int nperpars = trajectory.numberOfPerigeeParameters();
     // int nfitpars=trajectory.numberOfFitParameters();
 
-    AmgSymMatrix(5) initialjac;
+    // A bit of a nightmare here SMatris is Row major
+    // Storage in eigen is normally column major
+    // change stuff around so that indicies dont need to worked out;
+    // Intruth what follows is impossible to follow and needs to be clearly documented 
+
+    typedef Eigen::Matrix<double, 5, 5, Eigen::RowMajor> EigenRM55;
+    EigenRM55 initialjac;
     initialjac.setZero();
     initialjac(4,4) = 1;
-    AmgSymMatrix(5) jacvertex(initialjac);
-    std::vector<AmgSymMatrix(5)> jacscat(trajectory.numberOfScatterers(), initialjac);
+    EigenRM55 jacvertex(initialjac);
+    std::vector<EigenRM55> jacscat(trajectory.numberOfScatterers(), initialjac);
     int maxk[5] = {
       4, 4, 4, 4, 5
     };
-    std::vector<AmgSymMatrix(5)> jacbrem(trajectory.numberOfBrems(), initialjac);
+    std::vector<EigenRM55> jacbrem(trajectory.numberOfBrems(), initialjac);
     // std::vector<double> pbrem(trajectory.numberOfBrems());
 
     // double sign=(trajectory.referenceParameters()->parameters()[Trk::qOverP]>0) ? 1 : -1;
@@ -6973,8 +6979,8 @@ public:
             }
             jacscat[scatindex](4, 4) = jac[4][4];
           }else {
-            AmgSymMatrix(5) &tmpjac2 = jacscat[scatindex];
-            AmgSymMatrix(5) &tmpjac = initialjac;
+            EigenRM55 &tmpjac2 = jacscat[scatindex];
+            EigenRM55 &tmpjac = initialjac;
             double *myarray = tmpjac2.data();
             for (int i = 0; i < 4; i++) {
               // double tmparray[5];
@@ -7010,7 +7016,7 @@ public:
             }
             jacbrem[bremindex](4, 4) = jac[4][4];
           }else {
-            AmgSymMatrix(5) &tmpjac = initialjac;// jacbrem[bremindex];
+            EigenRM55 &tmpjac = initialjac;// jacbrem[bremindex];
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
@@ -7038,7 +7044,7 @@ public:
           }
         }
         // SMatrix55 &tmpjac=jacvertex;
-        AmgSymMatrix(5) &tmpjac = initialjac;
+        EigenRM55 &tmpjac = initialjac;
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
@@ -7125,8 +7131,8 @@ public:
             }
             jacscat[scatindex](4, 4) = jac[4][4];
           }else {
-            AmgSymMatrix(5) &tmpjac2 = jacscat[scatindex];
-            AmgSymMatrix(5) &tmpjac = initialjac;
+            EigenRM55 &tmpjac2 = jacscat[scatindex];
+            EigenRM55 &tmpjac = initialjac;
             double *myarray = tmpjac2.data();
             for (int i = 0; i < 4; i++) {
               // double tmparray[5];
@@ -7169,7 +7175,7 @@ public:
             }
             jacbrem[bremindex](4, 4) = jac[4][4];
           }else {
-            AmgSymMatrix(5) &tmpjac = initialjac;// jacbrem[bremindex];
+            EigenRM55 &tmpjac = initialjac;// jacbrem[bremindex];
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
@@ -7198,7 +7204,7 @@ public:
           }
         }
         // SMatrix55 &tmpjac=jacvertex;
-        AmgSymMatrix(5) &tmpjac = initialjac;
+        EigenRM55 &tmpjac = initialjac;
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
@@ -7310,18 +7316,18 @@ public:
       }
 
       if (!state->trackCovariance()) {
-        AmgSymMatrix(5) * newcov = new AmgSymMatrix(5);
+        AmgMatrix(5,5) * newcov = new AmgMatrix(5,5);
         newcov->setZero();
         state->setTrackCovariance(newcov);
       }
-      AmgSymMatrix(5) &trackerrmat = *state->trackCovariance();
+      AmgMatrix(5,5) &trackerrmat = *state->trackCovariance();
 
 
       if (prevstate &&
           (prevstate->trackStateType() == TrackState::Fittable ||
            prevstate->trackStateType() == TrackState::GeneralOutlier) && !onlylocal) {
         double (*jac)[5] = state->jacobian();
-        AmgSymMatrix(5) &prevcov = *states[indices[stateno - 1]]->trackCovariance();
+        AmgMatrix(5,5) &prevcov = *states[indices[stateno - 1]]->trackCovariance();
         errors1(jac, prevcov, trackerrmat, onlylocal);
       }else {
         int maxl = trajectory.m_straightline ? 3 : 4;
@@ -7409,7 +7415,7 @@ public:
 
         const TrackParameters *trackpar = 0, *tmptrackpar = state->trackParameters();
 
-        AmgSymMatrix(5) * trkerrmat = state->trackCovariance(true);
+        AmgMatrix(5,5) * trkerrmat = state->trackCovariance(true);
         const AmgVector(5) &tpars = tmptrackpar->parameters();
         trackpar =
           tmptrackpar->associatedSurface().createTrackParameters(tpars[0], tpars[1], tpars[2], tpars[3], tpars[4],
