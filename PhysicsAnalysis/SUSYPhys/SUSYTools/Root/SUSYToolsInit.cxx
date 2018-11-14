@@ -384,6 +384,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
     m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
+    //
+    if (m_muOverride2017SmearingDefaults){
+      ATH_MSG_WARNING("You have enabled overriding the 2017 muon calibration and smearing tool defaults. Note that *all* configurable parameters for 2017 will be set by SUSYTools");
+      m_muonCalibrationAndSmearingTool.setProperty("StatComb17", m_muStatComb17);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr17", m_muSagittaCorr17);
+      m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion17", m_muSagittaMCDistortion17);
+      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17);
+    }
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
 
