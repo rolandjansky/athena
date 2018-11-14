@@ -9,15 +9,15 @@ atlas_subdir( BeamSpotConditionsData )
 set ( extra_dep )
 set ( extra_lib )
 if ( NOT SIMULATIONBASE )
-   set ( extra_dep VxVertex )
+   set ( extra_dep Tracking/TrkEvent/VxVertex )
    set ( extra_lib VxVertex )
 endif()
 
 # dependencies
 atlas_depends_on_subdirs( PUBLIC
 			  Control/AthenaKernel
-			  AthenaPoolUtilities
-			  GeoPrimitives
+			  Database/AthenaPOOL/AthenaPoolUtilities
+			  DetectorDescription/GeoPrimitives
 			  ${extra_dep}
 			)
 
