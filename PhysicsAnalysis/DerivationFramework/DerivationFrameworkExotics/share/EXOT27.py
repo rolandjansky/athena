@@ -333,10 +333,6 @@ JetCommon.addJetOutputs(
 EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
-EXOT27SlimmingHelper.AppendToDictionary.update( {
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"    : "xAOD::BTaggingContainer",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux" : "xAOD::BTaggingAuxContainer",
-    } )
 
 EXOT27SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT27SlimmingHelper.IncludeEGammaTriggerContent = True
