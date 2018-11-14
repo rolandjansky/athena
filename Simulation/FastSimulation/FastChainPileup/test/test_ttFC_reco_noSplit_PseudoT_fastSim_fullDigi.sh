@@ -3,8 +3,7 @@
 # art-type: grid
 #
 # specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
+
 # art-output: config.txt
 
 # Sim/Digi job
