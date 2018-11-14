@@ -75,6 +75,45 @@ namespace top {
     std::unordered_set<std::string> tmpAllTriggers_Tight;
     std::unordered_set<std::string> tmpAllTriggers_Loose;
 
+    // get full list of global triggers
+    std::vector<std::string> globalTriggers_Tight;
+    std::vector<std::string> globalTriggers_Loose;
+    std::vector<std::string> globalElectronTriggers_Tight;
+    std::vector<std::string> globalElectronTriggers_Loose;
+    std::vector<std::string> globalMuonTriggers_Tight;
+    std::vector<std::string> globalMuonTriggers_Loose;
+    if (m_config->useGlobalTrigger()) {
+      std::set<std::string> tmp;
+      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggers(), m_config->getGlobalTriggerMuonTriggers()}) {
+        for (auto const & pair : triggermap) {
+          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
+          tmp.insert(triggers.begin(), triggers.end());
+        }
+      }
+      globalTriggers_Tight.assign(tmp.begin(), tmp.end());
+      for (std::string const & trigger : globalTriggers_Tight) {
+        if (isElectronTrigger(trigger))
+          globalElectronTriggers_Tight.push_back(trigger);
+        if (isMuonTrigger(trigger))
+          globalMuonTriggers_Tight.push_back(trigger);
+      }
+      tmp.clear();
+      // and the usual copy-paste-s/Tight/Loose/g story:
+      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggersLoose(), m_config->getGlobalTriggerMuonTriggersLoose()}) {
+        for (auto const & pair : triggermap) {
+          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
+          tmp.insert(triggers.begin(), triggers.end());
+        }
+      }
+      globalTriggers_Loose.assign(tmp.begin(), tmp.end());
+      for (std::string const & trigger : globalTriggers_Loose) {
+        if (isElectronTrigger(trigger))
+          globalElectronTriggers_Loose.push_back(trigger);
+        if (isMuonTrigger(trigger))
+          globalMuonTriggers_Loose.push_back(trigger);
+      }
+    }
+
     m_allTriggers_Tight.clear();
     m_electronTriggers_Tight.clear();
     m_muonTriggers_Tight.clear();
@@ -146,7 +185,29 @@ namespace top {
         }
 
         if (starts_with(cut, "GTRIGDEC ")) {
+          if (selectionHasTriggerCut || selectionHasTriggerCut_Loose || selectionHasTriggerCut_Tight) {
+            ATH_MSG_ERROR("A *TRIGDEC* selector has already been used for selection "<<sel.m_name<<" - you can't have two.");
+            ATH_MSG_ERROR("Exiting...");
+            exit(1);
+          }
+          if (!m_config->useGlobalTrigger()) {
+            ATH_MSG_ERROR("The GTRIGDEC selector cannot be used without UseGlobalLeptonTriggerSF.");
+            ATH_MSG_ERROR("Exiting...");
+            exit(1);
+          }
           selectionHasTriggerCut = true;
+          allTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalTriggers_Tight.begin(), globalTriggers_Tight.end())));
+          allTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalTriggers_Loose.begin(), globalTriggers_Loose.end())));
+          electronTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalElectronTriggers_Tight.begin(), globalElectronTriggers_Tight.end())));
+          electronTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalElectronTriggers_Loose.begin(), globalElectronTriggers_Loose.end())));
+          muonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalMuonTriggers_Tight.begin(), globalMuonTriggers_Tight.end())));
+          muonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+              std::vector<std::string>(globalMuonTriggers_Loose.begin(), globalMuonTriggers_Loose.end())));
         }
 
         if (starts_with(cut, "TRIGDEC_TIGHT ")) {
@@ -251,7 +312,7 @@ namespace top {
         } // Cut requested is TRIGDEC_LOOSE
         else if (starts_with(cut, "TRIGDEC ")) {
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR("TRIGDEC has already been used for selection "<<sel.m_name<<" - you can't use it twice.");
+            ATH_MSG_ERROR("TRIGDEC/GTRIGDEC has already been used for selection "<<sel.m_name<<" - you can't use it twice.");
             ATH_MSG_ERROR("Exiting...");
             exit(1);
           }
@@ -350,20 +411,8 @@ namespace top {
     } // Loop over all selections
 
     // Add triggers configured for the global trigger SF tool
-    if (m_config->useGlobalTrigger()) {
-      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggers(), m_config->getGlobalTriggerMuonTriggers()}) {
-        for (auto const & pair : triggermap) {
-          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
-          tmpAllTriggers_Tight.insert(triggers.begin(), triggers.end());
-        }
-      }
-      for (auto const & triggermap : {m_config->getGlobalTriggerElectronTriggersLoose(), m_config->getGlobalTriggerMuonTriggersLoose()}) {
-        for (auto const & pair : triggermap) {
-          auto const & triggers = getIndividualFromGlobalTriggers(pair.second);
-          tmpAllTriggers_Loose.insert(triggers.begin(), triggers.end());
-        }
-      }
-    }
+    tmpAllTriggers_Tight.insert(globalTriggers_Tight.begin(), globalTriggers_Tight.end());
+    tmpAllTriggers_Loose.insert(globalTriggers_Loose.begin(), globalTriggers_Loose.end());
 
     // Turn list into vector
     {
