@@ -11,6 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
+#include "TrkGlobalChi2Fitter/GXFLUDecomp.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -20,11 +21,6 @@
 #include "HepMC/GenParticle.h"
 #endif
 
-#include "Math/SMatrix.h"
-#include "TMatrixDSym.h"
-#include "TVectorD.h"
-#include "TArrayD.h"
-#include "TDecompChol.h"
 
 class AtlasDetectorID;
 
@@ -116,18 +112,6 @@ class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
 
   };
 
-  class LUDecomp{
-   public:
-    LUDecomp();
-    void SetMatrix( Amg::SymMatrixX& );
-    Amg::VectorX Solve( Amg::VectorX&, bool& ok );
-    Amg::SymMatrixX Invert(bool& ok);
-   private:
-    Amg::SymMatrixX m_matrix;
-    bool m_luSet;
-    Eigen::LLT<Eigen::MatrixXd> m_lu;
-  };
-
 public:
   GlobalChi2Fitter(const std::string&,const std::string&,const IInterface*);
   virtual ~GlobalChi2Fitter();
@@ -214,19 +198,19 @@ private:
 
   TrackStateOnSurface *makeTSOS(GXFTrackState*, const ParticleHypothesis matEffects) const;
 
-  void fillResiduals(Cache&, GXFTrajectory &, int, Amg::SymMatrixX&, Amg::VectorX&,LUDecomp &,bool &) const;
+  void fillResiduals(Cache&, GXFTrajectory &, int, Amg::SymMatrixX&, Amg::VectorX&,GXFLUDecomp &,bool &) const;
 
   void fillDerivatives(GXFTrajectory &traj, bool onlybrem=false) const;
 
-  FitterStatusCode runIteration(Cache&, GXFTrajectory &,int,Amg::SymMatrixX &,Amg::VectorX &,LUDecomp &,bool &) const;
+  FitterStatusCode runIteration(Cache&, GXFTrajectory &,int,Amg::SymMatrixX &,Amg::VectorX &,GXFLUDecomp &,bool &) const;
 
-  FitterStatusCode updateFitParameters(GXFTrajectory &,Amg::VectorX &,LUDecomp &) const;
+  FitterStatusCode updateFitParameters(GXFTrajectory &,Amg::VectorX &,GXFLUDecomp &) const;
 
   GXFTrajectory *runTrackCleanerSilicon(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::SymMatrixX&, Amg::VectorX&, bool) const;
   //Not called
-  void runTrackCleanerMDT(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::SymMatrixX&, Amg::VectorX&, LUDecomp &) const;
+  void runTrackCleanerMDT(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::SymMatrixX&, Amg::VectorX&, GXFLUDecomp &) const;
 
-  void runTrackCleanerTRT(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::VectorX&, LUDecomp &, bool, bool, int) const;
+  void runTrackCleanerTRT(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::VectorX&, GXFLUDecomp &, bool, bool, int) const;
 
   FitterStatusCode calculateTrackParameters(GXFTrajectory &,bool) const;
 

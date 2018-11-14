@@ -64,14 +64,10 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-#include "CLHEP/Matrix/Vector.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
-#include "TDecompChol.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include <exception>
 
@@ -4537,7 +4533,7 @@ public:
     gErrorIgnoreLevel = 10000;
 
     cache.m_a.resize(nfitpar, nfitpar);
-    LUDecomp lu;
+    GXFLUDecomp lu;
     Amg::VectorX b(nfitpar);
 
 /*
@@ -4750,7 +4746,7 @@ public:
 
   void
   GlobalChi2Fitter::fillResiduals(Cache& cache,
-                                  GXFTrajectory &trajectory, int it, Amg::SymMatrixX &a, Amg::VectorX &b, LUDecomp &lu,
+                                  GXFTrajectory &trajectory, int it, Amg::SymMatrixX &a, Amg::VectorX &b, GXFLUDecomp &lu,
                                   bool &doderiv) const {
     ATH_MSG_DEBUG("fillResiduals");
 
@@ -5212,7 +5208,7 @@ public:
 
   FitterStatusCode
   GlobalChi2Fitter::runIteration(Cache& cache,
-                                 GXFTrajectory &trajectory, int it, Amg::SymMatrixX &a, Amg::VectorX &b, LUDecomp &lu,
+                                 GXFTrajectory &trajectory, int it, Amg::SymMatrixX &a, Amg::VectorX &b, GXFLUDecomp &lu,
                                  bool &doderiv) const {
     int measno = 0;
     int nfitpars = trajectory.numberOfFitParameters();
@@ -5501,7 +5497,7 @@ public:
   }
 
   FitterStatusCode
-  GlobalChi2Fitter::updateFitParameters(GXFTrajectory &trajectory, Amg::VectorX &b, LUDecomp &lu) const {
+  GlobalChi2Fitter::updateFitParameters(GXFTrajectory &trajectory, Amg::VectorX &b, GXFLUDecomp &lu) const {
     ATH_MSG_DEBUG( "UpdateFitParameters" );
 
     const TrackParameters *refpar = trajectory.referenceParameters();
@@ -5600,7 +5596,7 @@ public:
 
   void
   GlobalChi2Fitter::runTrackCleanerTRT(Cache& cache,
-                                       GXFTrajectory &trajectory, Amg::SymMatrixX &a, Amg::VectorX &b, LUDecomp &lu,
+                                       GXFTrajectory &trajectory, Amg::SymMatrixX &a, Amg::VectorX &b, GXFLUDecomp &lu,
                                        bool runOutlier, bool trtrecal, int it) const {
     double scalefactor = m_scalefactor;
 
@@ -5729,7 +5725,7 @@ public:
   void
   GlobalChi2Fitter::runTrackCleanerMDT(Cache& cache,
                                        GXFTrajectory &trajectory, Amg::SymMatrixX &a, Amg::SymMatrixX &fullcov, Amg::VectorX &b,
-                                       LUDecomp &lu) const {
+                                       GXFLUDecomp &lu) const {
     std::vector<GXFTrackState *> &states = trajectory.trackStates();
     std::vector<double> &res = trajectory.residuals();
     std::vector<std::vector<double> > &weightderiv = trajectory.weightedResidualDerivatives();
@@ -6023,7 +6019,7 @@ public:
       Amg::VectorX *newbp = &b;
       Amg::SymMatrixX newa(nfitpars,nfitpars);
       Amg::VectorX newb(nfitpars);
-      LUDecomp newlu;
+      GXFLUDecomp newlu;
 
       if (maxpull > 2 && oldtrajectory->chi2() / oldtrajectory->nDOF() > .25 * m_chi2cut) {
         state_maxsipull = oldtrajectory->trackStates()[stateno_maxsipull];
@@ -6928,21 +6924,16 @@ public:
     int nscats = trajectory.numberOfScatterers();
     int nperpars = trajectory.numberOfPerigeeParameters();
     // int nfitpars=trajectory.numberOfFitParameters();
-    double initialarray[25] = {
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1
-    };
-    typedef ROOT::Math::SMatrix<double, 5> SMatrix55;
-    SMatrix55 initialjac(initialarray, 25);
-    SMatrix55 jacvertex(initialjac);
-    std::vector<SMatrix55> jacscat(trajectory.numberOfScatterers(), initialjac);
+
+    AmgSymMatrix(5) initialjac;
+    initialjac.setZero();
+    initialjac(4,4) = 1;
+    AmgSymMatrix(5) jacvertex(initialjac);
+    std::vector<AmgSymMatrix(5)> jacscat(trajectory.numberOfScatterers(), initialjac);
     int maxk[5] = {
       4, 4, 4, 4, 5
     };
-    std::vector<SMatrix55> jacbrem(trajectory.numberOfBrems(), initialjac);
+    std::vector<AmgSymMatrix(5)> jacbrem(trajectory.numberOfBrems(), initialjac);
     // std::vector<double> pbrem(trajectory.numberOfBrems());
 
     // double sign=(trajectory.referenceParameters()->parameters()[Trk::qOverP]>0) ? 1 : -1;
@@ -6982,9 +6973,9 @@ public:
             }
             jacscat[scatindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac2 = jacscat[scatindex];
-            SMatrix55 &tmpjac = initialjac;
-            double *myarray = tmpjac2.Array();
+            AmgSymMatrix(5) &tmpjac2 = jacscat[scatindex];
+            AmgSymMatrix(5) &tmpjac = initialjac;
+            double *myarray = tmpjac2.data();
             for (int i = 0; i < 4; i++) {
               // double tmparray[5];
               int myindex;
@@ -6992,18 +6983,11 @@ public:
                 double tmp = 0;
                 myindex = j;
                 for (int k = 0; k < maxk[j]; k++) {
-                  // tmp+=jac[i][k]*jacscat[scatindex](k,j);
                   tmp += jac[i][k] * myarray[myindex];
                   myindex += 5;
                 }
                 tmpjac(i, j) = tmp;
-                // tmparray[j]=tmp;
               }
-              /* myindex=5*i+jmin;
-                 for (int j=jmin;j<=jmax;j++) {
-                 myarray[myindex] = tmparray[j];
-                 myindex++;
-                 } */
             }
             jacscat[scatindex] = tmpjac;
             jacscat[scatindex](4, 4) = jac[4][4] * jacscat[scatindex](4, 4);
@@ -7026,7 +7010,7 @@ public:
             }
             jacbrem[bremindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac = initialjac;// jacbrem[bremindex];
+            AmgSymMatrix(5) &tmpjac = initialjac;// jacbrem[bremindex];
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
@@ -7054,7 +7038,7 @@ public:
           }
         }
         // SMatrix55 &tmpjac=jacvertex;
-        SMatrix55 &tmpjac = initialjac;
+        AmgSymMatrix(5) &tmpjac = initialjac;
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
@@ -7141,9 +7125,9 @@ public:
             }
             jacscat[scatindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac2 = jacscat[scatindex];
-            SMatrix55 &tmpjac = initialjac;
-            double *myarray = tmpjac2.Array();
+            AmgSymMatrix(5) &tmpjac2 = jacscat[scatindex];
+            AmgSymMatrix(5) &tmpjac = initialjac;
+            double *myarray = tmpjac2.data();
             for (int i = 0; i < 4; i++) {
               // double tmparray[5];
               int myindex;
@@ -7185,7 +7169,7 @@ public:
             }
             jacbrem[bremindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac = initialjac;// jacbrem[bremindex];
+            AmgSymMatrix(5) &tmpjac = initialjac;// jacbrem[bremindex];
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
@@ -7214,7 +7198,7 @@ public:
           }
         }
         // SMatrix55 &tmpjac=jacvertex;
-        SMatrix55 &tmpjac = initialjac;
+        AmgSymMatrix(5) &tmpjac = initialjac;
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
@@ -7739,38 +7723,4 @@ public:
     }
   }
 
- GlobalChi2Fitter::LUDecomp::LUDecomp():m_luSet(false){}
-
-
- void GlobalChi2Fitter::LUDecomp::SetMatrix( Amg::SymMatrixX& matrix)
- {
-   m_matrix = matrix;
-   m_luSet = false;
- }
-
- Amg::VectorX GlobalChi2Fitter::LUDecomp::Solve( Amg::VectorX&  vector, bool& ok)
- {
-   ok = true;
-   if(!m_luSet){
-     m_lu = Eigen::LLT<Eigen::MatrixXd>(m_matrix);
-     m_luSet = true;
-   }
-   if( m_lu.info() != Eigen::Success )
-     ok = false;
-   return m_lu.solve(vector);
- }
-
- Amg::SymMatrixX GlobalChi2Fitter::LUDecomp::Invert(bool& ok)
- {
-   ok = true;
-   if(!m_luSet){
-     m_lu = Eigen::LLT<Eigen::MatrixXd>(m_matrix);
-     m_luSet = true;
-   }
-   if( m_lu.info() != Eigen::Success )
-     ok = false;
-
-   Amg::SymMatrixX a = Eigen::MatrixXd::Identity( m_matrix.cols(), m_matrix.rows() );
-   return m_lu.solve(a);
- }
 }
