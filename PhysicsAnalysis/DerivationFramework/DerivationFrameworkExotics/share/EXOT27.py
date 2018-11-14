@@ -163,17 +163,10 @@ HbbCommon.addVRCaloJets(EXOT27Seq, "EXOT27Jets")
 # tag jets already in place!
 ExtendedJetCommon.addCSSKSoftDropJets(EXOT27Seq, "EXOT27Jets")
 
-# Add the R-scan jets
-JetCommon.addStandardJets(
-    "AntiKt", 0.2, "LCTopo", mods="lctopo_ungroomed", calibOpt="none",
-    ghostArea=0.1, ptmin=2000, ptminFilter=7000,
-    algseq=EXOT27Seq, outputGroup="EXOT27Jets")
-
 # Ghost-associated the track jets to these large-R jets
 toBeAssociatedTo = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
-  "AntiKt2LCTopoJets"
   ]
 toAssociate = {
   vrTrackJetGhosts : vrTrackJetGhosts.lower(),
@@ -318,7 +311,6 @@ JetCommon.addJetOutputs(
     contentlist=["EXOT27Jets"],
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-      "AntiKt2LCTopoJets",
       "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
     ],
     vetolist = [
