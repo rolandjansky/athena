@@ -36,7 +36,7 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HION7Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=900 #in MeV
 #Thinning threshods for jets is applied only in data
-JetThinningThreshold = {'DFAntiKt4HIJets':  35, 'DFAntiKt2HIJets': 35, 'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35} #in GeV
+JetThinningThreshold = {'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35} #in GeV
 if project_tag=='data15_hi':
 	expression='(HLT_j50_ion_L1TE20 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1)' % (HITriggerDict['HLT_j50_ion_L1TE20'],HITriggerDict['HLT_j60_ion_L1TE50'],HITriggerDict['HLT_j75_ion_L1TE50'])  
 #TODO to be changed to DF when their performance is understood  
@@ -45,7 +45,7 @@ if HIDerivationFlags.doMinBiasSelection() : expression = 'HLT_noalg_mb_L1TE50 ||
 if project_tag=='data18_hi':
 	expression=''
 	for i, key in enumerate(HI18TriggerDict):
-		expression = expression + '(' + key + ' && (count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 || count(DFAntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1) ) '
+		expression = expression + '(' + key + ' && count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 ) '
 		if not i == len(HI18TriggerDict) - 1:
 			expression = expression + ' || ' 
 	
@@ -101,6 +101,8 @@ thinningTools=[TPThinningTool]
 CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets']
  
 if HIDerivationFlags.isPP() : CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets'] 
+
+if project_tag=='data18_hi': CollectionList=['AntiKt2HIJets','AntiKt4HIJets']
 
 #Jet thinning only for PbPb data
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 

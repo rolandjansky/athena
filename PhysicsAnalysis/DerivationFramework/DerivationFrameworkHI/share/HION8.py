@@ -36,7 +36,7 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HION8Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=4000 #in MeV
 #Thinning threshods for jets is applied only in data and the cut is set to be the 99% point of the lowest trigger threshold
-JetThinningThreshold = {'DFAntiKt4HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'DFAntiKt2HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'AntiKt4HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'AntiKt2HIJets': HI18TriggerDict['HLT_j50_ion_L1J12']} #in GeV
+JetThinningThreshold = {'AntiKt4HIJets': HI18TriggerDict['HLT_j50_ion_L1J12'] , 'AntiKt2HIJets': HI18TriggerDict['HLT_j50_ion_L1J12']} #in GeV
 if project_tag=='data15_hi':
 	expression='(HLT_j50_ion_L1TE20 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1)' % (HITriggerDict['HLT_j50_ion_L1TE20'],HITriggerDict['HLT_j60_ion_L1TE50'],HITriggerDict['HLT_j75_ion_L1TE50']) 
 #TODO to be changed to DF when their performance is understood
@@ -45,7 +45,7 @@ if HIDerivationFlags.doMinBiasSelection() : expression = 'HLT_noalg_mb_L1TE50 ||
 if project_tag=='data18_hi':
 	expression=''
 	for i, key in enumerate(HI18TriggerDict):
-		expression = expression + '(' + key + ' && (count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 || count(DFAntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1) ) '
+		expression = expression + '(' + key + ' && count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 ) '
 		if not i == len(HI18TriggerDict) - 1:
 			expression = expression + ' || '
 
@@ -74,8 +74,8 @@ for t in skimmingTools : ToolSvc+=t
 #########Thinning#########
 
 thinningTools=[]
-thinningTools.append(addJetClusterThinningTool('DFAntiKt4HIJets',DerivationName,30))
-
+if project_tag=='data18_hi': thinningTools.append(addJetClusterThinningTool('AntiKt4HIJets',DerivationName,30))
+else: thinningTools.append(addJetClusterThinningTool('DFAntiKt4HIJets',DerivationName,30))
 #track thinning
 #Original: 
 #thinningTools.append(addTrackThinningToolTight(DerivationName,TrackThinningThreshold))
@@ -102,6 +102,7 @@ thinningTools=[TPThinningTool]
 CollectionList=[]
 CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
 if HIDerivationFlags.isPP() : CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets','AntiKt2HIJets_Seed1']
+if project_tag=='data18_hi': CollectionList=['AntiKt2HIJets','AntiKt4HIJets']
 
 #Jet thinning only on PbPb HP streams
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
