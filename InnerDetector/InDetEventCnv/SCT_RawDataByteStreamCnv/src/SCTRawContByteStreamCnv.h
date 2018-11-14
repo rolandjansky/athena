@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
-#define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
+#ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
+#define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
 
 // Gaudi
 #include "GaudiKernel/Converter.h"
@@ -34,7 +34,7 @@ extern long ByteStream_StorageType;
 class SCTRawContByteStreamCnv: public Converter {
 
  public:
-  SCTRawContByteStreamCnv(ISvcLocator* svcloc);
+  SCTRawContByteStreamCnv(ISvcLocator* svcLoc);
   
   typedef SCT_RDO_Container SCTRawContainer; 
 
@@ -51,12 +51,12 @@ class SCTRawContByteStreamCnv: public Converter {
   { return StatusCode::FAILURE;}
 
   /** this creates the RawEvent fragments for the SCT */
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress);
 
  private: 
   /** for BS infrastructure */
-  ToolHandle<ISCTRawContByteStreamTool> m_tool;
+  ToolHandle<ISCTRawContByteStreamTool> m_rawContByteStreamTool;
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 
   MsgStream m_log;
 };
-#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
+#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H

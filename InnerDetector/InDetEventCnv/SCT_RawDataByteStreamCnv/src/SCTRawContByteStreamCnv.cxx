@@ -18,9 +18,9 @@
 /// ------------------------------------------------------
 /// constructor
 
-SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcloc) :
-  Converter(ByteStream_StorageType, classID(),svcloc),
-  m_tool{"SCTRawContByteStreamTool"},
+SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcLoc) :
+  Converter(ByteStream_StorageType, classID(),svcLoc),
+  m_rawContByteStreamTool{"SCTRawContByteStreamTool"},
   m_byteStreamEventAccess{"ByteStreamCnvSvc", "SCTRawContByteStreamCnv"},
   m_log{msgSvc(), "SCTRawContByteStreamCnv"}
 {
@@ -40,8 +40,8 @@ SCTRawContByteStreamCnv::initialize()
   m_log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endmsg;
 
   /** Retrieve byte stream tool */
-  ATH_CHECK(m_tool.retrieve());
-  m_log << MSG::INFO << "Retrieved tool " << m_tool << endmsg;
+  ATH_CHECK(m_rawContByteStreamTool.retrieve());
+  m_log << MSG::INFO << "Retrieved tool " << m_rawContByteStreamTool << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -50,25 +50,25 @@ SCTRawContByteStreamCnv::initialize()
 /// convert SCT Raw Data in the container into ByteStream
 
 StatusCode
-SCTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
+SCTRawContByteStreamCnv::createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress)
 {
   /** get RawEvent pointer */
-  RawEventWrite* re{m_byteStreamEventAccess->getRawEvent()};
+  RawEventWrite* rawEvtWrite{m_byteStreamEventAccess->getRawEvent()};
 
   /** get IDC for SCT Raw Data */
-  SCT_RDO_Container* cont{nullptr};
-  StoreGateSvc::fromStorable(pObj, cont);
-  if (cont==nullptr) {
+  SCT_RDO_Container* sctRDOCont{nullptr};
+  StoreGateSvc::fromStorable(pDataObject, sctRDOCont);
+  if (sctRDOCont==nullptr) {
     m_log << MSG::ERROR << " Can not cast to SCTRawContainer " << endmsg;
     return StatusCode::FAILURE;
   }
 
   /** set up the IOpaqueAddress for Storegate */
-  std::string nm{pObj->registry()->name()};
-  pAddr = new ByteStreamAddress(classID(), nm, "");
+  std::string dataObjectName{pDataObject->registry()->name()};
+  pOpaqueAddress = new ByteStreamAddress(classID(), dataObjectName, "");
 
   /** now use the tool to do the conversion */
-  ATH_CHECK(m_tool->convert(cont, re, m_log));
+  ATH_CHECK(m_rawContByteStreamTool->convert(sctRDOCont, rawEvtWrite, m_log));
 
   return StatusCode::SUCCESS;
 }
