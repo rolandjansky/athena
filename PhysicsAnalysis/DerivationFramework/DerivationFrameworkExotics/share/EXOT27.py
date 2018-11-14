@@ -129,10 +129,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # Use buildVRJets instead of addVRJets so we can manually control the ghost
 # association to the large-R jets
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
-vrTrackJets, vrTrackJetGhosts = EXOT27Utils.buildVRJets(
+vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets)
-vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = EXOT27Utils.buildVRJets(
+vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets)
 
