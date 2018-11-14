@@ -45,6 +45,7 @@ TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std
 	declareProperty("TriggerCombination2015", m_triggerCbPerYear["2015"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
 	declareProperty("TriggerCombination2016", m_triggerCbPerYear["2016"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
 	declareProperty("TriggerCombination2017", m_triggerCbPerYear["2017"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
+	declareProperty("TriggerCombination2018", m_triggerCbPerYear["2018"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
 	declareProperty("LeptonTagDecorations", m_leptonTagDecorations = "", 
 		"comma-separated list of decorations for the lepton selection tags, ordered by increasing tightness. "
 		"If a name ends with =, the tag is the decorated value, otherwise it is the decoration name");
@@ -755,7 +756,7 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 	
 	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << particles.size() << " lepton(s) as input; run number = " << runNumber);
 	
-	if(runNumber<266904 || runNumber>341649)
+	if(runNumber<266904 || runNumber>364292)
 	{
 		ATH_MSG_WARNING("Suspicious run number provided " << runNumber << ", continuing anyway");
 	}

@@ -52,7 +52,7 @@ namespace Prompt
       DL1mu,
       rnnip,
       MV2c10,
-      MV2c10rnn,
+      MV2rmu,
       SV1,
       JetF,
       JetPt,

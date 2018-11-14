@@ -74,7 +74,7 @@ def GetExtraPromptTauVariablesForDxAOD():
     prompt_vars  = "PromptTauIso.PromptTauVeto."
     prompt_vars += "PromptTauInput_TrackJetNTrack.PromptTauInput_rnnip."
     prompt_vars += "PromptTauInput_MV2c10."
-    prompt_vars += "PromptTauInput_MV2c10rnn."
+    prompt_vars += "PromptTauInput_MV2rmu."
     prompt_vars += "PromptTauInput_JetF.PromptTauInput_SV1."
     prompt_vars += "PromptTauInput_ip2.PromptTauInput_ip3."
     prompt_vars += "PromptTauInput_LepJetPtFrac.PromptTauInput_DRlj."
@@ -214,7 +214,7 @@ def getStringFloatVars(BDT_name):
 
     elif BDT_name == "PromptTauVeto":
         float_vars += ['rnnip',
-                       'MV2c10rnn',                      
+                       'MV2rmu',                      
                        'JetF',
                        'SV1',
                        'ip2',

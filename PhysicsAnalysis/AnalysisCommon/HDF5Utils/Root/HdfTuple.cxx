@@ -1,83 +1,18 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "HDF5Utils/HdfTuple.h"
+#include "HDF5Utils/common.h"
 
 #include "H5Cpp.h"
 
 #include <cassert>
-#include <iostream>             // for printing errors in the destructor
 #include <set>
 
 namespace H5Utils {
-  namespace internal {
-
-    template<>
-    H5::DataType get_type<float>() {
-      return H5::PredType::NATIVE_FLOAT;
-    }
-    template<>
-    H5::DataType get_type<int>() {
-      return H5::PredType::NATIVE_INT;
-    }
-    template<>
-    H5::DataType get_type<long long>() {
-      return H5::PredType::NATIVE_LLONG;
-    }
-    template<>
-    H5::DataType get_type<unsigned int>() {
-      return H5::PredType::NATIVE_UINT;
-    }
-    template<>
-    H5::DataType get_type<unsigned char>() {
-      return H5::PredType::NATIVE_UCHAR;
-    }
-    template<>
-    H5::DataType get_type<double>() {
-      return H5::PredType::NATIVE_DOUBLE;
-    }
-    template<>
-    H5::DataType get_type<bool>() {
-      bool TRUE = true;
-      bool FALSE = false;
-      H5::EnumType btype(sizeof(bool));
-      btype.insert("TRUE", &TRUE);
-      btype.insert("FALSE", &FALSE);
-      return btype;
-    }
-
-    template<> int& get_ref<int>(data_buffer_t& buf) {
-      return buf._int;
-    }
-    template<> long long& get_ref<long long>(data_buffer_t& buf) {
-      return buf._llong;
-    }
-    template<> unsigned int& get_ref<unsigned int>(data_buffer_t& buf) {
-      return buf._uint;
-    }
-    template<> unsigned char& get_ref<unsigned char>(data_buffer_t& buf) {
-      return buf._uchar;
-    }
-    template<> float& get_ref<float>(data_buffer_t& buf) {
-      return buf._float;
-    }
-    template<> double& get_ref<double>(data_buffer_t& buf) {
-      return buf._double;
-    }
-    template<> bool& get_ref<bool>(data_buffer_t& buf) {
-      return buf._bool;
-    }
-  }
 
   namespace {
-    // packing utility
-    H5::CompType packed(H5::CompType in) {
-      // TODO: Figure out why a normal copy constructor doesn't work here.
-      //       The normal one seems to create shallow copies.
-      auto out = H5::CompType(H5Tcopy(in.getId()));
-      out.pack();
-      return out;
-    }
+
     H5::CompType build_type(const VariableFillers& fillers) {
       using internal::data_buffer_t;
       std::set<std::string> inserted; // check for repeat names
@@ -95,11 +30,6 @@ namespace H5Utils {
       return type;
     }
 
-    void print_destructor_error(const std::string& msg) {
-      std::cerr << "ERROR: an exception was thrown in the destructor of an "
-        "HDF5 file, the output buffer may be corrupted";
-      std::cerr << " (error message: " << msg << ")" << std::endl;
-    }
   }
 
 // _______________________________________________________________________
@@ -123,39 +53,27 @@ namespace H5Utils {
       throw std::logic_error("batch size must be > 0");
     }
     // create space
-    std::vector<hsize_t> initial{0};
-    initial.insert(initial.end(), max_length.begin(), max_length.end());
-    std::vector<hsize_t> eventual{H5S_UNLIMITED};
-    eventual.insert(eventual.end(), max_length.begin(), max_length.end());
-    H5::DataSpace space(eventual.size(), initial.data(), eventual.data());
+    H5::DataSpace space = internal::getUnlimitedSpace(max_length);
 
     // create params
-    H5::DSetCreatPropList params;
-    std::vector<hsize_t> chunk_size{batch_size};
-    chunk_size.insert(chunk_size.end(), max_length.begin(), max_length.end());
-    params.setChunk(chunk_size.size(), chunk_size.data());
-    params.setDeflate(7);
+    H5::DSetCreatPropList params = internal::getChunckedDatasetParams(
+      max_length, batch_size);
 
     // calculate striding
-    m_dim_stride.push_back(1);
-    for (size_t iii = m_dim_stride.size(); iii - 1 != 0; iii--) {
-      m_dim_stride.at(iii-2) = m_dim_stride.at(iii-2) * m_dim_stride.at(iii-1);
-    }
+    m_dim_stride = internal::getStriding(max_length);
 
     // create ds
-    if (H5Lexists(group.getLocId(), name.c_str(), H5P_DEFAULT)) {
-      throw std::logic_error("tried to overwrite '" + name + "'");
-    }
-    m_ds = group.createDataSet(name, packed(m_type), space, params);
+    internal::throwIfExists(name, group);
+    m_ds = group.createDataSet(name, internal::packed(m_type), space, params);
   }
 
   WriterXd::~WriterXd() {
     try {
       flush();
     } catch (H5::Exception& err) {
-      print_destructor_error(err.getDetailMsg());
+      internal::printDestructorError(err.getDetailMsg());
     } catch (std::exception& err) {
-      print_destructor_error(err.what());
+      internal::printDestructorError(err.what());
     }
   }
 
