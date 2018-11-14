@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_ITILERAWCHANNELBUILDER_H
@@ -25,6 +25,7 @@
 // Tile includes
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsCollection.h"
 
@@ -86,7 +87,7 @@ class TileRawChannelBuilder: public AthAlgTool {
 
     // process one digit and store result in internal container
     void build(const TileDigits* digits) {
-      m_rawChannelCnt->push_back(rawChannel(digits));
+      m_rawChannelCnt->push_back(std::unique_ptr<TileRawChannel>(rawChannel(digits)));
     }
 
     // find all bad patterns in a drawer and fill internal static arrays
@@ -140,7 +141,7 @@ class TileRawChannelBuilder: public AthAlgTool {
                                                                          "Output Tile raw channels container key"};
 
     // RawChannelContainer
-    std::unique_ptr<TileRawChannelContainer> m_rawChannelCnt;
+    std::unique_ptr<TileMutableRawChannelContainer> m_rawChannelCnt;
 
     // parameters for RawChannelContainer
     TileFragHash::TYPE m_rChType;
