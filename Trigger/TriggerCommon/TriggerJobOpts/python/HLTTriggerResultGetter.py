@@ -39,6 +39,7 @@ def  EDMDecodingVersion():
         #Run1 data
         if runNumber > 0 and runNumber < 230000 :            
             TriggerFlags.EDMDecodingVersion = 1
+            TriggerFlags.doMergedHLTResult = False
             log.info("decoding version set to 1, because running on BS file from Run1")
             pass
     else:
@@ -49,9 +50,11 @@ def  EDMDecodingVersion():
 
         if cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_EF" ):          
             TriggerFlags.EDMDecodingVersion = 1
+            TriggerFlags.doMergedHLTResult = False
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
         elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
             TriggerFlags.EDMDecodingVersion = 2
+            TriggerFlags.doMergedHLTResult = True
         else:
             log.warning("No HLTResult found in pool file")
         pass
