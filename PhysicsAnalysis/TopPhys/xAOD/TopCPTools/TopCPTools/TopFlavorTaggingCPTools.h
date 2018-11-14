@@ -47,6 +47,8 @@ class FlavorTaggingCPTools final : public asg::AsgTool {
   std::vector<std::string> m_tagger_algorithms;
   std::vector<std::string> m_calo_WPs_calib;
   std::vector<std::string> m_calo_WPs;
+  std::vector<std::string> m_trackAntiKtVR_WPs_calib;
+  std::vector<std::string> m_trackAntiKtVR_WPs;
   std::vector<std::string> m_trackAntiKt2_WPs_calib;
   std::vector<std::string> m_trackAntiKt2_WPs;
   std::vector<std::string> m_trackAntiKt4_WPs_calib;

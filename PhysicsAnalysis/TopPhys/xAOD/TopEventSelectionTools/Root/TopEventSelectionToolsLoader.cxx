@@ -16,6 +16,7 @@
 #include "TopEventSelectionTools/IP3DSV1Selector.h"
 #include "TopEventSelectionTools/InitialSelector.h"
 #include "TopEventSelectionTools/JetCleaningSelector.h"
+#include "TopEventSelectionTools/TrackJetCleaningSelector.h"
 #include "TopEventSelectionTools/JetNGhostSelector.h"
 #include "TopEventSelectionTools/KLFitterSelector.h"
 #include "TopEventSelectionTools/METMWTSelector.h"
@@ -163,6 +164,8 @@ namespace top {
         return new top::TrigMatchSelector(name,config);
     else if (toolname == "JETCLEAN")
         return new top::JetCleaningSelector(param,config);
+    else if (toolname == "TRACKJETCLEAN")
+        return new top::TrackJetCleaningSelector(config);
     else if (toolname == "KLFITTER")
         return new top::KLFitterSelector(param);
     else if (toolname == "JET_N_GHOST")
