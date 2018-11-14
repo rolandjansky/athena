@@ -48,7 +48,6 @@ EXOT27Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT27Seq = CfgMgr.AthSequencer("EXOT27Sequence")
 DerivationFrameworkJob += EXOT27Seq
 # As we create skimming algs, etc add them to this list
-EXOT27AcceptAlgs = []
 # As we add extra variables add them to this dictionary (key is container name,
 # aux data in the value)
 EXOT27ExtraVariables = defaultdict(set)
@@ -118,7 +117,6 @@ EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "EXOT27PreliminaryKernel",
     SkimmingTools = EXOT27PreliminarySkimmingTools
     )
-EXOT27AcceptAlgs.append("EXOT27PreliminaryKernel")
 
 ################################################################################
 # Augmenting (add new objects)
@@ -209,16 +207,22 @@ EXOT27ThinningTools = []
 
 # Apply a pt cut on output large r jet collections
 # TODO - revisit if this is harmful/necessary
-for large_r in [
+OutputLargeR = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
-  ]:
+  ]
+for large_r in OutputLargeR:
   EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
-        "{0}ThinningTool".format(large_r),
+        "EXOT27{0}ThinningTool".format(large_r),
+        ThinningService = EXOT27ThinningHelper.ThinningSvc(),
         SelectionString="{0}.pt > 100*GeV".format(large_r),
         ContainerName = large_r) )
 
+EXOT27ElectronThinning = "Electrons.pt > 10.*GeV && Electrons.DFCommonElectronsLHLooseBL"
+# EXOT27MuonThinning = "Muons.pt > 10.*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
+EXOT27PhotonThinning = "Photons.pt > 10.*GeV && Photons.DFCommonPhotonsIsEMTight"
+EXOT27TauJetThinning = "TauJets.pt > 10.*GeV"
 
 # Set up the standard set of track thinning tools
 EXOT27ThinningTools += [
@@ -226,13 +230,13 @@ EXOT27ThinningTools += [
       "EXOT27ElectronTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Electrons",
-      # SelectionString = "Electrons.pt > 10*GeV && Electrons.DFCommonElectronsLHLooseBL"
+      SelectionString = EXOT27ElectronThinning
       ),
   DerivationFramework__EgammaTrackParticleThinning(
       "EXOT27PhotonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Photons",
-      # SelectionString = "Photons.pt > 10*GeV && Photons.DFCommonPhotonsIsEMTight"
+      SelectionString = EXOT27PhotonThinning
       ),
   DerivationFramework__MuonTrackParticleThinning(
       "EXOT27MuonTrackParticleThinningTool",
@@ -244,7 +248,7 @@ EXOT27ThinningTools += [
       "EXOT27TauTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       TauKey          = "TauJets",
-      # SelectionString = "TauJets.pt > 10*GeV"
+      SelectionString = EXOT27TauJetThinning
       ),
   DerivationFramework__JetTrackParticleThinning(
       "EXOT27JetTrackParticleThinningTool",
@@ -253,6 +257,26 @@ EXOT27ThinningTools += [
       SelectionString = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV"
       ),
   ]
+
+# Also thin the output objects by the same rules
+EXOT27ThinningTools += [
+  DerivationFramework__GenericObjectThinning(
+      "EXOT27ElectronsThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27ElectronThinning,
+      ContainerName   = "Electrons"),
+  DerivationFramework__GenericObjectThinning(
+      "EXOT27PhotonsThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27PhotonThinning,
+      ContainerName   = "Photons"),
+  DerivationFramework__GenericObjectThinning(
+      "EXOT27TauJetsThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27TauJetThinning,
+      ContainerName   = "TauJets"),
+  ]
+
 
 # TODO (perhaps): truth thinning
 # What I have here is extremely simplistic - designed to at least have what I
@@ -276,19 +300,40 @@ for tool in EXOT27ThinningTools:
 # Setup secondary skimming (remove whole events)
 ################################################################################
 EXOT27SkimmingTools = []
-# jet selection
-jet_sel_list = []
+# string selection
+sel_list = []
+# Common SR selection
+# Resolved requirement - analysis level selection is 2 central jets with pT > 45
+# GeV. Use 30 GeV and |eta| < 2.8 to allow for future differences in calibration
+sel_list.append("count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.*GeV) && " +
+    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 2")
+# Merged requirement - analysis level selection is 1 central large-R jet with pT
+# > 200 GeV. Use 100 GeV and |eta| < 2.4 to allow for future differences in
+# calibration. Do this for all of the large-R jet collections that are output
+sel_list += ["count(({0}.pt > 100.*GeV) && (abs({0}.eta) < 2.4)) >= 1".format(
+    lrj) for lrj in OutputLargeR]
+# Lepton selection
+# At least one lepton with pT > 20 GeV, within |eta| 2.6
+sel_list.append("count((Muons.pt > 20.*GeV) && (abs(Muons.eta) < 2.6) && " +
+    "Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection) + count( " +
+    "(Electrons.pt > 20.*GeV) && (abs(Electrons.eta) < 2.6) && " +
+    "Electrons.DFCommonElectronsLHLooseBL) > 0")
+
 # This incantation gives us an OR'd string, encasing each expression in brackets
 # to ensure that everything works as expected
-jet_sel = " || ".join(map("({0})".format, jet_sel_list) )
-if jet_sel:
-  # Empty strings are falsey so this will only be executed if jet_sel_list
+sel_string = " || ".join(map("({0})".format, sel_list) )
+if sel_string:
+  # Empty strings are falsey so this will only be executed if sel_list
   # contained something
-  EXOT27JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
+  EXOT27StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
       "EXOT27JetSkimmingTool",
-      expression = jet_sel
+      expression = sel_string
       )
-  EXOT27SkimmingTools.append(EXOT27JetSkimmingTool)
+  EXOT27SkimmingTools.append(EXOT27StringSkimmingTool)
+
+
+for tool in EXOT27SkimmingTools:
+  ToolSvc += tool
 
 EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "EXOT27SecondaryKernel",
@@ -296,7 +341,6 @@ EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
     ThinningTools = EXOT27ThinningTools
     )
 
-EXOT27AcceptAlgs.append("EXOT27SecondaryKernel")
 
 
 
@@ -335,4 +379,4 @@ EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
 # Finalise
 ################################################################################
 # Any remaining tasks, e.g. adding the kernels to the stream  
-EXOT27Stream.AcceptAlgs(EXOT27AcceptAlgs)
+EXOT27Stream.AcceptAlgs(["EXOT27SecondaryKernel"])
