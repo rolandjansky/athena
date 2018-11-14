@@ -14,7 +14,7 @@ def L1DecoderCfg(flags):
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()
-    decoderAlg
+    decoderAlg.Chains = recordable("L1Seeds")
     decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 

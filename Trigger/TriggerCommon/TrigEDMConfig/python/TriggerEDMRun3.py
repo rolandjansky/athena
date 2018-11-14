@@ -32,10 +32,15 @@ def recordable( name, onlyWarning=False ):
 TriggerHLTList = [
  
     #framework/steering
-    ('TrigRoiDescriptorCollection#L1EM',                             'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#L1MU',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#EMRoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#MURoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#METRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+
     
-    ('xAOD::TrigCompositeContainer#HLT_TrigEFDielectronMassFex',     'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('xAOD::TrigCompositeContainer#L1Seeds',     'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('xAOD::TrigCompositeContainer#L1EM',     'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MU',     'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('xAOD::TrigCompositeContainer#L1MET',     'BS ESD AODFULL AODSLIM',  'Steer'),
     
 ]
 
