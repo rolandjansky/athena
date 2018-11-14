@@ -54,15 +54,6 @@ namespace InDet
   private:
 
     int m_status;
-    float m_posX;
-    float m_posY;
-    float m_posZ;
-    float m_sigmaX;
-    float m_sigmaY;
-    float m_sigmaZ;
-    float m_tiltX;
-    float m_tiltY;
-    float m_sigmaXY;
 
     std::vector<float> m_errPar;
 
