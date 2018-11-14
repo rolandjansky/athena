@@ -30,11 +30,11 @@ int NSubjettinessRatiosTool::modifyJet(xAOD::Jet &jet) const {
   float tau2 = jet.getAttribute<float>(m_prefix+"Tau2");
   float tau3 = jet.getAttribute<float>(m_prefix+"Tau3");
 
-  if(fabs(tau1) > 1e-8) // Prevent div-0
+  if(tau1 > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"Tau21", tau2/tau1);
   else
     jet.setAttribute(m_prefix+"Tau21", -999.0);
-  if(fabs(tau2) > 1e-8) // Prevent div-0
+  if(tau2 > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"Tau32", tau3/tau2);
   else
     jet.setAttribute(m_prefix+"Tau32", -999.0);
@@ -44,11 +44,11 @@ int NSubjettinessRatiosTool::modifyJet(xAOD::Jet &jet) const {
   float tau3_wta = jet.getAttribute<float>(m_prefix+"Tau3_wta");
   
   // WTA
-  if(fabs(tau1_wta) > 1e-8) // Prevent div-0
+  if(tau1_wta > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"Tau21_wta", tau2_wta/tau1_wta);
   else
     jet.setAttribute(m_prefix+"Tau21_wta", -999.0);
-  if(fabs(tau2_wta) > 1e-8) // Prevent div-0
+  if(tau2_wta > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"Tau32_wta", tau3_wta/tau2_wta);
   else
     jet.setAttribute(m_prefix+"Tau32_wta", -999.0);
