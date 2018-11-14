@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_ITRIGJETHYPOTOOLMT_H
@@ -9,9 +9,6 @@
 #include "xAODJet/JetContainer.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
-
-using TrigCompositeUtils::Decision;
-using TrigCompositeUtils::DecisionContainer;
 
 namespace HLT{
   class Identifier;
