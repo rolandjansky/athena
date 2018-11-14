@@ -31,7 +31,7 @@ atlas_add_library( GammaORToolsLib
    GammaORTools/*.h Root/*.cxx
    PUBLIC_HEADERS GammaORTools
    INCLUDE_DIRS 
-   LINK_LIBRARIES AsgTools xAODCore xAODBase xAODJet xAODTruth xAODTruth xAODEventInfo MCTruthClassifier )
+   LINK_LIBRARIES AsgTools xAODCore xAODBase xAODJet xAODTruth xAODTruth xAODEventInfo MCTruthClassifierLib )
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( GammaORTools
