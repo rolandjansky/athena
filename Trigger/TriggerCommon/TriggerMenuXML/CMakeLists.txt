@@ -106,23 +106,25 @@ atlas_install_scripts( scripts/CreateTriggerMenuXML.sh )
 atlas_install_scripts( scripts/XMLDumperFromAthena.sh )
 atlas_install_xmls( data/*.xml )
 
-# List of menus to be created:
+# List of menus to be created: 
+# All menus disabled except Physics_pp_v7_primaries while the migration
+# from 21.1 is ongoing
 
-atlas_build_trigger_menu( Physics_pp_v6 )
-atlas_build_trigger_menu( Physics_pp_v6_tight_physics_prescale )
-atlas_build_trigger_menu( MC_pp_v6 )
-atlas_build_trigger_menu( MC_pp_v6_loose_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v6_tight_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v6_tightperf_mc_prescale )
-
-atlas_build_trigger_menu( Physics_pp_v7 )
-atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale )
+#atlas_build_trigger_menu( Physics_pp_v6 )
+#atlas_build_trigger_menu( Physics_pp_v6_tight_physics_prescale )
+#atlas_build_trigger_menu( MC_pp_v6 )
+#atlas_build_trigger_menu( MC_pp_v6_loose_mc_prescale )
+#atlas_build_trigger_menu( MC_pp_v6_tight_mc_prescale )
+#atlas_build_trigger_menu( MC_pp_v6_tightperf_mc_prescale )
+#
+#atlas_build_trigger_menu( Physics_pp_v7 )
+#atlas_build_trigger_menu( Physics_pp_v7_tight_physics_prescale )
 atlas_build_trigger_menu( Physics_pp_v7_primaries )
-atlas_build_trigger_menu( MC_pp_v7 )
-atlas_build_trigger_menu( MC_pp_v7_loose_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v7_tight_mc_prescale )
-atlas_build_trigger_menu( MC_pp_v7_tightperf_mc_prescale )
-
-atlas_build_trigger_menu( Physics_HI_v4 )
-atlas_build_trigger_menu( MC_HI_v4 )
-atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale )
+#atlas_build_trigger_menu( MC_pp_v7 )
+#atlas_build_trigger_menu( MC_pp_v7_loose_mc_prescale )
+#atlas_build_trigger_menu( MC_pp_v7_tight_mc_prescale )
+#atlas_build_trigger_menu( MC_pp_v7_tightperf_mc_prescale )
+#
+#atlas_build_trigger_menu( Physics_HI_v4 )
+#atlas_build_trigger_menu( MC_HI_v4 )
+#atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale )
