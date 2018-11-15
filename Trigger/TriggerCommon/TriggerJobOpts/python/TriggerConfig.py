@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -141,12 +141,40 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     mon.ChainsList = list( allChains )    
     return acc, mon
 
-def poolOutputCfg( flags, outputType ):
-    acc = ComponentAccumulator()
-    # TODO, have import from the TrigEDMCOnfig with set of collections to record
-    
-    return acc
+def triggerOutputStreamCfg( flags, decObj, outputType ):
+    """ 
+    Configure output stream according to the menu setup (decision objects)
+    and TrigEDMCOnfig (this is still on TODO)
+    """
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    itemsToRecord = []
+    # decision objects and their Aux stores
+    [ itemsToRecord.extend( [ "xAOD::TrigCompositeContainer#%s"%d, "xAOD::TrigCompositeAuxContainer#%sAux."%d] ) for d in decObj ]
+    # the rest of triger EDM
 
+    # summary objects
+    __log.debug( outputType + " trigger content "+str( itemsToRecord ) )
+    acc = OutputStreamCfg( flags, outputType, ItemList=itemsToRecord )
+    streamAlg = acc.getEventAlgo("OutputStream"+outputType)
+    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTFinalDecisions")]
+    return acc
+    
+def triggerAddMissingEDMCfg( flags, decObj ):
+
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg    
+    EDMFillerAlg = TriggerSummaryAlg( "EDMFillerAlg" )
+    EDMFillerAlg.InputDecision = "HLTChains"
+
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+    DecisionObjectsFiller = HLTEDMCreator("DecisionObjectsFiller")
+    DecisionObjectsFiller.TrigCompositeContainer = list(decObj)
+
+    # TODO add configuration for the rest of the EDM
+
+    EDMFillerAlg.OutputTools += [ DecisionObjectsFiller ]
+    return EDMFillerAlg
+    
+    
 def setupL1DecoderFromMenu( flags, l1Decoder ):
     """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
 
@@ -154,7 +182,7 @@ def setupL1DecoderFromMenu( flags, l1Decoder ):
     l1Decoder.ChainToCTPMapping = MenuUtils.toCTPSeedingDict( flags )
 
 
-def triggerRunCfg(flags, menu=None):
+def triggerRunCfg( flags, menu=None ):
     """ 
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
@@ -199,15 +227,22 @@ def triggerRunCfg(flags, menu=None):
     
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
     acc.addSequence( HLTTop )
-
-    
-    
+        
     acc.merge( menuAcc )
 
+    # output
+    # if any output stream is requested, schedule "gap" filling algorithm
+    if flags.Output.ESDFileName != "" or flags.Output.AODFileName != "":
+        acc.addEventAlgo( triggerAddMissingEDMCfg( flags, decObj ), sequenceName= "HLTTop" )
+        
+    # configure streams
     if flags.Output.ESDFileName != "":
-        acc.merge( poolOutputCfg( flags, "ESD" ) )
+        acc.merge( triggerOutputStreamCfg( flags, decObj, "ESD" ) )
+
     if flags.Output.AODFileName != "":        
-        acc.merge( poolOutputCfg( flags, "AOD" ) )
+        acc.merge( triggerOutputStreamCfg( flags, decObj, "AOD" ) )
+
+        
     
     return acc
 
