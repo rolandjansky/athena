@@ -13,7 +13,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExKtCoM
-from DerivationFrameworkFlavourTag.SoftBtagCommon import *
+from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
