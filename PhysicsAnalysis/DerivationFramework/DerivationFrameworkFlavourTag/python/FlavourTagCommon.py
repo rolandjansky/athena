@@ -274,9 +274,9 @@ def applyBTagging(jetalg,algname,sequence):
     applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict)
 
 def applyBTagging_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo']
+    supportedJets = ['AntiKt4EMTopo', 'AntiKt4EMPFlow']
     if not jetalg in supportedJets:
-        ftaglog.warning('B-tagging requested for unsupported jet collection!')
+        ftaglog.warning('B-tagging requested for unsupported jet collection {}!'.format(jetalg))
         return
     else:
-        applyBTagging(jetalg,'JetCommonKernel_xAODJets',sequence)
+        applyBTagging(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
