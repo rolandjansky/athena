@@ -7,8 +7,6 @@
 
 
 namespace Trk {
-  GXFLUDecomp::GXFLUDecomp():m_luSet(false){}
-
 
  void GXFLUDecomp::SetMatrix( Amg::SymMatrixX& matrix)
  {
@@ -37,13 +35,14 @@ namespace Trk {
      m_lu = Eigen::LLT<Eigen::MatrixXd>(m_matrix);
      m_luSet = true;
    }
+   
+   int ncols = m_matrix.cols(); 
    if( m_lu.info() != Eigen::Success ){
      ok = false;
-     return Eigen::MatrixXd::Identity( m_matrix.cols(), m_matrix.cols() );
+     return Eigen::MatrixXd::Identity(ncols,ncols);
    }
 
-   Amg::SymMatrixX a = Eigen::MatrixXd::Identity( m_matrix.cols(), m_matrix.cols() );
-   return m_lu.solve(a);
+   return m_lu.solve(  Eigen::MatrixXd::Identity(ncols,ncols) );
  }
 
 

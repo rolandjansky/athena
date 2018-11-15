@@ -4643,7 +4643,8 @@ public:
         // Solve for x  where Wx = I
         // this is cheaper than invert as invert makes no assumptions about the
         // matrix being symmetric
-        Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(cache.m_a.cols(), cache.m_a.cols());
+        int ncols = cache.m_a.cols();
+        Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(ncols,ncols);
         cache.m_ainv = lltOfW.solve(weightInvAMG);
       } else {
         ATH_MSG_DEBUG  ("matrix inversion failed!");
@@ -4682,10 +4683,11 @@ public:
         }
         // ainv[4][4]*=.001;
       }
-      for (int bremno = 0; bremno < nbrem; bremno++) {
+      int scatterPos = nperpars + 2 * nscat; 
+      for (int bremno = 0; bremno < nbrem; bremno++, scatterPos++) {
         for (int i = 0; i < cache.m_a.cols(); i++) {
-          cache.m_ainv(nperpars + 2 * nscat + bremno,i) *= .001;
-          cache.m_ainv(i,nperpars + 2 * nscat + bremno) *= .001;
+          cache.m_ainv(scatterPos,i) *= .001;
+          cache.m_ainv(i,scatterPos) *= .001;
         }
         // ainv[nperpars+2*nscat+bremno][nperpars+2*nscat+bremno]*=.001;
       }
@@ -5281,12 +5283,13 @@ public:
         }
         if (meff) {
           if (meff->sigmaDeltaTheta() != 0 && (!trajectory.prefit() || meff->deltaE() == 0)) {
+            int scatterPos = nperpars + 2 * scatno;
             if (i < nupstreamstates) {
-              cache.m_lastmeasurement[nperpars + 2 * scatno] = cache.m_lastmeasurement[nperpars + 2 * scatno + 1] = measno;
-              cache.m_firstmeasurement[nperpars + 2 * scatno] = cache.m_firstmeasurement[nperpars + 2 * scatno + 1] = 0;
+              cache.m_lastmeasurement[scatterPos] = cache.m_lastmeasurement[scatterPos + 1] = measno;
+              cache.m_firstmeasurement[scatterPos] = cache.m_firstmeasurement[scatterPos + 1] = 0;
             }else {
-              cache.m_lastmeasurement[nperpars + 2 * scatno] = cache.m_lastmeasurement[nperpars + 2 * scatno + 1] = nmeas - nbrem;
-              cache.m_firstmeasurement[nperpars + 2 * scatno] = cache.m_firstmeasurement[nperpars + 2 * scatno + 1] = measno;
+              cache.m_lastmeasurement[scatterPos] = cache.m_lastmeasurement[scatterPos + 1] = nmeas - nbrem;
+              cache.m_firstmeasurement[scatterPos] = cache.m_firstmeasurement[scatterPos + 1] = measno;
             }
             scatno++;
           }
@@ -6265,7 +6268,8 @@ public:
               // Solve for x  where Wx = I
               // this is cheaper than invert as invert makes no assumptions about the
               // matrix being symmetric
-              Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(cache.m_a.cols(), cache.m_a.cols());
+              int ncols = cache.m_a.cols();
+              Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(ncols,ncols);
               fullcov = lltOfW.solve(weightInvAMG);
             } else {
               ATH_MSG_DEBUG( "matrix inversion failed!" );
@@ -7000,9 +7004,10 @@ public:
           }
           if (fillderivmat) {
             Amg::MatrixX &derivmat = state->derivatives();
+            int scatterPos = nperpars + 2 * scatindex;
             for (int i = 0; i < 4; i++) {
-              derivmat(i,nperpars + 2 * scatindex) = -jacscat[scatindex](i, 2);
-              derivmat(i,nperpars + 2 * scatindex + 1) = -jacscat[scatindex](i, 3);
+              derivmat(i,scatterPos) = -jacscat[scatindex](i, 2);
+              derivmat(i,scatterPos + 1) = -jacscat[scatindex](i, 3);
             }
           }
         }
@@ -7038,8 +7043,9 @@ public:
             // double p=pbrem[bremindex];
             // for (int i=0;i<5;i++)
             // derivmat[i][nperpars+2*nscats+bremindex]=0.001*jacbrem[bremindex](i,4)*(sign/(p*p));
+            int scatterPos = nperpars + 2 * nscats + bremindex;
             for (int i = 0; i < 5; i++) {
-              derivmat(i,nperpars + 2 * nscats + bremindex) = -0.001 * jacbrem[bremindex](i, 4);
+              derivmat(i,scatterPos) = -0.001 * jacbrem[bremindex](i, 4);
             }
           }
         }
@@ -7159,9 +7165,10 @@ public:
           }
           if (fillderivmat) {
             Amg::MatrixX &derivmat = state->derivatives();
+            int scatterPos = nperpars + 2 * scatindex;
             for (int i = 0; i <= imax; i++) {
-              derivmat(i,nperpars + 2 * scatindex) = jacscat[scatindex](i, 2);
-              derivmat(i,nperpars + 2 * scatindex + 1) = jacscat[scatindex](i, 3);
+              derivmat(i,scatterPos) = jacscat[scatindex](i, 2);
+              derivmat(i,scatterPos + 1) = jacscat[scatindex](i, 3);
             }
           }
         }
@@ -7197,9 +7204,10 @@ public:
           if (fillderivmat) {
             Amg::MatrixX &derivmat = state->derivatives();
             // double p=pbrem[bremindex];
+            int scatterPos = nperpars + 2 * nscats + bremindex;
             for (int i = 0; i <= 4; i++) {
               // derivmat[i][nperpars+2*nscats+bremindex]=.001*jacbrem[bremindex](i,4)*(-sign/(p*p));
-              derivmat(i,nperpars + 2 * nscats + bremindex) = .001 * jacbrem[bremindex](i, 4);
+              derivmat(i,scatterPos) = .001 * jacbrem[bremindex](i, 4);
             }
           }
         }

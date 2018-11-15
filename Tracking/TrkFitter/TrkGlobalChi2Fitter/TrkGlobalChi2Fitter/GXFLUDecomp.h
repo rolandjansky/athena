@@ -20,13 +20,13 @@ namespace Trk{
   // Simple class that hold
   class GXFLUDecomp{
    public:
-    GXFLUDecomp();
+    GXFLUDecomp(){}
     void SetMatrix( Amg::SymMatrixX& );
     Amg::VectorX Solve( Amg::VectorX&, bool& ok );
     Amg::SymMatrixX Invert(bool& ok);
    private:
     Amg::SymMatrixX m_matrix;
-    bool m_luSet;
+    bool m_luSet = false;
     Eigen::LLT<Eigen::MatrixXd> m_lu;
   };
 }
