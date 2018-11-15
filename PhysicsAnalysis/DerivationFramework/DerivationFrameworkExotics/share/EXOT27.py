@@ -55,21 +55,16 @@ EXOT27ExtraVariables = defaultdict(set)
 # their own way of doing this so anything EXOT27Jets is treated differently)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
-  "InDetTrackParticles", "PrimaryVertices", "BTagging_AntiKt4EMTopo",
+  "PrimaryVertices", "BTagging_AntiKt4EMTopo", "MET_Reference_AntiKt4EMTopo",
   ]
 EXOT27AllVariables = [
-  "MET_Core_AntiKt4EMTopo",
-  "METAssoc_AntiKt4EMTopo",
   ]
 if DerivationFrameworkIsMonteCarlo:
   EXOT27AllVariables += [
     "TruthParticles",
     "MET_Truth",
     ]
-# Extra variables for MET
-EXOT27ExtraVariables["Muons"].update(["clusterLink", "EnergyLoss", "energyLossType"])
 EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink", "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
-EXOT27ExtraVariables["AntiKt4EMTopoJets"].update(["NumTrkPt500", "SumPtTrkPt500", "EnergyPerSampling", "EMFrac"])
 def outputContainer(container, warnIfNotSmart=True):
   if container in EXOT27SmartContainers + EXOT27AllVariables:
     logger.debug("Container '{0}' already requested for output!")
@@ -101,7 +96,7 @@ trigger_all_periods = (
 # Set live fraction to 0.95 to catch any short, accidental prescales
 trigger_list = TriggerAPI.getLowestUnprescaledAnyPeriod(
     trigger_all_periods,
-    triggerType = TriggerType.xe | TriggerType.el | TriggerType.mu,
+    triggerType = TriggerType.xe | TriggerType.el | TriggerType.mu | TriggerType.g,
     livefraction = 0.95)
 EXOT27TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
     "EXOT27TriggerSkimmingTool",
@@ -161,6 +156,15 @@ HbbCommon.addVRCaloJets(EXOT27Seq, "EXOT27Jets")
 # tag jets already in place!
 ExtendedJetCommon.addCSSKSoftDropJets(EXOT27Seq, "EXOT27Jets")
 
+OutputLargeR = [
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+  "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
+  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
+  ]
+# XAMPP seems to use the 'Width' variable from these?
+for lrj in OutputLargeR:
+  EXOT27ExtraVariables[lrj].update("Width")
+
 # Ghost-associated the track jets to these large-R jets
 toBeAssociatedTo = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
@@ -207,11 +211,6 @@ EXOT27ThinningTools = []
 
 # Apply a pt cut on output large r jet collections
 # TODO - revisit if this is harmful/necessary
-OutputLargeR = [
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-  "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
-  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
-  ]
 for large_r in OutputLargeR:
   EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
         "EXOT27{0}ThinningTool".format(large_r),
@@ -312,12 +311,6 @@ sel_list.append("count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.*GeV) && " 
 # calibration. Do this for all of the large-R jet collections that are output
 sel_list += ["count(({0}.pt > 100.*GeV) && (abs({0}.eta) < 2.4)) >= 1".format(
     lrj) for lrj in OutputLargeR]
-# Lepton selection
-# At least one lepton with pT > 20 GeV, within |eta| 2.6
-sel_list.append("count((Muons.pt > 20.*GeV) && (abs(Muons.eta) < 2.6) && " +
-    "Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection) + count( " +
-    "(Electrons.pt > 20.*GeV) && (abs(Electrons.eta) < 2.6) && " +
-    "Electrons.DFCommonElectronsLHLooseBL) > 0")
 
 # This incantation gives us an OR'd string, encasing each expression in brackets
 # to ensure that everything works as expected
