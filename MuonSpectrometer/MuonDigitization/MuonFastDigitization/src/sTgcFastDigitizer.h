@@ -53,9 +53,6 @@ class sTgcFastDigitizer : public AthAlgorithm {
   TFile* m_file;
   //TTree* m_ntuple_SimHit;
   TTree* m_ntuple;
-  float  m_slx; // local position simhit in G4
-  float  m_sly;
-  float  m_slz;
   float  m_dlx;  //  local position simhit in GeoModel frame
   float  m_dly;
   float  m_dlz;
@@ -64,9 +61,6 @@ class sTgcFastDigitizer : public AthAlgorithm {
   float  m_tsulx; // local position simhit in tracking surface frame
   float  m_tsuly;
   float  m_tsulz;
-  float  m_resx; // residuals in local G4 - GeoModel
-  float  m_resy;
-  float  m_resz;
   float  m_suresx; // residuals g4 - RE stripPosition in tracking frame
   float  m_suresy;
   float  m_errx;   // error on x and y
@@ -109,7 +103,6 @@ class sTgcFastDigitizer : public AthAlgorithm {
   float  m_dgpr;
   float  m_dgpp;
   float  m_edep;
-  float  m_e;
   float  m_as;
   float  m_at;
   float  m_surfcentx;
