@@ -147,7 +147,10 @@ def ApplySubtractionToClusters(**kwargs) :
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
-
+    
+    if 'update_only' in kwargs.keys() : update_only = kwargs['update_only']
+    else : update_only = False
+    
     from HIJetRec.HIJetRecConf import HIClusterSubtraction
     toolName='HIClusterSubtraction'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
@@ -156,7 +159,8 @@ def ApplySubtractionToClusters(**kwargs) :
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
     theAlg.Modulator=mod_tool
-
+    theAlg.UpdateOnly=update_only
+    
     do_cluster_moments=False
     if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
     if do_cluster_moments :
@@ -331,7 +335,7 @@ def GetFlowMomentTools(key,mod_key) :
 
 
 def GetSubtractorTool(**kwargs) :
-    useClusters=False
+    useClusters=False 
     if 'useClusters' in kwargs.keys() : useClusters=kwargs['useClusters'] 
     elif HIJetFlags.DoCellBasedSubtraction() : useClusters=False
     else : useClusters=True

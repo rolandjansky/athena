@@ -50,6 +50,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_eOverPMode(false),
     m_goldenModeString(""),
     m_debug(0),
+    m_doDigiTruth(false),
     m_LCMode(false),
     m_trackVertexAssociationTool(""),
     m_vertexContainerName("PrimaryVertices"),
@@ -63,6 +64,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
   declareProperty("TrackVertexAssociationTool", m_trackVertexAssociationTool);
   declareProperty("UseAODReductionMomentList",m_useAODReductionMomentList);
+  declareProperty("DoDigiHSTruth",m_doDigiTruth);
 }
 
 StatusCode eflowObjectCreatorTool::initialize(){
@@ -325,6 +327,21 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
       this->addMoment(xAOD::CaloCluster::AVG_LAR_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,cluster, thisEflowObject);
+
+      if(m_doDigiTruth){
+        this->addMoment(xAOD::CaloCluster::ENERGY_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ENERGY_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::PHI_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_PHI_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::ETA_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ETA_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::SECOND_R_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_R_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::N_BAD_CELLS_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::ENG_POS_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_POS_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::AVG_LAR_Q_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::AVG_TILE_Q_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q_DigiHSTruth,cluster, thisEflowObject);
+        this->addMoment(xAOD::CaloCluster::ISOLATION_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION_DigiHSTruth,cluster, thisEflowObject);
+      }
 
       if (false == m_useAODReductionMomentList){
 	 this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);

@@ -5,6 +5,7 @@
 # specify branches of athena that are being targeted:
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
+# art-output: config.txt
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -30,7 +31,7 @@ echo "art-result: $? EVNTtoRDO step"
 Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
  --outputAODFile=AOD_fastSim_fullDigi.pool.root \
     --autoConfiguration=everything \
-    --maxEvents=500 \
+    --maxEvents 100 \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
     --imf False
 
@@ -44,7 +45,7 @@ echo "art-result: $? RDOtoAOD step"
 ArtPackage=$1
 ArtJobName=$2
 
-art.py compare grid --imf=False ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 
 echo  "art-result: $? regression"
 

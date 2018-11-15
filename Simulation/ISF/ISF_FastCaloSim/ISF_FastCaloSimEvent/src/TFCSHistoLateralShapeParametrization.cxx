@@ -55,6 +55,10 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSS
   const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
 
+  if (TMath::IsNaN(center_r) or TMath::IsNaN(center_z) or TMath::IsNaN(center_eta) or TMath::IsNaN(center_phi)) { //Check if extrapolation fails
+    return FCSFatal;
+  }
+
   float alpha, r, rnd1, rnd2;
   rnd1 = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   rnd2 = CLHEP::RandFlat::shoot(simulstate.randomEngine());

@@ -380,9 +380,9 @@ namespace ZDC
     //
     zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(2);
 
-    // We alwyas disable the 12EM (sideC) module which was not present (LHCf)
+    // We do not disable the 12EM (sideC) in 2018
     //
-    zdcDataAnalyzer->DisableModule(0,0);
+    //zdcDataAnalyzer->DisableModule(0,0);
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
     zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0, t0);
