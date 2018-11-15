@@ -55,7 +55,8 @@ StatusCode CaloRingerElectronsReader::initialize()
       new BuildCaloRingsFctor<xAOD::ElectronContainer>(
         m_inputElectronContainerKey.key(),
         m_crBuilder,
-        msg()
+        msg(),
+	this
       );
     ATH_CHECK( m_clRingsBuilderElectronFctor->initialize() );
   }

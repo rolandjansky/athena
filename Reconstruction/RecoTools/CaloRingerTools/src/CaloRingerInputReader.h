@@ -13,7 +13,6 @@
 #include "CaloRingerTools/ICaloRingerInputReader.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/WriteDecorHandle.h"
 
 //CxxUtils for override final
 #include "CxxUtils/final.h"
