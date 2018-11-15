@@ -11,7 +11,7 @@ from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 muonByteStreamFlags.MdtDataType = "atlas"
 
 #initialize correctly the old cabling service
-from MDTcabling.MDTcablingConfig import *
+#from MDTcabling.MDTcablingConfig import *
 
 topSequence=AlgSequence()
 
