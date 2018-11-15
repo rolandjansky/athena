@@ -63,10 +63,10 @@ def addTrackThinningToolTight(deriv="HION7", track_pt_threshold=4) :
     return TPThinningTool
 
 
-HIJetTriggerVars=["HLT_xAOD__JetContainer_a4ionemsubjesFS.pt",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesFS.eta",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesFS.phi",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesFS.m"]
+HIJetTriggerVars=["HLT_xAOD__JetContainer_a4ionemsubjesISFS.pt"
+                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.eta",
+                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.phi",
+                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.m"]
 
 HIClusterVars=["HIClusters.eta0",
                "HIClusters.phi0",
@@ -235,7 +235,11 @@ HITriggerDict = {'HLT_j50_ion_L1TE20':  68, 'HLT_j60_ion_L1TE50': 79, 'HLT_j75_i
 ppTriggerDict = {'HLT_j30_L1TE5': 34,'HLT_j40_L1TE10':  44, 'HLT_j50_L1J12': 59, 'HLT_j60_L1J15': 70, 'HLT_j75_L1J20': 79, 'HLT_j85': 89}
 
 HI18TriggerDict = {
-'HLT_mu4_j40_ion_dr05': 40,
+'HLT_mb_sptrk_L1ZDC_A_C_VTE50': 20,
+'HLT_noalg_pc_L1TE50_VTE600.0ETA49': 20,
+'HLT_noalg_cc_L1TE600.0ETA49': 20,
+'HLT_mb_sptrk': 20,
+'HLT_noalg_mb_L1TE50': 20,
 'HLT_j50_ion_L1J12': 50,
 'HLT_j60_ion_L1J15': 60,
 'HLT_j60_ion_L1J20': 60,
