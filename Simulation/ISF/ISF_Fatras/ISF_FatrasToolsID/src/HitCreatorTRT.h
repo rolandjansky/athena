@@ -69,7 +69,7 @@ namespace iFatras {
       /** handle for incident service */
       void handle(const Incident& inc);
      
-      /** Return nothing --- record the hit to the SimHitSvc */
+      /** Record the hit */
       void createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters& , double ) const;
       
       /** Return the cluster on Track -- the PrepRawData is contained in this one */       
