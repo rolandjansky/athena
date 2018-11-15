@@ -152,17 +152,17 @@ bool MdtTestCabling::testMap()
 	    int tube=0;
 
 	    m_chronoSvc->chronoStart(m_chrono1);
-
+	    /*
 	    bool cabling = m_cablingSvc->getOfflineId(subdetectorId,rodId,csmId,
 						      amtId,chanId,
 						      station,eta,phi,multi,
 						      layer,tube);
-	    /*
+	    */
 	    bool cabling = readCdo->getOfflineId(subdetectorId,rodId,csmId,
 						      amtId,chanId,
 						      station,eta,phi,multi,
 						      layer,tube);
-	    */
+
 	    m_chronoSvc->chronoStop(m_chrono1);
 
 	    if (!cabling) {

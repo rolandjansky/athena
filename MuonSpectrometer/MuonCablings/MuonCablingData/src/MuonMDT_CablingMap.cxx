@@ -299,7 +299,7 @@ bool MuonMDT_CablingMap::addMezzanine( int mezType, int station, int eta, int ph
 
 
 
-MdtSubdetectorMap* MuonMDT_CablingMap::getSubdetectorMap(uint8_t subdetectorId) {
+MdtSubdetectorMap* MuonMDT_CablingMap::getSubdetectorMap(uint8_t subdetectorId) const{
   return getItem(subdetectorId);
 }
 
@@ -475,7 +475,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
 				      uint8_t tdcId,
 				      uint8_t channelId,
 				      int& stationName, int& stationEta, int& stationPhi,
-				      int& multiLayer, int& layer, int& tube) 
+				      int& multiLayer, int& layer, int& tube) const
 {
   
   // get the subdetector

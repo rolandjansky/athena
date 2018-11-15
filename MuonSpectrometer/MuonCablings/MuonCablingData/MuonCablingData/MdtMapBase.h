@@ -57,7 +57,7 @@ template<class T> class MdtMapBase
   bool addItem(uint8_t itemId, T* item);
 
   /** get function - fast, used for online->offline conversion */
-  T* getItem(uint8_t itemId);
+  T* getItem(uint8_t itemId) const;
 
  private:
 
@@ -65,21 +65,21 @@ template<class T> class MdtMapBase
   const std::string m_itemName;
   
   /** pointer to the current item */
-  T* m_currentItem;
+  //T* m_currentItem;
 
   /** map containing the items */
   MapOfItems* m_mapOfItems;
 
   /** private access function */
-  T* findItem(uint8_t itemId);  
+  T* findItem(uint8_t itemId) const;  
 
 };
 
 
 /** default constructor */
 template<class T> MdtMapBase<T>::MdtMapBase(uint8_t moduleId, const std::string itemName) :
-  m_moduleId(moduleId), m_itemName(itemName), m_currentItem(NULL)
-     
+m_moduleId(moduleId), m_itemName(itemName)//, m_currentItem(NULL)
+  
 { 
   //  m_mapOfItems = new std::map< uint8_t, T*, std::less<uint8_t> >();
   m_mapOfItems = new MapOfItems();
@@ -124,7 +124,7 @@ template<class T> void MdtMapBase<T>::clear()
     
   }
   m_mapOfItems->clear();
-  m_currentItem=NULL;
+  //m_currentItem=NULL;
 }
 
 /** Add an item to the map */
@@ -160,8 +160,8 @@ template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item) {
 
 
 /** return the item for a given access key (onlineId) */
-template<class T> T* MdtMapBase<T>::getItem(uint8_t itemId) {
-
+template<class T> T* MdtMapBase<T>::getItem(uint8_t itemId) const{
+  /*
   if ( m_currentItem ) {
     if ( itemId == m_currentItem->moduleId() ) {
       return m_currentItem;
@@ -173,15 +173,16 @@ template<class T> T* MdtMapBase<T>::getItem(uint8_t itemId) {
   else {
     return findItem(itemId);
   }
-
+  */
+  return findItem(itemId);
 }
 
 
 /** find the item in the datamember map */
-template<class T> T* MdtMapBase<T>::findItem(uint8_t itemId) {
+template<class T> T* MdtMapBase<T>::findItem(uint8_t itemId) const{
 
   typename MapOfItems::const_iterator it = m_mapOfItems->find(itemId);
-
+  /*
   if (it!=m_mapOfItems->end()) {
     m_currentItem = (*it).second;
   }
@@ -189,9 +190,14 @@ template<class T> T* MdtMapBase<T>::findItem(uint8_t itemId) {
     //    *m_log << MSG::ERROR << m_itemName << " with Id: " << MSG::hex << itemId 
     //   << MSG::dec << " not found " << endmsg;
     m_currentItem=NULL;
-  }
-  
+  }  
   return m_currentItem;
+  */
+  if (it!=m_mapOfItems->end()) {
+    return (*it).second;
+  } else {    
+    return NULL;
+  }
 }
 
 

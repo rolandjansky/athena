@@ -63,7 +63,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 		    int tdcId, int channelZero);
 
   /** Get function */
-  MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId);
+  MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId) const;
 
   /** return the ROD id of a given chamber, given station, eta, phi */
   uint32_t getROBId(int station, int eta, int phi);
@@ -84,7 +84,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   bool getOfflineId(uint8_t subdetectorId,uint8_t rodId,uint8_t csmId,
 		    uint8_t tdcId,uint8_t channelId,
 		    int& stationName, int& stationEta, int& stationPhi,
-		    int& multiLayer, int& layer, int& tube);
+		    int& multiLayer, int& layer, int& tube) const;
 
   /** return the online id given the offline id */
   bool getOnlineId(int stationName, int stationEta, int stationPhi,
