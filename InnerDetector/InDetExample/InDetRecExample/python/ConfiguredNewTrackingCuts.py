@@ -717,7 +717,7 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = True
       self.__useSCTSeeding    = False
       self.__maxEta           = 2.2
-      self.__radMax           = 150. * Units.mm # to pixel layer-1 (~ 88 mm)
+      self.__radMax           = 150. * Units.mm # to pixel layer-4 (~ 122.5 mm)
 
 
     # --- changes for SCT segments
