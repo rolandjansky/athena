@@ -119,12 +119,6 @@ namespace Trk {
       /** Output Method for std::ostream, to be overloaded by child classes */
       virtual std::ostream& dump(std::ostream& sl) const = 0;
   
-      /** Default move constructor for the base class */
-      LayerMaterialProperties(Trk::LayerMaterialProperties&& lmp) = default;
-
-      /** Default move assignment operator for the base class */
-      LayerMaterialProperties& operator=(Trk::LayerMaterialProperties&& lmp) = default;
-
                                           
     protected :
       friend class ::BinnedLayerMaterialCnv_p1;
