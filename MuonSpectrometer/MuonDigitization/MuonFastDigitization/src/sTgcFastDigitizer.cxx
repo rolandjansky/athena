@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
@@ -334,15 +334,6 @@ StatusCode sTgcFastDigitizer::execute() {
     // if(hit.depositEnergy()==0.) continue;
 
 
-    //if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
-    //  Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-    //  if( diff.mag() < 0.1 ) {
-    //    ATH_MSG_VERBOSE("second hit from a muon: prev " <<  previousHit->localPosition() << " current " << hit.localPrePosition() 
-    //    		<< " diff " << diff );
-    //    continue;
-    //  }
-    //}
-
     // select whether to produce only strips or strips + wires or strips + wires + pads
     int ftype = m_channelTypes == 3 ? 0 : 1;
     int ltype = m_channelTypes == 1 ? 1 : 2;
@@ -473,12 +464,6 @@ StatusCode sTgcFastDigitizer::execute() {
       m_surfcenty = surf.center().y();
       m_surfcentz = surf.center().z();
 
-       // cut on the kineticEnergy = 50MeV  
-      //if(hit.kineticEnergy()< m_energyThreshold ) {
-      //  m_exitcode = 5;
-      //  m_ntuple->Fill();      
-      //  continue; 
-      //}
 
       // cut on depositEnergy(0.52KeV) to simulation the detector efficiency(95% for strips)
       if( type ==1 && hit.depositEnergy()<m_energyDepositThreshold)  {
