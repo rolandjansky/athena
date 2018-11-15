@@ -24,6 +24,12 @@
 
 #include <ostream>
 #include <iostream>
+
+
+namespace xAOD {
+class SystematicEvent;
+}
+
 /**
  * @brief A namespace for the top group, to avoid using the same name as
  * somewhere else in the code.
@@ -78,6 +84,9 @@ public:
     
     ///Pointer to the event info - nullptr if not loaded, but that's probably a bad idea
     const xAOD::EventInfo* m_info;
+
+    ///Pointer to the systematic event info - nullptr if not loaded, but that's probably a bad idea
+    xAOD::SystematicEvent const * m_systematicEvent;
     
     ///Primary Vertices
     const xAOD::VertexContainer* m_primaryVertices;    

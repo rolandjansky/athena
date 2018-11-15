@@ -26,9 +26,14 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
 // Forward declaration(s):
+namespace xAOD {
+  class SystematicEvent;
+}
 namespace top{
   class TopConfig;
 }
@@ -49,41 +54,18 @@ namespace top{
       StatusCode execute();
 
     private:
-      std::shared_ptr<top::TopConfig> m_config;
 
-      CP::SystematicSet m_systNominal;
-      CP::SystematicSet m_systTrigger_ELECTRON_UP;
-      CP::SystematicSet m_systTrigger_ELECTRON_DOWN;
-      CP::SystematicSet m_systTrigger_MUON_STAT_UP;
-      CP::SystematicSet m_systTrigger_MUON_STAT_DOWN;
-      CP::SystematicSet m_systTrigger_MUON_SYST_UP;
-      CP::SystematicSet m_systTrigger_MUON_SYST_DOWN;
+      void processEvent(xAOD::SystematicEvent * systEvent, bool withScaleFactorVariations);
+
+      std::shared_ptr<top::TopConfig> m_config;
 
       ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
       ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
 
+      std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronTools;
+      std::vector<ToolHandle<CP::IMuonTriggerScaleFactors>> m_muonTools;
+
       std::string m_decor_triggerSF;
-      std::string m_decor_triggerSF_loose;
-      std::string m_decor_triggerEffMC;
-      std::string m_decor_triggerEffMC_loose;
-      std::string m_decor_triggerEffData;
-      std::string m_decor_triggerEffData_loose;
-
-      // Accessor method to centralise the checks to leptons across functions
-      SG::AuxElement::Accessor<char> m_selectedLepton;
-      SG::AuxElement::Accessor<char> m_selectedLeptonLoose;
-
-      // Name of active variation
-      std::string m_activeSystVariation;
-
-      ///-- Functions to handle different configurations --///
-      StatusCode executeNominalVariations();
-      StatusCode executeElectronSystematics();
-      StatusCode executeMuonSystematics();
-      StatusCode decorateEventInfo(std::string, double);
-      void Print(std::string, double, double, double);
-      StatusCode setElectronSystematic(std::string systematicName, int sig, std::vector<std::string> toolNames);
-      StatusCode setMuonSystematic(std::string systematicName, int sig, std::vector<std::string> toolNames);
 
   };
 } // namespace
