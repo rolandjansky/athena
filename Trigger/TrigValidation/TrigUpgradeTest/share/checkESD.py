@@ -16,7 +16,7 @@ checker.doDumpStoreGate                 = True
 tcContainers  =  [ "FilteredEMRoIDecisions", "L2CaloLinks", "L2ElectronLinks", "EgammaCaloDecisions", "FilteredEgammaCaloDecisions", "filterCaloRoIsAlg",  "ElectronL2Decisions", "MuonL2Decisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "EMRoIDecisions"  ]
 
 for container in tcContainers:
-  checker.dumpTrigCompositeContainers += [ container + "_remap" ]
+  checker.dumpTrigCompositeContainers += [ "remap_" + container ]
 
 from AthenaCommon.AppMgr import topSequence
 
