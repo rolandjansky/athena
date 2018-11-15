@@ -13,7 +13,7 @@ if [ -z ${TEST} ]; then
 fi
 
 if [ -z ${REF_FOLDER} ]; then
-  export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${AtlasBuildBranch}/${NAME}"
+  export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/${TEST}/ref/${AtlasBuildBranch}/test_${NAME}"
 fi
 
 ###
@@ -32,6 +32,8 @@ timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
+
+grep REGTEST athena.log > athena.regtest
 
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest"
