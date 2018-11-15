@@ -1559,7 +1559,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 	{ 
 	  /// strip out the offline tracks not in any Roi ...
-	  //	  if ( roi_filter || ptmin>0 ) { 
+
 	  if ( filterOnRoi() || m_ptmin>0 ) { 
 	    
 	    TIDA::Chain* offline = 0;
