@@ -23,10 +23,9 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
 from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
-# Create the necessary TauTruthLinks
+# Make sure all the normal truth stuff is there
 if DerivationFrameworkIsMonteCarlo: 
-  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-  scheduleTauTruthTools()
+  MCTruthCommon.addStandardTruthContents()
 
 import DerivationFrameworkExotics.EXOT27Utils as EXOT27Utils
 
@@ -283,14 +282,23 @@ EXOT27ThinningTools += [
 # What I have here is extremely simplistic - designed to at least have what I
 # need for my immediate studies
 if DerivationFrameworkIsMonteCarlo:
-  truth_sel_list = ["abs(TruthParticles.pdgId) == {0}".format(ii) for ii in range(5,26)]
-  truth_sel = "||".join(map("({0})".format, truth_sel_list) )
+  truth_with_descendants = [6, 23, 24, 25]
+  truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
   EXOT27ThinningTools += [
     DerivationFramework__GenericTruthThinning(
-        "EXOT27TruthThinningTool",
+        "EXOT27TruthDescendantsThinningTool",
         ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-        ParticleSelectionString = truth_sel,
+        ParticleSelectionString = truth_sel_with_descendants,
         PreserveDescendants     = True),
+    ]
+  truth_no_descendants = [5, 11, 12, 13, 14, 15, 16, 17, 18]
+  truth_sel_no_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_no_descendants) )
+  EXOT27ThinningTools += [
+    DerivationFramework__GenericTruthThinning(
+        "EXOT27TruthNoDescendantsThinningTool",
+        ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+        ParticleSelectionString = truth_sel_no_descendants,
+        PreserveDescendants     = False),
     ]
   
 for tool in EXOT27ThinningTools:
