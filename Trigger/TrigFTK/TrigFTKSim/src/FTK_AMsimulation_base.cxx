@@ -446,17 +446,13 @@ class SSIDordering {
  */
 void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
                                        int printSectorID) const {
-   map<int,map<vector<int>,FTKRoad const *> > roadMap;
+   map<int,map<int,FTKRoad const *> > roadMap;
    for(list<FTKRoad>::const_iterator iroad=roads.begin();
        iroad!=roads.end();iroad++) {
-      vector<int> ssid(getNPlanes());
-      for(int i=0;i<getNPlanes();i++) {
-         ssid[i]=(*iroad).getSSID(i);
-      }
-      roadMap[(*iroad).getSectorID()][ssid]=& *iroad;
+      roadMap[(*iroad).getSectorID()][(*iroad).getPatternID()]=& *iroad;
    }
    cout<<"number of sectors with roads: "<<roadMap.size()<<"\n";
-   for(map<int,map<vector<int>,FTKRoad const *> >::const_iterator i=
+   for(map<int,map<int,FTKRoad const *> >::const_iterator i=
           roadMap.begin();i!=roadMap.end();i++) {
       if(((*i).first==printSectorID)||
          (printSectorID<0)) {
@@ -466,7 +462,7 @@ void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
             cout<<"=SSID"<<i;
          }
          cout<<"==BITMASK==ROAD===PATTID====DBID======HLIDbIDregSub=SR====SubSS=DCmask=HLmask\n";
-         for(map<vector<int>,FTKRoad const *>::const_iterator
+         for(map<int,FTKRoad const *>::const_iterator
                 iroad=(*i).second.begin();
              iroad!=(*i).second.end();iroad++) {
             FTKRoad const *road=(*iroad).second;
@@ -491,7 +487,7 @@ void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
                 <<setw(3)<<road->getSubRegion()
                 <<setw(3)<<road->getNSubRoads()<<" "<<setbase(16);
             for(int i=0;i<road->getNPlanes();i++) {
-               cout<<road->getSubSSMask(i);
+               cout<<setw(2)<<road->getSubSSMask(i);
             }
             cout<<setw(7)<<road->getDCBitmask()<<setw(7)<<road->getHLBitmask();
             cout<<setbase(10);
