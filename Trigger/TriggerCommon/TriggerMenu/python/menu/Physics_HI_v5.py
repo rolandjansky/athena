@@ -198,6 +198,21 @@ def setupMenu():
 	#supporting
 	['j10_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
+	#eta inclusive versions:
+	['j10_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
+	['j15_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j20_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j30_0eta490_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j40_0eta490_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
+	['j10_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
+	['j15_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j20_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j30_0eta490_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
+	['j10_0eta490_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
+	
     #single-jet large-R UPC trigger chains
     ['j10_a10_lcw_subjes_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_a10_lcw_subjes_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
