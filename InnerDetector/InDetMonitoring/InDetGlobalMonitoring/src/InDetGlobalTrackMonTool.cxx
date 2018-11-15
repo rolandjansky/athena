@@ -641,8 +641,9 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	
 	// Skip tracks that are not inside out
-	if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
-	     && ! track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
+        if ( ( m_dataType == AthenaMonManager::collisions || m_dataType == AthenaMonManager::userDefined )
+             && ! ( track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) ||  
+		    track->info().patternRecoInfo( Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon ) ) )
 	    continue;
 	
 	if ( ! m_baseline_selTool->accept(*track) )

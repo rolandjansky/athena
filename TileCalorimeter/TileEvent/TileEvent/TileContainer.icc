@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of TileContainer 
@@ -8,14 +8,14 @@
 #include <sstream>
 #include <iomanip>
 
-template <typename _TElement> 
-void TileContainer<_TElement>::print() const
+template <typename TELEMENT> 
+void TileContainer<TELEMENT>::print() const
 {
     std::cout << (std::string) (*this) << std::endl;
 }
 
-template <typename _TElement> 
-TileContainer<_TElement>::operator std::string() const
+template <typename TELEMENT> 
+TileContainer<TELEMENT>::operator std::string() const
 {
     std::ostringstream text(std::ostringstream::out);
 
@@ -28,7 +28,7 @@ TileContainer<_TElement>::operator std::string() const
     my_const_iterator it1 = this->begin();
     my_const_iterator it2 = this->end();
 
-    const _TElement * elem;
+    const TELEMENT * elem;
     
     for(;it1!=it2;++it1){
         elem = (*it1);

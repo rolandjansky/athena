@@ -21,9 +21,9 @@
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
-
 #include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
+
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using namespace MuonGM;
 using namespace Trk;
@@ -82,11 +82,6 @@ Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 
 StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 {  
-  if (StatusCode::SUCCESS != serviceLocator()->service("MuonMDT_CablingSvc", m_mdtCabling)) {
-    ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
-    return StatusCode::FAILURE;
-  }
-  
   if(detStore()->retrieve( m_muonMgr ).isFailure()) {
     ATH_MSG_FATAL(" Cannot retrieve MuonDetectorManager ");
     return StatusCode::FAILURE;
@@ -153,8 +148,8 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() ); 
-
   ATH_CHECK( m_mdtPrepDataContainerKey.initialize() );
+  ATH_CHECK( m_readKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -167,11 +162,24 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
-  const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==0){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return StatusCode::FAILURE;
+  }
+  const std::vector<IdentifierHash>& chamberHashInRobs = readCdo->getChamberHashVec(robIds);
   return decode(chamberHashInRobs);
 }
 
-Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
+Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
+{
+  // FIXME: This needs to be redone to work properly with MT.
+  if (Gaudi::Hive::currentContext().slot() > 1) {
+    ATH_MSG_ERROR ( "MdtRdoToPrepDataTool doesn't yet work with MT." );
+    return FAILED;
+  }
+
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
@@ -184,6 +192,14 @@ Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDa
     }
     m_mdtPrepDataContainer = handle.ptr();
     return ADDED;
+  }
+  else {
+    const Muon::MdtPrepDataContainer* outputCollection_c = 0;
+    if (evtStore()->retrieve (outputCollection_c, m_mdtPrepDataContainerKey.key()).isFailure())
+    {
+      return FAILED;
+    }
+    m_mdtPrepDataContainer = const_cast<Muon::MdtPrepDataContainer*> (outputCollection_c);
   }
   return ALREADYCONTAINED;
 }

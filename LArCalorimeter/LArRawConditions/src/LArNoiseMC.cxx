@@ -31,24 +31,8 @@ LArNoiseMC::~LArNoiseMC() {}
  */
 const float& LArNoiseMC::noise(const HWIdentifier& CellID, int gain) const 
 { 
-  
   // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  
-  return LArNoiseComplete::noise(SymCellID,gain); 
-
-}
-
-const float& LArNoiseMC::noise(const Identifier&  CellID, int gain) const
-{
-  
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
+  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);  
   return LArNoiseComplete::noise(SymCellID,gain); 
 }
-
-
-
-  
 

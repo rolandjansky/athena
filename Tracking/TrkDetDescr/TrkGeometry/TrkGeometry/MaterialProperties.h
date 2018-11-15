@@ -12,7 +12,7 @@
 #include "TrkGeometry/Material.h"
 #include "GaudiKernel/MsgStream.h"
 //STD
-#include <iostream>
+#include <iosfwd>
 
 class MaterialPropertiesCnv_p1;
 

@@ -1,6 +1,5 @@
 from TrigHLTMonitoring.TrigHLTMonitoringConfig import HLTGeneralTool
-for toolname in HLTGeneralTool():
-    tool1 = getattr(ToolSvc, toolname.split('/')[-1])
+for tool1 in HLTGeneralTool():
     #    tool1.histoPathBase      = "/Trigger/HLT"                                                                                                                                                    
     #    tool1.OutputLevel = WARNING                                                                                                                                                                  
     #tool1.DetailLevel = 10
@@ -16,5 +15,4 @@ for toolname in HLTGeneralTool():
     #                     'Jets'      : 'HLT_(FJ|j)[0-9]+.*',                                                                                                                                         
     #                     }                                                                                                                                                                           
     tool1.EnableLumi = False
-    ToolSvc += tool1
     monMan.AthenaMonTools += [tool1]

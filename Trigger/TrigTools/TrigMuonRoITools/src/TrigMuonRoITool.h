@@ -77,6 +77,9 @@ class TrigMuonRoITool: public AthAlgTool,
 
     /// Helper to print contents of a muCTPi RoIB data word
     void dumpRoIBDataWord(uint32_t data_word );
+
+    /// Configurable to decide how to decode muCTPi
+    bool m_decodeMuCTPiFromROB;
 };
 
 #endif  // TRIGMUONROITOOL_H

@@ -175,25 +175,24 @@ void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const s
       // Create placement for this converter if needed
       m_placement = new Placement();
    }
-   // Use technology from AthenaPoolCnvSvc
-   if (m_athenaPoolCnvSvc->technologyType().type() == 0) {
-      // error if type is 0
-      ATH_MSG_WARNING("technology UNDEFINED for type " << tname);
-   }
-   m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType().type());
    // Set DB and Container names
-   const std::string fileName = m_athenaPoolCnvSvc->getOutputConnectionSpec();
-   m_placement->setFileName(fileName);
+   m_placement->setFileName(m_athenaPoolCnvSvc->getOutputConnectionSpec());
+   std::string containerName;
    if (key.empty()) { // No key will result in a separate tree by type for the data object
-      m_placement->setContainerName(m_athenaPoolCnvSvc->getOutputContainer(tname));
+      containerName = m_athenaPoolCnvSvc->getOutputContainer(tname);
    } else if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?
-      m_placement->setContainerName(m_placementHints[tname + key]);
+      containerName = m_placementHints[tname + key];
    } else { // Generate PlacementHint
-      const std::string containerName = m_athenaPoolCnvSvc->getOutputContainer(tname, key);
-      const std::pair<std::string, std::string> entry(key, containerName);
-      m_placementHints.insert(entry);
-      m_placement->setContainerName(containerName);
+      containerName = m_athenaPoolCnvSvc->getOutputContainer(tname, key);
+      m_placementHints.insert(std::pair<std::string, std::string>(key, containerName));
    }
+   m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType(containerName).type());
+   //  Remove Technology from containerName
+   std::size_t colonPos = containerName.find(":");
+   if (colonPos != std::string::npos) {
+      containerName.erase(0, colonPos + 1);
+   }
+   m_placement->setContainerName(containerName);
 }
 //__________________________________________________________________________
 const DataObject* AthenaPoolConverter::getDataObject() const {

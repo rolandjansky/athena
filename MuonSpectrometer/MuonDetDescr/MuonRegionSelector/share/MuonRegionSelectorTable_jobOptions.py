@@ -61,3 +61,24 @@ if DetFlags.detdescr.TGC_on():
 else :
     TGC_RegionSelectorTable = None
 
+#### New small wheel ####
+
+if DetFlags.detdescr.Micromegas_on():
+    from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
+    MM_RegionSelectorTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
+
+    ToolSvc += MM_RegionSelectorTable
+    print      MM_RegionSelectorTable
+else :
+    MM_RegionSelectorTable = None
+
+
+if DetFlags.detdescr.sTGC_on():
+    from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
+    sTGC_RegionSelectorTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
+
+    ToolSvc += sTGC_RegionSelectorTable
+    print      sTGC_RegionSelectorTable
+else :
+    sTGC_RegionSelectorTable = None
+

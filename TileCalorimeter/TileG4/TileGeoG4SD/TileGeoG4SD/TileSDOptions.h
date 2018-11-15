@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILESDOPTIONS_h
@@ -14,7 +14,9 @@
 #include <string>
 #include <vector>
 
-struct TileSDOptions {
+class TileSDOptions
+{
+public:
   /** Setup defaults */
   TileSDOptions()
     : timeCut(350.5),

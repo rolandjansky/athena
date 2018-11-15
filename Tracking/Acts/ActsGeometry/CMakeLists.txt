@@ -34,10 +34,12 @@ atlas_add_library( ActsGeometryLib
                    src/ActsDetectorElement.cxx
                    src/ActsLayerBuilder.cxx
                    src/ActsStrawLayerBuilder.cxx
+                   src/ActsTrackingGeometrySvc.cxx
                    src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
+                   AthenaKernel
                    ActsInteropLib
                    ActsCore
                    ActsLegacy
@@ -46,7 +48,6 @@ atlas_add_library( ActsGeometryLib
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
                      src/ActsWriteTrackingGeometry.cxx
-                     src/ActsTrackingGeometrySvc.cxx
                      src/ActsExtrapolationTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx

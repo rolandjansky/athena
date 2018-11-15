@@ -39,7 +39,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_hitmap(nullptr),
   m_hitmap_DigiHSTruth(nullptr),
   m_DigitContainer(nullptr),
-  m_autoCorrNoiseTool("LArAutoCorrNoiseTool"),
   m_maskingTool(this,"LArBadChannelMaskingTool"),
   m_badFebKey("LArBadFeb"),
   m_triggerTimeTool("CosmicTriggerTimeTool"),
@@ -160,7 +159,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("UsePhase",m_usePhase,"use 1ns binned pulse shape (default=false)");
   declareProperty("RndmSvc",m_rndmSvc,"Random number service for LAr digitization");
   declareProperty("UseRndmEvtRun",m_rndmEvtRun,"Use Run and Event number to seed rndm number (default=false)");
-  declareProperty("AutoCorrNoiseTool",m_autoCorrNoiseTool,"Tool handle for electronic noise covariance");
   declareProperty("MaskingTool",m_maskingTool,"Tool handle for dead channel masking");
   declareProperty("BadFebKey",m_badFebKey,"Key of BadFeb object in ConditionsStore");
   declareProperty("RndmEvtOverlay",m_RndmEvtOverlay,"Pileup and/or noise added by overlaying random events (default=false)");
@@ -366,16 +364,8 @@ StatusCode LArPileUpTool::initialize()
 
   // retrieve tool to compute sqrt of time correlation matrix
   if ( !m_RndmEvtOverlay  &&  m_NoiseOnOff) {
-     if (m_autoCorrNoiseTool.retrieve().isFailure()) {
-         ATH_MSG_ERROR(" Unable to find tool LArAutoCorrNoiseTool");
-         return StatusCode::FAILURE;
-     }
-     ATH_MSG_INFO(" retrieved LArAutoCorrNoiseTool");
+    ATH_CHECK(m_autoCorrNoiseKey.initialize());
   }
-  else {
-    m_autoCorrNoiseTool.disable();
-  }
-
   if (m_maskingTool.retrieve().isFailure()) {
        ATH_MSG_INFO(" No tool for bad channel masking");
       m_useBad=false;
@@ -1953,6 +1943,13 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
     noise=*noiseHdl;
   }
 
+  const LArAutoCorrNoise* autoCorrNoise=nullptr;
+  if ( !m_RndmEvtOverlay  &&  m_NoiseOnOff) {
+    SG::ReadCondHandle<LArAutoCorrNoise>  autoCorrNoiseHdl(m_autoCorrNoiseKey);
+    autoCorrNoise=*autoCorrNoiseHdl;
+  }
+
+
   LArDigit *Digit;
   LArDigit *Digit_DigiHSTruth;
 
@@ -2156,7 +2153,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
           else SigmaNoise=0.;
         }
         // Sqrt of noise covariance matrix
-        const std::vector<float>* CorGen=&(m_autoCorrNoiseTool->autoCorrSqrt(cellId,igain,m_NSamples));
+	const std::vector<float>& CorGen=autoCorrNoise->autoCorrSqrt(cellId,igain);
 
         RandGaussZiggurat::shootArray(m_engine,m_NSamples,m_Rndm,0.,1.);
 
@@ -2165,7 +2162,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
            m_Noise[i]=0.;
            for(int j=0;j<=i;j++) {
              index = i*m_NSamples + j;
-             m_Noise[i] += m_Rndm[j] * ((*CorGen)[index]);
+             m_Noise[i] += m_Rndm[j] * CorGen[index];
            }
            m_Noise[i]=m_Noise[i]*SigmaNoise;
         }

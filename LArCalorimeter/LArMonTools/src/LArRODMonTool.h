@@ -18,16 +18,24 @@
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
-//#include "LArRawEvent/LArRawChannel.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+//Events infos:
+#include "xAODEventInfo/EventInfo.h"
+
+
 class LArRawChannel;
 class HWIdentifier;
+class LArOnOffIdMapping;
+class LArRawChannelContainer;
+class LArDigitContainer;
+
 
 #include "TH2I.h"
 #include "TH2F.h"
@@ -38,7 +46,6 @@ class HWIdentifier;
 #include <set>
 
 class LArEM_ID;
-class LArOnlineID;
 //class LArCablingService;
 class TH1F;
 class TH2F;
@@ -189,32 +196,28 @@ private:
   TH2I* m_hTErrors_LB_stream;
   TH2I* m_hQErrors_LB_stream;
 
+ 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","SG Key of EventInfo object"};
   // Keys for LArRawChannels containers
-  std::string m_channelKey_fromBytestream;
-  std::string m_channelKey_fromDigits;
+  SG::ReadHandleKey<LArRawChannelContainer> m_channelKey_fromBytestream{this,"LArRawChannelKey_fromBytestream","LArRawChannels","SG key of LArRawChannels produced by teh DSP"};
+  SG::ReadHandleKey<LArRawChannelContainer> m_channelKey_fromDigits{this,"LArRawChannelKey_fromDigits","LArRawChannels_FromDigits","SG key of LArRawChannels produced offline"};
 
-  // Key for LArDigits container
-  std::string m_LArDigitContainerKey;
+  SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey{this,"LArDigitContainerKey","FREE","SG key of LArDigitContainer read from Bytestream"};
 
-  // To retrieve OFC's
-  std::string m_keyOFC ;
-  std::string m_keyShape ;
-  const DataHandle<ILArOFC>    m_dd_ofc;
-  const DataHandle<ILArShape>    m_dd_shape;
-  const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
 
-  ToolHandle<ILArADC2MeVTool>   m_adc2mevtool;
+  SG::ReadCondHandleKey<ILArOFC>         m_keyOFC{this,"KeyOFC","LArOFC","SG key of LArOFC CDO"};
+  SG::ReadCondHandleKey<ILArShape>       m_keyShape{this,"KeyShape","LArShape","SG key of LArShape CDO"};
+  SG::ReadCondHandleKey<ILArHVScaleCorr> m_keyHVScaleCorr{this,"KeyHVScaleCorr","LArHVScaleCorr","SG key of LArHVScaleCorr CDO"};
+  SG::ReadCondHandleKey<ILArPedestal>    m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
+
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey{this,"LArADC2MeVKey","LArADC2MeV","SG Key of the LArADC2MeV CDO"};
 
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
 
   ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;
 
-  ToolHandle<LArCablingService>    m_cable_service_tool;
-
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
   const CaloDetDescrManager *m_calo_description_mgr;
-
-  const DataHandle<ILArPedestal> m_larpedestal;
-  std::string m_larpedestalkey;
 
   // Output files names
   std::string m_DigitsFileName;

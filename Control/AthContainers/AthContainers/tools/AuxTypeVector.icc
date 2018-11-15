@@ -348,7 +348,7 @@ void AuxTypeVectorHolder<T, CONT>::shift (size_t pos, ptrdiff_t offs)
                vec.rbegin());
     std::fill (vec.begin() + pos*SCALE,
                vec.begin() + (pos+offs)*SCALE,
-               typename AuxDataTraits<T>::element_type());
+               Zero<typename AuxDataTraits<T>::element_type>::zero());
   }
 }
 

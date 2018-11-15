@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv_p1.cxx 
@@ -17,11 +17,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // NavFourMom includes
-#define private public
-#define protected public
 #include "NavFourMom/INav4MomAssocs.h"
-#undef protected
-#undef private
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/INav4MomAssocsCnv_p1.h"
@@ -45,6 +41,8 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
 				   INav4MomAssocs* transObj, 
 				   MsgStream &log )
 {
+  *transObj = INav4MomAssocs();
+
   log << MSG::DEBUG 
       << "Loading INav4MomAssocs from persistent state..."
       << endmsg;
@@ -67,7 +65,7 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
 	  << "] !!"
 	  << endmsg;
     } else {
-      transObj->m_assocStores[*itr] = link;
+      transObj->addAssocStore (link);
     }
   }
 
@@ -141,28 +139,25 @@ INav4MomAssocsCnv_p1::transToPers( const INav4MomAssocs* transObj,
       << endmsg;
 
   // first store the underlying association stores
-  for ( std::map<std::string, DataLink<INav4MomAssocs> >::const_iterator itr = transObj->m_assocStores.begin();
-	itr != transObj->m_assocStores.end();
-	++itr ) {
-    persObj->m_assocStores.push_back( itr->second.dataID() );
+  for (const DataLink<INav4MomAssocs>& l : transObj->getAssocStores()) {
+    persObj->m_assocStores.push_back( l.dataID() );
   }
 
-  const INav4MomAssocs::store_type& assocMap = transObj->m_associationMap;
-  
-  for ( INav4MomAssocs::store_type::const_iterator itr = assocMap.begin();
-        itr != assocMap.end();
-        ++itr ) {
-    const INav4MomAssocs_p1::Elem_t objLink( itr->first.dataID(), itr->first.index() );
-    const INav4MomAssocs::asso_store& assocs = itr->second;
-
-    for ( unsigned int i = 0; i != assocs.size(); ++i ) {
-      const INav4MomAssocs_p1::Elem_t     assLink( assocs.elementDataID(i), assocs.elementIndex(i) );
-      const INav4MomAssocs_p1::ElemLink_t association( objLink, assLink );
-  
+  INav4MomAssocs::object_iterator begObj = transObj->beginObject();
+  INav4MomAssocs::object_iterator endObj = transObj->endObject();
+  for (; begObj != endObj; ++begObj)
+  {
+    const INav4MomAssocs::object_link& key = begObj.getObjectLink();
+    INav4MomAssocs_p1::Elem_t keyElem (key.dataID(), key.index());
+    INav4MomAssocs::asso_iterator begAsso = begObj.getFirstAssociation();
+    INav4MomAssocs::asso_iterator endAsso = begObj.getLastAssociation();
+    for (; begAsso != endAsso; ++begAsso) {
+      const INav4MomAssocs::asso_link asso = begAsso.getLink();
+      INav4MomAssocs_p1::Elem_t assoElem (asso.dataID(), asso.index());
+      const INav4MomAssocs_p1::ElemLink_t association( keyElem, assoElem );
       persObj->m_assocs.push_back( association );
-
-    }//> loop over associations
-  }//> loop over object links
+    }
+  }
 
   log << MSG::DEBUG 
       << "Created persistent state of INav4MomAssocs [OK]"

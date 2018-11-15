@@ -8,7 +8,7 @@ def getMdtRdoToMdtDigit(name="MdtRdoToMdtDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeTgcRDO", False)
     kwargs.setdefault("DecodeCscRDO", False)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("RetrievePrivateCopy", not overlayFlags.isDataOverlay())
+    kwargs.setdefault("RetrievePrivateCopy", False)
     kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
 
@@ -24,7 +24,7 @@ def getRpcRdoToRpcDigit(name="RpcRdoToRpcDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeTgcRDO", False)
     kwargs.setdefault("DecodeCscRDO", False)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("RetrievePrivateCopy", not overlayFlags.isDataOverlay())
+    kwargs.setdefault("RetrievePrivateCopy", False)
     kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
 
@@ -40,7 +40,7 @@ def getTgcRdoToTgcDigit(name="TgcRdoToTgcDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeTgcRDO", True)
     kwargs.setdefault("DecodeCscRDO", False)
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("RetrievePrivateCopy", not overlayFlags.isDataOverlay())
+    kwargs.setdefault("RetrievePrivateCopy", False)
     kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
 

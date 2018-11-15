@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -103,6 +103,21 @@ public:
   static const_reference_type index (const void* ptr, size_t ndx)
   {
     return reinterpret_cast<const bool*>(ptr)[ndx];
+  }
+};
+
+
+/**
+ * @brief Helper to specialize how to make an initialized instance of @c T.
+ *
+ * SG::Zero<T>::zero() should return a fully-initialized instance of @c T.
+ */
+template <class T>
+struct Zero
+{
+  static T zero()
+  {
+    return T();
   }
 };
 

@@ -32,15 +32,36 @@ long long int RootTreeIndexContainer::nextRecordId()    {
    s = s << 32;
    if (m_tree != nullptr) {
       if (m_index_foreign != nullptr) {
-        s += m_index_foreign->GetEntries();
+         s += m_index_foreign->GetEntries();
       } else {
          m_index_foreign = (TBranch*)m_tree->GetBranch("index_ref");
          if (m_index_foreign != nullptr) {
-           s += m_index_foreign->GetEntries();
+            s += m_index_foreign->GetEntries();
+         } else {
+            s += RootTreeContainer::nextRecordId();
          }
       }
    }
    return s;
+}
+
+DbStatus RootTreeIndexContainer::writeObject(TransactionStack::value_type& ent) {
+   long long int s = 0;
+   if( m_tree != nullptr && isBranchContainer() ) {
+      TBranch * pBranch = m_tree->GetBranch(m_branchName.c_str());
+      if (pBranch != nullptr) s = pBranch->GetEntries();
+   } else {
+      s = m_tree->GetEntries();
+   }
+   if (m_index_ref != nullptr && s >= m_index_ref->GetEntries()) {
+      *m_index = this->nextRecordId();
+      m_index_ref->SetAddress(m_index);
+      if (this->isBranchContainer()) m_index_ref->Fill();
+   }
+   if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s);
+   DbStatus status = RootTreeContainer::writeObject(ent);
+   if( isBranchContainer() && !m_treeFillMode ) m_tree->SetEntries(s + 1);
+   return status;
 }
 
 DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
@@ -50,11 +71,13 @@ DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
          if (m_index_foreign == nullptr && m_tree->GetBranch("index_ref") == nullptr) {
             m_index_ref = (TBranch*)m_tree->Branch("index_ref", m_index);
          }
+/*
          if (m_index_ref != nullptr && RootTreeContainer::size() > m_index_ref->GetEntries()) {
             *m_index = this->nextRecordId();
             m_index_ref->SetAddress(m_index);
             if (!m_treeFillMode) m_index_ref->Fill();
          }
+*/
       }
    }
    DbStatus status = RootTreeContainer::transAct(action);

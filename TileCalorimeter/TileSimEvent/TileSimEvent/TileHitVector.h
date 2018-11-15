@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -21,10 +21,7 @@
 #include "TileSimEvent/TileSimHit.h"
 #include "HitManagement/AtlasHitsVector.h"
 #include "HitManagement/AthenaHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef AthenaHitsVector<TileHit> TileOldHitVector;
 
@@ -32,9 +29,7 @@ typedef AtlasHitsVector<TileHit> TileHitVector;
 typedef AtlasHitsVector<TileHit>::iterator TileHitVecIterator;
 typedef AtlasHitsVector<TileHit>::const_iterator TileHitVecConstIterator;
 
-#ifndef __CINT__
-  CLASS_DEF(TileHitVector, 2960, 1 ) 
-  CLASS_DEF(TileOldHitVector, 2961, 1)
-#endif
+CLASS_DEF(TileHitVector, 2960, 1 ) 
+CLASS_DEF(TileOldHitVector, 2961, 1)
 
 #endif 

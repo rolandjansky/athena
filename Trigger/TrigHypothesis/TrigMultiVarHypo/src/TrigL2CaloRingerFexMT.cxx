@@ -19,8 +19,6 @@
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
-#include "xAODEventInfo/EventInfo.h"
-
 
 
 
@@ -29,11 +27,9 @@ static const size_t SIZEOF_RINGSETS = 7;
 
 
 TrigL2CaloRingerFexMT:: TrigL2CaloRingerFexMT(const std::string & name, ISvcLocator* pSvcLocator)
-  :AthAlgorithm(name, pSvcLocator){
-  
+  :AthAlgorithm(name, pSvcLocator){  
   ATH_MSG_DEBUG( "start RingerMT const:" );     
 }
-
 
 TrigL2CaloRingerFexMT:: ~TrigL2CaloRingerFexMT(){}
 
@@ -51,7 +47,7 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
   ATH_CHECK( m_outputKey.initialize());
 
   if(configurationInvalid()){
-	return StatusCode::FAILURE;
+    return StatusCode::FAILURE;
   }
   ///Initialize all discriminators
   for(unsigned i=0; i<m_nDiscr; ++i) {
@@ -81,9 +77,10 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
       if (e == BAD_WEIGHT_SIZE) { 
         ATH_MSG_ERROR( "Weight vector size is not compatible with nodes vector." );
 	return StatusCode::FAILURE;
-      } else if (e == BAD_BIAS_SIZE) {
+     }
+      else if (e == BAD_BIAS_SIZE) {
         ATH_MSG_ERROR( "Bias vector size is not compatible with nodes vector." );
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
     }///try and catch alloc protection
 
@@ -93,6 +90,7 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
     try{
       ///TODO: find best way to parse this vector. The athena don't accept vector<vector<unsigned int>>
       std::vector<unsigned int> nrings(SIZEOF_RINGSETS), normrings(SIZEOF_RINGSETS), sectionrings(SIZEOF_RINGSETS);
+      
       for(unsigned rs = 0; rs < SIZEOF_RINGSETS; ++rs ){
         nrings[rs]	 = m_nRings[rs+i*SIZEOF_RINGSETS];
         normrings[rs]	 = m_normRings[rs+i*SIZEOF_RINGSETS];
@@ -101,7 +99,7 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
 
       preproc = new TrigRingerPreprocessor( nrings, normrings, sectionrings );
     } catch(const std::bad_alloc& ){     
-      ATH_MSG_ERROR(  "Bad alloc for TrigRingerPrepoc." );
+    ATH_MSG_ERROR(  "Bad alloc for TrigRingerPrepoc." );
       return StatusCode::FAILURE;
     }
 
@@ -127,6 +125,14 @@ StatusCode TrigL2CaloRingerFexMT::finalize(){
 }
 
 StatusCode TrigL2CaloRingerFexMT::execute(){
+  
+  ATH_MSG_DEBUG("start RingerMT");
+  using namespace Monitored;
+  auto etMon    = MonitoredScalar::declare( "Et", -100. );
+  auto etaMon    = MonitoredScalar::declare( "Eta", -100. );
+  auto rnnOutMon = MonitoredScalar::declare( "rnnOut", -100. );
+  auto monitorIt  = MonitoredScope::declare( m_monTool, etMon, etaMon, rnnOutMon );
+
   auto totalTime = Monitored::MonitoredTimer::declare("TIME_total");
   totalTime.start();
   ATH_MSG_DEBUG( "start RingerMT" );
@@ -159,10 +165,10 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
     for(unsigned i=0; i<m_discriminators.size(); ++i){
       if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
         if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
-	  discr   = m_discriminators[i];
-	  preproc = m_preproc[i];
-	  break;
-	}///eta conditions
+      discr   = m_discriminators[i];
+      preproc = m_preproc[i];
+      break;
+    }///eta conditions
       }///Et conditions
     }///Loop over discriminators
 
@@ -197,13 +203,9 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
 
   ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta << " and rnnoutput = " << m_output );
   ///Store outout information for monitoring and studys
-  const xAOD::EventInfo* ei = nullptr; 
-  if ( evtStore()->retrieve( ei ).isFailure() ) { 
-    ATH_MSG_ERROR("No Event info in store" );
-    return StatusCode::FAILURE;
-  }
-      
-  ATH_MSG_DEBUG( "Event " << ei->eventNumber() <<" Et = " << et << " GeV, eta = " << eta << " phi " <<  " and rnnoutput = " << m_output );
+  etMon = et;
+  etaMon = eta;
+  rnnOutMon = m_output;
 
   std::unique_ptr<xAOD::TrigRNNOutput> rnnOutput( new xAOD::TrigRNNOutput());
   rnnOutput->makePrivateStore();
@@ -244,9 +246,9 @@ bool TrigL2CaloRingerFexMT::configurationInvalid(){
 
   if(m_sectionRings.size() != m_normRings.size()){
     ATH_MSG_ERROR("Preproc section rings list dont match with the number of discriminators found");
-    return true;	
+    return true;    
   }
 
   return false;
-	
+    
 }

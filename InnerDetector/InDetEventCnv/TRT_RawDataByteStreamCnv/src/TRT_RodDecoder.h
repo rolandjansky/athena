@@ -25,12 +25,14 @@
 /*
  * Framework Headers
  *   Service & Tool Handles
- *   Incident notification
  */
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/ICondSvc.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 
 /* /\* */
@@ -70,7 +72,7 @@
 // the tool to decode a ROB frament
 
 class TRT_RodDecoder : virtual public ITRT_RodDecoder, 
-                       public AthAlgTool, virtual IIncidentListener
+                       public AthAlgTool
 {
 
 public: 
@@ -93,15 +95,12 @@ public:
 			      TRT_RDO_Container* rdoIdc,
 			      std::vector<IdentifierHash>* vecHash = 0);
 
-  //! handle(), to get EventType on BeginRun incident.
-  virtual void handle(const Incident& inc);
 
  private:
 
    ServiceHandle<ITRT_CablingSvc>   m_CablingSvc;
 
    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_bsErrSvc;
-   ServiceHandle<IIncidentSvc> m_incsvc;
 
    /*
     * Do we look for Front-End Errors at all?
@@ -141,6 +140,10 @@ public:
 #define CTABLE_FC_LENGTH 33
 #define CTABLE_LI_LENGTH 33
    typedef struct {
+     // The TableVersion is a compression scheme.
+     // There are presently 6 TableVersions for the different run periods of ATLAS.
+     // Any IoV of /TRT/onl/ROD/Compress has one (and only one) of these as an attribute.
+     // The code takes advantage of this and caches locally any TableVersion that is encountered
      int m_TableVersion;
      int m_firstcode[CTABLE_FC_LENGTH];
      int m_lengths_integral[CTABLE_FC_LENGTH];    // ..[i] = Sum(numl[0,i-1])
@@ -153,6 +156,11 @@ public:
    std::map<const int, t_CompressTable *>m_CompressionTables;
 
    uint32_t m_Nrdos;              // Number of RDOs created
+
+   // This replaces the IOVCALLBACK
+   SG::ReadCondHandleKey<CondAttrListCollection> m_CompressKey{this,"keyName","/TRT/Onl/ROD/Compress","in-key"};
+   mutable std::mutex m_cacheMutex;
+   StatusCode update();
 
    //! private methods
 private:
@@ -172,7 +180,6 @@ private:
 
    StatusCode ReadCompressTableFile( std::string TableFilename );
    StatusCode ReadCompressTableDB( std::string Tag );
-   StatusCode update( IOVSVC_CALLBACK_ARGS_P(I,keys) );
  
 };
 

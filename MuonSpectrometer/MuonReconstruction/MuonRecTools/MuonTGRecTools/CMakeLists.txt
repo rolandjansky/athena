@@ -8,10 +8,9 @@ atlas_subdir( MuonTGRecTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/AthLinks
                           Control/AthContainers
-                          Control/SGTools
                           Control/StoreGate
                           Event/EventPrimitives
                           GaudiKernel
@@ -55,7 +54,7 @@ atlas_add_component( MuonTGRecTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthLinks AthContainers SGTools StoreGateLib SGtests EventPrimitives GaudiKernel GeneratorObjects MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData TrkGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData TrkSegment TrkTrack TrkExInterfaces TrkFitterUtils TrkToolInterfaces xAODTracking MuonDetDescrUtils MuonDigitContainer MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonRecToolInterfaces MuonSimData MuonSimEvent RecoToolInterfaces TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkRIO_OnTrack )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthLinks AthContainers AthenaKernel StoreGateLib SGtests EventPrimitives GaudiKernel GeneratorObjects MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData TrkGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData TrkSegment TrkTrack TrkExInterfaces TrkFitterUtils TrkToolInterfaces xAODTracking MuonDetDescrUtils MuonDigitContainer MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonRecToolInterfaces MuonSimData MuonSimEvent RecoToolInterfaces TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( MuonTGRecTools )

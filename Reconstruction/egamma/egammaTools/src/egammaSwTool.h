@@ -44,7 +44,6 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
 
  private:
   
-  StatusCode populateTools(ToolHandleArray<CaloClusterProcessor>& tools);
   StatusCode processTools(const EventContext& ctx, ToolHandleArray<CaloClusterProcessor>& tools, xAOD::CaloCluster* cluster) const;
 
   /**

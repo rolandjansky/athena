@@ -9,7 +9,7 @@ atlas_subdir( McParticleEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/CLIDSvc
+   Control/AthenaKernel
    Control/AthContainers
    Control/AthLinks
    Control/Navigation
@@ -33,7 +33,7 @@ atlas_add_library( McParticleEvent
    PUBLIC_HEADERS McParticleEvent
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks Navigation
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel AthContainers AthLinks Navigation
    EventKernel NavFourMom GeneratorObjects ParticleEvent VxVertex
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 

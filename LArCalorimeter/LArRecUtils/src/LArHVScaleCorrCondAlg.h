@@ -3,8 +3,8 @@
 */
 // Rewritten from LArHVScaleCorrTool
 
-#ifndef LARRECUTILS_LArHVSCALEcORRCONDALG_H
-#define LARRECUTILS_LArHVSCALECORRCONDALG_H
+#ifndef LARRECUTILS_LARHVSCALECORRCONDALG_H
+#define LARRECUTILS_LARHVSCALECORRCONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -26,8 +26,6 @@
 #include "LArRawConditions/LArTdriftComplete.h"
 #include "LArCOOLConditions/LArHVScaleCorrFlat.h"
 #include "LArRecConditions/LArHVCorr.h"
-
-#include "xAODEventInfo/EventInfo.h"
 
 class StoreGateSvc; 
 class LArElectrodeID;
@@ -60,7 +58,6 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
 
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"} ;  
   SG::ReadCondHandleKey<LArHVData> m_hvKey {this, "keyHVdata", "LArHVData", "Input key for HV data from DCS"};
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineHVScaleCorrKey{this, "keyOnlineHVCorr", "LArHVScaleCorr","Input key for HVScaleCorr from conditions database (used online)"};
 
   SG::WriteCondHandleKey<ILArHVScaleCorr> m_outputHVScaleCorrKey{this, "keyOutputCorr", "LArHVScaleCorrRecomputed","Output key for LArHVScaleCorr"};
@@ -98,7 +95,6 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   */
 
 
-  bool m_doTdrift;
   unsigned int m_deltatupdate;
   bool m_updateIfChanged;
   bool m_undoOnlineHVCorr;
@@ -122,7 +118,10 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   HASHRANGEVEC m_hashRanges[2];//x2 for the side
   HASHRANGEVEC m_completeRange;
   HASHRANGEVEC cellsIDsToPartition(const std::set<Identifier>& cellsIDvec) const;
-  StatusCode getScale(const HASHRANGEVEC& hashranges, std::vector<float> &vScale, const LArHVData* hvdata, const LArHVScaleCorrFlat *onlHVCorr) const;
+  StatusCode getScale(const HASHRANGEVEC& hashranges, 
+		      std::vector<float> &vScale, const LArHVData* hvdata, const ILArHVScaleCorr *onlHVCorr, 
+		      const LArOnOffIdMapping* cabling) const;
+
 };
 
 #endif

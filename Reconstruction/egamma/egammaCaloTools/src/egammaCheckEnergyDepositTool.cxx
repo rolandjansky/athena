@@ -60,46 +60,14 @@ bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::Ca
   if (cluster==0) return false;
 
   // Retrieve energy in all samplings
-  double e0 = 0.;
-  double e1 = 0.;
-  double e2 = 0.;
-  double e3 = 0.;
-  
-  if ( cluster->inBarrel() && !cluster->inEndcap() ){
-    e0 = cluster->eSample(CaloSampling::PreSamplerB);
-    e1 = cluster->eSample(CaloSampling::EMB1);
-    e2 = cluster->eSample(CaloSampling::EMB2);
-    e3 = cluster->eSample(CaloSampling::EMB3);
+  double e0 = cluster->energyBE(0);
+  double e1 = cluster->energyBE(1);
+  double e2 = cluster->energyBE(2);
+  double e3 = cluster->energyBE(3);
+
+  if (e2<m_thrE2min){
+     return false;
   }
-  else if ( !cluster->inBarrel() && cluster->inEndcap() ){
-    e0 = cluster->eSample(CaloSampling::PreSamplerE);
-    e1 = cluster->eSample(CaloSampling::EME1);
-    e2 = cluster->eSample(CaloSampling::EME2);
-    e3 = cluster->eSample(CaloSampling::EME3);
-  }
-  // if both in barrel and end-cap then have to
-  // rely on energy deposition
-  // be careful to test 0 precisely either 
-  // 0 (no deposit) > noise (which is negative) !!!!
-  else if ( cluster->inBarrel() && cluster->inEndcap() ) {
-    if ( ( ( cluster->eSample(CaloSampling::EMB2) != 0. && 
-	     cluster->eSample(CaloSampling::EME2) != 0. ) && 
-	   ( cluster->eSample(CaloSampling::EMB2) >=
-	     cluster->eSample(CaloSampling::EME2) ) ) || 
-	 cluster->eSample(CaloSampling::EME2) == 0. ) {
-      e0 = cluster->eSample(CaloSampling::PreSamplerB);
-      e1 = cluster->eSample(CaloSampling::EMB1);
-      e2 = cluster->eSample(CaloSampling::EMB2);
-      e3 = cluster->eSample(CaloSampling::EMB3);
-    }
-    else {
-      e0 = cluster->eSample(CaloSampling::PreSamplerE);
-      e1 = cluster->eSample(CaloSampling::EME1);
-      e2 = cluster->eSample(CaloSampling::EME2);
-      e3 = cluster->eSample(CaloSampling::EME3);
-    }
-  }   
-  
   // sum of energy in all samplings
   const double eallsamples = e0+e1+e2+e3;
 

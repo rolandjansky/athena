@@ -85,7 +85,7 @@ StatusCode MyAlg::initialize()
 
 StatusCode MyAlg::execute_r (const EventContext& ctx) const
 {
-  pdict = ctx.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  pdict = ctx.getExtension<Atlas::ExtendedEventContext>().proxy();
   return StatusCode::SUCCESS;
 }
 

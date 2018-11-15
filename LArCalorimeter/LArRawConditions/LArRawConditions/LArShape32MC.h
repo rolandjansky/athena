@@ -43,10 +43,6 @@ class LArShape32MC: public ILArShape,
   virtual  ShapeRef_t Shape   (const HWIdentifier&  CellID, int gain, int tbin = 0, int mode = 0 ) const ;
   virtual  ShapeRef_t ShapeDer(const HWIdentifier&  CellID, int gain, int tbin = 0, int mode = 0) const ;
   
-  // retrieving Shape using offline ID
-  virtual  ShapeRef_t Shape   (const Identifier&  CellID, int gain, int tbin = 0, int mode = 0) const;
-  virtual  ShapeRef_t ShapeDer(const Identifier&  CellID, int gain, int tbin = 0, int mode = 0) const;
-  
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, int gain, 

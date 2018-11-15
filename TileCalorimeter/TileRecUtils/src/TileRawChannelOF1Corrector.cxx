@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelOF1Corrector.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
@@ -88,18 +89,19 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChannelContainer) const
+StatusCode
+TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) const
 {
   ATH_MSG_DEBUG("in process()");
 
-  TileFragHash::TYPE rawChannelType = rawChannelContainer->get_type();
-  uint32_t bsFlags = rawChannelContainer->get_bsflags();
+  TileFragHash::TYPE rawChannelType = rchCont.get_type();
+  uint32_t bsFlags = rchCont.get_bsflags();
 
   if ((rawChannelType == TileFragHash::OptFilterDsp 
        || rawChannelType == TileFragHash::OptFilterDspCompressed) // DSP container
       && (bsFlags & (1U << 26U)) == 0) { // OF1 method
 
-    TileRawChannelUnit::UNIT rawChannelUnit = rawChannelContainer->get_unit();
+    TileRawChannelUnit::UNIT rawChannelUnit = rchCont.get_unit();
     ATH_MSG_VERBOSE( "Units in container is " << rawChannelUnit );
 
     const TileDigitsContainer* digitsContainer(nullptr);
@@ -109,7 +111,8 @@ StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChann
       digitsContainer = allDigits.cptr();
     }
 
-    for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
+  for (IdentifierHash hash : rchCont.GetAllCurrentHashes()) {
+      TileRawChannelCollection* rawChannelCollection = rchCont.indexFindPtr (hash);
 
       int fragId = rawChannelCollection->identify();
       unsigned int drawer = (fragId & 0x3F);
@@ -134,8 +137,7 @@ StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChann
         }
       }
 
-      /// FIXME: const_cast
-      for (TileRawChannel* rawChannel : const_cast<TileRawChannelCollection&>(*rawChannelCollection)) {
+      for (TileRawChannel* rawChannel : *rawChannelCollection) {
         HWIdentifier adcId = rawChannel->adc_HWID();
         int channel = m_tileHWID->channel(adcId);
         int gain = m_tileHWID->adc(adcId);

@@ -38,8 +38,10 @@
 //=============================================================================
 AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   AsgTool(myname),
-  m_configFile(""),
-  m_rootTool(0)
+  m_configFile{""},
+  m_rootTool{nullptr},
+  m_HIESContKey{"CaloSums"},
+  m_primVtxContKey{"PrimaryVertices"}
 {
 
   // Create an instance of the underlying ROOT tool

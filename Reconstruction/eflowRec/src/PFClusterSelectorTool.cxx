@@ -3,6 +3,7 @@
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/PFClusterSelectorTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include <exception>
 
 PFClusterSelectorTool::PFClusterSelectorTool(const std::string& type,const std::string& name,const IInterface* parent):
   base_class(type, name, parent)
@@ -68,28 +69,26 @@ StatusCode PFClusterSelectorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight, const xAOD::CaloClusterContainer& caloCalClustersContainer) {
-  
+void 
+PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight, const xAOD::CaloClusterContainer& caloCalClustersContainer) {
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
   /* Note the read handle has been tested to be valid prior to the call of this function */
   const xAOD::CaloCluster* matchedCalCluster = caloCalClustersContainer.at(index);
-
   if (matchedCalCluster){
-
     if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
       matchedCalCluster = nullptr;
-      for (unsigned iCalCalCluster = 0; iCalCalCluster < caloCalClustersContainer.size();
-	   ++iCalCalCluster) {
-	matchedCalCluster = caloCalClustersContainer.at(iCalCalCluster);
-	if (fabs(energy - matchedCalCluster->rawE()) < 0.001) {
-	  break;
-	}
+      for (unsigned iCalCalCluster = 0; iCalCalCluster < caloCalClustersContainer.size();++iCalCalCluster) {
+        matchedCalCluster = caloCalClustersContainer.at(iCalCalCluster);
+        if (fabs(energy - matchedCalCluster->rawE()) < 0.001) {
+	        break;
+	      }
       }
       if (!matchedCalCluster) ATH_MSG_WARNING("Invalid pointer to matched cluster - failed to find cluster match");
     }
-    assert(matchedCalCluster);
-
+    if (not matchedCalCluster){ 
+      throw std::runtime_error("matchedCluster is a null pointer in PFClusterSelectorTool::retrieveLCCalCellWeight");
+    }
     /* obtain cell index and cell weight */
     const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance();
     const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();
@@ -101,8 +100,6 @@ void PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const 
       IdentifierHash myHashId = calo_id->calo_cell_hash(myId);
       cellsWeight[myHashId] = itCell.weight();
     }
-  }
-  else ATH_MSG_WARNING("Invalid pointer to matched cluster - could not look up local hadron cell weights");
-
+  } else ATH_MSG_WARNING("Invalid pointer to matched cluster - could not look up local hadron cell weights");
   return ;
 }

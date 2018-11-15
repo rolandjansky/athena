@@ -16,6 +16,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 ##########################################
 
 doElectron = True
+doPhoton = False
 doMuon   = True
 doJet    = False
 doCombo  = True
@@ -29,7 +30,12 @@ EnabledElComboChains = []
 
 testChains = []
 
+#common parts:
+fastCaloStep=None
+
+##################################################################
 # egamma chains
+##################################################################
 if (doElectron):
     from TrigUpgradeTest.electronMenuDefs import fastCaloSequence, electronSequence
     fastCaloStep=fastCaloSequence()
@@ -46,8 +52,25 @@ if (doElectron):
         ]
     testChains += egammaChains
 
+##################################################################
+# photon chains
+##################################################################
+if (doPhoton):
+    from TrigUpgradeTest.photonMenuDefs import fastCaloSequence, photonSequence
 
+    photonstep= photonSequence()
+    if  fastCaloStep is None:
+        fastCaloStep=fastCaloSequence()
+
+    photonChains = [
+        Chain(name='HLT_g5_etcut', Seed="L1_EM3",  ChainSteps=[ ChainStep("Step1_g5_etcut", [fastCaloStep]),  ChainStep("Step2_g5_etcut", [photonstep])]  )
+        ]
+
+    testChains += photonChains
+
+##################################################################
 # muon chains
+##################################################################
 if (doMuon):
     from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFSAStep, muEFMSStep, muIsoStep
     MuonChains  = []
@@ -69,7 +92,9 @@ if (doMuon):
     testChains += MuonChains
 
 
+##################################################################
 # jet chains
+##################################################################
 if (doJet):
     from TrigUpgradeTest.jetMenuDefs import jetSequence
 
@@ -82,7 +107,9 @@ if (doJet):
         ]
     testChains += jetChains
 
-
+##################################################################
+# combined chains
+##################################################################
 if (doCombo):
     # combo chains
     comboChains= []
@@ -113,7 +140,7 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
         unpack.Decisions="L1MU"
  
     if unpack.name() is "JRoIsUnpackingTool":
-        unpack.FSDecisions="L1J"
+        unpack.Decisions="L1J"
  
  
 for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:

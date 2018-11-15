@@ -86,9 +86,7 @@ class L1DecoderTest(L1Decoder) :
 
             jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
                                              Decisions = "JRoIDecisions",
-                                             OutputTrigRoIs = "JRoIs",
-                                             FSDecisions = "FSDecisions",
-                                             OutputFSTrigRoIs = "FSJETRoIs"   )
+                                             OutputTrigRoIs = "JRoIs" )
 
             jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
             self.roiUnpackers += [jUnpacker]

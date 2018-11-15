@@ -331,7 +331,7 @@ LArHVCorrectionMonTool::fillHistograms()
       float hvdev = 0;
       float hvcorr = m_hvCorrTool->Scale(offlineID);
       //ATH_MSG_VERBOSE( "hvcorr" << hvcorr );
-      float hvonline = m_dd_HVScaleCorr->HVScaleCorr(offlineID);
+      float hvonline = m_dd_HVScaleCorr->HVScaleCorr(id);
       if (hvonline<=0) continue; //No valid online correction
       //ATH_MSG_VERBOSE( "hvonline" << hvonline );
       if (hvcorr>hvonline) hvdev = hvonline-hvcorr; //Monitor only channels that get a higher correction from DCS (eg are at a lower voltage). 

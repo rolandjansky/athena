@@ -14,6 +14,7 @@
 #include "TFile.h"
 
 #include <vector>
+#include <limits>
 
 const double fixedRangeDiff = 0;
 const bool addExtremumInfo = true;
@@ -219,7 +220,11 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
                 }
             }
         //meanDiff /= histo->GetNbinsX()*histo->GetNbinsY();
-        meanDiff /= numValidBins;
+        if (numValidBins !=0){
+          meanDiff /= numValidBins;
+        } else {
+          meanDiff = std::numeric_limits<double>::max();
+        }
         
         // Set the range to the maximum (rounded up to nearest multiple of 5) if requested
         if (fixedRangeDiff < 1.e-3)
@@ -385,7 +390,7 @@ int main (int argc, char* argv[])
         for (size_t iEta = 0; iEta < fixedEtaS.size(); ++iEta)
         {
             std::vector<double> temp = jet::utils::vectorize<double>(fixedEtaS.at(iEta),",");
-            if (temp.size() == 1 && !makeGrid)
+            if (temp.size() == 1 /*&& !makeGrid*/)
                 fixedEta.push_back(std::make_pair(temp.at(0),temp.at(0)));
             else if (temp.size() == 2)
                 fixedEta.push_back(std::make_pair(temp.at(0),temp.at(1)));
