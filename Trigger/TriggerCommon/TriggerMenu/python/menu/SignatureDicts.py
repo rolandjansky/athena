@@ -507,6 +507,7 @@ MinBiasChainParts = {
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb'],
+    'veto'           : ['vetombts2in', 'vetombts1side2in',  'vetospmbts2in', 'vetosp', 'vetombts8'],
     }
 # ---- MinBiasDictinary of default Values ----
 MinBiasChainParts_Default = {
@@ -526,6 +527,7 @@ MinBiasChainParts_Default = {
     'hypoEFsumEtInfo': '',    
     'recoAlg'        : [],
     'addInfo'        : [],
+    'veto'           : '',
     }
 
 #==========================================================
