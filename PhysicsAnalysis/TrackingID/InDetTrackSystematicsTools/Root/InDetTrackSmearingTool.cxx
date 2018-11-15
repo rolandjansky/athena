@@ -241,7 +241,6 @@ namespace InDet {
  
   CP::CorrectionCode InDetTrackSmearingTool::applyCorrection( xAOD::TrackParticle& track ) {
 
-    static bool firstTime = true;
     if (firstTime) {
       firstTime = false; // don't try to do this again
       if ( ! firstCall().isSuccess() ) { // this will check the run number
