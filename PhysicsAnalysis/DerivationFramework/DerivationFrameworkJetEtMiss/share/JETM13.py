@@ -39,7 +39,8 @@ svcMgr += createThinningSvc( svcName="JETM13ThinningSvc", outStreams=[evtStream]
 # THINNING TOOLS
 #====================================================================
 # Retain only stable truth particles, remove G4
-# We want to keep all constituents
+# We want to keep all truth jet constituents
+# Also keep the first 10 particles mainly for the HS truth vertex
 jetm13thin = []
 if DerivationFrameworkIsMonteCarlo:
 
@@ -57,7 +58,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                              WriteBHadrons      = True,
                                                              WriteCHadrons      = False,
                                                              WriteGeant         = False,
-                                                             WriteFirstN        = -1)
+                                                             WriteFirstN        = 10)
   ToolSvc += TruthThinningTool
   jetm13thin.append(TruthThinningTool)
 
@@ -100,6 +101,7 @@ JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                      "JetETMissNeutralParticleFlowObjects",
                                      "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      "TruthParticles",
+                                     "TruthVertices",
                                      "TruthEvents",
                                      ]
 JETM13SlimmingHelper.ExtraVariables = [

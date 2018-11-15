@@ -90,14 +90,12 @@ print FTAG1IPETool
 
 #augment jets with track info
 FTAG1Seq += CfgMgr.BTagVertexAugmenter()
-for jc in ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets"]:
-    FTAG1Seq += CfgMgr.BTagTrackAugmenter(
-        "BTagTrackAugmenter_" + jc,
-        OutputLevel=INFO,
-        JetCollectionName = jc,
-        TrackToVertexIPEstimator = FTAG1IPETool,
-        SaveTrackVectors = True,
-    )
+FTAG1Seq += CfgMgr.BTagTrackAugmenter(
+    "BTagTrackAugmenter",
+    OutputLevel=INFO,
+    TrackToVertexIPEstimator = FTAG1IPETool,
+    SaveTrackVectors = True,
+)
 
 #====================================================================
 # Basic Jet Collections

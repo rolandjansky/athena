@@ -300,7 +300,7 @@ def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrame
         extjetlog.warning('*** Calibration requested for unsupported jet collection '+jetalg+'! ***')
         return
     else:
-        applyJetCalibration(jetalg,'JetCommonKernel_xAODJets',sequence)
+        applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
 def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20',sequence=None):
     supportedJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20']
@@ -309,7 +309,7 @@ def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20'
         extjetlog.warning('Supported custom jets: '+supportedJets)
         return
     else:
-        applyJetCalibration(jetalg,'JetCommonKernel_OTFJets',sequence)
+        applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
 def updateJVT(jetalg,algname,sequence):
     jetaugtool = getJetAugmentationTool(jetalg)
@@ -350,7 +350,7 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
         extjetlog.warning('*** JVT update requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
-        updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
+        updateJVT(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
 def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     jetaugtool = getJetAugmentationTool(jetalg, '_PtAssoc')
@@ -369,7 +369,9 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob,btagtooldict={}):
+def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
+    if algname == 'default':
+      algname = 'JetCommonKernel_{0}'.format(jetalg)
     jetaugtool = getJetAugmentationTool(jetalg)
 
     if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):

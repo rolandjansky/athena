@@ -68,14 +68,12 @@ print FTAG2IPETool
 
 #augment jets with track info
 FTAG2Seq += CfgMgr.BTagVertexAugmenter()
-for jc in ["AntiKt4EMTopoJets"]:
-    FTAG2Seq += CfgMgr.BTagTrackAugmenter(
-        "BTagTrackAugmenter_" + jc,
-        OutputLevel=INFO,
-        JetCollectionName = jc,
-        TrackToVertexIPEstimator = FTAG2IPETool,
-        SaveTrackVectors = True,
-    )
+FTAG2Seq += CfgMgr.BTagTrackAugmenter(
+    "BTagTrackAugmenter",
+    OutputLevel=INFO,
+    TrackToVertexIPEstimator = FTAG2IPETool,
+    SaveTrackVectors = True,
+)
 
 #Add unbiased track parameters to track particles
 #FTAG2TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "FTAG2TrackToVertexWrapper",

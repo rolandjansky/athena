@@ -415,12 +415,38 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
     
   const xAOD::JetContainer* jets(nullptr);
   top::check(evtStore()->retrieve(jets, m_config->sgKeyTrackJets()) , "TopObjectSelection::applySelectionPreOverlapRemovalTrackJets() failed to retrieve track jets" );
-  for (auto jetPtr : *jets) {
+  
+  
+  
+  for (const xAOD::Jet* jetPtr : *jets) {
     char decoration = m_trackJetSelection->passSelection(*jetPtr);
     jetPtr->auxdecor<char>( m_passPreORSelection ) = decoration;
     if (m_doLooseCuts) {
       jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;         
     }
+    
+    if( m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets"){ // Event cleaning for variable-R track jets
+      
+      float pt_baseline = 5e3;
+      float radius1=std::max(0.02,std::min(0.4,30000./jetPtr->pt()));
+      
+      float dr_jets;
+      bool passDRcut = true;
+      for( const xAOD::Jet* jet2 : *jets ) {
+	
+	if (jet2->pt()<pt_baseline) continue;
+	if (jetPtr == jet2) continue;
+	
+	float radius2=std::max(0.02,std::min(0.4,30000./jet2->pt()));
+	
+	dr_jets = sqrt( pow(jetPtr->eta()-jet2->eta(),2) + pow(jetPtr->phi()- jet2->phi(),2) );
+	if ( dr_jets < std::min(radius1,radius2) ) passDRcut = false;
+      
+      }
+      jetPtr->auxdecor<char>("passDRcut") = passDRcut;
+      
+    }
+    
     std::vector<std::string> availableWPs = m_config->bTagWP_available_trkJet();
     for (auto& WP : availableWPs) {
         if (WP.find("Continuous") == std::string::npos){

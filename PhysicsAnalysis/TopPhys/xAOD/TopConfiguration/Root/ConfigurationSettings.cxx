@@ -113,7 +113,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "(alternative not optimized on large-R jet containing a truth top)",
                       "default");
     
-    registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "7000.");
+    registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5" );
 
     registerParameter("RCJetPt",     "Reclustered Jet pT cut for object selection (in MeV). Default 100000 MeV.", "100000.");

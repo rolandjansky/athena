@@ -170,8 +170,7 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-if HIDerivationFlags.isPP(): JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets']
-else : JetCollectionList = ['DFAntiKt2HIJets', 'DFAntiKt4HIJets']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets']
 
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

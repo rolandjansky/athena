@@ -742,7 +742,7 @@ int main(int argc, char** argv) {
               const xAOD::SystematicEventContainer* allSystematics = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEvents() );
               for (auto currentSystematic : *allSystematics) {
                 ///-- Make a top::Event --///
-                top::Event topEvent = topEventMaker->makeTopEvent( *currentSystematic );
+                top::Event topEvent = topEventMaker->makeTopEvent( currentSystematic );
                 ///-- Apply event selection --///
                 const bool passAnyEventSelection = eventSelectionManager.apply(topEvent,*currentSystematic );
                 currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
@@ -763,7 +763,7 @@ int main(int argc, char** argv) {
               const xAOD::SystematicEventContainer* allSystematicsLoose = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEventsLoose() );
               for (auto currentSystematic : *allSystematicsLoose) {
                 ///-- Make a top::Event --///
-                top::Event topEvent = topEventMaker->makeTopEvent( *currentSystematic );
+                top::Event topEvent = topEventMaker->makeTopEvent( currentSystematic );
                 ///-- Apply event selection --///
                 const bool passAnyEventSelection = eventSelectionManager.apply(topEvent,*currentSystematic );
                 currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
