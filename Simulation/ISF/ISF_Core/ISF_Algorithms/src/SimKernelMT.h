@@ -87,6 +87,9 @@ private:
   /// The simulation selectors defining the "routing chain"
   std::array<ToolHandleArray<ISimulationSelector>, AtlasDetDescr::fNumAtlasRegions> m_simSelectors;
 
+  /// Map of the simulation flavours used in this job to the corresponding Simulation Services
+  std::map<ISF::SimulationFlavor, ISimulationSvc*> m_simSvcMap;
+
   /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
   ServiceHandle<ISimulationSvc> m_particleKillerSimulationSvc;
 };

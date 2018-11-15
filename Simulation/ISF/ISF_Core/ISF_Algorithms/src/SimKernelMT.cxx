@@ -65,14 +65,36 @@ StatusCode ISF::SimKernelMT::initialize() {
   // info screen output
   ATH_MSG_INFO("The following routing chains are defined:");
   for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
+    auto& localSelectors = m_simSelectors[geoID];
     ATH_MSG_INFO( AtlasDetDescr::AtlasRegionHelper::getName(geoID)
-                  << " (GeoID=" << geoID << "): \t" << m_simSelectors[geoID]);
+                  << " (GeoID=" << geoID << "): \t" << localSelectors);
+    for (auto& selector: localSelectors)
+      {
+        auto flavor = selector->simFlavor();
+        auto itr = m_simSvcMap.find(flavor);
+        if (itr == m_simSvcMap.end() )
+          {
+            // New flavour add it to the map.
+            m_simSvcMap[flavor] = &**(selector->simulator());
+            continue;
+          }
+        if ( itr->second == &**(selector->simulator()) )
+          {
+            continue; // OK - multiple selectors can point to the same simulator
+          }
+        ATH_MSG_FATAL("Two ISimulationSvc instances with the same flavor in this job!\n Check your configuration!");
+        return StatusCode::FAILURE;
+    }
   }
 
   ATH_CHECK( m_inputEvgenKey.initialize() );
   ATH_CHECK( m_outputTruthKey.initialize() );
 
   ATH_CHECK( m_particleKillerSimulationSvc.retrieve() );
+  if ( m_simSvcMap.find(ISF::ParticleKiller) == m_simSvcMap.end() )
+    {
+      m_simSvcMap[ISF::ParticleKiller] = &*m_particleKillerSimulationSvc;
+    }
   ATH_CHECK( m_inputConverter.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -120,15 +142,16 @@ StatusCode ISF::SimKernelMT::finalize() {
 /// Returns the simulator to use for the given particle
 ISF::ISimulationSvc& ISF::SimKernelMT::identifySimulator(const ISF::ISFParticle& particle) {
   AtlasDetDescr::AtlasRegion geoID = particle.nextGeoID();
+
   auto& localSelectors = m_simSelectors[geoID];
   for (auto& selector: localSelectors) {
     bool selected = selector->selfSelect(particle);
     if (selected) {
-      return **selector->simulator();
+      return *m_simSvcMap.at(selector->simFlavor());
     }
   }
 
   ATH_MSG_WARNING("No simulator found for particle (" << particle << ")."
       << " Will send it to " << m_particleKillerSimulationSvc);
-  return *m_particleKillerSimulationSvc;
+  return *m_simSvcMap.at(ISF::ParticleKiller);
 }
