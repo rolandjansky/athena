@@ -5434,7 +5434,7 @@ public:
     }
     if ((/*trajectory.prefit()==1 || */ trajectory.prefit() == 2) && doderiv && trajectory.numberOfBrems() > 0 &&
         (newredchi2 < oldredchi2 - 25 || newredchi2 > oldredchi2)) {
-      a(5,5) *= 1.001;
+      a(4,4) *= 1.001;
     }
     // else if (trajectory.prefit()==3 && trajectory.numberOfBrems()>0  && newredchi2>100) myarray[24]*=1.1;
 
