@@ -239,11 +239,6 @@ if hasattr(runArgs, 'AMITag'):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
-## Increase max RDO output file size to 10 GB
-## NB. We use 10GB since Athena complains that 15GB files are not supported
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
-
 ### Changing to post-sim include/exec
 ## Post-include
 if hasattr(runArgs, "postSimInclude"):
@@ -428,6 +423,7 @@ except:
 
 include ("Digitization/Digitization.py")
 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
