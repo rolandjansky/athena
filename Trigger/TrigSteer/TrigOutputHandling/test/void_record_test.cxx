@@ -41,13 +41,13 @@ int main() {
 
   SG::BaseInfo<xAOD::TrigCompositeContainer>::baseinfo(); // this is problematic because client code does not know about templates, will have to see in athena if the problem persists
 
-  RootType contaierRT = RootType::ByName( "xAOD::TrigCompositeContainer_v1" );  
-  log << MSG::INFO << contaierRT.Name() << endmsg;
-  BareDataBucket containerDataBucket( rawContainerPtr, 1, ClassID_traits<xAOD::TrigCompositeContainer>::ID(), contaierRT ); // size (second arg == 1) is ficticious in this test
+  RootType containerRT = RootType::ByName( "xAOD::TrigCompositeContainer_v1" );  
+  log << MSG::INFO << containerRT.Name() << endmsg;
+  BareDataBucket containerDataBucket( rawContainerPtr, ClassID_traits<xAOD::TrigCompositeContainer>::ID(), containerRT ); 
   
   RootType storeRT = RootType::ByName( "xAOD::TrigCompositeAuxContainer_v1" );
   log << MSG::INFO << storeRT.Name() << endmsg;
-  BareDataBucket storeDataBucket( rawStorePtr, 1, ClassID_traits<xAOD::TrigCompositeAuxContainer>::ID(), storeRT ); 
+  BareDataBucket storeDataBucket( rawStorePtr, ClassID_traits<xAOD::TrigCompositeAuxContainer>::ID(), storeRT ); 
 
   pStore->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( &containerDataBucket ), "test", false, false );
   pStore->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( &storeDataBucket ), "testAux.", false, false );
@@ -68,6 +68,6 @@ int main() {
   VALUE( containerBack->at(0)->getDetail<int32_t>( "idetail" ) ) EXPECTED ( 7 );
   VALUE( containerBack->at(1)->getDetail<float>( "fdetail" ) ) EXPECTED ( 2.5f );
 
-  log << MSG::INFO << "Container red back is identical" << endmsg;
+  log << MSG::INFO << "Container read back is identical" << endmsg;
   return 0;
 }
