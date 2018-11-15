@@ -129,10 +129,10 @@ vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets)
 
-# I don't know if we actually care about the track jets any more but I'm adding
-# them in for now. Same goes for the truth jets
 # We need the AntiKt10LCTopo jets here though so that the trimmed jets are
 # produced correctly
+# *Something* is asking for the pseudo jet getters for the FR track jets so I'm
+# still producing them, just not outputting them.
 replace_jet_list = [
   "AntiKt2PV0TrackJets",
   "AntiKt4PV0TrackJets",
@@ -141,8 +141,6 @@ if JetCommon.jetFlags.useTruth:
   replace_jet_list += ["AntiKt4TruthJets"]
 ExtendedJetCommon.replaceAODReducedJets(
     jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
-# Add the b-tagging for the AntiKt2 jets
-outputContainer("BTagging_AntiKt2Track")
 
 
 # Includes the 5% pT trimmed R=1.0 jets
@@ -163,7 +161,10 @@ OutputLargeR = [
   ]
 # XAMPP seems to use the 'Width' variable from these?
 for lrj in OutputLargeR:
-  EXOT27ExtraVariables[lrj].update("Width")
+  EXOT27ExtraVariables[lrj].update([
+      "Width",
+      "GhostBQuarksFinal",
+      ])
 
 # Ghost-associated the track jets to these large-R jets
 toBeAssociatedTo = [
@@ -218,7 +219,7 @@ for large_r in OutputLargeR:
         SelectionString="{0}.pt > 100*GeV".format(large_r),
         ContainerName = large_r) )
 
-EXOT27ElectronThinning = "Electrons.pt > 10.*GeV && Electrons.DFCommonElectronsLHLooseBL"
+EXOT27ElectronThinning = "Electrons.DFCommonElectronsLHLooseBL"
 # EXOT27MuonThinning = "Muons.pt > 10.*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
 EXOT27PhotonThinning = "Photons.pt > 10.*GeV && Photons.DFCommonPhotonsIsEMTight"
 EXOT27TauJetThinning = "TauJets.pt > 10.*GeV"
@@ -249,12 +250,13 @@ EXOT27ThinningTools += [
       TauKey          = "TauJets",
       SelectionString = EXOT27TauJetThinning
       ),
-  DerivationFramework__JetTrackParticleThinning(
-      "EXOT27JetTrackParticleThinningTool",
-      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      JetKey          = "AntiKt4EMTopoJets",
-      SelectionString = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV"
-      ),
+  # I asked TJ and we don't need tracks associated to jets!
+  # DerivationFramework__JetTrackParticleThinning(
+  #     "EXOT27JetTrackParticleThinningTool",
+  #     ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+  #     JetKey          = "AntiKt4EMTopoJets",
+  #     SelectionString = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV"
+  #     ),
   ]
 
 # Also thin the output objects by the same rules
@@ -351,6 +353,8 @@ JetCommon.addJetOutputs(
       "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
     ],
     vetolist = [
+    "AntiKt2PV0TrackJets",
+    "AntiKt4PV0TrackJets",
     "AntiKt10LCTopoJets",
     "AntiKt10TruthJets",
     "AntiKtVR600Rmax10Rmin2LCTopoJets",
