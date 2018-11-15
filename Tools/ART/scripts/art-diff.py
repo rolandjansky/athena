@@ -45,7 +45,7 @@ import sys
 
 from ART.docopt import docopt
 
-VERSION = "0.11.5.2.1"
+VERSION = "0.11.13"
 ATHENA_STDOUT = "athena_stdout.txt"
 DEFAULT_ENTRIES = -1
 DEFAULT_MODE = "detailed"
