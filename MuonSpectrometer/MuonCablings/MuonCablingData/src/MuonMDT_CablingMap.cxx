@@ -457,7 +457,7 @@ const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const st
  * get the full list of ROBid
  *
  */
-std::vector<uint32_t> MuonMDT_CablingMap::getAllROBId() 
+std::vector<uint32_t> MuonMDT_CablingMap::getAllROBId() const
 {
   return *m_listOfROD;
 }
@@ -475,7 +475,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
 				      uint8_t tdcId,
 				      uint8_t channelId,
 				      int& stationName, int& stationEta, int& stationPhi,
-				      int& multiLayer, int& layer, int& tube)
+				      int& multiLayer, int& layer, int& tube) 
 {
   
   // get the subdetector

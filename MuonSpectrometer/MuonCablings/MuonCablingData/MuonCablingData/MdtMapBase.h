@@ -43,7 +43,7 @@ template<class T> class MdtMapBase
   void clear();
 
   /** get full map (used for testing) */
-  MapOfItems* getListOfElements() {return m_mapOfItems;}
+  MapOfItems* getListOfElements() const {return m_mapOfItems;}
 
  protected:
   

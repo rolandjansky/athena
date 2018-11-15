@@ -24,6 +24,9 @@
 // old cabling service
 //#include "MDTcabling/IMDTcablingSvc.h"
 
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 class MdtTestCabling : public AthAlgorithm {
 
@@ -56,6 +59,8 @@ class MdtTestCabling : public AthAlgorithm {
   std::string m_chrono2;
   std::string m_chrono3;
   std::string m_chrono4;
+
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
 };
 

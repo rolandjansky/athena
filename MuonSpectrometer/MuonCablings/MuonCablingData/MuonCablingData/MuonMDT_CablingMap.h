@@ -78,7 +78,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBId) const;
 
   /** return the ROD id of a given chamber */
-  std::vector<uint32_t> getAllROBId();
+  std::vector<uint32_t> getAllROBId() const;
 
   /** return the offline id given the online id */
   bool getOfflineId(uint8_t subdetectorId,uint8_t rodId,uint8_t csmId,

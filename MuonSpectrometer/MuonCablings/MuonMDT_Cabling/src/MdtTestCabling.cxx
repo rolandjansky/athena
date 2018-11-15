@@ -3,8 +3,7 @@
 */
 
 #include "MuonMDT_Cabling/MdtTestCabling.h"
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
+//#include "MuonCablingData/MuonMDT_CablingMap.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -33,6 +32,8 @@ StatusCode MdtTestCabling::initialize()
   m_chrono1 = "newcab";
   m_chrono2 = "oldcab";
   m_chrono3 = "OfflineToOnline";
+
+  ATH_CHECK( m_readKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -64,8 +65,16 @@ StatusCode MdtTestCabling::finalize()
 bool MdtTestCabling::testMap()
 {
 
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==0){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return false;
+  }
+
   // print the list of ROBids
-  std::vector<uint32_t> robVector = m_cablingSvc->getAllROBId();
+  //std::vector<uint32_t> robVector = m_cablingSvc->getAllROBId();
+  std::vector<uint32_t> robVector = readCdo->getAllROBId();
   std::cout << "============================= List of ROBids:" << std::endl;
   for (unsigned int i=0 ; i<robVector.size() ; ++i) {
     std::cout << std::hex << robVector[i] << std::dec << std::endl;
@@ -76,7 +85,7 @@ bool MdtTestCabling::testMap()
   //  if (m_debug) {
   ATH_MSG_DEBUG( "in testMap()" );
   //}
-  DataHandle<MuonMDT_CablingMap> cablingMap = m_cablingSvc->getCablingMap();
+  //DataHandle<MuonMDT_CablingMap> cablingMap = m_cablingSvc->getCablingMap();
   //if (m_debug) {
   ATH_MSG_DEBUG( "retrieved the map from the service" );
     //}
@@ -93,7 +102,8 @@ bool MdtTestCabling::testMap()
   std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >* listOfAmt;
   std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >::const_iterator it_amt;
 
-  listOfSubdet = cablingMap->getListOfElements();
+  //listOfSubdet = cablingMap->getListOfElements();
+  listOfSubdet = readCdo->getListOfElements();
 
   //  if (m_debug) {
   ATH_MSG_DEBUG( "Got the list of subdetectors" );
@@ -147,7 +157,12 @@ bool MdtTestCabling::testMap()
 						      amtId,chanId,
 						      station,eta,phi,multi,
 						      layer,tube);
-
+	    /*
+	    bool cabling = readCdo->getOfflineId(subdetectorId,rodId,csmId,
+						      amtId,chanId,
+						      station,eta,phi,multi,
+						      layer,tube);
+	    */
 	    m_chronoSvc->chronoStop(m_chrono1);
 
 	    if (!cabling) {
