@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// FastCaloSimSvc.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "FastCaloSimSvc.h"
@@ -50,8 +46,7 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
   m_punchThroughTool(""),
-  m_theContainer(0),
-  m_particleBroker ("ISF_ParticleBroker",name)
+  m_theContainer(0)
 {
   // where to go 
   declareProperty("OwnPolicy",                         m_ownPolicy) ;
@@ -66,9 +61,6 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("SimulateUndefinedBarcodeParticles",
                   m_simulateUndefinedBCs,
                   "Whether or not to simulate paritcles with undefined barcode" );
-  declareProperty("ParticleBroker",
-                  m_particleBroker,
-                  "ISF ParticleBroker Svc" );
   declareProperty("BatchProcessMcTruth",
                   m_batchProcessMcTruth=false,
                   "Run the FastShowerCellBuilders on the McTruth at the end of the event" );
@@ -112,11 +104,6 @@ StatusCode ISF::FastCaloSimSvc::initialize()
    if (m_caloCellHack){
      ATH_MSG_WARNING( m_screenOutputPrefix << " CaloCellContainer: " << m_caloCellsOutputName << "will be read in and modified !. To be used with care. " );
    }
-
-  if ( m_particleBroker.retrieve().isFailure()) {
-    ATH_MSG_FATAL ("Could not retrieve ISF ParticleBroker service " <<m_particleBroker);
-    return StatusCode::FAILURE;
-  }
 
    return StatusCode::SUCCESS;
 }
