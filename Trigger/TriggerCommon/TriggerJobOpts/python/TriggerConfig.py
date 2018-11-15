@@ -141,6 +141,12 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     mon.ChainsList = list( allChains )    
     return acc, mon
 
+def poolOutputCfg( flags, outputType ):
+    acc = ComponentAccumulator()
+    # TODO, have import from the TrigEDMCOnfig with set of collections to record
+    
+    return acc
+
 def setupL1DecoderFromMenu( flags, l1Decoder ):
     """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
 
@@ -197,6 +203,11 @@ def triggerRunCfg(flags, menu=None):
     
     
     acc.merge( menuAcc )
+
+    if flags.Output.ESDFileName != "":
+        acc.merge( poolOutputCfg( flags, "ESD" ) )
+    if flags.Output.AODFileName != "":        
+        acc.merge( poolOutputCfg( flags, "AOD" ) )
     
     return acc
 
