@@ -27,8 +27,6 @@
 
 class AtlasDetectorID;
 class GeoVFullPhysVol;
-class SCT_ID;
-class PixelID;
 
 namespace Trk{
  class Surface;
@@ -138,10 +136,6 @@ namespace InDetDD {
       /// Returns the id helper
       const AtlasDetectorID* getIdHelper() const;
     
-      // Accessors to SCT/Pixel IDs
-      const SCT_ID* getSCT_ID() const;
-      const PixelID* getPixelID() const;
-
       bool isPixel() const;
       bool isSCT() const;
       bool isBarrel() const;
