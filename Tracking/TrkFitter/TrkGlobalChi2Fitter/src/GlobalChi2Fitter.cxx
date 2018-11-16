@@ -64,14 +64,10 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-#include "CLHEP/Matrix/Vector.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
-#include "TDecompChol.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include <exception>
 
@@ -4536,9 +4532,9 @@ public:
     int originalErrorLevel = gErrorIgnoreLevel;
     gErrorIgnoreLevel = 10000;
 
-    cache.m_a.ResizeTo(nfitpar, nfitpar);
-    TDecompChol lu;
-    TVectorD b(nfitpar);
+    cache.m_a.resize(nfitpar, nfitpar);
+    GXFLUDecomp lu;
+    Amg::VectorX b(nfitpar);
 
 /*
     if (trajectory.trackStates().size() > m_derivpool.size()) {
@@ -4638,33 +4634,18 @@ public:
     cache.m_miniter = tmpminiter;
 
     if (!trajectory.prefit()) {
-      cache.m_ainv.ResizeTo(cache.m_a.GetNcols(), cache.m_a.GetNcols());
-      double *myarray = cache.m_a.GetMatrixArray();
-      double *myarrayinv = cache.m_ainv.GetMatrixArray();
-
-      Amg::MatrixX weightAMG(cache.m_a.GetNcols(), cache.m_a.GetNcols());
-      Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(cache.m_a.GetNcols(), cache.m_a.GetNcols());
-      for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
-        for (int j = 0; j <= i; ++j) {
-          weightAMG(i,j) = weightAMG(j,i)  = myarray[i * cache.m_a.GetNcols() + j];
-        }
-      }
-
       // Solve assuming the matrix is SPD.
       // Cholesky Decomposition is used --  could use LDLT
-      
-      Eigen::LLT<Eigen::MatrixXd> lltOfW(weightAMG);
+
+      Eigen::LLT<Eigen::MatrixXd> lltOfW( cache.m_a );
       if( lltOfW.info() == Eigen::Success  )
       {
         // Solve for x  where Wx = I
         // this is cheaper than invert as invert makes no assumptions about the
         // matrix being symmetric
-        weightInvAMG = lltOfW.solve(weightInvAMG);
-        for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
-          for (int j = 0; j <= i; ++j) {
-            myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
-          }
-        }
+        int ncols = cache.m_a.cols();
+        Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(ncols,ncols);
+        cache.m_ainv = lltOfW.solve(weightInvAMG);
       } else {
         ATH_MSG_DEBUG  ("matrix inversion failed!");
         m_matrixinvfailed++;
@@ -4696,16 +4677,17 @@ public:
     }
     if (!cache.m_acceleration && !finaltrajectory->prefit()) {
       if (nperpars == 5) {
-        for (int i = 0; i < cache.m_a.GetNcols(); i++) {
-          cache.m_ainv[4][i] *= .001;
-          cache.m_ainv[i][4] *= .001;
+        for (int i = 0; i < cache.m_a.cols(); i++) {
+          cache.m_ainv(4,i) *= .001;
+          cache.m_ainv(i,4) *= .001;
         }
         // ainv[4][4]*=.001;
       }
-      for (int bremno = 0; bremno < nbrem; bremno++) {
-        for (int i = 0; i < cache.m_a.GetNcols(); i++) {
-          cache.m_ainv[nperpars + 2 * nscat + bremno][i] *= .001;
-          cache.m_ainv[i][nperpars + 2 * nscat + bremno] *= .001;
+      int scatterPos = nperpars + 2 * nscat; 
+      for (int bremno = 0; bremno < nbrem; bremno++, scatterPos++) {
+        for (int i = 0; i < cache.m_a.cols(); i++) {
+          cache.m_ainv(scatterPos,i) *= .001;
+          cache.m_ainv(i,scatterPos) *= .001;
         }
         // ainv[nperpars+2*nscat+bremno][nperpars+2*nscat+bremno]*=.001;
       }
@@ -4715,7 +4697,7 @@ public:
       int nperparams = finaltrajectory->numberOfPerigeeParameters();
       for (int i = 0; i < nperparams; i++) {
         for (int j = 0; j < nperparams; j++) {
-          (*errmat)(j, i) = cache.m_ainv[j][i];
+          (*errmat)(j, i) = cache.m_ainv(j,i);
         }
       }
       if (trajectory.m_straightline) {
@@ -4731,16 +4713,7 @@ public:
       finaltrajectory->setReferenceParameters(measper);
       if (m_fillderivmatrix) {
         delete cache.m_fullcovmat;
-        cache.m_fullcovmat = new Amg::MatrixX(cache.m_ainv.GetNcols(), cache.m_ainv.GetNcols());
-        cache.m_fullcovmat->setZero();
-        for (int col_i = 0; col_i < cache.m_ainv.GetNcols(); col_i++) {
-          for (int row_j = col_i; row_j < cache.m_ainv.GetNcols(); row_j++) {
-            // Coverity does not like the parameters to be called j and i
-            // because in the method declaration the parameters are called i and j.
-            // Coverity assumes the arguments to be swapped ...
-            cache.m_fullcovmat->fillSymmetric(row_j, col_i, cache.m_ainv[row_j][col_i]);
-          }
-        }
+        cache.m_fullcovmat = new Amg::MatrixX(cache.m_ainv);
       }
     }
     Track *track = 0;
@@ -4775,7 +4748,7 @@ public:
 
   void
   GlobalChi2Fitter::fillResiduals(Cache& cache,
-                                  GXFTrajectory &trajectory, int it, TMatrixDSym &a, TVectorD &b, TDecompChol &lu,
+                                  GXFTrajectory &trajectory, int it, Amg::SymMatrixX &a, Amg::VectorX &b, GXFLUDecomp &lu,
                                   bool &doderiv) const {
     ATH_MSG_DEBUG("fillResiduals");
 
@@ -4804,14 +4777,7 @@ public:
     GXFTrackState *state_maxbrempull = 0;
     int bremno_maxbrempull = 0;
     double maxbrempull = 0;
-    /* TMatrixD ainv;
-       double *myarray=0;
-       if (m_asymeloss && trajectory.mass()<100){
-       ainv.ResizeTo(a.GetNcols(),a.GetNcols());
-       bool ok=lu.Invert(ainv);
-       myarray=ainv.GetMatrixArray();
-       }
-     */
+
     std::vector<double> residuals;
 
     for (int hitno = 0; hitno < (int) states.size(); hitno++) {
@@ -4885,7 +4851,7 @@ public:
             newsigmadeltaphi = 0.0001;
           }
           if (newsigmadeltaphi < sigmadeltaphi) {
-            a[nperpars + 2 * scatno][nperpars + 2 * scatno] += 1 / (newsigmadeltaphi * newsigmadeltaphi) - 1 /
+            a(nperpars + 2 * scatno,nperpars + 2 * scatno) += 1 / (newsigmadeltaphi * newsigmadeltaphi) - 1 /
                                                                (sigmadeltaphi * sigmadeltaphi);
             state->materialEffects()->setScatteringSigmas(newsigmadeltaphi, sigmadeltatheta);
             trajectory.scatteringSigmas()[scatno] = std::make_pair(newsigmadeltaphi, sigmadeltatheta);
@@ -5039,21 +5005,20 @@ public:
       double newerror = .001 * state_maxbrempull->materialEffects()->sigmaDeltaE();
       // std::cout << "old error: " << olderror << " new error: " << newerror << std::endl;
       error[nmeas - nbrem + bremno_maxbrempull] = .001 * state_maxbrempull->materialEffects()->sigmaDeltaE();
-      double *myarray2 = a.GetMatrixArray();
+
+      if(a.cols() !=  nfitpars){
+        ATH_MSG_ERROR("Your assumption is wrong!!!!");
+      }
+
       for (int i = 0; i < nfitpars; i++) {
         if (weightderiv[nmeas - nbrem + bremno_maxbrempull][i] == 0) {
           continue;
         }
 
         for (int j = i; j < nfitpars; j++) {
-          myarray2[i * nfitpars + j] -= weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *
+          a.fillSymmetric(i,j, a(i,j) - ( weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *
                                         weightderiv[nmeas - nbrem + bremno_maxbrempull][j] *
-                                        (1 - olderror * olderror / (newerror * newerror));
-          if (i != j) {
-            myarray2[j * nfitpars + i] -= weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *
-                                          weightderiv[nmeas - nbrem + bremno_maxbrempull][j] *
-                                          (1 - olderror * olderror / (newerror * newerror));
-          }
+                                        (1 - olderror * olderror / (newerror * newerror))) );
         }
         weightderiv[nmeas - nbrem + bremno_maxbrempull][i] *= olderror / newerror;
       }
@@ -5245,7 +5210,7 @@ public:
 
   FitterStatusCode
   GlobalChi2Fitter::runIteration(Cache& cache,
-                                 GXFTrajectory &trajectory, int it, TMatrixDSym &a, TVectorD &b, TDecompChol &lu,
+                                 GXFTrajectory &trajectory, int it, Amg::SymMatrixX &a, Amg::VectorX &b, GXFLUDecomp &lu,
                                  bool &doderiv) const {
     int measno = 0;
     int nfitpars = trajectory.numberOfFitParameters();
@@ -5270,7 +5235,7 @@ public:
     if (fsc != FitterStatusCode::Success) {
       return fsc;
     }
-    b.Zero();
+    b.setZero();
     fillResiduals(cache, trajectory, it, a, b, lu, doderiv);
 
     double newredchi2 = (trajectory.nDOF() > 0)  ? trajectory.chi2() / trajectory.nDOF() : 0;
@@ -5318,12 +5283,13 @@ public:
         }
         if (meff) {
           if (meff->sigmaDeltaTheta() != 0 && (!trajectory.prefit() || meff->deltaE() == 0)) {
+            int scatterPos = nperpars + 2 * scatno;
             if (i < nupstreamstates) {
-              cache.m_lastmeasurement[nperpars + 2 * scatno] = cache.m_lastmeasurement[nperpars + 2 * scatno + 1] = measno;
-              cache.m_firstmeasurement[nperpars + 2 * scatno] = cache.m_firstmeasurement[nperpars + 2 * scatno + 1] = 0;
+              cache.m_lastmeasurement[scatterPos] = cache.m_lastmeasurement[scatterPos + 1] = measno;
+              cache.m_firstmeasurement[scatterPos] = cache.m_firstmeasurement[scatterPos + 1] = 0;
             }else {
-              cache.m_lastmeasurement[nperpars + 2 * scatno] = cache.m_lastmeasurement[nperpars + 2 * scatno + 1] = nmeas - nbrem;
-              cache.m_firstmeasurement[nperpars + 2 * scatno] = cache.m_firstmeasurement[nperpars + 2 * scatno + 1] = measno;
+              cache.m_lastmeasurement[scatterPos] = cache.m_lastmeasurement[scatterPos + 1] = nmeas - nbrem;
+              cache.m_firstmeasurement[scatterPos] = cache.m_firstmeasurement[scatterPos + 1] = measno;
             }
             scatno++;
           }
@@ -5342,7 +5308,9 @@ public:
       }
     }
 
-    double *myarray = doderiv ? a.GetMatrixArray() : 0;
+    if(a.cols() !=  nfitpars){
+      ATH_MSG_ERROR("Your assumption is wrong!!!!");
+    }
 
     for (int k = 0; k < nfitpars; k++) {
       int minmeas = 0, maxmeas = nmeas - nbrem;
@@ -5367,10 +5335,7 @@ public:
           for (measno = minmeas; measno < maxmeas; measno++) {
             tmp += weightderiv[measno][k] * weightderiv[measno][l];
           }
-          myarray[l * nfitpars + k] = tmp;
-          if (l != k) {
-            myarray[k * nfitpars + l] = tmp;
-          }
+          a.fillSymmetric(l,k,tmp);
         }
       }
     }
@@ -5384,8 +5349,8 @@ public:
       for (int k = nperpars; k < nperpars + scatpars; k += 2) {
         // std::cout << "sigma phi: " << scatsigmas[scatno].first << " theta: " << scatsigmas[scatno].second <<
         // std::endl;
-        myarray[k * nfitpars + k] += 1. / (scatsigmas[scatno].first * scatsigmas[scatno].first);
-        myarray[(k + 1) * nfitpars + k + 1] += 1. / (scatsigmas[scatno].second * scatsigmas[scatno].second);
+        a(k,k) += 1. / (scatsigmas[scatno].first * scatsigmas[scatno].first);
+        a(k+1,k+1)  += 1. / (scatsigmas[scatno].second * scatsigmas[scatno].second);
         scatno++;
       }
 
@@ -5398,11 +5363,8 @@ public:
             if (l == 5) {
               l = nperpars + scatpars;
             }
-            double tmp = weightderiv[measno][k] * weightderiv[measno][l];
-            myarray[l * nfitpars + k] += tmp;
-            if (l != k) {
-              myarray[k * nfitpars + l] += tmp;
-            }
+            double tmp = a(l,k)+ weightderiv[measno][k] * weightderiv[measno][l];
+            a.fillSymmetric(l,k,tmp);
           }
         }
       }
@@ -5418,9 +5380,11 @@ public:
           plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
         if (meff->deltaE() == 0 || (!trajectory.prefit() && plsurf)) {
           weightchanged = true;
-          if (!myarray) {
-            myarray = a.GetMatrixArray();
+
+          if(a.cols() !=  nfitpars){
+            ATH_MSG_ERROR("Your assumption is wrong!!!!");
           }
+          int scatNoIndex = 2 * scatno + nperpars;
 
           if (!trajectory.prefit()) {
             // double phipull=std::abs(meff->deltaPhi()/meff->sigmaDeltaPhi());
@@ -5432,7 +5396,7 @@ public:
             }
 
             if (!doderiv) {
-              myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] /= cache.m_phiweight[scatno];
+              a( scatNoIndex, scatNoIndex ) /= cache.m_phiweight[scatno];
             }
             if (it == 0) {
               cache.m_phiweight[scatno] = 1.00000001;
@@ -5445,23 +5409,23 @@ public:
             } else {
               cache.m_phiweight[scatno] = 1.1;
             }
-            myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] *= cache.m_phiweight[scatno];
+            a( scatNoIndex, scatNoIndex ) *= cache.m_phiweight[scatno];
            }
           }
-          // else if (trajectory.prefit()==1) myarray[(2*scatno+nperpars)*nfitpars+2*scatno+nperpars]*=99;
+          // else if (trajectory.prefit()==1) a(scatNoIndex, scatNoIndex) *=99;
           else if (trajectory.prefit() >= 2) {
             // if (newredchi2<10 || (newredchi2>oldredchi2-100 && newredchi2<oldredchi2))
-            // myarray[(2*scatno+nperpars)*nfitpars+2*scatno+nperpars]*=1.001;
+            // a(scatNoIndex, scatNoIndex) *=1.001;
 //            else {
             if (newredchi2 > oldredchi2 - 1 && newredchi2 < oldredchi2) {
-              myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] *= 1.0001;
-              myarray[(2 * scatno + nperpars + 1) * nfitpars + 2 * scatno + nperpars + 1] *= 1.0001;
+              a(scatNoIndex, scatNoIndex) *= 1.0001;
+              a(scatNoIndex + 1, scatNoIndex + 1) *= 1.0001;
             }else if (newredchi2 > oldredchi2 - 25 && newredchi2 < oldredchi2) {
-              myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] *= 1.001;
-              myarray[(2 * scatno + nperpars + 1) * nfitpars + 2 * scatno + nperpars + 1] *= 1.0001;
+              a(scatNoIndex, scatNoIndex) *= 1.001;
+              a(scatNoIndex + 1, scatNoIndex + 1) *= 1.0001;
             }else {
-              myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] *= 1.1;
-              myarray[(2 * scatno + nperpars + 1) * nfitpars + 2 * scatno + nperpars + 1] *= 1.001;
+              a(scatNoIndex, scatNoIndex) *= 1.1;
+              a(scatNoIndex + 1, scatNoIndex + 1) *= 1.001;
             }
           }
         }
@@ -5473,7 +5437,7 @@ public:
     }
     if ((/*trajectory.prefit()==1 || */ trajectory.prefit() == 2) && doderiv && trajectory.numberOfBrems() > 0 &&
         (newredchi2 < oldredchi2 - 25 || newredchi2 > oldredchi2)) {
-      myarray[24] *= 1.001;
+      a(4,4) *= 1.001;
     }
     // else if (trajectory.prefit()==3 && trajectory.numberOfBrems()>0  && newredchi2>100) myarray[24]*=1.1;
 
@@ -5495,7 +5459,10 @@ public:
     if (trajectory.converged()) {
       if (!trajectory.prefit() && nsihits + ntrthits != nhits) {
         unsigned int scatno = 0;
-        double *myarray = a.GetMatrixArray();
+        if(a.cols() !=  nfitpars){
+          ATH_MSG_ERROR("Your assumption is wrong!!!!");
+        }
+
         for (int i = 0; i < (int) trajectory.trackStates().size(); i++) {
           GXFTrackState *thisstate = trajectory.trackStates()[i];
           //if (thisstate->materialEffects()) {
@@ -5509,7 +5476,8 @@ public:
             if( thisstate->surface()->type() == Trk::Surface::Plane )
               plsurf = static_cast<const PlaneSurface *>(thisstate->surface());
             if (thisstate->materialEffects()->deltaE() == 0 || plsurf) {
-              myarray[(2 * scatno + nperpars) * nfitpars + 2 * scatno + nperpars] /= cache.m_phiweight[scatno];
+              int scatNoIndex =  2 * scatno + nperpars;
+              a(scatNoIndex,scatNoIndex) /= cache.m_phiweight[scatno];
               cache.m_phiweight[scatno] = 1;
             }
             if (thisstate->materialEffects()->sigmaDeltaPhi() != 0) {
@@ -5532,7 +5500,7 @@ public:
   }
 
   FitterStatusCode
-  GlobalChi2Fitter::updateFitParameters(GXFTrajectory &trajectory, TVectorD &b, TDecompChol &lu) const {
+  GlobalChi2Fitter::updateFitParameters(GXFTrajectory &trajectory, Amg::VectorX &b, GXFLUDecomp &lu) const {
     ATH_MSG_DEBUG( "UpdateFitParameters" );
 
     const TrackParameters *refpar = trajectory.referenceParameters();
@@ -5544,16 +5512,10 @@ public:
     int nscat = trajectory.numberOfScatterers();
     int nbrem = trajectory.numberOfBrems();
     int nperparams = trajectory.numberOfPerigeeParameters();
-    // int nfitpar=trajectory.numberOfFitParameters();
-    bool ok = false;
-    TVectorD result = lu.Solve(b, ok);
-    /*if (trajectory.prefit()>=2 && nperparams==0){
-       double maxphiscat=std::max(std::abs(result[0]),std::abs(result[2]));
-       if (maxphiscat>.02) {
-       result[0]*=0.02/maxphiscat;
-       result[2]*=0.02/maxphiscat;
-       }
-       }*/
+
+    bool ok = true;
+    Amg::VectorX result = lu.Solve(b, ok);
+
     if (trajectory.numberOfPerigeeParameters() > 0) {
       d0 += result[0];
       z0 += result[1];
@@ -5637,7 +5599,7 @@ public:
 
   void
   GlobalChi2Fitter::runTrackCleanerTRT(Cache& cache,
-                                       GXFTrajectory &trajectory, TMatrixDSym &a, TVectorD &b, TDecompChol &lu,
+                                       GXFTrajectory &trajectory, Amg::SymMatrixX &a, Amg::VectorX &b, GXFLUDecomp &lu,
                                        bool runOutlier, bool trtrecal, int it) const {
     double scalefactor = m_scalefactor;
 
@@ -5648,8 +5610,11 @@ public:
     std::vector<double> &res = trajectory.residuals();
     std::vector<double> &err = trajectory.errors();
     std::vector<std::vector<double> > &weightderiv = trajectory.weightedResidualDerivatives();
-    double *myarray = a.GetMatrixArray();
     int nfitpars = trajectory.numberOfFitParameters();
+    if(a.cols() !=  nfitpars){
+      ATH_MSG_ERROR("Your assumption is wrong!!!!");
+    }
+
     int nperpars = trajectory.numberOfPerigeeParameters();
     int nscats = trajectory.numberOfScatterers();
     int hitno = 0, measno = 0;
@@ -5678,10 +5643,7 @@ public:
               }
               b[i] -= res[measno] * weightderiv[measno][i] / olderror;
               for (int j = i; j < nfitpars; j++) {
-                myarray[j * nfitpars + i] -= weightderiv[measno][i] * weightderiv[measno][j];
-                if (i != j) {
-                  myarray[i * nfitpars + j] -= weightderiv[measno][i] * weightderiv[measno][j];
-                }
+                a.fillSymmetric(i,j, a(i,j) - weightderiv[measno][i] * weightderiv[measno][j]);
               }
               weightderiv[measno][i] = 0;
             }
@@ -5734,12 +5696,8 @@ public:
                       weight = cache.m_phiweight[(i - nperpars) / 2];
                     }
                     // std::cout << "weight: " << weight << std::endl;
-                    myarray[j * nfitpars + i] += weightderiv[measno][i] * weightderiv[measno][j] *
-                                                 ((olderror * olderror) / (newerror * newerror) - 1) * weight;
-                    if (i != j) {
-                      myarray[i * nfitpars + j] += weightderiv[measno][i] * weightderiv[measno][j] *
-                                                   ((olderror * olderror) / (newerror * newerror) - 1);
-                    }
+                    a.fillSymmetric(i,j, a(i,j) + weightderiv[measno][i] * weightderiv[measno][j] *
+                                                 ((olderror * olderror) / (newerror * newerror) - 1) * weight);
                   }
                   weightderiv[measno][i] *= olderror / newerror;
                 }
@@ -5762,33 +5720,25 @@ public:
     if (outlierremoved || hitrecalibrated) {
       lu.SetMatrix(a);
       trajectory.setConverged(false);
-      // bool doderiv=true;
-      // runIteration(trajectory,it,a,b,lu,doderiv);
-
 
       cache.m_miniter = it + 2;
-      /* if (trajectory.converged()) {
-         FitterStatusCode fsc=updateFitParameters(trajectory,b,lu);
-         if (fsc!=FitterStatusCode::Success) {
-          m_fittercode=FitterStatusCode::OutlierLogicFailure;
-          m_notenoughmeas++;
-         }
-         } */
     }
   }
 
   void
   GlobalChi2Fitter::runTrackCleanerMDT(Cache& cache,
-                                       GXFTrajectory &trajectory, TMatrixDSym &a, TMatrixDSym &fullcov, TVectorD &b,
-                                       TDecompChol &lu) const {
+                                       GXFTrajectory &trajectory, Amg::SymMatrixX &a, Amg::SymMatrixX &fullcov, Amg::VectorX &b,
+                                       GXFLUDecomp &lu) const {
     std::vector<GXFTrackState *> &states = trajectory.trackStates();
-    double *myarray = a.GetMatrixArray();
     std::vector<double> &res = trajectory.residuals();
     std::vector<std::vector<double> > &weightderiv = trajectory.weightedResidualDerivatives();
     std::vector<double> &err = trajectory.errors();
 
     int nfitpars = trajectory.numberOfFitParameters();
-    // int nhits=trajectory.numberOfHits();
+
+    if(a.cols() !=  nfitpars){
+      ATH_MSG_ERROR("Your assumption is wrong!!!!");
+    }
     bool trackok = false;
 
     for (int outlit = 0; outlit < 3; outlit++) {
@@ -5841,11 +5791,10 @@ public:
                 newrot = m_ROTcreator->correct(*prd, *state->trackParameters());
               }
               if (newrot) {
-                if (msgLvl(MSG::DEBUG)) {
-                  msg(MSG::DEBUG) << "Flipping MDT hit #" << hitno << " hit radius=" <<
+
+                ATH_MSG_DEBUG( "Flipping MDT hit #" << hitno << " hit radius=" <<
                     state->measurement()->localParameters()[Trk::locX] << " track radius=" <<
-                    state->trackParameters()->parameters()[Trk::locX] << endmsg;
-                }
+                    state->trackParameters()->parameters()[Trk::locX] );
                 trackok = false;
                 state->setMeasurement(newrot);
                 double newres = newrot->localParameters()[Trk::locX] -
@@ -5862,12 +5811,8 @@ public:
                   }
                   b[i] -= weightderiv[measno][i] * (oldres / olderror - (newres * olderror) / (newerror * newerror));
                   for (int j = i; j < nfitpars; j++) {
-                    myarray[j * nfitpars + i] += weightderiv[measno][i] * weightderiv[measno][j] *
-                                                 ((olderror * olderror) / (newerror * newerror) - 1);
-                    if (i != j) {
-                      myarray[i * nfitpars + j] += weightderiv[measno][i] * weightderiv[measno][j] *
-                                                   ((olderror * olderror) / (newerror * newerror) - 1);
-                    }
+                    a.fillSymmetric(i,j, a(i,j) + weightderiv[measno][i] * weightderiv[measno][j] *
+                                                 ((olderror * olderror) / (newerror * newerror) - 1) );
                   }
                   weightderiv[measno][i] *= olderror / newerror;
                 }
@@ -5890,11 +5835,11 @@ public:
         trackok = false;
 
         state_maxmdtpull = trajectory.trackStates()[stateno_maxmdtpull];
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxmdtpull << ", measno=" << measno_maxmdtpull <<
+
+        ATH_MSG_DEBUG( "Removing outlier, hitno=" << hitno_maxmdtpull << ", measno=" << measno_maxmdtpull <<
             " pull=" << maxmdtpull << " hit radius=" << state_maxmdtpull->measurement()->localParameters()[Trk::locX] <<
-            " track radius=" << state_maxmdtpull->trackParameters()->parameters()[Trk::locX] << endmsg;
-        }
+            " track radius=" << state_maxmdtpull->trackParameters()->parameters()[Trk::locX] );
+
         double olderror = state_maxmdtpull->measurementErrors()[0];
         if ((measno_maxmdtpull < 0)or(measno_maxmdtpull >= (int) res.size())) {
           throw std::runtime_error("'res' array index out of range in TrkGlobalChi2Fitter/src/GlobalChi2Fitter.cxx:" + std::to_string(
@@ -5908,10 +5853,7 @@ public:
           }
           b[i] -= weightderiv[measno_maxmdtpull][i] * oldres / olderror;
           for (int j = i; j < nfitpars; j++) {
-            myarray[j * nfitpars + i] -= weightderiv[measno_maxmdtpull][i] * weightderiv[measno_maxmdtpull][j];
-            if (i != j) {
-              myarray[i * nfitpars + j] -= weightderiv[measno_maxmdtpull][i] * weightderiv[measno_maxmdtpull][j];
-            }
+            a.fillSymmetric(i,j, a(i,j) - weightderiv[measno_maxmdtpull][i] * weightderiv[measno_maxmdtpull][j]);
           }
           weightderiv[measno_maxmdtpull][i] = 0;
         }
@@ -5950,7 +5892,8 @@ public:
               }
             }
           }else {
-            bool invok = lu.Invert(fullcov);
+            bool invok;
+            fullcov = lu.Invert( invok );
             if (!invok) {
               ATH_MSG_DEBUG("matrix inversion failed!");
               m_matrixinvfailed++;
@@ -5970,9 +5913,9 @@ public:
   GXFTrajectory *
   GlobalChi2Fitter::runTrackCleanerSilicon(Cache& cache,
                                            GXFTrajectory &trajectory,
-                                           TMatrixDSym &a,
-                                           TMatrixDSym &fullcov,
-                                           TVectorD &b,
+                                           Amg::SymMatrixX &a,
+                                           Amg::SymMatrixX &fullcov,
+                                           Amg::VectorX &b,
                                            bool runoutlier) const {
     bool trackok = false;
     GXFTrajectory *oldtrajectory = &trajectory;
@@ -6075,13 +6018,11 @@ public:
           n3sigma << " cut: " << cut << " cut2: " << cut2 << endmsg;
       }
 
-      // TMatrixDSym *olda=&a;
-      TMatrixDSym *newap = &a;
-      // TVectorD *oldb=&b;
-      TVectorD *newbp = &b;
-      TMatrixDSym newa(nfitpars);
-      TVectorD newb(nfitpars);
-      TDecompChol newlu;
+      Amg::SymMatrixX *newap = &a;
+      Amg::VectorX *newbp = &b;
+      Amg::SymMatrixX newa(nfitpars,nfitpars);
+      Amg::VectorX newb(nfitpars);
+      GXFLUDecomp newlu;
 
       if (maxpull > 2 && oldtrajectory->chi2() / oldtrajectory->nDOF() > .25 * m_chi2cut) {
         state_maxsipull = oldtrajectory->trackStates()[stateno_maxsipull];
@@ -6157,7 +6098,11 @@ public:
           }
           trackok = false;
           newtrajectory = oldtrajectory;
-          double *myarray = a.GetMatrixArray();
+
+          if(a.cols() !=  nfitpars){
+            ATH_MSG_ERROR("Your assumption is wrong!!!!");
+          }
+
           double oldres1 = res[measno_maxsipull];
           res[measno_maxsipull] = newres1;
           err[measno_maxsipull] = newerror[0];
@@ -6168,12 +6113,8 @@ public:
             b[i] -= weightderiv[measno_maxsipull][i] *
                     (oldres1 / olderror[0] - (newres1 * olderror[0]) / (newerror[0] * newerror[0]));
             for (int j = i; j < nfitpars; j++) {
-              myarray[j * nfitpars + i] += weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j] *
-                                           ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1);
-              if (i != j) {
-                myarray[i * nfitpars + j] += weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j] *
-                                             ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1);
-              }
+              a.fillSymmetric(i,j, a(i,j) + weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j] *
+                                           ((olderror[0] * olderror[0]) / (newerror[0] * newerror[0]) - 1) );
             }
             weightderiv[measno_maxsipull][i] *= olderror[0] / newerror[0];
           }
@@ -6188,24 +6129,17 @@ public:
               b[i] -= weightderiv[measno_maxsipull + 1][i] *
                       (oldres2 / olderror[1] - (newres2 * olderror[1]) / (newerror[1] * newerror[1]));
               for (int j = i; j < nfitpars; j++) {
-                myarray[i * nfitpars + j] += weightderiv[measno_maxsipull + 1][i] *
-                                             weightderiv[measno_maxsipull + 1][j] *
-                                             ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1);
-                if (i != j) {
-                  myarray[j * nfitpars + i] += weightderiv[measno_maxsipull + 1][i] *
-                                               weightderiv[measno_maxsipull + 1][j] *
-                                               ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1);
-                }
+                a.fillSymmetric(i,j, a(i,j) + weightderiv[measno_maxsipull + 1][i] *
+                                                weightderiv[measno_maxsipull + 1][j] *
+                                                ((olderror[1] * olderror[1]) / (newerror[1] * newerror[1]) - 1) );
               }
               weightderiv[measno_maxsipull + 1][i] *= olderror[1] / newerror[1];
             }
           }
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "Recovering outlier, hitno=" << hitno_maxsipull << " measno=" << measno_maxsipull <<
+          ATH_MSG_DEBUG( "Recovering outlier, hitno=" << hitno_maxsipull << " measno=" << measno_maxsipull <<
               " pull="
                             << maxsipull << " olderror_0=" << olderror[0] << " newerror_0=" << newerror[0] <<
-              " olderror_1=" << olderror[1] << " newerror_1=" << newerror[1] << endmsg;
-          }
+              " olderror_1=" << olderror[1] << " newerror_1=" << newerror[1] );
 
           state_maxsipull->setMeasurement(broadrot.release());
           state_maxsipull->setSinStereo(newsinstereo);
@@ -6216,17 +6150,18 @@ public:
                    maxsipull > cut) && (oldtrajectory->nDOF() > 1 || hittype_maxsipull == TrackState::SCT) &&
                   runoutlier) {
           trackok = false;
-          if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxsipull << ", measno=" << measno_maxsipull <<
-              " pull=" << maxsipull << endmsg;
-          }
+          ATH_MSG_DEBUG( "Removing outlier, hitno=" << hitno_maxsipull << ", measno=" << measno_maxsipull <<
+              " pull=" << maxsipull );
           newa = a;
           newb = b;
           newap = &newa;
           newbp = &newb;
           cleanup_newtrajectory.reset(new GXFTrajectory(*oldtrajectory));
           newtrajectory = cleanup_newtrajectory.get();
-          double *myarray = newa.GetMatrixArray();
+          if(newa.cols() !=  nfitpars){
+            ATH_MSG_ERROR("Your assumption is wrong!!!!");
+          }
+
           std::vector<double> &newres = newtrajectory->residuals();
           // std::vector<double> &newerr=newtrajectory->errors();
           std::vector<std::vector<double> > &newweightderiv = newtrajectory->weightedResidualDerivatives();
@@ -6242,10 +6177,7 @@ public:
             }
             newb[i] -= weightderiv[measno_maxsipull][i] * oldres1 / olderror[0];
             for (int j = i; j < nfitpars; j++) {
-              myarray[j * nfitpars + i] -= weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j];
-              if (i != j) {
-                myarray[i * nfitpars + j] -= weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j];
-              }
+              newa.fillSymmetric(i,j, newa(i,j)- weightderiv[measno_maxsipull][i] * weightderiv[measno_maxsipull][j]);
             }
             newweightderiv[measno_maxsipull][i] = 0;
           }
@@ -6261,12 +6193,8 @@ public:
                 if (weightderiv[measno_maxsipull + 1][j] == 0) {
                   continue;
                 }
-                myarray[j * nfitpars + i] -= weightderiv[measno_maxsipull + 1][i] *
-                                             weightderiv[measno_maxsipull + 1][j];
-                if (i != j) {
-                  myarray[i * nfitpars + j] -= weightderiv[measno_maxsipull + 1][i] *
-                                               weightderiv[measno_maxsipull + 1][j];
-                }
+                newa.fillSymmetric(i,j, newa(i,j) - weightderiv[measno_maxsipull + 1][i] *
+                                                    weightderiv[measno_maxsipull + 1][j]);
               }
               newweightderiv[measno_maxsipull + 1][i] = 0;
             }
@@ -6331,30 +6259,18 @@ public:
               a = newa;
               b = newb;
             }
-            double *myarray = a.GetMatrixArray();
-            double *myarrayinv = fullcov.GetMatrixArray();
-            Amg::MatrixX weightAMG(a.GetNcols(), a.GetNcols());
-            Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(a.GetNcols(), a.GetNcols());
-            for (int i = 0; i < a.GetNcols(); ++i) {
-              for (int j = 0; j <= i; ++j) {
-                weightAMG(i,j) = weightAMG(j,i)  = myarray[i * a.GetNcols() + j];
-              }
-            }
 
             // Solve assuming the matrix is SPD.
             // Cholesky Decomposition is used
-            Eigen::LLT<Eigen::MatrixXd> lltOfW(weightAMG);
+            Eigen::LLT<Eigen::MatrixXd> lltOfW(a);
             if( lltOfW.info() == Eigen::Success  )
             {
               // Solve for x  where Wx = I
               // this is cheaper than invert as invert makes no assumptions about the
               // matrix being symmetric
-              weightInvAMG = lltOfW.solve(weightInvAMG);
-              for (int i = 0; i < cache.m_a.GetNcols(); ++i) {
-                for (int j = 0; j <= i; ++j) {
-                  myarrayinv[i * cache.m_a.GetNcols() + j] = myarrayinv[j * cache.m_a.GetNcols() + i] = weightInvAMG(i,j);
-                }
-              }
+              int ncols = cache.m_a.cols();
+              Amg::MatrixX weightInvAMG = Amg::MatrixX::Identity(ncols,ncols);
+              fullcov = lltOfW.solve(weightInvAMG);
             } else {
               ATH_MSG_DEBUG( "matrix inversion failed!" );
               m_matrixinvfailed++;
@@ -7012,21 +6928,22 @@ public:
     int nscats = trajectory.numberOfScatterers();
     int nperpars = trajectory.numberOfPerigeeParameters();
     // int nfitpars=trajectory.numberOfFitParameters();
-    double initialarray[25] = {
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1
-    };
-    typedef ROOT::Math::SMatrix<double, 5> SMatrix55;
-    SMatrix55 initialjac(initialarray, 25);
-    SMatrix55 jacvertex(initialjac);
-    std::vector<SMatrix55> jacscat(trajectory.numberOfScatterers(), initialjac);
+
+    // A bit of a nightmare here SMatris is Row major
+    // Storage in eigen is normally column major
+    // change stuff around so that indicies dont need to worked out;
+    // Intruth what follows is impossible to follow and needs to be clearly documented 
+
+    typedef Eigen::Matrix<double, 5, 5, Eigen::RowMajor> EigenRM55;
+    EigenRM55 initialjac;
+    initialjac.setZero();
+    initialjac(4,4) = 1;
+    EigenRM55 jacvertex(initialjac);
+    std::vector<EigenRM55> jacscat(trajectory.numberOfScatterers(), initialjac);
     int maxk[5] = {
       4, 4, 4, 4, 5
     };
-    std::vector<SMatrix55> jacbrem(trajectory.numberOfBrems(), initialjac);
+    std::vector<EigenRM55> jacbrem(trajectory.numberOfBrems(), initialjac);
     // std::vector<double> pbrem(trajectory.numberOfBrems());
 
     // double sign=(trajectory.referenceParameters()->parameters()[Trk::qOverP]>0) ? 1 : -1;
@@ -7066,9 +6983,9 @@ public:
             }
             jacscat[scatindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac2 = jacscat[scatindex];
-            SMatrix55 &tmpjac = initialjac;
-            double *myarray = tmpjac2.Array();
+            EigenRM55 &tmpjac2 = jacscat[scatindex];
+            EigenRM55 &tmpjac = initialjac;
+            double *myarray = tmpjac2.data();
             for (int i = 0; i < 4; i++) {
               // double tmparray[5];
               int myindex;
@@ -7076,27 +6993,21 @@ public:
                 double tmp = 0;
                 myindex = j;
                 for (int k = 0; k < maxk[j]; k++) {
-                  // tmp+=jac[i][k]*jacscat[scatindex](k,j);
                   tmp += jac[i][k] * myarray[myindex];
                   myindex += 5;
                 }
                 tmpjac(i, j) = tmp;
-                // tmparray[j]=tmp;
               }
-              /* myindex=5*i+jmin;
-                 for (int j=jmin;j<=jmax;j++) {
-                 myarray[myindex] = tmparray[j];
-                 myindex++;
-                 } */
             }
             jacscat[scatindex] = tmpjac;
             jacscat[scatindex](4, 4) = jac[4][4] * jacscat[scatindex](4, 4);
           }
           if (fillderivmat) {
             Amg::MatrixX &derivmat = state->derivatives();
+            int scatterPos = nperpars + 2 * scatindex;
             for (int i = 0; i < 4; i++) {
-              derivmat(i,nperpars + 2 * scatindex) = -jacscat[scatindex](i, 2);
-              derivmat(i,nperpars + 2 * scatindex + 1) = -jacscat[scatindex](i, 3);
+              derivmat(i,scatterPos) = -jacscat[scatindex](i, 2);
+              derivmat(i,scatterPos + 1) = -jacscat[scatindex](i, 3);
             }
           }
         }
@@ -7110,7 +7021,7 @@ public:
             }
             jacbrem[bremindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac = initialjac;// jacbrem[bremindex];
+            EigenRM55 &tmpjac = initialjac;// jacbrem[bremindex];
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
@@ -7132,13 +7043,14 @@ public:
             // double p=pbrem[bremindex];
             // for (int i=0;i<5;i++)
             // derivmat[i][nperpars+2*nscats+bremindex]=0.001*jacbrem[bremindex](i,4)*(sign/(p*p));
+            int scatterPos = nperpars + 2 * nscats + bremindex;
             for (int i = 0; i < 5; i++) {
-              derivmat(i,nperpars + 2 * nscats + bremindex) = -0.001 * jacbrem[bremindex](i, 4);
+              derivmat(i,scatterPos) = -0.001 * jacbrem[bremindex](i, 4);
             }
           }
         }
         // SMatrix55 &tmpjac=jacvertex;
-        SMatrix55 &tmpjac = initialjac;
+        EigenRM55 &tmpjac = initialjac;
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
@@ -7225,9 +7137,9 @@ public:
             }
             jacscat[scatindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac2 = jacscat[scatindex];
-            SMatrix55 &tmpjac = initialjac;
-            double *myarray = tmpjac2.Array();
+            EigenRM55 &tmpjac2 = jacscat[scatindex];
+            EigenRM55 &tmpjac = initialjac;
+            double *myarray = tmpjac2.data();
             for (int i = 0; i < 4; i++) {
               // double tmparray[5];
               int myindex;
@@ -7253,9 +7165,10 @@ public:
           }
           if (fillderivmat) {
             Amg::MatrixX &derivmat = state->derivatives();
+            int scatterPos = nperpars + 2 * scatindex;
             for (int i = 0; i <= imax; i++) {
-              derivmat(i,nperpars + 2 * scatindex) = jacscat[scatindex](i, 2);
-              derivmat(i,nperpars + 2 * scatindex + 1) = jacscat[scatindex](i, 3);
+              derivmat(i,scatterPos) = jacscat[scatindex](i, 2);
+              derivmat(i,scatterPos + 1) = jacscat[scatindex](i, 3);
             }
           }
         }
@@ -7269,7 +7182,7 @@ public:
             }
             jacbrem[bremindex](4, 4) = jac[4][4];
           }else {
-            SMatrix55 &tmpjac = initialjac;// jacbrem[bremindex];
+            EigenRM55 &tmpjac = initialjac;// jacbrem[bremindex];
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
@@ -7291,14 +7204,15 @@ public:
           if (fillderivmat) {
             Amg::MatrixX &derivmat = state->derivatives();
             // double p=pbrem[bremindex];
+            int scatterPos = nperpars + 2 * nscats + bremindex;
             for (int i = 0; i <= 4; i++) {
               // derivmat[i][nperpars+2*nscats+bremindex]=.001*jacbrem[bremindex](i,4)*(-sign/(p*p));
-              derivmat(i,nperpars + 2 * nscats + bremindex) = .001 * jacbrem[bremindex](i, 4);
+              derivmat(i,scatterPos) = .001 * jacbrem[bremindex](i, 4);
             }
           }
         }
         // SMatrix55 &tmpjac=jacvertex;
-        SMatrix55 &tmpjac = initialjac;
+        EigenRM55 &tmpjac = initialjac;
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
@@ -7346,7 +7260,7 @@ public:
 /*****************************************************/
 /*****************************************************/
   void
-  GlobalChi2Fitter::calculateTrackErrors(GXFTrajectory &trajectory, TMatrixDSym &fullcovmat, bool onlylocal) const {
+  GlobalChi2Fitter::calculateTrackErrors(GXFTrajectory &trajectory, Amg::SymMatrixX &fullcovmat, bool onlylocal) const {
     //
     // Calculate track errors at each state, except scatterers and brems
     //
@@ -7376,7 +7290,7 @@ public:
         indices[j] = j;
       }
     }
-    double *myarray = fullcovmat.GetMatrixArray();
+    //double *myarray = fullcovmat.data();
     std::vector<int> rowindices[5];
     for (int i = 0; i < 5; i++) {
       rowindices[i].reserve(nfitpars);
@@ -7410,18 +7324,18 @@ public:
       }
 
       if (!state->trackCovariance()) {
-        AmgSymMatrix(5) * newcov = new AmgSymMatrix(5);
+        AmgMatrix(5,5) * newcov = new AmgMatrix(5,5);
         newcov->setZero();
         state->setTrackCovariance(newcov);
       }
-      AmgSymMatrix(5) &trackerrmat = *state->trackCovariance();
+      AmgMatrix(5,5) &trackerrmat = *state->trackCovariance();
 
 
       if (prevstate &&
           (prevstate->trackStateType() == TrackState::Fittable ||
            prevstate->trackStateType() == TrackState::GeneralOutlier) && !onlylocal) {
         double (*jac)[5] = state->jacobian();
-        AmgSymMatrix(5) &prevcov = *states[indices[stateno - 1]]->trackCovariance();
+        AmgMatrix(5,5) &prevcov = *states[indices[stateno - 1]]->trackCovariance();
         errors1(jac, prevcov, trackerrmat, onlylocal);
       }else {
         int maxl = trajectory.m_straightline ? 3 : 4;
@@ -7464,7 +7378,7 @@ public:
             rowindices[4].push_back(j);
           }
         }
-        errors2(derivatives, trackerrmat, myarray, rowindices, maxl, minm, onlylocal, nfitpars);
+        errors2(derivatives, trackerrmat, fullcovmat.data(), rowindices, maxl, minm, onlylocal, nfitpars);
       }
 
       if (!onlylocal) {
@@ -7509,7 +7423,7 @@ public:
 
         const TrackParameters *trackpar = 0, *tmptrackpar = state->trackParameters();
 
-        AmgSymMatrix(5) * trkerrmat = state->trackCovariance(true);
+        AmgMatrix(5,5) * trkerrmat = state->trackCovariance(true);
         const AmgVector(5) &tpars = tmptrackpar->parameters();
         trackpar =
           tmptrackpar->associatedSurface().createTrackParameters(tpars[0], tpars[1], tpars[2], tpars[3], tpars[4],
