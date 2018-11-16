@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaDataMarkUpTool.cxx 685407 2015-07-24 16:15:06Z cranshaw $
@@ -62,12 +62,12 @@ namespace xAODMaker {
       if (!outputMetaStore()->transientContains<xAOD::FileMetaData>( *(fmd_keys.begin()) )) {
          return(StatusCode::SUCCESS);
       }
-      DataHandle<xAOD::FileMetaData> fmd;
+      xAOD::FileMetaData* fmd = nullptr;
       StatusCode sc = outputMetaStore()->retrieve(fmd, *(fmd_keys.begin()) );
       if (!sc.isSuccess()) {
          return(StatusCode::SUCCESS);
       }
-      const DataHandle<EventStreamInfo> esi;
+      const EventStreamInfo* esi = nullptr;
       sc = outputMetaStore()->retrieve(esi, m_outputKey);
       if (sc.isSuccess()) {
          ATH_MSG_DEBUG( "Setting xAOD::FileMetaData from output EventStreamInfo object " << m_outputKey );
