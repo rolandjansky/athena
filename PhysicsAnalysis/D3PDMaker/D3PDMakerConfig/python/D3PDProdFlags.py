@@ -221,9 +221,6 @@ _importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
 # L1Calo D3PDs
 #_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
 
-# Qcd D3PDs
-_importFlagsFromModule ('QcdD3PDMaker.QcdD3PDProdFlags')
-
 # Top D3PDs
 _importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)
 

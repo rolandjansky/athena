@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id: CoreGenericD3PD.py
 #
@@ -66,8 +66,6 @@ from TrackD3PDMaker.TrackD3PDObject                    import TrackD3PDObject
 from TrackD3PDMaker.VertexD3PDObject                   import PrimaryVertexD3PDObject
 from TrackD3PDMaker.TruthVertexD3PDObject              import TruthVertexD3PDObject
 from TrackD3PDMaker.BeamSpotD3PDObject                 import BeamSpotD3PDObject
-from QcdD3PDMaker.QcdTriggerBitsD3PDObject             import QcdTriggerBitsD3PDObject
-from QcdD3PDMaker.QcdMuonSpShowerD3PDObject            import MuonSpShowerD3PDObject
 
 import PhotonD3PDMaker
 
