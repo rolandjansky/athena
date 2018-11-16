@@ -411,6 +411,18 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
     }
 
 
+    if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
+      /* Check if we can annihilate right away */
+      std::vector<xAOD::CaloCluster*> clusterList;
+      unsigned nCluster = thisEflowCaloObject->nClusters();
+      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
+        clusterList.push_back(
+            thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(
+                eflowCaloObject::getClusterContainerPtr()));
+      }
+      Subtractor::annihilateClusters(clusterList);
+    } else { 
+    
       /* Subtract the track from all matched clusters */
       const std::vector<eflowTrackClusterLink*>& matchedTrackList =
           thisEflowCaloObject->efRecLink();
@@ -449,21 +461,7 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
           Subtractor::annihilateClusters(clusterSubtractionList);
         }
       }
-    
-
-
-    if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
-      /* Check if we can annihilate right away */
-      std::vector<xAOD::CaloCluster*> clusterList;
-      unsigned nCluster = thisEflowCaloObject->nClusters();
-      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(
-            thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(
-                eflowCaloObject::getClusterContainerPtr()));
-      }
-      Subtractor::annihilateClusters(clusterList);
-    } 
-//     else {}
+    }
 
     /* Flag tracks as subtracted */
     for (unsigned int iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
