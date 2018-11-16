@@ -16,8 +16,6 @@
 
 #include <set>
 #include <string>
-#include <memory>
-#include <zlib.h>
 
 // Forward declarations.
 class IIncidentSvc;
@@ -66,7 +64,6 @@ private:
    mutable std::set<int> m_dataClients;
    boost::interprocess::mapped_region* m_payload;
    boost::interprocess::mapped_region* m_status;
-   mutable std::unique_ptr<Bytef[]> m_decompressionBuffer;
    long m_fileSeqNumber;
    bool m_isServer;
    bool m_isClient;
