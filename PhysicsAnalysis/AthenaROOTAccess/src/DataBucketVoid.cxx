@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DataBucketVoid.cxx,v 1.12 2009-01-23 16:07:41 ssnyder Exp $
@@ -224,19 +224,6 @@ void* DataBucketVoid::cast (const std::type_info& tinfo,
   // Convert the pointer.
   return castobj;
 }
-
-/**
- * @brief Return a new @c DataBucket whose payload has been cloned from the
- *        original one.
- */
-DataBucketVoid* DataBucketVoid::clone () const
-{
-  // ??? unimplemented (yet?)
-  ::Error ("DataBucketVoid", "::clone not (yet?) implemented !");
-  abort();
-  return 0;
-}
-
 
 /**
  * @brief Reset any cached data for a new event.

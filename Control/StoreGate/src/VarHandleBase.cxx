@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // VarHandleBase.cxx 
@@ -74,7 +74,6 @@ namespace SG {
     virtual const std::type_info& tinfo() const override { return typeid(void); }
     virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
     virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
-    virtual DataBucketBase* clone() const override { std::abort(); }
     virtual void relinquish() override { std::abort(); }
     virtual void lock() override { }
 
