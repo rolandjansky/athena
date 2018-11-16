@@ -13,7 +13,7 @@ Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Deri
 
 echo "art-result: $? reco"
 
-DAODMerge_tf.py --inputDAOD_HION7File DAOD_HION7.art.pool.root --outputDAOD_HION7_MRGFile art_merged.pool.root --preExec 'rec.doHeavyIon.set_Value_and_Lock(False)'
+DAODMerge_tf.py --inputDAOD_HION7File DAOD_HION7.art.pool.root --outputDAOD_HION7_MRGFile art_merged.pool.root --preExec 'rec.doHeavyIon.set_Value_and_Lock(False)' 
 
 echo "art-result: $? merge"
 
