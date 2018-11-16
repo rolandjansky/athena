@@ -629,18 +629,26 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
   }
 }  
 
-int SiDetectorElement::getSCTLayer() const
+const SCT_ID* SiDetectorElement::getSCT_ID() const
 {
-  if( !isSCT() ) return -1;
+
+  if( !isSCT() ) return 0;
   const SCT_ID* p_sctId = static_cast<const SCT_ID *>(getIdHelper());
-  return p_sctId->layer_disk(m_id);
+  if( p_sctId ) return p_sctId;
+  return 0;
+
 }
-int SiDetectorElement::getSCTLayerSide() const
+
+const PixelID* SiDetectorElement::getPixelID() const
 {
-  if ( !isSCT() ) return -1;
-  const SCT_ID* p_sctId = static_cast<const SCT_ID *>(getIdHelper());
-  return p_sctId->side(m_id);
+
+  if( !isPixel() ) return 0;
+  const PixelID* p_pixId = static_cast<const PixelID *>(getIdHelper());
+  if( p_pixId ) return p_pixId;
+  return 0;
+
 }
+
 
   Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
 {
