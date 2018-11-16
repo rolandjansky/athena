@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,8 +13,10 @@
 
 // Interfaces to ISF Tools and Services
 #include "ISF_Interfaces/IInputConverter.h"
-#include "ISF_Interfaces/ISimulationSvc.h"
+#include "ISF_Interfaces/ISimulatorTool.h"
+#include "ISF_Interfaces/IGeoIDSvc.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
+#include "ISF_Interfaces/SimulationFlavor.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -30,7 +32,7 @@
 
 // STL includes
 #include <array>
-
+#include <map>
 
 // forward declarations
 namespace ISFTesting {
@@ -74,7 +76,7 @@ public:
 
 private:
   /// Returns the simulator to use for the given particle
-  ISimulationSvc& identifySimulator(const ISF::ISFParticle& particle);
+  ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;
 
   /// Input Generator Truth collection
   SG::ReadHandleKey<McEventCollection> m_inputEvgenKey;
@@ -84,14 +86,20 @@ private:
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter;
 
+  /// Simulation Tools
+  ToolHandleArray<ISimulatorTool> m_simulationTools;
+
+  /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
+  ToolHandle<ISimulatorTool> m_particleKillerTool;
+
+  ServiceHandle<IGeoIDSvc>  m_geoIDSvc;
+
   /// The simulation selectors defining the "routing chain"
   std::array<ToolHandleArray<ISimulationSelector>, AtlasDetDescr::fNumAtlasRegions> m_simSelectors;
 
   /// Map of the simulation flavours used in this job to the corresponding Simulation Services
-  std::map<ISF::SimulationFlavor, ISimulationSvc*> m_simSvcMap;
+  std::map<ISF::SimulationFlavor, ISimulatorTool*> m_simToolMap;
 
-  /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
-  ServiceHandle<ISimulationSvc> m_particleKillerSimulationSvc;
 };
 
 } // namespace ISF
