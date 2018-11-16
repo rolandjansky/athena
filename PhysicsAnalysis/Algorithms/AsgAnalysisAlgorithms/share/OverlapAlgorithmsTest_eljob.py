@@ -88,7 +88,7 @@ algSeq += electronSequence
 # Include, and then set up the photon analysis sequence:
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
     makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, recomputeIsEM = True )
+photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', recomputeIsEM = True )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons_%SYS%' )
 algSeq += photonSequence

@@ -91,7 +91,7 @@ for alg in electronSequence:
 # Include, and then set up the photon analysis sequence:
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
     makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, recomputeIsEM=True )
+photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight', recomputeIsEM=True )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons' )
 print( photonSequence ) # For debugging
