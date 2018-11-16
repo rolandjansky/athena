@@ -175,21 +175,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteBackgroundD3PD)
 listAllKnownD3PD.append (prodFlags.WriteBackgroundD3PD)
 
 
-class WriteMinBiasD3PD (JobProperty):
-    """Produce the MinBias D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_MINBIAS'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "MinBiasD3PDMaker/MinBiasD3PD_prodJobOFragment.py"
-    TreeNames = ['MinBiasTree']
-    SubSteps = ['e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteMinBiasD3PD)
-listAllKnownD3PD.append (prodFlags.WriteMinBiasD3PD)
-
-
 #######################################################
 #
 #                     Trigger D3PDs
