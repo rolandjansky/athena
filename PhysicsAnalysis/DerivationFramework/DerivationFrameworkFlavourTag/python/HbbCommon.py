@@ -264,12 +264,14 @@ def buildVRJets(sequence, do_ghost, logger):
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
-    pseudoJetGetters = jtm.gettersMap[VRJetInputs]
+    # Slice the array - this forces a copy so that if we modify it we don't also
+    # change the array in jtm.
+    pseudoJetGetters = jtm.gettersMap[VRJetInputs][:]
 
     # We want to include ghost associated tracks in the pv0 tracks so that
     # we can use the looser ghost association criteria for b-tagging.
     if VRJetInputs == "pv0track":
-        pseudoJetGetters = pseudoJetGetters + ["gtrackget"]
+        pseudoJetGetters.append(jtm["gtrackget"])
 
     if VRJetAlgName in DFJetAlgs:
         print "Algorithm", VRJetAlgName, "already built before"
