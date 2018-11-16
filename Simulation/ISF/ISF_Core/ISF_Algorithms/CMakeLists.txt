@@ -71,6 +71,9 @@ atlas_add_test( SimKernelMT_test
                 ENVIRONMENT
                 "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
+# Needed for the plugin service to see the test components
+# defined in the test binary.
+set_target_properties( ISF_Algorithms_SimKernelMT_test PROPERTIES ENABLE_EXPORTS True )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
