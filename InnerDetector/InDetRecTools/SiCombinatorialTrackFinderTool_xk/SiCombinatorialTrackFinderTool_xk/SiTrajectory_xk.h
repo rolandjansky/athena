@@ -24,6 +24,9 @@
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectoryElement_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
 
+class PixelID;
+class SCT_ID;
+
 namespace InDet{
 
   class SiTrajectory_xk
@@ -58,6 +61,7 @@ namespace InDet{
       const int&  elementsMap(int& i) const {return m_elementsMap[i];}
 
       void setTools(const InDet::SiTools_xk*); 
+      void setDetIDs(const PixelID* pixID,const SCT_ID* sctID);
       void setParameters(); 
       void cleanSpuriousSCTHits(bool clean);
 

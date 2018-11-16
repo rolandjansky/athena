@@ -74,9 +74,6 @@ void InDet::SiTrajectoryElement_xk::set
   (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
     m_stereo = true : m_stereo = false;
 
-  m_sctID = m_detelement->getSCT_ID();
-  m_pixID = m_detelement->getPixelID();
-
   if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
 
   if(!m_detstatus) {
@@ -121,6 +118,12 @@ void InDet::SiTrajectoryElement_xk::setParameters()
   m_xi2maxlink   = m_tools->xi2maxlink ()  ;
   m_xi2multi     = m_tools->xi2multi   ()  ;
 } 
+
+void InDet::SiTrajectoryElement_xk::setDetIDs(const PixelID* pixID,const SCT_ID* sctID)
+{
+  m_pixID = pixID;
+  m_sctID = sctID;
+}
 
 ///////////////////////////////////////////////////////////////////
 // Initiate first element of trajectory using external 

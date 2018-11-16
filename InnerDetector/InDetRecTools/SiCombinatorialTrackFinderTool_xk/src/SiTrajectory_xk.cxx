@@ -8,6 +8,8 @@
 
 #include "TrkSurfaces/PlaneSurface.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 ///////////////////////////////////////////////////////////////////
 // Set work information to trajectory
@@ -23,6 +25,11 @@ void InDet::SiTrajectory_xk::setParameters()
 {
   for(int i=0; i!=300; ++i) m_elements[i].setParameters();
 } 
+
+void InDet::SiTrajectory_xk::setDetIDs(const PixelID* pixID,const SCT_ID* sctID)
+{
+  for(int i=0; i!=300; ++i) m_elements[i].setDetIDs(pixID,sctID);
+}
 
 void InDet::SiTrajectory_xk::cleanSpuriousSCTHits(bool clean)
 {
