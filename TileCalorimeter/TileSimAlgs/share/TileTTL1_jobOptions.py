@@ -1,14 +1,11 @@
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from TileSimAlgs.TileTTL1FromHitsGetter import *
+from TileSimAlgs.TileTTL1FromHitsGetter import TileTTL1FromHitsGetter
 theTileTTL1FromHitsGetter = TileTTL1FromHitsGetter()
 
-from TileSimAlgs.TileSimAlgsConf import *
-theTileHitToTTL1=TileHitToTTL1()
-
 from Digitization.DigitizationFlags import jobproperties
-theTileHitToTTL1.RndmSvc=jobproperties.Digitization.rndmSvc()
+topSequence.TileHitToTTL1.RndmSvc = jobproperties.Digitization.rndmSvc()
 jobproperties.Digitization.rndmSeedList.addSeed("Tile_HitToTTL1", 4789899, 989240512)
 
 from AthenaCommon.BeamFlags import jobproperties
