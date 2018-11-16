@@ -57,11 +57,11 @@ if  TriggerFlags.doMuon==True:
     MenuChains += [Chain(name='HLT_mu6Comb',   Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb ])]
     #MenuChains += [Chain(name='HLT_mu6msonly', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muEFMS ])] # removed due to muEFSA isuue(?)
     MenuChains += [Chain(name='HLT_mu6',       Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muEFSA ])]
-    MenuChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6",  ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
+    MenuChains += [Chain(name='HLT_mu20_ivar', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
     # multi muon trigger 
-    MenuChains += [Chain(name='HLT_2mu6Comb', Seed="L1_2MU4", ChainSteps=[ step1mufast, step2muComb ])]
-    MenuChains += [Chain(name='HLT_2mu6',     Seed="L1_2MU4", ChainSteps=[ step1mufast, step2muComb, step3muEFSA ])]        
+    MenuChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb ])]
+    MenuChains += [Chain(name='HLT_2mu6',     Seed="L1_MU6", ChainSteps=[ step1mufast, step2muComb, step3muEFSA ])]        
  
     
     #################################
