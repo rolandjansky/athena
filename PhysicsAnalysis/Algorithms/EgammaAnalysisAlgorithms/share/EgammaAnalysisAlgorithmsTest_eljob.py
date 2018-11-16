@@ -78,7 +78,7 @@ for alg in pileupSequence:
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
     makeElectronAnalysisSequence
-electronSequence = makeElectronAnalysisSequence( dataType, recomputeLikelihood=True )
+electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', postfix = 'loose', recomputeLikelihood=True )
 electronSequence.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElectrons' )
 print( electronSequence ) # For debugging

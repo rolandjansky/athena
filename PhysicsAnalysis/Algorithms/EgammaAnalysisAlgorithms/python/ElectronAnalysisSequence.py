@@ -7,17 +7,19 @@ import ROOT
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeElectronAnalysisSequence( dataType,
-                                  isolationWP = 'GradientLoose',
-                                  likelihoodWP = 'LooseLHElectron',
+def makeElectronAnalysisSequence( dataType, workingPoint,
+                                  postfix = '',
                                   recomputeLikelihood = False,
                                   chargeIDSelection = False ):
     """Create an electron analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
-      isolationWP -- The isolation selection working point to use
-      likelihoodWP -- The likelihood selection working point to use
+      workingPoint -- The working point to use
+      postfix -- a postfix to apply to decorations and algorithm
+                 names.  this is mostly used/needed when using this
+                 sequence with multiple working points to ensure all
+                 names are unique.
       recomputeLikelihood -- Whether to rerun the LH. If not, use derivation flags
       chargeIDSelection -- Whether or not to perform charge ID/flip selection
     """
@@ -25,6 +27,17 @@ def makeElectronAnalysisSequence( dataType,
     # Make sure we received a valid data type.
     if not dataType in [ 'data', 'mc', 'afii' ]:
         raise ValueError( 'Invalid data type: %' % dataType )
+
+    if postfix != '' :
+        postfix = '_' + postfix
+        pass
+
+    splitWP = workingPoint.split ('.')
+    if len (splitWP) != 2 :
+        raise ValueError ('working point should be of format "likelihood.isolation", not ' + workingPoint)
+
+    likelihoodWP = splitWP[0]
+    isolationWP = splitWP[1]
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "ElectronAnalysisSequence" )
