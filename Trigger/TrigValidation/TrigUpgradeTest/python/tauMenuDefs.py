@@ -62,11 +62,69 @@ fastCaloViewsMaker.Views = "TAUCaloViews"
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgsTau"
 cellMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
+
+#fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs])
+
 # are these needed?
 CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
 CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
 
-fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs ])
+from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
+CaloRoiUpdater = TrigTauCaloRoiUpdaterMT("CaloRoiUpdater")
+CaloRoiUpdater.OutputLevel  = DEBUG
+CaloRoiUpdater.RoIInputKey  = "RoiForCalo"
+CaloRoiUpdater.RoIOutputKey = "RoiForCalo" # Default for Fast Tracking Algs
+
+l2TauViewsMaker = EventViewCreatorAlgorithm("l2TauViewsMaker", OutputLevel=DEBUG)
+l2TauViewsMaker.RoIsLink = "roi" # -||-
+l2TauViewsMaker.InViewRoIs = "RoiForCalo" # contract with the fastCalo
+l2TauViewsMaker.Views = "TAUCaloViews"
+l2TauViewsMaker.ViewFallThrough = True
+
+#for viewAlg in ViewAlgs:
+#  if viewAlg.properties().has_key("RoIs"):
+#    viewAlg.RoIs = l2TauViewsMaker.InViewRoIs
+#  if viewAlg.properties().has_key("roiCollectionName"):
+#    viewAlg.roiCollectionName = TauElectronViewsMaker.InViewRoIs
+#CaloRoiUpdater.caloclusters = l2TauViewsMaker.InViewRoIs
+
+#fastCaloAthSequence = seqAND("fastCaloAthSequenceRoIUpdater", [ CaloRoiUpdater ])
+fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs, CaloRoiUpdater])
+
+#l2TauViewsMaker.ViewNodeName = "tauInViewAlgs"
+
+#Copying code from here
+#from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
+#theElectronFex= L2ElectronFex_1()
+#theElectronFex.TrigEMClusterName = theFastCaloAlgo.ClustersName
+#theElectronFex.TrackParticlesName = TrackParticlesName
+#theElectronFex.ElectronsName="Electrons"
+#theElectronFex.OutputLevel=VERBOSE
+
+
+#l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
+#l2ElectronViewsMaker.RoIsLink = "roi" # -||-
+#l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
+#l2ElectronViewsMaker.Views = "EMElectronViews"
+#l2ElectronViewsMaker.ViewFallThrough = True
+
+
+#for viewAlg in viewAlgs:
+#  if viewAlg.properties().has_key("RoIs"):
+#    viewAlg.RoIs = l2ElectronViewsMaker.InViewRoIs
+#  if viewAlg.properties().has_key("roiCollectionName"):
+#    viewAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
+#theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
+
+#electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
+
+#l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
+#to here
+
+
+
+
+
 
 #from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 #from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
@@ -81,13 +139,11 @@ fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fast
 #                          Hypo        = HLTTest__TestHypoAlg("L2TauCaloHypoAlg", Input=""),
 #                          HypoToolGen = genCaloHypoToolTau )
 
+#Keep these lines for the future
 from TrigTauHypo.TrigTauHypoConf import TrigL2TauCaloHypoAlgMT
 fastCaloHypo = TrigL2TauCaloHypoAlgMT("L2TauCaloHypo")
 fastCaloHypo.OutputLevel = DEBUG
-#fastCaloHypo.CaloClusters = 
 
-
-fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
 from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromName
 #from TrigTauHypo.TrigTauHypoBase import 
@@ -99,6 +155,7 @@ from TrigTauHypo.TrigL2TauHypoTool import TrigL2TauHypoToolFromName
 
 #from TrigTauHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
 
+#Will use this later
 def tauCaloSequence():
     return  MenuSequence( Sequence    = fastCaloAthSequence,
                           Maker       = fastCaloViewsMaker,
