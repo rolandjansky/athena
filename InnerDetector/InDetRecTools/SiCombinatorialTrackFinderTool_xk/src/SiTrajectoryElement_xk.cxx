@@ -12,6 +12,8 @@
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectoryElement_xk.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
@@ -47,6 +49,8 @@ void InDet::SiTrajectoryElement_xk::set
   m_detelement   = dl->detElement()        ;
   m_detlink      = dl                      ;
   m_surface      = &m_detelement->surface();
+  m_sctID        = 0                       ;
+  m_pixID        = 0                       ;
   m_sibegin      = sb                      ;
   m_siend        = se                      ; 
   m_cluster      = si                      ;
@@ -69,6 +73,9 @@ void InDet::SiTrajectoryElement_xk::set
   noiseInitiate()                          ;
   (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
     m_stereo = true : m_stereo = false;
+
+  m_sctID = m_detelement->getSCT_ID();
+  m_pixID = m_detelement->getPixelID();
 
   if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
 
@@ -1852,26 +1859,24 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
   return true;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-// Checks if element is SCT
-/////////////////////////////////////////////////////////////////////////////////
-
 int InDet::SiTrajectoryElement_xk::getSCTLayerSide()
 {
-  return m_detelement->getSCTLayerSide();
+  if( !isSCT() ) return -1;
+  return m_sctID->side(m_detelement->identify());
 }
 
 int InDet::SiTrajectoryElement_xk::getSCTLayer()
 {
-  return m_detelement->getSCTLayer();
+  if( !isSCT() ) return -1;
+  return m_sctID->layer_disk(m_detelement->identify()); 
 }
 
 bool InDet::SiTrajectoryElement_xk::isPixel()
 {
-  return m_detelement->isPixel();
+  return m_pixID;
 }
 
 bool InDet::SiTrajectoryElement_xk::isSCT()
 {
-  return m_detelement->isSCT();
+  return m_sctID;
 }

@@ -24,6 +24,9 @@
 #include "SiCombinatorialTrackFinderTool_xk/SiClusterLink_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
 
+class SCT_ID;
+class PixelID;
+
 namespace InDet{
 
   class SiTrajectoryElement_xk
@@ -331,6 +334,8 @@ namespace InDet{
       const InDetDD::SiDetectorElement*           m_detelement  ;
       const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
       const Trk::Surface*                         m_surface     ;
+      const SCT_ID*                               m_sctID       ;
+      const PixelID*                              m_pixID       ;
       InDet::SiClusterCollection ::const_iterator m_sibegin     ;
       InDet::SiClusterCollection ::const_iterator m_siend       ;
       const InDet::SiCluster*                     m_cluster     ;
