@@ -72,15 +72,20 @@ if (doPhoton):
 # muon chains
 ##################################################################
 if (doMuon):
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muEFSAStep, muEFMSStep, muIsoStep
     MuonChains  = []
-    step1mufast=ChainStep("Step1_mufast", [muFastStep])
+    muFastStep1 = muFastStep()
+    muCombStep2 = muCombStep()
 
+    # step1
+    step1mufast=ChainStep("Step1_mufast", [ muFastStep1 ])
+    # step2
+    step2muComb=ChainStep("Step2_muComb", [ muCombStep2 ])
+    # step3
     
     MuonChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
     MuonChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
     if TriggerFlags.doID==True:
-        step2muComb=ChainStep("Step2_muComb", [muCombStep])
         MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
         MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
 
@@ -108,7 +113,8 @@ if (doJet):
 if (doCombo):
     # combo chains
     comboChains= []
-    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
+
+    comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep1])
     comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
     testChains += comboChains
 
