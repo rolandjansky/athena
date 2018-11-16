@@ -33,7 +33,7 @@ namespace LVL1MUCTPI {
 
       virtual StatusCode initialize() override;
 
-      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& ) const override; 
+      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo&, int bcidOffset=0) const override;
 
       virtual void handle(const Incident&) override;
 

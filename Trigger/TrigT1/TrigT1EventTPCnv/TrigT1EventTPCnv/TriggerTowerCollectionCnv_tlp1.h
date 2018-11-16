@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TriggerTowerCollectionCNV_TLP1_H
 #define TriggerTowerCollectionCNV_TLP1_H
 
