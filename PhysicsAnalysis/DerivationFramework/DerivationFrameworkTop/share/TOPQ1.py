@@ -114,7 +114,7 @@ DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ1
 
 # add for TOPQDERIV-62 (see enf of TOPQCommonJets.py)
 # FD comment for the moment as it crashes in ART tests
-#DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
+DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
 # Then apply thinning
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools)
@@ -141,4 +141,3 @@ DerivationFrameworkJob += TOPQ1Sequence
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ1', TOPQ1Stream)
-
