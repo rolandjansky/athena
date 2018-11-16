@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// FastCaloSimSvcPU.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_FASTCALOSIMSVCPU_H
 #define ISF_FASTCALOSIMSVCPU_H 1
@@ -49,7 +45,6 @@ namespace ISF
 {
 
   class ISFParticle;
-  class IParticleBroker;
   class ITruthSvc;
   class IPunchThroughTool;
 
@@ -120,8 +115,6 @@ namespace ISF
       ToolHandle< IPunchThroughTool >     m_punchThroughTool;
       
       CaloCellContainer* 		  m_theContainer;
-      
-      ServiceHandle<ISF::IParticleBroker> m_particleBroker;
       
       //->PU Development:
       std::vector<CaloCellContainer*> m_puCellContainer;

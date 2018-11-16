@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_DATABUCKET_H
@@ -97,12 +97,6 @@ namespace SG {
     virtual void* cast (const std::type_info& tinfo,
                         IRegisterTransient* irt = 0,
                         bool isConst = true) override;
-
-    /**
-     * @brief Return a new @c DataBucket whose payload has been cloned from the
-     *        original one.
-     */
-    virtual DataBucket* clone() const override;
 
     /**
      * @brief Give up ownership of the  @c DataBucket contents.

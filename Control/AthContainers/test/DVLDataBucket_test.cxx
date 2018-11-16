@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DVLDataBucket_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -158,9 +158,7 @@ void test1t()
     ++it;
   }
 
-  SG::DVLDataBucket<CONTD>* buck2 = buck->clone();
   delete buck;
-  delete buck2;
 
   {
     A::log.clear();

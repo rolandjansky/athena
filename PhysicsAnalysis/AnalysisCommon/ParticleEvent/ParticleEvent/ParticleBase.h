@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEEVENT_PARTICLEBASE_H
@@ -62,8 +62,11 @@ class ParticleBase : public virtual IParticle
   void set_dataType(ParticleDataType::DataType x ) { m_dataType = x;}
   void set_charge(ChargeType x ) { m_charge = x; m_hasCharge = true;}
   void set_pdgId(PDG::pidType x ) { m_pdgId = x; m_hasPdgId = true;}
+  void reset_charge() { m_hasCharge = false; }
+  void reset_pdgId() { m_hasPdgId = false; }
   void set_origin(const VxContainer* theContainer, int index);
   void set_origin(const VxContainer* theContainer, const Trk::VxCandidate * vertex );
+  void set_origin(const ElementLink<VxContainer>& origin);
 
  private:
 
@@ -83,6 +86,10 @@ inline void ParticleBase::set_origin(const VxContainer* const theContainer, int 
 inline void ParticleBase::set_origin(const VxContainer* theContainer, const Trk::VxCandidate * vertex )
 {
   m_origin.toContainedElement(*theContainer, const_cast<Trk::VxCandidate*> (vertex));
+}
+inline void ParticleBase::set_origin(const ElementLink<VxContainer>& origin)
+{
+  m_origin = origin;
 }
 inline   ParticleDataType::DataType ParticleBase::dataType() const 
 {

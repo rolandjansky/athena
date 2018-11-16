@@ -59,17 +59,17 @@ Trk::CaloClusterROI* InDet::CaloClusterROI_Builder::buildClusterROI( const xAOD:
 
   ATH_MSG_DEBUG("Building Trk::CaloCluster_OnTrack");
    
-  if(!cluster) return 0;
+  if(!cluster) return nullptr;
 
   const Trk::Surface* surface = getCaloSurface( cluster );
   
-  if(!surface) return 0;
+  if(!surface) return nullptr;
   
   const Trk::LocalParameters* lp = getClusterLocalParameters( cluster, surface );
 
   if (!lp){
     delete surface;
-    return 0;
+    return nullptr;
   }
   
   double energy    = cluster->e();
@@ -84,6 +84,8 @@ Trk::CaloClusterROI* InDet::CaloClusterROI_Builder::buildClusterROI( const xAOD:
       emFrac = acc(*cluster);
     } else if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_ERROR("EM energy requested, but No EM fraction momement stored");
+      delete surface;
+      delete lp;
       return nullptr;
     }
     energy *= emFrac;

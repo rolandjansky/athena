@@ -15,7 +15,6 @@ from AthenaCommon.SystemOfUnits import GeV
 from RecExConfig.RecFlags import rec
 from RecExConfig.InputFilePeeker import inputFileSummary
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-#from QcdD3PDMaker.CommonD3PDMakerFlags import CommonD3PDMakerFlags
 from D3PDMakerConfig.CommonD3PDMakerFlags import CommonD3PDMakerFlags
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from IOVDbSvc.CondDB import conddb
@@ -166,7 +165,7 @@ topSequence.JetElectronSelectorInstance90.ExcludeCrackRegion=True
 topSequence.JetElectronSelectorInstance90.CalibrationFactor=0.90
 
 
-#copy cell based moments (copied from QcdD3PDMaker/share)
+#copy cell based moments
 
 
 from JetMomentTools.JetCopyMomentsAlg import JetCopyMomentsAlg

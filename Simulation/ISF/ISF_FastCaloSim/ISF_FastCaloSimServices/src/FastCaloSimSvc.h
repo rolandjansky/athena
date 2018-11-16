@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// FastCaloSimSvc.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_FASTCALOSIMSVC_H
 #define ISF_FASTCALOSIMSVC_H 1
@@ -43,7 +39,6 @@ namespace Trk {
 namespace ISF {
 
   class ISFParticle;
-  class IParticleBroker;
   class ITruthSvc;
   class IPunchThroughTool;
 
@@ -110,7 +105,6 @@ namespace ISF {
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release ;
       ToolHandle< IPunchThroughTool >     m_punchThroughTool;
       CaloCellContainer * 		  m_theContainer;
-      ServiceHandle<ISF::IParticleBroker> m_particleBroker;
 
   }; 
 }

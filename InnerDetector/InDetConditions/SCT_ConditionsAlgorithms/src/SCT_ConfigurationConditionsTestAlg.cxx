@@ -36,7 +36,7 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute() {
   ATH_MSG_INFO("in execute()");
 
   // Bad modules
-  unsigned int nBadMods{m_configConditions->badModules()->size()};
+  unsigned int nBadMods = m_configConditions->badModules()->size();
 
   // Bad links
   const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_configConditions->badLinks()};
@@ -67,12 +67,12 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute() {
   // Bad strips 
   std::set<Identifier> badStripsAll;
   m_configConditions->badStrips(badStripsAll);
-  unsigned int nBadStrips{badStripsAll.size()};
+  unsigned int nBadStrips = badStripsAll.size();
 
   // Bad strips (w/o bad modules and chips)
   std::set<Identifier> badStripsExclusive;
   m_configConditions->badStrips(badStripsExclusive, true, true);
-  int nBadStripsExclusive{badStripsExclusive.size()};
+  int nBadStripsExclusive = badStripsExclusive.size();
   int nBadStripsExclusiveBEC[]{0,0,0};
 
   std::set<Identifier>::const_iterator stripItr{badStripsExclusive.begin()};

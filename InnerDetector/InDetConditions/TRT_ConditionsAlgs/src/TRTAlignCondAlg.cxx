@@ -94,6 +94,7 @@ StatusCode TRTAlignCondAlg::execute()
     const CondAttrListCollection* readCdoDynamicGlobal{*readHandleDynamicGlobal}; 
     if(readCdoDynamicGlobal==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Dynamic Global");
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
     readCdoContainer.emplace(m_readKeyDynamicGlobal.key(),readCdoDynamicGlobal);
@@ -101,6 +102,7 @@ StatusCode TRTAlignCondAlg::execute()
     EventIDRange rangeDynamicGlobal;
     if(!readHandleDynamicGlobal.range(rangeDynamicGlobal)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicGlobal.key());
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
 
@@ -110,6 +112,7 @@ StatusCode TRTAlignCondAlg::execute()
     const AlignableTransformContainer* readCdoDynamicRegular{*readHandleDynamicRegular}; 
     if(readCdoDynamicRegular==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Dynamic Regular");
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
     readCdoContainer.emplace(m_readKeyDynamicRegular.key(),readCdoDynamicRegular);
@@ -117,6 +120,7 @@ StatusCode TRTAlignCondAlg::execute()
     EventIDRange rangeDynamicRegular;
     if(!readHandleDynamicRegular.range(rangeDynamicRegular)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleDynamicRegular.key());
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
 
@@ -130,12 +134,14 @@ StatusCode TRTAlignCondAlg::execute()
     const AlignableTransformContainer* readCdoRegular{*readHandleRegular}; 
     if(readCdoRegular==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Regular");
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
     readCdoContainer.emplace(m_readKeyRegular.key(),readCdoRegular);
     // Get range
     if(!readHandleRegular.range(rangeW)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleRegular.key());
+      delete writeCdo;
       return StatusCode::FAILURE;
     }
   }
@@ -144,6 +150,7 @@ StatusCode TRTAlignCondAlg::execute()
   // ____________ Apply alignments to TRT GeoModel ____________
   if(m_detManager->align(readCdoContainer,writeCdo).isFailure()) {
     ATH_MSG_ERROR("Failed to apply alignments to TRT");
+    delete writeCdo;
     return StatusCode::FAILURE;
   }
 
@@ -152,6 +159,7 @@ StatusCode TRTAlignCondAlg::execute()
     ATH_MSG_ERROR("Could not record GeoAlignmentStore " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
+		delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
