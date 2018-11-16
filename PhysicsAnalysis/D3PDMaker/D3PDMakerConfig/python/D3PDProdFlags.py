@@ -236,9 +236,6 @@ _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 # SUSY D3PDs
 _importFlagsFromModule ('SUSYD3PDMaker.SUSYD3PDProdFlags', True)
 
-# Exotics D3PDs.
-_importFlagsFromModule ('ExoticsD3PDMaker.ExoticsD3PDProdFlags')
-
 # Tracking D3PDs.
 _importFlagsFromModule ('TrackD3PDMaker.VertexD3PDAnalysisProdFlags')
 
