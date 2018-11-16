@@ -17,8 +17,8 @@ public:
   BareDataBucket( void * data, CLID clid, const RootType& type )
     : m_data(data), m_clid(clid), m_type( type ){}
 
-  virtual ~BareDataBucket() {    
-    if ( m_own )
+  virtual ~BareDataBucket() {
+    if ( m_data )
       m_type.Destruct( m_data );
   }
 
@@ -53,8 +53,8 @@ public:
     return nullptr;
   }
   
-  virtual void relinquish() override { 
-    m_own = false; 
+  virtual void relinquish() override {
+    m_data = nullptr;
   };
   
   virtual void lock() override { /*not lockable I think */ };
@@ -63,7 +63,6 @@ private:
   void* m_data = 0;
   CLID m_clid  = 0;
   RootType m_type;
-  bool m_own = true;
 };
 
 #endif
