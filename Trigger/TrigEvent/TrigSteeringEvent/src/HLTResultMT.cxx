@@ -140,7 +140,7 @@ void HLT::HLTResultMT::setSerialisedData(const std::unordered_map<uint16_t, std:
 
 // -----------------------------------------------------------------------------
 void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vector<uint32_t>& data) {
-    std::vector<uint32_t> v = m_data[moduleId]; // creates new empty vector if the key doesn't exist
+    std::vector<uint32_t>& v = m_data[moduleId]; // creates new empty vector if the key doesn't exist
     // WARNING, copying data which may be large
     v.insert(v.end(),data.begin(),data.end());
 }
