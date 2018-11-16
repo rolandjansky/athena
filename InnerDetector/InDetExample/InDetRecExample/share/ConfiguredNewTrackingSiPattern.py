@@ -429,9 +429,6 @@ class  ConfiguredNewTrackingSiPattern:
                                                                minTRTonTrk             = 0,
                                                                minTRTPrecisionFraction = 0);
 
-            if NewTrackingCuts.mode() == "PixelThreeLayer":
-              InDetAmbiScoringTool.doAllHitScoring = True
-
             # allow for some overlap for low-pt tracking
             #if InDetFlags.doLowPt() and not NewTrackingCuts.mode() == "LowPt":
             #   InDetAmbiScoringTool.minPt = NewTrackingCuts.minPT()-100.*Units.MeV
