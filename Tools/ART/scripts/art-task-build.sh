@@ -57,7 +57,7 @@ ART_VERSION=$(art.py --version)
 echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 
 # automatic clean-up build-output EOS area
-art-clean.py --eos --release --base-dir=/eos/atlas/atlascerngroupdisk/data-art/build-output --delete "${AtlasBuildBranch}" "${AtlasProject}" "${PLATFORM}" || true &
+art-clean.py --eos --release --base-dir=/eos/atlas/atlascerngroupdisk/data-art/build-output --delete "${AtlasBuildBranch}" "${AtlasProject}" "${ART_PLATFORM}" || true &
 
 # configure EOS_MGM_URL
 if [ -z "${EOS_MGM_URL}" ]; then
@@ -68,7 +68,7 @@ else
 fi
 
 # run build tests
-SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${PLATFORM}/${AtlasBuildStamp}
+SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${ART_PLATFORM}/${AtlasBuildStamp}
 OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
 CMD="art.py run ${RUN_ALL_TESTS} ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${ART_PLATFORM}/src ${OUTDIR}"
 echo "${CMD}"
@@ -79,6 +79,6 @@ echo "${RESULT}"
 TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
 if [[ ! -e ${TARGETDIR} ]]; then
   echo Target directory "${TARGETDIR}"
-  eos mkdir -p "${TARGETDIR}"
+  mkdir -p "${TARGETDIR}"
   xrdcp -vr "${OUTDIR}" "${TARGETDIR}"
 fi
