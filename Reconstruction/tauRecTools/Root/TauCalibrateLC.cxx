@@ -147,7 +147,7 @@ StatusCode TauCalibrateLC::initialize() {
 /********************************************************************/
 StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) 
 { 
-     
+
   // energy calibration depends on number of tracks - 1p or Mp
   int prongBin = 1; //Mp
   if (pTau.nTracks() <= 1) prongBin = 0; //1p
@@ -162,24 +162,23 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    StatusCode sc;
-    // Get the primary vertex container from StoreGate
-    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-    if (!vertexInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-      return StatusCode::FAILURE;
-    }
-    const xAOD::VertexContainer * vxContainer = 0;
-    vxContainer = vertexInHandle.cptr();
-    
-
     // for tau trigger
     bool inTrigger = tauEventData()->inTrigger();
+    const xAOD::VertexContainer * vxContainer = 0;
 
     int nVertex = 0;
         
     // Only retrieve the container if we are not in trigger
-    if (sc.isFailure() || !inTrigger ) {
+    if ( !inTrigger ) {
+
+      // StatusCode sc;
+      // Get the primary vertex container from StoreGate
+      SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+      if (!vertexInHandle.isValid()) {
+	ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+	return StatusCode::FAILURE;
+      }
+      vxContainer = vertexInHandle.cptr();
 	  
       // Calculate nVertex
       xAOD::VertexContainer::const_iterator vx_iter = vxContainer->begin();

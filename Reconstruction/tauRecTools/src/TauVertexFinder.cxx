@@ -64,39 +64,52 @@ StatusCode TauVertexFinder::eventFinalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
-  
-  // get the primary vertex container from StoreGate
-  // do it here because of tau trigger
-  SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-  if (!vertexInHandle.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-    return StatusCode::FAILURE;
-  }
+
+  // for tau trigger
+  bool inTrigger = tauEventData()->inTrigger();
+
   const xAOD::VertexContainer * vxContainer = 0;
-  vxContainer = vertexInHandle.cptr();
+  const xAOD::Vertex* primaryVertex = 0;
 
   // find default PrimaryVertex (needed if TJVA is switched off or fails)
   // see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
   // code adapted from 
   // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
-  const xAOD::Vertex* primaryVertex = 0;
-  if (vxContainer->size()>0) {   
-    // simple loop through and get the primary vertex
-    xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
-    xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
-    for ( size_t ivtx = 0; vxIter != vxIterEnd; ++vxIter, ++ivtx ){
-      // the first and only primary vertex candidate is picked
-      if ( (*vxIter)->vertexType() ==  xAOD::VxType::PriVtx){
-	primaryVertex = (*vxIter);
-	break;
+  if ( !inTrigger ){
+    // get the primary vertex container from StoreGate
+    // do it here because of tau trigger
+    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+    if (!vertexInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+      return StatusCode::FAILURE;
+    }
+    vxContainer = vertexInHandle.cptr();
+
+    if (vxContainer->size()>0) {
+      // simple loop through and get the primary vertex
+      xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
+      xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
+      for ( size_t ivtx = 0; vxIter != vxIterEnd; ++vxIter, ++ivtx ){
+	// the first and only primary vertex candidate is picked
+	if ( (*vxIter)->vertexType() ==  xAOD::VxType::PriVtx){
+	  primaryVertex = (*vxIter);
+	  break;
+	}
       }
     }
   }
   else { // trigger mode
     // find default PrimaryVertex (highest sum pt^2)
+    StatusCode sc;
+    //for tau trigger
+    sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
+    if ( sc.isFailure() ){
+      ATH_MSG_WARNING("Could not retrieve VxPrimaryCandidate");
+      return StatusCode::FAILURE;
+    }
     if (vxContainer->size()>0) primaryVertex = (*vxContainer)[0];
   }
-  
+
   ATH_MSG_VERBOSE("size of VxPrimaryContainer is: "  << vxContainer->size() );
     
   // associate vertex to tau

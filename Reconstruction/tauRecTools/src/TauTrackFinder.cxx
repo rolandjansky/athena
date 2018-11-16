@@ -81,7 +81,6 @@ StatusCode TauTrackFinder::eventFinalize() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 
-  StatusCode sc;
   ElementLink< xAOD::TauTrackContainer > link = pTau.allTauTrackLinksNonConst().at(0);//we don't care about this specific link, just the container
   xAOD::TauTrackContainer* tauTrackCon = link.getDataNonConstPtr();
   
@@ -93,15 +92,23 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   std::vector<const xAOD::TrackParticle*> tauTracks;
   std::vector<const xAOD::TrackParticle*> wideTracks;
   std::vector<const xAOD::TrackParticle*> otherTracks;
-
-  // Get the track particle container from StoreGate   
-  SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
-  if (!trackPartInHandle.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
-    return StatusCode::FAILURE;
-  }
+  
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
-  trackParticleCont = trackPartInHandle.cptr();
+  //for tau trigger
+  bool inTrigger = tauEventData()->inTrigger();
+  if (inTrigger)   {
+    ATH_CHECK(tauEventData()->getObject( "TrackContainer", trackParticleCont ));    
+    //ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
+  }
+  else {
+    // Get the track particle container from StoreGate   
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
+    if (!trackPartInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
+      return StatusCode::FAILURE;
+    }
+    trackParticleCont = trackPartInHandle.cptr();
+  }
 
   // get the primary vertex
   const xAOD::Vertex* pVertex = pTau.vertexLink()!=0 ? (*pTau.vertexLink()) : NULL;
@@ -109,7 +116,7 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
   getTauTracksFromPV(pTau, *trackParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
-  
+
   this->resetDeltaZ0Cache();
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
   if (m_applyZ0cut) {
@@ -241,6 +248,7 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   // store information only in ExtraDetailsContainer
   if(!m_bypassExtrapolator)
     {
+      StatusCode sc;
       sc = extrapolateToCaloSurface(pTau);
       if (sc.isFailure() && !sc.isRecoverable()) {
 	ATH_MSG_ERROR("couldn't extrapolate tracks to calo surface");
