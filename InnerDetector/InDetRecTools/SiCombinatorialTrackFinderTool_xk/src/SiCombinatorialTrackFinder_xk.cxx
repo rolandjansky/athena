@@ -208,6 +208,20 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   //
   m_trajectory.setTools(&m_tools);
 
+  // Grab Pixel and SCT IDs
+  if (m_usePIX && detStore()->retrieve(m_pixID, "PixelID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  if (m_useSCT && detStore()->retrieve(m_sctID, "SCT_ID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  //
+  m_trajectory.setDetIDs(m_pixID,m_sctID);
+
   // Turn on/off cleaning of spurious SCT hits
   m_trajectory.cleanSpuriousSCTHits(m_cleanSpuriousSCTHits);
 
