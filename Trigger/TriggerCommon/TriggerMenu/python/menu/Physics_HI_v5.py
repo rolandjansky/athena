@@ -179,37 +179,44 @@ def setupMenu():
 
     #photoproduction
     #['j5_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    ['j10_rcu4_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
     ['j10_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 		
     #['j5_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    ['j10_rcu4_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
     ['j10_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j30_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j40_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
+	['j10_rcu4_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j30_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
 	#supporting
+	['j10_rcu4_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
 	#eta inclusive versions:
+	['j10_rcu4_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j30_0eta490_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j40_0eta490_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
+	['j10_rcu4_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j30_0eta490_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
+	['j10_rcu4_0eta490_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_0eta490_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
 	

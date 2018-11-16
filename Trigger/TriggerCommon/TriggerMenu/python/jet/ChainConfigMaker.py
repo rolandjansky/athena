@@ -194,7 +194,7 @@ def _get_reco_cut_str(key, parts):
         val= vals.pop()
         chain_name = cache['chain_name']
         if  (val not in logical_defaults.values() and
-             not cache['chain_name'].startswith('j0')):
+             (not cache['chain_name'].startswith('j0') and not cache['chain_name'].startswith('j10'))):
             
             msg = '%s: attempting to set a non-default reco cut %s for '\
             'a non j0 chain %s'
