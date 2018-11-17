@@ -67,7 +67,7 @@ bool MdtTestCabling::testMap()
 
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return false;
   }
@@ -261,7 +261,7 @@ bool MdtTestCabling::testMapTiming()
 
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return false;
   }  
