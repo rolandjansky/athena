@@ -66,10 +66,10 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId) const;
 
   /** return the ROD id of a given chamber, given station, eta, phi */
-  uint32_t getROBId(int station, int eta, int phi);
+  uint32_t getROBId(int station, int eta, int phi) const;
 
   /** return the ROD id of a given chamber, given the hash id */
-  uint32_t getROBId(const IdentifierHash stationCode);
+  uint32_t getROBId(const IdentifierHash stationCode) const;
 
  /** return a vector of HashId lists for a  given list of ROD's */
   const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const;
@@ -90,7 +90,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   bool getOnlineId(int stationName, int stationEta, int stationPhi,
 		   int multiLayer, int layer, int tube,
 		   uint8_t& subdetectorId, uint8_t& rodId, uint8_t& csmId,
-		   uint8_t& tdcId, uint8_t& channelId);
+		   uint8_t& tdcId, uint8_t& channelId) const;
 
  private:
 
@@ -113,7 +113,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   ListOfROD* m_listOfROD;
 
   /** private function to compute a station code for the chamber to ROD map */
-  bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash);
+  bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash) const;
 
   /** Pointer to the MdtIdHelper */
   const MdtIdHelper* m_mdtIdHelper;

@@ -367,7 +367,7 @@ bool MuonMDT_CablingMap::addChamberToRODMap(int station, int eta, int phi,
  *
  */
 bool MuonMDT_CablingMap::getStationCode(int station, int eta, int phi, 
-					IdentifierHash& mdtHashId)
+					IdentifierHash& mdtHashId) const
 {
   // create the station identifier
   Identifier elementId = m_mdtIdHelper->elementID(station,eta,phi);
@@ -387,7 +387,7 @@ bool MuonMDT_CablingMap::getStationCode(int station, int eta, int phi,
  * return the ROBid of a given station, identified through station, eta, phi
  *
  */
-uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi)
+uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi) const
 {
 
   int rodId = 0;
@@ -407,7 +407,7 @@ uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi)
 }
 
 // get the ROBid given the identifier hash
-uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode)
+uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode) const
 {
   int rodId = 0;
 
@@ -587,7 +587,7 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
 				     int multiLayer, int layer, int tube,
 				     uint8_t& subdetectorId, uint8_t& rodId, 
 				     uint8_t& csmId, uint8_t& tdcId, 
-				     uint8_t& channelId)
+				     uint8_t& channelId) const
 {
 
   

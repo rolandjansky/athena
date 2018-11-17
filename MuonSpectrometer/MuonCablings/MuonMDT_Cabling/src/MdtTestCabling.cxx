@@ -183,8 +183,12 @@ bool MdtTestCabling::testMap()
 
 	      // test the back-conversion to online indeces
 	      m_chronoSvc->chronoStart(m_chrono3);
+	      /*
 	      cabling =  m_cablingSvc->getOnlineId(station,eta,phi,multi,layer,tube,
 						   newSubdet,newRod,newCsm,newAmt,newChan);
+	      */
+	      cabling = readCdo->getOnlineId(station,eta,phi,multi,layer,tube,newSubdet,newRod,newCsm,newAmt,newChan);
+
 	      m_chronoSvc->chronoStop(m_chrono3);
 
 	      if (!cabling) {
