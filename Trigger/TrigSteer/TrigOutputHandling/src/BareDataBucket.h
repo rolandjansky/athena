@@ -48,10 +48,6 @@ public:
                       bool isConst = true) override {
     return ( tinfo == m_type.TypeInfo() and isConst ) ? m_data : nullptr;
   }
-
-  virtual DataBucketBase* clone() const override {
-    return nullptr;
-  }
   
   virtual void relinquish() override {
     m_data = nullptr;
