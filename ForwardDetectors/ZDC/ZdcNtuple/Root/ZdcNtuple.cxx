@@ -24,8 +24,9 @@
 
 ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator) 
   : EL::AnaAlgorithm(name,pSvcLocator),  
-    m_trigDecisionTool ("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool"),
+    m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool",this),
+    m_trigDecisionTool ("Trig::TrigDecisionTool/TrigDecisionTool",this),
+    m_trigMatchingTool("Trig::MatchingTool/TrigMatchingTool",this),
     m_grl ("GoodRunsListSelectionTool/grl", this),
     m_jetCleaning ("JetCleaningTool/JetCleaning", this),
     m_muonSelection ("CP::MuonSelectionTool", this),
@@ -48,6 +49,7 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   m_setupTrigHist = false;
   m_eventCounter = 0;
 
+  declareProperty("isMC",  m_isMC = false, "MC mode");
   declareProperty("enableOutputTree",  enableOutputTree = false, "Enable output tree");
   declareProperty("enableOutputSamples",  enableOutputSamples = false, "comment");
   declareProperty("enableTrigger",  enableTrigger = false, "comment");
@@ -86,6 +88,7 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   declareProperty("express2016B",  express2016B = false, "comment");
   declareProperty("upc2016B",  upc2016B = false, "comment");
   declareProperty("upc2016C",  upc2016C = false, "comment");
+  declareProperty("upc2018",  upc2018 = false, "comment");
   declareProperty("mboverlay2016",  mboverlay2016 = false, "comment");
   
   m_jetContainerNames.clear();
@@ -150,7 +153,7 @@ StatusCode ZdcNtuple :: histInitialize ()
 
   ANA_MSG_INFO("Howdy from histInitialize!");
 
-  char name[50];
+  //char name[50];
 
   if (enableOutputTree)
     {
@@ -206,7 +209,9 @@ StatusCode ZdcNtuple :: histInitialize ()
       m_outputTree->Branch("zdc_sumLG_rp",&t_sumLG_rp,"zdc_sumLG_rp[2]/F");
 
       m_outputTree->Branch("zdc_ZdcAmp",&t_ZdcAmp,"zdc_ZdcAmp[2]/F");
+      m_outputTree->Branch("zdc_ZdcAmpErr",&t_ZdcAmpErr,"zdc_ZdcAmpErr[2]/F");
       m_outputTree->Branch("zdc_ZdcEnergy",&t_ZdcEnergy,"zdc_ZdcEnergy[2]/F");
+      m_outputTree->Branch("zdc_ZdcEnergyErr",&t_ZdcEnergyErr,"zdc_ZdcEnergyErr[2]/F");
       m_outputTree->Branch("zdc_ZdcTime",&t_ZdcTime,"zdc_ZdcTime[2]/F");
       m_outputTree->Branch("zdc_ZdcStatus",&t_ZdcStatus,"zdc_ZdcStatus[2]/S");
       m_outputTree->Branch("zdc_ZdcTrigEff",&t_ZdcTrigEff,"zdc_ZdcTrigEff[2]/F");
@@ -616,7 +621,9 @@ StatusCode ZdcNtuple :: initialize ()
   if (enableTrigger)
     {
       // Trigger
+      ANA_MSG_INFO("Initializing trigConfigTool");
       ANA_CHECK (m_trigConfigTool.initialize());
+      ANA_MSG_INFO("Initializing trigDecisionTool");
       ANA_CHECK (m_trigDecisionTool.setProperty ("ConfigTool", m_trigConfigTool.getHandle())); // connect the TrigDecisionTool to the ConfigTool
       ANA_CHECK (m_trigDecisionTool.setProperty ("TrigDecisionKey", "xTrigDecision"));
       ANA_CHECK (m_trigDecisionTool.initialize());
@@ -691,7 +698,7 @@ StatusCode ZdcNtuple :: initialize ()
   if (enableTrigger)
     {
 
-      if (!upc2015 && !mb2015 && !upcL2015)
+      if (!upc2015 && !mb2015 && !upcL2015 && !upc2018)
 	{
 	  m_muon_triggers.push_back("HLT_mu15_L1MU10");
 	  m_muon_triggers.push_back("HLT_mu20_L1MU15");
@@ -705,6 +712,18 @@ StatusCode ZdcNtuple :: initialize ()
 	  m_ph_triggers.push_back("HLT_g35_loose");
 	}
 
+      if (upc2018)
+	{
+	  m_muon_triggers.push_back("HLT_mu4_L1MU4_VTE50");
+	  m_muon_triggers.push_back("HLT_mu4_L1MU4_VZDC_AORC_VTE200");
+	  m_muon_triggers.push_back("HLT_mu6_L1MU4_VTE50");
+	  m_muon_triggers.push_back("HLT_mu8_L1MU6_VTE50");
+	  m_muon_triggers.push_back("HLT_mu4_hi_upc_FgapAC3_L1MU4_VTE50");
+	}
+
+      ANA_MSG_INFO("Initializing trig matching tool");
+      ANA_CHECK(m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecisionTool.getHandle())); 
+      ANA_CHECK(m_trigMatchingTool.initialize());           
       /*
       m_muonTrigMatchTool = new Trig::TrigMuonMatching("MuonTrigMatchTool");
       ANA_CHECK(m_muonTrigMatchTool->setProperty("TriggerTool",trigDecisionHandle));
@@ -828,10 +847,27 @@ StatusCode ZdcNtuple :: initialize ()
   if (reprocZdc)
     {
       m_zdcAnalysisTool = new ZDC::ZdcAnalysisTool("ZdcAnalysisTool");
+      m_zdcAnalysisTool->setProperty("Configuration","PbPb2018");
       m_zdcAnalysisTool->setProperty("FlipEMDelay",flipDelay);
       m_zdcAnalysisTool->setProperty("LowGainOnly",zdcLowGainOnly);
       m_zdcAnalysisTool->setProperty("ForceCalibRun",-1);
+      //m_zdcAnalysisTool->setProperty("T0",68);
       m_zdcAnalysisTool->setProperty("AuxSuffix",auxSuffix);
+      m_zdcAnalysisTool->setProperty("DoCalib",false);
+      if (flipDelay) 
+	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
+      else
+	ANA_MSG_INFO("NO FLIP ZDC DELAY IN EM MODULES");
+      
+      ANA_CHECK(m_zdcAnalysisTool->initialize());
+
+      /*
+      m_zdcAnalysisTool.setProperty("Configuration","PbPb2018");
+      m_zdcAnalysisTool.setProperty("FlipEMDelay",flipDelay);
+      m_zdcAnalysisTool.setProperty("LowGainOnly",zdcLowGainOnly);
+      m_zdcAnalysisTool.setProperty("ForceCalibRun",-1);
+      m_zdcAnalysisTool.setProperty("AuxSuffix",auxSuffix);
+      m_zdcAnalysisTool.setProperty("DoCalib",false);
       if (flipDelay) 
 	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
       else
@@ -839,6 +875,8 @@ StatusCode ZdcNtuple :: initialize ()
       
       ANA_CHECK(m_zdcAnalysisTool->initialize());
       ANA_MSG_INFO( "ZDC analysis tool initialized?");
+      */
+
     }
 
 
@@ -882,18 +920,23 @@ StatusCode ZdcNtuple :: execute ()
  
   if (!m_setupTrigHist) setupTriggerHistos();
 
- if (!(zdcCalib||zdcLaser))
+  //tracks used to go here
+
+  m_trackParticles=0;
+
+  if (!(zdcCalib||zdcLaser))
     {
-      ANA_MSG_INFO("Trying to extract InDetTrackParticles from evtStore()=" << evtStore());
+      ANA_MSG_DEBUG("Trying to extract InDetTrackParticles from evtStore()=" << evtStore());
       ANA_CHECK(evtStore()->retrieve( m_trackParticles, "InDetTrackParticles") );
-      ANA_MSG_INFO("Done w/ extracting InDetTrackParticles");
       size_t n = m_trackParticles->size();
+      ANA_MSG_DEBUG("Done w/ extracting InDetTrackParticles with size = " << n);
+      
       if (n>trackLimit && trackLimitReject)  return StatusCode::SUCCESS;
     }
 
 
   bool passTrigger = true;
-
+  m_trigDecision=0;
   if (enableTrigger)
     {
       ANA_CHECK(evtStore()->retrieve( m_trigDecision, "xTrigDecision"));  
@@ -912,7 +955,7 @@ StatusCode ZdcNtuple :: execute ()
       m_zdcSums=0;
       ANA_CHECK( evtStore()->retrieve( m_zdcSums, "ZdcSums"+auxSuffix) );      
 
-      m_zdcModules;
+      m_zdcModules=0;
       ANA_CHECK(evtStore()->retrieve( m_zdcModules, "ZdcModules" ) ); // ZDC modules keep same name, but the aux data get different suffix during reprocessing
 
       processModules();
@@ -936,10 +979,12 @@ StatusCode ZdcNtuple :: execute ()
       ANA_CHECK(evtStore()->retrieve( m_caloSums, "CaloSums") );
       ANA_CHECK(evtStore()->retrieve( m_eventShapes, "HIEventShape") );
       m_TTeventShapes = 0;
+      /*
       if (t_runNumber>312000)
 	{
 	  ANA_CHECK(evtStore()->retrieve( m_TTeventShapes, "HLT_xAOD__HIEventShapeContainer_HIFCAL") );
 	}
+      */
 
       m_lvl1EnergySumRoI = 0;
       ANA_CHECK(evtStore()->retrieve( m_lvl1EnergySumRoI,"LVL1EnergySumRoI") );
@@ -1060,6 +1105,11 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  //t_ZdcEnergy[iside] = acc(*zdcSum);
 	  
 	  t_ZdcEnergy[iside] = zdcSum->auxdataConst<float>("CalibEnergy");
+	  t_ZdcEnergyErr[iside] = zdcSum->auxdataConst<float>("CalibEnergyErr");
+
+	  t_ZdcAmp[iside] = zdcSum->auxdataConst<float>("UncalibSum");
+	  t_ZdcAmpErr[iside] = zdcSum->auxdataConst<float>("UncalibSumErr");
+	  
 	  //if (debug) ANA_MSG_INFO("processZdcNtupleFromModules","ZdcSum energy = %6.2f",t_ZdcEnergy[iside]);
 	  
 	  t_ZdcTime[iside] = zdcSum->auxdataConst<float>("AverageTime");
@@ -1346,6 +1396,7 @@ void ZdcNtuple::processFCal()
       //t_L1ET24 = m_lvl1EnergySumRoI->energyTRestricted();
     }  
 
+  /*
   if (m_TTeventShapes)
     {
       for (const auto eventShape : *m_TTeventShapes) 
@@ -1360,6 +1411,7 @@ void ZdcNtuple::processFCal()
 	    }
 	}      
     }
+  */
 
   return;
 }
@@ -1601,6 +1653,9 @@ int ZdcNtuple::processMuons()
 	      for (size_t imutr=0;imutr<m_muon_triggers.size();imutr++)
 		{
 		  uint8_t muon_HLT_match = 0;
+
+		  muon_HLT_match = m_trigMatchingTool->match(*muon,m_muon_triggers.at(imutr));
+
 		  /*
 		  if (m_muonTrigMatchTool)
 		    {
@@ -2712,6 +2767,9 @@ int ZdcNtuple::trackQuality(const xAOD::TrackParticle* track, const xAOD::Vertex
 {
   // Code from Soumya
 
+  // dummy
+  if (vertex){}
+
   if (!track) return -1;
 
   float pt      = track->pt();
@@ -2860,10 +2918,10 @@ void ZdcNtuple::processClusters()
 	}
 
       double cell_sig = 0;
-      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIGNIFICANCE,cell_sig)){ANA_MSG_INFO("processClusters() : No CELL_SIGNIFICANCE!");}
+      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIGNIFICANCE,cell_sig)){ANA_MSG_DEBUG("processClusters() : No CELL_SIGNIFICANCE!");}
       t_cc_sig.push_back(cell_sig);
       double cell_layer = 0;
-      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIG_SAMPLING,cell_layer)){ANA_MSG_INFO("processClusters() : No CELL_SIG_SAMPLING!");}
+      if (!cluster->retrieveMoment(xAOD::CaloCluster::CELL_SIG_SAMPLING,cell_layer)){ANA_MSG_DEBUG("processClusters() : No CELL_SIG_SAMPLING!");}
       t_cc_layer.push_back(int(cell_layer));
       //t_nclus++;
     }
@@ -2922,7 +2980,7 @@ void ZdcNtuple::processModules()
 	      ANA_MSG_INFO("execute: Integrity check failed, bigtube channel!=0");
 	      continue;
 	    }
-	  int h_index = side_index*4 + zdcmod->zdcModule();
+	  //int h_index = side_index*4 + zdcmod->zdcModule();
 
 	  t_amp[side_index][mod_index] = zdcmod->amplitude();
 	  t_time[side_index][mod_index] = zdcmod->time();
@@ -3106,6 +3164,7 @@ void ZdcNtuple::setupTriggerHistos()
   bool limitedupc_triggers = upcL2015 &&!(zdcCalib||zdcLaser);
   bool express2016A_triggers = express2016A &&!(zdcCalib||zdcLaser);
   bool upc2016A_triggers = upc2016A &&!(zdcCalib||zdcLaser);
+  bool upc2018_triggers = upc2018 &&!(zdcCalib||zdcLaser);
   //bool main2016A_triggers = main2016A &&!(zdcCalib||zdcLaser);
   bool express2016B_triggers = express2016B &&!(zdcCalib||zdcLaser);
   bool upc2016B_triggers = upc2016B &&!(zdcCalib||zdcLaser);
@@ -3120,6 +3179,7 @@ void ZdcNtuple::setupTriggerHistos()
       triggers.push_back("L1_ZDC_C");
       triggers.push_back("L1_ZDC_AND");
       triggers.push_back("L1_ZDC_A_C");
+      triggers.push_back("L1_MBTS_2");
     }
 
 
@@ -3246,6 +3306,28 @@ void ZdcNtuple::setupTriggerHistos()
       triggers.push_back("HLT_hi_upc_FgapC_j10_0eta490_L1MBTS_2_A");
     }
 
+  if (upc2018_triggers)
+    {
+      triggers.push_back("HLT_mu4_L1MU4_VZDC_AORC_VTE200");
+      triggers.push_back("HLT_mu4_L1MU4_VTE50");
+      triggers.push_back("HLT_2mu4_L12MU4_VTE50");
+      triggers.push_back("HLT_mu4_mu4noL1_L1MU4_VTE50");
+      triggers.push_back("HLT_mu6_L1MU4_VTE50");
+      triggers.push_back("HLT_mu8_L1MU6_VTE50");
+      triggers.push_back("HLT_mb_sptrk_exclusiveloose_vetosp1500_L1VTE20");
+      triggers.push_back("HLT_mb_sptrk_exclusivetight_vetosp1500_L1VTE20");
+      triggers.push_back("HLT_mb_sp_L1VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU1_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L12TAU2_VTE200");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose1_L1MU4_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1MU4_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1ZDC_A_C_VTE50");
+      triggers.push_back("HLT_hi_upc_FgapAC3_mb_sptrk_exclusiveloose2_L1VZDC_A_C_VTE50");
+      triggers.push_back("HLT_mu4_hi_upc_FgapAC3_L1MU4_VTE50");
+      
+    }
   if (upc2016A_triggers)
     {
       triggers.push_back("HLT_e5_etcut_L1EM3_VZDC_A");

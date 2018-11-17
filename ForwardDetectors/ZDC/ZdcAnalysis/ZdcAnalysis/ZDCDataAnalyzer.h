@@ -24,6 +24,8 @@ private:
   std::string m_fitFunction;
   bool m_forceLG;
 
+  std::array<std::array<int, 4>, 2> m_delayedOrder;
+
   ZDCModuleBoolArray m_moduleDisabled;
   std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> m_moduleAnalyzers;
 
@@ -83,6 +85,7 @@ public:
   }
 
   void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
+  void EnableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
 
   unsigned int GetModuleMask() const {return m_moduleMask;}
 

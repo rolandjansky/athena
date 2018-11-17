@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HIMBAnalysis_ZdcNtuple_H
-#define HIMBAnalysis_ZdcNtuple_H
+#ifndef ZdcNtuple_ZdcNtuple_H
+#define ZdcNtuple_ZdcNtuple_H
 
 //#include <EventLoop/Algorithm.h>
 
@@ -16,6 +16,7 @@
 
 #include <TrigConfInterfaces/ITrigConfigTool.h>
 #include <TrigDecisionTool/TrigDecisionTool.h>
+#include <TriggerMatchingTool/IMatchingTool.h>
 
 #include "xAODEventInfo/EventInfo.h"
 //#include "GoodRunsLists/GoodRunsListSelectionTool.h"
@@ -75,6 +76,7 @@
 //#include "HIEventUtils/MBTSTimeSelectionTool.h"
 //#include "HIEventUtils/ZdcRecTool.h"
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
+//#include "ZdcAnalysisInterfaces/IZdcAnalysisTool.h"
 
 class ZdcNtuple : public EL::AnaAlgorithm
 {
@@ -118,6 +120,7 @@ public:
   bool main2016B; // 
   bool upc2016B; // p+Pb
   bool upc2016C; // Pb+p
+  bool upc2018; //
   bool express2016B; // 
   bool mboverlay2016; // 
 
@@ -131,8 +134,10 @@ public:
   // TH1 *myHist; //!
 
   // Tools
-  asg::AnaToolHandle<Trig::TrigDecisionTool>  m_trigDecisionTool; //!
   asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigConfigTool; //!
+  asg::AnaToolHandle<Trig::TrigDecisionTool>  m_trigDecisionTool; //!
+  asg::AnaToolHandle<Trig::IMatchingTool> m_trigMatchingTool;//!
+
   //GoodRunsListSelectionTool *m_grl; //!
   //GoodRunsListSelectionTool *m_grl_mb; //!
   asg::AnaToolHandle<IGoodRunsListSelectionTool> m_grl; //!
@@ -173,7 +178,9 @@ public:
   //HI::HIVertexSelectionTool* m_hiVertexSelectionTool; //!
   //HI::MBTSTimeSelectionTool* m_hiMBTSTimeSelectionTool; //!
   //ZDC::ZdcRecTool* m_zdcRecTool; //!
-  ZDC::ZdcAnalysisTool* m_zdcAnalysisTool; //!
+
+  ZDC::ZdcAnalysisTool* m_zdcAnalysisTool;//!
+  //asg::AnaToolHandle<ZDC::IZdcAnalysisTool> m_zdcAnalysisTool; //!
 
   const xAOD::EventInfo* m_eventInfo; //!
   // end of Tools
@@ -293,7 +300,9 @@ public:
   float t_sumLG_rp[2];//!
 
   float t_ZdcAmp[2];//!
+  float t_ZdcAmpErr[2];//!
   float t_ZdcEnergy[2];//!
+  float t_ZdcEnergyErr[2];//!
   float t_ZdcTime[2];//!
   short t_ZdcStatus[2];//!
   unsigned int t_ZdcModuleMask;//!

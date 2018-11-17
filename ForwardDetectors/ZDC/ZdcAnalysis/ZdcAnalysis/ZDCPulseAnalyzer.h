@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCPulseAnalyzer_h
@@ -101,6 +101,7 @@ private:
   bool m_useDelayed;
   float m_delayedDeltaT;
   float m_delayedPedestalDiff;
+  float m_baselineCorr;
   mutable TH1* m_delayedHist;
 
   TFitter* m_prePulseCombinedFitter;

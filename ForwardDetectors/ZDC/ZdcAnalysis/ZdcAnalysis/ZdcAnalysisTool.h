@@ -59,6 +59,11 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   //float getModuleCalibTime(int side, int imod);
 
   float getCalibModuleSum(int side);
+  float getCalibModuleSumErr(int side);
+
+  float getUncalibModuleSum(int side);
+  float getUncalibModuleSumErr(int side);
+
   float getAverageTime(int side);
   bool  sideFailed(int side);
   unsigned int getModuleMask();

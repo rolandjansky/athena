@@ -64,7 +64,7 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   // for xAOD files.
   sh.setMetaString( "nc_tree", "CollectionTree" );
   // Print what we found:
-  sh.print();
+  // sh.print();
 
   // Create an EventLoop job:
   EL::Job job;
@@ -80,6 +80,7 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   
   bool zdcCalib = false;
   if (enableStr.find("debug")!=std::string::npos) { zdcAna.setProperty("debug", true); }
+  if (enableStr.find("isMC")!=std::string::npos) { zdcAna.setProperty("isMC", true); }
   if (enableStr.find("slimmed")!=std::string::npos) { zdcAna.setProperty("slimmed", true); }
   if (enableStr.find("tree")!=std::string::npos) { zdcAna.setProperty("enableOutputTree", true); }
   if (enableStr.find("samples")!=std::string::npos) { zdcAna.setProperty("enableOutputSamples", true); }
@@ -114,8 +115,17 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
   if (enableStr.find("upc2016B")!=std::string::npos) { zdcAna.setProperty("upc2016B", true);}
   if (enableStr.find("upc2016C")!=std::string::npos) { zdcAna.setProperty("upc2016C", true);}
   if (enableStr.find("mboverlay2016")!=std::string::npos) { zdcAna.setProperty("mboverlay2016", true);}
+  if (enableStr.find("upc2018")!=std::string::npos) { zdcAna.setProperty("upc2018", true);}
   if (enableStr.find("writeOnlyTriggers")!=std::string::npos) { zdcAna.setProperty("writeOnlyTriggers", true);}
-  if (grlOption != "") zdcAna.setProperty("grlFilename",grlOption);
+   if (grlOption != "")
+    {
+      zdcAna.setProperty("grlFilename",grlOption);
+      zdcAna.setProperty("useGRL",true);
+    }
+  else
+    {
+      zdcAna.setProperty("useGRL",false);
+    }
   
   zdcAna.setProperty("trackLimit", localTrackLimit);
 
@@ -150,7 +160,15 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
       EL::PrunDriver driver;
       driver.options()->setString("nc_outputSampleName", "user.steinber.%in:name[0]%.%in:name[1]%.%in:name[2]%.%in:name[3]%.%in:name[4]%.%in:name[5]%.%in:name[6]%."+vers);
       driver.options()->setDouble(EL::Job::optGridMergeOutput, 1); //run merging jobs for all samples before downloading (recommended) 
-      driver.options()->setString(EL::Job::optGridNFilesPerJob,  "3"); //By default, split in as few jobs as possible      
+      if (zdcCalib)
+	{
+	  driver.options()->setString(EL::Job::optGridNFilesPerJob,  "1"); //By default, split in as few jobs as possible      	  
+	}
+      else
+	{
+	  driver.options()->setString(EL::Job::optGridNFilesPerJob,  "5"); //By default, split in as few jobs as possible      
+	}
+      
       //driver.options()->setString(EL::Job::optGridSite,"CERN-PROD");
       driver.submitOnly( job, submitDir );
     }
@@ -161,7 +179,7 @@ int makeZdcNtuple(std::string submitDir = "submitDir",std::string readDir = "fil
       TString shellCommand = "export export LSB_JOB_REPORT_MAIL=N; export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase &&";
       shellCommand += "source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh" ;
       driver.options()->setString (EL::Job::optSubmitFlags, "-L /bin/bash -q 1nd");
-      driver.options()->setString (EL::Job::optFilesPerWorker,  "20");
+      driver.options()->setString (EL::Job::optFilesPerWorker,  "1");// was 20 for normal work
       driver.shellInit = shellCommand.Data();
       driver.submitOnly( job, submitDir );
     }

@@ -339,11 +339,14 @@ namespace ZDC
     //  For now we allow the tau values to be controlled by the job properties until they are better determined
     //
     const int peakSample = 5;
-    const float peak2ndDerivThreshHG = -12;
+    //const float peak2ndDerivThreshHG = -12;
+    const float peak2ndDerivThreshHG = -16;
     const float peak2ndDerivThreshLG = -10;
     const float tau1 = 4.5;
     const float tau2 = 22.;
-
+    const float defaultT0 = 65;
+    //const float defaultT0 = 49;
+    m_deltaTCut = 25;
 
     for (size_t side : {0, 1}) {
       for (size_t module : {0, 1, 2, 3}) {
@@ -356,7 +359,11 @@ namespace ZDC
 	peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
 	peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
 
-	t0[side][module] = m_t0;
+	// We have a default T0. Allow job property to override if it differs from default
+	//
+	if (m_t0 - 50 > 1e-3) t0[side][module] = m_t0;
+	else t0[side][module] = defaultT0;
+
 	deltaT0CutLow[side][module] = -m_deltaTCut;
 	deltaT0CutHigh[side][module] = m_deltaTCut;
 	chisqDivAmpCut[side][module] = m_ChisqRatioCut;
@@ -379,10 +386,11 @@ namespace ZDC
     // Open up tolerances on the position of the peak for now
     //
     zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(2);
+    //zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(4);
 
     // We alwyas disable the 12EM (sideC) module which was not present (LHCf)
     //
-    zdcDataAnalyzer->DisableModule(0,0);
+    //zdcDataAnalyzer->DisableModule(0,0);
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
     zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0, t0);
@@ -394,8 +402,19 @@ namespace ZDC
     m_combineDelay = true;
     ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
-    zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
+    //zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
+
+    //  We use per-module delays to handle the delayed-undelayed swap on EMC
+    //
+    ZDCDataAnalyzer::ZDCModuleFloatArray delayDeltaTs = {{{{12.5, -12.5, -12.5, -12.5}}, 
+							  {{-12.5, -12.5, -12.5, -12.5}}}};
+
+    zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
+
+    //    zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     //  }
+
+    //zdcDataAnalyzer->SetDebugLevel(4); // temporary
 
     return zdcDataAnalyzer;
   }
@@ -799,8 +818,8 @@ namespace ZDC
       {
       
 	if (zdcModule->type()==1) continue;
-
-	if (zdcModule->zdcModule()==0 && m_flipEMDelay) // flip delay/non-delay for EM big tube
+	
+	if (zdcModule->zdcModule()==0 && m_flipEMDelay) // flip delay/non-delay for 2015 ONLY
 	  {
 	    adcUndelayLG = &(*(zdcModule->TTg0d1Link()))->adc();
 	    adcUndelayHG = &(*(zdcModule->TTg1d1Link()))->adc();
@@ -816,7 +835,7 @@ namespace ZDC
 	    adcDelayLG = &(*(zdcModule->TTg0d1Link()))->adc();
 	    adcDelayHG = &(*(zdcModule->TTg1d1Link()))->adc();
 	  }
-      
+
 	static std::vector<float> HGUndelADCSamples(m_numSample);
 	static std::vector<float> LGUndelADCSamples(m_numSample);
 
@@ -841,6 +860,12 @@ namespace ZDC
 	  // If the delayed channels actually come earlier (as in the pPb in 2016), we invert the meaning of delayed and undelayed
 	  //   see the initialization sections for similar inversion on the sign of the pedestal difference
 	  //
+
+	  m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
+						HGUndelADCSamples, LGUndelADCSamples,
+						HGDelayADCSamples, LGDelayADCSamples);
+
+	    /*
 	  if (m_delayDeltaT > 0) {
 	    m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(), 
 						  HGUndelADCSamples, LGUndelADCSamples,
@@ -851,6 +876,7 @@ namespace ZDC
 						  HGDelayADCSamples, LGDelayADCSamples,
 						  HGUndelADCSamples, LGUndelADCSamples);
 	  }
+	    */
 	}
       }
 
@@ -917,9 +943,16 @@ namespace ZDC
 
 	float calibEnergy = getCalibModuleSum(iside);
 	zdc_sum->auxdecor<float>("CalibEnergy") = calibEnergy;
+	float calibEnergyErr = getCalibModuleSumErr(iside);
+	zdc_sum->auxdecor<float>("CalibEnergyErr") = calibEnergyErr;
+	
+	float uncalibSum = getUncalibModuleSum(iside);
+	zdc_sum->auxdecor<float>("UncalibSum") = uncalibSum;
+	float uncalibSumErr = getUncalibModuleSumErr(iside);
+	zdc_sum->auxdecor<float>("UncalibSumErr") = uncalibSumErr;
 
 	float finalEnergy = calibEnergy;
-	if (iside==0) finalEnergy = finalEnergy*(1 + 7e-7 * finalEnergy); // nonlinear correction for side C
+	//if (iside==0) finalEnergy = finalEnergy*(1 + 7e-7 * finalEnergy); // nonlinear correction for side C
 
 	zdc_sum->auxdecor<float>("FinalEnergy") = finalEnergy;
 	zdc_sum->auxdecor<float>("AverageTime") = getAverageTime(iside);
@@ -1153,6 +1186,24 @@ namespace ZDC
   {
     if (!m_zdcDataAnalyzer) return 0;
     return m_zdcDataAnalyzer->GetCalibModuleSum(side);
+  }
+
+  float ZdcAnalysisTool::getCalibModuleSumErr(int side)
+  {
+    if (!m_zdcDataAnalyzer) return 0;
+    return m_zdcDataAnalyzer->GetCalibModuleSumErr(side);
+  }
+
+  float ZdcAnalysisTool::getUncalibModuleSum(int side)
+  {
+    if (!m_zdcDataAnalyzer) return 0;
+    return m_zdcDataAnalyzer->GetModuleSum(side);
+  }
+
+  float ZdcAnalysisTool::getUncalibModuleSumErr(int side)
+  {
+    if (!m_zdcDataAnalyzer) return 0;
+    return m_zdcDataAnalyzer->GetModuleSumErr(side);
   }
 
   float ZdcAnalysisTool::getAverageTime(int side)

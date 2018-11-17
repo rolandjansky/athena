@@ -540,38 +540,19 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   m_preSample = preSample;
   m_samplesSub = samples;
 
-
-  // std::cout << "_samplesSub = ";
-  // for (size_t sample = 0; sample < _samplesSub.size(); sample++) {
-  //   std::cout << ", [" << sample << "] = " << _samplesSub[sample];
-  // }
-  
   if (m_useDelayed) {
     //  Attempt to address up front cases where we have significant offsets between the delayed and undelayed
-    //
-    // float delta10 = _samplesSub[1] - _samplesSub[0];
-    // float delta21 = _samplesSub[2] - _samplesSub[1];
-    // float delta32 = _samplesSub[3] - _samplesSub[2];
-    
-    // //    std::cout << "testing delayed shift: delta10 = " << delta10 << ", delta21 = " << delta21 << ", delta32 = " << delta32 << std::endl;
-    
-    // if (std::abs(delta10 + delta21) <= 0.1*std::abs(delta10 - delta21)/2 && std::abs(delta10 - delta32) <= 0.1*std::abs(delta10 + delta32)/2) {
-    //   //  Very likely we have an offset between the delayed and undelayed
-    //   //
-      
-      //      std::cout << "correcting HG delayed ssamples down by " << 0.5*(delta10 + delta32) << std::endl;
-
-    
-    double baselineCorr = 0.5*(m_samplesSub[1] - m_samplesSub[0] + m_samplesSub[3] - m_samplesSub[4]); 
-      
-    for (size_t isample = 0; isample < nSamples; isample++) {
-      if (isample%2) m_samplesSub[isample] -= baselineCorr;
+    //        
+    if (m_peak2ndDerivMinSample > 4) {
+      m_baselineCorr = 0.5*(m_samplesSub[1] - m_samplesSub[0] + m_samplesSub[3] - m_samplesSub[2]); 
+    }
+    else {
+      m_baselineCorr = m_samplesSub[1] - m_samplesSub[0];
     }
       
-      // std::cout << " corrected _samplesSub = ";
-      // for (size_t sample = 0; sample < _samplesSub.size(); sample++) {
-      // 	std::cout << ", [" << sample << "] = " << _samplesSub[sample];
-      // } 
+    for (size_t isample = 0; isample < nSamples; isample++) {
+      if (isample%2) m_samplesSub[isample] -= m_baselineCorr;
+    }
   }
 
   std::for_each(m_samplesSub.begin(), m_samplesSub.end(), [=] (float& adcUnsub) {return adcUnsub -= preSample;} );
@@ -828,7 +809,6 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
   // Now perform the fit
   //
-
   if (s_quietFits) {
     theFitter->GetMinuit()->fISW[4] = -1;
 
@@ -836,6 +816,17 @@ void ZDCPulseAnalyzer::DoFitCombined()
     theFitter->GetMinuit()->mnexcm("SET NOWarnings",0,0,ierr);
   }
   else theFitter->GetMinuit()->fISW[4] = 0;
+
+  // Only include baseline shift in fit for pre-pulses. Otherwise baseline matching should work
+  // 
+  if (PrePulse()) {
+    theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -25, 25);
+    theFitter->ReleaseParameter(0);
+  }
+  else {
+    theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -25, 25);
+    theFitter->FixParameter(0);
+  }
 
   double arglist[100];
   arglist[0] = 2000; // number of function calls
@@ -847,11 +838,11 @@ void ZDCPulseAnalyzer::DoFitCombined()
     
     // We first fit with no baseline adjust
     //
-    //    theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -25, 25);
+    theFitter->SetParameter(0, "delayBaselineAdjust", 0, 0.01, -25, 25);
     theFitter->FixParameter(0);
 
     status = theFitter->ExecuteCommand("MIGRAD",arglist,2);
-    if (!status) {
+    if (status != 0) {
       theFitter->ReleaseParameter(0);
       m_fitFailed = true;
     }
@@ -859,7 +850,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
       theFitter->ReleaseParameter(0);
       status = theFitter->ExecuteCommand("MIGRAD",arglist,2);
 
-      if (status || fitAmp < 1) {m_fitFailed = false;}
+      if (status || fitAmp < 1) m_fitFailed = true;
+      else m_fitFailed = false;
     }
   }
   else m_fitFailed = false;
