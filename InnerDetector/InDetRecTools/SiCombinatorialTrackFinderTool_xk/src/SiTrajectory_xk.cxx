@@ -26,11 +26,6 @@ void InDet::SiTrajectory_xk::setParameters()
   for(int i=0; i!=300; ++i) m_elements[i].setParameters();
 } 
 
-void InDet::SiTrajectory_xk::cleanSpuriousSCTHits(bool clean)
-{
-  m_cleanSpuriousSCTClusters = clean;
-}
-
 ///////////////////////////////////////////////////////////////////
 // Erase trajector element
 ///////////////////////////////////////////////////////////////////
@@ -1154,6 +1149,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 
   int    maxholes       = m_tools->maxholes ()                     ;
   int    maxdholes      = m_tools->maxdholes()                     ;
+  bool   cleanSCTClus   = m_tools->cleanSCTClus();
   const int itm         = itmax-1                                  ;
   int    it             = 0                                        ;
   int    itbest         = 0                                        ;
@@ -1245,7 +1241,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       Xi2best = X ;
       ndbest  = nd; if(fl==lElement && nd < ndcut) ndcut = nd;
 
-      if( m_cleanSpuriousSCTClusters ){
+      if( cleanSCTClus ){
         if( Ml>L ){
           InDet::SiTrajectoryElement_xk& El  = m_elements[m_elementsMap[ MP[Ml] ]];
           InDet::SiTrajectoryElement_xk& Ell = m_elements[m_elementsMap[ MP[Ml-1] ]];
