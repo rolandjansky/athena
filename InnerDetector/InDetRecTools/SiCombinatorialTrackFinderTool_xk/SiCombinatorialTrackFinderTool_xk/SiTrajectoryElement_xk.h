@@ -136,7 +136,6 @@ namespace InDet{
 	       const InDet::SiCluster*);
 
       void setTools(const InDet::SiTools_xk*); 
-      void setDetIDs(const PixelID* pixID,const SCT_ID* sctID);
       void setParameters(); 
       void bremNoiseModel();
 
