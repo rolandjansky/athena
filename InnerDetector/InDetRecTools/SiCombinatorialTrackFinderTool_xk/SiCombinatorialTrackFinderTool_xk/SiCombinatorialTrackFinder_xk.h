@@ -30,8 +30,6 @@
 
 class MsgStream          ;
 class IInDetConditionsSvc;
-class SCT_ID;
-class PixelID;
 
 namespace InDet{
 
@@ -140,8 +138,8 @@ namespace InDet{
       Trk::TrackInfo                 m_trackinfo     ;
 
       InDet::SiTools_xk              m_tools         ;
-      const SCT_ID*                  m_sctID         ;
-      const PixelID*                 m_pixID         ;
+      PixelID*                       m_pixIdHelper   ;
+      SCT_ID*                        m_sctIdHelper   ;
       bool                           m_pix           ;
       bool                           m_sct           ;
       bool                           m_simpleTrack   ;
