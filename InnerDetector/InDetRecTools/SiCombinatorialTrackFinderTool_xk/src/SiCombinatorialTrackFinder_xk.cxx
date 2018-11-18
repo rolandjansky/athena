@@ -61,7 +61,6 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_qualityCut  = 9.3                ;
   m_fieldService = 0                 ; 
   m_passThroughExtension = false     ;
-  m_cleanSpuriousSCTHits = false     ;
   declareInterface<ISiCombinatorialTrackFinder>(this);
 
   declareProperty("SCTManagerLocation"   ,m_sctm               );
@@ -80,7 +79,6 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"          ,m_fieldServiceHandle );
   declareProperty("PassThroughExtension" ,m_passThroughExtension);
-  declareProperty("CleanSpuriousSCTHits" ,m_cleanSpuriousSCTHits);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -227,9 +225,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   // Set tool to trajectory
   //
   m_trajectory.setTools(&m_tools);
-
-  // Turn on/off cleaning of spurious SCT hits
-  m_trajectory.cleanSpuriousSCTHits(m_cleanSpuriousSCTHits);
 
   // Get output print level
   //
@@ -966,7 +961,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
 {
   // Integer cuts
   //
-  int useasso,simpletrack,multitrack;
+  int useasso,simpletrack,multitrack,cleanSCTClus;
   double xi2m;
   if(!Cuts.getIntCut   ("MinNumberOfClusters" ,m_nclusmin   )) {m_nclusmin      =    7;}
   if(!Cuts.getIntCut   ("MinNumberOfWClusters",m_nwclusmin  )) {m_nwclusmin     =    7;}
@@ -976,6 +971,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   if(!Cuts.getIntCut   ("CosmicTrack"         ,m_cosmicTrack)) {m_cosmicTrack   =    0;}
   if(!Cuts.getIntCut   ("SimpleTrack"         ,simpletrack  )) {simpletrack     =    0;} 
   if(!Cuts.getIntCut   ("doMultiTracksProd"   ,multitrack   )) {multitrack      =    0;}  
+  if(!Cuts.getIntCut   ("CleanSpuriousSCTClus",cleanSCTClus )) {cleanSCTClus    =    0;}
  
   // Double cuts
   //
@@ -1004,5 +1000,6 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   m_tools.setHolesClusters(m_nholesmax,m_dholesmax,m_nclusmin);
   m_tools.setAssociation  (useasso);
   m_tools.setMultiTracks  (multitrack,xi2m);
+  m_tools.setCleanSCTClus (cleanSCTClus);
   m_trajectory.setParameters();
 }
