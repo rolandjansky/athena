@@ -16,13 +16,9 @@
  ***********************************************/
 
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-// old cabling service
-//#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -40,8 +36,6 @@ class MdtTestCabling : public AthAlgorithm {
   virtual StatusCode execute();
 
  private:
-
-  ServiceHandle<MuonMDT_CablingSvc> m_cablingSvc;
 
   const MdtIdHelper* m_mdtIdHelper;
 
