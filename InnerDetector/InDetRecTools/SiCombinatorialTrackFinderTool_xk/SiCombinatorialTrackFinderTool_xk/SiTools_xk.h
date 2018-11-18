@@ -70,6 +70,7 @@ namespace InDet{
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
       const bool&                         heavyion   () const {return m_heavyion   ;}
+      const bool&                        cleanSCTClus() const {return m_cleanSCTClus;}
 
       void setTools
 	(Trk::IPatternParametersPropagator* ,
@@ -91,6 +92,7 @@ namespace InDet{
       void setAssociation(const int&);
       void setMultiTracks(const int,double);
       void setBremNoise  (bool,bool);
+      void setCleanSCTClus(const int&);
       void setHeavyIon   (bool);
 
     protected:
@@ -124,6 +126,7 @@ namespace InDet{
       bool                            m_bremnoise  ;  // Do brem noise
       bool                            m_electron   ;  // Do electron mode
       bool                            m_heavyion   ;  // Is it heavy ion event
+      bool                            m_cleanSCTClus; // Clean spurious SCT clusters in forward extension
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -158,6 +161,7 @@ namespace InDet{
       m_multitrack  = false; 
       m_bremnoise   = false;
       m_electron    = false;
+      m_cleanSCTClus = false;
       m_fieldService= 0    ;
     }
 
@@ -192,6 +196,7 @@ namespace InDet{
 	m_multitrack  = T.m_multitrack ; 
 	m_bremnoise   = T.m_bremnoise  ;
 	m_electron    = T.m_electron   ; 
+        m_cleanSCTClus = T.m_cleanSCTClus;
 	m_heavyion    = T.m_heavyion   ;
       }
       return(*this);
@@ -264,6 +269,11 @@ namespace InDet{
     {
       m_bremnoise = B;
       m_electron  = E;
+    }
+
+  inline void SiTools_xk::setCleanSCTClus(const int& C)
+    {
+      C ? m_cleanSCTClus = true : false;
     }
 
   inline void SiTools_xk::setHeavyIon(bool HI)
