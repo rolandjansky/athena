@@ -629,6 +629,7 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
   }
 }  
 
+
   Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
 {
   Amg::Vector2D correctedPosition(position);
