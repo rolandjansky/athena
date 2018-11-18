@@ -12,6 +12,9 @@
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +39,8 @@ class MdtDigitToMdtRDO : public AthAlgorithm {
   bool m_BMEpresent;
   SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
   SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+
 };
 
 #endif

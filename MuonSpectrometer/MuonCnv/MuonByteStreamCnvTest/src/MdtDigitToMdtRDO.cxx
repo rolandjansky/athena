@@ -44,6 +44,7 @@ StatusCode MdtDigitToMdtRDO::initialize()
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_digitContainerKey );
   ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
   ATH_CHECK( m_cabling.retrieve() );
+  ATH_CHECK( m_readKey.initialize() );
 
   if ( fillTagInfo().isFailure() ) {
     ATH_MSG_WARNING( "Could not fill the tagInfo for MDT cabling"  );
@@ -94,6 +95,13 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
   typedef MdtDigitCollection::const_iterator digit_iterator;
 
   MdtCsmIdHash hashF;
+
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==0){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return StatusCode::FAILURE;
+  }
 
   // Iterate on the collections
   collection_iterator it_coll = container->begin();
