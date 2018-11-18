@@ -49,8 +49,6 @@ void InDet::SiTrajectoryElement_xk::set
   m_detelement   = dl->detElement()        ;
   m_detlink      = dl                      ;
   m_surface      = &m_detelement->surface();
-  m_sctID        = 0                       ;
-  m_pixID        = 0                       ;
   m_sibegin      = sb                      ;
   m_siend        = se                      ; 
   m_cluster      = si                      ;
@@ -1876,10 +1874,10 @@ int InDet::SiTrajectoryElement_xk::getSCTLayer()
 
 bool InDet::SiTrajectoryElement_xk::isPixel()
 {
-  return m_pixID;
+  return m_detelement->isPixel();
 }
 
 bool InDet::SiTrajectoryElement_xk::isSCT()
 {
-  return m_sctID;
+  return m_detelement->isSCT();
 }
