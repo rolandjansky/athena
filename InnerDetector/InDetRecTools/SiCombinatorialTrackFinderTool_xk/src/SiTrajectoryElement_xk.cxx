@@ -105,6 +105,8 @@ void InDet::SiTrajectoryElement_xk::setTools(const InDet::SiTools_xk* t)
   m_proptool     = m_tools->propTool    ();
   m_riotool      = m_tools->rioTool     ();
   m_assoTool     = m_tools->assoTool    ();
+  m_pixIdHelper  = m_tools->pixIdHelper ();
+  m_sctIdHelper  = m_tools->sctIdHelper ();
 } 
 
 void InDet::SiTrajectoryElement_xk::setParameters()
@@ -116,12 +118,6 @@ void InDet::SiTrajectoryElement_xk::setParameters()
   m_xi2maxlink   = m_tools->xi2maxlink ()  ;
   m_xi2multi     = m_tools->xi2multi   ()  ;
 } 
-
-void InDet::SiTrajectoryElement_xk::setDetIDs(const PixelID* pixID,const SCT_ID* sctID)
-{
-  m_pixID = pixID;
-  m_sctID = sctID;
-}
 
 ///////////////////////////////////////////////////////////////////
 // Initiate first element of trajectory using external 
@@ -1863,13 +1859,13 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
 int InDet::SiTrajectoryElement_xk::getSCTLayerSide()
 {
   if( !isSCT() ) return -1;
-  return m_sctID->side(m_detelement->identify());
+  return m_sctIdHelper->side(m_detelement->identify());
 }
 
 int InDet::SiTrajectoryElement_xk::getSCTLayer()
 {
   if( !isSCT() ) return -1;
-  return m_sctID->layer_disk(m_detelement->identify()); 
+  return m_sctIdHelper->layer_disk(m_detelement->identify()); 
 }
 
 bool InDet::SiTrajectoryElement_xk::isPixel()

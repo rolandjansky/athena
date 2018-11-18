@@ -157,6 +157,25 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     sctcond = &(*m_sctCondSummarySvc); 
   }
 
+  // Get PixelID helper
+  //
+  if (m_usePIX && detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
+  else{
+    msg(MSG::INFO) << "Successfully retrieved Pixel helper" << endreq;
+  }
+
+  // Get SCT_ID helper
+  if (m_useSCT && detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
+  else{
+    msg(MSG::INFO) << "Successfully retrieved SCT_ID helper" << endreq;
+  }
+
   // get the key -- from StoreGate (DetectorStore)
   //
   std::vector< std::string > tagInfoKeys =  detStore()->keys<TagInfo> ();
@@ -198,6 +217,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   //
   m_tools.setTools(&(*m_proptool),&(*m_updatortool),riocreator,assoTool,m_fieldService);
   m_tools.setTools(pixcond,sctcond);
+  m_tools.setTools(m_pixIdHelper,m_sctIdHelper);
 
 
   // Setup callback for magnetic field
@@ -207,20 +227,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   // Set tool to trajectory
   //
   m_trajectory.setTools(&m_tools);
-
-  // Grab Pixel and SCT IDs
-  if (m_usePIX && detStore()->retrieve(m_pixID, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  if (m_useSCT && detStore()->retrieve(m_sctID, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  //
-  m_trajectory.setDetIDs(m_pixID,m_sctID);
 
   // Turn on/off cleaning of spurious SCT hits
   m_trajectory.cleanSpuriousSCTHits(m_cleanSpuriousSCTHits);

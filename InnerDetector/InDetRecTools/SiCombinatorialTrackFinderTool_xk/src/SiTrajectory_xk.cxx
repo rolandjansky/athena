@@ -26,11 +26,6 @@ void InDet::SiTrajectory_xk::setParameters()
   for(int i=0; i!=300; ++i) m_elements[i].setParameters();
 } 
 
-void InDet::SiTrajectory_xk::setDetIDs(const PixelID* pixID,const SCT_ID* sctID)
-{
-  for(int i=0; i!=300; ++i) m_elements[i].setDetIDs(pixID,sctID);
-}
-
 void InDet::SiTrajectory_xk::cleanSpuriousSCTHits(bool clean)
 {
   m_cleanSpuriousSCTClusters = clean;
