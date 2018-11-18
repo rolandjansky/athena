@@ -6,8 +6,6 @@
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigit.h"
 
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
-
 #include "MuonRDO/MdtCsmIdHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonRDO/MdtCsm.h"
@@ -27,7 +25,6 @@ using namespace std;
 
 MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_cabling("MuonMDT_CablingSvc", name),
   m_mdtIdHelper(0),
   m_BMEpresent(false)
 {
@@ -43,7 +40,6 @@ StatusCode MdtDigitToMdtRDO::initialize()
   ATH_CHECK( m_digitContainerKey.initialize() );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_digitContainerKey );
   ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-  ATH_CHECK( m_cabling.retrieve() );
   ATH_CHECK( m_readKey.initialize() );
 
   if ( fillTagInfo().isFailure() ) {
