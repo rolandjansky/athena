@@ -22,6 +22,8 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PixelID.h"
 
 namespace InDet{
 
@@ -52,6 +54,8 @@ namespace InDet{
       Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
       IInDetConditionsSvc*                pixcond    () const {return m_pixcond    ;}
       IInDetConditionsSvc*                sctcond    () const {return m_sctcond    ;}
+      PixelID*                            pixIdHelper() const {return m_pixIdHelper;}
+      SCT_ID*                             sctIdHelper() const {return m_sctIdHelper;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}
@@ -80,6 +84,8 @@ namespace InDet{
  
       void setTools(IInDetConditionsSvc*,IInDetConditionsSvc*); 
 
+      void setTools (PixelID* pixIdHelper,SCT_ID* sctIdHelper);
+
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
       void setAssociation(const int&);
@@ -101,6 +107,8 @@ namespace InDet{
       Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
       IInDetConditionsSvc*            m_pixcond    ;  // Condtionos for pixels 
       IInDetConditionsSvc*            m_sctcond    ;  // Conditions for sct
+      PixelID*                        m_pixIdHelper;  // Pixel ID helper
+      SCT_ID*                         m_sctIdHelper;  // SCT ID helper
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -135,6 +143,8 @@ namespace InDet{
       m_riotool     = 0   ;  
       m_pixcond     = 0   ;
       m_sctcond     = 0   ;
+      m_pixIdHelper = 0   ;
+      m_sctIdHelper = 0   ;
       m_xi2max      = 9.  ;
       m_xi2maxBrem  = 15. ;
       m_xi2maxlink  = 200.;
@@ -168,6 +178,8 @@ namespace InDet{
 	m_riotool     = T.m_riotool    ;
 	m_pixcond     = T.m_pixcond    ;
 	m_sctcond     = T.m_sctcond    ;
+        m_pixIdHelper = T.m_pixIdHelper;
+        m_sctIdHelper = T.m_sctIdHelper;
 	m_xi2max      = T.m_xi2max     ;
 	m_xi2maxBrem  = T.m_xi2maxBrem ;
 	m_xi2maxlink  = T.m_xi2maxlink ;
@@ -213,6 +225,12 @@ namespace InDet{
       m_pixcond = pix;
       m_sctcond = sct;
     } 
+
+  inline void SiTools_xk::setTools (PixelID* pixIdHelper,SCT_ID* sctIdHelper)
+    {
+      m_pixIdHelper = pixIdHelper;
+      m_sctIdHelper = sctIdHelper;
+    }
  
   inline void SiTools_xk::setXi2pTmin
     (const double& xi2m,const double& xi2mNoAdd,const double& xi2ml,const double& pT)    
