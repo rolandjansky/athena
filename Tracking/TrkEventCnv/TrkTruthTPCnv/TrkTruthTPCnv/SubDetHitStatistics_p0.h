@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -10,7 +10,7 @@
 #ifndef SUBDETHITSTATISTICS_P0_H
 #define SUBDETHITSTATISTICS_P0_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkTruthData/SubDetHitStatistics.h"
 
 namespace Trk {
