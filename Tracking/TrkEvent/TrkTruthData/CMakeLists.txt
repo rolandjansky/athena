@@ -7,10 +7,9 @@ atlas_subdir( TrkTruthData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/AthLinks
                           Control/AthContainers
-                          Control/SGTools
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Generators/GeneratorObjects
@@ -24,7 +23,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( TrkTruthData
                    PUBLIC_HEADERS TrkTruthData
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers SGTools GeoPrimitives Identifier GeneratorObjects TrkTrack )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers AthenaKernel GeoPrimitives Identifier GeneratorObjects TrkTrack )
 
 atlas_add_dictionary( TrkTruthDataDict
                       src/TrkTruthDataDict.h
