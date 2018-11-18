@@ -122,10 +122,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
       uint8_t tdc;
       uint8_t channel;
       
-      bool cabling = m_cabling->getOnlineId(name, eta, phi, 
-					    1, 1, 1,
-					    subsystem, mrod, link, 
-					    tdc, channel);
+      bool cabling = readCdo->getOnlineId(name, eta, phi, 
+					  1, 1, 1,
+					  subsystem, mrod, link, 
+					  tdc, channel);
 
       if (!cabling) {
 	ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
@@ -173,10 +173,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
         if ( name == 53 ) {
 	  uint8_t subsystem_2ndcsm, mrod_2ndcsm, link_2ndcsm, tdc_2ndcsm, channel_2ndcsm;
 
-	  cabling = m_cabling->getOnlineId(name, eta, phi, 1, 1, 43,
-					   subsystem_2ndcsm, mrod_2ndcsm,
-					   link_2ndcsm, tdc_2ndcsm, channel_2ndcsm);
-
+	  cabling = readCdo->getOnlineId(name, eta, phi, 1, 1, 43,
+					 subsystem_2ndcsm, mrod_2ndcsm,
+					 link_2ndcsm, tdc_2ndcsm, channel_2ndcsm);
+	  
 	  if (!cabling) {
 	    ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
 	    ATH_MSG_ERROR( name << " "
@@ -204,10 +204,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	      int tube       = m_mdtIdHelper->tube(channelId);
 	            
 	      // Get the online Id of the channel
-	      cabling = m_cabling->getOnlineId(name, eta, phi, 
-					       multilayer, layer, tube,
-					       subsystem, mrod, link, 
-					       tdc, channel);
+	      cabling = readCdo->getOnlineId(name, eta, phi, 
+					     multilayer, layer, tube,
+					     subsystem, mrod, link, 
+					     tdc, channel);
 	            
 	      if (!cabling) {
 		ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
@@ -273,7 +273,7 @@ StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
   ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
   if (tagInfoMgr.retrieve().isFailure())
     return StatusCode::FAILURE;
-  
+  /*
   std::string cablingType="";
   if (m_cabling->usingOldCabling() ) {
     cablingType="OldMDT_Cabling";
@@ -281,7 +281,9 @@ StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
   else {
     cablingType="NewMDT_Cabling";
   }
-
+  */
+  //this should be new from Run2 so the switch can be removed 
+  std::string cablingType="NewMDT_Cabling";
   StatusCode sc = tagInfoMgr->addTag("MDT_CablingType",cablingType); 
   
   if(sc.isFailure()) {
