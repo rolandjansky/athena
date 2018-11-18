@@ -428,7 +428,6 @@ class  ConfiguredNewTrackingSiPattern:
                                                                doEmCaloSeed            = True and InDetFlags.doCaloSeededBrem(),
                                                                minTRTonTrk             = 0,
                                                                minTRTPrecisionFraction = 0);
-
             # allow for some overlap for low-pt tracking
             #if InDetFlags.doLowPt() and not NewTrackingCuts.mode() == "LowPt":
             #   InDetAmbiScoringTool.minPt = NewTrackingCuts.minPT()-100.*Units.MeV
