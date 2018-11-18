@@ -67,7 +67,7 @@ inline MdtDigit* Muon::MdtRDO_Decoder::getDigit(const MdtAmtHit* amtHit, uint16_
   
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return NULL;
   }
@@ -110,7 +110,7 @@ inline Identifier Muon::MdtRDO_Decoder::getOfflineData(const MdtAmtHit* amtHit, 
   Identifier chanIdDefault;
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return chanIdDefault;
   }
