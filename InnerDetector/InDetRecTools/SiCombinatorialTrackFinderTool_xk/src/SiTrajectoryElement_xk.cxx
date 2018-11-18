@@ -12,8 +12,6 @@
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectoryElement_xk.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
