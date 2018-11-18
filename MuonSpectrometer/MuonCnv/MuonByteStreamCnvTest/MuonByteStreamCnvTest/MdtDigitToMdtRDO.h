@@ -10,9 +10,7 @@
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 class MdtIdHelper;
 
@@ -33,12 +31,11 @@ class MdtDigitToMdtRDO : public AthAlgorithm {
 
  protected:
 
+  ServiceHandle<MuonMDT_CablingSvc>       m_cabling;
   const MdtIdHelper*   m_mdtIdHelper;
   bool m_BMEpresent;
   SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
   SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
-  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
-
 };
 
 #endif
