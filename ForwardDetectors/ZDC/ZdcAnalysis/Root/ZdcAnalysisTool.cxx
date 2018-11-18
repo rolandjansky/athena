@@ -344,8 +344,8 @@ namespace ZDC
     const float peak2ndDerivThreshLG = -10;
     const float tau1 = 4.5;
     const float tau2 = 22.;
-    const float defaultT0 = 65;
-    //const float defaultT0 = 49;
+    //const float defaultT0 = 65;
+    const float defaultT0 = 49;
     m_deltaTCut = 25;
 
     for (size_t side : {0, 1}) {
