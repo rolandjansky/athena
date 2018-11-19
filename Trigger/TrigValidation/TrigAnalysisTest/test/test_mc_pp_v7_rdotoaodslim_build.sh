@@ -19,6 +19,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest
 
 export NAME="mc_pp_v7_rdotoesdaodslim_build"
 export COST_MONITORING="False"
