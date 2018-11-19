@@ -12,12 +12,12 @@
 
 ## Cleanup previous file
 import os
-if os.path.isfile("condtest.db"):
-  os.remove("condtest.db")
+if os.path.isfile("condtest_rw.db"):
+  os.remove("condtest_rw.db")
 
 ## Write some initial IOVs and values
-os.system("dmtest_condwriter.py --r=0 --ls=0 --lu=4  'sqlite://;schema=condtest.db;dbname=OFLP200' AttrList_noTag 10")
-os.system("dmtest_condwriter.py --r=0 --ls=5 'sqlite://;schema=condtest.db;dbname=OFLP200' AttrList_noTag 20")
+os.system("dmtest_condwriter.py --r=0 --ls=0 --lu=4  'sqlite://;schema=condtest_rw.db;dbname=OFLP200' AttrList_noTag 10")
+os.system("dmtest_condwriter.py --rs=0 --ls=5 'sqlite://;schema=condtest_rw.db;dbname=OFLP200' AttrList_noTag 20")
 
 ## basic job configuration (for generator)
 import AthenaCommon.AtlasUnixGeneratorJob
@@ -43,8 +43,8 @@ import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
 from IOVDbSvc.CondDB import conddb
-conddb.addFolder ('condtest.db', '/DMTest/TestAttrList <tag>AttrList_noTag</tag>',
-                  className='AthenaAttributeList')
+conddb.addFolder ('condtest_rw.db', '/DMTest/TestAttrList <tag>AttrList_noTag</tag>',
+                  className='AthenaAttributeList', extensible=True)
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -66,7 +66,7 @@ from DataModelTestDataCommon.DataModelTestDataCommonConf import (DMTest__CondRea
                                                                  DMTest__CondAlg1)
 
 ## Setup writer alg that writes new conditions on given LB
-cmds = { 6 : "dmtest_condwriter.py --r=0 --ls=8  'sqlite://;schema=condtest.db;dbname=OFLP200' AttrList_noTag 42" }
+cmds = { 6 : "dmtest_condwriter.py --rs=0 --ls=8  'sqlite://;schema=condtest_rw.db;dbname=OFLP200' AttrList_noTag 42" }
 
 topSequence += DMTest__CondWriterExtAlg( Commands = cmds )
 topSequence += DMTest__CondReaderAlg( S2Key = "")
@@ -84,8 +84,14 @@ svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',EventsPerLB=2)
 
 # This is how we currently configure the IOV(Db)Svc in the HLT
 svcMgr.IOVSvc.updateInterval = "RUN"
-svcMgr.IOVSvc.preLoadData = True
+#svcMgr.IOVSvc.preLoadData = True
 svcMgr.IOVSvc.forceResetAtBeginRun = False
 svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)
 svcMgr.IOVDbSvc.CacheRun = 0
 svcMgr.IOVDbSvc.CacheTime = 0
+
+# No stats printout
+ChronoStatSvc = Service( "ChronoStatSvc" )
+ChronoStatSvc.ChronoPrintOutTable = FALSE
+ChronoStatSvc.PrintUserTime       = FALSE
+ChronoStatSvc.StatPrintOutTable   = FALSE
