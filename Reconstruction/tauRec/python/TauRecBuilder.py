@@ -65,33 +65,12 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         objKeyStore.addManyTypesStreamAOD(self._output)              
         
         import tauRec.TauAlgorithmsHolder as taualgs
+        from tauRec.tauRecFlags import tauFlags
         
-        ########################################################################
-        # TauBuilder
-        # create the taus
-        try:
-            from tauRec.tauRecFlags import tauFlags
-            from tauRecTools.tauRecToolsConf import TauBuilderTool
-            self._TauBuilderToolHandle = TauBuilderTool(
-                name = self.name,
-                SeedContainer            = _jet_collection,
-                TauContainer             = _outputKey,
-                TauAuxContainer          = _outputAuxKey,
-                #MaxEta = 2.5,
-                MaxEta = tauFlags.tauRecSeedMaxEta(),
-                MinPt = 10.*GeV,
-                doCreateTauContainers = True)
-        except Exception:
-            mlog.error("could not get handle to TauBuilder")
-            print traceback.format_exc()
-            return False
-
-
         #switch off TJVA if jet reco don't use tracks.
         from JetRec.JetRecFlags import jetFlags
         if not jetFlags.useTracks():
             self.do_TJVA = False  # switch off TJVA
-        
         
         tools = []
         try:
@@ -103,7 +82,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
 
             if InDetFlags.doVertexFinding():
-                tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA)) 
+                tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
             if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
@@ -118,7 +97,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getTauShotFinder()) 
             if self.doPi0Clus:
                 tools.append(taualgs.getPi0ClusterFinder())
-
+            
             #####################################################################
             ## Tau Conversation Finder (found no one talking here...)
             ## TODO: talk with KG about the status of the new PhotonConversionFinder 
@@ -129,25 +108,26 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             if jobproperties.tauRecFlags.useNewPIDBasedConvFinder():
                 #Needs to run alone
                 tools.append(tauRec.TauConversionAlgorithms.getTauConversionTaggerTool())
-            else:
+            # are these even used? Probably not any more
+            # else:
                 #Need to run together, they will select either PID or vertex based on another flag
-                tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
-                tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
-            
-            #tools.append(taualgs.getContainerLock())
-            
+                #tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
+                #tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
+
+            # tools.append(taualgs.getContainerLock())
+
+            ################################
+
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
-            TauRecConfigured.AddToolsToToolSvc(self, tools)
-            self.TauBuilderToolHandle().Tools = tools
-            
+                        
         except Exception:
             mlog.error("could not append tools to TauBuilder")
             print traceback.format_exc()
             return False
         
         # run first part of Tau Builder
-        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauBuilderToolHandle())
+        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=tools)
         return True
         
     # Helpers 
@@ -161,7 +141,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
          return self._outputType
 
 
-
+# No longer used
 ################################################################################
 ## @class TauRecPi0EflowProcessor
 # Calculate eflow information and run the Pi0 finder algorithms
@@ -222,7 +202,7 @@ class TauRecPi0EflowProcessor ( TauRecConfigured ) :
     def TauProcessorToolHandle(self):
         return self._TauProcessorToolHandle
 
-
+# No longer used
 ################################################################################
 ## @class TauRecVariablesProcessor
 # Calculate remaining Tau variables and properties
@@ -288,9 +268,7 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
             if tauFlags.doPanTau() :
                 import PanTauAlgs.JobOptions_Main_PanTau as pantau
                 tools.append(pantau.getPanTau())
-                pass
-
-
+            
             #these tools need pantau info
             tools.append(taualgs.getCombinedP4FromRecoTaus())
             tools.append(taualgs.getMvaTESVariableDecorator())

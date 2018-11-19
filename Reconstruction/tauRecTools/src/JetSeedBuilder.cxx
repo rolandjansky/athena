@@ -84,8 +84,6 @@ StatusCode JetSeedBuilder::eventFinalize() {
 
 StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 
-	StatusCode sc;
-
 	ATH_MSG_DEBUG("Starting execute");
 
 	bool inTrigger = tauEventData()->inTrigger();
@@ -93,35 +91,7 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	if(inTrigger)
 		ATH_MSG_DEBUG("inTrigger read properly");
 
-	const xAOD::JetContainer *pJetColl;
-
-	if (sc.isSuccess() && inTrigger) {
-		// called by Trigger
-		// retrieve JetCollection for trigger
-		ATH_MSG_DEBUG("Try to retrieve object from DataContainer");
-		//sc = tauEventData()->getObject("JetCollection", pJetColl);
-		// Try a different approach: grab it directly
-		sc = StatusCode::SUCCESS;
-		pJetColl = tauEventData()->seedContainer;
-		if (sc.isFailure() || !pJetColl) {
-			ATH_MSG_DEBUG("no JetCollection for trigger available");
-			ATH_MSG_DEBUG("retrieve standard JetCollection <" << m_jetCollectionName << ">");
-			// retrieve standard jet collection
-			sc = evtStore()->retrieve(pJetColl, m_jetCollectionName);
-			if (sc.isFailure()) {
-				ATH_MSG_WARNING("no JetCollection retrieved");
-				return StatusCode::FAILURE;
-			}
-		}
-	} else {
-		// called by offline tauRec
-		// retrieve standard jet collection
-		sc = evtStore()->retrieve(pJetColl, m_jetCollectionName);
-		if (sc.isFailure()) {
-			ATH_MSG_WARNING("no JetCollection retrieved");
-			return StatusCode::FAILURE;
-		}
-	}
+	const xAOD::JetContainer *pJetColl = 0;
 
 	ATH_MSG_DEBUG("Pulling out the seed");
 
@@ -139,27 +109,6 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 			<< " phi=" << pJetSeed->phi()
 	);
 
-	xAOD::TauJetContainer* pContainer = tauEventData()->xAODTauContainer;
-	if(pContainer==0){
-	  pContainer = static_cast<xAOD::TauJetContainer*> (pTau.container());
-	}
-	if(pContainer==0) {
-	  ATH_MSG_FATAL("Can't find tau Container");
-	  return StatusCode::FAILURE;
-	}
-	
-	xAOD::TauJetContainer::iterator itTau = pContainer->begin();
-	xAOD::TauJetContainer::iterator itTauE = pContainer->end();
-
-	for (; itTau != itTauE; ++itTau) {
-	  if( (*itTau) == &pTau ) continue;
-		if ( (*itTau)->jetLink().isValid() ) {
-			if ( pJetSeed == ( * (*itTau)->jetLink() ) ) {
-				ATH_MSG_DEBUG("seed already used");
-				return StatusCode::FAILURE;
-			}
-		}
-	}
 
 	///XXX need to decide whether to remove this, because there's no author flag in xAOD::TauJet
 

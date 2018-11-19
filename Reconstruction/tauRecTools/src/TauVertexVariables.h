@@ -35,10 +35,16 @@ public:
     ~TauVertexVariables();
     
     virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::TauJet&);
+    virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer); 
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventInitialize();
     virtual StatusCode finalize();
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+    virtual StatusCode eventFinalize();
 
     virtual void print() const { }
     
@@ -49,15 +55,13 @@ public:
     double trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex);
 
 private:
-    std::string m_primaryVertexKey;
-    std::string m_inputTrackParticleContainerName;
-    bool m_AODmode;
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
     ToolHandle< Trk::IVertexFitter >     m_fitTool; //!< Pointer to the base class of the fit algtools
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
+    
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
 
-    xAOD::VertexContainer* m_pSecVtxContainer;
-    xAOD::VertexAuxContainer* m_pSecVtxAuxContainer;
 };
 
 #endif	/* TAUREC_TAUVERTEXVARIABLES_H */
