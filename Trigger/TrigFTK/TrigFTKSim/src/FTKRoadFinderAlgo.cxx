@@ -72,8 +72,9 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_SectorAsPatterns(0),
   m_DCMatchMethod(0),
   m_AutoDisable(false),
+  m_read_FTKhits_directly(false),
   m_firstEventFTK(-1), 
-  m_read_FTKhits_directly(false)
+  m_AMcompressionMode(0)
 {
   // number of banks
   declareProperty("NBanks",m_nbanks);
@@ -147,6 +148,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DCMatchMethod",m_DCMatchMethod,"Set the DC matching method: 0 through TSP SS organization, 1 direct");
 
   declareProperty("FirstEventFTK",m_firstEventFTK,"First event to run over");
+  declareProperty("AMcompressionMode",m_AMcompressionMode,"compression mode for AM bank");
 }
 
 FTKRoadFinderAlgo::~FTKRoadFinderAlgo()
@@ -466,6 +468,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
           new FTK_CompressedAMBank(regid,subid);
        compressedBank->setSSMapTSP(m_ssmap_tsp);
        curbank=compressedBank;
+       compressedBank->setCompressionScheme(m_AMcompressionMode);
     } else {
       // configure a base AM bank
       curbank = new FTK_AMBank(regid,subid);

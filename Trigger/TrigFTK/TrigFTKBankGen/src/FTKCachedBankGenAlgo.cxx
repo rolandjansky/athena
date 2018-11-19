@@ -290,6 +290,7 @@ StatusCode FTKCachedBankGenAlgo::RunCachedBankGenerator(){
 
    FTK_CompressedAMBank bank(m_curreg,m_iSubReg,ssmapAM,ssmapTSP,
                              m_hwmodeid_tspcc,m_hwmodeid_dc);
+   bank.setCompressionScheme(FTK_CompressedAMBank::COMPRESSION_DELTA);
 
    if(bank.getHWModeSS_dc() != bank.getHWModeSS_tsp()) {
       if(m_sectordefHW0.empty() || m_sectordefHW2.empty()) {
