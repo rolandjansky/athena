@@ -7,10 +7,9 @@ atlas_subdir( TrkPrepRawData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/AthContainers
                           Control/AthLinks
-                          Control/SGTools
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Event/EventContainers
@@ -28,6 +27,6 @@ atlas_add_library( TrkPrepRawData
                    PUBLIC_HEADERS TrkPrepRawData
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers SGTools GeoPrimitives Identifier EventPrimitives
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers AthenaKernel GeoPrimitives Identifier EventPrimitives
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
