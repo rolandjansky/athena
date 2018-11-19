@@ -54,8 +54,8 @@ namespace InDet{
       Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
       IInDetConditionsSvc*                pixcond    () const {return m_pixcond    ;}
       IInDetConditionsSvc*                sctcond    () const {return m_sctcond    ;}
-      PixelID*                            pixIdHelper() const {return m_pixIdHelper;}
-      SCT_ID*                             sctIdHelper() const {return m_sctIdHelper;}
+      const PixelID*                      pixIdHelper() const {return m_pixIdHelper;}
+      const SCT_ID*                       sctIdHelper() const {return m_sctIdHelper;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}
@@ -85,7 +85,7 @@ namespace InDet{
  
       void setTools(IInDetConditionsSvc*,IInDetConditionsSvc*); 
 
-      void setTools (PixelID* pixIdHelper,SCT_ID* sctIdHelper);
+      void setTools (const PixelID* pixIdHelper,const SCT_ID* sctIdHelper);
 
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
@@ -109,8 +109,8 @@ namespace InDet{
       Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
       IInDetConditionsSvc*            m_pixcond    ;  // Condtionos for pixels 
       IInDetConditionsSvc*            m_sctcond    ;  // Conditions for sct
-      PixelID*                        m_pixIdHelper;  // Pixel ID helper
-      SCT_ID*                         m_sctIdHelper;  // SCT ID helper
+      const PixelID*                  m_pixIdHelper;  // Pixel ID helper
+      const SCT_ID*                   m_sctIdHelper;  // SCT ID helper
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -231,7 +231,7 @@ namespace InDet{
       m_sctcond = sct;
     } 
 
-  inline void SiTools_xk::setTools (PixelID* pixIdHelper,SCT_ID* sctIdHelper)
+  inline void SiTools_xk::setTools (const PixelID* pixIdHelper,const SCT_ID* sctIdHelper)
     {
       m_pixIdHelper = pixIdHelper;
       m_sctIdHelper = sctIdHelper;

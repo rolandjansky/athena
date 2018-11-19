@@ -162,7 +162,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     return StatusCode::FAILURE;
   }
   else{
-    msg(MSG::INFO) << "Successfully retrieved Pixel helper" << endreq;
+    msg(MSG::INFO) << "Successfully retrieved PixelID helper" << endreq;
   }
 
   // Get SCT_ID helper
