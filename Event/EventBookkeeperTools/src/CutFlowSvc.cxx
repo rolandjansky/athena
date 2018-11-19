@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class CutFlowSvc
@@ -141,7 +141,7 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
   tmpEBK->setCycle(m_skimmingCycle);
   CutIdentifier cutID = tmpEBK->uniqueIdentifier();
 
-  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  xAOD::CutBookkeeperContainer* fileBook = nullptr;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
     return 0;
@@ -266,7 +266,7 @@ CutIdentifier CutFlowSvc::declareUsedOtherFilter( const std::string& name,
   tmpEBK->setCycle(m_skimmingCycle);
   CutIdentifier cutID = tmpEBK->uniqueIdentifier();
 
-  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  xAOD::CutBookkeeperContainer* fileBook = nullptr;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
     return 0;
@@ -346,7 +346,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
   ATH_MSG_INFO("calling addEvent(" << cutID << ", " << weight << ")" );
 
   // Create bookkeeper container for bookkeepers in _this_ processing
-  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  xAOD::CutBookkeeperContainer* fileBook = nullptr;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
     ATH_MSG_WARNING("Could not retrieve handle to cutflowsvc bookkeeper " << m_fileCollName << " creating new one");
     auto fileBook = new xAOD::CutBookkeeperContainer();
@@ -438,13 +438,13 @@ void CutFlowSvc::handle( const Incident& inc )
       }
     }
 
-    DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+    xAOD::CutBookkeeperContainer* fileBook = nullptr;
     if( !(m_outMetaDataStore->retrieve(fileBook, m_fileCollName) ).isSuccess() ) {
       ATH_MSG_WARNING( "Could not get " << m_fileCollName 
                        << " CutBookkeepers from output MetaDataStore" );
     }
     // Clear the file bookkeeper
-    if (fileBook.isValid()) {
+    if (fileBook != nullptr) {
       // Reset existing container
       for (xAOD::CutBookkeeperContainer::iterator it = fileBook->begin();
            it != fileBook->end(); ++it) {
@@ -457,7 +457,7 @@ void CutFlowSvc::handle( const Incident& inc )
 
   // Clean up the bookkeeper before output
   if ( inc.type() == "MetaDataStop" ) {
-    DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+    xAOD::CutBookkeeperContainer* fileBook = nullptr;
     if( !(m_outMetaDataStore->retrieve(fileBook, m_fileCollName) ).isSuccess() ) {
       ATH_MSG_WARNING( "Could not get " << m_fileCollName 
                        << " CutBookkeepers from output MetaDataStore" );
@@ -546,7 +546,7 @@ CutFlowSvc::recordCollection( xAOD::CutBookkeeperContainer * coll,
 
 xAOD::CutBookkeeper*
 CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) {
-  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  xAOD::CutBookkeeperContainer* fileBook = nullptr;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
     return nullptr;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header file for class CutFlowSvc
@@ -27,7 +27,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
