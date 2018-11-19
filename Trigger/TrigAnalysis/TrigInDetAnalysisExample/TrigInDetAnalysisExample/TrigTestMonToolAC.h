@@ -132,6 +132,8 @@ public:
   bool m_requireDecision;
   
   bool m_containTracks;
+
+  bool m_filter_on_roi;
 };
 
 
