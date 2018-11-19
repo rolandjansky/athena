@@ -23,15 +23,17 @@ using eformat::helper::SourceIdentifier;
 
 
 MDT_Hid2RESrcID::MDT_Hid2RESrcID() :
-  m_cabling(0), m_mdtIdHelper(0), m_specialROBNumber(0)
+  m_mdtIdHelper(0), m_specialROBNumber(0), m_readKey("MuonMDT_CablingMap")
 {
 
 }
 
-void MDT_Hid2RESrcID::set(MuonMDT_CablingSvc* p_cabling, const MdtIdHelper* mdtIdHelper) {
+void MDT_Hid2RESrcID::set(const MdtIdHelper* mdtIdHelper) {
   // Initialize the cabling Service
   m_mdtIdHelper = mdtIdHelper;
-  m_cabling = p_cabling;
+  m_readKey.initialize();
+  //ATH_CHECK( m_readKey.initialize() ); 
+  //return StatusCode::SUCCESS; 
 }
 
 uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
@@ -63,15 +65,22 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
   int multilayer = m_mdtIdHelper->multilayer(offlineId);
   int tubelayer = m_mdtIdHelper->tubeLayer(offlineId);
   int tube = m_mdtIdHelper->tube(offlineId);
-    
-  online = m_cabling->getOnlineId(station_name, station_eta,
-				  station_phi, multilayer,tubelayer,
-				  tube, 
-				  SubsystemId,
-				  MrodId,
-				  LinkId,
-				  TdcId,
-				  ChannelId);
+
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==nullptr){
+    //ATH_MSG_ERROR("Null pointer to the read conditions object");
+    log << MSG::ERROR << "Null pointer to the read conditions object" << endmsg;
+    return 0;
+  }
+  online = readCdo->getOnlineId(station_name, station_eta,
+				station_phi, multilayer,tubelayer,
+				tube, 
+				SubsystemId,
+				MrodId,
+				LinkId,
+				TdcId,
+				ChannelId);
   
   if (!online) {
     log << MSG::DEBUG << "ROD Id of the Station " << MSG::hex << "0x" << offlineId

@@ -5,8 +5,6 @@
 #include "MdtCsmContByteStreamTool.h"
 #include "MdtROD_Encoder.h"
 
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
-
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmContainer.h"
 
@@ -24,7 +22,6 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
     :  
     AthAlgTool(type,name,parent),
-    m_cabling(0),
     m_hid2re(0),
     m_mdtIdHelper(0)
 {
@@ -39,11 +36,6 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
   
 StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
  
-  if (StatusCode::SUCCESS != service("MuonMDT_CablingSvc", m_cabling)) {
-    ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
-    return StatusCode::FAILURE; 
-  }  
-  
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore", detStore);
   if (status.isFailure()) {
@@ -63,7 +55,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
   }
 
   m_hid2re = new MDT_Hid2RESrcID ();
-  m_hid2re->set(m_cabling, mdt_id);
+  m_hid2re->set(mdt_id);
 
   m_mdtIdHelper = mdt_id;
 
@@ -81,7 +73,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 						   MsgStream& log ) {
   
   m_fea.clear();
-  m_fea.idMap().set(m_cabling, m_mdtIdHelper);
+  m_fea.idMap().set(m_mdtIdHelper);
   
   FullEventAssembler<MDT_Hid2RESrcID>::RODDATA*  theROD ;
   

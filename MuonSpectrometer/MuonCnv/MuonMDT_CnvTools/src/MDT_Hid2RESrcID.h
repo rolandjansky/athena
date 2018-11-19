@@ -8,11 +8,12 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "Identifier/Identifier.h"
-
 
 #include <stdint.h> 
 #include <map>
@@ -36,7 +37,7 @@ public:
 
   /** intialize the cabling service
    */
-  void set(MuonMDT_CablingSvc* p_cabling, const MdtIdHelper* m_mdtIdHelper); 
+  void set(const MdtIdHelper* m_mdtIdHelper); 
 
   /** TMP method for sector 13 data */
   void setSpecialROBNumber(int specialROBNumber) {m_specialROBNumber=specialROBNumber;}
@@ -58,10 +59,12 @@ public:
 
  private: 
 
-  MuonMDT_CablingSvc* m_cabling;
   const MdtIdHelper* m_mdtIdHelper;
 
   int m_specialROBNumber;
+
+  //SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey;
 
 };
 
