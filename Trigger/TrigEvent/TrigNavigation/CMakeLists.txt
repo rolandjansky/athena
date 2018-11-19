@@ -15,7 +15,6 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CLIDSvc
    Control/SGTools
    Control/StoreGate
    GaudiKernel

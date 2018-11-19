@@ -70,9 +70,7 @@ StatusCode egammaForwardBuilder::initialize()
     ATH_CHECK(m_fourMomBuilder.retrieve());
   } 
 
-  for (const auto& selector : m_forwardElectronIsEMSelectors) {
-    ATH_CHECK(selector.retrieve());
-  }
+  ATH_CHECK(m_forwardElectronIsEMSelectors.retrieve());
   
   if (m_forwardElectronIsEMSelectors.size() != m_forwardElectronIsEMSelectorResultNames.size()) {
     ATH_MSG_ERROR("The number of selectors does not match the number of given fwd-electron selector names");

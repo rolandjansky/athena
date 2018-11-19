@@ -8,7 +8,7 @@ You need to setup for an ATLAS release before using ART.
 Usage:
   art.py run             [-v -q --type=<T> --max-jobs=<N> --ci --run-all-tests] <script_directory> <sequence_tag>
   art.py grid            [-v -q --type=<T> --max-jobs=<N> -n --run-all-tests] <script_directory> <sequence_tag>
-  art.py submit          [-v -q --type=<T> --max-jobs=<N> --config=<file> -n] <sequence_tag> [<packages>...]
+  art.py submit          [-v -q --type=<T> --max-jobs=<N> --config=<file> -n --run-all-tests] <sequence_tag> [<packages>...]
   art.py copy            [-v -q --user=<user> --dst=<dir> --no-unpack --tmp=<dir> --seq=<N> --keep-tmp] <indexed_package>
   art.py validate        [-v -q] [<script_directory>]
   art.py included        [-v -q --type=<T> --test-type=<TT>] [<script_directory>]
@@ -84,7 +84,7 @@ Tests are called with:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.11.11'
+__version__ = '0.11.13'
 
 import logging
 import os
@@ -183,8 +183,10 @@ def submit(sequence_tag, **kwargs):
     packages = kwargs['packages']
     config = kwargs['config']
     no_action = kwargs['no_action']
+    max_jobs = int(kwargs['max_jobs'])
     wait_and_copy = True
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, max_jobs=int(kwargs['max_jobs'])).task_list(job_type, sequence_tag, inform_panda, packages, no_action, wait_and_copy, config))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, max_jobs=max_jobs, run_all_tests=run_all_tests).task_list(job_type, sequence_tag, inform_panda, packages, no_action, wait_and_copy, config))
 
 
 @dispatch.on('grid')
@@ -198,9 +200,10 @@ def grid(script_directory, sequence_tag, **kwargs):
     packages = []
     config = None
     no_action = kwargs['no_action']
+    max_jobs = int(kwargs['max_jobs'])
     wait_and_copy = False
     run_all_tests = kwargs['run_all_tests']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=True, max_jobs=int(kwargs['max_jobs']), run_all_tests=run_all_tests).task_list(job_type, sequence_tag, inform_panda, packages, no_action, wait_and_copy, config))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=True, max_jobs=max_jobs, run_all_tests=run_all_tests).task_list(job_type, sequence_tag, inform_panda, packages, no_action, wait_and_copy, config))
 
 
 @dispatch.on('run')

@@ -8,8 +8,8 @@ void LArHVScaleCorrComplete::set(const HWIdentifier& CellID, const float corr) {
   this->setPdata(CellID,corr);
 }
 
-const float& LArHVScaleCorrComplete::HVScaleCorr(const Identifier& id ) const {
-  std::cout << "LArHVScaleCorrComplete access by offlien id not implemented!" << std::endl;
+const float& LArHVScaleCorrComplete::HVScaleCorr(const Identifier&) const {
+  std::cout << "LArHVScaleCorrComplete access by offline id not implemented!" << std::endl;
   std::abort();
   const static float errcode=LArElecCalib::ERRORCODE;
   return errcode;

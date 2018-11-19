@@ -118,7 +118,9 @@ ActsStrawLayerBuilder::centralLayers()
             m_cfg.elementStore->push_back(elem);
 
             auto straw = dynamic_cast<const Acts::StrawSurface*>(&elem->surface());
+            if (not straw) continue;
             auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
+            if (not strawBounds) continue;
             double radius = strawBounds->r();
             double length = strawBounds->halflengthZ();
             fudge = radius / 4.;
@@ -211,18 +213,22 @@ ActsStrawLayerBuilder::endcapLayers(int side)
           m_cfg.elementStore->push_back(elem);
 
           auto straw = dynamic_cast<const Acts::StrawSurface*>(&elem->surface());
-          auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
-          double radius = strawBounds->r();
-          double length = strawBounds->halflengthZ();
+          if (straw){
+            auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
+            if (strawBounds){
+              double radius = strawBounds->r();
+              double length = strawBounds->halflengthZ();
 
-          Vector3D ctr = straw->center();
-          pl.maxZ = std::max(pl.maxZ, ctr.z() + radius);
-          pl.minZ = std::min(pl.minZ, ctr.z() - radius);
-          pl.maxR = std::max(pl.maxR, ctr.perp() + length);
-          pl.minR = std::min(pl.minR, ctr.perp() - length);
-          pl.envZ = {radius/2., radius/2.};
+              Vector3D ctr = straw->center();
+              pl.maxZ = std::max(pl.maxZ, ctr.z() + radius);
+              pl.minZ = std::min(pl.minZ, ctr.z() - radius);
+              pl.maxR = std::max(pl.maxR, ctr.perp() + length);
+              pl.minR = std::min(pl.minR, ctr.perp() - length);
+              pl.envZ = {radius/2., radius/2.};
 
-          wheelSurfaces.push_back(straw);
+              wheelSurfaces.push_back(straw);
+            }
+          }
         }
       }
 

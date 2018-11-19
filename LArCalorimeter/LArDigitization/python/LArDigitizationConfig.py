@@ -124,8 +124,9 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
 
 
     # AutoCorrNoiseCondAlgo
-    from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
-    LArAutoCorrNoiseCondAlgDefault()
+    if not isOverlay():
+        from LArRecUtils.LArAutoCorrNoiseCondAlgDefault import LArAutoCorrNoiseCondAlgDefault
+        LArAutoCorrNoiseCondAlgDefault()
 
     # bad channel masking
     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker

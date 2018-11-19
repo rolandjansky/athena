@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -13,7 +13,7 @@
 #include "TrkTruthTPCnv/SubDetHitStatistics_p0.h"
 #include "TrkTruthTPCnv/TruthTrajectory_p1.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 namespace Trk {
   class DetailedTrackTruth_p1 {

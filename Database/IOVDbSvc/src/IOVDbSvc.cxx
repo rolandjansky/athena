@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbSvc.cxx
@@ -51,6 +51,26 @@ namespace {
     return StatusCode::FAILURE;
   }
 }
+
+
+namespace {
+
+
+/**
+ * @brief Helper to check if a range is open-ended.
+ */
+bool isOpenEnded (const IOVRange& range, bool isTimeStamp)
+{
+  if (isTimeStamp) {
+    return range.stop().timestamp() >= IOVTime::MAXTIMESTAMP;
+  }
+  else {
+    return range.stop().re_time() >= IOVTime::MAXRETIME;
+  }
+}
+
+
+} // anonymous namespace
 
 
 IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
@@ -671,6 +691,18 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   //   range=IOVRange(IOVTime(start),range.stop());
   // }
 
+  // Special handling for open-ended ranges in extensible folders:
+  if (folder->extensible() && isOpenEnded (range, folder->timeStamp())) {
+    // Set the end time to just past the current event.
+    IOVTime extStop = range.stop();
+    if (folder->timeStamp()) {
+      extStop.setTimestamp (time.timestamp() + 1);
+    }
+    else {
+      extStop.setRETime (time.re_time() + 1);
+    }
+    range = IOVRange (range.start(), extStop);
+  }
 
 
 

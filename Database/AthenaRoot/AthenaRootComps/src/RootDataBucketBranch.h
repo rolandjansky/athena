@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootDataBucketBranch.h 
@@ -63,9 +63,6 @@ public:
              bool isConst = true) override;
 
   virtual
-  DataBucketBranch* clone() const override;
-
-  virtual
   void relinquish() override;
 
   virtual void lock() override;
@@ -91,14 +88,6 @@ void*
 DataBucketBranch::object()
 {
   return m_ptr;
-}
-
-inline
-DataBucketBranch*
-DataBucketBranch::clone() const
-{
-  throw std::runtime_error("DataBucketBranch::clone: not implemented");
-  return NULL;
 }
 
 inline

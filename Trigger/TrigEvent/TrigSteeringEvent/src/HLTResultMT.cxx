@@ -18,20 +18,6 @@ HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags
   m_status(status) {}
 
 // =============================================================================
-// Copy constructor
-// =============================================================================
-HLT::HLTResultMT::HLTResultMT(const HLT::HLTResultMT& other)
-: m_streamTags(other.m_streamTags),
-  m_hltBits(other.m_hltBits),
-  m_data(other.m_data),
-  m_status(other.m_status) {}
-
-// =============================================================================
-// Standard destructor
-// =============================================================================
-HLT::HLTResultMT::~HLTResultMT() {}
-
-// =============================================================================
 // Getter/setter methods for stream tags
 // =============================================================================
 const std::vector<eformat::helper::StreamTag>& HLT::HLTResultMT::getStreamTags() const {

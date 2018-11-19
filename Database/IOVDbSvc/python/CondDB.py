@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # CondDB.py
 # Configuration for Athena conditions DB access
@@ -203,8 +203,12 @@ class CondDB:
         self.msg.debug("Loading basic services for CondDBSetup... [DONE]")
 
     def addFolder(self,ident,folder,force=False,forceMC=False,forceData=False,
-                  className=None):
-        "Add access to the given folder, in the identified subdetector schema"
+                  className=None,extensible=False):
+        """Add access to the given folder, in the identified subdetector schema.
+If EXTENSIBLE is set, then if we access an open-ended IOV at the end of the list,
+the end time for this range will be set to just past the current event.
+Subsequent accesses will update this end time for subsequent events.
+This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         # first check if access to this folder was blocked, unless forcing
         for block in self.blocklist:
             if (folder.find(block)>=0 and force==False): return
@@ -219,6 +223,9 @@ class CondDB:
             folderadd='<db>sqlite://;schema=%s;dbname=%s</db> %s' % (ident,self._GetName(forceMC,forceData),folder)
         else:
             raise RuntimeError("Conditions database identifier %s is not defined" % ident)
+        if extensible:
+            folderadd = folderadd + '<extensible/>'
+
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:

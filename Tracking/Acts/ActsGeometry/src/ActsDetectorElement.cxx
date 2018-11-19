@@ -98,17 +98,21 @@ ActsDetectorElement::ActsDetectorElement(
   m_explicitIdentifier = id;
   
   // we know this is a straw
-  double length = detElem->strawLength()/2.;
+  double length = detElem->strawLength()*0.5;
 
   // we need to find the radius
   auto ecElem = dynamic_cast<const InDetDD::TRT_EndcapElement*>(detElem);
   auto brlElem = dynamic_cast<const InDetDD::TRT_BarrelElement*>(detElem);
-  double innerTubeRadius;
+  double innerTubeRadius{0.};
   if (ecElem) {
     innerTubeRadius = ecElem->getDescriptor()->innerTubeRadius();
   }
   else {
-    innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
+    if (brlElem){
+      innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
+    } else {
+      throw std::runtime_error("Cannot get tube radius for element in ActsDetectorElement c'tor");
+    }
   }
   
   auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
@@ -163,8 +167,8 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 {
   struct get_transform : public boost::static_visitor<Transform3D>
   {
-    get_transform(ActsAlignmentStore* gas, const Transform3D* trtTrf)
-      : m_store(gas), m_trtTrf(trtTrf) {}
+    get_transform(ActsAlignmentStore* gas2, const Transform3D* trtTrf)
+      : m_store(gas2), m_trtTrf(trtTrf) {}
 
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {

@@ -35,6 +35,8 @@
 
 #include "LArCalibUtils/LArPhysWaveTool.h"
 
+#include "LArCabling/LArCablingService.h"
+
 #include <stdio.h>
 #include <iostream>
 #include <fstream>

@@ -101,8 +101,10 @@ StatusCode NominalAlignmentCondAlg::execute() {
       [alignmentStore, &nElems](const Acts::Surface* srf) {
       const Acts::DetectorElementBase* detElem = srf->associatedDetectorElement();
       const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
-      gmde->storeTransform(alignmentStore);
-      nElems++;
+      if (gmde){
+        gmde->storeTransform(alignmentStore);
+        nElems++;
+      }
     });
     ATH_MSG_DEBUG("ActsAlignmentStore populated for " << nElems << " detector elements");
 

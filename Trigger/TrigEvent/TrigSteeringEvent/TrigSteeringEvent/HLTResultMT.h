@@ -25,10 +25,6 @@ namespace HLT {
                 std::vector<uint32_t> hltBits = {},
                 std::unordered_map<uint16_t, std::vector<uint32_t> > data = {},
                 std::vector<uint32_t> status = {});
-    /// Copy constructor
-    HLTResultMT(const HLTResultMT& other);
-    /// Standard destructor
-    virtual ~HLTResultMT();
 
     /// Stream tags getter
     const std::vector<eformat::helper::StreamTag>& getStreamTags() const;

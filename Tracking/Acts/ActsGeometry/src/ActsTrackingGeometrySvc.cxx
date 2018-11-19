@@ -154,14 +154,11 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
                       const Acts::Surface* bS) -> bool {
 
-      auto a = dynamic_cast<const ActsDetectorElement*>(
-          aS->associatedDetectorElement());
-      auto b = dynamic_cast<const ActsDetectorElement*>(
-          bS->associatedDetectorElement());
-
-
-      //auto id_a = a->identify();
-      //auto id_b = b->identify();
+      auto a = dynamic_cast<const ActsDetectorElement*>(aS->associatedDetectorElement());
+      auto b = dynamic_cast<const ActsDetectorElement*>(bS->associatedDetectorElement());
+      if ((not a) or (not b)){
+        throw std::runtime_error("Cast of surface associated element to ActsDetectorElement failed in ActsTrackingGeometrySvc::makeVolumeBuilder");
+      }
     
       IdentityHelper idA = a->identityHelper();
       IdentityHelper idB = b->identityHelper();
