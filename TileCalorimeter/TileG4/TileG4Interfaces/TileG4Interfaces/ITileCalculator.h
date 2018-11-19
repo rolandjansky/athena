@@ -29,6 +29,7 @@ class G4Step;
 class TileGeoG4Section;
 class TileGeoG4Cell;
 class TileGeoG4LookupBuilder;
+class TileSDOptions;
 
 struct TileMicroHit {
   Identifier pmt_up;
@@ -85,6 +86,8 @@ class ITileCalculator : virtual public IService {
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const = 0;
   ///
   virtual TileGeoG4LookupBuilder* GetLookupBuilder() const = 0;
+  /// pointer to class with all options
+  virtual const TileSDOptions* GetOptions() const = 0;
   /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
   virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const = 0;
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleBaseCnv_p1.cxx 
@@ -21,12 +21,8 @@
 #include "VxVertex/VxContainer.h"
 
 // ParticleEvent includes
-#define private public
-#define protected public
 #include "ParticleEvent/ParticleBase.h"
 #include "ParticleEvent/Lib/Base.h"
-#undef private
-#undef protected
 
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/ParticleBaseCnv_p1.h"
@@ -57,13 +53,23 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
 //       << endmsg;
 
-  vxCnv.persToTrans( &pers->m_origin, &trans->m_origin, msg );
+  ElementLink<VxContainer> origin;
+  vxCnv.persToTrans( &pers->m_origin, &origin, msg );
 
-  trans->m_charge    = pers->m_charge;
-  trans->m_hasCharge = pers->m_hasCharge;
-  trans->m_pdgId     = static_cast<PDG::pidType>( pers->m_pdgId );
-  trans->m_hasPdgId  = pers->m_hasPdgId;
-  trans->m_dataType  = static_cast<ParticleDataType::DataType>( pers->m_dataType );
+  trans->set_origin    (origin);
+  if (pers->m_hasCharge) {
+    trans->set_charge    (pers->m_charge);
+  }
+  else {
+    trans->reset_charge();
+  }
+  if (pers->m_hasPdgId) {
+    trans->set_pdgId     (static_cast<PDG::pidType>( pers->m_pdgId ));
+  }
+  else {
+    trans->reset_pdgId();
+  }
+  trans->set_dataType  (static_cast<ParticleDataType::DataType>( pers->m_dataType ));
 
 //   msg << MSG::DEBUG << "Loaded ParticleBase from persistent state [OK]"
 //       << endmsg;
@@ -78,13 +84,13 @@ void ParticleBaseCnv_p1::transToPers( const ParticleBase* trans,
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
 //       << endmsg;
 
-  vxCnv.transToPers( &trans->m_origin, &pers->m_origin, msg );
+  vxCnv.transToPers( &trans->originLink(), &pers->m_origin, msg );
 
-  pers->m_charge    = trans->m_charge;
-  pers->m_hasCharge = trans->m_hasCharge;
-  pers->m_pdgId     = trans->m_pdgId;
-  pers->m_hasPdgId  = trans->m_hasPdgId;
-  pers->m_dataType  = trans->m_dataType;
+  pers->m_charge    = trans->charge();
+  pers->m_hasCharge = trans->hasCharge();
+  pers->m_pdgId     = trans->pdgId();
+  pers->m_hasPdgId  = trans->hasPdgId();
+  pers->m_dataType  = trans->dataType();
 
 //   msg << MSG::DEBUG << "Created persistent state of ParticleBase [OK]"
 //       << endmsg;
@@ -99,13 +105,23 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
 //       << endmsg;
 
-  vxCnv.persToTrans( &pers->m_origin, &trans->m_origin, msg );
+  ElementLink<VxContainer> origin;
+  vxCnv.persToTrans( &pers->m_origin, &origin, msg );
 
-  trans->m_charge    = pers->m_charge;
-  trans->m_hasCharge = pers->m_hasCharge;
-  trans->m_pdgId     = static_cast<PDG::pidType>( pers->m_pdgId );
-  trans->m_hasPdgId  = pers->m_hasPdgId;
-  trans->m_dataType  = static_cast<ParticleDataType::DataType>( pers->m_dataType );
+  trans->set_origin    (origin);
+  if (pers->m_hasCharge) {
+    trans->set_charge    (pers->m_charge);
+  }
+  else {
+    trans->reset_charge();
+  }
+  if (pers->m_hasPdgId) {
+    trans->set_pdgId     (static_cast<PDG::pidType>( pers->m_pdgId ));
+  }
+  else {
+    trans->reset_pdgId();
+  }
+  trans->set_dataType  (static_cast<ParticleDataType::DataType>( pers->m_dataType ));
 
   // convert AthenaBarCode
   s_abcCnv.persToTrans((const AthenaBarCode_p1*)(&(pers->m_athenabarcode)),
@@ -135,13 +151,13 @@ void ParticleBaseCnv_p1::transToPers( const ParticleEvent::Base* trans,
 #endif
   
 
-  vxCnv.transToPers( &trans->m_origin, &pers->m_origin, msg );
+  vxCnv.transToPers( &trans->originLink(), &pers->m_origin, msg );
 
-  pers->m_charge    = trans->m_charge;
-  pers->m_hasCharge = trans->m_hasCharge;
-  pers->m_pdgId     = trans->m_pdgId;
-  pers->m_hasPdgId  = trans->m_hasPdgId;
-  pers->m_dataType  = trans->m_dataType;
+  pers->m_charge    = trans->charge();
+  pers->m_hasCharge = trans->hasCharge();
+  pers->m_pdgId     = trans->pdgId();
+  pers->m_hasPdgId  = trans->hasPdgId();
+  pers->m_dataType  = trans->dataType();
 
   // convert AthenaBarCode
   s_abcCnv.transToPers((const AthenaBarCodeImpl*)(&(trans->getAthenaBarCodeImpl())), (AthenaBarCode_p1*)(&(pers->m_athenabarcode)),msg);

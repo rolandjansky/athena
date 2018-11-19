@@ -150,7 +150,7 @@ class Extrapolator : public AthAlgTool,
     virtual const NeutralParameters* extrapolate(const xAOD::NeutralParticle& xnParticle,
                                                  const Surface& sf,
                                                  PropDirection dir=anyDirection,
-                                                 BoundaryCheck bcheck = true) const final;
+                                                 BoundaryCheck bcheck = true) const override final;
 
 
 
@@ -160,7 +160,7 @@ class Extrapolator : public AthAlgTool,
                                                PropDirection dir=anyDirection,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const final;
+                                               MaterialUpdateMode matupmode=addNoise) const override final;
 
 
     /** [TrackParticleBase] ---------------------------------------------------------------- */
@@ -185,7 +185,7 @@ class Extrapolator : public AthAlgTool,
     virtual const NeutralParameters* extrapolate(const NeutralParameters& parameters,
                                                  const Surface& sf,
                                                  PropDirection dir=anyDirection,
-                                                 BoundaryCheck bcheck=true) const final;
+                                                 BoundaryCheck bcheck=true) const override final;
 
     /** [TrackParameters] --------------------------------------------------------------- */
 
@@ -198,7 +198,7 @@ class Extrapolator : public AthAlgTool,
                                                 PropDirection dir=anyDirection,
                                                 BoundaryCheck bcheck = true,
                                                 ParticleHypothesis particle=pion,
-                                                MaterialUpdateMode matupmode=addNoise) const final;
+                                                MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** S 2) <b>Strategy Pattern extrapolation method</b>
       - returns a vector of TrackParameters representing the tracking detector elements
@@ -209,7 +209,7 @@ class Extrapolator : public AthAlgTool,
                                                               const Surface& sf,
                                                               PropDirection dir=anyDirection,
                                                               BoundaryCheck bcheck = true,
-                                                              ParticleHypothesis particle=pion ) const final;
+                                                              ParticleHypothesis particle=pion ) const override final;
 
     /** S 3) <b>Strategy Pattern extrapolation method</b>: 
       - searches the closest TrackParameters of the Track to the destination Surface
@@ -221,7 +221,7 @@ class Extrapolator : public AthAlgTool,
                                                PropDirection dir=anyDirection,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const final;
+                                               MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** S 4) <b>Strategy Pattern extrapolation method</b>:
       - direct extrapolation to the destination surface, no material effects 
@@ -232,7 +232,7 @@ class Extrapolator : public AthAlgTool,
                                                        const Surface& sf,
                                                        PropDirection dir=anyDirection,
                                                        BoundaryCheck bcheck = true,
-                                                       ParticleHypothesis particle=pion) const final;
+                                                       ParticleHypothesis particle=pion) const override final;
 
     /** S 5) <b>Strategy Pattern extrapolation method</b>:
       - blind extrapolation inside the given TrackingVolume
@@ -242,7 +242,7 @@ class Extrapolator : public AthAlgTool,
                                                             PropDirection dir,
                                                             BoundaryCheck bcheck,
                                                             ParticleHypothesis particle=pion,
-                                                            const Volume* boundaryVol=0) const final;
+                                                            const Volume* boundaryVol=0) const override final;
 
 
     /** S 6) <b>Strategy Pattern extrapolation method</b>:
@@ -254,7 +254,7 @@ class Extrapolator : public AthAlgTool,
                                                                                         PropDirection dir,
                                                                                         BoundaryCheck bcheck,
                                                                                         ParticleHypothesis particle=pion,
-                                                                                        MaterialUpdateMode matupmode=addNoise) const final;
+                                                                                        MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** S 7) <b>Strategy Pattern extrapolation method</b>:
       - extrapolation to the next active layer, based on the extrapolation to the next (material) layer
@@ -267,7 +267,7 @@ class Extrapolator : public AthAlgTool,
                                                                                          BoundaryCheck bcheck,
                                                                                          std::vector<const Trk::TrackStateOnSurface*>& material,
                                                                                          ParticleHypothesis particle=pion,
-                                                                                         MaterialUpdateMode matupmode=addNoise) const final;
+                                                                                         MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** S 8) <b>Strategy Pattern extrapolation method</b>:
       - Extrapolation using specific intermediate surfaces and energy loss effects to be accounted for at
@@ -280,7 +280,7 @@ class Extrapolator : public AthAlgTool,
                                                const TrackingVolume& tvol,
                                                PropDirection dir,
                                                ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const final;
+                                               MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** S 9) <b>Strategy Pattern extrapolation method</b>:
       - extrapolation to the next active layer, based on the extrapolation to the next (material) layer
@@ -291,7 +291,7 @@ class Extrapolator : public AthAlgTool,
                                                                                      PropDirection dir,
                                                                                      BoundaryCheck bcheck,
                                                                                      ParticleHypothesis particle=pion,
-                                                                                     MaterialUpdateMode matupmode=addNoise) const final; 
+                                                                                     MaterialUpdateMode matupmode=addNoise) const override final; 
 
     /** S 10) <b>Strategy Pattern extrapolation method</b>:
       - extrapolation to a volume boundary of an arbitrary tracking volume ( not necessarily part of a tracking geometry ) 
@@ -300,7 +300,7 @@ class Extrapolator : public AthAlgTool,
                                                        const TrackParameters& parm,
                                                        const Trk::TrackingVolume& vol,
                                                        PropDirection dir=anyDirection,
-                                                       ParticleHypothesis particle=pion) const final;
+                                                       ParticleHypothesis particle=pion) const override final;
 
     /** C 1) <b>Configured AlgTool extrapolation method</b> of S 1):*/
     virtual const TrackParameters* extrapolate(const TrackParameters& parm,
@@ -309,14 +309,14 @@ class Extrapolator : public AthAlgTool,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
                                                MaterialUpdateMode matupmode=addNoise,
-                                               Trk::ExtrapolationCache* cache = 0) const final;
+                                               Trk::ExtrapolationCache* cache = 0) const override final;
 
     /** C 2) <b>Configured AlgTool extrapolation method</b> of S 2):*/
     virtual const TrackParametersVector*  extrapolateStepwise(const TrackParameters& parm,
                                                               const Surface& sf,
                                                               PropDirection dir=anyDirection,
                                                               BoundaryCheck bcheck = true,
-                                                              ParticleHypothesis particle=pion) const final;
+                                                              ParticleHypothesis particle=pion) const override final;
 
     /** C 3) <b>Configured AlgTool extrapolation method</b> of S 3):*/
     virtual const TrackParameters* extrapolate(const Track& trk,
@@ -325,21 +325,21 @@ class Extrapolator : public AthAlgTool,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
                                                MaterialUpdateMode matupmode=addNoise,
-                                               Trk::ExtrapolationCache* cache = 0) const final;
+                                               Trk::ExtrapolationCache* cache = 0) const override final;
 
     /** C 4) <b>Configured AlgTool extrapolation method</b> of S 4):*/
     virtual const TrackParameters* extrapolateDirectly(const TrackParameters& parm,
                                                        const Surface& sf,
                                                        PropDirection dir=anyDirection,
                                                        BoundaryCheck bcheck = true,
-                                                       ParticleHypothesis particle=pion) const final;
+                                                       ParticleHypothesis particle=pion) const override final;
 
     /** C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/                        
     virtual const TrackParametersVector* extrapolateBlindly(const TrackParameters& parm,
                                                             PropDirection dir=anyDirection,
                                                             BoundaryCheck bcheck = true,
                                                             ParticleHypothesis particle=pion,
-                                                            const Volume* boundaryVol=0) const final;
+                                                            const Volume* boundaryVol=0) const override final;
 
 
     /** C 6) <b>Configured AlgTool extrapolation method</b> of S 6):*/                        
@@ -347,7 +347,7 @@ class Extrapolator : public AthAlgTool,
                                                                                         PropDirection dir=anyDirection,
                                                                                         BoundaryCheck bcheck = true,
                                                                                         ParticleHypothesis particle=pion,
-                                                                                        MaterialUpdateMode matupmode=addNoise) const final;
+                                                                                        MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** C 7) <b>Configured AlgTool extrapolation method</b> of S 7):*/                        
     virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayerM(const TrackParameters& parm,
@@ -355,20 +355,20 @@ class Extrapolator : public AthAlgTool,
                                                                                          BoundaryCheck bcheck,
                                                                                          std::vector<const Trk::TrackStateOnSurface*>& material,
                                                                                          ParticleHypothesis particle=pion,
-                                                                                         MaterialUpdateMode matupmode=addNoise) const final;
+                                                                                         MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** C 8) <b>Configured AlgTool extrapolation method</b> of S 8):*/                        
     virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextStation(const TrackParameters& parm,
                                                                                     PropDirection dir=anyDirection,
                                                                                     BoundaryCheck bcheck = true,
                                                                                     ParticleHypothesis particle=pion,
-                                                                                    MaterialUpdateMode matupmode=addNoise) const final;
+                                                                                    MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** C 9) <b>Configured AlgTool extrapolation method</b> of S 9):*/
     virtual const TrackParameters* extrapolateToVolume(const TrackParameters& parm,
                                                        const Trk::TrackingVolume& vol,
                                                        PropDirection dir=anyDirection,
-                                                       ParticleHypothesis particle=pion) const final;
+                                                       ParticleHypothesis particle=pion) const override final;
 
     /** C 10) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers in between.
@@ -378,7 +378,7 @@ class Extrapolator : public AthAlgTool,
                                                                         PropDirection dir,
                                                                         BoundaryCheck bcheck,
                                                                         ParticleHypothesis particle=pion,
-                                                                        Trk::ExtrapolationCache* cache = 0) const final;
+                                                                        Trk::ExtrapolationCache* cache = 0) const override final;
 
     /** C 11) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in between.
@@ -390,7 +390,7 @@ class Extrapolator : public AthAlgTool,
                                                                     std::vector<MaterialEffectsOnTrack>& material,
                                                                     std::vector<Trk::TransportJacobian *>& jacs,
                                                                     ParticleHypothesis particle=pion,
-                                                                    Trk::ExtrapolationCache* cache = 0) const final;
+                                                                    Trk::ExtrapolationCache* cache = 0) const override final;
 
     virtual const Trk::TrackParameters*  extrapolateWithPathLimit(
                                                                   const Trk::TrackParameters& parm,
@@ -400,7 +400,7 @@ class Extrapolator : public AthAlgTool,
                                                                   std::vector<const Trk::TrackParameters*>*& parmOnSf,
                                                                   std::vector<const Trk::TrackStateOnSurface*>*& material,
                                                                   const Trk::TrackingVolume* boundaryVol=0,
-                                                                  MaterialUpdateMode matupmod=Trk::addNoise) const final;
+                                                                  MaterialUpdateMode matupmod=Trk::addNoise) const override final;
 
 
     /** extrapolation method collecting intersections with subdetector boundaries and active volumes/layers.
@@ -412,16 +412,16 @@ class Extrapolator : public AthAlgTool,
                                                                                              Trk::PropDirection dir,
                                                                                              Trk::ParticleHypothesis particle,
                                                                                              std::vector<const Trk::TrackStateOnSurface*>*&  material,
-                                                                                             int destination = 3 ) const final;
+                                                                                             int destination = 3 ) const override final;
 
 
 
     /** Return the TrackingGeometry used by the Extrapolator (forward information from Navigator)*/
-    virtual const TrackingGeometry* trackingGeometry() const final; 
+    virtual const TrackingGeometry* trackingGeometry() const override final; 
 
     /** Validation Action:
       Can be implemented optionally, outside access to internal validation steps */
-    virtual void validationAction() const final;
+    virtual void validationAction() const override final;
 
   private:
 
@@ -452,7 +452,7 @@ class Extrapolator : public AthAlgTool,
       std::vector<Trk::TransportJacobian*>*                    m_jacs=nullptr;                     //!< cache of Transport Jacobians 
       std::unique_ptr<identifiedParameters_t>                  m_identifiedParameters;             // for active volumes 
 
-      double                                                   m_path;    
+      double                                                   m_path{};    
 
       std::pair<unsigned int, unsigned int>                     m_denseResolved;
       std::vector<DestSurf>                                     m_staticBoundaries;
@@ -733,7 +733,7 @@ class Extrapolator : public AthAlgTool,
                               ParticleHypothesis particle=pion) const;
 
     /** Access the subPropagator to the given volume*/
-    const IPropagator* subPropagator(const TrackingVolume& tvol) const;
+    virtual const IPropagator* subPropagator(const TrackingVolume& tvol) const override;
 
     /** Access the subPropagator to the given volume*/
     const IMaterialEffectsUpdator* subMaterialEffectsUpdator(const TrackingVolume& tvol) const;

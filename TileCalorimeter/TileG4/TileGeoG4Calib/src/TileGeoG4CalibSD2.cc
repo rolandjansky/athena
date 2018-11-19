@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@
 #include <string>
 
 //static const double tanPi64=0.049126849769467254105343321271314;
-static const double M_PI32 = M_PI / 32;
+static const double M_INV_PI32 = 32. / M_PI;
 
 #ifdef HITSINFO    //added by Sergey
 std::ofstream htout("hits.txt");
@@ -58,10 +58,6 @@ std::ofstream htout("hits.txt");
 //------------------------------------------------------
 //      PUBLIC  METHODS
 //------------------------------------------------------
-
-void TileGeoG4CalibSD::ClassifyEnergy() {
-  m_result = m_simEn->Classify(m_aStep);
-}
 
 //FIND THE TILECAL SUB-SECTION AND ITS MODULE WHERE THE CURRENT
 //STEP IS. DETERMINE SOME OF THE IDENTIFIER VALUES, WHICH ARE
@@ -96,28 +92,52 @@ bool TileGeoG4CalibSD::FindTileCalibSection() {
   m_stepPhysVol = m_stepTouchable->GetVolume();
 
   //DETERMINE A NAME OF THE STEP VOLUME
-  G4String nameVol = m_stepPhysVol->GetName();
+  m_nameVol = m_stepPhysVol->GetName();
 
   //Find level for mother volume of Detector setup
   G4int level = m_stepTouchable->GetHistoryDepth();
 
   //Debugging of volumes hierarchy
-  for (int i = 0; i < level; i++) {
-    physSection = m_stepTouchable->GetVolume(i);
-    logVol = physSection->GetLogicalVolume();
-    if (verboseLevel > 10)
+  if (verboseLevel >= 10) {
+    for (int i = 0; i < level; i++) {
+      physSection = m_stepTouchable->GetVolume(i);
+      logVol = physSection->GetLogicalVolume();
       G4cout << " Level--> " << i
-             << ", LogVol--> " << (logVol->GetName()).c_str()
-             << ", PhysVol--> " << (physSection->GetName()).c_str() << G4endl;
+             << ", LogVol--> " << (logVol->GetName())
+             << ", PhysVol--> " << (physSection->GetName()) << G4endl;
+    }
   }
 
   //Find envelope of TileCal. For Tile or TileCTB configuration setup
-  nameLogiVol = m_stepTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
-  while (nameLogiVol.find("Tile") == G4String::npos) {
-    level--;
+  m_detector = 1;
+  m_dm_sample = 1;
+  m_module = 63;
+  if (level>0) {
     nameLogiVol = m_stepTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
+    while (nameLogiVol.find("Tile") == G4String::npos && level > 1) {
+      level--;
+      nameLogiVol = m_stepTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
+    }
+    if (nameLogiVol.find("Tile") == G4String::npos) {
+      m_dm_sample=2;
+      if (nameLogiVol.find("CALO::CALO") != G4String::npos) m_detector=2;
+      else m_detector=3;
+    }
+  } else {
+    nameLogiVol = m_nameVol;
+    m_dm_sample = 3;
   }
-  if (verboseLevel > 10) G4cout << nameLogiVol << " volume level --->" << level << G4endl;
+  if (verboseLevel >= 10) {
+    G4cout << nameLogiVol << " volume level --->" << level
+           << ((m_dm_sample!=1)?" NOT A Tile volume":"") << G4endl;
+    G4cout << "Global coords: ("
+           << m_xGlobal << ", "
+           << m_yGlobal << ", "
+           << m_zGlobal << ") phi "
+           << m_phiGlobal << " Edep "
+           << m_aStep->GetTotalEnergyDeposit()
+           << G4endl;
+  }
 
   //NEW FEATURE (SINCE RELEASE 11.1.0) - ATLAS TILECAL HAS ONE MORE
   //ENVELOPES FOR CENTRAL BARREL (INCLUDES ALSO FINGERS) AND FOR
@@ -125,7 +145,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection() {
   //ENVELOPES ALSO)
   //SO, IF THERE IS NOT ANY TB SETUP OF TILECAL THEN MOVE DOWN TO
   //THE NEXT LEVEL OF ENVELOPES
-  if (!m_options.tileTB) level--;
+  if (!m_tileTB) level--;
 
   //Check for Hits location wheather it is in a true Tile volume
   //or inside of Tile envelopes
@@ -197,13 +217,13 @@ bool TileGeoG4CalibSD::FindTileCalibSection() {
       m_detector = 1;
       m_dm_region = 0;
     } else {
-      G4cout << "ERROR: FindTileCalibSection : wrong name for " << "tile section --> " << namePhysSection.c_str()
-             << G4endl;
+      G4cout << "ERROR: FindTileCalibSection : wrong name for tile section --> " << namePhysSection << G4endl;
       return false;
     }
 
     //determine a module
     if (level > 1) {
+      m_dm_sample = 0;
       if (namePhysSection.find("EBarrel") != G4String::npos || namePhysSection.find("ITC") != G4String::npos) {
         if (level > 2) {  //not IrUp,IrDw, IrBox, Iron1, ...
           m_module = m_stepTouchable->GetVolume(level - 2)->GetCopyNo() - 1;
@@ -218,7 +238,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection() {
     }
 
   } else {  //(level!>1)
-    if (verboseLevel > 10)
+    if (verboseLevel >= 10)
       G4cout << "FindTileCalibSection : current Step " << "is in Tile envelope "
              << " / Add Step energy to the Default Hit" << G4endl;
     return false;
@@ -228,26 +248,23 @@ bool TileGeoG4CalibSD::FindTileCalibSection() {
   return true;
 }
 
-Identifier TileGeoG4CalibSD::CellIDCalculator() {
-  G4ThreeVector WrappCenter, prestepPos, localCoord;
+void TileGeoG4CalibSD::CellIDCalculator() {
   int nPeriod, nSamp = 0;
   double zLocal;
 
-  G4String nameVol = m_stepPhysVol->GetName();
-
-  if ( (nameVol).find("Period") != G4String::npos) nPeriod = m_stepPhysVol->GetCopyNo();
+  if ( (m_nameVol).find("Period") != G4String::npos) nPeriod = m_stepPhysVol->GetCopyNo();
   else
     // Move up by one level to retrieve TilePeriod replica number
     nPeriod = m_stepTouchable->GetVolume(1)->GetCopyNo();
 
   // calculate z coordinate of the hit against the center of TilePeriod
   // or z coordinate of the TileWrapper's center against the center of TilePeriod
-  if (nameVol.find("Wrapper") != G4String::npos) {
-    WrappCenter = m_stepPhysVol->GetObjectTranslation();
+  if (m_nameVol.find("Wrapper") != G4String::npos) {
+    G4ThreeVector WrappCenter = m_stepPhysVol->GetObjectTranslation();
     zLocal = WrappCenter[2];
   } else {
-    prestepPos = m_aStep->GetPreStepPoint()->GetPosition();
-    localCoord = m_stepTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
+    G4ThreeVector prestepPos = m_aStep->GetPreStepPoint()->GetPosition();
+    G4ThreeVector localCoord = m_stepTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
     zLocal = localCoord.z();
   }
 
@@ -316,21 +333,18 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
 
   if (nSamp == 4) {
     //last sample to Girder cell
-    m_id = DefaultHitIDCalculator(); //girder cell calculation - default id calculator
-    return m_id;
+    if (m_tileTB) DefaultHitIDCalculatorTB(2,m_detector-1,0,m_module);
+    else DefaultHitIDCalculator(); //girder cell calculation - default id calculator
+    return;
   }
   //retrieve Cell
   m_cell = m_cSection->GetCell(nPeriod, nSamp);
 
   if (!m_cell) {
-    G4cout << "ERROR: CellIDCalculator: zero pointer to the current cell" << G4endl;
-    G4cout << "ERROR: " << nameVol<<" "<<nPeriod<<" "<<nSamp<< G4endl;
+    G4cout << "ERROR: CellIDCalculator: zero pointer to the current cell in "
+           << m_nameVol <<" " << nPeriod << " " << nSamp << G4endl;
     m_defaultHit = true;
-
-    //return default hit DM Identifier
-    //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-    m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-    return m_id;
+    return;
   }
 
   m_calibHitType = 0; //Cell Inactive CalibHit
@@ -356,30 +370,25 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
 #ifdef HITSINFO    //added by Sergey
   if (IDcalc==0 || IDcalc==1) {
     if (m_cellNum < 0)
-      det_side = -abs(m_detector);
+      m_det_side = -abs(m_detector);
     else
-      det_side = m_detector;
+      m_det_side = m_detector;
     if (doHitsTXT) this->HitsInfoPrint(false,1);  // 1-CellIDCalculator
-    if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-                                       1,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+    if (doHitsNTup) m_ntuple->storeHit(m_det_side,m_module,m_tower,m_sample,m_cellNum,
+                                       1,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
 #endif
 
   //reetrieve CaloCell ID
   m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-  return m_id;
 }
 
-Identifier TileGeoG4CalibSD::ScintIDCalculator(TileHitData& hitData) {
+void TileGeoG4CalibSD::ScintIDCalculator(TileHitData& hitData) {
   m_cell = hitData.cell;  //retrieve Cell from TileGeoG4SDCalc
   if (!m_cell) {
     G4cout << "ERROR: ScintIDCalculator: zero pointer to the current cell!" << G4endl;
     m_defaultHit = true;
-
-    //return default hit DM Identifier
-    //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-    m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-    return m_id;
+    return;
   }
 
   m_calibHitType = 1;  //Cell Active CalibHit
@@ -398,35 +407,26 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator(TileHitData& hitData) {
 #ifdef HITSINFO    //added by Sergey
   if (IDcalc==0 || IDcalc==2) {
     if (m_cellNum < 0)
-      det_side = -abs(m_detector);
+      m_det_side = -abs(m_detector);
     else
-      det_side = m_detector;
+      m_det_side = m_detector;
     if (doHitsTXT) this->HitsInfoPrint(false,2);  // 2-ScintIDCalculator
-    if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-                                       2,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+    if (doHitsNTup) m_ntuple->storeHit(m_det_side,m_module,m_tower,m_sample,m_cellNum,
+                                       2,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
 #endif
 
   //reetrieve CaloCell & Tile IDs
   m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-  m_id_pmt_down = hitData.pmtID_down;
-  m_id_pmt_up = hitData.pmtID_up;
-
-  return m_id;
 }
 
-Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
-  G4String nameVol;
-  int period, sample;
-  G4ThreeVector PlateCenter, prestepPos, localCoord;
+void TileGeoG4CalibSD::PlateCellIDCalculator() {
   double xLocal, yLocal, zLocal;
 
-  PlateCenter = m_stepPhysVol->GetObjectTranslation();
-  prestepPos = m_aStep->GetPreStepPoint()->GetPosition();
-  localCoord = m_stepTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
-
-  nameVol = m_stepPhysVol->GetName();
-  if ( (nameVol).find("Ir") == G4String::npos) {
+  G4ThreeVector prestepPos = m_aStep->GetPreStepPoint()->GetPosition();
+  if ( (m_nameVol).find("Ir") == G4String::npos) {
+    G4ThreeVector PlateCenter = m_stepPhysVol->GetObjectTranslation();
+    G4ThreeVector localCoord = m_stepTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
     xLocal = PlateCenter[0] + localCoord.x();
     yLocal = PlateCenter[1] + localCoord.y();
     zLocal = PlateCenter[2] + localCoord.z();
@@ -434,23 +434,23 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     xLocal = prestepPos.x();    //global x
     yLocal = prestepPos.y();    //global y
     zLocal = prestepPos.phi();  //global phi
-    if (yLocal < 0) {
-      m_module = static_cast<int>(trunc(zLocal / M_PI32 + 64));
+    if (yLocal < 0.) {
+      m_module = static_cast<int>(trunc(zLocal * M_INV_PI32 + 64.));
       m_dm_nphi = m_module;
     } else {
-      G4cout << "ERROR: PlateCellIDCalculator: Ir* _module calculation error" << G4endl;
-      m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-      return m_id;
+      G4cout << "ERROR: PlateCellIDCalculator: Ir* _module calculation error in " << m_nameVol << G4endl;
+      m_defaultHit = true;
+      return;
     }
 
   }
 
   m_pCell = 0;
-  if ( ( (nameVol).find("Front") != G4String::npos) || ( (nameVol).find("Ir") != G4String::npos)) {
-    if ( (nameVol).find("Plate") != G4String::npos) {
+  if ( ( (m_nameVol).find("Front") != G4String::npos) || ( (m_nameVol).find("Ir") != G4String::npos)) {
+    if ( (m_nameVol).find("Plate") != G4String::npos) {
       m_pCell = m_cSection->GetTilePlateCell(xLocal, zLocal, 1);   // return FrontPlate cell
     } else {
-      if ( (nameVol.find("IrUp") != G4String::npos) || (nameVol.find("IrDw") != G4String::npos)) {
+      if ( (m_nameVol.find("IrUp") != G4String::npos) || (m_nameVol.find("IrDw") != G4String::npos)) {
         m_pCell = m_cSection->GetTilePlateCell(0, 0, 4);
       } else {
         m_pCell = m_cSection->GetTilePlateCell(0, 0, 3);
@@ -458,19 +458,14 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     }
 
     if (!m_pCell) {
-      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell" << G4endl;
-      G4cout << "ERROR: " << nameVol << G4endl;
+      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell in " << m_nameVol << G4endl;
       m_defaultHit = true;
-
-      //return default hit DM Identifier
-      //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-      m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-      return m_id;
+      return;
     }
 
-    period = m_pCell->neighbor;
+    int period = m_pCell->neighbor;
     m_cell = m_cSection->GetCell(period, 0);  // return adjucent cell
-  } else if (m_detector == 3 && (nameVol).find("EndPlateSh") != G4String::npos) {
+  } else if (m_detector == 3 && (m_nameVol).find("EndPlateSh") != G4String::npos) {
     // foil in front of C10 or special D4 is always part of the cell
     m_cell = m_cSection->GetCell(0, 0);   // the only cell in PLUG1 or PLUG2
 
@@ -490,21 +485,21 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     if (IDcalc==0 || IDcalc==3) {
       m_cellNum = m_cell->cellNum;
       if (m_cellNum < 0)
-        det_side = -abs(m_detector);
+        m_det_side = -abs(m_detector);
       else
-        det_side = m_detector;
+        m_det_side = m_detector;
       if (doHitsTXT) HitsInfoPrint(false,3);  // 3-PlateCellIDCalculator
-      if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-                                         3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+      if (doHitsNTup) m_ntuple->storeHit(m_det_side,m_module,m_tower,m_sample,m_cellNum,
+                                         3,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
     //retrieve CaloCell ID
     m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-    return m_id;
+    return;
   } else {
     //TileEndPlate
-    if ( (nameVol).find("Plate") != G4String::npos) {
+    if ( (m_nameVol).find("Plate") != G4String::npos) {
       m_pCell = m_cSection->GetTilePlateCell(xLocal, zLocal, 2);   // return EndPlate cell
     } else {
       //SaddleModule
@@ -517,30 +512,25 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     }
 
     if (!m_pCell) {
-      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell" << G4endl;
-      G4cout <<nameVol<< G4endl;
+      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell in " << m_nameVol << G4endl;
       m_defaultHit = true;
-
-      //return default hit DM Identifier
-      //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-      m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-      return m_id;
+      return;
     }
 
-    sample = m_pCell->sample;
+    int sample = m_pCell->sample;
 
     //the last PlateCell of Barrel EndPlates or Extended outer Endplate
     //is DM cell as long as it's between Girder and Finger volumes.
     //So, it should not be asigned to the real Cell
     if ( (sample != (int) m_cSection->samples.size() - 1) || (m_pCell->detector == 4)) {
-      period = m_pCell->neighbor;
+      int period = m_pCell->neighbor;
       m_cell = m_cSection->GetCell(period, sample - 1);    // return adjucent cell
     } else {
       //Hit is in the last PlateCell, which shouldn't be
       //assigned to the real Cell (+-D3 or +-D6)
       //Assign it to the section Finger cell.
-      m_id = GirderCellIDCalculator();
-      return m_id;
+      GirderCellIDCalculator();
+      return;
     }
   }
 
@@ -550,17 +540,12 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
   //CELL OR STORE IT SEPERATELY AS A DM PLATE CALIBHIT.
   //
   //FLAG POINTS PLATE HIT TO BE STORED IN THE UDJUCENT REAL CELL
-  if ((m_addToCell) && ( (nameVol).find("Plate") != G4String::npos)) {
+  if ((m_addToCell) && ( (m_nameVol).find("Plate") != G4String::npos)) {
     //check Cell validity
     if (!m_cell) {
-      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current cell" << G4endl;
-      G4cout <<nameVol<< G4endl;
+      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current cell in " << m_nameVol << G4endl;
       m_defaultHit = true;
-
-      //return default hit DM Identifier
-      //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-      m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-      return m_id;
+      return;
     }
 
     m_calibHitType = 0; //Plate Cell Inactive CalibHit
@@ -582,18 +567,17 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     if (IDcalc==0 || IDcalc==3) {
       m_cellNum = m_cell->cellNum;
       if (m_cellNum < 0)
-        det_side = -abs(m_detector);
+        m_det_side = -abs(m_detector);
       else
-        det_side = m_detector;
+        m_det_side = m_detector;
       if (doHitsTXT) HitsInfoPrint(false,3);  // 3-PlateCellIDCalculator
-      if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-                                         3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+      if (doHitsNTup) m_ntuple->storeHit(m_det_side,m_module,m_tower,m_sample,m_cellNum,
+                                         3,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
     //retrieve CaloCell ID
     m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-    return m_id;
   }
 
   //FLAG POINTS THAT PLATE HITS SHOULD BE STORED AS DM CALIBHITS
@@ -603,14 +587,9 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
 
     //check Plate Cell validity
     if(!m_pCell) {
-      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell"<< G4endl;
-      G4cout <<nameVol<< G4endl;
+      G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell in " << m_nameVol << G4endl;
       m_defaultHit = true;
-
-      //return default hit DM Identifier
-      //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-      m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-      return m_id;
+      return;
     }
 
     //determine remined ID fields
@@ -648,7 +627,7 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     }
 
     //end plate of ext barrel at higher Z -> region = 2
-    if((m_dm_region == 1) && (((nameVol).find("EndPlate2") != G4String::npos))) {
+    if((m_dm_region == 1) && (((m_nameVol).find("EndPlate2") != G4String::npos))) {
       m_dm_region = 2;
     }
 
@@ -661,40 +640,33 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     if (IDcalc==0 || IDcalc==3) {
       if (doHitsTXT) HitsInfoPrint(true,3);  // 3-PlateCellIDCalculator
       if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
-                                         3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         3,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
     //retrieve CaloDM ID
     m_id = DM_ID_Maker(m_dm_subDet, m_dm_type, m_dm_sample, m_dm_region, m_dm_neta, m_dm_nphi);
-    return m_id;
   }
 }
 
-Identifier TileGeoG4CalibSD::GirderCellIDCalculator() {
-  G4ThreeVector prestepPos, localCoord;
-  int nGirderCell;
-  double xLocal;
+void TileGeoG4CalibSD::GirderCellIDCalculator() {
+  if (m_nameVol.find("Girder") != G4String::npos) {
+    G4ThreeVector prestepPos = m_aStep->GetPreStepPoint()->GetPosition();
+    G4ThreeVector localCoord = m_stepTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
 
-  G4String nameVol = m_stepPhysVol->GetName();
-
-  if (nameVol.find("Girder") != G4String::npos) {
-    prestepPos = m_aStep->GetPreStepPoint()->GetPosition();
-    localCoord = m_stepTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
-
-    xLocal = localCoord.x();
+    double xLocal = localCoord.x();
     m_gCell = m_cSection->GetTileGirderCell(xLocal);
   } else if (!m_isExtended) {
     //Barrel Finger or Barrel EndPlate's last cell
-    if ( (nameVol.find("EndPlate") != G4String::npos) || (nameVol.find("EPHole") != G4String::npos)) {
+    if ( (m_nameVol.find("EndPlate") != G4String::npos) || (m_nameVol.find("EPHole") != G4String::npos)) {
       // EndPlate and EPHole fix
-      if (nameVol.find("1") != G4String::npos) {
+      if (m_nameVol.find("1") != G4String::npos) {
         // EndPlate1, EPHole1 : Neg side
         m_side = -1;
         m_dm_subDet = -abs(m_dm_subDet);
       }
     }
-    nGirderCell = static_cast<int>( (m_cSection->girderCells).size());
+    int nGirderCell = static_cast<int>( (m_cSection->girderCells).size());
     if (m_side > 0)
       //Finger on the positive side
       m_gCell = m_cSection->girderCells[nGirderCell - 1];
@@ -703,7 +675,7 @@ Identifier TileGeoG4CalibSD::GirderCellIDCalculator() {
       m_gCell = m_cSection->girderCells[nGirderCell - 2];
   } else {
     //Extended Finger or Extended EndPlate's last cell
-    nGirderCell = static_cast<int>( (m_cSection->girderCells).size());
+    int nGirderCell = static_cast<int>( (m_cSection->girderCells).size());
     m_gCell = m_cSection->girderCells[nGirderCell - 1];
   }
 
@@ -711,14 +683,9 @@ Identifier TileGeoG4CalibSD::GirderCellIDCalculator() {
   m_dm_type = 1;
 
   if (!m_gCell) {
-    G4cout << "ERROR: GirderCellIDCalculator: zero pointer to the current girder cell" << G4endl;
-    G4cout << nameVol << G4endl;
+    G4cout << "ERROR: GirderCellIDCalculator: zero pointer to the current girder cell in " << m_nameVol << G4endl;
     m_defaultHit = true;
-
-    //return default hit DM Identifier
-    //_id = m_caloDM_ID->zone_id(5, 2, 0, 0, 0, 0);
-    m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
-    return m_id;
+    return;
   }
 
   //determine remined ID fields
@@ -741,16 +708,15 @@ Identifier TileGeoG4CalibSD::GirderCellIDCalculator() {
   if (IDcalc==0 || IDcalc==4) {
     if (doHitsTXT) HitsInfoPrint(true,4);  // 4-GirderCellIDCalculator
     if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
-                                       4,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                       4,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
 #endif
 
-  //reetrieve CaloDM ID
+  //retrieve CaloDM ID
   m_id = DM_ID_Maker(m_dm_subDet, m_dm_type, m_dm_sample, m_dm_region, m_dm_neta, m_dm_nphi);
-  return m_id;
 }
 
-Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
+void TileGeoG4CalibSD::DefaultHitIDCalculator() {
   const double zBarrelMaxPos = m_lookupDM->zBarrMaxPos;
   const double zBarrelMaxNeg = m_lookupDM->zBarrMaxNeg;
   const double dzITC = m_lookupDM->zLegngthITC;
@@ -803,16 +769,16 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
 
   double rGlobal = hypot(m_xGlobal, m_yGlobal); // radius
 
-  if (m_yGlobal >= 0) {
-    m_module = static_cast<int>(trunc(m_phiGlobal / M_PI32));
+  if (m_yGlobal >= 0.) {
+    m_module = static_cast<int>(trunc(m_phiGlobal * M_INV_PI32));
   } else {
-    m_module = static_cast<int>(trunc(m_phiGlobal / M_PI32 + 64));
+    m_module = static_cast<int>(trunc(m_phiGlobal * M_INV_PI32 + 64.));
     if (m_module > 63) m_module = 63; //-0 phi fix
   }
 
   m_dm_nphi = m_module;
 
-  if (m_zGlobal >= 0) {
+  if (m_zGlobal >= 0.) {
     m_side = 1;
     m_dm_subDet = 5;
   } else {
@@ -1058,7 +1024,7 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
 
   }
 
-  if (verboseLevel > 5) G4cout << "Default Hit Calculator: processed" << G4endl;
+  if (verboseLevel >= 10) G4cout << "Default Hit Calculator: processed" << G4endl;
 
   if (isDMHit) {  //dm hits
     if (m_dm_sample == 2) DebugDMCellIDFields(2);
@@ -1070,12 +1036,11 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
     if (IDcalc==0 || IDcalc==6) {
       if (doHitsTXT) HitsInfoPrint(true,6);  // 6-DefaultHitIDCalculator-DM hit
       if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
-                                         6,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         6,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
     m_id = DM_ID_Maker(m_dm_subDet, m_dm_type, m_dm_sample, m_dm_region, m_dm_neta, m_dm_nphi);
-    return m_id;
 
   } else {  //Inactive Cell hits
     DebugCellIDFields();
@@ -1085,19 +1050,44 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
 #ifdef HITSINFO    //added by Sergey
     if (IDcalc==0 || IDcalc==5) {
       if (m_cellNum < 0)
-        det_side = -abs(m_detector);
+        m_det_side = -abs(m_detector);
       else
-        det_side = m_detector;
+        m_det_side = m_detector;
       if (doHitsTXT) HitsInfoPrint(false,5);  // 5-DefaultHitIDCalculator-Cell hit
-      if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-                                         5,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+      if (doHitsNTup) m_ntuple->storeHit(m_det_side,m_module,m_tower,m_sample,m_cellNum,
+                                         5,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
     m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-    return m_id;
   }
 
+}
+
+void TileGeoG4CalibSD::DefaultHitIDCalculatorTB(int sample, int region, int eta, int phi)
+{
+  m_calibHitType = 5;
+
+  m_dm_subDet = 5;
+  m_dm_type = 1;
+  m_dm_sample = std::max(0,std::min(3,sample));
+  m_dm_region = std::max(0,std::min(2,region));
+  m_dm_neta = eta;
+  m_dm_nphi = phi;
+
+  if (verboseLevel >= 10) G4cout << "Default Hit Calculator for TB processed" << G4endl;
+
+  DebugDMCellIDFields(-1);
+
+#ifdef HITSINFO    //added by Sergey
+  if (IDcalc==0 || IDcalc==6) {
+    if (doHitsTXT) HitsInfoPrint(true,6);  // 6-DefaultHitIDCalculator-DM hit
+    if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
+        6,m_nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+  }
+#endif
+
+  m_id = DM_ID_Maker(m_dm_subDet, m_dm_type, m_dm_sample, m_dm_region, m_dm_neta, m_dm_nphi);
 }
 
 //-----------------------------------------------------------------------------------
@@ -1120,26 +1110,6 @@ Identifier TileGeoG4CalibSD::DM_ID_Maker(int subDet, int nType, int nSample, int
   return caloDMID;
 }
 
-bool TileGeoG4CalibSD::AreClassifiedEnergiesAllZero() {
-  //check any kind of classified energies. if they all are zero
-  //then nothing to do and go to the next Step
-  if ((m_result.energy[CaloG4::SimulationEnergies::kEm] == 0.) && (m_result.energy[CaloG4::SimulationEnergies::kNonEm] == 0.)
-      && (m_result.energy[CaloG4::SimulationEnergies::kInvisible0] == 0.)
-      && (m_result.energy[CaloG4::SimulationEnergies::kEscaped] == 0.))
-    //All of them are zero
-    return true;
-  else
-    //they aren't all zero
-    return false;
-}
-
-void TileGeoG4CalibSD::SetEscapedEnergy(double escapedEnergy) {
-  m_result.energy[CaloG4::SimulationEnergies::kEm] = 0.;
-  m_result.energy[CaloG4::SimulationEnergies::kNonEm] = 0.;
-  m_result.energy[CaloG4::SimulationEnergies::kInvisible0] = 0.;
-  m_result.energy[CaloG4::SimulationEnergies::kEscaped] = escapedEnergy;
-}
-
 //***SIMPLE ENERGY COUNTER****
 void TileGeoG4CalibSD::EnergiesSimpleCounter() {
 
@@ -1152,17 +1122,25 @@ void TileGeoG4CalibSD::EnergiesSimpleCounter() {
   m_E_tot = m_result.energy[CaloG4::SimulationEnergies::kEm] + m_result.energy[CaloG4::SimulationEnergies::kNonEm]
     + m_result.energy[CaloG4::SimulationEnergies::kInvisible0]
     + m_result.energy[CaloG4::SimulationEnergies::kEscaped];
+
+  if (verboseLevel >= 10)
+    G4cout << " Hit Total energy " << m_E_tot
+           << " EM "      << m_result.energy[CaloG4::SimulationEnergies::kEm]
+           << " NonEM "   << m_result.energy[CaloG4::SimulationEnergies::kNonEm]
+           << " Invis "   << m_result.energy[CaloG4::SimulationEnergies::kInvisible0]
+           << " Escaped " << m_result.energy[CaloG4::SimulationEnergies::kEscaped]
+           << G4endl;
 }
 
 void TileGeoG4CalibSD::DebugCellIDFields() {
-  if (verboseLevel > 5) {
-    G4cout << "---- CELL INFO ----" << G4endl;
+  if (verboseLevel >= 10) {
+    G4cout << "---- CELL ----" << G4endl;
     G4cout << "Detector >> " << m_cell->detector<< G4endl;
     G4cout << "Numm     >> " << m_cell->cellNum << G4endl;
     G4cout << "Tower    >> " << m_cell->tower << G4endl;
     G4cout << "Sample   >> " << m_cell->sample << G4endl;
 
-    G4cout << "---- HIT INFO ----" << G4endl;
+    G4cout << "---- HIT ----" << G4endl;
     G4cout << "Detector >> " << m_detector << G4endl;
     G4cout << "Side     >> " << m_side << G4endl;
     G4cout << "Module   >> " << m_module << G4endl;
@@ -1175,7 +1153,10 @@ void TileGeoG4CalibSD::DebugCellIDFields() {
 
 void TileGeoG4CalibSD::DebugDMCellIDFields(int sample) {
   int detector, tower;
-  if (sample == 2) {
+  if (sample < 0) {
+    detector = sample;
+    tower = 0;
+  } else if (sample == 2) {
     // Girders || Fingers
     detector = m_gCell->detector;
     tower = m_gCell->tower;
@@ -1185,12 +1166,12 @@ void TileGeoG4CalibSD::DebugDMCellIDFields(int sample) {
     tower = m_pCell->tower;
   }
 
-  if (verboseLevel > 5) {
-    G4cout << "---- DM CELL INFO ----" << G4endl;
+  if (verboseLevel >= 10) {
+    G4cout << "---- DM CELL ----" << G4endl;
     G4cout << "Detector >> " << detector << G4endl;
     G4cout << "Tower    >> " << tower << G4endl;
 
-    G4cout << "---- DM HIT INFO ----" << G4endl;
+    G4cout << "---- DM HIT ----" << G4endl;
     G4cout << "SubDet   >> " << m_dm_subDet << G4endl;
     G4cout << "Type     >> " << m_dm_type << G4endl;
     G4cout << "Sample   >> " << m_dm_sample << G4endl;
@@ -1198,25 +1179,25 @@ void TileGeoG4CalibSD::DebugDMCellIDFields(int sample) {
     G4cout << "NEta     >> " << m_dm_neta << G4endl;
     G4cout << "NPhi     >> " << m_dm_nphi << G4endl;
     G4cout << "Energy   >> " << m_E_tot << G4endl;
-    G4cout << "---- END INFO ----" << G4endl;
+    G4cout << "---- DM END ----" << G4endl;
   }
 }
 
 void TileGeoG4CalibSD::DebugEnergies() {
   m_E_tot = m_E_em + m_E_nonem + m_E_invisible + m_E_escaped + m_tile_eep->GetEnergy5();
 
-  if (verboseLevel > 5) {
+  if (verboseLevel >= 5) {
     G4cout << " EndOfEvent" << G4endl;
     G4cout <<" ---------------------------------------------------------- "<< G4endl;
-    G4cout <<" TOTAL ENERGY OF EVENT         = "<<m_E_tot<<" ("<<m_E0+m_E1+m_E2+m_E3<<")"<< G4endl;
+    G4cout <<" TOTAL ENERGY OF EVENT         = "<<m_E_tot << G4endl;
     G4cout <<" ------------------------------------ "<< G4endl;
-    G4cout <<" EM COMPONENT OF ENERGY        = "<<m_E_em<<" ("<<m_E0<<") "<< G4endl;
+    G4cout <<" EM COMPONENT OF ENERGY        = "<<m_E_em << G4endl;
     G4cout <<" ------------------------------------ "<< G4endl;
-    G4cout <<" NON_EM COMPONENT OF ENERGY    = "<<m_E_nonem<<" ("<<m_E1<<")"<< G4endl;
+    G4cout <<" NON_EM COMPONENT OF ENERGY    = "<<m_E_nonem << G4endl;
     G4cout <<" ------------------------------------ "<< G4endl;
-    G4cout <<" INVISIBLE COMPONENT OF ENERGY = "<<m_E_invisible<<" ("<<m_E2<<")"<< G4endl;
+    G4cout <<" INVISIBLE COMPONENT OF ENERGY = "<<m_E_invisible << G4endl;
     G4cout <<" ------------------------------------ "<< G4endl;
-    G4cout <<" ESCAPED COMPONENT OF ENERGY   = "<<m_E_escaped<<" ("<<m_E3<<")"<< G4endl;
+    G4cout <<" ESCAPED COMPONENT OF ENERGY   = "<<m_E_escaped << G4endl;
     G4cout <<" --------------------------------------------------------- "<< G4endl;
     G4cout <<" energy5 (missed energy)       = "<<m_tile_eep->GetEnergy5()<< G4endl;
     G4cout <<" --------------------------------------------------------- "<< G4endl;
@@ -1226,6 +1207,7 @@ void TileGeoG4CalibSD::DebugEnergies() {
 // added by Sergey: verification of Hit zGlobal wrt Cell zMin,zMax
 void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp) {
   m_cellNum = m_cell->cellNum;
+  if (m_tileTB) return;
   if (m_detector == 1) {
     double zMin = m_cell->zMin;
     double zMax = m_cell->zMax;
@@ -1236,7 +1218,7 @@ void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp) {
     int nPeriods = m_cSection->nrOfPeriods;
     bool Cell_ID_cor = false;
     if (m_zGlobal < zMin && nPeriod > 0) {
-      if (verboseLevel > 5) {
+      if (verboseLevel >= 10) {
         std::streamsize prec = G4cout.precision();
         G4cout << "Det=" << m_detector << " nSamp=" << nSamp << " >> WRONG CELL:" << m_cellNum;
         G4cout << " Period=" << nPeriod << " zMin,zMax,zGlobal: " << std::setprecision(16);
@@ -1247,7 +1229,7 @@ void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp) {
       m_cell = m_cSection->GetCell(nPeriod, nSamp);
       Cell_ID_cor = true;
     } else if (m_zGlobal > zMax && nPeriod < nPeriods - 1) {
-      if (verboseLevel > 5) {
+      if (verboseLevel >= 10) {
         std::streamsize prec = G4cout.precision();
         G4cout << "Det=" << m_detector << " nSamp=" << nSamp << " >> WRONG CELL:" << m_cellNum;
         G4cout << " Period=" << nPeriod << " zMin,zMax,zGlobal: " << std::setprecision(16);
@@ -1273,7 +1255,7 @@ void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp) {
         G4cout.precision(prec);
       } else {
         m_cellNum = m_cell->cellNum;
-        if (verboseLevel > 5) {
+        if (verboseLevel >= 10) {
           std::streamsize prec = G4cout.precision();
           G4cout << "             CORRECTED CELL:" << m_cellNum << " Period=";
           G4cout << nPeriod << " zMin,zMax,zGlobal: " << std::setprecision(16);
@@ -1292,10 +1274,10 @@ void TileGeoG4CalibSD::HitsInfoPrint(bool isDMHit=true, int Calc=0)
 {
   if(isDMHit) { //DM hit
     htout << " 1111111 " << m_dm_subDet << " " << m_dm_nphi << " " << m_dm_neta << " " << m_dm_sample;
-    htout << " " << m_dm_region << " " << Calc << " " << nEvent << std::endl;
+    htout << " " << m_dm_region << " " << Calc << " " << m_nEvent << std::endl;
   } else { //Cell Hit
-    htout << " 1111111 " << det_side << " " << m_module << " " << m_tower << " " << m_sample;
-    htout << " " << m_cellNum << " " << Calc << " " << nEvent << std::endl;
+    htout << " 1111111 " << m_det_side << " " << m_module << " " << m_tower << " " << m_sample;
+    htout << " " << m_cellNum << " " << Calc << " " << m_nEvent << std::endl;
   }
   htout << " 2222222 " << m_xGlobal << " " << m_yGlobal << " " << m_zGlobal << " " << m_E_tot << std::endl;
 }

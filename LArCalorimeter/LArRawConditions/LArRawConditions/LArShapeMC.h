@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARSHAPEMC_H
@@ -13,7 +13,6 @@
 
 #include <vector>
 
-class LArCablingService;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArShape for MC
@@ -48,15 +47,6 @@ class ILArMCSymTool;
                                int tbin,
                                int mode) const ;
   
-  // retrieving Shape using offline ID
-  virtual  ShapeRef_t Shape   (const Identifier&  CellID,
-                               int gain,
-                               int tbin,
-                               int mode) const;
-  virtual  ShapeRef_t ShapeDer(const Identifier&  CellID,
-                               int gain,
-                               int tbin,
-                               int mode) const;
     
  private: 
   

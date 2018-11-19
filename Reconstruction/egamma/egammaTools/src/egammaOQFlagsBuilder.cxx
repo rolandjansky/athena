@@ -12,9 +12,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
-#include "LArCabling/LArCablingService.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -61,36 +59,15 @@ StatusCode egammaOQFlagsBuilder::initialize()
   ATH_MSG_DEBUG(" Initializing egammaOQFlagsBuilder");
  
   ATH_CHECK(m_cellsKey.initialize());
+  ATH_CHECK(m_bcContKey.initialize());
 
-  StatusCode sc;
-  
-  // Get BadChannelTool
-  sc=m_badChannelTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endmsg;
-  }
-  
-
-  //Get CaloAffectedTool
-  sc = m_affectedTool.retrieve();
+   //Get CaloAffectedTool
+  StatusCode sc = m_affectedTool.retrieve();
   if (sc.isFailure()){
     msg(MSG::ERROR) << "Could not retrieve CaloAffectedTool " << m_affectedTool << endmsg;
     return StatusCode::FAILURE;
   } else {
     //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CaloAffectedTool" << m_affectedTool << " retrieved" << endmsg;
-  }
-
-
-  //Get LArCablingService
-  sc=m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService " << m_larCablingSvc << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArCablingService" << m_larCablingSvc << " retrieved" << endmsg;
   }
 
 
@@ -174,7 +151,7 @@ std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(Identifier cell
 }
 
 // =====================================================================
-StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
+StatusCode egammaOQFlagsBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
 { 
   // Protection against bad pointers
   if (eg==0) return StatusCode::SUCCESS;
@@ -228,6 +205,10 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
   if (foundCentralCell) {
     //Find the list of neighbours cells, to define the 3x3 cluster core
     std::vector<IdentifierHash> neighbourList = findNeighbours(cellCentrId);
+
+    //Get Bad-channel info for this event
+    SG::ReadCondHandle<LArBadChannelCont> larBadChanHdl{m_bcContKey,ctx};
+    const LArBadChannelCont* larBadChanCont=*larBadChanHdl;
     
     //Loop over all the Lar cluster cells
     xAOD::CaloCluster::const_cell_iterator cellIter    = cluster->cell_begin();
@@ -269,8 +250,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
 
       //======================== Set LAr bits ============================================================//
       //
-      HWIdentifier LArhwid = m_larCablingSvc->createSignalChannelIDFromHash(cell->caloDDE()->calo_hash());
-      LArBadChannel bc = m_badChannelTool->status(LArhwid);      
+      const LArBadChannel bc = larBadChanCont-> offlineStatus(cell->ID());
       //
       if(isACoreCell) {
 	if((cell->provenance() & 0x0A00) == 0x0A00) { 
@@ -417,7 +397,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg) const
 
   //====================  Check the tile component  ==================================//
   //Get CaloCellContainer
-  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!cellcoll.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,7 +13,7 @@
 #ifndef INDETRAWDATA_TRT_RDO_COLLECTION_H
 # define INDETRAWDATA_TRT_RDO_COLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_TB04_RawData.h"

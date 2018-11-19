@@ -98,19 +98,19 @@ StatusCode egammaBuilder::initialize()
     CHECK(  RetrieveEMConversionBuilder() );
 
     // retrieve EM Cluster Tool
-    CHECK( RetrieveEMClusterTool() );
+    ATH_CHECK( m_clusterTool.retrieve() );
 
     // retrieve ambiguity tool
-    CHECK( RetrieveAmbiguityTool() );
+    ATH_CHECK( m_ambiguityTool.retrieve() );
 
     ATH_MSG_INFO("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
-    CHECK( RetrieveTools(m_egammaTools) );
+    ATH_CHECK( m_egammaTools.retrieve() );
 
     ATH_MSG_INFO("Retrieving " << m_electronTools.size() << " tools for electrons");
-    CHECK( RetrieveTools(m_electronTools) );
+    ATH_CHECK( m_electronTools.retrieve() );
 
     ATH_MSG_INFO("Retrieving " << m_photonTools.size() << " tools for photons");
-    CHECK( RetrieveTools(m_photonTools) );
+    ATH_CHECK( m_photonTools.retrieve() );
 
     // retrieve timing profile
     CHECK( service("ChronoStatSvc",m_timingProfile) );
@@ -119,54 +119,6 @@ StatusCode egammaBuilder::initialize()
     return StatusCode::SUCCESS;
 }
 
-// ====================================================================
-StatusCode egammaBuilder::RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools)
-{
-    for (const auto& tool : tools)
-    {
-        if ( tool.retrieve().isFailure() )
-        {
-
-            ATH_MSG_FATAL( "Could not get tool: " << tool );
-            return StatusCode::FAILURE;
-        }
-    }
-    return StatusCode::SUCCESS;
-}
-// ====================================================================
-StatusCode egammaBuilder::RetrieveEMClusterTool(){
-    // retrieve Ambiguity tool
-    if (m_clusterTool.empty()) {
-        ATH_MSG_ERROR("EMClusterTool is empty");
-        return StatusCode::FAILURE;
-    }
-    if((m_clusterTool.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve "<<m_clusterTool);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Retrieved Tool "<<m_clusterTool);
-
-    return StatusCode::SUCCESS;
-}
-
-
-// ====================================================================
-StatusCode egammaBuilder::RetrieveAmbiguityTool()
-{
-    // retrieve Ambiguity tool
-    if (m_ambiguityTool.empty()) {
-        ATH_MSG_ERROR("EGammaAmbiguityTool is empty");
-        return StatusCode::FAILURE;
-    }
-
-    if((m_ambiguityTool.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve "<<m_ambiguityTool);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Retrieved Tool "<<m_ambiguityTool);
-
-    return StatusCode::SUCCESS;
-}
 
 // ====================================================================
 StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder(){
@@ -276,7 +228,7 @@ StatusCode egammaBuilder::execute(){
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         //
         for (auto egRec : *egammaRecs){
-            if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+            if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
                 ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
                 return StatusCode::FAILURE;
             }
@@ -291,7 +243,7 @@ StatusCode egammaBuilder::execute(){
         chronoName = this->name()+"_"+m_conversionBuilder->name();         
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         for (auto egRec : *egammaRecs) {
-            if (m_conversionBuilder->executeRec(egRec).isFailure()){
+            if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
                 ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
                 return StatusCode::FAILURE;  
             }
@@ -371,19 +323,23 @@ StatusCode egammaBuilder::execute(){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
+
+    // This we can drop once the Alg becomes re-entrant
+    const EventContext ctx = Gaudi::Hive::currentContext();
+
     for (auto& tool : m_egammaTools)
     {
-        CHECK( CallTool(tool, electronContainer.ptr(), photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
     }
 
     for (auto& tool : m_electronTools)
     {
-        CHECK( CallTool(tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
     }
 
     for (auto& tool : m_photonTools)
     {
-        CHECK( CallTool(tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
     }
     ATH_MSG_DEBUG("execute completed successfully");
 
@@ -391,7 +347,8 @@ StatusCode egammaBuilder::execute(){
 }
 
 // =====================================================
-StatusCode egammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool, 
+StatusCode egammaBuilder::CallTool(const EventContext& ctx,
+        ToolHandle<IegammaBaseTool>& tool, 
         xAOD::ElectronContainer *electronContainer /* = 0*/, 
         xAOD::PhotonContainer *photonContainer /* = 0*/)
 {
@@ -404,7 +361,7 @@ StatusCode egammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool,
         ATH_MSG_DEBUG("Executing tool on electrons: " << tool );
         for (const auto& electron : *electronContainer)
         {
-            if (tool->execute(electron).isFailure() )
+            if (tool->execute(ctx, electron).isFailure() )
             {
                 ATH_MSG_ERROR("Problem executing tool on electrons: " << tool);
                 return StatusCode::FAILURE;
@@ -417,7 +374,7 @@ StatusCode egammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool,
         ATH_MSG_DEBUG("Executing tool on photons: " << tool );
         for (const auto& photon : *photonContainer)
         {
-            if (tool->execute(photon).isFailure() )
+            if (tool->execute(ctx, photon).isFailure() )
             {
                 ATH_MSG_ERROR("Problem executing tool on photons: " << tool);
                 return StatusCode::FAILURE;

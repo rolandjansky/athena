@@ -45,6 +45,7 @@ TileDetectorFactory::TileDetectorFactory(StoreGateSvc *pDetStore,
                                          bool addPlates, 
                                          int ushape,
                                          int glue,
+                                         int cstube,
                                          MsgStream *log)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
@@ -52,6 +53,7 @@ TileDetectorFactory::TileDetectorFactory(StoreGateSvc *pDetStore,
   , m_addPlatesToCellVolume(addPlates)
   , m_uShape(ushape)
   , m_glue(glue)
+  , m_csTube(cstube)
   , m_testbeamGeometry(false)
   , m_verbose(log->level()<=MSG::VERBOSE)
 {
@@ -88,7 +90,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_csTube,m_log);
 
   // --------------- TILE  -------  TILE  --------- TILE ---------- TILE ------------
   // Envelope creation. 

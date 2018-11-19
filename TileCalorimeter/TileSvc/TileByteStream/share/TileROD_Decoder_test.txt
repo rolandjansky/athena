@@ -1,0 +1,3 @@
+
+ApplicationMgr.ExtSvc = {"StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore"};
+ToolSvc.TileROD_Decoder.TileDefaultL2Builder = "";

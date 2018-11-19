@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARTSHAPER_H
 #define LARCONDITIONS_ILARTSHAPER_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
-class Identifier;
-class HWIdentifier;
+#include "Identifier/HWIdentifier.h"
 
 class ILArTshaper {
 /** This class defines the interface for accessing Tshaper
@@ -25,9 +24,6 @@ class ILArTshaper {
 
   // online ID
   virtual const float& Tshaper(const HWIdentifier& id)  const = 0 ;
-  
-  // offline ID 
-  virtual const float& Tshaper(const Identifier& id)  const=0;
   
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 } ;

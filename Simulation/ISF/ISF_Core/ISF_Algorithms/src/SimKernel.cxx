@@ -9,7 +9,6 @@
 // ISF_Interfaces includes
 #include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Interfaces/ITruthSvc.h"
-#include "ISF_Interfaces/ISimHitSvc.h"
 #include "ISF_Interfaces/ISimulationSvc.h"
 #include "ISF_Interfaces/IMonitoringTool.h"
 #include "ISF_Interfaces/IEventFilterTool.h"
@@ -42,7 +41,6 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_inputConverter("",name),
   m_particleBroker("ISF_ParticleBroker", name),
   m_truthRecordSvc("ISF_TruthRecordSvc", name),
-  m_simHitSvc("ISF_SimHitSvc", name),
   m_doMemMon(true),
   m_memMon("MemMonitoringTool"),
   m_memUsageEvts(1000),
@@ -76,7 +74,6 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
     // the general services and tools needed
     declareProperty("ParticleBroker"             , m_particleBroker                  );
     declareProperty("TruthRecordService"         , m_truthRecordSvc                  );
-    declareProperty("SimHitService"              , m_simHitSvc                       );
     declareProperty("DoCPUMonitoring"            , m_doCPUMon                        );
     declareProperty("DoMemoryMonitoring"         , m_doMemMon                        );
     declareProperty("MemoryMonitoringTool"       , m_memMon                          );
@@ -109,11 +106,8 @@ StatusCode ISF::SimKernel::initialize()
   // setup memory monitoring Tool
   if ( m_doMemMon) {
     // memory monitoring tool given -> do memory monitoring
-    if ( m_memMon.retrieve().isFailure() ){
-        ATH_MSG_FATAL( "Could not retrieve MemoryMonitoring Service. Abort.");
-        return StatusCode::FAILURE;
-    } else
-        ATH_MSG_INFO( "- MemoryMonitoring  : " << m_memMon.typeAndName() );
+    ATH_CHECK( m_memMon.retrieve() );
+    ATH_MSG_INFO( "- MemoryMonitoring  : " << m_memMon.typeAndName() );
     // record current memory usage
     m_memMon->recordCurrent("at beginning of SimKernel initialize()");
   }
@@ -130,41 +124,23 @@ StatusCode ISF::SimKernel::initialize()
   }
 
   // retrieve the stack service
-  if ( m_particleBroker.retrieve().isFailure() ){
-      ATH_MSG_FATAL( "Could not retrieve ParticleBroker Service. Abort.");
-      return StatusCode::FAILURE;
-  } else
-      ATH_MSG_INFO( "- ParticleBroker   : " << m_particleBroker.typeAndName() );
+  ATH_CHECK ( m_particleBroker.retrieve() );
+  ATH_MSG_INFO( "- ParticleBroker   : " << m_particleBroker.typeAndName() );
 
   // the truth service
-  if ( m_truthRecordSvc.retrieve().isFailure() ){
-      ATH_MSG_FATAL( "Could not retrieve ParticleStack Service. Abort.");
-      return StatusCode::FAILURE;
-  } else
-      ATH_MSG_INFO( "- TruthRecordSvc   : " << m_truthRecordSvc.typeAndName() );
-
-  // and the simhit service
-  if ( m_simHitSvc.retrieve().isFailure() ){
-      ATH_MSG_FATAL( "Could not retrieve SimHit Service. Abort.");
-      return StatusCode::FAILURE;
-  } else
-      ATH_MSG_INFO( "- SimHitSvc   : " << m_simHitSvc.typeAndName() );
+  ATH_CHECK ( m_truthRecordSvc.retrieve() );
+  ATH_MSG_INFO( "- TruthRecordSvc   : " << m_truthRecordSvc.typeAndName() );
 
   // initialize all SimulationServices
   //
   for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
-    if ( initSimSvcs(m_simSelectors[geoID]).isFailure())
-    return StatusCode::FAILURE;
+    ATH_CHECK ( initSimSvcs(m_simSelectors[geoID]) );
   }
 
   // initialize all the EventFilterTools
-  if( m_eventFilters.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve Event Filters. Abort.");
-      return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "The following Event Filters are defined:");
-    ATH_MSG_INFO( m_eventFilters );
-  }
+  ATH_CHECK ( m_eventFilters.retrieve() );
+  ATH_MSG_INFO( "The following Event Filters are defined:");
+  ATH_MSG_INFO( m_eventFilters );
 
   // free unused space
   m_simSvcs.resize( m_numSimSvcs);
@@ -178,11 +154,7 @@ StatusCode ISF::SimKernel::initialize()
   // setup the simulation selectors
   //
   for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
-    if ( m_particleBroker->registerSimSelector( m_simSelectors[geoID], (AtlasDetDescr::AtlasRegion)geoID).isFailure()) {
-      ATH_MSG_ERROR( "Unable to register SimulationSelectors for GeoID="
-                     << AtlasDetDescr::AtlasRegionHelper::getName(geoID));
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK ( m_particleBroker->registerSimSelector( m_simSelectors[geoID], (AtlasDetDescr::AtlasRegion)geoID) );
   }
   // screen output
   ATH_MSG_INFO( "The following routing chains are defined:");
@@ -371,12 +343,6 @@ StatusCode ISF::SimKernel::execute()
   // -----------------------------------------------------------------------------------------------
   // Step 2: Initialize the Event
   {
-    if (m_simHitSvc->initializeEvent().isFailure() ){
-      ATH_MSG_ERROR( "Event initialize failed for "<< m_simHitSvc );
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_DEBUG( "Event initialize done for "<< m_simHitSvc );
-
     std::vector<ISimulationSvc*>::iterator fSimSvcIter     = m_simSvcs.begin();
     std::vector<ISimulationSvc*>::iterator fSimSvcIterEnd  = m_simSvcs.end();
     for ( ; fSimSvcIter != fSimSvcIterEnd; ++fSimSvcIter ){
@@ -470,12 +436,6 @@ StatusCode ISF::SimKernel::execute()
       ATH_MSG_FATAL( "Event finalize failed for TruthService. Abort." );
       return StatusCode::FAILURE;
   }
-  if ( m_simHitSvc->releaseEvent().isFailure() ){
-      ATH_MSG_ERROR( "Event finalize failed for "<< m_simHitSvc );
-      return StatusCode::FAILURE;
-  } else
-      ATH_MSG_DEBUG( "Event finalize done for "<< m_simHitSvc );
-  // -----------------------------------------------------------------------------------------------
 
   // Step 5: Check Any Filters
   ToolHandleArray<IEventFilterTool>::iterator eventFilter(m_eventFilters.begin());

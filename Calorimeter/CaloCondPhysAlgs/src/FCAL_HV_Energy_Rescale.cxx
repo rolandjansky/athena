@@ -40,6 +40,7 @@ FCAL_HV_Energy_Rescale::~FCAL_HV_Energy_Rescale()
 StatusCode FCAL_HV_Energy_Rescale::initialize()
 {
   CHECK(m_hvCorrTool.retrieve());
+  ATH_CHECK( m_cabling.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -90,8 +91,9 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
     if (calocell_id->is_fcal(h)) {
       ++nFCAL;
       Identifier id=calocell_id->cell_id(h);
+      HWIdentifier hwid=m_cabling->createSignalChannelID(id);
       const float corrNew=m_hvCorrTool->Scale(id);
-      const float upd1corr=upd1HVScaleCorr->HVScaleCorr(id);
+      const float upd1corr=upd1HVScaleCorr->HVScaleCorr(hwid);
       
       const float corr=corrNew/upd1corr;
 

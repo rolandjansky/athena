@@ -19,7 +19,6 @@
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "LArTools/LArHVFraction.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -129,7 +128,7 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
     m_twoGaussianNoise(false),
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
-    m_larHVScaleRetriever("LArHVScaleRetriever"),
+    m_larHVFraction("LArHVFraction",this),
     m_absOpt(false) 
 {
   // Name(s) of Moments to calculate
@@ -158,8 +157,8 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
   // use 2-gaussian noise for Tile
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
-  declareProperty("LArHVScaleRetriever",m_larHVScaleRetriever,"Tool Handle for LAr HV Scale Retriever Tool");
-  declareProperty("WeightingOfNegClusters", m_absOpt);
+  declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
+ declareProperty("WeightingOfNegClusters", m_absOpt);
 
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.
@@ -263,14 +262,10 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
   }
 
   if (m_calculateLArHVFraction) {
-    
-    if(m_larHVScaleRetriever.retrieve().isFailure()){
-      msg(MSG::WARNING)
-	  << "Unable to find LAr HV Scale Retriever Tool" << endmsg;
-    }  
-    else {
-      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endmsg;
-    }
+    ATH_CHECK(m_larHVFraction.retrieve());
+  }
+  else {
+    m_larHVFraction.disable();
   }
 
   return StatusCode::SUCCESS;
@@ -297,7 +292,7 @@ struct cellinfo {
 } // namespace CaloClusterMomentsMaker_detail
 
 StatusCode
-CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
+CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
                                  xAOD::CaloClusterContainer *theClusColl)
   const
 {
@@ -369,13 +364,6 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
     }
   }
 
-  // setup LAr HV Fraction class in case the corresponding moments are
-  // requested
-  const ILArHVCorrTool* hvCorrTool = nullptr;
-  if (m_calculateLArHVFraction)
-    hvCorrTool = &*m_larHVScaleRetriever;
-  LArHVFraction larHVFraction (hvCorrTool);
-  
   // Move allocation of temporary arrays outside the cluster loop.
   // That way, we don't need to delete and reallocate them
   // each time through the loop.
@@ -459,7 +447,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	  }
 	}
 	else {
-	  if ( myCDDE && ! (myCDDE->is_tile()) 
+	  if ( ! (myCDDE->is_tile()) 
 	       && ((pCell->provenance() & 0x2000) == 0x2000) 
 	       && !((pCell->provenance() & 0x0800) == 0x0800)) {
 	    if ( pCell->quality() > m_minBadLArQuality ) {
@@ -468,7 +456,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	    eLAr2  += ene*weight*ene*weight;
 	    eLAr2Q += ene*weight*ene*weight*pCell->quality();
 	  }
-	  if ( myCDDE && myCDDE->is_tile() ) {
+	  if ( myCDDE->is_tile() ) {
 	    uint16_t tq = pCell->quality();
 	    uint8_t tq1 = (0xFF00&tq)>>8; // quality in channel 1
 	    uint8_t tq2 = (0xFF&tq); // quality in channel 2
@@ -484,12 +472,6 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	if ( ene > 0 ) {
 	  ePos += ene*weight;
 	}
-  if ( m_calculateLArHVFraction ) {
-    if ( larHVFraction.isHVAffected(pCell) ) {
-      eBadLArHV += ene*weight;
-      nBadLArHV ++;
-    }
-  }
 	if ( m_calculateSignificance ) {
 	  double sigma = 0;
 	  if ( m_usePileUpNoise ) {
@@ -513,7 +495,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	  double Sig = (sigma>0?ene*weight/sigma:0);
 	  if ( fabs(Sig) > fabs(maxAbsSig) ) {
 	    maxAbsSig = Sig;
-	    nSigSampl = myCDDE->getSampling();
+            nSigSampl = myCDDE->getSampling();
 	  }
 	}
 	if ( m_calculateIsolation ) {
@@ -541,7 +523,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	  }
 	}
 
-	if ( myCDDE && ene > 0. && weight > 0) {
+	if ( ene > 0. && weight > 0) {
 	  // get all geometric information needed ...
           CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[ncell];
 	  ci.x      = myCDDE->x();
@@ -778,7 +760,11 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
 	    }
 	  }
 	} //end of loop over cell
-      
+
+	const auto hvFrac=m_larHVFraction->getLArHVFrac(theCluster->getCellLinks(),ctx);
+	eBadLArHV= hvFrac.first;
+	nBadLArHV=hvFrac.second;
+
 	
 	// assign moments which don't need the loop over the cells
         for (size_t iMoment = 0, size = m_validMoments.size();

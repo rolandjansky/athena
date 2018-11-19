@@ -39,7 +39,7 @@ class JetCollection_p3 : public std::vector<Jet_p3>
   /////////////////////////////////////////////////////////////////// 
 private:
   std::string m_roiAuthor;
-  short m_ordered;
+  short m_ordered{};
   DataLink_p1 m_keyStore;
 };
 

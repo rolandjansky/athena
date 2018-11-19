@@ -101,7 +101,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
         InDetAlignMonSivsTRT_noTrig = IDAlignMonSivsTRT (name                                = "InDetAlignMonSivsTRT_noTrig",
                                                          trackSelection                      = m_alignMonTrackSelectionTool[0])
 
-        ToolSvc += InDetAlignMonSivsTRT_noTrig
+        #ToolSvc += InDetAlignMonSivsTRT_noTrig
         if (InDetFlags.doPrintConfigurables()):
             print InDetAlignMonSivsTRT_noTrig
 
@@ -112,7 +112,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
                                                               vxContainerName                = InDetKeys.PrimaryVertices(),
                                                               vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
         
-        ToolSvc += InDetAlignMonBeamSpot_noTrig
+        #ToolSvc += InDetAlignMonBeamSpot_noTrig
         if (InDetFlags.doPrintConfigurables()):
             print InDetAlignMonBeamSpot_noTrig
 
@@ -201,7 +201,7 @@ else:
     if InDetAlignMonReadESD and InDetFlags.doRefit: #use refitted tracks if reading ESD
         InDetAlignMonResiduals_noTrig.tracksName = InDetKeys.RefittedTracks()
 
-ToolSvc += InDetAlignMonResiduals_noTrig
+#ToolSvc += InDetAlignMonResiduals_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print InDetAlignMonResiduals_noTrig
 
@@ -223,7 +223,7 @@ else:
     if InDetAlignMonReadESD and InDetFlags.doRefit:#use refitted tracks if reading ESD
         InDetAlignMonEfficiencies_noTrig.tracksName = InDetKeys.RefittedTracks()
 
-ToolSvc += InDetAlignMonEfficiencies_noTrig
+#ToolSvc += InDetAlignMonEfficiencies_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print InDetAlignMonEfficiencies_noTrig
 
@@ -243,7 +243,7 @@ else:
     if InDetAlignMonReadESD and InDetFlags.doRefit: #use refitted tracks if reading ESD
         InDetAlignMonGenericTracks_noTrig.tracksName = InDetKeys.RefittedTracks()
 
-ToolSvc += InDetAlignMonGenericTracks_noTrig
+#ToolSvc += InDetAlignMonGenericTracks_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print InDetAlignMonGenericTracks_noTrig
 
@@ -304,7 +304,7 @@ if jobproperties.Beam.beamType()=='cosmics':
                                                             DeltaQoverPtRange2D    = m_deltaQoverPt2D[i],
                                                             D0Range                = m_d0Range[i]))
 
-        ToolSvc += m_trackSegmentsUpLow[i]
+        #ToolSvc += m_trackSegmentsUpLow[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_trackSegmentsUpLow[i]
 
@@ -342,7 +342,7 @@ if jobproperties.Beam.beamType()=='cosmics':
                                                            DeltaQoverPtRange2D     = m_deltaQoverPt2D_Sub[i],
                                                            D0Range                 = m_d0Range_Sub[i]))
 
-        ToolSvc += m_trackSegments_Sub[i]
+        #ToolSvc += m_trackSegments_Sub[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_trackSegments_Sub[i]
 
@@ -383,11 +383,11 @@ else:
                                                    vxContainerWithBeamConstraint = InDetFlags.useBeamConstraint())
 
     if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-        InDetAlignMonSivsTRT.FilterTools.append(monFilledBunchFilterTool)
-        InDetAlignMonResiduals.FilterTools.append(monFilledBunchFilterTool)
-        InDetAlignMonEfficiencies.FilterTools.append(monFilledBunchFilterTool)
-        InDetAlignMonGenericTracks.FilterTools.append(monFilledBunchFilterTool)
-        InDetAlignMonBeamSpot.FilterTools.append(monFilledBunchFilterTool)
+        InDetAlignMonSivsTRT.FilterTools += [monFilledBunchFilterTool]
+        InDetAlignMonResiduals.FilterTools += [monFilledBunchFilterTool]
+        InDetAlignMonEfficiencies.FilterTools += [monFilledBunchFilterTool]
+        InDetAlignMonGenericTracks.FilterTools += [monFilledBunchFilterTool]
+        InDetAlignMonBeamSpot.FilterTools += [monFilledBunchFilterTool]
 
     InDetAlignMonSivsTRT.TrigDecisionTool         = monTrigDecTool
     InDetAlignMonResiduals.TrigDecisionTool       = monTrigDecTool
@@ -415,19 +415,19 @@ else:
     InDetAlignMonGenericTracks.triggerChainName   = "TriggerAwareMon"
     InDetAlignMonBeamSpot.histFolder              = "IDAlignMon/BeamSpot/TriggerAwareMon"
 
-    ToolSvc += InDetAlignMonResiduals
+    #ToolSvc += InDetAlignMonResiduals
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonResiduals
-    ToolSvc += InDetAlignMonEfficiencies
+    #ToolSvc += InDetAlignMonEfficiencies
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonEfficiencies
-    ToolSvc += InDetAlignMonGenericTracks
+    #ToolSvc += InDetAlignMonGenericTracks
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonGenericTracks
-    ToolSvc += InDetAlignMonBeamSpot
+    #ToolSvc += InDetAlignMonBeamSpot
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonBeamSpot
-    ToolSvc += InDetAlignMonSivsTRT
+    #ToolSvc += InDetAlignMonSivsTRT
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonSivsTRT
       
@@ -461,11 +461,11 @@ InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonEfficiencies_noTri
 InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonGenericTracks_noTrig ]
 
 if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetAlignMonSivsTRT_noTrig.FilterTools.append(monFilledBunchFilterTool)
-    InDetAlignMonResiduals_noTrig.FilterTools.append(monFilledBunchFilterTool)
-    InDetAlignMonEfficiencies_noTrig.FilterTools.append(monFilledBunchFilterTool)
-    InDetAlignMonGenericTracks_noTrig.FilterTools.append(monFilledBunchFilterTool)
-    InDetAlignMonBeamSpot_noTrig.FilterTools.append(monFilledBunchFilterTool)
+    InDetAlignMonSivsTRT_noTrig.FilterTools += [monFilledBunchFilterTool]
+    InDetAlignMonResiduals_noTrig.FilterTools += [monFilledBunchFilterTool]
+    InDetAlignMonEfficiencies_noTrig.FilterTools += [monFilledBunchFilterTool]
+    InDetAlignMonGenericTracks_noTrig.FilterTools += [monFilledBunchFilterTool]
+    InDetAlignMonBeamSpot_noTrig.FilterTools += [monFilledBunchFilterTool]
 
 
 if InDetAlignMonDoTruth:

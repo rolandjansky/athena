@@ -27,6 +27,7 @@ class ArtHeader(object):
     ART_INPUT_NFILES = 'art-input-nfiles'
     ART_INPUT_SPLIT = 'art-input-split'
     ART_OUTPUT = 'art-output'
+    ART_RUNON = 'art-runon'
     ART_TYPE = 'art-type'
 
     def __init__(self, filename):
@@ -40,10 +41,13 @@ class ArtHeader(object):
 
         self.header = {}
 
+        self.valid = True
+
         # general
         self.add(ArtHeader.ART_DESCRIPTION, StringType, '')
         self.add(ArtHeader.ART_TYPE, StringType, None, ['build', 'grid'])
-        self.add(ArtHeader.ART_INCLUDE, ListType, ['*'])
+        self.add(ArtHeader.ART_INCLUDE, ListType, [])        # not specifying results in inclusion
+        self.add(ArtHeader.ART_RUNON, ListType, [])
 
         # "build" type only
         self.add(ArtHeader.ART_CI, ListType, [])
@@ -58,12 +62,13 @@ class ArtHeader(object):
 
         self.read(filename)
 
-    def add(self, key, value_type, default_value=None, constraint=None):
+    def add(self, key, value_type, default_value=None, constraint=None, defined=True):
         """Add a single header definition."""
         self.header[key] = {}
         self.header[key]['type'] = value_type
         self.header[key]['default'] = default_value
         self.header[key]['constraint'] = constraint
+        self.header[key]['defined'] = defined
         self.header[key]['value'] = None    # e.g. the value was never set
 
     def is_list(self, key):
@@ -79,6 +84,7 @@ class ArtHeader(object):
                 try:
                     key = line_match.group(1)
                     value = line_match.group(2).strip()
+                    # convert value if needed
                     if key in self.header and self.header[key]['type'] == IntType:
                         value = int(value)
 
@@ -90,14 +96,21 @@ class ArtHeader(object):
                     else:
                         # handle values
                         if key not in self.header:
-                            log.warning("Unknown art-header %s: %s in file %s", key, value, filename)
-                            self.add(key, StringType)
+                            log.debug("Unknown art-header %s: %s in file %s", key, value, filename)
+                            self.add(key, StringType, defined=False)
+                            self.valid = False
                         if self.header[key]['value'] is None:
                             self.header[key]['value'] = value
                         else:
-                            log.warning("key %s: already set to %s in file %s", key, self.header[key]['value'], filename)
+                            log.debug("key %s: already set to %s in file %s", key, self.header[key]['value'], filename)
+                            self.valid = False
                 except ValueError:
-                    log.error("Invalid value in art-header %s: %s in file %s", key, value, filename)
+                    log.debug("Invalid value in art-header %s: %s in file %s", key, value, filename)
+                    self.valid = False
+
+    def is_valid(self):
+        """Return True if file was read without errors."""
+        return self.valid
 
     def get(self, key):
         """
@@ -132,36 +145,40 @@ class ArtHeader(object):
         - a key is found which is not defined
         - a value is found of the wrong value_type
         - a value is found outside the constraint
+
+        return True is valid
         """
         log = logging.getLogger(MODULE)
+        valid = True
         for line in open(self.filename, "r"):
             if self.header_format_error1.match(line):
+                valid &= False
                 log.error("LINE: %s", line.rstrip())
                 log.error("Header Validation - invalid header format, use space between '# and art-xxx' in file %s", self.filename)
-                log.error("")
             if self.header_format_error2.match(line):
+                valid &= False
                 log.error("LINE: %s", line.rstrip())
                 log.error("Header Validation - invalid header format, too many spaces between '# and art-xxx' in file %s", self.filename)
-                log.error("")
             if self.header_format_error3.match(line):
+                valid &= False
                 log.error("LINE: %s", line.rstrip())
                 log.error("Header Validation - invalid header format, use at least one space between ': and value' in file %s", self.filename)
-                log.error("")
 
         for key in self.header:
-            if 'type' not in self.header[key]:
+            if not self.header[key]['defined']:
+                valid &= False
                 log.error("Header Validation - Invalid key: %s in file %s", key, self.filename)
-                log.error("")
                 continue
             if type(self.header[key]['value']) != self.header[key]['type']:
                 if not isinstance(self.header[key]['value'], type(None)):
+                    valid &= False
                     log.error("Header Validation - value_type: %s not valid for key: %s, expected value_type: %s in file %s", type(self.header[key]['value']), key, self.header[key]['type'], self.filename)
-                    log.error("")
             if self.header[key]['constraint'] is not None and self.header[key]['value'] not in self.header[key]['constraint']:
+                valid &= False
                 if self.header[key]['value'] is None:
                     log.error("Header Validation - missing key: %s in file %s", key, self.filename)
                 else:
                     log.error("Header Validation - value: %s for key: %s not in constraints: %s in file %s", self.header[key]['value'], key, self.header[key]['constraint'], self.filename)
                 log.error("")
 
-        return 0
+        return valid

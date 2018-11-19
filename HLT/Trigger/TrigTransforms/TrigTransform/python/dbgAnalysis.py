@@ -28,7 +28,7 @@ def dbgPreRun(inputFileList,outputFileList):
     total = 0
     #open root output file
     out_file = outputFileList[0]
-    hfile = TFile( out_file , 'UPDATE' )
+    hfile = TFile( out_file , 'RECREATE' )
     #inicialize dbgEventInfo,  this is the main event analysis class
     eventInfo = dbgEventInfo("_Pre",inputFileList.value[0])
     data = []
@@ -264,13 +264,13 @@ def getAsetupString(release):
     #If TestArea is for tzero (tzero/software/patches/AtlasP1HLT-RELEASE), then returns tzero/software/patches/AtlasP1HLT-release where release is the parameter given to this function getAsetupString(release)    
     if eVarDic.get('TestArea') :
         TestArea = eVarDic['TestArea']
-        if  TestArea.find("tzero/software/patches/AtlasP1HLT-") > 0 :
+        if  TestArea.find("tzero/software/patches/AthenaP1-") > 0 :
             testarea = TestArea.split('-')
             TestArea = testarea[0]+'-'+release
-        asetupString = AtlasProject + ',' + release + ',gcc49,cvmfs --testarea '+ TestArea
+        asetupString = AtlasProject + ',' + release + ',gcc62 --testarea '+ TestArea
         return asetupString
 
     #else, there is no TestArea,  then use the local directory    
     else :
-        asetupString = AtlasProject + ',' + release + ',gcc49,here'
+        asetupString = AtlasProject + ',' + release + ',gcc62,here'
     return asetupString

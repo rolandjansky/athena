@@ -1168,6 +1168,12 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doDigitalROTCreation(InDetFlagsJobProperty): 
+  """use PixelClusterOnTrackToolDigital during ROT creation to save CPU""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2778,7 +2784,8 @@ _list_InDetJobProperties = [Enabled,
                             doParticleConversion,
                             doStoreTrackSeeds,
                             doHIP300,
-                            checkDeadElementsOnTrack
+                            checkDeadElementsOnTrack,
+                            doDigitalROTCreation
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

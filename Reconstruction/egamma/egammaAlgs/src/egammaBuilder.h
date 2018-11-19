@@ -30,6 +30,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/EventContext.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -121,20 +123,13 @@ class egammaBuilder : public AthAlgorithm
       "ConversionBuilderTool", "EMConversionBuilder",
       "Tool that matches conversion vertices to egammaRecs"};
 
-
-  /** @brief Retrieve each tool in the given vector **/
-  StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
   
   /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-  StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
+  StatusCode CallTool(const EventContext& ctx,
+                      ToolHandle<IegammaBaseTool>& tool, 
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
  
-  /** @brief retrieve EMClusterTool **/
-  StatusCode RetrieveEMClusterTool();
-
-  /** @brief retrieve EGammaAmbiguityTool **/
-  StatusCode RetrieveAmbiguityTool();
   /** @brief retrieve EMTrackMatchBuilder **/
   StatusCode RetrieveEMTrackMatchBuilder();
   /** @brief retrieve EMConversionBuilder **/

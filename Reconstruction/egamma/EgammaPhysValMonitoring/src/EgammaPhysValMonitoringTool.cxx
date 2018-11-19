@@ -160,11 +160,12 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
         float y = tmp->decayVtx()->y();
         trueR = sqrt( x*x + y*y );
       }
-      if (tmp)
-        truthEta = tmp->eta();
 
-//      if( trueR>=0 && trueR<800 ) isTrueConv = true;//rel19
-      isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp);//rel20
+      if (tmp != nullptr ) {
+        truthEta = tmp->eta();
+        isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp);//rel20
+      } 
+
       m_oPhotonValidationPlots.convTruthR->Fill(trueR);
       m_oPhotonValidationPlots.convTruthRvsEta->Fill(trueR,truthEta);
       if(isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoConvPlots.fill(*truthParticle);

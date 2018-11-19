@@ -39,6 +39,7 @@ TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut1step I
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6 ID#1672162766
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut ID#2711808158
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut_mu6 ID#3189262314
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_mu6Comb ID#393364983
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e7_etcut ID#2430733989
@@ -121,12 +122,12 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut ID#271
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut ID#607406625
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut ID#2430733989
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut ID#2711808158
-TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
-TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        3         0         3         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        18        17        17        
 TrigSignatureMoniMT                                INFO HLT_2mu6                      20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb                  20        20        0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_mu6              20        20        3         0         0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut                  20        20        18        17        17        
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step             20        20        18        0         18        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_mu6              20        20        10        0         1         
+TrigSignatureMoniMT                                INFO HLT_e5_etcut                  20        20        17        16        16        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut                  20        20        15        14        14        
+TrigSignatureMoniMT                                INFO HLT_mu6                       20        20        3         0         3         
 TrigSignatureMoniMT                                INFO HLT_mu6Comb                   20        20        3         2         2         

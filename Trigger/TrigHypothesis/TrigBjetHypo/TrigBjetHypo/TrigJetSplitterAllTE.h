@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigJetSplitterAllTE.h        
 //
 //                   
 //  
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigJetSplitterAllTE.h, v0.0   Tue 17 Jun 2014 03:26:44 CEST sutt $
 

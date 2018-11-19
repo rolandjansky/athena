@@ -11,7 +11,6 @@
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
 #include "xAODTruth/TruthParticle.h"
 #include "ITrackToVertex/ITrackToVertex.h"
-#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -74,7 +73,6 @@ class IDPerfMonZmumu : public AthAlgorithm
   std::string                     m_refit1TreeFolder;
   std::string                     m_refit2TreeFolder;
   std::string                     m_truthTreeFolder;
-  //  std::string                     m_meStacoTreeFolder; // not existent in xAOD anymore
   std::string                     m_combStacoTreeFolder;
   std::string                     m_combMuidTreeFolder;
 

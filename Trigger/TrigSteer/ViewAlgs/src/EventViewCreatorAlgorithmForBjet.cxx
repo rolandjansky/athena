@@ -13,17 +13,16 @@
 
 
 EventViewCreatorAlgorithmForBjet::EventViewCreatorAlgorithmForBjet( const std::string& name, ISvcLocator* pSvcLocator )
-  : InputMakerBase( name, pSvcLocator ) {}
+  : EventViewCreatorAlgorithm( name, pSvcLocator ) {}
 
-EventViewCreatorAlgorithmForBjet::~EventViewCreatorAlgorithmForBjet(){}
+EventViewCreatorAlgorithmForBjet::~EventViewCreatorAlgorithmForBjet() {}
 
 StatusCode EventViewCreatorAlgorithmForBjet::initialize() {
-  ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs << " jets=" << m_inViewJets );
-  ATH_CHECK( m_viewsKey.initialize() );
-  ATH_CHECK( m_inViewRoIs.initialize() );
+  EventViewCreatorAlgorithm::initialize();
+
   ATH_CHECK( m_inViewJets.initialize() );
   ATH_CHECK( m_inViewPrimaryVertex.initialize() );
-  ATH_CHECK( m_scheduler.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -164,83 +163,6 @@ StatusCode EventViewCreatorAlgorithmForBjet::execute_r( const EventContext& cont
     return StatusCode::FAILURE;
   }
   printDecisions( outputHandles );     
-  return StatusCode::SUCCESS;
-}
-
-size_t EventViewCreatorAlgorithmForBjet::countInputHandles( const EventContext& context ) const {
-  size_t validInputCount=0;
-  for ( auto inputKey: decisionInputs() ) {
-    auto inputHandle = SG::makeHandle( inputKey, context );
-    ATH_MSG_DEBUG(" " << inputKey.key() << (inputHandle.isValid()? "valid": "not valid" ) );
-    if (inputHandle.isValid()) validInputCount++;
-  }
-  ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() << ", " << validInputCount << " are valid" );
-  
-  return validInputCount;
-}
-
-
-void EventViewCreatorAlgorithmForBjet::printDecisions( const std::vector<SG::WriteHandle<TrigCompositeUtils::DecisionContainer>>& outputHandles ) const {
-  if ( not msgLvl( MSG::DEBUG ) )
-    return;
-      
-  for ( auto outHandle: outputHandles ) {
-    if( not outHandle.isValid() ) continue;
-    ATH_MSG_DEBUG(outHandle.key() << " with " << outHandle->size() << " decisions:");
-    for ( auto outDecision:  *outHandle ) {
-      TrigCompositeUtils::DecisionIDContainer objDecisions;      
-      TrigCompositeUtils::decisionIDs( outDecision, objDecisions );
-      
-      ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
-      
-      for ( TrigCompositeUtils::DecisionID id : TrigCompositeUtils::decisionIDs(outDecision) ) {
-	ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
-      }  
-    }
-  }    
-}
-
-void EventViewCreatorAlgorithmForBjet::insertDecisions( const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest ) const  {
-  using namespace TrigCompositeUtils;
-  DecisionIDContainer ids;
-  decisionIDs( dest, ids );
-  decisionIDs( src, ids );
-  decisionIDs( dest ).clear(); 
-  decisionIDs(dest).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
-}	
-
-StatusCode EventViewCreatorAlgorithmForBjet::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {
-  // see if there is a view linked to the decision object, if so link it to the view that is just made
-  TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
-  if ( parentViewLinkInfo.isValid() ) {
-    ATH_CHECK( parentViewLinkInfo.link.isValid() );
-    auto parentView = *parentViewLinkInfo.link;
-    newView->linkParent( parentView );
-    ATH_MSG_DEBUG( "Parent view linked" );
-  } else {
-    if ( m_requireParentView ) {
-      ATH_MSG_ERROR( "Parent view not linked because it could not be found" );
-      ATH_MSG_ERROR( TrigCompositeUtils::dump( inputDecision, [](const xAOD::TrigComposite* tc){ 
-								return "TC " + tc->name() + ( tc->hasObjectLink("view") ? " has view " : " has no view " );
-							      } ) );
-      return StatusCode::FAILURE;
-    }
-    
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode EventViewCreatorAlgorithmForBjet::placeRoIInView( const TrigRoiDescriptor* roi, SG::View* view, const EventContext& context ) const {
-  // fill the RoI output collection
-  ATH_MSG_DEBUG( "Adding RoI To View : " << m_inViewRoIs.key() );
-  auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
-  oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
-  oneRoIColl->push_back( roi );
-	
-  //store in the view
-  auto handle = SG::makeHandle( m_inViewRoIs, context );
-  ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneRoIColl ) ) );
   return StatusCode::SUCCESS;
 }
 

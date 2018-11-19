@@ -24,11 +24,21 @@
 //STL:
 #include <string>
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+
+//Events infos:
+#include "xAODEventInfo/EventInfo.h"
+#include "LArRecEvent/LArNoisyROSummary.h"
+
+class LArDigitContainer;
+class LArOnOffIdMapping;
+
 class LArEM_ID;
 class LArOnlineID;
 class HWIdentifier;
 class LArOnlineIDStrHelper;
-class LArCablingService;
+class LArOnOffIdMapping;
 class TProfile2D_LW;
 class TProfile_LW;
 
@@ -68,17 +78,21 @@ protected:
   LArOnlineIDStrHelper* m_strHelper;
   const LArOnlineID* m_LArOnlineIDHelper;
   const LArEM_ID* m_LArEM_IDHelper;
-  
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingService> m_LArCablingService;
+
+  //** Handle to cabling */
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
   
   /** Handle to bad-channel mask */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
   
   /** Handle to pedestal */
-  const DataHandle<ILArPedestal>  m_larPedestal;
+  SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
   
-  
+  SG::ReadHandleKey<LArNoisyROSummary> m_noisyROSummaryKey{this,"NoisyROSumKey","LArNoisyROSummary","SG key of LArNoisyROSummary object"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","SG Key of EventInfo object"};
+
+  SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey{this,"LArDigitContainerKey","FREE","SG key of LArDigitContainer read from Bytestream"};
+
   
 private:
   
@@ -186,9 +200,6 @@ private:
   double m_TreshOut;
   double m_TreshNull;
   double m_TreshSat;
-  
-  std::string m_LArDigitContainerKey;
-  std::string m_larPedestalKey;
   
   //Added for Stream aware:
   std::vector<std::string> m_streams;

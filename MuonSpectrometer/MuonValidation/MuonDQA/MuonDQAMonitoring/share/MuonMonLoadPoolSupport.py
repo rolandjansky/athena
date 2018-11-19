@@ -10,7 +10,3 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from PoolSvc.PoolSvcConf import PoolSvc
 svcMgr += PoolSvc()
 svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog1.xml"
- 
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-svcMgr += AthenaPoolCnvSvc()
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;

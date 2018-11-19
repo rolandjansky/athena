@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARONLINEID_BASE_H
 #define LARONLINEID_BASE_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/IdentifierHash.h"

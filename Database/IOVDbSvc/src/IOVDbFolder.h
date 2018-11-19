@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.h
@@ -61,6 +61,10 @@ public:
   bool writeMeta() const;
   // read from meta data only, otherwise ignore folder
   bool fromMetaDataOnly() const;
+  // If true, then the end time for an open-ended range will be set to just
+  // past the current event.  The end time will be automatically updated on accesses
+  // in subsequent events.
+  bool extensible() const;
   bool dropped() const;
   const std::string& joTag() const;
   const std::string& resolvedTag() const;
@@ -174,6 +178,7 @@ private:
   bool m_notagoverride;// tag must not be overridden from input file
   bool m_writemeta;    // is writing to metadata
   bool m_fromMetaDataOnly; // to be read from metadata only
+  bool m_extensible;   // xxx
   bool m_named;        // folder has named channels
   bool m_iovoverridden;// folder has IOV override
   bool m_jokey;        // folder has non-default key from joboptions
@@ -259,6 +264,8 @@ inline bool IOVDbFolder::readMeta() const { return (m_metacon!=0); }
 inline bool IOVDbFolder::writeMeta() const { return m_writemeta; }
 
 inline bool IOVDbFolder::fromMetaDataOnly() const { return m_fromMetaDataOnly; }
+
+inline bool IOVDbFolder::extensible() const { return m_extensible; }
 
 inline bool IOVDbFolder::dropped() const { return m_dropped; }
 

@@ -1,0 +1,37 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_ACTSALIGNMENTSTORE_H
+#define ACTSGEOMETRY_ACTSALIGNMENTSTORE_H
+
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+#include "GeoModelUtilities/TransformMap.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
+
+#include "Acts/Utilities/Definitions.hpp"
+
+#include <stdexcept>
+
+class ActsDetectorElement;
+
+class ActsAlignmentStore : public GeoAlignmentStore
+{
+  public:
+    ActsAlignmentStore() {}
+
+    void setTransform(const ActsDetectorElement* key, const Acts::Transform3D&);
+    const Acts::Transform3D* getTransform(const ActsDetectorElement* key) const;
+
+  private:
+    TransformMap<ActsDetectorElement, Acts::Transform3D> m_transforms;
+};
+
+CLASS_DEF(ActsAlignmentStore, 58496671, 1)
+CONDCONT_DEF( ActsAlignmentStore , 44989665 );
+
+#endif 
+
+
+

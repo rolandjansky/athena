@@ -3,15 +3,9 @@
 */
 
 #include "LArRawConditions/LArShape32MC.h" 
-#include "GaudiKernel/IMessageSvc.h"
-
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArTools/LArMCSymTool.h"
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "LArRawConditions/LArWaveHelper.h"
@@ -77,31 +71,6 @@ LArShape32MC::ShapeDer(const HWIdentifier& CellID,
                        int /*tbin*/,
                        int /*mode*/) const 
 { 
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  const LArShapeP1& t = get(SymCellID,gain) ; 
-  return t.m_vShapeDer;
-}
-
-
-LArShape32MC::ShapeRef_t
-LArShape32MC::Shape(const Identifier&  CellID,
-                    int gain,
-                    int /*tbin*/,
-                    int /*mode*/) const
-{
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  const LArShapeP1& t = get(SymCellID,gain) ; 
-  return t.m_vShape;
-}
-
-LArShape32MC::ShapeRef_t
-LArShape32MC::ShapeDer(const Identifier&  CellID,
-                       int gain,
-                       int /*tbin*/,
-                       int /*mode*/) const
-{
   // symmetrize CellID for MC usage
   HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
   const LArShapeP1& t = get(SymCellID,gain) ; 

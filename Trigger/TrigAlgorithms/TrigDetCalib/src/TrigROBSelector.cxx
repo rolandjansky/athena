@@ -44,6 +44,11 @@ TrigROBSelector::TrigROBSelector(const std::string& type, const std::string& nam
   m_detNames[MDT] = "MDT";
   m_detNames[RPC] = "RPC";
   m_detNames[TGC] = "TGC";
+  /* on April 19, 2018, these subdetectors were not included by default, so do not change this
+  m_detNames[LAR] = "LAR"; 
+  m_detNames[FTK] = "FTK"; 
+  */
+  m_detNames[CSC] = "CSC"; // included since April 19, 2018, small size
 }
 
 
@@ -91,7 +96,7 @@ StatusCode TrigROBSelector::initialize()
   }
 
   if (m_detSpec.find("Muons") != std::string::npos)
-    isIncluded[MDT] = isIncluded[RPC] = isIncluded[TGC] = true;
+    isIncluded[MDT] = isIncluded[RPC] = isIncluded[TGC] = isIncluded[CSC] = true;
 
   if (m_detSpec.find("EM") != std::string::npos)
     isIncluded[TTEM] = isIncluded[FCALEM] = true;
@@ -101,7 +106,7 @@ StatusCode TrigROBSelector::initialize()
 
   if (m_detSpec.find("All") != std::string::npos) {
     for (std::map<DETID,std::string>::const_iterator name = m_detNames.begin();
-         name != m_detNames.end(); name++) 
+         name != m_detNames.end(); name++)
       isIncluded[name->first] = true;
   }
 

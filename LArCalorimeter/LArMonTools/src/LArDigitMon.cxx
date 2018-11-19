@@ -40,14 +40,10 @@
 
 //LAr infos:
 #include "Identifier/HWIdentifier.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "LArRecEvent/LArNoisyROSummary.h"
-
-//Events infos:
-#include "xAODEventInfo/EventInfo.h"
 
 #include "LArTrigStreamMatching.h"
 
@@ -67,7 +63,6 @@ LArDigitMon::LArDigitMon(const std::string& type,
     m_strHelper(0),
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
-    m_LArCablingService("LArCablingService"),
     m_badChannelMask("BadLArRawChannelMask"),
     m_summary(0),
     m_feedthroughID(0),
@@ -83,8 +78,6 @@ LArDigitMon::LArDigitMon(const std::string& type,
   /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
   declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArPedestalKey", m_larPedestalKey="LArPedestal");
-  declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
   /**default cut to select events*/
   declareProperty("SigmaCut",               m_SigmaCut=5);
   /**default saturation cuts*/
@@ -171,15 +164,15 @@ LArDigitMon::initialize()
     return StatusCode::FAILURE;
     
   }
+
+  ATH_CHECK(m_digitContainerKey.initialize());  
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_keyPedestal.initialize());
+  ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK(m_noisyROSummaryKey.initialize());
+
   
-  
-  /** Get LAr Calbling Service*/
-  sc=m_LArCablingService.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
-    return StatusCode::FAILURE;
-  }
-  
+
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
   if (m_ignoreKnownBadChannels) { 
     sc=m_badChannelMask.retrieve();
@@ -189,13 +182,6 @@ LArDigitMon::initialize()
     }
   } else {
     m_badChannelMask.disable();
-  }
-  
-  /** Retrieve pedestals container*/
-  sc =  detStore()->regHandle(m_larPedestal,m_larPedestalKey);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "could not register handle for pedestal " );
-    return StatusCode::FAILURE;
   }
   
   /** Bool used for online*/
@@ -312,13 +298,8 @@ LArDigitMon::fillHistograms()
   m_eventsCounter++;
   
   // retrieve LArNoisyROSummary and skip the event if number of FEB is greater than the one declare in JO.
-  const LArNoisyROSummary* noisyRO;
-  StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
-    return StatusCode::SUCCESS;
-  }
+  SG::ReadHandle<LArNoisyROSummary> noisyRO{m_noisyROSummaryKey};
+
   const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
   if(int(noisyFEB.size())>m_NumberBadFebs)
   {
@@ -327,13 +308,8 @@ LArDigitMon::fillHistograms()
   }
   
   /**EventID is a part of EventInfo, search event informations:*/
-  //  unsigned long run=0;
-  const xAOD::EventInfo* thisEvent;
-  if (evtStore()->retrieve(thisEvent).isFailure()) {
-    ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
-    return StatusCode::FAILURE;
-  }
-  
+  SG::ReadHandle<xAOD::EventInfo> thisEvent{m_eventInfoKey};
+
   m_evtId = thisEvent->eventNumber();
   unsigned l1Trig = thisEvent->level1TriggerType();
   ATH_MSG_DEBUG("Event nb " << m_evtId );
@@ -342,15 +318,14 @@ LArDigitMon::fillHistograms()
     
   m_streamsThisEvent=trigStreamMatching(m_streams,thisEvent->streamTags());
   
-  /** retrieve LArDigitContainer*/
-  const LArDigitContainer* pLArDigitContainer;
-  sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey );
-    return StatusCode::SUCCESS;
-  }
-  
+  SG::ReadCondHandle<ILArPedestal> pedestalHdl{m_keyPedestal};
+  const ILArPedestal* pedestals=*pedestalHdl;
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+
+
+  SG::ReadHandle<LArDigitContainer> pLArDigitContainer{m_digitContainerKey};
   
   /** Define iterators to loop over Digits containers*/
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
@@ -473,8 +448,8 @@ LArDigitMon::fillHistograms()
     /** Retrieve pedestals */
     HWIdentifier id = pLArDigit->hardwareID();
     CaloGain::CaloGain gain = pLArDigit->gain();
-    float pedestal = m_larPedestal->pedestal(id,gain);
-    float pedestalRMS= m_larPedestal->pedestalRMS(id,gain);
+    float pedestal = pedestals->pedestal(id,gain);
+    float pedestalRMS=pedestals->pedestalRMS(id,gain);
     
     /**skip cells with no pedestals reference in db.*/
     if(pedestal <= (1.0+LArElecCalib::ERRORCODE)) continue;
@@ -484,7 +459,7 @@ LArDigitMon::fillHistograms()
     //int sampling = m_LArEM_IDHelper->sampling(id);
     
     /**skip disconnected channels:*/
-    if(!m_LArCablingService->isOnlineConnected(id)) continue;
+    if(!cabling->isOnlineConnected(id)) continue;
     
     
     /** Determine to which partition this channel belongs to*/

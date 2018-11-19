@@ -31,12 +31,9 @@
 // Headerfile
 
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
-//#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-//#include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/Identifier.h"
 #include "CaloConditions/Array.h"
 #include "CaloRec/ToolWithConstantsMixin.h"
@@ -53,12 +50,10 @@
 #include <map>
 #include <atomic>
 
-class LArCablingService;
 class StoreGateSvc;
 class CaloCell_ID;
 class LArOnlineID;
 class CaloLVL1_ID;
-class ILArBadChanTool;
 class CaloTriggerTowerService;
 // class L1CaloTTIdTools;
 class CaloIdManager;
@@ -99,13 +94,6 @@ class LArCellDeadOTXCorr
 
 
 	private:
-
-
-		// get a handle to the tool helper 
-
-		//ToolHandle<ILArBadChanTool> m_badChannelTool;
-		//ToolHandle<LArCablingService> m_cablingService;
-
 		SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"BadFebKey","LArBadFeb","Key of Bad-Feb object"};
 		SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingKey", "LArOnOffIdMap","Cabling key"};
                 //std::string m_TTLocation;

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventPrimitives
                           Event/xAOD/xAODTracking
+			  Generators/GeneratorObjects
                           GaudiKernel
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
@@ -40,5 +41,5 @@ find_package( Eigen )
 atlas_add_library( MuonRecToolInterfaces
                    PUBLIC_HEADERS MuonRecToolInterfaces
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives Identifier EventPrimitives xAODTracking GaudiKernel MuonLayerEvent MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonEDM_AssociationObjects MuonLayerHough MuonSimData MuonCombinedEvent TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrkDriftCircleMath MuonIdHelpersLib )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives Identifier EventPrimitives xAODTracking GeneratorObjects GaudiKernel MuonLayerEvent MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonEDM_AssociationObjects MuonLayerHough MuonSimData MuonCombinedEvent TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPrepRawData TrkTrack TrkTruthData TrkToolInterfaces TrkDriftCircleMath MuonIdHelpersLib )
 

@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IdDictDetDescr
                           Event/EventPrimitives
                           MagneticField/MagFieldInterfaces
-                          Tracking/TrkAlignment/TrkAlgebraUtils
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -44,8 +43,7 @@ atlas_add_component( TrkGlobalChi2Fitter
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkFitterInterfaces TrkFitterUtils AtlasDetDescr IdDictDetDescr EventPrimitives MagFieldInterfaces TrkAlgebraUtils TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkVertexOnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkFitterInterfaces TrkFitterUtils AtlasDetDescr IdDictDetDescr EventPrimitives MagFieldInterfaces TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkVertexOnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkGlobalChi2Fitter )
-

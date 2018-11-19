@@ -1729,6 +1729,119 @@ private:
 
 
 
+//////////////////////////////////////// CHECK NO L1CALO ITEM HAS THRESHOLD LOWER THAN IN MINTOBPT ////////////////////////////////////////
+class MinTOBPtCheck : public TrigConfTest {
+public:
+   MinTOBPtCheck()
+      : TrigConfTest("MinimumTOBPtCheck", "Check if all L1Calo items have threshold above MinTOBPt value", WARNING),
+        m_belowMinTOBpt("")
+   {}
+
+
+   virtual void execute(const Exc_t&) {
+     if ( !m_ctp ) return;
+
+     const TrigConf::CaloInfo caloinfo = m_ctp->menu().thresholdConfig().caloInfo();
+
+     unsigned int em_min  = caloinfo.minTobEM().ptmin;
+     unsigned int tau_min  = caloinfo.minTobTau().ptmin;
+     unsigned int Jsmall_min  = caloinfo.minTobJetSmall().ptmin;
+     unsigned int Jlarge_min  = caloinfo.minTobJetLarge().ptmin;
+
+     for(const TrigConf::TriggerThreshold* thr : m_ctp->menu().thresholdConfig().thresholdVector() ) {
+       if(thr->type() == "EM" || thr->type() == "TAU" || thr->type() == "JET"){
+
+         for( const TrigConf::TriggerThresholdValue* thrVal :  thr->thresholdValueVector() ) {
+
+	   if(thr->type() == "EM" && thrVal->ptcut() < em_min) m_belowMinTOBpt += thr->name() + ", ";
+	   if(thr->type() == "TAU" && thrVal->ptcut() < tau_min) m_belowMinTOBpt += thr->name() + ", ";
+
+	   if(thr->type() == "JET"){
+	     const TrigConf::JetThresholdValue* jetThrVal = dynamic_cast<const TrigConf::JetThresholdValue*>(thrVal);
+
+	     if(jetThrVal->windowSizeAsString() == "LARGE" && thrVal->ptcut() < Jlarge_min) m_belowMinTOBpt += thr->name() + ", ";
+	     if(jetThrVal->windowSizeAsString() == "SMALL" && thrVal->ptcut() < Jsmall_min) m_belowMinTOBpt += thr->name() + ", ";
+	   }
+	 }
+       }
+     }
+
+
+      if(m_belowMinTOBpt.size()>0) {
+         m_error = "L1 calo thresholds that are below the MinTOBPt: " + m_belowMinTOBpt;
+      }
+   }
+
+private:
+   std::string m_belowMinTOBpt;
+};
+
+
+
+
+//////////////////////////////////////// CHECK ALL PEB CHAINS GO INTO A CALIBRATION STREAM ////////////////////////////////////////
+class PEBCalibCheck : public TrigConfTest {
+public:
+  PEBCalibCheck()
+    : TrigConfTest("PEBCalibrationStream", "All streams with PEB must be of type calibration or monitoring", WARNING),
+      m_nonCalibPEB("")
+  {}
+
+  virtual void execute(const Exc_t&) {
+    if ( ! m_hlt ) return;
+
+
+    // find all sequences using PEB with the corresponding output TE
+    std::set<std::string> teOutFromSeq;
+
+    for (const TrigConf::HLTSequence* seq : m_hlt->getHLTSequenceList()) {
+      const std::vector<std::string>& algolist = seq->algorithms();
+
+      for( std::string algoname : algolist ){
+
+	if( algoname.find("TrigSubDetListWriter")!= std::string::npos || algoname.find("TrigROBListWriter")!= std::string::npos || algoname.find("ScoutingStreamWriter")!= std::string::npos){
+	  const std::string& tename = seq->outputTE()->name();
+
+	  if ( teOutFromSeq.count( tename ) == 0 ) {
+            teOutFromSeq.insert( tename);
+	  }
+
+	  //	  m_nonCalibPEB += algoname + ": " + tename + ", ";
+	}
+      }
+    }
+
+    //loop over chains comparing signature output TEs to PEB TEs
+    for(const HLTChain* ch : m_hlt->getHLTChainList()) {
+      for ( unsigned int s = 0; s < ch->signatureList().size(); s++ ) {
+	HLTSignature* sig = ch->signatureList()[s];
+	for ( unsigned int t = 0; t < sig->outputTEs().size(); ++t ) {
+	  if ( teOutFromSeq.count(sig->outputTEs()[t]->name()) != 0 ){
+
+	    for(const HLTStreamTag *s : ch->streams()) {
+
+	      //	      m_nonCalibPEB += ch->chain_name() + " stream type: " + s->type() + ", ";
+	      if ( s->type() != "calibration" && s->type() != "monitoring" )  m_nonCalibPEB += ch->chain_name() + ", stream: " + s->stream() + ", stream type: " + s->type() + ", ";
+	    }
+	  }
+
+	}
+      }
+    }
+
+    if(m_nonCalibPEB.size()>0) {
+      m_error = "Streams that use PEB but are not of type 'calibration':  " + m_nonCalibPEB;
+    }
+  }
+
+private:
+   std::string m_nonCalibPEB;
+};
+
+
+
+
+
 
 // set of tests
 ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFrame* hlt) {
@@ -1765,6 +1878,8 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
   m_tests.push_back(new L1SeedLenghtTest());
   //m_tests.push_back(new SignaturesConnectedTest());
 
+  m_tests.push_back(new MinTOBPtCheck());
+  m_tests.push_back(new PEBCalibCheck());
 
   std::vector<TrigConfTest*>::iterator testIt;
   for ( testIt = m_tests.begin(); 

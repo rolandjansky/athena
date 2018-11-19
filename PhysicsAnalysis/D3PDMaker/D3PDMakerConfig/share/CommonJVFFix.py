@@ -14,7 +14,6 @@ make_JetMomentGetter( 'AntiKt4LCTopoJets' , [jvatool] )
 #make_JetMomentGetter( 'AntiKt6TowerJets' , [jvatool] ) 
 
 
-#from QcdD3PDMaker.QcdD3PDMakerFlags import QcdD3PDMakerFlags
 from D3PDMakerConfig.CommonD3PDMakerFlags import CommonD3PDMakerFlags
 if CommonD3PDMakerFlags.doRecJet():
     make_JetMomentGetter( 'AntiKt4TopoEMNewJets' , [jvatool] ) 

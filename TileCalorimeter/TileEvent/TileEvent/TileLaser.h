@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -9,6 +9,9 @@
 
 #ifndef TILELASER_H
 #define TILELASER_H
+
+
+#include <string>
 
 
 class TileLaser {
@@ -42,7 +45,13 @@ class TileLaser {
       m_slamaDelay = SlamaDelay;
   }
  
- private:
+
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserPmt */
+  operator std::string() const;
+
+
+private:
 
   int m_counter;
   int m_diodeCurrOrd;

@@ -79,6 +79,6 @@ CaloClustMonCosmicsNoTA = CaloClusterVecMon(
    hiEthresh = 20.0,
 )
 
-ToolSvc += CaloClustMonCosmicsNoTA 
+#ToolSvc += CaloClustMonCosmicsNoTA 
 CaloMon.AthenaMonTools += [ CaloClustMonCosmicsNoTA ]
 

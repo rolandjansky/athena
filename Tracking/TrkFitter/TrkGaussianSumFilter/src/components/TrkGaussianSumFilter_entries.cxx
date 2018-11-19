@@ -1,5 +1,4 @@
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
 #include "TrkGaussianSumFilter/KullbackLeiblerComponentDistance.h"
 #include "TrkGaussianSumFilter/CloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/LargestWeightsMultiStateMerger.h"
@@ -20,7 +19,6 @@
 #include "TrkGaussianSumFilter/GsfSmoother.h"
 
 DECLARE_COMPONENT( Trk::QuickCloseComponentsMultiStateMerger )
-DECLARE_COMPONENT( Trk::MultiStateMaterialEffectsAdapter )
 DECLARE_COMPONENT( Trk::KullbackLeiblerComponentDistance )
 DECLARE_COMPONENT( Trk::CloseComponentsMultiStateMerger )
 DECLARE_COMPONENT( Trk::LargestWeightsMultiStateMerger )

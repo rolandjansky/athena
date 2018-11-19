@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArCalibDigitContByteStreamCnv.h"
@@ -19,7 +19,7 @@
 #include "LArRawEvent/LArCalibDigitContainer.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Tool 
 #include "GaudiKernel/IToolSvc.h"

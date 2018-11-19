@@ -55,7 +55,6 @@
 #include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "LArRawConditions/LArConditionsContainerDB.h"
 #include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
 
@@ -121,14 +120,6 @@ public:
     /// non-const get data with online identifier
     Reference           get     (const HWIdentifier id, 
 				 unsigned int gain=0); 
-
-    /// get data with offline hash identifier
-    ConstReference      get     (const IdentifierHash hashId, 
-				 unsigned int gain=0) const; 
-
-    /// get data with offline identifier
-    ConstReference       get_offline     (const Identifier hashId, 
-					  unsigned int gain=0) const; 
 
     /// Return the COOL channel number for a given online id and gain
     unsigned int        coolChannel (const HWIdentifier id,
@@ -304,9 +295,6 @@ private:
     void                  sortSubsets();
 
 
-    /// initialize the vector for access via hashes
-    void                  initHashVec() const; 
-
     class SubsetSort 
     {
     public:
@@ -332,9 +320,7 @@ private:
     typedef typename SubsetDV::iterator                     iterator;
     
 
-    mutable TVectorMap           m_hashVec  ;
     mutable CorrectionVectors    m_correctionsUndo;
-    mutable bool                 m_hashVecValid ;
     mutable bool                 m_correctionsApplied;
     CorrectionVector             m_emptyCorrectionVec;
 #endif 

@@ -4,7 +4,6 @@
 
 #include "CaloClusterROI_Builder.h"
 
-#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "CaloDetDescr/CaloDepthTool.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
@@ -22,11 +21,9 @@
 InDet::CaloClusterROI_Builder::CaloClusterROI_Builder(const std::string& t,
                                                const std::string& n,
                                                const IInterface*  p )
-: AthAlgTool(t,n,p),
-  m_calosurf("CaloSurfaceBuilder")
+: AthAlgTool(t,n,p)
 {
   declareInterface<ICaloClusterROI_Builder>(this);
-  declareProperty( "CaloSurfaceBuilder",     m_calosurf      );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -62,23 +59,37 @@ Trk::CaloClusterROI* InDet::CaloClusterROI_Builder::buildClusterROI( const xAOD:
 
   ATH_MSG_DEBUG("Building Trk::CaloCluster_OnTrack");
    
-  if(!cluster) return 0;
+  if(!cluster) return nullptr;
 
   const Trk::Surface* surface = getCaloSurface( cluster );
   
-  if(!surface) return 0;
+  if(!surface) return nullptr;
   
   const Trk::LocalParameters* lp = getClusterLocalParameters( cluster, surface );
 
   if (!lp){
     delete surface;
-    return 0;
+    return nullptr;
   }
   
   double energy    = cluster->e();
   double  widthPhi = 0.1;
   double  widthEta = 0.1;
   
+  // do we want to make energy be EM energy only?
+  if (m_EMEnergyOnly) {
+    static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+    double emFrac(0.);
+    if (acc.isAvailable(*cluster)) {
+      emFrac = acc(*cluster);
+    } else if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+      ATH_MSG_ERROR("EM energy requested, but No EM fraction momement stored");
+      delete surface;
+      delete lp;
+      return nullptr;
+    }
+    energy *= emFrac;
+  }
   
   Trk::CaloClusterROI* ccROI = new  Trk::CaloClusterROI( lp, *surface, energy, widthPhi, widthEta );
   delete surface;

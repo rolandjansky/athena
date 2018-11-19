@@ -22,14 +22,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigDataAccess/TrigROBDataProviderSvc
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
-                          Control/CLIDSvc
-                          Control/SGTools
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigMonitoring/TrigMonitorBase
                           Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigSteer/TrigSteering )
+                          Trigger/TrigSteer/TrigOutputHandling )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -45,12 +43,12 @@ atlas_add_library( TrigServicesLib
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvcLib ByteStreamData EventInfo xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} SGTools AthenaPoolUtilities TrigSteering )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaPoolUtilities TrigOutputHandlingLib )
 
 atlas_add_component( TrigServices
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo xAODEventInfo GaudiKernel TrigKernel TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigSteeringEvent SGTools AthenaPoolUtilities TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib TrigServicesLib  TrigSteering )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo xAODEventInfo GaudiKernel TrigKernel TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigSteeringEvent AthenaPoolUtilities TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib TrigServicesLib  TrigOutputHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

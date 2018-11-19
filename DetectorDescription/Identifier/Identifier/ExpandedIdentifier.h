@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ExpandedIdentifier_h__
-#define __ExpandedIdentifier_h__
+#ifndef IDENTIFIER_EXPANDEDIDENTIFIER_H
+#define IDENTIFIER_EXPANDEDIDENTIFIER_H
 
 #include <vector>
 #include <string>
@@ -165,6 +165,7 @@ public:
     //----------------------------------------------------------------
   ExpandedIdentifier (const ExpandedIdentifier& other);
   ExpandedIdentifier& operator= (const ExpandedIdentifier& other);
+  ExpandedIdentifier& operator= (ExpandedIdentifier&& other);
 
     //----------------------------------------------------------------
     // Constructor from a subset of another ExpandedIdentifier
@@ -297,6 +298,18 @@ ExpandedIdentifier::operator= (const ExpandedIdentifier& other)
   if (this != &other) {
     set_last_error (none);
     m_fields = other.m_fields;
+  }
+  return *this;
+}
+
+//-----------------------------------------------
+inline
+ExpandedIdentifier&
+ExpandedIdentifier::operator= (ExpandedIdentifier&& other)
+{
+  if (this != &other) {
+    set_last_error (none);
+    m_fields = std::move(other.m_fields);
   }
   return *this;
 }

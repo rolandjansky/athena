@@ -35,7 +35,10 @@ void TFCSParametrizationEkinSelectChain::push_back_in_bin(TFCSParametrizationBas
 
 int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState &simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
-  // TODO: fail for random engines
+  if (!simulstate.randomEngine()) {
+    return -1;
+  }
+
   float Ekin=truth->Ekin();
   int bin=val_to_bin(Ekin);
   

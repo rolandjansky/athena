@@ -21,6 +21,8 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "TrackMatchSorter.h"
 #include "GaudiKernel/ToolHandle.h" 
+#include "GaudiKernel/EventContext.h"
+
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
 #include "TrkEventPrimitives/PropDirection.h"
@@ -46,15 +48,16 @@ class EMTrackMatchBuilder : public AthAlgTool, virtual public IEMTrackMatchBuild
   /** @brief Gaudi algorithm hooks*/
   StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg) const override final;
+  virtual StatusCode executeRec(const EventContext& ctx, egammaRec* eg) const override final;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const override final;
+  virtual StatusCode trackExecute(const EventContext& ctx, egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const override final;
 
 private:
 
   /** @brief Compute for tracks passing the loose matching
    the distance between track extrapolated to 2nd sampling and cluster */
-  bool inBroadWindow(std::vector<TrackMatch>&      trackMatches,
+  bool inBroadWindow(const EventContext& ctx,
+                     std::vector<TrackMatch>&      trackMatches,
                      const xAOD::CaloCluster*      cluster, 
                      int                           trackNumber,
                      bool                          isTRT,

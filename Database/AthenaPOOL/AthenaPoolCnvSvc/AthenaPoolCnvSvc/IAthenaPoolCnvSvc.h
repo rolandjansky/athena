@@ -51,7 +51,7 @@ public:
 		   const std::string& key = "") const = 0;
 
    /// Access to the technology type for the current output connection
-   virtual pool::DbType technologyType() const = 0;
+   virtual pool::DbType technologyType(const std::string& containerName) const = 0;
 
    /// @return pointer to PoolSvc instance.
    virtual IPoolSvc* getPoolSvc() = 0;
@@ -60,7 +60,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(const Placement* placement,
+   virtual const Token* registerForWrite(Placement* placement,
 	   const void* obj,
 	   const RootType& classDesc) const = 0;
 

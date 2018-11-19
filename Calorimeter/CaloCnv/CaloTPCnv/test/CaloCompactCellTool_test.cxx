@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCompactCellTool_test.cxx,v 1.12 2009-03-31 19:04:04 ssnyder Exp $
@@ -133,14 +133,14 @@ CaloCell_SuperCell_ID* make_sc_helper (IdDictParser* parser)
                                     "IdDictLArCalorimeter.xml");
   IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
   em_id->set_do_neighbours (false);
-  em_id->initialize_from_dictionary (idd);
-  hec_id->initialize_from_dictionary (idd);
+  assert (em_id->initialize_from_dictionary (idd) == 0);
+  assert (hec_id->initialize_from_dictionary (idd) == 0);
   fcal_id->set_do_neighbours (false);
-  fcal_id->initialize_from_dictionary (idd);
+  assert (fcal_id->initialize_from_dictionary (idd) == 0);
   minifcal_id->set_do_neighbours (false);
-  minifcal_id->initialize_from_dictionary (idd);
+  assert (minifcal_id->initialize_from_dictionary (idd) == 0);
   tile_id->set_do_neighbours (false);
-  tile_id->initialize_from_dictionary (idd);
+  assert (tile_id->initialize_from_dictionary (idd) == 0);
 
   CaloCell_SuperCell_ID* calo_helper =
     new CaloCell_SuperCell_ID (em_id,
@@ -148,7 +148,7 @@ CaloCell_SuperCell_ID* make_sc_helper (IdDictParser* parser)
                                fcal_id,
                                minifcal_id,
                                tile_id);
-  calo_helper->initialize_from_dictionary (idd);
+  assert (calo_helper->initialize_from_dictionary (idd) == 0);
   return calo_helper;
 }
 

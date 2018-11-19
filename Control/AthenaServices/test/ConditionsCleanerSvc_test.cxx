@@ -68,6 +68,8 @@ public:
                                   EventIDRange const**) const override { std::abort(); }
   virtual size_t nInserts() const override { std::abort(); }
   virtual size_t maxSize() const override { std::abort(); }
+  virtual StatusCode extendLastRange (const EventIDRange& /*newRange*/,
+                                      const EventContext& /*ctx*/) override { std::abort(); }
 
 private:
   RCUTest m_rcu;

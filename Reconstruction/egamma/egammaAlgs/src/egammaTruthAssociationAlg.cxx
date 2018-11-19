@@ -11,19 +11,14 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODTruth/xAODTruthHelpers.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleAuxContainer.h"
-#include "xAODTruth/TruthEventContainer.h"
 
-#include "egammaInterfaces/IEMExtrapolationTools.h"
-
+#include <memory>
 
 typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
 typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;  
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t;  
 typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;  
+
   
 // =============================================================
 egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name, 
@@ -45,13 +40,17 @@ StatusCode egammaTruthAssociationAlg::initialize() {
   ATH_CHECK(m_truthParticleContainerKey.initialize());
 
   // Now the standard decoration handles
-  ATH_CHECK(m_electronDecKeys.initializeDecorKeys(m_electronContainerName));
-  ATH_CHECK(m_photonDecKeys.initializeDecorKeys(m_photonContainerName));
+  ATH_CHECK(initializeDecorKeys(m_electronDecKeys, m_electronDecName));
+  ATH_CHECK(initializeDecorKeys(m_photonDecKeys, m_photonDecName));
   if (m_matchClusters) {
-    ATH_CHECK(m_clusterDecKeys.initializeDecorKeys(m_clusterContainerName));
+    ATH_CHECK(initializeDecorKeys(m_clusterDecKeys, m_clusterDecName));
+  } else {
+    m_clusterDecKeys.clear();
   }
   if (m_matchForwardElectrons){
-    ATH_CHECK(m_fwdElectronDecKeys.initializeDecorKeys(m_fwdElectronContainerName));
+    ATH_CHECK(initializeDecorKeys(m_fwdElectronDecKeys, m_fwdElectronDecName));
+  } else {
+    m_fwdElectronDecKeys.clear();
   }
 
   CHECK( m_mcTruthClassifier.retrieve() );
@@ -212,10 +211,73 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
   }
   return 0;
 }
+
+//// The templated functions
+
+// ==========================================================================
+template<class T> 
+StatusCode 
+egammaTruthAssociationAlg::initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
+					       std::string name)
+{
+  if (keys.size() != 0) {
+    ATH_MSG_FATAL("The WriteDecorHandle should not be configured directly.");
+    return StatusCode::FAILURE;
+  }
+  
+  keys.emplace_back(name + ".truthParticleLink");
+  keys.emplace_back(name + ".truthType");
+  keys.emplace_back(name + ".truthOrigin");
+  ATH_CHECK(keys.initialize());
+  return StatusCode::SUCCESS;
+}
+
+// ==========================================================================   
+// constructor
+template<class T> 
+egammaTruthAssociationAlg::writeDecorHandles<T>::writeDecorHandles(const SG::WriteDecorHandleKeyArray<T>& hkeys) :
+  el(hkeys.at(0)),
+  type(hkeys.at(1)),
+  origin(hkeys.at(2))
+{
+}
+
+
+// ==========================================================================   
+template<class T> egammaTruthAssociationAlg::MCTruthInfo_t 
+egammaTruthAssociationAlg::particleTruthClassifier(const T* particle, Cache *extrapolationCache) {
+  MCTruthInfo_t info;
+  IMCTruthClassifier::Info mcinfo;
+  mcinfo.extrapolationCache = extrapolationCache;
+  auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
+  info.genPart = mcinfo.genPart;
+  info.first = ret.first;
+  info.second = ret.second;
+  return info;
+}
+/** Template specialisation for electrons: 
+ * second pass based on the cluster to find true photons **/
+template<> egammaTruthAssociationAlg::MCTruthInfo_t 
+egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(const xAOD::Electron* electron, Cache *extrapolationCache) {
+  MCTruthInfo_t info;
+  IMCTruthClassifier::Info mcinfo;
+  mcinfo.extrapolationCache = extrapolationCache;
+  auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);
+  if (ret.first == MCTruthPartClassifier::Unknown &&
+      !xAOD::EgammaHelpers::isFwdElectron(electron) && electron->caloCluster()){
+    ATH_MSG_DEBUG("Trying cluster-based truth classification for electron");
+    ret = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster(), &mcinfo);
+  }
+  info.genPart = mcinfo.genPart;
+  info.first = ret.first;
+  info.second = ret.second;
+  return info;
+}
+
 // ==========================================================================   
 template<class T, class L> 
 StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& truthParticles,
-					    const egammaTruthAssociationAlg::writeDecorHandleKeys<T>& hkeys,
+					    const SG::WriteDecorHandleKeyArray<T>& hkeys,
 					    const SG::AuxElement::Accessor<L>& linkAccess,
 					    xAOD::TruthParticleContainer& egammaTruthContainer) {
 
@@ -270,62 +332,3 @@ StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& 
   }
   return StatusCode::SUCCESS;
 }
-
-// ==========================================================================
-// not a constructor
-template<class T> 
-StatusCode 
-egammaTruthAssociationAlg::writeDecorHandleKeys<T>::initializeDecorKeys(const std::string &name)
-{
-  keys[0] = name + ".truthParticleLink";
-  keys[1] = name + ".truthType";
-  keys[2] = name + ".truthOrigin";
-
-  for (auto& key : keys) {
-    ATH_CHECK(key.initialize());
-  }
-  return StatusCode::SUCCESS;
-}
-
-// ==========================================================================   
-// constructor
-template<class T> 
-egammaTruthAssociationAlg::writeDecorHandles<T>::writeDecorHandles(const egammaTruthAssociationAlg::writeDecorHandleKeys<T>& hkeys) :
-  el(hkeys.keys[0]),
-  type(hkeys.keys[1]),
-  origin(hkeys.keys[2])
-{
-}
-
-
-// ==========================================================================   
-template<class T> egammaTruthAssociationAlg::MCTruthInfo_t 
-egammaTruthAssociationAlg::particleTruthClassifier(const T* particle, Cache *extrapolationCache) {
-  MCTruthInfo_t info;
-  IMCTruthClassifier::Info mcinfo;
-  mcinfo.extrapolationCache = extrapolationCache;
-  auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
-  info.genPart = mcinfo.genPart;
-  info.first = ret.first;
-  info.second = ret.second;
-  return info;
-}
-/** Template specialisation for electrons: 
- * second pass based on the cluster to find true photons **/
-template<> egammaTruthAssociationAlg::MCTruthInfo_t 
-egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(const xAOD::Electron* electron, Cache *extrapolationCache) {
-  MCTruthInfo_t info;
-  IMCTruthClassifier::Info mcinfo;
-  mcinfo.extrapolationCache = extrapolationCache;
-  auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);
-  if (ret.first == MCTruthPartClassifier::Unknown &&
-      !xAOD::EgammaHelpers::isFwdElectron(electron) && electron->caloCluster()){
-    ATH_MSG_DEBUG("Trying cluster-based truth classification for electron");
-    ret = m_mcTruthClassifier->particleTruthClassifier( electron->caloCluster(), &mcinfo);
-  }
-  info.genPart = mcinfo.genPart;
-  info.first = ret.first;
-  info.second = ret.second;
-  return info;
-}
-

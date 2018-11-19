@@ -7,6 +7,12 @@ from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
 
 def collectHypos( steps ):
+    """ 
+    Method iterating over the CF and picking all the Hypothesis algorithms
+
+    Returned is a map with the step name and list of all instances of hypos in that step.
+    Input is top HLT sequencer.
+    """
     __log.info("Collecting hypos")
     from collections import defaultdict
     hypos = defaultdict( list )
@@ -27,18 +33,82 @@ def collectHypos( steps ):
                     hypos[stepSeq.name()].append( alg )
     return hypos
 
+def __decisionsFromHypo( hypo ):
+    """ return all chains served by this hypo and the key of produced decision object """
+    if hypo.getType() == 'ComboHypo':
+        return hypo.MultiplicitiesMap.keys(), hypo.HypoOutputDecisions[0]            
+    else: # regular hypos
+        return [ t.name() for t in hypo.HypoTools ], hypo.HypoOutputDecisions
+
+
+
+def collectFilters( steps ):
+    """
+    Similarly to collectHypos but works for filter algorithms    
+
+    The logic is simpler as all filters are grouped in step filter sequences    
+    Returns map: step name -> list of all filters of that step
+    """    
+    __log.info("Collecting hypos")
+    from collections import defaultdict
+    filters = defaultdict( list )
+
+    for stepSeq in steps.getChildren():
+        if "filter" in stepSeq.name():
+            filters[stepSeq.name()] = stepSeq.getChildren()
+    return filters
+
+
+def collectDecisionObjects( steps, l1decoder ):
+    """
+    Returns the set of all decision objects of HLT
+    """
+    decisionObjects = set()
+    __log.info("Collecting decision obejcts from L1 decoder instance")
+    decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
+    decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ]) 
+
+    
+    __log.info("Collecting decision obejcts from hypos")
+    hypos = collectHypos( steps )
+    __log.info(hypos)
+    for s, sh in hypos.iteritems():
+        for hypo in sh:
+            print hypo
+            decisionObjects.add( hypo.HypoInputDecisions )
+            decisionObjects.add( hypo.HypoOutputDecisions )
+        
+    __log.info("Collecting decision obejcts from filters")
+    filters = collectFilters( steps )
+    for step, stepFilters in filters.iteritems():
+        for filt in stepFilters:
+            decisionObjects.update( filt.Input )
+            decisionObjects.update( filt.Output )
+    
+    return decisionObjects
+
+    
 def triggerSummaryCfg(flags, hypos):
     """ 
     Configures an algorithm(s) that should be run after the slection process
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
-    
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-    summaryAlg = TriggerSummaryAlg()
-    summaryAlg.InputDecision = "HLTChains"
+    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    decisionSummaryAlg = DecisionSummaryMakerAlg()
+    allChains = {}
+    for stepName, stepHypos in sorted( hypos.items() ):
+        for hypo in stepHypos:
+            hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
+            allChains.update( dict.fromkeys( hypoChains, hypoOutputKey ) ) 
+
+    for c, cont in allChains.iteritems():
+        __log.info("Final decision of chain  " + c + " will be red from " + cont ) 
+    decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
+    decisionSummaryAlg.FinalStepDecisions = allChains
+    return acc, decisionSummaryAlg
         
-    return acc, summaryAlg
+
 
 def triggerMonitoringCfg(flags, hypos, l1Decoder):
     """
@@ -51,35 +121,24 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    allChains = {} # collects the last decision obj for each chain
+    allChains = set() # collects the last decision obj for each chain
 
     for stepName, stepHypos in sorted( hypos.items() ):
-        decisions = []
+        stepDecisionKeys = []
         for hypo in stepHypos:
-
-
-            if hypo.getType() == 'ComboHypo':
-                decisions.append( hypo.HypoOutputDecisions[0] )
-                for chain, m in hypo.MultiplicitiesMap.iteritems():
-                    allChains[chain] = hypo.HypoOutputDecisions[0]
-            
-            else: # regular hypos
-                decisions.append( hypo.HypoOutputDecisions )
-                for t in hypo.HypoTools:
-                    allChains[t.name()] = hypo.HypoOutputDecisions
-
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=decisions )
+            hypoChains, hypoOutputKey  = __decisionsFromHypo( hypo )
+            stepDecisionKeys.append( hypoOutputKey )
+            allChains.update( hypoChains )                              
+        
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=stepDecisionKeys )
         __log.info( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
     
-    mon.FinalChainStep = allChains
-    mon.FinalDecisions = list( set( allChains.values() ) )
+    #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['Chains'] if l1Decoder.getProperties()['Chains'] != '<no value>' else l1Decoder.getDefaultProperty('Chains')
-    __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )    
-    mon.ChainsList = list( set( allChains.keys() + l1Decoder.ChainToCTPMapping.keys()) )
-
-    
+    allChains.update( l1Decoder.ChainToCTPMapping.keys() )
+    mon.ChainsList = list( allChains )    
     return acc, mon
 
 def setupL1DecoderFromMenu( flags, l1Decoder ):
@@ -112,9 +171,11 @@ def triggerRunCfg(flags, menu=None):
 
     # detour to the menu here, (missing now, instead a temporary hack)
     if menu:
-        menuAcc, HLTSteps = menu( flags )
+        menuAcc = menu( flags )
+        HLTSteps = menuAcc.getSequence( "HLTAllSteps" )
         __log.info( "Configured menu with "+ str( len(HLTSteps.getChildren()) ) +" steps" )
-        
+    
+    
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )           
     
@@ -125,10 +186,16 @@ def triggerRunCfg(flags, menu=None):
     
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
     acc.merge( monitoringAcc )
+
+    decObj = collectDecisionObjects( HLTSteps, l1DecoderAlg )
+    __log.info( "Number of decision objects found in HLT CF %d" % len( decObj ) )
+    __log.info( str( decObj ) )
     
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
     acc.addSequence( HLTTop )
 
+    
+    
     acc.merge( menuAcc )
     
     return acc
@@ -153,8 +220,13 @@ if __name__ == "__main__":
     ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = True
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()    
+
+    def testMenu(flags):
+        menuCA = ComponentAccumulator()
+        menuCA.addSequence( seqAND("HLTAllSteps") )
+        return menuCA
     
-    acc = triggerRunCfg( ConfigFlags, lambda x: (ComponentAccumulator(), seqAND("whatever") ) )
+    acc = triggerRunCfg( ConfigFlags, testMenu )
 
     f=open("TriggerRunConf.pkl","w")
     acc.store(f)

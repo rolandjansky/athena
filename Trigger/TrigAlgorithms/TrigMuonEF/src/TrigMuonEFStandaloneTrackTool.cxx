@@ -88,7 +88,8 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_trackBuilderTool("Muon::MuonTrackSteering/TMEF_TracksBuilderTool",this),
     m_trackSummaryTool("Trk::TrackSummaryTool/MuidTrackSummaryTool"),
-    m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
+    m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool"),
+    m_rpcRawDataProvider("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
     m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
     m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),
     m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
@@ -109,7 +110,6 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_useRpcSeededDecoding(false),
     m_useTgcSeededDecoding(false),
     m_useCscSeededDecoding(false),
-    m_useMdtRobDecoding(false),
     m_useTgcRobDecoding(false),
     m_useCscRobDecoding(false),
     m_doTimeOutChecks(false),
@@ -159,7 +159,8 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("MuonCandidateTool",   m_muonCandidateTool);
   declareProperty("TrackToTrackParticleConvTool", m_TrackToTrackParticleConvTool);
 
-  declareProperty ("RawDataProviderTool",m_rawDataProviderTool);
+  declareProperty ("MdtRawDataProvider",m_mdtRawDataProvider);
+  declareProperty ("RpcRawDataProvider",m_rpcRawDataProvider);
 
   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
   declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
@@ -180,7 +181,6 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("useRpcSeededDecoding",    m_useRpcSeededDecoding );
   declareProperty("useTgcSeededDecoding",    m_useTgcSeededDecoding );
   declareProperty("useCscSeededDecoding",    m_useCscSeededDecoding );
-  declareProperty("useMdtRobDecoding",       m_useMdtRobDecoding );
   declareProperty("useTgcRobDecoding",       m_useTgcRobDecoding );
   declareProperty("useCscRobDecoding",       m_useCscRobDecoding );
 
@@ -233,7 +233,9 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     msg() << MSG::DEBUG
 	  << "TrackBuilderTool               " << m_trackBuilderTool << endmsg;
     msg() << MSG::DEBUG
-	  << "RawDataProviderTool            " << m_rawDataProviderTool << endmsg;
+	  << "MdtRawDataProvider             " << m_mdtRawDataProvider << endmsg;
+    msg() << MSG::DEBUG
+	  << "RpcRawDataProvider             " << m_rpcRawDataProvider << endmsg;
     msg() << MSG::DEBUG
 	  << "CscPrepDataProvider            " << m_cscPrepDataProvider << endmsg;
     msg() << MSG::DEBUG
@@ -265,14 +267,14 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     msg() << MSG::DEBUG
 	  << "useCscSeededDecoding           " << m_useCscSeededDecoding << endmsg;
     msg() << MSG::DEBUG
-	  << "useMdtRobDecoding           " << m_useMdtRobDecoding << endmsg;
-    msg() << MSG::DEBUG
 	  << "useTgcRobDecoding           " << m_useTgcRobDecoding << endmsg;
     msg() << MSG::DEBUG
 	  << "useCscRobDecoding           " << m_useCscRobDecoding << endmsg;
 
     msg() << MSG::DEBUG
-          << m_decodeBS.name() << "          " << m_decodeBS << endmsg;
+          << m_decodeMdtBS.name() << "       " << m_decodeMdtBS << endmsg;
+    msg() << MSG::DEBUG
+          << m_decodeRpcBS.name() << "       " << m_decodeRpcBS << endmsg;
     msg() << MSG::DEBUG
 	  << "doTimeOutChecks                " << m_doTimeOutChecks << endmsg;
     msg() << MSG::DEBUG
@@ -305,12 +307,21 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Retrieve raw data provider tool (for RPCs) if needed
-  if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isSuccess()) {
-    msg (MSG::INFO) << "Retrieved " << m_rawDataProviderTool << endmsg;
+  // Retrieve MDT raw data provider tool if needed
+  if (m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeMdtBS }).isSuccess()) {
+    msg (MSG::INFO) << "Retrieved " << m_mdtRawDataProvider << endmsg;
   }
   else {
-    msg (MSG::FATAL) << "Could not get " << m_rawDataProviderTool << endmsg;
+    msg (MSG::FATAL) << "Could not get " << m_mdtRawDataProvider << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  // Retrieve RPC raw data provider tool if needed
+  if (m_rpcRawDataProvider.retrieve(DisableTool{ !m_decodeRpcBS }).isSuccess()) {
+    msg (MSG::INFO) << "Retrieved " << m_rpcRawDataProvider << endmsg;
+  }
+  else {
+    msg (MSG::FATAL) << "Could not get " << m_rpcRawDataProvider << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -879,9 +890,8 @@ if (m_useMdtData>0) {
   
   if (m_useRpcData && !rpc_hash_ids.empty()) {// RPC decoding
     if (m_useRpcSeededDecoding) {// seeded decoding of RPC
-
-      if(m_decodeBS) { 
-        if (m_rawDataProviderTool->convert( getRpcRobList(muonRoI) ).isSuccess()) {
+      if(m_decodeRpcBS) {// bytestream conversion
+        if (m_rpcRawDataProvider->convert( getRpcRobList(muonRoI) ).isSuccess()) {
           ATH_MSG_DEBUG("RPC BS conversion for ROB-based seeded PRD decoding done successfully");
         } else {
           ATH_MSG_WARNING("RPC BS conversion for ROB-based seeded PRD decoding failed");
@@ -896,7 +906,7 @@ if (m_useMdtData>0) {
     }
     else {// full decoding of RPC
 
-      if (m_rawDataProviderTool->convert().isSuccess()) {
+      if (m_rpcRawDataProvider->convert().isSuccess()) {
 	ATH_MSG_DEBUG("RPC BS conversion for full decoding done successfully");
       } else {
 	ATH_MSG_WARNING("RPC BS conversion for full decoding failed");
@@ -919,34 +929,25 @@ if (m_useMdtData>0) {
   
   if (m_useMdtData && !mdt_hash_ids.empty()) {// MDT decoding
     if (m_useMdtSeededDecoding) {// seeded decoding of MDT
-      if (m_useMdtRobDecoding) {// ROB-based seeded decoding of MDT
-        
-        if (m_mdtPrepDataProvider->decode( getMdtRobList(muonRoI) ).isSuccess()) {
-          ATH_MSG_DEBUG("ROB-based seeded decoding of MDT done successfully");
-        } else {
-          ATH_MSG_WARNING("ROB-based seeded decoding of MDT failed");
-        }
-        
+      if(m_decodeMdtBS) {// bytestream conversion
+	if (m_mdtRawDataProvider->convert( getMdtRobList(muonRoI) ).isSuccess()) {
+	  ATH_MSG_DEBUG("MDT BS conversion for ROB-based seeded PRD decoding done successfully");
+	} else {
+	  ATH_MSG_WARNING("MDT BS conversion for ROB-based seeded PRD decoding failed");
+	}
       }
-      else {// PRD-based seeded decoding of MDT
-        
-        if(m_mdtPrepDataProvider->decode(mdt_hash_ids, hash_ids_withData).isSuccess()) {
-          ATH_MSG_DEBUG("PRD-based seeded decoding of MDT done successfully");
-#if DEBUG_ROI_VS_FULL
-          sanity_check(mdt_hash_ids, hash_ids_withData, m_fileWithHashIds_mdt);
-#endif
-          mdt_hash_ids.clear();
-          mdt_hash_ids_cache.clear();
-          mdt_hash_ids = hash_ids_withData;
-          ATH_MSG_DEBUG("MdtHashId vector resized to " << mdt_hash_ids.size());
-        } else {
-          ATH_MSG_WARNING("PRD-based seeded decoding of RPC failed");
-        }
-        
+      if (m_mdtPrepDataProvider->decode( getMdtRobList(muonRoI) ).isSuccess()) {
+	ATH_MSG_DEBUG("ROB-based seeded decoding of MDT done successfully");
+      } else {
+	ATH_MSG_WARNING("ROB-based seeded decoding of MDT failed");
       }
-    }
-    else {// full decoding of MDT
-      
+    } else {// full decoding of MDT
+      if (m_mdtRawDataProvider->convert().isSuccess()) {
+	ATH_MSG_DEBUG("MDT BS conversion for full decoding done successfully");
+      } else {
+	ATH_MSG_WARNING("MDT BS conversion for full decoding failed");
+      }
+
       std::vector<IdentifierHash> input_hash_ids;
       input_hash_ids.reserve(0);
       if(m_mdtPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess()) {

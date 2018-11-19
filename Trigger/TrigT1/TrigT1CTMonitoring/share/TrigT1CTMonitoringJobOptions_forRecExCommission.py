@@ -274,5 +274,5 @@ if not isOnline:
         conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
     # monMan.AthenaMonTools += [ "TrigT1CTMonitoring__BSMonitoring/BSMon" ]
-    ToolSvc += CTBSMonTool
+    #ToolSvc += CTBSMonTool
     monMan.AthenaMonTools += [ CTBSMonTool ]

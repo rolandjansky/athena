@@ -7,8 +7,7 @@ atlas_subdir( TrackRecord )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Simulation/HitManagement
                           PRIVATE
                           Database/AtlasSealCLHEP )
@@ -22,7 +21,7 @@ atlas_add_dictionary( TrackRecordDict
                       TrackRecord/TrackRecordDict.h
                       TrackRecord/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} SGTools HitManagement )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel HitManagement )
 
 # Install files from the package:
 atlas_install_headers( TrackRecord )

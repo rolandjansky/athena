@@ -23,6 +23,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/Vertex.h"
 #include "PathResolver/PathResolver.h"
+#include "GaudiKernel/EventContext.h"
 #include "TEnv.h"
 #include <cstdint>
 //=============================================================================
@@ -30,18 +31,17 @@
 //=============================================================================
 AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string myname) :
   AsgTool(myname),
-  m_configFile(""),
-  m_rootForwardTool(0)
+  m_configFile{""},
+  m_rootForwardTool{nullptr},
+  m_primVtxContKey{"PrimaryVertices"}
 {
   m_rootForwardTool = new Root::TForwardElectronIsEMSelector(myname.c_str());
 
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
-  declareProperty("ConfigFile",m_configFile="",
-		  "The config file to use (if not setting cuts one by one)");
-
+  declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
+  declareProperty("primaryVertexContainer", m_primVtxContKey="PrimaryVertices", "The primary vertex container name" );
 
   // Name of the quality to use
   declareProperty("isEMMask",
@@ -87,7 +87,7 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if(!m_WorkingPoint.empty()){
+ if(!m_WorkingPoint.empty()){
     m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::ForwardElectronCutPointToConfFile);
   }
   
@@ -95,19 +95,15 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
     if(filename=="")
-      { 
-	ATH_MSG_ERROR("Could not locate " << m_configFile );
-	sc = StatusCode::FAILURE;
-	return sc;      
-      } 
+    { 
+        ATH_MSG_ERROR("Could not locate " << m_configFile );
+        sc = StatusCode::FAILURE;
+        return sc;      
+    } 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
     TEnv env(filename.c_str());
 
-    // Setup primary vertex key handle
-    m_primVtxContKey = m_primVtxContName;
-    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
-
-    
+        
     ///------- Read in the TEnv config ------///
 
     //Override the mask via the config only if it is not set 
@@ -130,6 +126,8 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
 
+  ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+ 
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootForwardTool->m_isEMMask  );
 
   // Get the message level and set the underlying ROOT tool message level accordingly
@@ -170,11 +168,16 @@ const asg::AcceptInfo& AsgForwardElectronIsEMSelector::getAcceptInfo() const
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
 asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
+AsgForwardElectronIsEMSelector::accept(const xAOD::IParticle* part ) const{
+  return accept(Gaudi::Hive::currentContext(), part);
+}
+
+asg::AcceptData
+AsgForwardElectronIsEMSelector::accept(const EventContext& ctx, const xAOD::IParticle* part ) const{
 
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
-    return accept(static_cast<const xAOD::Egamma*> (part));
+    return accept(ctx, static_cast<const xAOD::Egamma*> (part));
   }
   else{
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::could not convert argument to Electron/Photon");
@@ -183,12 +186,12 @@ AsgForwardElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
 }
 
 asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Egamma* eg ) const{
 
-  ATH_MSG_DEBUG("Entering accept( const Egamma* part )");  
+  ATH_MSG_DEBUG("Entering accept( const Egamma* part )");
   if ( eg ){
     unsigned int isEM = ~0;
-    StatusCode sc = execute(eg, isEM);
+    StatusCode sc = execute(ctx, eg, isEM);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("could not calculate isEM");
       return m_rootForwardTool->accept();
@@ -202,15 +205,15 @@ AsgForwardElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
 }
 
 asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::Electron* el) const{
-  ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
-  return accept(static_cast<const xAOD::Egamma*> (el));
+AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Electron* el) const{
+  ATH_MSG_DEBUG("Entering accept( const EventContext& ctx, const Electron* part )");
+  return accept(ctx, static_cast<const xAOD::Egamma*> (el));
 }
 
 asg::AcceptData
-AsgForwardElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
-  ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
-  return accept(static_cast<const xAOD::Egamma*> (ph));  
+AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Photon* ph) const{
+  ATH_MSG_DEBUG("Entering accept( const EventContext& ctx, const Photon* part )");
+  return accept(ctx, static_cast<const xAOD::Egamma*> (ph));
 }
 
 //=============================================================================
@@ -227,9 +230,7 @@ std::string AsgForwardElectronIsEMSelector::getOperatingPointName() const
 }
 
 ///==========================================================================================//
-
-// ==============================================================
-StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM) const{
+StatusCode AsgForwardElectronIsEMSelector::execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const{
   //
   // Particle identification for electrons based on cuts
   //
@@ -254,7 +255,7 @@ StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsig
   }
 
 
-  float nvtx = static_cast<int>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+  float nvtx = static_cast<int>(m_usePVCont ? this->getNPrimVertices(ctx) : m_nPVdefault);
   float eta = fabs(cluster->etaBE(2)) ;
 
   //see if we have an electron, with track, for eta 
@@ -329,10 +330,10 @@ unsigned int AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egam
 //// ( This is horrible! We don't want to iterate over all vertices in the event for each electron!!! 
 ////   This is slow!)
 ////=============================================================================
-unsigned int AsgForwardElectronIsEMSelector::getNPrimVertices() const
+unsigned int AsgForwardElectronIsEMSelector::getNPrimVertices(const EventContext& ctx) const
 {
   unsigned int nVtx(0);
-  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey); 
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey, ctx); 
   for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
       const xAOD::Vertex* vtxcand = vtxCont->at(i);
       if ( vtxcand->nTrackParticles() >= 3 ) nVtx++;

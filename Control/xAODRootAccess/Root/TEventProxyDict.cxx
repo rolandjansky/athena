@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TEventProxyDict.cxx 796514 2017-02-10 04:33:07Z ssnyder $
@@ -111,12 +111,6 @@ namespace xAODPrivate {
 
          // Return the pointer:
          return const_cast< void* >( result );
-      }
-
-      /// Clone the current bucket
-      DataBucketBase* clone() const override {
-
-         return new THolderBucket( m_key, m_ti, m_event );
       }
 
       /// Give up ownership of the bucket's contents. A no-op.

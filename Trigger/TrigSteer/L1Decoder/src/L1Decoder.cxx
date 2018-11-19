@@ -36,6 +36,8 @@ StatusCode L1Decoder::initialize() {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
 
+  ATH_CHECK( m_trigFSRoIKey.initialize() ) ;
+
   return StatusCode::SUCCESS;
 }
 
@@ -117,7 +119,16 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   for ( auto unpacker: m_rerunRoiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, rerunChainSet ) );
   }
-  
+
+  {
+    std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
+    TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
+    fsRoIsColl->push_back( fsRoI );
+   
+    auto handle = SG::makeHandle( m_trigFSRoIKey, ctx );
+    ATH_CHECK( handle.record ( std::move( fsRoIsColl ) ) );
+  }
+
 
   ATH_MSG_DEBUG("Recording chains");
 

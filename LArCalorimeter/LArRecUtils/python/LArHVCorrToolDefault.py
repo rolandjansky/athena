@@ -37,6 +37,7 @@ def LArHVCorrToolDefault (name="LArHVCorrToolDefault", **kw):
         tool.doTdrift = False
         tool.DeltaTupdate = 0 # seconds (if 0, no time-dependent update applied)
         #tool.OutputLevel = 2 # 2 = DEBUG 
+        mlog.info("in data case")
 
         # example to force some HV corection factors for some regions
         # tool.fixHVCorr = ["1 1 3 2.1 2.3 0.1963 0.3926 2.","1 1 3 2.1 2.3 0.7854 0.98175 2.","1 1 3 2.1 2.3 1.7672 1.9635 2.","1 1 3 -2.5 -2.3 1.3745 1.5708 2."]

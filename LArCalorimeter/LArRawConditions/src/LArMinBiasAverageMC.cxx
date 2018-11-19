@@ -32,21 +32,8 @@ LArMinBiasAverageMC::~LArMinBiasAverageMC() {}
  */
 const float& LArMinBiasAverageMC::minBiasAverage(const HWIdentifier& CellID) const 
 { 
-
   // symmetrize CellID for MC usage
   HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  
   return LArMinBiasAverageComplete::minBiasAverage(SymCellID); 
-
 }
 
-const float& LArMinBiasAverageMC::minBiasAverage(const Identifier&  CellID) const
-{
-  
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
-  return LArMinBiasAverageComplete::minBiasAverage(SymCellID);
-
-
-}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -34,6 +34,7 @@
 #include "EventInfo/EventInfo.h"
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GaudiKernel/IThreadInitTool.h"
 
 // call_once mutexes
 #include <mutex>
@@ -105,6 +106,9 @@ StatusCode G4AtlasAlg::initialize()
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
+
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
 
   ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
@@ -247,6 +251,20 @@ StatusCode G4AtlasAlg::execute()
   static int n_Event=0;
   ATH_MSG_DEBUG("++++++++++++  G4AtlasAlg execute  ++++++++++++");
 
+#ifdef G4MULTITHREADED
+  // In some rare cases, TBB may create more physical worker threads than
+  // were requested via the pool size.  This can happen at any time.
+  // In that case, those extra threads will not have had the thread-local
+  // initialization done, leading to a crash.  Try to detect that and do
+  // the initialization now if needed.
+  if (G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume() == nullptr)
+  {
+    ToolHandle<IThreadInitTool> ti ("G4ThreadInitTool", nullptr);
+    ATH_CHECK( ti.retrieve() );
+    ti->initThread();
+  }
+#endif
+
   n_Event += 1;
 
   if (n_Event<=10 || (n_Event%100) == 0) {
@@ -275,10 +293,6 @@ StatusCode G4AtlasAlg::execute()
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
-  if(!m_senDetTool) {
-    // FIXME temporary lazy init. To be (re)moved
-    ATH_CHECK(m_senDetTool.retrieve());
-  }
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   SG::ReadHandle<McEventCollection> inputTruthCollection(m_inputTruthCollectionKey);
@@ -345,10 +359,6 @@ StatusCode G4AtlasAlg::execute()
 
   // Register all of the collections if there are any new-style SDs
   ATH_CHECK(m_senDetTool->EndOfAthenaEvent());
-  if(!m_fastSimTool) {
-    // FIXME temporary lazy init. To be (re)moved
-    ATH_CHECK(m_fastSimTool.retrieve());
-  }
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   ATH_CHECK( m_truthRecordSvc->releaseEvent() );

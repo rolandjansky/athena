@@ -1,17 +1,13 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-//Dear emacs, this is -*-c++-*-
-
 #ifndef LARRAWCONDITIONS_LARAUTOCORRCOMPLETE_H
 #define LARRAWCONDITIONS_LARAUTOCORRCOMPLETE_H
 
 #include "LArElecCalib/ILArAutoCorr.h" 
 #include "LArRawConditions/LArAutoCorrP1.h"
 #include "LArRawConditions/LArConditionsContainer.h"
-
-class LArCablingService ;
 
 /** This class implements the ILArAutoCorr interface
  *
@@ -26,8 +22,6 @@ class LArCablingService ;
  *      use LArRampP. 
  */
 
-
-
 class LArAutoCorrComplete: public ILArAutoCorr,
 			   public LArConditionsContainer<LArAutoCorrP1>{
   
@@ -41,10 +35,7 @@ class LArAutoCorrComplete: public ILArAutoCorr,
   virtual ~LArAutoCorrComplete( );
   
   // retrieving AutoCorr 
-  
   virtual AutoCorrRef_t autoCorr(const HWIdentifier&  CellID, int gain) const ;
-
-  virtual AutoCorrRef_t autoCorr(const Identifier&  CellID, int gain) const ;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)

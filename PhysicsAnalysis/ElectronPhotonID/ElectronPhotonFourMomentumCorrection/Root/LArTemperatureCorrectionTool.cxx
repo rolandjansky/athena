@@ -20,7 +20,9 @@ LArTemperatureCorrectionTool::LArTemperatureCorrectionTool(std::string filename)
   if (!m_file or m_file->IsZombie()) { ATH_MSG_ERROR("cannot open file"); }
 
   m_tree = dynamic_cast<TTree*>(m_file->Get("temperature"));
-  if (!m_tree) { ATH_MSG_FATAL("cannot find tree"); }
+  if ( m_tree == nullptr ) { 
+    throw std::runtime_error( "cannot find tree" );
+  }
 
   Int_t t_run = 0;
   m_tree->SetBranchAddress("run", &t_run);

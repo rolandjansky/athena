@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
@@ -47,7 +48,6 @@ StatusCode HiveMgrSvc::clearStore(size_t slotIndex) {
   if (slotIndex < m_nSlots) {
     rc=m_slots[slotIndex].pEvtStore->clearStore();
     if (rc.isSuccess()) debug() << "cleared store " << slotIndex << endmsg;
-    m_freeSlots++;
   }    
   if (!rc.isSuccess()) error() << "could not clear store " << slotIndex << endmsg;
   return rc;
@@ -67,6 +67,7 @@ StatusCode HiveMgrSvc::setNumberOfStores(size_t slots) {
     m_slots.resize(slots);
     m_nSlots = slots;
     m_freeSlots.store(slots);
+    Gaudi::Concurrency::ConcurrencyFlags::setNumConcEvents( slots );
     return StatusCode::SUCCESS;
   }
 }
@@ -111,8 +112,14 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
  */
 StatusCode HiveMgrSvc::freeStore( size_t slotIndex ) {
   if (slotIndex < m_nSlots) {
-    m_slots[slotIndex].eventNumber = -1;
-    debug() << "Freed slot " << slotIndex << endmsg;
+    if (m_slots[slotIndex].eventNumber == -1) {
+      debug() << "Slot " << slotIndex << " is already free" << endmsg;
+    }
+    else {
+      m_slots[slotIndex].eventNumber = -1;
+      m_freeSlots++;
+      debug() << "Freed slot " << slotIndex << endmsg;
+    }
     return StatusCode::SUCCESS;
   } else {
     error() << "no slot at " << slotIndex << endmsg;
@@ -135,18 +142,6 @@ size_t HiveMgrSvc::getPartitionNumber(int evtNumber) const {
 
 size_t HiveMgrSvc::freeSlots() {
   return m_freeSlots;
-}
-
-
-DataObjIDColl HiveMgrSvc::getNewDataObjects() {
-  // FIXME: to be removed
-  DataObjIDColl products;
-  return products;
-}
-
-void HiveMgrSvc::addNewDataObjects( DataObjIDColl& /*products*/ ){
-  // FIXME
-  error() << "addNewDataObjects(...) not implemented!" << endmsg;
 }
 
 bool HiveMgrSvc::exists( const DataObjID& id) {
@@ -212,6 +207,8 @@ StatusCode HiveMgrSvc::initialize() {
   }
   
   m_freeSlots.store( m_nSlots );
+  Gaudi::Concurrency::ConcurrencyFlags::setNumConcEvents( m_nSlots );
+
   return selectStore(0);
 }
 

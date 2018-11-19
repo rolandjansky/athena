@@ -17,7 +17,7 @@
 
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
-
+#include "GaudiKernel/EventContext.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
@@ -36,6 +36,18 @@ class IAsgForwardElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
 
   /// Virtual Destructor
   virtual ~IAsgForwardElectronIsEMSelector() {};
+  virtual  StatusCode execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const = 0;
+  
+  virtual asg::AcceptData accept( const xAOD::IParticle* part) const = 0 ;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part) const = 0 ;
+
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* part) const = 0 ;
+
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Photon* part ) const = 0 ;
+
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* part ) const = 0 ;
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName() const = 0;
 
 
 }; // End: class definition

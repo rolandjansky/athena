@@ -1,7 +1,6 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  *   */
-
 
 /*
  *  NAME:     HLTCaloCellMaker.cxx
@@ -18,15 +17,16 @@
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
+    m_tileEMScaleKey ("TileEMScale"),
     m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name ),
     m_roiMode(true)
 {
   declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
   declareProperty("CellsVName", m_cellContainerVKey = std::string("CellsVClusters"), "Calo cells container");
   declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cells container");
-  declareProperty("FullScanCells", m_fullScanCellsKey = std::string("FullScanCells"), "Full scan cells container");
   declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
   declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
+  declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
 }
 
 HLTCaloCellMaker::~HLTCaloCellMaker()
@@ -35,13 +35,11 @@ HLTCaloCellMaker::~HLTCaloCellMaker()
 
 StatusCode HLTCaloCellMaker::initialize() {
   ATH_CHECK( m_roiCollectionKey.initialize() );
-  if ( m_roiMode ){ 
+  if ( m_roiMode ) 
     ATH_CHECK( m_cellContainerKey.initialize() );
-  } else {
+  else
     ATH_CHECK( m_cellContainerVKey.initialize() );
-    ATH_CHECK( m_fullScanCellsKey.initialize() );
-  }
-  
+  ATH_CHECK( m_tileEMScaleKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
@@ -61,73 +59,39 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
         ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
-        auto ss = cellContainer.record( std::move(cdv) );
-        ATH_CHECK( ss );
+
       } else {
-        LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
-        for( const auto cell : sel ) {cdv->push_back( cell ); }
+	LArTT_Selector<LArCellCont> sel;
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
+	for( const auto cell : sel ) {cdv->push_back( cell ); }
       }
-      auto ss = cellContainer.record( std::move(cdv));
+      auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
       return StatusCode::SUCCESS;
     }
-    
+
   } else {
-    /*
     SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > cellContainerV( m_cellContainerVKey, context );
     auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainerVector> >();
     ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
-        auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
-        ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
-        cellContainerV->push_back( c.release()->asDataVector() );
+	auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
+	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
+	cellContainerV->push_back( c.release()->asDataVector() );
 		
       } else {
-        LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
-        auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
-        int cc(0);
-        for( const auto cell : sel ) {c->push_back( cell ); cc++;}
-        cellContainerV->push_back( c.release()->asDataVector() );
-        }
-      }
-    }
-    */
-  
-    SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > cellContainerV( m_cellContainerVKey, context );
-    auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainerVector> >();
-    ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
-
-    bool fullScanSeen{false};
-    for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
-      if ( roiDescriptor->isFullscan() and !fullScanSeen) {
-        fullScanSeen = true;
-        ATH_CHECK(writeFullScan(context));
-      } else { // either not full scan or full scan already written out
-        LArTT_Selector<LArCellCont> sel;
-        ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
-        auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
-        int cc(0);
-        for( const auto cell : sel ) {c->push_back( cell ); cc++;}
-        cellContainerV->push_back( c.release()->asDataVector() );
+	LArTT_Selector<LArCellCont> sel;
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
+	auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
+	int cc(0);
+	for( const auto cell : sel ) {c->push_back( cell ); cc++;}
+	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }
   }
+
+
    
-  return StatusCode::SUCCESS;
-}
-
-StatusCode HLTCaloCellMaker::writeFullScan(const EventContext& context) const {
-
-  CaloCellContainer* cellContainer = new CaloCellContainer();
-  
-  ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, cellContainer));
-  cellContainer->updateCaloIterators();
-  
-  SG::WriteHandle<CaloCellContainer> w_handle =
-    SG::WriteHandle<CaloCellContainer>(m_fullScanCellsKey, context);
-  ATH_CHECK(w_handle.record(std::move(std::unique_ptr<CaloCellContainer>(cellContainer))));
   return StatusCode::SUCCESS;
 }

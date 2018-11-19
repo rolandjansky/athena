@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -67,7 +67,7 @@ TileBeamElem::operator std::string() const
 {
     std::ostringstream text(std::ostringstream::out);
 
-    text << (std::string) (*(TileRawData *)this);
+    text << TileRawData::operator std::string();
 
     TileRawData::print_to_stream(m_digits," Val:",text);
 

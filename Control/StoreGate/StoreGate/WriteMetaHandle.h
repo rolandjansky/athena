@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_WRITEMETAHANDLE_H
@@ -45,7 +45,7 @@ namespace SG {
     
   private:
 
-    const MetaContBase::SourceID& m_sid;
+    const MetaContBase::SourceID m_sid;
     MetaCont<T>* m_cont {nullptr};
     StoreGateSvc* m_cs {nullptr};
 
@@ -66,7 +66,7 @@ namespace SG {
   WriteMetaHandle<T>::WriteMetaHandle( const SG::WriteMetaHandleKey<T>& key,
                                        const EventContext& ctx) :
     SG::VarHandleBase( key, &ctx ),
-    m_sid( MetaContBase::SourceID("") ),
+    m_sid( "" ),
     m_cont( key.getContainer() ),
     m_cs( key.getStore() ),
     m_hkey(key)

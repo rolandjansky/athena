@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_JROISUNPACKINGTOOL_H
 #define L1DECODER_JROISUNPACKINGTOOL_H 1
@@ -35,20 +35,12 @@ private:
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
     this, "OutputTrigRoIs", "JETRoIs", "Name of the RoIs object produced by the unpacker"};
 
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIsKey{
-    this, "OutputFSTrigRoIs", "FSJETRoIs", "Name of the RoIs object containing the single FS RoI tagged with all jet chains produced by the unpacker"};
-
 
   SG::WriteHandleKey< DataVector<LVL1::RecJetRoI> > m_recRoIsKey{
     this, "OutputRecRoIs", "RecJETRoIs", "Name of the RoIs object produced by the unpacker"};
 
-  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_fsDecisions{
-    this, "FSDecisions", "FSJetDecisions", "Decisions for the single FS RoI"
-  };
-
   Gaudi::Property<float>            m_roIWidth{
     this, "RoIWidth", 0.4, "Size of RoI in eta/ phi"};
-  ///@}
   
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   std::vector<TrigConf::TriggerThreshold*> m_jetThresholds;

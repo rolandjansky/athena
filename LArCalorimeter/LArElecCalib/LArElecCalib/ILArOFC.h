@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILAROFC_H
 #define LARELECCALIB_ILAROFC_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArVectorProxy.h"
 #include "Identifier/HWIdentifier.h"
 

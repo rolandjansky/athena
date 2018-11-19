@@ -114,8 +114,8 @@ def addLArFolder (db, obj, cls, qual=''):
 
 #Load HVScaleCorr. For run 2,these constants are also used by the CaloNoiseToolDB 
 if (haveElecCalibInline):
-    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondAlg
-    addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondAlg, sqlDB)
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
+    addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondFlatAlg, sqlDB)
     # TEMPORARY
     theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
 

@@ -931,9 +931,23 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			// contain (name, eta, phi, multiPlet)
 			m_idHelper->get_detectorElement_hash(layerID, detectorElementHash);
 
+
 			const MuonGM::MuonChannelDesign* mmChannelDesign = detectorReadoutElement->getDesign(digitID);
-			double distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
-			double distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
+            // As of September 12 2018, to reduce the number of errors and warnings in MM digitization,
+            // we assign the strips in the dead regions stripNumber=1 (short term fix).
+            // The distToChannel validation breaks when we do this so we must add another if statement
+            // These changes should be reverted once we arrive to a proper solution for these dead strips
+            // Alexandre Laurier 12 Sept 2018
+			double distToChannelWithStripID;
+			double distToChannel;
+            if (stripNumber ==1){
+			    distToChannelWithStripID =0.; 
+			    distToChannel =0.; 
+            }
+            else{
+			    distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
+			    distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
+            }
 			ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
 							<< (int)detectorElementHash
 							<< " "
@@ -947,7 +961,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 				m_exitcode = 12;
 				if(m_writeOutputFile) m_ntuple->Fill();
 				continue;
-			}
+            }
 
 			// Obtain Magnetic Field At Detector Surface
 			Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
@@ -1013,22 +1027,24 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
 
 			// This block is purely validation
-			for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
-				int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
-				bool isValid;
-				Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layerID), m_idHelper->stationPhi(layerID), m_idHelper->multilayer(layerID), m_idHelper->gasGap(layerID), tmpStripID, true, &isValid);
-				if (!isValid) {
-					ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
-				} else {
-					Amg::Vector2D cr_strip_pos(0., 0.);
-					if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
-						ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
-										<< tmpStripID
-										<< "; associated positions will be set to 0.0."
-										);
-					}
-				}
-			}
+			if (stripNumber!=1){ // Extra if statement from quick fix from deadstrip = #1
+			    for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
+			    	int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
+			    	bool isValid;
+			    	Identifier cr_id = m_idHelper->channelID(stName, m_idHelper->stationEta(layerID), m_idHelper->stationPhi(layerID), m_idHelper->multilayer(layerID), m_idHelper->gasGap(layerID), tmpStripID, true, &isValid);
+			    	if (!isValid) {
+			    		ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
+			    	} else {
+			    		Amg::Vector2D cr_strip_pos(0., 0.);
+			    		if ( !detectorReadoutElement->stripPosition(cr_id,cr_strip_pos) ) {
+			    			ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. "
+			    							<< tmpStripID
+			    							<< "; associated positions will be set to 0.0."
+			    							);
+			    		}
+			    	}
+			    }
+            }
 
 
 			v_stripDigitOutput.push_back(stripDigitOutput);

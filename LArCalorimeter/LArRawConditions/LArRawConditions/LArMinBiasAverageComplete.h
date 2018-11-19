@@ -23,25 +23,16 @@ class LArMinBiasAverageComplete: public ILArMinBiasAverage ,
 {
   
  public: 
-  
   typedef LArConditionsContainer<LArMinBiasAverageP> CONTAINER ;
-
   LArMinBiasAverageComplete();
-  
   virtual ~LArMinBiasAverageComplete( );
   
-  // retrieving RMS of E in Minimum Bias events, using online ID
-  
+  // retrieving RMS of E in Minimum Bias events, using online ID  
   virtual const float& minBiasAverage(const HWIdentifier&  CellID) const ;
-  
-  virtual const float& minBiasAverage(const Identifier&  CellID) const;
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float vMinBiasAverage);
-
- protected: 
-  
 
 };
 

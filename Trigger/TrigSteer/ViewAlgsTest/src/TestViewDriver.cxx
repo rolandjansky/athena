@@ -37,7 +37,7 @@ StatusCode TestViewDriver::execute( ) {
   auto contexts = std::vector<EventContext>( );
   auto viewVector = std::make_unique< ViewContainer >( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
 
     contexts.push_back( getContext( ) );

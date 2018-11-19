@@ -15,6 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -25,8 +26,8 @@
 #include "AthContainers/ConstDataVector.h"
 
 #include "egammaInterfaces/IegammaCaloClusterSelector.h"
+#include "GaudiKernel/Counters.h"
 
-#include <atomic>
 
 class CaloCluster;
 
@@ -43,7 +44,8 @@ public:
 private:
 
   /** @brief broad track selection */
-  bool Select(const xAOD::CaloCluster* cluster,
+  bool Select(const EventContext& ctx,
+              const xAOD::CaloCluster* cluster,
               const xAOD::TrackParticle* track,
               IEMExtrapolationTools::Cache& cache,
               bool trkTRT) const;
@@ -102,11 +104,13 @@ private:
    * inside the loops.
    * At the end they will add_fetch to these ones
    */
-  mutable std::atomic_uint m_AllTracks{0};
-  mutable std::atomic_uint m_AllTRTTracks{0};
-  mutable std::atomic_uint m_AllSiTracks{0};
-  mutable std::atomic_uint m_SelectedTracks{0};
-  mutable std::atomic_uint m_SelectedTRTTracks{0};
-  mutable std::atomic_uint m_SelectedSiTracks{0};
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllClusters;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedClusters;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllSiTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedSiTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTRTTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedTRTTracks;
 };
 #endif 

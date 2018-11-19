@@ -1,5 +1,6 @@
+//Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARPILEUPTOOL_H
@@ -41,6 +42,7 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "LArRawConditions/LArADC2MeV.h"
+#include "LArRawConditions/LArAutoCorrNoise.h"
 
 class StoreGateSvc;
 class PileUpMergeSvc;
@@ -188,7 +190,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   bool m_useBad;
   std::string m_RandomDigitContainer; // random digit container name list
 
-  std::string m_pedestalKey ;
   bool m_useMBTime;
   bool m_recordMap;
   bool m_useLArHitFloat;
@@ -202,13 +203,18 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
 // Detector Description objects
 
-  const DataHandle<ILArNoise>     m_dd_noise;
-  const DataHandle<ILArfSampl>    m_dd_fSampl;
-  const DataHandle<ILArPedestal>  m_dd_pedestal;
-  const DataHandle<ILArShape>     m_dd_shape;
-  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey;
+  //const DataHandle<ILArNoise>     m_dd_noise;
+  //const DataHandle<ILArfSampl>    m_dd_fSampl;
+  //const DataHandle<ILArPedestal>  m_dd_pedestal;
+  //const DataHandle<ILArShape>     m_dd_shape;
+  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoise","SG Key of ILArNoise object"};
+  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSampl","SG Key of LArfSampl object"};
+  SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
+  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShape","SG Key of LArShape object"};
+  SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
 
-  ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
+  //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
+  SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey;
   ToolHandle<ITriggerTime> m_triggerTimeTool;

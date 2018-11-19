@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileDetDescr
                           TileCalorimeter/TileG4/TileGeoG4SD
                           TileCalorimeter/TileSimEvent
+                          TileCalorimeter/TileSimUtils
                           TileCalorimeter/TileG4/TileG4Interfaces
                           Tools/PathResolver )
 
@@ -38,7 +39,7 @@ atlas_add_component( TileGeoG4Calib
                      src/*.cc
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} CaloG4SimLib CaloIdentifier CaloSimEvent CxxUtils StoreGateLib SGtests GeoModelUtilities GaudiKernel G4AtlasToolsLib MCTruth TileDetDescr TileGeoG4SDLib TileSimEvent PathResolver )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} CaloG4SimLib CaloIdentifier CaloSimEvent CxxUtils StoreGateLib SGtests GeoModelUtilities GaudiKernel G4AtlasToolsLib MCTruth TileDetDescr TileGeoG4SDLib TileSimEvent TileSimUtils PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

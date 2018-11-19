@@ -167,15 +167,7 @@ ReadData             INFO Hit x = 1823.7 y = -42.0 z = -1753.6 detector = DummyH
 ReadData             INFO Hit x = 1826.9 y = -47.7 z = -1755.0 detector = DummyHitDetector
 ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1756.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -200,6 +192,7 @@ ReadData             INFO Hit x = 126.9 y = -47.7 z = -55.0 detector = DummyHitD
 ReadData             INFO Hit x = 130.1 y = -53.4 z = -56.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -207,15 +200,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 2 run: 0
@@ -233,15 +217,7 @@ ReadData             INFO Hit x = 226.9 y = -47.7 z = -155.0 detector = DummyHit
 ReadData             INFO Hit x = 230.1 y = -53.4 z = -156.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -266,6 +242,7 @@ ReadData             INFO Hit x = 426.9 y = -47.7 z = -355.0 detector = DummyHit
 ReadData             INFO Hit x = 430.1 y = -53.4 z = -356.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -273,15 +250,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 5 run: 0
@@ -299,15 +267,7 @@ ReadData             INFO Hit x = 526.9 y = -47.7 z = -455.0 detector = DummyHit
 ReadData             INFO Hit x = 530.1 y = -53.4 z = -456.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -332,6 +292,7 @@ ReadData             INFO Hit x = 726.9 y = -47.7 z = -655.0 detector = DummyHit
 ReadData             INFO Hit x = 730.1 y = -53.4 z = -656.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -339,15 +300,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 8 run: 0
@@ -365,15 +317,7 @@ ReadData             INFO Hit x = 826.9 y = -47.7 z = -755.0 detector = DummyHit
 ReadData             INFO Hit x = 830.1 y = -53.4 z = -756.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -398,6 +342,7 @@ ReadData             INFO Hit x = 1026.9 y = -47.7 z = -955.0 detector = DummyHi
 ReadData             INFO Hit x = 1030.1 y = -53.4 z = -956.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -405,15 +350,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 11 run: 0
@@ -431,15 +367,7 @@ ReadData             INFO Hit x = 1126.9 y = -47.7 z = -1055.0 detector = DummyH
 ReadData             INFO Hit x = 1130.1 y = -53.4 z = -1056.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -464,6 +392,7 @@ ReadData             INFO Hit x = 1326.9 y = -47.7 z = -1255.0 detector = DummyH
 ReadData             INFO Hit x = 1330.1 y = -53.4 z = -1256.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -471,15 +400,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 14 run: 0
@@ -497,6 +417,7 @@ ReadData             INFO Hit x = 1426.9 y = -47.7 z = -1355.0 detector = DummyH
 ReadData             INFO Hit x = 1430.1 y = -53.4 z = -1356.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -521,15 +442,7 @@ ReadData             INFO Hit x = 1626.9 y = -47.7 z = -1555.0 detector = DummyH
 ReadData             INFO Hit x = 1630.1 y = -53.4 z = -1556.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -554,6 +467,7 @@ ReadData             INFO Hit x = 1726.9 y = -47.7 z = -1655.0 detector = DummyH
 ReadData             INFO Hit x = 1730.1 y = -53.4 z = -1656.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -578,15 +492,7 @@ ReadData             INFO Hit x = 1826.9 y = -47.7 z = -1755.0 detector = DummyH
 ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1756.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -611,15 +517,7 @@ ReadData             INFO Hit x = 1926.9 y = -47.7 z = -1855.0 detector = DummyH
 ReadData             INFO Hit x = 1930.1 y = -53.4 z = -1856.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -643,6 +541,7 @@ ReadData             INFO Hit x = 423.7 y = -42.0 z = -353.6 detector = DummyHit
 ReadData             INFO Hit x = 426.9 y = -47.7 z = -355.0 detector = DummyHitDetector
 ReadData             INFO Hit x = 430.1 y = -53.4 z = -356.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -650,15 +549,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 5 run: 0
@@ -676,15 +566,7 @@ ReadData             INFO Hit x = 526.9 y = -47.7 z = -455.0 detector = DummyHit
 ReadData             INFO Hit x = 530.1 y = -53.4 z = -456.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -709,6 +591,7 @@ ReadData             INFO Hit x = 1926.9 y = -47.7 z = -1855.0 detector = DummyH
 ReadData             INFO Hit x = 1930.1 y = -53.4 z = -1856.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -716,15 +599,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 2 run: 0
@@ -751,15 +625,6 @@ ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 5 run: 0
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
@@ -774,15 +639,7 @@ ReadData             INFO Hit x = 523.7 y = -42.0 z = -453.6 detector = DummyHit
 ReadData             INFO Hit x = 526.9 y = -47.7 z = -455.0 detector = DummyHitDetector
 ReadData             INFO Hit x = 530.1 y = -53.4 z = -456.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -807,6 +664,7 @@ ReadData             INFO Hit x = 726.9 y = -47.7 z = -655.0 detector = DummyHit
 ReadData             INFO Hit x = 730.1 y = -53.4 z = -656.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -814,15 +672,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 8 run: 0
@@ -849,15 +698,6 @@ ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 11 run: 0
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
@@ -881,15 +721,6 @@ ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 14 run: 0
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
@@ -904,15 +735,7 @@ ReadData             INFO Hit x = 1423.7 y = -42.0 z = -1353.6 detector = DummyH
 ReadData             INFO Hit x = 1426.9 y = -47.7 z = -1355.0 detector = DummyHitDetector
 ReadData             INFO Hit x = 1430.1 y = -53.4 z = -1356.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -937,6 +760,7 @@ ReadData             INFO Hit x = 1726.9 y = -47.7 z = -1655.0 detector = DummyH
 ReadData             INFO Hit x = 1730.1 y = -53.4 z = -1656.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -961,15 +785,7 @@ ReadData             INFO Hit x = 1826.9 y = -47.7 z = -1755.0 detector = DummyH
 ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1756.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -994,6 +810,7 @@ ReadData             INFO Hit x = 1926.9 y = -47.7 z = -1855.0 detector = DummyH
 ReadData             INFO Hit x = 1930.1 y = -53.4 z = -1856.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 0
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO EventStreamInfo: Number of events = 1
@@ -1019,6 +836,7 @@ ReadData             INFO Hit x = 326.9 y = -47.7 z = -255.0 detector = DummyHit
 ReadData             INFO Hit x = 330.1 y = -53.4 z = -256.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Others_ref
+EventSelector        INFO Disconnecting input sourceID: 251DB35E-7448-3A43-8DA3-610D27DA8362
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1043,15 +861,7 @@ ReadData             INFO Hit x = 26.9 y = -47.7 z = 44.9 detector = DummyHitDet
 ReadData             INFO Hit x = 30.1 y = -53.4 z = 43.8 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1076,6 +886,7 @@ ReadData             INFO Hit x = 126.9 y = -47.7 z = -55.0 detector = DummyHitD
 ReadData             INFO Hit x = 130.1 y = -53.4 z = -56.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1083,15 +894,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 2 run: 0
@@ -1109,6 +911,7 @@ ReadData             INFO Hit x = 226.9 y = -47.7 z = -155.0 detector = DummyHit
 ReadData             INFO Hit x = 230.1 y = -53.4 z = -156.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 0
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO EventStreamInfo: Number of events = 1
@@ -1134,15 +937,7 @@ ReadData             INFO Hit x = 326.9 y = -47.7 z = -255.0 detector = DummyHit
 ReadData             INFO Hit x = 330.1 y = -53.4 z = -256.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Others_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 251DB35E-7448-3A43-8DA3-610D27DA8362
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1167,6 +962,7 @@ ReadData             INFO Hit x = 426.9 y = -47.7 z = -355.0 detector = DummyHit
 ReadData             INFO Hit x = 430.1 y = -53.4 z = -356.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1174,15 +970,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 5 run: 0
@@ -1200,6 +987,7 @@ ReadData             INFO Hit x = 526.9 y = -47.7 z = -455.0 detector = DummyHit
 ReadData             INFO Hit x = 530.1 y = -53.4 z = -456.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1224,15 +1012,7 @@ ReadData             INFO Hit x = 626.9 y = -47.7 z = -555.0 detector = DummyHit
 ReadData             INFO Hit x = 630.1 y = -53.4 z = -556.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1257,6 +1037,7 @@ ReadData             INFO Hit x = 726.9 y = -47.7 z = -655.0 detector = DummyHit
 ReadData             INFO Hit x = 730.1 y = -53.4 z = -656.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1264,15 +1045,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 8 run: 0
@@ -1290,6 +1062,7 @@ ReadData             INFO Hit x = 826.9 y = -47.7 z = -755.0 detector = DummyHit
 ReadData             INFO Hit x = 830.1 y = -53.4 z = -756.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1314,15 +1087,7 @@ ReadData             INFO Hit x = 926.9 y = -47.7 z = -855.0 detector = DummyHit
 ReadData             INFO Hit x = 930.1 y = -53.4 z = -856.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1347,6 +1112,7 @@ ReadData             INFO Hit x = 1026.9 y = -47.7 z = -955.0 detector = DummyHi
 ReadData             INFO Hit x = 1030.1 y = -53.4 z = -956.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1354,15 +1120,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 11 run: 0
@@ -1380,6 +1137,7 @@ ReadData             INFO Hit x = 1126.9 y = -47.7 z = -1055.0 detector = DummyH
 ReadData             INFO Hit x = 1130.1 y = -53.4 z = -1056.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1404,15 +1162,7 @@ ReadData             INFO Hit x = 1226.9 y = -47.7 z = -1155.0 detector = DummyH
 ReadData             INFO Hit x = 1230.1 y = -53.4 z = -1156.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1437,6 +1187,7 @@ ReadData             INFO Hit x = 1326.9 y = -47.7 z = -1255.0 detector = DummyH
 ReadData             INFO Hit x = 1330.1 y = -53.4 z = -1256.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 5
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1444,15 +1195,6 @@ ReadData             INFO CLID = 9102, key = MyHits
 ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
 ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
 ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
-ReadData             INFO EventStreamInfo: Number of events = 7
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream2
 ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 14 run: 0
@@ -1470,6 +1212,7 @@ ReadData             INFO Hit x = 1426.9 y = -47.7 z = -1355.0 detector = DummyH
 ReadData             INFO Hit x = 1430.1 y = -53.4 z = -1356.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream3_ref
+EventSelector        INFO Disconnecting input sourceID: 78EDF7D6-FD21-B44B-AF40-0F63CDF4393A
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1517,15 +1260,7 @@ ReadData             INFO Hit x = 1623.7 y = -42.0 z = -1553.6 detector = DummyH
 ReadData             INFO Hit x = 1626.9 y = -47.7 z = -1555.0 detector = DummyHitDetector
 ReadData             INFO Hit x = 1630.1 y = -53.4 z = -1556.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1550,6 +1285,7 @@ ReadData             INFO Hit x = 1726.9 y = -47.7 z = -1655.0 detector = DummyH
 ReadData             INFO Hit x = 1730.1 y = -53.4 z = -1656.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1574,15 +1310,7 @@ ReadData             INFO Hit x = 1826.9 y = -47.7 z = -1755.0 detector = DummyH
 ReadData             INFO Hit x = 1830.1 y = -53.4 z = -1756.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
-ReadData             INFO EventStreamInfo: Number of events = 5
-ReadData             INFO EventStreamInfo: ItemList:
-ReadData             INFO CLID = 2101, key = McEventInfo
-ReadData             INFO CLID = 9102, key = MyHits
-ReadData             INFO CLID = 1287802, key = ExcludeTestTrigMap
-ReadData             INFO CLID = 1287802, key = MultiTestTrigMap
-ReadData             INFO CLID = 222376821, key = Stream3
-ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/atlas -  is atlas , calib/physics -  is physics 
-ReadData             INFO TagInfo: 
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1607,6 +1335,7 @@ ReadData             INFO Hit x = 1926.9 y = -47.7 z = -1855.0 detector = DummyH
 ReadData             INFO Hit x = 1930.1 y = -53.4 z = -1856.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream2_ref
+EventSelector        INFO Disconnecting input sourceID: 1DF8D68E-6241-CD4C-A92A-C2B3B465F58C
 ReadData             INFO EventStreamInfo: Number of events = 7
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1631,4 +1360,5 @@ ReadData             INFO Hit x = 626.9 y = -47.7 z = -555.0 detector = DummyHit
 ReadData             INFO Hit x = 630.1 y = -53.4 z = -556.1 detector = DummyHitDetector
 FullColl            DEBUG Retrieved DataHeader with key EventSelector for requested key=*
 FullColl.TagTool    DEBUG Setting primary ref to Stream1_ref
+EventSelector        INFO Disconnecting input sourceID: 24C95577-560C-CA45-B7DC-1C979AAA947B
 ReadData             INFO in finalize()

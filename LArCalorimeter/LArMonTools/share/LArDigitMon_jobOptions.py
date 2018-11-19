@@ -48,10 +48,6 @@ theLArDigitMon = LArDigitMon(name="LArDigitMon",
                              Streams = StreamsToMonitor
                              )
 
-theLArDigitMon.LArPedestalKey='LArPedestal'
-                
-
-ToolSvc += theLArDigitMon
 LArMon.AthenaMonTools+=[ theLArDigitMon ] 
 
 

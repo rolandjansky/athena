@@ -14,6 +14,15 @@ Configurable.configurableRun3Behavior=1
 #theApp.setup()
 
 flags = ConfigFlags
+# TODO move to the new (real menu like contqent for this flags )
+flags.addFlag('Trigger.menu.electrons', [ "HLT_e3_etcut L1_EM3",        
+	                                  "HLT_e5_etcut L1_EM3",        	                          
+	                                  "HLT_e7_etcut L1_EM7"])
+flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 
+	                               'HLT_g15_etcut L1_EM12' ])
+
+
+
 
 flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
@@ -59,36 +68,30 @@ from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
 def menu( mf ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import HLTMenuAccumulator
-    menuAcc = HLTMenuAccumulator()
-
-    # here menu generation starts
+    menuAcc = ComponentAccumulator()
+    menuAcc.addSequence( seqAND("HLTAllSteps") )
 
 
     from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
-    accElectrons, steps = generateElectronsCfg( flags ) 
-    if len( steps ) != 0:
-        menuAcc.setupSteps( steps )         
-        menuAcc.merge( accElectrons )
-
+    electronAcc, electronChains = generateElectronsCfg( mf )
+    menuAcc.merge( electronAcc )
 
     from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
-    accPhotons, steps = generatePhotonsCfg( flags ) 
-    if len( steps ) != 0:
-        menuAcc.setupSteps( steps )         
-        menuAcc.merge( accPhotons )
-
-
-
-
-    # here setting of the Summary + top level Monitoring algs should be done
-    menuAcc.printConfig()    
+    photonsAcc, photonChains = generatePhotonsCfg( mf )
+    menuAcc.merge( photonsAcc )
     
-    return menuAcc, menuAcc.steps()
+    allChains =   photonChains + electronChains
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains       
+    decisionTree_From_Chains( menuAcc.getSequence("HLTAllSteps"), allChains )
+    menuAcc.printConfig()
+    
+    return menuAcc
+
 
 
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 acc.merge( triggerRunCfg( flags, menu ) )
+
 
 
 from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
@@ -101,8 +104,9 @@ acc.getService("ProxyProviderSvc").ProviderNames  += [ tagInfoMgr.getName() ]
 acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
 
 
+
 # setup algorithm sequences here, need few additional components
-from TrigUpgradeTest.RegSelConfig import RegSelConfig
+from RegionSelector.RegSelConfig import RegSelConfig
 acc.merge( RegSelConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
@@ -112,10 +116,10 @@ print acc.getEventAlgo( "TrigSignatureMoniMT" )
 
 # from TrigUpgradeTest.TestUtils import applyMenu
 # applyMenu( acc.getEventAlgo( "L1Decoder" ) )
-acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
-acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
-acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
-
+#acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
+#acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
+#acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
+#acc.getEventAlgo( "Filter_for_L2PhotonCaloHypo" ).OutputLevel=DEBUG
 
 acc.printConfig()
 
@@ -125,5 +129,6 @@ print "Storing config in the config", fname
 with file(fname, "w") as p:
     acc.store( p )
     p.close()
+
 
 

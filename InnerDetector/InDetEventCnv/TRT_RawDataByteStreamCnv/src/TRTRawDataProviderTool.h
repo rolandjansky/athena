@@ -9,13 +9,12 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-
 #include "ByteStreamData/RawEvent.h" 
 
 #include "InDetRawData/InDetTimeCollection.h"
 #include "TRT_RawDataByteStreamCnv/ITRT_RodDecoder.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
+#include "StoreGate/WriteHandleKey.h"
 
 
 #include <set>
@@ -24,7 +23,7 @@
 // the tool to decode a ROB frament
 
 class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool, 
-                               public AthAlgTool, virtual IIncidentListener
+                                public AthAlgTool //, virtual IIncidentListener
 {
 
  public:
@@ -50,7 +49,7 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
 		      TRT_RDO_Container*               rdoIdc );
 
   //! Incident listener
-  virtual void handle( const Incident &incident );
+  //virtual void handle( const Incident &incident );
 
 private: 
   TRTRawDataProviderTool( ); //Not implemented
@@ -65,6 +64,8 @@ private:
   InDetTimeCollection* m_LVL1Collection;
   InDetTimeCollection* m_BCCollection;
   bool  m_storeInDetTimeColls;
+  SG::WriteHandleKey<InDetTimeCollection> m_lvl1idkey{this,"LVL1IDKey","TRT_LVL1ID","TRT_LVL1ID out-key"};
+  SG::WriteHandleKey<InDetTimeCollection> m_bcidkey{this,"BCIDKey","TRT_BCID","TRT_BCID out-key"};
 };
 
 #endif

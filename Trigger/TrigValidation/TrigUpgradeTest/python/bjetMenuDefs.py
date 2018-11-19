@@ -76,6 +76,7 @@ def bJetStep1Sequence():
     # Getting output track particle container name
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
+        viewAlg.OutputLevel = DEBUG
         if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
             TrackParticlesName = viewAlg.TrackParticlesName
 
@@ -293,4 +294,5 @@ def bJetStep2SequenceALLTE():
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging
 # ==================================================================================================== 
+
 
