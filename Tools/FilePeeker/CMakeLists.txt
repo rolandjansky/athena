@@ -15,7 +15,8 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree RIO)
-find_package( tdaq-common COMPONENTS DataReader )
+find_package( tdaq-common COMPONENTS DataReader EventStorage ers )
+find_package( Boost )
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
 
