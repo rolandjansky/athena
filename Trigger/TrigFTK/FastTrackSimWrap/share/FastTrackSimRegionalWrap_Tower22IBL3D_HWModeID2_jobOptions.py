@@ -44,6 +44,7 @@ wrapper.PixelClusteringMode = 101
 wrapper.Ibl3DRealistic = False
 wrapper.SctClustering = True
 wrapper.Clustering = True
+wrapper.EmulateDF = True
 
 ####wrapper.GetOffline = True
 wrapper.GetOffline = False
