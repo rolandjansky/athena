@@ -24,7 +24,8 @@ class ISCT_CablingTool;
 class SCT_ID;
 class SCT_ByteStreamFractionContainer;
 
-/** @class SCTRawDataProvider
+/** 
+ * @class SCTRawDataProvider
  *
  * @brief Athena Algorithm to decode the SCT Byte Stream
  *

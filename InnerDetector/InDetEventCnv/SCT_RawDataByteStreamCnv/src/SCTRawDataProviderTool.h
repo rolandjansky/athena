@@ -19,7 +19,8 @@
 
 class ISCT_RodDecoder;
 
-/** @class SCTRawDataProviderTool
+/** 
+ * @class SCTRawDataProviderTool
  *
  * @brief Athena Algorithm Tool to fill Collections of SCT RDO Containers.
  *
@@ -29,7 +30,6 @@ class ISCT_RodDecoder;
  */
 class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderTool>
 {
-
  public:
    
   /** Constructor */
@@ -44,7 +44,8 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
 
   // finalize is empty, unnecessary to override
  
-  /** @brief Main decoding method.
+  /** 
+   * @brief Main decoding method.
    *
    * Loops over ROB fragments, get ROB/ROD ID, then decode if not allready decoded.
    *
@@ -70,7 +71,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   mutable std::set<uint32_t> m_robIDSet;
 
   /** Number of decode errors encountered in decoding. 
-   * Turning off error message after 100 errors are counted */
+      Turning off error message after 100 errors are counted */
   mutable std::atomic_int m_decodeErrCount;
 
   mutable std::mutex m_mutex;
