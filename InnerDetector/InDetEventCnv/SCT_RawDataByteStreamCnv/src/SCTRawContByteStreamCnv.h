@@ -5,22 +5,16 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H
 
-// Gaudi
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-
-// C++ Standard Library
-#include <string>
-
-// Athena
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 class DataObject;
 class ISCTRawContByteStreamTool;
+class MsgStream;
 
-/** Externals */ 
 extern long ByteStream_StorageType;
 
 /** the converter for writing BS from SCT Raw Data 
