@@ -333,8 +333,8 @@ def getHLTmap_fromTM(period, release):
 def getMenuPathFromRelease(release):
     if release: #already format-proofed in TriggerAPI
         return "/cvmfs/atlas.cern.ch/repo/sw/software/21.1/AthenaP1/%s/InstallArea/x86_64-slc6-gcc62-opt/python/TriggerMenu/menu"%release
-    #21.1.45 contains the final menu, no need to find the last release
-    return "/cvmfs/atlas.cern.ch/repo/sw/software/21.1/AthenaP1/21.1.45/InstallArea/x86_64-slc6-gcc62-opt/python/TriggerMenu/menu"
+    #21.1.50 contains the final menu, no need to find the last release
+    return "/cvmfs/atlas.cern.ch/repo/sw/software/21.1/AthenaP1/21.1.50/InstallArea/x86_64-slc6-gcc62-opt/python/TriggerMenu/menu"
 
 
 def getHLTlist(period, customGRL, release):
