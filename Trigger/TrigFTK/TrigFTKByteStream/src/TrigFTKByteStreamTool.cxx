@@ -25,7 +25,7 @@ FTK::TrigFTKByteStreamTool::TrigFTKByteStreamTool( const std::string& type, cons
      m_decoder("FTK::FTKByteStreamDecoderEncoderTool"),
      m_decoderAux("FTK::FTKByteStreamDecoderEncoderAuxTool"),
      m_AuxFormat(0x0001),
-     m_decodeAux(true)
+     m_decodeAux(false)
 {
   declareInterface< FTK::TrigFTKByteStreamTool  >( this );
   declareProperty("AuxDataFormatID", m_AuxFormat);
