@@ -1,5 +1,5 @@
 
-def createAndAddCondAlg(creator, the_name) :
+def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.AlgSequence import AthSequencer
     cond_seq=AthSequencer("AthCondSeq")
@@ -9,7 +9,7 @@ def createAndAddCondAlg(creator, the_name) :
             if seq.getName() != "AthCondSeq" :
                 raise Exception('Algorithm already in a sequnece but not the conditions seqence')
             return
-    cond_seq += creator()
+    cond_seq += creator(**kwargs)
 
 def setDefaults(kwargs, **def_kwargs) :
     def_kwargs.update(kwargs)
@@ -119,3 +119,56 @@ def getTRT_DriftCircleOnTrackTool() :
         return tool
     else :
         return ToolSvc.TRT_DriftCircleOnTrackTool
+
+def getNeuralNetworkToHistoTool(**kwargs) :
+    from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
+    name = kwargs.pop('name',"NeuralNetworkToHistoTool")
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,name) :
+        return getattr(ToolSvc,name)
+
+    NeuralNetworkToHistoTool=Trk__NeuralNetworkToHistoTool(name,
+                                                           **kwargs)
+
+    ToolSvc += NeuralNetworkToHistoTool
+    return NeuralNetworkToHistoTool
+
+def getPixelClusterNnCondAlg(**kwargs) :
+    track_nn = kwargs.pop('TrackNetwork',False)
+    nn_names = [
+          "NumberParticles_NoTrack/",
+          "ImpactPoints1P_NoTrack/",
+          "ImpactPoints2P_NoTrack/",
+          "ImpactPoints3P_NoTrack/",
+          "ImpactPointErrorsX1_NoTrack/",
+          "ImpactPointErrorsX2_NoTrack/",
+          "ImpactPointErrorsX3_NoTrack/",
+          "ImpactPointErrorsY1_NoTrack/",
+          "ImpactPointErrorsY2_NoTrack/",
+          "ImpactPointErrorsY3_NoTrack/" ]
+
+    if track_nn :
+        nn_names = [ elm.replace('_NoTrack', '')  for elm in nn_names ]
+
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
+        # COOL binding
+        conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib",className='CondAttrListCollection')
+
+    kwargs=setDefaults(kwargs,
+                       NetworkNames = nn_names,
+                       WriteKey     ='PixelClusterNN' if not track_nn else 'PixelClusterNNWithTrack')
+
+    if 'NetworkToHistoTool' not in kwargs :
+        kwargs = setDefaults( kwargs,
+                              NetworkToHistoTool   = getNeuralNetworkToHistoTool() )
+
+    from SiClusterizationTool.SiClusterizationToolConf import InDet__TTrainedNetworkCondAlg
+    return InDet__TTrainedNetworkCondAlg(kwargs.pop("name", 'PixelClusterNnCondAlg'), **kwargs)
+
+def getPixelClusterNnWithTrackCondAlg(**kwargs) :
+
+    kwargs = setDefaults( kwargs,
+                          TrackNetwork = True,
+                          name         ='PixelClusterNnWithTrackCondAlg')
+    return getPixelClusterNnCondAlg( **kwargs )

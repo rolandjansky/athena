@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
@@ -11,6 +11,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
@@ -74,6 +75,10 @@ private:
 
   Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
     "Name of the chain which should enable HLT cost montoring."};
+
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
+    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all jet chains produced by the unpacker"};
+
 
 };
 

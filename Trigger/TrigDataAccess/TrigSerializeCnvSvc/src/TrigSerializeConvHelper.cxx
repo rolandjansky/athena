@@ -1,23 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "TrigSerializeCnvSvc/TrigSerializeConvHelper.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ClassID.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
 #include "TrigSerializeResult/ITrigSerializerToolBase.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
 #include "TrigSerializeCnvSvc/ITrigSerGuidHelper.h"
 
-//
-#include "TROOT.h"
-#include "TClass.h"
+#include "DataModelRoot/RootType.h"
 
 
 TrigSerializeConvHelper::TrigSerializeConvHelper(const std::string& toolname, const std::string& type, const IInterface* parent) :
@@ -39,35 +33,35 @@ StatusCode TrigSerializeConvHelper::initialize(){
   StatusCode sc = m_serializerTool.retrieve();
 
   if (!sc.isSuccess()){
-    msg(MSG::DEBUG) << "m_serializer not retrieved" << endmsg;
+    ATH_MSG_DEBUG("m_serializer not retrieved");
     return sc;
   } else {
-    msg(MSG::DEBUG) << "m_serializer retrieved" << endmsg;
+    ATH_MSG_DEBUG("m_serializer retrieved");
     /*
       if (m_serializerTool->initialize().isSuccess()){
-      msg(MSG::DEBUG) << "serializer initialized" << endmsg;
+      ATH_MSG_DEBUG( "serializer initialized" );
       }
     */
   }
   
   StatusCode sctp = m_TPTool.retrieve();
   if (!sctp.isSuccess()){
-    msg(MSG::DEBUG) << "m_TPTool not retrieved" << endmsg;
+    ATH_MSG_DEBUG( "m_TPTool not retrieved" );
     return sctp;
   } else {
-    msg(MSG::DEBUG) << "m_TPTool retrieved" << endmsg;
+    ATH_MSG_DEBUG( "m_TPTool retrieved" );
     /*
       if (m_TPTool->initialize().isSuccess())
-      msg(MSG::DEBUG) << "m_TPTool initialized" << endmsg;
+      ATH_MSG_DEBUG( "m_TPTool initialized" );
       */
   }
 
   StatusCode scg = m_guidTool.retrieve();
   if (!scg.isSuccess()){
-    msg(MSG::DEBUG) << m_guidTool << " not retrieved" << endmsg;
+    ATH_MSG_DEBUG( m_guidTool << " not retrieved" );
     return scg;
   } else {
-    msg(MSG::DEBUG) << m_guidTool << "retrieved" << endmsg;
+    ATH_MSG_DEBUG( m_guidTool << "retrieved" );
   }
   
   m_oldEDMmap[ "TrigRoiDescriptor" ]         = "TrigRoiDescriptorCollection_tlp1";
@@ -120,14 +114,13 @@ StatusCode TrigSerializeConvHelper::initialize(){
 }
 
 StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaqueAddress* iAddr, void *&ptr, bool isxAOD){
-    
   ptr = 0;
-  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createObj for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
-  
+  ATH_MSG_DEBUG("in TrigSerializeConvHelper::createObj for clname " << clname << " is xAOD? " << (isxAOD?"yes":"no"));
+
   //could alse get DATA (perhaps as boost::any) from the IOA
   TrigStreamAddress *addr = dynamic_cast<TrigStreamAddress*>(iAddr);
   if (!addr) {
-    msg(MSG::WARNING) << "createObj cast failed" << endmsg;
+    ATH_MSG_WARNING("createObj cast failed");
     return StatusCode::FAILURE;
   }
   
@@ -137,10 +130,7 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
   std::vector<uint32_t> v = addr->get();
   
   //we need to find the name of the ob
-
   std::string cl = clname;
-
-  
 
   if (m_doTP and !isxAOD)
     cl = m_TPTool->persClassName(clname);
@@ -154,39 +144,36 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
     scid = serializer->peekCLID(v, guid);
     if (scid.isFailure()){
       //BS has no hint on the pers class - use the original table
-      if (msgLvl(MSG::DEBUG))
-	msg(MSG::DEBUG) << "BS does not hint on payload object " << cl << endmsg;
+      ATH_MSG_DEBUG("BS does not hint on payload object " << cl);
       if (m_oldEDMmap.find(clname)!=m_oldEDMmap.end()){
-	if (cl!=m_oldEDMmap[clname]){
-	  msg(MSG::DEBUG) << "Using backward compatibility map with " <<  m_oldEDMmap[clname]
-			  << " instead of " << cl << endmsg;
-	  cl = m_oldEDMmap[clname];
-	}
+        if (cl!=m_oldEDMmap[clname]){
+          ATH_MSG_DEBUG("Using backward compatibility map with " <<  m_oldEDMmap[clname]
+                        << " instead of " << cl);
+          cl = m_oldEDMmap[clname];
+        }
       }
     } else {
       //get the pers version from the BS
-      std::string nclass;
+      std::string nclass = cl;
       StatusCode ai = m_guidTool->IntsToClassName(guid, nclass);
-      if (ai.isFailure()){
+      if (ai.isFailure()) {
 	//better do not decode
 	return StatusCode::FAILURE;
       }
       if (cl != nclass){
-	cl =  nclass;
-	if (msgLvl(MSG::DEBUG))
-	  msg(MSG::DEBUG) << "Got hint of " << cl
-			  << " different persistent class from the BS payload. Name from GUID: " << nclass << endmsg;
+        cl =  nclass;
+        ATH_MSG_DEBUG("Got hint of " << cl << " different persistent class from the BS payload. Name from GUID: " << nclass);
 
-	if(isxAOD){
-	  msg(MSG::DEBUG) << "This is an xAOD so probably the BS version is an older version of the xAOD type." << endmsg;
-	}
-	versionChange = true;
+        if(isxAOD){
+          ATH_MSG_DEBUG("This is an xAOD so probably the BS version is an older version of the xAOD type.");
+        }
+        versionChange = true;
       }
     }
 
     ptr = serializer->deserialize(cl, v);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << cl << " deserialized to " << ptr << " version change detected: " << (versionChange ? "yes":"no") << endmsg;
+    ATH_MSG_DEBUG(cl << " deserialized to " << ptr << " version change detected: " << (versionChange ? "yes":"no"));
   }
    
   // T/P separation
@@ -194,16 +181,15 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
   if (m_doTP and (!isxAOD or versionChange) and !isViewVector){
     std::string transclass;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "converting with pername " << cl << endmsg;
+    ATH_MSG_DEBUG("converting with pername " << cl);
     
     void *transObj = m_TPTool->convertPT(cl,ptr, transclass);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "was converted to " << transclass << " at " << transObj << endmsg;
+    ATH_MSG_DEBUG("was converted to " << transclass << " at " << transObj);
 
     //persistent object not needed anymore
-    TClass *persClObj = gROOT->GetClass(cl.c_str());
-    if (persClObj)
-      persClObj->Destructor(ptr);
+    RootType persClObj(cl);
+    persClObj.Destruct(ptr);
 
     ptr = transObj;
   }
@@ -218,7 +204,7 @@ StatusCode TrigSerializeConvHelper::createRep(const std::string &clname,
   
   StatusCode sc(StatusCode::SUCCESS);
 
-  msg(MSG::DEBUG) << "in TrigSerializeConvHelper::createRep for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no") << endmsg;
+  ATH_MSG_DEBUG("in TrigSerializeConvHelper::createRep for clname" << clname << " is xAOD? " << (isxAOD?"yes":"no"));
 
   std::string cl = clname;
   void *pObj = ptr;
@@ -230,42 +216,38 @@ StatusCode TrigSerializeConvHelper::createRep(const std::string &clname,
     cl = persclass;
   }
 
-  msg(MSG::DEBUG) << "convertTP: " << pObj << " of "
-	 << cl << endmsg;
-  
+  ATH_MSG_DEBUG("convertTP: " << pObj << " of " << cl);
+
   //void *serptr(0);
   //
   ITrigSerializerToolBase* serializer = m_serializerTool.operator->();
   serializer->reset();
 
-  msg(MSG::VERBOSE) << "About to get GUID for " << cl << endmsg;
-  
+  ATH_MSG_VERBOSE("About to get GUID for " << cl);
+
   //opposite from string to class
   uint32_t irep[4];
   StatusCode ai = m_guidTool->ClassNameToInts(cl, irep);
   if (ai.isFailure()){
-    msg(MSG::WARNING) << "Cannot store class identification for "
-		      << cl << " to BS" << endmsg;
+    ATH_MSG_WARNING("Cannot store class identification for " << cl << " to BS");
   }
 
-  msg(MSG::VERBOSE) << "got GUID: " << irep[0] << "-" << irep[1] << "-" << irep[2] << "-" << irep[3] << endmsg;
-  
+  ATH_MSG_VERBOSE("got GUID: " << irep[0] << "-" << irep[1] << "-" << irep[2] << "-" << irep[3]);
+
   if (cl != "" && pObj){
     serializer->setCLID(irep);
     serializer->serialize(cl, pObj, out);
   } else {
-    msg(MSG::WARNING) << "did not serialize " << ptr << " of " << clname << endmsg;
+    ATH_MSG_WARNING("did not serialize " << ptr << " of " << clname);
   }
 
   if (m_doTP and !isxAOD){
     //we don't need the persistent object anymore
-    TClass *persClObj = gROOT->GetClass(cl.c_str());
-    if (persClObj)
-      persClObj->Destructor(pObj);
+     RootType persClObj(cl);
+     persClObj.Destruct(pObj);
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pObj: " << pObj << " of " << cl
-	 << " payload: " << out.size() << endmsg;
+  ATH_MSG_DEBUG("pObj: " << pObj << " of " << cl << " payload: " << out.size());
 
   return sc;
 }

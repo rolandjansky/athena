@@ -119,9 +119,9 @@ void test1()
 
   proxyDict.source = "source";
   p = bucket.cast (ClassID_traits<TestPayload>::ID());
-  //assert (typeid (*reinterpret_cast<TestPayload*>(p)) == typeid (TestPayload));
+  assert (typeid (*reinterpret_cast<TestPayload*>(p)) == typeid (TestPayload));
   p = bucket.cast (typeid (TestPayload));
-  //assert (typeid (*reinterpret_cast<TestPayload*>(p)) == typeid (TestPayload));
+  assert (typeid (*reinterpret_cast<TestPayload*>(p)) == typeid (TestPayload));
 }
 
 

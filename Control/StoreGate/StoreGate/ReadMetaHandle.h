@@ -80,7 +80,7 @@ namespace SG {
   ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key,
                                     const EventContext& ctx):
     SG::VarHandleBase( key, &ctx ),
-    m_sid( ctx.getExtension<Atlas::ExtendedEventContext>()->proxy()->sourceID() ),
+    m_sid( ctx.getExtension<Atlas::ExtendedEventContext>().proxy()->sourceID() ),
     m_cont( key.getContainer() ),
     m_hkey(key)
   {

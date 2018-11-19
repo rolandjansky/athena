@@ -10,6 +10,7 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArRawConditions/LArAutoCorrMC.h"
 #include "LArRawConditions/LArAutoCorrComplete.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "LArTools/LArMCSymTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -75,23 +75,23 @@ public:
   // which noise to return is defined via jobOptions or via the
   // optional parameter CalorimeterNoiseType
   
-  float getNoise(const CaloCell* caloCell,
-		 CalorimeterNoiseType type=JOBOPTION );
-  float getNoise(const CaloDetDescrElement* caloDDE,
-		 CalorimeterNoiseType type=JOBOPTION );
+  virtual float getNoise(const CaloCell* caloCell,
+                         CalorimeterNoiseType type=JOBOPTION ) override;
+  virtual float getNoise(const CaloDetDescrElement* caloDDE,
+                         CalorimeterNoiseType type=JOBOPTION ) override;
   float getNoise(const CaloCell* caloCell, float energy,
-		 CalorimeterNoiseType type=JOBOPTION );
+                 CalorimeterNoiseType type=JOBOPTION );
 
-  bool isEOverNSigma(const CaloCell* caloCell, float sigmaCut , 
-                     CalorimeterNoiseSymmetryHandling symmetryHandling=ONLYRIGHTSIDEINTEGRATION,
-                     CalorimeterNoiseType type=JOBOPTION );
+  virtual bool isEOverNSigma(const CaloCell* caloCell, float sigmaCut , 
+                             CalorimeterNoiseSymmetryHandling symmetryHandling=ONLYRIGHTSIDEINTEGRATION,
+                             CalorimeterNoiseType type=JOBOPTION ) override;
   float calcSig(double e, double sigma1, double ratio, double sigma2);
 
-  float getRandomisedE(const CaloCell* caloCell , CLHEP::HepRandomEngine* engine, CalorimeterNoiseType type=JOBOPTION);
+  virtual float getRandomisedE(const CaloCell* caloCell , CLHEP::HepRandomEngine* engine, CalorimeterNoiseType type=JOBOPTION) override;
 
-  float getEffectiveSigma(const CaloCell* caloCell,
-                     CalorimeterNoiseSymmetryHandling symmetryHandling=ONLYRIGHTSIDEINTEGRATION,
-                     CalorimeterNoiseType type=JOBOPTION );
+  virtual float getEffectiveSigma(const CaloCell* caloCell,
+                                  CalorimeterNoiseSymmetryHandling symmetryHandling=ONLYRIGHTSIDEINTEGRATION,
+                                  CalorimeterNoiseType type=JOBOPTION ) override;
 
 
 
@@ -99,43 +99,43 @@ public:
 
   //''''''''' functions to use currently
 
-  float elecNoiseRMS(const CaloCell* caloCell, 
-		     const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMS(const CaloCell* caloCell, 
+                             const int step=ICaloNoiseToolStep::CELLS) override;
     //Returns the sigma of the electronic noise, finding itself the right gain 
     //from the energy of the given caloCell.
 
-  float elecNoiseRMS(const CaloCell* caloCell, 
-		     const float Nminbias,
-		     const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMS(const CaloCell* caloCell, 
+                             const float Nminbias,
+                             const int step=ICaloNoiseToolStep::CELLS) override;
   // returns the same as above (Nminbias ignored in this implementation from database)
 
-  float elecNoiseRMSHighestGain(const CaloCell* caloCell, 
-				const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMSHighestGain(const CaloCell* caloCell, 
+                                        const int step=ICaloNoiseToolStep::CELLS) override;
     //Returns the sigma of the electronic noise for the caloDDE of the given 
     //caloCELL and for the highest gain of the considered calorimeter 
     //(eg: HG for LAr, MG for HEC, ...).
 
-  float elecNoiseRMSHighestGain(const CaloCell* caloCell, 
-				const float Nminbias,
-				const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMSHighestGain(const CaloCell* caloCell, 
+                                        const float Nminbias,
+                                        const int step=ICaloNoiseToolStep::CELLS) override;
    // same as above
 
   //''''''''' functions more specialized
 
-  float elecNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
-				const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
+                                        const int step=ICaloNoiseToolStep::CELLS) override;
     //Returns the sigma of the electronic noise for the given caloDDE and 
     //for the highest gain of the considered calorimeter (eg: MG for HEC).
 
-  float elecNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
-				const float Nminbias,
-				const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
+                                        const float Nminbias,
+                                        const int step=ICaloNoiseToolStep::CELLS) override;
     //same as above
 
-  float elecNoiseRMS(const CaloDetDescrElement* caloDDE, 
-		     const CaloGain::CaloGain gain,
-		     const float Nminbias,
-		     const int step=ICaloNoiseToolStep::CELLS);
+  virtual float elecNoiseRMS(const CaloDetDescrElement* caloDDE, 
+                             const CaloGain::CaloGain gain,
+                             const float Nminbias,
+                             const int step=ICaloNoiseToolStep::CELLS) override;
     //Returns the sigma of the electronic noise for the given caloDDE, gain 
     // Nminbias is ignored
 
@@ -148,20 +148,23 @@ public:
     //case of 2-gaussian noise, gain 
     // Nminbias is ignored
 
+  virtual
   std::vector<float> 
     elecNoiseRMS3gains(const CaloDetDescrElement* caloDDE,
-		       const int step=ICaloNoiseToolStep::CELLS);
+                       const int step=ICaloNoiseToolStep::CELLS) override;
     //Returns a vector containing the sigma of the electronic noise for the 
     //given caloDDE, for each gain of the considered calorimeter 
     //(eg: vector of 3 sigma3 gains for LAr)
 
+  virtual
   std::vector<float> 
     elecNoiseRMS3gains(const CaloDetDescrElement* caloDDE,
 		       const float Nminbias, 
-		       const int step=ICaloNoiseToolStep::CELLS);
+		       const int step=ICaloNoiseToolStep::CELLS) override;
     //same as above, Nminbias ignored
 
-  VectorContainer* elecNoiseRMSContainer(const int &iCalo);
+  virtual
+  VectorContainer* elecNoiseRMSContainer(const int &iCalo) override;
     //TO BE USED ONLY FOR SPECIAL CASES
     //Returns a vector containing, for each Hash Identifier of the calorimeter 
     //iCalo, a vector  containing the sigma of the electronic noise for all 
@@ -173,38 +176,38 @@ public:
 
 //== PILEUP NOISE ==  
 
-  float pileupNoiseRMS(const CaloCell* caloCell, 
-		       const float Nminbias=-1); 
-  float pileupNoiseRMS(const CaloDetDescrElement* caloDDE, 
-		       const float Nminbias=-1);
+  virtual float pileupNoiseRMS(const CaloCell* caloCell, 
+                               const float Nminbias=-1) override;
+  virtual float pileupNoiseRMS(const CaloDetDescrElement* caloDDE, 
+                               const float Nminbias=-1) override;
   //Nminbias is the number of minimum-bias events per bunch-crossing
   // (default is 0 (set in the constructor) ) 
 
 //== TOTAL NOISE ==   (only at the "Cells" step)
 
-  float totalNoiseRMS(const CaloCell* caloCell, 
-		      const float Nminbias=-1); 
-  float totalNoiseRMS(const CaloDetDescrElement* caloDDE, 
-		      const CaloGain::CaloGain gain,
-		      const float Nminbias=-1);
-  float totalNoiseRMSHighestGain(const CaloCell* caloCell, 
-				 const float Nminbias=-1);
-  float totalNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
-				 const float Nminbias=-1);
+  virtual float totalNoiseRMS(const CaloCell* caloCell, 
+                              const float Nminbias=-1) override; 
+  virtual float totalNoiseRMS(const CaloDetDescrElement* caloDDE, 
+                              const CaloGain::CaloGain gain,
+                              const float Nminbias=-1) override;
+  virtual float totalNoiseRMSHighestGain(const CaloCell* caloCell, 
+                                         const float Nminbias=-1) override;
+  virtual float totalNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
+                                         const float Nminbias=-1) override;
 
 
 
 //== GAIN ==   Only there to fulfill the interface, returns INVALID values...
-  CaloGain::CaloGain estimatedGain(const CaloCell* caloCell,
-				   const int &step);
-  CaloGain::CaloGain estimatedGain(const CaloCell* caloCell,
-				   const CaloDetDescrElement* caloDDE,
-				   const int &step);
-  CaloGain::CaloGain estimatedGain(const CaloDetDescrElement* caloDDE,
-				   const float &energy,
-				   const int &step);
+  virtual CaloGain::CaloGain estimatedGain(const CaloCell* caloCell,
+                                           const int &step) override;
+  virtual CaloGain::CaloGain estimatedGain(const CaloCell* caloCell,
+                                           const CaloDetDescrElement* caloDDE,
+                                           const int &step) override;
+  virtual CaloGain::CaloGain estimatedGain(const CaloDetDescrElement* caloDDE,
+                                           const float &energy,
+                                           const int &step) override;
 
-  StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
 private: 
   

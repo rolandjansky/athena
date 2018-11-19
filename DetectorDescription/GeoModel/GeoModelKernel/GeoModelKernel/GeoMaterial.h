@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELKERNEL_GEOMATERIAL_H
@@ -36,12 +36,12 @@ class GeoMaterial : public RCBase
   GeoMaterial (const std::string &Name, double Density);
   
   //	Add an element to the material.
-  void add (GeoElement* element, double fraction = 1.0);
+  void add (const GeoElement* element, double fraction = 1.0);
   
   //	Add another material to the material (this copies all of
   //	the element from the other material into this one).
   //	Fraction is by mass.
-  void add (GeoMaterial* material, double fraction);
+  void add (const GeoMaterial* material, double fraction);
   
   //	Lock the material against the addition of other
   //	materials or elements.
@@ -121,7 +121,7 @@ class GeoMaterial : public RCBase
 
  private:
   //	The list of GeoElements composing a GeoMaterial.
-  std::vector<GeoElement *> m_element;  
+  std::vector<const GeoElement *> m_element;  
 };
 
 inline const std::string& GeoMaterial::getName () const

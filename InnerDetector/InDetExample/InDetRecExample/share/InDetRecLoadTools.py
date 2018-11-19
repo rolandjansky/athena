@@ -58,36 +58,35 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
-        if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      doRunI = True,
-                                                                      useToT = False,
-                                                                      useRecenteringNNWithoutTracks = True,
-                                                                      useRecenteringNNWithTracks = False,
+        do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+        from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
+        createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
+        createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+        if do_runI :
+            NnClusterizationFactory = InDet__NnClusterizationFactory( name                               = "NnClusterizationFactory",
+                                                                      PixelLorentzAngleTool              = ToolSvc.PixelLorentzAngleTool,
+                                                                      doRunI                             = True,
+                                                                      useToT                             = False,
+                                                                      useRecenteringNNWithoutTracks      = True,
+                                                                      useRecenteringNNWithTracks         = False,
                                                                       correctLorShiftBarrelWithoutTracks = 0,
-                                                                      correctLorShiftBarrelWithTracks = 0.030,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      LoadWithTrackNetwork = True)
+                                                                      correctLorShiftBarrelWithTracks    = 0.030,
+                                                                      NnCollectionReadKey                = 'PixelClusterNN',
+                                                                      NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
 
         else:
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      useToT = InDetFlags.doNNToTCalibration(),
-                                                                      LoadWithTrackNetwork = True)
-               
+            NnClusterizationFactory = InDet__NnClusterizationFactory( name                         = "NnClusterizationFactory",
+                                                                      PixelLorentzAngleTool        = ToolSvc.PixelLorentzAngleTool,
+                                                                      useToT                       = InDetFlags.doNNToTCalibration(),
+                                                                      NnCollectionReadKey          = 'PixelClusterNN',
+                                                                      NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
+
         ToolSvc += NnClusterizationFactory
 
         # special setup for DVRetracking mode
         # if InDetFlags.doDVRetracking() :
            # COOL binding
         from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
-            # COOL binding
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
         if InDetFlags.doTIDE_RescalePixelCovariances() :
             if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
                 # COOL binding
@@ -175,18 +174,23 @@ if InDetFlags.loadRotCreator():
             if InDetFlags.doDBM():
                 print PixelClusterOnTrackToolDBM
                 
-        PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
-                                                                 LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
-                                                                 applyNNcorrection = False,
-                                                                 NNIBLcorrection = False,
-                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
-                                                                 ErrorStrategy = 2,
-                                                                 PositionStrategy = 1 
-                                                                 )
+        if InDetFlags.doDigitalROTCreation():
 
-        ToolSvc += PixelClusterOnTrackToolDigital
+            PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+                                                                            LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
+                                                                            DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                            applyNNcorrection = False,
+                                                                            NNIBLcorrection = False,
+                                                                            SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                            RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
+                                                                            ErrorStrategy = 2,
+                                                                            PositionStrategy = 1 
+                                                                            )
+
+            ToolSvc += PixelClusterOnTrackToolDigital
+
+        else :
+          PixelClusterOnTrackToolDigital = None
     else:
         PixelClusterOnTrackTool = None
         PixelClusterOnTrackToolDigital = None
@@ -236,11 +240,17 @@ if InDetFlags.loadRotCreator():
         InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
         ToolSvc += InDet_SeedToTrackConversion
     
-    InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
-                                              ToolPixelCluster = PixelClusterOnTrackToolDigital,
-                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                              Mode             = 'indet')
-    ToolSvc += InDetRotCreatorDigital
+    if PixelClusterOnTrackToolDigital != None :
+        InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
+                                                         ToolPixelCluster = PixelClusterOnTrackToolDigital,
+                                                         ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
+                                                         Mode             = 'indet')
+        ToolSvc += InDetRotCreatorDigital
+
+    else:
+        
+        InDetRotCreatorDigital=InDetRotCreator
+
 
     #
     # --- configure broad cluster ROT creator

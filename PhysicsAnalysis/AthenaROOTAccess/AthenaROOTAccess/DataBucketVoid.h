@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DataBucketVoid.h,v 1.10 2008-06-04 14:52:59 ssnyder Exp $
@@ -101,13 +101,6 @@ public:
   virtual void* cast (const std::type_info& tinfo,
                       SG::IRegisterTransient* itr = 0,
                       bool isConst = true) override;
-
-  /**
-   * @brief Return a new @c DataBucket whose payload has been cloned from the
-   *        original one.
-   */
-  virtual DataBucketVoid* clone() const override;
-
 
   /**
    * @brief Reset any cached data for a new event.

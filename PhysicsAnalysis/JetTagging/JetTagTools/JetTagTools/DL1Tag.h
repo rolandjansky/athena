@@ -51,7 +51,7 @@ namespace Analysis {
     typedef std::map<std::string, std::map<std::string, double> > map_var_map;
     typedef std::map<std::string, std::string> str_map;
     typedef std::map<std::string, std::vector<lwt::Input> > map_var;
-    typedef std::map<std::string, lwt::LightweightNeuralNetwork*> nn_map;
+    typedef std::map<std::string, std::unique_ptr<lwt::LightweightNeuralNetwork>> nn_map;
 
     /** Key of calibration data: */
     SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};

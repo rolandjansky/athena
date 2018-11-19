@@ -27,5 +27,3 @@ atlas_add_component( MdtOverlay
 # Install files from the package:
 atlas_install_headers( MdtOverlay )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-

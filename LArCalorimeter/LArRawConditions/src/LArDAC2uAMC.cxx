@@ -35,20 +35,8 @@ LArDAC2uAMC::~LArDAC2uAMC() {}
  */
 const float& LArDAC2uAMC::DAC2UA(const HWIdentifier& CellID) const 
 { 
-  //if(!m_larmcsym) initialize(); 
   // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  
+  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);  
   return LArDAC2uAComplete::DAC2UA(SymCellID); 
 }
 
-const float& LArDAC2uAMC::DAC2UA(const Identifier&  CellID) const
-{
-//  if(!m_larmcsym) initialize(); 
-  
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
-  return LArDAC2uAComplete::DAC2UA(SymCellID); 
-
-}

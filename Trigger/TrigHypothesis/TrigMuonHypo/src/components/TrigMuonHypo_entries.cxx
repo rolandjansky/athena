@@ -22,6 +22,7 @@
 #include "TrigMuonHypo/TrigMuonEFCombinerHypo.h"
 #include "TrigMuonHypo/TrigMuonEFCombinerMultiHypo.h"
 #include "TrigMuonHypo/TrigMuonEFSegmentHypo.h"
+#include "TrigMuonHypo/TrigMuonEFTrackIsolationMultiHypo.h"
 #include "TrigMuonHypo/TrigMuonEFTrackIsolationHypo.h"
 #include "TrigMuonHypo/TrigMuonEFTrackIsolationHypoAlg.h"
 #include "TrigMuonHypo/TrigMuonEFTrackIsolationHypoTool.h"
@@ -69,6 +70,7 @@ DECLARE_COMPONENT( TrigMuonEFExtrapolatorMultiHypo )
 DECLARE_COMPONENT( TrigMuonEFCombinerHypo )
 DECLARE_COMPONENT( TrigMuonEFCombinerMultiHypo )
 DECLARE_COMPONENT( TrigMuonEFSegmentHypo )
+DECLARE_COMPONENT( TrigMuonEFTrackIsolationMultiHypo )
 DECLARE_COMPONENT( TrigMuonEFTrackIsolationHypo )
 DECLARE_COMPONENT( TrigMuonEFTrackIsolationHypoAlg )
 DECLARE_COMPONENT( TrigMuonEFTrackIsolationHypoTool )
@@ -91,4 +93,3 @@ DECLARE_COMPONENT( TrigMuonEFCombinerHypoAlg )
 DECLARE_COMPONENT( TrigMuonEFCombinerHypoTool )
 DECLARE_COMPONENT( TrigMuonCaloTagHypo )
 DECLARE_COMPONENT( TrigMuonIDTrackMultiHypo )
-

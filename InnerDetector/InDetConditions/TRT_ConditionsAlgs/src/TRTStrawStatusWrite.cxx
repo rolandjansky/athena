@@ -12,8 +12,7 @@ TRTStrawStatusWrite::TRTStrawStatusWrite( const std::string &name, ISvcLocator *
   m_trtStrawStatus("TRT_StrawStatusSummarySvc",name),
   m_par_statusfile(""), 
   m_par_statusfilepermanent(""),
-  m_par_statusfileHT(""),
-  m_setup(false)
+  m_par_statusfileHT("")
 { 
   declareProperty("StatusTool",m_trtStrawStatusIF);
   declareProperty("StrawStatusTool",m_trtStrawStatus);

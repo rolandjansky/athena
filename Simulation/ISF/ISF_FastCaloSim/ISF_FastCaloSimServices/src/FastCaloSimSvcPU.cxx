@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// FastCaloSimSvc.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "FastCaloSimSvcPU.h"
@@ -64,8 +60,7 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
   m_punchThroughTool(""),
-  m_theContainer(nullptr),
-  m_particleBroker ("ISF_ParticleBroker",name)
+  m_theContainer(nullptr)
 {
   // where to go 
   declareProperty("OwnPolicy",                         m_ownPolicy) ;
@@ -78,7 +73,6 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   declareProperty("DoPunchThroughSimulation", 	       m_doPunchThrough) ;
   declareProperty("Extrapolator",                      m_extrapolator );
   declareProperty("SimulateUndefinedBarcodeParticles", m_simulateUndefinedBCs, "Whether or not to simulate paritcles with undefined barcode" );
-  declareProperty("ParticleBroker",     m_particleBroker, "ISF ParticleBroker Svc" );
   declareProperty("BatchProcessMcTruth",m_batchProcessMcTruth=false,"Run the FastShowerCellBuilders on the McTruth at the end of the event" );
   
   //declareProperty("PUWeights", m_puEnergyWeights,"Weights for energy weighting for Out-of-time PU");
@@ -147,12 +141,6 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
     ATH_MSG_WARNING( m_screenOutputPrefix << " CaloCellContainer: " << m_caloCellsOutputName << "will be read in and modified !. To be used with care. " );
    }
 
-  if ( m_particleBroker.retrieve().isFailure())
-  {
-   ATH_MSG_FATAL ("Could not retrieve ISF ParticleBroker service " <<m_particleBroker);
-   return StatusCode::FAILURE;
-  }  
-  
   for(unsigned int i=0;i<m_puEnergyWeights_lar_em.size();i++)
   {
    ATH_MSG_INFO(m_screenOutputPrefix<<"PUWeights for BC nr. "<<i);

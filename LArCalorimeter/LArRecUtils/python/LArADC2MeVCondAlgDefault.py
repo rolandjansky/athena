@@ -27,9 +27,17 @@ def LArADC2MeVCondAlgDefault():
         from LArConditionsCommon.LArCondFlags import larCondFlags 
         if not larCondFlags.hasMphys():
             theADC2MeVCondAlg.LArMphysOverMcalKey="" #No MphysOVerMcal
+        else:
+            theADC2MeVCondAlg.LArMphysOverMcalKey="LArMphysOverMcalSym"
 
         if not larCondFlags.hasHVCorr():
             theADC2MeVCondAlg.LArHVScaleCorrKey=""
+      
+        theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
+        theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
+        theADC2MeVCondAlg.LArRampKey="LArRampSym"
+
+
         theADC2MeVCondAlg.UseFEBGainTresholds=False
     else: # not MC:
         from LArRecUtils.LArFEBConfigReaderDefault import LArFEBConfigReaderDefault

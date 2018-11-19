@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __Range_h__ 
-#define __Range_h__ 
+#ifndef IDENTIFIER_RANGE_H
+#define IDENTIFIER_RANGE_H
  
 #include <Identifier/ExpandedIdentifier.h> 
 #include <cassert>
@@ -166,8 +166,10 @@ public:
   public: 
     identifier_factory (); 
     identifier_factory (const Range& range); 
+    identifier_factory (const identifier_factory&) = default;
  
     identifier_factory& operator = (const identifier_factory& other); 
+    identifier_factory& operator = (identifier_factory&& other); 
  
     void operator ++ (); 
  
@@ -188,8 +190,10 @@ public:
   public: 
     const_identifier_factory (); 
     const_identifier_factory (const Range& range); 
+    const_identifier_factory (const const_identifier_factory&) = default;
  
     const_identifier_factory& operator = (const const_identifier_factory& other); 
+    const_identifier_factory& operator = (const_identifier_factory&& other); 
  
     void operator ++ (); 
  
@@ -364,6 +368,7 @@ public:
 	~identifier_factory (); 
  
 	identifier_factory& operator = (const identifier_factory& other); 
+	identifier_factory& operator = (identifier_factory&& other); 
 
 	void operator ++ (); 
  
@@ -396,7 +401,8 @@ public:
 	const_identifier_factory (const MultiRange& multirange, bool sort); 
 	~const_identifier_factory (); 
  
-	const_identifier_factory& operator = (const const_identifier_factory& other); 
+	const_identifier_factory& operator = (const const_identifier_factory& other);
+	const_identifier_factory& operator = (const_identifier_factory&& other);
  
 	void operator ++ (); 
  

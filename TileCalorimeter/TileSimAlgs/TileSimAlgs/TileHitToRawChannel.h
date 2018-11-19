@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -32,6 +32,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -114,6 +115,10 @@ class TileHitToRawChannel: public AthAlgorithm {
     CLHEP::HepRandomEngine * m_pHRengine;  //!< Random number service to use
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+
+    ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+        "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
 };
 
 #endif // TILESIMALGS_TILEHITTORAWCHANNEL_H

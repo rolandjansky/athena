@@ -62,12 +62,9 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
   /** @brief execute method*/
   virtual StatusCode execute_r(const EventContext& ctx) const override final;
 
-  /** @brief retrieve object quality tool */
-  void RetrieveObjectQualityTool();
-  /** @brief execute object quality tool */
-  StatusCode ExecObjectQualityTool(const EventContext &ctx, xAOD::Egamma *eg) const; 
-
  private:
+
+  StatusCode ExecObjectQualityTool(const EventContext &ctx, xAOD::Egamma *eg) const; 
 
   /** @brief Tool to perform object quality*/
   ToolHandle<IegammaBaseTool> m_objectQualityTool {this,

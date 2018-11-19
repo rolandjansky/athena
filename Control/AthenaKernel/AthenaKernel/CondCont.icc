@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -526,6 +526,41 @@ inline
 size_t CondCont<T>::maxSize() const
 {
   return m_condSet_clock.maxSize() + m_condSet_RE.maxSize();
+}
+
+
+/**
+ * @brief Extend the range of the last IOV.
+ * @param newRange New validity range.
+ * @param ctx Event context.
+ *
+ * Returns failure if the start time of @c newRange does not match the start time
+ * of the last IOV in the container.  Otherwise, the end time for the last
+ * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
+ * is before the end of the last IOV, then nothing is changed.)
+ */
+template <typename T>
+StatusCode
+CondCont<T>::extendLastRange (const EventIDRange& newRange,
+                              const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  typename CondContSet::const_iterator it = nullptr;
+  if (newRange.start().isRunLumi()) {
+    it = m_condSet_RE.extendLastRange
+      (RangeKey (newRange,
+                 CondContBase::keyFromRunLBN (newRange.start()),
+                 CondContBase::keyFromRunLBN (newRange.stop())), ctx);
+  }
+  else if (newRange.start().isTimeStamp()) {
+    it = m_condSet_clock.extendLastRange
+      (RangeKey (newRange,
+                 CondContBase::keyFromTimestamp (newRange.start()),
+                 CondContBase::keyFromTimestamp (newRange.stop())), ctx);
+  }
+  if (it != nullptr) {
+    return StatusCode::SUCCESS;
+  }
+  return StatusCode::FAILURE;
 }
 
 

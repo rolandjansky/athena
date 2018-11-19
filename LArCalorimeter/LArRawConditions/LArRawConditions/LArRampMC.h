@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArRamp for MC
@@ -38,8 +37,6 @@ class LArRampMC: public LArRampComplete {
   // retrieving Ramp using online ID
   
   virtual  RampRef_t ADC2DAC(const HWIdentifier&  CellID, int gain) const ;
-  
-  virtual  RampRef_t ADC2DAC(const Identifier&  CellID, int gain) const;
   
  private: 
 

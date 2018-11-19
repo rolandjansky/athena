@@ -41,8 +41,7 @@ namespace asg {
         m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
         m_outputMetaStore( "StoreGateSvc/MetaDataStore", name ),
 #endif // Environment selection
-        m_beginInputFileCalled( false ),
-        m_useIncidents (true)
+        m_beginInputFileCalled( false )
    {
 
 #ifdef ASGTOOL_STANDALONE
@@ -115,17 +114,17 @@ namespace asg {
    StatusCode AsgMetadataTool::sysInitialize() {
 
 #ifdef ASGTOOL_ATHENA
-      if (m_useIncidents) {
-         // Connect to the IncidentSvc:
-         ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
-         ATH_CHECK( incSvc.retrieve() );
 
-         // Set up the right callbacks: don't rethrow exceptions, any failure and we should end
-         incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
-         incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
-         incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
-         incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
-      }
+      // Connect to the IncidentSvc:
+      ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+      ATH_CHECK( incSvc.retrieve() );
+
+      // Set up the right callbacks: don't rethrow exceptions, any failure and we should end
+      incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
+      incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
+      incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
+      incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
+
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );
 

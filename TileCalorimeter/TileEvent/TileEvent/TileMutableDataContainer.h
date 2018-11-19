@@ -53,7 +53,7 @@ public:
   typedef typename BASE::TYPE TYPE;
   typedef typename BASE::UNIT UNIT;
   typedef typename BASE::IDENTIFIABLE Collection;
-  typedef typename BASE::_TElement    Element;
+  typedef typename BASE::TElement     Element;
 
 
   /**

@@ -18,7 +18,7 @@ StatusCode TrigCostDataStore<PAYLOAD>::initialize(size_t nSlots) {
 template<typename PAYLOAD>
 StatusCode TrigCostDataStore<PAYLOAD>::insert(const EventContext& context, const std::string& caller, MsgStream& msg, const PAYLOAD& payload) {
   ATH_CHECK( checkSlot(context.slot(), msg) );
-  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
   if (proxy == nullptr) return StatusCode::FAILURE;
   const SG::View* view = dynamic_cast<const SG::View*>(proxy);
   const int16_t viewID = (view == nullptr ? -1 : view->viewID());
@@ -40,7 +40,7 @@ StatusCode TrigCostDataStore<PAYLOAD>::insert(const EventContext& context, const
 template<typename PAYLOAD>
 StatusCode TrigCostDataStore<PAYLOAD>::retrieve(const EventContext& context, const std::string& caller, MsgStream& msg, PAYLOAD& payload) const {
   // Use proxy from given context to get the store (the name of the IProxyDict)
-  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
   if (proxy == nullptr) return StatusCode::FAILURE;
   return retrieve(context, proxy->name(), caller, msg, payload);
 }

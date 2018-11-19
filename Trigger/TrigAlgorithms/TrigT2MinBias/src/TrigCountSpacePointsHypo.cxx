@@ -565,6 +565,12 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     ATH_MSG_DEBUG("Using inverted/VETO logic, final decision is " << (pass ? "PASS" : "FAIL"));
   }
 
+  // Veto
+  if (m_veto == true) {
+    pass = !pass;
+    ATH_MSG_DEBUG("Using inverted/VETO logic, final decision is " << (pass ? "PASS" : "FAIL"));
+  }
+
   // for monitoring  
   if( !pass ){
     m_totSelNumPixSP = -999;

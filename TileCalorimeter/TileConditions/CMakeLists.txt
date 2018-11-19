@@ -90,3 +90,9 @@ atlas_add_test( TileDCSComponents_test
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.txt share/Tile2003.* share/Tile2004.* share/TileDefault.* share/TileNo*.* share/dleak*.dat share/dsleak*.dat share/leak*.dat share/dpulse*.dat share/pulse*.dat share/noise*.dat share/ai_lo*.dat share/ai_hi*.dat share/bi_lo*.dat share/bi_hi*.dat share/ci_lo*.dat share/ci_hi*.dat share/DCS*.dat share/BadHVChannels.dat )
+
+if( NOT SIMULATIONBASE )
+    atlas_add_test( TileCondConfigTest
+    		    SCRIPT python -m TileConditions.TileConditionsConfig
+		        POST_EXEC_SCRIPT nopost.sh )
+endif()

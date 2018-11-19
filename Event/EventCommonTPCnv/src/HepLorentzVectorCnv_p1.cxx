@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // HepLorentzVectorCnv_p1.cxx 
@@ -16,11 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // CLHEP includes
-#define private public
-#define protected public
 #include "CLHEP/Vector/LorentzVector.h"
-#undef protected
-#undef private
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/HepLorentzVectorCnv_p1.h"

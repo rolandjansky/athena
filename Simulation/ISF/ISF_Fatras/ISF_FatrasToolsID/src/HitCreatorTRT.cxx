@@ -13,7 +13,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 // ISF
-#include "ISF_Interfaces/ISimHitSvc.h"
 #include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Event/ISFParticle.h"
 // Tracking

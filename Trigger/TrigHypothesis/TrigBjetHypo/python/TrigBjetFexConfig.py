@@ -186,7 +186,6 @@ class BjetFexSplit (TrigBjetFex):
     
     def __init__(self, instance, version, algo, name):
         super( BjetFexSplit, self ).__init__( name )
-        
         mlog = logging.getLogger('BjetHypoConfig.py')
         
         AllowedInstances = ["EF", "MuJetChain"]

@@ -103,6 +103,14 @@ elstep1_sequence = seqAND("elSeqStep1", [elIM, elAlg])
 def elStep1Sequence():
     return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=elHypo, HypoToolGen=ElTestHypoTool)
 
+
+gammHypo = ElGamHypo(name="Step1GamHypo")
+gammHypo.Input = elAlg.Output
+
+def gammStep1Sequence():
+    return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=gammHypo, HypoToolGen=GammTestHypoTool)
+
+
 #step2
 elIM2= InputMakerAlg(name="Step2ElInputMaker")
 elIM2.Output='elIM2_out'

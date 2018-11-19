@@ -16,6 +16,7 @@
 
 // Needed for tests.
 #include "TileRecUtils/TileBeamInfoProvider.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
 
 
 #endif // not TILERECUTILS_TILERECUTILSDICT_H

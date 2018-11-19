@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ public:
     virtual StatusCode finalize() override;
 
     /** Correct TileRawChannel amplitudes if pedestal changed */
-    virtual StatusCode process(TileRawChannelContainer* rawChannelContainer) const override;
+    virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const override;
 
 
   private:

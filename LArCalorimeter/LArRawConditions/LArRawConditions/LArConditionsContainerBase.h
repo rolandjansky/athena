@@ -34,7 +34,6 @@
 // Forward delcarations
 class LArOnlineID;
 class CaloCell_ID;
-class LArCablingService;
 class MsgStream;
 
 class LArConditionsContainerBase
@@ -79,9 +78,6 @@ public:
     /// provide access to offline id helper
     const CaloCell_ID*          offlineHelper() const;
 
-    /// provide access to cabling service id helper
-    LArCablingService*          larCablingSvc() const;
-
     /// Access to a FEB ID vector for a given gain and  COOL channel
     const FEBIdVector&          febIdVector(unsigned int gain, 
 					    unsigned int coolChannel) const;
@@ -111,7 +107,6 @@ protected:
     LArCondFEBIdChanMap         m_febIdChanMap;
     const LArOnlineID*          m_onlineHelper;
     const CaloCell_ID*          m_offlineHelper;
-    LArCablingService*          m_larCablingSvc;
 
     // Table to map from Cool channel number to index in
     // CondMultChanCollection - when writing this can be all mixed up 

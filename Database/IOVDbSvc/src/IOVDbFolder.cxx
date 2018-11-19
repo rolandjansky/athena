@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.cxx - helper class for IOVDbSvc to manage folder & data cache
@@ -67,6 +67,7 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_notagoverride(false),
   m_writemeta(false),
   m_fromMetaDataOnly(false),
+  m_extensible(false),
   m_named(false),
   m_iovoverridden(false),
   m_jokey(false),
@@ -195,6 +196,11 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_fromMetaDataOnly=folderprop.getKey("metaOnly","",buf);
   if (m_fromMetaDataOnly) {
     *m_log << MSG::INFO << "Read from meta data only for folder " << m_foldername << endmsg;
+  }
+
+  m_extensible=folderprop.getKey("extensible","",buf);
+  if (m_extensible) {
+    *m_log << MSG::INFO << "Extensible folder " << m_foldername << endmsg;
   }
 }
 

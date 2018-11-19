@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_WRITECONDHANDLE_H
@@ -44,6 +44,20 @@ namespace SG {
 
     StatusCode record(const EventIDRange& range, T* t);
     StatusCode record(const EventIDRange& range, std::unique_ptr<T> t);
+
+
+    /**
+     * @brief Extend the range of the last IOV.
+     * @param range New validity range.
+     * @param ctx Event context.
+     *
+     * Returns failure if the start time of @c range does not match the start time
+     * of the last IOV in the container.  Otherwise, the end time for the last
+     * IOV is changed to the end time for @c range.  (If the end time for @c range
+     * is before the end of the last IOV, then nothing is changed.)
+     */
+    StatusCode extendLastRange(const EventIDRange& range,
+                               const EventContext& ctx = Gaudi::Hive::currentContext());
     
     const std::string& dbKey() const { return m_hkey.dbKey(); }
     
@@ -121,6 +135,27 @@ namespace SG {
   {
     return record (r, std::unique_ptr<T> (t));
   }
+
+  //---------------------------------------------------------------------------
+
+
+  /**
+   * @brief Extend the range of the last IOV.
+   * @param range New validity range.
+   * @param ctx Event context.
+   *
+   * Returns failure if the start time of @c range does not match the start time
+   * of the last IOV in the container.  Otherwise, the end time for the last
+   * IOV is changed to the end time for @c range.  (If the end time for @c range
+   * is before the end of the last IOV, then nothing is changed.)
+   */
+  template <typename T>
+  StatusCode
+  WriteCondHandle<T>::extendLastRange (const EventIDRange& r, const EventContext& ctx)
+  {
+    return m_cc->extendLastRange (r, ctx);
+  }
+
 
   //---------------------------------------------------------------------------
 

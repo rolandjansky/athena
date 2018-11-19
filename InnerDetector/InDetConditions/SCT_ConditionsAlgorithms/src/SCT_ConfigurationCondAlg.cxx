@@ -227,7 +227,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     CondAttrListVec::const_iterator channelEnd{itr+nChips};
     for (; channelItr!=channelEnd; ++channelItr) {
       // Get chip id, config and masks and store as SCT_Chip object
-      // Can get AttributeList from second (see http://lcgapp.cern.ch/doxygen/CORAL/CORAL_1_9_3/doxygen/html/classcoral_1_1_attribute_list.html)
+      // Can get AttributeList from second (see https://svnweb.cern.ch/trac/lcgcoral/browser/coral/trunk/src/CoralBase/CoralBase/AttributeList.h )
       const short id{    run1 ? (channelItr->second[chipIndex].data<short>())   : static_cast<short>(channelItr->second[chipIndex].data<unsigned char>())};
       const short config{run1 ? (channelItr->second[configIndex].data<short>()) : static_cast<short>(channelItr->second[configIndex].data<unsigned short>())};
       const int mask0{   run1 ? (channelItr->second[mask0Index].data<int>())    : static_cast<int>(channelItr->second[mask0Index].data<unsigned int>())};
@@ -346,7 +346,7 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
     m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), oppWaferHash);
     const Identifier oppWaferId{m_pHelper->wafer_id(oppWaferHash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
-    // Get AttributeList from second (see http://lcgapp.cern.ch/doxygen/CORAL/CORAL_1_9_3/doxygen/html/classcoral_1_1_attribute_list.html)
+    // Get AttributeList from second (see https://svnweb.cern.ch/trac/lcgcoral/browser/coral/trunk/src/CoralBase/CoralBase/AttributeList.h )
     // and get module info from this.  Bad module has a -ve group.
     const short group{itr->second[groupIndex].data<short>()};
     if (group<0) { 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoMaterial.h"
@@ -234,12 +234,12 @@ GeoMaterial::~GeoMaterial()
     }
 }
 
-void GeoMaterial::add (GeoElement* element, double fraction)
+void GeoMaterial::add (const GeoElement* element, double fraction)
 {
   // You can only add materials until you call "lock"...     
   if (!m_locked)
     {
-      std::vector <GeoElement *>::iterator e = std::find(m_element.begin(),m_element.end(),element);
+      std::vector <const GeoElement *>::iterator e = std::find(m_element.begin(),m_element.end(),element);
       if (e==m_element.end()) {
 	m_element.push_back (element);
 	m_fraction.push_back (fraction);
@@ -256,7 +256,7 @@ void GeoMaterial::add (GeoElement* element, double fraction)
     }
 }
 
-void GeoMaterial::add (GeoMaterial* material, double fraction)
+void GeoMaterial::add (const GeoMaterial* material, double fraction)
 {
   if (!m_locked)
     {

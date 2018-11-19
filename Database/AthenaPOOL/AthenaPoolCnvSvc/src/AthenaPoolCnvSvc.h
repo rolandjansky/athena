@@ -88,7 +88,7 @@ public:
    std::string getOutputContainer(const std::string& typeName, const std::string& key = "") const;
 
    /// Access to the technology type for the current output connection
-   pool::DbType technologyType() const;
+   pool::DbType technologyType(const std::string& containerName) const;
 
    /// @return pointer to PoolSvc instance.
    IPoolSvc* getPoolSvc();

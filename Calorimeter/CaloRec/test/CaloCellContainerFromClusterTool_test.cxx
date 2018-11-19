@@ -26,6 +26,7 @@
 #include "CaloEvent/CaloTester.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
+#include "CaloRec/Blob2ToolConstants.h"
 #include "StoreGate/setupStoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
@@ -226,4 +227,16 @@ int main (int /*argc*/, char** argv)
 
   test1 (calotest, *sg);
   return 0;
+}
+
+
+
+// Force a link dependency on libCaloRecLib; otherwise, the linker
+// will remove the dependency.  And if we don't link against libCaloRecLib,
+// then we can get ubsan errors related to ConstDataVector<CaloCellCollection>
+// because in that case, the typeinfo for it won't get exported from
+// the test binary.
+void dum()
+{
+  Blob2ToolConstants ref ("", "", nullptr);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -128,7 +128,6 @@ namespace Trk {
     bool m_ownmb;
     bool m_ownfq;
     bool m_owncov;
-    bool m_ownder{};
     bool m_measphi;
     Amg::Vector3D m_globpos;
   };
