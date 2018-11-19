@@ -29,6 +29,8 @@ class SCTRawContByteStreamCnv: public Converter {
 
  public:
   SCTRawContByteStreamCnv(ISvcLocator* svcLoc);
+
+  virtual ~SCTRawContByteStreamCnv() = default;
   
   typedef SCT_RDO_Container SCTRawContainer; 
 
