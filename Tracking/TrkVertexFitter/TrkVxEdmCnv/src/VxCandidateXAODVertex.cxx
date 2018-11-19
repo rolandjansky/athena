@@ -43,7 +43,7 @@ VxCandidateXAODVertex::VxCandidateXAODVertex( const std::string& type,
 		      const std::string& name, 
 		      const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
-  m_LinearizedTrackFactory("Trk::InDetFullLinearizedTrackFactory")
+  m_LinearizedTrackFactory("Trk::InDetFullLinearizedTrackFactory", this)
 {
   declareInterface< IVxCandidateXAODVertex >(this);
   //

@@ -31,7 +31,7 @@ namespace Trk
  }
  
  KalmanVertexTrackUpdator::KalmanVertexTrackUpdator(const std::string& t, const std::string& n, const IInterface*  p):
- AthAlgTool(t,n,p),m_Updator("Trk::KalmanVertexUpdator"),m_maxWeight(0.001)
+ AthAlgTool(t,n,p),m_Updator("Trk::KalmanVertexUpdator", this),m_maxWeight(0.001)
  { 
   declareProperty("MaximalWeight",m_maxWeight);
 

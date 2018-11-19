@@ -34,8 +34,8 @@ namespace Trk
     m_trackdistexppower(2),
     m_constraintcutoff(9.),
     m_constrainttemp(9.),
-    m_mode3dfinder("Trk::Mode3dTo1dFinder"),
-    m_distancefinder("Trk::SeedNewtonTrkDistanceFinder"),
+    m_mode3dfinder("Trk::Mode3dTo1dFinder", this),
+    m_distancefinder("Trk::SeedNewtonTrkDistanceFinder", this),
     m_maximumTracksNoCut(20),
     m_maximumDistanceCut(3.)
   {   

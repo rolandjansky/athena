@@ -500,7 +500,8 @@ class Configuration:
           self.ConfigureMainAssociatorTool(thisBTagTrackAssociation, jetcol)
           # Set remaining options
           btagname = self.getOutputFilesPrefix() + jetcol
-          options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
+          #options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
+          options.setdefault('name', 'btag_akt4')
           options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
           options.setdefault('BTaggingCollectionName', btagname)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
@@ -689,6 +690,8 @@ class Configuration:
                                 CheckOnlyInsideToolCollection=CheckOnlyInsideToolCollection, DoNotSetUpParticleAssociators=DoNotSetUpParticleAssociators)
       self._BTaggingConfig_InitializedTools[self.getToolName(tool_type, track, jetcol)] = tool
       if not ToolSvc is None:
+          print self.BTagTag()+' - DEBUG - Tool added to ToolSvc: '
+          print tool
           ToolSvc += tool
 
   def getToolAttribute(self, attribute, tool_type, TrackCollection="", JetCollection="", RaiseException=True):
@@ -992,7 +995,8 @@ class Configuration:
               if tool is None:
                   # setup the tool
                   if getToolMetadata(tool_type, 'IsATagger') or 'DL1' in tool_type or 'MV2' in tool_type or getToolMetadata(tool_type, 'IsAVertexFinder'):
-                      tool = self.setupDefaultTool(tool_type, None, Verbose=Verbose, track=track,
+                      if not getToolMetadata(tool_type, 'IsAVertexFinder'): #A VertexFinder already setup in setupSecVtxTool
+                        tool = self.setupDefaultTool(tool_type, None, Verbose=Verbose, track=track,
                                                jetcol=jetcol, name=name, options=options,
                                                MuonCollection=MuonCollection)
                   else:
@@ -1379,15 +1383,41 @@ class Configuration:
              options:            Python dictionary of options to be passed to the SecVtxTool.
       output: The tool."""
       jetcol = JetCollection
+      secVtxFinderList = []
+      secVtxFinderTrackNameList = []
+      secVtxFinderxAODBaseNameList = []
+      from BTagging.BTaggingConfiguration_NewJetFitterCollection import toolNewJetFitterVxFinder as toolNewJetFitterVxFinder
+
+      newJetFitterVxFinder = toolNewJetFitterVxFinder_SV('JFVxFinder')
+      secVtxFinderList.append(newJetFitterVxFinder)
+      secVtxFinderTrackNameList.append('BTagTrackToJetAssociator')
+      secVtxFinderxAODBaseNameList.append('JetFitter')
+      from BTagging.BTaggingConfiguration_NewJetFitterCollection import toolJetFitterVariablesFactory as toolJetFitterVariablesFactory
+      jetFitterVF = toolJetFitterVariablesFactory('JFVarFactory')
+
+      inDetVKalVxInJetTool = toolInDetVKalVxInJetTool("IDVKalVxInJet")
+      secVtxFinderList.append(inDetVKalVxInJetTool)
+      secVtxFinderTrackNameList.append('BTagTrackToJetAssociator')
+      secVtxFinderxAODBaseNameList.append('SV1')
+
+      inDetVKalMultiVxInJetTool = toolInDetVKalMultiVxInJetTool("IDVKalMultiVxInJet")
+      secVtxFinderList.append(inDetVKalMultiVxInJetTool)
+      secVtxFinderTrackNameList.append('BTagTrackToJetAssociatorBB')
+      secVtxFinderxAODBaseNameList.append('MSV')
+
+      varFactory = toolMSVVariablesFactory("MSVVarFactory")
+
       options = dict(options)
-      options.setdefault('SecVtxFinderList', [])
-      options.setdefault('SecVtxFinderTrackNameList', [])
-      options.setdefault('SecVtxFinderxAODBaseNameList', [])
+      options.setdefault('SecVtxFinderList', secVtxFinderList)
+      options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
+      options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
       options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
       options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
       options.setdefault('BTagJFVtxCollectionName', self.getOutputFilesPrefix() + jetcol + self._OutputFilesJFVxname)
       options.setdefault('BTagSVCollectionName', self.getOutputFilesPrefix() + jetcol + self._OutputFilesSVname)
       options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
+      options.setdefault('JetFitterVariableFactory', jetFitterVF)
+      options.setdefault('MSVVariableFactory', varFactory)
       options['name'] = name
       from BTagging.BTaggingConf import Analysis__BTagSecVertexing
       tool = Analysis__BTagSecVertexing(**options)
@@ -1412,12 +1442,12 @@ class Configuration:
       # Setup a removal tool for it
       options.setdefault('storeSecondaryVerticesInJet', BTaggingFlags.writeSecondaryVertices)
       #thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
-      thisSecVtxTool = self.setupSecVtxTool('btagSV'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+      thisSecVtxTool = self.setupSecVtxTool('SecVx'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
       self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
       #options['BTagSecVertexingTool'] = thisSecVtxTool # MOVED TO JETBTAGGERTOOL
       del options['storeSecondaryVerticesInJet'] # we don't want it passed to the main b-tag tool
       #options['name'] = 'myBTagTool_'+jetcol+self.GeneralToolSuffix()
-      options['name'] = 'btagtool'+self.GeneralToolSuffix()
+      options['name'] = 'btag'+self.GeneralToolSuffix()
       options.setdefault('BTagLabelingTool', None)
       options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
       options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)

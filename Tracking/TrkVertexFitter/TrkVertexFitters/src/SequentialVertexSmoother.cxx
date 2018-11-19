@@ -34,7 +34,7 @@ namespace  Trk
  //class constructor 
  SequentialVertexSmoother::SequentialVertexSmoother(const std::string& t, const std::string& n, const IInterface*  p):
     AthAlgTool(t,n,p),
-    m_vertexTrackUpdator("Trk::KalmanVertexTrackUpdator")
+    m_vertexTrackUpdator("Trk::KalmanVertexTrackUpdator", this)
  {
   declareProperty("VertexTrackUpdator",m_vertexTrackUpdator);
   declareInterface<IVertexSmoother>(this);

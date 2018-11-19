@@ -16,6 +16,7 @@ def toolJetFitterExtrapolator(name, useBTagFlagsDefaults = True, **options):
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    options['name'] = name
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
     return AtlasExtrapolator(**options)
 
@@ -152,6 +153,27 @@ def toolVxInternalEdmFactory(name, useBTagFlagsDefaults = True, **options):
     from TrkVxEdmCnv.TrkVxEdmCnvConf import Trk__VxCandidateXAODVertex
     return Trk__VxCandidateXAODVertex(**options)
 
+def toolVxInternalEdmFactory_SV(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a VxInternalEdmFactory tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        jetFitterFullLinearizedTrackFactory = toolJetFitterFullLinearizedTrackFactory('JetFitterFullLinearizedTrackFactory')
+        defaults = { 'OutputLevel'             : BTaggingFlags.OutputLevel,
+                     'LinearizedTrackFactory'  : jetFitterFullLinearizedTrackFactory, }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from TrkVxEdmCnv.TrkVxEdmCnvConf import Trk__VxCandidateXAODVertex
+    return Trk__VxCandidateXAODVertex(**options)
+
 #--------------------------------------------------------------------------
 
 metaJetFitterSequentialVertexFitter = { 'DependsOn'      : ['JetFitterSequentialVertexSmoother',
@@ -174,6 +196,26 @@ def toolJetFitterSequentialVertexFitter(name, useBTagFlagsDefaults = True, **opt
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
     return Trk__SequentialVertexFitter(**options)
 
+def toolJetFitterSequentialVertexFitter_SV(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a JetFitterSequentialVertexFitter tool and returns it.
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                             Note however that this tool has no BTaggingFlags defaults; the option is
+                             here only for consistency.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        jetFitterFullLinearizedTrackFactory = toolJetFitterFullLinearizedTrackFactory('JFFullLinearizedTrackFactory')
+        jetFitterSequentialVertexSmoother = toolJetFitterSequentialVertexSmoother('JFSequentialVertexSmoother')
+        defaults = { 'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory,
+                     'VertexSmoother'         : jetFitterSequentialVertexSmoother, }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
+    return Trk__SequentialVertexFitter(**options)
+
 #--------------------------------------------------------------------------
 
 metaImprovedJetFitterInitializationHelper = { 'DependsOn'      : ['JetFitterFullLinearizedTrackFactory',],
@@ -192,7 +234,9 @@ def toolImprovedJetFitterInitializationHelper(name, useBTagFlagsDefaults = True,
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel' : BTaggingFlags.OutputLevel }
+        jetFitterFullLinearizedTrackFactory = toolJetFitterFullLinearizedTrackFactory('JFFullLinearizedTrackFactory')
+        defaults = { 'OutputLevel' : BTaggingFlags.OutputLevel,
+		     'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory}
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -270,10 +314,16 @@ def toolImprovedJetFitterRoutines(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        improvedJetFitterInitializationHelper = toolImprovedJetFitterInitializationHelper('ImprovedJFInitHelper')
+        trkDistanceFinderNeutralNeutral = toolTrkDistanceFinderNeutralNeutral('TrkDistFinderNeutralNeutral')
+        trkDistanceFinderNeutralCharged = toolTrkDistanceFinderNeutralCharged('TrkDistFinderNeutralCharged')
         defaults = { 'OutputLevel'          : BTaggingFlags.OutputLevel,
                      'BeFast'               : False,
                      'maxDRshift'           : 0.0,
-                     'noPrimaryVertexRefit' : False }
+                     'noPrimaryVertexRefit' : False,
+                     'JetFitterInitializationHelper' : improvedJetFitterInitializationHelper,
+                     'JetFitterMinimumDistanceFinder' : trkDistanceFinderNeutralCharged,
+                     'JetFitterMinimumDistanceFinderNeutral' : trkDistanceFinderNeutralNeutral, }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -301,6 +351,29 @@ def toolInDetJetFitterUtils(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'          : BTaggingFlags.OutputLevel }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetJetFitterUtils
+    return InDet__InDetJetFitterUtils(**options)
+
+def toolInDetJetFitterUtils_SV(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a InDetJetFitterUtils tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        jetFitterFullLinearizedTrackFactory = toolJetFitterFullLinearizedTrackFactory('JFFullLinearizedTrackFactory')
+        jetFitterExtrapolator = toolJetFitterExtrapolator('JFExtrapolator')
+        defaults = { 'OutputLevel'          : BTaggingFlags.OutputLevel,
+                     'LinearizedTrackFactory': jetFitterFullLinearizedTrackFactory,
+                     'Extrapolator' : jetFitterExtrapolator }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -364,6 +437,53 @@ def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+    from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetImprovedJetFitterVxFinder
+    return InDet__InDetImprovedJetFitterVxFinder(**options)
+
+def toolNewJetFitterVxFinder_SV(name, suffix = "", useBTagFlagsDefaults = True, **options):
+    """Sets up a NewJetFitterVxFinder tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+    VxPrimaryContainer                  default: BTaggingFlags.PrimaryVertexCollectionName
+    MaxNumDeleteIterations              default: 30
+    VertexProbCut                       default: 0.001
+    MaxClusteringIterations             default: 30
+    VertexClusteringProbabilityCut      default: 0.005
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        if not 'InDetKeys' in dir():
+            from InDetRecExample.InDetKeys import InDetKeys
+        inDetJetFitterUtils = toolInDetJetFitterUtils_SV('InDetJFUtils'+suffix)
+        improvedJetFitterRoutines = toolImprovedJetFitterRoutines('ImprovedJFRoutines'+suffix)
+        jetFitterMode3dTo1dFinder = toolJetFitterMode3dTo1dFinder('JFMode3dTo1dFinder'+suffix)
+        inDetImprovedJetFitterTrackSelectorTool = toolInDetImprovedJetFitterTrackSelectorTool('InDetImprovedJFTrackSelTool'+suffix)
+        jetFitterSequentialVertexFitter = toolJetFitterSequentialVertexFitter_SV('JFSeqVxFitter'+suffix)
+        jetFitterExtrapolator = toolJetFitterExtrapolator('JFExtrapolator'+suffix)
+        improvedJetFitterInitializationHelper = toolImprovedJetFitterInitializationHelper('ImprovedJFInitHelper'+suffix)
+        vertexEdmFactory = toolVxInternalEdmFactory_SV('VxInternalEdmFactory'+suffix)
+        defaults = { 'OutputLevel'                         : BTaggingFlags.OutputLevel,
+                     'VxPrimaryContainer'                  : BTaggingFlags.PrimaryVertexCollectionName,
+                     'MaxNumDeleteIterations'              : 30,
+                     'VertexProbCut'                       : 0.001,
+                     'MaxClusteringIterations'             : 30,
+                     'VertexClusteringProbabilityCut'      : 0.005 ,
+                     'VertexEdmFactory'                    : vertexEdmFactory,
+                     'JetFitterInitializationHelper'       : improvedJetFitterInitializationHelper,
+                     'InDetJetFitterUtils'                 : inDetJetFitterUtils,
+                     'Extrapolator'                        : jetFitterExtrapolator,
+                     'JetFitterRoutines'                   : improvedJetFitterRoutines,
+                     'TrackSelector'                       : inDetImprovedJetFitterTrackSelectorTool,
+                     'Mode3dFinder'                        : jetFitterMode3dTo1dFinder,
+                     'SequentialVertexFitter'              : jetFitterSequentialVertexFitter}
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name + suffix
     from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetImprovedJetFitterVxFinder
     return InDet__InDetImprovedJetFitterVxFinder(**options)
 
@@ -496,7 +616,7 @@ metaJetFitterTagNN = { 'IsATagger'         : True,
                        'xAODBaseName'      : 'JetFitter',
                        'DependsOn'         : ['AtlasExtrapolator',
                                               'BTagTrackToVertexTool',
-                                              'NewJetFitterVxFinder',
+                                              #'NewJetFitterVxFinder',
                                               'JetFitterNNTool',
                                               'NeuralNetworkToHistoToolNN',
                                               'JetFitterNtupleWriterNN'],

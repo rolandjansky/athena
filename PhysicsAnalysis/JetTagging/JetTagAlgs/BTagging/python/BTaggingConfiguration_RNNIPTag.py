@@ -14,7 +14,7 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
             'CalibrationTaggers' : [cal_dir],
             'DependsOn'         : ['AtlasExtrapolator',
                                    'BTagTrackToVertexTool',
-                                   'InDetVKalVxInJetTool',
+                                   #'InDetVKalVxInJetTool',
                                    'BTagTrackToVertexIPEstimator',
                                    'IP3DTrackSelector',
                                    'InDetTrackSelector',

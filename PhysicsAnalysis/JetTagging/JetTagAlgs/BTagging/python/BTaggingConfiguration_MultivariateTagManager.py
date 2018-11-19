@@ -10,7 +10,7 @@ metaMultivariateTagManager = { 'IsATagger'          : True,
                                       'BTagTrackToVertexTool',
                                       'IP2DTag',
                                       'IP3DTag',                                      
-                                      'NewJetFitterVxFinder',
+                                      #'NewJetFitterVxFinder',
                                       'SV1Tag'],
               'ToolCollection'     : 'MultivariateTagManager' }
 

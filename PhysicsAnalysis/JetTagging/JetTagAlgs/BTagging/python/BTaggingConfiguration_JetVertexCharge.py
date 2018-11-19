@@ -8,7 +8,7 @@ metaJetVertexCharge = { 'IsATagger'           : True,
                        'NeedsMuonAssociator'  : True,
                        'DependsOn'            : ['AtlasExtrapolator',
                                                  'BTagTrackToVertexTool',   #LC FIXME  check if it works  
-                                                 'NewJetFitterVxFinder',
+                                                 #'NewJetFitterVxFinder',
                                                  'MuonCorrectionsTool',
                                                  'MuonSelectorTool',
                                                  ],

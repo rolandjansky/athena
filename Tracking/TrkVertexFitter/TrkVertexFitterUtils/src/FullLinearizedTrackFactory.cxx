@@ -23,7 +23,7 @@ namespace Trk
 {
 
   FullLinearizedTrackFactory::FullLinearizedTrackFactory(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),m_extrapolator("Trk::Extrapolator"),
+    AthAlgTool(t,n,p),m_extrapolator("Trk::Extrapolator", this),
     m_magFieldSvc("AtlasFieldSvc", n)
   {  
     declareProperty("Extrapolator",     m_extrapolator);  
