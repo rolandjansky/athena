@@ -171,6 +171,7 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_SUSYTools_config_checker
       SCRIPT test/ut_SUSYTools_config_checker.py
       EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
+   set_tests_properties( SUSYTools_ut_SUSYTools_config_checker_ctest PROPERTIES TIMEOUT 300)
    # Additional veto lines: more timing, local conf file this thing is writing
    atlas_add_test( ut_SUSYTools_wp_checker
       SCRIPT test/ut_SUSYTools_wp_checker.py
