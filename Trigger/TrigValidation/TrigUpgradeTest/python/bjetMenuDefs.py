@@ -49,6 +49,7 @@ def bJetStep1Sequence():
     # input maker
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker_step1")
+    InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
     InputMakerAlg.Output = "FSJETRoIs"
 
@@ -60,6 +61,7 @@ def bJetStep1Sequence():
     # Construct RoI. Needed input for Fast Tracking
     from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
     RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
+    RoIBuilder.OutputLevel = DEBUG
     RoIBuilder.JetInputKey = sequenceOut
     RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
 
@@ -69,6 +71,7 @@ def bJetStep1Sequence():
 
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
     theFTF_Jet = TrigFastTrackFinder_Jet()
+    theFTF_Jet.OutputLevel = DEBUG
     theFTF_Jet.isRoI_Seeded = True
     theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
     viewAlgs.append( theFTF_Jet )
@@ -85,6 +88,7 @@ def bJetStep1Sequence():
     # Shortlis of jets
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
     jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
+    jetSplitter.OutputLevel = DEBUG
     jetSplitter.ImposeZconstraint = True 
     jetSplitter.Jets = sequenceOut
     jetSplitter.OutputJets = "SplitJets"
