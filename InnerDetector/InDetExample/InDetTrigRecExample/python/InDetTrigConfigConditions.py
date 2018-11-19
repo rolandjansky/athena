@@ -133,7 +133,7 @@ class PixelConditionsServicesSetup:
       svcMgr += PixelCalibSvc
 
     if not conddb.folderRequested("/PIXEL/PixReco"):
-      conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco",className="DetCondCFloat") 
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
