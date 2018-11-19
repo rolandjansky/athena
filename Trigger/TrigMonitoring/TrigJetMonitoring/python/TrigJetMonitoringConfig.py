@@ -80,7 +80,7 @@ hlt_hltEtBinsHigh              = [ 500., 500.]
 
 hlt_JetKeys = { "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS"}
 
-hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets"}
+hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets", "AntiKt4HIJets":"AntiKt4HIJets"}
 
 
 
