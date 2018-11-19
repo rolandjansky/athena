@@ -88,6 +88,8 @@ if DetFlags.digitize.SCT_on():
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
     getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
     getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
+    getPublicTool("SCT_DigitizationTool").FrontEnd.DataReadOutMode = 0
+    
 
     if not digitizationFlags.doXingByXingPileUp():
         if DetFlags.pileup.SCT_on():
