@@ -413,7 +413,7 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
     return StatusCode::RECOVERABLE;      
   }    
 
-  const DataLink<CaloCellContainer> cellCollLink (cellColl.name());
+  const DataLink<CaloCellContainer> cellCollLink (cellColl.name(),ctx);
 
   //ATH_MSG_DEBUG("CaloCell container: "<< cellsName 
   //		  <<" contains " << cellColl->size() << " cells");
