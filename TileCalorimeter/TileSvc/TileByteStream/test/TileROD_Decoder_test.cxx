@@ -232,12 +232,35 @@ void test3 (TileROD_Decoder* decoder_nc)
       coll.push_back (std::make_unique<TileCell>(&ddes[j], 0));
     }
 
-    decoder->fillCollectionHLT (&data01.rob(), coll);
+    TileROD_Decoder::D0CellsHLT d0cells;
+    uint32_t stat = decoder->fillCollectionHLT (&data01.rob(), coll, d0cells);
+    assert (stat == 0);
     std::cout << "TileCellCollection: " << coll.size() << "\n";
     std::cout << static_cast<std::string> (coll);
     std::cout << "\n";
 
-    decoder->mergeD0cellsHLT (coll);
+    std::cout << "d0cells: " << "\n";
+    for (int i=0; i < 64; i++) {
+      std::cout << i << " "
+                << d0cells.m_D0Existpos[i] << " "
+                << d0cells.m_D0Existneg[i] << " "
+                << d0cells.m_D0Maskpos[i] << " "
+                << d0cells.m_D0Maskneg[i] << " "
+                << d0cells.m_D0chanpos[i].channel() << " "
+                << d0cells.m_D0chanpos[i].adc() << " "
+                << d0cells.m_D0chanpos[i].amplitude() << " "
+                << d0cells.m_D0chanpos[i].time() << " "
+                << d0cells.m_D0chanpos[i].quality() << " "
+                << d0cells.m_D0channeg[i].channel() << " "
+                << d0cells.m_D0channeg[i].adc() << " "
+                << d0cells.m_D0channeg[i].amplitude() << " "
+                << d0cells.m_D0channeg[i].time() << " "
+                << d0cells.m_D0channeg[i].quality()
+                << "\n";
+    }
+    std::cout << "\n";
+
+    decoder->mergeD0cellsHLT (d0cells, coll);
     std::cout << "merged TileCellCollection: " << coll.size() << "\n";
     std::cout << static_cast<std::string> (coll);
     std::cout << "\n";

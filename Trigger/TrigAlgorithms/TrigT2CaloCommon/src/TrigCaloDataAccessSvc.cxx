@@ -451,6 +451,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHash>& rIds,
                                                TileCellCont* tilecell ) {
   unsigned int status(0);
+  TileROD_Decoder::D0CellsHLT d0cells;
 
   size_t listIDsize = rIds.size();
   std::vector<unsigned int> tile; tile.push_back(0);
@@ -484,8 +485,8 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHas
             robFrags1.clear();
           } else  {// End of if small size
           if ( !tilecell->cached(rIds[i]))
-          m_tileDecoder->fillCollectionHLT(robFrags1[0],*col);
-          m_tileDecoder->mergeD0cellsHLT(*col);
+          m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells);
+          m_tileDecoder->mergeD0cellsHLT(d0cells,*col);
           // Accumulates superior byte from ROD Decoder
           //m_error|=m_tileDecoder->report_error();
           robFrags1.clear();
