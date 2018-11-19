@@ -13,7 +13,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 # We should retrieve all the steps here
 from TrigUpgradeTest.bjetMenuDefs import getBJetSequence
 step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
-#step3 = ChainStep("Step3_bjet", [getBJetSequence('bTag')])
 
 testChains  = [                                                                                                                                                                         
     Chain(name='HLT_j35_gsc45_boffperf_split' , Seed="L1_J20",  ChainSteps=[step1] ),
@@ -34,7 +33,7 @@ if globalflags.InputFormat.is_bytestream():
 for unpack in topSequence.L1DecoderTest.roiUnpackers:
    if unpack.name() is "JRoIsUnpackingTool":
 #      unpack.Decisions="L1J"
-      unpack.FSDecisions="L1J"
+#      unpack.FSDecisions="L1J"
       jetUnpacker=unpack
       
 # this is a temporary hack to include new test chains

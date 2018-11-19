@@ -35,7 +35,6 @@ namespace ISF {
 
     class IParticleMgr;
     class ITruthSvc;
-    class ISimHitSvc;
     class ISimulationSvc;
     class IMonitoringTool;
     class IEventFilterTool;
@@ -47,7 +46,6 @@ namespace ISF {
       The ISF::SimKernel is configured by providing:
         - one particle stack service (ISF::IParticleMgr )
         - one truth record service (ISF::ITruthSvc)
-        - one simulation hit service (ISF::ISimHitSvc)
         - n simulation services for the subdetector geometries ( ISF::ISimulationSvc )
 
       The AthAlgorithm::initialize() framework call triggers:
@@ -102,8 +100,6 @@ namespace ISF {
     ServiceHandle<IParticleBroker>       m_particleBroker;
     /** Central truth service */
     ServiceHandle<ITruthSvc>             m_truthRecordSvc;
-    /** Central simulation hit service, called afer particle loop */
-    ServiceHandle<ISimHitSvc>            m_simHitSvc;
 
     /** The Simulation Selector Chains */
     ToolHandleArray<ISimulationSelector> m_simSelectors[AtlasDetDescr::fNumAtlasRegions];

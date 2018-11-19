@@ -125,7 +125,7 @@ Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", 
 Stream2.CheckNumberOfWrites = False
 Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", True, noTag=True )
 Stream1.CheckNumberOfWrites = False
-Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split2.root", True, noTag=True )
+Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split3.root", True, noTag=True )
 Stream3.CheckNumberOfWrites = False
 Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", True, noTag=True )
 Others.CheckNumberOfWrites = False
@@ -148,7 +148,6 @@ Stream1.TakeItemsFromInput = True
 Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
-# --- NOTE that this writes to the same file as STream2 ***
 Stream3.TakeItemsFromInput = True
 #Stream3.MetadataItemList   += exampleMetadataList
 Stream3.ForceRead=TRUE

@@ -38,8 +38,10 @@
 //=============================================================================
 AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   AsgTool(myname),
-  m_configFile(""),
-  m_rootTool(0)
+  m_configFile{""},
+  m_rootTool{nullptr},
+  m_HIESContKey{"CaloSums"},
+  m_primVtxContKey{"PrimaryVertices"}
 {
 
   // Create an instance of the underlying ROOT tool
@@ -50,10 +52,10 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
+  declareProperty("primaryVertexContainer", m_primVtxContKey="PrimaryVertices", "The primary vertex container name" );
   declareProperty("useCaloSumsContainer", m_useCaloSumsCont=true, "Whether to use the CaloSums container");
   declareProperty("fcalEtDefault", m_fcalEtDefault = 0, "The default FCal sum ET");
-  declareProperty("CaloSumsContainer", m_CaloSumsContName="CaloSums", "The CaloSums container name" );
+  declareProperty("CaloSumsContainer", m_HIESContKey="CaloSums", "The CaloSums container name" );
 
 
 
@@ -159,8 +161,8 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
     if(configFile==""){ 
-	ATH_MSG_ERROR("Could not locate " << m_configFile );
-	return StatusCode::FAILURE;
+      ATH_MSG_ERROR("Could not locate " << m_configFile );
+      return StatusCode::FAILURE;
     } 
 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
@@ -171,8 +173,8 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     
     if(!m_pdfFileName.empty())
       {  //If the property was set by the user, take that.
-	ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
-	PDFfilename = m_pdfFileName;
+        ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
+        PDFfilename = m_pdfFileName;
       } else {
       if (m_configFile.find("dev/") != std::string::npos) {
 	
@@ -191,10 +193,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       ATH_MSG_ERROR ("Could not find PDF file");
       return StatusCode::FAILURE;
     }
-
-    // Setup primary vertex key handle
-    m_primVtxContKey = m_primVtxContName;
-    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
 
     m_rootTool->m_variableNames =  env.GetValue("VariableNames","");
     m_rootTool->m_cutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
@@ -242,33 +240,30 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->m_discLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
     m_rootTool->m_discMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
     m_rootTool->m_pileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
-
-
-    // Setup HI container key handle (must come after init from env)
-    m_HIESContKey = m_CaloSumsContName;
-    bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
-    ATH_CHECK( m_HIESContKey.initialize(doCentralityTransform) );
-    
+   
   } else{  //Error if it cant find the conf
       ATH_MSG_ERROR("Could not find configuration file");
       return StatusCode::FAILURE;
   }
-
-///-----------End of text config----------------------------
+  ///-----------End of text config----------------------------
+  
+  // Setup primary vertex key handle
+  ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+  // Setup HI container key handle (must come after init from env) 
+  bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
+  ATH_CHECK(m_HIESContKey.initialize(doCentralityTransform&&m_useCaloSumsCont));
+ 
 
   // Get the name of the current operating point, and massage the other strings accordingly
   ATH_MSG_VERBOSE( "Going to massage the labels based on the provided operating point..." );
-
   // Get the message level and set the underlying ROOT tool message level accordingly
   m_rootTool->msg().setLevel(this->msg().level());
   
   // We need to initialize the underlying ROOT TSelectorTool
-  if ( m_rootTool->initialize().isFailure() )
-    {
-      ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronLikelihoodTool!" );
-      return StatusCode::FAILURE;
-    }
-
+  if ( m_rootTool->initialize().isFailure() ){
+    ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronLikelihoodTool!" );
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS ;
 }
 

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: BeamBackgroundData.h 659084 2015-04-06 03:39:10Z ssnyder $
 #ifndef RECBACKGROUNDEVENT_BEAMBACKGROUNDDATA
 #define RECBACKGROUNDEVENT_BEAMBACKGROUNDDATA
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthLinks/ElementLinkVector.h"
 #include "TrkSegment/Segment.h"
 #include "TrkSegment/SegmentCollection.h"

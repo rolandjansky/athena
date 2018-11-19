@@ -39,10 +39,10 @@ public:
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
 private:
-  short m_ordered;
+  short m_ordered{};
   DataLink_p2 m_keyStore;
   //DataLink_p2 m_momentMapLink;
-  unsigned short m_jetAuthor;
+  unsigned short m_jetAuthor{};
   // Only to fix reading of very early release 16 validation sample
   bool m_jetIdBugFixed;
 };

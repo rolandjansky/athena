@@ -54,6 +54,7 @@ StatusCode CaloRescaleNoise::initialize()
 
   ATH_CHECK( m_noiseTool.retrieve() );
   ATH_CHECK( m_hvCorrTool.retrieve() );
+  ATH_CHECK( m_cabling.retrieve());
   ATH_CHECK( detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
@@ -94,6 +95,7 @@ StatusCode CaloRescaleNoise::stop()
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
+       HWIdentifier hwid=m_cabling->createSignalChannelID(id);
        const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
        int subCalo;
        IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
@@ -143,7 +145,7 @@ StatusCode CaloRescaleNoise::stop()
 
        if (iCool<48) {
           hvcorr = m_hvCorrTool->Scale(id);
-          hvonline = m_dd_HVScaleCorr->HVScaleCorr(id);
+          hvonline = m_dd_HVScaleCorr->HVScaleCorr(hwid);
        }
 
        const double inv_hvonline = (hvonline != 0) ? 1. / hvonline : 1;

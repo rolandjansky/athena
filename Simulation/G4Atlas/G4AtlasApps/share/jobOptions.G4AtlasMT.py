@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
 #
@@ -62,6 +62,12 @@ simFlags.EventFilter.set_Off()
 #simFlags.LArParameterization = 2
 # Magnetic field
 simFlags.MagneticField.set_On()
+
+# In rare cases, TBB can spawn new theads even after initialization is
+# complete.  But the GeoModel is needed in order to initialize new threads.
+# So we cannot safely drop the GeoModel in MT jobs.
+simFlags.ReleaseGeoModel = False
+
 
 # Debug outputs of user actions
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG

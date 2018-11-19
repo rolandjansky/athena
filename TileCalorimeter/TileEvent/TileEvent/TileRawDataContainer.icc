@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of TileRawDataContainer 
@@ -14,8 +14,8 @@
 #include <sstream>
 #include <iomanip>
 
-template <typename _TCollection> 
-void TileRawDataContainer<_TCollection>::initialize(bool createColl, TYPE type,
+template <typename TCOLLECTION> 
+void TileRawDataContainer<TCOLLECTION>::initialize(bool createColl, TYPE type,
                                                     SG::OwnershipPolicy ownPolicy)
 {
     // initialize HashFunc
@@ -25,7 +25,7 @@ void TileRawDataContainer<_TCollection>::initialize(bool createColl, TYPE type,
         int ncoll = this->m_hashFunc.max();
         for(int i=0; i<ncoll;++i){
             TileFragHash::ID frag = this->m_hashFunc.identifier(i);
-            _TCollection * coll = new _TCollection(frag,ownPolicy) ;
+            TCOLLECTION * coll = new TCOLLECTION(frag,ownPolicy) ;
             StatusCode sc = this->addCollection(coll,static_cast<IdentifierHash>(i));
             if (sc.isFailure() ) {
                 ISvcLocator* svcLoc = Gaudi::svcLocator( );
@@ -47,8 +47,8 @@ void TileRawDataContainer<_TCollection>::initialize(bool createColl, TYPE type,
     return; 
 }
 
-template <typename _TCollection> 
-TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
+template <typename TCOLLECTION> 
+TileRawDataContainer<TCOLLECTION>::TileRawDataContainer(bool createColl,
                                                          TYPE type,
                                                          UNIT unit,
                                                          SG::OwnershipPolicy ownPolicy)
@@ -62,8 +62,8 @@ TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
     return; 
 }
 
-template <typename _TCollection> 
-TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
+template <typename TCOLLECTION> 
+TileRawDataContainer<TCOLLECTION>::TileRawDataContainer(bool createColl,
                                                          SG::OwnershipPolicy ownPolicy)
     : MyBase(TileCablingService::getInstance()->getTileHWID()->drawer_hash_max())
     , m_unit(TileRawChannelUnit::ADCcounts)
@@ -75,23 +75,23 @@ TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
     return; 
 }
 
-template <typename _TCollection> 
-void TileRawDataContainer<_TCollection>::clear()
+template <typename TCOLLECTION> 
+void TileRawDataContainer<TCOLLECTION>::clear()
 {
     TContainer_const_iterator it1 = this->begin();
     TContainer_const_iterator it2 = this->end();
 
     for(;it1!=it2;++it1){
-        const _TCollection * const_coll = *it1; 
-        _TCollection * coll = const_cast<_TCollection *>(const_coll);
+        const TCOLLECTION * const_coll = *it1; 
+        TCOLLECTION * coll = const_cast<TCOLLECTION *>(const_coll);
         coll->clear();
     }
 
     return; 
 }
 
-template <typename _TCollection> 
-void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
+template <typename TCOLLECTION> 
+void TileRawDataContainer<TCOLLECTION>::add(TElement* rc, bool createColl,
                                              SG::OwnershipPolicy ownPolicy)
 {
     if (this->m_hashFunc.max() == 0 && TileCablingService::getInstance()->getTileHWID() != 0) {
@@ -104,7 +104,7 @@ void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
     //    return ; 
     //}
                                 
-    _TCollection * coll; 
+    TCOLLECTION * coll; 
 
     int frag = rc->frag_ID();
     IdentifierHash fragHash = static_cast<IdentifierHash>(m_hashFunc(frag));
@@ -120,7 +120,7 @@ void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
 
         if (createColl) {
 
-            coll = new _TCollection(frag,ownPolicy);
+            coll = new TCOLLECTION(frag,ownPolicy);
             StatusCode sc = this->addCollection(coll,fragHash);
             if (sc.isFailure() ) {
 
@@ -159,22 +159,22 @@ void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
           } 
     } else { // collection exists
 
-        const _TCollection * const_coll = *it; 
-        coll = const_cast<_TCollection *>(const_coll);
+        const TCOLLECTION * const_coll = *it; 
+        coll = const_cast<TCOLLECTION *>(const_coll);
     }
     
     coll->push_back(rc);         
     return ;
 }                             
                               
-template <typename _TCollection> 
-void TileRawDataContainer<_TCollection>::print() const
+template <typename TCOLLECTION> 
+void TileRawDataContainer<TCOLLECTION>::print() const
 {
     std::cout << (std::string) (*this) << std::endl;
 }
 
-template <typename _TCollection> 
-TileRawDataContainer<_TCollection>::operator std::string() const
+template <typename TCOLLECTION> 
+TileRawDataContainer<TCOLLECTION>::operator std::string() const
 {
     std::ostringstream text(std::ostringstream::out);
 
@@ -187,7 +187,7 @@ TileRawDataContainer<_TCollection>::operator std::string() const
     TContainer_const_iterator it1 = this->begin();
     TContainer_const_iterator it2 = this->end();
 
-    const _TCollection * coll;
+    const TCOLLECTION * coll;
     
     for(;it1!=it2;++it1){
         coll = (*it1);

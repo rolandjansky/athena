@@ -89,7 +89,6 @@ for i in xrange(2):
 
 if 'OUTPUT' not in dir():
    OUTPUT = "thinned.%s" % INPUT[0]
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 # Stream's output file
 outStreams[0].OutputFile = OUTPUT

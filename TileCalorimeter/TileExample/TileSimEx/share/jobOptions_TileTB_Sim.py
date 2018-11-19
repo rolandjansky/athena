@@ -132,6 +132,19 @@ if 'TileUshape' in dir():
     from AtlasGeoModel import TileGM
     GeoModelSvc.DetectorTools[ "TileDetectorTool" ].Ushape = TileUshape
 
+#---- Special option to enable Cs tubes in simulation. Any value > 0 enables them
+if 'TileCsTube' in dir():
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc = GeoModelSvc()
+    from AtlasGeoModel import TileGM
+    GeoModelSvc.DetectorTools[ "TileDetectorTool" ].CsTube = TileCsTube
+
+#---- If GDML variable is defined, full geometery is dumped to GDML file
+if 'GDML' in dir():
+    include("G4DebuggingTools/VolumeDebugger_options.py")
+    #simFlags.OptionalUserActionList.addAction('G4UA::VolumeDebuggerTool')
+    simFlags.UserActionConfig.addConfig('G4UA::VolumeDebuggerTool',"OutputPath","./TileTB_%s.gdml" % Geo)
+    simFlags.UserActionConfig.addConfig('G4UA::VolumeDebuggerTool',"TargetVolume","") #You can set this to whatever volume you like
 
 #--- Generator flags ------------------------------------------
 
@@ -165,7 +178,7 @@ if not 'Zbeam' in dir():
 if not 'Tbeam' in dir():
     Tbeam=[-31250,-23750]
 pg.sampler.pid = PID
-pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=Tbeam)
+pg.sampler.pos = PG.PosSampler(x=Xbeam, y=Ybeam, z=Zbeam, t=Tbeam)
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
@@ -203,7 +216,7 @@ if 'VerboseTracking' in dir():
 
 ## Set non-standard range cut
 if 'RangeCut' in dir():
-    svcMgr.ToolSvc['PhysicsListToolBase'].GeneralCut=RangeCut
+    svcMgr.ToolSvc.PhysicsListToolBase.GeneralCut=RangeCut
 
 #--- Final step -----------------------------------------------
 
@@ -212,8 +225,7 @@ from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # uncomment and modify any of options below to have non-standard simulation 
-from AthenaCommon.AppMgr import ToolSvc
-SD = ToolSvc.SensitiveDetectorMasterTool.SensitiveDetectors[0]
+SD = svcMgr.TileCTBGeoG4SDCalc
 SD.TileTB=True
 # SD.DeltaTHit = [ 50. ]
 # SD.TimeCut = 200.5
@@ -231,5 +243,23 @@ print SD
 if 'VP1' in dir():
     from VP1Algs.VP1AlgsConf import VP1Alg
     topSeq += VP1Alg()
+
+## Write Calibration Hit ID and hit coordinates into Ntuple
+if 'CalibrationRun' in dir() and 'HitInfo' in dir():
+    ## Root Ntuple output
+    theApp.HistogramPersistency = "ROOT"
+    svcMgr = theApp.serviceMgr()
+    if not hasattr(svcMgr,"THistSvc"):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr+=THistSvc()
+    svcMgr.THistSvc.Output += [ "AANT DATAFILE='Hits.Ntup.root' OPT='RECREATE' " ]
+    svcMgr.THistSvc.MaxFileSize = 32768
+    #svcMgr.THistSvc.CompressionLevel = 5
+
+    ## Tool to create TileCalibHitCnt Ntuple
+    from AthenaCommon.AppMgr import ToolSvc
+    from TileSimUtils.TileSimUtilsConf import TileCalibHitCntNtup
+    theTileCalibHitCntNtup = TileCalibHitCntNtup()
+    ToolSvc += theTileCalibHitCntNtup
 
 #--- End of jobOptions_TileTB_Sim.py --------------------------

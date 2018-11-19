@@ -22,6 +22,8 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
+    if muonRecFlags.doNSWNewThirdChain():
+        topSequence.MuonCombinedDetailedTrackTruthMaker.doNSW=True
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
     for i in range(0, len(cols)):

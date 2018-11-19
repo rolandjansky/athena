@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,11 @@ namespace SG {
   StatusCode VarHandleKeyArrayCommon<Base>::initialize (bool used /*= true*/) {
     StatusCode sc(StatusCode::SUCCESS);
     if (used) {
+      IDataHandleHolder* const owner = this->owner();
       for (Base& b : *this) {
+	if (owner != nullptr) {
+	  b.setOwner(owner);
+	}
         if ( b.initialize().isFailure() ) {
           sc = StatusCode::FAILURE;
         }

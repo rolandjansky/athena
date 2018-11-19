@@ -36,7 +36,7 @@ class SCT_ConditionsParameterTestAlg : public AthAlgorithm {
   StatusCode finalize() override;   //!< Gaudi finaliser
     
  private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey; //!< Current event
+  SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey{this, "EventInfoKey", "EventInfo", "Key of EventInfo"};
   ToolHandle<ISCT_ConditionsParameterTool> m_conditionsParameterTool{this, "SCT_ConditionsParameterTool", "SCT_ConditionsParameterTool", "Tool to retrieve SCT conditions parameters"};
 };
 

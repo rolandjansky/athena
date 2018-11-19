@@ -1,13 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RoiWriter.cxx
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)
-//
-//   $Id: RoiWriter.cxx 781778 2016-11-01 23:42:26Z sutt $
-
 
 // EDM include(s):
 #include "xAODTrigger/RoiDescriptorStore.h"

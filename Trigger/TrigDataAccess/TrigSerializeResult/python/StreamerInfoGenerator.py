@@ -1,6 +1,6 @@
 #!/usr/bin/env pyroot.py 
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 import cppyy
 
 class StreamerInfoGenerator:
@@ -12,9 +12,8 @@ class StreamerInfoGenerator:
     #MN: ROOT6 strips std:: from types, so we need to check the names
     self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
     self.type = cppyy.gbl.RootType
-#    cppyy.loadDict('libSTLRflx')
-#    cppyy.loadDict('libSTLAddRflx')
-#    cppyy.loadDict('libAtlasSTLAddReflexDict')
+    self.type.EnableCintex()
+    cppyy.loadDict('libAtlasSTLAddReflexDict')
     #MN: switch off auto dict generation - god knows what that can mess up
     cppyy.gbl.gROOT.ProcessLine(".autodict")
 

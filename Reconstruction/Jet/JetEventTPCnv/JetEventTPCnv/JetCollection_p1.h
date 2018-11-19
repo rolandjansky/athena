@@ -35,8 +35,8 @@ class JetCollection_p1 : public std::vector<Jet_p1>
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
 private:
-  std::string m_roiAuthor;
-  short m_ordered;
+  std::string m_roiAuthor{};
+  short m_ordered{};
 };
 
 #endif //> RECTPCNV_JETCOLLECTION_P1_H

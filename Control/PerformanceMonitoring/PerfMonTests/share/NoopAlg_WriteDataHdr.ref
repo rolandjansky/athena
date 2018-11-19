@@ -1,0 +1,20 @@
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::: ChapPy is launching script [PerfMonTests/atn_test_perfMonSvc_noopalg_write_datahdr.py] :::
+Py:Athena            INFO including file "PerfMonTests/atn_test_perfMonSvc_noopalg_write_datahdr.py"
+################################################################################
+## PerfMon test... [noopalg-write-datahdr]
+################################################################################
+
+################################################################################
+## testing PerfMonSvc [PerfMonTests/test_perfMonSvc_noopalg_write_datahdr.py]
+                  ==> [perfmon.noopalg.write_datahdr.root]... (1000)
+ :::running [.............] ==> [OK]
+ :::running [..............] ==> [OK]
+ :::running [perfmon.py]...
+## [DONE]
+
+################################################################################
+## [All tests SUCCESSFULLY completed]
+## Bye.
+################################################################################
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

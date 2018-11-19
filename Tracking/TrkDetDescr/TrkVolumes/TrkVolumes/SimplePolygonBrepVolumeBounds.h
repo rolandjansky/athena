@@ -11,7 +11,7 @@
     
 // Trk
 #include "TrkVolumes/VolumeBounds.h"
-#include "TrkDetDescrUtils/EightObjectsAccessor.h"
+#include "TrkDetDescrUtils/ObjectsAccessor.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 class MsgStream;
@@ -70,9 +70,9 @@ namespace Trk {
     const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
-    const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
-                                                  const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const override;
+    ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
+                                           const Amg::Vector3D& dir,
+                                           bool forceInside=false) const override;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif                                            
@@ -154,10 +154,10 @@ namespace Trk {
  
  inline const Trk::Volume* SimplePolygonBrepVolumeBounds::envelope() const { return m_envelope; }
  
- inline const ObjectAccessor& SimplePolygonBrepVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
-                                                                                     const Amg::Vector3D&,
-                                                                                     bool) const
- { return(m_objectAccessor); }
+ inline ObjectAccessor SimplePolygonBrepVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
+                                                                              const Amg::Vector3D&,
+                                                                              bool) const
+ { return Trk::ObjectAccessor(m_objectAccessor); }
 
 }
 

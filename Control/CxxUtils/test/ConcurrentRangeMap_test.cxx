@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -47,7 +47,15 @@ struct RangeCompare
   { return r1.m_begin < r2.m_begin; }
   bool inRange (const Time t, const Range& r) const
   { return t >= r.m_begin && t < r.m_end; }
-    
+
+  bool extendRange (Range& r, const Range& newRange) const
+  {
+    if (r.m_begin != newRange.m_begin) {
+      return false;
+    }
+    r.m_end = std::max (r.m_end, newRange.m_end);
+    return true;
+  }
 };
 
 
@@ -459,6 +467,77 @@ void test1a()
     assert (map.find (92) == nullptr);
     assert (map.find (94)->second->m_x == 650);
     assert (map.find (99)->second->m_x == 660);
+
+    assert (!phist.empty());
+
+    assert (map.nInserts() == 12);
+    assert (map.maxSize()  == 6);
+
+    //======
+
+    TestMap::const_iterator it;
+
+    it = map.extendLastRange (Range (97, 110));
+    assert (it != nullptr);
+    
+    // 93..96->650 97..110->660 - - - - - -
+    assert (map.capacity() == 8);
+    assert (map.size() == 2);
+    r = map.range();
+    assert (r.size() == 2);
+    assert (it == r.end()-1);
+    assert (r.begin()->second->m_x == 650);
+    assert ((r.begin()+1)->second->m_x == 660);
+    assert ((r.begin()+1)->first.m_begin == 97);
+    assert ((r.begin()+1)->first.m_end == 110);
+    assert (map.find (92) == nullptr);
+    assert (map.find (94)->second->m_x == 650);
+    assert (map.find (105)->second->m_x == 660);
+
+    assert (!phist.empty());
+
+    assert (map.nInserts() == 12);
+    assert (map.maxSize()  == 6);
+
+    //======
+
+    it = map.extendLastRange (Range (97, 105));
+    assert (it != nullptr);
+    
+    // 93..96->650 97..110->660 - - - - - -
+    assert (map.capacity() == 8);
+    assert (map.size() == 2);
+    r = map.range();
+    assert (r.size() == 2);
+    assert (it == r.end()-1);
+    assert (r.begin()->second->m_x == 650);
+    assert ((r.begin()+1)->second->m_x == 660);
+    assert ((r.begin()+1)->first.m_begin == 97);
+    assert ((r.begin()+1)->first.m_end == 110);
+    assert (map.find (92) == nullptr);
+    assert (map.find (94)->second->m_x == 650);
+    assert (map.find (105)->second->m_x == 660);
+
+    assert (!phist.empty());
+
+    assert (map.nInserts() == 12);
+    assert (map.maxSize()  == 6);
+
+    //======
+
+    assert ( ! map.extendLastRange (Range (98, 120)));
+    // 93..96->650 97..110->660 - - - - - -
+    assert (map.capacity() == 8);
+    assert (map.size() == 2);
+    r = map.range();
+    assert (r.size() == 2);
+    assert (r.begin()->second->m_x == 650);
+    assert ((r.begin()+1)->second->m_x == 660);
+    assert ((r.begin()+1)->first.m_begin == 97);
+    assert ((r.begin()+1)->first.m_end == 110);
+    assert (map.find (92) == nullptr);
+    assert (map.find (94)->second->m_x == 650);
+    assert (map.find (105)->second->m_x == 660);
 
     assert (!phist.empty());
 

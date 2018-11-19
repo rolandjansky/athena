@@ -54,6 +54,17 @@ StatusCode IsolationBuilder::initialize()
 			  m_customConfigMu));
 			  
 
+  // declare the dependencies
+  // (need to do this since the WriteDecorHandleKeys are not properties
+  declareIso(m_elCaloIso);
+  declareIso(m_phCaloIso);
+  declareIso(m_feCaloIso);
+  declareIso(m_muCaloIso);
+
+  declareIso(m_elTrackIso);
+  declareIso(m_phTrackIso);
+  declareIso(m_muTrackIso);
+
   // Retrieve the tools (there three Calo ones are the same in fact)
   if (!m_cellIsolationTool.empty() && runIsoType.find(xAOD::Iso::etcone) != runIsoType.end()) {
     ATH_CHECK(m_cellIsolationTool.retrieve());
@@ -132,6 +143,49 @@ StatusCode IsolationBuilder::execute()
   return StatusCode::SUCCESS;
 }
 
+// constructor
+IsolationBuilder::CaloIsoHelpKey::CaloIsoHelpKey(IDataHandleHolder* owningAlg)
+{
+  isoDeco.setOwner(owningAlg);
+  corrBitsetDeco.setOwner(owningAlg);
+}
+
+// declare dependencies
+void IsolationBuilder::CaloIsoHelpKey::declare(IDataHandleHolder* owningAlg)
+{
+  isoDeco.declare(owningAlg);
+  owningAlg->declare(corrBitsetDeco);
+
+  for (auto& coreCor : coreCorDeco) {
+    owningAlg->declare(coreCor.second);
+  }
+
+  for (auto& noncoreCor : noncoreCorDeco) {
+    noncoreCor.second.declare(owningAlg);
+  }
+}
+
+// constructor
+IsolationBuilder::TrackIsoHelpKey::TrackIsoHelpKey(IDataHandleHolder* owningAlg)
+{
+  isoDeco.setOwner(owningAlg);
+  isoDecoV.setOwner(owningAlg);
+  corrBitsetDeco.setOwner(owningAlg);
+}
+
+// declare dependencies
+void IsolationBuilder::TrackIsoHelpKey::declare(IDataHandleHolder* owningAlg)
+{
+  isoDeco.declare(owningAlg);
+  isoDecoV.declare(owningAlg);
+  owningAlg->declare(corrBitsetDeco);
+
+  for (auto& coreCor : coreCorDeco) {
+    owningAlg->declare(coreCor.second);
+  }
+}
+
+// constructor
 IsolationBuilder::CaloIsoHelpHandles::CaloIsoHelpHandles(const IsolationBuilder::CaloIsoHelpKey& keys) :
   corrBitsetDeco(keys.corrBitsetDeco)
 {
@@ -169,7 +223,7 @@ bool IsolationBuilder::isCoreCor(xAOD::Iso::IsolationCaloCorrection cor) {
 	  cor == xAOD::Iso::coreMuon ||
 	  cor == xAOD::Iso::core57cells);
 }
-  
+
 
 StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
 					   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >*  caloIsoMap, // out
@@ -188,15 +242,19 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     //   Note: it is a configuration error if different types
     //         are included in one inner vector
 
-    CaloIsoHelpKey cisoH;
-    TrackIsoHelpKey tisoH;
+    CaloIsoHelpKey cisoH(this);
+    TrackIsoHelpKey tisoH(this);
     
     //std::vector<SG::AuxElement::Decorator<float>*> Deco;
     xAOD::Iso::IsolationFlavour isoFlav =
       xAOD::Iso::numIsolationFlavours;
     xAOD::Iso::IsolationFlavour oldIsoFlav =
       xAOD::Iso::numIsolationFlavours;
-    for (size_t type = 0; type < isoInts[flavor].size();type++) { // the cone size
+
+    for (size_t type = 0; type < isoInts[flavor].size();type++) { 
+      // iterate over the cone sizes for a given flavor.
+      // (also check that the cone sizes really are of the same flavor; otherwise an error)
+      
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(isoInts[flavor][type]);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
       ATH_MSG_DEBUG("Saw isoType " << isoType << " and isoFlav " << isoFlav);
@@ -212,130 +270,43 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
       if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
 	cisoH.isoTypes.push_back(isoType);
 	cisoH.isoDeco.emplace_back(isoName);
-	ATH_MSG_DEBUG("initializing " << cisoH.isoDeco.back().key());
-	ATH_CHECK(cisoH.isoDeco.back().initialize());
       } else if (isoFlav == xAOD::Iso::ptcone) {
 	tisoH.isoTypes.push_back(isoType);
 	tisoH.isoDeco.emplace_back(isoName);
-	ATH_MSG_DEBUG("initializing " << tisoH.isoDeco.back().key());
-	ATH_CHECK(tisoH.isoDeco.back().initialize());
 	auto coneSize = static_cast<int>(round(100*xAOD::Iso::coneSize(isoType)));
 	std::string isoNameV = prefix + "ptvarcone" + std::to_string(coneSize);
 	if (customConfig != "") {
 	  isoNameV += "_" + customConfig;
 	}
 	tisoH.isoDecoV.emplace_back(isoNameV);
-	ATH_MSG_DEBUG("initializing " << tisoH.isoDecoV.back().key());
-	ATH_CHECK(tisoH.isoDecoV.back().initialize());
       } else {
 	ATH_MSG_FATAL("Configuration error: Isolation flavor " << isoFlav << " not supported.");
 	return StatusCode::FAILURE;
       }	
     }
-
+  
+    // check that there were isolations configured
     if (isoFlav == xAOD::Iso::numIsolationFlavours) {
       ATH_MSG_WARNING("The configuration was malformed: an empty inner vector was added; ignoring");
       continue;
     }
 
-    std::string bitsetName = prefix + xAOD::Iso::toString(isoFlav) + "CorrBitset";
-    if (customConfig != "") {
-      bitsetName += "_" + customConfig;
-    }
+    ///////////////////////////////
+    // Now that the isolations to calculate are determined,
+    // initialize the isolation decorations
+    // and then determine the corrections to apply,
+    // and finally add it to the IsoMap.
+    ///////////////////////////////
 
     if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-  
-      cisoH.corrBitsetDeco = bitsetName;
-      ATH_MSG_DEBUG("Initializing " << cisoH.corrBitsetDeco.key());
-      ATH_CHECK(cisoH.corrBitsetDeco.initialize());
- 
+      
+      // let's initialize the decos
+      ATH_MSG_DEBUG("Initializing cisoH.isoDeco");
+      ATH_CHECK(cisoH.isoDeco.initialize());
 
-      for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
-	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
-	cisoH.CorrList.calobitset.set(cor);
-	const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
-
-	// ATH_MSG_DEBUG("for corrections, prefix = " << prefix << ", flavor = " << xAOD::Iso::toString(isoFlav)
-	// 	      << ", cor = " << xAOD::Iso::toString(isoCor) << ", coreEnergy " << xAOD::Iso::toString(xAOD::Iso::coreEnergy));
-
-
-	if (isCoreCor(isoCor)) {
-	  std::string isoCorName = prefix;
-
-	  if (isoCor != xAOD::Iso::core57cells) {
-	    isoCorName += xAOD::Iso::toString(isoFlav); // since this doesn't depend on the flavor, just have one
-	  }
-
-	  // a core correction; only store core energy, not the core area
-	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy)
-	    + "Correction";
-	  if (customConfig != "") {
-	    isoCorName += "_" + customConfig;
-	  }
-	  cisoH.coreCorDeco.emplace(isoCor, isoCorName);
-	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
-	  ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
-	} else if (isoCor == xAOD::Iso::pileupCorrection) {
-	  // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
-	  continue;
-	} else {	  
-	  // noncore correction
-	  cisoH.noncoreCorDeco.emplace(isoCor, std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> >{});
-	  auto& vec = cisoH.noncoreCorDeco[isoCor];
-	  for (auto type : cisoH.isoTypes) {
-	    std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
-	    if (customConfig != "") {
-	      corName += "_" + customConfig;
-	    }
-	    vec.emplace_back(corName);
-	    ATH_MSG_DEBUG("initializing " << vec.back().key());
-	    ATH_CHECK(vec.back().initialize());
-	  }
-	}
-      }
-      for (size_t corrType = 0; corrType < corIntsExtra[flavor].size(); corrType++) {
-	const auto cor = static_cast<unsigned int>(corIntsExtra[flavor][corrType]);
-	//cisoH.CorrListExtra.calobitset.set(cor); // not used for now
-	const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
-
-	// ATH_MSG_DEBUG("for corrections, prefix = " << prefix << ", flavor = " << xAOD::Iso::toString(isoFlav)
-	// 	      << ", cor = " << xAOD::Iso::toString(isoCor) << ", coreEnergy " << xAOD::Iso::toString(xAOD::Iso::coreEnergy));
-
-
-	if (isCoreCor(isoCor)) {
-	  std::string isoCorName = prefix;
-
-	  if (isoCor != xAOD::Iso::core57cells) {
-	    isoCorName += xAOD::Iso::toString(isoFlav); // since this doesn't depend on the flavor, just have one
-	  }
-
-	  // a core correction; only store core energy, not the core area
-	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy)
-	    + "Correction";
-	  if (customConfig != "") {
-	    isoCorName += "_" + customConfig;
-	  }
-	  cisoH.coreCorDeco.emplace(isoCor, isoCorName);
-	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
-	  ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
-	} else if (isoCor == xAOD::Iso::pileupCorrection) {
-	  // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
-	  continue;
-	} else {	  
-	  // noncore correction
-	  cisoH.noncoreCorDeco.emplace(isoCor, std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> >{});
-	  auto& vec = cisoH.noncoreCorDeco[isoCor];
-	  for (auto type : cisoH.isoTypes) {
-	    std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
-	    if (customConfig != "") {
-	      corName += "_" + customConfig;
-	    }
-	    vec.emplace_back(corName);
-	    ATH_MSG_DEBUG("initializing " << vec.back().key());
-	    ATH_CHECK(vec.back().initialize());
-	  }
-	}
-      }
+      ATH_CHECK(addCaloIsoCorrections(flavor, isoFlav, cisoH, corInts, false, prefix, customConfig));
+      ATH_CHECK(addCaloIsoCorrections(flavor, isoFlav, cisoH, corIntsExtra, true, prefix, customConfig));
+      
       if (caloIsoMap) {
 	caloIsoMap->push_back(std::make_pair(isoFlav,cisoH));
       } else {
@@ -343,45 +314,16 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	return StatusCode::FAILURE;
       }
     } else if (isoFlav == xAOD::Iso::ptcone) {
-
-      tisoH.corrBitsetDeco = bitsetName;
-      ATH_MSG_DEBUG("Initializing " << tisoH.corrBitsetDeco.key());
-      ATH_CHECK(tisoH.corrBitsetDeco.initialize());
-
-      for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
-	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
-	tisoH.CorrList.trackbitset.set(cor);
-	const xAOD::Iso::IsolationTrackCorrection isoCor = static_cast<xAOD::Iso::IsolationTrackCorrection>(cor);
-
-	// all pt corrections are core type
-	std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav) + 
-	  xAOD::Iso::toString(isoCor) + "Correction";
-
-	if (customConfig != "") {
-	  isoCorName += "_" + customConfig;
-	}
-	tisoH.coreCorDeco.emplace(isoCor, isoCorName);
-	ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
-	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
-      }
-
-      for (size_t corrType = 0; corrType < corIntsExtra[flavor].size(); corrType++) {
-	const auto cor = static_cast<unsigned int>(corIntsExtra[flavor][corrType]);
-	//tisoH.CorrListExtra.trackbitset.set(cor);
-	const xAOD::Iso::IsolationTrackCorrection isoCor = static_cast<xAOD::Iso::IsolationTrackCorrection>(cor);
-
-	// all pt corrections are core type
-	std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav) + 
-	  xAOD::Iso::toString(isoCor) + "Correction";
-
-	if (customConfig != "") {
-	  isoCorName += "_" + customConfig;
-	}
-	tisoH.coreCorDeco.emplace(isoCor, isoCorName);
-	ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
-	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
-      }
-
+      
+      // let's initialize the decos
+      ATH_MSG_DEBUG("Initializing tisoH.isoDeco");
+      ATH_CHECK(tisoH.isoDeco.initialize());
+      ATH_MSG_DEBUG("Initializing tisoH.isoDecoV");
+      ATH_CHECK(tisoH.isoDecoV.initialize());
+      
+      ATH_CHECK(addTrackIsoCorrections(flavor, isoFlav, tisoH, corInts, false, prefix, customConfig));
+      ATH_CHECK(addTrackIsoCorrections(flavor, isoFlav, tisoH, corIntsExtra, true, prefix, customConfig));
+      
       if (trackIsoMap) {
 	trackIsoMap->push_back(std::make_pair(isoFlav,tisoH));
       } else {
@@ -392,6 +334,118 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
       ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toCString(isoFlav) << " does not exist ! Check your inputs");
     }
     runIsoType.insert(isoFlav);
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode IsolationBuilder::addCaloIsoCorrections(size_t flavor, 
+						   xAOD::Iso::IsolationFlavour isoFlav,
+						   CaloIsoHelpKey& cisoH,
+						   const std::vector<std::vector<int> >& corInts,
+						   bool corrsAreExtra,
+						   const std::string& prefix,
+						   const std::string& customConfig )
+{
+  
+  if (!corrsAreExtra) {
+    std::string bitsetName = prefix + xAOD::Iso::toString(isoFlav) + "CorrBitset";
+    if (customConfig != "") {
+      bitsetName += "_" + customConfig;
+    }
+    
+    cisoH.corrBitsetDeco = bitsetName;
+    ATH_MSG_DEBUG("Initializing " << cisoH.corrBitsetDeco.key());
+    ATH_CHECK(cisoH.corrBitsetDeco.initialize());
+  }
+
+  for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
+    
+    // iterate over the calo isolation corrections
+    const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
+    if (!corrsAreExtra) cisoH.CorrList.calobitset.set(cor);
+    const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
+    
+    // ATH_MSG_DEBUG("for corrections, prefix = " << prefix << ", flavor = " << xAOD::Iso::toString(isoFlav)
+    // 	      << ", cor = " << xAOD::Iso::toString(isoCor) << ", coreEnergy " << xAOD::Iso::toString(xAOD::Iso::coreEnergy));
+    
+    
+    if (isCoreCor(isoCor)) {
+      std::string isoCorName = prefix;
+      
+      if (isoCor != xAOD::Iso::core57cells) {
+	isoCorName += xAOD::Iso::toString(isoFlav); // since this doesn't depend on the flavor, just have one
+      }
+      
+      // a core correction; only store core energy, not the core area
+      isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy)
+	+ "Correction";
+      if (customConfig != "") {
+	isoCorName += "_" + customConfig;
+      }
+      cisoH.coreCorDeco.emplace(isoCor, isoCorName);
+      cisoH.coreCorDeco[isoCor].setOwner(this);
+      ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
+      ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
+    } else if (isoCor == xAOD::Iso::pileupCorrection) {
+      // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
+      continue;
+    } else {	  
+      // noncore correction
+      cisoH.noncoreCorDeco.emplace(isoCor, SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer>() );
+      auto& vec = cisoH.noncoreCorDeco[isoCor];
+      vec.setOwner(this);
+      for (auto type : cisoH.isoTypes) {
+	std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
+	if (customConfig != "") {
+	  corName += "_" + customConfig;
+	}
+	vec.emplace_back(corName);
+      }
+      ATH_MSG_DEBUG("Initializing " << xAOD::Iso::toString(isoCor) << " Corrections");
+      ATH_CHECK(vec.initialize());
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode IsolationBuilder::addTrackIsoCorrections(size_t flavor, 
+						    xAOD::Iso::IsolationFlavour isoFlav,
+						    TrackIsoHelpKey& tisoH,
+						    const std::vector<std::vector<int> >& corInts,
+						    bool corrsAreExtra,
+						    const std::string& prefix,
+						    const std::string& customConfig)
+{
+
+  if (!corrsAreExtra) {
+    std::string bitsetName = prefix + xAOD::Iso::toString(isoFlav) + "CorrBitset";
+    if (customConfig != "") {
+      bitsetName += "_" + customConfig;
+    }
+    
+    tisoH.corrBitsetDeco = bitsetName;
+    ATH_MSG_DEBUG("Initializing " << tisoH.corrBitsetDeco.key());
+    ATH_CHECK(tisoH.corrBitsetDeco.initialize());
+  }
+
+  for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
+    const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
+    if (!corrsAreExtra) tisoH.CorrList.trackbitset.set(cor);
+    const xAOD::Iso::IsolationTrackCorrection isoCor = static_cast<xAOD::Iso::IsolationTrackCorrection>(cor);
+    
+    // all pt corrections are core type
+    std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav) + 
+      xAOD::Iso::toString(isoCor) + "Correction";
+    
+    if (customConfig != "") {
+      isoCorName += "_" + customConfig;
+    }
+    tisoH.coreCorDeco.emplace(isoCor, isoCorName);
+    tisoH.coreCorDeco[isoCor].setOwner(this);
+    ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
+    ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
   }
   return StatusCode::SUCCESS;
 }
@@ -607,3 +661,16 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
   return StatusCode::SUCCESS;
 }
 
+void IsolationBuilder::declareIso(std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >& caloIso)
+{
+  for (auto &iso : caloIso) {
+    iso.second.declare(this);
+  }
+}
+
+void IsolationBuilder::declareIso(std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> >& trackIso)
+{
+  for (auto &iso : trackIso) {
+    iso.second.declare(this);
+  }
+}

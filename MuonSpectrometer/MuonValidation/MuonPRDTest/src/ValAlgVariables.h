@@ -23,13 +23,13 @@ class ValAlgVariables
                  const MuonGM::MuonDetectorManager* detManager,
                  TTree* tree,
                  std::string containername,
-                 std::string msgname) :
+                 MSG::Level msglvl) :
     m_evtStore(evtStore),
     m_detManager(detManager),
     m_tree(tree),
-    m_ContainerName(containername),
-    m_msg(msgname)
+    m_ContainerName(containername)
   {
+  	  m_msg.get().setLevel(msglvl);
   }
 
   virtual ~ValAlgVariables() {};

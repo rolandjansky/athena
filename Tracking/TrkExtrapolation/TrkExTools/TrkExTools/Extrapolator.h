@@ -733,7 +733,7 @@ class Extrapolator : public AthAlgTool,
                               ParticleHypothesis particle=pion) const;
 
     /** Access the subPropagator to the given volume*/
-    const IPropagator* subPropagator(const TrackingVolume& tvol) const;
+    virtual const IPropagator* subPropagator(const TrackingVolume& tvol) const override;
 
     /** Access the subPropagator to the given volume*/
     const IMaterialEffectsUpdator* subMaterialEffectsUpdator(const TrackingVolume& tvol) const;

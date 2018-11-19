@@ -11,7 +11,6 @@
 #include <vector>
 
 class ILArMCSymTool;
-class LArCablingService ;
 
 /** Implementation of the interface ILArfSampl for MC
  *  Derives from LArfSamplComplete, and implements the phi-z symmetry

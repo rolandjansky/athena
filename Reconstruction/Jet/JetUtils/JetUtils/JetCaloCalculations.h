@@ -8,7 +8,6 @@
 #define JETUTILS_JETCALOHELPER_H
 
 #include "xAODJet/JetConstituentVector.h"
-#include "xAODJet/JetAttributes.h"
 
 #include <vector>
 
@@ -112,8 +111,8 @@ namespace jet {
 
   protected:
     std::string m_name;
-    xAOD::JetAttribute::AttributeID m_id; // unused for now.
-    CaloConstitHelpers::CaloConstitExtractor *m_constitExtractor; // used to retrieve the cluster moment from the constituent (which can be a PFO object or a cluster)
+    xAOD::JetAttribute::AttributeID m_id{}; // unused for now.
+    CaloConstitHelpers::CaloConstitExtractor *m_constitExtractor{}; // used to retrieve the cluster moment from the constituent (which can be a PFO object or a cluster)
   };
 
 

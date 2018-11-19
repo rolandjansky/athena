@@ -10,8 +10,8 @@
 //#include "TrigEFMissingET/EFMissingETFromLvl1Ppr.h"
 #include "TrigEFMissingET/EFMissingETFlags.h"
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
-#include "../EFMissingETAlgMT.h"
-#include "../EFMissingETFromCellsMT.h"
+#include "TrigEFMissingET/EFMissingETAlgMT.h"
+#include "TrigEFMissingET/EFMissingETFromCellsMT.h"
 
 DECLARE_COMPONENT( EFMissingET )
 DECLARE_COMPONENT( EFMissingETBaseTool )

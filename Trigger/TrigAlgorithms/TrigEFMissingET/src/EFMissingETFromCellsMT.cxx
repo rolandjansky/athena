@@ -6,7 +6,8 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // TrigEFMissingET includes
-#include "EFMissingETFromCellsMT.h"
+#include "TrigEFMissingET/IMissingETTool.h"
+#include "TrigEFMissingET/EFMissingETFromCellsMT.h"
 
 
 EFMissingETFromCellsMT::EFMissingETFromCellsMT( const std::string& type, 
@@ -41,7 +42,10 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
   auto countUsedCells = MonitoredScalar::declare<unsigned>( "UsedCells", 0 );  
 
   // now it is time to iterate over the cells
+  ATH_MSG_INFO("About to loop over cells from CellMET");
+  int nCells(0), nZeroCells(0);
   for ( const CaloCell* cell: *caloCellsHandle ) {
+    nCells++;
     const CaloDetDescrElement* cDDE = cell->caloDDE();
     if (cDDE == 0) {
       ATH_MSG_WARNING( "cannot get CaloDetDescrElement from cell " << cell->ID() );
@@ -65,11 +69,11 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
 
     countUsedCells = countUsedCells + 1;
     
-    double E = cell->e();
-    double et  = E * cDDE->sinTh();
-    double ez  = E * cDDE->cosTh();
-    double sinPhi = cDDE->sinPhi();
-    double cosPhi = cDDE->cosPhi();
+    const double E = cell->e(); if(E<1e-6) nZeroCells++;
+    const double et  = E * cDDE->sinTh();
+    const double ez  = E * cDDE->cosTh();
+    const double sinPhi = cDDE->sinPhi();
+    const double cosPhi = cDDE->cosPhi();
     metComp->m_ex -= et*cosPhi;
     metComp->m_ey -= et*sinPhi;
     metComp->m_ez -= ez;
@@ -82,23 +86,33 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
     metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,E) + 0.5));
 
     // 5. auxiliary quantities for robustness checks
-    if ( not m_makeRobustness) continue;
-    if ( not m_doCellNoiseSupp || (m_doCellNoiseSupp &&
-				   m_MinCellSNratio[cDDE->getSampling()] > m_maxThreshold)) {
-      //       if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] *
-      //           m_noiseTool->getNoise( cell, ICalorimeterNoiseTool::TOTALNOISE))
-      continue;
-    }
+    // if ( not m_makeRobustness) continue;
 
-    float time = cell->time() * 1e-3;  // ns
+    // if ( not m_doCellNoiseSupp || (m_doCellNoiseSupp &&
+				//    m_MinCellSNratio[cDDE->getSampling()] > m_maxThreshold)) {
+    //   //       if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] *
+    //   //           m_noiseTool->getNoise( cell, ICalorimeterNoiseTool::TOTALNOISE))
+    //   continue;
+    // }
+
+    const float time = cell->time() * 1e-3;  // ns
     float quality = cell->quality();
     if (time < metComp->m_minTime) metComp->m_minTime = time;
     if (time > metComp->m_maxTime) metComp->m_maxTime = time;
     if (quality > metComp->m_maxQlty) metComp->m_maxQlty = quality;
     if (E < metComp->m_minE) metComp->m_minE = E;
     if (E > metComp->m_maxE) metComp->m_maxE = E;
+
+    // ATH_MSG_INFO("metComp->m_ex" << metComp->m_ex);
+    // ATH_MSG_INFO("metComp->m_ey" << metComp->m_ey);
+    // ATH_MSG_INFO("metComp->m_ez" << metComp->m_ez);
+    // ATH_MSG_INFO("metComp->m_sumEt" << metComp->m_sumEt);
+    // ATH_MSG_INFO("metComp->m_sumE" << metComp->m_sumE);
        
   }
+  ATH_MSG_DEBUG("Number of cells considered: " << nCells);
+  ATH_MSG_DEBUG("Number of cells with E==0: " << nZeroCells);
+
       
   return StatusCode::SUCCESS;
 }

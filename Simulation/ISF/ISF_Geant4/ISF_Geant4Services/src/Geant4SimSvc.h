@@ -21,6 +21,9 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+
 class IDetectorGeometrySvc;
 class G4Timer;
 
@@ -74,6 +77,9 @@ namespace iGeant4 {
 
     /** Geant4 Python Configuration Tool */
     ToolHandle<IAlgTool>                 m_configTool;                //!< Pointer to the G4 Python Config Tool
+
+    PublicToolHandle<ISensitiveDetectorMasterTool> m_senDetTool{this, "SensitiveDetectorMasterTool", "SensitiveDetectorMasterTool", ""};
+    PublicToolHandle<IFastSimulationMasterTool> m_fastSimTool{this, "FastSimulationMasterTool", "FastSimulationMasterTool", ""};
 
     // timing checks
     bool  m_doTiming;

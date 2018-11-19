@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -27,7 +27,6 @@
 
 // Member variables
 #include "CaloG4Sim/SimulationEnergies.h"
-#include "TileGeoG4SD/TileSDOptions.h"
 
 // Service handles
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -87,8 +86,7 @@ typedef std::vector<double> E_4;
 class TileGeoG4CalibSD: public G4VSensitiveDetector {
 public:
   TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames,
-                   ITileCalculator* tileCalculator, ServiceHandle<StoreGateSvc> &detStore,
-                   const TileSDOptions &opts);
+                   ITileCalculator* tileCalculator, ServiceHandle<StoreGateSvc> &detStore);
   ~TileGeoG4CalibSD();
 
   void InvokeUserRunAction();
@@ -104,12 +102,13 @@ public:
   //METHOD FOR CLASSIFYING STEP ENERGY AND THE METHODS,
   //WHICH CALCULATE IDENTIFIER FOR CELL OR DEAD MATERIAL
   //CALIBRATION HITS ON THE CURRENT STEP
-  void ClassifyEnergy();bool FindTileCalibSection();
-  Identifier CellIDCalculator();
-  Identifier ScintIDCalculator(TileHitData& hitData);
-  Identifier GirderCellIDCalculator();
-  Identifier PlateCellIDCalculator();
-  Identifier DefaultHitIDCalculator();
+  bool FindTileCalibSection();
+  void CellIDCalculator();
+  void ScintIDCalculator(TileHitData& hitData);
+  void GirderCellIDCalculator();
+  void PlateCellIDCalculator();
+  void DefaultHitIDCalculator();
+  void DefaultHitIDCalculatorTB(int sample=0, int region=0, int eta=0, int phi=0);
 
   //GET RESULT FOR THE STEP HIT ID AND CLASSIFYED ENERGIES
   Identifier GetCellIDOnStep();
@@ -140,6 +139,8 @@ protected:
   //VALUES. ALSO, DETRMINES SOME FLAGS USED IN A FURTHER PROCESSING OF THE STEP
   bool AreClassifiedEnergiesAllZero();
   void SetEscapedEnergy(double escapedEnergy);
+  double GetVisibleEnergy();
+  double GetInvisibleEnergy();
 
   void EnergiesSimpleCounter();
   void DebugEnergies();
@@ -154,14 +155,16 @@ private:
   SG::WriteHandle<CaloCalibrationHitContainer> m_tileDeadMaterialCalibHits;
   SG::WriteHandle<TileHitVector> m_tileHits;
 
-  TileSDOptions m_options;
-
   // Handles for later use
   const CaloCell_ID* m_caloCell_ID;
   const CaloDM_ID* m_caloDM_ID;
 
   ServiceHandle<IRDBAccessSvc> m_rdbSvc;
   ServiceHandle<IGeoModelSvc> m_geoModSvc;
+
+  //FLAGS FROM JOBOPTIONS
+  bool m_tileTB;
+  bool m_doCalibHitParticleID;
 
 #ifdef HITSINFO
   ToolHandle<TileCalibHitNtuple> m_ntuple;
@@ -187,16 +190,10 @@ private:
   double m_E_invisible;
   double m_E_escaped;
 
-  //FOR ENERGY DEBUGGING DIRECTLY FROM
-  //CALIBHITS AT THE END OF EVENT
-  double m_E0;
-  double m_E1;
-  double m_E2;
-  double m_E3;
-
   //STEP TOUCHABLE HISTORY AND VOLUME
   G4TouchableHistory* m_stepTouchable;
   G4VPhysicalVolume* m_stepPhysVol;
+  G4String m_nameVol;
 
   //CALIBRATION SECTION & CELLS
   TileGeoG4CalibSection* m_cSection;
@@ -207,8 +204,8 @@ private:
   //CLASSIFIED ENERGY VECTOR
   CaloG4::SimulationEnergies::ClassifyResult_t m_result;
 
-  //IDENTIFIERS FOR CALIBRATION AND ORDINARY HITS
-  Identifier m_id, m_id_pmt_up, m_id_pmt_down;
+  //IDENTIFIER FOR CALIBRATION HIT
+  Identifier m_id;
 
   //CELL ACTIVE || CELL INACTIVE || DM
   int m_calibHitType;
@@ -243,17 +240,13 @@ private:
   //FLAG FOR DEFAULT HIT
   bool m_defaultHit;
 
-  /** @brief set to true to apply Birks' law for a given hit
-      this flag is set to false for DM hits and true for normal hits */
-  bool m_doBirkFlag;
-
   /** @brief set to true if hit is in extended barrel */
   bool m_isExtended;
 
   /** @brief set to true if hit is in negative side */
   bool m_isNegative;
 
-  /** @brief set to true if DM hit in end/front plate is added to a real cell (taken from DB) */
+  /** @brief set to true if DM hit in end/front plate is added to a real cell (taken from DB or from JO) */
   bool m_plateToCell;
 
   /** @brief set to true if DM hit in front plate is added to a real cell 
@@ -307,6 +300,33 @@ inline void TileGeoG4CalibSD::ResetDMCellIDFields() {
 }
 inline void TileGeoG4CalibSD::ResetSectSideFlags() {
   m_isExtended = m_isNegative = false;
+}
+
+inline bool TileGeoG4CalibSD::AreClassifiedEnergiesAllZero() {
+  //check any kind of classified energies. if they all are zero
+  //then nothing to do and go to the next Step
+  return ((m_result.energy[CaloG4::SimulationEnergies::kEm] == 0.) && (m_result.energy[CaloG4::SimulationEnergies::kNonEm] == 0.)
+          && (m_result.energy[CaloG4::SimulationEnergies::kInvisible0] == 0.)
+          && (m_result.energy[CaloG4::SimulationEnergies::kEscaped] == 0.));
+}
+
+inline void TileGeoG4CalibSD::SetEscapedEnergy(double escapedEnergy) {
+  m_result.energy[CaloG4::SimulationEnergies::kEm] = 0.;
+  m_result.energy[CaloG4::SimulationEnergies::kNonEm] = 0.;
+  m_result.energy[CaloG4::SimulationEnergies::kInvisible0] = 0.;
+  m_result.energy[CaloG4::SimulationEnergies::kEscaped] = escapedEnergy;
+}
+
+inline double TileGeoG4CalibSD::GetVisibleEnergy()
+{
+  return ( m_result.energy[CaloG4::SimulationEnergies::kEm]
+         + m_result.energy[CaloG4::SimulationEnergies::kNonEm]
+         + m_result.energy[CaloG4::SimulationEnergies::kEscaped]);
+}
+
+inline double TileGeoG4CalibSD::GetInvisibleEnergy()
+{
+  return m_result.energy[CaloG4::SimulationEnergies::kInvisible0];
 }
 
 #endif // TILEGEOG4CALIB_TILEGEOG4CALIBSD_H

@@ -94,7 +94,6 @@ namespace InDet {
     float m_Sig3D{};
     float m_prbP{};
     float m_d0{};
-    float m_vChi2{};
     float m_pTvsJet{};
     float m_prodTJ{};
     float m_SigZ{};

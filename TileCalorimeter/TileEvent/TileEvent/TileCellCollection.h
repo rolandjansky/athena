@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileCellCollection_H       
@@ -14,11 +14,11 @@ public:
 
   typedef TileRawDataCollection<TileCell> MyBase;
   typedef MyBase::ID ID;
-  typedef TileCell _TElement;
+  typedef TileCell TElement;
 
   // ATTENTION !!!
   // TileCollection is not owner of TileCells by default !!!
-  TileCellCollection ( ID& id, SG::OwnershipPolicy ownPolicy=SG::VIEW_ELEMENTS )
+  TileCellCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::VIEW_ELEMENTS )
     : MyBase(id,ownPolicy) { }
   TileCellCollection ( SG::OwnershipPolicy ownPolicy=SG::VIEW_ELEMENTS )
     : MyBase(ownPolicy) { }

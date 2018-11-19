@@ -314,18 +314,6 @@ StatusCode TileDigitsMaker::initialize() {
 
       for (int ch = 0; ch < nchMax; ++ch) {
         adc_ids[ch] = m_tileHWID->adc_id(drawer_id, ch, TileID::HIGHGAIN);
-        if (msgLvl(MSG::VERBOSE) && m_cabling->getTestBeam()
-            && m_cabling->connected(ros, drawer) && !m_rndmEvtOverlay) {
-          double pedSimHi = m_tileInfo->DigitsPedLevel(TileID::HIGHGAIN, ch, idhash);
-          double pedSimLo = m_tileInfo->DigitsPedLevel(TileID::LOWGAIN, ch, idhash);
-          double sigmaNoiseHi = m_tileInfo->DigitsPedSigma(TileID::HIGHGAIN, ch, idhash);
-          double sigmaNoiseLo = m_tileInfo->DigitsPedSigma(TileID::LOWGAIN, ch, idhash);
-          msg(MSG::VERBOSE) << "Ch " << m_tileHWID->to_string(drawer_id, -2) << "/" << ch
-                            << " pedHi=" << pedSimHi
-                            << " pedLo=" << pedSimLo
-                            << " rmsHi=" << sigmaNoiseHi
-                            << " rmsLo=" << sigmaNoiseLo << endmsg;
-        }
       }
     }
     m_all_ids.push_back(adc_ids);
@@ -370,7 +358,7 @@ StatusCode TileDigitsMaker::initialize() {
 StatusCode TileDigitsMaker::execute() {
   ATH_MSG_DEBUG( "Executing TileDigitsMaker");
 
-  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay && !m_cabling->getTestBeam());
+  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );
   if (first) {
     ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
     first = false;

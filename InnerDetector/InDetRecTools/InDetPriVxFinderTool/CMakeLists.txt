@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
 			  InnerDetector/InDetConditions/BeamSpotConditionsData
-			  InDetBeamSpotService
+			  InnerDetector/InDetConditions/InDetBeamSpotService
                           PRIVATE
                           Control/AthContainers
                           DetectorDescription/GeoPrimitives

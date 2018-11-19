@@ -86,7 +86,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltInitialize(){
       return HLT::BAD_JOB_SETUP;
     }
 
-    msg() << MSG::INFO << "DoNscan: "<<m_nscan<<endmsg;
+    ATH_MSG_INFO("DoNscan: "<<m_nscan);
 
   }
 

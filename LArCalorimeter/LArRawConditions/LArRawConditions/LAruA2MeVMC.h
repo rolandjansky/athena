@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILAruA2MeV for MC
@@ -36,9 +35,6 @@ class LAruA2MeVMC: public LAruA2MeVComplete {
   // retrieving uA2MeV using online ID
   
   virtual const float& UA2MEV(const HWIdentifier&  CellID) const ;
-  
-  virtual const float& UA2MEV(const Identifier&  CellID) const;
-  
   
  private: 
 

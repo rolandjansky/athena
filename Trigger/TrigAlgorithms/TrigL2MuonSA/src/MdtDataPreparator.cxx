@@ -12,6 +12,7 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -904,6 +905,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 								       TrigL2MuonSA::MdtHits& mdtHits,
 								       const TrigL2MuonSA::MuonRoad& muonRoad)
 {    
+  if(m_decodeBS) {
+    if ( m_mdtRawDataProvider->convert(v_robIds).isFailure()) {
+      ATH_MSG_WARNING("Conversion of BS for decoding of MDTs failed");
+    }
+  }
   if (m_mdtPrepDataProvider->decode(v_robIds).isSuccess()) {
     ATH_MSG_DEBUG("Calling ROB based decoding with "<< v_robIds.size() << " ROB's");
   }

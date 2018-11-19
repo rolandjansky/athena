@@ -19,6 +19,8 @@
 #include "LArRawConditions/LArCaliWave.h"
 #include "LArRawConditions/LArWaveHelper.h" 
 
+#include "LArCabling/LArCablingService.h"
+
 static const InterfaceID IID_LArWFParamTool("LArWFParamTool", 1 , 0); 
 
 class LArCablingSvc;

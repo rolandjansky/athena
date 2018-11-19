@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ClassIDSvc_test.cxx  
@@ -41,6 +41,8 @@ CLASS_DEF( Bla<unsigned int>, 8108, 0)
 
 using namespace std;
 using namespace Athena_test;
+// If you see ubsan warnings re: ModuleIncident, see referenceGaudiSymbols
+// in TestTools/src/initGaudi.cxx
 void incident_test(ISvcLocator* pSvcLoc) {
   cout << "*** ClassIDSvc incident test starts ***" <<endl;
   assert(pSvcLoc);

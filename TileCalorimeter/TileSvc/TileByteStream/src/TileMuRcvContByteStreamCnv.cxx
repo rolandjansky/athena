@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -7,7 +7,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
 // Athena includes
@@ -21,7 +20,7 @@
 
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreClearedIncident.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Tile includes
 #include "TileByteStream/TileMuRcvContByteStreamCnv.h"
@@ -42,7 +41,6 @@ TileMuRcvContByteStreamCnv::TileMuRcvContByteStreamCnv(ISvcLocator* svcloc)
   , m_storeGate("StoreGateSvc", m_name)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
-  , m_container(0)
 {
 }
 
@@ -66,26 +64,6 @@ StatusCode TileMuRcvContByteStreamCnv::initialize()
   CHECK( m_tool.retrieve() );
 
   CHECK( m_robSvc.retrieve() );
-
-  // per event there is only one object per EB module 128
-  //
-  int cntsize = 128;
-  m_container = new TileMuonReceiverContainer();
-  m_container->reserve(cntsize);
-
-  for( int i=0; i<cntsize; i++) {
-    int objId = m_decoder->hashFunc()->identifier(i);
-    TileMuonReceiverObj *muRcv = new TileMuonReceiverObj(objId);
-    m_container->push_back(muRcv);
-  }
-
-  // Register incident handler
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", m_name);
-  if ( !incSvc.retrieve().isSuccess() ) {
-    ATH_MSG_WARNING( "Unable to retrieve the IncidentSvc" );
-  } else {
-    incSvc->addListener(this, "StoreCleared");
-  }
 
   CHECK( m_storeGate.retrieve() );
 
@@ -111,15 +89,13 @@ StatusCode TileMuRcvContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObje
     return StatusCode::FAILURE;
   }
 
-  StatusCode sc=m_decoder->convertTMDBDecision(re,m_container);
+  auto cont = std::make_unique<TileMuonReceiverContainer>();
+  StatusCode sc=m_decoder->convertTMDBDecision(re,cont.get());
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_WARNING( "Conversion tool returned an error. TileMuonReceiverContainer might be empty." );
   }
 
-  // new container will not own elements, i.e. TileMuonReceiverContainer will not be deleted
-  TileMuonReceiverContainer * new_container = new TileMuonReceiverContainer(*m_container);
-
-  pObj = SG::asStorable( new_container );
+  pObj = SG::asStorable( std::move(cont) );
 
   return StatusCode::SUCCESS;
 }
@@ -156,25 +132,6 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
 
 StatusCode TileMuRcvContByteStreamCnv::finalize()
 {
-  ATH_MSG_DEBUG( " Clearing TileMuonReceiverContainer Container " );
-
-  m_container->clear();
-
-  delete m_container;
-
   return Converter::finalize();
 }
 
-void TileMuRcvContByteStreamCnv::handle(const Incident& incident)
-{
-  if (incident.type() == "StoreCleared") {
-    if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
-      if (inc->store() == &*m_storeGate) {
-        for (const TileMuonReceiverObj* tileMuObj : *m_container) {
-          const_cast<TileMuonReceiverObj*>(tileMuObj)->clear();
-        }
-      }
-    }
-  }
-  return;
-}

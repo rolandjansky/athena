@@ -141,18 +141,11 @@ private:
   /// defualt nPV (when not using PVCont)
   unsigned int m_nPVdefault;
 
-  /// The primary vertex container name
-  std::string m_primVtxContName;
-
   /// Whether or not to use the CaloSums container in HI events
   bool m_useCaloSumsCont;
 
   /// defualt FCal ET (when not using CaloSums container, in HI events)
   double m_fcalEtDefault;
-
-  /// The CaloSums container name, in HI events
-  std::string m_CaloSumsContName;
-
 
   /// The input ROOT file name that holds the PDFs
   std::string m_pdfFileName;

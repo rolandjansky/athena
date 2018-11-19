@@ -33,9 +33,7 @@ class LArNoiseMC: public LArNoiseComplete {
   // retrieving Noise using online ID
   
   virtual  const float& noise(const HWIdentifier&  CellID, int gain) const ;
-  
-  virtual  const float& noise(const Identifier&  CellID, int gain) const;
-  
+    
  private: 
   
   // helper for MC z-phi symmetry 

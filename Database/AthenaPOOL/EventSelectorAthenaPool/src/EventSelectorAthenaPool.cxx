@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -489,11 +489,12 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          return(StatusCode::FAILURE);
       }
       // Remove any old AttributeList
-      const DataHandle<AthenaAttributeList> oldAttrList;
-      if (eventStore()->retrieve(oldAttrList, m_attrListKey.value()).isSuccess()) {
-         if (!eventStore()->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
-            ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
-            return(StatusCode::FAILURE);
+      if (const AthenaAttributeList* oldAttrList =
+          eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
+      {
+         if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
+           ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
+           return(StatusCode::FAILURE);
          }
       }
       AthenaAttributeList* athAttrList = new AthenaAttributeList();
@@ -1001,9 +1002,10 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::recordAttributeList() const {
    // Remove any old AttributeList
-   const DataHandle<AthenaAttributeList> oldAttrList;
-   if (eventStore()->retrieve(oldAttrList, m_attrListKey.value()).isSuccess()) {
-      if (!eventStore()->removeDataAndProxy(oldAttrList.cptr()).isSuccess()) {
+   if (const AthenaAttributeList* oldAttrList =
+       eventStore()->tryRetrieve<AthenaAttributeList> (m_attrListKey.value()))
+   {
+      if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }
@@ -1099,9 +1101,8 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
 void EventSelectorAthenaPool::handle(const Incident& inc)
 {
    SG::SourceID fid;
-   Atlas::ExtendedEventContext *eec = inc.context().getExtension<Atlas::ExtendedEventContext>();
-   if( eec ) {
-      fid = eec->proxy()->sourceID();
+   if ( inc.context().hasExtension<Atlas::ExtendedEventContext>() ) {
+     fid = inc.context().getExtension<Atlas::ExtendedEventContext>().proxy()->sourceID();
    }
    if( fid.empty() ) {
       ATH_MSG_WARNING("could not read event source ID from incident event context");

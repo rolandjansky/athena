@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArMphysOverMcal for MC
@@ -35,9 +34,6 @@ class LArMphysOverMcalMC: public LArMphysOverMcalComplete {
   // retrieving MphysOverMcal using online ID
   
   virtual const float& MphysOverMcal(const HWIdentifier&  CellID, int gain=0) const ;
-  
-  virtual const float& MphysOverMcal(const Identifier&  CellID, int gain=0) const;
-  
   
  private: 
   

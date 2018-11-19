@@ -77,6 +77,9 @@ StatusCode iGeant4::Geant4SimSvc::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -107,6 +110,8 @@ StatusCode iGeant4::Geant4SimSvc::finalize()
 StatusCode iGeant4::Geant4SimSvc::setupEvent()
 {
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "setup Event" );
+
+  ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   m_nrOfEntries++;
   if (m_doTiming) m_eventTimer->Start();
@@ -155,6 +160,9 @@ StatusCode iGeant4::Geant4SimSvc::releaseEvent()
                  eventTime << " s. New average " << std::setprecision(4) <<
                  avgTimePerEvent<<" +- "<<std::setprecision(4) << sigma);
   }
+
+  ATH_CHECK(m_senDetTool->EndOfAthenaEvent());
+  ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   return StatusCode::SUCCESS;
 }

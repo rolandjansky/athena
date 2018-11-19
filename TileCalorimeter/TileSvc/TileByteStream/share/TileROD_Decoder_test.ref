@@ -1,0 +1,692 @@
+TileROD_Decoder_test
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/TileROD_Decoder_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/TileROD_Decoder_test.txt
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore"]
+JobOptionsSvc        INFO # (3,1): ToolSvc.TileROD_Decoder.TileDefaultL2Builder = ""
+JobOptionsSvc        INFO Job options successfully read in from ../share/TileROD_Decoder_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sat Oct 20 20:42:22 2018
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 16495 CLIDRegistry entries for module ALL
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+TileHWID             INFO initialize_from_dictionary 
+TileTBID             INFO initialize_from_dictionary 
+ClassIDSvc           INFO  getRegistryEntries: read 533 CLIDRegistry entries for module ALL
+test1 (fillCollection)
+TileDigitsCollection: 16
+TileRawDataCollection of TileDigits Id = 0x100 size = 16
+TileDigits Id = 5/0/1/0/8/1 Val: 40.00 42.00 37.00 36.00 37.00 37.00 36.00
+TileDigits Id = 5/0/1/0/15/1 Val: 45.00 45.00 43.00 43.00 47.00 53.00 51.00
+TileDigits Id = 5/0/1/0/18/1 Val: 44.00 44.00 42.00 44.00 47.00 51.00 48.00
+TileDigits Id = 5/0/1/0/19/1 Val: 49.00 46.00 50.00 49.00 58.00 69.00 65.00
+TileDigits Id = 5/0/1/0/20/1 Val: 58.00 59.00 60.00 65.00 64.00 71.00 68.00
+TileDigits Id = 5/0/1/0/21/1 Val: 35.00 35.00 36.00 35.00 40.00 46.00 41.00
+TileDigits Id = 5/0/1/0/22/1 Val: 39.00 39.00 41.00 41.00 42.00 45.00 43.00
+TileDigits Id = 5/0/1/0/23/1 Val: 40.00 46.00 47.00 49.00 64.00 56.00 44.00
+TileDigits Id = 5/0/1/0/26/1 Val: 49.00 52.00 50.00 52.00 55.00 52.00 46.00
+TileDigits Id = 5/0/1/0/27/1 Val: 46.00 46.00 41.00 45.00 49.00 46.00 46.00
+TileDigits Id = 5/0/1/0/28/1 Val: 56.00 57.00 53.00 53.00 52.00 54.00 51.00
+TileDigits Id = 5/0/1/0/29/1 Val: 84.00 60.00 52.00 51.00 49.00 50.00 57.00
+TileDigits Id = 5/0/1/0/32/1 Val: 61.00 50.00 48.00 49.00 48.00 52.00 52.00
+TileDigits Id = 5/0/1/0/35/1 Val: 66.00 62.00 79.00 77.00 63.00 57.00 58.00
+TileDigits Id = 5/0/1/0/37/1 Val: 63.00 65.00 63.00 62.00 64.00 59.00 61.00
+TileDigits Id = 5/0/1/0/38/1 Val: 53.00 49.00 50.00 48.00 42.00 43.00 42.00
+id=0x100, bcid=0(0x0), size=28
+FragExtraWords:      0 0
+FragChipHeaderWords:
+FragChipCRCWords:   
+FragChipHeaderWHigh:
+FragChipCRCWHigh:   
+
+TileRawChannelCollection: 48 7 1 3288596480
+TileRawDataCollection of TileRawChannel Id = 0x100 size = 48
+TileRawChannel Id = 5/0/1/0/0/1 ampl = 2.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/1/1 ampl = 12.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/2/1 ampl = -20 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/3/1 ampl = 1.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/4/1 ampl = -10 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/5/1 ampl = -15.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/6/1 ampl = -7.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/7/1 ampl = -3.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/8/1 ampl = -42 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/9/1 ampl = -3 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/10/1 ampl = -18 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/11/1 ampl = -15.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/12/1 ampl = -7.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/13/1 ampl = -6.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/14/1 ampl = -4.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/15/1 ampl = -56.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/16/1 ampl = -4.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/17/1 ampl = 19 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/18/1 ampl = -13.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/19/1 ampl = -41.5 time = 63.9375 qual = 0
+TileRawChannel Id = 5/0/1/0/20/1 ampl = 31 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/21/1 ampl = -22 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/22/1 ampl = 6.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/23/1 ampl = 136 time = 27.8125 qual = 0
+TileRawChannel Id = 5/0/1/0/24/1 ampl = -7.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/25/1 ampl = -7 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/26/1 ampl = 47 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/27/1 ampl = -5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/28/1 ampl = -30 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/29/1 ampl = -227.5 time = -64 qual = 2
+TileRawChannel Id = 5/0/1/0/30/1 ampl = -2 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/31/1 ampl = 1.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/32/1 ampl = -87 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/33/1 ampl = -23 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/34/1 ampl = -10.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/35/1 ampl = 169.5 time = -30.5 qual = 2
+TileRawChannel Id = 5/0/1/0/36/1 ampl = 23 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/37/1 ampl = 1.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/38/1 ampl = -18 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/39/1 ampl = 3.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/40/1 ampl = -21 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/41/1 ampl = -7 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/42/1 ampl = -0.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/43/1 ampl = 0.5 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/44/1 ampl = 14 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/45/1 ampl = -23 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/46/1 ampl = -9 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/47/1 ampl = 9.5 time = 0 qual = 0
+
+TileBeamElemCollection: 73
+TileRawDataCollection of TileBeamElem Id = 0x0 size = 73
+TileBeamElem Id = 5/0/0/0/14/0 Val: 8223
+TileBeamElem Id = 5/0/0/0/13/0 Val: 7711 6684
+TileBeamElem Id = 5/0/0/0/14/0 Val: 8478
+TileBeamElem Id = 5/0/0/0/11/0 Val: 8221
+TileBeamElem Id = 5/0/0/0/12/0 Val: 8478 7971 6943 8479
+TileBeamElem Id = 5/0/0/0/13/0 Val: 7968 6942
+TileBeamElem Id = 5/0/0/0/13/0 Val: 9246
+TileBeamElem Id = 5/0/0/0/12/0 Val: 8221
+TileBeamElem Id = 5/0/0/0/12/0 Val: 7709 6948 7199 8223
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7969
+TileBeamElem Id = 5/0/0/0/14/0 Val: 6942
+TileBeamElem Id = 5/0/0/0/14/0 Val: 8734
+TileBeamElem Id = 5/0/0/0/13/0 Val: 8221
+TileBeamElem Id = 5/0/0/0/10/0 Val: 7708 7458
+TileBeamElem Id = 5/0/0/0/15/0 Val: 7712 8223
+TileBeamElem Id = 5/0/0/0/15/0 Val: 8736
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7710
+TileBeamElem Id = 5/0/0/0/15/0 Val: 8734
+TileBeamElem Id = 5/0/0/0/14/0 Val: 8732
+TileBeamElem Id = 5/0/0/0/11/0 Val: 7454 7975
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7711
+TileBeamElem Id = 5/0/0/0/15/0 Val: 8735
+TileBeamElem Id = 5/0/0/0/14/0 Val: 8223
+TileBeamElem Id = 5/0/0/0/15/0 Val: 7965
+TileBeamElem Id = 5/0/0/0/15/0 Val: 9247 8221
+TileBeamElem Id = 5/0/0/0/13/0 Val: 6942 7462 7714
+TileBeamElem Id = 5/0/0/0/15/0 Val: 8735
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7966
+TileBeamElem Id = 5/0/0/0/15/0 Val: 7963
+TileBeamElem Id = 5/0/0/0/14/0 Val: 8988 6685
+TileBeamElem Id = 5/0/0/0/15/0 Val: 6945 7968
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7714
+TileBeamElem Id = 5/0/0/0/15/0 Val: 8479
+TileBeamElem Id = 5/0/0/0/15/0 Val: 7965
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7966
+TileBeamElem Id = 5/0/0/0/13/0 Val: 9247 6429
+TileBeamElem Id = 5/0/0/0/15/0 Val: 6693
+TileBeamElem Id = 5/0/0/0/15/0 Val: 8225
+TileBeamElem Id = 5/0/0/0/14/0 Val: 7967
+TileBeamElem Id = 5/0/0/0/0/0 Val: 37758
+TileBeamElem Id = 5/0/0/0/0/0 Val: 40027
+TileBeamElem Id = 5/0/0/0/0/0 Val: 38273
+TileBeamElem Id = 5/0/0/0/0/0 Val: 40205
+TileBeamElem Id = 5/0/0/0/0/0 Val: 37920
+TileBeamElem Id = 5/0/0/0/0/0 Val: 38284
+TileBeamElem Id = 5/0/0/0/0/0 Val: 34648
+TileBeamElem Id = 5/0/0/0/0/0 Val: 33591
+TileBeamElem Id = 5/0/0/0/0/0 Val: 37535
+TileBeamElem Id = 5/0/0/0/0/0 Val: 37379
+TileBeamElem Id = 5/0/0/0/0/0 Val: 38812
+TileBeamElem Id = 5/0/0/0/0/0 Val: 44356
+TileBeamElem Id = 5/0/0/0/0/0 Val: 38640
+TileBeamElem Id = 5/0/0/0/0/0 Val: 44905
+TileBeamElem Id = 5/0/0/0/0/0 Val: 36249
+TileBeamElem Id = 5/0/0/0/0/0 Val: 39928
+TileBeamElem Id = 5/0/0/0/0/0 Val: 39188
+TileBeamElem Id = 5/0/0/0/0/0 Val: 41289
+TileBeamElem Id = 5/0/0/0/0/0 Val: 40226
+TileBeamElem Id = 5/0/0/0/0/0 Val: 47720
+TileBeamElem Id = 5/0/0/0/0/0 Val: 42129
+TileBeamElem Id = 5/0/0/0/0/0 Val: 39158
+TileBeamElem Id = 5/0/0/0/0/0 Val: 35538
+TileBeamElem Id = 5/0/0/0/0/0 Val: 41147
+TileBeamElem Id = 5/0/0/0/0/0 Val: 50378
+TileBeamElem Id = 5/0/0/0/0/0 Val: 42851
+TileBeamElem Id = 5/0/0/0/0/0 Val: 48525
+TileBeamElem Id = 5/0/0/0/0/0 Val: 45673
+TileBeamElem Id = 5/0/0/0/0/0 Val: 45704
+TileBeamElem Id = 5/0/0/0/0/0 Val: 42040
+TileBeamElem Id = 5/0/0/0/0/0 Val: 45056
+TileBeamElem Id = 5/0/0/0/0/0 Val: 47329
+TileBeamElem Id = 5/0/0/0/0/0 Val: 0
+TileBeamElem Id = 5/0/0/0/0/0 Val: 0
+
+test2 (fillCollection_TileMuRcv)
+TileDigitsCollection_TileMuRcv: 8
+TileRawDataCollection of TileDigits Id = 0x100 size = 8
+TileDigits Id = 5/0/1/0/0/0 Val: 32.00 34.00 34.00 35.00 30.00 27.00 27.00
+TileDigits Id = 5/0/1/0/1/0 Val: 34.00 34.00 32.00 32.00 31.00 31.00 30.00
+TileDigits Id = 5/0/1/0/2/0 Val: 32.00 34.00 33.00 33.00 32.00 34.00 32.00
+TileDigits Id = 5/0/1/0/3/0 Val: 31.00 34.00 36.00 35.00 36.00 32.00 29.00
+TileDigits Id = 5/0/1/0/4/0 Val: 30.00 31.00 34.00 35.00 35.00 33.00 36.00
+TileDigits Id = 5/0/1/0/5/0 Val: 34.00 33.00 33.00 33.00 32.00 35.00 40.00
+TileDigits Id = 5/0/1/0/6/0 Val: 26.00 29.00 29.00 30.00 29.00 31.00 31.00
+TileDigits Id = 5/0/1/0/7/0 Val: 30.00 32.00 33.00 31.00 31.00 32.00 30.00
+id=0x100, bcid=0(0x0), size=0
+FragExtraWords:      0 0
+FragChipHeaderWords:
+FragChipCRCWords:   
+FragChipHeaderWHigh:
+FragChipCRCWHigh:   
+
+TileRawChannelCollection: 8
+TileRawDataCollection of TileRawChannel Id = 0x100 size = 8
+TileRawChannel Id = 5/0/1/0/0/0 ampl = 19587 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/1/0 ampl = 18119 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/2/0 ampl = 0 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/3/0 ampl = 21162 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/4/0 ampl = 23661 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/5/0 ampl = 19446 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/6/0 ampl = 16778 time = 0 qual = 0
+TileRawChannel Id = 5/0/1/0/7/0 ampl = 19089 time = 0 qual = 0
+
+TileMuonReceiverContainer: 8
+TileContainer of TileMuonReceiverObj size = 8
+TileMuonReceiverObj 1080 Tile decision (4-bit word)  0 1 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1081 Tile decision (4-bit word)  0 0 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1082 Tile decision (4-bit word)  0 0 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1083 Tile decision (4-bit word)  0 0 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1084 Tile decision (4-bit word)  0 0 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1085 Tile decision (4-bit word)  0 1 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1086 Tile decision (4-bit word)  0 1 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+TileMuonReceiverObj 1087 Tile decision (4-bit word)  0 0 0 0 Thres d6H d6L d56H d56L  e(d6) e(d5+d6)  t(d6) t(d5+d6/2.) 
+
+test3 (fillCollectionHLT)
+TileCellCollection: 48
+TileRawDataCollection of TileCell Id = 0x100 size = 48
+TileCell Id = 5/1/-1/0/0/0 ener = 0 gain = -4 time = -100 qual = 65535 prov = 0 E1 = 0 G1 = 0 T1 = -100 Q1 = 255 0 E2 = 0 G2 = -1 T2 = -100 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/0/1 ener = 12.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 12.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/1/0 ener = -20 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -20 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/1/1 ener = 1.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 1.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/2/0 ener = -10 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -10 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/2/1 ener = -15.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -15.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/2/2 ener = -7.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -7.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/3/0 ener = -3.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -3.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/3/1 ener = -42 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -42 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/4/0 ener = -3 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -3 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/4/1 ener = -18 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -18 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/4/2 ener = -15.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -15.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/5/0 ener = -7.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -7.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/5/1 ener = -6.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -6.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/6/0 ener = -4.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -4.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/6/1 ener = -56.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -56.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/6/2 ener = -4.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -4.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/7/0 ener = 19 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 19 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/7/1 ener = -13.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -13.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/8/0 ener = 0 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 0 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/8/1 ener = 31 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 31 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/9/0 ener = -22 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -22 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/0/0 ener = 6.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 6.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/0/1 ener = 136 gain = -12 time = 27.8125 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 27.8125 Q1 = 255 0 E2 = 136 G2 = 1 T2 = 27.8125 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/1/0 ener = -7.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -7.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/1/1 ener = -7 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -7 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/2/0 ener = 47 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 47 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/2/1 ener = -5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/2/2 ener = -30 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -30 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/3/0 ener = 0 gain = -12 time = 0 qual = 767 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 0 G2 = 1 T2 = 0 Q2 = 2 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/3/1 ener = -2 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -2 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/4/0 ener = 1.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 1.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/4/1 ener = -87 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -87 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/4/2 ener = -23 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -23 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/5/0 ener = -10.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -10.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/5/1 ener = 169.5 gain = -12 time = -30.5 qual = 767 prov = 0 E1 = 0 G1 = 0 T1 = -30.5 Q1 = 255 0 E2 = 169.5 G2 = 1 T2 = -30.5 Q2 = 2 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/6/0 ener = 23 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 23 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/6/1 ener = 1.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 1.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/6/2 ener = -18 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -18 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/7/0 ener = 3.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 3.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/7/1 ener = -21 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -21 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/8/0 ener = -7 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -7 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/8/1 ener = -0.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -0.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/9/0 ener = 0.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 0.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/0/0 ener = 14 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 14 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/0/1 ener = -23 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -23 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/1/0 ener = -9 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -9 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/1/1 ener = 9.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 9.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+
+merged TileCellCollection: 48
+TileRawDataCollection of TileCell Id = 0x100 size = 48
+TileCell Id = 5/1/-1/0/0/0 ener = 0 gain = -4 time = -100 qual = 65535 prov = 0 E1 = 0 G1 = 0 T1 = -100 Q1 = 255 0 E2 = 0 G2 = -1 T2 = -100 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/0/1 ener = 12.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 12.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/1/0 ener = 2.5 gain = -11 time = 0 qual = 0 prov = 0 E1 = 2.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/1/1 ener = 1.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 1.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/2/0 ener = -10 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -10 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/2/1 ener = -15.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -15.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/2/2 ener = -7.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -7.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/3/0 ener = -3.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -3.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/3/1 ener = -42 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -42 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/4/0 ener = -3 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -3 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/4/1 ener = -18 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -18 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/4/2 ener = -15.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -15.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/5/0 ener = -7.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -7.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/5/1 ener = -6.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -6.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/6/0 ener = -4.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -4.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/6/1 ener = -56.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -56.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/6/2 ener = -4.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -4.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/7/0 ener = 19 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 19 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/7/1 ener = -13.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -13.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/8/0 ener = 0 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 0 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/8/1 ener = 31 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 31 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/0/9/0 ener = -22 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -22 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/0/0 ener = 6.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 6.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/0/1 ener = 136 gain = -12 time = 27.8125 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 27.8125 Q1 = 255 0 E2 = 136 G2 = 1 T2 = 27.8125 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/1/0 ener = -7.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -7.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/1/1 ener = -7 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -7 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/2/0 ener = 47 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 47 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/2/1 ener = -5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/2/2 ener = -30 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -30 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/3/0 ener = 0 gain = -12 time = 0 qual = 767 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 0 G2 = 1 T2 = 0 Q2 = 2 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/3/1 ener = -2 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -2 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/4/0 ener = 1.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 1.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/4/1 ener = -87 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -87 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/4/2 ener = -23 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -23 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/5/0 ener = -10.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -10.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/5/1 ener = 169.5 gain = -12 time = -30.5 qual = 767 prov = 0 E1 = 0 G1 = 0 T1 = -30.5 Q1 = 255 0 E2 = 169.5 G2 = 1 T2 = -30.5 Q2 = 2 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/6/0 ener = 23 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 23 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/6/1 ener = 1.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 1.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/6/2 ener = -18 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -18 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/7/0 ener = 3.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 3.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/7/1 ener = -21 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -21 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/8/0 ener = -7 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -7 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/8/1 ener = -0.5 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -0.5 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/1/9/0 ener = 0.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 0.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/0/0 ener = 14 gain = -3 time = 0 qual = 65280 prov = 0 E1 = 14 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/0/1 ener = -23 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = -23 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/1/0 ener = -9 gain = -3 time = 0 qual = 65280 prov = 0 E1 = -9 G1 = 1 T1 = 0 Q1 = 0 0 E2 = 0 G2 = -1 T2 = 0 Q2 = 255 0 eta = 0 phi = 0 r = 0
+TileCell Id = 5/1/-1/2/1/1 ener = 9.5 gain = -12 time = 0 qual = 255 prov = 0 E1 = 0 G1 = 0 T1 = 0 Q1 = 255 0 E2 = 9.5 G2 = 1 T2 = 0 Q2 = 0 0 eta = 0 phi = 0 r = 0
+
+test4 (fillCollectionL2)
+TileL2Container: 256
+TileContainer of TileL2 size = 256
+TileL2 Id = 0x100 phi = 0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x101 phi = 0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x102 phi = 0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x103 phi = 0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x104 phi = 0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x105 phi = 0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x106 phi = 0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x107 phi = 0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x108 phi = 0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x109 phi = 0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x10a phi = 1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x10b phi = 1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x10c phi = 1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x10d phi = 1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x10e phi = 1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x10f phi = 1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x110 phi = 1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x111 phi = 1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x112 phi = 1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x113 phi = 1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x114 phi = 2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x115 phi = 2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x116 phi = 2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x117 phi = 2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x118 phi = 2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x119 phi = 2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x11a phi = 2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x11b phi = 2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x11c phi = 2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x11d phi = 2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x11e phi = 2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x11f phi = 3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x120 phi = -3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x121 phi = -2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x122 phi = -2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x123 phi = -2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x124 phi = -2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x125 phi = -2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x126 phi = -2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x127 phi = -2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x128 phi = -2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x129 phi = -2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x12a phi = -2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x12b phi = -2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x12c phi = -1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x12d phi = -1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x12e phi = -1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x12f phi = -1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x130 phi = -1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x131 phi = -1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x132 phi = -1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x133 phi = -1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x134 phi = -1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x135 phi = -1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x136 phi = -0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x137 phi = -0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x138 phi = -0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x139 phi = -0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x13a phi = -0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x13b phi = -0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x13c phi = -0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x13d phi = -0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x13e phi = -0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x13f phi = -0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x200 phi = 0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x201 phi = 0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x202 phi = 0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x203 phi = 0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x204 phi = 0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x205 phi = 0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x206 phi = 0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x207 phi = 0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x208 phi = 0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x209 phi = 0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x20a phi = 1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x20b phi = 1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x20c phi = 1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x20d phi = 1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x20e phi = 1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x20f phi = 1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x210 phi = 1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x211 phi = 1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x212 phi = 1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x213 phi = 1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x214 phi = 2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x215 phi = 2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x216 phi = 2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x217 phi = 2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x218 phi = 2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x219 phi = 2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x21a phi = 2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x21b phi = 2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x21c phi = 2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x21d phi = 2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x21e phi = 2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x21f phi = 3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x220 phi = -3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x221 phi = -2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x222 phi = -2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x223 phi = -2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x224 phi = -2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x225 phi = -2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x226 phi = -2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x227 phi = -2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x228 phi = -2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x229 phi = -2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x22a phi = -2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x22b phi = -2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x22c phi = -1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x22d phi = -1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x22e phi = -1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x22f phi = -1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x230 phi = -1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x231 phi = -1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x232 phi = -1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x233 phi = -1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x234 phi = -1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x235 phi = -1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x236 phi = -0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x237 phi = -0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x238 phi = -0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x239 phi = -0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x23a phi = -0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x23b phi = -0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x23c phi = -0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x23d phi = -0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x23e phi = -0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x23f phi = -0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x300 phi = 0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x301 phi = 0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x302 phi = 0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x303 phi = 0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x304 phi = 0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x305 phi = 0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x306 phi = 0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x307 phi = 0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x308 phi = 0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x309 phi = 0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x30a phi = 1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x30b phi = 1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x30c phi = 1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x30d phi = 1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x30e phi = 1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x30f phi = 1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x310 phi = 1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x311 phi = 1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x312 phi = 1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x313 phi = 1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x314 phi = 2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x315 phi = 2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x316 phi = 2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x317 phi = 2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x318 phi = 2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x319 phi = 2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x31a phi = 2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x31b phi = 2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x31c phi = 2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x31d phi = 2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x31e phi = 2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x31f phi = 3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x320 phi = -3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x321 phi = -2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x322 phi = -2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x323 phi = -2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x324 phi = -2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x325 phi = -2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x326 phi = -2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x327 phi = -2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x328 phi = -2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x329 phi = -2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x32a phi = -2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x32b phi = -2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x32c phi = -1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x32d phi = -1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x32e phi = -1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x32f phi = -1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x330 phi = -1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x331 phi = -1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x332 phi = -1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x333 phi = -1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x334 phi = -1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x335 phi = -1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x336 phi = -0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x337 phi = -0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x338 phi = -0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x339 phi = -0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x33a phi = -0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x33b phi = -0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x33c phi = -0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x33d phi = -0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x33e phi = -0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x33f phi = -0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x400 phi = 0.0490874 sumE: none NMuons = 0
+TileL2 Id = 0x401 phi = 0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x402 phi = 0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x403 phi = 0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x404 phi = 0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x405 phi = 0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x406 phi = 0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x407 phi = 0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x408 phi = 0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x409 phi = 0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x40a phi = 1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x40b phi = 1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x40c phi = 1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x40d phi = 1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x40e phi = 1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x40f phi = 1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x410 phi = 1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x411 phi = 1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x412 phi = 1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x413 phi = 1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x414 phi = 2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x415 phi = 2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x416 phi = 2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x417 phi = 2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x418 phi = 2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x419 phi = 2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x41a phi = 2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x41b phi = 2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x41c phi = 2.79798 sumE: none NMuons = 0
+TileL2 Id = 0x41d phi = 2.89616 sumE: none NMuons = 0
+TileL2 Id = 0x41e phi = 2.99433 sumE: none NMuons = 0
+TileL2 Id = 0x41f phi = 3.09251 sumE: none NMuons = 0
+TileL2 Id = 0x420 phi = -3.09251 sumEt = 0 sumEz = 0 sumE = 81 NMuons = 0
+TileL2 Id = 0x421 phi = -2.99433 sumEt = 0 sumEz = 0 sumE = 666.5 NMuons = 0
+TileL2 Id = 0x422 phi = -2.89616 sumEt = 0 sumEz = 0 sumE = 458.5 NMuons = 0
+TileL2 Id = 0x423 phi = -2.79798 sumEt = 0 sumEz = 0 sumE = 3981.5 NMuons = 0
+TileL2 Id = 0x424 phi = -2.69981 sumE: none NMuons = 0
+TileL2 Id = 0x425 phi = -2.60163 sumE: none NMuons = 0
+TileL2 Id = 0x426 phi = -2.50346 sumE: none NMuons = 0
+TileL2 Id = 0x427 phi = -2.40528 sumE: none NMuons = 0
+TileL2 Id = 0x428 phi = -2.30711 sumE: none NMuons = 0
+TileL2 Id = 0x429 phi = -2.20893 sumE: none NMuons = 0
+TileL2 Id = 0x42a phi = -2.11076 sumE: none NMuons = 0
+TileL2 Id = 0x42b phi = -2.01258 sumE: none NMuons = 0
+TileL2 Id = 0x42c phi = -1.91441 sumE: none NMuons = 0
+TileL2 Id = 0x42d phi = -1.81623 sumE: none NMuons = 0
+TileL2 Id = 0x42e phi = -1.71806 sumE: none NMuons = 0
+TileL2 Id = 0x42f phi = -1.61988 sumE: none NMuons = 0
+TileL2 Id = 0x430 phi = -1.52171 sumE: none NMuons = 0
+TileL2 Id = 0x431 phi = -1.42353 sumE: none NMuons = 0
+TileL2 Id = 0x432 phi = -1.32536 sumE: none NMuons = 0
+TileL2 Id = 0x433 phi = -1.22718 sumE: none NMuons = 0
+TileL2 Id = 0x434 phi = -1.12901 sumE: none NMuons = 0
+TileL2 Id = 0x435 phi = -1.03084 sumE: none NMuons = 0
+TileL2 Id = 0x436 phi = -0.93266 sumE: none NMuons = 0
+TileL2 Id = 0x437 phi = -0.834486 sumE: none NMuons = 0
+TileL2 Id = 0x438 phi = -0.736311 sumE: none NMuons = 0
+TileL2 Id = 0x439 phi = -0.638136 sumE: none NMuons = 0
+TileL2 Id = 0x43a phi = -0.539961 sumE: none NMuons = 0
+TileL2 Id = 0x43b phi = -0.441786 sumE: none NMuons = 0
+TileL2 Id = 0x43c phi = -0.343612 sumE: none NMuons = 0
+TileL2 Id = 0x43d phi = -0.245437 sumE: none NMuons = 0
+TileL2 Id = 0x43e phi = -0.147262 sumE: none NMuons = 0
+TileL2 Id = 0x43f phi = -0.0490874 sumE: none NMuons = 0
+
+test5 (fillTileLaserObj)
+TileLaserObj: 
+TileLaserObject:
+  version: 2 BCID: 3355 daqtype: 24 calibtype: 1
+  TileLaserControl: pumpDiodeTemp: -99 diodeBoxTemp: -99 timeLastMeasP: -99 gasFlux: -99 timeLastMeasF: -99 humidity: -99 timeLastMeasH: -99 lastPedMeas: -99 lastAlphaMeas: -99
+  TileLaser: counter: 18125 diodeCurrOrd: 15000 diodeCurrMeas: 11312 filtNumber: 8 slamaDelay: 5 
+  TileLaserPLC: alphaPos: -99 LVdiodes: -99 HVpmts: -99 shutter: -99 interlock: -99 alarm: -99
+  LG diodes
+    TileLaserDiode: ADC: 1017 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1110 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1208 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 349 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 322 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 429 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 288 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 402 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 457 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 239 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 670 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 168 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 221 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 378 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+  HG diodes
+    TileLaserDiode: ADC: 3769 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 3715 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 4695 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 676 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1181 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 559 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1087 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1368 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 895 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1324 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 1558 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 160 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 822 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+    TileLaserDiode: ADC: 969 ped: -99 sigPed: -99 alpha: -99 sigAlpha: -99 pedAlpha: 0 sigPedAlpha: 0
+  LG PMTs
+    TileLaserPmt: PMADC: 1351 TDC: 1341 ped: -99 sigPed: -99
+    TileLaserPmt: PMADC: 475 TDC: 1345 ped: -99 sigPed: -99
+  HG PMTs
+    TileLaserPmt: PMADC: 3629 TDC: 1341 ped: -99 sigPed: -99
+    TileLaserPmt: PMADC: 1733 TDC: 1345 ped: -99 sigPed: -99
+  Calib
+    16calibs
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+    16calibs
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 324.082 3.98825 (1) HG mean/sig: 1018.83 15.5821 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 459.525 3.58352 (1) HG mean/sig: 1195.06 13.9639 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 328.349 4.27413 (1) HG mean/sig: 1264.25 16.5277 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 341.769 3.87816 (1) HG mean/sig: 646.246 15.0011 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 301.673 4.31954 (1) HG mean/sig: 1106.78 15.9311 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 426.867 4.08475 (1) HG mean/sig: 550.711 15.7503 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 246.794 4.09873 (1) HG mean/sig: 922.25 15.9286 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 379.841 3.88828 (1) HG mean/sig: 1276.52 15.1305 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 441.772 3.85476 (1) HG mean/sig: 836.926 14.6883 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 219.091 4.11438 (1) HG mean/sig: 1244.33 16.2222 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 422.103 1.10095 (1) HG mean/sig: 468.82 1.81166 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 673.429 4.9143 (1) HG mean/sig: 1568.01 12.5524 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 167.955 0.520023 (1) HG mean/sig: 160.438 0.519245 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 223.177 3.29259 (1) HG mean/sig: 825.812 13.1558 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 340.905 0.86334 (1) HG mean/sig: 1209.93 2.85501 (1) 
+      TileLasCalib: type: 1 nevts: 7595 LG mean/sig: 378.808 0.688881 (1) HG mean/sig: 971.95 2.32748 (1) 
+    16calibs
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+    16calibs
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+      TileLasCalib: type: -1 nevts: 0 LG mean/sig: -99 -99 (0) HG mean/sig: -99 -99 (0) 
+

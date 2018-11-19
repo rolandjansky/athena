@@ -92,6 +92,24 @@ namespace AtlasRoot {
     m_zeePhys = nullptr;
     m_uA2MeV_2015_first2weeks_correction = nullptr;
 
+    m_zeeNom_data2015 = nullptr;  
+    m_wstot_slope_A_data = nullptr;
+    m_wstot_slope_B_MC = nullptr;
+    m_wstot_40GeV_data = nullptr;
+    m_wstot_40GeV_MC = nullptr;
+    m_wstot_pT_data_p0_electrons = nullptr; 
+    m_wstot_pT_data_p1_electrons = nullptr; 
+    m_wstot_pT_data_p0_unconverted_photons = nullptr;
+    m_wstot_pT_data_p1_unconverted_photons = nullptr;
+    m_wstot_pT_data_p0_converted_photons = nullptr;
+    m_wstot_pT_data_p1_converted_photons = nullptr;
+    m_wstot_pT_MC_p0_electrons = nullptr;
+    m_wstot_pT_MC_p1_electrons = nullptr;
+    m_wstot_pT_MC_p0_unconverted_photons = nullptr;
+    m_wstot_pT_MC_p1_unconverted_photons = nullptr;
+    m_wstot_pT_MC_p0_converted_photons = nullptr;
+    m_wstot_pT_MC_p1_converted_photons = nullptr;
+
     m_resNom = nullptr;
     m_resSyst = nullptr;
 

@@ -688,7 +688,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
       conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
     }
   }
-  evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun (conditionsRun);
+  evtContext->template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
 
   // Make sure context global context has event id
   Gaudi::Hive::setCurrentContext (*evtContext);

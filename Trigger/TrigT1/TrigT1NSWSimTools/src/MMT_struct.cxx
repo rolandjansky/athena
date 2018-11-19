@@ -328,7 +328,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //x = horizontal distance from beam looking down
   ////////////  Define the large wedge /////////////////
   w1=float32fixed<18>(mm_top_mult1->lWidth());   //top
-  w2=float32fixed<18>(mm_top_mult1->lWidth()*1./(cos(roParam_top_mult1.stereoAngel.at(3))));  //determined by 33deg angle   //shelves part
+  w2=float32fixed<18>(mm_top_mult1->lWidth()*1./(cos(roParam_top_mult1.stereoAngle.at(3))));  //determined by 33deg angle   //shelves part
   w3=float32fixed<18>(mm_bottom_mult1->sWidth());//582.3);  //bottom
   h1=float32fixed<18>(roParam_top_mult1.roLength+roParam_bottom_mult1.roLength+5.0); //how tall wedge is at w1, ie total height
 
@@ -370,8 +370,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //L=float32fixed<18>(7536.);//7500.); //distance from IP to front side of wedge
 
   strip_width = float32fixed<4>(roParam_top_mult1.stripPitch);  // 0.5;
-  stereo_degree = float32fixed<4>(TMath::RadToDeg()*roParam_top_mult1.stereoAngel.at(2)); //0.75 //3 in degrees!
-  float32fixed<2> degree=roParam_top_mult1.stereoAngel.at(2);
+  stereo_degree = float32fixed<4>(TMath::RadToDeg()*roParam_top_mult1.stereoAngle.at(2)); //0.75 //3 in degrees!
+  float32fixed<2> degree=roParam_top_mult1.stereoAngle.at(2);
   // std::cout << "DEGREE" << degree.getFixed()  << " " << stereo_degree.getFixed() << std::endl;
   vertical_strip_width_UV = strip_width.getFixed()/cos(degree.getFixed());
   ybases=vector<vector<float32fixed<18> > >(setup.size(),vector<float32fixed<18> >(n_stations_eta,float32fixed<18>(0.)));

@@ -39,7 +39,7 @@ namespace Muon {
     ATH_CHECK(m_muonTruthSegmentContainerName.initialize());
     ATH_CHECK(m_muonSegmentCollectionName.initialize());
     ATH_CHECK(m_mcEventColl.initialize());
-    if(m_useNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+    if(!m_useNSW) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
     ATH_CHECK(m_muonSimData.initialize());
     ATH_CHECK(m_cscSimData.initialize(!m_useNSW));
     ATH_CHECK(m_trackRecord.initialize());

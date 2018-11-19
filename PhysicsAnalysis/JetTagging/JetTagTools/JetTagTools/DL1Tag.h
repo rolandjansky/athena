@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOLS_DL1TAG_C
@@ -15,7 +15,6 @@
     @authors Dan Guest, Luke de Oliveira, Marie Lanfermann
 ********************************************************/
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "JetTagTools/NNLayerConfig.h"
 #include "JetTagTools/IMultivariateJetTagger.h"
 #include "JetTagCalibration/JetTagCalibCondData.h"
 
@@ -52,12 +51,11 @@ namespace Analysis {
     typedef std::map<std::string, std::map<std::string, double> > map_var_map;
     typedef std::map<std::string, std::string> str_map;
     typedef std::map<std::string, std::vector<lwt::Input> > map_var;
-    typedef std::map<std::string, lwt::LightweightNeuralNetwork*> nn_map;
+    typedef std::map<std::string, std::unique_ptr<lwt::LightweightNeuralNetwork>> nn_map;
 
     /** Key of calibration data: */
     SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
-    void cache_calibration(const std::string& jetauthor);
-    std::string get_calib_string(std::string jetauthor);
+    void load_calibration(const std::string& jetauthor);
 
     void build_nn(const std::string& jetauthor, std::istream& nn_config_istream);
     void fill_outputs(xAOD::BTagging* BTag, var_map outputs);

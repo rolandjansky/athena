@@ -7,8 +7,7 @@ atlas_subdir( LArG4RunControl )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           PRIVATE
                           Control/StoreGate
                           GaudiKernel )
@@ -29,12 +28,12 @@ atlas_add_library( LArG4RunControl
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} SGTools StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( LArG4RunControlDict
                       LArG4RunControl/LArG4RunControlDict.h
                       LArG4RunControl/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} SGTools StoreGateLib SGtests GaudiKernel LArG4RunControl )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel LArG4RunControl )
 

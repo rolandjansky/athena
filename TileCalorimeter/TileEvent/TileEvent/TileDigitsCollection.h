@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDigitsCollection_H
@@ -21,7 +21,7 @@ public:
 
   typedef TileRawDataCollection<TileDigits> MyBase;
   typedef MyBase::ID ID;
-  typedef TileDigits _TElement;
+  typedef TileDigits TElement;
 
   TileDigitsCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS  )
     : MyBase(id,ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
@@ -30,6 +30,13 @@ public:
     : MyBase(id,ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
   TileDigitsCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) 
     : MyBase(ownPolicy), m_FragSize(0), m_FragBCID(0) { m_FragExtraWords.resize(2); }
+
+  /**
+   * @brief Copy constructor.
+   * @param other Collection to copy.
+   * Does a deep copy of the contents.
+   */
+  TileDigitsCollection (const TileDigitsCollection& other);
 
   ~TileDigitsCollection() { }
 
@@ -57,10 +64,12 @@ public:
    * Set vector of extra words for this collection
    * @param extra - all words from frag trailer
    */
-  void setFragExtraWords(const std::vector<uint32_t> & extra) { m_FragExtraWords = extra;
-                                  if (extra.size() < 2) m_FragExtraWords.resize(2); }
-  void setFragExtraWords(std::vector<uint32_t> && extra) { m_FragExtraWords = std::move(extra);
-                                  if (m_FragExtraWords.size() < 2) m_FragExtraWords.resize(2); }
+  void setFragExtraWords(const std::vector<uint32_t> & extra) {
+    m_FragExtraWords = extra;
+    if (extra.size() < 2) m_FragExtraWords.resize(2); }
+  void setFragExtraWords(std::vector<uint32_t> && extra) {
+    m_FragExtraWords = std::move(extra);
+    if (extra.size() < 2) m_FragExtraWords.resize(2); }
   /**
    * Get Frag extra words for this collection
    * @return vector with all words
@@ -110,7 +119,8 @@ public:
   void setFragChipHeaderWordsHigh(std::vector<uint32_t>&& chipHWordsH) {
         m_FragChipHeaderWordsHIGH = std::move(chipHWordsH);
   }
-  
+
+
   /**
    * Get chip headers for this collcetion
    * If calib mode, this is LOW gain headers
@@ -137,6 +147,8 @@ public:
   void setFragChipCRCWords(std::vector<uint32_t>&& chipCRCWords) {
        m_FragChipCRCWords = std::move(chipCRCWords);
   }
+
+
   /**
    * High gain CRC
    */
@@ -162,31 +174,11 @@ public:
                          return m_FragChipCRCWordsHIGH;
   }
   
-  void printExtra() const {
-    std::cout<<std::hex<<"id=0x"<<this->identify()
-             <<std::dec<<", bcid="<<m_FragBCID
-             <<std::hex<<"(0x"<<m_FragBCID
-             <<std::dec<<"), size="<<m_FragSize
-             <<std::hex;
-    std::cout<<std::endl<<"FragExtraWords:     ";
-    for (unsigned int i=0; i<m_FragExtraWords.size(); ++i)
-      std::cout<<" "<<m_FragExtraWords[i];
-    std::cout<<std::endl<<"FragChipHeaderWords:";
-    for (unsigned int i=0; i<m_FragChipHeaderWords.size(); ++i)
-      std::cout<<" "<<m_FragChipHeaderWords[i];
-    std::cout<<std::endl<<"FragChipCRCWords:   ";
-    for (unsigned int i=0; i<m_FragChipCRCWords.size(); ++i)
-      std::cout<<" "<<m_FragChipCRCWords[i];
-    std::cout<<std::endl<<"FragChipHeaderWHigh:";
-    for (unsigned int i=0; i<m_FragChipHeaderWordsHIGH.size(); ++i)
-      std::cout<<" "<<m_FragChipHeaderWordsHIGH[i];
-    std::cout<<std::endl<<"FragChipCRCWHigh:   ";
-    for (unsigned int i=0; i<m_FragChipCRCWordsHIGH.size(); ++i)
-      std::cout<<" "<<m_FragChipCRCWordsHIGH[i];
-    std::cout<<std::endl<<std::dec;
-  }
+  void printExtra() const;
+  void printExtra(std::ostream& os) const;
 
- private:
+
+private:
   /**
    * CRC words from Frag data, one word for each chip
    * LOW gain if calib mode

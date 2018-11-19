@@ -40,35 +40,28 @@ StatusCode EMPIDBuilder::initialize()
 
     ATH_MSG_DEBUG(" Initializing EMPIDBuilder");
 
-    for (const auto& selector : m_electronIsEMselectors) {
-        CHECK(selector.retrieve());
-    }
+    ATH_CHECK(m_electronIsEMselectors.retrieve());
 
     if (m_electronIsEMselectors.size() != m_electronIsEMselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given electronIsEMselector names");
         return StatusCode::FAILURE;
     }
 
-    for (const auto& selector : m_electronLHselectors) {
-        CHECK(selector.retrieve());
-    }
+    ATH_CHECK(m_electronLHselectors.retrieve());
 
     if (m_electronLHselectors.size() != m_electronLHselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given electron LH selector names");
         return StatusCode::FAILURE;
     }
 
-    for (const auto& selector : m_genericIsEMselectors) {
-        CHECK(selector.retrieve());
-    }
+    ATH_CHECK(m_genericIsEMselectors.retrieve());
 
     if (m_genericIsEMselectors.size() != m_genericIsEMselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given generic selector names");
         return StatusCode::FAILURE;
     }
-    for (const auto& selector : m_photonIsEMselectors) {
-        CHECK(selector.retrieve());
-    }
+
+    ATH_CHECK(m_photonIsEMselectors.retrieve());
 
     if (m_photonIsEMselectors.size() != m_photonIsEMselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given photon selector names");

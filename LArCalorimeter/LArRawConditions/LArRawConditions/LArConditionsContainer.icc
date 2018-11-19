@@ -19,7 +19,6 @@
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h" 
 
 #include <algorithm>
 #include <deque>
@@ -37,7 +36,6 @@ inline
 LArConditionsContainer<T>::LArConditionsContainer()
 	:
 	LArConditionsContainerBase(),
-	m_hashVecValid(false),
 	m_correctionsApplied(false)
 
 
@@ -48,7 +46,6 @@ inline
 LArConditionsContainer<T>::LArConditionsContainer(GroupingType type)
 	:
 	LArConditionsContainerBase(type),
-	m_hashVecValid(false),
 	m_correctionsApplied(false)
 
 {} 
@@ -189,8 +186,6 @@ LArConditionsContainer<T>::updateConditionsMap(FebId febId, unsigned int gain,
         FebPairReference pair = *subsetIt;
         conditionsMap.add(febId, &pair.second);
 
-	// This invalids the hash vector
-	m_hashVecValid=false;
     }
     else {
 	std::cout << " LArConditionsContainer::updateConditionsMap:  unable to get channel: febid/gain "
@@ -299,17 +294,6 @@ LArConditionsContainer<T>::get(const HWIdentifier id,
 
 }
 
-template<class T> 
-inline 
-typename LArConditionsContainer<T>::ConstReference
-LArConditionsContainer<T>::get_offline(const Identifier id, 
-				       unsigned int gain) const
-{
-  const IdentifierHash hId=this->offlineHelper()->calo_cell_hash(id);
-  return this->get(hId,gain);//Creates a hash-indexed vector of pointers to the payload object
-}
-
-
 
 template<class T> 
 inline 
@@ -344,25 +328,6 @@ LArConditionsContainer<T>::get(const HWIdentifier id,
     return (gainMapIt->second.getNonConst(febId,channel));
 }
 
-template<class T> 
-inline 
-typename LArConditionsContainer<T>::ConstReference
-LArConditionsContainer<T>::get(const IdentifierHash hashId,
-			       unsigned int gain) const
-{
-  if (!m_hashVecValid) initHashVec();
-  TVectorMapIterator it =  m_hashVec.find(gain);
-  if(it!=m_hashVec.end()) {
-    ConstPointer elm_ptr =  (*it).second[hashId];
-    if (elm_ptr) { //Check if NULL pointer 
-      return *elm_ptr;
-    }
-    else {
-	return (empty());
-    }
-  } 	
-  return (empty());
-} 
 
 template<class T> 
 inline
@@ -559,65 +524,6 @@ LArConditionsContainer<T>::totalNumberOfCorrections() const
 }
 
 
-template<class T> 
-inline
-void LArConditionsContainer<T>::initHashVec() const 
-{
-    const unsigned hashMax=m_offlineHelper->calo_cell_hash_max();
-    ConstGainMapIterator it_gain = m_cached.begin() ; 
-    ConstGainMapIterator it_gain_e = m_cached.end() ; 
-
-    try { 
-	// loop lover gains 
-	for(; it_gain!=it_gain_e;++it_gain) { 
-	    unsigned int gain = (*it_gain).first; 
-	    const ConditionsMap& db = (*it_gain).second; 
-
-	    TVector& hashVec= m_hashVec[gain];
-	    hashVec.clear();
-	    hashVec.resize(hashMax,0);
-
-	    //std::vector<T*>::const_iterator it=m_hashVec.begin();
-	    //std::vector<T*>::const_iterator it_e=m_hashVec.end();
-
-//    typedef  ConditionsMap::const_iterator P_IT; 
-	    ConstConditionsMapIterator it_chan   = db.begin(m_onlineHelper); 
-	    ConstConditionsMapIterator it_chan_e = db.end(m_onlineHelper); 
-
-	    // loop over available channels for this gain 
-	    for(; it_chan!=it_chan_e;++it_chan) {
-		HWIdentifier hid = m_onlineHelper->channel_Id(
-		    HWIdentifier(it_chan.getFebId()), it_chan.getChannel());
-		if (m_larCablingSvc->isOnlineConnected(hid)) {
-		  Identifier id = m_larCablingSvc->cnvToIdentifier(hid); 
-		  IdentifierHash hash = m_offlineHelper->calo_cell_hash(id);
-		  //if (hash>hashVec.size()) std::cout << "Hash too big" << std::endl;
-                  ConstReference ref = *it_chan;
-		  hashVec[(unsigned int)hash]=&ref;
-		}
-	    }
-	}
-	m_hashVecValid=true;
-    }
-    catch (LArID_Exception & except) {
-	std::cout<<" LArConditionsContainer: ERROR Failed to get hash id"<<std::endl;
-	m_hashVecValid=false;
-    }
-    return;
-}
-
-// template<class T> 
-// void LArConditionsContainer<T>::copy ( const GainMap* p) 
-// {
-//   GainMapIterator it   = p->begin(); 
-//   GainMapIterator it_e = p->end(); 
-  
-//   for(; it!=it_e;++it){
-//     m_cached[(*it).first] = (*it).second; 
-//   } 
-
-//   return ; 
-// }
 
     /// Have corrections been applied?
 template<class T> 

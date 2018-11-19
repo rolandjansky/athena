@@ -5,33 +5,39 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H
 #define SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H
 
-#include "GaudiKernel/IAlgTool.h"
-
 #include "ByteStreamData/RawEvent.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
+#include "GaudiKernel/IAlgTool.h"
+
 #include <string>
 
+/** @class ISCTRawDataProviderTool
+ *
+ * @brief Interface for Athena Algorithm Tool to fill Collections of SCT RDO Containers.
+ *
+ * The class inherits from AthAlgTool.
+ */
 class ISCTRawDataProviderTool : virtual public IAlgTool
 {
 
  public:
 
-  /// Creates the InterfaceID and interfaceID() method
+  /** Creates the InterfaceID and interfaceID() method */
   DeclareInterfaceID(ISCTRawDataProviderTool, 1, 0);
 
-  //! destructor 
+  /** Destructor */
   virtual ~ISCTRawDataProviderTool() = default;
 
-  //! this is the main decoding method
+  /** Main decoding method */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
                              ISCT_RDO_Container&,
                              InDetBSErrContainer* errs,
                              SCT_ByteStreamFractionContainer* bsFracCont) const = 0;
 
-  //Replace the incident calls with private calls, more MT friendly
+  /** Reset list of know ROB IDs */
   virtual void beginNewEvent() const = 0;
 };
 
