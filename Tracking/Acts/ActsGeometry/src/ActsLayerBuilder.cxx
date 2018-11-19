@@ -288,11 +288,13 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       // want to figure out bins in phi
       for (const auto& srf : layerSurfaces) {
         auto elm = dynamic_cast<const ActsDetectorElement*>(srf->associatedDetectorElement());
-        auto id = elm->identityHelper();
-        int phi_mod_max = id.phi_module_max();
-        int eta_mod_max = id.eta_module_max();
-        nModPhi = std::min(nModPhi, phi_mod_max+1);
-        nModR = eta_mod_max+1;
+        if (elm){
+          auto id = elm->identityHelper();
+          int phi_mod_max = id.phi_module_max();
+          int eta_mod_max = id.eta_module_max();
+          nModPhi = std::min(nModPhi, phi_mod_max+1);
+          nModR = eta_mod_max+1;
+        }
       }
 
       ACTS_VERBOSE("Identifier reports: " << nModPhi << " is lowest for " << nModR << " r-rings");
