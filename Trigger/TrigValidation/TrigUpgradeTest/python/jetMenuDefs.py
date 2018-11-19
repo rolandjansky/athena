@@ -16,7 +16,7 @@ def jetSequence():
 
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.Output)
+    (recoSequence, sequenceOut) = jetRecoSequence("FSRoI")
 
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
