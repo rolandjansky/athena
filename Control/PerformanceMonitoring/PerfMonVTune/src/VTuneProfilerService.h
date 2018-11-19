@@ -3,6 +3,7 @@
 
 // STD include(s):
 #include <atomic>
+#include <memory>
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ServiceHandle.h"
@@ -11,6 +12,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 // Local include(s):
+#include "VTuneProfileRunner.h"
 #include "PerfMonVTune/IVTuneProfilerSvc.h"
 
 
@@ -22,9 +24,6 @@ class VTuneProfilerService : public AthService,
 
       /// Standard Gaudi service constructor
       VTuneProfilerService( const std::string& name, ISvcLocator* svcloc );
-
-      /// Destructor
-      virtual ~VTuneProfilerService();
 
       /// Function declaring the interface(s) implemented by the service
       virtual StatusCode queryInterface( const InterfaceID& riid,
@@ -59,8 +58,8 @@ class VTuneProfilerService : public AthService,
       /// Property: Event in which profiling should pause 
       int m_pauseEvent;
 
-      /// Is the profiling running at the moment?
-      std::atomic<bool> m_running;
+      /// Unique ptr to the VTuneProfileRunner
+      std::unique_ptr< VTuneProfileRunner > m_runner;
 
       /// Number of events processed so far
       std::atomic<int> m_processedEvents;

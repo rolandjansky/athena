@@ -1,6 +1,3 @@
-// VTune include(s)
-#include <ittnotify.h>
-
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
 
@@ -19,24 +16,14 @@ static const std::string ENDEVTLOOP_INCIDENT_NAME = "EndEvtLoop";
 VTuneProfilerService::VTuneProfilerService( const std::string& name, ISvcLocator* svcloc )
   : AthService( name, svcloc ),
     m_incidentSvc( "IncidentSvc", name ),
-    m_running( false ), m_processedEvents( 0 )  {
+     m_processedEvents( 0 )  {
+    //m_running( false ), m_processedEvents( 0 )  {
 
       declareProperty( "ResumeEvent", m_resumeEvent = 0,
                        "Event in which to resume the profiling." );
       declareProperty( "PauseEvent", m_pauseEvent = -1,
                        "Event in which to pause the profiling. Negative number "
                        "profiles the entire event-loop." );
-}
-
-/**
- * Destructor 
- */
-VTuneProfilerService::~VTuneProfilerService() {
-
-  if( m_running ) {
-    __itt_pause(); // Pause
-  }
-
 }
 
 /**
@@ -97,7 +84,7 @@ StatusCode VTuneProfilerService::finalize() {
 StatusCode VTuneProfilerService::resumeProfiling() {
 
   // Check whether the profiling is already running:
-  if( m_running ) {
+  if( m_runner ) {
     ATH_MSG_INFO( "VTune profiling already running!" );
     return StatusCode::SUCCESS;  
   }
@@ -106,10 +93,7 @@ StatusCode VTuneProfilerService::resumeProfiling() {
   ATH_MSG_INFO( "Starting VTune profiling." );
 
   // Resume VTune
-  __itt_resume();
-
-  // Set the flag
-  m_running = true;
+  m_runner = std::make_unique< VTuneProfileRunner >();
 
   return StatusCode::SUCCESS;
 }
@@ -120,7 +104,7 @@ StatusCode VTuneProfilerService::resumeProfiling() {
 StatusCode VTuneProfilerService::pauseProfiling() {
 
   // Check whether the profiling is already running:
-  if( !m_running ) {
+  if( !m_runner ) {
     ATH_MSG_INFO( "VTune profiling is not running!" );
     return StatusCode::SUCCESS;  
   }
@@ -128,11 +112,8 @@ StatusCode VTuneProfilerService::pauseProfiling() {
   // Print information 
   ATH_MSG_INFO( "Stopping VTune profiling." );
 
-  // Resume VTune
-  __itt_pause();
-
-  // Set the flag
-  m_running = false;
+  // Pause VTune
+  m_runner.reset();
 
   return StatusCode::SUCCESS;
 }
@@ -142,7 +123,7 @@ StatusCode VTuneProfilerService::pauseProfiling() {
  */
 bool VTuneProfilerService::isProfilingRunning() const {
 
-  return m_running;
+  return (m_runner!=nullptr);
 
 }
 
@@ -155,13 +136,13 @@ void VTuneProfilerService::handle( const Incident& inc ) {
   // Pause the profiling after the last event
   //
   if( inc.type() == ENDEVTLOOP_INCIDENT_NAME ) {
-    if( m_running ) {
+    if( m_runner ) {
       if( pauseProfiling().isFailure() ) {
         REPORT_MESSAGE( MSG::ERROR )
            << "Could not pause the profiling";
       }
-      return;
     }
+    return;
   }
 
   //
@@ -169,7 +150,7 @@ void VTuneProfilerService::handle( const Incident& inc ) {
   //
   if( inc.type() == BEGINEVENT_INCIDENT_NAME ) {
      if( m_resumeEvent == m_processedEvents && 
-         !m_running ) {
+         !m_runner ) {
         if( resumeProfiling().isFailure() ) {
            REPORT_MESSAGE( MSG::ERROR )
               << "Could not resume the profiling";
@@ -177,7 +158,7 @@ void VTuneProfilerService::handle( const Incident& inc ) {
      }
      if( m_pauseEvent == m_processedEvents ) {
         if( pauseProfiling().isFailure() &&
-            m_running ) {
+            m_runner ) {
            REPORT_MESSAGE( MSG::ERROR )
               << "Could not pause the profiling";
         }
