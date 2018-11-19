@@ -802,10 +802,12 @@ namespace CP {
 
       double central= 45.2;
       double width=15.5;
+      double sigmas=1.0;
+      double rho= m_useFixedRho ? m_fixedRho:0.0; 
 
-      bool isSystematic = SytCase == MCAST::SagittaSysType::RHO;
+      bool isSystematic = (SytCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion; 
 
-      if(isSystematic) {
+      if(isSystematic ) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
@@ -820,14 +822,15 @@ namespace CP {
         }
       }
 
-      double sigmas=(fabs(muonInfo.ptcb - central)/width);
-      double rho= 1/sigmas;
-      if(sigmas <  1 ) rho=1;
+      if(!m_useFixedRho){
+	sigmas=(fabs(muonInfo.ptcb - central)/width);
+	rho= 1/sigmas;
+	if(sigmas <  1 ) rho=1;
+      }
 
       // For standalone muons and Silicon associated fowrad do not use the combined
       if( muonInfo.ptid ==0 || muonInfo.ptms ==0){
         ATH_MSG_VERBOSE("Applying sagitta correction for Standalone");
-
         rho=0;
         if(muonInfo.ptid == 0  && muonInfo.ptms != 0 )  {
           if(applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, isMC, itersME, false, muonInfo)!=CorrectionCode::Ok){
@@ -877,7 +880,6 @@ namespace CP {
         ATH_MSG_VERBOSE("Using fixed rho value "<<m_fixedRho);
         rho=m_fixedRho;
       }
-
 
       muonInfo.ptcb = rho*ptCB + (1-rho)*ptWeight;
       ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb<<" "<<rho<<" * "<<ptCB<<" 1- rho "<<1-rho<<"  *  "<<ptWeight<<" sigmas "<<sigmas);
