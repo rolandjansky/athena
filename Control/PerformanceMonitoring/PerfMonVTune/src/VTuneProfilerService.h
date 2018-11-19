@@ -1,6 +1,9 @@
 #ifndef VTUNE_PROFILERSERVICE_H
 #define VTUNE_PROFILERSERVICE_H
 
+// STD include(s):
+#include <atomic>
+
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -25,25 +28,25 @@ class VTuneProfilerService : public AthService,
 
       /// Function declaring the interface(s) implemented by the service
       virtual StatusCode queryInterface( const InterfaceID& riid,
-                                         void** ppvIF );
+                                         void** ppvIF ) override;
 
       /// Standard Gaudi initialization function
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       /// Standard Gaudi finalization function
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
 
       /// Resume profiling
-      virtual StatusCode resumeProfiling();
+      virtual StatusCode resumeProfiling() override;
 
       /// Pause profiling
-      virtual StatusCode pauseProfiling();
+      virtual StatusCode pauseProfiling() override;
 
       /// Is the profiling running at the moment?
-      virtual bool isProfilingRunning() const;
+      virtual bool isProfilingRunning() const override;
 
       /// Function handling incoming incidents
-      virtual void handle( const Incident& inc );
+      virtual void handle( const Incident& inc ) override;
 
   private:
 
@@ -57,10 +60,10 @@ class VTuneProfilerService : public AthService,
       int m_pauseEvent;
 
       /// Is the profiling running at the moment?
-      bool m_running;
+      std::atomic<bool> m_running;
 
       /// Number of events processed so far
-      int m_processedEvents;
+      std::atomic<int> m_processedEvents;
 
 }; // class IVTuneProfilerSvc
 
