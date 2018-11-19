@@ -16,4 +16,3 @@ conddb.blockFolder("/TRT/Calib/PIDver_New");
 conddb.blockFolder("/TRT/Calib/ToT/ToTValue"); 
 conddb.blockFolder("/TRT/Calib/ToT/ToTVectors");
 conddb.blockFolder("/LAR/ElecCalibMC/MinBiasAverage");
-conddb.blockFolder("/LAR/Identifier/LArTTCellMapAtlas"); 
