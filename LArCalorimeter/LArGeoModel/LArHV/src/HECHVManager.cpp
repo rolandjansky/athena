@@ -29,8 +29,9 @@ class HECHVManager::Clockwork {
 public:
   HECHVDescriptor *descriptor;
   HECHVModuleConstLink linkArray[2][32][4];
+  std::atomic<bool>          init{false};
+  std::mutex                 mtx;
   std::vector<HECHVPayload> payloadArray;     
-  bool init;
 };
 
 //##ModelId=47A07A0C016B
@@ -98,7 +99,8 @@ HECHVManager::~HECHVManager()
 }
 
 void HECHVManager::update() const {
-  if (!m_c->init) {
+  std::lock_guard<std::mutex> lock(m_c->mtx);
+  if (!(m_c->init)) {
     m_c->init=true;
     m_c->payloadArray.reserve(2*32*4*4);
     for (unsigned int i=0;i<1024;i++) {

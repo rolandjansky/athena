@@ -26,11 +26,14 @@
 #include "Identifier/HWIdentifier.h"
 #include "GeoModelKernel/CellBinning.h"
 
+#include <atomic>
+
 class EMECPresamplerHVManager::Clockwork {
 public:
   CellBinning *phiBinning;
   EMECPresamplerHVModuleConstLink linkArray[2][64]; // not dense
-  bool                  init;
+  std::atomic<bool>          init{false};
+  std::mutex                 mtx;
   std::vector<EMECPresamplerHVPayload> payloadArray;
 };
 
@@ -95,7 +98,8 @@ unsigned int EMECPresamplerHVManager::endSideIndex() const
 
 
 void EMECPresamplerHVManager::update() const {
-  if (!m_c->init) {
+  std::lock_guard<std::mutex> lock(m_c->mtx);
+  if (!(m_c->init)) {
     m_c->init=true;
     {
         m_c->payloadArray.reserve(2*64);
