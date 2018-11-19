@@ -277,7 +277,7 @@ int main( int argc, char* argv[] ) {
     //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
 
-      //Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+      Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
 
       //::: Check if systematic is applicable to the correction tool
       if( corrTool->applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) {

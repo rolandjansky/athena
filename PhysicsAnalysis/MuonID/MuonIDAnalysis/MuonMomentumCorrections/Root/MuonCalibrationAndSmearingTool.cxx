@@ -756,6 +756,12 @@ namespace CP {
   CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const {
     //isSystematics ==false
 
+    //:: If RHO is fixed and one does not apply a correction, return the nominal muon; 
+    if( (SytCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion){
+      ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb);
+      return CorrectionCode::Ok;
+    }
+
     unsigned int itersCB=0;
     if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 1)
       itersCB= m_SagittaIterations.at(0) - 1;
@@ -880,8 +886,9 @@ namespace CP {
         ATH_MSG_VERBOSE("Using fixed rho value "<<m_fixedRho);
         rho=m_fixedRho;
       }
-
+      
       muonInfo.ptcb = rho*ptCB + (1-rho)*ptWeight;
+      
       ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb<<" "<<rho<<" * "<<ptCB<<" 1- rho "<<1-rho<<"  *  "<<ptWeight<<" sigmas "<<sigmas);
       return CorrectionCode::Ok;
     }
