@@ -144,9 +144,9 @@ int main( int argc, char* argv[] ) {
   //   corrTool.setProperty("FilesPath",             "" );
   corrTool.setProperty("StatComb",              false);
   //   corrTool.setProperty("MinCombPt",             300.0);
-  corrTool.setProperty("SagittaCorr",           false);
+  corrTool.setProperty("SagittaCorr",           true);
   corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
-  corrTool.setProperty("doSagittaMCDistortion", true);
+  corrTool.setProperty("doSagittaMCDistortion", false);
   corrTool.setProperty("SagittaCorrPhaseSpace", true);
   //   corrTool.setProperty("sgItersCB",             11);
   //   corrTool.setProperty("sgItersID",             11);
@@ -191,7 +191,7 @@ int main( int argc, char* argv[] ) {
   //::: Systematics initialization
   ////////////////////////////////////////////////////
   std::vector< CP::SystematicSet > sysList;
-  //sysList.push_back( CP::SystematicSet() );
+  sysList.push_back( CP::SystematicSet() );
 
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
@@ -220,7 +220,7 @@ int main( int argc, char* argv[] ) {
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
 
     // create new tree for the systematic in question
-    std::string treeName = "test_tree_" + sysListItr->name();
+    std::string treeName = "test_tree_" + (sysListItr->name().size()==0 ? "NOMINAL":sysListItr->name());
     TTree* sysTree = new TTree( treeName.c_str(), "test tree for MCAST" );
 
     // add branches
