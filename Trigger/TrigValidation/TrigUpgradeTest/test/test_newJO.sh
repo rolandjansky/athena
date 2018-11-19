@@ -1,6 +1,7 @@
 #!/bin/sh
-# art-type: build
-# art-ci: master
+
+# art-include: master/Athena
+
 rm -rf newJOtest.py bootstrap.pkl bootstrap.py
 
 # this is a hack to pre-confgure scheduler and other MT services, 
