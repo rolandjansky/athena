@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -688,10 +688,9 @@ StatusCode TrigDataAccess::LoadCollections (
                   End = col->end();
 		} else  {// End of if small size
 		if ( !m_tilecell->cached(m_rIds[i]))
-		m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col);
-		m_tiledecoder->mergeD0cellsHLT(*col);
+                  m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+		m_tiledecoder->mergeD0cellsHLT(m_d0cells,*col);
 		// Accumulates superior byte from ROD Decoder
-		m_error|=m_tiledecoder->report_error();
                 Begin = col->begin();
                 End = col->end();
                 m_robFrags.clear();
@@ -751,7 +750,7 @@ StatusCode TrigDataAccess::LoadMBTS (
 		  //return StatusCode::SUCCESS;
                 } // End of if small size
 		if ( !m_tilecell->cached((*ids)[i]))
-                m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col);
+                m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
                 }
                 m_robFrags.clear();
 
@@ -1025,10 +1024,8 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  //return StatusCode::SUCCESS;
                 } else {// End of if small size
 		if ( !m_tilecell->cached(m_rIdstile[i]))
-                m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col);
-                m_tiledecoder->mergeD0cellsHLT(*col);
-                // Accumulates superior byte from ROD Decoder
-                m_error|=m_tiledecoder->report_error();
+                m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+                m_tiledecoder->mergeD0cellsHLT(m_d0cells,*col);
                 Begin = col->begin();
                 End = col->end();
                 m_robFrags.clear();
@@ -1322,10 +1319,8 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  continue;
                 } // End of if small size
                 if ( !m_tilecell->cached(m_rIdstile[i]))
-                m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col);
-                m_tiledecoder->mergeD0cellsHLT(*col);
-                // Accumulates superior byte from ROD Decoder
-                m_error|=m_tiledecoder->report_error();
+                m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+                m_tiledecoder->mergeD0cellsHLT(m_d0cells,*col);
                 m_robFrags.clear();
                 } 
         } 
@@ -1362,7 +1357,7 @@ void TrigDataAccess::handle(const Incident & inc ) {
              m_larcell->eventNumber(evt->event_ID()->event_number());
 	     if (m_applyOffsetCorrection) m_larcell->lumiBlock_BCID(evt->event_ID()->lumi_block(), evt->event_ID()->bunch_crossing_id());
              m_tilecell->eventNumber(evt->event_ID()->event_number());
-             m_tiledecoder->initD0cellsHLT();
+             m_d0cells.clear();
              //m_full_vrodid32.clear();
              m_present_roi = 0;
              TileCellCollection* mbts = m_tilecell->MBTS_collection();
