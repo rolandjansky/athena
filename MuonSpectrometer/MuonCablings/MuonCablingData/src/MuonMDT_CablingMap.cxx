@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
@@ -407,6 +407,7 @@ uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi) const
 }
 
 // get the ROBid given the identifier hash
+
 uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode) const
 {
   int rodId = 0;
@@ -421,6 +422,29 @@ uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode) const
   }
 
   return rodId;
+}
+
+//get the robs corresponding to a vector of hashIds, copied from Svc before the readCdo migration
+
+std::vector<uint32_t> MuonMDT_CablingMap::getROBId(const std::vector<IdentifierHash>& mdtHashVector) const
+{
+  std::vector<uint32_t> robVector;
+
+  for ( unsigned int i = 0 ; i<mdtHashVector.size() ; ++i ) {
+
+    int robId = getROBId(mdtHashVector[i]);
+    if (robId==0) {
+
+      *m_log << MSG::ERROR << "ROB id not found for Hash Id: " << mdtHashVector[i] << endmsg;
+
+    } else {
+      *m_log << MSG::VERBOSE << "Found ROB id 0x" << MSG::hex << robId << MSG::dec << " for hashId " << mdtHashVector[i] << endmsg;
+    }
+    robVector.push_back(robId);
+  }
+  *m_log << MSG::VERBOSE << "Size of ROB vector is: " << robVector.size() << endmsg;
+
+  return robVector;
 }
 
 const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId) const

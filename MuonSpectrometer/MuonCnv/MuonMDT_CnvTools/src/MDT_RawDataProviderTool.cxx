@@ -8,7 +8,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 
 // using namespace OFFLINE_FRAGMENTS_NAMESPACE;
@@ -21,7 +20,6 @@ Muon::MDT_RawDataProviderTool::MDT_RawDataProviderTool(const std::string& t,
   //m_lastLvl1ID(0),
   m_decoder("MdtROD_Decoder/MdtROD_Decoder", this),
   m_muonMgr(0),
-  m_mdtCabling(0),
   m_robDataProvider ("ROBDataProviderSvc",n)
 {
   declareInterface<Muon::IMuonRawDataProviderTool>(this);
@@ -43,20 +41,6 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
     return sc;
   }
 
-  ATH_MSG_VERBOSE("Getting cabling");  
-  
-  // get MDT cablingSvc
-  StatusCode status = service("MuonMDT_CablingSvc", m_mdtCabling);
-  
-  if (status.isFailure()) {
-    ATH_MSG_FATAL("Could not get MuonMDT_CablingSvc !");
-    m_mdtCabling = 0;
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG(" Found the MuonMDT_CablingSvc. ");
-  }
-  
   ATH_MSG_VERBOSE("Getting m_robDataProvider");  
   
   // Get ROBDataProviderSvc
@@ -164,6 +148,7 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
   }
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
+  ATH_CHECK( m_readKey.initialize() );  
   
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
@@ -177,12 +162,24 @@ StatusCode Muon::MDT_RawDataProviderTool::finalize()
 // the new one 
 StatusCode Muon::MDT_RawDataProviderTool::convert() //call decoding function using list of all detector ROBId's
 {
-  return convert(m_mdtCabling->getAllROBId());
- }
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return StatusCode::FAILURE;
+  }
+  return convert(readCdo->getAllROBId());
+}
 
 StatusCode Muon::MDT_RawDataProviderTool::convert(const std::vector<IdentifierHash>& HashVec)
 {
- return convert(m_mdtCabling->getROBId(HashVec));
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return StatusCode::FAILURE;
+  }
+  return convert(readCdo->getROBId(HashVec));
 }
 
 StatusCode Muon::MDT_RawDataProviderTool::convert(const std::vector<uint32_t>& robIds)

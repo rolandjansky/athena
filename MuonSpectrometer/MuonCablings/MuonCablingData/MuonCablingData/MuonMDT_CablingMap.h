@@ -71,6 +71,9 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   /** return the ROD id of a given chamber, given the hash id */
   uint32_t getROBId(const IdentifierHash stationCode) const;
 
+  /** get the robs corresponding to a vector of hashIds, copied from Svc before the readCdo migration */
+  std::vector<uint32_t> getROBId(const std::vector<IdentifierHash>& mdtHashVector) const;
+
  /** return a vector of HashId lists for a  given list of ROD's */
   const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const;
 
