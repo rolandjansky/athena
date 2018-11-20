@@ -1138,6 +1138,79 @@ if hasattr(runArgs,"digiSteeringConf"):
 #--------------------------------------------------------------
 # Pileup configuration - removed as pileup will be handled on-the-fly
 #--------------------------------------------------------------
+from SimuJobTransforms.SimTransformUtils import makeBkgInputCol
+def HasInputFiles(runArgs, key):
+    if hasattr(runArgs, key):
+        cmd='runArgs.%s' % key
+        if eval(cmd):
+            return True
+    return False
+
+## Low Pt minbias set-up
+bkgArgName="LowPtMinbiasHitsFile"
+if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
+    bkgArgName="inputLowPtMinbiasHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+                                                              digitizationFlags.numberOfLowPtMinBias.get_Value(), True, fast_chain_log)
+if digitizationFlags.LowPtMinBiasInputCols.statusOn:
+    digitizationFlags.doLowPtMinBias = True
+else:
+    digitizationFlags.doLowPtMinBias = False
+
+## High Pt minbias set-up
+bkgArgName="HighPtMinbiasHitsFile"
+if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
+    bkgArgName="inputHighPtMinbiasHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True, fast_chain_log)
+if digitizationFlags.HighPtMinBiasInputCols.statusOn:
+    digitizationFlags.doHighPtMinBias = True
+else:
+    digitizationFlags.doHighPtMinBias = False
+
+## Cavern Background set-up
+bkgArgName="cavernHitsFile"
+if hasattr(runArgs, "inputCavernHitsFile"):
+    bkgArgName="inputCavernHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
+                                                        digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()), fast_chain_log)
+if digitizationFlags.cavernInputCols.statusOn:
+    digitizationFlags.doCavern = True
+else:
+    digitizationFlags.doCavern = False
+
+## Beam Halo set-up
+bkgArgName="beamHaloHitsFile"
+if hasattr(runArgs, "inputBeamHaloHitsFile"):
+    bkgArgName="inputBeamHaloHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
+                                                          digitizationFlags.numberOfBeamHalo.get_Value(), True, fast_chain_log)
+if digitizationFlags.beamHaloInputCols.statusOn:
+    digitizationFlags.doBeamHalo = True
+else:
+    digitizationFlags.doBeamHalo = False
+
+## Beam Gas set-up
+bkgArgName="beamGasHitsFile"
+if hasattr(runArgs, "inputBeamGasHitsFile"):
+    bkgArgName="inputBeamGasHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
+                                                         digitizationFlags.numberOfBeamGas.get_Value(), True, fast_chain_log)
+if digitizationFlags.beamGasInputCols.statusOn:
+    digitizationFlags.doBeamGas = True
+else:
+    digitizationFlags.doBeamGas = False
+
 
 #--------------------------------------------------------------
 # Other configuration: LVL1, turn off sub detectors, calo noise
