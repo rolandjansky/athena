@@ -25,7 +25,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsKtDRCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FalseCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
 
 Conditions conditionsFactoryEtaEt(const std::vector<double>& etaMins,
                                   const std::vector<double>& etaMaxs,
@@ -213,4 +212,3 @@ Conditions conditionsFactoryFalse(double limitMin,
   conditions.push_back(ConditionBridge(pCondition));
   return conditions;
 }
-

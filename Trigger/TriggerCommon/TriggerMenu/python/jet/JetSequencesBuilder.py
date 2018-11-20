@@ -231,7 +231,8 @@ class JetSequencesBuilder(object):
                     seq_order.append(('jh_dimass_deta_dphi', h))
                 elif hypo_type in ('HLThypo2_dijet',):
                     seq_order.append(('jh_dijet', h))
-                
+                elif hypo_type in ('HLThypo2_jetattrs',):
+                   seq_order.append(('jh_jetattrs', h))
                 else:
                 
                     msg = '%s._make_sequence_list: unknown hypo type %s ' % (
@@ -544,6 +545,20 @@ class JetSequencesBuilder(object):
         # menu_data = self.chain_config.menu_data
         # hypo = menu_data.hypo_params
         f = self.alg_factory.hlthypo2_tla
+
+        # hypo = menu_data.hypo_params
+        # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
+        alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+
+        return AlgList(f(hypo), alias)
+
+
+    #Added A. Steinhebel, June 2018
+    def make_jh_jetattrs(self, hypo):
+
+        # menu_data = self.chain_config.menu_data
+        # hypo = menu_data.hypo_params
+        f = self.alg_factory.hlthypo2_jetattrs
 
         # hypo = menu_data.hypo_params
         # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)

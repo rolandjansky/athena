@@ -14,6 +14,9 @@ from hypo_factory import hypo_factory
 from dijet_parser3 import (dijet_parser,
                            dijet_re)
 
+#import singlejmom_parser
+import jetattrs_parser
+
 # from lxml import etree as et
 from ChainConfig import ChainConfig
 from MenuData import MenuData
@@ -232,6 +235,23 @@ def _get_tla_string(parts):
 
     msg = '%s: multiple TLA string set' % err_hdr
     raise RuntimeError(msg)
+
+#Added A. Steinhebel, June 2018
+def _get_jetattrs_string(parts):
+
+    x = cache.get('jetattrs_string')
+    if x: return x
+
+    vals = set([part['jetattrs'] for part in parts])
+    if len(vals) == 1:
+        s = vals.pop()
+        _update_cache('jetattrs_string', s)
+        if s == 'nojetattrs': return ''
+        return s
+
+    msg = '%s: multiple single jet moment string set' % err_hdr
+    raise RuntimeError(msg)
+
 
 
 def _get_dijet_string(parts):
@@ -946,6 +966,23 @@ def _setup_tla_vars(parts):
 
     return hypo_factory('HLThypo2_tla', args)
 
+#Added A. Steinhebel, June 2018
+def _setup_jetattrs_vars(parts):
+
+    jetattrs_string = _get_jetattrs_string(parts)
+
+    args = {}
+    try:
+        jetattrs_parser.parse(jetattrs_string, args)
+    except Exception, e:
+        raise RuntimeError(
+            'error passing jetattrs string ' + jetattrs_string + ' ' + str(e))
+
+    args['chain_name'] = cache['chain_name']
+    args['jetattrs_string'] = jetattrs_string
+
+    hypo = hypo_factory('HLThypo2_jetattrs', args)
+    return hypo
 
             
 def _setup_dijet_vars(parts):

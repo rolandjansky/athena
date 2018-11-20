@@ -149,6 +149,7 @@ JetChainParts = {
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
+    'jetattrs'     : ['subj360Iktdr2I3width6IIsubj300Iwidth','subj360Iktdr','subj360I0width5'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
     # Et cut by the jet build tool (ptmin)
     'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu4' ,'rcu5'],

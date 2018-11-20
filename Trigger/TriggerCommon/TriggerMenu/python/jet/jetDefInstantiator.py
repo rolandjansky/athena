@@ -52,6 +52,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,              #
                                                  TrigHLTJetHypo_TLA,           # noqa: F401
                                                  TrigHLTJetHypo_SMC,           # noqa: F401
                                                  TrigHLTJetHypo_Dijet,         
+                                                 TrigHLTJetHypo_JetAttrs,         
                                                  )
 
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter    # noqa: F401
