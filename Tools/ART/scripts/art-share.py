@@ -170,7 +170,7 @@ if __name__ == '__main__':
     from art import __version__
 
     logging.basicConfig()
-    log = logging.getLogger(MODULE)
+    log = logging.getLogger('art')
 
     arguments = docopt(__doc__, version=os.path.splitext(os.path.basename(__file__))[0] + ' ' + __version__)
     level = logging.DEBUG if arguments['--verbose'] else logging.WARN if arguments['--quiet'] else logging.INFO
