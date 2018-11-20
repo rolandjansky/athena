@@ -13,10 +13,11 @@ def jetSequence():
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
     InputMakerAlg.Output='FSJETRoIs'
+    #FSRoI
 
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence("FSRoI")
+    (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.Output)
 
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
