@@ -40,6 +40,7 @@ xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(xAOD::CaloClusterContaine
 xAOD::CaloClusterContainer* CaloClusterStoreHelper::makeContainer(StoreGateSvc* pStoreGate,
 								  const std::string& clusCollKey,
 								  MsgStream& msg) {
+  msg << MSG::WARNING << "CaloClusterStoreHelper::makeContainer(StoreGateSvc* pStoreGate, ...) is deprecated. Use DataHandles!" << endmsg;
   // Create the xAOD container and its auxiliary store:
   xAOD::CaloClusterContainer* clusColl = new xAOD::CaloClusterContainer();
   if (pStoreGate->overwrite(clusColl, clusCollKey).isFailure()) {
@@ -76,6 +77,8 @@ StatusCode CaloClusterStoreHelper::finalizeClusters(StoreGateSvc* pStoreGate,
 						    const std::string& clusCollKey,
 						    MsgStream& msg)
 {
+
+  msg << MSG::WARNING << "CaloClusterStoreHelper::finalizeClusters(StoreGateSvc* pStoreGate, ...) is deprecated. Use DataHandles!" << endmsg;
   CaloClusterCellLinkContainer* cellLinks= new CaloClusterCellLinkContainer();
   if(pStoreGate->overwrite(cellLinks, clusCollKey + "_links").isFailure()) {
     msg << MSG::ERROR << "Failed to record CaloClusterCellLinkContainer with key " << clusCollKey + "Links" << endmsg;

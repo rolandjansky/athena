@@ -22,19 +22,15 @@
 namespace xAOD {
 
   TrackParticle_v1::TrackParticle_v1()
-  : IParticle(), m_perigeeCached(false) {
-    // std::cout<<"TrackParticle_v1 CTOR this="<<this<<", \tm_perigeeCached="<<m_perigeeCached<<", \tm_perigeeParameters="<<m_perigeeParameters<<std::endl;
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters=0;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+  : IParticle() {
+    // perigeeParameters cache initialized to be empty (default constructor)
   }
   
   TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp ) 
-  : IParticle( tp ), m_perigeeCached(tp.m_perigeeCached) {
+  : IParticle( tp ) {
     makePrivateStore( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters = tp.m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    // perigeeParameters cache initialized to be empty (default constructor)
+    // assume that this copy will create new cache as needed
   }
   
   TrackParticle_v1& TrackParticle_v1::operator=(const TrackParticle_v1& tp ){
@@ -45,18 +41,14 @@ namespace xAOD {
     }
     this->IParticle::operator=( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    m_perigeeParameters = tp.m_perigeeParameters;
+    // assume that this copy will create new cache as needed
+    m_perigeeParameters.reset();
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     return *this;
   }
   
-  TrackParticle_v1::~TrackParticle_v1(){
-    // std::cout<<"TrackParticle_v1 DTOR this="<<this<<", \tm_perigeeCached="<<m_perigeeCached<<", \tm_perigeeParameters="<<m_perigeeParameters<<std::endl;
+  TrackParticle_v1::~TrackParticle_v1(){}
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
-  }
   double TrackParticle_v1::pt() const {
     return genvecP4().Pt();
   }
@@ -136,10 +128,9 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
-    m_perigeeCached=false;
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    m_perigeeParameters=0;
+    // reset perigee cache if existing
+    if(m_perigeeParameters.isValid()) m_perigeeParameters.reset();
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     static Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
@@ -160,10 +151,9 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
-    m_perigeeCached=false;
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-    delete m_perigeeParameters;
-    m_perigeeParameters=0;
+    // reset perigee cache if existing
+    if(m_perigeeParameters.isValid()) m_perigeeParameters.reset();
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 
     static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
@@ -207,9 +197,12 @@ namespace xAOD {
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
-    if (m_perigeeCached)
-      return *m_perigeeParameters;
-    m_perigeeCached=true;
+
+    // Require the cache to be valid and check if the cached pointer has been set
+    if(m_perigeeParameters.isValid())
+      return *(m_perigeeParameters.ptr());
+
+    // Perigee needs to be calculated, and cached
 
     static Accessor< float > acc1( "d0" );
     static Accessor< float > acc2( "z0" );
@@ -227,8 +220,9 @@ namespace xAOD {
     static Accessor< float > acc8( "beamlineTiltY" );
     
     if(!acc7.isAvailable( *this ) || !acc8.isAvailable( *this )){
-      m_perigeeParameters = new Trk::Perigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
-       return *m_perigeeParameters;
+      Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
+      m_perigeeParameters.set(tmpPerigeeParameters);
+      return *(m_perigeeParameters.ptr());
     }
     
     Amg::Transform3D * amgTransf = new Amg::Transform3D();	
@@ -236,9 +230,10 @@ namespace xAOD {
     *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
     *amgTransf *= Amg::AngleAxis3D(acc8(*this), Amg::Vector3D(0.,1.,0.));
     *amgTransf *= Amg::AngleAxis3D(acc7(*this), Amg::Vector3D(1.,0.,0.));
-    m_perigeeParameters = new Trk::Perigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(amgTransf),cov);
+    Trk::Perigee tmpPerigeeParameters(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(amgTransf),cov);
     
-    return *m_perigeeParameters;
+    m_perigeeParameters.set(tmpPerigeeParameters);
+    return *(m_perigeeParameters.ptr());
   }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 

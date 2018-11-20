@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -106,3 +106,13 @@ size_t TrackParticleAssocs::nAssocStores() const
   return m_assocStores.size();
 }
 
+
+std::vector<DataLink<TrackParticleAssocs> > TrackParticleAssocs::getAssocStores() const
+{
+  std::vector<DataLink<TrackParticleAssocs> > ret;
+  ret.reserve (m_assocStores.size());
+  for (const auto& p : m_assocStores) {
+    ret.push_back (p.second);
+  }
+  return ret;
+}

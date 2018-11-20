@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base.h 
@@ -110,6 +110,8 @@ class Base
   void set_dataType( ParticleDataType::DataType x );
   void set_charge( ChargeType x );
   void set_pdgId( PDG::pidType x );
+  void reset_charge();
+  void reset_pdgId();
   void set_origin( const VxContainer* theContainer, int index );
   void set_origin( const VxContainer* theContainer, 
                    const Trk::VxCandidate * vertex );
@@ -266,6 +268,20 @@ Base::set_pdgId( PDG::pidType x )
 { 
   m_pdgId = x; 
   m_hasPdgId = true;
+}
+
+inline 
+void 
+Base::reset_charge() 
+{ 
+  m_hasCharge = false;
+}
+
+inline
+void 
+Base::reset_pdgId() 
+{ 
+  m_hasPdgId = false;
 }
 
 inline

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackParticleAssocsCnv_p1.cxx 
@@ -16,12 +16,8 @@
 #include "GaudiKernel/MsgStream.h"
 
 // NavFourMom includes
-#define private public
-#define protected public
 #include "Particle/TrackParticleContainer.h"
 #include "ParticleEvent/TrackParticleAssocs.h"
-#undef protected
-#undef private
 
 // EventCommonTPCnv includes
 #include "ParticleEventTPCnv/TrackParticleAssocsCnv_p1.h"
@@ -53,8 +49,10 @@ TrackParticleAssocsCnv_p1::persToTrans( const TrackParticleAssocs_p1* pers,
 				   MsgStream& msg )
 {
    LOG_MSG(msg, MSG::DEBUG, "Loading TrackParticleAssocs from persistent state..." );
+
+   *trans = TrackParticleAssocs();
+
   // retrieve underlying association stores
-  trans->m_assocStores.clear();
   for ( TrackParticleAssocs_p1::TrackParticleStores_t::const_iterator 
 	  i = pers->m_assocStores.begin(),
 	  iEnd = pers->m_assocStores.end();
@@ -62,10 +60,9 @@ TrackParticleAssocsCnv_p1::persToTrans( const TrackParticleAssocs_p1* pers,
 	++i ) {
      IAssocStoresCnv_t::DLink_t	dlink;
      m_assocStoresCnv.persToTrans( &*i, &dlink, msg );
-     trans->m_assocStores[ dlink.dataID() ] = dlink;
+     trans->addAssocStore (dlink);
   }
 
-  trans->m_associationMap.clear();
   for ( std::size_t i = 0, iEnd = pers->m_assocs.size(); i != iEnd; ++i ) {
     const ElementLinkInt_p3& key = pers->m_assocs[i].first;
     const TrackParticleAssocs_p1::ElemLinkVect_t& val = pers->m_assocs[i].second;
@@ -74,12 +71,10 @@ TrackParticleAssocsCnv_p1::persToTrans( const TrackParticleAssocs_p1* pers,
     m_TrackParticleLinkCnv.persToTrans( &key, &k, msg );
     //unpack only if valid
     if(k.isValid()){      
-      trans->m_associationMap[k] = TrackParticleAssocs::asso_store();
-      trans->m_associationMap[k].reserve( val.size() );
       for ( std::size_t j = 0, jEnd = val.size(); j != jEnd; ++j ) {
 	TrackParticleLink_t assocLink;
 	m_TrackParticleLinkCnv.persToTrans( &val[j], &assocLink, msg );
-	trans->m_associationMap[k].push_back( assocLink );
+        trans->addAssociation (k, assocLink);
       }
     }
   }
@@ -93,45 +88,40 @@ TrackParticleAssocsCnv_p1::transToPers( const TrackParticleAssocs* trans,
 				   TrackParticleAssocs_p1* pers, 
 				   MsgStream& msg )
 {
-   LOG_MSG(msg, MSG::DEBUG, "Creating persistent state of TrackParticleAssocs...");
+  LOG_MSG(msg, MSG::DEBUG, "Creating persistent state of TrackParticleAssocs...");
 
 
-   pers->m_assocStores.resize( trans->m_assocStores.size() );
-   std::size_t j = 0;
   // retrieve underlying association stores
-  for ( std::map<std::string, 
-	  TrackParticleAssocs::TrackParticleAssocsLink_t>::const_iterator 
-	  i = trans->m_assocStores.begin(),
-	  iEnd = trans->m_assocStores.end();
-	i != iEnd;
-	++i,++j ) {
-    m_assocStoresCnv.transToPers( &i->second, 
-				  &pers->m_assocStores[j], msg );
+  std::vector<DataLink<TrackParticleAssocs> > assocStores = trans->getAssocStores();
+  pers->m_assocStores.resize( assocStores.size() );
+  std::size_t j = 0;
+  for (const DataLink<TrackParticleAssocs>& l : assocStores) {
+    m_assocStoresCnv.transToPers( &l, &pers->m_assocStores[j], msg );
+    ++j;
   }
 
-  pers->m_assocs.resize( trans->m_associationMap.size() );
-  const TrackParticleAssocs::store_type& assocMap = trans->m_associationMap;
   j = 0;
-  for ( TrackParticleAssocs::store_type::const_iterator itr = assocMap.begin();
-        itr != assocMap.end();
-        ++itr,++j ) {
-    const TrackParticleLink_t& key = itr->first;
-    const TrackParticleAssocs::asso_store& assocs = itr->second;
-    const std::size_t iMax = assocs.size();
+  pers->m_assocs.resize( trans->size() );
+  TrackParticleAssocs::object_iterator begObj = trans->beginObject();
+  TrackParticleAssocs::object_iterator endObj = trans->endObject();
+  for (; begObj != endObj; ++begObj)
+  {
+    const TrackParticleLink_t& key = begObj.getObjectLink();
     TrackParticleAssocs_p1::AssocElem_t& persAssoc = pers->m_assocs[j];
-
-    persAssoc.second.resize( iMax );
     m_TrackParticleLinkCnv.transToPers( &key, &persAssoc.first, msg );
+    persAssoc.second.resize( begObj.getNumberOfAssociations() );
 
+    TrackParticleAssocs::asso_iterator begAsso = begObj.getFirstAssociation();
+    TrackParticleAssocs::asso_iterator endAsso = begObj.getLastAssociation();
+    size_t i = 0;
+    for (; begAsso != endAsso; ++begAsso) {
+      const TrackParticleAssocs::asso_link asso = begAsso.getLink();
+      m_TrackParticleLinkCnv.transToPers( &asso, &persAssoc.second[i], msg );
+      ++i;
+    }
 
-    for ( unsigned int i = 0; i != iMax; ++i ) {
-      const TrackParticleLink_t assLink( assocs.elementDataID(i),
-				    assocs.elementIndex(i) );
-      
-      m_TrackParticleLinkCnv.transToPers( &assLink, &persAssoc.second[i], msg );
-
-    }//> loop over associations
-  }//> loop over object links
+    ++j;
+  }
 
   LOG_MSG(msg, MSG::DEBUG, "Created persistent state of TrackParticleAssocs [OK]"); 
   return;

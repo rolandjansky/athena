@@ -76,6 +76,9 @@ atlas_add_test( TileConditionTools_test
 atlas_add_test( TileEMScaleComponents_test
                 SOURCES test/TileEMScaleComponents_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileIdentifier TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES} )
+# Needed for the plugin service to see the test components
+# defined in the test binary.
+set_target_properties( TileConditions_TileEMScaleComponents_test PROPERTIES ENABLE_EXPORTS True )
 
 atlas_add_test( TileNoiseTools_test
                 SOURCES test/TileNoiseTools_test.cxx
@@ -90,3 +93,9 @@ atlas_add_test( TileDCSComponents_test
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.txt share/Tile2003.* share/Tile2004.* share/TileDefault.* share/TileNo*.* share/dleak*.dat share/dsleak*.dat share/leak*.dat share/dpulse*.dat share/pulse*.dat share/noise*.dat share/ai_lo*.dat share/ai_hi*.dat share/bi_lo*.dat share/bi_hi*.dat share/ci_lo*.dat share/ci_hi*.dat share/DCS*.dat share/BadHVChannels.dat )
+
+if( NOT SIMULATIONBASE )
+    atlas_add_test( TileCondConfigTest
+    		    SCRIPT python -m TileConditions.TileConditionsConfig
+		        POST_EXEC_SCRIPT nopost.sh )
+endif()

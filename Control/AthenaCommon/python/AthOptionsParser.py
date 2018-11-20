@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaCommon.AthOptionsParser
 # @purpose the central module to parse command line options of athena.py
@@ -168,13 +168,13 @@ def parse(chk_tcmalloc=True):
     warn_tcmalloc = False
     libname='libtcmalloc.so'
     using_minimaltcmalloc=False
-    if os.getenv('USETCMALLOCMINIMAL') == 'true':
+    if os.getenv('USETCMALLOCMINIMAL') == '1':
         libname='libtcmalloc_minimal.so'
         using_minimaltcmalloc=True
 
     if ldpreload.find(libname) == -1:
         using_tcmalloc = False
-        if (os.getenv('USETCMALLOC') == 'true' or
+        if (os.getenv('USETCMALLOC') == '1' or
             os.getenv('USETCMALLOC') == None):
             warn_tcmalloc = True
         for arg in sys.argv[1:]:

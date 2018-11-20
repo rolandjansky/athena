@@ -148,8 +148,6 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::vector<IdentifierHash> m_rIdstile;
   std::vector<std::vector<uint32_t> > m_vrodid32fullDetHG;
   size_t m_nSlots;
-
-
 };
 
 

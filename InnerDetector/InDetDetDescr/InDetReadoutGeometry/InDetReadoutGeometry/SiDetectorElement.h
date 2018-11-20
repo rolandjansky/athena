@@ -616,7 +616,7 @@ namespace InDetDD {
       mutable bool m_etaDirection;     //
     
       mutable bool m_cacheValid; // Alignment associated quatities.
-      mutable bool m_conditionsCacheValid; // Lorentz angle related values.
+      mutable bool m_conditionsCacheValid{}; // Lorentz angle related values.
       mutable bool m_firstTime;
       mutable bool m_isStereo;
     
@@ -640,14 +640,14 @@ namespace InDetDD {
       mutable double m_minPhi;
       mutable double m_maxPhi;
     
-      mutable double m_tanLorentzAnglePhi;
-      mutable double m_tanLorentzAngleEta;
-      mutable double m_lorentzCorrection; 
+      mutable double m_tanLorentzAnglePhi{};
+      mutable double m_tanLorentzAngleEta{};
+      mutable double m_lorentzCorrection{}; 
       
-      mutable Trk::Surface * m_surface;
+      mutable Trk::Surface * m_surface{};
       mutable std::vector<const Trk::Surface*> m_surfaces;
 
-      const GeoAlignmentStore* m_geoAlignStore;
+      const GeoAlignmentStore* m_geoAlignStore{};
     };
     
     ///////////////////////////////////////////////////////////////////

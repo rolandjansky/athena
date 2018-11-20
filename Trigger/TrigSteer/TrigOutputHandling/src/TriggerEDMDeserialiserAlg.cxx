@@ -49,16 +49,12 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
 		};
     
   auto resultHandle = SG::makeHandle( m_resultKey, context );
-  std::unordered_map<uint16_t, Payload >::const_iterator mapElement = resultHandle->getSerialisedData().find(m_moduleID);
-  if ( mapElement == resultHandle->getSerialisedData().end() ) {
-    // TODO revise this behavior for TLA usecases
-    ATH_MSG_ERROR("Payload of ID " << m_moduleID << " absent in this event");
-    return StatusCode::FAILURE;
-  }
-  const Payload& data = mapElement->second;
-  PayloadIterator start = data.begin();
+  const Payload* dataptr = nullptr;
+  // TODO: revise if there are use cases where result may be not available in some events
+  ATH_CHECK( resultHandle->getSerialisedData( m_moduleID, dataptr ) );
+  PayloadIterator start = dataptr->begin();
   
-  while ( start != data.end() )  {
+  while ( start != dataptr->end() )  {
     const CLID clid{ collectionCLID( start ) };
     const std::string name{ collectionName( start ) };
     const size_t bsize{ dataSize( start ) };
@@ -76,7 +72,7 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
     // for the moment I do not know what do with the raw prt
 
     if ( obj ) {
-      BareDataBucket* dataBucket = new BareDataBucket( obj, usedBytes, clid, classDesc);
+      BareDataBucket* dataBucket = new BareDataBucket( obj, clid, classDesc);
       const std::string outputName = m_prefix + name;
       auto proxyPtr = evtStore()->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( dataBucket ), outputName, false, false );
       if ( proxyPtr == nullptr )  {

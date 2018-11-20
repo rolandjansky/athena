@@ -23,6 +23,11 @@ MvaTESVariableDecorator::~MvaTESVariableDecorator()
 {
 }
 
+StatusCode MvaTESVariableDecorator::initialize(){
+  ATH_CHECK( m_vertexInputContainer.initialize() );
+  return StatusCode::SUCCESS;
+}
+
 //_____________________________________________________________________________
 StatusCode MvaTESVariableDecorator::eventInitialize()
 {
@@ -30,18 +35,24 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
   m_mu = m_xEventInfo->averageInteractionsPerCrossing();
 
   m_nVtxPU = 0;
-  if(evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices")){
-    ATH_CHECK(evtStore()->retrieve(m_xVertexContainer, "PrimaryVertices"));  
-    for (auto xVertex : *m_xVertexContainer)
-    if (xVertex->vertexType() == xAOD::VxType::PileUp)
-      m_nVtxPU++;
-  }
-  else {
+  // Get the primary vertex container from StoreGate
+  SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+  if (!vertexInHandle.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
     if(m_emitVertexWarning) {
       ATH_MSG_WARNING("No xAOD::VertexContainer, setting nVtxPU to 0");
       m_emitVertexWarning=false;
     }
     m_nVtxPU=0;
+    // return StatusCode::FAILURE;
+  }
+  else{
+    m_xVertexContainer = vertexInHandle.cptr();
+    ATH_MSG_VERBOSE("  read: " << vertexInHandle.key() << " = " << "..." );
+    for (auto xVertex : *m_xVertexContainer){
+      if (xVertex->vertexType() == xAOD::VxType::PileUp)
+	m_nVtxPU++;
+    }
   }
 
   return StatusCode::SUCCESS;

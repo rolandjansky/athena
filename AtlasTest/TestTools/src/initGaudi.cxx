@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -20,6 +20,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/ModuleIncident.h"
 using std::cout;
 using std::endl;
 using std::string;
@@ -71,6 +72,25 @@ namespace Athena_test {
       cout << "Fatal error while initializing the AppMgr" << endl;
       return false;
     }
+  }
+
+
+  // This is for the benefit of the tests in CLIDComps.
+  // By default, a dynamic symbol is not exported from a binary unless
+  // it's referenced by another library with which we link.
+  // A test in CLIDComps creates a ModuleLoadedIncident object in the binary
+  // and then passes it to code in CLIDComps.  If ubsan is running,
+  // then it will try to verify that this object derives from ModuleIncident.
+  // But if the ModuleIncident type_info is not exported from the binary,
+  // then the type_info used by the library will be different from that
+  // in the binary, causing an ubsan warning.
+  // But this test gets linked against TestTools, so we can avoid the warning
+  // by referencing the type information here.
+  // (An alternative would be to link the binary with --export-dynamic,
+  // but that's not portable, so we don't want to put it in a package cmake.)
+  void referenceGaudiSymbols()
+  {
+    ModuleLoadedIncident inc2 ("", "");
   }
 }
 

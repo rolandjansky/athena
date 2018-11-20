@@ -51,6 +51,15 @@ class TauJetBDT: virtual public TauRecToolBase
          */
         virtual StatusCode finalize();
 
+	virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
+	virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+	virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+	virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS;}
+	virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+	virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+	virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
+	virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+
     private:
 
         float m_jetScore;                     //!< Holds the current jet score which is used by a MethodCuts instance to determine if it passes loose, medium, or tight.

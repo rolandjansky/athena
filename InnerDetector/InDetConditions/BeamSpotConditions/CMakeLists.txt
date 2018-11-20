@@ -11,11 +11,11 @@ atlas_depends_on_subdirs(
     PUBLIC
 
     PRIVATE
-    BeamSpotConditionsData
+    InnerDetector/InDetConditions/BeamSpotConditionsData
     Control/AthenaBaseComps
     Control/AthenaKernel
     Control/StoreGate
-    AthenaPoolUtilities
+    Database/AthenaPOOL/AthenaPoolUtilities
 )
 
 # if you add components (tools, algorithms) to this package

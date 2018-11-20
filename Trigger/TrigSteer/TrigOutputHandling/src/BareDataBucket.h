@@ -14,11 +14,11 @@ class BareDataBucket: public DataBucketBase {
 public:
   BareDataBucket() = delete;
 
-  BareDataBucket( void * data, size_t sz, CLID clid, const RootType& type )
-    : m_data(data), m_size(sz), m_clid(clid), m_type( type ){}
+  BareDataBucket( void * data, CLID clid, const RootType& type )
+    : m_data(data), m_clid(clid), m_type( type ){}
 
   virtual ~BareDataBucket() {
-    if ( m_own )
+    if ( m_data )
       m_type.Destruct( m_data );
   }
 
@@ -27,7 +27,7 @@ public:
     return m_clid;
   }
   
-  // DataBuckedBase overrides
+  // DataBucketBase overrides
 
   virtual void* object() override { 
     return m_data; 
@@ -48,23 +48,17 @@ public:
                       bool isConst = true) override {
     return ( tinfo == m_type.TypeInfo() and isConst ) ? m_data : nullptr;
   }
-
-  virtual DataBucketBase* clone() const override {
-    return nullptr;
-  }
   
-  virtual void relinquish() override { 
-    m_own = false; 
+  virtual void relinquish() override {
+    m_data = nullptr;
   };
   
   virtual void lock() override { /*not lockable I think */ };
 
 private:
   void* m_data = 0;
-  size_t m_size = 0;
   CLID m_clid  = 0;
   RootType m_type;
-  bool m_own = false;
 };
 
 #endif

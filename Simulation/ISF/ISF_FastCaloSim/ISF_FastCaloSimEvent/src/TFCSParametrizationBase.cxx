@@ -18,7 +18,10 @@ Athena::MsgStreamMember* TFCSParametrizationBase::s_msg(nullptr);
 #endif
 
 #if defined(__FastCaloSimStandAlone__)
-TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title):TNamed(name,title),m_msg(&std::cout),m_level(MSG::INFO)
+TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title)
+  : TNamed(name, title),
+    m_level(MSG::INFO),
+    m_msg(&std::cout)
 {
 }
 #else
@@ -85,5 +88,3 @@ void TFCSParametrizationBase::DoCleanup()
   }  
   s_cleanup_list.resize(0);
 }
-
-

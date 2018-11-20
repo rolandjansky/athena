@@ -62,6 +62,12 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode eventInitialize();
     virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize();
     virtual StatusCode finalize();
     
@@ -83,13 +89,6 @@ public:
     		std::vector<const xAOD::TrackParticle*> &wideTracks,
     		std::vector<const xAOD::TrackParticle*> &otherTracks);
 
-    // old style AOD version
-    void removeOffsideTracksWrtLeadTrk(std::vector<const Rec::TrackParticle*> &tauTracks,
-                                           std::vector<const Rec::TrackParticle*> &wideTracks,
-                                           std::vector<const Rec::TrackParticle*> &otherTracks,
-                                           const Trk::RecVertex* tauOrigin,
-                                           double maxDeltaZ0);
-
     // new xAOD version
     void removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::TrackParticle*> &tauTracks,
                                            std::vector<const xAOD::TrackParticle*> &wideTracks,
@@ -104,17 +103,7 @@ private:
     //-------------------------------------------------------------
     //! Some internally used functions
     //-------------------------------------------------------------
-    float getZ0(const Rec::TrackParticle* track, const Trk::RecVertex* vertex);  //AOD version
     float getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex);   //xAOD version
-
-private:
-    //-------------------------------------------------------------
-    //! Storegate names of input containers and output containers
-    //-------------------------------------------------------------
-    std::string m_inputTauJetContainerName;
-    std::string m_inputTrackParticleContainerName;
-    std::string m_inputPrimaryVertexContainerName;
-    std::string m_inputTauTrackContainerName;
 
     //-------------------------------------------------------------
     //! tools
@@ -122,8 +111,6 @@ private:
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool_tau_xAOD;
-
     
     //-------------------------------------------------------------
     //! Input parameters for algorithm
@@ -154,14 +141,7 @@ private:
     std::set<CaloSampling::CaloSample> m_EMSamplings;
     std::set<CaloSampling::CaloSample> m_HadSamplings;
 
-    //-------------------------------------------------------------
-    //! Convenience functions to handle storegate objects
-    //-------------------------------------------------------------
-    template <class T>
-    bool openContainer(T* &container, std::string containerName, bool printFATAL=false);
-
-    template <class T>
-    bool retrieveTool(T &tool);
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
 
 };
 

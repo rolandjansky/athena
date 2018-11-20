@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVIGATION_TRIGEDMSIZES_H
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "GaudiKernel/ClassID.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 namespace HLT {
     /**
      * Class used to pass around information about the sizes of the EDM obejcts.

@@ -58,36 +58,35 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
-        if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      doRunI = True,
-                                                                      useToT = False,
-                                                                      useRecenteringNNWithoutTracks = True,
-                                                                      useRecenteringNNWithTracks = False,
+        do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+        from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
+        createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
+        createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+        if do_runI :
+            NnClusterizationFactory = InDet__NnClusterizationFactory( name                               = "NnClusterizationFactory",
+                                                                      PixelLorentzAngleTool              = ToolSvc.PixelLorentzAngleTool,
+                                                                      doRunI                             = True,
+                                                                      useToT                             = False,
+                                                                      useRecenteringNNWithoutTracks      = True,
+                                                                      useRecenteringNNWithTracks         = False,
                                                                       correctLorShiftBarrelWithoutTracks = 0,
-                                                                      correctLorShiftBarrelWithTracks = 0.030,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      LoadWithTrackNetwork = True)
+                                                                      correctLorShiftBarrelWithTracks    = 0.030,
+                                                                      NnCollectionReadKey                = 'PixelClusterNN',
+                                                                      NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
 
         else:
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      useToT = InDetFlags.doNNToTCalibration(),
-                                                                      LoadWithTrackNetwork = True)
-               
+            NnClusterizationFactory = InDet__NnClusterizationFactory( name                         = "NnClusterizationFactory",
+                                                                      PixelLorentzAngleTool        = ToolSvc.PixelLorentzAngleTool,
+                                                                      useToT                       = InDetFlags.doNNToTCalibration(),
+                                                                      NnCollectionReadKey          = 'PixelClusterNN',
+                                                                      NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
+
         ToolSvc += NnClusterizationFactory
 
         # special setup for DVRetracking mode
         # if InDetFlags.doDVRetracking() :
            # COOL binding
         from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
-            # COOL binding
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
         if InDetFlags.doTIDE_RescalePixelCovariances() :
             if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
                 # COOL binding
@@ -881,10 +880,12 @@ if InDetFlags.loadSummaryTool():
     if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
         from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
         pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-        pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setUseConditions(True)
+        pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+        pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
+        pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
         pixelConditionsSummaryToolSetup.setup()
-
 
     #
     # Loading Pixel test tool

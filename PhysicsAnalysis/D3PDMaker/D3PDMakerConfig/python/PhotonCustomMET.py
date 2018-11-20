@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecFlags                            import rec
 from AthenaCommon.SystemOfUnits                      import GeV
@@ -7,7 +7,6 @@ from MissingET.METRefGetter_plup                     import make_METRefAlg
 from PhotonAnalysisUtils.PhotonNeuralNetworkTool     import PhotonNeuralNetworkTool
 from D3PDMakerConfig.D3PDMakerFlags                  import D3PDMakerFlags
 from AthenaCommon.AlgSequence                        import AlgSequence
-from QcdD3PDMaker.QcdD3PDMakerFlags                  import QcdD3PDMakerFlags
 from PhotonD3PDMaker.PhotonD3PDMakerFlags            import PhotonD3PDMakerFlags
 
 import D3PDMakerCoreComps

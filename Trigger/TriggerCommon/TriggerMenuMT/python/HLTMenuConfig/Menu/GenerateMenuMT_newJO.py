@@ -1,4 +1,8 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaCommon.CFElements import seqAND
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains
+
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
 _log = logging.getLogger('GenerateMenuMT_newJO')
@@ -33,10 +37,13 @@ def generateMenu( flags ):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     toChainDictTranslator = DictFromChainName()
 
-    flatChainDicts = []
     counter = 0
     signatureToGenerator = {}
     menuChains = []
+
+    menuAcc = ComponentAccumulator()
+    mainSequenceName = 'HLTAllSteps'
+    menuAcc.addSequence( seqAND(mainSequenceName) )
 
     for name, cfgFlag in flags._flagdict.iteritems():
         if not 'Trigger.menu.' in name:
@@ -56,19 +63,24 @@ def generateMenu( flags ):
 
             counter += 1
             chainDict['chainCounter'] = counter
-            # todo topo threshold
-
-            flatChainDicts.append( chainDict )
+            # TODO topo threshold
 
             # call generating function and pass to CF builder
-            menuChains.append( signatureToGenerator[signature](flags, chainDict) )
+            
+            chainAcc, chain = signatureToGenerator[signature](flags, chainDict)
+            menuChains.append( chain )
+            menuAcc.merge(chainAcc)
+
 
     _log.info('Obtained Menu Chain objects')
 
-    # pass all menuChain to CF builder
+    # pass all menuChain to CF builder    
+
+    decisionTree_From_Chains( menuAcc.getSequence(mainSequenceName), menuChains )
+    menuAcc.printConfig()
 
     _log.info('CF is built')
-            
-    return None # will return once the CF build is realy invoked
+
+    return menuAcc
 
 

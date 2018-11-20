@@ -11,6 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
+#include "TrkGlobalChi2Fitter/GXFLUDecomp.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -20,11 +21,6 @@
 #include "HepMC/GenParticle.h"
 #endif
 
-#include "Math/SMatrix.h"
-#include "TMatrixDSym.h"
-#include "TVectorD.h"
-#include "TArrayD.h"
-#include "TDecompChol.h"
 
 class AtlasDetectorID;
 
@@ -75,7 +71,7 @@ class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
     bool m_idmat = true;
     bool m_sirecal;
     Amg::MatrixX *m_derivmat = nullptr;
-    Amg::MatrixX *m_fullcovmat = nullptr;
+    Amg::SymMatrixX *m_fullcovmat = nullptr;
     bool m_getmaterialfromtrack;
     bool m_reintoutl;
     bool m_matfilled = false;
@@ -86,7 +82,7 @@ class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
     int m_miniter;
     bool m_fiteloss;
     bool m_asymeloss;
-    TMatrixDSym m_a,m_ainv; //  Only used in MyFit (does this called more than once?)
+    Amg::SymMatrixX m_a,m_ainv; //  Only used in MyFit (does this called more than once?)
     bool m_updatescat; // Need to look at how this should be intialised
 
     std::vector<double> m_phiweight;
@@ -202,25 +198,25 @@ private:
 
   TrackStateOnSurface *makeTSOS(GXFTrackState*, const ParticleHypothesis matEffects) const;
 
-  void fillResiduals(Cache&, GXFTrajectory &,int,TMatrixDSym &,TVectorD&,TDecompChol &,bool &) const;
+  void fillResiduals(Cache&, GXFTrajectory &, int, Amg::SymMatrixX&, Amg::VectorX&,GXFLUDecomp &,bool &) const;
 
   void fillDerivatives(GXFTrajectory &traj, bool onlybrem=false) const;
 
-  FitterStatusCode runIteration(Cache&, GXFTrajectory &,int,TMatrixDSym &,TVectorD &,TDecompChol &,bool &) const;
+  FitterStatusCode runIteration(Cache&, GXFTrajectory &,int,Amg::SymMatrixX &,Amg::VectorX &,GXFLUDecomp &,bool &) const;
 
-  FitterStatusCode updateFitParameters(GXFTrajectory &,TVectorD &,TDecompChol &) const;
+  FitterStatusCode updateFitParameters(GXFTrajectory &,Amg::VectorX &,GXFLUDecomp &) const;
 
-  GXFTrajectory *runTrackCleanerSilicon(Cache&, GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, bool) const;
+  GXFTrajectory *runTrackCleanerSilicon(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::SymMatrixX&, Amg::VectorX&, bool) const;
   //Not called
-  void runTrackCleanerMDT(Cache&, GXFTrajectory&, TMatrixDSym&, TMatrixDSym&, TVectorD&, TDecompChol &) const;
+  void runTrackCleanerMDT(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::SymMatrixX&, Amg::VectorX&, GXFLUDecomp &) const;
 
-  void runTrackCleanerTRT(Cache&, GXFTrajectory&, TMatrixDSym&, TVectorD&, TDecompChol &, bool, bool, int) const;
+  void runTrackCleanerTRT(Cache&, GXFTrajectory&, Amg::SymMatrixX&, Amg::VectorX&, GXFLUDecomp &, bool, bool, int) const;
 
   FitterStatusCode calculateTrackParameters(GXFTrajectory &,bool) const;
 
   void calculateDerivatives(GXFTrajectory&) const;
 
-  void calculateTrackErrors(GXFTrajectory&,TMatrixDSym &,bool) const;
+  void calculateTrackErrors(GXFTrajectory&,Amg::SymMatrixX&,bool) const;
 
   //only m_fieldprop
   TransportJacobian *numericalDerivatives(const TrackParameters *,const Surface *, PropDirection, const MagneticFieldProperties*) const;

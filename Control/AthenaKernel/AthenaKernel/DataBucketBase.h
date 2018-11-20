@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_DATABUCKETBASE_H
@@ -68,12 +68,6 @@ class DataBucketBase : public DataObject
   virtual void* cast (const std::type_info& tinfo,
                       SG::IRegisterTransient* irt = 0,
                       bool isConst = true) = 0;
-
-  /**
-   * @brief Return a new @c DataBucket whose payload has been cloned from the
-   *        original one.
-   */
-  virtual DataBucketBase* clone() const = 0;
 
   /**
    * @brief Give up ownership of the  @c DataBucket contents.

@@ -19,9 +19,6 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include <fstream>
 #include <string>
 
-using namespace std;
-
-
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
 
 #include "RegSelLUT/RegSelModule.h" 
@@ -47,6 +44,7 @@ using namespace std;
 #include <fstream>
 
 
+using namespace std;
 
 
 

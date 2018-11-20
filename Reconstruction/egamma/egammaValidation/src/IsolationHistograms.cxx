@@ -3,8 +3,12 @@
 */
 
 #include "IsolationHistograms.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AsgTools/AnaToolHandle.h"
+
+#include "AthenaBaseComps/AthCheckMacros.h"
+
+#include "GaudiKernel/ITHistSvc.h"
+ 
+#include "TH1D.h"
 
 
 using namespace egammaMonitoring;

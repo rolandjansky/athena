@@ -27,13 +27,15 @@
 
 #include "Identifier/HWIdentifier.h"
 
+#include <atomic>
 
 class EMECHVManager::Clockwork {
 public:
   EMECHVDescriptor *descriptor;
   IOType iWheel;
   EMECHVModuleConstLink linkArray[2][8][8][8]; // not dense
-  bool                  init;
+  std::atomic<bool>          init{false};
+  std::mutex                 mtx;
   std::vector<EMECHVPayload> payloadArray;
 };
 
@@ -149,7 +151,8 @@ EMECHVManager::IOType EMECHVManager::getWheelIndex() const
 }
 
 void EMECHVManager::update() const {
-  if (!m_c->init) {
+  std::lock_guard<std::mutex> lock(m_c->mtx);
+  if (!(m_c->init)) {
     m_c->init=true;
     if (m_c->iWheel==EMECHVModule::OUTER)      {
         m_c->payloadArray.reserve(2*7*8*4*24);

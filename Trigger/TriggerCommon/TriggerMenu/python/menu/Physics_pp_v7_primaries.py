@@ -17,6 +17,12 @@ def setupMenu():
 
     PhysicsStream="Main"
 
+    # stream, BW and RATE tags for Bphysics items that appear in Muon and Bphysics slice.signatures
+    BPhysicsStream     = "BphysLS"
+    RATE_BphysTag      = 'RATE:Bphysics'
+    BW_BphysTag        = 'BW:Bphys'
+
+
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
     # ['chainName',  'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep], OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
@@ -180,6 +186,8 @@ def setupMenu():
 
         ['tau80_medium1_tracktwo_L1TAU60_tau35_medium1_tracktwo_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',   'L1_TAU60_DR-TAU20ITAU12I',['L1_TAU60','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau80_medium1_tracktwo_L1TAU60","tau35_medium1_tracktwo_L1TAU12IM"]]]	,
 
+        #ATR-19062
+        ['tau25_medium1_tracktwo',                 'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
 			 ]
 
     if TriggerFlags.doFTK():
@@ -239,6 +247,10 @@ def setupMenu():
 			 ]
 
     TriggerFlags.BphysicsSlice.signatures = [
+        # ATR-19062
+        ['mu6_mu4_bJpsimumu',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu6_mu4_bUpsimumu',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
+
 
 ]
 
@@ -344,6 +356,8 @@ def setupMenu():
 
 
     TriggerFlags.MinBiasSlice.signatures = [
+        # ATR-19062
+        ['mb_sptrk',                     'L1_RD0_FILLED', [], ['MinBias', 'express'], ["RATE:MinBias", "BW:MinBias"], -1],
 
 ]
         

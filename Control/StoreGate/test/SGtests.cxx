@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -161,7 +161,6 @@ public:
   virtual const std::type_info& tinfo() const override { return typeid(Foo); }
   virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
   virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
-  virtual DataBucketBase* clone() const override { std::abort(); }
   virtual void relinquish() override { std::abort(); }
   virtual void lock() override { std::abort(); }
 

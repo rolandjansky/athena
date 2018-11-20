@@ -312,7 +312,7 @@ def addTC(name):
    StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
 
 for tc in egammaViewsMerger.TrigCompositeContainer:
-   addTC( tc + "_remap" )
+   addTC( "remap_" + tc )
 
 
 StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
