@@ -32,12 +32,10 @@ class SCTRawContByteStreamCnv: public Converter {
 
   virtual ~SCTRawContByteStreamCnv() = default;
   
-  typedef SCT_RDO_Container SCTRawContainer; 
-
   /** Storage type and class ID */
   virtual long repSvcType() const { return ByteStream_StorageType;}
   static long storageType() { return ByteStream_StorageType; } 
-  static const CLID& classID() { return ClassID_traits<SCTRawContainer>::ID(); }
+  static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
   
   /** initialize */
   virtual StatusCode initialize();
