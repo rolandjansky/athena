@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -34,8 +34,8 @@ TrigDec::TrigDecision const * DecisionObjectHandleAthena::getNavigation() const 
 }
 
 
-void DecisionObjectHandleAthena::reset() {
-  DataHandle<TrigDec::TrigDecision>::reset();
+void DecisionObjectHandleAthena::reset (bool hard) {
+  DataHandle<TrigDec::TrigDecision>::reset (hard);
   m_object = 0;
   invalidate();
   ATH_MSG_DEBUG("invalidated decision object");
