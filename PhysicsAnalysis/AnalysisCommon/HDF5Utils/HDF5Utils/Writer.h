@@ -181,6 +181,9 @@ namespace H5Utils {
       typedef std::true_type has_begin;
     };
 
+    // TODO: remove the N here, use SFINAE to specialize two types of
+    // templates, give them a static constant member which _returns_ N
+    //
     template <size_t N, typename I, typename A>
     struct CheckType {
       typedef decltype(*begin(std::declval<A&>())) iter_type;
