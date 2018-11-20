@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# art-type: build
 # art-include: master/Athena
 
 if [ -z ${THREADS+x} ]; then export THREADS=2; fi

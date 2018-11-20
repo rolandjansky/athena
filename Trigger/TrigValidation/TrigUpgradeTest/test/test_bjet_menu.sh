@@ -1,4 +1,5 @@
 #!/bin/sh
+# art-type: build
 # art-include: master/Athena
 
 
