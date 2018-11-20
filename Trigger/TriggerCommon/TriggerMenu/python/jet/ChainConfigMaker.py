@@ -491,7 +491,6 @@ def _get_hypo_type(parts):
     #     raise RuntimeError(msg)
 
     # return htype
->>>>>>> 4b7f3c10ca... Instantiatable JSS hypo (with debug print statements - to remove later)
 
 def _get_data_type(parts):
     """ return the data type from which jets are made -

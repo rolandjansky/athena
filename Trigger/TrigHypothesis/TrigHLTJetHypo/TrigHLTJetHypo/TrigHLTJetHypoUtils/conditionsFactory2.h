@@ -76,6 +76,13 @@ Conditions conditionsFactoryTLA(const std::vector<double>& etasMin,
 
 Conditions conditionsFactoryHT(double htMin);
 
+//added A. Steinhebel, April 2018
+Conditions conditionsFactoryJetAttrsWidth(double limitMin,
+                          double limitMax); 
+Conditions conditionsFactoryJetAttrsKtDR(double limitMin,
+                          double limitMax); 
+Conditions conditionsFactoryFalse(double limitMin,
+                          double limitMax); 
 
 
 #endif

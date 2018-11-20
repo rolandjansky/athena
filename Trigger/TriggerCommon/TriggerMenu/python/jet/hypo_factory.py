@@ -12,10 +12,7 @@ def hypo_factory(key, args):
         'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
         'HLThypo2_dimass_deta_dphi': HLThypo2_dimass_deta_dphi,
         'HLThypo2_dijet': HLThypo2_dijet,
-<<<<<<< HEAD
-=======
         'HLThypo2_jetattrs': HLThypo2_jetattrs,
->>>>>>> 4b7f3c10ca... Instantiatable JSS hypo (with debug print statements - to remove later)
          }.get(key)
 
     if klass == None:
@@ -385,9 +382,6 @@ class HLThypo2_dijet(HypoAlg):
 
         return s
 
-<<<<<<< HEAD
-=======
-
 #Added A. Steinhebel, June 2018
 class HLThypo2_jetattrs(HypoAlg):
     # Store parameters for the TrigHLTJetRc using the single jet moments scenario
@@ -417,7 +411,6 @@ class HLThypo2_jetattrs(HypoAlg):
     
 
 
->>>>>>> 4b7f3c10ca... Instantiatable JSS hypo (with debug print statements - to remove later)
 if __name__ == '__main__':
     d =  {'m_mins': [900.0], 'm_maxs': [-1.0], 'beta_maxs': [-1.0],
           'chain_name': 'HLT_j70_j50_0eta490_invm900j50_dPhi24_L1MJJ-500-NFF',
