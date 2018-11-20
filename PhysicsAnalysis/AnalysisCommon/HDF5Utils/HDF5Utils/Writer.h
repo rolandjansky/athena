@@ -157,41 +157,23 @@ namespace H5Utils {
   /// @{
   namespace internal {
 
-    // these are a series of check utilities to make sure that the
-    // writer class is well-formed.
-    using std::begin;
-    template <typename A>
-    static auto checkBegin(A&) -> decltype(
-      *begin(std::declval<A&>()),
-      std::true_type{});
-    template <typename A>
-    static std::false_type checkBegin(...);
-
-    template <size_t N, typename A>
-    struct CheckIterator {
-      typedef decltype(checkBegin<A>(std::declval<A&>())) this_has_begin;
-      static_assert(
-        this_has_begin::value,
-        "\n\n ** HDF5 Writer::fill(...) argument was too shallow ** \n");
-      typedef decltype(*begin(std::declval<A&>())) iter_type;
-      typedef typename CheckIterator<N-1, iter_type>::has_begin has_begin;
-    };
-    template <typename A>
-    struct CheckIterator <0, A> {
-      typedef std::true_type has_begin;
-    };
-
-    // TODO: remove the N here, use SFINAE to specialize two types of
-    // templates, give them a static constant member which _returns_ N
+    // This class exists to inspect the way the fill(...) function is
+    // called, so that errors can be caught with a static assert and
+    // give a much less cryptic error message.
     //
-    template <size_t N, typename I, typename A>
+    // We check to make sure the depth of the input matches the rank
+    // of the output, and that the types match.
+    using std::begin;
+    template <typename T, typename I, typename = void>
     struct CheckType {
-      typedef decltype(*begin(std::declval<A&>())) iter_type;
-      static const bool ok =  CheckType<N-1, I, iter_type>::ok;
+      static const bool ok_type = std::is_convertible<T,I>::value;
+      static const int depth = 0;
     };
-    template <typename I, typename A>
-    struct CheckType <0, I, A> {
-      static const bool ok = std::is_convertible<A,I>::value;
+    template <typename T, typename I>
+    struct CheckType <T,I,decltype(*begin(std::declval<T&>()), void())> {
+      typedef decltype(*begin(std::declval<T&>())) iter_type;
+      static const bool ok_type = CheckType<iter_type,I>::ok_type;
+      static const int depth = CheckType<iter_type,I>::depth + 1;
     };
 
     /// Data flattener class: this is used by the writer to read in the
@@ -392,12 +374,18 @@ namespace H5Utils {
     }
 
     // make some assertions
-    static_assert(internal::CheckIterator<N, T>::has_begin::value,
-                  "\n\n ** Wrong iterator depth ** \n");
     typedef typename
       decltype(m_consumers)::value_type::element_type::input_type input_type;
-    static_assert(internal::CheckType<N,input_type, T>::ok,
-                  "\n\n ** H5 Writer input doesn't match input type! ** \n");
+    static_assert(
+      internal::CheckType<T, input_type>::depth == N,
+      "\n\n"
+      " ** H5 Writer rank does not match input to fill(...)! **"
+      " \n");
+    static_assert(
+      internal::CheckType<T, input_type>::ok_type,
+      "\n\n"
+      " ** H5 Writer input type doesn't match input type for fill(...)! **"
+      " \n");
 
     internal::DataFlattener<N, decltype(m_consumers), T> buf(
       m_consumers, arg, m_par.extent);
