@@ -27,8 +27,8 @@ extern long ByteStream_StorageType;
  * we use a service (SCTRawContByteStreamService) which in turn uses the lightweight 
  * SCT_RodEncoder class, to do the actual converting. 
  */
-class SCTRawContByteStreamCnv: public Converter {
-
+class SCTRawContByteStreamCnv : public Converter 
+{
  public:
 
   /** Constructor */
@@ -37,17 +37,16 @@ class SCTRawContByteStreamCnv: public Converter {
   /** Destructor */
   virtual ~SCTRawContByteStreamCnv() = default;
   
-  /** Storage type and class ID */
-  virtual long repSvcType() const { return ByteStream_StorageType;}
-  static long storageType() { return ByteStream_StorageType; } 
-  static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
-  
   /** Initialize */
   virtual StatusCode initialize();
   
+  /** Storage type and class ID */
+  virtual long repSvcType() const { return ByteStream_StorageType; }
+  static long storageType() { return ByteStream_StorageType; } 
+  static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
+  
   /** createObj method (not used!) */
-  virtual StatusCode createObj(IOpaqueAddress*, DataObject*&)
-  { return StatusCode::FAILURE;}
+  virtual StatusCode createObj(IOpaqueAddress*, DataObject*&) { return StatusCode::FAILURE; }
 
   /** 
    * @brief Method to convert SCT Raw Data into ByteStream
@@ -73,4 +72,5 @@ class SCTRawContByteStreamCnv: public Converter {
   /** Object used to transmit messages and log errors */
   MsgStream m_log;
 };
+
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H

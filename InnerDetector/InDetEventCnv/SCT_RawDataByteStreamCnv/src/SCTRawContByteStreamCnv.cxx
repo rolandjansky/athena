@@ -27,8 +27,7 @@ SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcLoc) :
 
 // Initialize
 
-StatusCode
-SCTRawContByteStreamCnv::initialize()
+StatusCode SCTRawContByteStreamCnv::initialize()
 {
   ATH_CHECK(Converter::initialize());
   m_log << MSG::DEBUG<< " initialize " << endmsg;
@@ -45,10 +44,8 @@ SCTRawContByteStreamCnv::initialize()
 }
 
 // Method to create RawEvent fragments
-/// convert SCT Raw Data in the container into ByteStream
 
-StatusCode
-SCTRawContByteStreamCnv::createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress)
+StatusCode SCTRawContByteStreamCnv::createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress)
 {
   // Get RawEvent pointer
   RawEventWrite* rawEvtWrite{m_byteStreamEventAccess->getRawEvent()};
