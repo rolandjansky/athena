@@ -74,16 +74,6 @@ private:
         "Tool that does electron/photon ambiguity resolution"};
 
 
-    /** @brief Retrieve each tool in the given vector **/
-    StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
-
-    /** @brief retrieve EMClusterTool **/
-    StatusCode RetrieveEMClusterTool();
-
-    /** @brief retrieve EMAmbiguityTool **/
-    StatusCode RetrieveAmbiguityTool();
-
-
     /** Given an egammaRec object, a pointer to the electron container and the author, 
      * create and dress an electron, pushing it back to the container and 
      * calling the relevant tools **/
@@ -103,7 +93,8 @@ private:
             xAOD::PhotonContainer *photonContainer);
 
     /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-    StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
+    StatusCode CallTool(const EventContext& ctx,
+            ToolHandle<IegammaBaseTool>& tool, 
             xAOD::ElectronContainer *electronContainer = 0, 
             xAOD::PhotonContainer *photonContainer = 0);
 

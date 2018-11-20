@@ -302,10 +302,10 @@ d = release_metadata()
 TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
 
 TestMonTool.outputFileName="TrkNtuple.root"
-ToolSvc += TestMonTool
+#ToolSvc += TestMonTool
 #TestMonTool.OutputLevel=DEBUG
 
-HLTMonManager.AthenaMonTools += [ "TrigTestMonToolAC/TestMonToolAC" ]
+HLTMonManager.AthenaMonTools += [ TestMonTool ]
 
 # post set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:

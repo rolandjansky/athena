@@ -641,7 +641,7 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
     TileFragHash::TYPE RChType = m_rcCnt->get_type();
     if (RChType != TileFragHash::OptFilterDsp
         && RChType != TileFragHash::OptFilterDspCompressed) {
-      ATH_MSG_INFO("RawChannelContaier didn't come from BS - don't check DQ flags");
+      ATH_MSG_INFO("RawChannelContainer didn't come from BS - don't check DQ flags");
       ATH_MSG_INFO("RChType = " << RChType);
       m_DQstatus.setAllGood();
       m_checkDQ = false;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -143,16 +143,6 @@ namespace SG {
     Py_XDECREF(value);
     //throw PyROOT::TPyException();
     return 0;
-  }
-
-  PyDataBucket* PyDataBucket::clone() const
-  { 
-    PyErr_SetString
-      ( PyExc_RuntimeError, 
-	"SG::PyDataBucket::clone() is not meant to be called (yet)" );
-    std::abort();
-    return 0;
-//     new SG::PyDataBucket( m_type, copy<>(m_pyObj), m_clid );
   }
 
   void PyDataBucket::lock()

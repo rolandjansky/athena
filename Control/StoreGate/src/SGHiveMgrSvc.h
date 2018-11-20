@@ -62,19 +62,6 @@ public:
    */
   virtual size_t getNumberOfStores() const override;
  
-  /** explicitly notify the presence of new object in the store
-   *
-   * @param  products     [IN]     Location of new objects
-   */
-  virtual void addNewDataObjects( DataObjIDColl& products ) override;
-
-  /** Get the latest new data objects registered in store.
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Status code indicating failure or success.
-   */
-  virtual DataObjIDColl getNewDataObjects() override;
-
   /** Check if a data object exists in store.
    *  TODO: remove the method ASA a cross-experiment
    *        event data store interface emerges

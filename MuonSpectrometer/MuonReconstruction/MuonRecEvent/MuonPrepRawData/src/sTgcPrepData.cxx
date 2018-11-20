@@ -14,11 +14,14 @@ namespace Muon
 			      const std::vector<Identifier>& rdoList,
 			      const Amg::MatrixX* locErrMat,
 			      const MuonGM::sTgcReadoutElement* detEl,
+                              const int charge,
 			      const uint16_t bcBitMap ) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
+    m_charge(charge),
     m_bcBitMap(bcBitMap)
   { }
+
 
   // Destructor:
   sTgcPrepData::~sTgcPrepData()
@@ -30,6 +33,7 @@ namespace Muon
   sTgcPrepData::sTgcPrepData():
     MuonCluster(),
     m_detEl(0),
+    m_charge(0),
     m_bcBitMap(0)
   { }
 
@@ -37,6 +41,7 @@ namespace Muon
   sTgcPrepData::sTgcPrepData(const sTgcPrepData& RIO):
     MuonCluster(RIO),
     m_detEl( RIO.m_detEl ),
+    m_charge( RIO.m_charge ),
     m_bcBitMap( RIO.m_bcBitMap )
   { }
 
@@ -44,6 +49,7 @@ namespace Muon
   sTgcPrepData::sTgcPrepData(sTgcPrepData&& RIO):
     MuonCluster(std::move(RIO)),
     m_detEl( RIO.m_detEl ),
+    m_charge( RIO.m_charge ),
     m_bcBitMap( RIO.m_bcBitMap )
   { }
 
@@ -55,6 +61,7 @@ namespace Muon
       {
 	MuonCluster::operator=(RIO);
 	m_detEl =  RIO.m_detEl ;
+        m_charge = RIO.m_charge;
 	m_bcBitMap = RIO.m_bcBitMap;
       }
     return *this;
@@ -69,6 +76,7 @@ namespace Muon
       {
 	MuonCluster::operator=(std::move(RIO));
 	m_detEl =  RIO.m_detEl ;
+        m_charge = RIO.m_charge;
 	m_bcBitMap = RIO.m_bcBitMap;
       }
     return *this;

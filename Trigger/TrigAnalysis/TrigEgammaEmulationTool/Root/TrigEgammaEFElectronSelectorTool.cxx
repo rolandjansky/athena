@@ -166,29 +166,32 @@ bool TrigEgammaEFElectronSelectorTool::ApplyElectronPid(const xAOD::Electron *eg
   bool passTool=false;
   bool passSel=false;
   eg->passSelection(passSel,pidname);
+  //If Alg becomes Reentrant this needs to change
+  const EventContext ctx = Gaudi::Hive::currentContext();
+
   if (pidname == "Tight") {
-    passTool = (bool) m_electronOnlIsEMTool[0]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[0]->accept(ctx, eg);
   }
   else if (pidname == "Medium") {
-    passTool = (bool) m_electronOnlIsEMTool[1]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[1]->accept(ctx, eg);
   }
   else if (pidname == "Loose") {
-    passTool = (bool) m_electronOnlIsEMTool[2]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[2]->accept(ctx, eg);
   }
   else if (pidname == "VLoose") {
-    passTool = (bool) m_electronOnlIsEMTool[3]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[3]->accept(ctx, eg);
   }
   else if (pidname == "LHTight") {
-    passTool = (bool) m_electronOnlLHTool[0]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[0]->accept(ctx, eg,avgmu);
   }// Tight
   else if (pidname == "LHMedium") {
-    passTool = (bool) m_electronOnlLHTool[1]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[1]->accept(ctx, eg,avgmu);
   }// Medium
   else if (pidname == "LHLoose") {
-    passTool = (bool) m_electronOnlLHTool[2]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[2]->accept(ctx, eg,avgmu);
   }// Loose
   else if (pidname == "LHVLoose") {
-    passTool = (bool) m_electronOnlLHTool[3]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[3]->accept(ctx, eg,avgmu);
   }// VeryLoose
   else {
     ATH_MSG_DEBUG("No Pid tool, continue without PID");

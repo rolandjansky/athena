@@ -70,20 +70,13 @@ namespace Trk {
   class LocalDirection {
 
   public: 
-    /** Default ctor - needed by POOL */
-    LocalDirection();
     
-    /** copy constructor */
-    LocalDirection(const LocalDirection& err);
-
-    /** constructors with parameters */
-    LocalDirection(double alphaXZ, double betaYZ);
-
-    /** destructor, virtual as other classes may inherit */
-    virtual ~LocalDirection();
+    LocalDirection() {};
     
-    /** assignment operator */
-    LocalDirection& operator=(const LocalDirection &err);
+    LocalDirection(double axz, double ayz) : 
+	m_angleXZ(axz),
+        m_angleYZ(ayz) 
+    {}	
 
     /** access method for angle of local XZ projection */ 
     const double& angleXZ() const;
@@ -91,10 +84,9 @@ namespace Trk {
     /** access method for angle of local YZ projection */ 
     const double& angleYZ() const;
 
-
   protected:
-    double m_angleXZ;
-    double m_angleYZ;
+    double m_angleXZ = 0.;
+    double m_angleYZ = 0.;
 
   };
 

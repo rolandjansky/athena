@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <iostream>
+#include "TrkVKalVrtCore/TrkVKalUtils.h"
 
 namespace Trk {
 
@@ -16,7 +17,6 @@ void cferpr(long int *ich, double  *par, double  *ref, double  *s0, double  *err
     double  derivm[25];	/* was [5][5] */
     double  ctg, dsq, dyp, d__3;
 
-    extern double d_sign(double  , double  );
     extern void tdasatVK(double  *, double  *, double  *, long int , long int );
 
 

@@ -5,7 +5,7 @@
 #ifndef CALOEVENT_CALOSHOWERCONTAINER_H
 #define CALOEVENT_CALOSHOWERCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "AthContainers/DataVector.h"
 

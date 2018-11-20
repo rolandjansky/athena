@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,11 +17,10 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
-#include "ITimedExtrapolator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 #include "TrkExUtils/TargetSurfaces.h"
-
+#include "HelperStructs.h"
 // STL
 #include <utility>
 

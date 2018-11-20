@@ -9,7 +9,7 @@
 // Richard Hawkings, started 16/8/06
 #include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "AthenaDBTestRec/TestCoolRecPoolData.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 typedef CondMultChanCollection<TestCoolRecPoolData> TestCoolRecPoolDataColl;
 

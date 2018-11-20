@@ -13,6 +13,7 @@
 #include "xAODMissingET/MissingETComponentMap.h"
 #include "xAODMissingET/MissingETAssociation.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 #include "xAODJet/Jet.h"
 
 namespace xAOD 
@@ -362,8 +363,8 @@ namespace xAOD
      */
     static std::vector<const MissingETAssociation*> getAssociations(const MissingETAssociationMap* pMap,const IParticle* pPart);
     static MissingETBase::Types::constvec_t getConstVec(const MissingETAssociationMap* pMap,const IParticle* pPart,MissingETBase::UsageHandler::Policy p);
-    static bool objSelected(const MissingETAssociationMap* pMap,const IParticle* obj);
-    static bool selectIfNoOverlaps(const MissingETAssociationMap* pMap,const IParticle* obj,MissingETBase::UsageHandler::Policy p);
+    static bool objSelected(const MissingETAssociationHelper* helper,const IParticle* obj);
+    static bool selectIfNoOverlaps(MissingETAssociationHelper* helper,const IParticle* obj,MissingETBase::UsageHandler::Policy p);
     static const MissingETAssociation* getAssociation(const MissingETAssociationMap* pMap,const Jet* pJet);
     //    static const MissingETAssociation* getMiscAssociation(const MissingETAssociationMap* pMap);
     /*! @brief Access non-modifiable contribution object

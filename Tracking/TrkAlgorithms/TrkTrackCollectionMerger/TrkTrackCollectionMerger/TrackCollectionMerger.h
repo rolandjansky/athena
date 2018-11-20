@@ -10,7 +10,7 @@
 
 #include <string>
 #include <map>
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkTrack/TrackCollection.h"
@@ -23,7 +23,7 @@
 namespace Trk {
 
   /** @brief Class-algorithm for track collection merging and removalof potential duplicate tracks. */
-  class TrackCollectionMerger : public AthReentrantAlgorithm
+  class TrackCollectionMerger : public AthAlgorithm
     {
     
       ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace Trk {
       TrackCollectionMerger(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TrackCollectionMerger() {}
       StatusCode initialize();
-      StatusCode execute_r (const EventContext& ctx) const;
+      StatusCode execute();
       StatusCode finalize();
 
       ///////////////////////////////////////////////////////////////////

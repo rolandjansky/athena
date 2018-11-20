@@ -28,6 +28,8 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.WriteAthenaPool
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+include ('DataModelRunTests/loadReadDicts.py')
+
 #--------------------------------------------------------------
 # Define input
 #--------------------------------------------------------------
@@ -68,15 +70,6 @@ theApp.EvtMax = 20
 
 from DataModelTestDataRead.DataModelTestDataReadConf import DMTest__DMTestRead
 topSequence += DMTest__DMTestRead ("DMTestRead")
-
-# Note: can't autoload these.
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataReadDict")
-ROOT.DMTest.B
-getattr(ROOT, 'ElementLinkVector_p1<unsigned int>') #root6 pb workaround
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 
 
 #--------------------------------------------------------------

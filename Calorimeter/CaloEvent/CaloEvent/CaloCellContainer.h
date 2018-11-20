@@ -41,7 +41,7 @@ MODIFIED: David Rousseau: heavy modification to allow storing all
 ********************************************************************/
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloEvent/CaloCell.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -156,6 +156,11 @@ class CaloCellContainer : public DataVector<CaloCell>
 not ordered and complete a look up map is used, which is build the first 
 time this method of findCellVector is used */
   const CaloCell * findCell(const IdentifierHash   theHash) const;
+
+  /** @brief fast find method given identifier hash. If the container is 
+not ordered and complete a look up map is used, which is build the first 
+time this method of findCellVector is used */
+  CaloCell * findCell(const IdentifierHash   theHash);
 
   /** @brief Return index of the cell with a given hash.
       Returns -1 if the cell isn't found. */

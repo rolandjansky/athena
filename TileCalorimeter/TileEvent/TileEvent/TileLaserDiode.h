@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -8,6 +8,10 @@
 
 #ifndef TILELASERDIODE_H
 #define TILELASERDIODE_H
+
+
+#include <string>
+
 
 class TileLaserDiode {
 
@@ -48,8 +52,14 @@ class TileLaserDiode {
       m_pedestalAlpha = pedestalAlpha;
       m_sigmaPedAlpha = sigmaPedAlpha;
   }
-    
- private:
+
+  
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserDiode */
+  operator std::string() const;
+
+
+private:
   
   int m_diodeADC;
   double m_diodePedestal;

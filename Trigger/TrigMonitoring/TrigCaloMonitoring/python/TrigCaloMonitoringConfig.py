@@ -64,10 +64,10 @@ def HLTCaloMonitoringTool():
     #HLTFullCalo = HLTCaloTool(name             = 'HLTFullCalo',
     #                                histoPathBase    = "/Trigger/HLT")
     #HLTFullCalo.TCRTools = [fullcalocellcontmaker]
-    ToolSvc += HLTCalo;
-    list = [ "HLTCaloTool/HLTCalo" ];
-    ToolSvc += HLTCaloFEB;
-    list += [ "HLTCaloFEBTool/HLTCaloFEB" ];
+    #ToolSvc += HLTCalo;
+    list = [ HLTCalo ];
+    #ToolSvc += HLTCaloFEB;
+    list += [ HLTCaloFEB ];
     #ToolSvc += HLTFullCalo;
     #list += [ "HLTCaloTool/HLTFullCalo" ];
     return list
@@ -92,15 +92,15 @@ def HLTCaloMonitoringTool():
                                         histoPathBase    = "/Trigger/HLT")
     from AthenaCommon.AppMgr import ToolSvc
    #ToolSvc += HLTCaloL2;                                                                                                                                                                                                                                          
-    ToolSvc += xAODTrigEMClusters
+    #ToolSvc += xAODTrigEMClusters
     #list = [ "HLTCaloToolL2/HLTCaloL2" ];                                                                                                                                                                                                                         
-    list = [ "HLTCaloESD_xAODTrigEMClusters/xAODTrigEMClusters" ]
+    list = [ xAODTrigEMClusters ]
     #ToolSvc += HLTCaloCluster;                                                                                                                                                                                                                                    
-    ToolSvc += xAODCaloClusters
+    #ToolSvc += xAODCaloClusters
     #list += [ "HLTCaloClusterTool/HLTCaloCluster" ];                                                                                                                                                                                                              
-    list += [ "HLTCaloESD_xAODCaloClusters/xAODCaloClusters" ]
-    ToolSvc += CaloCells
-    list += [ "HLTCaloESD_CaloCells/CaloCells" ]
+    list += [ xAODCaloClusters ]
+    #ToolSvc += CaloCells
+    list += [ CaloCells ]
     
     return list
   else:

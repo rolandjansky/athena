@@ -17,8 +17,9 @@ class MenuTest:
                          "HLT_e5_etcut":   "L1_EM3",        
                          "HLT_g5_etcut":   "L1_EM3",        
                          "HLT_e7_etcut":   "L1_EM7",        
-                         "HLT_mu6idperf": "L1_EM7",        
-                         "HLT_mu6":       "L1_EM7",        
+                         "HLT_mu6idperf": "L1_MU6",        
+                         "HLT_mu6":       "L1_MU6",        
+                         "HLT_mu20":       "L1_MU20",        
                          "HLT_xs20":      "L1_EM7",        
                          "HLT_2e3_etcut": "L1_2EM3",        
                          "HLT_e3e5_etcut":"L1_2EM3",        
@@ -26,8 +27,12 @@ class MenuTest:
                          "HLT_e15mu24":    "L1_EM7_MU15",    
                          "HLT_xe10":      "L1_XE10",   
                          "HLT_te15":      "L1_TE15.0ETA24", 
-                         "HLT_j85":       "L1_J30",         
-                         "HLT_j60":       "L1_J30"      }
+                         "HLT_j85":       "L1_J20",         
+                         "HLT_j60":       "L1_J20",
+                         "HLT_j35_gsc45_boffperf_split" : "L1_J20",                         
+                         "HLT_j35_gsc45_bmv2c1070_split" : "L1_J20",
+                         "HLT_j35_gsc45_bmv2c1070" : "L1_J20"
+      }
 
 def applyMenu(l1decoder ):
     l1decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
@@ -81,7 +86,7 @@ class L1DecoderTest(L1Decoder) :
 
             jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
                                              Decisions = "JRoIDecisions",
-                                             OutputTrigRoIs = "JRoIs")
+                                             OutputTrigRoIs = "JRoIs" )
 
             jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
             self.roiUnpackers += [jUnpacker]

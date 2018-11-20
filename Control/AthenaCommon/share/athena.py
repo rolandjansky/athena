@@ -1,42 +1,21 @@
 #!/bin/sh
-
+#
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
+# athena.py is born as shell script to preload some optional libraries
+#
 """date"
 
-python_path=`which python`
-
-### Ugly hack to preload libtcmalloc.so
-
-#use tcmalloc by default if TCMALLOCDIR is defined, but only on non-macs
+# defaults
 export USETCMALLOC=0
+export USEIMF=0
 
-# possibly, allow user to run with full tcmalloc by setting this variable
-if [ -z $USETCMALLOCMINIMAL ]; then
-    export USETCMALLOCMINIMAL=1
+# but use tcmalloc by default if TCMALLOCDIR is defined
+if [ -n "$TCMALLOCDIR" ]; then
+    export USETCMALLOC=1
 fi
 
-# if any of these variables is defined, we use tcmalloc to do some
-# profiling, then we need the full library !
-
-if [ -n "$CPUPROFILE" ] || [ -n "$HEAPPROFILE" ] || [ -n "$HEAPCHECK" ]; then
-    USETCMALLOCMINIMAL=0
-fi
-
-if [ -z $TCMALLOCDIR ]; then
-   if [[ $CMTEXTRATAGS != *ManaCore* ]]; then
-    echo "WARNING: TCMALLOCDIR not defined, will use libc malloc"
-   fi
-else
-    USETCMALLOC=1
-fi
-
-export ATHENA_ADD_PRELOAD
-ATHENA_DROP_RELOAD=0
-
-export USEIMF=false
-export IMF_LIB1="libimf.so"
-export IMF_LIB2="libintlc.so.5"
-
-
+# parse command line arguments
 for a in ${@}
 do
     case "$a" in
@@ -46,79 +25,16 @@ do
 	--tcmalloc)      USETCMALLOC=1;;
 	--stdcmath)      USEIMF=0;;
 	--imf)           USEIMF=1;;
-	--preloadlib*)     ATHENA_ADD_PRELOAD=${a#*=};;
-	--drop-and-reload) ATHENA_DROP_RELOAD=1;;
+	--preloadlib*)     export ATHENA_ADD_PRELOAD=${a#*=};;
+	--drop-and-reload) export ATHENA_DROP_RELOAD=1;;
     esac
 done
 
-if [ "$USETCMALLOC" = "1" ] || [ "$USETCMALLOC" = "true" ] ; then
-    if [ -z $TCMALLOCDIR ]; then
-        echo "ERROR: TCMALLOCDIR not defined"
-        exit 1
-    fi
-    # test, if minimal tcmalloc is available. fallback to full library, if not
-    if [ "$USETCMALLOCMINIMAL" = "1" ] || [ "$USETCMALLOCMINIMAL" = "true" ] ; then
-        if [ ! -e "$TCMALLOCDIR/libtcmalloc_minimal.so" ]; then
-            echo "WARNING: $TCMALLOCDIR/libtcmalloc_minimal.so does not exist. Falling back to libtcmalloc"
-            USETCMALLOCMINIMAL=0
-        else
-            echo "Preloading tcmalloc_minimal.so"
-        fi
-    fi
-    # preload and run with correct tcmalloc, if requested
-    if [ "$USETCMALLOCMINIMAL" = "0" ]; then
-        if [ ! -e "$TCMALLOCDIR/libtcmalloc.so" ]; then
-            echo "ERROR: $TCMALLOCDIR/libtcmalloc.so does not exist"
-            exit 1
-        fi
-        echo "Preloading tcmalloc.so"
+# Do the actual preloading via LD_PRELOAD
+source `which athena_preload.sh `
 
-        if [ -z $LD_PRELOAD ]; then
-            export LD_PRELOAD="$TCMALLOCDIR/libtcmalloc.so"
-        else
-            export LD_PRELOAD="$TCMALLOCDIR/libtcmalloc.so:$LD_PRELOAD"
-        fi
-    else
-        if [ -z $LD_PRELOAD ]; then
-            export LD_PRELOAD="$TCMALLOCDIR/libtcmalloc_minimal.so"
-        else
-            export LD_PRELOAD="$TCMALLOCDIR/libtcmalloc_minimal.so:$LD_PRELOAD"
-        fi
-    fi
-fi
-
-if [ $USEIMF == "1" ] || [ $USEIMF == true ]; then
-fullimf1="$ATLASMKLLIBDIR_PRELOAD/$IMF_LIB1"
-fullimf2="$ATLASMKLLIBDIR_PRELOAD/$IMF_LIB2"
-    if [ ! -e "$fullimf1" ]; then
-        echo "ERROR: $fullimf1 does not exit"
-        exit 1
-    elif [ ! -e "$fullimf2" ]; then
-        echo "ERROR: $fullimf2 does not exit"
-        exit 1
-    else
-        echo "Preloading $IMF_LIB1"
-        echo "Preloading $IMF_LIB2"
-        if [ -z $LD_PRELOAD ]; then
-            export LD_PRELOAD="$fullimf1:$fullimf2"
-        else
-            export LD_PRELOAD="$fullimf1:$fullimf2:$LD_PRELOAD"
-        fi
-    fi
-fi
-
-# optionally add user-specific preload library
-if [ "x$ATHENA_ADD_PRELOAD" != "x" ] && [ $ATHENA_DROP_RELOAD -eq 0 ]; then
-    echo "Preloading $ATHENA_ADD_PRELOAD"
-    if [ -z $LD_PRELOAD ]; then
-        export LD_PRELOAD="$ATHENA_ADD_PRELOAD"
-    else
-        export LD_PRELOAD="$ATHENA_ADD_PRELOAD:$LD_PRELOAD"
-    fi
-else
-    unset ATHENA_ADD_PRELOAD
-fi
-
+# Now resurrect ourselves as python script
+python_path=`which python`
 "exec" "$python_path" "-tt" "$0" "$@";
 
 """

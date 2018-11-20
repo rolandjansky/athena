@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARMINBIASAVERAGE_H
 #define LARCONDITIONS_ILARMINBIASAVERAGE_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "LArElecCalib/LArCalibErrorCode.h"
-class Identifier;
 class HWIdentifier;
 
 
@@ -28,9 +27,6 @@ class ILArMinBiasAverage {
   // online ID
   virtual const float& minBiasAverage(const HWIdentifier& id)  const = 0 ;
   
-  // offline ID 
-  virtual const float& minBiasAverage(const Identifier& id)  const =0;
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};  
 } ;
 #include "AthenaKernel/CondCont.h"

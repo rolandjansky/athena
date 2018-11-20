@@ -1,6 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+//
+// The VKalExtPropagator object is created if ATHENA propagator exists 
+// and is supplied via jobOptions. A pointer to it is supplied to VKalVrtCore
+// for every vertex fit via VKalVrtControlBase object.
+// VKalVrtCore uses it to extrapolate tracks for a vertex fit.
+// 
+// If ATHENA propagator doesn't exist, the VKalVrtCore uses its internal 
+// propagator without material. 
+//
+// myPropagator object exists always in VKalVrtCore and should be used
+// by default for track propagation in VKalVrtFitter.
+//------------------------------------------------------------------------- 
+
+
 
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
@@ -15,12 +29,8 @@
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //                  External propagator access for VKalVrt
 
-  namespace Trk {
-    extern vkalPropagator  myPropagator;
-  }
-
-  namespace Trk{
-
+namespace Trk {
+ 
   // Constructor
   VKalExtPropagator::VKalExtPropagator( TrkVKalVrtFitter* pnt)
   {
@@ -33,7 +43,6 @@
   void VKalExtPropagator::setPropagator(const IExtrapolator*  Pnt)
   {
      m_extrapolator = Pnt;
-     Trk::myPropagator.setPropagator(this);
   }
 
 //Protection against exit outside ID volume
@@ -46,37 +55,16 @@
       double Rlim=sqrt(Xend*Xend+Yend*Yend) / m_vkalFitSvc->m_IDsizeR;
       double Zlim=fabs(Zend)                / m_vkalFitSvc->m_IDsizeZ;
       double Scale = Rlim; if(Zlim>Rlim) Scale=Zlim;
+//std::cout<<"relative TARG="<<RefEnd[0]<<","<<RefEnd[1]<<","<<RefEnd[2]
+//<<" global ref.="<<m_vkalFitSvc->m_refFrameX<<","<<m_vkalFitSvc->m_refFrameY<<","<<m_vkalFitSvc->m_refFrameZ
+//<<" Limits="<<m_vkalFitSvc->m_IDsizeR<<","<<m_vkalFitSvc->m_IDsizeZ<<" scale="<<Scale<<'\n';
       return Scale;
   }
 
   bool VKalExtPropagator::checkTarget( double *RefEnd) const
   {
-      double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2];
-      if( m_vkalFitSvc->m_trkControl[0].rotateToField) {
-        double fx,fy,fz, oldField, newField;
-        Amg::Vector3D step(RefEnd[0]-m_vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.x(),
-                           RefEnd[1]-m_vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.y(),
-                           RefEnd[2]-m_vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.z());
-        Amg::Vector3D globalRefEnd = (m_vkalFitSvc->m_trkControl[0].trkRotation.inverse())*step 
-                                    + m_vkalFitSvc->m_trkControl[0].trkRotationVertex;
-//
-        vX=m_vkalFitSvc->m_trkControl[0].trkRotationVertex.x()-m_vkalFitSvc->m_refFrameX;
-        vY=m_vkalFitSvc->m_trkControl[0].trkRotationVertex.y()-m_vkalFitSvc->m_refFrameY;
-        vZ=m_vkalFitSvc->m_trkControl[0].trkRotationVertex.z()-m_vkalFitSvc->m_refFrameZ;
-        m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
-        oldField=sqrt(fx*fx+fy*fy+fz*fz); if(oldField<0.2) oldField=0.2;
-//
-        vX=globalRefEnd.x()-m_vkalFitSvc->m_refFrameX;
-        vY=globalRefEnd.y()-m_vkalFitSvc->m_refFrameY;
-        vZ=globalRefEnd.z()-m_vkalFitSvc->m_refFrameZ;
-        m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
-        newField=sqrt(fx*fx+fy*fy+fz*fz); if(newField<0.2) newField=0.2;
-//
-        if( fabs(newField-oldField)/oldField > 1.0 ) return false;
-      }
-
-      double targV[3]={ vX, vY, vZ};
-      if( Protection(targV) >1. ) return false;
+      //double targV[3]={ RefEnd[0], RefEnd[1], RefEnd[2]};
+      if( Protection(RefEnd) >1. ) return false;
       return true;
   }
 /*----------------------------------------------------------------------------------*/
@@ -87,32 +75,19 @@
 //    it always use this point as starting point, 
 //     so ParOld,CovOld,RefStart are irrelevant
 //
-//    When ROTATION is used in the fit   RefEnd is also in ROTATED frame,
-//      and must be rotated back
+//  VKalVrtCore works in relative coordinates wrt (m_refFrameX,m_refFrameY,m_refFrameZ)
+//  For ATLAS propagator the Core coordinates must be moved back to global ref.frame
 /*------------------------------------------------------------------------------------*/
   void VKalExtPropagator::Propagate( long int trkID, long int Charge, 
                                      double *ParOld, double *CovOld, double *RefStart, 
                                      double *RefEnd, double *ParNew, double *CovNew) const
   {
       int trkID_loc=trkID; if(trkID_loc<0)trkID_loc=0;
-//std::cout<<" Ext.Propagator TrkID="<<trkID<<"to (local!!!)="<<RefEnd[0]<<", "<<RefEnd[1]<<", "<<RefEnd[2]<<'\n';
-//End point. In case of rotation extrapolation target is given in old rotated system
-//           so it's rotated back using saved on given track rotation parameters 
+//std::cout<<__func__<<" Ext.Propagator TrkID="<<trkID<<"to (local!!!)="<<RefEnd[0]<<", "<<RefEnd[1]<<", "<<RefEnd[2]<<'\n';
 //-----------
-      double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2];
-      if(  m_vkalFitSvc->m_trkControl.at(trkID_loc).rotateToField &&
-          !m_vkalFitSvc->m_trkControl[trkID_loc].trkRotation.isIdentity()) {
-
-        Amg::Vector3D step(RefEnd[0]-m_vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.x(),
-                           RefEnd[1]-m_vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.y(),
-                           RefEnd[2]-m_vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.z());
-        Amg::Vector3D globalRefEnd = (m_vkalFitSvc->m_trkControl[trkID_loc].trkRotation.inverse())*step 
-                                    + m_vkalFitSvc->m_trkControl[trkID_loc].trkRotationVertex;
-        vX=globalRefEnd.x()-m_vkalFitSvc->m_refFrameX;
-        vY=globalRefEnd.y()-m_vkalFitSvc->m_refFrameY;
-        vZ=globalRefEnd.z()-m_vkalFitSvc->m_refFrameZ;
-      }
-      Amg::Vector3D endPoint( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
+      double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2]; //relative coords
+      // Propagation target in GLOBAL frame
+      Amg::Vector3D endPointG( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
 //
 // ---- Make MeasuredPerigee from input. Mag.field at start point is used here
 //
@@ -125,45 +100,23 @@
 //        for(int i=0; i<15;i++) CovPerigeeIni.push_back(0.);
         CovPerigeeIni[0]=1.e6;CovPerigeeIni[2]=1.e6;CovPerigeeIni[5]=1.;CovPerigeeIni[9]=1.;CovPerigeeIni[14]=fabs(PerigeeIni[4]);
       }        
+      //--- This creates Perigee in GLOBAL frame from input in realtive coordinates
       const Perigee* inpPer = 
           m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni);
       const TrackParameters * inpPar= (const TrackParameters*) inpPer;
 //
-// ----- Magnetic field is taken at target point
+// ----- Magnetic field is taken at target point (GLOBAL calculated from relative frame input)
 //
-      double fx,fy,fz,BMAG_FIXED;
-      m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
-      BMAG_FIXED=fz;  // standard when rotation to field direction is absent 
-      if(m_vkalFitSvc->m_trkControl[trkID_loc].rotateToField) {
-         BMAG_FIXED=sqrt(fx*fx+fy*fy+fz*fz);
-         m_vkalFitSvc->m_fitRotatedField->setAtlasMag(BMAG_FIXED);  //set fixed ROTATED field in corresponding VKal oblect
-      }
-//
-// ----- Prepare line target. In case of rotation - save new rotation parameters to track object
-      Amg::RotationMatrix3D magFldRot; magFldRot.setIdentity();
-      if(trkID>=0 && m_vkalFitSvc->m_trkControl[trkID].rotateToField){
-          magFldRot=m_vkalFitSvc->getMagFldRotation(fx,fy,fz,m_vkalFitSvc->m_refFrameX,m_vkalFitSvc->m_refFrameY,0.);
-          m_vkalFitSvc->m_trkControl[trkID].trkRotation=magFldRot;
-          m_vkalFitSvc->m_trkControl[trkID].trkRotationVertex   = Amg::Vector3D(endPoint.x(),endPoint.y(),endPoint.z());
-          m_vkalFitSvc->m_trkControl[trkID].trkSavedLocalVertex = Amg::Vector3D(RefEnd[0],RefEnd[1],RefEnd[2]);
-      }
+      double fx,fy,BMAG_FIXED;
+      m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,BMAG_FIXED);
 //
 //-------------------- Extrapolation itself
 //
       const Trk::TrackParameters* endPer = 0;
       if(trkID<0){
-            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPoint);
+            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG);
       }else{
-        if(m_vkalFitSvc->m_trkControl[trkID].rotateToField) {
-            Amg::Vector3D lineCenter( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
-            StraightLineSurface lineTarget(new Amg::Transform3D( magFldRot.inverse() , lineCenter));
-//=Check StraightLineSurface
-//          GlobalPosition testpos(lineCenter.x()-100.*fx,lineCenter.y()-100.*fy,lineCenter.z()-100.*fz);
-//          std::cout<<" checkLineSurface="<<*(lineTarget.globalToLocal(testpos))<<" BMAG="<<BMAG_FIXED<<'\n';
-            endPer = myExtrapToLine(trkID,  inpPar, &endPoint, lineTarget);
-        }else{	   
-            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPoint);
-        }
+            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG);
       }
 //-----------------------------------
       if( endPer == 0 ) {   // No extrapolation done!!!
@@ -185,14 +138,6 @@
       if( (Line==0 && mPer==0) || CovMtx==0 ){         
         ParNew[0]=0.; ParNew[1]=0.;ParNew[2]=0.;ParNew[3]=0.;ParNew[4]=0.;
         delete inpPer; return;
-      }
-      if(m_vkalFitSvc->m_trkControl[trkID_loc].rotateToField) {
-         Amg::Vector3D rotatedMomentum(0.,0.,0.);
-         if(mPer)rotatedMomentum=magFldRot*Amg::Vector3D(mPer->momentum().x(),mPer->momentum().y(),mPer->momentum().z());
-         if(Line)rotatedMomentum=magFldRot*Amg::Vector3D(Line->momentum().x(),Line->momentum().y(),Line->momentum().z());
-//         VectPerig[2] += atan2(rotatedMomentum.y(),rotatedMomentum.x()); //VK wrong 27.09.10
-         VectPerig[2] = atan2(rotatedMomentum.y(),rotatedMomentum.x());
-         VectPerig[3] = atan2(rotatedMomentum.perp(),rotatedMomentum.z());
       }
 
       if((*CovMtx)(0,0)<=0. || (*CovMtx)(1,1)<=0.){                     //protection against bad error matrix
@@ -353,7 +298,7 @@
   }
 
 /*--------------------------------------------------------------------------------------*/
-/* Extrapolation to line to allow rotation of coordinate system in nonuniform mag.field */
+/* Extrapolation to line                                                                */
 /*											*/
 /*    All points are in GLOBAL Atlas frame here!					*/
 /*         DOESN't WORK FOR COMBINED TRACKS!						*/
@@ -467,7 +412,6 @@
      if(m_fitPropagator != 0) delete m_fitPropagator;
      m_fitPropagator = new VKalExtPropagator( this );
      m_fitPropagator->setPropagator(Pnt); 
-     m_PropagatorType = 3;       // Set up external propagator
      m_InDetExtrapolator = Pnt;  // Pointer to InDet extrapolator
   }
 

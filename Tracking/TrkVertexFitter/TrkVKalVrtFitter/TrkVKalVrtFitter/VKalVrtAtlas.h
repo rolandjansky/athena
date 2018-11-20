@@ -28,21 +28,18 @@ namespace Trk{
 
        VKalAtlasMagFld();
       ~VKalAtlasMagFld();
-       void getMagFld(const double,const double,const double,double&,double&,double&);
-       void setAtlasMag(MagField::IMagFieldSvc *);
-       void setAtlasMag(const double );
+       void getMagFld(const double,const double,const double,double&,double&,double&)const;
+       void setAtlasField(MagField::IMagFieldSvc *);
+       void setAtlasField(const double );
        void setAtlasMagRefFrame( double, double, double );
 
     private:
     
        MagField::IMagFieldSvc*  m_VKalAthenaField;
-       double m_FIXED_ATLAS_FIELD;
-       const double m_mm;
+       double m_FIXED_ATLAS_FIELD=1.997;
+       const double m_mm=1.;
        double m_magFrameX, m_magFrameY, m_magFrameZ ;
-       double m_saveXpos, m_saveYpos, m_saveZpos;
-       double m_saveBX, m_saveBY, m_saveBZ;   
        Amg::Vector3D m_Point;
-       
 
    };
 

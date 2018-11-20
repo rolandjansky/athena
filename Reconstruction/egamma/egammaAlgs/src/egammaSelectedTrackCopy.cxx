@@ -25,16 +25,25 @@ UPDATE : 25/06/2018
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
+#include "GaudiKernel/EventContext.h"
 //std includes
 #include <algorithm>
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
                                                  ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_AllClusters{},
+  m_SelectedClusters{},
+  m_AllTracks{},
+  m_SelectedTracks{},
+  m_AllSiTracks{},
+  m_SelectedSiTracks{},
+  m_AllTRTTracks{},
+  m_SelectedTRTTracks{}
 {
 }
 
@@ -50,23 +59,23 @@ StatusCode egammaSelectedTrackCopy::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (!m_egammaCheckEnergyDepositTool.empty()) {
-    ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
-  } else {
-    m_egammaCheckEnergyDepositTool.disable();
-  }
+  ATH_CHECK( m_egammaCaloClusterSelector.retrieve() );
 
   return StatusCode::SUCCESS;
 }  
 
 StatusCode egammaSelectedTrackCopy::egammaSelectedTrackCopy::finalize(){ 
 
-  ATH_MSG_INFO ("AllTracks " << m_AllTracks);
-  ATH_MSG_INFO ("AllSiTracks " << m_AllSiTracks);
-  ATH_MSG_INFO ("AllTRTTracks " << m_AllTRTTracks);
-  ATH_MSG_INFO ("SelectedTracks " << m_SelectedTracks);
-  ATH_MSG_INFO ("SelectedSiTracks " << m_SelectedSiTracks);
-  ATH_MSG_INFO ("SelectedTRTTracks " << m_SelectedTRTTracks);
+  ATH_MSG_INFO ("--- egamma Selected Track Copy Statistics ---");
+  ATH_MSG_INFO ("--- All Clusters: " << m_AllClusters);
+  ATH_MSG_INFO ("--- Selected Clusters: " << m_SelectedClusters);
+  ATH_MSG_INFO ("--- All Tracks: " << m_AllTracks);
+  ATH_MSG_INFO ("--- Selected Tracks: " << m_SelectedTracks);
+  ATH_MSG_INFO ("--- All Si Tracks: " << m_AllSiTracks);
+  ATH_MSG_INFO ("--- Selected Si Tracks: " << m_SelectedSiTracks);
+  ATH_MSG_INFO ("--- All TRT Tracks: " << m_AllTRTTracks);
+  ATH_MSG_INFO ("--- Selected TRT Tracks: " << m_SelectedTRTTracks);
+  ATH_MSG_INFO ("----------------------------------------- ---");
   return StatusCode::SUCCESS;
 }
 
@@ -95,13 +104,23 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Track Particle  container  size: "  <<trackTES->size() );
 
   //Local counters
-  unsigned int allTracks(0);
-  unsigned int allTRTTracks(0);
-  unsigned int allSiTracks(0);  
-  unsigned int selectedTracks(0);
-  unsigned int selectedTRTTracks(0); 
-  unsigned int selectedSiTracks(0);  
+  auto selectedTracks = m_SelectedTracks.buffer()  ;
+  auto allSiTracks = m_AllSiTracks.buffer();  
+  auto selectedSiTracks = m_SelectedSiTracks.buffer();  
+  auto allTRTTracks =  m_AllTRTTracks.buffer()  ;
+  auto selectedTRTTracks = m_SelectedTRTTracks.buffer(); 
 
+  // // lets first check which clusters to seed on;
+  std::vector<const xAOD::CaloCluster *> passingClusters;
+  for(const xAOD::CaloCluster* cluster : *clusterTES ){
+    if (m_egammaCaloClusterSelector->passSelection(cluster)) {
+      passingClusters.push_back(cluster);
+    }
+  }
+
+  m_AllClusters+=clusterTES->size();
+  m_SelectedClusters+=passingClusters.size();
+  m_AllTracks+=trackTES->size();
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
@@ -115,7 +134,6 @@ StatusCode egammaSelectedTrackCopy::execute()
     if( track->summaryValue(dummy,xAOD::numberOfSCTHits) ){
       nhits+= dummy;
     }
-    ++allTracks;    
     if(nhits<4){
       isTRT = true;
       ++allTRTTracks;
@@ -123,19 +141,14 @@ StatusCode egammaSelectedTrackCopy::execute()
       isTRT = false;
       ++allSiTracks;
     }
-    for(const xAOD::CaloCluster* cluster : *clusterTES ){
 
-      // check that cluster passes basic selection
-      if (!passSelection(cluster)) {
-	ATH_MSG_DEBUG("Cluster did not pass selection");
-	continue;
-      }
+    for(const xAOD::CaloCluster* cluster : passingClusters ){
 
       /*
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if(!Select(cluster,track,cache,isTRT)){
+      if(!Select(Gaudi::Hive::currentContext(), cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
       }
@@ -160,23 +173,12 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Selected Track container size: "  << viewCopy->size() );
   ATH_CHECK( outputTrkPartContainer.record(std::move(viewCopy)) );
 
-  /*
-   * Typical use for relaxed memory ordering is incrementing counters, 
-   * (such as the reference counters of std::shared_ptr) 
-   * since this only requires atomicity, but not ordering or synchronization.
-   */
-  m_AllTracks.fetch_add(allTracks, std::memory_order_relaxed);
-  m_AllTRTTracks.fetch_add(allTRTTracks, std::memory_order_relaxed);
-  m_AllSiTracks.fetch_add(allSiTracks,std::memory_order_relaxed);
-  m_SelectedTracks.fetch_add(selectedTracks,std::memory_order_relaxed);
-  m_SelectedTRTTracks.fetch_add(selectedTRTTracks,std::memory_order_relaxed);
-  m_SelectedSiTracks.fetch_add(selectedSiTracks,std::memory_order_relaxed);
-
   return StatusCode::SUCCESS;
 }
 
 
-bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
+bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
+                                     const xAOD::CaloCluster* cluster,
                                      const xAOD::TrackParticle* track,
                                      IEMExtrapolationTools::Cache& cache,
                                      bool trkTRT) const
@@ -242,7 +244,8 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
   std::vector<double>  phi(4, -999.0);
   std::vector<double>  deltaEta(4, -999.0);
   std::vector<double>  deltaPhi(4, -999.0);
-  if (m_extrapolationTool->getMatchAtCalo (cluster, 
+  if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                           cluster, 
                                            track, 
                                            trkTRT,
                                            Trk::alongMomentum, 
@@ -270,7 +273,8 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
-    if (m_extrapolationTool->getMatchAtCalo (cluster, 
+    if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                             cluster, 
                                              track, 
                                              trkTRT,
                                              Trk::alongMomentum, 
@@ -294,38 +298,3 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
   return false;
 }
-
-bool egammaSelectedTrackCopy::passSelection(const xAOD::CaloCluster *clus) const
-{
-  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-
-  double emFrac(0.);
-  if (acc.isAvailable(*clus)) {
-    emFrac = acc(*clus);
-  } else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-    throw std::runtime_error("No EM fraction momement stored");    
-  }
-  if ( emFrac< m_ClusterEMFCut ){
-    ATH_MSG_DEBUG("Cluster failed EM Fraction cuT");
-    return false;
-  }
-
-  if ( clus->et()*emFrac< m_ClusterEMEtCut ){
-    ATH_MSG_DEBUG("Cluster failed EM Energy cut");
-    return false;
-  }
-
-  
-  double lateral(0.);
-  if (!clus->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
-    throw std::runtime_error("No LATERAL momement stored, normalized");
-  }
-  
-  if ( lateral >  m_ClusterLateralCut ){
-    ATH_MSG_DEBUG("Cluster failed LATERAL cut");
-    return false;
-  }
-
-  return true;
-}
-

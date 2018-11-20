@@ -8,7 +8,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo

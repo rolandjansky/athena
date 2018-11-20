@@ -20,8 +20,8 @@ class DataObject;
 namespace SG {
 class View : public IProxyDict {
 public:
-  View (const std::string& name, bool AllowFallThrough = true);
-  View (const std::string& name, bool AllowFallThrough, std::string const& storeName);
+  View () = delete;
+  View (const std::string& name, const int index, const bool AllowFallThrough = true, std::string const& storeName = "StoreGateSvc");
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;
@@ -29,6 +29,7 @@ public:
   void impl ( SimpleView* impl ) { m_implementation = impl; }
   IProxyDict* impl (void ) { return m_implementation; }
   const IProxyDict* impl ( void ) const { return m_implementation; }
+  size_t viewID() const{ return m_index; }
 
   /**
    * for printing the content of the view
@@ -112,6 +113,7 @@ public:
 
 private:
   SimpleView *m_implementation;
+  size_t m_index;
 };
 } // EOF SG namespace
 

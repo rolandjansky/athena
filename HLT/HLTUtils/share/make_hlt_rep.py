@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import optparse
+import os
 
 import pm.project
 import pm.common
@@ -14,7 +16,7 @@ modifier = ''
 parser = optparse.OptionParser(description="Create HLT S/W respository")
 
 parser.add_option("-p", "--prefix", action="store",
-                  help="Prefix used in make_hlt_env (default: 'HLT')")
+                  help="Prefix used for all objects (default: 'HLT')")
 
 parser.add_option("-m", "--modifier", action="store",
                   help="Modifier for objects in S/W repository (default: '')")
@@ -29,45 +31,85 @@ if opt.modifier is not None and len(opt.modifier)>0:
 
 rep = pm.project.Project('daq/sw/repository.data.xml')
 onlineRep  = rep.getObject('SW_Repository', 'Online')
-hlt_env = pm.project.Project('daq/segments/%s-Environment.data.xml' % prefix)
+common_env = pm.project.Project('daq/segments/common-environment.data.xml')
+
+atlas_project = os.environ.get('AtlasProject')
+
+if 'AtlasBuildStamp' in os.environ:
+    # nightly
+    atlas_version='%s,r%s' % (os.environ.get('AtlasBuildBranch'),
+                              os.environ.get('AtlasBuildStamp'))
+else:    
+    # numbered releases
+    atlas_version = os.environ.get('AtlasVersion')
+
+platform = hltOksUtils.platform()
+
+swvars = [
+    dal.SW_PackageVariable('XMLPATH',
+                           Name='XMLPATH',
+                           Suffix=os.path.join(platform,"XML")),
+    dal.SW_PackageVariable('DATAPATH',
+                           Name='DATAPATH',
+                           Suffix=os.path.join(platform,"share")),
+    dal.SW_PackageVariable('CALIBPATH',
+                           Name='CALIBPATH',
+                           Suffix=os.path.join(platform,"share")),                           
+    dal.SW_PackageVariable('JOBOPTSEARCHPATH',
+                           Name='JOBOPTSEARCHPATH',
+                           Suffix=os.path.join(platform,"jobOptions")),
+    dal.SW_PackageVariable('PYTHONPATH',
+                           Name='PYTHONPATH',
+                           Suffix=os.path.join(platform,"python"))
+]
+
+puvars = [
+    dal.Variable('%s_ASETUP_ARGS' % prefix,
+                 Name='ASETUP_ARGS',
+                 Value=('%s,%s' % (atlas_project, '${%s_VERSION}' % prefix)),
+                 Description='asetup arguments'),
+
+    dal.Variable('%s_PRELOAD' % prefix,
+                 Name='ASETUP_PRELOAD',
+                 Value='libtcmalloc_minimal.so:libimf.so:libintlc.so.5',
+                 Description='Preload libraries'),
+
+    dal.Variable('%s_VERBOSE' % prefix,
+                 Name='ASETUP_VERBOSE',
+                 Value='0',
+                 Description='Verbosity for asetup_wrapper'),
+
+    dal.Variable('%s_EXTRA_SW_PATH' % prefix,
+                 Name='ASETUP_EXTRA_SW_PATH',
+                 Value='',
+                 Description='Patch area (e.g. /my/path/InstallArea)'),
+    
+    common_env.getObject('Variable','AtlasSetup')
+]
+
+pars = dal.VariableSet('%s-Parameters' % prefix,
+                       Description='Parameters to expand for executables',
+                       Contains = [ dal.Variable('%s_VERSION' % prefix,
+                                                 Name='%s_VERSION' % prefix,
+                                                 Value=atlas_version,
+                                                 Description='%s release version' % prefix) ])
 
 apps = [
-    dal.Script('asetup_wrapper%s' % modifier,
+    dal.Binary('HLTMPPU_asetup',
                BinaryName='asetup_wrapper',
-               Description='Provide asetup environment to any command'
-               )    
-    ]
-
-vars = [
-    dal.SW_PackageVariable('XMLPATH%s' % modifier,
-                           Name='XMLPATH',
-                           Suffix="XML"),
-    dal.SW_PackageVariable('DATAPATH%s' % modifier,
-                           Name='DATAPATH',
-                           Suffix="share"),
-    dal.SW_PackageVariable('CALIBPATH%s' % modifier,
-                           Name='CALIBPATH',
-                           Suffix="share"),                           
-    dal.SW_PackageVariable('JOBOPTSEARCHPATH%s' % modifier,
-                           Name='JOBOPTSEARCHPATH',
-                           Suffix="jobOptions"),
-    dal.SW_PackageVariable('PYTHONPATH%s' % modifier,
-                           Name='PYTHONPATH',
-                           Suffix="python")
+               Description='HLTMPPU_main with asetup environment',
+               DefaultParameters='HLTMPPU_main',
+               ProcessEnvironment=puvars)  
 ]
 
 
-try:
-    rel = hlt_env.getObject('Variable','%s-AtlasArea' % prefix).Value.split('/')[-1]
-except:
-    print ('Could not determine release number from AtlasArea')
-  
 hltRep = dal.SW_Repository('%s-Repository' % prefix,
-                           Name='HLT-Repository',
-                           InstallationPath="${ATLAS_BASE}/AtlasHLT/%s/InstallArea" % rel,
+                           Name=('%s-Repository' % prefix),
+                           InstallationPath="%s/InstallArea" % os.environ.get('AtlasArea'),
                            SW_Objects=apps,
-                           Tags=hltOksUtils.defaultTags(),
-                           ISInfoDescriptionFiles=['share/data/daq/schema/is_trigconf_hlt.schema.xml']
+                           Tags=[pm.common.tdaqRepository.getObject('Tag',hltOksUtils.platform())],
+                           ISInfoDescriptionFiles=[os.path.join(platform,'share/data/daq/schema/is_trigconf_hlt.schema.xml')],
+                           AddProcessEnvironment = swvars
                            )
 
 for app in apps:
@@ -75,10 +117,8 @@ for app in apps:
 
 proj = pm.project.Project('%s_SW_Repository.data.xml' % prefix,
                           ['daq/schema/core.schema.xml',
-                           'daq/sw/repository.data.xml',
-                           'daq/segments/%s-Environment.data.xml' % prefix
-                           ])
+                           'daq/sw/repository.data.xml'])
     
 proj.addObjects([hltRep])
-proj.addObjects(vars)
-    
+proj.addObjects([pars])
+

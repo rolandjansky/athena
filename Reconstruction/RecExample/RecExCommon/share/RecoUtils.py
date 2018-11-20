@@ -151,7 +151,6 @@ if rec.doTimeLimit():
 # rather use default athenapool value
 if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
     svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "12000000000" ]
-    svcMgr.AthenaPoolCnvSvc.CommitInterval = 1000000000
 
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
     

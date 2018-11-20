@@ -7,8 +7,7 @@ atlas_subdir( CommissionEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools )
+                          Control/AthenaKernel )
 
 # External dependencies:
 find_package( CLHEP )
@@ -21,12 +20,12 @@ atlas_add_library( CommissionEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} SGTools
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES}  AthenaKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( CommissionEventDict
                       CommissionEvent/CommissionEventDict.h
                       CommissionEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} SGTools CommissionEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CommissionEvent )
 

@@ -64,32 +64,32 @@ L1CaloMan.ManualRunLBSetup = False
 if doJEPJEMMon:
     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPJEMMon
     L1JEPJEMMonTool = LVL1__JEPJEMMon("L1JEPJEMMonTool")
-    ToolSvc += L1JEPJEMMonTool
+    #ToolSvc += L1JEPJEMMonTool
     L1CaloMan.AthenaMonTools += [L1JEPJEMMonTool]
 
 if doJEPCMXMon:
     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPCMXMon
     L1JEPCMXMonTool = LVL1__JEPCMXMon("L1JEPCMXMonTool")
-    ToolSvc += L1JEPCMXMonTool
+    #ToolSvc += L1JEPCMXMonTool
     L1CaloMan.AthenaMonTools += [L1JEPCMXMonTool]
 
 if doCPMon:
     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPMon
     L1CPMMonTool = LVL1__CPMon("L1CPMMonTool")
-    ToolSvc += L1CPMMonTool
+    #ToolSvc += L1CPMMonTool
     L1CaloMan.AthenaMonTools += [L1CPMMonTool]
 
 
 if doCPSimMon:
     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPSimMon
     CPSimMonTool = LVL1__CPSimMon("CPSimMonTool")
-    ToolSvc += CPSimMonTool
+    #ToolSvc += CPSimMonTool
     L1CaloMan.AthenaMonTools += [CPSimMonTool]
 
 if doJEPSimMon:
     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimMon
     JEPSimMonTool = LVL1__JEPSimMon("JEPSimMonTool")
-    ToolSvc += JEPSimMonTool
+    #ToolSvc += JEPSimMonTool
     L1CaloMan.AthenaMonTools += [JEPSimMonTool]
 
 if doRODMon:
@@ -97,14 +97,14 @@ if doRODMon:
     L1BSRODMonTool = LVL1__RODMon(
         name="L1BSRODMonTool",
     )
-    ToolSvc += L1BSRODMonTool
+    #ToolSvc += L1BSRODMonTool
     L1CaloMan.AthenaMonTools += [L1BSRODMonTool]
 
 
 if doOverviewMon:
     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__OverviewMon
     L1OverviewMonTool = LVL1__OverviewMon("L1OverviewMonTool")
-    ToolSvc += L1OverviewMonTool
+    #ToolSvc += L1OverviewMonTool
     L1CaloMan.AthenaMonTools += [L1OverviewMonTool]
 
     from TrigT1CaloMonitoringTools.TrigT1CaloMonitoringToolsConf import LVL1__TrigT1CaloMonErrorTool

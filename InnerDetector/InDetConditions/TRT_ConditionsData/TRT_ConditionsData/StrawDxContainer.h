@@ -16,6 +16,8 @@
 
 #include <string>
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
+
 #include "TRT_ConditionsData/NestedContainer.h"
 #include "TRT_ConditionsData/LinearPacker.h"
 #include "TRT_ConditionsData/StrawDx.h"
@@ -109,5 +111,6 @@ namespace TRTCond
 }
 
 CLASS_DEF(TRTCond::StrawDxContainer,1162934314,1)
+CONDCONT_DEF(TRTCond::StrawDxContainer,1168594249);
 
 #endif

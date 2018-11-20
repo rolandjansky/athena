@@ -8,16 +8,21 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.DetFlags import DetFlags
 
+TriggerFlags.doID   = False;
+TriggerFlags.doMuon = True;
 
 ### Set muon sequence ###
 if not 'doL2SA' in dir():
-  doL2SA=True
+  doL2SA = True
 if not 'doL2CB' in dir():
-  doL2CB=True
+  doL2CB = True
+  TriggerFlags.doID = True
 if not 'doL2ISO' in dir():
   doL2ISO = True 
 if not 'doEFSA' in dir():
-  doEFSA=True
+  doEFSA = True
+if not 'doEFISO' in dir():
+  doEFISO=True
 
 ### workaround to prevent online trigger folders to be enabled ###
 if doL2CB or doL2ISO:
@@ -74,38 +79,43 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
-TriggerFlags.doID   = False;
-TriggerFlags.doMuon = True;
-
-### Set muon sequence ###
-if not 'doL2SA' in dir():
-  doL2SA = True
-if not 'doL2CB' in dir():
-  doL2CB = True
-  TriggerFlags.doID = True
-if not 'doL2ISO' in dir():
-  doL2ISO = True 
-if not 'doEFSA' in dir():
-  doEFSA = True
-
 ### muon thresholds ###
-CTPToChainMapping = {"HLT_mu6":       "L1_MU6",
-                    "HLT_2mu6":       "L1_2MU4" }
+CTPToChainMapping = { "HLT_mu6" :  "L1_MU6",
+                      "HLT_2mu6":  "L1_2MU4" }
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
 topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
 
+def __mon(finalCollName, stepColls=[]):
+    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    summMaker = DecisionSummaryMakerAlg()
+    summMaker.FinalDecisionKeys = [ finalCollName ]
+    summMaker.FinalStepDecisions = dict.fromkeys( testChains, finalCollName )  
+    
+    ### final monitor algorithm  
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
 
+    if len(stepColls) == 0:
+      stepColls=[ finalCollName ]
+    
+    for n, coll in  enumerate(stepColls):
+      stepCollector = DecisionCollectorTool("Step%dCollector" % n )
+      stepCollector.Decisions = [ coll ]
+      mon.CollectorTools += [ stepCollector ]
 
+    
+    return [ summMaker, mon ]
 
 # ===============================================================================================
 #               Setup the standard muon chain 
 # ===============================================================================================
 
-### ************* PRD data provider algorithm ************* ###
-
-### Used the algorithms as Step2 "muComb step" ###
+## Used the algorithms as Step2 "muComb step" ###
 viewAlgs = []
 if doL2CB:
   # Only do setup of ID stuff if we run combined muon finding
@@ -126,8 +136,6 @@ if doL2CB:
   viewAlgs.append(ViewVerify)
 
 
-### Used the algorithms as Step1 "muFast step" ###
-
 ### Load data from Muon detectors ###
 import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
@@ -140,10 +148,6 @@ muonCombinedRecFlags.printSummary = False
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AlgSequence import AthSequencer
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-
-### Provide Muon_PrepDataAlgorithms ###
-from TrigUpgradeTest.MuonSetup import makeMuonPrepDataAlgs
-( eventAlgs_Muon, viewAlgs_MuL2SA, viewAlgs_MuEFSA ) = makeMuonPrepDataAlgs( doL2SA, doEFSA )
 
 
 ### ************* Step1  ************* ###
@@ -171,71 +175,19 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.Views = "MUViewRoIs"
     l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
-    ### Define input data of L2MuonSA PRD provider algorithms  ###
-    ### and Define EventViewNodes to run the algprithms        ###
-    for eventAlg_Muon in eventAlgs_Muon:
-      if eventAlg_Muon.properties().has_key("RoIs"):
-        eventAlg_Muon.RoIs = l2MuViewsMaker.InViewRoIs
-        
-    #for viewAlg_MuL2SA in viewAlgs_MuL2SA:
-    #  l2MuViewNode += viewAlg_MuL2SA
-
     ### set up MuFastSteering ###
-    from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
-    muFastAlg = TrigL2MuonSAMTConfig("Muon")
+    from TrigUpgradeTest.MuonSetup import makeMuFastAlgs
+    muFastAlg = makeMuFastAlgs()
     muFastAlg.OutputLevel = DEBUG
-    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
+    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs 
     muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
 
-    ### To create BS->RDO data                                                                     ###
-    ### viewAlgs_MuL2SA should has                                                                 ###
-    ###      [CSCRdoTool, MDTRdoTool, MDTRawTool, RPCRdoTool, RPCRawTool, TGCRdoTool, TGCRawTool ] ###
-    ### CSCRDO ###
-    if muonRecFlags.doCSCs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-      L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(OutputLevel = DEBUG,
-                                                            CscPrepDataProvider = viewAlgs_MuL2SA[0])
-      ToolSvc += L2CscDataPreparator
-       
-      muFastAlg.DataPreparator.CSCDataPreparator = L2CscDataPreparator
-
-    ### MDTRDO ###
-    if muonRecFlags.doMDTs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-      L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
-                                                            MdtPrepDataProvider = viewAlgs_MuL2SA[1],
-                                                            MDT_RawDataProvider = viewAlgs_MuL2SA[2])
-      ToolSvc += L2MdtDataPreparator
-      
-      muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
-
     l2MuViewNode += muFastAlg
  
-    ### RPCRDO ###
-    if muonRecFlags.doRPCs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-      L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
-                                                            RpcPrepDataProvider = viewAlgs_MuL2SA[3],
-                                                            RpcRawDataProvider = viewAlgs_MuL2SA[4],
-                                                            DecodeBS = DetFlags.readRDOBS.RPC_on())
-      ToolSvc += L2RpcDataPreparator
-       
-      muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
-
-    ### TGCRDO ###
-    if muonRecFlags.doTGCs():
-      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-      L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
-                                                            TgcPrepDataProvider = viewAlgs_MuL2SA[5])
-      ToolSvc += L2TgcDataPreparator
-       
-      muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
-
-   
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMufastHypoConfig
     trigMufastHypo = TrigMufastHypoConfig("TrigL2MufastHypoAlg")
@@ -348,114 +300,23 @@ if TriggerFlags.doMuon:
     efMuViewsMaker.Views = "EFMUViewRoIs"
     efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
-    ### Define input data of L2MuonSA PRD provider algorithms  ###
-    ### and Define EventViewNodes to run the algprithms        ### 
-    for eventAlg_Muon in eventAlgs_Muon:
-      if eventAlg_Muon.properties().has_key("RoIs"):
-        eventAlg_Muon.RoIs = efMuViewsMaker.InViewRoIs
-        
-    for viewAlg_MuEFSA in viewAlgs_MuEFSA:
-      efMuViewNode += viewAlg_MuEFSA
-
-   
-    from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
-
-    theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
-    theSegmentFinder.DoSummary=True
-    CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
-    theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
-                                                    SegmentFinder=theSegmentFinder,
-                                                    MuonSegmentOutputLocation = "MooreSegments",
-                                                    UseCSC = muonRecFlags.doCSCs(),
-                                                    UseMDT = muonRecFlags.doMDTs(),
-                                                    UseRPC = muonRecFlags.doRPCs(),
-                                                    UseTGC = muonRecFlags.doTGCs(),
-                                                    doClusterTruth=False,
-                                                    UseTGCPriorBC = False,
-                                                    UseTGCNextBC  = False,
-                                                    doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
-                                                    doRPCClust = muonRecFlags.doRPCClusterSegmentFinding(), OutputLevel=DEBUG )
-    
-
- 
-    theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
-                                                       SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-                                                                                          DoSummary=False,
-                                                                                          Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
-                                                                                                                                 segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
-                                                                                                                                                                  "CscSegmentUtilTool",
-                                                                                                                                                                  TightenChi2 = False, 
-                                                                                                                                                                  IPconstraint=False)),
-                                                                                          Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-                                                                                                                                 segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
-                                                                                          DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
-                                                       MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
-                                                       MuonSegmentOutputLocation = "NCB_MuonSegments", 
-                                                       MuonSegmentCombinationOutputLocation = "NCB_MooreSegmentCombinations",
-                                                       UseCSC = muonRecFlags.doCSCs(),
-                                                       UseMDT = False,
-                                                       UseRPC = False,
-                                                       UseTGC = False,
-                                                       UseTGCPriorBC = False,
-                                                       UseTGCNextBC  = False,
-                                                       doTGCClust = False,
-                                                       doRPCClust = False)
-
-    from MuonRecExample.MuonStandalone import MuonTrackSteering
-    MuonTrackSteering.DoSummary=True
-    MuonTrackSteering.DoSummary=DEBUG
-    TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
-    TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("MuonTrackSteering", "MuonTrackSteering")
-
-    from AthenaCommon.Include import include
-    include("InDetBeamSpotService/BeamCondSvc.py" )        
-    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
-  
-    muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
-  
-    muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-  
-    muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
- 
-    xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
-                                                              TrackParticleCreator = muonParticleCreatorTool,
-                                                              TrackCollectionCnvTool=muonTrackCollectionCnvTool,
-                                                              RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
-                                                              TrackContainerName = "MuonSpectrometerTracks",
-                                                              xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
-                                                              ConvertTrackParticles = False,
-                                                              ConvertTracks = True)
-
-
-    thetrkbuilder = getPublicToolClone("CombinedMuonTrackBuilder_SA", "CombinedMuonTrackBuilder", MuonHoleRecovery="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool')
-
-    theCandidateTool = getPublicToolClone("MuonCandidateTool_SA", "MuonCandidateTool", TrackBuilder=thetrkbuilder)
-    theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg",MuonCandidateTool=theCandidateTool)
-
-
-    thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, OutputLevel=DEBUG)
-
-    themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
-    themuoncreatoralg.MuonCreatorTool=thecreatortool
-    themuoncreatoralg.CreateSAmuons=True
-    themuoncreatoralg.MuonContainerLocation="Muons"
-    themuoncreatoralg.MakeClusters=False
-    themuoncreatoralg.MuonContainerLocation = "Muons"
-
-    #Algorithms to views
-    efMuViewNode += theSegmentFinderAlg
-#    efMuViewNode += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
-    efMuViewNode += TrackBuilder
-    efMuViewNode += xAODTrackParticleCnvAlg
-    efMuViewNode += theMuonCandidateAlg
-    efMuViewNode += themuoncreatoralg
+    # setup muEFMsonly algs
+    from TrigUpgradeTest.MuonSetup import makeMuEFSAAlgs
+    efAlgs = makeMuEFSAAlgs()
+    muEFSAInfo = ""
+    for efAlg in efAlgs:
+      if efAlg.properties().has_key("RoIs"):
+        efAlg.RoIs = efMuViewsMaker.InViewRoIs
+      if efAlg.properties().has_key("MuonContainerLocation"):
+        muEFSAInfo = "Muons"
+        efAlg.MuonContainerLocation = muEFSAInfo
+      efMuViewNode += efAlg
 
     #Setup MS-only hypo
     from TrigMuonHypo.TrigMuonHypoConfigMT import TrigMuonEFMSonlyHypoConfig
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("TrigMuonEFSAHypoAlg")
     trigMuonEFSAHypo.OutputLevel = DEBUG
-    trigMuonEFSAHypo.MuonDecisions = "Muons"
+    trigMuonEFSAHypo.MuonDecisions = muEFSAInfo
     trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
     trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerOutputDecisions[0]
 
@@ -550,8 +411,8 @@ def muonViewsMergers( name ):
   if doEFSA==True:
     muonViewsMerger.TrigCompositeContainer += [ filterEFSAAlg.Output[0], trigMuonEFSAHypo.HypoOutputDecisions ]
     muonViewsMerger.MuonContainerViews = [ efMuViewsMaker.Views ]
-    muonViewsMerger.MuonContainerInViews = [ themuoncreatoralg.MuonContainerLocation ]
-    muonViewsMerger.MuonContainer = [ themuoncreatoralg.MuonContainerLocation ]
+    muonViewsMerger.MuonContainerInViews = [ muEFSAInfo ]
+    muonViewsMerger.MuonContainer = [ muEFSAInfo ]
 
   if doL2CB==True and doL2ISO==True: # L2CB should be also executed with L2ISO
     muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output[0], trigmuIsoHypo.HypoOutputDecisions ]
@@ -598,8 +459,8 @@ def muonStreamESD( muonViewsMerger ):
                             "xAOD::L2CombinedMuonAuxContainer#"+muCombAlg.L2CombinedMuonContainerName+"Aux." ]
 
   if doEFSA==True:
-    StreamESD.ItemList += [ "xAOD::MuonContainer#"+themuoncreatoralg.MuonContainerLocation ]
-    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+themuoncreatoralg.MuonContainerLocation+"Aux." ]
+    StreamESD.ItemList += [ "xAOD::MuonContainer#"+muEFSAInfo ]
+    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+muEFSAInfo+"Aux." ]
 
   if doL2CB==True and doL2ISO==True:
     StreamESD.ItemList += [ "xAOD::L2IsoMuonContainer#"+trigL2muIso.MuonL2ISInfoName ]
@@ -612,7 +473,6 @@ def muonStreamESD( muonViewsMerger ):
     num+=1
 
   return StreamESD
-
 
 
 
@@ -631,21 +491,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     summary = summarySteps("FinalAlg", ["L2MuonFastDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    mon.CollectorTools = [ step1Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps]+ __mon("L2MuonFastDecisions")+ [ summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -661,21 +509,10 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "EFMuonSADecisions"]
-    mon.CollectorTools = [ step1Collector ]
-
+  
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps] + __mon("EFMuonSADecisions") + [ summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -694,23 +531,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "EFMuonSADecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps] + __mon("EFMuonSADecisions", ["L2MuonFastDecisions", "EFMuonSADecisions"]) + [summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -731,23 +554,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["MuonL2CBDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "MuonL2CBDecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    mon.CollectorTools = [ step1Collector, step2Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps]+ __mon("MuonL2CBDecisions",["L2MuonFastDecisions", "MuonL2CBDecisions"] ) +[summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -769,25 +578,10 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    step3Collector = DecisionCollectorTool("Step3Collector")
-    step3Collector.Decisions = [ "EFMuonSADecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
 
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon( "EFMuonSADecisions", [ "L2MuonFastDecisions",  "MuonL2CBDecisions", "EFMuonSADecisions"]) + [summary, StreamESD ] )
     topSequence += hltTop   
 
 
@@ -809,25 +603,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["MuonL2IsoDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "MuonL2IsoDecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    step3Collector = DecisionCollectorTool("Step3Collector")
-    step3Collector.Decisions = [ "MuonL2IsoDecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ]+ __mon( "MuonL2IsoDecisions", [ "L2MuonFastDecisions", "MuonL2CBDecisions", "MuonL2IsoDecisions"]) +[ summary, StreamESD ] )
     topSequence += hltTop   
 
  
@@ -849,25 +627,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary = summarySteps("FinalAlg", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
     summary.OutputTools = [ muonViewsMerger ]
 
-    ### final monitor algorithm
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
-    mon = TrigSignatureMoniMT()
-    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
-    from TrigUpgradeTest.TestUtils import MenuTest
-    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
-    mon.OutputLevel = DEBUG
-
-    step1Collector = DecisionCollectorTool("Step1Collector")
-    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
-    step2Collector = DecisionCollectorTool("Step2Collector")
-    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
-    step3Collector = DecisionCollectorTool("Step3Collector")
-    step3Collector.Decisions = [ "EFMuonSADecisions", "MuonL2IsoDecisions"]
-    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
-
     StreamESD = muonStreamESD(muonViewsMerger)
 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    hltTop = seqOR( "hltTop", [ HLTsteps ] + __mon("EFMuonSADecisions", ["L2MuonFastDecisions", "MuonL2CBDecisions", "EFMuonSADecisions"]) +[ summary, StreamESD ] )
     topSequence += hltTop   
 
    
@@ -875,3 +637,5 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
     return Trk__TrkMaterialProviderTool(name,**kwargs)
+
+

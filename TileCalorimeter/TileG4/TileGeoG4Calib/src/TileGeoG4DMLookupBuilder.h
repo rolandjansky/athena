@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -37,7 +37,7 @@ public:
                            const int verboseLevel);
   ~TileGeoG4DMLookupBuilder();
 
-  void BuildLookup(bool test_beam = false);
+  void BuildLookup(bool test_beam = false, int plateToCell = -1);
   void ResetCells();
   TileGeoG4CalibSection* GetSection(TileCalibDddbManager::TileCalibSections key) const;
   bool GetPlateToCell();
@@ -62,7 +62,7 @@ private:
   typedef std::map<TileCalibDddbManager::TileCalibSections, TileGeoG4CalibSection*,
                    std::less<TileCalibDddbManager::TileCalibSections> > TileGeoG4CalibSectionMap;
 
-  void CreateGeoG4CalibSections(bool is_ctb);
+  void CreateGeoG4CalibSections(bool is_ctb, int plateToCell);
 
   TileCalibDddbManager* m_dbManager;
   TileGeoG4LookupBuilder* m_lookup_builder;

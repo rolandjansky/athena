@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaDataCreatorTool.cxx 685407 2015-07-24 16:15:06Z cranshaw $
@@ -105,10 +105,10 @@ namespace xAODMaker {
          ATH_MSG_DEBUG( "xAOD::FileMetaData already in the output" );
          return StatusCode::SUCCESS;
       }
-      const DataHandle<EventStreamInfo> esi_h1;
-      const DataHandle<EventStreamInfo> esi_h2;
+      SG::ConstIterator<EventStreamInfo> esi_h1;
+      SG::ConstIterator<EventStreamInfo> esi_h2;
       StatusCode sc = outputMetaStore()->retrieve(esi_h1,esi_h2);
-      if (sc.isSuccess()) {
+      if (sc.isSuccess() && esi_h1 != esi_h2) {
         if (esi_h1->getProcessingTags().size()==1) {
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::dataType,
                                        *(esi_h1->getProcessingTags().begin()) ) );

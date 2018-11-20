@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from IOVSvc.IOVSvcConf import CondInputLoader
@@ -77,9 +77,14 @@ def IOVDbSvcCfg(configFlags):
 
 #Convenience method to add folders:
 
-def addFolders(configFlags,folderstrings,detDb=None,className=None):
+def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False):
+    """Add access to the given set of folders, in the identified subdetector schema.
+If EXTENSIBLE is set, then if we access an open-ended IOV at the end of the list,
+the end time for this range will be set to just past the current event.
+Subsequent accesses will update this end time for subsequent events.
+This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
 
-    #Convenince hack: Allow a single string as parameter:
+    #Convenience hack: Allow a single string as parameter:
     if isinstance(folderstrings,str):
         folderstrings=[folderstrings,]
 
@@ -92,8 +97,12 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
             loadFolders.append((className, _extractFolder(fs)));
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
         #result.addCondAlgo(CondInputLoader(Load=loadFolders))
- 
 
+        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+        apcs=AthenaPoolCnvSvc()
+        result.addService(apcs)
+        from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+        result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
 
     
     if detDb is not None:
@@ -106,13 +115,26 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
     
     
     for fs in folderstrings:
+        if extensible:
+            fs = fs + '<extensible/>'
         if fs.find("<db>")==-1:
             iovDbSvc.Folders.append(fs+dbstr)
         else:
             iovDbSvc.Folders.append(fs)
 
-    return result,None
-
+    return result
+    
+def addFoldersSplitOnline(flags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL"):
+    "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
+    
+    if flags.Common.isOnline and not configFlags.Input.isMC:
+        folders = online_folders
+    else:
+        # MC, so add addMCString
+        detDb = detDb+addMCString
+        folders = offline_folders
+    result = addFolders(flags, folders, className=className, detDb=detDb) 
+    return result
 
 _dblist={
     'INDET':'COOLONL_INDET',

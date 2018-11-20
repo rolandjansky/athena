@@ -104,6 +104,8 @@ datamodel_run_test (CondReaderMT
                     COMMAND "athena.py --thread=1"
                     DEPENDS CondWriter)
 
+datamodel_run_test (CondReadWrite)
+
 
 
 # xAODTestWrite:

@@ -22,6 +22,7 @@
 
 // xAOD includes
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloClusterMatching/TopoClusterMap.h"
 
 namespace ClusterMatching {
   typedef std::pair<const xAOD::CaloCluster*,float> tcmatch_pair;
@@ -54,6 +55,9 @@ class ICaloClusterMatchingTool
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
+  // Prime the map before starting to match
+  virtual StatusCode fillClusterMap(const EventContext& ctx, TopoClusterMap& tcmap) const = 0;
+
   // return shared fraction of clustered cell energy (wrt testCluster)
   virtual float getClusterSharedEfrac(const xAOD::CaloCluster& refCluster,
 				      const xAOD::CaloCluster& testCluster) const = 0;
@@ -74,6 +78,7 @@ class ICaloClusterMatchingTool
   // return true if matchedClusters list is non-empty
   virtual bool getMatchedClusters(const xAOD::CaloCluster& refCluster,
 				  std::vector<const xAOD::CaloCluster*>& matchedClusters,
+				  const TopoClusterMap& tcmap,
 				  bool useLeadingCellEtaPhi=false) const = 0;
 
   // fill a list of clusters from the testClusters container that match the reference cluster
@@ -88,6 +93,7 @@ class ICaloClusterMatchingTool
   // return true if matchedClusters list is non-empty
   virtual bool getMatchedClusters(const xAOD::CaloCluster& refCluster,
 				  std::vector<std::pair<const xAOD::CaloCluster*, float> >& matchedClustersAndE,
+				  const TopoClusterMap& tcmap,
 				  bool useLeadingCellEtaPhi=false) const = 0;
 
   // set ElementLinks to clusters from the configured cluster container that match the reference cluster
@@ -102,6 +108,7 @@ class ICaloClusterMatchingTool
   // works via getMatchedClusters
   // return true if matchedClusters list is non-empty
   virtual StatusCode linkMatchedClusters(const xAOD::CaloCluster& refCluster,
+					 const TopoClusterMap& tcmap,
 					 bool useLeadingCellEtaPhi=false,
 					 bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
 							 const std::pair<const xAOD::CaloCluster*,float>& pair2) = ClusterMatching::gtrMatchedE) const = 0;

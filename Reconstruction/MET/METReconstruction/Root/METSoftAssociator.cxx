@@ -14,7 +14,7 @@
 
 // METReconstruction includes
 #include "METReconstruction/METSoftAssociator.h"
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+#include "xAODCaloEvent/CaloVertexedClusterBase.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace met {
@@ -157,14 +157,14 @@ namespace met {
 	  } else {
 	    // clusters at LC scale
 	    if (cl->type()==xAOD::Type::CaloCluster) {
-	      CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
-	      *metCoreCl += cl;
+        CaloVertexedClusterBase stateClLC(*(static_cast<const CaloCluster*>(cl)),xAOD::CaloCluster::CALIBRATED);
+	      *metCoreCl += (&stateClLC);
 	    } else *metCoreCl += cl;
 	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
 	    // clusters at EM scale
 	    if (cl->type()==xAOD::Type::CaloCluster) {
-	      CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
-	      *metCoreEMCl += cl;
+        CaloVertexedClusterBase stateClEM( *(static_cast<const CaloCluster*>(cl)),xAOD::CaloCluster::UNCALIBRATED);
+        *metCoreEMCl += (&stateClEM);
 	    } else *metCoreEMCl += cl;
 	  }
 	}

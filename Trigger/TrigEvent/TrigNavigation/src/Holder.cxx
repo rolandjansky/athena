@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -16,7 +16,7 @@
 #include "AthContainersRoot/getDynamicAuxID.h"
 
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #include "SGTools/StlVectorClids.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "RootUtils/Type.h"

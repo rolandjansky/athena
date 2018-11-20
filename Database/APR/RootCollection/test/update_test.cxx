@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdio> // For sprintf on gcc45
@@ -16,6 +16,7 @@
 #include "CollectionBase/ICollectionCursor.h"
 #include "CollectionBase/ICollectionColumn.h"
 #include "CollectionBase/ICollectionDataEditor.h"
+#include "RootCollection/AttributeListLayout.h"
 
 #include "PersistentDataModel/Token.h"
 
@@ -284,3 +285,13 @@ int main( int argc, char ** )
    return 0;
 }
 
+
+// Force a link dependency on libRootCollection; otherwise, the linker
+// will remove the dependency.  And if we don't link against libRootCollection,
+// then we can get ubsan errors related to ICollectionQuery because in that
+// case, the typeinfo for ICollectionQuery won't get exported from
+// the test binary.
+void dum()
+{
+  AttributeListLayout all;
+}

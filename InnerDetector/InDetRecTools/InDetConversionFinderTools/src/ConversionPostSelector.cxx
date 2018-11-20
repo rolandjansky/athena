@@ -11,13 +11,14 @@
     changes :
 ***************************************************************************/
 #include "InDetConversionFinderTools/ConversionPostSelector.h"
-
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include <cmath>
 
-using CLHEP::HepLorentzVector;
-using CLHEP::pi;
-using CLHEP::twopi;
+namespace{
+  constexpr double twopi{2.*M_PI};
+}
 
 namespace InDet {
   
@@ -135,17 +136,17 @@ namespace InDet {
       const Trk::TrackParameters& perigee2 = *(trkAtVx[1].perigeeAtVertex());
       
       //invariant mass
-      HepLorentzVector momentum;
+      CLHEP::HepLorentzVector momentum;
       Amg::Vector3D sum_mom = perigee1.momentum() + perigee2.momentum();
-      double m2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::electron],2);
-      double ee = sqrt(m2 +  perigee1.momentum().mag2()) + sqrt(m2 +  perigee2.momentum().mag2());
+      double m2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::electron],2);
+      double ee = std::sqrt(m2 +  perigee1.momentum().mag2()) + std::sqrt(m2 +  perigee2.momentum().mag2());
       momentum.setPx(sum_mom.x()); momentum.setPy(sum_mom.y()); momentum.setPz(sum_mom.z()); momentum.setE(ee);
       double inv_mass = momentum.m();
-      double photonP = sqrt(momentum.x()*momentum.x() + momentum.y()*momentum.y());
+      double photonP = std::sqrt(momentum.x()*momentum.x() + momentum.y()*momentum.y());
       double pt1 = perigee1.pT(); double pt2 = perigee2.pT();
       
       if (pt1<m_minPt || pt2<m_minPt) pass = false;
-      if (fabs(inv_mass) > invMassCut) pass = false;
+      if (std::fabs(inv_mass) > invMassCut) pass = false;
       if (photonP < fitMomentum) pass = false;
       
       double fR = 1000.;
@@ -158,14 +159,14 @@ namespace InDet {
       if(flag==1 && fR-vtxR<m_maxdR) pass = false;
       
       double PhiVtxTrk = vertex->position().phi() - perigee1.parameters()[Trk::phi0];
-      if (PhiVtxTrk < -pi) PhiVtxTrk += twopi;
-      if (PhiVtxTrk >  pi) PhiVtxTrk -= twopi;
-      if (fabs(PhiVtxTrk)>m_maxPhiVtxTrk) pass = false;
+      if (PhiVtxTrk < -M_PI) PhiVtxTrk += twopi;
+      if (PhiVtxTrk >  M_PI) PhiVtxTrk -= twopi;
+      if (std::fabs(PhiVtxTrk)>m_maxPhiVtxTrk) pass = false;
       
       if (pass && m_decorateVertices)
       {
         ATH_MSG_DEBUG("Decorating vertex with values used in post selector");
-        decorateVertex(*vertex, inv_mass, pt1, pt2, fR, fabs(PhiVtxTrk) );
+        decorateVertex(*vertex, inv_mass, pt1, pt2, fR, std::fabs(PhiVtxTrk) );
       }
       
     }
@@ -239,58 +240,58 @@ namespace InDet {
       if(flag==1 && fR-vtxR<m_maxdR) pass = false;
       
       //invariant mass. First assume K0, if failed assume Lambda
-      HepLorentzVector momentumK0 = fourP(perigee1,perigee2,m_massK0,false);
+      CLHEP::HepLorentzVector momentumK0 = fourP(perigee1,perigee2,m_massK0,false);
       double inv_massK0 = momentumK0.m();
-      if (fabs(inv_massK0-m_massK0) <= m_nsig*m_sigmaK0) isK0 = true;
-      HepLorentzVector momentumL = fourP(perigee1,perigee2,m_massLambda,false);
+      if (std::fabs(inv_massK0-m_massK0) <= m_nsig*m_sigmaK0) isK0 = true;
+      CLHEP::HepLorentzVector momentumL = fourP(perigee1,perigee2,m_massLambda,false);
       double inv_massL = momentumL.m();
-      if (fabs(inv_massL-m_massLambda) <= m_nsig*m_sigmaLambda) isLambda = true;
-      HepLorentzVector momentumLb = fourP(perigee1,perigee2,m_massLambda,true);
+      if (std::fabs(inv_massL-m_massLambda) <= m_nsig*m_sigmaLambda) isLambda = true;
+      CLHEP::HepLorentzVector momentumLb = fourP(perigee1,perigee2,m_massLambda,true);
       double inv_massLb = momentumLb.m();
-      if (fabs(inv_massLb-m_massLambda) <= m_nsig*m_sigmaLambda) isLambdaBar = true;
+      if (std::fabs(inv_massLb-m_massLambda) <= m_nsig*m_sigmaLambda) isLambdaBar = true;
       if (!isLambdaBar && !isLambda && !isK0) pass = false;
-      HepLorentzVector momentum;
+      CLHEP::HepLorentzVector momentum;
       if(isK0 && isLambda && !isLambdaBar)  {momentum = momentumK0; kind = 110;}
       if(isK0 && isLambdaBar && !isLambda)  {momentum = momentumK0; kind = 101;}
       if(isK0 && !isLambda && !isLambdaBar) {momentum = momentumK0; kind = 100;}
       if(!isK0 && isLambda && !isLambdaBar) {momentum = momentumL;  kind = 10;}
       if(!isK0 && isLambdaBar && !isLambda) {momentum = momentumLb; kind = 1;}
       if(!isK0 && isLambda && isLambdaBar)  {momentum = momentumL;  kind = 11;}
-      double particleP = sqrt(momentum.x()*momentum.x() + momentum.y()*momentum.y());
+      double particleP = std::sqrt(momentum.x()*momentum.x() + momentum.y()*momentum.y());
       if (particleP < fitMomentum) pass = false;
     }
     type = kind;
     return pass;
   }
   
-  HepLorentzVector ConversionPostSelector::
-  fourP(const Trk::TrackParameters& per1,const Trk::TrackParameters& per2,double mass, bool isBar){
-    HepLorentzVector momentum;
+  CLHEP::HepLorentzVector 
+  ConversionPostSelector::fourP(const Trk::TrackParameters& per1,const Trk::TrackParameters& per2,double mass, bool isBar){
+    CLHEP::HepLorentzVector momentum;
     Amg::Vector3D sum_mom = per1.momentum() + per2.momentum();
     double mp1 = 0.; double mp2 = 0.;
     if(mass==m_massK0) {
-      mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
-      mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+      mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+      mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
     }else{
       if(!isBar){
         if(per1.charge()>0) {
-          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
-          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
         } else {
-          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
-          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
         }
       }else{
         if(per1.charge()>0) {
-          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
-          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
         } else {
-          mp2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
-          mp1 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
         }
       }
     }
-    double ee = sqrt(mp1 +  per1.momentum().mag2()) + sqrt(mp2 +  per2.momentum().mag2());
+    double ee = std::sqrt(mp1 +  per1.momentum().mag2()) + std::sqrt(mp2 +  per2.momentum().mag2());
     momentum.setPx(sum_mom.x()); momentum.setPy(sum_mom.y()); momentum.setPz(sum_mom.z()); momentum.setE(ee);
     return momentum;
   }

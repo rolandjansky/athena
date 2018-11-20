@@ -36,7 +36,6 @@
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkGeometrySurfaces/SubtractedCylinderSurface.h"
 #include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
-#include "TrkDetDescrUtils/ObjectAccessor.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/NavBinnedArray1D.h"
 // CLHEP
@@ -846,9 +845,9 @@ void Trk::TrackingVolume::sign(Trk::GeometrySignature geosign, Trk::GeometryType
 const std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > >&  Trk::TrackingVolume::boundarySurfaces() const
 { return (*m_boundarySurfaces); }
 
-const Trk::BoundarySurface<Trk::TrackingVolume>* Trk::TrackingVolume::boundarySurface(const ObjectAccessor& oa) const 
+const Trk::BoundarySurface<Trk::TrackingVolume>* Trk::TrackingVolume::boundarySurface(const ObjectAccessor::value_type& oa) const
 {
-  return (m_boundarySurfaces->operator[](oa.accessor())).getPtr();
+  return (m_boundarySurfaces->operator[](oa)).getPtr();
 }
 
 void Trk::TrackingVolume::createBoundarySurfaces()

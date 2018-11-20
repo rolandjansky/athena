@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -36,8 +36,9 @@ class TileCondToolEmscale;
  @class TileRawChannelOF1Corrector
  @brief This tool correct TileRawChannels amplitudes which came from OF1 DSP if pedestal changed
  */
-class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChannelTool {
-  public:
+class TileRawChannelOF1Corrector: public extends<AthAlgTool, ITileRawChannelTool>
+{
+public:
 
     /** AlgTool like constructor */
     TileRawChannelOF1Corrector(const std::string& type, const std::string& name, const IInterface* parent);
@@ -45,16 +46,13 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     /** Virtual destructor */
     virtual ~TileRawChannelOF1Corrector() {};
 
-    /** AlgTool InterfaceID */
-    static const InterfaceID& interfaceID();
-
     /** AlgTool initialize method.*/
     virtual StatusCode initialize() override;
     /** AlgTool finalize method */
     virtual StatusCode finalize() override;
 
     /** Correct TileRawChannel amplitudes if pedestal changed */
-    virtual StatusCode process(TileRawChannelContainer* rawChannelContainer) override;
+    virtual StatusCode process (TileMutableRawChannelContainer& rchCont) const override;
 
 
   private:

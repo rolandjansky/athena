@@ -58,10 +58,10 @@ def make_bad_channel_tool (name, badfebs = []):
     febfile = ''
     if badfebs:
         febfile = name + '.badfebs'
+        f = open (febfile, 'w')
         for (feb, err) in badfebs:
-            f = open (febfile, 'w')
             print >> f, feb[0], feb[1], feb[2], feb[3], err
-            f.close()
+        f.close()
     return LArBadChanTool (name,
                            ReadFromASCII = True,
                            WriteEmptyFolders = True,
@@ -107,10 +107,16 @@ class TestAlg (Alg):
         self.onlineID = self.detStore['LArOnlineID']
         self.offlineID  = self.detStore['CaloCell_ID']
         self.cabling = ROOT.ToolHandle(ROOT.LArCablingService)('LArCablingService')
-        return self.tool1.retrieve()
-        return self.tool2.retrieve()
-        return self.tool3.retrieve()
-        return self.cabling.retrieve()
+        if not self.tool1.retrieve():
+            return StatusCode.Failure
+        if not self.tool2.retrieve():
+            return StatusCode.Failure
+        if not self.tool3.retrieve():
+            return StatusCode.Failure
+        if not self.cabling.retrieve():
+            return StatusCode.Failure
+        return StatusCode.Success
+
     def execute (self):
         iev = self.getContext().evt()
         tool = self.tool1
@@ -190,7 +196,6 @@ class TestAlg (Alg):
 
     def check_and_reset_cells (self, ccc, errs):
         badcells = self.expand_errors (errs)
-        j = 0
         for c in ccc:
             i = c.caloDDE().calo_hash().value()
             err = badcells.get(i)
@@ -209,7 +214,6 @@ class TestAlg (Alg):
                 c.setTime (i+0.5)
                 c.setQuality (10)
                 c.setProvenance (11)
-            j += 1
         return
 
 
@@ -230,13 +234,13 @@ class TestAlg (Alg):
 
     
 
-badchan_empty = make_bad_channel_tool ('badchan_empty')
+badchan_empty = make_bad_channel_tool ('masking_badchan_empty')
 ToolSvc += badchan_empty
 
-badchan2 = make_bad_channel_tool ('badchan2', [(BADFEB1, 'deadAll')])
+badchan2 = make_bad_channel_tool ('masking_badchan2', [(BADFEB1, 'deadAll')])
 ToolSvc += badchan2
 
-badchan3 = make_bad_channel_tool ('badchan3', [(BADFEB3, 'inError')])
+badchan3 = make_bad_channel_tool ('masking_badchan3', [(BADFEB3, 'inError')])
 ToolSvc += badchan3
 
 tool1 = LArBadFebMaskingTool ('tool1',

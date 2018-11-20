@@ -267,7 +267,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -285,7 +285,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -303,7 +303,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -322,7 +322,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -342,7 +342,7 @@ public:
    * @param returnExisting Allow an existing object?
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -360,7 +360,7 @@ public:
    * @param data The object to record.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -376,7 +376,7 @@ public:
    * @param data The object to record.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -393,7 +393,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -412,7 +412,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -435,7 +435,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -456,7 +456,7 @@ public:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -554,7 +554,7 @@ private:
    * @param[out] store The store being used.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -576,7 +576,7 @@ private:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.
@@ -597,7 +597,7 @@ private:
    * @param auxstore Auxiliary store object.
    *
    * Unlike record(), this does not change the handle object.
-   * That means that will not be able to get the object back
+   * That means that one will not be able to get the object back
    * by dereferencing the handle.
    * Returns the object placed in the store, or nullptr if there
    * was an error.

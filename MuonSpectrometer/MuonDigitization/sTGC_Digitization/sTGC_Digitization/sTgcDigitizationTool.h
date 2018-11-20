@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
@@ -20,8 +20,8 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "Identifier/Identifier.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHit.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
@@ -135,9 +135,9 @@ private:
   const sTgcIdHelper*                      m_idHelper;
   const MuonGM::MuonDetectorManager*       m_mdManager;
   sTgcDigitMaker*                          m_digitizer;
-  TimedHitCollection<GenericMuonSimHit>*   m_thpcsTGC;
+  TimedHitCollection<sTGCSimHit>*   m_thpcsTGC;
   MuonSimDataCollection*                   m_sdoContainer;
-  std::list<GenericMuonSimHitCollection*>  m_STGCHitCollList;
+  std::list<sTGCSimHitCollection*>  m_STGCHitCollList;
 
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits

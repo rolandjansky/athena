@@ -11,8 +11,7 @@ atlas_subdir( VP1Utils )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/CLIDSvc
-   Control/SGTools
+   Control/AthenaKernel
    Control/StoreGate
    DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoPrimitives
@@ -60,7 +59,7 @@ atlas_add_library( VP1Utils VP1Utils/*.h src/*.cxx src/*.cpp
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} SGTools GeoModelKernel EventPrimitives
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelKernel EventPrimitives
    GaudiKernel VP1Base StoreGateLib SGtests AthDSoCallBacks MuonIdHelpersLib
    GeoPrimitives Qt5::Core
    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${COIN3D_LIBRARIES}

@@ -15,7 +15,7 @@ def InputMakerAlg(name):
 # - declare all the RecoAlg and the HypoAlg -> create the Sequence
 # - creates the InputMaker, without the inputs
 
-from TrigUpgradeTest.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 
@@ -102,6 +102,14 @@ elstep1_sequence = seqAND("elSeqStep1", [elIM, elAlg])
 
 def elStep1Sequence():
     return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=elHypo, HypoToolGen=ElTestHypoTool)
+
+
+gammHypo = ElGamHypo(name="Step1GamHypo")
+gammHypo.Input = elAlg.Output
+
+def gammStep1Sequence():
+    return MenuSequence( Maker=elIM, Sequence=elstep1_sequence,  Hypo=gammHypo, HypoToolGen=GammTestHypoTool)
+
 
 #step2
 elIM2= InputMakerAlg(name="Step2ElInputMaker")

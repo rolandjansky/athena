@@ -22,7 +22,7 @@
 
        TrigAtlasMagFld();
       ~TrigAtlasMagFld();
-       void getMagFld(const double,const double,const double,double&,double&,double&);
+       void getMagFld(const double,const double,const double,double&,double&,double&) const;
        void setAtlasMag( MagField::IMagFieldSvc * );
        void setAtlasMag(const double );
 

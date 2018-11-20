@@ -39,6 +39,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCS2DFunction.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
+                           ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
                            ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h
                            ISF_FastCaloSimEvent/TFCSInitWithEkin.h
@@ -58,6 +59,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
+                           ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h

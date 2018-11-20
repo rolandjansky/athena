@@ -312,14 +312,19 @@ void psc::Config::fillopt_common(const ptree& hlt)
   }
 
   const ptree& com = hlt.get_child("HLTCommonParameters.HLTCommonParameters");
-  optmap["MESSAGESVCTYPE"] = com.get_child("messageSvcType").data();
+  optmap["MESSAGESVCTYPE"]    = com.get_child("messageSvcType").data();
   optmap["JOBOPTIONSSVCTYPE"] = com.get_child("jobOptionsSvcType").data();
-  optmap["DLLNAME"] = com.get_child("dllName").data();
-  optmap["FACTORYNAME"] = com.get_child("factoryName").data();
-  optmap["DF_PARTITION_NAME"] = m_config.get_child("Configuration.Partition."
-                                                   "UID").data();
-  optmap["DF_APPLICATIONNAME"] =
-      m_config.get_child("Configuration.HLTMPPUApplication.UID").data();
+  optmap["DLLNAME"]           = com.get_child("dllName").data();
+  optmap["FACTORYNAME"]       = com.get_child("factoryName").data();
+
+  optmap["DF_PARTITION_NAME"] = m_config.get_child("Configuration.Partition.UID").data();
+
+  const ptree& hltmppu = m_config.get_child("Configuration.HLTMPPUApplication");
+  optmap["DF_APPLICATIONNAME"]  = hltmppu.get_child("UID").data();
+  optmap["HARDTIMEOUT"]         = hltmppu.get_child("HardTimeout").data();
+  optmap["SOFTTIMEOUTFRACTION"] = hltmppu.get_child("softTimeoutFraction").data();
+  optmap["NEVENTSLOTS"]         = hltmppu.get_child("numberOfEventSlots").data();
+  optmap["NTHREADS"]            = hltmppu.get_child("numberOfAthenaMTThreads").data();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

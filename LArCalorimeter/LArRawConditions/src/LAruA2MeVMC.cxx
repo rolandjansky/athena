@@ -36,13 +36,3 @@ const float& LAruA2MeVMC::UA2MEV(const HWIdentifier& CellID) const
   
   return LAruA2MeVComplete::UA2MEV(SymCellID) ; 
 }
-
-const float& LAruA2MeVMC::UA2MEV(const Identifier&  CellID) const
-{
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  
-  return LAruA2MeVComplete::UA2MEV(SymCellID) ; 
-
- 
-}

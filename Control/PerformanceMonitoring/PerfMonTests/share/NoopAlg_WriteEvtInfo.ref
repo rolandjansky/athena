@@ -1,0 +1,20 @@
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::: ChapPy is launching script [PerfMonTests/atn_test_perfMonSvc_noopalg_write_evtinfo.py] :::
+Py:Athena            INFO including file "PerfMonTests/atn_test_perfMonSvc_noopalg_write_evtinfo.py"
+################################################################################
+## PerfMon test... [noopalg-write-evtinfo]
+################################################################################
+
+################################################################################
+## testing PerfMonSvc [PerfMonTests/test_perfMonSvc_noopalg_write_evtinfo.py]
+                  ==> [perfmon.noopalg.write_evtinfo.root]... (1000)
+ :::running [.........] ==> [OK]
+ :::running [........] ==> [OK]
+ :::running [perfmon.py]...
+## [DONE]
+
+################################################################################
+## [All tests SUCCESSFULLY completed]
+## Bye.
+################################################################################
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

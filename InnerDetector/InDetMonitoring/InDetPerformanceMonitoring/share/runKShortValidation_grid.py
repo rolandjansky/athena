@@ -156,7 +156,7 @@ iDPerfMonKshort = IDPerfMonKshort(name = 'IDPerfMonKshort',
                                   VxPrimContainerName = "PrimaryVertices",
                                   OutputLevel = DEBUG)
 
-ToolSvc += iDPerfMonKshort
+#ToolSvc += iDPerfMonKshort
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager

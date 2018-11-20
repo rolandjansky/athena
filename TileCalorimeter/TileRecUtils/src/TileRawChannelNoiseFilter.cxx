@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Atlas includes
@@ -10,6 +10,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileRawChannel.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelNoiseFilter.h"
 #include "TileConditions/ITileBadChanTool.h"
@@ -17,17 +18,12 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 
-static const InterfaceID IID_ITileRawChannelNoiseFilter("TileRawChannelNoiseFilter", 1, 0);
-
-const InterfaceID& TileRawChannelNoiseFilter::interfaceID() {
-  return IID_ITileRawChannelNoiseFilter;
-}
 
 //========================================================
 // constructor
 TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
+    : base_class(type, name, parent)
     , m_tileHWID(0)
     , m_tileToolEmscale("TileCondToolEmscale")
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
@@ -38,9 +34,6 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
     , m_useGapCells(false) // use gap cells for noise filter as all normal cells
 {
-  declareInterface<ITileRawChannelTool>(this);
-  declareInterface<TileRawChannelNoiseFilter>(this);
-
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
@@ -88,12 +81,12 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelNoiseFilter::process(
-    TileRawChannelContainer *rchCont) {
-
+StatusCode
+TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) const
+{
   ATH_MSG_DEBUG("in process()");
 
-  TileRawChannelUnit::UNIT rChUnit = rchCont->get_unit();
+  TileRawChannelUnit::UNIT rChUnit = rchCont.get_unit();
   std::string units[8] = { "ADC counts", "pC", "CspC", "MeV",
       "online ADC counts", "online pC", "online CspC", "online MeV" };
 
@@ -111,14 +104,14 @@ StatusCode TileRawChannelNoiseFilter::process(
   ATH_MSG_VERBOSE( "Units in container is " << units[rChUnit] );
 
   // Now retrieve the TileDQStatus
+  // FIXME: const violation
   const TileDQstatus* DQstatus = m_beamInfo->getDQstatus();
 
-  TileRawChannelContainer::const_iterator collItr = rchCont->begin();
-  TileRawChannelContainer::const_iterator lastColl = rchCont->end();
-  for (; collItr != lastColl; ++collItr) {
+  for (IdentifierHash hash : rchCont.GetAllCurrentHashes()) {
+    TileRawChannelCollection* coll = rchCont.indexFindPtr (hash);
 
     /* Get drawer ID and build drawer index. */
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(coll->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -143,13 +136,7 @@ StatusCode TileRawChannelNoiseFilter::process(
     memset(chanmap, 0, sizeof(chanmap));
 
     // iterate over all channels in a collection
-    const TileRawChannelCollection* coll = *collItr;
-    TileRawChannelCollection::const_iterator rchItr = coll->cbegin();
-    TileRawChannelCollection::const_iterator lastRch = coll->cend();
-
-    for (; rchItr != lastRch; ++rchItr) {
-      const TileRawChannel* rch = (*rchItr);
-
+    for (const TileRawChannel* rch : *coll) {
       HWIdentifier adc_id = rch->adc_HWID();
       //int index,pmt;
       //Identifier cell_id = rch->cell_ID_index(index,pmt);
@@ -281,9 +268,7 @@ StatusCode TileRawChannelNoiseFilter::process(
     if (ncorr == 0) continue; // nothing to correct
 
     // iterate over all channels in a collection again
-    for (rchItr = coll->begin(); rchItr != lastRch; ++rchItr) {
-      /// FIXME: const_cast
-      TileRawChannel* rch = const_cast<TileRawChannel*>(*rchItr);
+    for (TileRawChannel* rch : *coll) {
       int chan = m_tileHWID->channel(rch->adc_HWID());
       int gain = m_tileHWID->adc(rch->adc_HWID());
 

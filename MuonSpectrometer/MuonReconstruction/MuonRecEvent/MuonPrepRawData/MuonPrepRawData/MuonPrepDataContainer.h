@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 #define MUONPREPRAWDATA_MUONPREPDATACONTAINER_H
 
 // Base classes
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h"
 
 //Needed Classes
@@ -26,6 +26,9 @@
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/TgcPrepData.h"
+// New Small Wheel
+#include "MuonPrepRawData/MMPrepData.h"
+#include "MuonPrepRawData/sTgcPrepData.h"
 
 #include "MuonPrepRawData/MuonPrepDataCollection.h"
 
@@ -39,6 +42,9 @@ class MuonPrepDataContainer : public IdentifiableContainer<CollectionT> {
   // Public methods:
   ///////////////////////////////////////////////////////////////////
 public:
+
+    //default for POOL
+      MuonPrepDataContainer();
     
   // Constructor with parameters:
   MuonPrepDataContainer(unsigned int max);
@@ -90,7 +96,7 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 /////////////////////////////////////////////////////////////////// 
- 
+
 typedef MuonPrepDataCollection< MdtPrepData > MdtPrepDataCollection;
 typedef MuonPrepDataContainer< MdtPrepDataCollection > MdtPrepDataContainer;
  
@@ -99,6 +105,13 @@ typedef MuonPrepDataContainer< RpcPrepDataCollection > RpcPrepDataContainer;
  
 typedef MuonPrepDataCollection< TgcPrepData > TgcPrepDataCollection;
 typedef MuonPrepDataContainer< TgcPrepDataCollection > TgcPrepDataContainer;
+
+// New Small Wheel
+typedef MuonPrepDataCollection< sTgcPrepData > sTgcPrepDataCollection;
+typedef MuonPrepDataContainer< sTgcPrepDataCollection > sTgcPrepDataContainer;
+
+typedef MuonPrepDataCollection< MMPrepData > MMPrepDataCollection;
+typedef MuonPrepDataContainer< MMPrepDataCollection > MMPrepDataContainer;
 
 // member functions that use Collection T
 #include "MuonPrepRawData/MuonPrepDataContainer.icc"
@@ -110,6 +123,9 @@ typedef MuonPrepDataContainer< TgcPrepDataCollection > TgcPrepDataContainer;
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
+// New Small Wheel
+#include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "MuonPrepRawData/MMPrepDataContainer.h"
 
 #endif // TRKPREPRAWDATA_PREPRAWDATACONTAINER_H
 

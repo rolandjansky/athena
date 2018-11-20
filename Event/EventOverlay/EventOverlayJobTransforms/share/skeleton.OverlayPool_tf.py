@@ -69,32 +69,6 @@ rec.projectName = 'IS_SIMULATION'
 DataInputCollections=runArgs.inputRDO_BKGFile
 athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
-import MagFieldServices.SetupField
-
-from IOVDbSvc.CondDB import conddb
-
-if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
-    globalflags.ConditionsTag=runArgs.conditionsTag
-    if len(globalflags.ConditionsTag())!=0:
-        conddb.setGlobalTag(globalflags.ConditionsTag())
-
-# LVL1 Trigger Menu
-if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
-    # LVL1 Trigger Menu
-    # PJB 9/2/2009 Setup the new triggerConfig flags here
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    triggerArg = runArgs.triggerConfig
-    #if not prefixed with LVL1: add it here
-    Args = triggerArg.split(":")
-    if Args[0] != "LVL1":
-        TriggerFlags.triggerConfig ="LVL1:"+triggerArg
-    else:
-        TriggerFlags.triggerConfig =triggerArg
-    overlaylog.info( 'triggerConfig argument is: %s ', TriggerFlags.triggerConfig.get_Value() )
-    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-    cfg = TriggerConfigGetter("HIT2RDO")
-
-
 print "================ DetFlags ================ "
 if 'DetFlags' in dir():
     overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
@@ -120,6 +94,40 @@ DetFlags.Print()
 
 globalflags.DataSource.set_Value_and_Lock('geant4')
 
+#--------------------------------------------------------------
+# Read Simulation MetaData (unless override flag set to True)
+#--------------------------------------------------------------
+if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
+    overlaylog.info("Skipping input file MetaData check.")
+else :
+    from EventOverlayJobTransforms.OverlayPoolReadMetaData import readInputFileMetadata
+    readInputFileMetadata()
+
+import MagFieldServices.SetupField
+
+from IOVDbSvc.CondDB import conddb
+
+if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
+   globalflags.ConditionsTag=runArgs.conditionsTag
+   if len(globalflags.ConditionsTag())!=0:
+      conddb.setGlobalTag(globalflags.ConditionsTag())
+
+# LVL1 Trigger Menu
+if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
+    # LVL1 Trigger Menu
+    # PJB 9/2/2009 Setup the new triggerConfig flags here
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    triggerArg = runArgs.triggerConfig
+    #if not prefixed with LVL1: add it here
+    Args = triggerArg.split(":")
+    if Args[0] != "LVL1":
+        TriggerFlags.triggerConfig ="LVL1:"+triggerArg
+    else:
+        TriggerFlags.triggerConfig =triggerArg
+    overlaylog.info( 'triggerConfig argument is: %s ', TriggerFlags.triggerConfig.get_Value() )
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg = TriggerConfigGetter("HIT2RDO")
+
 
 print "================ Start ================= "
 from AthenaCommon.AlgSequence import AlgSequence
@@ -143,6 +151,8 @@ if hasattr( runArgs, 'maxEvents'):
     theApp.EvtMax = runArgs.maxEvents
 
 include ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
+
+include("Digitization/RunNumberOverride.py")
 
 if DetFlags.overlay.Truth_on():
    include ( "EventOverlayJobTransforms/TruthOverlay_jobOptions.py" )
@@ -195,6 +205,16 @@ if hasattr(runArgs,"postInclude"):
 if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
     for cmd in runArgs.postExec:
         exec(cmd)
+
+from AthenaCommon.AppMgr import ServiceMgr
+
+#Patch /TagInfo metadata container
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+for key in overlayFlags.extraTagInfoPairs.get_Value().keys():
+    ServiceMgr.TagInfoMgr.ExtraTagValuePairs += [str(key), str(overlayFlags.extraTagInfoPairs.get_Value()[key])]
+if hasattr(runArgs, 'AMITag'):
+    if runArgs.AMITag != "NONE":
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 #print "OverlayPool_tf.py: at the end. job=\n", job
 print "\nOverlayPool_tf.py: at the end. ServiceMgr=\n", ServiceMgr

@@ -33,19 +33,15 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   m_doAxisCorr(false),
   m_usePantauAxis(false),
   m_printMissingContainerINFO(true),
-  m_isCaloOnly(false),
-  m_clusterCone(0.2)  //not used
+  m_isCaloOnly(false)
 {
   declareProperty("ConfigPath", m_configPath);
-  declareProperty("tauContainerKey", m_tauContainerKey = "TauJets");
   declareProperty("calibrationFile", m_calibrationFile = "EnergyCalibrationLC2012.root");
-  declareProperty("vertexContainerKey", m_vertexContainerKey = "PrimaryVertices");
   declareProperty("doEnergyCorrection", m_doEnergyCorr);
   declareProperty("doPtResponse", m_doPtResponse);
   declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices=false);
   declareProperty("doAxisCorrection", m_doAxisCorr);
   declareProperty("usePantauAxis", m_usePantauAxis);
-  declareProperty("ClusterCone", m_clusterCone); //not used
   declareProperty("isCaloOnly", m_isCaloOnly);
 }
 
@@ -55,6 +51,8 @@ TauCalibrateLC::~TauCalibrateLC() {
 
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
+
+  ATH_CHECK( m_vertexInputContainer.initialize() );
 
   std::string fullPath = find_file(m_calibrationFile);
 
@@ -149,7 +147,7 @@ StatusCode TauCalibrateLC::initialize() {
 /********************************************************************/
 StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) 
 { 
-     
+
   // energy calibration depends on number of tracks - 1p or Mp
   int prongBin = 1; //Mp
   if (pTau.nTracks() <= 1) prongBin = 0; //1p
@@ -164,25 +162,23 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    // get primary vertex container
-    StatusCode sc;
-    const xAOD::VertexContainer * vxContainer = 0;
-
     // for tau trigger
     bool inTrigger = tauEventData()->inTrigger();
+    const xAOD::VertexContainer * vxContainer = 0;
 
     int nVertex = 0;
         
     // Only retrieve the container if we are not in trigger
-    if (sc.isFailure() || !inTrigger ) {
-      // try standard 
-      if (evtStore()->retrieve(vxContainer, m_vertexContainerKey).isFailure() || !vxContainer) {
-	if (m_printMissingContainerINFO) {
-	  ATH_MSG_WARNING(m_vertexContainerKey << " container not found --> skip TauEnergyCalibrationLC (no further info) ");
-	  m_printMissingContainerINFO=false;
-	}
-	return StatusCode::SUCCESS;
+    if ( !inTrigger ) {
+
+      // StatusCode sc;
+      // Get the primary vertex container from StoreGate
+      SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+      if (!vertexInHandle.isValid()) {
+	ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+	return StatusCode::FAILURE;
       }
+      vxContainer = vertexInHandle.cptr();
 	  
       // Calculate nVertex
       xAOD::VertexContainer::const_iterator vx_iter = vxContainer->begin();
@@ -325,12 +321,17 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 //-----------------------------------------------------------------------------
 
 StatusCode TauCalibrateLC::finalize() {
-  for (int i = 0; i<s_nProngBins; i++)
-  {
-    delete m_slopeNPVHist[i];
-  }
-  delete m_etaBinHist;
-  delete m_etaCorrectionHist;
+  
+  // these are already out of scope?
+  // does it matter if they are deleted? This is at the end of the run anyway...
+  //for (int i = 0; i<s_nProngBins; i++)
+  //{
+  //ATH_MSG_INFO(i);
+  // delete m_slopeNPVHist[i];
+  //}
+
+  //delete m_etaBinHist;
+  //delete m_etaCorrectionHist;
   
   return StatusCode::SUCCESS;
 }

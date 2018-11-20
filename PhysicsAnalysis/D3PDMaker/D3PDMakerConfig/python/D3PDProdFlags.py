@@ -175,21 +175,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteBackgroundD3PD)
 listAllKnownD3PD.append (prodFlags.WriteBackgroundD3PD)
 
 
-class WriteMinBiasD3PD (JobProperty):
-    """Produce the MinBias D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_MINBIAS'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "MinBiasD3PDMaker/MinBiasD3PD_prodJobOFragment.py"
-    TreeNames = ['MinBiasTree']
-    SubSteps = ['e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteMinBiasD3PD)
-listAllKnownD3PD.append (prodFlags.WriteMinBiasD3PD)
-
-
 #######################################################
 #
 #                     Trigger D3PDs
@@ -236,9 +221,6 @@ _importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
 # L1Calo D3PDs
 #_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
 
-# Qcd D3PDs
-_importFlagsFromModule ('QcdD3PDMaker.QcdD3PDProdFlags')
-
 # Top D3PDs
 _importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)
 
@@ -250,9 +232,6 @@ _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 
 # SUSY D3PDs
 _importFlagsFromModule ('SUSYD3PDMaker.SUSYD3PDProdFlags', True)
-
-# Exotics D3PDs.
-_importFlagsFromModule ('ExoticsD3PDMaker.ExoticsD3PDProdFlags')
 
 # Tracking D3PDs.
 _importFlagsFromModule ('TrackD3PDMaker.VertexD3PDAnalysisProdFlags')

@@ -18,7 +18,7 @@
 
 
 // Tile includes
-#include "TileRecAlgs/TileBeamElemToCell.h"
+#include "TileBeamElemToCell.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/TileInfo.h"

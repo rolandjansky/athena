@@ -18,7 +18,6 @@
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h" 
 
 // Gaudi/Athena
 #include "GaudiKernel/Bootstrap.h"
@@ -33,7 +32,6 @@ LArConditionsContainerBase::LArConditionsContainerBase( )
 	m_groupType(SubDetectorGrouping),
 	m_onlineHelper(0),
 	m_offlineHelper(0),
-	m_larCablingSvc(0),
 	m_isInitialized(false)
 {}
 
@@ -42,7 +40,6 @@ LArConditionsContainerBase::LArConditionsContainerBase(GroupingType type)
 	m_groupType(type),
 	m_onlineHelper(0),
 	m_offlineHelper(0),
-	m_larCablingSvc(0),
 	m_isInitialized(false)
 {}
 
@@ -81,19 +78,8 @@ LArConditionsContainerBase::initializeBase()
 	log << MSG::ERROR << "Cannot get CaloCell_ID!" << endmsg;
 	return sc;
     }
-    IToolSvc* toolSvc;
-    sc = svcLoc->service( "ToolSvc",toolSvc  );
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Cannot get ToolSvc!" << endmsg;
-      return sc;
-    }
-    sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-     if (sc.isFailure()) {
-      log << MSG::ERROR << "Cannot get LArCablingSvc!" << endmsg;
-      return sc;
-    }
 
-    // initialize the groupint
+    // initialize the grouping
     sc = initGrouping();
     if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot initialize the Grouping" << endmsg;
@@ -505,12 +491,6 @@ LArConditionsContainerBase::offlineHelper() const
     return (m_offlineHelper);
 }
 
-
-LArCablingService*          
-LArConditionsContainerBase::larCablingSvc() const
-{
-    return (m_larCablingSvc);
-}
 
 const LArConditionsContainerBase::FEBIdVector&
 LArConditionsContainerBase::febIdVector(unsigned int gain, 

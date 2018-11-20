@@ -24,6 +24,7 @@
 #ifdef __GNUC__
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-parameter"
+# pragma GCC diagnostic ignored "-Wparentheses"
 #endif
 #include "eformat/eformat.h"
 #ifdef __GNUC__

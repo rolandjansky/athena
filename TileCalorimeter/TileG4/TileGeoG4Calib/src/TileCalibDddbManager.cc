@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ int TileCalibDddbManager::GetNumSectCells() const {
 int TileCalibDddbManager::GetNumSectPlateCells() const {
   if (m_currentSection) {
     if (m_currentSection->isFieldNull("PLATECELLS")) {
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << "GetNumSectPlateCells() - PLATECELLS in section " << m_currentSection->getInt("SECT")
                << " is NULL, returning -999" << G4endl;
       return -999;
@@ -147,7 +147,7 @@ int TileCalibDddbManager::GetNumSectPlateCells() const {
 int TileCalibDddbManager::GetNumSectGirderCells() const {
   if (m_currentSection) {
     if (m_currentSection->isFieldNull("GIRDERCELLS")) {
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << "GetNumSectGirderCells() - GIRDERCELLS in section " << m_currentSection->getInt("SECT")
                << " is NULL, returning -999" << G4endl;
       return -999;
@@ -423,7 +423,7 @@ double TileCalibDddbManager::GetPlateCellXBound() const {
 double TileCalibDddbManager::GetPlateCellZBound() const {
   if (m_currentPlateCell) {
     if (m_currentPlateCell->isFieldNull("ZBOUND")) {
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << "GetPlateCellZBound() - ZBOUND" << " in DETECTOR " << m_currentPlateCell->getInt("DETECTOR")
                << " SAMPLE " << m_currentPlateCell->getInt("SAMPLE") << " TOWER " << m_currentPlateCell->getInt("TOWER")
                << " is NULL, returning -9999.9" << G4endl;
@@ -441,7 +441,7 @@ double TileCalibDddbManager::GetPlateCellZBound() const {
 int TileCalibDddbManager::GetPlateCellNeighborPeriod() const {
   if (m_currentPlateCell) {
     if (m_currentPlateCell->isFieldNull("NEIGHPERIOD")) {
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << "GetPlateCellNeighborPeriod() - NEIGHPERIOD " << " in DETECTOR "
                << m_currentPlateCell->getInt("DETECTOR") << " SAMPLE " << m_currentPlateCell->getInt("SAMPLE")
                << " TOWER " << m_currentPlateCell->getInt("TOWER") << " is NULL, returning -999" << G4endl;
@@ -552,7 +552,7 @@ int TileCalibDddbManager::GetNumOfPeriodsInCell(int period_set) const {
 
   if (m_currentCell) {
     if (m_currentCell->isFieldNull("PERIODS_" + indx)) {
-      if (m_verboseLevel > 5)
+      if (m_verboseLevel >= 5)
         G4cout << "GetNumOfPeriodsInCell() - PERIODS_" << indx << " in DETECTOR " << m_currentCell->getInt("DETECTOR")
                << " SAMPLE " << m_currentCell->getInt("SAMPLE") << " is NULL, returning -999" << G4endl;
       return -999;

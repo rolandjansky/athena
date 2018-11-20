@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFO_EVENTSTREAMINFO_H
@@ -28,15 +28,10 @@ class  EventStreamInfo {
 public: // Constructor and Destructor
    /// Default Constructor
    EventStreamInfo();
-   /// Copy Constructor
-   EventStreamInfo(const EventStreamInfo& rhs);
    /// Destructor
    virtual ~EventStreamInfo();
 
 public: // Non-static members
-   /// Overloaded Assignment Operator
-   EventStreamInfo& operator=(const EventStreamInfo& rhs);
-
    /// @return the Number of Events
    unsigned int getNumberOfEvents() const;
    /// @return a set of Run Numbers
@@ -87,26 +82,8 @@ inline EventStreamInfo::EventStreamInfo() : m_numberOfEvents(0),
 	m_processingTags(),
 	m_itemList(),
 	m_eventTypes() {}
-inline EventStreamInfo::EventStreamInfo(const EventStreamInfo& rhs) : m_numberOfEvents(rhs.m_numberOfEvents),
-	m_runNumbers(rhs.m_runNumbers),
-	m_lumiBlockNumbers(rhs.m_lumiBlockNumbers),
-	m_processingTags(rhs.m_processingTags),
-	m_itemList(rhs.m_itemList),
-	m_eventTypes(rhs.m_eventTypes) {}
 inline EventStreamInfo::~EventStreamInfo() {}
 
-
-inline EventStreamInfo& EventStreamInfo::operator=(const EventStreamInfo& rhs) {
-   if (this != &rhs) {
-      m_numberOfEvents = rhs.m_numberOfEvents;
-      m_runNumbers = rhs.m_runNumbers;
-      m_lumiBlockNumbers = rhs.m_lumiBlockNumbers;
-      m_processingTags = rhs.m_processingTags;
-      m_itemList = rhs.m_itemList;
-      m_eventTypes = rhs.m_eventTypes;
-   }
-   return(*this);
-}
 
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF(EventStreamInfo, 167728019, 1)

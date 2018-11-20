@@ -12,39 +12,31 @@
 
 //----------------------------------------------------------------------
 // Constructor
-SCT_MonitorCondData::SCT_MonitorCondData():
-  m_defectListMap{}
-{}
-
-//----------------------------------------------------------------------
-// Destructor
-SCT_MonitorCondData::~SCT_MonitorCondData()
-{}
+SCT_MonitorCondData::SCT_MonitorCondData()
+{
+  clear();
+}
 
 //----------------------------------------------------------------------
 // Check if a module has a defect (a list of bad strips). If it does not have defect return false.
-bool SCT_MonitorCondData::find(const int& channelNumber, std::string& defectList) const
+bool SCT_MonitorCondData::find(const IdentifierHash& hash, std::string& defectList) const
 {
-  std::map<const int, const std::string>::const_iterator it{m_defectListMap.find(channelNumber)};
-  if(it!=m_defectListMap.end()) {
-    // A defect is found, set the defect to defectList and return true.
-    defectList = it->second;
-    return true;
-  }
-  // Any defect is not found and return true.
-  return false;
+  std::string result{m_defectListArray[hash/2]};
+  if (result.empty()) return false;
+  defectList = result;
+  return true;
 }
 
 //----------------------------------------------------------------------
 // Insert a new defect (a list of bad strips) for a module
-void SCT_MonitorCondData::insert(const int& channelNumber, const std::string& defectList)
+void SCT_MonitorCondData::insert(const IdentifierHash& hash, const std::string& defectList)
 {
-  m_defectListMap.insert(std::make_pair(channelNumber, defectList));
+  m_defectListArray[hash/2] = defectList;
 }
 
 //----------------------------------------------------------------------
 // Clear m_defectListMap
 void SCT_MonitorCondData::clear()
 {
-  m_defectListMap.clear();
+  m_defectListArray.fill("");
 }

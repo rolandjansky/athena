@@ -32,6 +32,9 @@ def _configureReadAthenaPool():
     # Load the basic services
     import AthenaPoolCnvSvc.AthenaPool
 
+    # Switch on TTreeCache for CollectionTree
+    svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '-1'" ]
+
     # Load ProxyProviderSvc
     if not hasattr (svcMgr, 'ProxyProviderSvc'):
         svcMgr += CfgMgr.ProxyProviderSvc()
@@ -63,11 +66,9 @@ def _configureReadAthenaPool():
     theApp.EvtSel = _n
     del _n
 
-    # For Analysis release use DataHeader satellite and lower heartbeat
+    # For Analysis release use lower heartbeat
     import os 
     if "AthAnalysisBase" in os.environ.get('CMTEXTRATAGS',""): 
-        #Sep2016: disabled satellite for now, until fully debugged
-        #svcMgr.EventSelector.CollectionTree = "POOLContainer/basic"
         # From Will Buttinger to suppress the event loop heartbeat as it is somewhat I/O hungry for 
         # no real gain in analysis scenarii 
         if not hasattr(svcMgr, theApp.EventLoop): 

@@ -7,33 +7,37 @@
 #ifndef _TrkVKalVrtFitter_VKalVrtFitter_H
 #define _TrkVKalVrtFitter_VKalVrtFitter_H
 // Normal STL and physical vectors
-#include <vector>
+//#include <vector>
 // Gaudi includes
-#include "AthenaBaseComps/AthAlgTool.h"
+//#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-//
-//#include  "VxVertex/VxCandidate.h"
-#include  "xAODTracking/Vertex.h" 
-#include  "xAODTracking/NeutralParticleContainer.h" 
-#include  "xAODTracking/TrackParticleContainer.h" 
-#include  "TrkParameters/TrackParameters.h" 
-#include  "TrkNeutralParameters/NeutralParameters.h"
-//#include  "VxVertex/ExtendedVxCandidate.h"
-#include  "MagFieldInterfaces/IMagFieldSvc.h"
 //
 // Interfaces
 #include  "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include  "TrkVKalVrtFitter/ITrkVKalVrtFitter.h"
 #include  "TrkVKalVrtFitter/IVertexCascadeFitter.h"
-//
 
+//#include  "xAODTracking/NeutralParticleContainer.h"
+//#include  "xAODTracking/TrackParticleContainer.h"
+//#include  "xAODTracking/VertexContainer.h"
+
+#include  "TrkParameters/TrackParameters.h" 
+#include  "TrkNeutralParameters/NeutralParameters.h"
+//#include  "VxVertex/ExtendedVxCandidate.h"
+#include  "MagFieldInterfaces/IMagFieldSvc.h"
+//
+#include <thread>
+#include <mutex>
+//
 class IChronoStatSvc;
 class IMagFieldAthenaSvc;
 
 namespace Trk{
 
-  static const int NTrMaxVFit=300;
+  class VKalVrtControl;
+
+  enum { NTrMaxVFit=300 };
   typedef std::vector<double> dvect;
   class VKalAtlasMagFld;
   class IExtrapolator;
@@ -201,15 +205,13 @@ namespace Trk{
         StatusCode VKalGetTrkCov(long int, long int,dvect& CovMtx);
         StatusCode VKalGetFullCov(long int, dvect& CovMtx, int =0);
 
-        StatusCode VKalGetMassError( std::vector<int> ListOfTracks , 
-                                   double& Mass, double& MassError);
+        StatusCode VKalGetMassError(double& Mass, double& MassError);
         int VKalGetNDOF();
 //        VxCandidate * makeVxCandidate( int ,
 //                const Amg::Vector3D& , const std::vector<double> & , 
 //	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
-        xAOD::Vertex * makeXAODVertex( int ,
-                const Amg::Vector3D& , const std::vector<double> & , 
-	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
+        xAOD::Vertex * makeXAODVertex( int,  const Amg::Vector3D&,
+                            const dvect&, const dvect&, const std::vector< dvect >&, double); 
 //-----
 
         void setApproximateVertex(double,double,double);
@@ -222,8 +224,7 @@ namespace Trk{
         void setIterations(int, double);
         void setVertexForConstraint(const xAOD::Vertex & );
         void setVertexForConstraint(double,double,double);
-        void setCovVrtForConstraint(double,double,double,
-                                  double,double,double);
+        void setCovVrtForConstraint(double,double,double,double,double,double);
 				  
         void setMassInputParticles( std::vector<double>& );
         void setMomCovCalc(int);
@@ -231,25 +232,21 @@ namespace Trk{
         void setZeroCharge(int);
         void clearMemory();
       double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,
-                         std::vector<double>& Impact, std::vector<double>& ImpactError);
+                         dvect& Impact, dvect& ImpactError);
       double VKalGetImpact(const TrackParticleBase*,const Amg::Vector3D& Vertex, const long int Charge,
-                         std::vector<double>& Impact, std::vector<double>& ImpactError);
+                         dvect& Impact, dvect& ImpactError);
       double VKalGetImpact(const Track*,const Amg::Vector3D& Vertex, const long int Charge,
-                         std::vector<double>& Impact, std::vector<double>& ImpactError);
+                         dvect& Impact, dvect& ImpactError);
 
-       Amg::RotationMatrix3D getMagFldRotation(double bx,double by,double bz, double vX,double vY,double vZ);
-       void rotateBack(double vi[],double pi[], double covi[], double vo[],double po[], double covo[]);
-       Amg::Vector3D rotateBack(double px, double py, double pz);
 
 //
 // ATLAS related code
 //
-        void setAthenaField(MagField::IMagFieldSvc*);
-        void setAthenaField(const double );
-        void setAthenaPropagator(const Trk::IExtrapolator*);
+    private:
 
-
-
+      void setAthenaField(MagField::IMagFieldSvc*);
+      void setAthenaField(const double );
+      void setAthenaPropagator(const Trk::IExtrapolator*);
 
     private:
 
@@ -257,8 +254,7 @@ namespace Trk{
       SimpleProperty<int>    m_Robustness;
       SimpleProperty<double> m_RobustScale;
       SimpleProperty<double> m_cascadeCnstPrecision;
-      SimpleProperty<int>    m_Constraint;
-      SimpleProperty<double> m_MassForConstraint;
+      SimpleProperty<double> m_massForConstraint;
       SimpleProperty<int>    m_IterationNumber;
       SimpleProperty<double> m_IterationPrecision;
       SimpleProperty<double> m_IDsizeR;
@@ -280,7 +276,7 @@ namespace Trk{
       SimpleProperty<bool>   m_makeExtendedVertex;
 
       bool m_isAtlasField;
-      bool m_isFieldInitialized;
+      std::once_flag m_isFieldInitialized;
 
       bool m_useAprioriVertex ;
       bool m_useThetaCnst;
@@ -289,12 +285,11 @@ namespace Trk{
       bool m_useZPointingCnst;
       bool m_usePassNear;
       bool m_usePassWithTrkErr;
-      bool m_useMagFieldRotation;
       void initCnstList();
 
       std::vector<double>    m_ApproximateVertex;
-      std::vector<double>    m_PartMassCnst;
-      std::vector< std::vector<int> >    m_PartMassCnstTrk;
+      std::vector<double>    m_partMassCnst;
+      std::vector< std::vector<int> >    m_partMassCnstTrk;
       std::vector<int>       m_PosTrack0Charge;
 
 
@@ -334,16 +329,10 @@ namespace Trk{
                           /* =0 - no fit. All "after fit" routines fail*/
 			  /* >1 - good fit. "After fit" routines work*/
 
-      int m_PropagatorType; /* type of propagator used for fit. VKalVrtCore definition */
-                            /* =0 - constant field propagator from VKalVrtCore         */
-			    /* =1 - Runge-Kutta propagator from VKalVrtCore            */
-			    /* =3 - external propagator accessed via VKalExtPropagator */
-
       double m_BMAG;       /* const magnetic field  if needed */
       double m_CNVMAG;     /* Conversion constant */
-      long int m_ifcovv0;
-      long int m_iflag;
-      int  m_planeCnstNDOF;  /* NDOF addition if plane constraint is used */
+      int m_ifcovv0;
+      int m_planeCnstNDOF;  /* NDOF addition if plane constraint is used */
 //
 // Arrays needed for fitting kernel
 //
@@ -353,7 +342,7 @@ namespace Trk{
       long int m_ich[NTrMaxVFit];
       double m_chi2tr[NTrMaxVFit];
       double m_parfs[NTrMaxVFit][3];
-      double m_wm[NTrMaxVFit];
+      //double m_wm[NTrMaxVFit];     // obsolete now
       double m_VrtCst[3];
       double m_CovVrtCst[6];
 
@@ -361,9 +350,13 @@ namespace Trk{
 
 
       VKalAtlasMagFld*       m_fitField;
-      VKalAtlasMagFld*       m_fitRotatedField;
       VKalExtPropagator*     m_fitPropagator;
       const IExtrapolator*   m_InDetExtrapolator;     //!< Pointer to Extrapolator AlgTool
+//
+//
+//
+      VKalVrtControl * m_vkalFitControl;
+
     
 //
 //  Origin of global reference frame.
@@ -384,23 +377,21 @@ namespace Trk{
         Amg::MatrixX * GiveFullMatrix(int NTrk, std::vector<double>&);
         bool convertAmg5SymMtx(const AmgSymMatrix(5)*, double[] );
 
-        void  VKalTransform( double MAG,
-        double A0V,double ZV,double PhiV,double ThetaV,double  PInv, double[],
-        long int & Charge, double[], double[]);
+        void  VKalTransform( double MAG,double A0V,double ZV,double PhiV,double ThetaV,double  PInv, double[],
+                                    long int & Charge, double[], double[]);
 
   
-        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,              long int& ntrk);
-        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,  long int& ntrk);
-        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,   long int& ntrk);
-        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list, long int& ntrk);
-        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,  long int& ntrk);
-        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,long int& ntrk);
+        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,                int& ntrk);
+        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,    int& ntrk);
+        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,  int& ntrk);
+        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list,int& ntrk);
+        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,    int& ntrk);
+        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,  int& ntrk);
 
-        void VKalVrtSetOptions(long int NInputTracks);
-        void    VKalToTrkTrack( double, double  , double  , double ,
-                                double& , double& , double& );
+        void VKalVrtConfigureFitterCore(int NTRK);
+        void VKalToTrkTrack( double, double  , double  , double , double& , double& , double& );
 
-        long int VKalVrtFit3( long int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
+        int VKalVrtFit3(  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
 	                   long int& Charge, dvect& ErrorMatrix, dvect& Chi2PerTrk, 
                            std::vector< std::vector<double> >& TrkAtVrt, double& Chi2 );
 
@@ -428,10 +419,6 @@ namespace Trk{
 	  int TrkID;
           const TrackParameters* TrkPnt;
 	  double prtMass;
-						   // Needed for rotation to mag.field frame
-	  bool rotateToField;                      //   Point is in GLOBAL Atlas frame
-          Amg::RotationMatrix3D trkRotation;                 // Proposal:  Track[0] is reference for all tracks
-          Amg::Vector3D         trkRotationVertex;           //            in vertex???
           Amg::Vector3D         trkSavedLocalVertex;         // Local VKalVrtCore vertex
        };
        std::vector < TrkMatControl > m_trkControl;

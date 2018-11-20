@@ -2,13 +2,15 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandFlat.h"
+
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h"
+
 #include "TH1.h"
-#include "TRandom3.h"
 #include "TVector2.h"
 #include "TMath.h"
 
@@ -87,6 +89,10 @@ void TFCSHitCellMappingWiggle::initialize(const std::vector< const TH1* > histog
 
 FCSReturnCode TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
+
   float eta=fabs(hit.eta());
   if(eta<m_bin_low_edge[0] || eta>=m_bin_low_edge[get_number_of_bins()]) {
     return TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
@@ -97,8 +103,8 @@ FCSReturnCode TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationStat
 
   const TFCS1DFunction* func=get_function(bin);
   if(func) {
-    double rnd = 1-gRandom->Rndm();
-    
+    double rnd = CLHEP::RandFlat::shoot(simulstate.randomEngine());
+
     double wiggle=func->rnd_to_fct(rnd);
 
     ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<calosample()<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" wiggle="<<wiggle<<" bin="<<bin<<" ["<<get_bin_low_edge(bin)<<","<<get_bin_up_edge(bin)<<"] func="<<func);

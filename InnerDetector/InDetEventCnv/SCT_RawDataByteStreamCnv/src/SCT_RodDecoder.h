@@ -27,7 +27,6 @@
 //STL
 #include <atomic>
 #include <cstdint>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -127,7 +126,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   mutable std::atomic_uint m_numMissingLinkHeader;
   mutable std::atomic_uint m_numUnknownOfflineId;
   
-  std::set<IdentifierHash> m_swapPhiReadoutDirection;
+  std::vector<bool> m_swapPhiReadoutDirection;
 };
 
 #endif //SCT_RAWDATABYTESTREAM_SCT_RODDECODER_H

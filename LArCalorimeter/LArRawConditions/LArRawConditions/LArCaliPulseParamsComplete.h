@@ -42,13 +42,6 @@ class LArCaliPulseParamsComplete: public ILArCaliPulseParams,
   virtual  const float& dTimeCal(const HWIdentifier&  CellID, int gain) const;
   virtual  const short& nCB(const HWIdentifier&  CellID, int gain) const;
   
-  // retrieving CaliPulseParams using offline ID
-  virtual  const float& Tcal(const Identifier&  CellID, int gain) const;
-  virtual  const float& Fstep(const Identifier&  CellID, int gain) const;
-  virtual  const float& Offset(const Identifier&  CellID, int gain) const;
-  virtual  const float& dTimeCal(const Identifier&  CellID, int gain) const;
-  virtual  const short& nCB(const Identifier&  CellID, int gain) const;
-  
   // set method filling the data members individually
   // (if one wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, int gain,

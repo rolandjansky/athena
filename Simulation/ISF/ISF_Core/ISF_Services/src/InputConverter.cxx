@@ -58,7 +58,6 @@ ISF::InputConverter::InputConverter(const std::string& name, ISvcLocator* svc)
     , m_particleDataTable(nullptr)
     , m_useGeneratedParticleMass(false)
     , m_genParticleFilters(this)
-    , m_worldSolid(nullptr)
     , m_quasiStableParticlesIncluded(false)
     , m_barcodeSvc("", name)
     , m_barcodeGenerationIncrement(Barcode::fUndefinedBarcode)
@@ -325,15 +324,18 @@ G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& 
   const int eventID(1);
   G4Event *g4evt = new G4Event(eventID);
 
+  // retrieve world solid (volume)
+  const G4VSolid *worldSolid = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume()->GetSolid();
+
   int n_pp=0;
   for ( const ISF::ISFParticle *ispPtr: ispVector ) {
     const ISF::ISFParticle &isp = *ispPtr;
-    if ( !isInsideG4WorldVolume(isp) ) {
+    if ( !isInsideG4WorldVolume(isp, worldSolid) ) {
         ATH_MSG_WARNING("Unable to convert ISFParticle to G4PrimaryParticle!");
         ATH_MSG_WARNING(" ISFParticle: " << isp );
-        if(m_worldSolid) {
+        if(worldSolid) {
           ATH_MSG_WARNING(" is outside Geant4 world volume: ");
-          m_worldSolid->DumpInfo();
+          worldSolid->DumpInfo();
           G4cout << std::flush;
         }
         else {
@@ -597,19 +599,12 @@ void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParti
 }
 
 //________________________________________________________________________
-bool ISF::InputConverter::isInsideG4WorldVolume(const ISF::ISFParticle& isp) const
+bool ISF::InputConverter::isInsideG4WorldVolume(const ISF::ISFParticle& isp, const G4VSolid* worldSolid) const
 {
-
-  // retrieve world solid (volume)
-  if (!m_worldSolid) {
-    // NB: assuming that the pointers are all valid
-    // (simulation is really sick otherwise)
-    m_worldSolid = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume()->GetSolid();
-  }
 
   const Amg::Vector3D &pos = isp.position();
   const G4ThreeVector g4Pos( pos.x(), pos.y(), pos.z() );
-  EInside insideStatus = m_worldSolid->Inside( g4Pos );
+  EInside insideStatus = worldSolid->Inside( g4Pos );
 
   bool insideWorld = insideStatus != kOutside;
   return insideWorld;

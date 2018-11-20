@@ -6,9 +6,17 @@
 #define INDETCONVERSIONFINDERTOOLS_CONVERSIONPOSTSELECTOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h" //ParticleMasses struct
+#include "TrkParameters/TrackParameters.h" //typedef
 #include "xAODTracking/VertexFwd.h"
+#include "GeoPrimitives/GeoPrimitives.h" //Amg::Vector3D typedef
+#include <vector>
+
+
+
+namespace CLHEP{
+  class HepLorentzVector;
+}
 
 namespace InDet {
   

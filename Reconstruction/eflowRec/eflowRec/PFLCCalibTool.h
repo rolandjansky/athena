@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "eflowRec/IPFBaseTool.h"
 #include "eflowRec/IPFClusterCollectionTool.h"
@@ -28,7 +27,7 @@ class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
   ~PFLCCalibTool() {}
 
   StatusCode initialize();
-  void execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer);
+  void execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer);
   StatusCode finalize();
 
  private:

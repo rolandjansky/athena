@@ -84,11 +84,7 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
 
    if (m_acceptAll) {
       pass = true;
-      if (msgLvl() <= MSG::DEBUG) {
-         msg() << MSG::DEBUG
-               << "Accept property is set: taking all the events"
-               << endmsg;
-      }
+      ATH_MSG_DEBUG("Accept property is set: taking all the events");
       return HLT::OK;
    }
 
@@ -110,8 +106,9 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
 
    // Check that there is only one L2IsoMuon
    if (vectorOfMuons->size() != 1) {
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
-      return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::NAV_ERROR);
+     ATH_MSG_DEBUG("Size of L2Iso muon vector is " << vectorOfMuons->size() << ", so isolation failed");
+     pass = false;
+     return HLT::OK;
    }
 
    // Get first (and only) L2IsoMuon

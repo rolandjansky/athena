@@ -14,8 +14,24 @@
 #include "eflowRec/eflowTrackClusterLink.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
-eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink) :
-  m_clusterId(-1), m_cluster(*clusElementLink),m_originalClusElementLink(clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false),m_calorimeterType(UNASSIGNED) , m_matchCluster(nullptr) {
+eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink, xAOD::CaloClusterContainer& newClusContainer) :
+  m_clusterId(-1), m_originalClusElementLink(clusElementLink), m_isTouchable(false),m_calorimeterType(UNASSIGNED) , m_matchCluster(nullptr) {
+  const xAOD::CaloCluster* originalCluster = *clusElementLink;
+  m_cluster = new xAOD::CaloCluster();
+  newClusContainer.push_back(m_cluster);
+
+  const CaloClusterCellLink* theOldCellLinks = originalCluster->getCellLinks();
+
+  CaloClusterCellLink *newLinks = new CaloClusterCellLink(*theOldCellLinks);
+  m_cluster->addCellLink(newLinks);
+  m_cluster->setClusterSize(xAOD::CaloCluster::Topo_420);
+  CaloClusterKineHelper::calculateKine(m_cluster,true,true);
+
+  m_cluster->setRawE(m_cluster->calE());
+  m_cluster->setRawEta(m_cluster->calEta());
+  m_cluster->setRawPhi(m_cluster->calPhi());
+  m_cluster->setRawM(m_cluster->calM());
+
   m_matchCluster = std::make_unique<eflowMatchCluster>(this);
 }
 
@@ -44,38 +60,6 @@ eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflow
 }
 
 eflowRecCluster::~eflowRecCluster() { }
-
-void eflowRecCluster::replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container) {
-  std::unique_ptr<xAOD::CaloCluster> copiedCluster = std::make_unique<xAOD::CaloCluster>();
-  container->push_back(std::move(copiedCluster));
-  const CaloClusterCellLink* theOldCellLinks = m_cluster->getCellLinks();
-
-  xAOD::CaloCluster* tempPtr = container->back();
-  //xAOD::CaloCluster will take ownwership of this object, so we don't need to delete newLinks ourselves.
-  CaloClusterCellLink *newLinks = new CaloClusterCellLink(*theOldCellLinks);
-  tempPtr->addCellLink(newLinks);
-  tempPtr->setClusterSize(xAOD::CaloCluster::Topo_420);
-  CaloClusterKineHelper::calculateKine(tempPtr,true,true);
-
-  tempPtr->setRawE(tempPtr->calE());
-  tempPtr->setRawEta(tempPtr->calEta());
-  tempPtr->setRawPhi(tempPtr->calPhi());
-  tempPtr->setRawM(tempPtr->calM());
-
-  //Cannot set m_cluster to copiedCluster - std::move makes copiedCluster a nullptr. Hence must access from
-  //back of container, we have just pushed into.
-  m_cluster = container->back();
-  m_clusElementLink = ElementLink<xAOD::CaloClusterContainer>();
-  m_clusElementLink.toContainedElement(*container,container->back());
-}
-
-xAOD::CaloCluster* eflowRecCluster::getClusterForModification(xAOD::CaloClusterContainer* container) {
-  if (!m_isTouchable){
-    replaceClusterByCopyInContainer(container);
-    m_isTouchable = true;
-  }
-  return const_cast<xAOD::CaloCluster*>(getCluster());
-}
 
 bool eflowRecCluster::isEOverPFail(bool consistencySigmaCut, bool useGoldenMode) {
 

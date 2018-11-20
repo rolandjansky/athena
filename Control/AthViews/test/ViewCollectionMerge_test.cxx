@@ -144,7 +144,7 @@ TEST_F( ViewCollectionMerge_test, testBasicReadWrite ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView" ) );
+  viewVector->push_back( new SG::View( "testView", -1 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -162,7 +162,7 @@ TEST_F( ViewCollectionMerge_test, testViewReadWrite ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView" ) );
+  viewVector->push_back( new SG::View( "testView", -1 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -197,8 +197,8 @@ TEST_F( ViewCollectionMerge_test, testManyViewReadWrite ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -238,8 +238,8 @@ TEST_F( ViewCollectionMerge_test, testViewMerge ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -298,8 +298,8 @@ TEST_F( ViewCollectionMerge_test, testOtherViewMerge ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -423,7 +423,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkRemapTest ) {
 // Make an element link and remap it in view
 TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
 
-  SG::View * testView = new SG::View( "testView" );
+  SG::View * testView = new SG::View( "testView", -1 );
 
   // Make a data vector
   auto viewData = std::make_unique< DataVector< int > >();
@@ -479,8 +479,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -544,8 +544,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   ASSERT_TRUE( outputDataHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
-  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
@@ -568,8 +568,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
 
   // Make a view vector
   auto viewVector = std::make_unique< ViewContainer >();
-  viewVector->push_back( new SG::View( "testView1" ) );
-  viewVector->push_back( new SG::View( "testView2" ) );
+  viewVector->push_back( new SG::View( "testView", 1 ) );
+  viewVector->push_back( new SG::View( "testView", 2 ) );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );
@@ -644,8 +644,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_TRUE( auxHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
-  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView_1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView_2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );

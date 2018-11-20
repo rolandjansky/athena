@@ -41,7 +41,7 @@ rpcRawDataValAlg = RpcRawDataValAlg(name='rpcRawDataValAlg',
                                     ClusterContainer      ="rpcClusters",
 				    OutputLevel           = OutputMessageLevel,
                                     LastEvent             = MuonDQAFlags.EvtMax)
-ToolSvc += rpcRawDataValAlg
+#ToolSvc += rpcRawDataValAlg
 rpcRawMonMan.AthenaMonTools += [ rpcRawDataValAlg ]
 topSequence += rpcRawMonMan
 print rpcRawMonMan
@@ -74,7 +74,7 @@ RPCStandaloneTracksMon = RPCStandaloneTracksMon(name='RPCStandaloneTracksMon',
                                                        ClusterContainer      = "rpcClusters")
 if globalflags.DataSource() != 'data':
     RPCStandaloneTracksMon.isMC = True
-ToolSvc += RPCStandaloneTracksMon
+#ToolSvc += RPCStandaloneTracksMon
 rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
 topSequence += rpcTrackMonMan
 print rpcTrackMonMan
@@ -95,7 +95,7 @@ if not hasattr(topSequence,"RpcClusterBuilderPRD"):
 rpcLv1RawDataEfficiency = RpcLv1RawDataEfficiency(name='rpcLv1RawDataEfficiency')
 if globalflags.DataSource() != 'data':
     rpcLv1RawDataEfficiency.isMC = True
-ToolSvc += rpcLv1RawDataEfficiency
+#ToolSvc += rpcLv1RawDataEfficiency
 rpcLv1RawEfficiencyMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
 topSequence += rpcLv1RawEfficiencyMonMan
 print rpcLv1RawEfficiencyMonMan

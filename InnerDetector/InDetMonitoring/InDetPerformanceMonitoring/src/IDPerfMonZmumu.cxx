@@ -20,6 +20,8 @@
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
+
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 //For extrapolation
@@ -376,6 +378,7 @@ StatusCode IDPerfMonZmumu::execute()
        delete muonTrks;
        delete muonTrksRefit1;
        delete muonTrksRefit2;
+       delete defaultMuonTrk1;
        return StatusCode::SUCCESS;
     } else {
       refit1MuonTrk1 = cache1.refittedTrack.release();

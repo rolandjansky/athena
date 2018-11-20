@@ -7,12 +7,12 @@
 
 #include "GeoModelKernel/GeoVAlignmentStore.h"
 #include "GeoModelUtilities/TransformMap.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include <stdexcept>
 
-class GeoAlignmentStore final : public GeoVAlignmentStore
+class GeoAlignmentStore : public GeoVAlignmentStore
 {
  public:
   GeoAlignmentStore() {}

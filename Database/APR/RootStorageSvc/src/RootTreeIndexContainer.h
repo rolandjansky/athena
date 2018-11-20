@@ -33,15 +33,15 @@ namespace pool {
       /// Standard constructor
       RootTreeIndexContainer();
 
+      RootTreeIndexContainer (const RootTreeIndexContainer&) = delete;
+      RootTreeIndexContainer& operator= (const RootTreeIndexContainer&) = delete;
+
       /// Standard destructor
       virtual ~RootTreeIndexContainer();
 
       /// Number of entries within the container
       virtual long long int nextRecordId();
 
-      /// Execute Transaction action
-      virtual DbStatus transAct(Transaction::Action action);
-      
       /// Find object by object identifier and load it into memory
       /** @param  call      [IN]   Callback to load data
       * @param  oid      [OUT]   Object OID
@@ -53,6 +53,12 @@ namespace pool {
                                 Token::OID_t& oid,
                                 DbAccessMode  mode);
       
+      /// Commit single entry to container
+      virtual DbStatus writeObject(TransactionStack::value_type& entry);
+
+      /// Execute Transaction action
+      virtual DbStatus transAct(Transaction::Action action);
+
    private:
       /// Pointer to index branch
       TBranch* m_index_ref;

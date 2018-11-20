@@ -90,12 +90,9 @@ if DetFlags.overlay.LVL1_on():
        # TrigT1CaloSim Algos
        #-------------------------------------------------------
        if DetFlags.simulateLVL1.Calo_on():
-          if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
-             from OverlayCommonAlgs.OverlayCommonAlgsConf import RemoveObjects
-             job += RemoveObjects("RemoveTriggerTowerOldMC")
-             if globalflags.DataSource()=='data':
-                job.RemoveTriggerTowerOldMC.RemoveTriggerTowerMC=True
+           # TODO: we used to remove some containers here which is no longer possible
 
+          if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
              from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
              from TrigT1CaloSim.TrigT1CaloSimConfig import TriggerTowerMaker_TTL1_Rel13
              newTriggerTowerMaker = TriggerTowerMaker_TTL1_Rel13( 'newTriggerTowerMaker' )

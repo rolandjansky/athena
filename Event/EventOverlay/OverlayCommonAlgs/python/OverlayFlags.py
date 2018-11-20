@@ -32,12 +32,6 @@ class doSignal(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue = False
-   
-class doBkg(JobProperty):
-    """Background"""
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue = False
 
 class evtStore(JobProperty):
     """MC EvtStore name for overlay"""
@@ -56,6 +50,13 @@ class outputStore(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue = 'StoreGateSvc'
+
+class extraTagInfoPairs(JobProperty):
+    """ workaround to correctly populate the /TagInfo metadata container
+    """
+    statusOn=False
+    allowedTypes=['dict']
+    StoredValue=dict()
 
 ## Definition and registration of the simulation flag container
 

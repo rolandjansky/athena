@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATEBINDINGS_SGPYDATAMODEL_H
@@ -146,12 +146,6 @@ namespace SG {
     {
       return m_bib->typeinfo();
     }
-
-    /**
-     * @brief Return a new @c DataBucket whose payload has been cloned from the
-     *        original one.
-     */
-    virtual SG::PyDataBucket* clone() const override;
 
     /**
      * @brief Give up ownership of the  @c DataBucket contents.

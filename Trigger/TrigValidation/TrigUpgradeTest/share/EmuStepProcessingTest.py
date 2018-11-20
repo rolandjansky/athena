@@ -28,15 +28,12 @@ data['msmu']  = [';',
                  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;',
                  'eta:-1.7,phi:-0.2,pt:9500,pt2:8500;']
 
-data['ctp'] = [ 'HLT_e20',
-                'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8',
+data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_g5',
+                'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8 HLT_e3_e5',
                 'HLT_mu20 HLT_mu8 HLT_mu81step HLT_2mu8 HLT_e8' ]
 
-## data['ctp'] = [ 'HLT_g100',
-##                 'HLT_2g50 HLT_e20',
-##                 'HLT_mu20 HLT_mu8 HLT_2mu8 HLT_mu8_e8' ]
 
-data['l1emroi'] = ['1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
+data['l1emroi'] = ['1,1,0,EM3,EM7,EM15,EM20,EM50,EM100,2EM3; 1,-1.2,0,EM3,EM7,2EM3',
                    '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
                    '-0.6,1.5,0,EM3,EM7,EM7']
 
@@ -69,8 +66,8 @@ from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 
 # signatures
-from TrigUpgradeTest.HLTCFConfig import makeHLTTree
-from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, Chain, ChainStep
 
 
 doMuon=True
@@ -105,12 +102,17 @@ if doMuon:
 
 ## #electron chains
 if doElectron:
-    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, elStep2Sequence
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, elStep2Sequence, gammStep1Sequence
     elStep1 = elStep1Sequence()
     elStep2 = elStep2Sequence()
+
+    gammStep1 = gammStep1Sequence()
+    
     ElChains  = [
+        Chain(name='HLT_e5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
         Chain(name='HLT_e20' , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
-        Chain(name='HLT_e8'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] )
+        Chain(name='HLT_e8'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_g5'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_gam", [gammStep1]) ] )
         ]
 
     HLTChains += ElChains
@@ -124,9 +126,11 @@ if doCombo:
     muStep1 = muStep1Sequence()
     elStep2 = elStep2Sequence()
     muStep2 = muStep2Sequence()
- 
+
+    
     CombChains =[
-        Chain(name='HLT_mu8_e8' , Seed="L1_MU6_EM7", ChainSteps=[ ChainStep("Step1_mu_em",  [muStep1, elStep1]), ChainStep("Step2_mu_em",  [muStep2, elStep2])] )         
+        Chain(name='HLT_mu8_e8',  Seed="L1_MU6_EM7", ChainSteps=[ ChainStep("Step1_mu_em",  [muStep1, elStep1]), ChainStep("Step2_mu_em",  [muStep2, elStep2])] ),
+        Chain(name='HLT_e5_e8',   Seed="L1_2EM3",    ChainSteps=[ ChainStep("Step1_2em",[elStep1, elStep1]) ])
         ]
 
     HLTChains += CombChains
@@ -139,10 +143,10 @@ if doCombo:
 
     print "enabled Combo chains: ", EnabledMuComboChains,EnabledElComboChains
 
-EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(HLTChains)]
 
+# this is a temporary hack to include new test chains
+EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in HLTChains])
 
-print "EnabledChainNamesToCTP: ",EnabledChainNamesToCTP
 
 
 
@@ -152,12 +156,7 @@ L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 l1Decoder.prescaler.EventInfo=""
-l1Decoder.ChainToCTPMapping = {'HLT_mu20'     : 'L1_MU8', 
-                               'HLT_mu81step' : 'L1_MU8', 
-                               'HLT_mu8'      : 'L1_MU8', 
-                               'HLT_e20'      : 'L1_EM12', 
-                               'HLT_e8'       : 'L1_EM7', 
-                               'HLT_mu8_e8'   : 'L1_EM3_MU6'}
+l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
 l1Decoder.Chains="HLTChainsResult"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
@@ -165,11 +164,13 @@ l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
 emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
+emUnpacker.Decisions="L1EM"
 print "EMRoIsUnpackingTool enables chians:"
 print emUnpacker.ThresholdToChainMapping
 
 muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
 muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
+muUnpacker.Decisions="L1MU"
 print "MURoIsUnpackingTool enables chians:"
 print muUnpacker.ThresholdToChainMapping
 
@@ -195,18 +196,11 @@ print L1UnpackingSeq
 # filters: one SeqFilter per step, per chain
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
-# map L1 decisions for menu
-for unpack in l1Decoder.roiUnpackers:
-    if unpack.name() is "EMRoIsUnpackingTool":
-        unpack.Decisions="L1EM"
-    if unpack.name() is "MURoIsUnpackingTool":
-        unpack.Decisions="L1MU"
-
-        
 
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
 topSequence = AlgSequence()
-topSequence += L1UnpackingSeq
+#topSequence += L1UnpackingSeq
+topSequence += l1Decoder
 ##### Make all HLT #######
 makeHLTTree(HLTChains)
    

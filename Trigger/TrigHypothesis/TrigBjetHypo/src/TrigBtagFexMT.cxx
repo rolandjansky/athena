@@ -61,9 +61,16 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_MSG_INFO( "Initializing TrigBtagFexMT, version " << PACKAGE_VERSION );
 
   // declareProperty overview 
-  ATH_MSG_DEBUG( "declareProperty review:" );
-  ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
-  ATH_MSG_DEBUG( " Offline Taggers = "     << m_TaggerBaseNames );
+  ATH_MSG_DEBUG( "declareProperty review:"                   );
+  ATH_MSG_DEBUG( "   "     << m_useBeamSpotFlag              );
+  ATH_MSG_DEBUG( "   "     << m_TaggerBaseNames              );
+  ATH_MSG_DEBUG( "   "     << m_JetContainerKey              );
+  ATH_MSG_DEBUG( "   "     << m_VertexContainerKey           );
+  ATH_MSG_DEBUG( "   "     << m_BackUpVertexContainerKey     );
+  ATH_MSG_DEBUG( "   "     << m_TrackParticleContainerKey    );
+  ATH_MSG_DEBUG( "   "     << m_outputBTaggingContainerKey   );
+  ATH_MSG_DEBUG( "   "     << m_outputVertexContainerKey     );
+  ATH_MSG_DEBUG( "   "     << m_outputBtagVertexContainerKey );
   
   ATH_MSG_DEBUG( "Initialising ReadHandleKeys" );
   ATH_CHECK( m_JetContainerKey.initialize()           );
@@ -92,6 +99,11 @@ StatusCode TrigBtagFexMT::initialize() {
 StatusCode TrigBtagFexMT::execute() {
   ATH_MSG_DEBUG( "Executing TrigBtagFexMT" );
 
+  return StatusCode::SUCCESS;
+
+  // Commenting everything here while waiting for b-taggging to be ready. 
+  // This needs to be rewritten.
+  /*
   // RETRIEVE INPUT CONTAINERS
   const EventContext& ctx = getContext();
   SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle( m_JetContainerKey,ctx );
@@ -104,7 +116,7 @@ StatusCode TrigBtagFexMT::execute() {
   //  const xAOD::Vertex* primaryVertex     = nullptr;
 
   bool usePVBackup = true;
-
+  */
   /*
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
     ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() );
@@ -128,7 +140,7 @@ StatusCode TrigBtagFexMT::execute() {
     }
   }
   */
-
+  /*
   if ( usePVBackup ) {
     ATH_MSG_INFO( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_BackUpVertexContainerKey << " - aborting..." );
     return StatusCode::FAILURE;
@@ -154,10 +166,10 @@ StatusCode TrigBtagFexMT::execute() {
   std::unique_ptr< xAOD::BTaggingContainer > trigBTaggingContainer( new xAOD::BTaggingContainer() );
   std::unique_ptr< xAOD::BTaggingAuxContainer > trigBTaggingAuxContainer( new xAOD::BTaggingAuxContainer() );
   trigBTaggingContainer->setStore( trigBTaggingAuxContainer.get() );
-
+  
   xAOD::BTagging *trigBTagging = new xAOD::BTagging();
   trigBTaggingContainer->push_back(trigBTagging);
-
+  */
   // EXECUTE OFFLINE TOOLS
   if ( m_setupOfflineTools == true ) {
     /*  
@@ -198,14 +210,14 @@ StatusCode TrigBtagFexMT::execute() {
     }
     */
   }
-
+  /*
   // Dump results 
   ATH_MSG_DEBUG( "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
 		 << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
 		 << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
 		 << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
 		 << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant") );
-
+  */
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 
   // Temporary comment these lines
@@ -219,7 +231,7 @@ StatusCode TrigBtagFexMT::execute() {
     }
   }
   */
-
+  /*
   SG::WriteHandle< xAOD::BTaggingContainer > outputBTaggingContainerHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
   ATH_CHECK( outputBTaggingContainerHandle.record( std::move(trigBTaggingContainer),std::move(trigBTaggingAuxContainer) ) );
 
@@ -228,7 +240,7 @@ StatusCode TrigBtagFexMT::execute() {
 
   SG::WriteHandle< xAOD::BTagVertexContainer > outputBtagVtxContainerHandle = SG::makeHandle( m_outputBtagVertexContainerKey,ctx );  
   ATH_CHECK( outputBtagVtxContainerHandle.record( std::move(trigBTagVertexContainer),std::move(trigBTagSecVertexAuxContainer) ) );
-
+  */
   return StatusCode::SUCCESS;
 }
 

@@ -26,7 +26,7 @@ public:
   CaloClusterChangeSignalState& operator=(const CaloClusterChangeSignalState&) = delete;
 #else
   CaloClusterChangeSignalState() : m_clus(0) {};
-  void init(const xAOD::CaloCluster* pClus,
+  void init(xAOD::CaloCluster* pClus,
 	    xAOD::CaloCluster::State s);
 #endif
 
@@ -36,7 +36,7 @@ public:
    * @param pClus The cluster to change.
    * @param s The new signal state for the cluster.
    */
-  CaloClusterChangeSignalState (const xAOD::CaloCluster* pClus,
+  CaloClusterChangeSignalState (xAOD::CaloCluster* pClus,
                                 xAOD::CaloCluster::State s);
 
 
@@ -51,7 +51,7 @@ public:
 
 private:
   /// The cluster that we're managing
-  const xAOD::CaloCluster* m_clus;
+  xAOD::CaloCluster* m_clus;
   /// The previous signal state for the cluster.
   xAOD::CaloCluster::State m_oldstate;
 };
@@ -74,7 +74,7 @@ class CaloClusterChangeSignalStateList {
    * @param clus The cluster
    * @param s The new signal state for the cluster.
    */
-  void add(const xAOD::CaloCluster* clu, xAOD::CaloCluster::State s) {
+  void add(xAOD::CaloCluster* clu, xAOD::CaloCluster::State s) {
     m_stateHelpers.emplace_front(clu,s);
   }
 
@@ -112,7 +112,7 @@ class CaloClusterChangeSignalStateList {
    * @param clus The cluster
    * @param s The new signal state for the cluster.
    */
-  void add(const xAOD::CaloCluster* clu, xAOD::CaloCluster::State s) {
+  void add(xAOD::CaloCluster* clu, xAOD::CaloCluster::State s) {
     m_stateHelpers.push_back(CaloClusterChangeSignalState());
     m_stateHelpers.back().init(clu,s);
     

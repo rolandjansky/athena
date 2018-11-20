@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAREC_egammaTruthAssociationAlg_H
-#define EGAMMAREC_egammaTruthAssociationAlg_H
+#ifndef EGAMMAALGS_EGAMMATRUTHASSOCIATIONALG_H
+#define EGAMMAALGS_EGAMMATRUTHASSOCIATIONALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -12,17 +12,22 @@
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/xAODTruthHelpers.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
+
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 #include "StoreGate/WriteDecorHandle.h"
 
-#include <memory>
-#include <array>
+#include <string>
 
 /**
    @class egammaTruthAssociationAlg
@@ -35,7 +40,9 @@
 class egammaTruthAssociationAlg : public AthAlgorithm {
 
 public:
-  
+
+  typedef Trk::IParticleCaloExtensionTool::Cache Cache;
+
   /** @brief constructor */
   egammaTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
   
@@ -57,16 +64,13 @@ private:
     const xAOD::TruthParticle* genPart;
   };
   
-  /** @brief helper class to contain write docoration handle keys */
-  template<class T> struct writeDecorHandleKeys {
-    StatusCode initializeDecorKeys(const std::string &name); // note, not constructor
-
-    std::array<SG::WriteDecorHandleKey<T>, 3> keys;
-  };
+  /// A function that initializes the decor handles, but also checks the naming convention
+  template<class T> StatusCode initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
+						   std::string name);
     
   /** @brief helper class to contain write decoration handles */
   template<class T> struct writeDecorHandles {
-    writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
+    writeDecorHandles(const SG::WriteDecorHandleKeyArray<T>& keys); // constructor
 
     SG::WriteDecorHandle<T, ElementLink<xAOD::TruthParticleContainer> > el;
     SG::WriteDecorHandle<T, int > type;
@@ -81,13 +85,13 @@ private:
   /** @brief Loop over elements in the reco container, decorate them with truth info and
    * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
   template<class T, class L> StatusCode match(const xAOD::TruthParticleContainer& truthParticles,
-					      const egammaTruthAssociationAlg::writeDecorHandleKeys<T>& hkeys,
+					      const SG::WriteDecorHandleKeyArray<T>& hkeys,
 					      const SG::AuxElement::Accessor<L>& linkAccess,
 					      xAOD::TruthParticleContainer& egammaTruthContainer) ;
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
-  template<class T> MCTruthInfo_t particleTruthClassifier(const T*) ;
+  template<class T> MCTruthInfo_t particleTruthClassifier(const T*, Cache *) ;
      
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/
@@ -120,30 +124,46 @@ private:
   Gaudi::Property<bool> m_matchClusters {this, "MatchClusters", false,
       "Match clusters?"};
   
-  /** @brief Name of the egamma cluster container **/
-  Gaudi::Property<std::string> m_clusterContainerName {this,
-      "ClusterContainerName", "", 
+  /** @brief The egamma cluster decor handle key array **/
+  SG::WriteDecorHandleKeyArray<xAOD::CaloClusterContainer> m_clusterDecKeys {this,
+      "DoNotSet_ClusterContainerName", {}, 
+      "Do not set; configuration via the string property"};
+
+  /** @brief The egamma cluster name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_clusterDecName {this,
+      "ClusterContainerName", "",
       "Name of the egamma cluster container"};
-  writeDecorHandleKeys<xAOD::CaloClusterContainer> m_clusterDecKeys;
-    
-  /** @brief Name of the input electron container **/
-  Gaudi::Property<std::string> m_electronContainerName {this,
+  
+  /** @brief The electron container decor handle key array **/
+  SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer> m_electronDecKeys {this,
+      "DoNotSet_ElectronContainerName", {},
+      "Do not set; configuration via the string property"};
+
+  /** @brief The electron container name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_electronDecName {this,
       "ElectronContainerName", "",
-      "Name of the input electron container"};
-  writeDecorHandleKeys<xAOD::ElectronContainer> m_electronDecKeys;  
+      "Name of the input electron container"};  
 
-  /** @brief Name of the input electron container **/
-  Gaudi::Property<std::string> m_fwdElectronContainerName {this,
+  /** @brief The fwd electron container decor handle key array **/
+  SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer> m_fwdElectronDecKeys {this,
+      "DoNotSet_FwdElectronContainerName", {},
+      "Do not set; configuration via the string property"};
+
+  /** @brief The fwd electron name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_fwdElectronDecName {this,
       "FwdElectronContainerName", "",
-      "Name of the input fwd electron container"};
-  writeDecorHandleKeys<xAOD::ElectronContainer> m_fwdElectronDecKeys;  
+      "Name of the input fwd electron container"};    
  
-  /** @brief Name of the input photon container **/
-  Gaudi::Property<std::string> m_photonContainerName {this,
-      "PhotonContainerName", "",
-      "Name of the input photon container"};  
-  writeDecorHandleKeys<xAOD::PhotonContainer> m_photonDecKeys;  
+  /** @brief The photon container decor handle key array **/
+  SG::WriteDecorHandleKeyArray<xAOD::PhotonContainer> m_photonDecKeys {this,
+      "DoNotSet_PhotonContainerName", {},
+      "Do not set; configuration via the string property"};
 
+  /** @brief The photon container name property used to initialize the WriteDecorHandleKeyArray **/
+  Gaudi::Property<std::string> m_photonDecName {this,
+      "PhotonContainerName", "",
+      "Name of the input photon container"};     
+  
   /** @brief Name of the truth event container **/
   SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventContainerKey {this,
       "TruthEventContainerName", "", 
@@ -177,4 +197,5 @@ private:
   
 };
 
-#endif // EGAMMAREC_egammaTruthAssociationAlg_H 
+
+#endif // EGAMMAALGS_EGAMMATRUTHASSOCIATIONALG_H

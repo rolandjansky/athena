@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypoTool.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypoTool
 //
-// AUTHOR:   Lidija Zivkovic
-// EMAIL:    Lidija.Zivkovic@cern.ch
+// AUTHOR:   Carlo Varni
+// EMAIL:    carlo.varni@cern.ch
 // 
 // ************************************************
 
@@ -23,7 +23,7 @@ TrigBjetHypoTool::TrigBjetHypoTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent ) :
   AthAlgTool( type, name, parent ),
-  m_id( name ) {}
+  m_id(  HLT::Identifier::fromToolName( name ) ) {}
 
 // -----------------------------------------------------------------------------------------------------------------
 
@@ -37,13 +37,11 @@ StatusCode TrigBjetHypoTool::initialize()  {
 
   ATH_MSG_INFO("Initializing TrigBjetHypoTool");
  
-  ATH_MSG_DEBUG(  "declareProperty review:"  );
-  ATH_MSG_DEBUG(  " AcceptAll = "   <<     m_acceptAll        ); 
-  ATH_MSG_DEBUG(  " MethodTag = "   <<     m_methodTag        ); 
-  ATH_MSG_DEBUG(  " UseBeamSpotFlag = " <<  m_useBeamSpotFlag  ); 
-
-  if (m_xcutMV2c20 != -20) ATH_MSG_DEBUG( " CutMV2c20 = " <<  m_xcutMV2c20  ); 
-  if (m_xcutMV2c10 != -20) ATH_MSG_DEBUG( " CutMV2c10 = " <<  m_xcutMV2c10  ); 
+  ATH_MSG_DEBUG(  "declareProperty review:"   );
+  ATH_MSG_DEBUG(  "   " << m_acceptAll        ); 
+  ATH_MSG_DEBUG(  "   " << m_methodTag        ); 
+  ATH_MSG_DEBUG(  "   " << m_useBeamSpotFlag  ); 
+  ATH_MSG_DEBUG(  "   " << m_bTaggingCut      );
  
   // Retrieve Tools
   // =====================================
@@ -134,7 +132,7 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
     double x = bTag->auxdata<double>("MV2c20_discriminant");
 
       ATH_MSG_DEBUG(" MV2c20 x =  " << x);
-       if(x>m_xcutMV2c20) {
+      if(x>m_bTaggingCut) {
 	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
 	 //	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
 	ATH_MSG_DEBUG("  ==> Passed ");
@@ -153,14 +151,14 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
     double x = bTag->auxdata<double>("MV2c10_discriminant");
 
        ATH_MSG_DEBUG(" MV2c10 x =  " << x);
-      if(x>m_xcutMV2c10) {
-        //HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
-	//        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
-	ATH_MSG_DEBUG("  ==> Passed ");
-        result = true;
-      }
-      else {
-	ATH_MSG_DEBUG("  ==> Failed ");
+       if(x>m_bTaggingCut) {
+	 //HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	 //        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+	 ATH_MSG_DEBUG("  ==> Passed ");
+	 result = true;
+       }
+       else {
+	 ATH_MSG_DEBUG("  ==> Failed ");
       }
     }
   //  } 

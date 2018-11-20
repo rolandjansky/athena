@@ -17,6 +17,7 @@
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInitWithEkin.h"
@@ -38,6 +39,7 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
+#include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
@@ -122,12 +124,13 @@
 #pragma link C++ class TFCS2DFunction+;
 #pragma link C++ class TFCS2DFunctionHistogram+;
 #pragma link C++ class TFCSParametrizationBase+;
+#pragma link C++ class TFCSParametrizationPlaceholder+;
 #pragma link C++ class TFCSParametrization+;
 #pragma link C++ class TFCSInvisibleParametrization+;
 #pragma link C++ class TFCSInitWithEkin+;
 #pragma link C++ class TFCSEnergyInterpolationLinear+;
 #pragma link C++ class TFCSEnergyInterpolationSpline+;
-#pragma link C++ class TFCSParametrizationChain+;
+#pragma link C++ class TFCSParametrizationChain-;
 #pragma link C++ class TFCSParametrizationBinnedChain+;
 #pragma link C++ class TFCSParametrizationFloatSelectChain+;
 #pragma link C++ class TFCSParametrizationPDGIDSelectChain+;
@@ -143,6 +146,7 @@
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
+#pragma link C++ class TFCSCenterPositionCalculation+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #pragma link C++ class TFCSHitCellMapping+;

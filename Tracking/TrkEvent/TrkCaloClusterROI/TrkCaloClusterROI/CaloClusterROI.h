@@ -52,7 +52,7 @@ namespace Trk {
       virtual const Surface& associatedSurface() const;
      
       /** method to get the global Position */
-      virtual const Amg::Vector3D& globalPosition() const;
+      virtual const Amg::Vector3D globalPosition() const;
  
  
       virtual double energy() const;
@@ -62,22 +62,19 @@ namespace Trk {
       virtual double etaWidth() const;
       
 
-    protected:
+    private:
       /** local position of the Cluster, in the coordinate frame of the Trk::Surface it exists on*/
-      mutable const LocalParameters* m_localParams;
+      const LocalParameters* m_localParams;
       
       /** Surface associated to the measurement*/
-      mutable const Surface* m_surface;
-      
-      /** global position of the cluster hit*/
-      mutable const Amg::Vector3D* m_globalpos;
-      
+      const Surface* m_surface;
+       
       /** Energy*/
-      mutable double m_energy;
+      double m_energy;
       /** Width phi*/
-      mutable double m_phiWidth;
+      double m_phiWidth;
       /** Width eta*/
-      mutable double m_etaWidth;
+      double m_etaWidth;
       
 
   };//End of Class

@@ -24,8 +24,8 @@
 #include "CaloIdentifier/Tile_Base_ID.h"
 #include "CaloIdentifier/TileID_Exception.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "boost/range/iterator_range.hpp"
 #include <string>

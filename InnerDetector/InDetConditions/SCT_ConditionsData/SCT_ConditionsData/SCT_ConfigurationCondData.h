@@ -11,12 +11,15 @@
 #ifndef SCT_CONFIGURATIONCONDDATA_H
 #define SCT_CONFIGURATIONCONDDATA_H
 
-#include <set>
+#include <array>
+#include <bitset>
 #include <map>
+#include <set>
 
 // Include Athena stuff
 #include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 class SCT_ConfigurationCondData {
 public:
@@ -28,13 +31,13 @@ public:
   virtual ~SCT_ConfigurationCondData();
 
   // Set a bad strip identifier
-  void setBadStripId(const Identifier& badStripId);
+  void setBadStripId(const Identifier& badStripId, const IdentifierHash& hash, const int strip);
   // Get all bad strip identifiers
   const std::set<Identifier>* getBadStripIds() const;
   // Clear all bad strip identifiers
   void clearBadStripIds();
   // Check if a strip identifier is bad one
-  bool isBadStripId(const Identifier& stripId) const;
+  bool isBadStrip(const IdentifierHash& hash, const int strip) const;
 
   // Set a bad wafer identifier
   void setBadWaferId(const Identifier& badWaferId);
@@ -55,13 +58,13 @@ public:
   bool isBadModuleId(const Identifier& moduleId) const;
 
   // Set bad links for a module
-  void setBadLinks(const Identifier& moduleId, const bool isBadLink0, const bool isBadLink1);
+  void setBadLinks(const IdentifierHash& hash, const bool isBadLink0, const bool isBadLink1);
   // Get all bad links
-  const std::map<Identifier, std::pair<bool, bool>>* getBadLinks() const;
+  const std::map<IdentifierHash, std::pair<bool, bool>>* getBadLinks() const;
   // Clear all bad links
   void clearBadLinks();
   // Check if a module has bad links
-  std::pair<bool, bool> areBadLinks(const Identifier& moduleId) const;
+  std::pair<bool, bool> areBadLinks(const IdentifierHash& hash) const;
 
   // Set bad chips for a module
   void setBadChips(const Identifier& moduleId, const unsigned int chipStatus);
@@ -76,11 +79,14 @@ public:
   void clear();
 
 private:
+  enum {N_MODULES=4088, N_STRIPS=768, N_SIDES=2};
 
   std::set<Identifier> m_badStripIds;
+  std::array<std::bitset<N_STRIPS>, N_MODULES*N_SIDES> m_badStripArray;
   std::set<Identifier> m_badWaferIds;
   std::set<Identifier> m_badModuleIds;
-  std::map<Identifier, std::pair<bool, bool>> m_badLinks;
+  std::map<IdentifierHash, std::pair<bool, bool>> m_badLinks;
+  std::array<std::pair<bool, bool>, N_MODULES> m_badLinksArray;
   std::map<Identifier, unsigned int> m_badChips;
 };
 

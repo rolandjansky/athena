@@ -15,7 +15,7 @@
 #undef NDEBUG
 #include "AthLinks/DataLink.h"
 #include "DataModelAthenaPool/DataLinkCnv_p2.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <cassert>
 #include <iostream>

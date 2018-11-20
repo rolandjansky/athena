@@ -40,8 +40,10 @@ trigMuonEFSAThresholds = {
     '50GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 45.0,1000.0,1000.0,1000.0]], 
     '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 54.0, 54.0, 54.0, 54.0] ], 
     '60GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 54.0,1000.0,1000.0,1000.0]], 
+    '60GeV_msonlyCut'  : [ [0,1.05,1.5,2.0,9.9], [ 54.0, 54.0, 54.0, 54.0] ], 
     '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 63.0, 63.0, 63.0, 63.0] ], 
     '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 72.0, 72.0, 72.0, 72.0] ],
+    '80GeV_msonlyCut'  : [ [0,1.05,1.5,2.0,9.9], [ 72.0, 72.0, 72.0, 72.0] ],
     '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 90.0, 90.0, 90.0, 90.0] ],
    }
 
@@ -276,6 +278,7 @@ muFastThresholds = {
     '40GeV_uptoEC2_v11b'     : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 26.54, 29.22, 1000.] ],
     '40GeV_barrelOnly_v11b'  : [ [0,1.05,1.5,2.0,9.9], [ 26.88, 1000., 1000., 1000.] ],
     # 2011a tuning + 2015 tuning
+    '3GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  2.38,  0.25,  2.17,  2.41] ], #extrapolated from 4GeV
     '4GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  3.38,  1.25,  3.17,  3.41] ],
     '4GeV_barrelOnly_v15a'   : [ [0,1.05,1.5,2.0,9.9], [  3.38, 1000., 1000., 1000.] ],
     '6GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  5.17,  3.25,  4.69,  5.14] ],
@@ -362,6 +365,7 @@ muFastThresholdsForECWeakBRegion = {
     '50GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     '60GeV_barrelOnly_v11b' : [ 1000., 1000. ],
     # 2011a tuning + 2015 tuning
+    '3GeV_v15a'             : [  1.72,  0.58], #extrapolated from 4GeV
     '4GeV_v15a'             : [  2.72,  1.58],
     '4GeV_barrelOnly_v15a'  : [ 1000., 1000. ],
     '6GeV_v15a'             : [  3.91,  2.22],
@@ -793,6 +797,9 @@ class TrigMuonEFExtrapolatorHypoConfig(TrigMuonEFExtrapolatorHypo) :
 
         threshold = args[1]
 
+        if "msonlyCut" in threshold:
+            self.MSonlyCut = True
+
         try:
             values = trigMuonEFSAThresholds[threshold]
             self.PtBins = values[0]
@@ -914,6 +921,41 @@ class TrigMuonEFCombinerMultiHypoConfig(TrigMuonEFCombinerMultiHypo) :
             if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
                 print handle.name," eta bins doesn't match the Pt thresholds!"
 
+class TrigMuonEFSegmentHypoConfig(TrigMuonEFSegmentHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFSegmentHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFSegmentHypoConfig, self ).__init__( name )
+
+        threshold = args[1]
+
+        try:
+            values = efCombinerThresholds[threshold]
+            self.PtBins = values[0]
+            self.PtThresholds = [ x * GeV for x in values[1] ]
+            self.AcceptAll = False
+        except LookupError:
+            if (threshold=='passthrough'):
+                self.PtBins = [-10000.,10000.]
+                self.PtThresholds = [ -1. * GeV ]
+                self.AcceptAll = True
+            else:
+                raise Exception('TrigMuonEFSegment Hypo Misconfigured: threshold %r not supported' % threshold)
+
+        #validation = TrigMuonEFCombinerHypoValidationMonitoring()
+        #online     = TrigMuonEFCombinerHypoOnlineMonitoring()
+	
+        #self.AthenaMonTools = [ validation, online ]
+
+    def setDefaults(cls,handle):
+        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
+            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
+                print handle.name," eta bins doesn't match the Pt thresholds!"
 
 class TrigMuonEFExtrapolatorMultiHypoConfig(TrigMuonEFExtrapolatorMultiHypo) :
 
@@ -1270,7 +1312,18 @@ trigMuonEFTrkIsoThresholds = {
     'RelEFOnlyVarLooseWide'      : [-1.0 ,  0.2  ],
     'RelEFOnlyVarMediumWide'     : [-1.0 ,  0.12 ],
 #    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] #MC15C 
-    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ]  #ivarmedium
+    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ], #ivarmedium
+    'RelEFOnlyVarTighterWide'    : [-1.0 ,  0.06 ], #ivartight
+    'RelEFOnlyVarVeryTightWide'  : [-1.0 ,  0.04 ]  #ivarverytight
+    }
+
+
+
+trigMuonEFCaloIsoThresholds = {
+    
+    'Rel'                : [ 0.3, 0.3, 0.3 ],    
+    'AbsCalo'            : [ 5200.0,   4800.0, 4000.0],
+    
     }
 
 
@@ -1337,6 +1390,65 @@ class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
 	
         self.AthenaMonTools = [ validation, online ]
 
+
+"""
+Class for hypothesis cuts on EF track isolation algorithm.
+arg[0] = Muon
+arg[1] = working point
+See trigMuonEFTrkIsoThresholds for available working points
+Put passthrough in arg[1] for passthrough
+"""
+
+class TrigMuonEFTrackIsolationMultiHypoConfig(TrigMuonEFTrackIsolationMultiHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFTrackIsolationMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFTrackIsolationMultiHypoConfig, self ).__init__( name )
+
+        try:
+            pt_thresholds = map(lambda t: t * 1000.,
+                                map(float,
+                                    map(lambda s: s.replace("GeV",""), args[2])))
+            cuts = trigMuonEFTrkIsoThresholds[ args[1] ]
+            ptcone02 = cuts[0]
+            ptcone03 = cuts[1]
+
+            self.PtCone02Cut = ptcone02
+            self.PtCone03Cut = ptcone03
+            self.AcceptAll = False
+            self.PtThresholds = pt_thresholds
+            if 'MS' in args[1]:
+                self.RequireCombinedMuon = False
+            else:
+                self.RequireCombinedMuon = True
+
+            if 'Rel' in args[1] :
+                self.DoAbsCut = False
+            else :
+                self.DoAbsCut = True
+            if 'Var' in args[1] :
+                self.useVarIso = True
+            else :
+                self.useVarIso = False                                
+        except LookupError:
+            if(args[1]=='passthrough') :
+                print 'Setting passthrough'
+                self.AcceptAll = True
+            else:
+                print 'args[1] = ', args[1]
+                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+        
+
+        validation = TrigMuonEFTrackIsolationMultiHypoValidationMonitoring()
+        online     = TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring()
+	
+        self.AthenaMonTools = [ validation, online ]
+        
 
 """
 Class for hypothesis cuts on EF calo isolation algorithm.
@@ -1548,6 +1660,12 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
     self.UseLH = False
     self.TightCaloTag = True
     self.MaxMissingCells = 3
+    import itertools as it
+    for threshold in list(it.islice(args,3,None)) :
+        values = efCombinerThresholds[threshold]
+    self.CombinedMuonThreshold = values[1][0]
+
+
 
 
 class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :

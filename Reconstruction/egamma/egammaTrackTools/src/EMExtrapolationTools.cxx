@@ -24,6 +24,7 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "GaudiKernel/EventContext.h"
 //
 #include <tuple>
 
@@ -98,7 +99,8 @@ StatusCode EMExtrapolationTools::finalize()
  * Returns the selection results
  */
 bool
-EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster, 
+EMExtrapolationTools::matchesAtCalo(const EventContext&           ctx,
+                                    const xAOD::CaloCluster*      cluster, 
                                     const xAOD::TrackParticle*    trkPB, 
                                     bool                          isTRT, 
                                     Trk::PropDirection            direction,
@@ -129,7 +131,7 @@ EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster,
     }
   }
   //Call getMatchAtCalo
-  if(getMatchAtCalo (cluster,trkPB,isTRT,direction, eta,phi, deltaEta, deltaPhi,extrapFrom,cache).isFailure()){
+  if(getMatchAtCalo (ctx,cluster,trkPB,isTRT,direction, eta,phi, deltaEta, deltaPhi,extrapFrom,cache).isFailure()){
     ATH_MSG_WARNING("getMatchAtCalo call failed");
     return false;
   }  
@@ -152,7 +154,8 @@ EMExtrapolationTools::matchesAtCalo(const xAOD::CaloCluster*      cluster,
  * electrons extrapolations. Handles multipe extrapolation modes.
  */
 StatusCode
-EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster, 
+EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
+                                      const xAOD::CaloCluster*      cluster, 
                                       const xAOD::TrackParticle*    trkPB,
                                       bool                          isTRT, 
                                       Trk::PropDirection            direction,
@@ -214,7 +217,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
    */
   else if(fromPerigee == extrapFrom){
     if (m_useCaching){
-      SG::ReadHandle<CaloExtensionCollection>  PerigeeCache(m_GSFPerigeeCacheKey);
+      SG::ReadHandle<CaloExtensionCollection>  PerigeeCache(m_GSFPerigeeCacheKey,ctx);
       if (!PerigeeCache.isValid()) {
         ATH_MSG_ERROR("Could not retrieve Perigee Cache " << PerigeeCache.key());
         return StatusCode::FAILURE;
@@ -242,7 +245,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   }
   else if(fromLastMeasurement == extrapFrom){
     if (m_useCaching){
-      SG::ReadHandle<CaloExtensionCollection>  LastCache(m_GSFLastCacheKey);
+      SG::ReadHandle<CaloExtensionCollection>  LastCache(m_GSFLastCacheKey,ctx);
       if (!LastCache.isValid()) {
         ATH_MSG_ERROR("Could not retrieve Last Cache " << LastCache.key());
         return StatusCode::FAILURE;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -14,12 +14,6 @@ def getTileGeoG4SD(name="TileGeoG4SD", **kwargs):
                                                               merger_input_property)
     kwargs.setdefault("LogicalVolumeNames", ["Tile::Scintillator"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
-
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() == 'cosmics' or (hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn):
-        kwargs.setdefault("DeltaTHit", [1])
-        kwargs.setdefault("DoTOFCorrection", False)
     return CfgMgr.TileGeoG4SDTool(name, **kwargs)
 
 
@@ -36,10 +30,15 @@ def getTileGeoG4SDCalc(name="TileGeoG4SDCalc", **kwargs):
     if jobproperties.Beam.beamType() == 'cosmics' or (hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn):
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
+    if hasattr(simFlags, "ParticleID"):
+        kwargs.setdefault("DoCalibHitParticleID", simFlags.ParticleID())
     return CfgMgr.TileGeoG4SDCalc(name, **kwargs)
 
 
 def getTileCTBGeoG4SDCalc(name="TileCTBGeoG4SDCalc", **kwargs):
+    kwargs.setdefault("TileTB", True)
+    from G4AtlasApps.SimFlags import simFlags
+    if hasattr(simFlags, "ParticleID"):
+        kwargs.setdefault("DoCalibHitParticleID", simFlags.ParticleID())
     return CfgMgr.TileGeoG4SDCalc(name, **kwargs)
-
 

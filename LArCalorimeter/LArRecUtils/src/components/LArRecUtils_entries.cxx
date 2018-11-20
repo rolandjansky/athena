@@ -14,7 +14,6 @@
 #include "../LArFEBConfigReader.h"
 #include "../LArFlatConditionSvc.h"
 #include "../LArFCalTowerBuilderToolTestAlg.h"
-#include "../LArHVScaleRetriever.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
@@ -28,6 +27,8 @@
 #include "../LArHVPathologyDbCondAlg.h"
 #include "../LArHVIdMappingAlg.h"
 #include "../LArHVCondAlg.h"
+#include "../LArHVScaleCorrCondAlg.h"
+#include "../LArAutoCorrNoiseCondAlg.h"
 
 
 DECLARE_COMPONENT( LArADC2MeVTool )
@@ -46,7 +47,6 @@ DECLARE_COMPONENT( LArFCalTowerBuilderTool )
 DECLARE_COMPONENT( LArFEBConfigReader )
 DECLARE_COMPONENT( LArFlatConditionSvc )
 DECLARE_COMPONENT( LArFCalTowerBuilderToolTestAlg )
-DECLARE_COMPONENT( LArHVScaleRetriever )
 DECLARE_COMPONENT( LArCondAlgAutoCorrSC )
 DECLARE_COMPONENT( LArCondAlgDAC2uAFlat )
 DECLARE_COMPONENT( LArCondAlgDAC2uASC )
@@ -76,7 +76,11 @@ DECLARE_COMPONENT( LAruA2MeVSymCondAlg )
 DECLARE_COMPONENT( LArDAC2uASymCondAlg )
 DECLARE_COMPONENT( LArfSamplSymCondAlg )
 DECLARE_COMPONENT( LArMinBiasSymCondAlg )
+DECLARE_COMPONENT( LArMinBiasAverageSymCondAlg )
 DECLARE_COMPONENT( LArNoiseSymCondAlg )
+DECLARE_COMPONENT( LArShapeSymCondAlg )
+DECLARE_COMPONENT( LArAutoCorrSymCondAlg )
+DECLARE_COMPONENT( LArMphysOverMcalSymCondAlg ) 
 
 DECLARE_COMPONENT( LArAutoCorrTotalCondAlg )
 DECLARE_COMPONENT( LArADC2MeVCondAlg )
@@ -84,3 +88,5 @@ DECLARE_COMPONENT( LArHVPathologyDbCondAlg )
 DECLARE_COMPONENT( LArHVIdMappingAlg )
 DECLARE_COMPONENT( LArOFCCondAlg )
 DECLARE_COMPONENT( LArHVCondAlg )
+DECLARE_COMPONENT( LArHVScaleCorrCondAlg )
+DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )

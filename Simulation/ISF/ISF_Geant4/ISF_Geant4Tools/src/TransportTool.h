@@ -95,38 +95,38 @@ namespace iGeant4
 
     /// @name Configurable Properties
     /// @{
-    std::string m_libList;
-    std::string m_physList;
-    std::string m_fieldMap;
-    std::string m_rndmGen;
-    bool   m_releaseGeoModel;
-    bool   m_recordFlux;
-    std::string m_mcEventCollectionName;
+    std::string m_mcEventCollectionName{"TruthEvent"};
+    /// Helper Tool to provide G4RunManager
+    PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
+    G4AtlasRunManager    *m_pRunMgr{};
+
+    std::string m_libList{""};
+    std::string m_physList{""};
+    std::string m_fieldMap{""};
+    std::string m_rndmGen{"athena"};
+    bool   m_releaseGeoModel{true};
+    bool   m_recordFlux{false};
     /// Commands to send to the G4 UI
     std::vector<std::string> m_g4commands;
     /// Activate multi-threading configuration
-    bool m_useMT;
+    bool m_useMT{false};
     // Random number service
-    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc{this, "RandomNumberService", "AtDSFMTGenSvc", ""};
     /// G4AtlasSvc
-    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
+    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc{this, "G4AtlasSvc", "G4AtlasSvc", ""};
     /// user action service
-    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
+    ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc{this, "UserActionSvc", "", ""};
     /// Detector Geometry Service (builds G4 Geometry)
-    ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+    ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc{this, "DetGeoSvc", "DetectorGeometrySvc", ""};
     /// Service to convert ISF_Particles into a G4Event
-    ServiceHandle<ISF::IInputConverter> m_inputConverter;
-    /// Helper Tool to provide G4RunManager
-    ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
+    ServiceHandle<ISF::IInputConverter> m_inputConverter{this, "InputConverter", "ISF_InputConverter", ""};
     /// Physics List Tool
-    ToolHandle<IPhysicsListTool> m_physListTool;
+    PublicToolHandle<IPhysicsListTool> m_physListTool{this, "PhysicsListTool", "PhysicsListToolBase", ""};
     /// Sensitive Detector Master Tool
-    ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+    ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool{this, "SenDetMasterTool", "SensitiveDetectorMasterTool", ""};
     /// Fast Simulation Master Tool
-    ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
+    ToolHandle<IFastSimulationMasterTool> m_fastSimTool{this, "FastSimMasterTool", "FastSimulationMasterTool", ""};
     /// @}
-
-    G4AtlasRunManager    *m_pRunMgr;
 
   };
 

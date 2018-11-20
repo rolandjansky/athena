@@ -17,7 +17,7 @@
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 #include "xAODTruth/TruthParticle.h" // typedef, can't fwd declare
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CutFlow.h"
+#include "InDetPhysValMonitoring/CutFlow.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -33,14 +33,21 @@ public:
   };
   StatusCode initialize() final;
   StatusCode finalize() final;
-  bool accept(const xAOD::IParticle* particle) final;
-  void clearCounters() final;
-  std::vector<unsigned int> counters() const final;
+
+  virtual IAthSelectionTool::CutResult
+  accept(const xAOD::IParticle* particle) const final;
+
+  virtual IAthSelectionTool::CutResult
+  testAllCuts(const xAOD::IParticle * p, std::vector<unsigned int> &counter) const final;
+
+  unsigned int nCuts() const final {
+    return m_cutList.size();
+  }
+
   std::vector<std::string> names() const final;
-  std::string str() const final;
 
 private:
-  CutFlow<xAOD::TruthParticle> m_cutFlow;
+  CutList<xAOD::TruthParticle> m_cutList;
   // Cut values;
   float m_maxEta;
   float m_maxPt;
@@ -67,9 +74,9 @@ private:
   float m_maxRadiusDisc; ///< for disk topology: maximum radius
 
   //cache surfaces
-  mutable Trk::CylinderSurface* m_cylinder;
-  mutable Trk::DiscSurface* m_disc1;
-  mutable Trk::DiscSurface* m_disc2;
+  std::unique_ptr<Trk::CylinderSurface> m_cylinder;
+  std::unique_ptr<Trk::DiscSurface>     m_disc1;
+  std::unique_ptr<Trk::DiscSurface>     m_disc2;
 
 
   /* @} */

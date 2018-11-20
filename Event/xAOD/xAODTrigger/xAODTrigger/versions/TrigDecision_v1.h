@@ -188,9 +188,9 @@ namespace xAOD {
 
    }; // class TrigDecision_v1
 
-} // namespace xAOD
+   std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td);
 
-std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td);
+} // namespace xAOD
 
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"

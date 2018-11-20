@@ -37,7 +37,7 @@ class LArHVFraction;
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloDetDescr/CaloDepthTool.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
+#include "CaloInterface/ILArHVFraction.h"
 //#include "fastjet/PseudoJet.hh"
 #include <string>
 #include <vector>
@@ -130,12 +130,7 @@ class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, Calo
 
   ToolHandle<CaloDepthTool> m_caloDepthTool;
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
-  ToolHandle<ILArHVCorrTool> m_larHVScaleRetriever;
-
-  /**
-   * @brief HV fraction is need to check for HV affected LAr cells
-   */
-  LArHVFraction * m_larHVFraction;
+  ToolHandle<ILArHVFraction> m_larHVFraction;
 
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.

@@ -18,7 +18,7 @@
  * multiples of 16bit @c shorts. 
  */
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 
 class CaloCompactCell 

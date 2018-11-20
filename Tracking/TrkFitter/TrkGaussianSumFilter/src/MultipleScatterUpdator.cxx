@@ -21,14 +21,6 @@ decription           : Implementation code for multiple scatter updator
 
 #include <cmath>
 
-namespace {
-const Trk::ParticleMasses s_particleMasses{};
-constexpr double s_multipleScatterMainFactor = 13.6 * Gaudi::Units::MeV;
-constexpr double s_multipleScatterLogFactor = 0.038;
-constexpr double s_main_RossiGreisen = 17.5 * Gaudi::Units::MeV;
-constexpr double s_log_RossiGreisen = 0.125;
-}
-
 Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
@@ -135,7 +127,9 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
   const Amg::Vector3D& globalMomentum = trackParameters.momentum();
   double p = globalMomentum.mag();
 
-  double pathcorrection = pathLength/materialProperties.thickness();
+  double pathcorrection = 1.;
+  if(materialProperties.thickness() != 0) 
+    pathcorrection = pathLength/materialProperties.thickness();
 
   //Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
   //and create a dummy materialProperties with the properties we are interested in

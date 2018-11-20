@@ -36,111 +36,89 @@ namespace ViewHelper
   //Function to create a vector of views, each populated with one data object
   template< typename T >
   inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, ViewContainer* ViewVector,
-				     SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool const allowFallThrough=true )
+                                     SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool const allowFallThrough=true )
   {
+    //Check for spaces in the name
+    if ( ViewNameRoot.find( " " ) != std::string::npos )
+    {
+      return StatusCode::FAILURE;
+    }
+
     //Make a WriteHandle to use
     SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
 
     //Loop over all input data
     unsigned int const viewNumber = InputData.size();
     for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
+    {
+      //Create view
+      SG::View * outputView = new SG::View( ViewNameRoot, viewIndex, allowFallThrough );
+      ViewVector->push_back( outputView );
+
+      //Attach a handle to the view
+      StatusCode sc = populateHandle.setProxyDict( outputView );
+      if ( !sc.isSuccess() )
       {
-	//Create view
-	std::string viewName = ViewNameRoot + std::to_string( viewIndex );
-	SG::View * outputView = new SG::View( viewName, allowFallThrough );
-	ViewVector->push_back( outputView );
-
-	//Attach a handle to the view
-	StatusCode sc = populateHandle.setProxyDict( outputView );
-	if ( !sc.isSuccess() )
-	  {
-	    ViewVector->clear();
-	    return sc;
-	  }
-
-	//Populate the view
-	sc = populateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
-	if ( !sc.isSuccess() )
-	  {
-	    ViewVector->clear();
-	    return sc;
-	  }
+        ViewVector->clear();
+        return sc;
       }
 
-    return StatusCode::SUCCESS;
-  }
-
-  //Function to add data to existing views
-  template< typename T >
-  inline StatusCode Populate( ViewContainer const& ViewVector,
-			      SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData )
-  {
-    //Make a WriteHandle to use
-    SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
-
-    //Vector length check
-    unsigned int const viewNumber = InputData.size();
-    if ( viewNumber != ViewVector.size() ) return StatusCode::FAILURE;
-
-    //Loop over all input data
-    for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
+      //Populate the view
+      sc = populateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
+      if ( !sc.isSuccess() )
       {
-	//Attach the handle to the view
-	StatusCode sc = populateHandle.setProxyDict( ViewVector.at( viewIndex ) );
-	if ( !sc.isSuccess() )
-	  {
-	    return sc;
-	  }
-
-	//Populate the view
-	sc = populateHandle.record( CxxUtils::make_unique< T >( InputData.at( viewIndex ) ) );
-	if ( !sc.isSuccess() )
-	  {
-	    return sc;
-	  }
+        ViewVector->clear();
+        return sc;
       }
+    }
 
     return StatusCode::SUCCESS;
   }
 
   //Function to attach a set of views to a graph node
   inline StatusCode ScheduleViews( ViewContainer * ViewVector, std::string const& NodeName,
-				   EventContext const& SourceContext, IScheduler * Scheduler )
+                                   EventContext const& SourceContext, IScheduler * Scheduler )
   {
     //Prevent view nesting - test if source context has view attached
-    Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
-    if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
-      {
-	return StatusCode::FAILURE;
+    if ( SourceContext.template hasExtension<Atlas::ExtendedEventContext>() ) {
+      if ( dynamic_cast< SG::View* >( SourceContext.template getExtension<Atlas::ExtendedEventContext>().proxy() ) ) {
+        return StatusCode::FAILURE;
       }
+    }
+    // Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+    // if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
+    // {
+    //   return StatusCode::FAILURE;
+    // }
 
     //Retrieve the scheduler
     if ( !Scheduler )
-      {
-	return StatusCode::FAILURE;
-      }
+    {
+      return StatusCode::FAILURE;
+    }
 
     if ( not ViewVector->empty() )
+    {
+      Atlas::ExtendedEventContext const extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+      for ( SG::View* view : *ViewVector )
       {
-	for ( SG::View* view : *ViewVector )
-	  {
-	    //Make a context with the view attached
-	    EventContext * viewContext = new EventContext( SourceContext );
-	    viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext->conditionsRun() ) );
+        //Make a context with the view attached
+        auto viewContext = std::make_unique< EventContext >( SourceContext );
+        viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
 
-	    //Attach the view to the named node
-	    StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, viewContext );
-	    if ( !sc.isSuccess() )
-	      {
-		return StatusCode::FAILURE;
-	      }
-	  }
+        //Attach the view to the named node
+        StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );
+        if ( !sc.isSuccess() )
+        {
+          return StatusCode::FAILURE;
+        }
       }
+    }
     else
-      {
-	//Disable the node if no views
-	return Scheduler->scheduleEventView( &SourceContext, NodeName, 0 );
-      }
+    {
+      //Disable the node if no views
+      return Scheduler->scheduleEventView( &SourceContext, NodeName, 0 );
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -163,20 +141,20 @@ namespace ViewHelper
 
       //Loop over all views
       for ( SG::View* inputView : ViewVector )
-	{
-	  //Attach the handle to the view
-	  StatusCode sc = queryHandle.setProxyDict( inputView );
-	  if ( !sc.isSuccess() )
-	    {
-	      m_msg << MSG::ERROR <<"Failed to use view " << inputView->name() << " to read " << queryHandle.key() << " resetting output" << endmsg;
-	      OutputData.clear();
-	      return sc;
-	    }
+      {
+        //Attach the handle to the view
+        StatusCode sc = queryHandle.setProxyDict( inputView );
+        if ( !sc.isSuccess() )
+        {
+          m_msg << MSG::ERROR <<"Failed to use view " << inputView->name() << " to read " << queryHandle.key() << " resetting output" << endmsg;
+          OutputData.clear();
+          return sc;
+        }
 
-	  //Merge the data
-	  T inputData = *queryHandle;
-	  OutputData.insert( OutputData.end(), inputData.begin(), inputData.end() );
-	}
+        //Merge the data
+        T inputData = *queryHandle;
+          OutputData.insert( OutputData.end(), inputData.begin(), inputData.end() );
+      }
 
       return StatusCode::SUCCESS;
     }
@@ -189,10 +167,10 @@ namespace ViewHelper
     {
       //Check that there's a non-const aux store for output bookkeeping
       if ( !OutputData.getStore() )
-	{
-	  m_msg << MSG::ERROR << "output data does not have the store"  << endmsg;
-	  return StatusCode::FAILURE;
-	}
+      {
+        m_msg << MSG::ERROR << "output data does not have the store"  << endmsg;
+        return StatusCode::FAILURE;
+      }
 
       //Make ReadHandle to access views
       SG::ReadHandle< DataVector< T > > queryHandle( QueryKey, SourceContext );
@@ -203,41 +181,42 @@ namespace ViewHelper
       //Loop over all views
       unsigned int offset = 0;
       for ( unsigned int viewIndex = 0; viewIndex < ViewVector.size(); ++viewIndex )
-	{
-	  SG::View * inputView = ViewVector.at( viewIndex );
+      {
+        SG::View * inputView = ViewVector.at( viewIndex );
 
-	  //Attach the handle to the view
-	  StatusCode sc = queryHandle.setProxyDict( inputView );
-	  if ( !sc.isSuccess() )
-	    {
-	      m_msg << MSG::ERROR << "Failed to use view " << inputView->name() << " to read " << queryHandle.key() << " clearing output" << endmsg;
-	      OutputData.clear();
-	      return sc;
-	    }
+        //Attach the handle to the view
+        StatusCode sc = queryHandle.setProxyDict( inputView );
+        if ( !sc.isSuccess() )
+        {
+          m_msg << MSG::ERROR << "Failed to use view " << inputView->name() << " to read " << queryHandle.key() << " clearing output" << endmsg;
+          OutputData.clear();
+          return sc;
+        }
 
-	  //Nothing to do for empty collections
-	  if ( queryHandle->size() == 0 ) {
-	    m_msg << MSG::DEBUG << "Empty collection " << queryHandle.key() <<" in a view " << inputView->name() <<endmsg;
-	    continue;
-	  }
+        //Nothing to do for empty collections
+        if ( queryHandle->size() == 0 )
+        {
+          m_msg << MSG::DEBUG << "Empty collection " << queryHandle.key() <<" in a view " << inputView->name() <<endmsg;
+          continue;
+        }
 
-	  //Merge the data
-	  for ( const auto inputObject : *queryHandle.cptr() )
-	    {
-	      //Element-wise copy data
-	      T * outputObject = new T();
-	      OutputData.push_back( outputObject );
-	      *outputObject = *inputObject;
+        //Merge the data
+        for ( const auto inputObject : *queryHandle.cptr() )
+        {
+          //Element-wise copy data
+          T * outputObject = new T();
+          OutputData.push_back( outputObject );
+          *outputObject = *inputObject;
 
-	      //Add aux data for bookkeeping
-	      viewBookkeeper( *outputObject ) = viewIndex;
-	    }
-	  m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
+          //Add aux data for bookkeeping
+          viewBookkeeper( *outputObject ) = viewIndex;
+        }
+        m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
 
-	  //Declare remapping
-	  m_sg->remap( ClassID_traits< DataVector< T > >::ID(), inputView->name() + "_" + queryHandle.name(), queryHandle.name(), offset );
-	  offset += queryHandle->size();
-	}
+        //Declare remapping
+        m_sg->remap( ClassID_traits< DataVector< T > >::ID(), inputView->name() + "_" + queryHandle.name(), queryHandle.name(), offset );
+        offset += queryHandle->size();
+      }
 
       return StatusCode::SUCCESS;
     }
@@ -246,11 +225,15 @@ namespace ViewHelper
   /**
    * @arg unique_index - gets appended to the view name if >= 0
    */
-  inline SG::View* makeView( const std::string& common_name, int const unique_index=-1, bool const allowFallThrough = true) {
-    return  (( unique_index == -1 ) ?
-	     new SG::View( common_name, allowFallThrough ) :
-	     new SG::View( common_name+ " "+std::to_string(unique_index), allowFallThrough ) );
+  inline SG::View* makeView( const std::string& common_name, int const unique_index=-1, bool const allowFallThrough = true)
+  {
+    //Check for spaces in the name
+    if ( common_name.find( " " ) != std::string::npos )
+    {
+      return nullptr;
+    }
 
+    return new SG::View( common_name, unique_index, allowFallThrough );
   }
 
   /**
@@ -315,7 +298,7 @@ namespace ViewHelper
     return handle;
   }
 
-  
+
   /**
    * Create EL to a collection in view
    * @warning no checks are made as to the validity of the created EL

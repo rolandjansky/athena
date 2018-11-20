@@ -197,7 +197,7 @@ void TileGeoG4Section::AddModuleToCell(bool negative) {
 }
 
 void TileGeoG4Section::PrintScinToCell(std::string section_name) {
-  if (m_verboseLevel <= 5) return;
+  if (m_verboseLevel < 5) return;
   int l_nRow = nrOfScintillators;
   int i = 0;
 

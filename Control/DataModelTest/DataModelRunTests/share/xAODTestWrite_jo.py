@@ -25,6 +25,7 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
 
+include ('DataModelRunTests/loadWriteDicts.py')
 
 
 #--------------------------------------------------------------
@@ -62,13 +63,6 @@ topSequence += DMTest__MetaWriterAlg ("MetaWriterAlg")
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-import ROOT
-import cppyy
-cppyy.loadDictionary("libDataModelTestDataCommonDict")
-cppyy.loadDictionary("libDataModelTestDataWriteDict")
-ROOT.DMTest.B
-ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
-
 theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 # ItemList:

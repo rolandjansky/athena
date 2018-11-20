@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // P4PxPyPzECnv_p1.cxx 
@@ -16,11 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // NavFourMom includes
-#define private public
-#define protected public
 #include "FourMom/P4PxPyPzE.h"
-#undef protected
-#undef private
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PxPyPzECnv_p1.h"
@@ -44,10 +40,10 @@ P4PxPyPzECnv_p1::persToTrans( const P4PxPyPzE_p1* persObj,
 			      P4PxPyPzE* transObj, 
 			      MsgStream &/*log*/ )
 {
-  transObj->m_px = (double)persObj->m_px;
-  transObj->m_py = (double)persObj->m_py;
-  transObj->m_pz = (double)persObj->m_pz;
-  transObj->m_e  = (double)persObj->m_ene;
+  transObj->setPx ((double)persObj->m_px);
+  transObj->setPy ((double)persObj->m_py);
+  transObj->setPz ((double)persObj->m_pz);
+  transObj->setE  ((double)persObj->m_ene);
   return;
 }
 
@@ -56,10 +52,10 @@ P4PxPyPzECnv_p1::transToPers( const P4PxPyPzE* transObj,
 			      P4PxPyPzE_p1* persObj, 
 			      MsgStream &/*log*/ )
 {
-  persObj->m_px  = (float)transObj->m_px;
-  persObj->m_py  = (float)transObj->m_py;
-  persObj->m_pz  = (float)transObj->m_pz;
-  persObj->m_ene = (float)transObj->m_e;
+  persObj->m_px  = (float)transObj->px();
+  persObj->m_py  = (float)transObj->py();
+  persObj->m_pz  = (float)transObj->pz();
+  persObj->m_ene = (float)transObj->e();
   return;
 }
 

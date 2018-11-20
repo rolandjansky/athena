@@ -5,12 +5,13 @@
 #include <math.h>
 #include <iostream>
 #include <exception>
+#include "TrkVKalVrtCore/TrkVKalUtils.h"
 
 namespace Trk {
 
 #define max(a,b) ((a) >= (b) ? (a) : (b))
-extern double d_sign(double , double );
-       void vkGetEigVal(double ci[], double d[], int n);
+
+void vkGetEigVal(double ci[], double d[], int n);
 
 double cfSmallEigenvalue(double *cov,long int n )
 {

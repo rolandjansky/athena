@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileEvent/TileCell.h"
@@ -180,12 +180,12 @@ StatusCode TileROD_Decoder::initialize() {
   CHECK( m_tileToolEmscale.retrieve() );
  
   // Get Tool to TileChannelBuilder, to be used to convert automatically digits->channels.
-  ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
-  ListItem algRC(m_TileDefaultChannelBuilder);
-  CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
+  //ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
+  //ListItem algRC(m_TileDefaultChannelBuilder);
+  //CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
   
-  ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
-  CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
+  //ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
+  //CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
   
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
@@ -211,9 +211,6 @@ StatusCode TileROD_Decoder::initialize() {
   } else {
     m_L2Builder = 0;
   }
-  
-  // Resets error flag
-  m_error = 0x0;
   
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
@@ -2891,9 +2888,10 @@ StatusCode TileROD_Decoder::convert(const RawEvent* re, TileL2Container* L2Cnt) 
 
 void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v) {
   uint32_t version = rob->rod_version() & 0xFFFF;
-  
+
+  uint32_t error = 0;
   uint32_t wc = 0;
-  uint32_t size = data_size(rob);
+  uint32_t size = data_size(rob, error);
   const uint32_t * p = get_data(rob);
   int fragmin = 0xFFF, fragmax = -1;
   
@@ -2906,7 +2904,12 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
       if ((m_WarningCounter++) < m_maxWarningPrint)
         ATH_MSG_WARNING("fillCollectionL2( corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
     }
-    if (V3format) ++p; // skip frag marker
+    if (V3format) {
+      ++p; // skip frag marker
+      m_sizeOverhead = 3;
+    } else {
+      m_sizeOverhead = 2;
+    }
   }
   
   while (wc < size) { // iterator over all words in a ROD
@@ -3011,7 +3014,8 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
 }
 
 void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container & v) {
-  uint32_t size = data_size(rob);
+  uint32_t error = 0;
+  uint32_t size = data_size(rob, error);
   const uint32_t * p = get_data(rob);
   const uint32_t ROB_to_decode = ((*p) & 0xFFFF); // Multiply by two
   const uint32_t virtualROBJump = ((*p) >> 16) >> 2; // Divide by four (four drawer-1ROB)
@@ -3092,8 +3096,9 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   
   uint32_t version = rob->rod_version() & 0xFFFF;
   
+  uint32_t error = 0;
   uint32_t wc = 0;
-  uint32_t size = data_size(rob);
+  uint32_t size = data_size(rob, error);
   const uint32_t * p = get_data(rob);
   
   ATH_MSG_DEBUG(" Version = " << version <<
@@ -3193,10 +3198,11 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   }
 } //end of FillLaserObj
 
-void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection & v) {
+uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection & v,
+                                            D0CellsHLT& d0cells) {
   uint32_t version = rob->rod_version() & 0xFFFF;
   // Resets error flag
-  m_error = 0x0;
+  uint32_t error = 0x0;
   
   // figure out which fragment we want to unpack
   TileRawChannelCollection::ID frag_id = v.identify();
@@ -3209,7 +3215,7 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
    */
   
   uint32_t wc = 0;
-  uint32_t size = data_size(rob);
+  uint32_t size = data_size(rob, error);
   const uint32_t * p = get_data(rob);
   // prepare bcid with one extra bit set for comparison with bcid in DQ fragment
   uint16_t rob_bcid = ((rob->rod_bc_id() & 0x7FFF) | 0x8000);
@@ -3266,7 +3272,7 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
           msg(MSG::WARNING) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
         }
       }
-      m_error |= 0x10000;
+      error |= 0x10000;
       continue;
     }
     
@@ -3340,25 +3346,28 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
     wc += count;
   }
   
-  if (DQfragMissing && !masked_drawer) m_error |= 0x40000;
+  if (DQfragMissing && !masked_drawer) error |= 0x40000;
   
   if (fragFound) {
     if (masked_drawer) DQuality = 0x0;
-    make_copyHLT(m_pRwChVec, v, DQuality);
-  } else if (!masked_drawer) m_error |= 0x20000;
+    error |= make_copyHLT(m_pRwChVec, v, DQuality, d0cells);
+  } else if (!masked_drawer) error |= 0x20000;
   
-  return;
+  return error;
 }
 
-void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
-                                   const uint16_t DQuality) {
+uint32_t TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
+                                       const uint16_t DQuality,
+                                       D0CellsHLT& d0cells) {
   typedef pFRwChVec::iterator ITERATOR;
   // int gain = 0;
   float ener, time, qual = 0;
   TileCell* pCell;
+  uint32_t error = 0;
+
   m_cell2Double.clear();
   
-  if (DQuality == 0xffff) m_error |= 0x80000;
+  if (DQuality == 0xffff) error |= 0x80000;
   
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
@@ -3434,13 +3443,13 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
       }
       
       if (sec > 0) { // sec=1 - negative
-        m_D0channeg[drawer].set(channelIdx, adcIdx, ener, time, qual);
-        m_D0Existneg[drawer] = true;
-        m_D0Maskneg[drawer] = do_mask;
+        d0cells.m_D0channeg[drawer].set(channelIdx, adcIdx, ener, time, qual);
+        d0cells.m_D0Existneg[drawer] = true;
+        d0cells.m_D0Maskneg[drawer] = do_mask;
       } else { // sec=0 - positive
-        m_D0chanpos[drawer].set(channelIdx, adcIdx, ener, time, qual);
-        m_D0Existpos[drawer] = true;
-        m_D0Maskpos[drawer] = do_mask;
+        d0cells.m_D0chanpos[drawer].set(channelIdx, adcIdx, ener, time, qual);
+        d0cells.m_D0Existpos[drawer] = true;
+        d0cells.m_D0Maskpos[drawer] = do_mask;
       }
       ++rawItr; // done with first channel in barrel, go to second
       ++idxraw;
@@ -3567,7 +3576,8 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
     (*d_it)->setQuality_nonvirt(static_cast<unsigned char>(qual), 0, 1);
     if ((*d_it)->time() == -100.0F) (*d_it)->setTime_nonvirt(0.0F);
   }
-  
+
+  return error;
 }
 
 void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
@@ -3899,7 +3909,7 @@ bool TileROD_Decoder::unpack_frag5L2(uint32_t /* version */, const uint32_t* p,
   }
 }
 
-void TileROD_Decoder::initD0cellsHLT() {
+void TileROD_Decoder::D0CellsHLT::clear() {
   for (int i = 0; i < 64; ++i) {
     m_D0Existneg[i] = false;
     m_D0Existpos[i] = false;
@@ -3908,7 +3918,8 @@ void TileROD_Decoder::initD0cellsHLT() {
   }
 }
 
-void TileROD_Decoder::mergeD0cellsHLT(TileCellCollection & v) {
+void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
+                                      TileCellCollection & v) {
   
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
@@ -3916,31 +3927,31 @@ void TileROD_Decoder::mergeD0cellsHLT(TileCellCollection & v) {
     int drawer = (frag_id & 0xFF);
     TileCellCollection::iterator pCell = v.begin();
     pCell += 2;
-    if (m_D0Existneg[drawer] && m_D0Existpos[drawer]) {
-      double amp1 = m_D0chanpos[drawer].amplitude();
-      double amp2 = m_D0channeg[drawer].amplitude();
-      int gain1 = m_D0chanpos[drawer].adc();
-      int gain2 = m_D0channeg[drawer].adc();
-      if ((!m_D0Maskneg[drawer]) && (!m_D0Maskpos[drawer])) {
+    if (d0cells.m_D0Existneg[drawer] && d0cells.m_D0Existpos[drawer]) {
+      double amp1 = d0cells.m_D0chanpos[drawer].amplitude();
+      double amp2 = d0cells.m_D0channeg[drawer].amplitude();
+      int gain1 = d0cells.m_D0chanpos[drawer].adc();
+      int gain2 = d0cells.m_D0channeg[drawer].adc();
+      if ((!d0cells.m_D0Maskneg[drawer]) && (!d0cells.m_D0Maskpos[drawer])) {
         (*pCell)->setEnergy(amp1, amp2, gain1, gain2);
-        (*pCell)->setTime(m_D0chanpos[drawer].time());
-        (*pCell)->setTime(m_D0channeg[drawer].time(), 1);
-        (*pCell)->setQuality(static_cast<unsigned char>(m_D0chanpos[drawer].quality()), 0, 0);
-        (*pCell)->setQuality(static_cast<unsigned char>(m_D0channeg[drawer].quality()), 0, 1);
-      } else if (m_D0Maskpos[drawer]) {
+        (*pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
+        (*pCell)->setTime(d0cells.m_D0channeg[drawer].time(), 1);
+        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
+        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 1);
+      } else if (d0cells.m_D0Maskpos[drawer]) {
         (*pCell)->setEnergy(amp2, amp2, gain1, gain2);
-        (*pCell)->setTime(m_D0channeg[drawer].time());
-        (*pCell)->setQuality(static_cast<unsigned char>(m_D0channeg[drawer].quality()), 0, 0);
+        (*pCell)->setTime(d0cells.m_D0channeg[drawer].time());
+        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 0);
       } else {
         (*pCell)->setEnergy(amp1, amp1, gain1, gain1);
-        (*pCell)->setTime(m_D0chanpos[drawer].time());
-        (*pCell)->setQuality(static_cast<unsigned char>(m_D0chanpos[drawer].quality()), 0, 0);
+        (*pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
+        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
       }
-    } else if (m_D0Existpos[drawer]) {
-      double amp1 = m_D0chanpos[drawer].amplitude();
-      int gain1 = m_D0chanpos[drawer].adc();
-      (*pCell)->setEnergy(amp1, m_D0chanpos[drawer].time(), gain1, 1);
-      (*pCell)->setQuality(static_cast<unsigned char>(m_D0chanpos[drawer].quality()), 0, 1);
+    } else if (d0cells.m_D0Existpos[drawer]) {
+      double amp1 = d0cells.m_D0chanpos[drawer].amplitude();
+      int gain1 = d0cells.m_D0chanpos[drawer].adc();
+      (*pCell)->setEnergy(amp1, d0cells.m_D0chanpos[drawer].time(), gain1, 1);
+      (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 1);
     }
   }
 }

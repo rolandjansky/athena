@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
@@ -15,6 +15,7 @@
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/WriteHandle.h"
+#include "AthAllocators/DataPool.h"
 
 // Gaudi includes
 
@@ -116,7 +117,7 @@ StatusCode TileRawChannelBuilder::initialize() {
   m_capdaq = 0;
   m_chCounter = 0;
   m_evtCounter = 0;
-  m_rawChannelCnt = NULL;
+  m_rawChannelCnt = nullptr;
   m_nChL = m_nChH = 0;
   m_RChSumL = m_RChSumH = 0.0;
 
@@ -191,7 +192,8 @@ StatusCode TileRawChannelBuilder::createContainer() {
   initLog();
 
   // create TRC container
-  m_rawChannelCnt = std::make_unique<TileRawChannelContainer>(true, m_rChType, m_rChUnit, SG::VIEW_ELEMENTS);
+  m_rawChannelCnt = std::make_unique<TileMutableRawChannelContainer>(true, m_rChType, m_rChUnit, SG::VIEW_ELEMENTS);
+  ATH_CHECK( m_rawChannelCnt->status() );
   m_rawChannelCnt->set_bsflags(m_bsflags);
 
   ATH_MSG_DEBUG( "Created TileRawChannelContainer '" << m_rawChannelContainerKey.key() << "'" );
@@ -245,7 +247,9 @@ void TileRawChannelBuilder::initLog() {
 TileRawChannel* TileRawChannelBuilder::rawChannel(const TileDigits* digits) {
   ++m_chCounter;
   ATH_MSG_WARNING( "Default constructor for rawChannel!" );
-  TileRawChannel *rawCh = new TileRawChannel(digits->adc_HWID(), 0.0, 0.0, 0.0);
+  DataPool<TileRawChannel> tileRchPool (100);
+  TileRawChannel *rawCh = tileRchPool.nextElementPtr();
+  rawCh->assign (digits->adc_HWID(), 0.0, 0.0, 0.0);
   return rawCh;
 }
 
@@ -443,7 +447,7 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
 void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
   int frag = coll->identify();
 
-  // make sure that errror array is up-to-date
+  // make sure that error array is up-to-date
   if (frag != s_lastDrawer && m_notUpgradeCabling) {
     fill_drawer_errors(coll);
   }
@@ -477,7 +481,10 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
 
     }
 
-    m_rawChannelCnt->push_back(rch);
+    StatusCode sc = m_rawChannelCnt->push_back (rch);
+    if (sc.isFailure()) {
+      REPORT_ERROR(sc) << "push_back failed.";
+    }
   }
 }
 
@@ -487,68 +494,63 @@ StatusCode TileRawChannelBuilder::commitContainer() {
   ToolHandleArray<ITileRawChannelTool>::iterator endTool = m_noiseFilterTools.end();
 
   const TileRawChannelContainer * dspCnt = m_beamInfo->dspContainer();
+  std::unique_ptr<TileMutableRawChannelContainer> copiedDspCnt;
 
   if ( m_useDSP && (m_beamInfo->incompleteDigits() || m_chCounter<12288) && dspCnt && itrTool!=endTool) {
     ATH_MSG_DEBUG( "Incomplete container - use noise filter corrections from DSP container" );
-    if (m_beamInfo->noiseFilterApplied()) {
-      ATH_MSG_DEBUG( "Noise filter was already applied to DSP container before, use it as it is" );
-    } else {
-      for (;itrTool!=endTool;++itrTool){
-        /// FIXME: const_cast
-        if ((*itrTool)->process(const_cast<TileRawChannelContainer*>(dspCnt)).isFailure()) {
-          ATH_MSG_ERROR( " Error status returned from noise filter " );
-        } else {
-          ATH_MSG_DEBUG( "Noise filter applied to DSP container" );
-        }
+    copiedDspCnt = std::make_unique<TileMutableRawChannelContainer> (*dspCnt);
+    ATH_CHECK( copiedDspCnt->status() );
+    dspCnt = copiedDspCnt.get();
+    for (;itrTool!=endTool;++itrTool){
+      if ((*itrTool)->process(*copiedDspCnt).isFailure()) {
+        ATH_MSG_ERROR( " Error status returned from noise filter " );
+      } else {
+        ATH_MSG_DEBUG( "Noise filter applied to DSP container" );
       }
-      m_beamInfo->setNoiseFilterApplied(true);
     }
 
-    TileRawChannelContainer::const_iterator itColl = m_rawChannelCnt->begin();
-    TileRawChannelContainer::const_iterator itCollEnd = m_rawChannelCnt->end();
+    std::vector<IdentifierHash> hashes = m_rawChannelCnt->GetAllCurrentHashes();
+    std::vector<IdentifierHash> dspHashes = dspCnt->GetAllCurrentHashes();
+    if (hashes != dspHashes) {
+      ATH_MSG_ERROR( " Error in applying noise corrections; "
+                     "hash vectors do not match.");
+    }
+    else {
+      // Go through all TileRawChannelCollections
+      for (IdentifierHash hash : hashes) {
+              TileRawChannelCollection* coll  = m_rawChannelCnt->indexFindPtr (hash);
+        const TileRawChannelCollection* dcoll = dspCnt->indexFindPtr (hash);
 
-    TileRawChannelContainer::const_iterator dtColl = dspCnt->begin();
-    TileRawChannelContainer::const_iterator dtCollEnd = dspCnt->end();
+        if (coll->identify() != dcoll->identify()) {
 
-    // Go through all TileRawChannelCollections
-    for (; itColl != itCollEnd && dtColl !=dtCollEnd; ++itColl, ++dtColl) {
-      const TileRawChannelCollection *coll = (*itColl);
-      const TileRawChannelCollection *dcoll = (*dtColl);
-
-      if (coll->identify() != dcoll->identify()) {
-
-        ATH_MSG_ERROR( " Error in applying noise corrections " << MSG::hex 
-                       << " collection IDs 0x" << coll->identify() <<  " and 0x" << dcoll->identify() 
-                       << " do not match " << MSG::dec );
-        break;
-      }
-      
-      // iterate over all channels in a collection
-      TileRawChannelCollection::const_iterator rchItr=coll->begin();
-      TileRawChannelCollection::const_iterator lastRch=coll->end();
-
-      TileRawChannelCollection::const_iterator dspItr=dcoll->begin();
-      TileRawChannelCollection::const_iterator dspLast=dcoll->end();
-
-      for(; rchItr!=lastRch; ++rchItr) {
-        const TileRawChannel* rch = (*rchItr);
-        HWIdentifier adc_id = rch->adc_HWID();
-        while (dspItr != dspLast && adc_id != (*dspItr)->adc_HWID()) {
-          ++dspItr;
+          ATH_MSG_ERROR( " Error in applying noise corrections " << MSG::hex 
+                         << " collection IDs 0x" << coll->identify() <<  " and 0x" << dcoll->identify() 
+                         << " do not match " << MSG::dec );
+          break;
         }
-        if (dspItr != dspLast) {
-          float corr = (*dspItr)->pedestal();
-          ATH_MSG_VERBOSE( "Ch "<<m_tileHWID->to_string(adc_id)
-                           <<" amp " << rch->amplitude() << " ped " << rch->pedestal() 
-                           << " corr " << corr );
-          /// FIXME: const_cast
-          const_cast<TileRawChannel*>(rch)->setAmplitude (rch->amplitude() - corr);
-          const_cast<TileRawChannel*>(rch)->setPedestal (rch->pedestal() + corr);
-        } else {
-          ATH_MSG_WARNING(" Problem in applying noise corrections " 
-                        << " can not find channel in DSP container with HWID "
-                        << m_tileHWID->to_string(adc_id) );
-          dspItr = dcoll->begin();
+      
+        // iterate over all channels in a collection
+        TileRawChannelCollection::const_iterator dspItr=dcoll->begin();
+        TileRawChannelCollection::const_iterator dspLast=dcoll->end();
+
+        for (TileRawChannel* rch : *coll) {
+          HWIdentifier adc_id = rch->adc_HWID();
+          while (dspItr != dspLast && adc_id != (*dspItr)->adc_HWID()) {
+            ++dspItr;
+          }
+          if (dspItr != dspLast) {
+            float corr = (*dspItr)->pedestal();
+            ATH_MSG_VERBOSE( "Ch "<<m_tileHWID->to_string(adc_id)
+                             <<" amp " << rch->amplitude() << " ped " << rch->pedestal() 
+                             << " corr " << corr );
+            rch->setAmplitude (rch->amplitude() - corr);
+            rch->setPedestal (rch->pedestal() + corr);
+          } else {
+            ATH_MSG_WARNING(" Problem in applying noise corrections " 
+                            << " can not find channel in DSP container with HWID "
+                            << m_tileHWID->to_string(adc_id) );
+            dspItr = dcoll->begin();
+          }
         }
       }
     }
@@ -556,7 +558,7 @@ StatusCode TileRawChannelBuilder::commitContainer() {
   } else {
 
     for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-      if (noiseFilterTool->process(m_rawChannelCnt.get()).isFailure()) {
+      if (noiseFilterTool->process(*m_rawChannelCnt.get()).isFailure()) {
         ATH_MSG_ERROR( " Error status returned from noise filter " );
       } else {
         ATH_MSG_DEBUG( "Noise filter applied to the container" );

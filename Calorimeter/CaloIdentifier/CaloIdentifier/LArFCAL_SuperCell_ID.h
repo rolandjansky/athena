@@ -5,9 +5,9 @@
 #ifndef CALOIDENTIFIER_LARFCAL_SUPERCELL_ID_H
 #define CALOIDENTIFIER_LARFCAL_SUPERCELL_ID_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloIdentifier/LArFCAL_Base_ID.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include <vector>
 #include <algorithm>

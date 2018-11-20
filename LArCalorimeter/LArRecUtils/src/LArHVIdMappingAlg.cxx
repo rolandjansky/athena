@@ -47,7 +47,7 @@ StatusCode LArHVIdMappingAlg::execute() {
   SG::WriteCondHandle<LArHVIdMapping> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
-    ATH_MSG_WARNING("Found valid write handle");
+    ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }  
 

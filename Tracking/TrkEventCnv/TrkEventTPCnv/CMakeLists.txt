@@ -130,3 +130,6 @@ foreach( name FitQualityCnv_p1_test LocalDirectionCnv_p1_test
       TrkTrackSummary TestTools AthenaBaseComps CxxUtils TrkEventTPCnv )
 
 endforeach()
+# Needed for the plugin service to see the test components
+# defined in the test binary.
+set_target_properties( TrkEventTPCnv_SurfaceCnv_p2_test PROPERTIES ENABLE_EXPORTS True )

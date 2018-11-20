@@ -37,7 +37,6 @@ include ("RecExCond/AllDet_detDescr.py")
 #--------------------------------------------------------------
 EventSelector = Service( "EventSelector" )
 EventSelector.InputCollections        = [ "SimplePoolFile2.root" ]
-EventSelector.BackNavigation         = True
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------

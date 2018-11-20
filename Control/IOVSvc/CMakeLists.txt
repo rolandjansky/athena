@@ -45,6 +45,14 @@ atlas_add_test( IOVSvcTool_test
                 EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( IOVSvc_test
+                SOURCES
+                test/IOVSvc_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel
+                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 # Install files from the package:
 atlas_install_joboptions( share/IOVSvc.txt share/IOVSvc.py )
 

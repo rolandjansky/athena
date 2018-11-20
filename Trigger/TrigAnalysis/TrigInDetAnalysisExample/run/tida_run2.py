@@ -261,8 +261,8 @@ TestMonTool.ntupleChainNames += [
 ]
 
 TestMonTool.outputFileName="TrkNtuple.root"
-ToolSvc += TestMonTool
-HLTMonManager.AthenaMonTools += [ "TrigTestMonToolAC/TestMonToolAC" ]
+#ToolSvc += TestMonTool
+HLTMonManager.AthenaMonTools += [ TestMonTool ]
 
 print TestMonTool
 

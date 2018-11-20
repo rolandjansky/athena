@@ -13,7 +13,7 @@
 #ifndef STOREDPHYSVOL_H 
 #define STOREDPHYSVOL_H
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <set>
 #include <string>
 

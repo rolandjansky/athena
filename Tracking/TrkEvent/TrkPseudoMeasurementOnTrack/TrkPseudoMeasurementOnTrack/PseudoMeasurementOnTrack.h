@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -63,6 +63,12 @@ namespace Trk{
 
       //! virtual constructor, not absolutely needed but given for EDM symmetry 
       virtual PseudoMeasurementOnTrack* clone() const override;
+
+      //! move constructor
+      PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&& pmot);
+
+      //! move assignment operator
+      PseudoMeasurementOnTrack& operator=(PseudoMeasurementOnTrack&& pmot);   
 
       //! returns the surface for the local to global transformation (interface from MeasurementBase)
       virtual const Surface& associatedSurface() const override;

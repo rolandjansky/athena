@@ -71,7 +71,8 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
 	bool m_is_mc;
         bool m_AFII_corr;
 	std::string m_ddVersion;
-        bool m_apply_dd, m_apply_ddDefault;
+        bool m_apply_dd;
+        bool m_apply_ddDefault;
         bool m_correct_etcone;
         bool m_trouble_categories;
         bool m_metadata_retrieved;

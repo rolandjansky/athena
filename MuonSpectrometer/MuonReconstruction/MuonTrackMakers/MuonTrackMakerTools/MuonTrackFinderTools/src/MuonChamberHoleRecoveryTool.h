@@ -32,6 +32,9 @@ class RpcIdHelper;
 class MdtIdHelper;
 class CscIdHelper;
 class TgcIdHelper;
+// New Small Wheel
+class sTgcIdHelper;
+class MmIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -75,7 +78,7 @@ namespace Muon {
     /** @brief destructor */
     virtual ~MuonChamberHoleRecoveryTool ();
     
-    /** @brief AlgTool initilize */
+    /** @brief AlgTool initialize */
     StatusCode initialize();
     
     /** @brief AlgTool finalize */
@@ -149,6 +152,16 @@ namespace Muon {
     void createHoleTSOSsForRpcChamber( const Identifier& detElId, const Trk::TrackParameters& pars,
 				       std::set<Identifier>& layIds, 
 				       std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states ) const;
+    
+    // New Small Wheel
+    void createHoleTSOSsForStgcChamber( const Identifier& detElId, const Trk::TrackParameters& pars,
+               std::set<Identifier>& layIds, 
+               std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states ) const;
+
+    void createHoleTSOSsForMmChamber( const Identifier& detElId, const Trk::TrackParameters& pars,
+ 				       std::set<Identifier>& layIds, 
+ 				       std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states ) const;
+               
 
     void createHoleTSOSsForClusterChamber( const Identifier& detElId, const Trk::TrackParameters& pars,
 					   std::set<Identifier>& layIds, std::set<Identifier>& chHoles, 
@@ -164,6 +177,9 @@ namespace Muon {
     const CscPrepDataCollection* findCscPrdCollection( const Identifier& detElId ) const;
     const TgcPrepDataCollection* findTgcPrdCollection( const Identifier& detElId ) const;
     const RpcPrepDataCollection* findRpcPrdCollection( const Identifier& detElId ) const;
+    // New Small Wheel
+    const sTgcPrepDataCollection* findStgcPrdCollection( const Identifier& detElId ) const;
+    const MMPrepDataCollection* findMmPrdCollection( const Identifier& detElId ) const;
 
 
     ServiceHandle<MuonStationIntersectSvc>           m_intersectSvc;      //<! pointer to hole search service
@@ -179,11 +195,12 @@ namespace Muon {
 
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
-    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt;                                //!< storegate location of the MdtPrepData
-    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_key_csc;                                //!< storegate location of the CscPrepData
-    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_key_tgc;                                //!< storegate location of the TgcPrepData
-    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc;                                //!< storegate location of the RpcPrepData
-
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
+    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_key_csc{this,"CscPrepDataContainer","CSC_Clusters","CSC PRDS"};
+    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_key_tgc{this,"TgcPrepDataContainer","TGC_Measurements","TGC PRDs"};
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
+    SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_key_stgc{this,"sTgcPrepDataContainer","STGC_Measurements","sTGC PRDs"};
+    SG::ReadHandleKey<Muon::MMPrepDataContainer> m_key_mm{this,"MMPrepDataContainer","MM_Measurements","MM PRDs"};
 
     bool m_addMeasurements;
     double m_associationPullCutEta;

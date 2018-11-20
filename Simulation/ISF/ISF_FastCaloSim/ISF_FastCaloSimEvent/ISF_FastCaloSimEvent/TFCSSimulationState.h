@@ -12,10 +12,18 @@
 
 class CaloDetDescrElement;
 
+namespace CLHEP
+{
+ class HepRandomEngine;
+}
+
 class TFCSSimulationState:public TObject
 {
   public:
-    TFCSSimulationState();
+    TFCSSimulationState(CLHEP::HepRandomEngine* randomEngine = nullptr);
+
+    CLHEP::HepRandomEngine* randomEngine() { return m_randomEngine; }
+    void   setRandomEngine(CLHEP::HepRandomEngine *engine) { m_randomEngine = engine; }
 
     bool   is_valid() const {return m_Ebin>=0;};
     double E() const {return m_Etot;};
@@ -36,15 +44,17 @@ class TFCSSimulationState:public TObject
     void deposit(const CaloDetDescrElement* cellele, float E);
     
     void Print(Option_t *option="") const;
-    void set_SF(double mysf) {SF=mysf;}
-    double get_SF() {return SF;}
+    void set_SF(double mysf) {m_SF = mysf;}
+    double get_SF() {return m_SF;}
 
     void clear();
   private:
+    CLHEP::HepRandomEngine* m_randomEngine;
+      
     int    m_Ebin;
     double m_Etot;
     // TO BE CLEANED UP! SHOULD ONLY STORE EITHER E OR EFRAC!!!
-    double SF;
+    double m_SF;
     double m_E[CaloCell_ID_FCS::MaxSample];
     double m_Efrac[CaloCell_ID_FCS::MaxSample];
     

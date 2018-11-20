@@ -5,13 +5,12 @@
 // Header include
 #include "TrigVKalFitter/TrigVKalFitter.h"
 #include "TrigVKalFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
 #include "CLHEP/Units/SystemOfUnits.h"
 #include<iostream>
 
- namespace Trk {
- extern vkalPropagator  myPropagator;
-}
+
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //                  ATLAS magnetic field access
   TrigAtlasMagFld::TrigAtlasMagFld(){
@@ -27,7 +26,7 @@
   {   m_FIXED_ATLAS_FIELD = field; }
   
   void TrigAtlasMagFld::getMagFld(const double x, const double y, const double z, 
-                                    double &bx, double &by, double &bz)
+                                    double &bx, double &by, double &bz) const
   {   
       double fieldXYZ[3];  double BField[3];
       fieldXYZ[0]=x;
@@ -55,12 +54,9 @@
      double Bx,By,Bz;
      m_fitField->getMagFld(0.,0.,0.,Bx,By,Bz);
      m_fitField->setAtlasMag(Bz);
-     if(m_PropagatorType == 0) m_PropagatorType = 1;  // set up Runge-Kutta propagator from Core
   }
 
   void TrigVKalFitter::setAthenaField(const double  Field)
   {
      m_fitField->setAtlasMag( Field );
-     if(m_PropagatorType == 1) m_PropagatorType = 0;  // set up constant field propagator if Runge-Kutta was
-                                                      // used before. Otherwise use what is set.
   }

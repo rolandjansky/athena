@@ -22,7 +22,7 @@ atlas_depends_on_subdirs(
    LumiBlock/LumiBlockComps
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    Reconstruction/RecoTools/RecoToolInterfaces
-   Reconstruction/egamma/egammaMVACalib
+   PhysicsAnalysis/ElectronPhotonID/egammaMVACalibAnalysis
    Trigger/TrigAnalysis/TrigDecisionTool
    Trigger/TrigAnalysis/TrigEgammaMatchingTool
    Trigger/TrigAnalysis/TrigEgammaEmulationTool
@@ -50,7 +50,7 @@ atlas_add_library( TrigEgammaAnalysisToolsLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
    xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger
    xAODTrigger xAODTruth LumiBlockCompsLib EgammaAnalysisInterfacesLib
-   RecoToolInterfaces egammaMVACalibLib TrigDecisionToolLib
+   RecoToolInterfaces egammaMVACalibAnalysisLib TrigDecisionToolLib
    TrigEgammaMatchingToolLib TrigEgammaEmulationToolLib TrigConfHLTData
    TrigSteeringEvent TrigHLTMonitoringLib PATCoreLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfxAODLib )

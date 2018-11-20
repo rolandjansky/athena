@@ -15,14 +15,15 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "AsgTools/ToolHandle.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 class ICaloClusterMatchingTool;
 
 namespace ClusterMatching {
   class CaloClusterMatchLinkAlg
-    : public ::AthAlgorithm
+    : public ::AthReentrantAlgorithm
   { 
 
     /////////////////////////////////////////////////////////////////// 
@@ -43,7 +44,7 @@ namespace ClusterMatching {
 
     // Athena algorithm's Hooks
     virtual StatusCode  initialize();
-    virtual StatusCode  execute();
+    virtual StatusCode  execute_r(const EventContext& ctx) const;
     virtual StatusCode  finalize();
 
     /////////////////////////////////////////////////////////////////// 
@@ -59,7 +60,7 @@ namespace ClusterMatching {
     /////////////////////////////////////////////////////////////////// 
   private: 
 
-    std::string m_clustersToDecorate;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterKey{this,"ClustersToDecorate","","The input CaloClusterContainer to match to CaloCalTopoClusters"};
     bool m_useLeadCellEtaPhi;
     int m_clusterSortMethod;
     ToolHandle<ICaloClusterMatchingTool> m_clusterMatch;

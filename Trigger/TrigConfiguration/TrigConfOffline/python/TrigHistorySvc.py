@@ -1,13 +1,10 @@
-###########################################################################
-#    Copyright (C) 2009 by Miroslav Nozicka
-#    <nozicka@mail.desy.de>
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 #   DESCRIPTION: TrigHistorySvc - derived configurable of the HistorySvc
 #                - extends the functionality of the HistorySvc obtaining 
 #                  the python class (py_name) and python module (py_package)
 #                  of the algorithm
 #
-###########################################################################
 
 from AthenaCommon import CfgMgr
 

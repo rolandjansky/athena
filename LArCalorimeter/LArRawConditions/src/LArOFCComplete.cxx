@@ -50,37 +50,8 @@ LArOFCComplete::OFC_b(const HWIdentifier& CellID,
   return  t.OFC_b (tbin);
 }
 
-/* retrieve OFC_a coefficients for a given tbin using offline ID ****************************
- */
-LArOFCComplete::OFCRef_t
-LArOFCComplete::OFC_a(const Identifier&  CellID,
-                      int gain,
-                      int tbin) const
-{
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return OFC_a(OnId, gain, tbin);
-} 
 
-/* retrieve OFC_b coefficients for a given tbin using offline ID ****************************
- */
-LArOFCComplete::OFCRef_t
-LArOFCComplete::OFC_b(const Identifier&  CellID,
-                      int gain,
-                      int tbin) const
-{
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return OFC_b(OnId, gain, tbin);
-} 
-
-
-/*   retrieving time offset using online/offline ID
- */
-
-float LArOFCComplete::timeOffset(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return timeOffset(OnId,gain);
-}
-
+//retrieving time offset using online ID
 float LArOFCComplete::timeOffset(const HWIdentifier&  CellID, int gain) const {
   if (gain<0 || gain>3) {
     std::cout << "ERROR! LArOFCComplete::timeOffset time offset called for gain " << gain << std::endl;
@@ -104,11 +75,6 @@ unsigned LArOFCComplete::nTimeBins(const HWIdentifier&  CellID, int gain) const 
   return t.OFC_aSize(); //Check also b-coefficient?
 }
 
-unsigned LArOFCComplete::nTimeBins(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return nTimeBins(OnId,gain);
-} 
-
   //For the TB / cosmic case: retrieve the width of the time bin (default 24 bins in 25 ns)
 float LArOFCComplete::timeBinWidth(const HWIdentifier&  CellID, int gain) const {
   if (gain<0 || gain>3) {
@@ -119,15 +85,6 @@ float LArOFCComplete::timeBinWidth(const HWIdentifier&  CellID, int gain) const 
   if (!t.isValid()) return 0;
   return t.timeBinWidth();
 }
-
-float LArOFCComplete::timeBinWidth(const Identifier&  CellID, int gain) const {
-  const HWIdentifier OnId = larCablingSvc()->createSignalChannelID(CellID); 
-  return timeBinWidth(OnId,gain);
-}
-
-
-
-
 
 
 #include <stdio.h>

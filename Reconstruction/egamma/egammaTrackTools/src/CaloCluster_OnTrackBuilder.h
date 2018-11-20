@@ -37,8 +37,8 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   ~CaloCluster_OnTrackBuilder(); 
 
   // standard Athena methods
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();  
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   
   virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0) const override;
   virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0) const override;

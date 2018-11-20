@@ -31,6 +31,12 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
 
@@ -39,8 +45,6 @@ public:
 
 private:
     std::string m_configPath;
-    std::string m_tauContainerKey;
-    std::string m_vertexContainerKey;
     std::string m_calibrationFile; //!< energy calibration file
 
     static const int s_nProngBins = 2;
@@ -62,7 +66,8 @@ private:
     bool m_printMissingContainerINFO;
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
-    double m_clusterCone; //obsolete
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+
 };
 
 #endif

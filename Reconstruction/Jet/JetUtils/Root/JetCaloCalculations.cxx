@@ -3,14 +3,14 @@
 */
 
 
-#include "xAODJet/Jet.h"
+
 #include "xAODJet/JetAccessorMap.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 #include "xAODPFlow/PFO.h"
 
 #include "JetUtils/JetCaloCalculations.h"
-
+#include "xAODJet/JetAttributes.h"
 ////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 

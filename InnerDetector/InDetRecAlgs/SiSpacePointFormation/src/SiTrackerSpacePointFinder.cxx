@@ -52,7 +52,6 @@ namespace InDet {
     m_xVertex(0.),
     m_yVertex(0.),
     m_zVertex(0.),
-    m_iBeamCondSvc("BeamCondSvc",name),
     m_numberOfEvents(0), m_numberOfPixel(0), m_numberOfSCT(0),
     m_sctCacheHits(0), m_pixCacheHits(0),
     m_cachemode(false),
@@ -77,7 +76,7 @@ namespace InDet {
   
   
   declareProperty("SiSpacePointMakerTool", m_SiSpacePointMakerTool);
-  declareProperty("BeamPositionSvc", m_iBeamCondSvc);
+  declareProperty("BeamPositionKey", m_beamSpotKey);
   declareProperty("ProcessPixels", m_selectPixels);
   declareProperty("ProcessSCTs", m_selectSCTs);
   declareProperty("ProcessOverlaps", m_overlap);
@@ -151,12 +150,9 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
   if (!m_overrideBS){
-    if (m_iBeamCondSvc.retrieve().isFailure()) {
-      m_overrideBS = true;
-      ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. " );
-      ATH_MSG_WARNING( "Using instead pre-set beam spot at ( " << m_xVertex
-          <<" , "<< m_yVertex << " , " << m_yVertex<< " ) " );
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
+  }else{
+//    m_beamSpotKey = "";//Remove request for condition object
   }
 
   ATH_CHECK(m_SpacePointCache_SCTKey.initialize(!m_SpacePointCache_SCTKey.key().empty()));
@@ -192,7 +188,9 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
   }
   SPFCache r_cache(ctx);
   if (! m_overrideBS){
-    r_cache.vertex = m_iBeamCondSvc->beamVtx().position();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+    const InDet::BeamSpotData* beamSpot = *beamSpotHandle;
+    r_cache.vertex = beamSpot->beamVtx().position();
   } else {
     r_cache.vertex = Amg::Vector3D(m_xVertex,m_yVertex,m_zVertex);
   }

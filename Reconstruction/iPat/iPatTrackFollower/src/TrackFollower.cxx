@@ -30,6 +30,7 @@
 #include "iPatTrackFollower/LayerPredictor.h"
 #include "iPatTrackFollower/SiliconClusterMap.h"
 #include "iPatTrackFollower/TrackFollower.h"
+#include <memory>
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
@@ -343,78 +344,65 @@ TrackFollower::extrapolate_inwards (const Track& track)
 
     // associate and build track for hits in one extrapolated layer at a time (expensive!)
     std::vector<SiliconLayer*>::iterator end = begin;
-    Track* extrapolatedTrack	= 0;
-    Track* newTrack		= 0;
+    std::unique_ptr<Track> extrapolatedTrack{};
+    std::unique_ptr<Track> newTrack{};
     TrackStatus status		= track.status();
     hit_citerator hitBegin	= track.hit_list_begin();
     hit_citerator hitEnd	= track.hit_list_end();
-    do
-    {
-	// move begin backwards to the preceding active layer.
-	// Include any leading material by going back again until
-	// an active layer is found and then go forwards one
-	while (begin != layers->begin() && (**(--begin)).isInactive()) ;
-	while (begin != layers->begin() && (**(--begin)).isInactive()) ;
-	if (begin != layers->begin()) ++begin;
+    do{
+      // move begin backwards to the preceding active layer.
+      // Include any leading material by going back again until
+      // an active layer is found and then go forwards one
+      while (begin != layers->begin() && (**(--begin)).isInactive()) ;
+      while (begin != layers->begin() && (**(--begin)).isInactive()) ;
+      if (begin != layers->begin()) ++begin;
 
-	if (begin == layers->begin())
-	{
-	    switch (status)
-	    {
-	    case truncated:    
-		status = truncated;
-		break;
-	    case segment:
-	    case long_segment:
-	    case pendingTRT:
-		status = pendingTRT;
-		break;
-	    case secondary:
-	    case primary:    
-		status = primary;
-		break;	
-	    default:
-		ATH_MSG_WARNING( " unexpected Track::extrapolate_inwards " );
-		delete layers;
-		return 0;
-	    };
-	}
-	
-	hit_list* hits	= associateSilicon(begin,end,false,track);
-	end = begin;
-	for (hit_citerator h = hitBegin; h != hitEnd; ++h)
-	    hits->push_back(new HitOnTrack(**h));
-
-	newTrack = m_trackBuilder->trackFromHits(status,hits,track);
-	if (newTrack)
-	{
-	    // keep newTrack provided it adds cluster(s)
-	    bool haveCluster = false;
-	    for (hit_citerator h = newTrack->hit_list_begin();
-		 h != newTrack->hit_list_end();
-		 ++h)
-	    {
-		if ((**h).isCluster()) haveCluster = true;
-		if ((**h).status() != scatterer) continue;
-		if (haveCluster)
-		{
-		    delete extrapolatedTrack;
-		    extrapolatedTrack = newTrack;
-		    hitBegin	= newTrack->hit_list_begin();
-		    hitEnd	= newTrack->hit_list_end();
-		}
-		else
-		{
-		    delete newTrack;
-		    newTrack = 0;
-		}
-		break;
-	    }
-	}
+      if (begin == layers->begin()){
+        switch (status){
+          case truncated:    
+            status = truncated;
+            break;
+          case segment:
+          case long_segment:
+          case pendingTRT:
+            status = pendingTRT;
+            break;
+          case secondary:
+          case primary:    
+            status = primary;
+            break;	
+          default:
+            ATH_MSG_WARNING( " unexpected Track::extrapolate_inwards " );
+            delete layers;
+            return 0;
+        };
+      }
+  
+      hit_list* hits	= associateSilicon(begin,end,false,track);
+      end = begin;
+      for (hit_citerator h = hitBegin; h != hitEnd; ++h) hits->push_back(new HitOnTrack(**h));
+      //
+      newTrack.reset(m_trackBuilder->trackFromHits(status,hits,track));
+      if (newTrack) {
+        // keep newTrack provided it adds cluster(s)
+        bool haveCluster = false;
+        for (hit_citerator h = newTrack->hit_list_begin();h != newTrack->hit_list_end();++h){
+          if ((**h).isCluster()) haveCluster = true;
+          if ((**h).status() != scatterer) continue;
+          if (haveCluster){
+            extrapolatedTrack = std::move(newTrack);
+            hitBegin	= newTrack->hit_list_begin();
+            hitEnd	= newTrack->hit_list_end();
+          }else{
+            newTrack.reset();
+          }
+          break;
+        }
+      }
     } while (newTrack && begin != layers->begin());
-
+    //
     delete layers;
-    return extrapolatedTrack;
+    return extrapolatedTrack.release();
 }
 
 Track*

@@ -314,18 +314,6 @@ StatusCode TileDigitsMaker::initialize() {
 
       for (int ch = 0; ch < nchMax; ++ch) {
         adc_ids[ch] = m_tileHWID->adc_id(drawer_id, ch, TileID::HIGHGAIN);
-        if (msgLvl(MSG::VERBOSE) && m_cabling->getTestBeam()
-            && m_cabling->connected(ros, drawer) && !m_rndmEvtOverlay) {
-          double pedSimHi = m_tileInfo->DigitsPedLevel(TileID::HIGHGAIN, ch, idhash);
-          double pedSimLo = m_tileInfo->DigitsPedLevel(TileID::LOWGAIN, ch, idhash);
-          double sigmaNoiseHi = m_tileInfo->DigitsPedSigma(TileID::HIGHGAIN, ch, idhash);
-          double sigmaNoiseLo = m_tileInfo->DigitsPedSigma(TileID::LOWGAIN, ch, idhash);
-          msg(MSG::VERBOSE) << "Ch " << m_tileHWID->to_string(drawer_id, -2) << "/" << ch
-                            << " pedHi=" << pedSimHi
-                            << " pedLo=" << pedSimLo
-                            << " rmsHi=" << sigmaNoiseHi
-                            << " rmsLo=" << sigmaNoiseLo << endmsg;
-        }
       }
     }
     m_all_ids.push_back(adc_ids);
@@ -370,7 +358,7 @@ StatusCode TileDigitsMaker::initialize() {
 StatusCode TileDigitsMaker::execute() {
   ATH_MSG_DEBUG( "Executing TileDigitsMaker");
 
-  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay && !m_cabling->getTestBeam());
+  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );
   if (first) {
     ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
     first = false;
@@ -524,8 +512,13 @@ StatusCode TileDigitsMaker::execute() {
     } else {
       ATH_MSG_DEBUG( "TileRawChannelContainer for DQ check retrieved");
     }
-    TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
-    const TileRawChannelContainer * rndm_rawchan_container = (iTzeroRawChanCont->second);
+
+    const TileRawChannelContainer* rndm_rawchan_container(nullptr);
+    if (!rawchanContList.empty()) {
+      TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
+      rndm_rawchan_container = iTzeroRawChanCont->second;
+    }
+
     ATH_MSG_DEBUG( "setContainer method being called in TileDigitsMaker");
     m_beamInfo->setContainers(rndm_digit_container, rndm_rawchan_container);
     ATH_MSG_DEBUG( "Containers successfully set in TileBeamInfoProvider");
@@ -729,9 +722,10 @@ StatusCode TileDigitsMaker::execute() {
     }
 
     std::vector<bool> signal_in_channel(nchMax, 0);
-    ATH_CHECK(FillDigitCollection( collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain, ech_int));
+    std::vector<bool> signal_in_channel_DigiHSTruth(nchMax, 0);
+    ATH_CHECK(FillDigitCollection( collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain, ech_int, signal_in_channel));
     if(m_doDigiTruth){
-      ATH_CHECK(FillDigitCollection( collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain, ech_int_DigiHSTruth));
+      ATH_CHECK(FillDigitCollection( collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth));
     } // End DigiHSTruth stuff
 
     /* Now all signals for this collection are stored in m_drawerBuffer, 
@@ -1265,7 +1259,7 @@ StatusCode TileDigitsMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[], double ech_int[]) const{
+StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[], double ech_int[], std::vector<bool> &signal_in_channel) const{
   
   // Zero sums for monitoring.
   int nChSum = 0;
@@ -1293,11 +1287,6 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
   // iterate over all hits in a collection
   TileHitCollection::const_iterator hitItr = (*hitContItr)->begin();
   TileHitCollection::const_iterator lastHit = (*hitContItr)->end();
-
-  //std::vector<bool> signal_in_channel(nchMax, 0);
-  bool signal_in_channel[nchMax];
-  memset(signal_in_channel, 0, sizeof(signal_in_channel));
-
 
   for (; hitItr != lastHit; ++hitItr) {
 

@@ -19,6 +19,7 @@
 #include "FourMomUtils/P4Helpers.h"
 #include "SGTools/CurrentEventStore.h"
 #include "StoreGate/ReadHandle.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <cmath>
 
@@ -76,7 +77,7 @@ StatusCode EMTrackMatchBuilder::initialize()
 }
 
 // ==============================================================
-StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg) const
+StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, egammaRec* eg) const
 {
   //
   // standard egamma execute method
@@ -99,7 +100,7 @@ StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg) const
   }
 
   // retrieve the trackparticle container
-  SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey);
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey, ctx);
 
   // check is only used for serial running; remove when MT scheduler used
   if( !trackPC.isValid() ) {
@@ -108,12 +109,12 @@ StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg) const
   }
 
   // call the execute method
-  CHECK( trackExecute(eg, trackPC.cptr()) );
+  CHECK( trackExecute(ctx, eg, trackPC.cptr()) );
   return StatusCode::SUCCESS;
 }
 
 // ===============================================================
-StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackParticleContainer*    trackPC) const
+StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec* eg, const xAOD::TrackParticleContainer*    trackPC) const
 {
   if (!eg || !trackPC)
   {
@@ -139,11 +140,11 @@ StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackPar
     bool isTRT = (xAOD::EgammaHelpers::numberOfSiHits(*trkIt) < 4);
 
     if (!(isCandidateMatch(cluster, isTRT, (*trkIt), false ) &&
-          inBroadWindow(trkMatches, cluster, trackNumber, isTRT, (*trkIt), Trk::alongMomentum)) && m_isCosmics)
+          inBroadWindow(ctx, trkMatches, cluster, trackNumber, isTRT, (*trkIt), Trk::alongMomentum)) && m_isCosmics)
     {
       // Second chance for cosmics, flip eta and phi
       if (isCandidateMatch(cluster, isTRT, (*trkIt), true))
-        inBroadWindow(trkMatches, cluster,  trackNumber, isTRT,  (*trkIt), Trk::oppositeMomentum);
+        inBroadWindow(ctx, trkMatches, cluster,  trackNumber, isTRT,  (*trkIt), Trk::oppositeMomentum);
     }
   }
 
@@ -189,7 +190,8 @@ StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackPar
 
 // =================================================================
 bool
-EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
+EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
+                                   std::vector<TrackMatch>& trackMatches,
                                    const xAOD::CaloCluster*   cluster, 
                                    int                  trackNumber,
                                    bool                 trkTRT,
@@ -235,7 +237,8 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
    * and Standard and then we decide
    */
   if(trkTRT){//TRTSA
-    if(!m_extrapolationTool->matchesAtCalo (cluster, 
+    if(!m_extrapolationTool->matchesAtCalo (ctx,
+                                            cluster, 
                                             trkPB, 
                                             trkTRT,
                                             dir, 
@@ -249,7 +252,8 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
     }
   } //end if is TRTSA
   else{//Silicon tracks
-    if (m_extrapolationTool->getMatchAtCalo (cluster, 
+    if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                             cluster, 
                                              trkPB, 
                                              trkTRT,
                                              dir, 
@@ -268,7 +272,8 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
     IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromPerigeeRescaled;
     std::vector<double>  eta1(4, -999.0);
     std::vector<double>  phi1(4, -999.0);
-    if (m_extrapolationTool->getMatchAtCalo (cluster, 
+    if (m_extrapolationTool->getMatchAtCalo (ctx, 
+                                             cluster, 
                                              trkPB, 
                                              trkTRT,
                                              dir, 
@@ -316,7 +321,8 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(4, -999.0);
-    if (m_extrapolationTool->getMatchAtCalo (cluster, 
+    if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                             cluster, 
                                              trkPB, 
                                              trkTRT,
                                              dir, 

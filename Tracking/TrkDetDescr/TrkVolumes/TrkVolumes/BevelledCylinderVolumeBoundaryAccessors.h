@@ -10,25 +10,22 @@
 #define TRKVOLUMES_BEVELLEDCYLINDERVOLUMEBOUNDARYACCESSORS_H
 
 
-#include "TrkDetDescrUtils/ThreeObjectsAccessor.h"
-#include "TrkDetDescrUtils/FourObjectsAccessor.h"
-#include "TrkDetDescrUtils/FiveObjectsAccessor.h"
-#include "TrkDetDescrUtils/SixObjectsAccessor.h"
+#include "TrkDetDescrUtils/ObjectsAccessor.h"
 
 namespace Trk {
 
   /** @enum BevelledCylinderAccessorType */
    enum  BevelledCylinderAccessorType {
          BevelledCylinderZincrease    = 0,   //!< Cylinder hit, then pos. Z face
-         BevelledCylinderZdecrease    = 1,   //!< Cylinder hit, the neg. Z face     
-         BevelledCylinderPositiveFace = 2,   //!< Pos. Z face, Cylinder, neg. Z face     
+         BevelledCylinderZdecrease    = 1,   //!< Cylinder hit, the neg. Z face
+         BevelledCylinderPositiveFace = 2,   //!< Pos. Z face, Cylinder, neg. Z face
          BevelledCylinderNegativeFace = 3    //!< Neg. Z face, Cylinder, pos. Z face
 
    };
 
   /** @enum BevelledTubeAccessorType */
     enum BevelledTubeAccessorType {
-         
+
            BevelledTubeRincreaseZincrease         = 0,   //!< Accessor type [ 2,1,0,3 ]
            BevelledTubeRincreaseZdecrease         = 1,   //!< Accessor type [ 2,0,1,3 ]
            BevelledTubeZincreaseRincrease         = 2,   //!< Accessor type [ 1,2,0,3 ]
@@ -38,24 +35,24 @@ namespace Trk {
            BevelledTubeZincreaseRdecrease         = 6,   //!< Accessor type [ 1,3,0,2 ]
            BevelledTubeZdecreaseRdecrease         = 7,    //!< Accessor type [ 0,3,1,2 ]
            BevelledTubeOutsideRminRdecrease       = 8,   //!< Accessor type [ 3,1,0,2]  - inverse case
-           BevelledTubeOutsideRmaxRincrease       = 9,   //!< Accessor type [ 2,1,0,3 ] - inverse case  
+           BevelledTubeOutsideRmaxRincrease       = 9,   //!< Accessor type [ 2,1,0,3 ] - inverse case
            BevelledTubeOutsideZminZdecrease       = 10,  //!< Accessor type [ 0,3,2,1 ] - inverse case
            BevelledTubeOutsideZmaxZincrease       = 11   //!< Accessor type [ 1,3,2,0 ] - inverse case
-           
+
    };
 
-  /** @enum SectoralBevelledCylinderAccessorType 
+  /** @enum SectoralBevelledCylinderAccessorType
     \todo implement correcly when needed
      */
-    enum SectoralBevelledCylinderAccessorType  { 
-          StandardSectoralBevelledCylinder = 0 
+    enum SectoralBevelledCylinderAccessorType  {
+          StandardSectoralBevelledCylinder = 0
       };
 
-  /** @enum SectoralTubeAccessorType 
+  /** @enum SectoralTubeAccessorType
     \todo implement correcly when needed
      */
-    enum SectoralBevelledTubeAccessorType  { 
-          StandardSectoralBevelledTube = 0  
+    enum SectoralBevelledTubeAccessorType  {
+          StandardSectoralBevelledTube = 0
       };
 
 
@@ -76,26 +73,24 @@ namespace Trk {
        /**Default Constructor*/
        ~BevelledCylinderVolumeBoundaryAccessors();
 
-       /** Return the accessor for the cylindrical case */      
+       /** Return the accessor for the cylindrical case */
        const ThreeObjectsAccessor& bevelledcylinderAccessor(BevelledCylinderAccessorType cat) const;
 
-       /** Return the accessor for the tube case */      
+       /** Return the accessor for the tube case */
        const FourObjectsAccessor& bevelledtubeAccessor(BevelledTubeAccessorType tat) const;
-     
-       /** Return the accessor for the sectoral cylinciracl case */      
+
+       /** Return the accessor for the sectoral cylinciracl case */
        const FiveObjectsAccessor& sectoralBevelledCylinderAccessor(SectoralBevelledCylinderAccessorType scat) const;
 
-       /** Return the accessor for the sectoral tube case */      
+       /** Return the accessor for the sectoral tube case */
        const SixObjectsAccessor& sectoralBevelledTubeAccessor(SectoralBevelledTubeAccessorType stat) const;
 
       private:
 
-        ThreeObjectsAccessor m_bevelledcylinderAccessors[4];
-        FourObjectsAccessor  m_bevelledtubeAccessors[12];
-        FiveObjectsAccessor  m_sectoralBevelledCylinderAccessors[1];
-        SixObjectsAccessor   m_sectoralBevelledTubeAccessors[1];
-   
-    
+        std::array<ThreeObjectsAccessor,4> m_bevelledcylinderAccessors;
+        std::array<FourObjectsAccessor,12> m_bevelledtubeAccessors;
+        std::array<FiveObjectsAccessor,1>  m_sectoralBevelledCylinderAccessors;
+        std::array<SixObjectsAccessor,1>   m_sectoralBevelledTubeAccessors;
 
    };
 

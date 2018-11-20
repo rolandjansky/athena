@@ -40,17 +40,6 @@ namespace xAOD {
 				       const std::vector<Iso::IsolationType>& cones, 
 				       CaloCorrection corrections) = 0; 
 
-    /**INeutralEFlowIsolationTool interface for calculating the eflow isolation variables and decorating the particle:
-       The tool expects the cones to be order in decreasing order (neflowiso40 -> neflowiso20)
-       Internally it reorders the cones so the output isolation values are also in the same order. 
-       @param[in] tp        input iparticle
-       @param[in] cones     vector of input cones to be used
-       @param[in] corrections bitset specifying which corrections to apply to isolation
-       @return true if the calculation and decoration was successfull
-    */  
-    virtual bool decorateParticle_eflowIso(const IParticle& tp,
-                                           const std::vector<Iso::IsolationType>& cones,
-                                           CaloCorrection corrections) = 0;
   };
  
 } // end of namespace

@@ -49,12 +49,7 @@ StatusCode InDet::CaloClusterROI_Selector::initialize()
 
     ATH_MSG_DEBUG("Initializing CaloClusterROI_Selector");
 
-    if (!m_egammaCheckEnergyDepositTool.empty()) {
-      ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
-    } else {
-      m_egammaCheckEnergyDepositTool.disable();
-    }
-
+    ATH_CHECK( m_egammaCaloClusterSelector.retrieve() );
     ATH_CHECK( m_caloClusterROI_Builder.retrieve() );
 
     m_allClusters=0;
@@ -111,7 +106,7 @@ StatusCode InDet::CaloClusterROI_Selector::execute_r(const EventContext& ctx) co
     for(const xAOD::CaloCluster* cluster : *inputClusterContainer )
     {
         all_clusters++;
-        if (PassClusterSelection(cluster))
+        if (m_egammaCaloClusterSelector->passSelection(cluster))
         {
             selected_clusters++;
             ATH_MSG_DEBUG("Pass cluster selection");
@@ -127,51 +122,4 @@ StatusCode InDet::CaloClusterROI_Selector::execute_r(const EventContext& ctx) co
 
     ATH_MSG_DEBUG("execute completed successfully");
     return StatusCode::SUCCESS;
-}
-// ======================================================================
-bool InDet::CaloClusterROI_Selector::PassClusterSelection(const xAOD::CaloCluster* cluster) const
-{
-    if( !m_egammaCheckEnergyDepositTool.empty() && 
-	!m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster( cluster ) ) {
-        ATH_MSG_DEBUG("Cluster failed sample check: dont make ROI");
-        return false;
-    }
-
-    // switch to using cluster properties, not layer 2 properties
-    if ( cluster->et() < m_ClusterEtCut ){
-        ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
-        return false;
-    }
-
-    static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-
-    double emFrac(0.);
-    if (acc.isAvailable(*cluster)) {
-      emFrac = acc(*cluster);
-    } else if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-      throw std::runtime_error("No EM fraction momement stored");
-    }
-
-    if ( emFrac< m_ClusterEMFCut ){
-        ATH_MSG_DEBUG("Cluster failed EM Fraction cut: dont make ROI");
-        return false;
-    }
-
-    if ( cluster->et()*emFrac< m_ClusterEMEtCut ){
-        ATH_MSG_DEBUG("Cluster failed EM Energy cut: dont make ROI");
-        return false;
-    }
-
-
-    double lateral(0.);
-    if (!cluster->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
-      throw std::runtime_error("No LATERAL momement stored");
-    }
-
-    if ( lateral >  m_ClusterLateralCut ){
-      ATH_MSG_DEBUG("Cluster failed LATERAL cut: dont make ROI");
-      return false;
-    }
-
-    return true;
 }

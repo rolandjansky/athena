@@ -22,7 +22,7 @@
 #include "CaloIdentifier/TileID_Exception.h"
 #include "CaloIdentifier/TileNeighbour.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "boost/range/iterator_range.hpp"
 #include <string>

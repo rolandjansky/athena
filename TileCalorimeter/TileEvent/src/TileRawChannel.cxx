@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -90,7 +90,7 @@ void TileRawChannel::print() const {
 TileRawChannel::operator std::string() const {
   std::ostringstream text(std::ostringstream::out);
 
-  text << (std::string) (*(TileRawData *) this);
+  text << TileRawData::operator std::string();
   print_to_stream(m_amplitude, " ampl =", text);
   print_to_stream(m_time, " time =", text);
   print_to_stream(m_quality, " qual =", text);

@@ -23,13 +23,13 @@ PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
 topSequence += PFTrackSelector
 
-from eflowRec.eflowRecConf import PFClusterSelector
-PFClusterSelector=PFClusterSelector("PFClusterSelector")
-
-topSequence += PFClusterSelector
-
 from eflowRec.eflowRecConf import PFAlgorithm
 PFAlgorithm = PFAlgorithm("PFAlgorithm")
+
+from eflowRec.eflowRecConf import PFClusterSelectorTool
+PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
+
+PFAlgorithm.PFClusterSelectorTool = PFClusterSelectorTool
 
 PFAlgorithm.SubtractionToolList  = []
 
@@ -186,10 +186,6 @@ topSequence += PFAlgorithm
 
 from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
 PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
-
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool        
-PFlowTrackVertexAssociationTool = CP__TightTrackVertexAssociationTool(name="PFlowTightCPTool", dzSinTheta_cut=2.0, doPV=True)
-PFOChargedCreatorAlgorithm.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
 
 topSequence += PFOChargedCreatorAlgorithm
 

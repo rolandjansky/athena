@@ -523,6 +523,8 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        sampe.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
        ToolSvc+=sampe
        samph = EgammaReHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig")
+       # temporary fix for Tile
+       samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
        samph.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
        ToolSvc+=samph
        #ToolSvc+=RingerFexConfig("RingsMaker") 

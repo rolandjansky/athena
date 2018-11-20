@@ -17,7 +17,7 @@
 #
 class opt :
     setupForMC       = None           # force MC setup
-    setLVL1XML       = 'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'
+    setLVL1XML       = 'TriggerMenuMT/LVL1config_LS2_v1.xml' # 'TriggerMenu/LVL1config_Physics_pp_v7.xml' # default for legacy
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB

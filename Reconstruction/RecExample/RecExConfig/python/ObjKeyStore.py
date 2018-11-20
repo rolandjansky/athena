@@ -93,11 +93,6 @@ class _ObjKeyStore( object ):
 
     def isInInput(self,type="",key="*"):
         flag = self.isInTransient(type,key) or self.isInInputFile(type,key)
-
-        if not flag:
-             from RecExConfig.RecConfFlags import recConfFlags
-             if recConfFlags.AllowBackNavigation() and self.isInInputBackNav(type,key):
-                flag=True
         return flag
         
 

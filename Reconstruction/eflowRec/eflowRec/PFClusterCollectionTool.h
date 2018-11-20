@@ -20,7 +20,7 @@ class PFClusterCollectionTool : public extends<AthAlgTool, IPFClusterCollectionT
   ~PFClusterCollectionTool() {};
 
   StatusCode initialize();
-  std::unique_ptr<xAOD::CaloClusterContainer> execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters, xAOD::CaloClusterContainer& theCaloClusterContainer);
+  std::unique_ptr<xAOD::CaloClusterContainer> execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters);
   std::unique_ptr<eflowRecClusterContainer> retrieve(const eflowCaloObjectContainer& theEflowCaloObjectContainer, bool useNonModifiedClusters);
   StatusCode finalize();
 

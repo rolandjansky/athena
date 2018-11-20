@@ -81,14 +81,6 @@ namespace xAOD {
 			   const std::set<const TrackParticle*>* exclusionSet = 0, 
 			   const TrackParticleContainer* indetTrackParticles = 0 ) const override; 
 
-      /**ITrackIsolationTool interface: */    
-      virtual
-      bool decorateParticle( const IParticle& tp, 
-                             const std::vector<Iso::IsolationType>& cones, 
-                             TrackCorrection corrections, 
-                             const Vertex* vertex = 0, 
-                             const std::set<const TrackParticle*>* exclusionSet = 0, 
-                             const TrackParticleContainer* indetTrackParticles = 0 ) override;
 
   private:
       /// define 2*Pi

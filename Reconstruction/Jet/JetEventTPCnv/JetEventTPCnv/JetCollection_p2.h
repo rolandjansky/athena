@@ -38,8 +38,8 @@ class JetCollection_p2 : public std::vector<Jet_p2>
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
 private:
-  std::string m_roiAuthor;
-  short m_ordered;
+  std::string m_roiAuthor{};
+  short m_ordered{};
   DataLink_p1 m_keyStore;
 };
 

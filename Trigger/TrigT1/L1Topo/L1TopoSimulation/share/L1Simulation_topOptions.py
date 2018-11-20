@@ -91,9 +91,6 @@ if globalflags.InputFormat()=='pool':
 
     svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
-    from RecExConfig.RecConfFlags import recConfFlags
-    ServiceMgr.EventSelector.BackNavigation = recConfFlags.AllowBackNavigation()
-
     # backward compatibility (needed for RTT overwriting InputCollections)
     EventSelector=ServiceMgr.EventSelector
 

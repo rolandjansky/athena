@@ -4,171 +4,82 @@
 
 #ifndef _TrkVKalVrtCore_VKalVrtCore_H
 #define _TrkVKalVrtCore_VKalVrtCore_H
-#include "ForVrtClose.h"
+
+#include "TrkVKalVrtCore/CommonPars.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/ForCFT.h"
 #include <vector>
-#include <iostream>
+#include <memory>
 
 namespace Trk {
-
-  
-   class VKConstraintBase;
-   class VKVertex;
-
-  struct CascadeEvent 
-  {
-    int cascadeNV;
-    int nearPrmVertex;
-    double *fullCovMatrix;
-    double SCALE;
-    double accuracyConstraint;
-    std::vector< VKVertex *> cascadeVertexList; 
-    std::vector<int> matrixPnt;
-    CascadeEvent(){cascadeNV = 0; nearPrmVertex=0; fullCovMatrix=0; SCALE=1.; accuracyConstraint=1.e-4;};
-    ~CascadeEvent(){if(fullCovMatrix)delete[] fullCovMatrix;};
-  };
-
 //
-//   Main container for all track related information in vertex fit
+//   Main class to control TrkVKalVrtCore package
+//  If references to external Propagator/Mag.Field are present - the package uses them,
+//  otherwise default internal fixed_field/simple_propagator are used. 
 //--------------------------------------------------------------------
-   class VKTrack
+
+   class CascadeEvent;
+
+   class VKalVrtControlBase
    {
-    public:
-       VKTrack(long int, double[], double[], VKVertex *, double);
-      ~VKTrack();
-//       VKTrack(const VKTrack & src);  //copy
-       friend std::ostream& operator<<( std::ostream& out, const VKTrack& track );
+     public:
+       VKalVrtControlBase(const baseMagFld*, const addrMagHandler, const basePropagator*, const addrPropagator);
+       VKalVrtControlBase(const VKalVrtControlBase & src);              //copy
+      ~VKalVrtControlBase();
+
+       const baseMagFld*      vk_objMagFld;
+       const addrMagHandler   vk_funcMagFld;
+       const basePropagator*  vk_objProp;
+       const addrPropagator   vk_funcProp;
+   };
+
+   class VKalVrtControl : public VKalVrtControlBase
+   {
+     public:
+       VKalVrtControl(const VKalVrtControlBase &);
+       VKalVrtControl(const VKalVrtControl & src);              //copy
+      ~VKalVrtControl();
 
      public:
-       long int Id;      //track ID number
-       int Charge;       //track charge
 
-               // Fitted track perameters at vertex VKVErtex->fitV
-       double fitP[3];
-       double Chi2;
+       void setIterationNum(int Iter);
+       void setIterationPrec(double Prec);
+       void setRobustScale(double Scale);
+       void setRobustness(int Rob);
+       void setMassCnstData(int Ntrk, double Mass);
+       void setMassCnstData(int Ntrk, std::vector<int> &Index, double Mass);
 
-               // Track perameters at vertex VKVErtex->cnstV for constraint calculations
-        double cnstP[3];
+       void setUseMassCnst();
+       void setUsePhiCnst();
+       void setUsePlaneCnst(double a, double b, double c, double d);
+       void setUseThetaCnst();
+       void setUseAprioriVrt();
+       void setUsePointingCnst(int );
+       void setUsePassNear(int);
 
-               // ALL is estimated at VKVErtex->iniV posision - start position of the fit
-       double iniP[3];     //perigee parameters assuming that track passes through iniXYZ 
+       void renewCascadeEvent(CascadeEvent *);
+       CascadeEvent * getCascadeEvent() const;
+       void renewFullCovariance(double *);
+       double * getFullCovariance() const;
 
-               // ALL is estimated at VKVErtex->refIterV posision - iteration reference position 
-       double Perig[5];         //perigee parameters prepared for vertex estimation
-       double WgtM[15];         //symmetric weight matrix prepared for vertex estimation
-       double WgtM_save[15];    //copy of weight matrix for speed optimisation
+       void setVertexMass(double mass) { m_vrtMassTot=mass;}
+       void setVrtMassError(double error) { m_vrtMassError=error;}
+       double getVertexMass() { return m_vrtMassTot;}
+       double getVrtMassError() {return m_vrtMassError;}
 
-               // All for robustification
-       double rmnd[5];     //remnants with respect to fitted vertex position
-       double e[5];        //eigenvalues of weight matrix
-       double v[5][5];     //corresponding eigenvectors of weight matrix
-
-               // ALL is estimated at VKVErtex->refXYZ posision - reference position for vertex fit
-       double refPerig[5];  //perigee parameters
-       double refCovar[15]; //symmetric covariance matrix 
-
-     public:
-       double getMass() const  {return m_mass;}
-       void   setMass(double M){ m_mass=M;}
-       double a0()    const    { return Perig[0];}
-       double z()     const    { return Perig[1];}
-       double theta() const    { return Perig[2];}
-       double phi()   const    { return Perig[3];}
-       double invR()  const    { return Perig[4];}
-       double r_a0()    const  { return refPerig[0];}
-       double r_z()     const  { return refPerig[1];}
-       double r_theta() const  { return refPerig[2];}
-       double r_phi()   const  { return refPerig[3];}
-       double r_invR()  const  { return refPerig[4];}
-
-     public:
-       void setCurrent  ( double[], double[]); // set iteration (current) track parameters 
-       void setReference( double[], double[]); // set reference track parameters 
-       void restoreCurrentWgt();               // restore track WGT from saved copy 
+       ForCFT vk_forcft;
 
      private:
 
-       VKVertex* m_originVertex;
-       double m_mass;      //track mass
+       double * m_fullCovariance;   // On vertex fit exit contains full covariance matrix 
+                                    // (x,y,z,px_0,py_0,pz_0,....,px_n,py_n,pz_n)
+                                    // in symmetric form
+       double m_vrtMassTot;
+       double m_vrtMassError;
+       CascadeEvent * m_cascadeEvent=nullptr;       
 
-   };
-  
-
-   class TWRK       // collection of temporary arrays for 
-   {   
-    public:
-      TWRK();
-     ~TWRK();
-
-     public:
-       double   tt[3];    // U_i vector (see Billoir...)
-       double   wb[9];
-       double   wc[6]; 
-       double  wci[6];
-       double wbci[9];
-       double drdp[2][3]; // for "pass near" constraint
-       double parf0[3];   // parameter shifts during iteration
-       double part[3];    // temporary array for fostfit optimization
-   };
-
-
-
-   class VKVertex
-   {   
-    public:
-      VKVertex();
-     ~VKVertex();
-      VKVertex(const VKVertex & src);              //copy
-      VKVertex& operator= (const VKVertex & src);  //assign
-
-     public:        // Relative coordinates with respect to refIterV[]
-       double Chi2;         // vertex Chi2
-       double fitV[3];      //fitted vertex position on given iteration step
-       double fitVcov[6];   //symmetric covariance matrix of fitted vertex
-       double iniV[3];      //starting point for the fit.
-       double cnstV[3];     //position for constraint values calculation. May be different from fitV or iniV
-
-     public:        //Global coordinates
-       double refIterV[3];  //initial point for iteration step and target for preparatory
-                            //track extrapolation. At this point Perig[] and WgtM[] for each track are defined.
-       double refV[3];      //reference point for given vertex. At this point refPerig[] and refCovar[]
-                            //for each track are defined
-
-       int useApriorVertex;   //for a priory vertex position knowledge usage
-       double apriorV[3];     //global coordinates (the same as refV and refIterV)
-       double apriorVWGT[6];  //weight matrix of a priori vertex   
-
-
-       bool passNearVertex;       // needed for "passing near vertex" constraint
-       bool passWithTrkCov;       //  Vertex, CovVertex, Charge and derivatives 
-       double fitMom[3];          //   are in ForVrtClose structure
-       double fitCovXYZMom[21];   //  Mom and CovMom are here because they are used also for other purposes
-       ForVrtClose FVC;
-
-
-       double T[3];           // save T(see Billoir) vector for futher use
-       double wa[6];          // save WA matrix for futher use
-       double dxyz0[3];       // unconstrained shift of vertex on current iteration. Needed for PostFit
-      
-       std::vector<VKTrack* > TrackList;
-       std::vector<TWRK* >    tmpArr;
-       std::vector<VKConstraintBase *> ConstraintList;
-
-
-       void setRefV(double []);
-       void setCnstV(double []);
-       void setRefIterV(double []);
-       void setIniV(double []);
-       void setFitV(double []);
-
-
-       VKVertex * nextCascadeVrt;
-       std::vector<VKVertex*> includedVrt;  // these vertices are NOT owned by given object.
-       double savedVrtMomCov[21]; // saved covariance WITHOUT pointing constraint
-				  // for correct cascade error definition 
-   };
-
-
-
+  };
 
 } // end of namespace bracket
 

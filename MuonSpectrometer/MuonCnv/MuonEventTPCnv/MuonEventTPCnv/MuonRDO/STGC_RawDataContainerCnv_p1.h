@@ -14,12 +14,6 @@
 
 class sTgcIdHelper;
 
-namespace TPCnv {
-  template<> class CreateTransient< Muon::STGC_RawDataContainer > {
-    public: static std::unique_ptr< Muon::STGC_RawDataContainer > create() { return nullptr;}
-  };
-}
-
 namespace Muon{
   class STGC_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::STGC_RawDataContainer, Muon::STGC_RawDataContainer_p1>
   {

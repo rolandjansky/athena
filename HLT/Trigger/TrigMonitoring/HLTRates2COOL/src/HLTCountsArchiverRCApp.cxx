@@ -93,11 +93,11 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
       m_coolWriter.flushStorageBuffers();
 
    }
-   catch(cool::Exception ex) {
+   catch(const cool::Exception& ex) {
       std::cerr << "cool::exception: Could not write to COOL: " << ex.what() << std::endl;
       return;
    }
-   catch(std::exception ex) {
+   catch(const std::exception& ex) {
       std::cerr << "std::exception: Could not write to COOL: " << ex.what() << std::endl;
       return;
    }

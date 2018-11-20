@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArMinBias for MC
@@ -33,8 +32,6 @@ class LArMinBiasMC: public LArMinBiasComplete {
   
   virtual const float& minBiasRMS(const HWIdentifier&  CellID) const ;
   
-  virtual const float& minBiasRMS(const Identifier&  CellID) const;
-
   static float dummy;
   
  private: 

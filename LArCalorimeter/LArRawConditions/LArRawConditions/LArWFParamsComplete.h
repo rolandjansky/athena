@@ -37,8 +37,7 @@ class LArWFParamsComplete :public LArConditionsContainer<LArWFParams>
   // retrieving coefficients using offline/online ID
 
   virtual const LArWFParams& getParams(const HWIdentifier&  CellID, int gain) const ;
-  virtual const LArWFParams& getParams(const Identifier&  CellID, int gain) const ;
-
+ 
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, int gain, LArWFParams theParams);

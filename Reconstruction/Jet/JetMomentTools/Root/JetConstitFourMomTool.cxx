@@ -9,8 +9,6 @@
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODJet/JetTypes.h"
 
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
-
 //**********************************************************************
 
 JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
@@ -124,8 +122,9 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
 	if(m_altJetScales.empty()) {
 	  if(altCollections[iScale]) { // get the index-parallel alternative constituent
 	    const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>((*altCollections[iScale])[(*citer)->rawConstituent()->index()]);
-	    CaloClusterChangeSignalState(cluster, (xAOD::CaloCluster::State) m_altConstitScales[iScale]);
-	    constitFourVecs[iScale] += xAOD::JetFourMom_t( cluster->pt(), cluster->eta(), cluster->phi(), cluster->m() );
+      xAOD::CaloCluster::State currentState= static_cast<xAOD::CaloCluster::State> (m_altConstitScales[iScale]);
+      constitFourVecs[iScale] += xAOD::JetFourMom_t( cluster->pt(currentState), cluster->eta(currentState), 
+                                                     cluster->phi(currentState), cluster->m(currentState) );
 	  } else { // add the constituent 4-mom
 	    constitFourVecs[iScale] += **citer;
 	  }
