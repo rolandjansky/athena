@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGOUTPUTHANDLING_IHLTOUTPUTTOOL_H
-#define TRIGOUTPUTHANDLING_IHLTOUTPUTTOOL_H 1
+#ifndef DECISIONHANDLING_IHLTOUTPUTTOOL_H
+#define DECISIONHANDLING_IHLTOUTPUTTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 
@@ -23,4 +23,4 @@ class IHLTOutputTool : virtual public ::IAlgTool
 
 }; 
 
-#endif //> !TRIGOUTPUTHANDLING_IHLTOUTPUTTOOL_H
+#endif //> !DECISIONHANDLING_IHLTOUTPUTTOOL_H
