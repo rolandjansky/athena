@@ -5,9 +5,8 @@
 # specify branches of athena that are being targeted:
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# Also include temporary branch 21.3-hmpl
+# art-output: config.txt
 
-# art-include: 21.3-hmpl/Athena
 # Run FastChain 'Fast PU, Full HS' and tests: G4HS_FastPileup sim (G4 for HS, Pythia on the fly + FastCaloSim for PU) + fast digi PU/full digi HS + Split reco (truth tracking PU, full HS)
 
 FastChain_tf.py --simulator G4HS_FastPileup \
@@ -23,12 +22,13 @@ FastChain_tf.py --simulator G4HS_FastPileup \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
     --preSimInclude FastChainPileup/FastPileup.py \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
-    --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --DataRunNumber '284500' \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
-    --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py"
+    --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py" \
+    --imf False
 
-echo "art-result: $? RDO step"
+echo "art-result: $? EVNTtoRDO step"
 
 FastChain_tf.py --maxEvents 10 \
     --skipEvents 0 \
@@ -37,12 +37,13 @@ FastChain_tf.py --maxEvents 10 \
     --inputRDOFile 'RDO_fullHS_fastPU_simdigi.pool.root' \
     --outputAODFile AOD_Split_fullHS_fastPU_simDigi.pool.root \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);InDetFlags.doStatistics.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True);InDetFlags.doSplitReco.set_Value_and_Lock(True);from InDetRecExample.InDetKeys import InDetKeys; InDetKeys.PixelPUClusters.set_Value_and_Lock('PixelFast_PU_Clusters');InDetKeys.SCT_PU_ClustersTruth.set_Value_and_Lock('PRD_MultiTruthSCT_PU');InDetKeys.TRT_PU_DriftCirclesTruth.set_Value_and_Lock('PRD_MultiTruthTRT_PU');InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True); from InDetRecExample.InDetKeys import InDetKeys; InDetKeys.PixelPUClusters.set_Value_and_Lock('PixelFast_PU_Clusters');InDetKeys.PixelPUClustersTruth.set_Value_and_Lock('PRD_MultiTruthPixel_PU');InDetKeys.SCT_PU_ClustersTruth.set_Value_and_Lock('PRD_MultiTruthSCT_PU');InDetKeys.TRT_PU_DriftCirclesTruth.set_Value_and_Lock('PRD_MultiTruthTRT_PU');" \
-    --postExec 'RAWtoESD:import AthenaCommon.AlgSequence as acas;job = acas.AlgSequence();del job.InDetSCT_ClusterizationPU;del job.InDetPixelClusterizationPU;del job.InDetPRD_MultiTruthMakerSiPU;del job.InDetPRD_MultiTruthMakerTRTPU;'
+    --postExec 'RAWtoESD:import AthenaCommon.AlgSequence as acas;job = acas.AlgSequence();del job.InDetSCT_ClusterizationPU;del job.InDetPixelClusterizationPU;del job.InDetPRD_MultiTruthMakerSiPU;del job.InDetPRD_MultiTruthMakerTRTPU;' \
+    --imf False
 
-echo "art-result: $? AOD step"
+echo "art-result: $? RDOtoAOD step"
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
 #add an additional payload from the job (corollary file).
 # art-output: InDetStandardPlots.root

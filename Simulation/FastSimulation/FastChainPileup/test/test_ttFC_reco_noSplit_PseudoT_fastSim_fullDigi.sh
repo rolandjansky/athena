@@ -3,10 +3,9 @@
 # art-type: grid
 #
 # specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
-# Also include temporary branch 21.3-hmpl
-# art-include: 21.3-hmpl/Athena
+
+# art-output: config.txt
+
 # Sim/Digi job
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -24,9 +23,10 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --DataRunNumber '284500' \
-    --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' 
+    --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
+    --imf False
 
-echo "art-result: $? RDO step"
+echo "art-result: $? EVNTtoRDO step"
 
 
 FastChain_tf.py --maxEvents 500 \
@@ -35,12 +35,14 @@ FastChain_tf.py --maxEvents 500 \
     --conditionsTag OFLCOND-RUN12-SDR-31  \
     --inputRDOFile 'RDO_pileup_fastsim_fulldigi.pool.root' \
     --outputAODFile AOD_noSplit_pseudoTracking_fastSim_fullDigi.pool.root \
-    --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
-echo "art-result: $? AOD step"
+    --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+    --imf False
+
+echo "art-result: $? RDOtoAOD step"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
 # add an additional payload from the job (corollary file).
 # art-output: InDetStandardPlots.root
