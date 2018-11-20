@@ -117,7 +117,8 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
-  ATH_MSG_DEBUG( "Unpacked " <<  trigRoIs->size() << " RoIs" );
+  ATH_MSG_DEBUG( "Number of decisions associated with FS RoI: " <<  TrigCompositeUtils::decisionIDs( decision ).size()  );
+
 
   // recording
   {

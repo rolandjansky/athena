@@ -34,9 +34,8 @@ if globalflags.InputFormat.is_bytestream():
 # map L1 decisions for menu
 for unpack in topSequence.L1DecoderTest.roiUnpackers:
     if unpack.name() is "JRoIsUnpackingTool":
-#        unpack.Decisions="L1J"
-       #unpack.FSDecisions="L1J"
-        jetUnpacker=unpack
+       unpack.Decisions="L1J"
+       
    
         
 # this is a temporary hack to include new test chains
