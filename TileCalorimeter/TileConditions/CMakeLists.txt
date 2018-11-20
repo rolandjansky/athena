@@ -76,6 +76,9 @@ atlas_add_test( TileConditionTools_test
 atlas_add_test( TileEMScaleComponents_test
                 SOURCES test/TileEMScaleComponents_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileIdentifier TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools ${CORAL_LIBRARIES} )
+# Needed for the plugin service to see the test components
+# defined in the test binary.
+set_target_properties( TileConditions_TileEMScaleComponents_test PROPERTIES ENABLE_EXPORTS True )
 
 atlas_add_test( TileNoiseTools_test
                 SOURCES test/TileNoiseTools_test.cxx

@@ -83,6 +83,7 @@ class PixelModuleData {
     IntConditions  m_moduleStatus;
     IntConditions  m_chipStatus;
     IntConditions  m_tdaqStatus;
+
     std::vector<int> m_BarrelAnalogThreshold;
     std::vector<int> m_EndcapAnalogThreshold;
     std::vector<int> m_DBMAnalogThreshold;

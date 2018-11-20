@@ -34,6 +34,7 @@ class PixelConditionsServicesSetup:
       self.prefix = prefix
       self.useBS = True
       self.useTDAQ = False
+      self.usePixMap = True
       self.eventInfoKey = "ByteStreamEventInfo"
       from AthenaCommon.GlobalFlags import globalflags
       if globalflags.DataSource() == 'geant4':      #does not work for transbs
@@ -55,6 +56,9 @@ class PixelConditionsServicesSetup:
     ########################
     # DCS Conditions Setup #
     ########################
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
     from IOVDbSvc.CondDB import conddb
 
     PixelHVFolder = "/PIXEL/DCS/HV"
@@ -80,9 +84,6 @@ class PixelConditionsServicesSetup:
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
 
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-
     if not hasattr(condSeq, 'PixelDCSCondHVAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
       condSeq += PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder)
@@ -93,20 +94,47 @@ class PixelConditionsServicesSetup:
 
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseDB=self.useDCS, IsDATA=self.isData)
+    TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseConditions=True, IsDATA=self.isData)
 
     ToolSvc += TrigPixelDCSConditionsTool
+
+    #########################
+    # TDAQ Conditions Setup #
+    #########################
+    TrigPixelTDAQConditionsTool = None
+    if self.useTDAQ:
+      PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
+      PixelTDAQInstance = "TDAQ_ONL"
+
+      if not conddb.folderRequested(PixelTDAQFolder):
+        conddb.addFolder(PixelTDAQInstance, PixelTDAQFolder, className="CondAttrListCollection")
+
+      if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
+
+    ############################
+    # DeadMap Conditions Setup #
+    ############################
+    if self.usePixMap:
+      PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
+      if not (conddb.folderRequested(PixelDeadMapFolder) or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay",PixelDeadMapFolder, className='CondAttrListCollection')
+
+      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg", ReadKey=PixelDeadMapFolder)
 
     ############################
     # Conditions Summary Setup #
     ############################
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'),
+    TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
                                                                 PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
-                                                                UseDCS=self.useDCS,
-                                                                UseByteStream=self.useBS,
-                                                                UseTDAQ=self.useTDAQ)
-
+                                                                UseDCSState=self.useDCS, 
+                                                                UseByteStream=self.useBS, 
+                                                                UseTDAQ=self.useTDAQ, 
+                                                                UseDeadMap=self.usePixMap)
     if self.useDCS and not self.onlineMode:
       TrigPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
       TrigPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
@@ -156,7 +184,6 @@ class PixelConditionsServicesSetup:
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapLong","/PIXEL/NoiseMapLong", className='CondAttrListCollection')
     if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-
 
     #######################
     # Lorentz Angle Setup #

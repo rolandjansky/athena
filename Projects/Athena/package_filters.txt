@@ -63,5 +63,5 @@
 - Tracking/TrkTools/TrkSegmentConverter
 
 # Huge D3PD librarys not really useful any more
-- PhysicsAnalysis/D3PDMaker/TrackD3PDMaker
+- PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
 - PhysicsAnalysis/D3PDMaker/CaloD3PDMaker

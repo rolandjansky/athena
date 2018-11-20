@@ -112,9 +112,6 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     
 
     const CaloDetDescrElement* pcell=new CaloDetDescrElement(cell);
-    int sampling = pcell->getSampling();
-    
-    
     this->addcell(pcell);
 		
     if(jentry%25000==0) {
@@ -174,21 +171,23 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	TString name = ss.str().c_str();
 	
 	const int size=m_cells_in_sampling[isam].size();
-	double x[size];
-	double y[size];
+	
+	std::vector<double> x;
+	std::vector<double> y;
+	x.reserve(size);
+	y.reserve(size);
+
 	//const CaloDetDescrElement* cell;
 
-	int i=0;
 	for(auto it=m_cells_in_sampling[isam].begin();it!=m_cells_in_sampling[isam].end();it++){
-		x[i]=it->second->x();
-		y[i]=it->second->y();
-		i++;
+		x.push_back(it->second->x());
+		y.push_back(it->second->y());
 	}
 	// cout << size << endl;
 	//TH2D* h = new TH2D("","",10,-0.5,0.5,10,-0.5,0.5);
 	//h->SetStats(0);
 	//h->Draw();
-	TGraph* graph = new TGraph(size,x,y);
+	TGraph* graph = new TGraph(size, &x[0], &y[0]);
 	graph->SetLineColor(color);
 	graph->SetTitle(name);
 	graph->SetMarkerStyle(21);
@@ -196,11 +195,8 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	graph->SetMarkerSize(0.5);
 	graph->GetXaxis()->SetTitle("x [mm]");
 	graph->GetYaxis()->SetTitle("y [mm]");
-	
-	graph->Draw("AP");
 
-	
-	
+	graph->Draw("AP");
 }	
 	
 		

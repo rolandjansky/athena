@@ -24,17 +24,7 @@ StatusCode TriggerBitsMakerTool::initialize() {
 
 
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
-  std::vector<uint32_t> bits;
-  ATH_CHECK( fill( bits ) );
-  resultToFill.setHltBits( bits );
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode TriggerBitsMakerTool::fill( std::vector<uint32_t>& bits ) const {
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
-
   for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( chainsHandle->at( 0 )) ) {
     auto mappingIter = m_mapping.find( chain );
     // each chain has to have stream
@@ -43,18 +33,13 @@ StatusCode TriggerBitsMakerTool::fill( std::vector<uint32_t>& bits ) const {
       return StatusCode::FAILURE;
     }
     const int chainBitPosition = mappingIter->second;
-    // obtain bit position
-    const int word = chainBitPosition / ( sizeof(uint32_t) * 8 );
-    const int mask = 1 << (chainBitPosition % ( sizeof(uint32_t) * 8 ) );
-    bits.resize( word+1 ); // assure space
-    bits[word] |= mask;    
+    ATH_MSG_DEBUG("Setting bit " << chainBitPosition << " corresponding to chain" << HLT::Identifier(chain));
+    ATH_CHECK(resultToFill.addHltBit(chainBitPosition));
   }
 
-
   if ( msgLvl( MSG::DEBUG ) ) {
-    ATH_MSG_DEBUG("Prepared " << bits.size() << " words with trigger bits");
-    for ( auto w: bits )
-      ATH_MSG_DEBUG("0x" << MSG::hex << w );
+    ATH_MSG_DEBUG("HLT result now has " << resultToFill.getHltBits().num_blocks() << " words with trigger bits:");
+    for (const auto& w : resultToFill.getHltBitsAsWords()) ATH_MSG_DEBUG("0x" << MSG::hex << w << MSG::dec);
   }
   return StatusCode::SUCCESS;
 

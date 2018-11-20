@@ -83,7 +83,7 @@ StatusCode PanTau::Tool_DetailsArranger::initialize() {
 }
 
 
-StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed) {
+StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed, xAOD::ParticleContainer& pi0Container) {
 
     std::string inputAlg = inSeed->getNameInputAlgorithm();
     
@@ -111,7 +111,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed) {
     
     ATH_MSG_DEBUG("arrange for seed from inputalg: " << inputAlg);
 
-    ATH_CHECK(arrangePFOLinks(inSeed, tauJet));
+    ATH_CHECK(arrangePFOLinks(inSeed, tauJet, pi0Container));
 
 
     //Basic variables
@@ -204,7 +204,7 @@ void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed2*         
 
 
 
-StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet) {
+StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container) {
 
     std::string inputAlg = inSeed->getNameInputAlgorithm();
    
@@ -472,13 +472,12 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
     createPi0Vectors(tauJet, vec_pi04vec, vec_pi0pfos);
 
     
-    xAOD::ParticleContainer* pi0Container=0;
-    ATH_CHECK( evtStore()->retrieve(pi0Container, "finalTauPi0s") );
-
+    //xAOD::ParticleContainer* pi0Container=0;
+    //ATH_CHECK( evtStore()->retrieve(pi0Container, "finalTauPi0s") );
 
     for(unsigned int itlv=0; itlv!=vec_pi04vec.size(); ++itlv) {      
       xAOD::Particle* p = new xAOD::Particle();
-      pi0Container->push_back(p);
+      pi0Container.push_back(p);
       p->setPxPyPzE(vec_pi04vec.at(itlv).Px(), vec_pi04vec.at(itlv).Py(), vec_pi04vec.at(itlv).Pz(), vec_pi04vec.at(itlv).E());
       std::vector< ElementLink< xAOD::PFOContainer > > pfo_link_vector;
       for( uint ipfo = 0; ipfo != vec_pi0pfos.at(itlv).size(); ++ipfo) {
@@ -488,8 +487,11 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
       static SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::PFOContainer > > > accPi0PFOLinks("pi0PFOLinks");
       accPi0PFOLinks(*p) = pfo_link_vector;
 
-      ElementLink< xAOD::IParticleContainer > linkToPi0;
-      linkToPi0.toContainedElement(*(static_cast<const xAOD::IParticleContainer*>(pi0Container)), dynamic_cast<xAOD::IParticle*> (p));
+      //ElementLink< xAOD::IParticleContainer > linkToPi0;
+      //linkToPi0.toContainedElement(pi0Container, dynamic_cast<xAOD::IParticle*> (p));
+      ElementLink< xAOD::ParticleContainer > linkToPi0;
+      linkToPi0.toContainedElement(pi0Container, p);
+
       tauJet->addPi0Link(linkToPi0);
     }
 

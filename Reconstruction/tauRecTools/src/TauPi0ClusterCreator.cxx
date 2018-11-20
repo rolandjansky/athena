@@ -29,24 +29,9 @@ using std::string;
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
 
     TauRecToolBase(name)
-    , m_inputPi0ClusterContainerName("TauPi0SubtractedClusters")
-    , m_outputPi0ClusterContainerName("TauPi0Clusters")
-    , m_neutralPFOContainer(0)
-    , m_neutralPFOContainerName("TauNeutralParticleFlowObjects")
-    , m_neutralPFOAuxStore(0)
-    , m_hadronicClusterPFOContainer(0)
-    , m_hadronicClusterPFOContainerName("TauHadronicParticleFlowObjects")
-    , m_hadronicClusterPFOAuxStore(0)
     , m_clusterEtCut(500.)
-    , m_pOutputPi0CaloClusterContainer(0)
 {
-
-    declareProperty("InputPi0ClusterContainerName",  m_inputPi0ClusterContainerName);
-    declareProperty("OutputPi0ClusterContainerName", m_outputPi0ClusterContainerName);
-    declareProperty("NeutralPFOContainerName",       m_neutralPFOContainerName);
-    declareProperty("HadronicClusterPFOContainerName", m_hadronicClusterPFOContainerName);
     declareProperty("ClusterEtCut",                  m_clusterEtCut);
-    declareProperty("AODMode",                       m_AODmode=false);
 }
 
 //-------------------------------------------------------------------------
@@ -60,7 +45,10 @@ TauPi0ClusterCreator::~TauPi0ClusterCreator()
 
 StatusCode TauPi0ClusterCreator::initialize() 
 {
-    return StatusCode::SUCCESS;
+
+  ATH_CHECK( m_pi0ClusterInputContainer.initialize() );
+  
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0ClusterCreator::finalize() 
@@ -70,54 +58,13 @@ StatusCode TauPi0ClusterCreator::finalize()
 
 StatusCode TauPi0ClusterCreator::eventInitialize() 
 {
-    // create new CaloClusterContainer 
-    // this container will later persistified
-    // so it will get ownership of the objects
-    ATH_MSG_VERBOSE("record container " << m_outputPi0ClusterContainerName);
-    //---------------------------------------------------------------------
-    // Create container for Pi0
-    //---------------------------------------------------------------------
-    m_pOutputPi0CaloClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(),   
-									     m_outputPi0ClusterContainerName,    
-									     msg()                  
-									     );
-
-    //---------------------------------------------------------------------
-    // Create neutral PFO container
-    //---------------------------------------------------------------------
-    if(!m_AODmode){
-      m_neutralPFOContainer = new xAOD::PFOContainer();
-      m_neutralPFOAuxStore = new xAOD::PFOAuxContainer();
-      m_neutralPFOContainer->setStore(m_neutralPFOAuxStore);
-      CHECK( evtStore()->record(m_neutralPFOContainer, m_neutralPFOContainerName ) );
-      CHECK( evtStore()->record( m_neutralPFOAuxStore, m_neutralPFOContainerName + "Aux." ) );
-    }
-    else {
-      CHECK( evtStore()->retrieve(m_neutralPFOContainer, m_neutralPFOContainerName) );
-      CHECK( evtStore()->retrieve(m_neutralPFOAuxStore, m_neutralPFOContainerName+"Aux.") );
-    }
-
-    //---------------------------------------------------------------------
-    // Create hadronic cluster PFO container
-    //---------------------------------------------------------------------
-    if(!m_AODmode){
-      m_hadronicClusterPFOContainer = new xAOD::PFOContainer();
-      m_hadronicClusterPFOAuxStore = new xAOD::PFOAuxContainer();
-      m_hadronicClusterPFOContainer->setStore(m_hadronicClusterPFOAuxStore);
-      CHECK( evtStore()->record(m_hadronicClusterPFOContainer, m_hadronicClusterPFOContainerName ) );
-      CHECK( evtStore()->record( m_hadronicClusterPFOAuxStore, m_hadronicClusterPFOContainerName + "Aux." ) );
-    }
-    else{
-      CHECK( evtStore()->record(m_hadronicClusterPFOContainer, m_hadronicClusterPFOContainerName) );
-      CHECK( evtStore()->record(m_hadronicClusterPFOAuxStore, m_hadronicClusterPFOContainerName + "Aux.") );
-    }
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0ClusterCreator::execute(xAOD::TauJet& pTau) 
+StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
+							  xAOD::PFOContainer& hadronicClusterPFOContainer, xAOD::CaloClusterContainer& pi0CaloClusterContainer) 
 {
-
     // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
     vector<ElementLink<xAOD::PFOContainer> > empty;
     pTau.setProtoChargedPFOLinks(empty);
@@ -140,7 +87,12 @@ StatusCode TauPi0ClusterCreator::execute(xAOD::TauJet& pTau)
     // retrieve the CaloClusterContainer created by the CaloClusterMaker
     //---------------------------------------------------------------------
     const xAOD::CaloClusterContainer *pPi0ClusterContainer;
-    CHECK( evtStore()->retrieve(pPi0ClusterContainer, m_inputPi0ClusterContainerName) );
+    SG::ReadHandle<xAOD::CaloClusterContainer> pi0ClusterInHandle( m_pi0ClusterInputContainer );
+    if (!pi0ClusterInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << pi0ClusterInHandle.key());
+      return StatusCode::FAILURE;
+    }
+    pPi0ClusterContainer = pi0ClusterInHandle.cptr();
 
     //---------------------------------------------------------------------
     // TODO: May want to use tau vertex in the future to calculate some cluster moments (DELTA_THETA, etc.).
@@ -176,7 +128,7 @@ StatusCode TauPi0ClusterCreator::execute(xAOD::TauJet& pTau)
         xAOD::CaloCluster* pPi0Cluster = new xAOD::CaloCluster( *(*clusterItr) );
 
         // store pi0 calo cluster in the output container
-        m_pOutputPi0CaloClusterContainer->push_back(pPi0Cluster);
+        pi0CaloClusterContainer.push_back(pPi0Cluster);
 
         // Calculate input variables for fake supression. 
         // Do this before applying the vertex correction, 
@@ -226,16 +178,16 @@ StatusCode TauPi0ClusterCreator::execute(xAOD::TauJet& pTau)
         
         // create neutral PFO. Set BDTScore to dummy value <-1. The BDT score is calculated within TauPi0Selector.cxx.
         xAOD::PFO* neutralPFO = new xAOD::PFO();
-        m_neutralPFOContainer->push_back( neutralPFO );
+        neutralPFOContainer.push_back( neutralPFO );
 
         // Create element link from tau to neutral PFO
         ElementLink<xAOD::PFOContainer> PFOElementLink;
-        PFOElementLink.toContainedElement( *m_neutralPFOContainer, neutralPFO );
+        PFOElementLink.toContainedElement( neutralPFOContainer, neutralPFO );
         pTau.addProtoNeutralPFOLink( PFOElementLink );
 
         // Set PFO variables
         ElementLink<xAOD::CaloClusterContainer> clusElementLink;
-        clusElementLink.toContainedElement( *m_pOutputPi0CaloClusterContainer, pPi0Cluster );
+        clusElementLink.toContainedElement( pi0CaloClusterContainer, pPi0Cluster );
         neutralPFO->setClusterLink( clusElementLink );
         
         neutralPFO->setP4( (float) pPi0Cluster->pt(), (float) pPi0Cluster->eta(), (float) pPi0Cluster->phi(), (float) pPi0Cluster->m());
@@ -285,7 +237,7 @@ StatusCode TauPi0ClusterCreator::execute(xAOD::TauJet& pTau)
     }
 
     // Create hadronic PFOs, put them in output container and store links to tau
-    if(!setHadronicClusterPFOs(pTau)){
+    if(!setHadronicClusterPFOs(pTau, hadronicClusterPFOContainer)){
         ATH_MSG_ERROR("Could not set hadronic PFOs");
         return StatusCode::FAILURE;
     }
@@ -302,10 +254,10 @@ StatusCode TauPi0ClusterCreator::eventFinalize()
     //----------------------------------------------------------------------
     // Register cluster container in StoreGate
     //----------------------------------------------------------------------
-    CHECK( CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),
-                                                    m_pOutputPi0CaloClusterContainer,
-                                                    m_outputPi0ClusterContainerName,
-                                                    msg()));
+  //CHECK( CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),
+  //m_pOutputPi0CaloClusterContainer,
+  //                                                m_outputPi0ClusterContainerName,
+  //                                                msg()));
   
     return StatusCode::SUCCESS;
 }
@@ -510,8 +462,7 @@ vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
       return secondEtaWRTClusterPositionInLayer;
 }
 
-bool TauPi0ClusterCreator::setHadronicClusterPFOs(
-    xAOD::TauJet& pTau)
+bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronPFOContainer)
 {
     const xAOD::Jet* tauJetSeed = (*pTau.jetLink());
     if (!tauJetSeed) {
@@ -556,7 +507,7 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(
 
         // Create hadronic PFO
         xAOD::PFO* hadronicPFO = new xAOD::PFO();
-        m_hadronicClusterPFOContainer->push_back( hadronicPFO );
+        pHadronPFOContainer.push_back( hadronicPFO );
 
         // Set 4mom. Eta and phi are taken from cluster
         double cluster_Pt_Hcal = clusterE_Hcal/std::cosh(cluster->eta());
@@ -569,7 +520,7 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(
 
         // Create element link from tau to hadronic PFO
         ElementLink<xAOD::PFOContainer> PFOElementLink;
-        PFOElementLink.toContainedElement( *m_hadronicClusterPFOContainer, hadronicPFO );
+        PFOElementLink.toContainedElement( pHadronPFOContainer, hadronicPFO );
         pTau.addHadronicPFOLink( PFOElementLink );
     }
     return true;

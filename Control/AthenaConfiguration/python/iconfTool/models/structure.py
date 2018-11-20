@@ -8,7 +8,7 @@ import copy
 import sys
 import logging
 
-from models.element import SingleElement, GroupingElement, ValueElement
+from AthenaConfiguration.iconfTool.models.element import SingleElement, GroupingElement, ValueElement
 
 logger = logging.getLogger('iconfTool.' + __name__)
 INDENT = 3

@@ -1139,7 +1139,7 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   //----------------------------------------------------------------------------
   // Set error code and make sure the debug stream tag is added
   //----------------------------------------------------------------------------
-  hltResultWH->addStatusWord( static_cast<uint32_t>(errorCode) );
+  hltResultWH->addErrorCode( static_cast<uint32_t>(errorCode) );
   std::string debugStreamName = (errorCode==hltonl::PSCErrorCode::PROCESSING_FAILURE) ?
                                 m_algErrorDebugStreamName.value() : m_fwkErrorDebugStreamName.value();
   hltResultWH->addStreamTag({debugStreamName,eformat::DEBUG_TAG,true});

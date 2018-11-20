@@ -9,6 +9,7 @@
 #include <vector>
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 
 /**
@@ -28,7 +29,14 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
+						xAOD::PFOContainer& hadronicClusterPFOContainer, xAOD::CaloClusterContainer& pi0CaloClusContainer);
+    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize();
 
     virtual void print() const { }
@@ -63,35 +71,12 @@ private:
     std::vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster* /*pi0Candidate*/);
 
     /** @brief get hadronic cluster PFOs*/
-    bool setHadronicClusterPFOs(xAOD::TauJet& pTau);
-
-    /** @brief input cluster container of pi0 candidates */
-    // TODO: input cluster container name
-    std::string m_inputPi0ClusterContainerName;
-    
-    /** @brief output cluster container of pi0 candidates */
-    // TODO: output cluster container name
-    std::string m_outputPi0ClusterContainerName;
-
-    /** @brief new neutral PFO container and name */
-    xAOD::PFOContainer* m_neutralPFOContainer;
-    std::string m_neutralPFOContainerName;
-    xAOD::PFOAuxContainer* m_neutralPFOAuxStore;
-
-    /** @brief new hadronic cluster PFO container and name */
-    xAOD::PFOContainer* m_hadronicClusterPFOContainer;
-    std::string m_hadronicClusterPFOContainerName;
-    xAOD::PFOAuxContainer* m_hadronicClusterPFOAuxStore;
-    
+    bool setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronicClusterContainer);
 
     /** @brief pt threshold for pi0 candidate clusters */
     double m_clusterEtCut;
-
-    /** @brief in AODMode (probaby never true) */
-    bool m_AODmode;
-
-    /** @brief output cluster container */
-    xAOD::CaloClusterContainer*  m_pOutputPi0CaloClusterContainer;
+    
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
 
 };
 

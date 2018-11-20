@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -34,10 +34,9 @@ namespace Trig {
   {
   public:
     DecisionObjectHandleEventInfo( EventPtr_t sg, const std::string& key );
-    using DataHandle<EventInfo>::reset;
-    virtual void reset();
-    virtual TriggerInfo const * getDecision() const;
-    virtual void const * getNavigation() const; 
+    virtual void reset (bool hard) override;
+    virtual TriggerInfo const * getDecision() const override;
+    virtual void const * getNavigation() const override; 
   private:
     StoreGateSvc* m_sg;
     const std::string m_key;

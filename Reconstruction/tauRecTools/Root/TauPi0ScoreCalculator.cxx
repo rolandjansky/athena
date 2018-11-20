@@ -98,7 +98,6 @@ StatusCode TauPi0ScoreCalculator::initialize()
 
 StatusCode TauPi0ScoreCalculator::finalize()
 {
-  delete m_mvaBDT;
   return StatusCode::SUCCESS;
 }
 

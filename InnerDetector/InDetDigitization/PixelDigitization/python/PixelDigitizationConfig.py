@@ -78,10 +78,6 @@ def SensorSimTool(name="SensorSimTool", **kwargs):
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
-        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setup()
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("PixelConditionsSummaryTool", ToolSvc.PixelConditionsSummaryTool)
@@ -206,6 +202,15 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.AppMgr import ServiceMgr
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.CfgGetter import getService
+    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
+        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+        pixelConditionsSummaryToolSetup.setUseConditions(True)
+        pixelConditionsSummaryToolSetup.setUseDCSState(False)
+        pixelConditionsSummaryToolSetup.setUseByteStream(False)
+        pixelConditionsSummaryToolSetup.setUseTDAQ(False)
+        pixelConditionsSummaryToolSetup.setUseDeadMap(True)
+        pixelConditionsSummaryToolSetup.setup()
     protectedInclude("PixelConditionsServices/PixelCalibSvc_jobOptions.py")
     from IOVDbSvc.CondDB import conddb
     conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")
