@@ -9,7 +9,7 @@ def L1DecoderCfg(flags):
     from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-    from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool, JETRoIsUnpackingTool
+    from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 
     acc = ComponentAccumulator()
@@ -26,7 +26,7 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET"),
                                                       OutputTrigRoI = recordable("METRoI")) ]
 
-    decoderAlg.roiUnpackers += [JETRoIsUnpackingTool( Decisions = recordable("L1J"),
+    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1J"),
                                                       OutputTrigRoI = recordable("JETRoI")) ]
 
 

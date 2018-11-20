@@ -111,6 +111,7 @@ atlas_add_test( jetRunData
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jetMenu )
 atlas_add_test( jetMenu
 		SCRIPT test/test_jet_menu.sh
+		EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"	
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_jetMenu
               )
@@ -128,6 +129,13 @@ atlas_add_test( idCaloRunData
 		SCRIPT test/test_id_calo_run_data.sh
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData
+              )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData )
+atlas_add_test( CaloOnlyRunData
+		SCRIPT test/test_calo_only_run_data.sh
+                PROPERTIES TIMEOUT 500
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_l1_decoding )

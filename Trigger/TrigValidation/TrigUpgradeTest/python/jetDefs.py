@@ -41,20 +41,26 @@ def jetRecoSequence(inputMakerOut):
     svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 
 
+    myRoIMode = False
+
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
     algo1=HLTCaloCellMaker("HLTCaloCellMaker")
     algo1.RoIs=inputMakerOut
     #     algo1.RoIs="StoreGateSvc+FSJETRoIs"
     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-    algo1.roiMode=True
+    algo1.roiMode = myRoIMode
     algo1.OutputLevel=VERBOSE
     jetRecoSequence += algo1
 
 
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
     algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
-    algo2.Cells = "CellsClusters"
+    if myRoIMode:
+        algo2.Cells = "CellsClusters"
+    else:
+        algo2.Cells = "CellsVClusters"
+   
     algo2.OutputLevel = INFO
     jetRecoSequence += algo2
 
