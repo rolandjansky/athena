@@ -31,6 +31,8 @@ namespace CP {
         public:
             IsolationCondition(const std::string& name, xAOD::Iso::IsolationType isoType);
             IsolationCondition(const std::string& name, const std::vector<xAOD::Iso::IsolationType>& isoTypes);
+            IsolationCondition(const std::string& name, std::string &isoType);
+            IsolationCondition(const std::string& name, const std::vector<std::string>& isoTypes);
            
             IsolationCondition(const IsolationCondition& rhs) = delete;
             IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
@@ -49,6 +51,8 @@ namespace CP {
             std::string m_name;
             std::vector<xAOD::Iso::IsolationType> m_isolationType;
             std::vector<SG::AuxElement::Accessor<float>*> m_acc;
+            //Flag to indicate use of custom vs. predefined accessor, to know if it should be deleted in the destructor.
+            bool m_customAcc;
         protected:
             float m_cutValue;
     };
