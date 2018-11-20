@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetSimData 
                           InnerDetector/InDetRecTools/TRT_ElectronPidTools
+                          Tracking/TrkEvent/TrkTrack
                           )
 
 find_package( CLHEP )
@@ -27,7 +28,7 @@ atlas_add_component( InDetOverlay
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests CxxUtils GeneratorObjects InDetIdentifier InDetSimData TRT_ElectronPidTools )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests CxxUtils GeneratorObjects InDetIdentifier InDetSimData TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( InDetOverlay )
