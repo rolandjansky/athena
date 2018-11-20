@@ -31,7 +31,7 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.egamma = [
-        get_flag_item('e20', 'L1_EM10', ['RATE:SingleElectron', 'BW:Electron'])
+        get_flag_item('HLT_e20_loose', 'L1_EM10', ['RATE:SingleElectron', 'BW:Electron'])
     ]
 
     flags.Trigger.menu.combined = [
@@ -41,12 +41,26 @@ def setupMenu(flags):
 
 
 if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+    acc = ComponentAccumulator()
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     setupMenu(ConfigFlags)
+
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+
     ConfigFlags.lock()
     ConfigFlags.dump()
     
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu    
     menu = generateMenu( ConfigFlags )
-    
+
+    acc.merge(menu)
+
+    f = open('newJOMenu.pkl', 'wb')
+    acc.store(f)
+    f.close()
