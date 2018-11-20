@@ -46,7 +46,7 @@ fi
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root | tee rootcompout.log
+  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root | tee rootcompout.log
   echo "art-result: ${PIPESTATUS[0]} RootComp"
   echo $(date "+%FT%H:%M %Z")"     Running checkcounts"
   timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT | tee checkcountout.log
