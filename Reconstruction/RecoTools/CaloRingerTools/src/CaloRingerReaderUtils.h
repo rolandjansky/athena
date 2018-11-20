@@ -13,6 +13,7 @@
 
 // Athena framework include:
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IDataHandleHolder.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthContainers/DataVector.h"
@@ -148,11 +149,13 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     BuildCaloRingsFctor(
         const std::string &decoContName,
         ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg)
+        MsgStream &msg,
+	IDataHandleHolder* owningAlg)
     : BuildCaloRingsFctorBase(
         builder,
         msg),
-      m_decorKey( decoContName + "." + xAOD::caloRingsLinksDecorKey() ){;}
+      m_decorKey( decoContName + "." + xAOD::caloRingsLinksDecorKey() )
+         { m_decorKey.setOwner(owningAlg);}
 
     /// Methods
     /// @{

@@ -90,8 +90,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
 	   last = m_maxFileSizes.value().end(); iter != last; iter++) {
       if (iter->find('=') != std::string::npos) {
          long long maxFileSize = atoll(iter->substr(iter->find('=') + 1).c_str());
-         if (maxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (maxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
          std::string databaseName = iter->substr(0, iter->find_first_of(" 	="));
@@ -99,8 +99,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          m_databaseMaxFileSize.insert(entry);
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
-         if (m_domainMaxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (m_domainMaxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
       }
@@ -1132,7 +1132,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),
-	m_domainMaxFileSize(10000000000LL),
+	m_domainMaxFileSize(15000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
    declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREE:CollectionTree");

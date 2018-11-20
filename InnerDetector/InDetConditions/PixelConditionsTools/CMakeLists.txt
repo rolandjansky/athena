@@ -9,7 +9,7 @@ atlas_subdir( PixelConditionsTools )
 set( extra_dep )
 set( extra_lib )
 if( NOT SIMULATIONBASE )
-   set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors )
+  set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors InnerDetector/InDetConditions/PixelConditionsServices )
 set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
 endif()
 
@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
   InnerDetector/InDetConditions/PixelCoralClientUtils
   InnerDetector/InDetDetDescr/InDetIdentifier
   InnerDetector/InDetDetDescr/InDetReadoutGeometry
+  InnerDetector/InDetDetDescr/PixelCabling
   TestPolicy
   Tools/PathResolver
   ${extra_dep} )

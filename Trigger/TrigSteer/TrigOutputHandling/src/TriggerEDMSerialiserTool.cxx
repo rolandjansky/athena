@@ -83,8 +83,6 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( const void* data, size_t sz, s
 
 
 StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
-
-  ATH_CHECK ( resultToFill.getSerialisedData().find(m_moduleID)  == resultToFill.getSerialisedData().end() ); // do not want overwrite
   
   std::vector<uint32_t> payload;    
   for ( const Address& address: m_toSerialize ) {
@@ -128,7 +126,7 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     ATH_MSG_DEBUG( "Payload size after inserting " << address.type << "#" << address.key << " " << payload.size()*sizeof(uint32_t) << " bytes" );
   }
 
-  resultToFill.addSerialisedData( m_moduleID, payload );
+  ATH_CHECK( resultToFill.addSerialisedDataWithCheck( m_moduleID, payload ) );
   
   return StatusCode::SUCCESS;
 }

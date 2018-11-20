@@ -124,6 +124,7 @@ template<typename container_t>
 StatusCode BuildCaloRingsFctor<container_t>::initialize()
 {
   ATH_CHECK( m_decorKey.initialize() );
+  m_decorKey.owner()->declare(m_decorKey);
   return StatusCode::SUCCESS;
 }
 

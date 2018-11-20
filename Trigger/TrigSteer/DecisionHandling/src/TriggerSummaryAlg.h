@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_TRIGGERSUMMARYALG_H
 #define DECISIONHANDLING_TRIGGERSUMMARYALG_H 1
@@ -11,7 +11,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "TrigOutputHandling/IHLTOutputTool.h"
+#include "DecisionHandling/IHLTOutputTool.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 /**

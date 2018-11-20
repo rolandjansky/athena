@@ -8,8 +8,7 @@
 
 // Constructor
 
-SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name,
-                                       ISvcLocator* pSvcLocator) :
+SCTEventFlagWriter::SCTEventFlagWriter(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
 }

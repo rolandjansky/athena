@@ -115,7 +115,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   re->stream_tag(nStreamTagWords, m_streamTagData.get());
 
   // Fill the HLT bits
-  re->hlt_info(hltResult->getHltBits().size(), hltResult->getHltBits().data());
+  const std::vector<uint32_t>& hltBits = hltResult->getHltBitsAsWords();
+  re->hlt_info(hltBits.size(), hltBits.data());
 
   // Clear the FEA stack
   m_fullEventAssembler.clear();

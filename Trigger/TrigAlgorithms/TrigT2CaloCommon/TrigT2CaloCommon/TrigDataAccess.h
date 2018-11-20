@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -436,6 +436,8 @@ private:
   std::vector<unsigned int> m_zdc_rods;
   uint32_t m_numberOfLarRoses;
   uint32_t m_numberOfTileRoses;
+
+  TileROD_Decoder::D0CellsHLT m_d0cells;
 };
 
 #endif

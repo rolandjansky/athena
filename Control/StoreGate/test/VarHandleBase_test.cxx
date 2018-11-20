@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -193,7 +193,7 @@ void test2()
     assert (proxy->refCount() == 3);
     assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1, &h3, &h2}));
 
-    h1.reset();
+    h1.reset(false);
     assert (h1.clid() == 293847295);
     assert (h1.key() == "foo");
     assert (h1.storeHandle().name() == "FooSvc");
@@ -261,7 +261,7 @@ void test2()
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
 
   proxy5->addRef();
-  h1.reset();
+  h1.reset(false);
   assert (h1.m_proxy == nullptr);
   assert (proxy5->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{}));
@@ -331,7 +331,7 @@ void test4()
 
   assert (h2.setState().isSuccess());
   assert (h2.isInitialized());
-  h2.reset();
+  h2.reset(false);
   assert (h2.isInitialized());
   h2.finalReset();
   assert (!h2.isInitialized());

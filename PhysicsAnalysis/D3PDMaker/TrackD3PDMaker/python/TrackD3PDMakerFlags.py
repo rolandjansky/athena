@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # 
 ## @file TrackD3PDMaker/python/TrackD3PDMakerFlags.py
@@ -150,13 +150,10 @@ class storeTrackSummary(JobProperty):
     TRTInfoPlus = False
     InfoPlus = False
     MuonHits = True
-    MuonHoles = False
+    DBMHits = False
     ExpectBLayer = True
     HitSum = True
     HoleSum = True
-    HitPattern = True
-    SiHits = False
-    TRTRatio = True
     PixeldEdx = False
     ElectronPID = False
     

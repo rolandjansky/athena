@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IRESETABLE_H
@@ -28,11 +28,6 @@ public:
   /// if it is true, then the DataProxy pointer should be cleared as well
   /// (and the object deregistered from the store).
   virtual void reset (bool hard) = 0;
-
-  // Backwards compatibility.
-  // FIXME: Needed by TrigDecisionTool.
-  // Look into getting rid of this once TDT is more up-to-date.
-  virtual void reset() { reset(false); }
 
   ///optional special action on final reset call (e.g. in caller destructor)
   virtual void finalReset() {};
