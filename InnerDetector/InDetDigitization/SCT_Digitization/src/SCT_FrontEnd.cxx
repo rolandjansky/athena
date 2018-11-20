@@ -1361,7 +1361,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
                                                                                      
                 clusterSize = (clusterLastStrip - clusterFirstStrip) + 1;           
 
-		hitStrip = SiCellId(strip);
+		hitStrip = SiCellId(clusterFirstStrip);
 		  
                 SiChargedDiode &HitDiode = *(collection.find(hitStrip));             
                                                                                     
@@ -1370,7 +1370,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
                 SiChargedDiode *PreviousHitDiode = &HitDiode;
                 for (int i = clusterFirstStrip + 1; i <= clusterLastStrip;
                      ++i) {
-		  hitStrip  = SiCellId(strip);
+		  hitStrip  = SiCellId(i);
 		  SiChargedDiode &HitDiode2 = *(collection.find(hitStrip));          
                                                                                        
 		  SiHelper::ClusterUsed(HitDiode2, true);                             
