@@ -4,18 +4,15 @@
 #ifndef TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
 #define TRIGOUTPUTHANDLING_TriggerEDMSerialiserTool_H
 
-// STL includes
-#include <string>
 
-// FrameWork includes
+#include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-// OutputHandling includes
-#include "TrigOutputHandling/HLTResultMTMakerTool.h"
+#include "xAODCore/AuxSelection.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
+#include "TrigOutputHandling/HLTResultMTMakerTool.h"
 
 /**
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
@@ -36,7 +33,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   virtual StatusCode  initialize() override;
 
  private: 
-  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG key of collections to be streamed (like in StreamAOD), the type has to be an exact type i.e. with _vN not the alias type" };
+  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG.aux1.aux2..etc key of collections to be streamed (like in StreamAOD), the type has to be an exact type i.e. with _vN not the alias type" };
 
 
   Gaudi::Property<int> m_moduleID { this, "ModuleID", 0, "The HLT result fragment to which the output should be added"};
@@ -46,7 +43,8 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     std::string type;
     CLID clid;
     RootType rt;
-    std::string key;    
+    std::string key;
+    xAOD::AuxSelection sel;
   };
   
   std::vector< Address > m_toSerialize; // postprocessed configuration info
