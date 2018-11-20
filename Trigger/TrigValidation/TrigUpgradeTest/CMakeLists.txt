@@ -133,7 +133,7 @@ atlas_add_test( idCaloRunData
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData )
 atlas_add_test( CaloOnlyRunData
-		SCRIPT test/test_calo_only_run_data.sh
+		SCRIPT test/test_calo_only_data.sh
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_CaloOnlyRunData
               )
@@ -170,8 +170,8 @@ atlas_add_test( l1sim
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu )
 atlas_add_test( bJetMenu
                 SCRIPT test/test_bjet_menu.sh
-                 PROPERTIES TIMEOUT 500
-                EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*"
+		PROPERTIES TIMEOUT 500
+                EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_bJetMenu   )
 
 atlas_install_joboptions( share/*.py )
