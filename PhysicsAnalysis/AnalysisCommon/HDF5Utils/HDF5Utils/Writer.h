@@ -48,6 +48,7 @@ namespace H5Utils {
       virtual data_buffer_t getDefault() const = 0;
       virtual H5::DataType getType() const = 0;
       virtual std::string name() const = 0;
+      typedef I input_type;
     };
 
     /// implementation for variable filler
@@ -156,6 +157,40 @@ namespace H5Utils {
   /// @{
   namespace internal {
 
+    // these are a series of check utilities to make sure that the
+    // writer class is well-formed.
+    using std::begin;
+    template <typename A>
+    static auto checkBegin(A&) -> decltype(
+      *begin(std::declval<A&>()),
+      std::true_type{});
+    template <typename A>
+    static std::false_type checkBegin(...);
+
+    template <size_t N, typename A>
+    struct CheckIterator {
+      typedef decltype(checkBegin<A>(std::declval<A&>())) this_has_begin;
+      static_assert(
+        this_has_begin::value,
+        "\n\n ** HDF5 Writer::fill(...) argument was too shallow ** \n");
+      typedef decltype(*begin(std::declval<A&>())) iter_type;
+      typedef typename CheckIterator<N-1, iter_type>::has_begin has_begin;
+    };
+    template <typename A>
+    struct CheckIterator <0, A> {
+      typedef std::true_type has_begin;
+    };
+
+    template <size_t N, typename I, typename A>
+    struct CheckType {
+      typedef decltype(*begin(std::declval<A&>())) iter_type;
+      static const bool ok =  CheckType<N-1, I, iter_type>::ok;
+    };
+    template <typename I, typename A>
+    struct CheckType <0, I, A> {
+      static const bool ok = std::is_convertible<A,I>::value;
+    };
+
     /// Data flattener class: this is used by the writer to read in the
     /// elements one by one and put them in an internal buffer.
     ///
@@ -165,6 +200,7 @@ namespace H5Utils {
     ///
     template <size_t N, typename F, typename T, size_t M = N>
     struct DataFlattener {
+
       std::vector<data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
       DataFlattener(const F& filler, T args,
@@ -351,6 +387,15 @@ namespace H5Utils {
     if (m_buffer_rows == m_par.batch_size) {
       flush();
     }
+
+    // make some assertions
+    static_assert(internal::CheckIterator<N, T>::has_begin::value,
+                  "\n\n ** Wrong iterator depth ** \n");
+    typedef typename
+      decltype(m_consumers)::value_type::element_type::input_type input_type;
+    static_assert(internal::CheckType<N,input_type, T>::ok,
+                  "\n\n ** H5 Writer input doesn't match input type! ** \n");
+
     internal::DataFlattener<N, decltype(m_consumers), T> buf(
       m_consumers, arg, m_par.extent);
     hsize_t n_el = buf.element_offsets.size();
