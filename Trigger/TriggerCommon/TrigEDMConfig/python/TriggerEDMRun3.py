@@ -35,12 +35,15 @@ TriggerHLTList = [
     ('TrigRoiDescriptorCollection#EMRoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#MURoIs',                             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#METRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#JETRoI',                             'BS ESD AODFULL AODSLIM',  'Steer'),
+    
 
     
     ('xAOD::TrigCompositeContainer#L1Seeds',     'BS ESD AODFULL AODSLIM',  'Steer'),
     ('xAOD::TrigCompositeContainer#L1EM',     'BS ESD AODFULL AODSLIM',  'Steer'),
     ('xAOD::TrigCompositeContainer#L1MU',     'BS ESD AODFULL AODSLIM',  'Steer'),
     ('xAOD::TrigCompositeContainer#L1MET',     'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('xAOD::TrigCompositeContainer#L1JET',     'BS ESD AODFULL AODSLIM',  'Steer'),
     
 ]
 

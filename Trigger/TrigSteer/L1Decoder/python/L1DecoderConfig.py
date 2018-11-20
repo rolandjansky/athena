@@ -26,8 +26,8 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET"),
                                                       OutputTrigRoI = recordable("METRoI")) ]
 
-    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1J"),
-                                                      OutputTrigRoI = recordable("JETRoI")) ]
+    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1JET"),
+                                                      OutputTrigRoIs = recordable("JETRoI")) ]
 
 
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg    
