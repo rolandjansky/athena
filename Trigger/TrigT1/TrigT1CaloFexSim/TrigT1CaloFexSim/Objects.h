@@ -97,7 +97,7 @@ namespace TowerObject{
     //build the grid
     TowerGrid(const xAOD::JGTowerContainer& towers){
       grid = std::vector<int>(grid_eta*grid_phi, -1);
-      for(const auto& tower: towers){
+      for(const xAOD::JGTower* tower: towers){
 	int towerIndex = std::find(towers.begin(), towers.end(), tower) - towers.begin();
 	this->add_tower(*tower, towerIndex);
       }
@@ -134,12 +134,12 @@ namespace TowerObject{
     //get coordinate functions
     std::pair<int, int> get_coord(const xAOD::JGTower& tower) const{
       int ieta(-1);
-      for(const auto& eta: eta_bins){
+      for(const float& eta: eta_bins){
 	if(tower.eta() < eta) break;
 	ieta++;
       }
       int iphi(-1);
-      for(const auto& phi : phi_bins){
+      for(const float& phi : phi_bins){
 	if(tower.phi() < phi) break;
 	iphi++;
       }

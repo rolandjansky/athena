@@ -25,9 +25,9 @@ BuildBlocksFromTowers: Takes JGTowers from a JGTowerContainer and combines them 
 void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, bool useNegTowers){
   
   blocks.clear();
-  auto grid = TowerObject::TowerGrid(towers);
+  TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
   
-  for(const auto& seed: towers){
+  for(const xAOD::JGTower* seed: towers){
     int seedIndex = std::find(towers.begin(), towers.end(), seed) - towers.begin();
     
     std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
@@ -37,7 +37,7 @@ void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::
     double block_pt(seed_Et);
     double neighbor_pt = 0;
     
-    for(const auto& neighborIndex: neighbors){
+    for(const int& neighborIndex: neighbors){
       const xAOD::JGTower* neighbor = towers.at(neighborIndex);
       block_area += neighbor->deta()*neighbor->dphi();
       neighbor_pt = neighbor->et();
