@@ -6,8 +6,6 @@
 atlas_subdir( GammaORTools )
 
 # Extra dependencies, based on the environment:
-set( extra_deps )
-set( extra_deps Control/AthenaBaseComps )
 if( XAOD_STANDALONE )
     set( extra_deps Control/xAODRootAccess )
 else()
@@ -31,7 +29,7 @@ atlas_add_library( GammaORToolsLib
    GammaORTools/*.h Root/*.cxx
    PUBLIC_HEADERS GammaORTools
    INCLUDE_DIRS 
-   LINK_LIBRARIES AsgTools xAODCore xAODBase xAODJet xAODTruth xAODTruth xAODEventInfo MCTruthClassifierLib )
+   LINK_LIBRARIES AsgTools xAODTruth xAODEventInfo MCTruthClassifierLib )
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( GammaORTools

@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "boost/current_function.hpp"
 #include "MCTruthClassifier/MCTruthClassifier.h"
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthParticle.h>
