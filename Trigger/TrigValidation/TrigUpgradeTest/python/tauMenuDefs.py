@@ -52,8 +52,6 @@ clusMaker.OutputLevel=VERBOSE
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker])
-
 fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMakerTau", OutputLevel=VERBOSE)
 fastCaloViewsMaker.ViewFallThrough = True
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
@@ -72,14 +70,16 @@ CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fas
 from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
 CaloRoiUpdater = TrigTauCaloRoiUpdaterMT("CaloRoiUpdater")
 CaloRoiUpdater.OutputLevel  = DEBUG
-CaloRoiUpdater.RoIInputKey  = "RoiForCalo"
-CaloRoiUpdater.RoIOutputKey = "RoiForCalo" # Default for Fast Tracking Algs
+CaloRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
+CaloRoiUpdater.RoIOutputKey = "RoiForTau" # Default for Fast Tracking Algs
 
 l2TauViewsMaker = EventViewCreatorAlgorithm("l2TauViewsMaker", OutputLevel=DEBUG)
 l2TauViewsMaker.RoIsLink = "roi" # -||-
 l2TauViewsMaker.InViewRoIs = "RoiForCalo" # contract with the fastCalo
 l2TauViewsMaker.Views = "TAUCaloViews"
 l2TauViewsMaker.ViewFallThrough = True
+
+fastCaloInViewAlgs = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker,CaloRoiUpdater])
 
 #for viewAlg in ViewAlgs:
 #  if viewAlg.properties().has_key("RoIs"):
@@ -89,7 +89,7 @@ l2TauViewsMaker.ViewFallThrough = True
 #CaloRoiUpdater.caloclusters = l2TauViewsMaker.InViewRoIs
 
 #fastCaloAthSequence = seqAND("fastCaloAthSequenceRoIUpdater", [ CaloRoiUpdater ])
-fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs, CaloRoiUpdater])
+fastCaloAthSequence =  seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs])
 
 #l2TauViewsMaker.ViewNodeName = "tauInViewAlgs"
 
