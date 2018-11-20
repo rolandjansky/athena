@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDDController.h"
@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoPVConstLink.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -167,7 +166,7 @@ void AGDDController::UseGeoModelDetector(std::string name)
 	{
 		std::cout<<"AGDDController could not get at the detector store!"<<std::endl;
 	}
-	const DataHandle<GeoModelExperiment> theExpt;
+	const GeoModelExperiment* theExpt = nullptr;
 	sc=pDetStore->retrieve( theExpt,"ATLAS");
 	if (sc.isFailure()) 
 	{
