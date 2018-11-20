@@ -465,15 +465,10 @@ if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
 
-# Increase max RDO output file size to 10 GB
-
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ] #Athena complains that 15GB files are not supported
-
-
 #==========================================================
 # Use LZIB for compression of temporary outputs of AthenaMP
 #==========================================================
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
 if hasattr(runArgs, "outputRDOFile") and '_000' in runArgs.outputRDOFile:
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
