@@ -32,24 +32,32 @@ if TriggerFlags.doCalo:
      topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
      print testChains
 
-     #filter
-     from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
-     filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-     filterL1RoIsAlg.Input = ["FSJetDecisions"];
-     filterL1RoIsAlg.Output = ["FilteredFSJRoIDecisions"]
-     filterL1RoIsAlg.Chains = testChains
-     filterL1RoIsAlg.OutputLevel = DEBUG
-
-     #inputmaker
-     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-     InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
-     InputMakerAlg.Output='FSJETRoIs'
-     InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
-     InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
-
-     # reco sequence
      from TrigUpgradeTest.jetDefs import jetRecoSequence
-     (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.Output)
+     addFiltering=False
+
+     if addFiltering:
+        #filter
+        from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+        filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+        filterL1RoIsAlg.Input = ["FSJetDecisions"];
+        filterL1RoIsAlg.Output = ["FilteredFSJRoIDecisions"]
+        filterL1RoIsAlg.Chains = testChains
+        filterL1RoIsAlg.OutputLevel = DEBUG
+
+        #inputmaker
+        from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+        InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+        InputMakerAlg.Output='FSJETRoIs'
+        InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
+        InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
+
+     
+        # reco sequence
+        (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.Output)
+     else:
+        (recoSequence, sequenceOut) = jetRecoSequence("FSRoI")
+
+        
 
      # hypo
      from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT     
@@ -58,7 +66,11 @@ if TriggerFlags.doCalo:
      hypo.OutputLevel = DEBUG
      hypo.Jets = sequenceOut
      hypo.HypoOutputDecisions = "jetDecisions"
-     hypo.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions[0]
+     if addFiltering:
+         hypo.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions[0]
+     else:
+         hypo.HypoInputDecisions = "FSJetDecisions"
+         
      hypo.HypoTools = [ trigJetHypoToolFromName( c, c ) for c in testChains ] 
      print hypo
      for tool in hypo.HypoTools:
@@ -66,9 +78,14 @@ if TriggerFlags.doCalo:
 
 
      # finalize tree
-     jetSequence = seqAND("jetSequence", [ InputMakerAlg, recoSequence, hypo ])    
-     jetStep = stepSeq("jetStep", filterL1RoIsAlg, [ jetSequence ] )
+     if addFiltering:
+        jetSequence = seqAND("jetSequence", [ InputMakerAlg, recoSequence, hypo ])    
+        jetStep = stepSeq("jetStep", filterL1RoIsAlg, [ jetSequence ] )
 
+     else:
+       jetSequence = seqAND("jetSequence", [ recoSequence ])    # rmoved hypo
+       jetStep =  jetSequence 
+         
      ### CF construction ###
      def summarySteps ( name, decisions ):
         from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
@@ -81,11 +98,13 @@ if TriggerFlags.doCalo:
 
      summary0 = summarySteps("Step1", [hypo.HypoOutputDecisions] )
      step0 = parOR("step0", [ jetStep, summary0 ] )
-     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
-     HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
+     if addFiltering:
+        step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+        HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
+     else:        
+        HLTsteps = seqAND("HLTsteps", [ step0 ]  )
 
-  
-     ### final monitor algorithm
+    ### final monitor algorithm
      from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
      from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
      summMaker = DecisionSummaryMakerAlg()
