@@ -7,15 +7,18 @@ import ROOT
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
-                                isolationWP = 'FixedCutTight',
+def makePhotonAnalysisSequence( dataType, workingPoint,
+                                postfix = '',
                                 recomputeIsEM = False ):
     """Create a photon analysis algorithm sequence
 
     Keywrod arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
-      quality -- The photon quality to require during the selection
-      isolationWP -- The isolation working point to select photons with
+      workingPoint -- The working point to use
+      postfix -- a postfix to apply to decorations and algorithm
+                 names.  this is mostly used/needed when using this
+                 sequence with multiple working points to ensure all
+                 names are unique.
       recomputeIsEM -- Whether to rerun the cut-based selection. If not, use derivation flags
     """
 
@@ -23,15 +26,35 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     if not dataType in [ 'data', 'mc', 'afii' ]:
         raise ValueError( 'Invalid data type: %' % dataType )
 
+    if postfix != '' :
+        postfix = '_' + postfix
+        pass
+
+    splitWP = workingPoint.split ('.')
+    if len (splitWP) != 2 :
+        raise ValueError ('working point should be of format "quality.isolation", not ' + workingPoint)
+
+    qualityWP = splitWP[0]
+    isolationWP = splitWP[1]
+
+    if qualityWP == 'Tight' :
+        quality = ROOT.egammaPID.PhotonTight
+        pass
+    elif qualityWP == 'Loose' :
+        quality = ROOT.egammaPID.PhotonLoose
+        pass
+    else :
+        raise Exception ('unknown photon quality working point "' + qualityWP + '" should be Tight or Loose');
+
     # Create the analysis algorithm sequence object:
-    seq = AnaAlgSequence( "PhotonAnalysisSequence" )
+    seq = AnaAlgSequence( "PhotonAnalysisSequence" + postfix )
 
     # Variables keeping track of the selections being applied.
     selectionDecorNames = []
     selectionDecorCount = []
 
     # Set up the photon selection algorithm:
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' )
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' + postfix )
     alg.selectionDecoration = 'selectEM'
     selectionDecorNames.append( alg.selectionDecoration )
     if recomputeIsEM:
@@ -44,22 +67,22 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     else:
         # Select from Derivation Framework flags
         addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-        WPnames = { ROOT.egammaPID.PhotonLoose : 'Loose',
-                    ROOT.egammaPID.PhotonTight : 'Tight' }
-        dfFlag = 'DFCommonPhotonsIsEM' + WPnames[ quality ]
+        dfFlag = 'DFCommonPhotonsIsEM' + qualityWP
         alg.selectionTool.selectionFlags = [ dfFlag ]
         selectionDecorCount.append( 1 )
         pass
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
+                outputPropName = 'particlesOut',
+                stageName = 'calibration' )
 
     # Select electrons only with good object quality.
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonObjectQualityAlg' )
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonObjectQualityAlg' + postfix )
     alg.selectionDecoration = 'goodOQ'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
     alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
+                outputPropName = 'particlesOut',
+                stageName = 'calibration' )
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 1 )
 
@@ -67,13 +90,14 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     # Since these are independent of the photon calibration, and this speeds
     # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                           'PhotonPreSelViewFromSelectionAlg' )
+                           'PhotonPreSelViewFromSelectionAlg' + postfix )
     alg.selection = selectionDecorNames[ : ]
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+    seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                stageName = 'calibration' )
 
     # Set up the calibration ans smearing algorithm.
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
-                           'PhotonCalibrationAndSmearingAlg' )
+                           'PhotonCalibrationAndSmearingAlg' + postfix )
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::EgammaCalibrationAndSmearingTool' )
     alg.calibrationAndSmearingTool.ESModel = 'es2017_R21_PRE'
@@ -84,21 +108,23 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
         alg.calibrationAndSmearingTool.useAFII = 0
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                affectingSystematics = '(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)' )
+                affectingSystematics = '(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)',
+                stageName = 'calibration' )
 
     # should this be applied to data?  or to AFII?
     alg = createAlgorithm( 'CP::PhotonShowerShapeFudgeAlg',
-                           'PhotonShowerShapeFudgeAlg' )
+                           'PhotonShowerShapeFudgeAlg' + postfix )
     addPrivateTool( alg, 'showerShapeFudgeTool',
                     'ElectronPhotonShowerShapeFudgeTool' )
     alg.showerShapeFudgeTool.Preselection = 21 # 21 = MC15
     alg.showerShapeFudgeTool.FFCalibFile = \
         'ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root' #only for rel21
-    seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut' )
+    seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
+                stageName = 'calibration' )
 
     # Set up the isolation correction algorithm.
     alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
-                           'PhotonIsolationCorrectionAlg' )
+                           'PhotonIsolationCorrectionAlg' + postfix )
     addPrivateTool( alg, 'isolationCorrectionTool',
                     'CP::IsolationCorrectionTool' )
     if dataType == 'data':
@@ -106,26 +132,28 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     else:
         alg.isolationCorrectionTool.IsMC = 1
         pass
-    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
+    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+                stageName = 'selection' )
 
     # Set up the isolation selection algorithm:
     alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
-                           'PhotonIsolationSelectionAlg' )
-    alg.selectionDecoration = 'isolated'
+                           'PhotonIsolationSelectionAlg' + postfix )
+    alg.selectionDecoration = 'isolated' + postfix
     addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
     alg.selectionTool.PhotonWP = isolationWP
-    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
+    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+                stageName = 'selection' )
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 1 )
 
     # Set up the photon efficiency correction algorithm.
     alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg',
-                           'PhotonEfficiencyCorrectionAlg' )
+                           'PhotonEfficiencyCorrectionAlg' + postfix )
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgPhotonEfficiencyCorrectionTool' )
     alg.efficiencyCorrectionTool.MapFilePath = \
         'PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt'
-    alg.efficiencyDecoration = 'effCor'
+    alg.efficiencyDecoration = 'effCor' + postfix
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
           ROOT.PATCore.ParticleDataType.Fast
@@ -134,34 +162,38 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
           ROOT.PATCore.ParticleDataType.Full
         pass
     alg.outOfValidity = 2 #silent
-    alg.outOfValidityDeco = 'bad_eff'
+    alg.outOfValidityDeco = 'bad_eff' + postfix
     if dataType != 'data':
         seq.append( alg, inputPropName = 'photons',
                     outputPropName = 'photonsOut',
-                    affectingSystematics = '(^PH_EFF_.*)' )
+                    affectingSystematics = '(^PH_EFF_.*)',
+                    stageName = 'efficiency' )
         selectionDecorNames.append( alg.outOfValidityDeco )
         selectionDecorCount.append( 1 )
         pass
 
     # Set up an algorithm used for debugging the photon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
-                           'PhotonCutFlowDumperAlg' )
-    alg.histPattern = 'photon_cflow_%SYS%'
+                           'PhotonCutFlowDumperAlg' + postfix )
+    alg.histPattern = 'photon_cflow_%SYS%' + postfix
     alg.selection = selectionDecorNames[ : ]
     alg.selectionNCuts = selectionDecorCount[ : ]
-    seq.append( alg, inputPropName = 'input' )
+    seq.append( alg, inputPropName = 'input',
+                stageName = 'selection' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                           'PhotonViewFromSelectionAlg' )
+                           'PhotonViewFromSelectionAlg' + postfix )
     alg.selection = selectionDecorNames[ : ]
-    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+    seq.append( alg, inputPropName = 'input', outputPropName = 'output',
+                stageName = 'selection' )
 
     # Set up an algorithm dumping the properties of the photons, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' )
-    alg.histPattern = 'photon_%VAR%_%SYS%'
-    seq.append( alg, inputPropName = 'input' )
+    alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' + postfix )
+    alg.histPattern = 'photon_%VAR%_%SYS%' + postfix
+    seq.append( alg, inputPropName = 'input',
+                stageName = 'selection' )
 
     # Return the sequence:
     return seq
