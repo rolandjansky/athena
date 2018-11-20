@@ -410,8 +410,6 @@ class AlgFactory(object):
         return [Alg(algType,(), kargs)]
 
 
-<<<<<<< HEAD
-=======
     #added A. Steinhebel, June 2018
     def jetattrs_kargs(self, algType, hypo): 
 
@@ -437,7 +435,6 @@ class AlgFactory(object):
         kargs = self.jetattrs_kargs(algType, hypo)
         return [Alg(algType,(), kargs)]
     
->>>>>>> 4b7f3c10ca... Instantiatable JSS hypo (with debug print statements - to remove later)
     def dijet_kargs(self, algType, hypo): 
 
         kargs = {}
