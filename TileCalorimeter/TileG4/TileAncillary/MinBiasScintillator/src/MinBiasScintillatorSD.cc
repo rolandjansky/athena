@@ -293,7 +293,7 @@ void MinBiasScintillatorSD::EndOfAthenaEvent() {
 G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   // Skip the rest of the method if we aren't using Birk's law.
   if (!m_options.doBirk) {
-    return aStep->GetTotalEnergyDeposit();
+    return aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   }
 
   // *** apply BIRK's saturation law to energy deposition ***
@@ -315,7 +315,7 @@ G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   const G4double birk1(0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
   const G4double birk2(9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
 
-  const G4double destep(aStep->GetTotalEnergyDeposit());
+  const G4double destep(aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight());
   //  doesn't work with shower parameterization
   //  G4Material* material = aStep->GetTrack()->GetMaterial();
   //  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
