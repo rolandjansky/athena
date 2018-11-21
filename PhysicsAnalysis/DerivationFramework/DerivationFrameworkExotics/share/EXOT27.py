@@ -123,10 +123,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
 vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets)
+JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets+"Jets")
 vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets)
+JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
 
 # We need the AntiKt10LCTopo jets here though so that the trimmed jets are
 # produced correctly
@@ -156,7 +156,7 @@ ExtendedJetCommon.addCSSKSoftDropJets(EXOT27Seq, "EXOT27Jets")
 OutputLargeR = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
-  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
+  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
   ]
 # XAMPP seems to use the 'Width' variable from these?
 for lrj in OutputLargeR:
@@ -164,6 +164,13 @@ for lrj in OutputLargeR:
       "Width",
       "GhostBQuarksFinal",
       ])
+OutputLargeRParent = [
+  "AntiKt10LCTopoJets",
+  "AntiKtVR600Rmax10Rmin2LCTopoJets",
+  "AntiKt10LCTopoCSSKJets"
+  ]
+for lrj in OutputLargeRParent:
+  EXOT27ExtraVariables[lrj].update(["GhostBQuarksFinal"])
 
 # Ghost-associated the track jets to these large-R jets
 toBeAssociatedTo = [
@@ -186,7 +193,7 @@ ungroomed, labels = EXOT27Utils.linkPseudoJetGettersToExistingJetCollection(
     {vrTrackJetGhosts : vrTrackJetGhosts.lower()})
 # However, we still want to write out both so add both to the extra variables
 EXOT27ExtraVariables[ungroomed].update(labels)
-EXOT27ExtraVariables[ungroomed].update(vrGhostTagTrackJetsGhosts)
+EXOT27ExtraVariables[ungroomed].update([vrGhostTagTrackJetsGhosts])
 
 # Alias b-tagging container for VR track jets
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -219,7 +226,6 @@ for large_r in OutputLargeR:
         ContainerName = large_r) )
 
 EXOT27ElectronThinning = "Electrons.DFCommonElectronsLHLooseBL"
-# EXOT27MuonThinning = "Muons.pt > 10.*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
 EXOT27PhotonThinning = "Photons.pt > 10.*GeV && Photons.DFCommonPhotonsIsEMTight"
 EXOT27TauJetThinning = "TauJets.pt > 10.*GeV"
 
@@ -241,7 +247,6 @@ EXOT27ThinningTools += [
       "EXOT27MuonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       MuonKey         = "Muons",
-      # SelectionString = "Muons.pt > 10*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
       ),
   DerivationFramework__TauTrackParticleThinning(
       "EXOT27TauTrackParticleThinningTool",
@@ -249,13 +254,6 @@ EXOT27ThinningTools += [
       TauKey          = "TauJets",
       SelectionString = EXOT27TauJetThinning
       ),
-  # I asked TJ and we don't need tracks associated to jets!
-  # DerivationFramework__JetTrackParticleThinning(
-  #     "EXOT27JetTrackParticleThinningTool",
-  #     ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-  #     JetKey          = "AntiKt4EMTopoJets",
-  #     SelectionString = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV"
-  #     ),
   ]
 
 # Also thin the output objects by the same rules
@@ -353,12 +351,15 @@ EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
 EXOT27SlimmingHelper = SlimmingHelper("EXOT27SlimmingHelper")
 EXOT27SlimmingHelper.SmartCollections += EXOT27SmartContainers
 EXOT27SlimmingHelper.AllVariables += EXOT27AllVariables
+logger.info("EXOT27Jets: {0}".format(JetCommon.OutputJets["EXOT27Jets"]) )
+for alg in EXOT27Seq:
+  logger.info("Alg: {0}".format(alg) )
 JetCommon.addJetOutputs(
     slimhelper = EXOT27SlimmingHelper,
     contentlist=["EXOT27Jets"],
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-      "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
+      "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",
@@ -374,6 +375,13 @@ JetCommon.addJetOutputs(
 EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
+
+EXOT27SlimmingHelper.AppendToDictionary = {
+    "AntiKtVR600Rmax10Rmin2LCTopoJets" : "xAOD::JetContainer",
+    "AntiKtVR600Rmax10Rmin2LCTopoJetsAux" : "xAOD::JetAuxContainer",
+    "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets" : "xAOD::JetContainer",
+    "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20JetsAux" : "xAOD::JetAuxContainer",
+    }
 
 EXOT27SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT27SlimmingHelper.IncludeEGammaTriggerContent = True
