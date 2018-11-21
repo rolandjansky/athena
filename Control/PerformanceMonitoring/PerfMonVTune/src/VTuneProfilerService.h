@@ -32,9 +32,6 @@ class VTuneProfilerService : public AthService,
       /// Standard Gaudi initialization function
       virtual StatusCode initialize() override;
 
-      /// Standard Gaudi finalization function
-      virtual StatusCode finalize() override;
-
       /// Resume profiling
       virtual StatusCode resumeProfiling() override;
 

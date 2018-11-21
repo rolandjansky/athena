@@ -17,13 +17,13 @@ VTuneProfilerService::VTuneProfilerService( const std::string& name, ISvcLocator
   : AthService( name, svcloc ),
     m_incidentSvc( "IncidentSvc", name ),
      m_processedEvents( 0 )  {
-    //m_running( false ), m_processedEvents( 0 )  {
 
       declareProperty( "ResumeEvent", m_resumeEvent = 0,
                        "Event in which to resume the profiling." );
       declareProperty( "PauseEvent", m_pauseEvent = -1,
                        "Event in which to pause the profiling. Negative number "
                        "profiles the entire event-loop." );
+
 }
 
 /**
@@ -42,6 +42,7 @@ StatusCode VTuneProfilerService::queryInterface( const InterfaceID& riid,
    }
 
    return AthService::queryInterface( riid, ppvIF );
+
 }
 
 
@@ -51,8 +52,7 @@ StatusCode VTuneProfilerService::queryInterface( const InterfaceID& riid,
 StatusCode VTuneProfilerService::initialize() {
 
   // Print information 
-  ATH_MSG_INFO( "Initializing VTuneProfilerService - Package version: " 
-              << PACKAGE_VERSION );
+  ATH_MSG_INFO( "Initializing VTuneProfilerService" );
 
   // Set up listening to the incidents
   CHECK( m_incidentSvc.retrieve() );
@@ -64,18 +64,6 @@ StatusCode VTuneProfilerService::initialize() {
 
   return StatusCode::SUCCESS;
 
-}
-
-/**
- * Finalize the service
- */
-StatusCode VTuneProfilerService::finalize() {
-
-  // Print information 
-  ATH_MSG_INFO( "Finalizing VTuneProfilerService - Package version: " 
-              << PACKAGE_VERSION );
-
-  return StatusCode::SUCCESS;
 }
 
 /**
@@ -96,6 +84,7 @@ StatusCode VTuneProfilerService::resumeProfiling() {
   m_runner = std::make_unique< VTuneProfileRunner >();
 
   return StatusCode::SUCCESS;
+
 }
 
 /**
@@ -116,6 +105,7 @@ StatusCode VTuneProfilerService::pauseProfiling() {
   m_runner.reset();
 
   return StatusCode::SUCCESS;
+
 }
 
 /**
