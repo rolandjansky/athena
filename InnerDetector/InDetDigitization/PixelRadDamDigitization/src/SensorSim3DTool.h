@@ -40,8 +40,13 @@ class SensorSim3DTool : public SensorSimTool {
     virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions);  
     //Apply slim edge inefficiencies for IBL sensors
     virtual StatusCode applySlimEdges( double &energyPerStep, double &eta_drifted);
-    virtual StatusCode getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);    
-    virtual StatusCode getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit); 
+    virtual double getElectricField(double x, double y);
+    virtual double getMobility(double electricField, bool isHoleBit);
+    virtual double getDriftTime(bool isHoleBit);
+    virtual double getTimeToElectrode(double x, double y, bool isHoleBit);
+    virtual double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);    
+    virtual double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit); 
+    virtual double getRamoPotential(double x, double y);
 
 
     //Maps
@@ -53,8 +58,8 @@ class SensorSim3DTool : public SensorSimTool {
     std::map<std::pair<int, int>, TH3F*> yPositionMap_h;
     std::map<std::pair<int, int>, TH2F*> timeMap_e;
     std::map<std::pair<int, int>, TH2F*> timeMap_h;
-//    std::map<std::pair<int, int>, TH2F*> lorentzMap_e;
-//    std::map<std::pair<int, int>, TH2F*> lorentzMap_h;
+    TH2F* avgChargeMap_e;
+    TH2F* avgChargeMap_h;
 
     ToolHandle<RadDamageUtil>                     m_radDamageUtil;
   
@@ -65,7 +70,10 @@ class SensorSim3DTool : public SensorSimTool {
     int    m_numberOfCharges;  
     double m_diffusionConstant;
 
+    double temperature;
+
     bool m_doRadDamage;
+    bool m_doChunkCorrection;
     double m_fluence; //eventually, this should be pulled from the conditions.
 
     std::vector<double> fluence_layers;
