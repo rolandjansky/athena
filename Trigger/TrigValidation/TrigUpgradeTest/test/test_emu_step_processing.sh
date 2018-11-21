@@ -1,5 +1,5 @@
 #!/bin/sh
 # art-type: build
-# art-ci: master
+# art-include: master/Athena
 
 athena.py --threads=1 TrigUpgradeTest/EmuStepProcessingTest.py
