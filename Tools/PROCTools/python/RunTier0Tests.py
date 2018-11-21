@@ -671,7 +671,7 @@ def main():
             }
         elif RunOverlay:
             qTestsToRun = {
-            'overlay-r10767':[ 'OverlayPool' ]
+            'overlay-d1498':[ 'OverlayPool' ]
             }
         elif r2aMode:
             qTestsToRun = { 
