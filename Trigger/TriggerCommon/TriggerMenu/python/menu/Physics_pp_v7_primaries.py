@@ -176,7 +176,7 @@ def setupMenu():
 
         #low pT
         ['j35_gsc45_boffperf_split_L1J15', 'L1_J15', [], [PhysicsStream,'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_gsc60_bmv2c1085_split_L1J12',      'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+#        ['j45_gsc60_bmv2c1085_split_L1J12',      'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
   
         ] # BjetSlice
    
@@ -202,11 +202,11 @@ def setupMenu():
 
 			 ]
 
-   if TriggerFlags.doFTK():
+    if TriggerFlags.doFTK():
         TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
-
+            
             ['xe35_trkmht_FTK', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-
+            
             ]
  
     
