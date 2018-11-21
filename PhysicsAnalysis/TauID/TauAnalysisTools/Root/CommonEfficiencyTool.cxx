@@ -430,14 +430,12 @@ std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
 //______________________________________________________________________________
 std::string CommonEfficiencyTool::ConvertRunNumberToString(const int& iRunNumber)
 {
-  if (m_sMCCampaign == "MC16a")
-    return "_MC16a";
-  else if (m_sMCCampaign == "MC16d")
-    return "_MC16d";
+  if (m_sMCCampaign == "MC16a" || m_sMCCampaign == "MC16d")
+    return std::string("_")+m_sMCCampaign;
   else if (m_sMCCampaign == "MC16e")
     return "_MC16d"; // MC16e recommendations not available yet, use MC16d instead
   else if (m_sMCCampaign != "")
-    ATH_MSG_ERROR("unsupported mc campaign: " << m_sMCCampaign);
+    ATH_MSG_WARNING("unsupported mc campaign: " << m_sMCCampaign);
 
   if (iRunNumber > 324320 )
     return "_MC16d";
@@ -585,12 +583,12 @@ void CommonEfficiencyTool::generateSystematicSets()
 
   // set truth type to check for in truth matching
   if (sTruthType=="TRUEHADTAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicTau;
-  if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
-  if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
-  if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
-  if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
+  else if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
+  else if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
+  else if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
+  else if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
   if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
-  if (sEfficiencyType=="ELEBDT") m_bNoMultiprong = true;
+  else if (sEfficiencyType=="ELEBDT") m_bNoMultiprong = true;
 
   for (auto mSF : *m_mSF)
   {
