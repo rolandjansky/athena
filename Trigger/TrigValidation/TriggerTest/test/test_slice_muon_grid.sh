@@ -20,6 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest
 
 export NAME="slice_muon_grid"
 export SLICE="muon"
