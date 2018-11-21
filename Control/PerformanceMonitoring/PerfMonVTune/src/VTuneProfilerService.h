@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef VTUNE_PROFILERSERVICE_H
 #define VTUNE_PROFILERSERVICE_H
 
