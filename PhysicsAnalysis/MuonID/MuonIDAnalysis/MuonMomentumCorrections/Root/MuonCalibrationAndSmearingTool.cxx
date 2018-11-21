@@ -680,24 +680,7 @@ namespace CP {
                                                           covCBNom,
                                                           chi2Nom);
       if(NominalCorrCode!=CorrectionCode::Ok) return NominalCorrCode;
-      
-      /*CorrectionCode NominalCorrCode=MuonCalibrationAndSmearingTool::applyStatCombination(mu,muonInfo);
-      if(NominalCorrCode!=CorrectionCode::Ok) return NominalCorrCode;
-      AmgVector(5) parsCBNom;
-      AmgSymMatrix(5) covCBNom;
-      if(m_doNotUseAMGMATRIXDECOR){
-        parsCBNom=mu.auxdata< std::vector <float> > ( "StatCombCBParsVector" );
-        covCBNom=mu.auxdata< std::vector <float > > ( "StatCombCBCovarianceVector" );
-      }
-      if(!m_doNotUseAMGMATRIXDECOR){
-        parsCBNom=mu.auxdata< AmgVector(5) >( "StatCombCBPars" );
-        covCBNom=mu.auxdata< AmgSymMatrix(5) >( "StatCombCBCovariance" );
-      }*/
-
-      //if(applyStatCombination(ID_track,ME_track,mu.charge(),parsCBNom,covCBNom,chi2Nom)!=CorrectionCode::Ok)
-      //return CorrectionCode::Error;
-
-      
+          
       
       // Perform the statistical combination 
       AmgSymMatrix(5) covID = ID_track->definingParametersCovMatrix();
@@ -718,8 +701,8 @@ namespace CP {
       AmgSymMatrix(5) weightCB = weightID + weightMS ;
       AmgSymMatrix(5) covCB = weightCB.inverse();
       if (covCB.determinant() == 0){
-	ATH_MSG_WARNING( " Inversion of weightCB failed " ) ;
-	return CorrectionCode::Error;
+        ATH_MSG_WARNING( " Inversion of weightCB failed " ) ;
+        return CorrectionCode::Error;
       }
 
       AmgSymMatrix(5) covSum = covID + covMS ;
@@ -732,9 +715,10 @@ namespace CP {
       if(diffPhi>M_PI)       parsMS[2] -= 2.*M_PI;
       else if(diffPhi<-M_PI) parsMS[2] += 2.*M_PI;
 
-      AmgVector(5) diffPars = parsID - parsMS;
-      double chi2 = diffPars.transpose() * invCovSum * diffPars;
-      chi2 = chi2/5. ;
+      //:: Chisquare calculation. Not used at this stage. To be decided if included as decoration in next round of reccomendations. 
+      //AmgVector(5) diffPars = parsID - parsMS;
+      //double chi2 = diffPars.transpose() * invCovSum * diffPars;
+      //chi2 = chi2/5. ;
 
       AmgVector(5) parsCB = covCB * ( weightID * parsID + weightMS * parsMS ) ;
       parsCB[4] *= muonInfo.charge;
@@ -746,7 +730,7 @@ namespace CP {
       //muonInfo.ptcb= statCombPt; 
       muonInfo.ptcb =  muonInfo.ptcb * (1  +  (statCombPt-statCombPtNom)/statCombPtNom ) ;
       ATH_MSG_VERBOSE(" Poor man's combination "<<simpleCombPt<<" Stat comb "<<statCombPt<<" Stat comb nom "<<" statCombPtNom "<<statCombPtNom ); 
-      //ATH_MSG_INFO(" Poor man's combination "<<simpleCombPt<<" Stat comb "<<statCombPt<<" Stat comb nom "<<" statCombPtNom "<<statCombPtNom ); 
+
     }
 
     return CorrectionCode::Ok;
@@ -827,13 +811,13 @@ namespace CP {
           central=central - std::fabs(0.5 * res  * central);
         }
       }
-
+      
       if(!m_useFixedRho){
-	sigmas=(fabs(muonInfo.ptcb - central)/width);
-	rho= 1/sigmas;
-	if(sigmas <  1 ) rho=1;
+        sigmas=(fabs(muonInfo.ptcb - central)/width);
+        rho= 1/sigmas;
+        if(sigmas <  1 ) rho=1;
       }
-
+      
       // For standalone muons and Silicon associated fowrad do not use the combined
       if( muonInfo.ptid ==0 || muonInfo.ptms ==0){
         ATH_MSG_VERBOSE("Applying sagitta correction for Standalone");
