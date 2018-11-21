@@ -169,7 +169,7 @@ hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShap
 #The fix is to define one more container from the seeds above just as in original reconstruction
 if not HIJetFlags.DoCellBasedSubtraction():
     iteration_dict=dict(suffix="iter_egamma")
-    iter_egamma=AddIteration(seed_container=seeds1.OutputContainer,shape_name=jobproperties.HIGlobalFlags.EventShapeKey(),**iteration_dict)
+    iter_egamma=AddIteration(seed_container=seeds1.OutputContainer,shape_name=jobproperties.HIGlobalFlags.EventShapeKey(),useClusters=False,**iteration_dict)
     cell_level_shape_key=iter_egamma.OutputEventShapeKey
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 

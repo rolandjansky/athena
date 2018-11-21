@@ -78,11 +78,33 @@ private:
   int Nchan; 
   double chan_low,chan_up;
   std::string  hist_name;
+  std::string  hist_summary_name1;
+  std::string  hist_summary_name2;
   std::string hist_title;
 
   /** The FEB map*/
   std::map<HWIdentifier,std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > > m_FEBhistograms; 
   std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > m_histos;  //for handling histograms
+
+  /** Summary plot*/
+  TH2F_LW * h_summary_plot1_EMBA;
+  TH2F_LW * h_summary_plot1_EMBC;
+  TH2F_LW * h_summary_plot1_EMECA;
+  TH2F_LW * h_summary_plot1_EMECC;
+  TH2F_LW * h_summary_plot1_HECA;
+  TH2F_LW * h_summary_plot1_HECC;
+  TH2F_LW * h_summary_plot1_FCALA;
+  TH2F_LW * h_summary_plot1_FCALC;
+
+  TH2F_LW * h_summary_plot2_EMBA;
+  TH2F_LW * h_summary_plot2_EMBC;
+  TH2F_LW * h_summary_plot2_EMECA;
+  TH2F_LW * h_summary_plot2_EMECC;
+  TH2F_LW * h_summary_plot2_HECA;
+  TH2F_LW * h_summary_plot2_HECC;
+  TH2F_LW * h_summary_plot2_FCALA;
+  TH2F_LW * h_summary_plot2_FCALC;
+
 
   /** list of FEBs to monitor. FEB names are expected to be of the type  LARONLINEID defined in the package atlas/LArCalorimeter/LArMonTools/LArMonTools/LArOnlineIDStrHelper.h  e.g. 'BarrelCFT00Slot02'  */
   std::vector<std::string> m_FEBsToMonitor; 
@@ -103,6 +125,7 @@ private:
   /**other variables used in joboptions*/
   bool m_IsOnline; 
   bool m_ignoreKnownBadChannels;
+  bool m_DoSummary;
 
   std::string m_LArDigitContainerKey;
   std::string m_larPedestalKey;

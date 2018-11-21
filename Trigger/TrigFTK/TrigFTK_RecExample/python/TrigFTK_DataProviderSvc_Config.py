@@ -34,8 +34,20 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.ROTcreatorTool= InDetTrigRotCreatorFTK
         self.HashIDTool=TrigFTK_HashIDTool
 
+#       By definition the direction of IBL locX is:
+#          RAW      : reversed
+#          RDO      : normal
+#          So for bytestream we need to Reverse IBL LocX
+
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.InputFormat() == 'bytestream':
+            self.ReverseIBLlocX=True
+        else:
+            self.ReverseIBLlocX=False
+            
+
         from AthenaCommon.BeamFlags import jobproperties
-        print "JTB: beamtype is " , jobproperties.Beam.beamType()
+
         if (jobproperties.Beam.beamType() != 'cosmics'):
             from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
             from TrigInDetConf.TrigInDetRecToolsFTK import TrigFTK_VertexCollectionSortingTool
