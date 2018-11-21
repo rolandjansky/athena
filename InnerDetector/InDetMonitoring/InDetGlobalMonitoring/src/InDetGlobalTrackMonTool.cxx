@@ -233,7 +233,7 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 
     registerManHist( m_Trk_eta_phi_Tight, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi","Distribution of eta vs phi for combined tracks passing monitoring selection",
-		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
 		     m_nBinsPhi, -M_PI, M_PI,
 		     "eta", "#phi_{0}" ).ignore();
 
