@@ -37,8 +37,6 @@ from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doMonitoring=True
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
-
-
 ######################################################################
 #                                                                    #
 # Place holder for numerous common job options of skeleton.XXX files #
@@ -56,10 +54,13 @@ from Digitization.DigitizationFlags import digitizationFlags
 ## Max/skip events
 if hasattr(runArgs,"skipEvents"):
     athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
+
+
 if hasattr(runArgs,"maxEvents"):
     athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
 else:
     athenaCommonFlags.EvtMax=-1
+
 
 if hasattr(runArgs,"conditionsTag"):
     if runArgs.conditionsTag != 'NONE':
@@ -71,37 +72,17 @@ if hasattr(runArgs,"beamType"):
     if runArgs.beamType != 'NONE':
         # Setting beamType='cosmics' keeps cavern in world volume for g4sim also with non-commissioning geometries
         jobproperties.Beam.beamType.set_Value_and_Lock( runArgs.beamType )
-## if hasattr(runArgs,"AMITag"): rec.AMITag=runArgs.AMITag
-## if hasattr(runArgs,"userExec"): rec.UserExecs=runArgs.userExec
-## if hasattr(runArgs,"RunNumber"): rec.RunNumber=runArgs.RunNumber
-## if hasattr(runArgs,"projectName"): rec.projectName=runArgs.projectName
-## if hasattr(runArgs,"trigStream"): rec.triggerStream=runArgs.trigStream
-## if hasattr(runArgs,"triggerConfig"):
-##     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-##     tf.triggerConfig=runArgs.triggerConfig
+
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
     include('AthenaMP/AthenaMP_EventService.py')
-
-## autoConfiguration keywords triggering pre-defined functions
-## if hasattr(runArgs,"autoConfiguration"):
-##     for key in runArgs.autoConfiguration:
-##         rec.AutoConfiguration.append(key)
-
-from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doMonitoring=True
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
-
-
-
 
 
 #####################Back to Skeleton.EVGENtoHIT.py######################
 if hasattr(runArgs, "jobNumber"):
     if runArgs.jobNumber < 1:
         raise ValueError('jobNumber must be a postive integer. %s lies outside this range', str(runArgs.jobNumber))
-
 
 if hasattr(runArgs, "inputTXT_EVENTIDFile"):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
@@ -132,8 +113,6 @@ else:
 
 
 ##############################Back to MyCustomSkeleton########################
-if hasattr(runArgs, 'useISF') and not runArgs.useISF:
-    raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
 
 ## Get the logger
 fast_chain_log.info('****************** STARTING ISF ******************')
@@ -145,6 +124,8 @@ rec.doTrigger.set_Value_and_Lock(False)
 
 ## Simulation flags need to be imported first
 simFlags.load_atlas_flags()
+if hasattr(runArgs, 'useISF') and not runArgs.useISF:
+    raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
 simFlags.ISFRun=True
 
 ## Set simulation geometry tag
@@ -313,8 +294,6 @@ if checkHGTDOff is not None:
     ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-
-
 if hasattr(simFlags, 'SimulateNewSmallWheel'):
     if simFlags.SimulateNewSmallWheel():
         DetFlags.sTGC_setOn()
@@ -324,8 +303,6 @@ if hasattr(simFlags, 'SimulateNewSmallWheel'):
 #    if DetFlags.geometry.FwdRegion_on():
 #        from AthenaCommon.AppMgr import ToolSvc
 #        ToolSvc += CfgGetter.getPublicTool("ForwardRegionProperties")
-
-
 
 ### Set digitize all except forward detectors
 DetFlags.digitize.all_setOn()
@@ -395,7 +372,6 @@ simFlags.SeedsG4.set_Off()
 ## The looper killer is on by default. Disable it if this is requested.
 if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool', ['Step'])
-
     fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
 
@@ -416,9 +392,6 @@ elif hasattr(runArgs,'jobNumber'):
 #--------------------------------------------------------------
 # Override pile-up configuration on the command-line
 #--------------------------------------------------------------
-
-from Digitization.DigitizationFlags import digitizationFlags
-
 
 PileUpConfigOverride=False
 import math
@@ -651,6 +624,7 @@ KG Tan, 17/06/2012
 import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 # TODO: ELLI: remove this once the envelopes are stored in the DDDB
 #             -> currently a fallback python definition is used
@@ -722,7 +696,6 @@ if len(globalflags.ConditionsTag()):
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
 ## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
-from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'IOVDbSvc'):
     from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
     ServiceMgr += IOVDbSvc()
@@ -765,7 +738,7 @@ if ISF_Flags.UsingGeant4():
     jobproperties.print_JobProperties('tree&value')
 
     ## AtlasSimSkeleton._do_external
-    from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
+    from AthenaCommon.AppMgr import ToolSvc
     from Geo2G4.Geo2G4Conf import Geo2G4Svc
     geo2G4Svc = Geo2G4Svc()
     theApp.CreateSvc += ["Geo2G4Svc"]
@@ -776,7 +749,6 @@ if ISF_Flags.UsingGeant4():
     ## GeoModel stuff
     ## TODO: Tidy imports etc.
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-    from AthenaCommon.GlobalFlags import jobproperties
     from AtlasGeoModel import SetGeometryVersion
 
     ## Forward Region Twiss files - needed before geometry setup!
@@ -789,7 +761,6 @@ if ISF_Flags.UsingGeant4():
 
     from AtlasGeoModel import GeoModelInit
     from AtlasGeoModel import SimEnvelopes
-    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     gms = GeoModelSvc()
     ## Cosmics GeoModel tweaks
     if jobproperties.Beam.beamType() == 'cosmics' or \
@@ -844,20 +815,6 @@ if ISF_Flags.UsingGeant4():
 #--------------------------------------------------------------
 # Setup the ISF Services
 #--------------------------------------------------------------
-# --- load AuditorSvc
-from AthenaCommon.ConfigurableDb import getConfigurable
-# --- write out summary of the memory usage
-#   | number of events to be skip to detect memory leak
-#   | 20 is default. May need to be made larger for complete jobs.
-ServiceMgr.AuditorSvc += getConfigurable("ChronoAuditor")()
-# --- write out a short message upon entering or leaving each algorithm
-# ServiceMgr.AuditorSvc += getConfigurable("NameAuditor")()
-#
-theApp.AuditAlgorithms = True
-theApp.AuditServices   = True
-#
-# --- Display detailed size and timing statistics for writing and reading
-ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
 
 #--------------------------------------------------------------
 # ISF input
@@ -898,18 +855,6 @@ topSequence += CfgGetter.getAlgorithm("BeamEffectsAlg")
 collection_merger_alg = CfgGetter.getAlgorithm('ISF_CollectionMerger')
 
 SimKernel = CfgGetter.getAlgorithm(ISF_Flags.Simulator.KernelName())
-
-#--------------------------------------------------------------
-# Setup the random number streams
-#--------------------------------------------------------------
-from G4AtlasApps.SimFlags import SimFlags,simFlags;
-if not athenaCommonFlags.PoolEvgenInput.statusOn:
-    if not simFlags.RandomSeedList.checkForExistingSeed('SINGLE'):
-        simFlags.RandomSeedList.addSeed( "SINGLE", 43657613, 78935670 )
-if not simFlags.RandomSeedList.checkForExistingSeed('VERTEX'):
-  simFlags.RandomSeedList.addSeed( 'VERTEX', 9123448, 829143 )
-simFlags.RandomSeedList.addtoService()
-simFlags.RandomSeedList.printSeeds()
 
 if ISF_Flags.HITSMergingRequired():
     topSequence += collection_merger_alg
@@ -986,7 +931,6 @@ if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
@@ -994,7 +938,6 @@ patch_mc_channel_numberMetadata()
 
 ## Increase max RDO output file size to 10 GB
 ## NB. We use 10GB since Athena complains that 15GB files are not supported
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
 
 ### Changing to post-sim include/exec
@@ -1060,12 +1003,6 @@ print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
 
 
 
-try:
-    from RecAlgs.RecAlgsConf import TimingAlg
-    topSequence+=TimingAlg("DigiTimerBegin", TimingObjOutputName = "HITStoRDO_timings")
-except:
-    fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
-
 #include ("Digitization/Digitization.py")
 
 ########## Digitization.py ##########################
@@ -1105,7 +1042,6 @@ digitizationFlags.print_JobProperties()
 ####### Digitization/ConfigDigitization.py
 
 #Pool input
-from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'EventSelector'):
     import AthenaPoolCnvSvc.ReadAthenaPool
 if hasattr(ServiceMgr, 'PoolSvc'):
@@ -1189,6 +1125,13 @@ if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
 #==============================================================
 #
 
+try:
+    from RecAlgs.RecAlgsConf import TimingAlg
+    topSequence+=TimingAlg("DigiTimerBegin", TimingObjOutputName = "HITStoRDO_timings")
+except:
+    fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
+
+
 # Set up PileupMergeSvc used by subdetectors
 #from AthenaCommon.DetFlags import DetFlags
 
@@ -1198,7 +1141,6 @@ if jobproperties.Beam.beamType == "cosmics" :
     comTimeRec = ComTimeRec("ComTimeRec")
     topSequence += comTimeRec
 
-from Digitization.DigitizationFlags import digitizationFlags
 topSequence += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
     print "WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf."
@@ -1239,6 +1181,14 @@ include( "Digitization/LVL1Digitization.py" )
 #--------------------------------------------------------------
 # Random Number Engine and Seeds
 #--------------------------------------------------------------
+if not athenaCommonFlags.PoolEvgenInput.statusOn:
+    if not simFlags.RandomSeedList.checkForExistingSeed('SINGLE'):
+        simFlags.RandomSeedList.addSeed( "SINGLE", 43657613, 78935670 )
+if not simFlags.RandomSeedList.checkForExistingSeed('VERTEX'):
+  simFlags.RandomSeedList.addSeed( 'VERTEX', 9123448, 829143 )
+simFlags.RandomSeedList.addtoService()
+simFlags.RandomSeedList.printSeeds()
+
 # attach digi and pileup seeds to random number service configurable and print them out
 from AthenaCommon.ConfigurableDb import getConfigurable
 ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
@@ -1259,6 +1209,16 @@ if not 'ChronoAuditor/ChronoAuditor' in theAuditorSvc.Auditors:
     theAuditorSvc += ChronoAuditor()
 if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
     theAuditorSvc += MemStatAuditor()
+# --- load AuditorSvc
+# --- write out a short message upon entering or leaving each algorithm
+#from AthenaCommon.ConfigurableDb import getConfigurable
+# ServiceMgr.AuditorSvc += getConfigurable("NameAuditor")()
+#
+theApp.AuditAlgorithms = True
+theApp.AuditServices   = True
+#
+# --- Display detailed size and timing statistics for writing and reading
+ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
 
 # LSFTimeLimi. Temporary disable
 # include( "LSFTimeKeeper/LSFTimeKeeperOptions.py" )
@@ -1330,12 +1290,6 @@ ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 
 ######## Back to MyCustomSkeleton#####################
-
-### No RDO output to increase file size of
-# Increase max RDO output file size to 10 GB
-
-#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-#svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ] #Athena complains that 15GB files are not supported
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
