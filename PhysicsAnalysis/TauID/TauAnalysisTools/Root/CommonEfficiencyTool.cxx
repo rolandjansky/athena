@@ -192,7 +192,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   std::string sMCCampaign = "";
 
   if (m_bSplitMu) sMu = ConvertMuToString(iMu);
-  if (m_bSplitMCCampaign) sMCCampaign = ConvertRunNumberToString(iRunNumber);
+  if (m_bSplitMCCampaign) sMCCampaign = GetMcCampaignString(iRunNumber);
   std::string sHistName = m_sSFHistName + sProng + sMu + sMCCampaign;
 
   // get standard scale factor
@@ -426,7 +426,7 @@ std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
   If not, use random run number to determine MC campaign 
 */
 //______________________________________________________________________________
-std::string CommonEfficiencyTool::ConvertRunNumberToString(const int& iRunNumber)
+std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
 {
   if (m_sMCCampaign == "MC16a" || m_sMCCampaign == "MC16d")
     return std::string("_")+m_sMCCampaign;

@@ -91,7 +91,7 @@ protected:
 
   std::string ConvertProngToString(const int& iProngness);
   std::string ConvertMuToString(const int& iMu);
-  std::string ConvertRunNumberToString(const int& iMu);
+  std::string GetMcCampaignString(const int& iMu);
 
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
