@@ -37,7 +37,6 @@ grep REGTEST athena.log > athena.regtest
 
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  grep REGTEST athena.log > athena.regtest
   timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
