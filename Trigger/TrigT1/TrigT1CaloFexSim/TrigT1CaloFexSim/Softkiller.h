@@ -83,7 +83,7 @@ std::vector<float> Et_median_approx_iteration(std::vector<float>* EtList, int nb
     if(EtList->at(t) < EtMin) binUnderflow++;
     if(EtList->at(t) >= EtMax) binOverflow++;
 
-    for(unsigned int bin = 0; bin < nbins; bin++){
+    for(int bin = 0; bin < nbins; bin++){
       if(EtList->at(t) < (1. + bin)*binWidth + binOffset && EtList->at(t) >= EtMin) bins[bin]++;
     }
   }
@@ -94,7 +94,7 @@ std::vector<float> Et_median_approx_iteration(std::vector<float>* EtList, int nb
   int cutoff = ceil(EtList->size()/2.);  //finds 50% occupancy mark
 
   //set new max
-  for(unsigned bin = 0; bin < nbins; bin++){
+  for(int bin = 0; bin < nbins; bin++){
     if(bins[nbins-1-bin] + binUnderflow > cutoff) newEtMax = (nbins-bin)*binWidth;
     if(bins[bin] + binUnderflow < cutoff) newEtMin = bin*binWidth;
   }

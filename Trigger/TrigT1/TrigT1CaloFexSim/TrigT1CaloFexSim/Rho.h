@@ -34,7 +34,6 @@ float Rho_bar(const xAOD::JGTowerContainer* towers, bool useNegTowers){
 
   for(unsigned int i = 0; i < size; i++){
     const xAOD::JGTower* tower = towers->at(i);
-    float phi = tower->phi();
     float eta = TMath::Abs(tower->eta());
     float Et = tower->et();
 

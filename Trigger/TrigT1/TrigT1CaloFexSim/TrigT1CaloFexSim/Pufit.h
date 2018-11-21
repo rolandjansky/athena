@@ -88,7 +88,7 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
     pufitGrid->SetBinContent(ieta, iphi, temp + Et_);
   }
   
-  int maxConfig;
+  //int maxConfig;
   double EtTowerTrimMean = 0.;
   double VarEtTower = 0.;
   double ptCut = 0.;
@@ -157,7 +157,7 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
   double sinPhiPileup = ptPileup.Py()/ptPileup.Mod();
 
   //The ratio of the area of one tower to the total area covered by pileup patches
-  double aRatio = 1/(m_nTowers - nHardScatter);
+  //double aRatio = 1/(m_nTowers - nHardScatter);
   double Vk = VarEtTower;
   
   //Construct the matrix equation

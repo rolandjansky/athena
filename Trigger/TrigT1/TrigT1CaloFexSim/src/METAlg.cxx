@@ -54,7 +54,7 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg:
 
   TH1F* h_Et = new TH1F("h_Et", "", 50, 0, 5000);
   if(useRMS){
-    for(int t = 0; t < size; t++){
+    for(unsigned int t = 0; t < size; t++){
       const xAOD::JGTower* tower = towers->at(t);
       float Et = tower->et();
       if(!useNegTowers) Et = TMath::Abs(Et);
@@ -62,7 +62,7 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg:
     }
     threshold = h_Et->GetRMS();
   }
-  for(int t = 0; t < size; t++){
+  for(unsigned int t = 0; t < size; t++){
     const xAOD::JGTower* tower = towers->at(t);
     float Et = tower->et();
     float phi = tower->phi();
@@ -147,7 +147,7 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::
 
 StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, float pTcone_cut, bool useNegTowers){
   
-  unsigned int size = towers->size();
+  //unsigned int size = towers->size();
   
   std::vector<float> Et_values = Run_JwoJ(towers, pTcone_cut,  useNegTowers);
   
