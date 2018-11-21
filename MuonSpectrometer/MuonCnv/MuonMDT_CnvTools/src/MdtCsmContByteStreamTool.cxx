@@ -55,7 +55,11 @@ StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
   }
 
   m_hid2re = new MDT_Hid2RESrcID ();
-  m_hid2re->set(mdt_id);
+  status = m_hid2re->set(mdt_id);
+  if ( status.isFailure() ){
+    ATH_MSG_FATAL("Could not initialize MDT mapping !");
+    return StatusCode::FAILURE;
+  }
 
   m_mdtIdHelper = mdt_id;
 
@@ -73,7 +77,11 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 						   MsgStream& log ) {
   
   m_fea.clear();
-  m_fea.idMap().set(m_mdtIdHelper);
+  StatusCode status = m_fea.idMap().set(m_mdtIdHelper);
+  if ( status.isFailure() ){
+    ATH_MSG_FATAL("Could not initialize MDT mapping !");
+    return StatusCode::FAILURE;
+  }
   
   FullEventAssembler<MDT_Hid2RESrcID>::RODDATA*  theROD ;
   

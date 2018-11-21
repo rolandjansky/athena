@@ -8,6 +8,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
+#include "AthenaBaseComps/AthService.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -37,7 +38,7 @@ public:
 
   /** intialize the cabling service
    */
-  void set(const MdtIdHelper* m_mdtIdHelper); 
+  StatusCode set(const MdtIdHelper* m_mdtIdHelper); 
 
   /** TMP method for sector 13 data */
   void setSpecialROBNumber(int specialROBNumber) {m_specialROBNumber=specialROBNumber;}

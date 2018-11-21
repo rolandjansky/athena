@@ -68,11 +68,13 @@ StatusCode MdtROD_Decoder::initialize() {
     return sc;
   }
 
-  m_hid2re=new MDT_Hid2RESrcID();
-
   // Here the mapping service has to be initialized
-
-  m_hid2re->set(m_mdtIdHelper);  
+  m_hid2re=new MDT_Hid2RESrcID();
+  sc = m_hid2re->set(m_mdtIdHelper); 
+  if ( !sc.isSuccess() ) {
+    ATH_MSG_ERROR(" Can't initialize MDT mapping");
+    return sc;
+  }
 
   // Initialize decoding classes
   m_rodReadOut = new MdtRODReadOut();

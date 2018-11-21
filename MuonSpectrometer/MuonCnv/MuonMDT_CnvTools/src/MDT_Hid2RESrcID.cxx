@@ -28,12 +28,11 @@ MDT_Hid2RESrcID::MDT_Hid2RESrcID() :
 
 }
 
-void MDT_Hid2RESrcID::set(const MdtIdHelper* mdtIdHelper) {
+StatusCode MDT_Hid2RESrcID::set(const MdtIdHelper* mdtIdHelper) {
   // Initialize the cabling Service
   m_mdtIdHelper = mdtIdHelper;
-  m_readKey.initialize();
-  //ATH_CHECK( m_readKey.initialize() ); 
-  //return StatusCode::SUCCESS; 
+  ATH_CHECK( m_readKey.initialize() ); 
+  return StatusCode::SUCCESS; 
 }
 
 uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
