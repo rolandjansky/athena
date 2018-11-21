@@ -23,6 +23,7 @@
 
 export NAME="slice_l1_grid"
 export JOBOPTIONS="TriggerTest/testLVL1CTPAthenaTrigRDO.py"
+# art-output: *.regtest
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
