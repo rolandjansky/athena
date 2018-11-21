@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """ Jet slice specific flags  """
 
@@ -27,7 +27,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(JetSlice)
 
 # add add common slice flags
-TriggerFlags.JetSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
+#TriggerFlags.JetSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.JetSlice.add_JobProperty(flag)

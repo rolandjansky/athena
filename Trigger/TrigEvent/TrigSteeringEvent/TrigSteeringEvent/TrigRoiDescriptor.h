@@ -27,7 +27,7 @@
 
 // can we leave this in for standalone running?
 // #ifndef XAOD_STANDALONE
-// #include "CLIDSvc/CLASS_DEF.h"
+// #include "AthenaKernely/CLASS_DEF.h"
 // #include "GaudiKernel/MsgStream.h"
 
 #include "xAODCore/CLASS_DEF.h"
