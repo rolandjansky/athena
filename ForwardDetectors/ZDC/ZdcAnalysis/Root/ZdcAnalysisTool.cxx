@@ -7,9 +7,6 @@
 #include "TEnv.h"
 #include "TSystem.h"
 #include "ZdcAnalysis/ZdcSincInterp.h"
-#if ( defined(XAOD_STANDALONE) ) || ( defined(XAOD_MANACORE) )
-#   include "xAODEventInfo/EventInfo.h"
-#endif
 #include "TFile.h"
 #include <sstream>
 #include <memory>
@@ -20,15 +17,10 @@ namespace ZDC
 {
 
   ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name),
-#if ( defined(XAOD_STANDALONE) ) || ( defined(XAOD_MANACORE) )
-                                                              m_init(false),
-#endif
 							      m_writeAux(false),
 							      m_runNumber(0), m_lumiBlock(0),
-#if ( !defined(XAOD_STANDALONE) ) && ( !defined(XAOD_MANACORE) )
                                                               m_eventInfoKey("EventInfo"),
                                                               m_ZdcModuleWriteKey("ZdcSums"),
-#endif
     m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(0)
 {
 
@@ -37,10 +29,8 @@ namespace ZDC
 #endif
 
   declareProperty("ZdcModuleContainerName",m_zdcModuleContainerName="ZdcModules","Location of ZDC processed data");
-#if ( !defined(XAOD_STANDALONE) ) && ( !defined(XAOD_MANACORE) )
   declareProperty("EventInfoKey",          m_eventInfoKey,          "Location of the event info.");
   declareProperty("ZdcModuleWriteKey",     m_ZdcModuleWriteKey,     "Output location of ZDC reprocessed data");
-#endif
   declareProperty("Configuration", m_configuration = "PbPb2015");
   declareProperty("FlipEMDelay",m_flipEMDelay=false);
   declareProperty("LowGainOnly",m_lowGainOnly=false);
@@ -595,15 +585,10 @@ StatusCode ZdcAnalysisTool::initializeTool()
   ATH_MSG_INFO("DeltaTCut: "<<m_deltaTCut);
   ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
 
-#if ( !defined(XAOD_STANDALONE) ) && ( !defined(XAOD_MANACORE) )
   ATH_CHECK( m_eventInfoKey.initialize());
   ATH_CHECK( m_zdcModuleContainerName.initialize());
   ATH_CHECK( m_ZdcModuleWriteKey.initialize() );
-#endif
 
-#if ( defined(XAOD_STANDALONE) ) || ( defined(XAOD_MANACORE) )
-  m_init = true;
-#endif
   return StatusCode::SUCCESS;
 }
 
@@ -677,13 +662,8 @@ StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)
 
 StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) 
 {
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
   if (!eventInfo.isValid()) return StatusCode::FAILURE;
-#else
-  const xAOD::EventInfo* eventInfo = 0;
-  ATH_CHECK(evtStore()->retrieve(eventInfo,"EventInfo"));
-#endif
 
   // check for new run number, if new, possibly update configuration and/or calibrations
   //
@@ -859,14 +839,8 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       zdc_sum->auxdecor<unsigned int>("ModuleMask") = (getModuleMask()>>(4*iside)) & 0xF;
     }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   ATH_CHECK( SG::WriteHandle<xAOD::ZdcModuleContainer>(m_ZdcModuleWriteKey).record( std::move(newModuleContainer),
                                                                                     std::move(newModuleAuxContainer)));
-#else
-  ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums" + m_auxSuffix) ) ;
-  ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSums"  + m_auxSuffix +"Aux.") );
-#endif
-
   return StatusCode::SUCCESS;
 }
 
@@ -946,22 +920,8 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
 
 StatusCode ZdcAnalysisTool::reprocessZdc()
 {
-#if ( defined(XAOD_STANDALONE) ) || ( defined(XAOD_MANACORE) )
-  if (!m_init)
-    {
-      ATH_MSG_INFO("Tool not initialized!");
-      return StatusCode::FAILURE;
-    }
-#endif
-
-  //std::cout << "Trying to retrieve " << m_zdcModuleContainerName << std::endl;
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   SG::ReadHandle<xAOD::ZdcModuleContainer> zdc_modules(m_zdcModuleContainerName);
   if (!zdc_modules.isValid()) return StatusCode::FAILURE;
-#else
-  xAOD::ZdcModuleContainer *zdc_modules = nullptr;
-  ATH_CHECK(evtStore()->retrieve(zdc_modules,m_zdcModuleContainerName));
-#endif
 
   ATH_CHECK(recoZdcModules(*zdc_modules));
 

@@ -6,9 +6,7 @@
 #define ZDCANALYSIS_ZDCANALYSISTOOL_H
 
 #include "AsgTools/AsgTool.h"
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-#  include "xAODEventInfo/EventInfo.h"
-#endif
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODForward/ZdcModuleContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
@@ -81,9 +79,6 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   // Data members
   //
   std::string m_name;
-#if ( defined(XAOD_STANDALONE) ) || ( defined(XAOD_MANACORE) )
-  bool m_init;
-#endif
   std::string m_configuration;
   std::string m_zdcAnalysisConfigPath;
   std::string m_zdcEnergyCalibFileName;
@@ -99,13 +94,9 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   // internal functions
   TF1* m_tf1SincInterp;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
   SG::ReadHandleKey<xAOD::EventInfo>           m_eventInfoKey;
   SG::ReadHandleKey<xAOD::ZdcModuleContainer>  m_zdcModuleContainerName;
   SG::WriteHandleKey<xAOD::ZdcModuleContainer> m_ZdcModuleWriteKey;
-#else
-  std::string m_zdcModuleContainerName;
-#endif
   bool m_flipEMDelay;
   bool m_lowGainOnly;
   bool m_combineDelay;
