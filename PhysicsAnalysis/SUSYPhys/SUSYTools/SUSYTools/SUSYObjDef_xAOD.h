@@ -227,6 +227,10 @@ namespace ST {
 
     double JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
 
+    double FJVT_SF(const xAOD::JetContainer* jets) override final;
+
+    double FJVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
+
     //SF helpers
     //muons
     float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) override final;
@@ -275,9 +279,9 @@ namespace ST {
     double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) override final;
 
     //jets
-    double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true) override final;
+    double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) override final;
 
-    double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true) override final;
+    double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) override final;
 
     //Trigger
     bool IsMETTrigPassed(unsigned int runnumber = 0, bool j400_OR = false) const override final;
@@ -593,6 +597,7 @@ namespace ST {
     double m_jetEta;
     double m_jetJvt;
     std::string m_JVT_WP;
+    double m_JvtPtMax;
 
     double m_trkJetPt;
     double m_trkJetEta;
@@ -671,6 +676,7 @@ namespace ST {
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
+    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
     std::string m_WtagConfig;
     std::string m_ZtagConfig;
