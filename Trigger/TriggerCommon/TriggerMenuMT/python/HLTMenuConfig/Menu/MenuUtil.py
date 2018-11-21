@@ -55,6 +55,8 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
        
         log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
 
+
+
 def checkGroups(triggerPythonConfig):
     """ Make sure the groups used in Physics and MC menu exists
     """

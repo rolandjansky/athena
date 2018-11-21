@@ -29,6 +29,8 @@ SliceIDDict = {
     'Test'          : 'TestChain',
 }
 
+AllowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']        
+
 #==========================================================
 # ---- Generic Template for all chains          ----
 # ---- chainParts specific information given in ----
@@ -358,7 +360,7 @@ ElectronChainParts = {
     'signature'      : ['Electron'],
     'chainPartName'  : '',
     'L1item'         : '',
-    'extra'          : 'ion',
+    'extra'          : '',
     'multiplicity'   : '',    
     'trigType'       : ['e'],
     'threshold'      : '',
@@ -370,7 +372,7 @@ ElectronChainParts = {
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],
     'L2IDAlg'        : ['L2StarA','L2StarB','L2StarC','FTK','TRT','SiTrack','IdScan'],
     'addInfo'        : ['etcut','ringer','conv','etisem','gsf','trkcut',
-                        'L2Star','perf','IdTest'],
+                        'L2Star','perf','IdTest', 'etcut1step'],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {
