@@ -166,7 +166,7 @@ if lifetime<1. and hasattr(runArgs,'outputEVNT_TRFile'):
     rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
 else:
     addLineToPhysicsConfiguration("DoDecays","1")
-    addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
+    addLineToPhysicsConfiguration("HadronLifeTime", str(lifetime))
 # If we reading particle records, and the lifetime is short, stop them as well
 if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
     addLineToPhysicsConfiguration("DoDecays","1")

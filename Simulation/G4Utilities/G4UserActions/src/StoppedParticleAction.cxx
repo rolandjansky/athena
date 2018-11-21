@@ -74,9 +74,10 @@ namespace G4UA
       // Normal condition, #1: Stop all particles below threshold
       bool stop = aStep->GetPostStepPoint()->GetVelocity()<0.15*std::pow(minA,-2./3.)*CLHEP::c_light;
       // Condition 2: Stop only negatively charged particles
-      if (stop && abs(m_stoppingCondition)==2) stop = stop && aStep->GetTrack()->GetDynamicParticle()->GetCharge()<-0.1;
+      if (stop && abs(m_stoppingCondition)==2) stop = aStep->GetTrack()->GetDynamicParticle()->GetCharge()<-0.1;
       // Condition 3: Don't allow things to stop in the ID
-      if (stop && aStep->GetPostStepPoint()->GetPosition().rho()<1150. && std::fabs(aStep->GetPostStepPoint()->GetPosition().z())<3490.) stop=false;
+      if (stop && abs(m_stoppingCondition)==3)
+          stop = aStep->GetPostStepPoint()->GetPosition().rho()>1150. || std::fabs(aStep->GetPostStepPoint()->GetPosition().z())>3490.;
 
       // Negative condition: Ignore gas
       // Can't be true if stop is false
@@ -113,14 +114,14 @@ namespace G4UA
 
       if (m_fsSD) {
         m_fsSD->WriteTrack( aStep->GetTrack() , false , true );
-      }
-    }
+      } // Found the SD
+    } // SUSY particle
 
     aStep->GetTrack()->SetTrackStatus(fStopAndKill);
     const G4TrackVector *tv = aStep->GetSecondary();
     for (unsigned int i=0;i<tv->size();i++){
       (*tv)[i]->SetTrackStatus(fStopAndKill);
     }
-  }
+  } // Stepping action
 
 } // namespace G4UA

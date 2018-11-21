@@ -36,8 +36,8 @@ offset_options = {
         1009113 : [ 1000021 , False , '~g_rho0     ' ,  0 , 0.650 , 0.682 , 0.551 , 0.770 , 0.000 , 0.770 , 0.551 , 0.770 , 0.000 ] ,
         1009223 : [ 1000021 , False , '~g_omega    ' ,  0 , 0.650 , 0.682 , 0.551 , 0.770 , 0.000 , 0.770 , 0.551 , 0.770 , 0.000 ] ,
         1009333 : [ 1000021 , False , '~g_phi      ' ,  0 , 1.800 , 0.956 , 0.868 , 1.098 , 0.000 , 1.079 , 0.868 , 1.098 , 0.000 ] ,
-        1009443 : [ 1000021 , False , '~g_JPsi     ' ,  0 , 3.400 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
-        1009553 : [ 1000021 , False , '~g_Upsilon  ' ,  0 ,10.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 , 0.000 ] ,
+        1009443 : [ 1000021 , False , '~g_JPsi     ' ,  0 , 3.400 , 3.262 , 3.102 , 3.421 , 0.000 , 3.401 , 3.102 , 3.421 , 0.000 ] ,
+        1009553 : [ 1000021 , False , '~g_Upsilon  ' ,  0 ,10.000 ,10.000 ,10.000 ,10.000 ,10.000 ,10.000 ,10.000 ,10.000 ,10.000 ] ,
 # Light-flavor Gluino R-mesons
         1009213 : [ 1000021 ,  True , '~g_rho+     ' ,  1 , 0.650 , 0.682 , 0.551 , 0.770 , 0.000 , 0.770 , 0.551 , 0.770 , 0.000 ] ,
 # Strange Gluino R-mesons
@@ -404,3 +404,20 @@ def get_interaction_list(input_file, interaction_file='ProcessList.txt', mass_sp
     if type(interaction_file) is str: out_file.close()
 
     # Nothing to return
+
+
+def print_masses(spectrum=-1):
+    """ Print the mass spectra.
+    Input parameter: spectrum number.  If -1, print all spectra.
+    """
+    for i in sorted(offset_options.keys()):
+        s= str(offset_options[i][2])+' '+str(i)
+        if spectrum<0:
+            for j in xrange(first_mass_set,len(offset_options[i])): s+=' '+str(offset_options[i][j])
+        else:
+            if first_mass_set+spectrum>len(offset_options[i]):
+                raise RuntimeError('Spectrum #'+str(spectrum)+' not known for PID '+str(i))
+            else:
+                s+=' '+str(offset_options[i][spectrum+first_mass_set])
+        print s
+    # Done!
