@@ -49,6 +49,10 @@ class PixelConfigCondAlg : public AthAlgorithm {
     std::vector<int>  m_DBMSmallHitToT;
     int m_IBLHitDisConfig;
 
+    bool m_useDeadMap;
+
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey{this, "ReadDeadMapKey", "/PIXEL/PixMapOverlay", "Input key of deadmap conditions folder"};
+
     SG::WriteCondHandleKey<PixelModuleData> m_writeKey{this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
 
     ServiceHandle<ICondSvc> m_condSvc;

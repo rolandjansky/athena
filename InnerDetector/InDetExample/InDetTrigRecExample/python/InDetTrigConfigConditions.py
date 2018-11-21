@@ -121,13 +121,15 @@ class PixelConditionsServicesSetup:
       if not (conddb.folderRequested(PixelDeadMapFolder) or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay",PixelDeadMapFolder, className='CondAttrListCollection')
 
-      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg", ReadKey=PixelDeadMapFolder)
-
     ############################
     # Conditions Summary Setup #
     ############################
+    # This is future replacement of the PixelConditionsSummaryTool...
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+    condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                  UseDeadMap=self.usePixMap,
+                                  ReadDeadMapKey=PixelDeadMapFolder)
+
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
                                                                 PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
@@ -168,10 +170,6 @@ class PixelConditionsServicesSetup:
       condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
       PixelOfflineCalibCondAlg.InputSource = 2
 
-
-    if not hasattr(condSeq, 'PixelConfigCondAlg'):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
     ### configure the special pixel map service
     if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):
