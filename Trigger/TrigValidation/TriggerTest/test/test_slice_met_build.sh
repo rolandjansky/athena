@@ -21,6 +21,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest
 
 export NAME="slice_met_build"
 export SLICE="met"

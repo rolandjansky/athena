@@ -21,6 +21,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest
 
 export NAME="slice_minbias_hmt_grid"
 export SLICE="minbiasEnhanced"
