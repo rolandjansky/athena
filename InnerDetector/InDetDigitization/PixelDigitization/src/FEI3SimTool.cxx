@@ -39,12 +39,12 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 
   // Add cross-talk
-  if (abs(barrel_ec)==0) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelCrossTalk().at(layerIndex),chargedDiodes); }
-  if (abs(barrel_ec)==2) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapCrossTalk().at(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==0) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelCrossTalk(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==2) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapCrossTalk(layerIndex),chargedDiodes); }
  
   // Add thermal noise
-  if (abs(barrel_ec)==0) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelThermalNoise().at(layerIndex),chargedDiodes); }
-  if (abs(barrel_ec)==2) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapThermalNoise().at(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==0) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelThermalNoise(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==2) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapThermalNoise(layerIndex),chargedDiodes); }
 
   // Add random noise
   RandomNoise(chargedDiodes);
@@ -112,8 +112,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (abs(barrel_ec)==0 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelAnalogThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (abs(barrel_ec)==2 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapAnalogThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelAnalogThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapAnalogThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
@@ -122,11 +122,11 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     if (nToT<1) { nToT=1; }
 
-    if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelToTThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapToTThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelToTThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapToTThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
-    if (abs(barrel_ec)==0 && nToT>=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelLatency().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (abs(barrel_ec)==2 && nToT>=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapLatency().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && nToT>=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelLatency(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && nToT>=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapLatency(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
@@ -151,13 +151,13 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     // Duplication mechanism for FEI3 small hits :
     bool hitDupli = false;
-    if (abs(barrel_ec)==0 && SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelHitDuplication().at(layerIndex)) { hitDupli=true; }
-    if (abs(barrel_ec)==2 && SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapHitDuplication().at(layerIndex)) { hitDupli=true; }
+    if (abs(barrel_ec)==0 && SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelHitDuplication(layerIndex)) { hitDupli=true; }
+    if (abs(barrel_ec)==2 && SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapHitDuplication(layerIndex)) { hitDupli=true; }
 
     if (hitDupli) {
       bool smallHitChk = false;
-      if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelSmallHitToT().at(layerIndex)) { smallHitChk=true; }
-      if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapSmallHitToT().at(layerIndex)) { smallHitChk=true; }
+      if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelSmallHitToT(layerIndex)) { smallHitChk=true; }
+      if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapSmallHitToT(layerIndex)) { smallHitChk=true; }
 
       if (smallHitChk && bunch>0 && bunch<=m_timeBCN) {
         Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch-1,0,bunch-1);

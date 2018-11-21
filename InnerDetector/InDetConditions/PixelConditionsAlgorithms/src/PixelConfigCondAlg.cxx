@@ -93,9 +93,6 @@ StatusCode PixelConfigCondAlg::execute() {
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
 
-//  EventIDBase start; start.set_time_stamp(0); start.set_time_stamp_ns_offset(0);
-//  EventIDBase stop; stop.set_time_stamp(EventIDBase::UNDEFNUM); stop.set_time_stamp_ns_offset(EventIDBase::UNDEFNUM);
-
   const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
   const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
 
@@ -178,11 +175,6 @@ StatusCode PixelConfigCondAlg::execute() {
     }
   }
 
-
-//  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-//  const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-//  const EventIDRange rangeW{start, stop};
-
   //===============
   // Set threshold
   //===============
@@ -215,12 +207,7 @@ StatusCode PixelConfigCondAlg::execute() {
   //=======================
   EventIDRange rangeW{start, stop};
 //  rangeW = EventIDRange::intersect(rangeDeadMap, rangeThreshold);
-
   rangeW = rangeDeadMap;
-  std::cout << "STSTST Time range " << rangeDeadMap.start() << " " << rangeDeadMap.stop() << " " << rangeThreshold.start() << " " << rangeThreshold.stop() << " " << rangeW.start() << " " << rangeW.stop() << " " << rangeW.stop().isValid() << std::endl;
-
-  // STSTST Time range [284499,l:4294682796] [284500,l:4294682795] [t:0,b:4294967295] [t:4294967295.4294967295,b:4294967295] [t:0,b:4294967295] [284500,l:4294682795] 1
-  // STSTST Time range [284499,l:4294682796] [284500,l:4294682795] [t:0,b:4294967295] [t:4294967294.4294967294,b:4294967295] [t:0,b:4294967295] [284500,l:4294682795] 1
 
   if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);

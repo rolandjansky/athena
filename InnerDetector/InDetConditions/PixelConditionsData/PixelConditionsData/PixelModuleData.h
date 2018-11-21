@@ -26,51 +26,51 @@ class PixelModuleData {
     void setBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold);
     void setEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold);
     void setDBMAnalogThreshold(std::vector<int>    DBMAnalogThreshold);
-    std::vector<int> getBarrelAnalogThreshold() const;
-    std::vector<int> getEndcapAnalogThreshold() const;
-    std::vector<int> getDBMAnalogThreshold() const;
+    int getBarrelAnalogThreshold(int chanNum) const;
+    int getEndcapAnalogThreshold(int chanNum) const;
+    int getDBMAnalogThreshold(int chanNum) const;
 
     void setBarrelToTThreshold(std::vector<int> BarrelToTThreshold);
     void setEndcapToTThreshold(std::vector<int> EndcapToTThreshold);
     void setDBMToTThreshold(std::vector<int>    DBMToTThreshold);
-    std::vector<int> getBarrelToTThreshold() const;
-    std::vector<int> getEndcapToTThreshold() const;
-    std::vector<int> getDBMToTThreshold() const;
+    int getBarrelToTThreshold(int chanNum) const;
+    int getEndcapToTThreshold(int chanNum) const;
+    int getDBMToTThreshold(int chanNum) const;
 
     void setBarrelLatency(std::vector<int> BarrelLatency);
     void setEndcapLatency(std::vector<int> EndcapLatency);
     void setDBMLatency(std::vector<int>    DBMLatency);
-    std::vector<int> getBarrelLatency() const;
-    std::vector<int> getEndcapLatency() const;
-    std::vector<int> getDBMLatency() const;
+    int getBarrelLatency(int chanNum) const;
+    int getEndcapLatency(int chanNum) const;
+    int getDBMLatency(int chanNum) const;
 
     void setBarrelCrossTalk(std::vector<double> BarrelCrossTalk);
     void setEndcapCrossTalk(std::vector<double> EndcapCrossTalk);
     void setDBMCrossTalk(std::vector<double>    DBMCrossTalk);
-    std::vector<double> getBarrelCrossTalk() const;
-    std::vector<double> getEndcapCrossTalk() const;
-    std::vector<double> getDBMCrossTalk() const;
+    double getBarrelCrossTalk(int chanNum) const;
+    double getEndcapCrossTalk(int chanNum) const;
+    double getDBMCrossTalk(int chanNum) const;
 
     void setBarrelThermalNoise(std::vector<double> BarrelThermalNoise);
     void setEndcapThermalNoise(std::vector<double> EndcapThermalNoise);
     void setDBMThermalNoise(std::vector<double>    DBMThermalNoise);
-    std::vector<double> getBarrelThermalNoise() const;
-    std::vector<double> getEndcapThermalNoise() const;
-    std::vector<double> getDBMThermalNoise() const;
+    double getBarrelThermalNoise(int chanNum) const;
+    double getEndcapThermalNoise(int chanNum) const;
+    double getDBMThermalNoise(int chanNum) const;
 
     void setBarrelHitDuplication(std::vector<bool> BarrelHitDuplication);
     void setEndcapHitDuplication(std::vector<bool> EndcapHitDuplication);
     void setDBMHitDuplication(std::vector<bool>    DBMHitDuplication);
-    std::vector<bool> getBarrelHitDuplication() const;
-    std::vector<bool> getEndcapHitDuplication() const;
-    std::vector<bool> getDBMHitDuplication() const;
+    bool getBarrelHitDuplication(int chanNum) const;
+    bool getEndcapHitDuplication(int chanNum) const;
+    bool getDBMHitDuplication(int chanNum) const;
 
     void setBarrelSmallHitToT(std::vector<int> BarrelSmallHitToT);
     void setEndcapSmallHitToT(std::vector<int> EndcapSmallHitToT);
     void setDBMSmallHitToT(std::vector<int>    DBMSmallHitToT);
-    std::vector<int> getBarrelSmallHitToT() const;
-    std::vector<int> getEndcapSmallHitToT() const;
-    std::vector<int> getDBMSmallHitToT() const;
+    int getBarrelSmallHitToT(int chanNum) const;
+    int getEndcapSmallHitToT(int chanNum) const;
+    int getDBMSmallHitToT(int chanNum) const;
 
     void setIBLHitDiscConfig(const int hitDiscConfig);
     int getIBLHitDiscConfig() const;

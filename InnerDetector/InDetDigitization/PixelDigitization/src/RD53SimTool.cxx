@@ -54,12 +54,12 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   std::vector<std::vector<int>> RD53Map(maxRow+16,std::vector<int>(maxCol+16));
 
   // Add cross-talk
-  if (abs(barrel_ec)==0) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelCrossTalk().at(layerIndex),chargedDiodes); }
-  if (abs(barrel_ec)==2) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapCrossTalk().at(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==0) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelCrossTalk(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==2) { CrossTalk(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapCrossTalk(layerIndex),chargedDiodes); }
  
   // Add thermal noise
-  if (abs(barrel_ec)==0) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelThermalNoise().at(layerIndex),chargedDiodes); }
-  if (abs(barrel_ec)==2) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapThermalNoise().at(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==0) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelThermalNoise(layerIndex),chargedDiodes); }
+  if (abs(barrel_ec)==2) { ThermalNoise(SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapThermalNoise(layerIndex),chargedDiodes); }
 
   // Add random noise
   RandomNoise(chargedDiodes);
@@ -94,8 +94,8 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (abs(barrel_ec)==0 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelAnalogThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (abs(barrel_ec)==2 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapAnalogThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelAnalogThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && charge<SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapAnalogThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
@@ -107,8 +107,8 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // RD53 HitDiscConfig
     if (nToT>=overflowToT) { nToT=overflowToT; }
 
-    if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelToTThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapToTThreshold().at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==0 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getBarrelToTThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (abs(barrel_ec)==2 && nToT<=SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getEndcapToTThreshold(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
