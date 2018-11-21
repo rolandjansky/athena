@@ -29,8 +29,6 @@ namespace InDet
   TruthPixelClusterSplitProbTool::TruthPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
           :AthAlgTool(t,n,p),
            m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this),
-           m_iBeamCondSvc("BeamCondSvc",n),
-           m_useBeamSpotInfo(true)
   {
 
     m_priorMultiplicityContent.push_back(2793337);
@@ -41,9 +39,7 @@ namespace InDet
     declareInterface<IPixelClusterSplitProbTool>(this);
 
     declareProperty("NnClusterizationFactory",m_truthClusterizationFactory);
-    declareProperty("BeamCondSv",m_iBeamCondSvc);
     declareProperty("PriorMultiplicityContent",m_priorMultiplicityContent);
-    declareProperty("useBeamSpotInfo",m_useBeamSpotInfo);
 
 
   }
@@ -59,11 +55,6 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    if (m_iBeamCondSvc.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR( "Could not find BeamCondSvc." );
-      return StatusCode::FAILURE;
-    }
 
     ATH_MSG_INFO(" Cluster split prob tool initialized successfully "<< m_truthClusterizationFactory );
     return StatusCode::SUCCESS;
