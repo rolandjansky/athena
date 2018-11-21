@@ -26,8 +26,6 @@
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/HelperFunctions.h"
-// for some reason it's not enough to include interface
-#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // ROOT include(s):
 #include "TH1F.h"
@@ -124,8 +122,6 @@ public:
 
 private:
 
-  // Execute at each new input file
-  virtual StatusCode beginInputFile();
   // Execute at each event
   virtual StatusCode beginEvent();
 
@@ -194,8 +190,6 @@ private:
   std::string m_sEleOLRFilePath;
   std::string m_sElectronContainerName;
   std::string m_sMuonContainerName;
-
-  asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tTOELLHDecorator;
 
   std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
 
