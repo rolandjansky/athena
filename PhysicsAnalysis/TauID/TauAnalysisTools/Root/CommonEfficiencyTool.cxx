@@ -415,9 +415,7 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
 //______________________________________________________________________________
 std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
 {
-  // if (iMu > 35 )
-  std::cout << "CommonEfficiencyTool::ConvertMuToString... iMu: " << iMu << std::endl;
-  if (iMu > 23 )
+  if (iMu > 35 )
     return "_highMu";
 
   return "_lowMu";
