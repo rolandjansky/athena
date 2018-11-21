@@ -323,13 +323,15 @@ class MenuSequence():
         input_maker_output="%s_from_%s"%(self.maker.Alg.name(),line)
         self.maker.addOutput(input_maker_output) 
         self.hypo.setPreviousDecision(input_maker_output)
-        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: InputMaker::%s.output=%s, \
-        HypoAlg::%s.previousDecision=%s, HypoAlg::%s.output=%s",\
-        self.maker.Alg.name(), input_maker_output, self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(),  )
-
+        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: \
+        InputMaker::%s.output=%s, \
+        HypoAlg::%s.previousDecision=%s, \
+        HypoAlg::%s.output=%s",\
+                  self.maker.Alg.name(), input_maker_output, self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), new_output )
         
     def __str__(self):
-        return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence, new_output)
+        #return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence, new_output)
+        return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s"%(self.name, self.hypo, self.maker, self.sequence)
 
     
 class Chain:
@@ -460,9 +462,6 @@ class CFSequence():
             self.filter, self.step )
           
 
-
-
-
 class ChainStep:
     """Class to describe one step of a chain; if more than one menuSequence, then the step is combo"""
     def __init__(self, name,  Sequences=[]):
@@ -475,8 +474,6 @@ class ChainStep:
         else:
             self.sequences = Sequences
         
-
-
     def replaceSequence(self, old, new):
         # maybe obsolete?
         idx=self.sequences.index(old) # this raise exception

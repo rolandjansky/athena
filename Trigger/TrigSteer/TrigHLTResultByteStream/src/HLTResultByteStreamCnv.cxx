@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTResultByteStream/HLTResultByteStreamCnv.h"
@@ -21,7 +21,7 @@
 #include "TrigSteeringEvent/HLTResult.h"
 
 #include "StoreGate/StoreGate.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Tool
 #include "GaudiKernel/IToolSvc.h"

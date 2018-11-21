@@ -9,6 +9,10 @@ atlas_subdir( MuonConfig )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+# Configure unit tests
+atlas_add_test( MuonDataDecodeTest
+                PROPERTIES TIMEOUT 500
+                SCRIPT test/testMuonDataDecode.sh )
 
 atlas_add_test( MuonCablingConfigTest
    SCRIPT python -m MuonConfig.MuonCablingConfig

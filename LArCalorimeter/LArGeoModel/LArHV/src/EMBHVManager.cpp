@@ -47,7 +47,6 @@ EMBHVManager::EMBHVManager()
 {
   m_c->descriptor = new EMBHVDescriptor(CellBinning(0.0, 1.4, 7, 1),CellBinning(0.0, 2*M_PI, 16));	
   m_c->init=false;
-  std::cout << "Initalizing EMBHVManager" << std::endl;
 }
 
 

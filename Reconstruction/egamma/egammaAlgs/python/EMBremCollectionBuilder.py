@@ -59,20 +59,18 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                  CountDeadModulesAfterLastHit = True)
 
         if DetFlags.haveRIO.pixel_on():
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
                 from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
                 pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-                pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-                pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
+                pixelConditionsSummaryToolSetup.setUseConditions(True)
+                pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+                pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
+                pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
+                pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
                 pixelConditionsSummaryToolSetup.setup()
 
             InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
-
-            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            if athenaCommonFlags.isOnline() :
-                InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
-            else:
-                InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
 
             if InDetFlags.usePixelDCS():
                 InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
