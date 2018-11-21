@@ -181,17 +181,19 @@ if( XAOD_STANDALONE )
       SOURCES test/ut_SUSYToolsTester_atlfast.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
+      PROPERTIES TIMEOUT 300
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
    atlas_add_test( ut_SUSYToolsTester_data
       SOURCES test/ut_SUSYToolsTester_data.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
-      PROPERTIES TIMEOUT 180
+      PROPERTIES TIMEOUT 300
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
    atlas_add_test( ut_SUSYToolsTester_mc
       SOURCES test/ut_SUSYToolsTester_mc.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
+      PROPERTIES TIMEOUT 300
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
    atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
       SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx
