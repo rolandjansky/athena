@@ -35,7 +35,7 @@ G4bool LArG4H62004SD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
   // The calculator may include detector effects such as
   // charge-collection which are not modeled by Geant4.)
 
-  G4double edep = a_step->GetTotalEnergyDeposit();
+  G4double edep = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 #ifdef DEBUG_ME
   G4cout << "ProcessHits: my name: "<<this->GetName()<<", calc.: "<<m_calculator<<", energy: "<<edep << G4endl;
 #endif
