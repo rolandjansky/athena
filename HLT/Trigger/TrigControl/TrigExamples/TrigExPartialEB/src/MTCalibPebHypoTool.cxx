@@ -2,15 +2,37 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+// Trigger includes
 #include "MTCalibPebHypoTool.h"
+
+// Athena includes
+#include "AthenaKernel/Timeout.h"
+
+// System includes
 #include <random>
+#include <thread>
 
 // Local implementation-specific helper methods
 namespace {
+  /// Returns a reference to static thread-local random number generator
+  std::mt19937& threadLocalGenerator() {
+    static thread_local std::random_device rd; // used only to ensure different seeds for mt19937
+    static thread_local std::mt19937 generator(rd());
+    return generator;
+  }
+  /// Basic random real number generation
+  template<typename T> T randomRealNumber(const T min, const T max) {
+    std::uniform_real_distribution<T> distribution(min, max);
+    return distribution(threadLocalGenerator());
+  }
+  /// Basic random integer generation
+  template<typename T> T randomInteger(const T min, const T max) {
+    std::uniform_int_distribution<T> distribution(min, max);
+    return distribution(threadLocalGenerator());
+  }
+  /// Random bool with a given true rate
   bool randomAccept(const double acceptRate) {
-      static thread_local std::mt19937 generator;
-      std::uniform_real_distribution<double> distribution(0.0, 1.0);
-      return (distribution(generator) < acceptRate);
+      return (randomRealNumber(0.0, 1.0) < acceptRate);
   }
 }
 
@@ -35,17 +57,37 @@ StatusCode MTCalibPebHypoTool::initialize() {
 }
 
 // =============================================================================
-StatusCode MTCalibPebHypoTool::decide(const std::vector<MTCalibPebHypoTool::Input>& inputs) const {
+StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) const {
 
+  // ---------------------------------------------------------------------------
+  // Burn CPU time
+  // ---------------------------------------------------------------------------
+  for (unsigned int iCycle = 0; iCycle < m_numBurnCycles; ++iCycle) {
+    if (Athena::Timeout::instance(input.eventContext).reached()) {
+      if (m_failOnTimeout) {
+        ATH_MSG_ERROR("Timeout reached in CPU time burning cycle # " << iCycle+1 << " and FailOnTimeout is true");
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_INFO("Timeout reached in CPU time burning cycle # " << iCycle+1);
+      break;
+    }
+    unsigned int burnTime = m_burnTimeRandomly
+                            ? randomInteger<unsigned int>(0, m_burnTimePerCycleMillisec)
+                            : m_burnTimePerCycleMillisec.value();
+    ATH_MSG_VERBOSE("CPU time burning cycle # " << iCycle+1 << ", burn time [ms] = " << burnTime);
+    std::this_thread::sleep_for(std::chrono::milliseconds(burnTime));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Random accept decision
+  // ---------------------------------------------------------------------------
   bool accept = randomAccept(m_acceptRate);
-  for (auto& in : inputs) {
-    if (accept) {
-      ATH_MSG_DEBUG("Decision " << m_decisionId << " is accept");
-      TrigCompositeUtils::addDecisionID(m_decisionId, in.decision);
-    }
-    else {
-      ATH_MSG_DEBUG("Decision " << m_decisionId << " is reject");
-    }
+  if (accept) {
+    ATH_MSG_DEBUG("Decision " << m_decisionId << " is accept");
+    TrigCompositeUtils::addDecisionID(m_decisionId, input.decision);
+  }
+  else {
+    ATH_MSG_DEBUG("Decision " << m_decisionId << " is reject");
   }
 
   return StatusCode::SUCCESS;

@@ -15,9 +15,6 @@
 // TDAQ includes
 #include "eformat/StreamTag.h"
 
-// System includes
-#include <random>
-
 /** @class MTCalibPebHypoTool
  *  @brief Base class for tools used by MTCalibPebHypoAlg
  **/
@@ -33,22 +30,37 @@ public:
 
   // ------------------------- Public types ------------------------------------
   struct Input {
-    Input(TrigCompositeUtils::Decision* d)
-    : decision(d) {}
+    Input(TrigCompositeUtils::Decision* d, const EventContext& ctx)
+    : decision(d), eventContext(ctx) {}
     TrigCompositeUtils::Decision* decision;
+    const EventContext& eventContext;
   };
 
   // ------------------------- Specific methods of this class ------------------
   /// Decides whether to accept the event
-  StatusCode decide(const std::vector<Input>& inputs) const;
+  StatusCode decide(const Input& input) const;
 
 private:
   // ------------------------- Properties --------------------------------------
   Gaudi::Property<double> m_acceptRate {
-    this,
-    "RandomAcceptRate",
-    -1,
+    this, "RandomAcceptRate", -1,
     "Rate of random accepts, <=0 is never, >=1 is always"
+  };
+  Gaudi::Property<unsigned int> m_burnTimePerCycleMillisec {
+    this, "BurnTimePerCycleMillisec", 0,
+    "Burn time per cycle in milliseconds"
+  };
+  Gaudi::Property<unsigned int> m_numBurnCycles {
+    this, "NumBurnCycles", 0,
+    "Number of time burning cycles"
+  };
+  Gaudi::Property<bool> m_burnTimeRandomly {
+    this, "BurnTimeRandomly", true,
+    "If true, burn time per cycle is a random value from uniform distribution between 0 and the given value"
+  };
+  Gaudi::Property<bool> m_failOnTimeout {
+    this, "FailOnTimeout", true,
+    "If true, the execution will return StatusCode::FAILURE when Athena timeout is detected"
   };
 
   // ------------------------- Other private members ---------------------------

@@ -55,9 +55,13 @@ hypo.HypoOutputDecisions = "MTCalibPebDecisions"
 
 hypoTool1 = MTCalibPebHypoTool("HLT_MTCalibPeb1")
 hypoTool1.RandomAcceptRate = 0.75
+hypoTool1.BurnTimePerCycleMillisec = 200
+hypoTool1.NumBurnCycles = 3
 
 hypoTool2 = MTCalibPebHypoTool("HLT_MTCalibPeb2")
 hypoTool2.RandomAcceptRate = 0.25
+hypoTool2.BurnTimePerCycleMillisec = 1000
+hypoTool2.NumBurnCycles = 10
 
 hypo.HypoTools = [hypoTool1, hypoTool2]
 
