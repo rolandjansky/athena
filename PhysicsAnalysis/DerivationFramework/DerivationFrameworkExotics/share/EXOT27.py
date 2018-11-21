@@ -2,14 +2,24 @@
 # EXOT27 - MonoHbb tests - candidate for official monoHbb+monoScalar derviation
 ################################################################################
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool, DerivationFramework__TriggerSkimmingTool, DerivationFramework__GenericObjectThinning
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    derivationFlags, buildFileName, MSMgr, DerivationFrameworkJob,
+    DerivationFrameworkIsMonteCarlo)
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+    DerivationFramework__DerivationKernel)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
+    DerivationFramework__xAODStringSkimmingTool,
+    DerivationFramework__TriggerSkimmingTool,
+    DerivationFramework__GenericObjectThinning)
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning, DerivationFramework__MuonTrackParticleThinning, DerivationFramework__TauTrackParticleThinning, DerivationFramework__JetTrackParticleThinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
+    DerivationFramework__EgammaTrackParticleThinning,
+    DerivationFramework__MuonTrackParticleThinning,
+    DerivationFramework__TauTrackParticleThinning,
+    DerivationFramework__JetTrackParticleThinning)
 
 # CP group common variables
 import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
@@ -19,10 +29,12 @@ import DerivationFrameworkEGamma.EGammaCommon as EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon as MuonsCommon
 import DerivationFrameworkFlavourTag.HbbCommon as HbbCommon
 from JetRec.JetRecStandardToolManager import jtm
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import (
+    DerivationFramework__GenericTruthThinning)
 import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
 from BTagging.BTaggingFlags import BTaggingFlags
-from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
+from DerivationFrameworkCore.FullListOfSmartContainers import (
+    FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
 if DerivationFrameworkIsMonteCarlo: 
   MCTruthCommon.addStandardTruthContents()
@@ -63,7 +75,8 @@ if DerivationFrameworkIsMonteCarlo:
     "TruthParticles",
     "MET_Truth",
     ]
-EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink", "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
+EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink",
+    "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
 def outputContainer(container, warnIfNotSmart=True):
   if container in EXOT27SmartContainers + EXOT27AllVariables:
     logger.debug("Container '{0}' already requested for output!")
@@ -278,7 +291,8 @@ EXOT27ThinningTools += [
 
 # TODO (perhaps): truth thinning
 # What I have here is extremely simplistic - designed to at least have what I
-# need for my immediate studies
+# need for my immediate studies and (by inspection) what is used by XAMPP truth
+# code
 if DerivationFrameworkIsMonteCarlo:
   truth_with_descendants = [6, 23, 24, 25]
   truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
