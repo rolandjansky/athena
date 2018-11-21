@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include
+# art-include: 21.2/AthDerivation
 # art-description: DAOD building EXOT22 SUSY4 JETM11 EXOT21 SUSY1 STDM7 SUSY8 SUSY10 data18
 # art-type: grid
 # art-output: *.pool.root

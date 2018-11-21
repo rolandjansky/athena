@@ -245,6 +245,10 @@ namespace CP {
             isoTypesLowPt.push_back(xAOD::Iso::neflowisol20);
             wp->addCut(new IsolationConditionCombined("MuonPFlowLooseLowPt", isoTypesLowPt, TF2("pflowLFunctionLowPt","fabs(x)+0.4*(y>0?y:0)"), "0.16*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionCombined("MuonPFlowLooseHighPt", isoTypesHighPt, TF2("pflowLFunctionHighPt","fabs(x)+0.4*(y>0?y:0)"), "0.16*(x>50e3?x:1e9)"));
+        } else if (muWPname == "FixedCutLoosePLV") {
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30, "0.15*x"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_plv", "PromptLeptonVeto", "-0.5"));
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;
@@ -360,6 +364,10 @@ namespace CP {
             isoTypesLowPt.push_back(xAOD::Iso::neflowisol20);
             wp->addCut(new IsolationConditionCombined("ElecPFlowLooseLowPt", isoTypesLowPt, TF2("pflowLFunctionLowPt","fabs(x)+0.4*(y>0?y:0)"), "0.16*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionCombined("ElecPFlowLooseHighPt", isoTypesHighPt, TF2("pflowLFunctionHighPt","fabs(x)+0.4*(y>0?y:0)"), "0.16*(x>50e3?x:1e9)"));
+        } else if (elWPname == "FixedCutLoosePLV") {
+            wp->addCut(new IsolationConditionFormula("ElecFixedCutLoose_track", xAOD::Iso::ptvarcone20, "0.15*x"));
+            wp->addCut(new IsolationConditionFormula("ElecFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
+            wp->addCut(new IsolationConditionFormula("ElecFixedCutLoose_plv", "PromptLeptonVeto", "-0.5"));
 	} else {
 	  ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
             delete wp;

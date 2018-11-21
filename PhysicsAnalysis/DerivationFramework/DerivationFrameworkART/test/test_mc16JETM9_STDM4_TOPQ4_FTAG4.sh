@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include
+# art-include: 21.2/AthDerivation
 # art-description: DAOD building JETM9 STDM4 TOPQ4 FTAG4 mc16
 # art-type: grid
 # art-output: *.pool.root

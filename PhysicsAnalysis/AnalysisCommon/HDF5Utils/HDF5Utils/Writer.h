@@ -48,6 +48,7 @@ namespace H5Utils {
       virtual data_buffer_t getDefault() const = 0;
       virtual H5::DataType getType() const = 0;
       virtual std::string name() const = 0;
+      typedef I input_type;
     };
 
     /// implementation for variable filler
@@ -156,6 +157,25 @@ namespace H5Utils {
   /// @{
   namespace internal {
 
+    // This class exists to inspect the way the fill(...) function is
+    // called, so that errors can be caught with a static assert and
+    // give a much less cryptic error message.
+    //
+    // We check to make sure the depth of the input matches the rank
+    // of the output, and that the types match.
+    using std::begin;
+    template <typename T, typename I, typename = void>
+    struct CheckType {
+      static const bool ok_type = std::is_convertible<T,I>::value;
+      static const int depth = 0;
+    };
+    template <typename T, typename I>
+    struct CheckType <T,I,decltype(*begin(std::declval<T&>()), void())> {
+      typedef decltype(*begin(std::declval<T&>())) iter_type;
+      static const bool ok_type = CheckType<iter_type,I>::ok_type;
+      static const int depth = CheckType<iter_type,I>::depth + 1;
+    };
+
     /// Data flattener class: this is used by the writer to read in the
     /// elements one by one and put them in an internal buffer.
     ///
@@ -165,6 +185,7 @@ namespace H5Utils {
     ///
     template <size_t N, typename F, typename T, size_t M = N>
     struct DataFlattener {
+
       std::vector<data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
       DataFlattener(const F& filler, T args,
@@ -351,6 +372,21 @@ namespace H5Utils {
     if (m_buffer_rows == m_par.batch_size) {
       flush();
     }
+
+    // make some assertions
+    typedef typename
+      decltype(m_consumers)::value_type::element_type::input_type input_type;
+    static_assert(
+      internal::CheckType<T, input_type>::depth == N,
+      "\n\n"
+      " ** H5 Writer rank does not match input to fill(...)! **"
+      " \n");
+    static_assert(
+      internal::CheckType<T, input_type>::ok_type,
+      "\n\n"
+      " ** H5 Writer input type doesn't match input type for fill(...)! **"
+      " \n");
+
     internal::DataFlattener<N, decltype(m_consumers), T> buf(
       m_consumers, arg, m_par.extent);
     hsize_t n_el = buf.element_offsets.size();

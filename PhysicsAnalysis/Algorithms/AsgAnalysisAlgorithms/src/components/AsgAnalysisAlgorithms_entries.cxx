@@ -13,6 +13,7 @@
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
+#include <AsgAnalysisAlgorithms/IsolationCloseByCorrectionAlg.h>
 #include <AsgAnalysisAlgorithms/KinematicHistAlg.h>
 #include <AsgAnalysisAlgorithms/ObjectCutFlowHistAlg.h>
 #include <AsgAnalysisAlgorithms/OverlapRemovalAlg.h>
@@ -25,6 +26,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgLeptonTrackSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgViewFromSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgxAODNTupleMakerAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, IsolationCloseByCorrectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, KinematicHistAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, ObjectCutFlowHistAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, OverlapRemovalAlg)
@@ -38,6 +40,7 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgViewFromSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgxAODNTupleMakerAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, IsolationCloseByCorrectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, KinematicHistAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, ObjectCutFlowHistAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, OverlapRemovalAlg)

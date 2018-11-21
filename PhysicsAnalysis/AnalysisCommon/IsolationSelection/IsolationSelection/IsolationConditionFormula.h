@@ -18,6 +18,7 @@ namespace CP {
     class IsolationConditionFormula: public IsolationCondition {
         public:
             IsolationConditionFormula(std::string name, xAOD::Iso::IsolationType isoType, const std::string& cutFunction);
+            IsolationConditionFormula(std::string name, std::string isoType, const std::string& cutFunction);
             virtual ~IsolationConditionFormula() {
             }
 

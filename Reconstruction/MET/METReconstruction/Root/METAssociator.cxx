@@ -380,29 +380,41 @@ namespace met {
 
       bool isNextToPart(true);
       bool isNextToHR(true);
-      double phiRnd(0.);  
+      double phiRnd(0.);
+
+      int NumOfRndTrials = 0; // Counter for trials to find random cone without overlaps
+      const int MaxNumOfRndTrials = 100; // Max. number of trials to find random cone without overlaps
+
       while(isNextToPart || isNextToHR ){
         isNextToPart = false; 
         isNextToHR = true;
-    
+
         phiRnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
         double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), clus.Eta(), phiRnd );    
         if(dR > MinDistCone){
           isNextToHR = false;
-        }    
-        for(const auto& clus_j : v_clus) {
+        }
+
+        for(const auto& clus_j : v_clus) { // loop over leptons 
           dR = P4Helpers::deltaR( clus.Eta(), phiRnd, clus_j.Eta(), clus_j.Phi() );
           if(dR < MinDistCone){
              isNextToPart = true;
           }
         } // swclus_j
+
+        NumOfRndTrials++;
+        if(NumOfRndTrials == MaxNumOfRndTrials){ // check number of trials
+          UEcorr = 0.; 
+          return StatusCode::SUCCESS;
+        }
       } // while isNextToPart, isNextToHR
-  
+
       // 2. Calculete UE correction
       TLorentzVector tv_UEcorr; // TLV of UE correction (initialized with 0,0,0,0 automatically)     
       std::pair <double, double> eta_rndphi; // pair of current cluser eta and random phi
       eta_rndphi.first  = clus.Eta();
-      eta_rndphi.second = phiRnd;  
+      eta_rndphi.second = phiRnd;
+
       for(const auto& pfo_itr : *constits.pfoCont){ // loop over PFOs
         if( pfo_itr->e() < 0){
           continue;
