@@ -67,6 +67,7 @@
 #   TOPQExtraVariables_MET_TruthRegions
 #
 #   TOPQStaticContent
+#   TOPQStaticContentV0
 #   TOPQStaticContentTruth
 #====================================================================
 
@@ -1721,6 +1722,11 @@ TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR
                           'xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.',
                           'xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets',
                           'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.']
+
+# For TOPQDERIV-69
+TOPQStaticContentV0	 = ['xAOD::VertexContainer#TOPQ1RecoV0Candidates',
+                            'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux.-vxTrackAtVertex.-vertexType.-neutralParticleLinks.-neutralWeights.-KshortLink.-LambdaLink.-LambdabarLink.-gamma_fit.-gamma_mass.-gamma_massError.-gamma_probability']
+
 
 TOPQStaticContentTruth = ['xAOD::TruthParticleContainer#TruthElectrons',
                           'xAOD::TruthParticleAuxContainer#TruthElectronsAux.',
