@@ -36,6 +36,15 @@ StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::Se
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JF ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JB ), m_jetThresholds ) );
+
+  if ( m_jetThresholds.empty() ) {
+    ATH_MSG_WARNING( "No JET thresholds configured" );
+  } else {
+    ATH_MSG_INFO( "Configured " << m_jetThresholds.size() << " thresholds" );
+  }
+
+
+  
   return StatusCode::SUCCESS;
 }
 
@@ -54,13 +63,16 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );  
   decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
   
+  auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+  CHECK( roiEL.isValid() );
+  ATH_MSG_DEBUG("Linking Decision to the FS roI");
 
-  // RoIBResult contains vector of TAU fragments
+  // RoIBResult contains vector of jet fragments
   for ( auto& jetFragment : roib.jetEnergyResult() ) {
     for ( auto& roi : jetFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::JetRoIWordType == roi.roIType() ) )  {
-	ATH_MSG_DEBUG( "Skipping RoI as it is not JET threshold " << roIWord );
+	ATH_MSG_DEBUG( "Skipping RoI as it is not JET threshold " << roIWord <<" Type "<< roi.roIType() );
 	continue;
       }
       

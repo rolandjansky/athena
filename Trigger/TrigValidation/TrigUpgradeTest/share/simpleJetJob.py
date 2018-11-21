@@ -32,22 +32,27 @@ if TriggerFlags.doCalo:
      topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
      print testChains
 
+     # get L1 decisions
+     for unpack in topSequence.L1DecoderTest.roiUnpackers:
+         if unpack.name() is "JRoIsUnpackingTool":
+             L1JetDecisions=unpack.Decisions
+             
      from TrigUpgradeTest.jetDefs import jetRecoSequence
-     addFiltering=False
+     addFiltering=True
 
      if addFiltering:
         #filter
         from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
         filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-        filterL1RoIsAlg.Input = ["FSJetDecisions"];
-        filterL1RoIsAlg.Output = ["FilteredFSJRoIDecisions"]
+        filterL1RoIsAlg.Input = [L1JetDecisions] #["L1JET"] #"FSJetDecisions"];
+        filterL1RoIsAlg.Output = ["FilteredL1JET"]
         filterL1RoIsAlg.Chains = testChains
         filterL1RoIsAlg.OutputLevel = DEBUG
 
         #inputmaker
         from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
         InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
-        InputMakerAlg.Output='FSJETRoIs'
+        InputMakerAlg.Output='FSJETRoI'
         InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
         InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
 
@@ -117,4 +122,6 @@ if TriggerFlags.doCalo:
      mon.OutputLevel = DEBUG
     
      hltTop = seqOR( "hltTop", [ HLTsteps, summMaker, mon ] )
-     topSequence += hltTop   
+     topSequence += hltTop
+
+     print topSequence

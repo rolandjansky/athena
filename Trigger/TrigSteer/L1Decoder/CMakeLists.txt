@@ -49,5 +49,12 @@ atlas_install_python_modules( python/*.py)
 # Install files from the package:
 atlas_install_headers( L1Decoder )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/test* )
 
-atlas_add_test( L1DecoderTest SCRIPT python -m L1Decoder.L1DecoderConfig ) 
+atlas_add_test( L1DecoderNJOTest SCRIPT python -m L1Decoder.L1DecoderConfig )
+
+atlas_add_test( L1DecoderTest
+                SCRIPT test/test_l1decoder.sh
+                PROPERTIES TIMEOUT 500               
+              )
+

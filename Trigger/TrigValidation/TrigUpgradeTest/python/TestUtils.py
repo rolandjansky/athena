@@ -49,6 +49,7 @@ class L1DecoderTest(L1Decoder) :
         from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
         from L1Decoder.L1DecoderConf import TAURoIsUnpackingTool, JRoIsUnpackingTool
         from L1Decoder.L1DecoderConf import RerunRoIsUnpackingTool
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
         # CTP unpacker
 
         ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
@@ -60,33 +61,35 @@ class L1DecoderTest(L1Decoder) :
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
+          
             emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel,
-                                             Decisions = "EMRoIDecisions",
-                                             OutputTrigRoIs = "EMRoIs")
+                                                Decisions = recordable("L1EM"),
+                                                OutputTrigRoIs = recordable("EMRoIs"),
+                                                MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
 
-            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
+#            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
             self.roiUnpackers += [emUnpacker]
             self.rerunRoiUnpackers += [ RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool", 
-                                                               SourceDecisions="EMRoIDecisions", 
-                                                               Decisions="RerunEMRoIDecisions" 
+                                                               SourceDecisions="L1EM", 
+                                                               Decisions="RerunL1EM" 
                                                                ) ]
 
             metUnpacker = METRoIsUnpackingTool(OutputLevel = self.OutputLevel,
-                                               Decisions = "METRoIDecisions",
-                                               OutputTrigRoI = "METRoI")
+                                               Decisions = recordable("L1MET"),
+                                               OutputTrigRoI = recordable("METRoI"))
 
             self.roiUnpackers += [metUnpacker]
 
             tauUnpacker = TAURoIsUnpackingTool(OutputLevel = self.OutputLevel,
-                                             Decisions = "TAURoIDecisions",
+                                             Decisions = "L1TAU",
                                              OutputTrigRoIs = "TAURoIs")
 
             tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
             self.roiUnpackers += [tauUnpacker]
 
             jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
-                                             Decisions = "JRoIDecisions",
-                                             OutputTrigRoIs = "JRoIs" )
+                                             Decisions = recordable("L1JET"),
+                                             OutputTrigRoIs = recordable("JETRoI") )
 
             jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
             self.roiUnpackers += [jUnpacker]
@@ -95,14 +98,14 @@ class L1DecoderTest(L1Decoder) :
         # MU unpacker
         if TriggerFlags.doMuon():
             muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel,
-                                             Decisions = "MURoIDecisions",
-                                             OutputTrigRoIs = "MURoIs")
+                                             Decisions = recordable("L1MU"),
+                                             OutputTrigRoIs = recordable("MURoIs"))
 
             muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
             self.roiUnpackers += [muUnpacker]
             self.rerunRoiUnpackers += [  RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
-                                                                SourceDecisions="MURoIDecisions", 
-                                                                Decisions="RerunMURoIDecisions"
+                                                                SourceDecisions="L1MU", 
+                                                                Decisions="RerunL1MU"
                                                                 ) ]
         self.Chains = "HLTChainsResult"
 

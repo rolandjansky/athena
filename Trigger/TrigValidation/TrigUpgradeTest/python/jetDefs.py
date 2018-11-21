@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
-def jetRecoSequence(RoIs, myRoIMode = False):
+def jetRecoSequence(RoIs, myRoIMode = True):
 
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AppMgr import ToolSvc
