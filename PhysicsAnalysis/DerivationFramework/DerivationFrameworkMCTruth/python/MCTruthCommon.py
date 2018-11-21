@@ -92,7 +92,7 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
 
         #Large R ungroomed jets
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets('AntiKt', 1.0, 'Truth', ptmin=15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+        addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
 
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
         #Large R jets
