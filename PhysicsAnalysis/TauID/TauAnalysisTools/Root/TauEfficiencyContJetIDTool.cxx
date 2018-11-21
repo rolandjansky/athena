@@ -37,11 +37,8 @@ StatusCode TauEfficiencyContJetIDTool::initialize()
 
 //______________________________________________________________________________
 CP::CorrectionCode TauEfficiencyContJetIDTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor, unsigned int iRunNumber, unsigned int iMu)
+    double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
-  (void)iRunNumber;
-  (void)iMu;
-
   // obtain ID SF value
   if (!m_bUseInclusiveEta)
     return getTotalSF(xTau, dEfficiencyScaleFactor);

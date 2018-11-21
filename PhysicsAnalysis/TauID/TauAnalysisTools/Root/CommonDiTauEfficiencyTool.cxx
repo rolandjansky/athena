@@ -82,10 +82,8 @@ StatusCode CommonDiTauEfficiencyTool::initialize()
 */
 //______________________________________________________________________________
 CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau,
-    double& dEfficiencyScaleFactor, unsigned int iRunNumber, unsigned int iMu)
+    double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
-  (void)iRunNumber;
-  (void)iMu;
   // check which true state is requestet
   if (checkTruthMatch(xDiTau) != m_eCheckTruth)
   {

@@ -377,10 +377,8 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
 
 //______________________________________________________________________________
 CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
-    double& eff, unsigned int iRunNumber /* =0 */, unsigned int iMu /* =0 */)
+    double& eff, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
-  (void)iRunNumber;
-  (void)iMu;
   eff = 1.;
 
   if (m_bIsData)
@@ -408,11 +406,8 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::TauJet& xTau, unsigned int iRunNumber, unsigned int iMu)
+CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::TauJet& xTau, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
-  (void)iRunNumber;
-  (void)iMu;
-
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
 

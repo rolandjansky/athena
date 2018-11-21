@@ -131,11 +131,8 @@ void DiTauEfficiencyCorrectionsTool::printConfig(bool bAlways)
 
 //______________________________________________________________________________
 CP::CorrectionCode DiTauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
-    double& eff, unsigned int iRunNumber, unsigned int iMu )
+    double& eff, unsigned int /*iRunNumber*/, unsigned int /*iMu*/ )
 {
-  (void)iRunNumber;
-  (void)iMu;
-
   eff = 1.;
 
   if (m_bIsData)
