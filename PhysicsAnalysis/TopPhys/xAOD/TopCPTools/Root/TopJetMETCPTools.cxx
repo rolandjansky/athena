@@ -417,6 +417,8 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   configDir  = "rel21";
   MC_type += "a";
 
+  bool JERisMC = m_config->isMC();
+
   variables = new std::vector<std::string>;
   variables->push_back("pT");
   std::string variable;
@@ -433,17 +435,17 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
 
   m_jetUncertaintiesToolLargeR_strong
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Strong",
-                                jetCalibrationNameLargeR, MC_type, false,
+                                jetCalibrationNameLargeR, MC_type, JERisMC,
                                 configDir+"/"+conference
                                 + "/R10_"+largeRJES_config+"_strong.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_medium
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Medium",
-                                jetCalibrationNameLargeR, MC_type, false,
+                                jetCalibrationNameLargeR, MC_type, JERisMC,
                                 configDir+"/"+conference
                                 + "/R10_"+largeRJES_config+"_medium.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_weak
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Weak",
-                                jetCalibrationNameLargeR, MC_type, false,
+                                jetCalibrationNameLargeR, MC_type, JERisMC,
                                 configDir+"/"+conference
                                 + "/R10_"+largeRJES_config+"_weak.config",variables,"",calibArea);
 
