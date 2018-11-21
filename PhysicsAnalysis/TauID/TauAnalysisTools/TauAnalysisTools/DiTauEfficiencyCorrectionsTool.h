@@ -49,9 +49,10 @@ public:
 
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
-      double& eff );
+      double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0);
   /// Decorate the tau with its efficiency
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau );
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
+      unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;

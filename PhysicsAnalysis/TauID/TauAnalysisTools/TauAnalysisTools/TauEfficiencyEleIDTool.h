@@ -35,7 +35,7 @@ public:
   virtual ~TauEfficiencyEleIDTool();
 
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-      double& dEfficiencyScaleFactor);
+      double& dEfficiencyScaleFactor, unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   virtual StatusCode initialize();
 

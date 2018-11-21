@@ -20,8 +20,11 @@ TauEfficiencyJetIDTool::~TauEfficiencyJetIDTool()
 
 //______________________________________________________________________________
 CP::CorrectionCode TauEfficiencyJetIDTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor)
+    double& dEfficiencyScaleFactor, unsigned int iRunNumber, unsigned int iMu)
 {
+  (void)iRunNumber;
+  (void)iMu;
+
   // check which true state is requestet
   if (checkTruthMatch(xTau) != m_eCheckTruth)
   {

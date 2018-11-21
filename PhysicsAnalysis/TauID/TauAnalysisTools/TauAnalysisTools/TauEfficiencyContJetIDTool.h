@@ -37,8 +37,9 @@ public:
   StatusCode initialize();
 
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-      double& dEfficiencyScaleFactor);
-  CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
+      double& dEfficiencyScaleFactor, unsigned int iRunNumber = 0, unsigned int iMu = 0);
+  CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+      unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
   CP::SystematicSet affectingSystematics() const;

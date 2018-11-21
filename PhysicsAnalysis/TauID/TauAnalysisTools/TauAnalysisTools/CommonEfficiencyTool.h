@@ -62,8 +62,10 @@ public:
   // CommonEfficiencyTool pure virtual public functionality
   //__________________________________________________________________________
 
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 );
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -88,6 +90,8 @@ public:
 protected:
 
   std::string ConvertProngToString(const int& iProngness);
+  std::string ConvertMuToString(const int& iMu);
+  std::string ConvertRunNumberToString(const int& iMu);
 
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
@@ -153,6 +157,9 @@ protected:
   bool m_bSFIsAvailableChecked;
   bool m_bPtTauEtaCalibIsAvailable;
   bool m_bPtTauEtaCalibIsAvailableIsChecked;
+  bool m_bSplitMu;
+  bool m_bSplitMCCampaign;
+  std::string m_sMCCampaign;
 };
 } // namespace TauAnalysisTools
 
