@@ -84,6 +84,11 @@ class ComponentAccumulator(object):
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
         self._msg.info( self._outputPerStream )
+        self._msg.info( "Public Tools" )
+        self._msg.info( "[" )
+        for t in self._publicTools:
+            self._msg.info( "  {0},".format(t.getFullName()) )
+        self._msg.info( "]" )
 
 
     def addSequence(self, newseq, parentName = None ):
