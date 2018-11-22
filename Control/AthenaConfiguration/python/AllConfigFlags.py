@@ -13,7 +13,15 @@ def _createCfgFlags():
     acf.addFlag('Input.isMC', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("isMC",None)) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
-    
+
+    acf.addFlag('Concurrency.NumProcs', 0)
+    acf.addFlag('Concurrency.NumThreads', 0)
+    acf.addFlag('Concurrency.NumConcurrentEvents', 0)
+
+    acf.addFlag('Scheduler.CheckDependencies', True)
+    acf.addFlag('Scheduler.ShowDataDeps', False)
+    acf.addFlag('Scheduler.ShowDataFlow', False)
+    acf.addFlag('Scheduler.ShowControlFlow', False)
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
 
