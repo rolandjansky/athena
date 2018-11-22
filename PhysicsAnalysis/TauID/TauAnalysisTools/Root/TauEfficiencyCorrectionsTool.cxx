@@ -24,6 +24,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   , m_bIsData(false)
   , m_bIsConfigured(false)
   , m_iRunNumber(0)
+  , m_iMu(0)
   , m_tTauSelectionToolHandle("")
 #ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   , m_tPRWTool("")
@@ -34,6 +35,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "InputFilePathRecoHadTau",      m_sInputFilePathRecoHadTau      = "" );
   declareProperty( "InputFilePathEleOLRHadTau",    m_sInputFilePathEleOLRHadTau    = "" );
   declareProperty( "InputFilePathEleOLRElectron",  m_sInputFilePathEleOLRElectron  = "" );
+  declareProperty( "InputFilePathEleBDTElectron",  m_sInputFilePathEleBDTElectron  = "" );
   declareProperty( "InputFilePathJetIDHadTau",     m_sInputFilePathJetIDHadTau     = "" );
   declareProperty( "InputFilePathContJetIDHadTau", m_sInputFilePathContJetIDHadTau = "" );
   declareProperty( "InputFilePathEleIDHadTau",     m_sInputFilePathEleIDHadTau     = "" );
@@ -60,6 +62,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "OLRLevel",                     m_iOLRLevel                     = (int)TAUELEOLR );
   declareProperty( "ContSysType",                  m_iContSysType                  = (int)TOTAL );
   declareProperty( "TriggerPeriodBinning",         m_iTriggerPeriodBinning         = (int)PeriodBinningAll );
+  declareProperty( "MCCampaign",                   m_sMCCampaign                   = "" ); // MC16a, MC16d or MC16e
 
   declareProperty( "SkipTruthMatchCheck",          m_bSkipTruthMatchCheck          = false );
 
@@ -288,14 +291,13 @@ StatusCode TauEfficiencyCorrectionsTool::beginEvent()
   if (m_bIsData)
     return StatusCode::SUCCESS;
 
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
+  const xAOD::EventInfo* xEventInfo = 0;
+  ATH_CHECK(evtStore()->retrieve(xEventInfo, m_sEventInfoName ));
+  m_iMu = xEventInfo->averageInteractionsPerCrossing();
   if (m_tPRWTool.empty())
     return StatusCode::SUCCESS;
 
-  const xAOD::EventInfo* xEventInfo = 0;
-  ATH_CHECK(evtStore()->retrieve(xEventInfo, m_sEventInfoName ));
   m_iRunNumber = m_tPRWTool->getRandomRunNumber(*xEventInfo);
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   return StatusCode::SUCCESS;
 }
 
@@ -333,6 +335,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_ALWAYS( "  OLRLevel " << m_iOLRLevel );
     ATH_MSG_ALWAYS( "  ContSysType " << m_iContSysType );
     ATH_MSG_ALWAYS( "  TriggerPeriodBinning " << m_iTriggerPeriodBinning );
+    ATH_MSG_ALWAYS( "  MCCampaign " << m_sMCCampaign );
   }
   else
   {
@@ -342,6 +345,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_DEBUG( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleOLRElectron " << m_sInputFilePathEleOLRElectron );
+    ATH_MSG_DEBUG( "  InputFilePathEleBDTElectron " << m_sInputFilePathEleBDTElectron );
     ATH_MSG_DEBUG( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
@@ -367,12 +371,13 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_DEBUG( "  OLRLevel " << m_iOLRLevel );
     ATH_MSG_DEBUG( "  ContSysType " << m_iContSysType );
     ATH_MSG_DEBUG( "  TriggerPeriodBinning " << m_iTriggerPeriodBinning );
+    ATH_MSG_DEBUG( "  MCCampaign " << m_sMCCampaign );
   }
 }
 
 //______________________________________________________________________________
 CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
-    double& eff )
+    double& eff, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   eff = 1.;
 
@@ -382,7 +387,7 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
   {
     double dToolEff = 1.;
-    CP::CorrectionCode tmpCorrectionCode = (**it)->getEfficiencyScaleFactor(xTau, dToolEff);
+    CP::CorrectionCode tmpCorrectionCode = (**it)->getEfficiencyScaleFactor(xTau, dToolEff, m_iRunNumber, m_iMu);
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
       return tmpCorrectionCode;
     eff *= dToolEff;
@@ -401,14 +406,14 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::TauJet& xTau )
+CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::TauJet& xTau, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
 
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
   {
-    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xTau);
+    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xTau, m_iRunNumber, m_iMu);
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
       return tmpCorrectionCode;
   }
@@ -416,7 +421,7 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( con
   {
     if ( !(**it)->isSupportedRunNumber(m_iRunNumber) )
       continue;
-    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xTau);
+    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xTau, m_iRunNumber, m_iMu);
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
       return tmpCorrectionCode;
   }
@@ -509,14 +514,33 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2018_summer()
     {
       // only set vars if they differ from "", which means they have been configured by the user
       if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2018-summer.root";
+      if (m_sInputFilePathEleBDTElectron.empty()) m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2018-summer.root";
       if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
 
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("TauAnalysisTools::CommonEfficiencyTool/EleOLRElectronTool", this);
       m_vCommonEfficiencyTools.push_back(tTool);
-      ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRElectron));
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameEleOLRElectron));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
       ATH_CHECK(tTool->setProperty("WP", ConvertEleOLRToString(m_iOLRLevel)));
+      
+      if (m_iOLRLevel == TAUELEOLR)
+      {
+        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRElectron));
+        ATH_CHECK(tTool->setProperty("SplitMu", true));
+      }
+      else if (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTLOOSEPLUSVETO || 
+        m_iOLRLevel == ELEBDTMEDIUM || m_iOLRLevel == ELEBDTMEDIUMPLUSVETO )
+      {
+        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleBDTElectron));
+        ATH_CHECK(tTool->setProperty("SplitMCCampaign", true));
+        ATH_CHECK(tTool->setProperty("MCCampaign", m_sMCCampaign));
+        if (m_sMCCampaign == "" && m_tPRWTool.empty())
+          ATH_MSG_ERROR("One of these properties has to be set: \"MCCampaign\" or \"PileupReweightingTool\" ");
+      }
+      else 
+      {
+        ATH_MSG_ERROR("unsupported electron veto working point: " << ConvertEleOLRToString(m_iOLRLevel) ); 
+      }
     }
     else if (iEfficiencyCorrectionType == SFRecoHadTau)
     {

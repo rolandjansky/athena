@@ -131,7 +131,7 @@ void DiTauEfficiencyCorrectionsTool::printConfig(bool bAlways)
 
 //______________________________________________________________________________
 CP::CorrectionCode DiTauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau,
-    double& eff )
+    double& eff, unsigned int /*iRunNumber*/, unsigned int /*iMu*/ )
 {
   eff = 1.;
 
@@ -150,14 +150,15 @@ CP::CorrectionCode DiTauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( con
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode DiTauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau )
+CP::CorrectionCode DiTauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::DiTauJet& xDiTau, 
+  unsigned int iRunNumber, unsigned int iMu)
 {
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
 
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
   {
-    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xDiTau);
+    CP::CorrectionCode tmpCorrectionCode = (**it)->applyEfficiencyScaleFactor(xDiTau, iRunNumber, iMu);
     if (tmpCorrectionCode != CP::CorrectionCode::Ok)
     {
       return tmpCorrectionCode;
