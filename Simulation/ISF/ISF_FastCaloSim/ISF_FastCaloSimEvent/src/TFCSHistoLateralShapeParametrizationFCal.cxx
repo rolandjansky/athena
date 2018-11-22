@@ -20,27 +20,12 @@
 //=============================================
 
 TFCSHistoLateralShapeParametrizationFCal::TFCSHistoLateralShapeParametrizationFCal(const char* name, const char* title) :
-  TFCSLateralShapeParametrizationHitBase(name,title),m_nhits(0)
+  TFCSHistoLateralShapeParametrization(name,title)
 {
-  reset_phi_symmetric();
 }
 
 TFCSHistoLateralShapeParametrizationFCal::~TFCSHistoLateralShapeParametrizationFCal()
 {
-}
-
-int TFCSHistoLateralShapeParametrizationFCal::get_number_of_hits(TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
-{
-  if (!simulstate.randomEngine()) {
-    return -1;
-  }
-
-  return CLHEP::RandPoisson::shoot(simulstate.randomEngine(), m_nhits);
-}
-
-void TFCSHistoLateralShapeParametrizationFCal::set_number_of_hits(float nhits)
-{
-  m_nhits=nhits;
 }
 
 FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
@@ -50,9 +35,11 @@ FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, T
   }
 
   const int cs=calosample();
-  const double center_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
+  const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, Ca
+  
+  
+  loSubPos::SUBPOS_EXT) );
   const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
   
   const double center_x=center_r*cos(center_phi);
@@ -91,35 +78,6 @@ FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, T
   ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" x="<<hit.x()<<" y="<<hit.y()<<" z="<<hit.z()<<" r=" << r <<" alpha="<<alpha);
 
   return FCSSuccess;
-}
-
-
-bool TFCSHistoLateralShapeParametrizationFCal::Initialize(TH2* hist)
-{
-  if(!hist) return false;
-	m_hist.Initialize(hist);
-	if(m_hist.get_HistoContents().size()==0) return false;
-	
-	set_number_of_hits(hist->Integral());
-
-  return true;
-}
-
-bool TFCSHistoLateralShapeParametrizationFCal::Initialize(const char* filepath, const char* histname)
-{
-  // input file with histogram to fit
-  std::unique_ptr<TFile> inputfile(TFile::Open( filepath, "READ" ));
-  if (inputfile == NULL) return false;
-
-  // histogram with hit pattern
-  TH2 *inputShape = (TH2*)inputfile->Get(histname);
-  if (inputShape == NULL) return false;
-
-  bool OK=Initialize(inputShape);
-
-  inputfile->Close();
-
-  return OK;
 }
 
 void TFCSHistoLateralShapeParametrizationFCal::Print(Option_t *option) const
