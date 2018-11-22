@@ -27,7 +27,7 @@ if TriggerFlags.doCalo:
 
 
     # menu items
-     CTPToChainMapping = {"HLT_j85":       "L1_J20"   }
+     CTPToChainMapping = {"HLT_j85":       "L1_J20"  , "HLT_j100" : "L1_EM3" }
      testChains =[x for x, y in CTPToChainMapping.items()]
      topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
      print testChains
@@ -37,59 +37,53 @@ if TriggerFlags.doCalo:
          if unpack.name() is "JRoIsUnpackingTool":
              L1JetDecisions=unpack.Decisions
              
-     from TrigUpgradeTest.jetDefs import jetRecoSequence
+
      addFiltering=True
 
-     if addFiltering:
-        #filter
-        from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
-        filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-        filterL1RoIsAlg.Input = [L1JetDecisions] #["L1JET"] #"FSJetDecisions"];
-        filterL1RoIsAlg.Output = ["FilteredL1JET"]
-        filterL1RoIsAlg.Chains = testChains
-        filterL1RoIsAlg.OutputLevel = DEBUG
+     inputRoIs="FSRoI"
+     hypoDecisions=L1JetDecisions
 
-        #inputmaker
-        from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-        InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
-        InputMakerAlg.Output='FSJETRoI'
-        InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
-        InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
-
+     testEM=True
+     if testEM:
+         inputRoIs="StoreGateSvc+EMRoIs"
+         hypoDecisions="L1EM"
      
-        # reco sequence
-        (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.Output)
-     else:
-        (recoSequence, sequenceOut) = jetRecoSequence("FSRoI")
+     if addFiltering:
+         #filter
+         from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+         filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+         filterL1RoIsAlg.Input = [hypoDecisions] #["L1JET"] #"FSJetDecisions"];
+         filterL1RoIsAlg.Output = ["FilteredL1JET"]
+         filterL1RoIsAlg.Chains = testChains
+         filterL1RoIsAlg.OutputLevel = DEBUG
+         
+         #inputmaker
+         from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+         InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+         InputMakerAlg.RoIs='FSJETRoI'
+         InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
+         InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
+         inputRoIs= InputMakerAlg.RoIs
+         hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
+         
+     # get the reco sequence
+     from TrigUpgradeTest.jetDefs import jetRecoSequence
+     (recoSequence, sequenceOut) = jetRecoSequence(inputRoIs)
 
-        
-
-     # hypo
-     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT     
+     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
      from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromName
      hypo = TrigJetHypoAlgMT("jethypo")
      hypo.OutputLevel = DEBUG
      hypo.Jets = sequenceOut
+     hypo.HypoInputDecisions = hypoDecisions
      hypo.HypoOutputDecisions = "jetDecisions"
-     if addFiltering:
-         hypo.HypoInputDecisions = InputMakerAlg.InputMakerOutputDecisions[0]
-     else:
-         hypo.HypoInputDecisions = "FSJetDecisions"
-         
      hypo.HypoTools = [ trigJetHypoToolFromName( c, c ) for c in testChains ] 
      print hypo
      for tool in hypo.HypoTools:
          print tool
 
 
-     # finalize tree
-     if addFiltering:
-        jetSequence = seqAND("jetSequence", [ InputMakerAlg, recoSequence, hypo ])    
-        jetStep = stepSeq("jetStep", filterL1RoIsAlg, [ jetSequence ] )
-
-     else:
-       jetSequence = seqAND("jetSequence", [ recoSequence ])    # rmoved hypo
-       jetStep =  jetSequence 
+    
          
      ### CF construction ###
      def summarySteps ( name, decisions ):
@@ -101,8 +95,18 @@ if TriggerFlags.doCalo:
         summarySteps.FinalDecisions = decisions
         return summarySteps
 
+
+     # finalize tree
+     if addFiltering:
+        jetSequence = parOR("jetSequence", [ InputMakerAlg, recoSequence, hypo ])    
+        jetStep = seqAND("jetStep", [filterL1RoIsAlg, jetSequence ] )
+
+     else:
+       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])   
+
+
      summary0 = summarySteps("Step1", [hypo.HypoOutputDecisions] )
-     step0 = parOR("step0", [ jetStep, summary0 ] )
+     step0 = seqOR("step0", [ jetStep, summary0 ] )
      if addFiltering:
         step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
         HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
