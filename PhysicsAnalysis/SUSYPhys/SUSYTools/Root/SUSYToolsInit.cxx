@@ -93,7 +93,7 @@ using namespace ST;
   }
 
 #define CONFIG_TAU_TRIGEFF_TOOL(TOOLHANDLE, INDEX, TRIGGER, TAUID )         \
-  if (!TOOLHANDLE.isUserConfigured() && tau_trig_support.size() > INDEX && !isData()) { \
+  if (!TOOLHANDLE.isUserConfigured() && m_tau_trig_support.size() > INDEX && !isData()) { \
     toolName = "TauTrigEffTool_" + std::to_string(TAUID) + "_" + TRIGGER; \
     TOOLHANDLE.setTypeAndName("TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName); \
     ATH_CHECK(TOOLHANDLE.setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau}) )); \
@@ -510,20 +510,32 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon isolation tool
-  if (!m_muonIsolationSFTool.isUserConfigured()) { // so far only one supported WP
+  if (!m_muonIsolationSFTool.isUserConfigured()) {
     toolName = "MuonIsolationScaleFactors_" + m_muIso_WP;
 
+
     std::string tmp_muIso_WP = m_muIso_WP;
-    if ( ! muIsoSFExist(tmp_muIso_WP) ){
-      tmp_muIso_WP = "GradientLoose";
+    if ( !check_isOption(m_muIso_WP, m_mu_iso_support) ) { //check if supported
       ATH_MSG_WARNING("Your selected muon Iso WP ("
 		      << m_muIso_WP
-		      << ") does not have SFs defined. Falling back to Gradient loose for SF calculations");
+		      << ") does not have SFs defined. Will try to find an appropriate fall-back.");
+      if (m_mu_iso_fallback.count(m_muIso_WP) > 0){
+	tmp_muIso_WP = m_mu_iso_fallback[m_muIso_WP];
+	ATH_MSG_WARNING("Your selected muon Iso WP ("
+			<< m_muIso_WP
+			<< " is not supported, and does not have SFs available.  Falling back to "
+			<< tmp_muIso_WP
+			<< " for SF determination.");
+      } else {
+        ATH_MSG_ERROR("***  The muon isolation WP you selected (" << m_muIso_WP << ") is not currentely supported, and no known fall-back option for SFs exists. Sorry! ***");
+        return StatusCode::FAILURE;
+      }
     }
 
     m_muonIsolationSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
     ATH_CHECK( m_muonIsolationSFTool.setProperty("WorkingPoint", tmp_muIso_WP + "Iso") );
     ATH_CHECK( m_muonIsolationSFTool.retrieve() );
+
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -554,7 +566,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (! m_eleConfig.empty() ){
       ATH_MSG_INFO("Overriding specified Ele.Id working point in favour of configuration file");
       ATH_CHECK( m_elecSelLikelihood.setProperty("ConfigFile", m_eleConfig ));
-    } else if ( !check_isOption(m_eleId, el_id_support) ) { //check if supported
+    } else if ( !check_isOption(m_eleId, m_el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleId);
       return StatusCode::FAILURE;
     }
@@ -579,7 +591,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (! m_eleConfigBaseline.empty() ){
       ATH_MSG_INFO("Overriding specified EleBaseline.Id working point in favour of configuration file");
       ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("ConfigFile", m_eleConfigBaseline ));
-    } else if ( !check_isOption(m_eleIdBaseline, el_id_support) ) { //check if supported
+    } else if ( !check_isOption(m_eleIdBaseline, m_el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleIdBaseline);
       return StatusCode::FAILURE;
     } else {
@@ -597,7 +609,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "PhotonSelIsEM_" + m_photonId;
     m_photonSelIsEM.setTypeAndName("AsgPhotonIsEMSelector/"+toolName);
 
-    if (!check_isOption(m_photonId, ph_id_support)){ //check if supported
+    if (!check_isOption(m_photonId, m_ph_id_support)){ //check if supported
       ATH_MSG_ERROR("Invalid photon ID selected: " << m_photonId);
       return StatusCode::FAILURE;
     }
@@ -610,7 +622,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "PhotonSelIsEMBaseline_" + m_photonIdBaseline;
     m_photonSelIsEMBaseline.setTypeAndName("AsgPhotonIsEMSelector/"+toolName);
 
-    if(!check_isOption(m_photonIdBaseline, ph_id_support)){ //check if supported
+    if(!check_isOption(m_photonIdBaseline, m_ph_id_support)){ //check if supported
       ATH_MSG_ERROR("Invalid photon ID selected: " << m_photonIdBaseline);
       return StatusCode::FAILURE;
     }
@@ -649,18 +661,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
 
-      std::string tmp_eleIso_WP = m_eleIso_WP;
-      if ( ! eleIsoSFExist(tmp_eleIso_WP) ){
-	  tmp_eleIso_WP = "GradientLoose";
-	  ATH_MSG_WARNING("Your selected electron Iso WP ("
-			  << m_eleIso_WP
-			  << ") does not have SFs defined. Falling back to Gradient loose for SF calculations");
+      if ( !check_isOption(m_eleIso_WP, m_el_iso_support) ) { //check if supported
+	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP
+			 << " is no longer supported. This will almost certainly cause a crash now.");
       }
+
       m_elecEfficiencySFTool_iso.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
 
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", tmp_eleIso_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_iso.setProperty("ForceDataType", (int) data_type) );
       }
@@ -673,19 +683,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
 
-      std::string tmp_eleIsoHighPt_WP = m_eleIsoHighPt_WP;
-      if ( ! eleIsoSFExist(tmp_eleIsoHighPt_WP) ){
-	tmp_eleIsoHighPt_WP = "GradientLoose";
-	ATH_MSG_WARNING("Your selected electron HighPt Iso WP ("
-			<< m_eleIsoHighPt_WP
-			<< ") does not have SFs defined. Falling back to Gradient loose for SF calculations");
+      if ( !check_isOption(m_eleIsoHighPt_WP, m_el_iso_support) ) { //check if supported
+	ATH_MSG_WARNING( "Your electron high-pt Iso WP: " << m_eleIsoHighPt_WP
+			 << " is no longer supported. This will almost certainly cause a crash now.");
       }
 
       m_elecEfficiencySFTool_isoHighPt.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
 
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", tmp_eleIsoHighPt_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_eleIsoHighPt_WP) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_isoHighPt.setProperty("ForceDataType", (int) data_type) );
       }
@@ -715,12 +722,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     std::string triggerEleIso("");
     if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
       triggerEleIso   = m_eleIso_WP;
-    } else if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_GradientLoose") != eSF_keys.end()){
+    } else if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_"+m_el_iso_fallback[m_eleIso_WP]) != eSF_keys.end()){
       //--- Check to see if the only issue is an unknown isolation working point
-      triggerEleIso = "GradientLoose";
+      triggerEleIso = m_el_iso_fallback[m_eleIso_WP];
       ATH_MSG_WARNING("Your selected electron Iso WP ("
 		      << m_eleIso_WP
-		      << ") does not have trigger SFs defined. Falling back to Gradient loose for SF calculations");
+		      << ") does not have trigger SFs defined. Falling back to "
+		      << triggerEleIso
+		      << " for SF calculations");
     }
     else{
       ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringSingle << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << ") ***");
@@ -789,12 +798,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
         triggerMixedEleIso = m_eleIso_WP;
-      } else if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_GradientLoose") != eSF_keys.end()){
+      } else if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+m_el_iso_fallback[m_eleIso_WP]) != eSF_keys.end()){
 	//--- Check to see if the only issue is an unknown isolation working point
-	triggerMixedEleIso = "GradientLoose";
+	triggerMixedEleIso = m_el_iso_fallback[m_eleIso_WP];
 	ATH_MSG_WARNING("Your selected electron Iso WP ("
 			<< m_eleIso_WP
-			<< ") does not have trigger SFs defined. Falling back to Gradient loose for SF calculations");
+			<< ") does not have trigger SFs defined. Falling back to "
+			<< triggerMixedEleIso
+			<< " for SF calculations");
       }
       else{
         ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << item.second << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
@@ -910,7 +921,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_photonTriggerSFTool.isUserConfigured() && !isData()) {
     m_photonTriggerSFTool.setTypeAndName("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool_trig" + m_photonTriggerName);
 
-    if ( !check_isOption(m_photonTriggerName, ph_trig_support) ) { //check if supported
+    if ( !check_isOption(m_photonTriggerName, m_ph_trig_support) ) { //check if supported
       ATH_MSG_WARNING( "No Photon trigger efficiency available for " << m_photonTriggerName);
     }
 
@@ -1050,11 +1061,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     return StatusCode::FAILURE;
   }
 
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool0, 0, tau_trig_support[0], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool1, 1, tau_trig_support[1], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool2, 2, tau_trig_support[2], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool3, 3, tau_trig_support[3], iTauID);
-  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool4, 4, tau_trig_support[4], iTauID);
+  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool0, 0, m_tau_trig_support[0], iTauID);
+  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool1, 1, m_tau_trig_support[1], iTauID);
+  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool2, 2, m_tau_trig_support[2], iTauID);
+  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool3, 3, m_tau_trig_support[3], iTauID);
+  CONFIG_TAU_TRIGEFF_TOOL( m_tauTrigEffTool4, 4, m_tau_trig_support[4], iTauID);
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau smearing tool

@@ -130,9 +130,6 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
-    bool eleIsoSFExist(std::string eleWP);
-    bool muIsoSFExist(std::string muWP);
-
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
@@ -508,15 +505,22 @@ namespace ST {
     double m_prwDataSF_DW;
 
     // bookkeep supported configurations (in increasing order of tightness)
-    std::vector<std::string> el_id_support;
-    std::vector<std::string> ph_id_support;
-    int mu_id_support; //max value
-    std::vector<std::string> ph_trig_support;
+    std::vector<std::string> m_el_id_support;
+    std::vector<std::string> m_ph_id_support;
+    int m_mu_id_support; //max value
+    std::vector<std::string> m_ph_trig_support;
+    std::vector<std::string> m_tau_id_support;
+    std::vector<std::string> m_el_iso_support;
+    std::vector<std::string> m_mu_iso_support;
+
+    // Iso SF mapping file (temporary while not all SFs are available)
+    std::map<std::string, std::string> m_el_iso_fallback;
+    std::map<std::string, std::string> m_mu_iso_fallback;
 
     // strings needed for dealing with 2015+2016 electron trigger SFs
     std::string m_electronTriggerSFStringSingle;
 
-    std::vector<std::string> tau_trig_support;
+    std::vector<std::string> m_tau_trig_support;
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
