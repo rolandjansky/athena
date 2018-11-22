@@ -77,17 +77,17 @@ class JetAttributes(object):
             self.smc_max
         )
 
-
-hypo_type_dict = {
-    ('j', False, False, False, False, False, False): 'HLThypo2_etaet',
-    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
-    ('j', True, False, False, False, False, False): 'HLThypo2_singlemass',
-    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
-    ('j', False, False, True, False, False, False): 'HLThypo2_dimass_deta',
-    ('j', False, False, True, True, False, False): 'HLThypo2_dimass_deta_dphi',
-    ('j', False, False, False, False, True, False): 'HLThypo2_dijet',
-    ('j', False, False, False, False, False, True): 'HLThypo2_test',
-}
+#
+#hypo_type_dict = {
+#    ('j', False, False, False, False, False, False): 'HLThypo2_etaet',
+#    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
+#    ('j', True, False, False, False, False, False): 'HLThypo2_singlemass',
+#    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
+#    ('j', False, False, True, False, False, False): 'HLThypo2_dimass_deta',
+#    ('j', False, False, True, True, False, False): 'HLThypo2_dimass_deta_dphi',
+#    ('j', False, False, False, False, True, False): 'HLThypo2_dijet',
+#    ('j', False, False, False, False, False, True): 'HLThypo2_test',
+#}
 
     
 cleaner_names = {
@@ -1012,7 +1012,8 @@ def _get_hypo_params(parts):
         'HLThypo2_singlemass': _setup_singlemass_vars,
         'HLThypo2_tla': _setup_tla_vars,
         'HLThypo2_ht': _setup_ht_vars,
-        'HLThypo2_dijet': _setup_dijet_vars,}.get(hypo_type, None)
+        'HLThypo2_dijet': _setup_dijet_vars,
+        'HLThypo2_jetattrs': _setup_jetattrs_vars,}.get(hypo_type, None)
 
     if hypo_setup_fn is None:
         msg = '%s: unknown hypo type (JetDef bug) %s' % (

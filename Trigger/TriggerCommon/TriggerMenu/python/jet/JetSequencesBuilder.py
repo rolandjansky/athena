@@ -232,9 +232,8 @@ class JetSequencesBuilder(object):
                 elif hypo_type in ('HLThypo2_dijet',):
                     seq_order.append(('jh_dijet', h))
                 elif hypo_type in ('HLThypo2_jetattrs',):
-                   seq_order.append(('jh_jetattrs', h))
+                    seq_order.append(('jh_jetattrs', h))
                 else:
-                
                     msg = '%s._make_sequence_list: unknown hypo type %s ' % (
                         self.__class__.__name__, str(hypo_type))
                     raise RuntimeError(msg)
