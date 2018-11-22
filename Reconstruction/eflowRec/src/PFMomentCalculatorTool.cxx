@@ -23,6 +23,13 @@ StatusCode PFMomentCalculatorTool::initialize(){
     ATH_MSG_WARNING("Cannot find CaloClusterMomentsMaker Tool");
     return StatusCode::SUCCESS;
   }
+ 
+  /* Retrieve the cluster calib hit moments maker */ 
+  if ( m_clusterCalibHitMomentsMaker2.retrieve().isFailure() ) {
+    ATH_MSG_WARNING("Cannot find CaloCalibClusterMomentsMaker2 Tool");
+    return StatusCode::SUCCESS;
+  }     
+ 
   return StatusCode::SUCCESS;
 }
 
@@ -40,6 +47,11 @@ void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCal
   /* Remake the cluster moments */
   if (m_clusterMomentsMaker->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute ClusterMomentsMaker");
 
+  if (m_useCalibHitTruth){
+    if (m_clusterCalibHitMomentsMaker2->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute CaloCalibClusterMomentsMaker2");
+  }
+
+  
 }
 
 StatusCode PFMomentCalculatorTool::finalize(){ return StatusCode::SUCCESS; }
