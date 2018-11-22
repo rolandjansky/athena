@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,13 +11,15 @@
 
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-//Trk
+// Trk
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
-//Gaudi
+// Gaudi
 #include "GaudiKernel/MsgStream.h"
-//STD
+// STD
 #include <vector>
+
+#include <memory>
 
 class HomogeneousLayerMaterialCnv_p1;
 
@@ -28,18 +30,18 @@ namespace Trk {
   /** 
    @class HomogeneousLayerMaterial
 
-   It extends the LayerMaterialProperties base class
+   It extends the LayerMaterialProperties base class.
 
-   This class encapsulates the logics to build pre/post/full update material 
+   This class encapsulates the logic to build pre/post/full update material 
    for Layer structures, it hosts 5 different MaterialProperties in the following order:
    
     - fullUpdate          (crossing full Layer in both directions)
-    - alongPreUpdate      (passing material to sensitive part in direction of the normal vector)
-    - alongPostUpdate     (passing material after sensitive part in direction of the normal vector)
-    - oppositePreUpdate   (passing material to sensitive part in opposite direction to the normal vector)
-    - poopsitePostUpdate  (passing material after sensitive part in opposite direction to the normal vector)
+    - alongPreUpdate      (passing material to sensitive part in the direction of the normal vector)
+    - alongPostUpdate     (passing material after sensitive part in the direction of the normal vector)
+    - oppositePreUpdate   (passing material to sensitive part in the opposite direction to the normal vector)
+    - oppositePostUpdate  (passing material after sensitive part in the opposite direction to the normal vector)
 
-    This is handeled by a full Lauyer information and a split factor
+    This is handled by a full Layer information and a split factor.
 
       
    @author Andreas.Salzburger@cern.ch 
@@ -51,7 +53,7 @@ namespace Trk {
       /** Default Constructor - creates empty HomogeneousLayerMaterial */
       HomogeneousLayerMaterial();
       
-      /**Explizit constructor with only full MaterialProperties, 
+      /**Explicit constructor with only full MaterialProperties. 
          alongPre and oppositePre, alongPre and oppositePost are obviously swapped*/
       HomogeneousLayerMaterial(const MaterialProperties& full, double splitFactor);
       
@@ -66,6 +68,12 @@ namespace Trk {
       
       /** Assignment operator */
       HomogeneousLayerMaterial& operator=(const HomogeneousLayerMaterial& lmp);
+
+      /** Default move constructor */
+      HomogeneousLayerMaterial(Trk::HomogeneousLayerMaterial&& lmp) = default; 
+
+      /** Default move assignment operator */
+      HomogeneousLayerMaterial& operator=(Trk::HomogeneousLayerMaterial&& lmp) = default; 
 
       /** Scale operator */
       virtual HomogeneousLayerMaterial& operator*=(double scale) override;
@@ -91,18 +99,19 @@ namespace Trk {
       friend class ::HomogeneousLayerMaterialCnv_p1;
 
       /** The five different MaterialProperties */
-      MaterialProperties*           m_fullMaterial;
+      std::unique_ptr<MaterialProperties>    m_fullMaterial;
                                             
   };
-  
+ 
+
 inline HomogeneousLayerMaterial* HomogeneousLayerMaterial::clone() const
   { return new HomogeneousLayerMaterial(*this); }  
   
 inline const MaterialProperties* HomogeneousLayerMaterial::fullMaterial(const Amg::Vector3D&) const
-  { return m_fullMaterial; }
+  { return m_fullMaterial.get(); }
       
 inline const MaterialProperties* HomogeneousLayerMaterial::material(size_t, size_t) const
-  { return m_fullMaterial; }      
+  { return m_fullMaterial.get(); }      
     
 } // end of namespace
 
