@@ -936,10 +936,6 @@ if hasattr(runArgs, 'AMITag'):
 from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
 patch_mc_channel_numberMetadata()
 
-## Increase max RDO output file size to 10 GB
-## NB. We use 10GB since Athena complains that 15GB files are not supported
-svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ]
-
 ### Changing to post-sim include/exec
 ## Post-include
 if hasattr(runArgs, "postSimInclude"):
