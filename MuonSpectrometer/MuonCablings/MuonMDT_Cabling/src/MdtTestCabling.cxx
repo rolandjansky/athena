@@ -71,11 +71,11 @@ bool MdtTestCabling::testMap()
 
   // print the list of ROBids
   std::vector<uint32_t> robVector = readCdo->getAllROBId();
-  std::cout << "============================= List of ROBids:" << std::endl;
+  ATH_MSG_DEBUG( "============================= List of ROBids:" );
   for (unsigned int i=0 ; i<robVector.size() ; ++i) {
-    std::cout << std::hex << robVector[i] << std::dec << std::endl;
+    ATH_MSG_DEBUG( std::hex << robVector[i] << std::dec );
   }
-  std::cout << "=============================================" << std::endl;
+  ATH_MSG_DEBUG( "=============================================" );
 
   // loop on the hardware objects to get online identifiers
 

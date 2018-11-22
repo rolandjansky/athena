@@ -196,7 +196,7 @@ template<class T> T* MdtMapBase<T>::findItem(uint8_t itemId) const{
   if (it!=m_mapOfItems->end()) {
     return (*it).second;
   } else {    
-    return NULL;
+    return nullptr;
   }
 }
 
