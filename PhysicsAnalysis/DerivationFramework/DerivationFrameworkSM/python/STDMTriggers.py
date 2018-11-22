@@ -91,5 +91,7 @@ mixed_emu_triggers=[
 "HLT_e26_lhmedium_nod0_mu8noL1",
 "HLT_e7_lhmedium_nod0_mu24",
 "HLT_e12_lhloose_nod0_2mu10",
-"HLT_2e12_lhloose_nod0_mu10"
+"HLT_2e12_lhloose_nod0_mu10",
+"HLT_e26_lhmedium_nod0_L1EM22VHI_mu8noL1",
+"HLT_e17_lhloose_mu14"
 ]
