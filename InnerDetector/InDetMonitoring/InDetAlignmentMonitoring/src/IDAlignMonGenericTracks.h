@@ -28,6 +28,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include <map>
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class VxContainer;
 class TH1F;
@@ -37,7 +38,6 @@ class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
-class IBeamCondSvc;
 class EventInfo;
 
 namespace Trk  { 
@@ -434,7 +434,7 @@ protected:
   
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
-   ServiceHandle<IBeamCondSvc> m_beamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
      {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
