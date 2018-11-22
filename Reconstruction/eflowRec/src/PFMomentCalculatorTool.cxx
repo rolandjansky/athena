@@ -24,11 +24,13 @@ StatusCode PFMomentCalculatorTool::initialize(){
     return StatusCode::SUCCESS;
   }
  
-  /* Retrieve the cluster calib hit moments maker */ 
-  if ( m_clusterCalibHitMomentsMaker2.retrieve().isFailure() ) {
-    ATH_MSG_WARNING("Cannot find CaloCalibClusterMomentsMaker2 Tool");
-    return StatusCode::SUCCESS;
-  }     
+  /* Retrieve the cluster calib hit moments maker */
+  if (m_useCalibHitTruth){
+    if ( m_clusterCalibHitMomentsMaker2.retrieve().isFailure() ) {
+      ATH_MSG_WARNING("Cannot find CaloCalibClusterMomentsMaker2 Tool");
+      return StatusCode::SUCCESS;
+    }
+  }
  
   return StatusCode::SUCCESS;
 }

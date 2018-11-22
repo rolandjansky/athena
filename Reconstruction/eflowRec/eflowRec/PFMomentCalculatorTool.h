@@ -37,14 +37,14 @@ class PFMomentCalculatorTool : public extends<AthAlgTool, IPFBaseTool> {
   /** Tool to calculate cluster moments */
   ToolHandle<CaloClusterCollectionProcessor> m_clusterMomentsMaker{this,"CaloClusterMomentsMaker","CaloClusterMomentsMaker","Tool to calculate cluster moments"};
 
-  /** Tool to calculate cluster moments */
+  /** Tool to calculate calibration hit truth cluster moments */
   ToolHandle<CaloClusterCollectionProcessor> m_clusterCalibHitMomentsMaker2{this,"CaloCalibClusterMomentsMaker2","CaloCalibClusterMomentsMaker2","Tool to calculate calibration hit cluster moments"};
 
   /** Toggle whether we are in LC mode - false by default */
   Gaudi::Property<bool> m_LCMode{this,"LCMode",false,"Toggle whether we are in LC mode - false by default"};
 
   /** Toggle usage of calibration hit truth - false by default */
-  Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};
+  Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};\
 
 };
 
