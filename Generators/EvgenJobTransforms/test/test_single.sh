@@ -1,7 +1,6 @@
 #!/bin/bash
 # art-description: MC Generators test single particle production
 # art-type: build
-# art-type: grid
 # art-include: 21.6/AthGeneration
 # art-output: *.root
 # art-output: log.generate
