@@ -45,9 +45,9 @@ from TrigCommon import AthHLT
 from AthenaCommon.Logging import logging
 log = logging.getLogger('athenaHLT')
 
-#
-# The following arg_* methods are used as custom types in argparse
-#
+##
+## The following arg_* methods are used as custom types in argparse
+##
 def arg_sor_time(s):
    """Convert possible SOR time arguments to an OWLTime compatible string"""
    fmt = '%d/%m/%y %H:%M:%S.%f'
@@ -119,7 +119,10 @@ def update_nested_dict(d, u):
 
 
 def HLTMPPy_cfgdict(args):
-   """Create the configuration dictionary as expected by HLTMPPy"""
+   """
+   Create the configuration dictionary as expected by HLTMPPy as defined in
+   https://gitlab.cern.ch/atlas-tdaq-software/HLTMPPU/blob/master/python/HLTMPPy/runner.py
+   """
 
    cdict = {}
    cdict['HLTMPPU'] = {
@@ -178,7 +181,7 @@ def HLTMPPy_cfgdict(args):
    }
 
    cdict['trigger'] = {
-      'library': ['TrigServices', 'TrigPSC', 'TrigConfigSvc'],
+      'library': ['TrigServices', 'TrigPSC'],
       'joType' : args.joboptionsvc_type
    }
    if not args.use_database:      # job options
@@ -244,6 +247,7 @@ def main():
                                     add_help=False)
    parser.expert_groups = []   # Keep list of expert option groups
 
+   ## Global options
    g = parser.add_argument_group('Options')
    g.add_argument('jobOptions', help='job options file')
    g.add_argument('--file', '-f', action='append', required=True, help='input RAW file')
@@ -260,6 +264,7 @@ def main():
    g.add_argument('--interactive', '-i', action='store_true', help='interactive mode')
    g.add_argument('--help', '-h', nargs='?', choices=['all'], action=MyHelp, help='show help')
 
+   ## Performance and debugging
    g = parser.add_argument_group('Performance and debugging')
    g.add_argument('--perfmon', action='store_true', help='enable PerfMon')
    g.add_argument('--leak-check', metavar='<stage>', nargs='?', const='execute',
@@ -272,6 +277,7 @@ def main():
    g.add_argument('--show-includes', '-s', action='store_true', help='show printout of included files')
    g.add_argument('--timeout', metavar='SEC', default=3600*10, help='timeout in seconds')
 
+   ## Database
    g = parser.add_argument_group('Database')
    g.add_argument('--use-database', '-b', action='store_true', help='configure from trigger database')
    g.add_argument('--db-type', default='Coral', choices=['MySQL','Oracle','SQLite','Coral'], help='database type')
@@ -280,12 +286,14 @@ def main():
    g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
    g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
 
+   ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
    g.add_argument('--oh-monitoring', '-M', action='store_true',
                   help='enable OH monitoring')
    g.add_argument('--oh-interval', metavar='SEC', type=int, default=5,
                   help='seconds between histogram publications.')
 
+   ## Conditions
    g = parser.add_argument_group('Conditions')
    g.add_argument('--run-number', '-R', metavar='RUN', type=int,
                   help='run number (if None, read from first event)')
@@ -297,7 +305,7 @@ def main():
    g.add_argument('--detector-mask', metavar='MASK', type=arg_detector_mask,
                   help='detector mask (if None, read from COOL)')
 
-   # Expert options
+   ## Expert options
    g = parser.add_argument_group('Expert')
    parser.expert_groups.append(g)
    g.add_argument('--joboptionsvc-type', metavar='TYPE', default='JobOptionsSvc', help='JobOptionsSvc type')
@@ -323,7 +331,7 @@ def main():
    # update parameters based on SOR
    update_run_params(args)
 
-   # configure HLTMPPU and run
+   # get HLTMPPY config dictionary
    cdict = HLTMPPy_cfgdict(args)
 
    # Apply any expert-level overrides
@@ -332,8 +340,10 @@ def main():
    # Modify pre/postcommands if necessary
    update_pcommands(args, cdict)
 
+   # Run HLTMPPU
    from HLTMPPy.runner import runHLTMPPy
    runHLTMPPy(cdict)
 
+
 if "__main__" in __name__:
-   main()
+   sys.exit(main())
