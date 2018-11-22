@@ -56,10 +56,30 @@ class ComponentAccumulator(object):
     
 
 
-    def printConfig(self, withDetails=False):
+    def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
+
+        def printProperties(c, nestLevel = 0):
+            from AthenaCommon.Configurable import ConfigurableAlgTool
+            for propname, propval in c.getProperties().iteritems():
+                # Ignore unset or empty lists
+                if propval=='<no value>' or propval==[]:
+                    continue
+                # Printing EvtStore could be relevant for Views?
+                if propname in ["DetStore","EvtStore"]:
+                    continue
+
+                propstr = str(propval)
+                if propval.__class__ == PublicToolHandleArray:
+                    ths = [str(th) for th in propval]
+                    propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
+                elif ConfigurableAlgTool in propval.__class__.__bases__:
+                    propstr = propval.getFullName()
+                self._msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+            return
+
         if withDetails:
             self._msg.info( self._sequence )     
         else:
@@ -76,6 +96,8 @@ class ComponentAccumulator(object):
                         printSeqAndAlgs(c, nestLevel )
                     else:
                         self._msg.info( " "*nestLevel +"\__ "+ c.name() +" (alg)" )
+                        if summariseProps:
+                            printProperties(c, nestLevel)
             printSeqAndAlgs(self._sequence) 
 
         self._msg.info( "Condition Algorithms" )
@@ -88,6 +110,9 @@ class ComponentAccumulator(object):
         self._msg.info( "[" )
         for t in self._publicTools:
             self._msg.info( "  {0},".format(t.getFullName()) )
+            # Not nested, for now
+            if summariseProps:
+                printProperties(t)
         self._msg.info( "]" )
 
 
