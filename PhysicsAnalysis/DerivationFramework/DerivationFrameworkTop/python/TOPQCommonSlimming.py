@@ -138,6 +138,10 @@ def setup(TOPQname, stream):
   #================================
   TOPQSlimmingHelper.StaticContent = []
   TOPQSlimmingHelper.StaticContent += TOPQStaticContent
+  
+  # for TOPQDERIV-69
+  if TOPQname == 'TOPQ1':
+    TOPQSlimmingHelper.StaticContent += TOPQStaticContentV0
 
   if DFisMC:
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentTruth
