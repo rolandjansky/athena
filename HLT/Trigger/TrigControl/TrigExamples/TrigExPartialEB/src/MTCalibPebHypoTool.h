@@ -6,11 +6,15 @@
 #define TRIGEXPARTIALEB_MTCALIBPEBHYPOTOOL_H
 
 // Trigger includes
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+
+// Gaudi includes
+#include "Gaudi/Parsers/Factory.h" // needed to declare less common Property types
 
 // TDAQ includes
 #include "eformat/StreamTag.h"
@@ -27,6 +31,7 @@ public:
 
   // ------------------------- AthAlgTool methods ------------------------------
   virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // ------------------------- Public types ------------------------------------
   struct Input {
@@ -62,6 +67,15 @@ private:
     this, "FailOnTimeout", true,
     "If true, the execution will return StatusCode::FAILURE when Athena timeout is detected"
   };
+  Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDict {
+    this, "ROBAccessDict", {},
+    "List of prefetch/retrieve operations with given ROB IDs."
+    "The string key has to contain :ADD: (prefetch), :GET: (retrieve), or :COL: (full event building)."
+    "The value is a vector of corresponding ROB IDs."
+  };
+
+  // ------------------------- Service or tool handles -------------------------
+  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
 
   // ------------------------- Other private members ---------------------------
   /// The decision id of the tool instance
