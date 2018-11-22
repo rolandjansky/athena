@@ -2,13 +2,14 @@
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
-def jetRecoSequence(RoIs, myRoIMode = True):
+def jetRecoSequence(RoIs):
 
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+    #jetRecoSequence = seqAND("jetRecoSequence")
     jetRecoSequence = parOR("jetRecoSequence")
 
 
@@ -49,7 +50,7 @@ def jetRecoSequence(RoIs, myRoIMode = True):
     algo1.RoIs=RoIs
     #     algo1.RoIs="StoreGateSvc+FSJETRoIs"
     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-    algo1.roiMode = myRoIMode
+    algo1.roiMode = True
     algo1.OutputLevel=VERBOSE
     jetRecoSequence += algo1
 
@@ -57,12 +58,8 @@ def jetRecoSequence(RoIs, myRoIMode = True):
 
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
     algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
-    if myRoIMode:
-        algo2.Cells = "CellsClusters"
-    else:
-        algo2.Cells = "CellsVClusters"
-   
-    algo2.OutputLevel = INFO
+    algo2.Cells = "CellsClusters"
+    algo2.OutputLevel = VERBOSE
     jetRecoSequence += algo2
 
 
@@ -75,7 +72,6 @@ def jetRecoSequence(RoIs, myRoIMode = True):
 
 
     pseudoJetGetter = PseudoJetGetter('simpleJobPJGetter')
-
     pseudoJetGetter.InputContainer = 'StoreGateSvc+caloclusters'
     pseudoJetGetter.OutputContainer = 'StoreGateSvc+PseudoJetEMTopo'
     pseudoJetGetter.Label = ''

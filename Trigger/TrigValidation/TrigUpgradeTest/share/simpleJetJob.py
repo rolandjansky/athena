@@ -43,7 +43,7 @@ if TriggerFlags.doCalo:
      inputRoIs="FSRoI"
      hypoDecisions=L1JetDecisions
 
-     testEM=True
+     testEM=False
      if testEM:
          inputRoIs="StoreGateSvc+EMRoIs"
          hypoDecisions="L1EM"
@@ -102,7 +102,7 @@ if TriggerFlags.doCalo:
         jetStep = seqAND("jetStep", [filterL1RoIsAlg, jetSequence ] )
 
      else:
-       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])   
+       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])   #, hypo
 
 
      summary0 = summarySteps("Step1", [hypo.HypoOutputDecisions] )
@@ -128,4 +128,5 @@ if TriggerFlags.doCalo:
      hltTop = seqOR( "hltTop", [ HLTsteps, summMaker, mon ] )
      topSequence += hltTop
 
-     print topSequence
+     from AthenaCommon.AlgSequence import dumpMasterSequence
+     dumpMasterSequence()
