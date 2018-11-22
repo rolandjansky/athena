@@ -36,10 +36,7 @@ FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, T
 
   const int cs=calosample();
   const double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, Ca
-  
-  
-  loSubPos::SUBPOS_EXT) );
+  const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
   
   const double center_x=center_r*cos(center_phi);
