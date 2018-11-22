@@ -37,11 +37,11 @@ grep REGTEST athena.log > athena.regtest
 
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  grep REGTEST athena.log > athena.regtest
   timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
+  echo "art-result: 5 RegTest"
 fi
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
@@ -53,6 +53,8 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo "art-result: ${PIPESTATUS[0]} CheckCounts"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
+  echo "art-result:  5 RootComp"
+  echo "art-result:  5 CheckCounts"
 fi
 
 if [ -f trig_cost.root ]; then 
