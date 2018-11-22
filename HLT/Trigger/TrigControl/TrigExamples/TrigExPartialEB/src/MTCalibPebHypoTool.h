@@ -73,6 +73,10 @@ private:
     "The string key has to contain :ADD: (prefetch), :GET: (retrieve), or :COL: (full event building)."
     "The value is a vector of corresponding ROB IDs."
   };
+  Gaudi::Property<unsigned int> m_timeBetweenRobReqMillisec {
+    this, "TimeBetweenROBReqMillisec", 0,
+    "Delay in milliseconds between subsequent ROB request operations from ROBAccessDict"
+  };
 
   // ------------------------- Service or tool handles -------------------------
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;

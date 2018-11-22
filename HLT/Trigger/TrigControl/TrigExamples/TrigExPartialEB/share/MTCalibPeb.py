@@ -55,13 +55,14 @@ hypo.HypoOutputDecisions = "MTCalibPebDecisions"
 
 hypoTool1 = MTCalibPebHypoTool("HLT_MTCalibPeb1")
 hypoTool1.RandomAcceptRate = 0.75
-hypoTool1.BurnTimePerCycleMillisec = 200
+hypoTool1.BurnTimePerCycleMillisec = 100
 hypoTool1.NumBurnCycles = 3
 
 hypoTool2 = MTCalibPebHypoTool("HLT_MTCalibPeb2")
 hypoTool2.RandomAcceptRate = 0.25
-hypoTool2.BurnTimePerCycleMillisec = 1000
+hypoTool2.BurnTimePerCycleMillisec = 200
 hypoTool2.NumBurnCycles = 10
+hypoTool2.TimeBetweenROBReqMillisec = 100
 hypoTool2.ROBAccessDict = {
  "01 :ADD: Preload  ": [ 0x42002a, 0x42002b ],    # robs for 1st preload
  "02 :ADD: Preload  ": [ 0x42002e, 0x42002f ],    # robs for 2nd preload
@@ -72,7 +73,7 @@ hypoTool2.ROBAccessDict = {
  "07 :GET: Retrieve ": [ 0x420060 ],              # robs for 2nd retrieval
  "08 :GET: Retrieve ": [ 0x420064 ],              # robs for 3rd retrieval
  "09 :COL: Ev.Build ": [ 0x0 ]                    # event building
- } # This is just an example with a few ROBs (LAr in this case) for testing the ROBDataProvider
+} # This is just an example with a few ROBs (LAr in this case) for testing the ROBDataProvider
 
 hypo.HypoTools = [hypoTool1, hypoTool2]
 
@@ -81,7 +82,6 @@ hypo.HypoTools = [hypoTool1, hypoTool2]
 ################################################################################
 
 from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMSerialiserTool, StreamTagMakerTool, TriggerBitsMakerTool
-from eformat import helper
 
 # Tool serialising EDM objects to fill the HLT result
 serialiser = TriggerEDMSerialiserTool()

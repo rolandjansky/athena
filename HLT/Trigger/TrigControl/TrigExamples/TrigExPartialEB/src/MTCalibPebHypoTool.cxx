@@ -138,6 +138,7 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
       int nrobs = m_robDataProviderSvc->collectCompleteEventData(input.eventContext, name()+"-COL");
       ATH_MSG_DEBUG("Number of ROBs retrieved: " << nrobs);
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(m_timeBetweenRobReqMillisec));
   }
 
   // ---------------------------------------------------------------------------
