@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // BarrelCryostatConstruction
@@ -38,7 +38,6 @@
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/GeoDBUtils.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -110,27 +109,27 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in BarrelCryostatConstruction, std::Air is not found.");
   }
 
-  GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
   if (!Aluminium) {
     throw std::runtime_error("Error in BarrelCryostatConstruction, std::Aluminium is not found.");
   }
 
-  GeoMaterial *Titanium  = materialManager->getMaterial("std::Titanium");
+  const GeoMaterial *Titanium  = materialManager->getMaterial("std::Titanium");
   if (!Titanium) {
     Titanium = Aluminium;
     //    No need to throw an error.  Some configurations do not build anything out of titanium.
     //    throw std::runtime_error("Error in BarrelCryostatConstruction, std::Titanium is not found.");
   }
 
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) {
     throw std::runtime_error("Error in BarrelCryostatConstruction, std::LiquidArgon is not found.");
   }
@@ -306,7 +305,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     if(currentRecord->getString("CYL_LOCATION")=="Barrel::CryoMother")
     {
 
-      GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
+      const GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
 
       if (!material) 
       {
@@ -507,7 +506,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
         double RhoPosB  = cryoBoltsRecord->getDouble("RADIUS");
         int index1      = cryoBoltsRecord->getInt("INDEXWALL1");
         int index2      = cryoBoltsRecord->getInt("INDEXWALL2");
-        GeoMaterial *bolt_material  = materialManager->getMaterial(cryoBoltsRecord->getString("MATERIAL"));
+        const GeoMaterial *bolt_material  = materialManager->getMaterial(cryoBoltsRecord->getString("MATERIAL"));
         if (!bolt_material) {
           throw std::runtime_error("Error in BarrelCryostatConstruction, material for bolt not found");
         }
@@ -597,7 +596,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
     // Throw in coil support block
     {
-      GeoMaterial* myMaterial;
+      const GeoMaterial* myMaterial;
       double length,height,width,pairSeparation,distFromRidge;
       int nPairTot,indexWall;
       IRDBRecordset_ptr newBlocks        = rdbAccess->getRecordsetPtr("LArBarBumperBlocks", larVersionKey.tag(),larVersionKey.node());
@@ -846,7 +845,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 	   currentRecord->getString("CYL_LOCATION")=="Barrel::TotalLAr") {
 	  bool isHalfLar = currentRecord->getString("CYL_LOCATION")=="Barrel::HalfLAr";
 
-	  GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
+	  const GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
 	
 	  if (!material) {
 	    std::ostringstream errorMessage;
@@ -952,7 +951,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     double dPhi     = (*cryoPconPhiSect)[i]->getDouble("DPHI");
     double centerPhi = startPhi + 0.5*dPhi;
 
-    GeoMaterial* material  = materialManager->getMaterial((*cryoPconPhiSect)[i]->getString("MATERIAL"));
+    const GeoMaterial* material  = materialManager->getMaterial((*cryoPconPhiSect)[i]->getString("MATERIAL"));
     if (!material) {
       std::string message = std::string("Error in BarrelCryostatConstruction! ") + (*cryoPconPhiSect)[i]->getString("MATERIAL") + std::string(" is not found.");
       throw std::runtime_error(message.c_str());
