@@ -21,6 +21,7 @@ HLTResultMTMaker::~HLTResultMTMaker() {}
 // =============================================================================
 StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_hltResultWHKey.initialize());
+  ATH_CHECK(m_makerTools.retrieve());
   ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }

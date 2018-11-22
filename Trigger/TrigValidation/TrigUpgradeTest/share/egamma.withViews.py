@@ -346,12 +346,12 @@ print summMaker
 ################################################################################
 # test online HLT Result maker
 
-serialiser = TriggerEDMSerialiserTool(OutputLevel=VERBOSE)
+serialiser = TriggerEDMSerialiserTool(name="Serialiser", OutputLevel=VERBOSE)
 
-serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions_remap",
-                                      "xAOD::TrigCompositeAuxContainer_v1#EgammaCaloDecisionsAux.name.seed",
-                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex_remap",
-                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
+serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
+                                      "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.*",
+                                      "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.eta.phi.rawEnergy.rawEt.rawEta.rawPhi.nCells.clusterQuality.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
@@ -363,11 +363,11 @@ bitsmaker.ChainDecisions = "HLTFinalDecisions"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 bitsmaker.OutputLevel = DEBUG
 
-hltResultMakerTool =  HLTResultMTMaker()
+hltResultMakerTool =  HLTResultMTMaker("MKTool")
 hltResultMakerTool.MakerTools = [ stmaker, bitsmaker, serialiser ]
 hltResultMakerTool.OutputLevel = DEBUG
 
-hltResultMakerAlg =  HLTResultMTMakerAlg()
+hltResultMakerAlg =  HLTResultMTMakerAlg("HLTRMakerAlg")
 
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram

@@ -18,6 +18,8 @@
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
  **/
 
+class DataObject;
+
 class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 { 
   
@@ -42,9 +44,9 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   struct Address {
     std::string type;
     CLID clid;
-    RootType rt;
     std::string key;
-    xAOD::AuxSelection sel;
+    bool isAux = false;
+    xAOD::AuxSelection sel = {}; // xAOD dynamic varaibles selection
   };
   
   std::vector< Address > m_toSerialize; // postprocessed configuration info
@@ -63,9 +65,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * This function is candidate to be made global function at some point
    * and we will need also readPayload function
    */  
-  StatusCode fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const ;
+  StatusCode fillPayload( const void* data, size_t sz, std::vector<uint32_t>& buffer ) const;
 
-  
+
+  /**
+   * Adds dynamic variables to the payload
+   */
+  StatusCode fillDynAux( const Address& address, DataObject* dObject, std::vector<uint32_t>& buffer ) const;
 }; 
 
 
