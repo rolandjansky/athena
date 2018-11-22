@@ -1587,7 +1587,9 @@ void AnalysisConfig_Ntuple::loop() {
 		
 		std::vector<TIDA::Track>& tracks = offline->rois()[iroi].tracks();
 		
-		size_t Noffline = tracks.size();
+		/// may well put the reporting back in, so leaving this 
+		/// this in place  
+		//  size_t Noffline = tracks.size();
 
 		for ( std::vector<TIDA::Track>::iterator it=tracks.begin() ; it<tracks.end() ; ) {
 		  bool inc = true;
@@ -1616,7 +1618,9 @@ void AnalysisConfig_Ntuple::loop() {
 		  if ( inc ) it++;
 		}
 		
-		//  m_provider->msg(MSG::INFO) << "TIDA::Roi offline track reduction: " << Noffline << " -> " << tracks.size() << endmsg;
+		/// may well put the reporting back in, so leaving this 
+		/// this in place  		
+		//  m_provider->msg(MSG::DEBUG) << "TIDA::Roi offline track reduction: " << Noffline << " -> " << tracks.size() << endmsg;
 		
 	      }
 	     
