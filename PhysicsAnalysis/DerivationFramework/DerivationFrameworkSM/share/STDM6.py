@@ -7,7 +7,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.PFlowCommon import *
+from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
@@ -125,8 +125,6 @@ STDM6SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM6SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.pixeldEdx.numberOfUsedHitsdEdx.numberOfIBLOverflowsdEdx",
     "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt"
-    #"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
-    #"JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM"
 ]
 # STDM6SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM6SlimmingHelper.AllVariables += ExtraContainersAll
