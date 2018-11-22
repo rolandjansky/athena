@@ -82,6 +82,7 @@ namespace DerivationFramework {
         bool   m_constrD0;
         bool   m_constrK0;
         bool   m_constrJpsi;
+        double m_chi2cut;
 
         ServiceHandle<IBeamCondSvc>                      m_beamSpotSvc;
         ToolHandle < Trk::TrkVKalVrtFitter >             m_iVertexFitter;

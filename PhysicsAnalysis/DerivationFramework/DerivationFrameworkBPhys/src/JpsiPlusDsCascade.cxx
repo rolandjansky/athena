@@ -54,14 +54,19 @@ namespace DerivationFramework {
         if(m_vtx0Daug1MassHypo < 0.) m_vtx0Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::mu_minus);
         if(m_vtx0Daug2MassHypo < 0.) m_vtx0Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::mu_minus);
         if(m_vtx1Daug1MassHypo < 0.) {
-           if(m_Dx_pid == 411) m_vtx1Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+         //if(m_Dx_pid == 411) m_vtx1Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+           if(abs(m_Dx_pid) == 411) m_vtx1Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
            else m_vtx1Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
         }
         if(m_vtx1Daug2MassHypo < 0.) {
-           if(m_Dx_pid ==-411) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+         //if(m_Dx_pid ==-411) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+           if(abs(m_Dx_pid) == 411) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
            else m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
         }
-        if(m_vtx1Daug3MassHypo < 0.) m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+        if(m_vtx1Daug3MassHypo < 0.) {
+           if(abs(m_Dx_pid) == 411) m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
+           else m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+        }
 
         return StatusCode::SUCCESS;
     }
@@ -405,6 +410,7 @@ namespace DerivationFramework {
     m_Dx_pid(431),
     m_constrDx(true),
     m_constrJpsi(true),
+    m_chi2cut(-1.0),
     m_beamSpotSvc("BeamCondSvc",n),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_pvRefitter("Analysis::PrimaryVertexRefitter"),
@@ -433,6 +439,7 @@ namespace DerivationFramework {
        declareProperty("DxHypothesis",              m_Dx_pid);
        declareProperty("ApplyDxMassConstraint",     m_constrDx);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
+       declareProperty("Chi2Cut",                   m_chi2cut);
        declareProperty("RefitPV",                   m_refitPV                = true);
        declareProperty("MaxnPV",                    m_PV_max                 = 999);
        declareProperty("MinNTracksInPV",            m_PV_minNTracks          = 0);
@@ -463,6 +470,8 @@ namespace DerivationFramework {
         const xAOD::VertexContainer  *dxContainer(nullptr);
         ATH_CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
 
+
+
         double mass_d = m_vtx1MassHypo; 
         std::vector<const xAOD::TrackParticle*> tracksJpsi;
         std::vector<const xAOD::TrackParticle*> tracksDx;
@@ -479,15 +488,74 @@ namespace DerivationFramework {
         Masses.push_back(m_vtx0Daug2MassHypo);
         Masses.push_back(m_vtx1MassHypo);
 
-        for(auto jpsi : *jpsiContainer) { //Iterate over Jpsi vertices
+        std::vector<const xAOD::Vertex*> selectedJpsiCandidates;
+        for(auto vxcItr=jpsiContainer->cbegin(); vxcItr!=jpsiContainer->cend(); ++vxcItr) {
+           // Check J/psi candidate invariant mass and skip if need be
+           double mass_Jpsi = m_V0Tools->invariantMass(*vxcItr, massesJpsi);
+           ATH_MSG_DEBUG("Jpsi mass " << mass_Jpsi);
+           if (mass_Jpsi < m_jpsiMassLower || mass_Jpsi > m_jpsiMassUpper) {
+             ATH_MSG_DEBUG(" Original Jpsi candidate rejected by the mass cut: mass = "
+                           << mass_Jpsi << " != (" << m_jpsiMassLower << ", " << m_jpsiMassUpper << ")" );
+             continue;
+           }
+           selectedJpsiCandidates.push_back(*vxcItr);
+        }
 
-           size_t jpsiTrkNum = jpsi->nTrackParticles();
+        std::vector<const xAOD::Vertex*> selectedDxCandidates;
+        for(auto vxcItr=dxContainer->cbegin(); vxcItr!=dxContainer->cend(); ++vxcItr) {
+           // Check J/psi candidate invariant mass and skip if need be
+         //double mass_Dx = m_V0Tools->invariantMass(*vxcItr, massesDx);
+         //ATH_MSG_DEBUG("Dx mass " << mass_Dx);
+         //if (mass_Dx < m_jpsiMassLower || mass_Dx > m_jpsiMassUpper) {
+         //  ATH_MSG_DEBUG(" Original Dx candidate rejected by the mass cut: mass = "
+         //                << mass_Dx << " != (" << m_jpsiMassLower << ", " << m_jpsiMassUpper << ")" );
+         //  continue;
+         //}
+              if ( abs((*vxcItr)->trackParticle(0)->charge()+(*vxcItr)->trackParticle(1)->charge()+(*vxcItr)->trackParticle(2)->charge()) != 1){
+                 ATH_MSG_DEBUG(" Original D+ candidate rejected by the charge requirement: "
+                                 << (*vxcItr)->trackParticle(0)->charge() << ", " << (*vxcItr)->trackParticle(1)->charge() << ", " << (*vxcItr)->trackParticle(2)->charge() );
+                continue;
+              }
+            //if (m_Dx_pid == 411 && ((*vxcItr)->trackParticle(0)->charge() != 1 || (*vxcItr)->trackParticle(1)->charge() != -1 || (*vxcItr)->trackParticle(2)->charge() != 1)) {
+              /*if (m_Dx_pid == 411 && ((*vxcItr)->trackParticle(0)->charge()+(*vxcItr)->trackParticle(1)->charge()+(*vxcItr)->trackParticle(2)->charge()) != 1){
+                 ATH_MSG_DEBUG(" Original D+ candidate rejected by the charge requirement: "
+                                 << (*vxcItr)->trackParticle(0)->charge() << ", " << (*vxcItr)->trackParticle(1)->charge() << ", " << (*vxcItr)->trackParticle(2)->charge() );
+                continue;
+              }*/
+            //if (m_Dx_pid == -411 && ((*vxcItr)->trackParticle(0)->charge() != 1 || (*vxcItr)->trackParticle(1)->charge() != -1 || (*vxcItr)->trackParticle(2)->charge() != -1)) {
+              /*if (m_Dx_pid == -411 && ((*vxcItr)->trackParticle(0)->charge()+(*vxcItr)->trackParticle(1)->charge()+(*vxcItr)->trackParticle(2)->charge()) != -1){
+                 ATH_MSG_DEBUG(" Original D- candidate rejected by the charge requirement: "
+                                 << (*vxcItr)->trackParticle(0)->charge() << ", " << (*vxcItr)->trackParticle(1)->charge() << ", " << (*vxcItr)->trackParticle(2)->charge() );
+                continue;
+              }*/
+
+              double mass_D = m_V0Tools->invariantMass(*vxcItr,massesDx);
+              ATH_MSG_DEBUG("D_(s) mass " << mass_D);
+              if (mass_D < m_DxMassLower || mass_D > m_DxMassUpper) {
+                 ATH_MSG_DEBUG(" Original D_(s) candidate rejected by the mass cut: mass = "
+                               << mass_D << " != (" << m_DxMassLower << ", " << m_DxMassUpper << ")" );
+                continue;
+              }
+           selectedDxCandidates.push_back(*vxcItr);
+        }
+
+      //for(auto jpsi : *jpsiContainer) { //Iterate over Jpsi vertices
+        for(auto jpsiItr=selectedJpsiCandidates.cbegin(); jpsiItr!=selectedJpsiCandidates.cend(); ++jpsiItr) {
+//SG::AuxElement::Accessor<Char_t> flagAcc("passed_Jpsi");
+//std::cout<<"passed_Jpsi: "<<flagAcc.isAvailable(*jpsi) << flagAcc(*jpsi)<<std::endl;
+            /*SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Jpsi");
+            if(flagAcc1.isAvailable(*jpsi)){
+               if(!flagAcc1(*jpsi)) continue;
+            }*/
+
+           size_t jpsiTrkNum = (*jpsiItr)->nTrackParticles();
            tracksJpsi.clear();
-           for( unsigned int it=0; it<jpsiTrkNum; it++) tracksJpsi.push_back(jpsi->trackParticle(it));
+           for( unsigned int it=0; it<jpsiTrkNum; it++) tracksJpsi.push_back((*jpsiItr)->trackParticle(it));
 
            if (tracksJpsi.size() != 2 || massesJpsi.size() != 2 ) {
              ATH_MSG_INFO("problems with Jpsi input");
            }
+/*
            double mass_Jpsi = m_V0Tools->invariantMass(jpsi,massesJpsi);
            ATH_MSG_DEBUG("Jpsi mass " << mass_Jpsi);
            if (mass_Jpsi < m_jpsiMassLower || mass_Jpsi > m_jpsiMassUpper) {
@@ -495,15 +563,33 @@ namespace DerivationFramework {
                            << mass_Jpsi << " != (" << m_jpsiMassLower << ", " << m_jpsiMassUpper << ")" );
              continue;
            }
+*/
+           for(auto dxItr=selectedDxCandidates.cbegin(); dxItr!=selectedDxCandidates.cend(); ++dxItr) {
+         //for(auto dx : *dxContainer) { //Iterate over D_(s)+/- vertices
 
-           for(auto dx : *dxContainer) { //Iterate over D_(s)+/- vertices
+              /*std::string hypo = "Ds";
+              if(m_Dx_pid==411) hypo = "Dp";
+              if(m_Dx_pid==-411) hypo = "Dm";
+              SG::AuxElement::Accessor<Char_t> flagAcc("passed_"+hypo);
+              if(flagAcc.isAvailable(*dx)){
+                 if(!flagAcc(*dx)) continue;
+              }*/
 
-              size_t dxTrkNum = dx->nTrackParticles();
+              if(std::find(tracksJpsi.cbegin(), tracksJpsi.cend(), (*dxItr)->trackParticle(0)) != tracksJpsi.cend()) continue; 
+              if(std::find(tracksJpsi.cbegin(), tracksJpsi.cend(), (*dxItr)->trackParticle(1)) != tracksJpsi.cend()) continue; 
+              if(std::find(tracksJpsi.cbegin(), tracksJpsi.cend(), (*dxItr)->trackParticle(2)) != tracksJpsi.cend()) continue; 
+
+
+              size_t dxTrkNum = (*dxItr)->nTrackParticles();
               tracksDx.clear();
-              for( unsigned int it=0; it<dxTrkNum; it++) tracksDx.push_back(dx->trackParticle(it));
+              for( unsigned int it=0; it<dxTrkNum; it++) tracksDx.push_back((*dxItr)->trackParticle(it));
               if (tracksDx.size() != 3 || massesDx.size() != 3 ) {
                 ATH_MSG_INFO("problems with D_(s) input");
               }
+
+
+
+/*
               if (m_Dx_pid == 411 && (dx->trackParticle(0)->charge() != 1 || dx->trackParticle(1)->charge() != -1 || dx->trackParticle(2)->charge() != 1)) {
                  ATH_MSG_DEBUG(" Original D+ candidate rejected by the charge requirement: "
                                  << dx->trackParticle(0)->charge() << ", " << dx->trackParticle(1)->charge() << ", " << dx->trackParticle(2)->charge() );
@@ -522,11 +608,12 @@ namespace DerivationFramework {
                                << mass_D << " != (" << m_DxMassLower << ", " << m_DxMassUpper << ")" );
                 continue;
               }
-
+*/
               ATH_MSG_DEBUG("using tracks" << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksDx[0] << ", " << tracksDx[1] << ", " << tracksDx[2]);
               tracksBc.clear();
-              for( unsigned int it=0; it<jpsiTrkNum; it++) tracksBc.push_back(jpsi->trackParticle(it));
-              for( unsigned int it=0; it<dxTrkNum; it++) tracksBc.push_back(dx->trackParticle(it));
+              for( unsigned int it=0; it<jpsiTrkNum; it++) tracksBc.push_back((*jpsiItr)->trackParticle(it));
+              for( unsigned int it=0; it<dxTrkNum; it++) tracksBc.push_back((*dxItr)->trackParticle(it));
+/*
               bool isIdenticalTrk(false);
               for( unsigned int it=0; it<tracksBc.size()-1; it++){
                 for( unsigned int jt=it+1; jt<tracksBc.size(); jt++){
@@ -537,7 +624,7 @@ namespace DerivationFramework {
                 ATH_MSG_DEBUG("identical tracks in input");
                 continue;
               }
-
+*/
 
               // Apply the user's settings to the fitter
               // Reset
@@ -570,6 +657,13 @@ namespace DerivationFramework {
               std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade());
 
               if (result != nullptr) {
+/*                // Chi2/DOF cut
+                double bChi2DOF = result->fitChi2()/result->nDoF();
+                ATH_MSG_DEBUG("Candidate chi2/DOF is " << bChi2DOF);
+                    
+                bool chi2CutPassed = (m_chi2cut <= 0.0 || bChi2DOF < m_chi2cut);
+                if(!chi2CutPassed) { ATH_MSG_DEBUG("Chi Cut failed!"); continue; }
+*/
                 // reset links to original tracks
                 BPhysPVCascadeTools::PrepareVertexLinks(result.get(), trackContainer);
                 ATH_MSG_DEBUG("storing tracks " << ((result->vertices())[0])->trackParticle(0) << ", "
@@ -579,13 +673,21 @@ namespace DerivationFramework {
                                                 << ((result->vertices())[1])->trackParticle(1));
                 // necessary to prevent memory leak
                 result->getSVOwnership(true);
+
+                // Chi2/DOF cut
+                double bChi2DOF = result->fitChi2()/result->nDoF();
+                ATH_MSG_DEBUG("Candidate chi2/DOF is " << bChi2DOF);
+                bool chi2CutPassed = (m_chi2cut <= 0.0 || bChi2DOF < m_chi2cut);
+
                 const std::vector< std::vector<TLorentzVector> > &moms = result->getParticleMoms();
                 double mass = m_CascadeTools->invariantMass(moms[1]);
-                if (mass >= m_MassLower && mass <= m_MassUpper) {
-                  cascadeinfoContainer->push_back(result.release());
-                } else {
-                  ATH_MSG_DEBUG("Candidate rejected by the mass cut: mass = "
-                                << mass << " != (" << m_MassLower << ", " << m_MassUpper << ")" );
+                if(chi2CutPassed) {
+                  if (mass >= m_MassLower && mass <= m_MassUpper) {
+                    cascadeinfoContainer->push_back(result.release());
+                  } else {
+                    ATH_MSG_DEBUG("Candidate rejected by the mass cut: mass = "
+                                  << mass << " != (" << m_MassLower << ", " << m_MassUpper << ")" );
+                  }
                 }
               }
 
