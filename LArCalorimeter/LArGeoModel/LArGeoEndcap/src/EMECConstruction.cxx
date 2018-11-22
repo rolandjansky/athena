@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // EMECConstruction
@@ -147,17 +147,17 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 	      << "================================================"
 	      << std::endl;
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if(StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   //////////////////////////////////////////////////////////////////
   // Get materials from the manager
   //////////////////////////////////////////////////////////////////
 
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if(!LAr) throw std::runtime_error("Error in EMECConstruction, std::LiquidArgon is not found.");
 
-	GeoMaterial* innerAbsorberMaterial = 0;
+	const GeoMaterial* innerAbsorberMaterial = 0;
 	std::string innerAbsorberMaterial_name = "LAr::EMEC_Thickabs";
 	if(mlabs > 0){
 		if(mlabs != 2){
@@ -175,7 +175,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 		);
 	}
 
-	GeoMaterial* outerAbsorberMaterial = 0;
+	const GeoMaterial* outerAbsorberMaterial = 0;
 	std::string outerAbsorberMaterial_name = "LAr::EMEC_Thinabs";
 	if(mlabs > 0){
 		if(mlabs != 2){
@@ -193,7 +193,8 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 		);
 	}
 
-	GeoMaterial *Glue = 0, *Lead = 0;
+	const GeoMaterial *Glue = 0;
+        const GeoMaterial *Lead = 0;
 	if(mlabs > 0){
 // to be replaced with glue and lead - finished by Adam Agocs
 		Glue = materialManager->getMaterial("LAr::Glue");
@@ -202,10 +203,10 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
 		if(!Lead) throw std::runtime_error("Error in EMECConstruction, LAr::Lead is not found.");
 	}
 
-  GeoMaterial* innerElectrodMaterial = materialManager->getMaterial("LAr::KaptonC");
+  const GeoMaterial* innerElectrodMaterial = materialManager->getMaterial("LAr::KaptonC");
   if(!innerElectrodMaterial) throw std::runtime_error("Error in EMECConstruction, LAr::KaptonC is not found.");
 
-  GeoMaterial* outerElectrodMaterial = innerElectrodMaterial;
+  const GeoMaterial* outerElectrodMaterial = innerElectrodMaterial;
 
   //////////////////////////////////////////////////////////////////
   // Define geometry

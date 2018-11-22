@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,6 @@
 #include "LArGeoHec/HEC2WheelConstruction.h"
 #include "LArGeoFcal/FCALConstruction.h"
 #include "LArGeoEndcap/EMECConstruction.h"
-#include "StoreGate/DataHandle.h"
 
 class IRDBAccessSvc;
 class IRDBRecord;
@@ -65,7 +64,7 @@ namespace LArGeo {
     friend class ::LArDetectorToolNV;
 
     GeoPhysVol* buildMbtsTrd(const IRDBRecord* rec
-			     , const DataHandle<StoredMaterialManager>& matmanager
+			     , const StoredMaterialManager* matmanager
 			     , GeoPhysVol* parent);
   };
 
