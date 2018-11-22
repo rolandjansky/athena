@@ -13,13 +13,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigInDetPattRecoTools
+
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
                           DetectorDescription/IRegionSelector
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecEvent/SiSpacePointsSeed
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces

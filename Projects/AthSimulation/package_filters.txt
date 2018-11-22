@@ -160,6 +160,7 @@
 + Generators/HepMCWeightSvc
 + Generators/McEventSelector
 + Generators/TruthUtils
++ InnerDetector/InDetConditions/BeamSpotConditionsData
 + InnerDetector/InDetConditions/InDetBeamSpotService
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices

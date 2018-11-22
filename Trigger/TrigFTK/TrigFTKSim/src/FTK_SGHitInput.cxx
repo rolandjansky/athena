@@ -61,7 +61,6 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   m_log( msgSvc() , name ),
   m_truthToTrack( "Trk::TruthToTrack/InDetTruthToTrack" ),
   m_extrapolator( "Trk::Extrapolator/AtlasExtrapolator" ),
-  m_beamSpotSvc( "BeamCondSvc" , name ),
   m_pixelClustersName( "PixelClusters" ),
   m_sctClustersName( "SCT_Clusters" ),
   m_pixelSpacePointsName( "PixelSpacePoints" ),
@@ -91,7 +90,7 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   declareProperty("tracksTruthName"         , m_tracksTruthName);
   declareProperty("TruthToTrackTool"        , m_truthToTrack);
   declareProperty("Extrapolator"            , m_extrapolator);
-  declareProperty("BeamCondSvc"             , m_beamSpotSvc);
+  declareProperty("BeamCondKey"             , m_beamSpotKey);
   declareProperty("useOfflineTrackSelectorTool" , m_useOfflineTrackSelectorTool);
   declareProperty("outputBeamSpotToWrapper"	, m_outputBeamSpotToWrapper);
   declareProperty("useSimpleCuts"		, m_useSimpleCuts);
@@ -130,11 +129,11 @@ StatusCode FTK_SGHitInput::initialize(){
 
   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
 
-  if( m_beamSpotSvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endmsg;
+  if( m_beamSpotKey.initialize().isFailure() ) {
+    m_log << MSG::FATAL << m_beamSpotKey << " beam spot handle not found" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_beamSpotSvc << " retrieved" << endmsg;
+    m_log << MSG::INFO << m_beamSpotKey << " retrieved" << endmsg;
   }
 
   if( service("DetectorStore",m_detStore).isFailure() ) {
@@ -946,7 +945,8 @@ FTK_SGHitInput::read_truth_tracks()
 	persf = Trk::PerigeeSurface(origin);
       }
       else {
-	persf = m_beamSpotSvc->beamPos();
+        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+	persf = beamSpotHandle->beamPos();
       }
 
       const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);

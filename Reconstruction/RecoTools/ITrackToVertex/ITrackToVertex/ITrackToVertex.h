@@ -22,6 +22,11 @@ namespace Rec {
  
 namespace Trk {
  class Track;
+ class StraightLineSurface;
+}
+
+namespace InDet{
+ class BeamSpotData;
 }
 
 namespace Reco {
@@ -47,6 +52,11 @@ namespace Reco {
 
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_ITrackToVertex; };
+
+      /** Use this for MT Coding */
+       virtual std::unique_ptr<Trk::StraightLineSurface> GetBeamLine(const InDet::BeamSpotData*) const = 0; //In C++17 make this [[nodiscard]]
+
+       virtual const InDet::BeamSpotData* GetBeamSpotData(const EventContext &ctx) const = 0; //In C++17 make this [[nodiscard]]
       
        /** Interface method for use with TrackParticle and given vertex position - AOD */
        virtual const Trk::Perigee* perigeeAtVertex(const Rec::TrackParticle& tp, const Amg::Vector3D& gp) const = 0;
@@ -64,28 +74,28 @@ namespace Reco {
        virtual const Trk::Perigee* perigeeAtVertex(const Trk::Track& trk, const Amg::Vector3D& gp) const = 0;
 
        /** Interface method for use with TrackParticle and the beamspot from the BeamSpotSvc - AOD*/
-       virtual const Trk::Perigee* perigeeAtBeamspot(const Rec::TrackParticle& tp) const = 0;
+       virtual const Trk::Perigee* perigeeAtBeamspot(const Rec::TrackParticle& tp, const InDet::BeamSpotData*) const = 0;
                                                           
        /** Interface method for use with TrackParticle and the beamspot from the BeamSpotSvc - xAOD*/
-       virtual const Trk::Perigee* perigeeAtBeamspot(const xAOD::TrackParticle& tp) const = 0;
+       virtual const Trk::Perigee* perigeeAtBeamspot(const xAOD::TrackParticle& tp, const InDet::BeamSpotData*) const = 0;
           
        /** Interface method for use with Track and the beamspot from the BeamSpotSvc - ESD */
-       virtual const Trk::Perigee* perigeeAtBeamspot(const Trk::Track& trk) const = 0;   
+       virtual const Trk::Perigee* perigeeAtBeamspot(const Trk::Track& trk, const InDet::BeamSpotData*) const = 0;
 
        /** Interface method for use with Track and the beamline from the BeamSpotSvc - ESD */
-       virtual const Trk::Perigee* perigeeAtBeamline(const Trk::Track& trk) const = 0;   
+       virtual const Trk::Perigee* perigeeAtBeamline(const Trk::Track& trk, const InDet::BeamSpotData*) const = 0;
                                                    
        /** Interface method for use with TrackParticle and the beamline from the BeamSpotSvc - AOD*/
        virtual const Trk::TrackParameters* trackAtBeamline(const Rec::TrackParticle& tp) const = 0;
           
        /** Interface method for use with TrackParticle and the beamline from the BeamSpotSvc - xAOD*/
-       virtual const Trk::TrackParameters* trackAtBeamline(const xAOD::TrackParticle& tp) const = 0;
+       virtual const Trk::TrackParameters* trackAtBeamline(const xAOD::TrackParticle& tp, const InDet::BeamSpotData*) const = 0;
                  
        /** Interface method for use with Track and the beamline from the BeamSpotSvc - ESD */
-       virtual const Trk::TrackParameters* trackAtBeamline(const Trk::Track& trk) const = 0;                                                     
+       virtual const Trk::TrackParameters* trackAtBeamline(const Trk::Track& trk, const Trk::StraightLineSurface*) const = 0;
 
        /** Interface method for use with Track and the beamline from the BeamSpotSvc - TrackParameters  */
-       virtual const Trk::TrackParameters* trackAtBeamline(const Trk::TrackParameters& tpars) const = 0;
+       virtual const Trk::TrackParameters* trackAtBeamline(const Trk::TrackParameters& tpars, const Trk::StraightLineSurface* ) const = 0;
   };
 
 } 

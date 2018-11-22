@@ -16,7 +16,7 @@
 #define TRIGBJETHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TrigEFBjetContainer;
 class TrigTimerSvc;
@@ -97,7 +97,7 @@ class TrigBjetHypo : public HLT::HypoAlgo {
 
   /** @brief Cut counter. */
   int m_cutCounter;
-
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
 #endif
