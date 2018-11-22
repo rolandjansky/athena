@@ -201,6 +201,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetPt(-99.),
     m_jetEta(-99.),
     m_jetJvt(-99.),
+    m_JVT_WP(""),
+    m_JvtPtMax(-99.),
     m_trkJetPt(-99.),
     m_trkJetEta(-99.),
     m_doFwdJVT(false),
@@ -613,34 +615,69 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //m_orToolbox.declarePropertyFor( this, "OverlapRemovalTool", "The overlap removal tool");
 
   //load supported WPs (by tightness order)
-  el_id_support.push_back("VeryLooseLLH");
-  el_id_support.push_back("LooseLLH");
-  el_id_support.push_back("LooseAndBLayerLLH");
-  el_id_support.push_back("MediumLLH");
-  el_id_support.push_back("TightLLH");
+  m_el_id_support.push_back("VeryLooseLLH");
+  m_el_id_support.push_back("LooseLLH");
+  m_el_id_support.push_back("LooseAndBLayerLLH");
+  m_el_id_support.push_back("MediumLLH");
+  m_el_id_support.push_back("TightLLH");
 
-  ph_id_support.push_back("Loose");
-  ph_id_support.push_back("Tight");
-  ph_id_support.push_back("TightPtIncl"); // Should not be mixed with Tight
+  m_ph_id_support.push_back("Loose");
+  m_ph_id_support.push_back("Tight");
+  m_ph_id_support.push_back("TightPtIncl"); // Should not be mixed with Tight
 
-  mu_id_support = 4; //maximum value supported
+  m_mu_id_support = 4; //maximum value supported
+
+  // Tau ID WPs
+  m_tau_id_support.push_back("VeryLoose");
+  m_tau_id_support.push_back("Loose");
+  m_tau_id_support.push_back("Medium");
+  m_tau_id_support.push_back("Tight");
+
+  // Iso WPs
+  // -- the el iso points are those which have (or will have) SFs available
+  m_el_iso_support.push_back("FCHighPtCaloOnly");
+  m_el_iso_support.push_back("Gradient");
+  m_el_iso_support.push_back("FCLoose");
+  m_el_iso_support.push_back("FCTight");
+  // -- the muon iso points are those which have SFs available
+  m_mu_iso_support.push_back("FCTightTrackOnly_FixedRad");
+  m_mu_iso_support.push_back("FCLoose_FixedRad");
+  m_mu_iso_support.push_back("FCTight_FixedRad");
+  m_mu_iso_support.push_back("FixedCutPflowTight");
+  m_mu_iso_support.push_back("FixedCutPflowLoose");
+  m_mu_iso_support.push_back("FixedCutHighPtTrackOnly");
+
+  // Construct electron fallback WPs (for trigger SFs)
+  m_el_iso_fallback = {
+    { "FCHighPtCaloOnly" , "FixedCutHighPtCaloOnly" },
+    { "Gradient"         , "Gradient"               },
+    { "FCLoose"          , "FixedCutLoose"          },
+    { "FCTight"          , "FixedCutTight"          }
+  };
+
+  // Construct muon fallback WPs (for SFs)
+  m_mu_iso_fallback = {
+    { "FCTightTrackOnly"        , "FixedCutHighMuTrackOnly" },
+    { "FCLoose"                 , "FixedCutHighMuLoose"     },
+    { "FCTight"                 , "FixedCutHighMuTight"     }
+  };
 
   // load photon trigger support
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2#Recommendations_for_full_2015_20
-  ph_trig_support.push_back("HLT_g20_tight_icalovloose_L1EM15VHI");
-  ph_trig_support.push_back("HLT_g22_tight_L1EM15VHI");
-  ph_trig_support.push_back("HLT_g25_loose");
-  ph_trig_support.push_back("HLT_g25_medium_L1EM20VH");
-  ph_trig_support.push_back("HLT_g35_medium_L1EM20VH");
-  ph_trig_support.push_back("HLT_g50_loose_L1EM20VH");
+  m_ph_trig_support.push_back("HLT_g20_tight_icalovloose_L1EM15VHI");
+  m_ph_trig_support.push_back("HLT_g22_tight_L1EM15VHI");
+  m_ph_trig_support.push_back("HLT_g25_loose");
+  m_ph_trig_support.push_back("HLT_g25_medium_L1EM20VH");
+  m_ph_trig_support.push_back("HLT_g35_medium_L1EM20VH");
+  m_ph_trig_support.push_back("HLT_g50_loose_L1EM20VH");
     
   // load tau trigger support
   // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst#supported-tau-trigger
-  tau_trig_support.push_back("HLT_tau25_medium1_tracktwo");
-  tau_trig_support.push_back("HLT_tau35_medium1_tracktwo");
-  tau_trig_support.push_back("HLT_tau50_medium1_tracktwo_L1TAU12");
-  tau_trig_support.push_back("HLT_tau80_medium1_tracktwo");
-  tau_trig_support.push_back("HLT_tau125_medium1_tracktwo");
+  m_tau_trig_support.push_back("HLT_tau25_medium1_tracktwo");
+  m_tau_trig_support.push_back("HLT_tau35_medium1_tracktwo");
+  m_tau_trig_support.push_back("HLT_tau50_medium1_tracktwo_L1TAU12");
+  m_tau_trig_support.push_back("HLT_tau80_medium1_tracktwo");
+  m_tau_trig_support.push_back("HLT_tau125_medium1_tracktwo");
 
 }
 
@@ -1093,7 +1130,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt"); 
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map0.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
@@ -1261,7 +1298,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, false);
   //
   configFromFile(m_prwActualMu2017File, "PRW.ActualMu2017File", rEnv, "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
-  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20180924/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-001.root");
+  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20181111/purw.actualMu.root");
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
@@ -1435,7 +1472,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     if(strict) return StatusCode::FAILURE;
   }
 
-  if( check_isTighter(m_eleIdBaseline, m_eleId, el_id_support) ){
+  if( check_isTighter(m_eleIdBaseline, m_eleId, m_el_id_support) ){
     ATH_MSG_WARNING("Your electron ID configuration is inconsistent!  Signal : " << m_eleId << " looser than Baseline : " << m_eleIdBaseline);
     if(strict) return StatusCode::FAILURE;
   }
@@ -1492,6 +1529,11 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   ///baseline vs signal pt check
   if(m_tauPrePtCut > 0 and m_tauPrePtCut > m_tauPt) {
     ATH_MSG_WARNING("Your tau pt configuration is inconsistent! Signal pt cut : " << m_tauPt << " < Baseline (pre) pt cut : " << m_tauPrePtCut);
+    if(strict) return StatusCode::FAILURE;
+  }
+  ///WP check
+  if( check_isTighter(m_tauIdBaseline, m_tauId, m_tau_id_support) ){
+    ATH_MSG_WARNING("Your tau ID configuration is inconsistent!  Signal : " << m_tauId << " looser than Baseline : " << m_tauIdBaseline);
     if(strict) return StatusCode::FAILURE;
   }
 
@@ -2474,33 +2516,6 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   else if (theRunNumber<342000) return 2017;
   return 2018;
 }
-
-bool SUSYObjDef_xAOD::eleIsoSFExist(std::string eleWP){
-
-  std::vector<std::string> knownIso = {"FixedCutHighMuLoose", "FixedCutHighMuTight",
-				       "FixedCutHighMuTrackOnly","FixedCutHighPtCaloOnly",
-				       "FixedCutLoose","FixedCutPflowLoose",
-				       "FixedCutPflowTight","FixedCutTight",
-				       "FixedCutTightTrackOnly","Gradient",
-				       "GradientLoose","Loose","LooseTrackOnly","FixedCutTrackCone40"};
-
-  return (std::find(knownIso.begin(), knownIso.end(), eleWP) != knownIso.end());
-
-}
-
-bool SUSYObjDef_xAOD::muIsoSFExist(std::string muWP){
-
-  std::vector<std::string> knownIso = {"FixedCutHighMuLoose", "FixedCutHighMuTight",
-				       "FixedCutHighMuTrackOnly","FixedCutHighPtTrackOnly",
-				       "FixedCutLoose","FixedCutPflowLoose",
-				       "FixedCutPflowTight","FixedCutTight",
-				       "FixedCutTightTrackOnly","Gradient",
-				       "GradientLoose","Loose","LooseTrackOnly"};
-
-  return (std::find(knownIso.begin(), knownIso.end(), muWP) != knownIso.end());
-
-}
-
 
 SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
 

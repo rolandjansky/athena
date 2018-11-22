@@ -13,11 +13,10 @@ int main()
 
   ATH_MSG_INFO ("Unit test for SUSYTools on data");
 
-  // Full `env` makes log file diffs useless.  Check if the input file changed, though - points us quickly to an issue.
-  ATH_MSG_INFO ("Test files");
-  system("env | grep ASG_TEST_FILE_ | sort");
+  // Stored updated references in SUSY ART area for now
+  std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/data18_13TeV.00348403.physics_Main.merge.AOD.artDAOD.PHYSVAL.pool.root";
 
-  std::string cmd("SUSYToolsTester $ASG_TEST_FILE_DATA maxEvents=500 isData=1 isAtlfast=0 Debug=0");
+  std::string cmd("SUSYToolsTester " + inputFile + " maxEvents=500 isData=1 isAtlfast=0 Debug=0");
   ATH_MSG_INFO ("Will now run this command: " << cmd);
   int ret = system(cmd.c_str());
 

@@ -222,13 +222,13 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
 
   int trigIdx =  0;
   //check if the trigger is among the supported options
-  auto itpos = std::find(tau_trig_support.begin(), tau_trig_support.end(), "HLT_"+trigExpr);  
-  if (itpos == tau_trig_support.end()){
+  auto itpos = std::find(m_tau_trig_support.begin(), m_tau_trig_support.end(), "HLT_"+trigExpr);
+  if (itpos == m_tau_trig_support.end()){
     ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported! Please check. Setting to 1 for now.");
     return eff;
   }
   else{
-    trigIdx = std::distance(tau_trig_support.begin(), itpos);
+    trigIdx = std::distance(m_tau_trig_support.begin(), itpos);
   }
 
   // Tau Trig SFs doc says: IMPORTANT: Use the tool only for taus matched to the trigger!
