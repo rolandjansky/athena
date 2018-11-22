@@ -35,6 +35,7 @@
 
 /// trigger EDM
 #include "TrigInterfaces/AllTEAlgo.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace HLT {
   class TriggerElement;
@@ -88,6 +89,8 @@ namespace PESA {
 
       // Need this to get access to protected msg() and msgLvl()
       friend class T2VertexBeamSpotImpl;
+
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     };
 
 } // end namespace

@@ -31,7 +31,7 @@ namespace Rec {
 class TriggerElement;
 class HistoVertexHelper;
 class TrigT2HistoPrmVtxBase;
-
+namespace InDet { class BeamSpotData; }
 
 
 /**
@@ -70,6 +70,7 @@ class TrigT2HistoPrmVtxAllTE : public HLT::AllTEAlgo {
   /** @brief Pointer to TrigVertex collection. */
   //TrigVertexCollection* m_trigVertexColl;
   xAOD::VertexContainer* m_trigVertexColl;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
 };
  

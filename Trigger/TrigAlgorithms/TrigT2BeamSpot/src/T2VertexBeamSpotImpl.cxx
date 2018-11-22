@@ -36,7 +36,7 @@
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigTimeAlgs/TrigTimer.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 // Generic tools
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
@@ -633,7 +633,7 @@ T2VertexBeamSpotImpl::reconstructVertices( ConstDataVector<TrigInDetTrackCollect
       m_Nvtx++;
       
       // Extract beam spot parameters
-      const T2BeamSpot beamSpot( m_beamCondSvc );
+      const T2BeamSpot beamSpot( m_beamCondData );
 
       if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Beamspot from BeamCondSvc: " << beamSpot << endmsg;
 
@@ -853,7 +853,7 @@ T2VertexBeamSpotImpl::reconstructVertices( ConstDataVector<TrackCollection>& myS
       m_Nvtx++;
       
       // Extract beam spot parameters
-      const T2BeamSpot beamSpot( m_beamCondSvc );
+      const T2BeamSpot beamSpot( m_beamCondData );
 
       if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Beamspot from BeamCondSvc: " << beamSpot << endmsg;
 

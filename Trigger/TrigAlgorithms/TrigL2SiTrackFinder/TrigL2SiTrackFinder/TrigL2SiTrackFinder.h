@@ -225,7 +225,7 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
   std::string m_regionSelectorName;
   IRegSelSvc*       m_regionSelector;
 
-  IBeamCondSvc* m_iBeamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   // Data members for monitoring
 

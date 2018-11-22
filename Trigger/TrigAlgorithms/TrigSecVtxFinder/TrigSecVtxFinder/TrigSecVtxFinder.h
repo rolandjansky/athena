@@ -21,7 +21,7 @@
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 #include "TrigInDetVxInJetTool/ITrigInDetVxInJetTool.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace CLHEP {
   class HepLorentzVector;
@@ -62,6 +62,7 @@ private:
   HLT::ErrorCode getPrmVtxForFit(Trk::RecVertex&, const HLT::TriggerElement*);
   HLT::ErrorCode getSelectedTracks(std::vector<const TrigInDetTrack*>&, const HLT::TriggerElement*);
   HLT::ErrorCode getJetDirection(CLHEP::HepLorentzVector&, std::vector<const TrigInDetTrack*>&, float, const HLT::TriggerElement*);
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
 };
 

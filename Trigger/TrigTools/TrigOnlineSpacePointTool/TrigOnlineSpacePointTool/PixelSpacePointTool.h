@@ -11,11 +11,11 @@
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TrigSiSpacePoint;
 class PixelID;
 class TrigTimer;
-class IBeamCondSvc;
 class ITrigL2LayerNumberTool;
 
 class PixelSpacePointTool : public AthAlgTool {
@@ -30,9 +30,9 @@ public:
 
   static const InterfaceID& interfaceID();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
  
   StatusCode fillCollections(ClusterCollectionData& clusterCollData);
 
@@ -51,7 +51,7 @@ private:
   double m_xCenter;
   double m_yCenter;
 
-  IBeamCondSvc* m_iBeamCondSvc; 
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   bool m_useBeamSpot;
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
 
