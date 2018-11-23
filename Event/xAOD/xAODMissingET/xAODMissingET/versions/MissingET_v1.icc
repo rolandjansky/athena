@@ -19,7 +19,7 @@ inline const std::string&              xAOD::MissingET_v1::name()     const { st
 //inline const std::string&              xAOD::MissingET_v1::name()     const { return m_nameHashPair.first;  };
 inline const std::size_t&              xAOD::MissingET_v1::nameHash() const {
   if(!name().empty() && m_nameHashPair.second==0) {
-    m_nameHashPair = {name() , std::hash<std::string>()(name())};
+    return std::hash<std::string>()(name());
   }
   return m_nameHashPair.second;
 }

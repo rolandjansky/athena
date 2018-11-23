@@ -111,7 +111,7 @@ namespace xAOD
     /*!@}*/
 
   private:
-    mutable std::pair< std::string , std::size_t> m_nameHashPair;/*!< @brief Stores the hash function for the current f_name string */
+    std::pair< std::string , std::size_t> m_nameHashPair;/*!< @brief Stores the hash function for the current f_name string */
   };
 }
 
