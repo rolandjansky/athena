@@ -2,34 +2,24 @@
 #
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
-usage() {
-    cat <<EOF
-Script to set \$LD_PRELOAD, steered by the following environment variables:
-
-   \$TCMALLOCDIR            : tcmalloc directory (enables tcmalloc if set)
-   \$USETCMALLOC            : use tcmalloc (instead of std malloc)
-   \$USETCMALLOCMINIMAL     : use minimal version of tcmalloc
-   \$ATLASMKLLIBDIR_PRELOAD : location of Intel math library
-   \$USEIMF                 : use Intel math library
-   \$ATHENA_ADD_PRELOAD     : preload user specific library
-   \$ATHENA_DROP_RELOAD     : are we in drop/reload mode?
-
-This script is used internally in athena.py. Other applications may use it e.g.:
-   USETCMALLOC=1 source athena_preload.sh && mycommand
-EOF
-}
+# Script to set $LD_PRELOAD, steered by the following environment variables:
+#
+#   $TCMALLOCDIR            : tcmalloc directory (enables tcmalloc if set)
+#   $USETCMALLOC            : use tcmalloc (instead of std malloc)
+#   $USETCMALLOCMINIMAL     : use minimal version of tcmalloc
+#   $ATLASMKLLIBDIR_PRELOAD : location of Intel math library
+#   $USEIMF                 : use Intel math library
+#   $ATHENA_ADD_PRELOAD     : preload user specific library
+#   $ATHENA_DROP_RELOAD     : are we in drop/reload mode?
+#
+# This script is used internally in athena.py. Other applications may use it e.g.:
+#   USETCMALLOC=1 source athena_preload.sh && mycommand
 
 # Helper to prepend to LD_LIBRARY
 ld_preload()
 {
     export LD_PRELOAD="$1${LD_PRELOAD:+:$LD_PRELOAD}"  # set or prepend
 }
-
-# Print help message
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    usage
-    exit 1
-fi
 
 # possibly, allow user to run with full tcmalloc by setting this variable
 export USETCMALLOCMINIMAL
