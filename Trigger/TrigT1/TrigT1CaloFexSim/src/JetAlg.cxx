@@ -4,9 +4,12 @@
 
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
+// attempting to get ATH_MSG to work, but no joy
+// #include "AthenaBaseComps/AthAlgorithm.h"
+// #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
 //function to build up the location of all seeds
-StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds){
+StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, bool &m_dumpSeedsEtaPhi){
 
   std::vector<float> seed_candi_eta;
 
@@ -71,6 +74,19 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*se
      (seeds->phi).push_back(tmp_phi);
   }
 
+  if(m_dumpSeedsEtaPhi) {
+    std::cout << "seed eta phi" << std::endl;
+    std::cout << "i_eta" << "\t" << "i_phi" << "\t" << "eta" << "\t" << "phi" << std::endl;
+    for(unsigned i=0; i<seeds->eta.size(); i++){
+      for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
+        float eta=seeds->eta.at(i);
+        float phi=seeds->phi.at(i).at(ii);
+        std::cout << i << "\t" << ii << "\t" << eta << "\t" << phi << std::endl;
+      }
+    }
+    m_dumpSeedsEtaPhi = false; // only want to do this once
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -78,6 +94,7 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*se
 StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds,  float seed_size,float range, std::vector<float> noise){
   bool m_debug = false;
   // get the energy of each seeds which is defined as 2x2 towers in barrel and endcap, and single tower in fcal
+  // ATH_MSG_DEBUG("How can I get ATH_MSG_DEBUG to compile???");
   if(m_debug)
     std::cout << "JetAlg::SeedFinding: getting seeds with " << seed_size << " and " << range << std::endl;
   for(unsigned i=0; i<seeds->eta.size(); i++){

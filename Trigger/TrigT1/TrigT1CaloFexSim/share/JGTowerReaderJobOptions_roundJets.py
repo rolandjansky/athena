@@ -1,6 +1,6 @@
 #Skeleton joboption for a simple analysis job
 
-theApp.EvtMax=100                                      #says how many events to run over. Set to -1 for all events
+theApp.EvtMax=10                                      #says how many events to run over. Set to -1 for all events
 
 debug = False
 # debug = True
@@ -18,10 +18,10 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( "StreamXAOD", "xAOD.out.root" )
 # uncommenting the lines below gives "StreamXAOD          ERROR  INCORRECT Object/count: xAOD::EnergySumRoIAuxInfo_jFexMETAux., 1 should be: 2"
 # but the JFex jet and MET containers are not written to the output xAOD...
-# xaodStream.AddItem( ["xAOD::JetRoIContainer#*"] )
-# xaodStream.AddItem( ["xAOD::JetRoIAuxContainer#*"] )
-# xaodStream.AddItem( ["xAOD::EnergySumRoI#*"] )
-# xaodStream.AddItem( ["xAOD::EnergySumRoIAuxInfo#*"] )
+xaodStream.AddItem( ["xAOD::JetRoIContainer#*"] )
+xaodStream.AddItem( ["xAOD::JetRoIAuxContainer#*"] )
+xaodStream.AddItem( ["xAOD::EnergySumRoI#*"] )
+xaodStream.AddItem( ["xAOD::EnergySumRoIAuxInfo#*"] )
 xaodStream.Stream.TakeItemsFromInput = True
 
 

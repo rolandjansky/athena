@@ -40,6 +40,8 @@ AthAlgorithm( name, pSvcLocator ),
 histSvc("THistSvc",name){
 
   declareProperty("outputNoise",m_outputNoise=false);
+  declareProperty("dumpTowersEtaPhi",m_dumpTowersEtaPhi=false);
+  declareProperty("dumpSeedsEtaPhi",m_dumpSeedsEtaPhi=false);
   declareProperty("noise_file",m_noise_file="");
 
   declareProperty("makeSquareJets", m_makeSquareJets = true);
@@ -177,13 +179,16 @@ StatusCode JGTowerReader::beginInputFile() {
 StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
   ATH_MSG_DEBUG("Found " << jTs->size() << " jTowers");
-
-  // fill the seed vectors with all jtower positions
-  if(m_makeSquareJets) {
-    if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
-  }
-  if(m_makeRoundJets) {
-    if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds));
+  
+  // dump tower eta and phi
+  if(m_dumpTowersEtaPhi) {
+    std::cout << "tower eta phi" << std::endl;
+    std::cout << "i_tower" << "\t" << "eta" << "\t" << "phi" << std::endl;
+    for(unsigned t=0; t<jTs->size(); t++){
+      const xAOD::JGTower *tower = jTs->at(t);
+      std::cout << t << "\t" << tower->eta() << "\t" << tower->phi() << std::endl;
+    }
+    m_dumpTowersEtaPhi = false; // only do this once per run
   }
 
   // sort out the wrong-size list of noise vector
@@ -199,6 +204,15 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
       jJet_jet_thr.push_back(500 * m_jJet_jet_thr);
     }
   }
+
+  // fill the seed vectors with all jtower positions
+  if(m_makeSquareJets) {
+    if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds,m_dumpSeedsEtaPhi));
+  }
+  if(m_makeRoundJets) {
+    if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds,m_dumpSeedsEtaPhi));
+  }
+
 
   if(m_makeSquareJets) {
     // find all seeds
@@ -226,7 +240,7 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
 // jet algorithms
-  if(gSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(gTs,gSeeds));
+  if(gSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(gTs,gSeeds,m_dumpSeedsEtaPhi));
 
   // sort out the wrong-size list of noise vector
   if(gTs->size() > gT_noise.size()) {

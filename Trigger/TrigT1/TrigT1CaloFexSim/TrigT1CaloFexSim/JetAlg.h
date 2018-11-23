@@ -55,7 +55,7 @@ class JetAlg{
     std::vector<std::vector<bool>> local_max;
   };
 
-  static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds);
+  static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, bool &m_dumpSeedsEtaPhi);
   static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, float seed_size,float range, std::vector<float> noise);
 
   static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise);
