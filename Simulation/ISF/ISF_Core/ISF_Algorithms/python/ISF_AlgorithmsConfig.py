@@ -19,27 +19,30 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "InputMDTHits",              [ ] )
     kwargs.setdefault( "InputRPCHits",              [ ] )
     kwargs.setdefault( "InputTGCHits",              [ ] )
+    from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    hardscatterSG = ""
+    if athenaCommonFlags.DoFullChain() and DetFlags.pileup.any_on():
+        hardscatterSG = "OriginalEvent_SG/"
+    kwargs.setdefault( "OutputBCMHits",             hardscatterSG+"BCMHits"             )
+    kwargs.setdefault( "OutputBLMHits",             hardscatterSG+"BLMHits"             )
+    kwargs.setdefault( "OutputPixelHits",           hardscatterSG+"PixelHits"           )
+    kwargs.setdefault( "OutputSCTHits",             hardscatterSG+"SCT_Hits"            )
+    kwargs.setdefault( "OutputTRTUncompressedHits", hardscatterSG+"TRTUncompressedHits" )
 
-    kwargs.setdefault( "OutputBCMHits",             "BCMHits"             )
-    kwargs.setdefault( "OutputBLMHits",             "BLMHits"             )
-    kwargs.setdefault( "OutputPixelHits",           "PixelHits"           )
-    kwargs.setdefault( "OutputSCTHits",             "SCT_Hits"            )
-    kwargs.setdefault( "OutputTRTUncompressedHits", "TRTUncompressedHits" )
-                                                                         
-    kwargs.setdefault( "OutputLArEMBHits",          "LArHitEMB"           )
-    kwargs.setdefault( "OutputLArEMECHits",         "LArHitEMEC"          )
-    kwargs.setdefault( "OutputLArFCALHits",         "LArHitFCAL"          )
-    kwargs.setdefault( "OutputLArHECHits",          "LArHitHEC"           )
+    kwargs.setdefault( "OutputLArEMBHits",          hardscatterSG+"LArHitEMB"           )
+    kwargs.setdefault( "OutputLArEMECHits",         hardscatterSG+"LArHitEMEC"          )
+    kwargs.setdefault( "OutputLArFCALHits",         hardscatterSG+"LArHitFCAL"          )
+    kwargs.setdefault( "OutputLArHECHits",          hardscatterSG+"LArHitHEC"           )
 
-    kwargs.setdefault( "OutputTileHits",            "TileHitVec"          )
-    kwargs.setdefault( "OutputMBTSHits",            "MBTSHits"            )
+    kwargs.setdefault( "OutputTileHits",            hardscatterSG+"TileHitVec"          )
+    kwargs.setdefault( "OutputMBTSHits",            hardscatterSG+"MBTSHits"            )
 
-    kwargs.setdefault( "OutputCSCHits",             "CSC_Hits"            )
-    kwargs.setdefault( "OutputMDTHits",             "MDT_Hits"            )
-    kwargs.setdefault( "OutputRPCHits",             "RPC_Hits"            )
-    kwargs.setdefault( "OutputTGCHits",             "TGC_Hits"            )
+    kwargs.setdefault( "OutputCSCHits",             hardscatterSG+"CSC_Hits"            )
+    kwargs.setdefault( "OutputMDTHits",             hardscatterSG+"MDT_Hits"            )
+    kwargs.setdefault( "OutputRPCHits",             hardscatterSG+"RPC_Hits"            )
+    kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"TGC_Hits"            )
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__CollectionMerger
     collectionMerger = ISF__CollectionMerger(name, **kwargs)
     return collectionMerger
-
