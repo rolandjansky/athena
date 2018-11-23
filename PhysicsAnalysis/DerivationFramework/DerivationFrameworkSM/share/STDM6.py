@@ -7,6 +7,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
@@ -49,7 +50,7 @@ STDM6Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM6Kernel",
                                                                  AugmentationTools=[STDM6_PFlowAugmentationTool])
 
 # JET REBUILDING
-reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, STDM6Sequence, "STDM6Jets")
 
 # ADD MBTS Container
@@ -63,6 +64,12 @@ STDM6Sequence +=  xAODMaker__MBTSModuleCnvAlg()
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM6Sequence
 
+
+# PFlow augmentation
+applyPFOAugmentation(STDM6Sequence)
+
+# add map with modified association method and make MET:
+addHadRecoilMETMap(STDM6Sequence, STDM6Stream, "STDM6")
 
 #====================================================================
 # SET UP STREAM
@@ -117,8 +124,9 @@ STDM6SlimmingHelper.IncludeMinBiasTriggerContent = True
 STDM6SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM6SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.pixeldEdx.numberOfUsedHitsdEdx.numberOfIBLOverflowsdEdx",
-    "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
-    "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM"
+    "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt",
+    "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
+    "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE"   
 ]
 # STDM6SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM6SlimmingHelper.AllVariables += ExtraContainersAll
