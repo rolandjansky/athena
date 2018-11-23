@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_Tools
@@ -29,3 +29,5 @@ addTool("ISF_Tools.ISF_ToolsConfig.getMC18EntryLayerFilter"                 , "I
 addTool("ISF_Tools.ISF_ToolsConfig.getMC18LLPEntryLayerFilter"              , "ISF_MC18LLPEntryLayerFilter"         )
 addTool("ISF_Tools.ISF_ToolsConfig.getValidationEntryLayerFilter"           , "ISF_ValidationEntryLayerFilter"      )
 addTool("ISF_Tools.ISF_ToolsConfig.getStoppedParticleFilter"                , "ISF_StoppedParticleFilter"           )
+
+addTool("ISF_Tools.ISF_ToolsConfig.getParticleKillerTool"                   , "ISF_ParticleKillerTool"              )
