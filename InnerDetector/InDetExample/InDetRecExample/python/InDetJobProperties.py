@@ -1311,7 +1311,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
-       self.checkThenSet(self.doRefitInvalidCov      ,True)
+       #self.checkThenSet(self.doRefitInvalidCov      ,True) temporarily commenting out due to ATLASRECTS-4691
 
     # --- special case SLHC
     elif (self.doSLHC()):
