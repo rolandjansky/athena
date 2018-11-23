@@ -33,7 +33,6 @@
 //#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 //#include "Particle/TrackParticleContainer.h"
 
 #include "CLHEP/Geometry/Point3D.h"

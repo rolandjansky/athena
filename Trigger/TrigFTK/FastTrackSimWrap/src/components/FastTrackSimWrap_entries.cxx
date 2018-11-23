@@ -1,5 +1,4 @@
 //#include "GaudiKernel/ServiceHandle.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "FastTrackSimWrap/DumpSp.h"
 #include "FastTrackSimWrap/FTKRegionalWrapper.h"
 

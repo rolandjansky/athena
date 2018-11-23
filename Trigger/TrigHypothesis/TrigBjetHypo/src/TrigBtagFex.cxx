@@ -14,9 +14,6 @@
 // ONLINE INFRASTRUCTURE
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-// BEAMSPOT
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 // EDM
 
 #include "xAODBase/IParticle.h"
