@@ -28,7 +28,7 @@ namespace InDet
 
   TruthPixelClusterSplitProbTool::TruthPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
           :AthAlgTool(t,n,p),
-           m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this),
+           m_truthClusterizationFactory("InDet::NnClusterizationFactory/TruthClusterizationFactory", this)
   {
 
     m_priorMultiplicityContent.push_back(2793337);
