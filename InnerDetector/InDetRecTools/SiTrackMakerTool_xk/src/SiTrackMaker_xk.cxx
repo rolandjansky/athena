@@ -255,7 +255,8 @@ StatusCode InDet::SiTrackMaker_xk::finalize()
 MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint) return dumpevent(out);
+  return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -486,7 +487,7 @@ void InDet::SiTrackMaker_xk::endEvent()
  
   // Print event information 
   //
-  if (outputLevel()<=0) {
+  if( msgLevel()<=0 ){
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
 }
@@ -859,7 +860,8 @@ StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS)
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; 
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 
