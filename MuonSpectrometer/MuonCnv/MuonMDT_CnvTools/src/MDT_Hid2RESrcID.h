@@ -64,7 +64,6 @@ public:
 
   int m_specialROBNumber;
 
-  //SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
   SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey;
 
 };

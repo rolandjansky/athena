@@ -267,18 +267,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 StatusCode MdtDigitToMdtRDO::fillTagInfo() const {
 
   ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
-  if (tagInfoMgr.retrieve().isFailure())
+  if (tagInfoMgr.retrieve().isFailure()){
     return StatusCode::FAILURE;
-  /*
-  std::string cablingType="";
-  if (m_cabling->usingOldCabling() ) {
-    cablingType="OldMDT_Cabling";
   }
-  else {
-    cablingType="NewMDT_Cabling";
-  }
-  */
-  //this should be new from Run2 so the switch can be removed 
+
   std::string cablingType="NewMDT_Cabling";
   StatusCode sc = tagInfoMgr->addTag("MDT_CablingType",cablingType); 
   

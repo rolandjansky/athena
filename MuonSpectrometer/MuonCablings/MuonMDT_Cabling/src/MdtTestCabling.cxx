@@ -94,7 +94,6 @@ bool MdtTestCabling::testMap()
   std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >* listOfAmt;
   std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >::const_iterator it_amt;
 
-  //listOfSubdet = cablingMap->getListOfElements();
   listOfSubdet = readCdo->getListOfElements();
 
   //  if (m_debug) {
