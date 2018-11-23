@@ -11,8 +11,8 @@ parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
 parser.add_option('-t', '--type', dest = 'type',
-                  action = 'store', type = 'string', default = 'MC',
-                  help = 'Job type. (MC, AFII, DATA)' )
+                  action = 'store', type = 'string', default = 'MCa',
+                  help = 'Job type. (MCa, MCd, MCe, AFII, DATA)' )
 parser.add_option('-d', '--daod', dest = 'daod',
                   action = 'store', type = 'int', default = '0',
                   help = 'input DAOD type. Do not specify for xAOD input' )
@@ -35,13 +35,21 @@ cvmfsInputArea = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/
 inputFile = ''
 
 if options.daod == 0:
-    if options.type == "AFII":
-        inputFile = os.getenv( 'ASG_TEST_FILE_MC_AFII' )
+    if options.type == "AFII": # Always mc16e for now
+        inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.AFII.46.mc16e.PHYSVAL.pool.root'
     elif options.type == "DATA":
-        inputFile = os.getenv( 'ASG_TEST_FILE_DATA' )
+        inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/data18_13TeV.00348403.physics_Main.merge.AOD.artDAOD.PHYSVAL.pool.root'
+    elif options.type == "MCa":
+        inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.FS.46.mc16a.PHYSVAL.pool.root'
+    elif options.type == "MCd":
+        inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.FS.46.mc16d.PHYSVAL.pool.root'
+    elif options.type == "MCe":
+        inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.artDAODmc16e.PHYSVAL.pool.root'
     else:
-        inputFile = os.getenv( 'ASG_TEST_FILE_MC' )
+        print ("Unknown option! Exiting")
+        exit(-1)
 else:
+    ### This uses inputs from ART AthDerivation outputs. For now, it is always mc16e
     inputFile = '%s/DAOD_%sSUSY%s.art.merge.root' % (cvmfsInputArea, options.type == "DATA" and "data18" or "mc16", options.daod)
     
 basePath = os.path.basename(inputFile)
@@ -64,37 +72,28 @@ config = AnaAlgorithmConfig( 'SUSYToolsAlg' )
 config.DoSyst = True
 config.DataSource = 1
 config.PRWLumiCalc = []
-config.PRWConfigs = []
+config.UsePRWAutoconfig = True
 
-
-# Running over DAOD_PHYSVAL
-if options.daod == 0:
+# Running over '18-like periods
+if options.type == "MCe" or options.type == "AFII" or options.type == "DATA" :
     config.PRWLumiCalc = [
-        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
-        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"
         ]
-
     if options.type == "AFII":
         config.DataSource = 2
-        config.PRWConfigs = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"]
     elif options.type == "DATA":
         config.DataSource = 0
-        config.PRWConfigs = [
-            "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
-            "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
-            ]
-    else:
-        config.PRWConfigs = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root"]
 
-# Running over SUSY DAOD (uses data18/mc16e inputs)
-else:
+elif options.type=="MCd":
     config.PRWLumiCalc = [
-        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20180924/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root"
         ]
-    if options.type == "DATA":
-        config.DataSource = 0
-    else:
-        config.UsePRWAutoconfig = True
+
+elif options.type=="MCa":
+    config.PRWLumiCalc = [
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"
+        ]
 
 job.algsAdd( config )
 # Run the job using the direct driver.
