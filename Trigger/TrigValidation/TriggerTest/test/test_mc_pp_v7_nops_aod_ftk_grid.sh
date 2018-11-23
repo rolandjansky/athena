@@ -20,9 +20,10 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest
 
 export NAME="mc_pp_v7_nops_aod_ftk_grid"
-export MENU="MC_pp_v7_no_prescale"
+export MENU="Physics_pp_v7_primaries"
 export INPUT="ftk"
 export JOBOPTIONS="TriggerTest/testCommonSliceAthenaTrigRDOtoAOD.py"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"

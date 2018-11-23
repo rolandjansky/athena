@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,10 +23,10 @@ Modified:
 #define TRIG_PHOTON_CONTAINER
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TrigParticle/TrigPhoton.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 //typedef DataVector<TrigPhoton> TrigPhotonContainer;
 class TrigPhotonContainer : public DataVector<TrigPhoton> { }; 

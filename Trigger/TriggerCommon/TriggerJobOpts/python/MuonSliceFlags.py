@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """ Muon slice specific flags  """
 
-from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties           import JobProperty, JobPropertyContainer, jobproperties
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 
@@ -53,7 +53,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(MuonSlice)
 
 # add add common slice flags
-TriggerFlags.MuonSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+#TriggerFlags.MuonSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.MuonSlice.add_JobProperty(flag)

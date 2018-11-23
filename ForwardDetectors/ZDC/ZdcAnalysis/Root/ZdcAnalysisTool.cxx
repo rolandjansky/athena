@@ -7,7 +7,6 @@
 #include "TEnv.h"
 #include "TSystem.h"
 #include "ZdcAnalysis/ZdcSincInterp.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "TFile.h"
 #include <sstream>
 #include <memory>
@@ -17,9 +16,11 @@
 namespace ZDC
 {
 
-  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), 
-							      m_writeAux(false), m_eventReady(false),
+  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name),
+							      m_writeAux(false),
 							      m_runNumber(0), m_lumiBlock(0),
+                                                              m_eventInfoKey("EventInfo"),
+                                                              m_ZdcModuleWriteKey("ZdcSums"),
     m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(0)
 {
 
@@ -28,6 +29,8 @@ namespace ZDC
 #endif
 
   declareProperty("ZdcModuleContainerName",m_zdcModuleContainerName="ZdcModules","Location of ZDC processed data");
+  declareProperty("EventInfoKey",          m_eventInfoKey,          "Location of the event info.");
+  declareProperty("ZdcModuleWriteKey",     m_ZdcModuleWriteKey,     "Output location of ZDC reprocessed data");
   declareProperty("Configuration", m_configuration = "PbPb2015");
   declareProperty("FlipEMDelay",m_flipEMDelay=false);
   declareProperty("LowGainOnly",m_lowGainOnly=false);
@@ -582,7 +585,10 @@ StatusCode ZdcAnalysisTool::initializeTool()
   ATH_MSG_INFO("DeltaTCut: "<<m_deltaTCut);
   ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
 
-  m_init = true;
+  ATH_CHECK( m_eventInfoKey.initialize());
+  ATH_CHECK( m_zdcModuleContainerName.initialize());
+  ATH_CHECK( m_ZdcModuleWriteKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -656,14 +662,8 @@ StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)
 
 StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) 
 {
-  if (!m_eventReady)
-    {
-      ATH_MSG_INFO("Event not ready for ZDC reco!");
-      return StatusCode::FAILURE;
-    }
-
-  const xAOD::EventInfo* eventInfo = 0;
-  ATH_CHECK(evtStore()->retrieve(eventInfo,"EventInfo"));
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  if (!eventInfo.isValid()) return StatusCode::FAILURE;
 
   // check for new run number, if new, possibly update configuration and/or calibrations
   //
@@ -839,9 +839,8 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       zdc_sum->auxdecor<unsigned int>("ModuleMask") = (getModuleMask()>>(4*iside)) & 0xF;
     }
 
-  ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums" + m_auxSuffix) ) ;
-  ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSums"  + m_auxSuffix +"Aux.") );
-
+  ATH_CHECK( SG::WriteHandle<xAOD::ZdcModuleContainer>(m_ZdcModuleWriteKey).record( std::move(newModuleContainer),
+                                                                                    std::move(newModuleAuxContainer)));
   return StatusCode::SUCCESS;
 }
 
@@ -919,20 +918,12 @@ void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
   fCalib->Close();
 }
 
-StatusCode ZdcAnalysisTool::reprocessZdc() 
+StatusCode ZdcAnalysisTool::reprocessZdc()
 {
-  if (!m_init)
-    {
-      ATH_MSG_INFO("Tool not initialized!");
-      return StatusCode::FAILURE;
-    }
-  m_eventReady = false;
-  //std::cout << "Trying to retrieve " << m_zdcModuleContainerName << std::endl;
-  m_zdcModules = 0;
-  ATH_CHECK(evtStore()->retrieve(m_zdcModules,m_zdcModuleContainerName));
-  m_eventReady = true;
+  SG::ReadHandle<xAOD::ZdcModuleContainer> zdc_modules(m_zdcModuleContainerName);
+  if (!zdc_modules.isValid()) return StatusCode::FAILURE;
 
-  ATH_CHECK(recoZdcModules(*m_zdcModules));
+  ATH_CHECK(recoZdcModules(*zdc_modules));
 
   return StatusCode::SUCCESS;
 }

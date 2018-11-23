@@ -91,6 +91,10 @@ namespace PFODetails
     eflowRec_radiusVectorCellOrdering,
     eflowRec_avgEdensityVectorCellOrdering,
     eflowRec_layerHED,
+    eflowRec_ENG_CALIB_TOT,
+    eflowRec_ENG_CALIB_FRAC_EM,
+    eflowRec_ENG_CALIB_FRAC_HAD,
+    eflowRec_ENG_CALIB_FRAC_REST,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 

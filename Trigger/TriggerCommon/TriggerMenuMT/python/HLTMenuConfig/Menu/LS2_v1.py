@@ -32,15 +32,19 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        ['mu20',      'L1_MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu8',	      'L1_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        #['mu20',      'L1_MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        #['mu8',	      'L1_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
      ]
     TriggerFlags.EgammaSlice.signatures = [
-        ['e20',	      'L1_EM10',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],        
+        ['e3_etcut1step', 'L1_EM3', [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['e3_etcut', 'L1_EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['e5_etcut', 'L1_EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        ['e7_etcut', 'L1_EM3',      [],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],
+        #['e20',	      'L1_EM10',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Electron'], -1],        
         ]
     TriggerFlags.CombinedSlice.signatures = [
-        ['e8_mu8',    'L1_EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        #['e8_mu8',    'L1_EM6_MU6',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ]
     TriggerFlags.JetSlice.signatures = [ ]
     TriggerFlags.BjetSlice.signatures = [] 

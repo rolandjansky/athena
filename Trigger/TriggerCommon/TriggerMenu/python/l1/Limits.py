@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 This temporarily holds CTP sizes
@@ -50,13 +50,13 @@ class Limits:
     @staticmethod
     def getCTPdataformat(version):
         module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
-        exec("CTPdataformat = module.CTPdataformat_v%i" % version)
+        CTPdataformat = getattr(module,'CTPdataformat_v%i' % version)
         return CTPdataformat
 
     @staticmethod
     def getL1Common(version):
         module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], -1)
-        exec("L1Common = module.L1Common_v%i" % version)
+        L1Common = getattr(module,'L1Common_v%i' % version)
         return L1Common
 
     @staticmethod

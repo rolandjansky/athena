@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """ Egamma slice specific flags  """
 
@@ -107,7 +107,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(EgammaSlice)
 
 # add common slice flags
-TriggerFlags.EgammaSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+#TriggerFlags.EgammaSlice.import_JobProperties('TriggerJobOpts.CommonSingatureFlags')
 
 for flag in _flags:
     TriggerFlags.EgammaSlice.add_JobProperty(flag)

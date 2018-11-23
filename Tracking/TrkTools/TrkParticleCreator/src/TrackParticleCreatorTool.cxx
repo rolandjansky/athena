@@ -49,7 +49,7 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -111,7 +111,6 @@ namespace Trk
     m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
     m_hitSummaryTool      ("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
     m_magFieldSvc         ("AtlasFieldSvc", n),
-    m_beamConditionsService("BeamCondSvc", n),
     m_IBLParameterSvc("IBLParameterSvc",n),
     m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTTrackOccupancy","TRTdEdx","TRTdEdxUsedHits"},
     m_copyEProbabilities{},
@@ -238,9 +237,6 @@ namespace Trk
       return StatusCode::FAILURE;
     }   
   
-    if ( m_beamConditionsService.retrieve().isFailure() ){
-      ATH_MSG_WARNING( "Failed to retrieve service " << m_beamConditionsService << " - Tilts will not be filled!" );
-    }
 
     StatusCode sc(StatusCode::SUCCESS);
     m_copyEProbabilities.clear();
@@ -296,7 +292,7 @@ namespace Trk
   }
   
   Rec::TrackParticle* TrackParticleCreatorTool::createParticle(const Trk::Track*    track,
-                                                               const Trk::VxCandidate*  vxCandidate,
+                                                               const Trk::VxCandidate*  vxCandidate, 
                                                                Trk::TrackParticleOrigin prtOrigin)
   {
     if (track == 0) return 0;
@@ -330,7 +326,7 @@ namespace Trk
     } 
 
     else if  (m_perigeeExpression == "BeamSpot"){ //Express parameters at beamspot 
-      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot( *track ); 
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot( *track, CacheBeamSpotData(Gaudi::Hive::currentContext()) ); 
       if(!result){ 
 	
         ATH_MSG_WARNING("Failed to extrapolate to first Beamspot"); 
@@ -364,7 +360,7 @@ namespace Trk
       }
     }
     else if (m_perigeeExpression == "BeamLine"){
-      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline( *track ); 
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline( *track, CacheBeamSpotData(Gaudi::Hive::currentContext()) ); 
       if(!result){ 
 	
         ATH_MSG_WARNING("Failed to extrapolate to Beamline"); 
@@ -510,7 +506,7 @@ namespace Trk
         }
       }
     }else if (m_perigeeExpression == "BeamSpot"){ //Express parameters at beamspot 
-      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot(track); 
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot(track, CacheBeamSpotData(Gaudi::Hive::currentContext())); 
       if(!result){ 
         ATH_MSG_WARNING("Failed to extrapolate to first Beamspot - No TrackParticle created."); 
 	return 0;         
@@ -534,7 +530,7 @@ namespace Trk
       }
     }
     else if (m_perigeeExpression == "BeamLine"){
-      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline(track); 
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline(track, CacheBeamSpotData(Gaudi::Hive::currentContext())); 
       if(!result){ 
 	ATH_MSG_WARNING("Failed to extrapolate to Beamline - No TrackParticle created."); 
 	return 0;        
@@ -878,9 +874,9 @@ namespace Trk
       setNumberOfUsedHits(*trackparticle,summary->numberOfUsedHitsdEdx());
       setNumberOfOverflowHits(*trackparticle,summary->numberOfOverflowHitsdEdx());
     }
-    
-    if (!m_beamConditionsService.empty()) {
-        setTilt(*trackparticle,m_beamConditionsService->beamTilt(0),m_beamConditionsService->beamTilt(1));
+    auto beamspot = CacheBeamSpotData(Gaudi::Hive::currentContext());
+    if (beamspot) {
+        setTilt(*trackparticle,beamspot->beamTilt(0),beamspot->beamTilt(1));
     }
     // Parameters
     if (perigee) {
@@ -1086,6 +1082,13 @@ void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const T
   tp.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
   tp.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
   }
+}
+
+const InDet::BeamSpotData* TrackParticleCreatorTool::CacheBeamSpotData(const EventContext &ctx) const {
+// if(ctx.evt() == m_lastEvent) return m_lastBeamSpot;
+ return m_trackToVertex->GetBeamSpotData(ctx);
+// m_lastEvent = ctx.evt();
+// return m_lastBeamSpot;
 }
 
 } // end of namespace Trk

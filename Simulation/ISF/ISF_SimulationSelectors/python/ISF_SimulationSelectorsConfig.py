@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """
 ISF_SimulationSelectors configurations for ISF
 Elmar Ritsch, 04/02/2013
@@ -8,7 +8,7 @@ from AthenaCommon import CfgMgr
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
-
+from ISF_SimulationSelectors import SimulationFlavor
 ### DefaultSimSelector configurations
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
@@ -16,15 +16,18 @@ def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
 
 def getDefaultParticleKillerSelector(name="ISF_DefaultParticleKillerSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return getDefaultSimSelector(name, **kwargs )
 
 def getPileupParticleKillerSelector(name="ISF_PileupParticleKillerSelector", **kwargs):
-    kwargs.setdefault("PileupBCID"   , [1] ) 
+    kwargs.setdefault("PileupBCID"   , [1] )
     kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
 
 def getDefaultGeant4Selector(name="ISF_DefaultGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultAFIIGeant4Selector(name="ISF_DefaultAFIIGeant4Selector", **kwargs):
@@ -37,42 +40,52 @@ def getDefaultLongLivedGeant4Selector(name="ISF_DefaultLongLivedGeant4Selector",
 
 def getFullGeant4Selector(name="ISF_FullGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FullGeant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getDefaultSimSelector(name, **kwargs )
 
 def getPassBackGeant4Selector(name="ISF_PassBackGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_PassBackGeant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultFastCaloSimSelector(name="ISF_DefaultFastCaloSimSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultLegacyAFIIFastCaloSimSelector(name="ISF_DefaultLegacyAFIIFastCaloSimSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_LegacyAFIIFastCaloSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultFastCaloSimV2Selector(name="ISF_DefaultFastCaloSimV2Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvcV2')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSimV2)
     return getDefaultSimSelector(name, **kwargs )
 
 def getFastHitConvAlgFastCaloSimSelector(name="ISF_FastHitConvAlgFastCaloSimSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastHitConvAlgFastCaloSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return getDefaultSimSelector(name, **kwargs )
 
 def getFastHitConvAlgLegacyAFIIFastCaloSimSelector(name="ISF_FastHitConvAlgLegacyAFIIFastCaloSimSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultFatrasSelector(name="ISF_DefaultFatrasSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FatrasSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultFatrasNewExtrapolationSelector(name="ISF_DefaultFatrasNewExtrapolationSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_FatrasNewExtrapolationSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultParametricSimulationSelector(name="ISF_DefaultParametricSimulationSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_ParametricSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Parametric)
     return getDefaultSimSelector(name, **kwargs )
 
 ### PileUpSimSelector Configurations
@@ -83,23 +96,27 @@ def getPileupSimSelector(name="ISF_PileupSimSelector", **kwargs):
 def getFatrasPileupSelector(name="ISF_FatrasPileupSelector", **kwargs):
     kwargs.setdefault("PileupBCID"   , [1] )
     kwargs.setdefault("Simulator"   , 'ISF_FatrasPileupSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FatrasPileup)
     return getPileupSimSelector(name, **kwargs )
 
 def getFatrasPileupSelector_noHits(name="ISF_FatrasPileupSelector_noHits", **kwargs):
     kwargs.setdefault("PileupBCID"   , [2] )
     kwargs.setdefault("Simulator"   , 'ISF_FatrasPileupSimSvc_noHits')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FatrasPileup)
     return getPileupSimSelector(name, **kwargs )
 
 def getFastCaloSimPileupSelector(name="ISF_FastCaloSimPileupSelector", **kwargs):
     from FastChainPileup.FastChain_jobProperties import FastChain_Flags
     kwargs.setdefault("PileupBCID"  , FastChain_Flags.FastChainBCID() )
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSimPileup)
     return getPileupSimSelector(name, **kwargs )
 
 def getFastCaloSimPileupOTSelector(name="ISF_FastCaloSimPileupOTSelector", **kwargs):
     from FastChainPileup.FastChain_jobProperties import FastChain_Flags
     kwargs.setdefault("PileupBCID"   , FastChain_Flags.FastChainBCID() )
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupOTSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSimPileup)
     return getPileupSimSelector(name, **kwargs )
 
 ### KinematicSimSelector Configurations
@@ -107,11 +124,13 @@ def getFastCaloSimPileupOTSelector(name="ISF_FastCaloSimPileupOTSelector", **kwa
 def getElectronGeant4Selector(name="ISF_ElectronGeant4Selector", **kwargs):
     kwargs.setdefault('ParticlePDG'     , 11)
     kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getNeutralGeant4Selector(name="ISF_NeutralGeant4Selector", **kwargs):
     kwargs.setdefault('Charge'      , 0)
     kwargs.setdefault('Simulator'   , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getMuonSelector(name="ISF_MuonSelector", **kwargs):
@@ -120,26 +139,31 @@ def getMuonSelector(name="ISF_MuonSelector", **kwargs):
 
 def getMuonGeant4Selector(name="ISF_MuonGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getMuonSelector(name, **kwargs)
 
 def getMuonAFIIGeant4Selector(name="ISF_MuonAFIIGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getMuonGeant4Selector(name, **kwargs)
 
 def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FatrasSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getMuonSelector(name, **kwargs)
 
 def getMuonFatrasPileupSelector(name="ISF_MuonFatrasPileupSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FatrasPileupSimSvc')
-    kwargs.setdefault("PileupBCID"      , [1])    
+    kwargs.setdefault("PileupBCID"      , [1])
     kwargs.setdefault('ParticlePDG'     , 13)
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getPileupSimSelector(name, **kwargs)
 
 def getWithinEta5FastCaloSimSelector(name="ISF_WithinEta5FastCaloSimSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FastCaloSimSvc')
     kwargs.setdefault('MinPosEta'       , -5.0 )
     kwargs.setdefault('MaxPosEta'       ,  5.0 )
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
 def getEtaGreater5ParticleKillerSimSelector(name="ISF_EtaGreater5ParticleKillerSimSelector", **kwargs):
@@ -147,13 +171,15 @@ def getEtaGreater5ParticleKillerSimSelector(name="ISF_EtaGreater5ParticleKillerS
     kwargs.setdefault('MinPosEta'       , -5.0 )
     kwargs.setdefault('MaxPosEta'       ,  5.0 )
     kwargs.setdefault('InvertCuts'      , True )
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-  
+
 def getEtaGreater5PileupParticleKillerSimSelector(name="ISF_EtaGreater5PileupParticleKillerSimSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_ParticleKillerSvc')
     kwargs.setdefault('MinPosEta'       , -5.0 )
     kwargs.setdefault('MaxPosEta'       ,  5.0 )
     kwargs.setdefault('InvertCuts'      , True )
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
 
 ### ConeSimSelector Configurations
@@ -167,10 +193,12 @@ def getPhotonConeSelector(name="ISF_PhotonConeSelector", **kwargs):
 
 def getPhotonConeFatrasSelector(name="ISF_PhotonConeFatrasSelector", **kwargs):
     kwargs.setdefault('Simulator', 'ISF_FatrasSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getPhotonConeSelector(name, **kwargs)
 
 def getPhotonConeGeant4Selector(name="ISF_PhotonConeGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator', 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getPhotonConeSelector(name, **kwargs)
 
 def getHiggsLeptonsConeSimSelector(name="ISF_HiggsLeptonsConeSimSelector", **kwargs):
@@ -186,6 +214,7 @@ def getHiggsLeptonsConeSimSelector(name="ISF_HiggsLeptonsConeSimSelector", **kwa
 
 def getHiggsLeptonsConeGeant4Selector(name="ISF_HiggsLeptonsConeGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getHiggsLeptonsConeSimSelector(name, **kwargs)
 
 def getElectronsMuonsConeSimSelector(name="ISF_ElectronsMuonsConeSimSelector", **kwargs):
@@ -199,6 +228,7 @@ def getHiggsLeptonsConeGeant4CaloSelector(name="ISF_HiggsLeptonsConeGeant4CaloSe
 
 def getWLeptonsConeGeant4Selector(name="ISF_WLeptonsConeGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'                   , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     kwargs.setdefault('ConeCreatorMinPt'            , 0.          )
     kwargs.setdefault('ConeSize'                    , 0.4         )
     kwargs.setdefault('CheckConeCreatorAncestors'   , True        )
@@ -212,6 +242,7 @@ def getZLeptonsDirectionConeGeant4Selector(name="ISF_ZLeptonsDirectionConeGeant4
     # this selector picks all particles with a mometum direction
     # within DeltaR<ConeSize relative to the Z decay leopton directions
     kwargs.setdefault('Simulator'                   , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     kwargs.setdefault('ConeCreatorMinPt'            , 0.          )
     kwargs.setdefault('ConeSize'                    , 0.4         )
     kwargs.setdefault('CheckConeCreatorAncestors'   , True        )
@@ -229,6 +260,7 @@ def getZLeptonsPositionConeGeant4Selector(name="ISF_ZLeptonsPositionConeGeant4Se
 
 def getJPsiLeptonsConeGeant4Selector(name="ISF_JPsiLeptonsConeGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'                   , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     kwargs.setdefault('ConeCreatorMinPt'            , 0.          )
     kwargs.setdefault('ConeSize'                    , 0.4         )
     kwargs.setdefault('CheckConeCreatorAncestors'   , True        )
@@ -251,10 +283,12 @@ def getBHadronProductsSimSelector(name="ISF_BHadronProductsSimSelector", **kwarg
 
 def getBHadronProductsGeant4Selector(name="ISF_BHadronProductsGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getBHadronProductsSimSelector(name, **kwargs)
 
 def getBHadronProductsFatrasSelector(name="ISF_BHadronProductsFatrasSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FatrasSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getBHadronProductsSimSelector(name, **kwargs)
 
 def getTauProductsSimSelector(name="ISF_TauProductsSimSelector", **kwargs):
@@ -266,6 +300,7 @@ def getTauProductsSimSelector(name="ISF_TauProductsSimSelector", **kwargs):
 
 def getTauProductsGeant4Selector(name="ISF_TauProductsGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getTauProductsSimSelector(name, **kwargs)
 
 def getZProductsSimSelector(name="ISF_ZProductsSimSelector", **kwargs):
@@ -277,6 +312,7 @@ def getZProductsSimSelector(name="ISF_ZProductsSimSelector", **kwargs):
 
 def getZProductsGeant4Selector(name="ISF_ZProductsGeant4Selector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getZProductsSimSelector(name, **kwargs)
 
 ### HistorySimSelector Configurations
@@ -285,10 +321,12 @@ def getSubDetStickyGeant4SimSelector(name="ISF_SubDetStickyGeant4SimSelector", *
     kwargs.setdefault('PrevSimSvc'             , 'ISF_Geant4SimSvc')
     kwargs.setdefault('RequiresUnchangedGeoID' , True                           )
     kwargs.setdefault('Simulator'              , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return CfgMgr.ISF__HistorySimSelector(name, **kwargs)
 
 def getGlobalStickyGeant4SimSelector(name="ISF_GlobalStickyGeant4SimSelector", **kwargs):
     kwargs.setdefault('PrevSimSvc'             , 'ISF_Geant4SimSvc')
     kwargs.setdefault('RequiresUnchangedGeoID' , False                          )
     kwargs.setdefault('Simulator'              , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return CfgMgr.ISF__HistorySimSelector(name, **kwargs)

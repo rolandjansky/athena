@@ -77,7 +77,12 @@ pmon_properties.PerfMonFlags.doMonitoring=True
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
 
-
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
 
 #####################Back to Skeleton.EVGENtoHIT.py######################

@@ -50,7 +50,7 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class AtlasDetectorID;
@@ -59,7 +59,6 @@ class ITruthParameters;
 class TruthSelector; 
 class PixelID; 
 class SCT_ID;
-class IBeamCondSvc;
 class EventID;
 
 namespace InDetDD {
@@ -148,7 +147,7 @@ private:
   //#endif
   // ToolHandle<Trk::ITrackHoleSearchTool>     m_holeSearchTool;
 
-  ServiceHandle<IBeamCondSvc>               m_beamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

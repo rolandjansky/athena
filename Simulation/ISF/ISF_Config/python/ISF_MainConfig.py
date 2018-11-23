@@ -200,9 +200,35 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
     topSequence += SimKernel
     return SimKernel
 
+############## Simulator: GenericSimulatorMT ###############
+def getKernel_GenericSimulatorMT(name="ISF_Kernel_GenericSimulatorMT", **kwargs):
+    kwargs.setdefault("InputEvgenCollection", "BeamTruthEvent" )
+    kwargs.setdefault("OutputTruthCollection", "TruthEvent" )
+    kwargs.setdefault("ParticleKillerTool", "ISF_ParticleKillerTool" )
+    kwargs.setdefault("GeoIDSvc", "ISF_GeoIDSvc" )
+    kwargs.setdefault("InputConverter", "ISF_InputConverter")
+    kwargs.setdefault("OutputLevel", 1)
+    #from G4AtlasApps.SimFlags import simFlags
+    #kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
+    #kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
+    #kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
+    #kwargs.setdefault("DoMemoryMonitoring", ISF_Flags.DoMemoryMonitoring())
+
+    from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernelMT
+    SimKernelMT = ISF__SimKernelMT(name, **kwargs)
+    ##FIXME shouldn't really be doing this here
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence += SimKernelMT
+    return SimKernelMT
+
 ############## Simulator: GenericSimulatorNoG4 ###############
 def getKernel_GenericSimulatorNoG4(name="ISF_Kernel_GenericSimulatorNoG4", **kwargs):
     return getKernel_GenericSimulator(name, **kwargs)
+
+############## Simulator: GenericSimulatorNoG4MT ###############
+def getKernel_GenericSimulatorNoG4MT(name="ISF_Kernel_GenericSimulatorNoG4MT", **kwargs):
+    return getKernel_GenericSimulatorMT(name, **kwargs)
 
 ############## Simulator: MultiSimTest ###############
 def getKernel_MultiSimTest(name="ISF_Kernel_MultiSimTest", **kwargs):
@@ -229,9 +255,24 @@ def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
     return getKernel_GenericSimulator(name, **kwargs)
 
+############## Simulator: GenericG4OnlyMT ###############
+def getKernel_GenericG4OnlyMT(name="ISF_Kernel_GenericG4OnlyMT", **kwargs):
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_FullGeant4Selector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_FullGeant4Selector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_FullGeant4Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_FullGeant4Selector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericSimulatorMT(name, **kwargs)
+
 ############## Simulator: FullG4 ###############
 def getKernel_FullG4(name="ISF_Kernel_FullG4", **kwargs):
     return getKernel_GenericG4Only(name, **kwargs)
+
+############## Simulator: FullG4MT ###############
+def getKernel_FullG4MT(name="ISF_Kernel_FullG4MT", **kwargs):
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
+                                          "ISF_FullGeant4Tool"])
+    return getKernel_GenericG4OnlyMT(name, **kwargs)
 
 ############## Simulator: FullG4_longLived ###############
 def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
@@ -242,6 +283,13 @@ def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector'  ] )
     kwargs.setdefault("InputConverter"              ,   'ISF_LongLivedInputConverter'          )
     return getKernel_GenericG4Only(name, **kwargs)
+
+############## Simulator: FullG4MT_longLived ###############
+def getKernel_FullG4MT_LongLived(name="ISF_Kernel_FullG4MT_LongLived", **kwargs):
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
+                                          "ISF_LongLivedGeant4Tool"])
+    kwargs.setdefault("InputConverter", 'ISF_LongLivedInputConverter')
+    return getKernel_GenericG4OnlyMT(name, **kwargs)
 
 ############## Simulator: FullG4_IDOnly ###############
 def getKernel_FullG4_IDOnly(name="ISF_Kernel_FullG4_IDOnly", **kwargs):
@@ -262,6 +310,12 @@ def getKernel_PassBackG4(name="ISF_Kernel_PassBackG4", **kwargs):
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_PassBackGeant4Selector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_PassBackGeant4Selector' ] )
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericSimulator(name, **kwargs)
+
+############## Simulator: PassBackG4MT ###############
+def getKernel_PassBackG4MT(name="ISF_Kernel_PassBackG4MT", **kwargs):
+    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
+                                          "ISF_PassBackGeant4Tool"])
     return getKernel_GenericSimulator(name, **kwargs)
 
 ############## Simulator: CosmicsG4 ###############
@@ -326,6 +380,16 @@ def getKernel_ATLFASTII(name="ISF_Kernel_ATLFASTII", **kwargs):
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     return getKernel_GenericSimulator(name, **kwargs)
 
+############## Simulator: ATLFASTIIMT ###############
+def getKernel_ATLFASTIIMT(name="ISF_Kernel_ATLFASTIIMT", **kwargs):
+    kwargs.setdefault("SimulationTools", ["ISF_FastParticleKillerTool",
+                                          "ISF_LegacyAFIIFastCaloTool",
+                                          "ISF_AFIIGeant4Tool"])
+    # set the simFlags accordingly (TODO: is this even needed?)
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTII"
+    return getKernel_GenericSimulatorMT(name, **kwargs)
+
 ############## Simulator: ATLFASTIIF ###############
 def getKernel_ATLFASTIIF(name="ISF_Kernel_ATLFASTIIF", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ]       )
@@ -339,6 +403,16 @@ def getKernel_ATLFASTIIF(name="ISF_Kernel_ATLFASTIIF", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF"
     return getKernel_GenericSimulatorNoG4(name, **kwargs)
+
+############## Simulator: ATLFASTIIFMT ###############
+def getKernel_ATLFASTIIFMT(name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
+    kwargs.setdefault("SimulationTools", ["ISF_FastParticleKillerTool",
+                                          "ISF_FastCaloTool",
+                                          "ISF_FatrasTool"])
+    # set the simFlags accordingly (TODO: is this even needed?)
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTIIF"
+    return getKernel_GenericSimulatorNoG4MT(name, **kwargs)
 
 ############## Simulator: Fatras_newExtrapolation ###############
 def getKernel_Fatras_newExtrapolation(name="ISF_Kernel_Fatras_newExtrapolation", **kwargs):

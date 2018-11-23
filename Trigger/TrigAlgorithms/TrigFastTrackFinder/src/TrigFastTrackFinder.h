@@ -24,7 +24,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
@@ -56,8 +56,6 @@ class IFTK_DataProviderSvc;
 class TrigL2LayerSetLUT;
 class TrigSpacePointStorage;
 class TrigInDetTriplet;
-class IBeamCondSvc;
-//class EventID;
 class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
@@ -154,8 +152,8 @@ protected:
  
   // Reconstructed tracks 
 
-  IBeamCondSvc* m_iBeamCondSvc;
-  
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
   // Data members for monitoring
 
   int m_nTracks;

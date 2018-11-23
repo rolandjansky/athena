@@ -134,7 +134,6 @@ def addChainToHypoAlg(hypoAlg, chain):
 
 def makeHLTTree(HLTChains):
     """ creates the full HLT tree"""
-   
     #    TopHLTRootSeq = seqAND("TopHLTRoot") # Root
     # main HLT top sequence
     hltTop = seqOR("hltTop")
@@ -194,28 +193,32 @@ def decisionTree_From_Chains(HLTNode, chains):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, RoRSequenceFilterNode, ComboMaker
     HLTNodeName= HLTNode.name()
 
+    # find nsteps
     chainWithMaxSteps = max(chains, key=lambda chain: len(chain.steps))
     NSTEPS = len(chainWithMaxSteps.steps)
 
     #loop over chains to configure hypotools
     # must be done after all chains are created, to avoid conflicts 
+    log.debug("Loop over chains to decode hypo tools")
     for chain in chains:
         chain.decodeHypoToolConfs()
 
     finalDecisions = [] # needed for monitor
     allSeq_list = []
+
     for nstep in range(0, NSTEPS):
         finalDecisions.append([]) # list of final deciisons per step
         stepCF_name =  "Step%i"%(nstep+1)
         CFseq_list = []
         step_decisions = []
+
         for chain in chains:
             # skip this step if missing
             if len(chain.steps) <= nstep:               
                 continue
 
             chain_step=chain.steps[nstep]
-            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)            
+            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)      
             
             # one filter per ChainStep - same name indeed
             # one filter input per previous menusequence output (the L1Seed for first step)
@@ -235,14 +238,10 @@ def decisionTree_From_Chains(HLTNode, chains):
                 previous_seeds=[]
                 for seq in prev:
                     filter_input.extend(seq.outputs)
-                    previous_seeds.append( seq.seed )
-
+                    previous_seeds.append(seq.seed)
                 log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
                 if len(filter_input) != len(previous_seeds):
                     log.error("found %d filter inputs and %d seeds", len(filter_input), len(previous_seeds))
-                    sys.exit("ERROR, in size")
-                    
-
             # get the filter:
             filter_name = "Filter_%s" % chain_step.name
 
@@ -253,17 +252,20 @@ def decisionTree_From_Chains(HLTNode, chains):
                 CFseq_list.append(CF_seq)
                 for sequence in chain_step.sequences:                
                     step_decisions.extend(sequence.outputs)
+            else:
+                log.debug("foundFilter %s", filter_name)
 
             sfilter.setChains(chain.name)
             log.debug("Adding chain %s to %s", chain.name,sfilter.Alg.name())
             log.debug(sfilter.getChains())
-            
+
             if len(chain.steps) == nstep+1:  
                 log.debug("Adding finalDecisions for chain %s at step %d:"%(chain.name, nstep+1))
                 for seq in chain_step.sequences:
                     finalDecisions[nstep].extend(seq.outputs)
                     log.debug(seq.outputs)
-            
+            else:
+                log.debug("len(chain.steps) != nstep+1")
             #end of loop over menu sequences
                 
         #end of loop over chains for this step, now implement CF:

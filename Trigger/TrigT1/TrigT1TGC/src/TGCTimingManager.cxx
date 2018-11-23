@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //$Id: TGCTimingManager.cxx,v 1.4 2009-05-13 02:53:51 isaya Exp $

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1MUCTPI_L1MUCTPITOOL_H
@@ -33,7 +33,7 @@ namespace LVL1MUCTPI {
 
       virtual StatusCode initialize() override;
 
-      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& ) const override; 
+      virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo&, int bcidOffset=0) const override;
 
       virtual void handle(const Incident&) override;
 

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// ParticleKillerSimSvc.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_PARTICLEKILLERSIMSVC_H
 #define ISF_PARTICLEKILLERSIMSVC_H 1
@@ -14,41 +10,38 @@
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
+#include "ISF_Interfaces/ISimulatorTool.h"
+#include "ISF_Event/ISFParticleContainer.h"
 
 namespace ISF {
 
   /** @class ParticleKillerSimSvc
-      
+
       This ISF SimulationService does literally nothing with the particles
       handed over in the simulate(...) call. Thus those particles will be
       removed from further simulation in ISF.
-  
+
       @author Elmar.Ritsch -at- cern.ch
-     */
-  class ParticleKillerSimSvc : public ISF::BaseSimulationSvc { 
+  */
+  class ParticleKillerSimSvc : public ISF::BaseSimulationSvc {
 
-    public: 
-      //** Constructor with parameters */
-      ParticleKillerSimSvc( const std::string& name, ISvcLocator* pSvcLocator );
-      
-      /** Destructor */
-      virtual ~ParticleKillerSimSvc(); 
-      
-      /** Athena algorithm's interface methods */
-      StatusCode  initialize();
-      StatusCode  finalize();
+  public:
+    //** Constructor with parameters */
+    ParticleKillerSimSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-      /** Simulation Call  */
-      StatusCode simulate(const ISF::ISFParticle& isp);
-                                                                 
-      /** Setup Event chain - in case of a begin-of event action is needed */
-      StatusCode setupEvent();
+    /** Destructor */
+    virtual ~ParticleKillerSimSvc();
 
-      /** Release Event chain - in case of an end-of event action is needed */
-      StatusCode releaseEvent();
+    /** Athena algorithm's interface methods */
+    virtual StatusCode  initialize() override;
 
-    private:     
-  }; 
+    /** Simulation Call  */
+    virtual StatusCode simulate(const ISF::ISFParticle& isp) override;
+
+  private:
+    PublicToolHandle<ISF::ISimulatorTool> m_simulatorTool{this, "SimulatorTool", "ISF__ParticleKillerSimTool", ""};
+
+  };
 }
 
 
