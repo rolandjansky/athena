@@ -6,13 +6,10 @@
 #include "CLHEP/Random/RandPoisson.h"
 
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h"
-#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 
-#include "TFile.h"
 #include "TMath.h"
-#include "TH2.h"
 
 
 //=============================================
@@ -77,19 +74,3 @@ FCSReturnCode TFCSHistoLateralShapeParametrizationFCal::simulate_hit(Hit &hit, T
   return FCSSuccess;
 }
 
-void TFCSHistoLateralShapeParametrizationFCal::Print(Option_t *option) const
-{
-  TString opt(option);
-  bool shortprint=opt.Index("short")>=0;
-  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
-  TString optprint=opt;optprint.ReplaceAll("short","");
-  TFCSLateralShapeParametrizationHitBase::Print(option);
-
-  if(longprint) {
-    if(is_phi_symmetric()) {
-      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" (phi symmetric)");
-    } else {
-      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" (not phi symmetric)");
-    }
-  }  
-}

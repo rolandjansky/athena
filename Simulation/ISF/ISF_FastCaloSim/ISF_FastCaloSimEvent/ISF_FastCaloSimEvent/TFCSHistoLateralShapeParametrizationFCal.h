@@ -17,7 +17,6 @@ public:
 
   virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
   
-  void Print(Option_t *option = "") const override;
 private:
  
   ClassDefOverride(TFCSHistoLateralShapeParametrizationFCal,1)  //TFCSHistoLateralShapeParametrizationFCal
