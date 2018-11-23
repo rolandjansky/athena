@@ -11,7 +11,7 @@
   * @author Samuel Calvet <scalvet@cern.ch>
   * 
   * @brief CalcTtbarGammaPartonHistory
-  *   Class derived from CalcTopPartonHistory, used to store ttbar variables
+  *   Class derived from CalcTopPartonHistory, used to store ttbargamma variables
   * 
   * $Revision: 658996 $
   * $Date: 2015-04-04 16:57:15 +0100 (Sat, 04 Apr 2015) $
@@ -36,7 +36,7 @@ namespace top{
       explicit CalcTtbarGammaPartonHistory( const std::string& name );
       virtual ~CalcTtbarGammaPartonHistory() {}
       
-      //Storing parton history for ttbar resonance analysis      
+      //Storing parton history for ttbargamma analysis      
       CalcTtbarGammaPartonHistory(const CalcTtbarGammaPartonHistory& rhs) = delete;
       CalcTtbarGammaPartonHistory(CalcTtbarGammaPartonHistory&& rhs) = delete;
       CalcTtbarGammaPartonHistory& operator=(const CalcTtbarGammaPartonHistory& rhs) = delete; 

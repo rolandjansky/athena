@@ -12,7 +12,6 @@ namespace top{
   void CalcTtbarGammaPartonHistory::ttbarGammaHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* ttbarGammaPartonHistory){
 
      ttbarGammaPartonHistory->IniVarTtGamma();
-//std::cout<<"Event:"<<std::endl;
      TLorentzVector ph_t; bool has_ph_t; 
      int branchtype_t=-1;  int branchtype_tbar=-1;
      /// Definition of top-branch type: also applicable for branchtype_tbar
@@ -43,7 +42,6 @@ namespace top{
      int WpDecay1_pdgId;
      int WpDecay2_pdgId; 
      bool missTop; bool missTbar;
-//std::cout<<"Top:"<<std::endl;
      bool event_top = CalcTopPartonHistory::topPhWb(truthParticles, 6, t_before, t_after, ph_t, Wp, b, WpDecay1, WpDecay1_pdgId, WpDecay2, WpDecay2_pdgId, has_ph_t, branchtype_t, init_type, missTbar);
 
      TLorentzVector ph_tbar; bool has_ph_tbar;
@@ -54,7 +52,6 @@ namespace top{
      TLorentzVector WmDecay2;
      int WmDecay1_pdgId;
      int WmDecay2_pdgId;
-//std::cout<<"Tbar:"<<std::endl;
      bool event_topbar = CalcTopPartonHistory::topPhWb(truthParticles, -6, tbar_before, tbar_after, ph_tbar, Wm, bbar, WmDecay1, WmDecay1_pdgId, WmDecay2, WmDecay2_pdgId, has_ph_tbar, branchtype_tbar, init_type, missTop);
 
      if(event_top && missTbar && has_ph_t && branchtype_t!=10 && branchtype_t!=50 && branchtype_t!=15 && branchtype_t!=55){
@@ -238,7 +235,6 @@ namespace top{
 	fillEtaBranch(ttbarGammaPartonHistory, "MC_ttbar_afterFSR_eta", temp);
      }
 
-//std::cout<<"\n"<<std::endl;
 //------------------------------------------------------------------------------------------
      if(event_top){
      	ttbarGammaPartonHistory->auxdecor< float >( "MC_t_beforeFSR_m" ) = t_before.M();
@@ -319,22 +315,22 @@ namespace top{
      ATH_CHECK( evtStore()->retrieve( truthParticles , m_config->sgKeyMCParticle() ) );
 
      // Create the partonHistory xAOD object
-     xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer{};    
-     xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer{};
-     partonCont->setStore( partonAuxCont );
+     std::unique_ptr<xAOD::PartonHistoryAuxContainer> partonAuxCont( new xAOD::PartonHistoryAuxContainer());
+     std::unique_ptr<xAOD::PartonHistoryContainer> partonCont( new xAOD::PartonHistoryContainer());
+     partonCont->setStore( partonAuxCont.release() );
   
      xAOD::PartonHistory* ttbarGammaPartonHistory = new xAOD::PartonHistory{};
      partonCont->push_back( ttbarGammaPartonHistory );
      
-     // Recover the parton history for ttbar events     
+     // Recover the parton history for ttbargamma events     
      ttbarGammaHistorySaver(truthParticles, ttbarGammaPartonHistory);     
           
      // Save to StoreGate / TStore
      std::string outputSGKey = m_config->sgKeyTopPartonHistory();
      std::string outputSGKeyAux = outputSGKey + "Aux.";
       
-     xAOD::TReturnCode save = evtStore()->tds()->record( partonCont , outputSGKey );
-     xAOD::TReturnCode saveAux = evtStore()->tds()->record( partonAuxCont , outputSGKeyAux );
+     xAOD::TReturnCode save = evtStore()->tds()->record( partonCont.release() , outputSGKey );
+     xAOD::TReturnCode saveAux = evtStore()->tds()->record( partonAuxCont.release() , outputSGKeyAux );
      if( !save || !saveAux ){
        return StatusCode::FAILURE;
      }      
