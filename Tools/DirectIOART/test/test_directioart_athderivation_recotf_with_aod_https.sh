@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: DirectIOART AthDerivation inputFile:RDO protocol=HTTPS reductionConf:TEST1
+# art-description: DirectIOART AthDerivation Reco_tf.py inputFile:RDO protocol=HTTPS reductionConf:TEST1
 # art-type: grid
 # art-output: *.pool.root
 # art-include: 21.2/AthDerivation

@@ -114,14 +114,37 @@ if globalflags.DataSource()=='geant4':
 #==============================================================================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+# these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
-    HIGG8D1tthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusHeavyFlavorFilterTool")
-    ToolSvc += HIGG8D1tthffiltertool
+
+    HIGG8D1ttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusBFilterTool")
+    HIGG8D1ttbarBfiltertool.SelectB = True
+    HIGG8D1ttbarBfiltertool.BpTMinCut = 5000
+    HIGG8D1ttbarBfiltertool.BMultiplicityCut = 1 # >=
+    ToolSvc += HIGG8D1ttbarBfiltertool
+
+    HIGG8D1ttbarBBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusBBFilterTool")
+    HIGG8D1ttbarBBfiltertool.SelectB = True
+    HIGG8D1ttbarBBfiltertool.BpTMinCut = 15000
+    HIGG8D1ttbarBBfiltertool.BMultiplicityCut = 2 # >=
+    ToolSvc += HIGG8D1ttbarBBfiltertool
+
+    HIGG8D1ttbarCfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusCFilterTool")
+    HIGG8D1ttbarCfiltertool.SelectC = True
+    HIGG8D1ttbarCfiltertool.CpTMinCut = 15000
+    HIGG8D1ttbarCfiltertool.CMultiplicityCut = 1 # >=
+    # these two are the default values
+    # B-hadrons have precedence; if one B is found, it won't pass the CFilter
+    HIGG8D1ttbarCfiltertool.BpTMinCut = 5000
+    HIGG8D1ttbarCfiltertool.BMultiplicityCut = 1 # >=
+    ToolSvc += HIGG8D1ttbarCfiltertool
    
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
     HIGG8D1TopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "HIGG8D1TopHFFilterAugmentation")
-    HIGG8D1TopHFFilterAugmentation.FilterTool = HIGG8D1tthffiltertool
+    HIGG8D1TopHFFilterAugmentation.BFilterTool = HIGG8D1ttbarBfiltertool
+    HIGG8D1TopHFFilterAugmentation.BBFilterTool = HIGG8D1ttbarBBfiltertool
+    HIGG8D1TopHFFilterAugmentation.CFilterTool = HIGG8D1ttbarCfiltertool
     ToolSvc += HIGG8D1TopHFFilterAugmentation
     augmentationTools.append(HIGG8D1TopHFFilterAugmentation)
     print "HIGG8D1TopHFFilterAugmentationTool: ", HIGG8D1TopHFFilterAugmentation

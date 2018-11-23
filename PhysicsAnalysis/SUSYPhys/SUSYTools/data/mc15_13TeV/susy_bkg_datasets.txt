@@ -193,6 +193,8 @@ mc15_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.evgen.EVNT.e6
 mc15_13TeV.410645.PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop.evgen.EVNT.e6527
 mc15_13TeV.410646.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top.evgen.EVNT.e6552
 mc15_13TeV.410647.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop.evgen.EVNT.e6552
+mc15_13TeV.410648.PowhegPythia8EvtGen_A14_Wt_DR_dilepton_top.evgen.EVNT.e6615
+mc15_13TeV.410649.PowhegPythia8EvtGen_A14_Wt_DR_dilepton_antitop.evgen.EVNT.e6615
 mc15_13TeV.410658.PhPy8EG_A14_tchan_BW50_lept_top.evgen.EVNT.e6671
 mc15_13TeV.410659.PhPy8EG_A14_tchan_BW50_lept_antitop.evgen.EVNT.e6671
 
@@ -2708,6 +2710,23 @@ mc15_13TeV.426141.Sherpa_CT10_jets_JZ11.evgen.EVNT.e4635
 mc15_13TeV.426142.Sherpa_CT10_jets_JZ12.evgen.EVNT.e4635
 
 ################################################################################################################
+# Herwig7 dijet
+
+mc15_13TeV.364443.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ0.evgen.EVNT.e5989
+mc15_13TeV.364444.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ1.evgen.EVNT.e5989
+mc15_13TeV.364445.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ2.evgen.EVNT.e5989
+mc15_13TeV.364446.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ3.evgen.EVNT.e5989
+mc15_13TeV.364447.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ4.evgen.EVNT.e5989
+mc15_13TeV.364448.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ5.evgen.EVNT.e5989
+mc15_13TeV.364449.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ6.evgen.EVNT.e5989
+mc15_13TeV.364450.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ7.evgen.EVNT.e5989
+mc15_13TeV.364451.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ8.evgen.EVNT.e5989
+mc15_13TeV.364452.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ9.evgen.EVNT.e5989
+mc15_13TeV.364453.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ10.evgen.EVNT.e5989
+mc15_13TeV.364454.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ11.evgen.EVNT.e5989
+mc15_13TeV.364479.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ12.evgen.EVNT.e6065
+
+################################################################################################################
 # Higgs
 
 mc15_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.evgen.EVNT.e6281
@@ -2837,6 +2856,9 @@ mc15_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.evgen.EVNT.e59
 mc15_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.evgen.EVNT.e5769
 mc15_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.evgen.EVNT.e5684
 mc15_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.evgen.EVNT.e5739
+mc15_13TeV.345672.PowhegPythia8EvtGen_A14NNPDF23_NNPDF30ME_ttH125_allhad.evgen.EVNT.e6327
+mc15_13TeV.345673.PowhegPythia8EvtGen_A14NNPDF23_NNPDF30ME_ttH125_semilep.evgen.EVNT.e6327
+mc15_13TeV.345674.PowhegPythia8EvtGen_A14NNPDF23_NNPDF30ME_ttH125_dilep.evgen.EVNT.e6327
 mc15_13TeV.345863.PowhegPythia8EvtGen_A14NNPDF23_NNPDF30ME_ttH125_gamgam.evgen.EVNT.e6503
 mc15_13TeV.345931.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.evgen.EVNT.e6597
 

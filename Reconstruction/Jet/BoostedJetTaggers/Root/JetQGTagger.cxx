@@ -58,8 +58,8 @@ namespace CP {
     declareProperty( "ExpWeightFile", m_expfile = "qgsyst_exp.root");
     declareProperty( "MEWeightFile",  m_mefile  = "qgsyst_me.root");
     declareProperty( "PDFWeightFile", m_pdffile = "qgsyst_pdf.root");
-    declareProperty( "MinPt", m_jetPtMin = 50e3);
-    declareProperty( "MaxEta", m_jetEtaMax = 2.1);
+    declareProperty( "MinPt", m_jetPtMin = 30e3);
+    declareProperty( "MaxEta", m_jetEtaMax = 2.5);
     declareProperty( "WeightDecorationName", m_weight_decoration_name = "qgTaggerWeight");
     declareProperty( "TaggerDecorationName", m_tagger_decoration_name = "qgTagger");
 

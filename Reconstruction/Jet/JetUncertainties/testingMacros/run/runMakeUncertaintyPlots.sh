@@ -897,13 +897,14 @@ function PreMoriond2017_forMJB \
 function Moriond2017 \
 {
 
-    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
+    jetDefinition="AntiKt4EMTopo"
     MCtype="MC15"
     configFile="JES_2016/Moriond2017/JES2016_AllNuisanceParameters.config"
     outFile="JetUncertainties-Moriond2017-Nominal.pdf"
     compList="LAr#,Zjet#,Gjet#,MJB#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
     compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
     options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_"
+    #options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";fixedEtaVals=0;fixedPtVals=NONE"
 }
 
 function Moriond2017_Public \
@@ -2898,6 +2899,18 @@ function Moriond2018 \
     options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_"
 }
 
+function Moriond2018_EMvsPF \
+{
+
+    jetDefinition="AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Moriond2018-Nominal-Compare.pdf"
+    compList="LAr#,Zjet#,Gjet#,MJB#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;doCompare=rel21/Moriond2018/R4_AllNuisanceParameters.config&MC16&Total uncertainty, EMTopo&AntiKt4EMTopo;totalUncName=\"Total uncertainty, EMPFlow\""
+}
+
 function testRel21AFII \
 {
     jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
@@ -2957,7 +2970,7 @@ function Rel21_EffNP2 \
 
 function testDefaultNjets \
 {
-    njet=11
+    njet=0
 
     jetDefinition="AntiKt4EMTopo"
     MCtype="MC16"
@@ -2966,12 +2979,12 @@ function testDefaultNjets \
     outFile="JetUncertainties-Njets-${njet}.pdf"
     compList="Flavor_Response;Flavor_Composition"
     compLabels="Flavor_Response;Flavor_Composition"
-    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;NjetFlavour=${njet};Composition=//eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/ANALYSISTO-370.root"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;NjetFlavour=${njet};Composition=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/ANALYSISTO-370.root"
 }
 
 function testPerJetFlavour \
 {
-    label=50
+    label=21
 
     jetDefinition="AntiKt4EMTopo"
     MCtype="MC16"
@@ -2983,6 +2996,152 @@ function testPerJetFlavour \
     options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;TruthLabel=${label};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/"
 }
 
+function CompareFlavourBinning \
+{
+    label=21
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-04"
+    #configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_OneBin.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_CoarseBinning.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_FineBinning.config"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_OneBin.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_CoarseBinning.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_FineBinning.config"
+    outFile="JetUncertainties-TruthLabel-CompareBinning-${label}.pdf"
+    compList="FlavorResponse_PerJet#;Flavor_Composition@FlavorResponse_PerJet#;Flavor_Composition@FlavorResponse_PerJet#;Flavor_Composition"
+    compLabels="Response ${label} OneBin;Composition OneBin@Response ${label} CoarseBin;Composition CoarseBin@Response ${label} FineBin;Composition FineBin"
+    options="prefix=JET_;fixedEtaVals=0,1,2.5;fixedPtVals=20,40,60,80,100;TruthLabel=${label};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/;drawTotal=False"
+}
+
+function CompareFlavourBinningComp \
+{
+    label=1
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-04"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_OneBin.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_CoarseBinning.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_FineBinning.config"
+    #configFile="rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_OneBin.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_CoarseBinning.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_FineBinning.config"
+    outFile="JetUncertainties-TruthLabel-CompareBinning-Composition-${label}.pdf"
+    compList="Flavor_Composition@Flavor_Composition@Flavor_Composition@Flavor_Composition"
+    compLabels="Current (50% gluon fraction uncertainty)@Composition OneBin@Composition CoarseBin@Composition FineBin"
+    options="prefix=JET_;fixedEtaVals=0,1,2.5,4.5;fixedPtVals=20,40,60,80,100;TruthLabel=${label};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/;drawTotal=False"
+}
+
+function CompareFlavourBinningResp \
+{
+    label=11
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-04"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_OneBin.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_CoarseBinning.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_FineBinning.config"
+    #configFile="rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_OneBin.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_CoarseBinning.config;rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour_FineBinning.config"
+    outFile="JetUncertainties-TruthLabel-CompareBinning-Response-${label}.pdf"
+    compList="Flavor_Response@FlavorResponse_PerJet#@FlavorResponse_PerJet#@FlavorResponse_PerJet#"
+    compLabels="Current (50% gluon = PDG 21)@Response to PDG ${label} OneBin@Response to PDG ${label} CoarseBin@Response to PDG ${label} FineBin"
+    options="prefix=JET_;fixedEtaVals=0,1,2.5,4.5;fixedPtVals=20,40,60,80,100,200;TruthLabel=${label};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/;drawTotal=False"
+}
+
+function DumpHistos \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    CalibArea=""
+    configFile="JES_2016/Moriond2017/JES2016_21NP.config"
+    outFile="test.pdf"
+    compList="EffectiveNP_1;EffectiveNP_2;EffectiveNP_3;EffectiveNP_4;EffectiveNP_5;EffectiveNP_6;EffectiveNP_7;EffectiveNP_8restTerm;Flavor_Composition;Flavor_Response;Pileup_RhoTopology"
+    compLabels="EffectiveNP_1;EffectiveNP_2;EffectiveNP_3;EffectiveNP_4;EffectiveNP_5;EffectiveNP_6;EffectiveNP_7;EffectiveNP_8restTerm;Flavor_Composition_UNKNOWN;Flavor_Response_UNKNOWN;Pileup_RhoTopology"
+    options="prefix=JET_;isDijet=false;fixedEtaVals=0;fixedPtVals=NONE;drawTotal=False;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";dumpFile=test.root"
+    #compList="Flavor_Composition;Flavor_Response"
+    #compLabels="Flavor_Composition_DIJET;Flavor_Response_DIJET"
+    #options="prefix=JET_;isDijet=true;fixedEtaVals=0;fixedPtVals=NONE;drawTotal=False;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";dumpFile=test.root"
+    #compList="BJES_Response"
+    #compLabels="BJES_Response"
+    #options="prefix=JET_;isDijet=false;fixedEtaVals=0;fixedPtVals=NONE;drawTotal=False;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";dumpFile=test.root"
+}
+
+function HLInputs \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    CalibArea=""
+    configFile="HL/HL-Run2.config"
+    outFile="test.pdf"
+    compList="EffectiveNP_#;Flavor_Comp#;FlavorResp#;Pileup#"
+    compLabels="Absolute #it{in situ} JES;Flav. composition;Flav. response;Pileup"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\""
+}
+
+function HLCompare \
+{
+    composition="DIJET"
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    CalibArea=""
+    configFile="HL2018/HL-Optimistic-${composition}.config"
+    #outFile="HL-compare-Run2-Optimistic-UNKNOWN.pdf"
+    outFile="HL-compare-Baseline-Optimistic-${composition}.pdf"
+    compList="EffectiveNP_#;Flavor_Comp#;FlavorResp#;Pileup#"
+    #compLabels="Absolute #it{in situ} JES;Flav. composition, unknown composition;Flav. response, unknown composition;Pileup"
+    compLabels="Absolute #it{in situ} JES;Flav. composition, inclusive jets;Flav. response, inclusive jets;Pileup"
+    #options="prefix=JET_;isDijet=false;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";doCompare=JES_2016/Moriond2017/JES2016_21NP.config&MC15&Run 2 uncertainty;totalUncName=\"HL-LHC uncertainty, optimistic\""
+    #options="prefix=JET_;isDijet=true;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";doCompare=HL/HL-Baseline.config&MC15&HL-LHC uncertainty, baseline;totalUncName=\"HL-LHC uncertainty, optimistic\""
+    options="prefix=JET_;isDijet=true;fixedEtaVals=0;fixedPtVals=NONE;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";doCompare=HL2018/HL-Baseline-${composition}.config&MC15&HL-LHC uncertainty, baseline;totalUncName=\"HL-LHC uncertainty, optimistic\""
+}
+
+function JERTest \
+{
+    scaleVar="MassRes"
+    topology="Top"
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="JER/R4_GlobalReduction_JER.config"
+    outFile="JER-test.pdf"
+    compList="PtResUnc;FourVecResUnc;MassResUncQCD;MassResUncWZ;MassResUncHbb;MassResUncTop;NOMINALRESMC;NOMINALRESDATA"
+    compLabels="pT resolution;four-vector resolution;mass resolution, QCD;mass resolution, WZ;mass resolution, Hbb;mass resolution, top;nominal MC resolution;nominal data resolution"
+    options="prefix=JET_;fixedEtaVals=0,2;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";scaleVar=${scaleVar};topology=${topology}"
+}
+
+function JER_August_2018_Compare \
+{
+    scaleVar="FourVecResAbs"
+    jetdef="EMTopo"
+    jetDefinition="AntiKt4${jetdef};AntiKt4${jetdef};AntiKt4${jetdef}"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Summer2018/R4_GlobalReduction_SimpleJER.config;rel21/Summer2018/R4_GlobalReduction_FullJER.config;rel21/Summer2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-August2018-Compare-${jetdef}.pdf"
+    compList="JER#@JER#@JER#"
+    compLabels="Total JER uncertainty, ${jetdef}, 7NP@Total JER uncertainty, ${jetdef}, 12NP@Total JER uncertainty, ${jetdef}, All NP"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-05/\";drawTotal=false;scaleVar=${scaleVar};IsData=false"
+}
+
+function JER_August_2018_Nominal \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Summer2018/R4_GlobalReduction_SimpleJER.config;rel21/Summer2018/R4_GlobalReduction_SimpleJER.config"
+    outFile="JER-August2018-Nominal.pdf"
+    compList="NOMINALRESMC;NOMINALRESDATA@NOMINALRESMC;NOMINALRESDATA"
+    compLabels="Nominal MC JER, EMTopo;Nominal data JER, EMTopo@Nominal MC JER, EMPFlow;Nominal data JER,EMPFlow"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-05/\";drawTotal=false;scaleVar=${scaleVar};IsData=false;axisMax=0.4"
+}
+
+function JER_August2018 \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Summer2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-Summer2018-Recommendations.pdf"
+    compList="JER_DataVsMC;JER_N_#;JER_dijet_c#,JER_dijet_j#,JER_dijet_m#,JER_dijet_p#;JER_dijet_stat#"
+    compLabels="Nominal data vs MC difference;Noise term, random cones method;Dijet #it{in situ} JER (systematics);Dijet #it{in situ} JER (statistics)"
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-05/\";scaleVar=${scaleVar};IsData=false;axisMax=0.05"
+}
 
 
 

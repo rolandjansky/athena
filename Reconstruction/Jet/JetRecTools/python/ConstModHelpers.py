@@ -103,13 +103,13 @@ def getPseudoJetGetter(label,pjname):
 def getEventDensityTool(pjg):
     label = pjg.Label.replace('Topo','TopoOrigin')
     toolname = "Kt4"+label+"EventShape"
+    from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,toolname):
         return getattr(ToolSvc,toolname)
 
     from EventShapeTools.EventDensityConfig import configEventDensityTool
     edtool = configEventDensityTool("Kt4"+label+"EventShape", pjg, 0.4)
 
-    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += edtool
     return edtool
 
@@ -117,7 +117,7 @@ def getJetFinder(inputtype,label,pjname,modkey):
     from JetRec.JetRecStandard import jtm
     pjg = getPseudoJetGetter(label,pjname)
     jetsname = "AntiKt4"+label+"Jets"
-    getterbase = inputtype.lower()+"_ungroomed"
+    getterbase = inputtype.lower()+"_reduced"
 
     jtm.gettersMap[pjname] = [pjg]+list(jtm.gettersMap[getterbase])[1:]
     finder = jtm.addJetFinder(jetsname, "AntiKt", 0.4, pjname, modkey,

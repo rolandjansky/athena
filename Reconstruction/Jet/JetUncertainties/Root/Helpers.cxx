@@ -100,8 +100,8 @@ TString findFilePath(const TString& fileName, const TString& path, const TString
 {
     TString pathToGet = "";
 
-    // First, try the raw filename plus path (user-specified), then raw filename (local)
-    if (fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
+    // First, try the raw filename plus path (user-specified), then raw filename (local or full path)
+    if (path != "" && fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
         pathToGet = path+(path.EndsWith("/")?"":"/")+fileName;
     else if (fileExists(fileName))
         pathToGet = fileName;

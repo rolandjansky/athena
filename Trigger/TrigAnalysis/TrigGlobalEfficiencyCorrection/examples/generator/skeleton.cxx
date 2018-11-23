@@ -30,6 +30,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "PATCore/PATCoreEnums.h"
+#include "AthContainers/AuxElement.h"
 
 // stdlib include(s):
 [SPLITFUNC]
@@ -99,8 +100,8 @@ int main(int argc, char* argv[])
 [MULTITRIGGERS]
 {electron_toolconfigs}
 [/MULTITRIGGERS]
-    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
-            "rel20.7/Moriond_February2017_v3/map1.txt";
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
+            "rel21.2/Moriond_February2018_v2/map6.txt";
 [MULTITRIGGERS]
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
 [/MULTITRIGGERS]
@@ -133,10 +134,9 @@ int main(int argc, char* argv[])
     /// For property 'MuonTools':
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180312_TriggerUpdate").ignore();
+    muonTool.setProperty("CalibrationRelease", "180905_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
-    muonTool.setProperty("useRel207", true).ignore();
-    // muonTool.setProperty("Isolation", "GradientLoose").ignore();
+    muonTool.setProperty("useRel207", false).ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
     {
         Error(MSGSOURCE, "Unable to initialize the muon CP tool!");
@@ -170,16 +170,26 @@ int main(int argc, char* argv[])
     /// In real life, use the PileupReweightingTool instead!
     const unsigned periodRuns[] = {
 [DATA2015]
-        276073, 278727, 279932, 280423, 281130, 282625, /// 2015 periods D-H, J
+        /// 2015 periods D-H, J
+        276073, 278727, 279932, 280423, 281130, 282625 MAYBE_COMMA
 [/DATA2015]
 [DATA2016]
+        /// 2016 periods A-L
         296939, 300345, 301912, 302737, 303638, 303943, 305291, 307124, 
-        305359, 309311, 310015 /// 2016 periods A-L
+        305359, 309311, 310015 MAYBE_COMMA
 [/DATA2016]
+[DATA2017]
+        /// 2017 periods B-K
+        325713, 329385, 330857, 332720, 334842, 335302, 336497, 336832, 
+        338183 MAYBE_COMMA
+[/DATA2017]
     };
     std::uniform_int_distribution<unsigned> uniformPdf(0,
             sizeof(periodRuns)/sizeof(*periodRuns) - 1);
     std::default_random_engine randomEngine;
+    
+    SG::AuxElement::ConstAccessor<int> truthType("truthType");
+    SG::AuxElement::ConstAccessor<int> truthOrigin("truthOrigin");
     
     /* ********************************************************************** */
     
@@ -207,8 +217,9 @@ int main(int argc, char* argv[])
             float eta = fabs(electron->caloCluster()->etaBE(2));
             float pt = electron->pt();
             if(pt<10e3f || eta>=2.47) continue;
-            int t = electron->auxdata<int>("truthType");
-            int o = electron->auxdata<int>("truthOrigin");
+            if(!truthType.isAvailable(*electron)) continue;
+            if(!truthOrigin.isAvailable(*electron)) continue;
+            int t = truthType(*electron), o = truthOrigin(*electron);
             if(t!=2 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
 {eventloop_electron_selection}
             myTriggeringElectrons.push_back(electron);
@@ -221,12 +232,15 @@ int main(int argc, char* argv[])
         event.retrieve(muons,"Muons").ignore();
         for(auto muon : *muons)
         {
+            if(runNumber >= 324320) break; // delete line once all SFs available for 2017
             float pt = muon->pt();
             if(pt<10e3f || fabs(muon->eta())>=2.5) continue;
             auto mt = muon->muonType();
             if(mt!=xAOD::Muon::Combined && mt!=xAOD::Muon::MuonStandAlone) continue;
-            int t = muon->primaryTrackParticle()->auxdata<int>("truthType");
-            int o = muon->primaryTrackParticle()->auxdata<int>("truthOrigin");
+            auto& mtp = *(muon->primaryTrackParticle());
+            if(!truthType.isAvailable(mtp)) continue;
+            if(!truthOrigin.isAvailable(mtp)) continue;
+            int t = truthType(mtp), o = truthOrigin(mtp);
             if(t!=6 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
 {eventloop_muon_selection}
             myTriggeringMuons.push_back(muon);

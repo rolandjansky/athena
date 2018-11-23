@@ -25,7 +25,7 @@ The tool at least needs to be created and initialized like::
   
 This creates the tool with the recommended cuts, which are defined in the
 default config file
-/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
+/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
 (or in newer versions).
 
 ------------------
@@ -203,14 +203,17 @@ Currently implemented working points for ``CutJetIDWP`` are:
    * - JETIDNONE
      - no cut at all
      
+   * - JETIDBDTVERYLOOSE
+     - passing BDT very loose working point, ID efficiency 95%
+
    * - JETIDBDTLOOSE
-     - passing BDT loose working point
+     - passing BDT loose working point, ID efficiency 85% (75%) for 1-prong (3-prong)
      
    * - JETIDBDTMEDIUM
-     - passing BDT medium working point
+     - passing BDT medium working point, ID efficiency 75% (60%) for 1-prong (3-prong)
      
    * - JETIDBDTTIGHT
-     - passing BDT tight working point
+     - passing BDT tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
      
    * - JETIDBDTLOOSENOTTIGHT
      - passing BDT loose but not BDT tight working point
@@ -224,17 +227,14 @@ Currently implemented working points for ``CutJetIDWP`` are:
    * - JETIDBDTNOTLOOSE
      - not passing BDT loose working point
 
-   * - JETIDBDTVERYLOOSE
-     - passing BDT very loose working point, new since release 21
-
    * - JETBDTBKGLOOSE
-     - loose background working point, new since release 21
+     - loose background working point
 
    * - JETBDTBKGMEDIUM
-     - medium background working point, new since release 21
+     - medium background working point
 
    * - JETBDTBKGTIGHT
-     - tight background working point, new since release 21
+     - tight background working point
 
 and for ``CutEleBDTWP``:
 
@@ -316,40 +316,6 @@ configured, the tool will accept any tau. However, configuration can be achieved
 as described in the `previous section
 <README-TauSelectionTool.rst#overwrite-particular-cut-setups-or-the-list-of-cuts-to-be-executed>`_.
 
-Other tool configurations for the electron overlap removal
-==========================================================
-
-The electron overlap removal uses pT and eta (of the leading track) dependent
-thresholds stored in a root file. The input file can be set via::
-
-  TauSelTool.setProperty("EleOLRFilePath", "PATH/TO/FILE");
-
-Currently the following official input files are available in
-``/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData``:
-
-.. list-table::
-   :header-rows: 1
-
-   * - file
-     - description
-
-   * - TauAnalysisTools/<latest tag>/Selection/eveto_cutvals.root
-     - 95% signal efficiency, loose working point
-       
-   * - TauAnalysisTools/<latest tag>/Selection/eveto_cutvals_90.root
-     - 90% signal efficiency, medium working point
-
-   * - TauAnalysisTools/<latest tag>/Selection/eveto_cutvals_85.root
-     - 85% signal efficiency, tight working point
-
-Use at least ``00-01-09`` for the ``<latest tag>``.
-     
-The electron overlap removal further depends on the electron container. If for
-some reason the electron container name differs from the default
-(``Electrons``), just change the property ``ElectronContainerName`` to the
-relevant container name::
-
-  TauSelTool.setProperty("ElectronContainerName", "MY/ELECTRON/CONTAINER/NAME");
      
 ----------------
 Tool application
@@ -428,12 +394,6 @@ FAQ
     TauSelectionTool          DEBUG cuts: Pt AbsEta AbsCharge NTrack JetIDWP EleOLR
 
    **Note:** only the cuts in the last line will be processed
-
-
-#. **Question:** How can I use different working points for the electron overlap
-   removal.
-
-   **Answer:** This is described in this `section <README-TauSelectionTool.rst#other-tool-configurations-for-the-electron-overlap-removal>`_
 
 #. **Question**: After cutting on EleOLR there are still taus with rather large
    likelihood scores.

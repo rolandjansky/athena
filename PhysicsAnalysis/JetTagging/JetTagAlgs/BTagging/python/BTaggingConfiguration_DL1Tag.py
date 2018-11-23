@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for DL1Tag
 # Author: Marie Lanfermann (September 2015)
@@ -51,6 +51,7 @@ def buildDL1(basename, calibrationName=''):
 
   return DL1Instance, metaInstance
 
-toolDL1muTag, metaDL1muTag = buildDL1("DL1mu")
+toolDL1rTag, metaDL1rTag = buildDL1("DL1r")
 toolDL1Tag, metaDL1Tag = buildDL1("DL1")
-toolDL1rnnTag, metaDL1rnnTag = buildDL1("DL1rnn")
+toolDL1rmuTag, metaDL1rmuTag = buildDL1("DL1rmu")
+toolDL1muTag, metaDL1muTag = buildDL1("DL1mu")

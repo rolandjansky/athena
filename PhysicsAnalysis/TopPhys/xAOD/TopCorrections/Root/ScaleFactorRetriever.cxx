@@ -10,6 +10,8 @@
 
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
+#include "TopEvent/SystematicEvent.h"
+#include "TopConfiguration/ConfigurationSettings.h"
 #include "TopConfiguration/TopConfig.h"
 #include "AthContainers/AuxElement.h"
 #include "xAODRootAccess/TStore.h"
@@ -19,7 +21,8 @@ namespace top {
 
   ScaleFactorRetriever::ScaleFactorRetriever(const std::string& name):
     asg::AsgTool(name),
-    m_config(nullptr) {
+    m_config(nullptr),
+    m_preferGlobalTriggerSF(ConfigurationSettings::get()->feature("PreferGlobalTriggerSF")) {
     declareProperty("config", m_config);
   }
 
@@ -81,55 +84,48 @@ namespace top {
   }
 
   float ScaleFactorRetriever::globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const {
-    // SF
     float sf(1.0);
-    // We need to retrieve the systematic according to top::Event
-    std::string systematicName = m_config->systematicName(event.m_hashValue);
-    
-    // We need to check if this is a loose event
-    bool isLoose = event.m_isLoose;
     std::string prefix = "AnalysisTop_Trigger_SF_";
-    if(isLoose) prefix += "Loose_";
 
-    if(systematicName != "nominal") prefix += systematicName;
-    
-    const xAOD::EventInfo* eventInfo = nullptr;
-    top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
+    xAOD::SystematicEvent const * eventInfo = event.m_systematicEvent;
+    top::check( eventInfo , "Failed to retrieve SystematicEvent");
 
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch(SFSyst){
     case top::topSFSyst::EL_SF_Trigger_UP:
-      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1up");
+      sf = eventInfo->auxdataConst<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1up");
       break;
     case top::topSFSyst::EL_SF_Trigger_DOWN:
-      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1down");
+      sf = eventInfo->auxdataConst<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1down");
       break;
     case top::topSFSyst::MU_SF_Trigger_STAT_UP:
-      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigStatUncertainty__1up");
+      sf = eventInfo->auxdataConst<float>(prefix+"MUON_EFF_TrigStatUncertainty__1up");
       break;
     case top::topSFSyst::MU_SF_Trigger_STAT_DOWN:
-      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigStatUncertainty__1down");
+      sf = eventInfo->auxdataConst<float>(prefix+"MUON_EFF_TrigStatUncertainty__1down");
       break;
     case top::topSFSyst::MU_SF_Trigger_SYST_UP:
-      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigSystUncertainty__1up");
+      sf = eventInfo->auxdataConst<float>(prefix+"MUON_EFF_TrigSystUncertainty__1up");
       break;
     case top::topSFSyst::MU_SF_Trigger_SYST_DOWN:
-      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigSystUncertainty__1down");
-      break;
-    case top::topSFSyst::nominal:
-      // Nominal weight
-      sf = eventInfo->auxdecor<float>(prefix);
+      sf = eventInfo->auxdataConst<float>(prefix+"MUON_EFF_TrigSystUncertainty__1down");
       break;
     default:
-      ATH_MSG_INFO("Failed to retrieve a weight");
+      // Nominal weight
+      sf = eventInfo->auxdataConst<float>(prefix);
       break;
-    
     }
     return sf;
   }
 
 
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
+                                        const top::topSFSyst SFSyst) const {
+    return (m_preferGlobalTriggerSF && m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
+  }
+
+
+  float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
     std::string electronID = m_config->electronID();
     if (event.m_isLoose) {

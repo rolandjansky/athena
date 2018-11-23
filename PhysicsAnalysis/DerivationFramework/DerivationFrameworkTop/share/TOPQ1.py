@@ -62,6 +62,33 @@ import DerivationFrameworkTop.TOPQCommonThinning
 thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ1',TOPQ1ThinningHelper.ThinningSvc(), ToolSvc)
 
 #====================================================================
+# Add K_S0->pi+pi- reconstruction (TOPQDERIV-69)
+#====================================================================
+doSimpleV0Finder = False
+if doSimpleV0Finder:
+  include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
+else:
+  include("DerivationFrameworkBPhys/configureV0Finder.py")
+
+TOPQ1_V0FinderTools = BPHYV0FinderTools("TOPQ1")
+print TOPQ1_V0FinderTools
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_V0Finder
+TOPQ1_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
+    name                   = "TOPQ1_Reco_V0Finder",
+    V0FinderTool           = TOPQ1_V0FinderTools.V0FinderTool,
+    OutputLevel           = DEBUG,
+    V0ContainerName        = "TOPQ1RecoV0Candidates",
+    KshortContainerName    = "TOPQ1RecoKshortCandidates",
+    LambdaContainerName    = "TOPQ1RecoLambdaCandidates",
+    LambdabarContainerName = "TOPQ1RecoLambdabarCandidates",
+    CheckVertexContainers  = ["PrimaryVertices"]
+)
+
+ToolSvc += TOPQ1_Reco_V0Finder
+print TOPQ1_Reco_V0Finder
+
+#====================================================================
 # CREATE THE KERNEL(S)
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -86,11 +113,11 @@ DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTri
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
+from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-ReTag(['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
-      ['AntiKt4EMPFlowJets'],
-      TOPQ1Sequence)
+TaggerList = BTaggingFlags.StandardTaggers
+ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ1Sequence)
 
 # Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
 # if not hasattr(TOPQ1Sequence,"ELReset"):
@@ -109,11 +136,12 @@ if DFisMC:
 
 DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
 
-# add for TOPQDERIV-62 (see enf of TOPQCommonJets.py)
+# add ExKtDoubleTagVariables (TOPQDERIV-62)
 DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
-# Then apply thinning
-TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools)
+# Then apply thinning 
+#AugmentationTool for TOPQDERIV-69
+TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools, AugmentationTools = [TOPQ1_Reco_V0Finder])
 
 #====================================================================
 # JetTagNonPromptLepton decorations
@@ -128,7 +156,6 @@ TOPQ1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
-
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ1Sequence
 
@@ -137,4 +164,3 @@ DerivationFrameworkJob += TOPQ1Sequence
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ1', TOPQ1Stream)
-

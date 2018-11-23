@@ -69,27 +69,35 @@ StatusCode BTaggingSelectionTool::initialize() {
   m_useVeto = false;
   if( m_OP.find("Veto") != string::npos ){
     m_useVeto = true;
-    //op string should follow the format nominal_WP-vetotagger-vetoWP
-    //for example, FixedCutBEff_77-DL1-CTag_Loose
+    //op string should follow the format nominal_WP_Veto_vetotagger_vetoWP
+    //for example, FixedCutBEff_77_Veto_DL1_CTag_Loose
     TString vetotaggerstring = m_OP;
-    TObjArray* wptokens = vetotaggerstring.Tokenize("-");
-    if( wptokens->GetEntries() != 4 ){
+    TObjArray* wptokens = vetotaggerstring.Tokenize("_");
+    if( wptokens->GetEntries() != 6 ){
         ATH_MSG_ERROR( "BTaggingSelectionTool improperly formatted WP defintion: "+m_OP );
         return StatusCode::FAILURE;
     }
     m_OP = (std::string)(((TObjString *)(wptokens->At(0)))->String());
-    m_taggerName_Veto = (std::string)(((TObjString *)(wptokens->At(2)))->String());
-    m_OP_Veto = (std::string)(((TObjString *)(wptokens->At(3)))->String());
+    m_OP = m_OP+"_"+(std::string)(((TObjString *)(wptokens->At(1)))->String());
+
+    m_taggerName_Veto = (std::string)(((TObjString *)(wptokens->At(3)))->String());
+    m_OP_Veto = (std::string)(((TObjString *)(wptokens->At(4)))->String());
+    m_OP_Veto = m_OP_Veto+"_"+(std::string)(((TObjString *)(wptokens->At(5)))->String());
   }
 
   // The tool supports only these taggers and jet collections:
   if ("DL1"!=m_taggerName&&
-        "DL1mu"!=m_taggerName&&
-        "DL1rnn"!=m_taggerName&&
+        "DL1r"!=m_taggerName&&
+        "DL1rmu"!=m_taggerName&&
         "MV2c10"!=m_taggerName&&
-        "MV2c10mu"!=m_taggerName&&
-        "MV2c10rnn"!=m_taggerName&&
+        "MV2r"!=m_taggerName&&
+        "MV2rmu"!=m_taggerName&&
         "MV2cl100_MV2c100"!=m_taggerName){
+
+    if(m_taggerName=="MV2c10mu" || m_taggerName=="MV2c10rnn" ||  m_taggerName=="DL1mu" || m_taggerName=="DL1rnn"){
+      ATH_MSG_ERROR( "BTaggingSelectionTool: the tagger "+m_taggerName+" has been deprecated." );
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
     return StatusCode::FAILURE;
   }
@@ -139,6 +147,12 @@ StatusCode BTaggingSelectionTool::initialize() {
 
     //0% efficiency => MVXWP=+infinity
     m_continuouscuts[5]= +1.e4;
+
+    if(m_taggerName.find("DL1") != string::npos){
+      //this call will extract the c-fraction value and set it in m_tagger
+      //which is needed in case the user calls getTaggerWeight to compute the DL1 score
+      ExtractTaggerProperties(m_tagger,m_taggerName , "FixedCutBEff_60");
+    }
   }
   else {  // Else load only one WP
     ExtractTaggerProperties(m_tagger,m_taggerName , m_OP);
@@ -394,7 +408,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     ATH_MSG_VERBOSE( "MV2c100 " <<  weight_mv2c100 );
     return accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
 
-  }else if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2c10") != string::npos){
+  }else if(m_taggerName.find("DL1") != string::npos || m_taggerName.find("MV2") != string::npos){
 
 
     //for all other taggers, use the same method

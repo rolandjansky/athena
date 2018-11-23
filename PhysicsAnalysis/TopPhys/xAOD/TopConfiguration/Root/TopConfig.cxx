@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 810977 2017-10-09 16:30:28Z iconnell $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -169,6 +168,7 @@ namespace top{
     m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
+    m_useElectronChargeIDSelection(false),
 
     // Muon configuration
     m_muonPtcut(25000.),
@@ -213,8 +213,6 @@ namespace top{
     m_tauVetoLArCrack(false),
     m_tauPtcut(20000.),
     **/
-    // Applying new tau energy calibration
-    m_applyTauMVATES(false),
 
     // [[[-----------------------------------------------
     // Particle Level / Truth Configuration
@@ -662,12 +660,15 @@ namespace top{
       this->electronIsolationLoose(cut_wp);
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    // Print out a warning for FixedCutHighPtCaloOnly
-    if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
-      std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
+    // Print out a warning for FCHighPtCaloOnly
+    if (this->electronIsolation() == "FCHighPtCaloOnly" || this->electronIsolationLoose() == "FCHighPtCaloOnly"){
+      std::cout << "TopConfig - ElectronIsolation - FCHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
+    this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
+
+    
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -714,7 +715,8 @@ namespace top{
     this->tauEleOLRLoose((settings->value("TauEleOLRLoose") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
-    this->applyTauMVATES((settings->value("ApplyTauMVATES") == "True"));
+    if (settings->value("ApplyTauMVATES") != "True")
+      throw std::runtime_error{"TopConfig: ApplyTauMVATES must be True"};
 
     // Jet configuration
     this->jetPtcut( std::stof(settings->value("JetPt")) );
@@ -749,6 +751,11 @@ namespace top{
       this->m_useRCJetSubstructure = true;
     else
       this->m_useRCJetSubstructure = false;
+      
+    if (settings->value("UseRCJetAdditionalSubstructure") == "True" || settings->value("UseRCJetAdditionalSubstructure") == "true")
+      this->m_useRCJetAdditionalSubstructure = true;
+    else
+      this->m_useRCJetAdditionalSubstructure = false;
    
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
@@ -758,7 +765,15 @@ namespace top{
     this->VarRCJetMassScale(settings->value("VarRCJetMassScale"));
     if (settings->value("UseVarRCJets") == "True" || settings->value("UseVarRCJets") == "true")
       this->m_useVarRCJets = true;
-
+    if (settings->value("UseVarRCJetSubstructure") == "True" || settings->value("UseVarRCJetSubstructure") == "true")
+      this->m_useVarRCJetSubstructure = true;
+    else
+      this->m_useVarRCJetSubstructure = false;
+    if (settings->value("UseVarRCJetAdditionalSubstructure") == "True" || settings->value("UseVarRCJetAdditionalSubstructure") == "true")
+      this->m_useVarRCJetAdditionalSubstructure = true;
+    else
+      this->m_useVarRCJetAdditionalSubstructure = false;
+    
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));
     m_bJSF = std::stof(settings->value("bJSF"));
@@ -1036,11 +1051,28 @@ namespace top{
 
     //--- Check for configuration on the global lepton triggers ---//
     if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
+      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & result, std::string const & key) {
+          /* parse a string of the form "2015@triggerfoo,triggerbar,... 2016@triggerfoo,triggerbaz,... ..." */
+          std::vector<std::string> pairs;
+          boost::split(pairs, settings->value(key), boost::is_any_of(" "));
+          for (std::string const & pair : pairs) {
+            if (pair.empty())
+              continue;
+            auto i = pair.find('@');
+            if (!(i != std::string::npos && pair.find('@', i + 1) == std::string::npos))
+              throw std::invalid_argument(std::string() + "Malformed trigger list in configuration item `" + key + "'");
+            auto&& period = pair.substr(0, i), triggerstr = pair.substr(i + 1);
+            auto&& triggers = result[period];
+            if (!triggers.empty())
+              throw std::invalid_argument(std::string() + "Period `" + period + "' appears multiple times in configuration item `" + key + "'");
+            boost::split(triggers, triggerstr, boost::is_any_of(","));
+          }
+        };
       m_trigGlobalConfiguration.isActivated = true;
-      m_trigGlobalConfiguration.electron_trigger       = settings->value( "ElectronTriggers" );
-      m_trigGlobalConfiguration.electron_trigger_loose = settings->value( "ElectronTriggersLoose" );
-      m_trigGlobalConfiguration.muon_trigger           = settings->value( "MuonTriggers" );
-      m_trigGlobalConfiguration.muon_trigger_loose     = settings->value( "MuonTriggersLoose" );
+      parseTriggerString(m_trigGlobalConfiguration.electron_trigger, "ElectronTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.electron_trigger_loose, "ElectronTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.muon_trigger, "MuonTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.muon_trigger_loose, "MuonTriggersLoose");
     }
     
   }
@@ -2373,6 +2405,7 @@ namespace top{
     out->m_electronIDLoose = m_electronIDLoose;
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
+    out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
 
     out->m_muon_trigger_SF = m_muon_trigger_SF;
     out->m_muonQuality = m_muonQuality;
@@ -2502,6 +2535,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIDLoose = settings->m_electronIDLoose;
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
+    m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
 
     m_muon_trigger_SF = settings->m_muon_trigger_SF;
     m_muonQuality = settings->m_muonQuality;

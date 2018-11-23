@@ -24,6 +24,12 @@
 
 #include <ostream>
 #include <iostream>
+
+
+namespace xAOD {
+class SystematicEvent;
+}
+
 /**
  * @brief A namespace for the top group, to avoid using the same name as
  * somewhere else in the code.
@@ -78,6 +84,9 @@ public:
     
     ///Pointer to the event info - nullptr if not loaded, but that's probably a bad idea
     const xAOD::EventInfo* m_info;
+
+    ///Pointer to the systematic event info - nullptr if not loaded, but that's probably a bad idea
+    xAOD::SystematicEvent const * m_systematicEvent;
     
     ///Primary Vertices
     const xAOD::VertexContainer* m_primaryVertices;    
@@ -101,7 +110,7 @@ public:
     xAOD::JetContainer m_RCJets;
     
     /// Containers of variable-R reclustered jets (can be sorted)
-    std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
+    mutable std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
     
     ///Container of track jets (can be sorted)
     xAOD::JetContainer m_trackJets;    

@@ -14,8 +14,10 @@
         unsigned nTrig1L = 0, nTrig2mu = 0;
 
 [example1and2:electron_selection] ##############################################
-            /// lepton must be above softest trigger threshold (2e12/2e17 here):
-            if(pt < (runNumber>290000? 18e3f : 13e3f)) continue;
+            /// lepton must be above softest trigger threshold:
+            if((runNumber>320000 && pt<25e3f) /// 2017: 2e24
+				|| (runNumber>290000 && pt<18e3f) /// 2016: 2e17
+				|| (pt<13e3f)) continue; /// 2015: 2e12
             /// also count leptons above single-lepton trigger threshold
             if(pt >= (runNumber>290000? 27e3f : 25e3f)) ++nTrig1L;
 
@@ -32,7 +34,7 @@
             if(pt < 10e3f) continue;
             /// also count leptons above single-lepton trigger threshold
             if(pt >= (runNumber>290000? 27.3e3f : 21e3f)) ++nTrig1L;
-            // and count muons suitable for the hard leg of the dimuon trigger
+            /// and count muons suitable for the hard leg of the dimuon trigger
             if(pt >= 25e3f) ++nTrig2mu;
 
 [example1:trigger_matching] ####################################################
@@ -46,7 +48,7 @@
 
 [example2:trigger_matching] ####################################################
         /// Events must contain enough leptons to trigger
-        if((nTrig1L==0 || runNumber>=303638) /// single-lepton trigger (if used)
+        if((nTrig1L==0 || (runNumber>=303638 && runNumber<320000)) /// single-lepton trigger (when used)
             && myTriggeringElectrons.size()<2 /// dielectron
             && (nTrig2mu==0 || myTriggeringMuons.size()<2)) /// dimuon
         {

@@ -5,6 +5,8 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
+#include "TopEvent/RunNumberFaker.h"
+#include "TopEvent/SystematicEvent.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
@@ -16,26 +18,18 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include <vector>
 
+
 namespace top{
 
   GlobalLeptonTriggerCalculator::GlobalLeptonTriggerCalculator( const std::string& name ) :
   asg::AsgTool( name ),
   m_config(nullptr),
 
-  m_systNominal( CP::SystematicSet() ),
-
   m_globalTriggerSF("TrigGlobalEfficiencyCorrectionTool::TrigGlobal"),
   m_globalTriggerSFLoose("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose"),
 
-  m_decor_triggerSF("SetMe"),
-  m_decor_triggerSF_loose("SetMe"),
-  m_decor_triggerEffMC("SetMe"),  
-  m_decor_triggerEffMC_loose("SetMe"),
-  m_decor_triggerEffData("SetMe"),
-  m_decor_triggerEffData_loose("SetMe"),
+  m_decor_triggerSF("AnalysisTop_Trigger_SF")
 
-  m_selectedLepton("passPreORSelection"),
-  m_selectedLeptonLoose("passPreORSelectionLoose")
   {
     declareProperty( "config" , m_config );
   }
@@ -48,21 +42,31 @@ namespace top{
       top::check( m_globalTriggerSF.retrieve(),      "Failed to retrieve global trigger SF tool");
     if(m_config->doLooseEvents())
       top::check( m_globalTriggerSFLoose.retrieve(), "Failed to retrieve global trigger SF tool (loose)");
-    
-    m_decor_triggerSF            = "AnalysisTop_Trigger_SF";
-    m_decor_triggerEffMC         = "AnalysisTop_Trigger_EffMC";
-    m_decor_triggerEffData       = "AnalysisTop_Trigger_EffData";
-
-    m_decor_triggerSF_loose      = "AnalysisTop_Trigger_SF_Loose";
-    m_decor_triggerEffMC_loose   = "AnalysisTop_Trigger_EffMC_Loose";
-    m_decor_triggerEffData_loose = "AnalysisTop_Trigger_EffMData_Loose";
-
 
     // Retrieve the systematic names we stored
     for(auto& s : m_config->getGlobalTriggerElectronSystematics()) ATH_MSG_DEBUG(" - Electron systematics : " << s);
     for(auto& s : m_config->getGlobalTriggerMuonSystematics())     ATH_MSG_DEBUG(" - Muon systematics : " << s);
-    for(auto& s : m_config->getGlobalTriggerElectronTools())       ATH_MSG_DEBUG(" - Electron tools : " << s);
-    for(auto& s : m_config->getGlobalTriggerMuonTools())           ATH_MSG_DEBUG(" - Muon tools : " << s);
+
+    {
+      std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool>> tools;
+      tools.reserve(m_config->getGlobalTriggerElectronTools().size());
+      for (auto const & s : m_config->getGlobalTriggerElectronTools()) {
+        ATH_MSG_DEBUG(" - Electron tools : " << s);
+        tools.emplace_back(s);
+        top::check(tools.back().retrieve(), "Failed to retrieve electron tool");
+      }
+      m_electronTools.swap(tools);
+    }
+    {
+      std::vector<ToolHandle<CP::IMuonTriggerScaleFactors>> tools;
+      tools.reserve(m_config->getGlobalTriggerMuonTools().size());
+      for (auto const & s : m_config->getGlobalTriggerMuonTools()) {
+        ATH_MSG_DEBUG(" - Muon tools : " << s);
+        tools.emplace_back(s);
+        top::check(tools.back().retrieve(), "Failed to retrieve muon tool");
+      }
+      m_muonTools.swap(tools);
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -70,384 +74,129 @@ namespace top{
 
   StatusCode GlobalLeptonTriggerCalculator::execute()
   {
-    top::check(executeNominalVariations(),   "Failed to GlobalLeptonTriggerCalculator::executeNominalVariations()");;
-    top::check(executeElectronSystematics(), "Failed to GlobalLeptonTriggerCalculator::executeElectronSystematics()");
-    top::check(executeMuonSystematics(),     "Failed to GlobalLeptonTriggerCalculator::executeMuonSystematics()");
+    ATH_MSG_DEBUG("Entered GlobalLeptonTriggerCalculator::execute");
+
+    RunNumberFaker runNumberFaker(evtStore());
+    runNumberFaker.activate();
+
+    auto const & nominalHash = m_config->nominalHashValue();
+    if (m_config->doTightEvents()) {
+      xAOD::SystematicEventContainer const * systEvents = nullptr;
+      top::check( evtStore()->retrieve(systEvents, m_config->sgKeyTopSystematicEvents()) , "Failed to get xAOD::SystematicEventContainer");
+      for (xAOD::SystematicEvent * systEvent : *systEvents) {
+        bool withScaleFactorVariations = (systEvent->hashValue() == nominalHash);
+        processEvent(systEvent, withScaleFactorVariations);
+      }
+    }
+    if (m_config->doLooseEvents()) {
+      xAOD::SystematicEventContainer const * systEvents = nullptr;
+      top::check( evtStore()->retrieve(systEvents, m_config->sgKeyTopSystematicEventsLoose()) , "Failed to get xAOD::SystematicEventContainer");
+      for (xAOD::SystematicEvent * systEvent : *systEvents) {
+        bool withScaleFactorVariations = (systEvent->hashValue() == nominalHash);
+        processEvent(systEvent, withScaleFactorVariations);
+      }
+    }
+
+    ATH_MSG_DEBUG("Leaving GlobalLeptonTriggerCalculator::execute");
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GlobalLeptonTriggerCalculator::setElectronSystematic(std::string systematicName, int sig, std::vector<std::string> toolNames){
-    // This function is to set the SystematicSet on the electron trigger tools before getting scale factors/ efficiencies
-    ATH_MSG_DEBUG("Setting systematic variation " << systematicName );
-    for(auto& s: toolNames){
-      ToolHandle<IAsgElectronEfficiencyCorrectionTool> electronTool (s);
-      top::check(electronTool.retrieve(), "Failed to retrieve (electron tool) "+s);
-      CP::SystematicSet systSet;
-      if(systematicName != ""){
-	systSet.insert( CP::SystematicVariation(systematicName, sig) );
-	m_activeSystVariation = systSet.name();
-      }
-      else{
-	m_activeSystVariation = "";
-      }      
-      top::check( electronTool->applySystematicVariation(systSet), "Failed to apply systematic "+systematicName );
-    }
-    return StatusCode::SUCCESS;   
-  }
 
-  StatusCode GlobalLeptonTriggerCalculator::setMuonSystematic(std::string systematicName, int sig, std::vector<std::string> toolNames){
-    // This function is to set the SystematicSet on the electron trigger tools before getting scale factors/ efficiencies   
-    ATH_MSG_DEBUG("Setting systematic variation " << systematicName );
-    for(auto& s: toolNames){
-      ToolHandle<CP::IMuonTriggerScaleFactors> muonTool (s);
-      top::check(muonTool.retrieve(), "Failed to retrieve (muon tool) "+s);
-      CP::SystematicSet systSet;
-      if(systematicName != ""){
-	systSet.insert( CP::SystematicVariation(systematicName, sig) );
-	m_activeSystVariation = systSet.name();
-      }
-      else{
-	m_activeSystVariation = "";
-      }
-      top::check( muonTool->applySystematicVariation(systSet), "Failed to apply systematic "+systematicName );
-    }
-    return StatusCode::SUCCESS;
-  }
+  void GlobalLeptonTriggerCalculator::processEvent(xAOD::SystematicEvent * systEvent, bool withScaleFactorVariations) {
+    auto const & hash = systEvent->hashValue();
+    bool isLoose = systEvent->isLooseEvent();
+    std::string const & systname = m_config->systematicName(hash);
+    ATH_MSG_DEBUG("Calculating trigger SF for variation " << systname << " (" << hash << ") with isLoose=" << isLoose);
 
-  StatusCode GlobalLeptonTriggerCalculator::executeNominalVariations()
-  {
     // Retrieve nominal muons, retrieve nominal electrons
     const xAOD::MuonContainer* muons(nullptr);
     const xAOD::ElectronContainer* electrons(nullptr);
     std::vector<const xAOD::Muon*> selectedMuons;
-    std::vector<const xAOD::Muon*> selectedMuonsLoose;
     std::vector<const xAOD::Electron*> selectedElectrons;
-    std::vector<const xAOD::Electron*> selectedElectronsLoose;
 
-    top::check(evtStore()->retrieve(muons, "Muons_"), "Failed to retrieve Nominal muons");
+    top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
     // Put into a vector
-    selectedMuons.clear();
-    selectedMuonsLoose.clear();
-    for(const auto muonPtr: *muons){
-      if (m_selectedLepton.isAvailable(*muonPtr)){
-        if (m_selectedLepton(*muonPtr) == 1) {
-          selectedMuons.push_back(muonPtr);
-        }
-      }
-      if (m_selectedLeptonLoose.isAvailable(*muonPtr)){
-        if (m_selectedLeptonLoose(*muonPtr) == 1){
-          selectedMuonsLoose.push_back(muonPtr);
-        }
-      }
+    for (size_t index : systEvent->goodMuons()) {
+      selectedMuons.push_back(muons->at(index));
     }
 
-    top::check(evtStore()->retrieve(electrons, "Electrons_"), "Failed to retrieve Nominal electrons");
+    top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons(hash)), "Failed to retrieve electrons");
     // Put into a vector
-    selectedElectrons.clear();
-    selectedElectronsLoose.clear();
-    for(const auto electronPtr: *electrons){
-      if (m_selectedLepton.isAvailable(*electronPtr)){
-        if (m_selectedLepton(*electronPtr) == 1){
-          selectedElectrons.push_back(electronPtr);
-        }
-      }
-      if (m_selectedLeptonLoose.isAvailable(*electronPtr)){
-        if (m_selectedLeptonLoose(*electronPtr) == 1){
-          selectedElectronsLoose.push_back(electronPtr);
-        }
-      }
+    for (size_t index : systEvent->goodElectrons()) {
+      selectedElectrons.push_back(electrons->at(index));
     }
+    
+    // manage current electron trigger SF variation
+    CP::SystematicSet electronSystSet;
+    auto setCurrentElectronVariation = [this,&electronSystSet](std::string const & parameterName, int value) {
+      electronSystSet.clear();
+      if (!parameterName.empty())
+        electronSystSet.insert(CP::SystematicVariation(parameterName, value));
+      for (auto&& tool : m_electronTools) {
+        top::check( tool->applySystematicVariation(electronSystSet), "Failed to apply systematic");
+      }
+    };
 
-    int nTightLeptons = selectedMuons.size()      + selectedElectrons.size();
-    int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
+    // manage current muon trigger SF variation
+    CP::SystematicSet muonSystSet;
+    auto setCurrentMuonVariation = [this,&muonSystSet](std::string const & parameterName, int value) {
+      muonSystSet.clear();
+      if (!parameterName.empty())
+        muonSystSet.insert(CP::SystematicVariation(parameterName, value));
+      for (auto&& tool : m_muonTools) {
+        top::check( tool->applySystematicVariation(muonSystSet), "Failed to apply systematic");
+      }
+    };
 
-    // Protect accessing tools which were not configured
-    if(!m_config->doTightEvents()) nTightLeptons = -1;
-    if(!m_config->doLooseEvents()) nLooseLeptons = -1;
-
-    ATH_MSG_DEBUG("Tight electrons " << std::to_string(selectedElectrons.size()));
-    ATH_MSG_DEBUG("Tight muons     " << std::to_string(selectedMuons.size()));
-    ATH_MSG_DEBUG("Loose electrons " << std::to_string(selectedElectronsLoose.size()));
-    ATH_MSG_DEBUG("Loose muons     " << std::to_string(selectedMuonsLoose.size()));
-
-    double SF_Trigger(1.0), SF_TriggerLoose(1.0);
-    double EFF_Trigger_MC(0.0), EFF_Trigger_DATA(0.0);
-    double EFF_TriggerLoose_MC(0.0), EFF_TriggerLoose_DATA(0.0);   
+    // compute and store trigger SF for current variation
+    auto&& globalTriggerTool = (isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
+    auto decorateEventForCurrentVariation = [&]() {
+      double sf;
+      if (selectedElectrons.empty() && selectedMuons.empty()) {
+        sf = 1.;
+      }
+      else {
+        sf = NAN;
+        top::check( globalTriggerTool->getEfficiencyScaleFactor(selectedElectrons, selectedMuons, sf) , "Failed to get global trigger SF");
+      }
+      std::string auxname(m_decor_triggerSF);
+      auxname += "_";
+      if (!(electronSystSet.empty() && muonSystSet.empty())) {
+        CP::SystematicSet systSet;
+        systSet.insert(electronSystSet);
+        systSet.insert(muonSystSet);
+        auxname += systSet.name();
+      }
+      ATH_MSG_DEBUG("Adding decoration " << auxname << " = " << sf);
+      systEvent->auxdecor<float>(auxname) = sf;
+    };
 
     ///-- Set the nominal --///
-    top::check( this->setElectronSystematic("", 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron nominal" );
-    top::check( this->setMuonSystematic(    "", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
+    setCurrentElectronVariation("", 0);
+    setCurrentMuonVariation("", 0);
+    decorateEventForCurrentVariation();
 
-    if(nTightLeptons >= 1){
-      top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) , "Failed to get SF (tight)");
-      top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC), "Failed to get efficiency (tight)");
-      Print("Tight "+m_activeSystVariation, SF_Trigger, EFF_Trigger_DATA, EFF_Trigger_MC);
-      top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+m_activeSystVariation, SF_Trigger), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-    }
-
-    if(nLooseLeptons >= 1){
-      top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-      top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "Failed to get efficiency (tight)");
-      Print("Loose "+m_activeSystVariation, SF_TriggerLoose,EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC);
-      top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+m_activeSystVariation, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-    }
-    
     ///-- Apply and calculate variations on nominal --///
-    if(nTightLeptons >= 1){
-      ///-- Set nominal muon for electron systematics --///
-      top::check( this->setMuonSystematic("", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
-      for(auto& s : m_config->getGlobalTriggerElectronSystematics()){
-	top::check( this->setElectronSystematic(s, 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron up systematic" );
-	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) , "Failed to get SF");
-	top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC), "Failed to get efficiency (tight)");
-	Print("Tight "+m_activeSystVariation, SF_Trigger,EFF_Trigger_DATA, EFF_Trigger_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+m_activeSystVariation, SF_Trigger), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-
-	top::check( this->setElectronSystematic(s, -1, m_config->getGlobalTriggerElectronTools()), "Failed to apply electron down systematic" );
-	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) , "Failed to get SF");
-	top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC), "Failed to get efficiency (tight)");
-	Print("Tight "+m_activeSystVariation, SF_Trigger,EFF_Trigger_DATA, EFF_Trigger_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+m_activeSystVariation, SF_Trigger), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-      }
-      ///-- Set nominal electron for muon systematics --///
-      top::check( this->setElectronSystematic("", 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron nominal" );
-      for(auto& s : m_config->getGlobalTriggerMuonSystematics()){
-	top::check( this->setMuonSystematic(s, 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon up systematic" );
-	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) , "Failed to get SF");
-	top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC), "Failed to get efficiency (tight)");
-	Print("Tight "+m_activeSystVariation, SF_Trigger,EFF_Trigger_DATA, EFF_Trigger_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+m_activeSystVariation, SF_Trigger), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-
-	top::check( this->setMuonSystematic(s, -1, m_config->getGlobalTriggerMuonTools()), "Failed to apply muon down systematic" );
-	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) , "Failed to get SF");
-	top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC), "Failed to get efficiency (tight)");
-	Print("Tight "+m_activeSystVariation, SF_Trigger,EFF_Trigger_DATA, EFF_Trigger_MC);	
-	top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+m_activeSystVariation, SF_Trigger), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-      }
-        
-    }
-    
-    ///-- Apply and calculate variations on nominal --///
-    if(nLooseLeptons >= 1){
+    if (withScaleFactorVariations) {
+      ATH_MSG_DEBUG("Calculating trigger SF variations");
+      std::unordered_set<std::string> variations;
       ///-- Set nominal muon for electron systematic --///
-      top::check( this->setMuonSystematic(    "", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
       for(auto& s : m_config->getGlobalTriggerElectronSystematics()){
-	top::check( this->setElectronSystematic(s, 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron up systematic" );
-	top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-	top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "Failed to get efficiency (tight)");	
-	Print("Loose "+m_activeSystVariation, SF_TriggerLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+m_activeSystVariation, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-
-	top::check( this->setElectronSystematic(s, -1, m_config->getGlobalTriggerElectronTools()), "Failed to apply electron down systematic" );
-	top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-	top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "Failed to get efficiency (tight)");
-	Print("Loose "+m_activeSystVariation, SF_TriggerLoose,EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+m_activeSystVariation, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
+        for (int val : {1, -1}) {
+          setCurrentElectronVariation(s, val);
+          decorateEventForCurrentVariation();
+        }
       }
       ///-- Set nominal electron for muon systematic --///
-      top::check( this->setElectronSystematic("", 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron nominal" );
+      setCurrentElectronVariation("", 0);
       for(auto& s : m_config->getGlobalTriggerMuonSystematics()){
-	top::check( this->setMuonSystematic(s, 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon up systematic" );
-	top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-	top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "Failed to get efficiency (tight)");
-	Print("Loose "+m_activeSystVariation, SF_TriggerLoose,EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+m_activeSystVariation, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-
-	top::check( this->setMuonSystematic(s, -1, m_config->getGlobalTriggerMuonTools()), "Failed to apply muon down systematic" );
-	top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-	top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "Failed to get efficiency (tight)");
-	Print("Loose "+m_activeSystVariation, SF_TriggerLoose,EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC);
-	top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+m_activeSystVariation, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+m_activeSystVariation);
-      }
-    }
-     
-    return StatusCode::SUCCESS;
-  }
-
-  void GlobalLeptonTriggerCalculator::Print(std::string info, double SF, double EFF_MC, double EFF_DATA){
-    ATH_MSG_DEBUG("Trig SF  ("+info+")  " << SF);
-    ATH_MSG_DEBUG("Eff MC   ("+info+")  " << EFF_MC);
-    ATH_MSG_DEBUG("Eff Data ("+info+")  " << EFF_DATA);
-    return;
-  }
-
-  StatusCode GlobalLeptonTriggerCalculator::executeElectronSystematics()
-  {
-    // Retrieve nominal muons, for use with the systematic electrons
-    const xAOD::MuonContainer* muons(nullptr);
-    const xAOD::ElectronContainer* electrons(nullptr);
-    std::vector<const xAOD::Muon*> selectedMuons;
-    std::vector<const xAOD::Muon*> selectedMuonsLoose;
-    std::vector<const xAOD::Electron*> selectedElectrons;
-    std::vector<const xAOD::Electron*> selectedElectronsLoose;
-
-    ///-- Nominal muons + systematic electrons
-    top::check(evtStore()->retrieve(muons, "Muons_"), "Failed to retrieve Nominal muons");
-    // Put into a vector
-    selectedMuons.clear();
-    selectedMuonsLoose.clear();
-
-    for(const auto muonPtr: *muons){
-      if (m_selectedLepton.isAvailable(*muonPtr)){
-        if (m_selectedLepton(*muonPtr) == 1) {
-          selectedMuons.push_back(muonPtr);
+        for (int val : {1, -1}) {
+          setCurrentMuonVariation(s, val);
+          decorateEventForCurrentVariation();
         }
       }
-      if (m_selectedLeptonLoose.isAvailable(*muonPtr)){
-        if (m_selectedLeptonLoose(*muonPtr) == 1){
-          selectedMuonsLoose.push_back(muonPtr);
-        }
-      }
+      setCurrentMuonVariation("", 0);
     }
-
-    ///-- Set electron and muon tools to nominal calculation --///
-    top::check( this->setElectronSystematic("", 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron nominal" );
-    top::check( this->setMuonSystematic(    "", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
-
-    ///-- Loop over all electron collections --///
-    for (auto currentSystematic : *m_config->systSgKeyMapElectrons()) {
-      ///-- Skip nominal systematic
-      if( currentSystematic.first == m_config->nominalHashValue() ) continue;
-
-      top::check(evtStore()->retrieve(electrons, currentSystematic.second), "failed to retrieve electrons");
-      // Put into the vectors
-      selectedElectrons.clear();
-      selectedElectronsLoose.clear();
-
-      for(const auto electronPtr: *electrons){
-	if (m_selectedLepton.isAvailable(*electronPtr)){
-	  if (m_selectedLepton(*electronPtr) == 1){
-	    selectedElectrons.push_back(electronPtr);
-	  }
-	}
-	if (m_selectedLeptonLoose.isAvailable(*electronPtr)){
-	  if (m_selectedLeptonLoose(*electronPtr) == 1){
-	    selectedElectronsLoose.push_back(electronPtr);
-	  }
-	}
-      }
-
-      int nTightLeptons = selectedMuons.size() + selectedElectrons.size();
-      int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
-
-      // Protect accessing tools which were not configured
-      if(!m_config->doTightEvents()) nTightLeptons = -1;
-      if(!m_config->doLooseEvents()) nLooseLeptons = -1;
-
-      double SF_Trigger(1.0), SF_TriggerLoose(1.0);
-      double EFF_Trigger_MC(0.0), EFF_Trigger_DATA(0.0);
-      double EFF_TriggerLoose_MC(0.0), EFF_TriggerLoose_DATA(0.0);
-
-      if(nTightLeptons >= 1){
-	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) ,      "Failed to get SF");
-	top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC),      "");
-	top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+currentSystematic.second, SF_Trigger), "Failed to decorate EventInfo with SF for "+currentSystematic.second);
-      }
-      if(nLooseLeptons >= 1){
-	top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-	top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "");
-	top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+currentSystematic.second, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+currentSystematic.second);
-      }
-
-    }
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode GlobalLeptonTriggerCalculator::executeMuonSystematics()
-  {
-    // Retrieve nominal electrons, for use with the systematic muons
-    const xAOD::MuonContainer* muons(nullptr);
-    const xAOD::ElectronContainer* electrons(nullptr);
-    std::vector<const xAOD::Muon*> selectedMuons;
-    std::vector<const xAOD::Muon*> selectedMuonsLoose;
-    std::vector<const xAOD::Electron*> selectedElectrons;
-    std::vector<const xAOD::Electron*> selectedElectronsLoose;
-
-    ///--- Nominal electrons + systematics muons
-    top::check(evtStore()->retrieve(electrons, "Electrons_"), "Failed to retrieve Nominal electrons");
-    // Put into a vector
-    selectedElectrons.clear();
-    selectedElectronsLoose.clear();
-
-    for(const auto electronPtr: *electrons){
-      if (m_selectedLepton.isAvailable(*electronPtr)){
-	if (m_selectedLepton(*electronPtr) == 1){
-	  selectedElectrons.push_back(electronPtr);
-	}
-      }
-      if (m_selectedLeptonLoose.isAvailable(*electronPtr)){
-	if (m_selectedLeptonLoose(*electronPtr) == 1){
-	  selectedElectronsLoose.push_back(electronPtr);
-	}
-      }
-    }
-
-    ///-- Set electron and muon tools to nominal calculation --///                                                                   
-    top::check( this->setElectronSystematic("", 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron nominal" );
-    top::check( this->setMuonSystematic(    "", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
-
-    ///-- Loop over all muon collections --///
-    for (auto currentSystematic : *m_config->systSgKeyMapMuons()) {
-      ///-- Skip nominal systematic --///
-      if( currentSystematic.first == m_config->nominalHashValue() ) continue;
-
-      top::check(evtStore()->retrieve(muons, currentSystematic.second), "failed to retrieve muons");
-      // Put into the vectors
-      selectedMuons.clear();
-      selectedMuonsLoose.clear();
-
-      for(const auto muonPtr: *muons){
-	if (m_selectedLepton.isAvailable(*muonPtr)){
-	  if (m_selectedLepton(*muonPtr) == 1) {
-	    selectedMuons.push_back(muonPtr);
-	  }
-	}
-	if (m_selectedLeptonLoose.isAvailable(*muonPtr)){
-	  if (m_selectedLeptonLoose(*muonPtr) == 1){
-	    selectedMuonsLoose.push_back(muonPtr);
-	  }
-	}
-      }
-
-      int nTightLeptons = selectedMuons.size()      + selectedElectrons.size();
-      int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
-
-      // Protect accessing tools which were not configured
-      if(!m_config->doTightEvents()) nTightLeptons = -1;
-      if(!m_config->doLooseEvents()) nLooseLeptons = -1;
-
-      double SF_Trigger(1.0), SF_TriggerLoose(1.0);
-      double EFF_Trigger_MC(1.0), EFF_Trigger_DATA(1.0);
-      double EFF_TriggerLoose_MC(1.0), EFF_TriggerLoose_DATA(1.0);
-      
-      if(nTightLeptons >= 1){
-	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) ,      "Failed to get SF");
-	top::check(m_globalTriggerSF      -> getEfficiency(selectedElectrons, selectedMuons, EFF_Trigger_DATA, EFF_Trigger_MC), "");
-	top::check(this->decorateEventInfo(m_decor_triggerSF+"_"+currentSystematic.second, SF_Trigger), "Failed to decorate EventInfo with SF for "+currentSystematic.second);
-      }
-      if(nLooseLeptons >= 1){
-	top::check(m_globalTriggerSFLoose -> getEfficiencyScaleFactor(selectedElectronsLoose, selectedMuonsLoose, SF_TriggerLoose  ) , "Failed to get SF");
-	top::check(m_globalTriggerSFLoose -> getEfficiency(selectedElectronsLoose, selectedMuonsLoose, EFF_TriggerLoose_DATA, EFF_TriggerLoose_MC), "");
-	top::check(this->decorateEventInfo(m_decor_triggerSF_loose+"_"+currentSystematic.second, SF_TriggerLoose), "Failed to decorate EventInfo with SF for "+currentSystematic.second);
-      }
-    }
-
-    return StatusCode::SUCCESS;
-  }
-
-
-  StatusCode GlobalLeptonTriggerCalculator::decorateEventInfo(std::string decor, double value){
-
-    // Retrive the EventInfo
-    const xAOD::EventInfo* eventInfo(nullptr);
-    top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
-
-    // Decorate using the string provided
-    eventInfo->auxdecor<float>(decor) = value;
-
-    ATH_MSG_DEBUG("Decoration : " << decor);
-    return StatusCode::SUCCESS;
   }
 
 

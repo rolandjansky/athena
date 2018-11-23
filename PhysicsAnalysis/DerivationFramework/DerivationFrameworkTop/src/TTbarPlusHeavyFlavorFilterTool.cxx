@@ -16,6 +16,9 @@ TTbarPlusHeavyFlavorFilterTool::TTbarPlusHeavyFlavorFilterTool(const std::string
   declareProperty("MCCollectionName",m_mcName="TruthEvents");
   declareProperty("UsePileUp",m_usePileUp=false); /// of course doesn't work if pu is not available e.g. generation level
   declareProperty("UseFinalStateHadrons",m_useFinalStateHadrons=false);
+  declareProperty("SelectB",m_selectB=false);
+  declareProperty("SelectC",m_selectC=false);
+  declareProperty("SelectL",m_selectL=false);
   declareProperty("BpTMinCut",m_bPtMinCut=5000.); /// MeV
   declareProperty("BetaMaxCut",m_bEtaMaxCut=3.);
   declareProperty("CpTMinCut",m_cPtMinCut=5000.); /// MeV
@@ -45,7 +48,7 @@ StatusCode TTbarPlusHeavyFlavorFilterTool::finalize() {
 
 
 //---------------------------------------------------------------------------
-int TTbarPlusHeavyFlavorFilterTool::filterFlag() const{
+bool TTbarPlusHeavyFlavorFilterTool::filterDecision() const{
 //---------------------------------------------------------------------------
 
   int nB=0;
@@ -158,8 +161,12 @@ int TTbarPlusHeavyFlavorFilterTool::filterFlag() const{
     flavortype=5;
   }
 
-  return flavortype;
+  bool pass = false;
+  if(m_selectB && 5 == flavortype) pass=true;
+  if(m_selectC && 4 == flavortype) pass=true;
+  if(m_selectL && 0 == flavortype) pass=true;
 
+  return pass;
 
 }
 

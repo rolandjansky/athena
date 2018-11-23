@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetDict.h 796773 2017-02-12 19:01:20Z sschramm $
 #ifndef XAODJET_XAODJETDICT_H
 #define XAODJET_XAODJETDICT_H
 
@@ -22,12 +21,14 @@
 #include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
-#include "xAODJet/JetContainer.h"
+#include "xAODJet/versions/Jet_v1.h"
 #include "xAODJet/versions/JetContainer_v1.h"
 #include "xAODJet/versions/JetAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
-#include "xAODJet/versions/Jet_v1.h"
+#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 #include "xAODJet/JetTypes.h"
 
 namespace {
@@ -53,7 +54,7 @@ namespace {
      std::pair<std::string,std::vector<std::vector<int> > > bug3;
      std::pair<std::string,std::vector<std::vector<float> > > bug4;
 
-     // momentums     
+     // momentums
      //xAOD::JetFourMom_t jet4mom;
      std::vector<xAOD::JetFourMom_t> vjet4mom;
 
@@ -63,15 +64,15 @@ namespace {
 }
 
 
-template float xAOD::Jet_v1::getAttribute<float> (xAOD::JetAttribute::AttributeID) const ; 
-template int xAOD::Jet_v1::getAttribute<int> (xAOD::JetAttribute::AttributeID) const ; 
-template xAOD::JetFourMom_t xAOD::Jet_v1::getAttribute<xAOD::JetFourMom_t> (xAOD::JetAttribute::AttributeID) const ; 
+template float xAOD::Jet_v1::getAttribute<float> (xAOD::JetAttribute::AttributeID) const ;
+template int xAOD::Jet_v1::getAttribute<int> (xAOD::JetAttribute::AttributeID) const ;
+template xAOD::JetFourMom_t xAOD::Jet_v1::getAttribute<xAOD::JetFourMom_t> (xAOD::JetAttribute::AttributeID) const ;
 template std::vector<float> xAOD::Jet_v1::getAttribute< std::vector<float> > (xAOD::JetAttribute::AttributeID) const ;
 template std::vector<int> xAOD::Jet_v1::getAttribute< std::vector<int> > (xAOD::JetAttribute::AttributeID) const ;
 
-template float xAOD::Jet_v1::getAttribute<float> (const std::string &) const ; 
-template int xAOD::Jet_v1::getAttribute<int> (const std::string &) const ; 
-template xAOD::JetFourMom_t xAOD::Jet_v1::getAttribute<xAOD::JetFourMom_t> (const std::string &) const ; 
+template float xAOD::Jet_v1::getAttribute<float> (const std::string &) const ;
+template int xAOD::Jet_v1::getAttribute<int> (const std::string &) const ;
+template xAOD::JetFourMom_t xAOD::Jet_v1::getAttribute<xAOD::JetFourMom_t> (const std::string &) const ;
 template std::vector<float> xAOD::Jet_v1::getAttribute< std::vector<float> > (const std::string &) const ;
 template std::vector<int> xAOD::Jet_v1::getAttribute< std::vector<int> > (const std::string &) const ;
 

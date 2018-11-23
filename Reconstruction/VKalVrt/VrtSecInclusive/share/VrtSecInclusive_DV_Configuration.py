@@ -12,8 +12,19 @@ from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
 VrtSecInclusive_InDet = VrtSecInclusive("VrtSecInclusive_InDet")
 VrtSecInclusive_leptons  = VrtSecInclusive("VrtSecInclusive_leptons")
 
-topSequence.insert(-1, VrtSecInclusive_InDet)
-topSequence.insert(-1, VrtSecInclusive_leptons)
+try:
+    end_idx = [_.getName() for _ in topSequence].index('StreamESD')
+except ValueError:
+    try:
+        end_idx = [_.getName() for _ in topSequence].index('StreamAOD')
+    except ValueError:
+        local_logger = logging.getLogger('VrtSecInclusive_DV_Configuration')
+        local_logger.warning('Neither StreamESD nor StreamAOD found, VrtSecInclusive algs will be scheduled one before end of topSequence. Probably wrong!')
+        end_idx = -1
+        del local_logger
+topSequence.insert(end_idx, VrtSecInclusive_InDet)
+topSequence.insert(end_idx, VrtSecInclusive_leptons)
+del end_idx
 
 # set options for vertexing
 VrtSecInclusive_InDet.do_PVvetoCut                           = True

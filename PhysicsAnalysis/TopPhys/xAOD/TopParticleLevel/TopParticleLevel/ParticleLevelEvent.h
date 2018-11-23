@@ -55,7 +55,7 @@ namespace top {
 	xAOD::JetContainer m_RCJets;
 	
 	/// Containers of variable-R reclustered jets (can be sorted)
-	std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
+	mutable std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
 
         /// Pointer to the truth level large R jets.
         const xAOD::JetContainer * m_largeRJets;

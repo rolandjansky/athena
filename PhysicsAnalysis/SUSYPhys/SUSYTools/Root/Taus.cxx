@@ -76,31 +76,6 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   ATH_MSG_VERBOSE( "Starting FillTau on tau with pT = " << input.pt()/1000 << " GeV" );
   ATH_MSG_VERBOSE( "TAU pT before smearing " << input.pt()/1000 << " GeV");
 
-  // Re-decorate BDT score if requested (Bugfix for 20.7.8.2 derivations)
-  if(m_tauIDrecalc){
-    if(input.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore)){
-      ATH_MSG_VERBOSE( "TAU Unflattened BDT Score " << input.discriminant(xAOD::TauJetParameters::BDTJetScore));
-      
-      // if(input.hasDiscriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans)) 
-      // 	ATH_MSG_VERBOSE( "TAU Buggy Flattened BDT score " << input.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
-      
-      // We actually need to decorate some information to the tau to work properly
-      const xAOD::EventInfo* evtInfo = 0;
-      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-      
-      static SG::AuxElement::Accessor<float> acc_mu("MU");
-      acc_mu(input) = evtInfo->averageInteractionsPerCrossing();
-      static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
-      acc_numTrack(input) = input.nTracks();
-      
-      // No re-calculating the BDT score in R21
-      // ATH_MSG_VERBOSE( "TAU Fixed Flattened BDT score " << input.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
-    }
-    else
-      ATH_MSG_ERROR(" Missing BDT Score: Cannot re-calculate decision ");
-  }
-  
-
   // If the MVA calibration is being used, be sure to apply the calibration to data as well
   if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0) {
 
@@ -133,6 +108,8 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 
 
 bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float etacut) const {
+
+  dec_signal(input) = false;
 
   if ( !dec_baseline(input) ) return false;
 
@@ -245,13 +222,13 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
 
   int trigIdx =  0;
   //check if the trigger is among the supported options
-  auto itpos = std::find(tau_trig_support.begin(), tau_trig_support.end(), "HLT_"+trigExpr);  
-  if (itpos == tau_trig_support.end()){
+  auto itpos = std::find(m_tau_trig_support.begin(), m_tau_trig_support.end(), "HLT_"+trigExpr);
+  if (itpos == m_tau_trig_support.end()){
     ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported! Please check. Setting to 1 for now.");
     return eff;
   }
   else{
-    trigIdx = std::distance(tau_trig_support.begin(), itpos);
+    trigIdx = std::distance(m_tau_trig_support.begin(), itpos);
   }
 
   // Tau Trig SFs doc says: IMPORTANT: Use the tool only for taus matched to the trigger!

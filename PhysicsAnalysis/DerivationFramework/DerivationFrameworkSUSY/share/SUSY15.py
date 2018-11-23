@@ -1,9 +1,8 @@
 #********************************************************************
 # SUSY15.py
-# reductionConf flag SUSY15 in Reco_tf.py  
+# reductionConf flag SUSY15 in Reco_tf.py
 #********************************************************************
 
-# TODO: check what of this is still needed /CO
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
@@ -100,11 +99,8 @@ InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVx
 ToolSvc +=  InclusiveVxFitterTool;
 InclusiveVxFitterTool.OutputLevel = INFO
 
-
-
 TrackRandomizingSuffices = [ "0p5", "1p0", "2p0", "3p0", "4p0" ]
 RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
-
 
 # Temporary flag
 
@@ -112,24 +108,23 @@ doDissolvedVertexing = False
 
 #------------------------------------------------------------------------------
 if doDissolvedVertexing:
-  
+
   for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
     randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
     vsi        = VrtSecInclusive("VrtSecInclusive_Random_" + suffix)
-    
+
     randomizer.outputContainerName = suffix
     randomizer.shuffleStrength = sigma
-    
+
     setupVSI( vsi )
     vsi.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
     vsi.AugmentingVersionString = "_Randomized" + suffix
     vsi.VertexFitterTool        = InclusiveVxFitterTool
     vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
-    
+
     SeqSUSY15 += randomizer
     SeqSUSY15 += vsi
-    
-    
+
   MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
                                                   'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
                                                   'xAOD::VertexContainer#VrtSecInclusive*',
@@ -151,7 +146,6 @@ triggers = triggers_met + triggers_jet + triggers_lep + triggers_photon
 SUSY15ThinningHelper.AppendToStream( SUSY15Stream )
 
 ### Thinning for now taken from SUSY 2 with minor modifications as indicated /CO
-
 
 #====================================================================
 # THINNING TOOLS
@@ -210,14 +204,14 @@ thinningTools.append(SUSY15TauTPThinningTool)
 #====================================================================
 # THINNING FOR RANDOMIZED TRACKS
 #====================================================================
-# Set up your thinning tools (you can have as many as you need). 
+# Set up your thinning tools (you can have as many as you need).
 # Note how the thinning service (which must be passed to the tools) is accessed
 
 
 if doDissolvedVertexing:
-  
+
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VsiTrackThinningTool
-  
+
   #-----
   SUSY15ThinningTools = []
   for suffix in TrackRandomizingSuffices:
@@ -278,7 +272,7 @@ if DerivationFrameworkIsMonteCarlo:
   from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValTruthDecoratorTool
   IDPV_TruthDecoratorTool = InDetPhysValTruthDecoratorTool()
   ToolSvc += IDPV_TruthDecoratorTool
-  # --- and the augmentation tool 
+  # --- and the augmentation tool
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles as TrkParam4TruthPart
   TrkParam4Truth = TrkParam4TruthPart(
                                       name="TrkParam4Truth",
@@ -291,8 +285,46 @@ if DerivationFrameworkIsMonteCarlo:
   #AugmentationTools.append(TrkParam4Truth)
 
 
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
+  TruthJetKinematicsToolRHadron = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsRHadron",
+    OutputContainer = "AntiKt4LLP_RHadronTruthJets",
+    LLPType = 1,
+  )
+  ToolSvc += TruthJetKinematicsToolRHadron
+  AugmentationTools.append(TruthJetKinematicsToolRHadron)
+
+  TruthJetKinematicsToolChargino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsChargino",
+    OutputContainer = "AntiKt4LLP_CharginoTruthJets",
+    LLP_PDGIDS = [1000024],
+  )
+  ToolSvc += TruthJetKinematicsToolChargino
+  AugmentationTools.append(TruthJetKinematicsToolChargino)
+
+  TruthJetKinematicsToolNeutralino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsNeutralino",
+    OutputContainer = "AntiKt4LLP_NeutralinoTruthJets",
+    LLP_PDGIDS = [1000022],
+  )
+  ToolSvc += TruthJetKinematicsToolNeutralino
+  AugmentationTools.append(TruthJetKinematicsToolNeutralino)
+
+  TruthJetKinematicsToolGluino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsGluino",
+    OutputContainer = "AntiKt4LLP_GluinoTruthJets",
+    LLP_PDGIDS = [1000021],
+  )
+  ToolSvc += TruthJetKinematicsToolGluino
+  AugmentationTools.append(TruthJetKinematicsToolGluino)
+
+  TruthJetKinematicsToolSquark = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsSquark",
+    OutputContainer = "AntiKt4LLP_SquarkTruthJets",
+    LLP_PDGIDS = [1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 2000001, 2000002, 2000003, 2000004, 2000005, 2000006],
+  )
+  ToolSvc += TruthJetKinematicsToolSquark
+  AugmentationTools.append(TruthJetKinematicsToolSquark)
+
+
+
 #=============================================================================================
-# SKIMMING - skimming on triggers listed in python/SUSY15TriggerList.py 
+# SKIMMING - skimming on triggers listed in python/SUSY15TriggerList.py
 #=============================================================================================
 
 expression_trigger = "(" + " || ".join(triggers) + ")"
@@ -309,7 +341,7 @@ ToolSvc += SUSY15SkimmingTool
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM  
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -322,12 +354,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel("SUSY15KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY15")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -422,27 +454,40 @@ SUSY15SlimmingHelper.AllVariables = [
                                      ]
 
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF",
-					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
-					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY", # includes additions from Dominik (DVSUSYANLY-53)
-					"InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY",  # includes additions from Dominik (DVSUSYANLY-53)
+                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
+					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
+					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY",
+					"InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit",
 					"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 					"ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 					"TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
 					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.decayVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType.charge",
 					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType", # from Dominik (DVANALYSUSY-53)
+                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType",
 					"Electrons.bkgMotherPdgId.bkgTruthOrigin",
-                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV", # Laura J via Hide March 2018
-                                        "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons", # Laura J via Hide March 2018
-                                        "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs", # Laura J via Hide March 2018
-                                        "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs", # Laura J via Hide March 2018
-                                        "MET_LocHadTopo.source.name.mpx.mpy.sumet", #Laura J April 2018 removing allVariables
-                                        "MET_Track.source.name.mpx.mpy.sumet", #Laura J April 2018 removing allVariables
+                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
+                                        "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
+                                        "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
+                                        "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
+                                        "MET_LocHadTopo.source.name.mpx.mpy.sumet",
+                                        "MET_Track.source.name.mpx.mpy.sumet",
+                                        "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
 ]
-SUSY15SlimmingHelper.IncludeMuonTriggerContent = True # needed? /CO
-SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True # can change to photons only? /CO
-SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True # Added /CO
+SUSY15SlimmingHelper.IncludeMuonTriggerContent = True
+SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True
+SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True
+
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_RHadronTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_RHadronTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_CharginoTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_CharginoTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_NeutralinoTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_NeutralinoTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_GluinoTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_GluinoTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_SquarkTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_SquarkTruthJetsAux.")
+
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
@@ -452,8 +497,7 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY15SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
 
+  SUSY15SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 SUSY15SlimmingHelper.AppendContentToStream(SUSY15Stream)

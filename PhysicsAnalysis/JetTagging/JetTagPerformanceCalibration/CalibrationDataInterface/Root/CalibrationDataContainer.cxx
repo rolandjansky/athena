@@ -171,7 +171,7 @@ CalibrationDataContainer::getUncertainties(const CalibrationDataVariables& x,
   while (TPair* pair = (TPair*) it()) {
     std::string spec(pair->Key()->GetName());
     // ignore these specific entries
-    if (spec == "comment" || spec == "result" || spec == "statistics" || spec == "MChadronisation") continue;
+    if (spec == "comment" || spec == "result" || spec == "statistics" || spec == "MChadronisation" || spec == "excluded_set") continue;
     code = getUncertainty(spec, x, result, pair->Value());
     // we should never be finding any errors
     if (code == Analysis::kError) {
@@ -207,6 +207,20 @@ CalibrationDataContainer::getHadronisation() const
   const static std::string null("");
 
   TObject* obj = GetValue("MChadronisation");
+  if (! obj) return null;
+  TObjString* s = dynamic_cast<TObjString*>(obj);
+  if (! s ) return null;
+  return std::string(s->GetName());
+}
+
+//________________________________________________________________________________
+std::string
+CalibrationDataContainer::getExcludedUncertainties() const
+{
+  // Retrieve the (semicolon-separated) set of uncertainties that are recommended for removal from the eigenvector decomposition (if any)
+  const static std::string null("");
+
+  TObject* obj = GetValue("excluded_set");
   if (! obj) return null;
   TObjString* s = dynamic_cast<TObjString*>(obj);
   if (! s ) return null;
@@ -260,6 +274,18 @@ CalibrationDataContainer::setHadronisation(const std::string& text)
 
   if (TPair* p = (TPair*) FindObject("MChadronisation")) DeleteEntry(p->Key());
   Add(new TObjString("MChadronisation"), new TObjString(text.c_str()));
+}
+
+//________________________________________________________________________________
+void
+CalibrationDataContainer::setExcludedUncertainties(const std::string& text)
+{
+  // Insert (or replace) the (semicolon-separated) list of uncertainties that are recommended to be excluded from the eigenvector decomposition
+  //
+  //    text:       the (semicolon-separated) list of uncertainties in string form (will be converted to TObjString)
+
+  if (TPair* p = (TPair*) FindObject("excluded_set")) DeleteEntry(p->Key());
+  Add(new TObjString("excluded_set"), new TObjString(text.c_str()));
 }
 
 //________________________________________________________________________________

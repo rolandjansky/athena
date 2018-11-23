@@ -8,12 +8,15 @@
 #include "TopEventSelectionTools/ExamplePlots.h"
 #include "TopEventSelectionTools/JetFlavorPlots.h"
 #include "TopEventSelectionTools/FakesMMConfigs.h"
+#include "TopEventSelectionTools/GlobalTrigDecisionSelector.h"
+#include "TopEventSelectionTools/GlobalTrigMatchSelector.h"
 #include "TopEventSelectionTools/GRLSelector.h"
 #include "TopEventSelectionTools/GoodCaloSelector.h"
 #include "TopEventSelectionTools/HTSelector.h"
 #include "TopEventSelectionTools/IP3DSV1Selector.h"
 #include "TopEventSelectionTools/InitialSelector.h"
 #include "TopEventSelectionTools/JetCleaningSelector.h"
+#include "TopEventSelectionTools/TrackJetCleaningSelector.h"
 #include "TopEventSelectionTools/JetNGhostSelector.h"
 #include "TopEventSelectionTools/KLFitterSelector.h"
 #include "TopEventSelectionTools/METMWTSelector.h"
@@ -147,6 +150,10 @@ namespace top {
       return new top::JetFlavorPlots(name, outputFile, param, config, wk);
     else if (toolname == "GRL")
         return new top::GRLSelector();
+    else if (toolname == "GTRIGDEC")
+        return new top::GlobalTrigDecisionSelector();
+    else if (toolname == "GTRIGMATCH")
+        return new top::GlobalTrigMatchSelector();
     else if (toolname == "TRIGDEC")
         return new top::TrigDecisionSelector(name,config);
     else if (toolname == "TRIGDEC_LOOSE")
@@ -157,6 +164,8 @@ namespace top {
         return new top::TrigMatchSelector(name,config);
     else if (toolname == "JETCLEAN")
         return new top::JetCleaningSelector(param,config);
+    else if (toolname == "TRACKJETCLEAN")
+        return new top::TrackJetCleaningSelector(config);
     else if (toolname == "KLFITTER")
         return new top::KLFitterSelector(param);
     else if (toolname == "JET_N_GHOST")

@@ -567,6 +567,7 @@ std::shared_ptr<top::TopEventMaker> CreateTopEventMaker(std::shared_ptr<top::Top
   // make top::Event objects
   std::shared_ptr<top::TopEventMaker> topEventMaker( new top::TopEventMaker( "top::TopEventMaker" ) );
   top::check(topEventMaker->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopEventMaker");
+  top::check(topEventMaker->initialize(), "Failed to initialise top::TopEventMaker");
   // Debug messages?
   // topEventMaker.msg().setLevel(MSG::DEBUG);
   return topEventMaker;
@@ -689,7 +690,7 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
     // However, at least for data, this is causing problems with the trigger menu
     // skip the file, after the meta data access above
     const TTree* const collectionTree = dynamic_cast<TTree* > (inputFile->Get("CollectionTree"));
-    if (!collectionTree && !topConfig->isMC()) {
+    if (!collectionTree && !topConfig->isMC() && settings->feature("SkipInputFilesWithoutCollectionTree")) {
       std::cout << "No CollectionTree found, skipping file\n";
       continue;
     }
@@ -1137,7 +1138,7 @@ void ProcessRecoEventTight(AnalysisTopTools analysisTopTools, unsigned int &even
   const xAOD::SystematicEventContainer* allSystematics = analysisTopTools.topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEvents() );
   for (auto currentSystematic : *allSystematics) {
     ///-- Make a top::Event --///
-    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( *currentSystematic );
+    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( currentSystematic );
     ///-- Apply event selection --///
     const bool passAnyEventSelection = analysisTopTools.topEventSelectionManager->apply( topEvent,*currentSystematic );
     currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
@@ -1167,7 +1168,7 @@ void ProcessRecoEventLoose(AnalysisTopTools analysisTopTools, unsigned int &even
   const xAOD::SystematicEventContainer* allSystematicsLoose = analysisTopTools.topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEventsLoose() );
   for (auto currentSystematic : *allSystematicsLoose) {
     ///-- Make a top::Event --///
-    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( *currentSystematic );
+    top::Event topEvent = analysisTopTools.topEventMaker->makeTopEvent( currentSystematic );
     ///-- Apply event selection --///
     const bool passAnyEventSelection = analysisTopTools.topEventSelectionManager->apply(topEvent,*currentSystematic );
     currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;

@@ -12,10 +12,6 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
-if DerivationFrameworkIsMonteCarlo: 
-  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-  scheduleTauTruthTools()
-
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -44,8 +40,6 @@ HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
-thinningTools.append( HIGG5Common.getInDetTrackParticleThinning(        'HIGG5D3',HIGG5D3ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D3',HIGG5D3ThinningHelper,   ApplyAnd=True) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D3',HIGG5D3ThinningHelper) )
@@ -167,6 +161,9 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_j45_gsc55_bmv2c1070_split_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49',
                   'HLT_ht300_2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND_2j25_gsc45_bmv2c1070_split',
                   'HLT_ht300_2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND_2j35_gsc45_bmv2c1070_split',
+                  'HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF',
+                  'HLT_j70_0eta490_j50_0eta490_2j35_0eta490_invm1000j50_L1MJJ-500-NFF_AND_2j35_bmv2c1070_split',
+                  'HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF',
                   'HLT_2j35_bmv2c1060_split_2j35_L14J15.0ETA25',
                   'HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
                   'HLT_2j15_gsc35_bmv2c1050_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
@@ -342,7 +339,6 @@ HIGG5D3SlimmingHelper.AppendToDictionary = {
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
-                                           "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
                                            "AntiKt4EMTopoJets",
                                            "AntiKt4EMPFlowJets",

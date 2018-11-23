@@ -47,7 +47,6 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_jetUncertaintiesToolLargeR_medium("JetUncertaintiesToolLargeR_Medium"),
   m_jetUncertaintiesToolLargeR_weak("JetUncertaintiesToolLargeR_Weak"),
 
-  m_jetJERSmearingTool("JetJERSmearingTool"),
   m_jetUpdateJvtTool("JetUpdateJvtTool"),
   m_fjvtTool("fJVTTool"),
 
@@ -59,8 +58,7 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_systMap_ReducedNPScenario2(),
   m_systMap_ReducedNPScenario3(),
   m_systMap_ReducedNPScenario4(),
-  m_systMap_LargeR_strong(),
-  m_systMap_JER()
+  m_systMap_LargeR_strong()
 {
   declareProperty( "config" , m_config );
 
@@ -75,7 +73,6 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   declareProperty( "JetUncertaintiesToolReducedNPScenario3" , m_jetUncertaintiesToolReducedNPScenario3 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario4" , m_jetUncertaintiesToolReducedNPScenario4 );
 
-  declareProperty( "JetJERSmearingTool" , m_jetJERSmearingTool );
   declareProperty( "JetUpdateJvtTool" , m_jetUpdateJvtTool );
 
   declareProperty( "TruthJetCollectionForHSTagging" , m_truthJetCollForHS = "AntiKt4TruthJets" );
@@ -104,39 +101,33 @@ StatusCode JetObjectCollectionMaker::initialize() {
                 "Failed to retrieve JetUncertaintiesToolLargeR_Weak" );
   }
 
-  // If we are using particle flow jets then we
-  // don't have any uncertainties so skip the retrieval.
-  if (!m_config->useParticleFlowJets()) {
-    ///-- JER uncertainties model --///
-    if (m_config->jetJERSmearingModel() == "Full")
-      m_doFull_JER = true;
-    if (m_config->jetJERSmearingModel() == "Simple")
-      m_doFull_JER = false;
+  ///-- JER uncertainties model --///
+  if (m_config->jetJERSmearingModel() == "Full" || m_config->jetJERSmearingModel() == "All")
+    m_doFull_JER = true;
+  if (m_config->jetJERSmearingModel() == "Simple")
+    m_doFull_JER = false;
 
-    ///-- Are we doing JER? Let's not repeat this logic over and over --///
-    if (m_config->isMC())
-      m_doJER = true;
-    if (!m_config->isMC() && m_doFull_JER)
-      m_doJER = true;
-    /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
+  ///-- Are we doing JER? Let's not repeat this logic over and over --///
+  if (m_config->isMC())
+    m_doJER = true;
+  if (!m_config->isMC() && m_doFull_JER)
+    m_doJER = true;
+  /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
 
 
-    if (m_config->isMC()) {
-      if (!m_config->doMultipleJES()) {
-        top::check( m_jetUncertaintiesTool.retrieve() , "Failed to retrieve JetUncertaintiesToolAllNP" );
-	if ( m_config->jetCalibSequence() == "JMS" ){
-	  top::check( m_jetUncertaintiesToolFrozenJMS.retrieve() , "Failed to retrieve JetUncertaintiesToolAllNP" );
-	}
-      }
-      if (m_config->doMultipleJES()) {
-        top::check( m_jetUncertaintiesToolReducedNPScenario1.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario1" );
-        top::check( m_jetUncertaintiesToolReducedNPScenario2.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario2" );
-        top::check( m_jetUncertaintiesToolReducedNPScenario3.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario3" );
-        top::check( m_jetUncertaintiesToolReducedNPScenario4.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario4" );
+  if (m_config->isMC()) {
+    if (!m_config->doMultipleJES()) {
+      top::check( m_jetUncertaintiesTool.retrieve() , "Failed to retrieve JetUncertaintiesTool" );
+      if ( m_config->jetCalibSequence() == "JMS" ){
+	top::check( m_jetUncertaintiesToolFrozenJMS.retrieve() , "Failed to retrieve JetUncertaintiesTool (FrozenJMS)" );
       }
     }
-
-    top::check( m_jetJERSmearingTool.retrieve() , "Failed to retrieve JetJERSmearingTool" );
+    if (m_config->doMultipleJES()) {
+      top::check( m_jetUncertaintiesToolReducedNPScenario1.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario1" );
+      top::check( m_jetUncertaintiesToolReducedNPScenario2.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario2" );
+      top::check( m_jetUncertaintiesToolReducedNPScenario3.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario3" );
+      top::check( m_jetUncertaintiesToolReducedNPScenario4.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario4" );
+    }
   }
 
   top::check( m_jetUpdateJvtTool.retrieve() , "Failed to retrieve JetUpdateJvtTool" );
@@ -167,41 +158,36 @@ StatusCode JetObjectCollectionMaker::initialize() {
     }
   }
 
-  // If we are using particle flow jets then we
-  // don't have any uncertainties so skip
-  // trying to use the tools
-  if (!m_config->useParticleFlowJets()) {
-    ///-- JES systematics --///
-    if (m_config->isMC()) {
-      std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
-      std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
-      std::string largeR_strong("LARGERJET_Strong_"),
-        largeR_medium("LARGERJET_Medium_"),
-        largeR_weak("LARGERJET_Weak_");
+  
+  ///-- JES systematics --///
+  if (m_config->isMC()) {
+    std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),
+      np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
+    std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
+    std::string largeR_strong("LARGERJET_Strong_"),
+      largeR_medium("LARGERJET_Medium_"),
+      largeR_weak("LARGERJET_Weak_");
 
-      if (!m_config->doMultipleJES()) {
-        specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP );
-	if ( m_config->jetCalibSequence() == "JMS" ){
-	  specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS );
-	}
-      }
-      if (m_config->doMultipleJES()) {
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 );
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 , np2 );
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 , np3 );
-        specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 );
-      }
-      if (m_config->useLargeRJets()) {
-        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
-        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
-        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
+    if (!m_config->doMultipleJES()) {
+      specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP );
+      if ( m_config->jetCalibSequence() == "JMS" ){
+	specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS );
       }
     }
-
-    ///-- JER systematics --///
-    if (m_doJER)
-      specifiedSystematics( syst , m_jetJERSmearingTool , m_systMap_JER );
+    if (m_config->doMultipleJES()) {
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 , np2 );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 , np3 );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 );
+    }
+    if (m_config->useLargeRJets()) {
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
+      specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
+    }
   }
+
+  
 
   // See http://cern.ch/go/nHF6 for more information
   if (m_config->doLargeRSmallRCorrelations()) {
@@ -240,13 +226,15 @@ StatusCode JetObjectCollectionMaker::initialize() {
 
   ///-- DL1 Decoration --///
   m_btagSelToolsDL1Decor["DL1"]    = "BTaggingSelectionTool_forEventSaver_DL1_"+m_config->sgKeyJets();
-  m_btagSelToolsDL1Decor["DL1mu"]  = "BTaggingSelectionTool_forEventSaver_DL1mu_"+m_config->sgKeyJets();
-  m_btagSelToolsDL1Decor["DL1rnn"] = "BTaggingSelectionTool_forEventSaver_DL1rnn_"+m_config->sgKeyJets();
+  m_btagSelToolsDL1Decor["DL1r"]  = "BTaggingSelectionTool_forEventSaver_DL1r_"+m_config->sgKeyJets();
+  m_btagSelToolsDL1Decor["DL1rmu"] = "BTaggingSelectionTool_forEventSaver_DL1rmu_"+m_config->sgKeyJets();
   top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-  top::check(m_btagSelToolsDL1Decor["DL1mu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-  top::check(m_btagSelToolsDL1Decor["DL1rnn"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  top::check(m_btagSelToolsDL1Decor["DL1r"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
   // Store a lightweight flag to limit error messages if the DL1 weights are not present                                                                                           
   m_DL1Possible = true;
+  m_DL1rPossible = true;
+  m_DL1rmuPossible = true;
 
   return StatusCode::SUCCESS;
 }
@@ -281,12 +269,7 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeN
   }
     
   ///-- Systematics from here --///
-    
-  // No uncertainties yet for pflow
-  // - return SUCCESS after calibration
-  if (m_config->useParticleFlowJets())
-    return StatusCode::SUCCESS;
-    
+        
   ///-- JES, JER regular atk4 for now --///
   if (!isLargeR) {
     ///-- JES --///
@@ -304,11 +287,8 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeN
         top::check( applySystematic( m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 ) , "Failed to apply JES");
       }
     }
-
-    ///-- JER --///
-    if (m_doJER)
-      top::check( applySystematic ( m_jetJERSmearingTool , m_systMap_JER ) , "Failed to apply JER" );
-  } else {
+  } 
+  else {
     if (m_config->isMC()) {
       top::check( applySystematic( m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong, true ) , "Failed to apply large-R syst.");
       top::check( applySystematic( m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium, true ) , "Failed to apply large-R syst.");
@@ -511,56 +491,6 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<ICPJetUncertaint
 }
 
 
-
-StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<IJERSmearingTool>& tool,
-                                                     const std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map ) {
-  ///-- Get calibrated jets --///
-  const xAOD::JetContainer* xaod(nullptr);
-  top::check( evtStore()->retrieve( xaod , m_config->sgKeyJetsStandAlone( m_nominalSystematicSet.hash() ) ) , "Failed to retrieve Jets" );
-
-  ///-- Loop over the systematics --///
-
-  for (Itr syst=map.begin();syst!=map.end();++syst) {
-    ///-- Don't do the nominal, we've already done that --///
-    if ((*syst).second.hash() != m_nominalSystematicSet.hash()) {
-
-      ///-- Tell the tool which systematic to use --///
-      ///-- Here we use the second, original CP::SystematicSet --///
-      top::check( tool->applySystematicVariation( (*syst).second ) , "Failed to apply systematic" );
-
-      ///-- Shallow copy of the xAOD --///
-      std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer( *xaod );
-
-      ///-- Loop over the xAOD Container --///
-      for( auto jet : *(shallow_xaod_copy.first) ){
-        ///-- Apply Corrrection --///
-        top::check( tool->applyCorrection( *jet ) , "Failed to applyCorrection" );
-        ///-- Update JVT --///
-        jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt( *jet );
-      }
-
-      ///-- set links to original objects- needed for MET calculation --///
-      bool setLinks = xAOD::setOriginalObjectLink( *xaod, *shallow_xaod_copy.first );
-      if (!setLinks)
-        ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle" );
-
-      ///-- Save corrected xAOD Container to StoreGate / TStore --///
-      ///-- Here we use the first, AnalysisTop modified CP::SystematicSer --///
-      ///-- This allows us to run multiple JES scenarios, which all have the same hash values --///
-      std::string outputSGKey = m_config->sgKeyJetsStandAlone( (*syst).first.hash() );
-      std::string outputSGKeyAux = outputSGKey + "Aux.";
-
-      xAOD::TReturnCode save = evtStore()->tds()->record( shallow_xaod_copy.first , outputSGKey );
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_xaod_copy.second , outputSGKeyAux );
-      if( !save || !saveAux ){
-        return StatusCode::FAILURE;
-      }
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
 StatusCode JetObjectCollectionMaker::executeTrackJets(bool executeNominal) {
   ///-- No calibrations or systematics yet --///
   ///-- Only run this on the nominal execution --///
@@ -669,43 +599,6 @@ void JetObjectCollectionMaker::specifiedSystematics(const std::set<std::string>&
 }
 
 
-
-
-///-- Don't really need to do this, but would rather stay consistent with JetObjectCollectionMaker --///
-///-- This could be done like all the other xyzObjectCollectionMakers, but would need to change the way execute() works --///
-void JetObjectCollectionMaker::specifiedSystematics( const std::set<std::string>& specifiedSystematics,
-                                                     const ToolHandle<IJERSmearingTool>& tool,
-                                                     std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map ) {
-  ///-- Get the recommended systematics from the tool, in std::vector format --///
-  const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( tool->recommendedSystematics() );
-
-  for (auto s : systList) {
-    m_recommendedSystematics.push_back(s);
-
-    ///-- Are we doing JER? Are we only doing Nominal? Did the user specify specific systematics to use? --///
-    if (m_doJER) {
-      if (!m_config->isSystNominal( m_config->systematics() )) {
-        if (specifiedSystematics.size() == 0) {
-          m_specifiedSystematics.push_back(s);
-          map.insert( std::make_pair(s,s) );
-        }
-        if (specifiedSystematics.size()  > 0) {
-          for (auto i : specifiedSystematics) {
-            if ( i == s.name() ) {
-              m_specifiedSystematics.push_back(s);
-              map.insert( std::make_pair(s,s) );
-            }
-          }
-        }
-      }
-    }
-  }
-  m_recommendedSystematics.sort();
-  m_recommendedSystematics.unique();
-  m_specifiedSystematics.sort();
-  m_specifiedSystematics.unique();
-}
-
 StatusCode JetObjectCollectionMaker::decorateBJets(xAOD::Jet& jet) {
   // initialise decorator and accessor
   static SG::AuxElement::Decorator<char> isbjet("IsBjet");
@@ -744,35 +637,39 @@ StatusCode JetObjectCollectionMaker::decorateHSJets() {
 StatusCode JetObjectCollectionMaker::decorateDL1() {
   // initialise decorators
   static const SG::AuxElement::Decorator<float> DL1("AnalysisTop_DL1");
-  static const SG::AuxElement::Decorator<float> DL1mu("AnalysisTop_DL1mu");
-  static const SG::AuxElement::Decorator<float> DL1rnn("AnalysisTop_DL1rnn");
-
-  // Default value
-  double DL1_weight, DL1mu_weight, DL1rnn_weight = -999;
+  static const SG::AuxElement::Decorator<float> DL1r("AnalysisTop_DL1r");
+  static const SG::AuxElement::Decorator<float> DL1rmu("AnalysisTop_DL1rmu");
 
   // retrieve small-R jets collection
   const xAOD::JetContainer* jets(nullptr);
   top::check( evtStore()->retrieve( jets , m_config->sgKeyJets() ) , "Failed to retrieve small-R jet collection"+m_config->sgKeyJets() );
 
   for(const auto& jet : *jets) {
+    // Default value
+    double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
+
     // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
-    if(m_DL1Possible){
+    if(m_DL1Possible) { 
       if(! m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight) ){
 	DL1_weight = -999;
 	m_DL1Possible = false;
       }
-      if(! m_btagSelToolsDL1Decor["DL1mu"]->getTaggerWeight(*jet, DL1mu_weight) ){
-	DL1mu_weight = -999;
-	m_DL1Possible = false;
+    }
+    if(m_DL1rPossible) { 
+      if(! m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight) ){
+	DL1r_weight = -999;
+	m_DL1rPossible = false;
       }
-      if(! m_btagSelToolsDL1Decor["DL1rnn"]->getTaggerWeight(*jet, DL1rnn_weight) ){
-	DL1rnn_weight = -999;
-	m_DL1Possible = false;
+    }
+    if(m_DL1rmuPossible) {
+      if(! m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight) ){
+	DL1rmu_weight = -999;
+	m_DL1rmuPossible = false;
       }
     }
     DL1(*jet)    = DL1_weight;
-    DL1mu(*jet)  = DL1mu_weight;    
-    DL1rnn(*jet) = DL1rnn_weight;
+    DL1r(*jet)  = DL1r_weight;    
+    DL1rmu(*jet) = DL1rmu_weight;
   }
 
   return StatusCode::SUCCESS;

@@ -73,8 +73,9 @@ namespace top {
     return systEvents;
   }
 
-  top::Event TopEventMaker::makeTopEvent(const xAOD::SystematicEvent& currentSystematic)
+  top::Event TopEventMaker::makeTopEvent(const xAOD::SystematicEvent* currentSystematicPtr)
   {
+    xAOD::SystematicEvent const & currentSystematic = *currentSystematicPtr;
     //create a new event object
     top::Event event;
     
@@ -90,6 +91,7 @@ namespace top {
 
     //event info
     top::check(evtStore()->retrieve(event.m_info, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo"); 
+    event.m_systematicEvent = currentSystematicPtr;
     
     //Primary Vertices
     if (evtStore()->contains<xAOD::VertexContainer>(m_config->sgKeyPrimaryVertices())) {

@@ -244,6 +244,7 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SkimmingToolEXOT5
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 
 #from egammaRec.Factories import ToolFactory, AlgFactory
 #import PhotonVertexSelection.PhotonVertexSelectionConf as PVS
@@ -414,6 +415,12 @@ if not DerivationFrameworkIsMonteCarlo:
         expression=expression)
     ToolSvc += EXOT5StringSkimmingTool
     skimmingTools.append(EXOT5StringSkimmingTool)
+
+triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF"]
+EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
+                                                                         TriggerListOR           = triggerVBF )
+ToolSvc += EXOT5VBFStringSkimmingTool
+
 
 EXOT5SkimmingTool_EMTopo = DerivationFramework__SkimmingToolEXOT5(
     name                = 'EXOT5SkimmingTool_EMTopo',

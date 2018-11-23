@@ -5,6 +5,8 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon            import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon    import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+    addCSSKSoftDropJets)
 from DerivationFrameworkJetEtMiss.METCommon            import *
 from DerivationFrameworkEGamma.EGammaCommon            import *
 from DerivationFrameworkMuons.MuonsCommon              import *
@@ -293,9 +295,7 @@ addDefaultTrimmedJets(exot8Seq,"EXOT8")
 if globalflags.DataSource()=="geant4":
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True)
 
-addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], exot8Seq, "EXOT8", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
-
+addCSSKSoftDropJets(exot8Seq, "EXOT8")
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(exot8Seq)
@@ -331,6 +331,7 @@ EXOT8SlimmingHelper = SlimmingHelper("EXOT8SlimmingHelper")
 EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt2Track",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
                                         "PrimaryVertices",
                                         "Electrons",
                                         "Muons",
@@ -338,6 +339,7 @@ EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "AntiKt4TruthJets",
                                         "AntiKt4TruthWZJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                                         "HLT_xAOD__BTaggingContainer_HLTBjetFex",
                                         "InDetTrackParticles",
                                         "AntiKt4EMPFlowJets",

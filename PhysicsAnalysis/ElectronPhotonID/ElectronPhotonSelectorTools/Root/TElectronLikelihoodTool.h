@@ -95,15 +95,14 @@
 
 #include <string>                       // for string
 #include <vector>                       // for vector
+#include "SafeTH1.h"
+
 class TFile;
 class TH1F;
 namespace Root { class TAccept; }
 namespace Root { class TResult; }
-namespace{
-  const unsigned int  IP_BINS=1;
-}
-namespace LikeEnum {
 
+namespace LikeEnum {
   struct LHAcceptVars_t{
     double likelihood;
     double eta;
@@ -154,27 +153,6 @@ namespace Root {
     /// Standard destructor
     ~TElectronLikelihoodTool();
 
-  private:
-    class SafeTH1{
-    public :
-      SafeTH1(TH1F* hist);
-      ~SafeTH1();
-      int GetNbinsX();
-      int FindBin(double);
-      double GetBinContent(int);
-      double GetBinLowEdge(int);
-      double Integral();
-
-    private:
-      std::vector<float> m_binContent;
-      double m_firstBinLowEdge;
-      double m_lastBinLowEdge;
-      double m_binWidth;
-      double m_integral;
-    };
-
-    // Main methods
-  public:
     /// Initialize this class
     int initialize();
 
@@ -195,22 +173,18 @@ namespace Root {
                                     double deltaEta, double d0, double d0sigma, double rphi,
                                     double deltaPoverP ,double deltaphires, double TRT_PID,
                                     double ip) const;
-    
 
+    ///Reset the internal (TSelectorToolBase) m_accept and return it 
+    const Root::TAccept& cleanTAccept() const{
+      m_accept.clear();
+      return m_accept;
+    }
+    
     /// Add an input file that holds the PDFs
     inline void setPDFFileName ( const std::string& val ) { PdfFileName = val; }
 
-    /// Define the variable names
-    inline void setVariableNames ( const std::string& val ) { 
-      VariableNames = val; 
-      m_variableBitMask = GetLikelihoodBitmask(val);
-    }
-
-    /// Load the variable histograms from the pdf file.
+       /// Load the variable histograms from the pdf file.
     int LoadVarHistograms(std::string vstr, unsigned int varIndex);
-
-    /// Define the binning 
-    inline void setBinning ( const std::string& val ) { m_ipBinning = val; }
 
     /// Set the prefix of the result name
     inline void setResultPrefix ( const std::string& val ) { m_resultPrefix = val; }
@@ -218,31 +192,40 @@ namespace Root {
     /// The string for the result
     inline void setResultName ( const std::string& val ) { m_resultName = val; }
 
-    unsigned int getBitmask(void) const { return m_variableBitMask;} 
-    inline void setBitmask(unsigned int val) { m_variableBitMask = val; };
 
-    // Private methods
   private:
    
-    // For every input "varVector", make sure elements of vector are
-    // in the same order as prescribed in fVariables
-
-    /// Description???
+    /// Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
 
-    /// Description???
-    double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0) const;
-
-
-    // To concoct a bitmask on your own, use the 
-    // variable names prescribed in fVariables.
-    
-    /// Description???
+    ///Mask out the variables ,out of all possible ones, 
+    ///that are not employed in the current configuration
+    ///as read from the input config file
     unsigned int GetLikelihoodBitmask(std::string vars) const;
     
+    ///Interpolation between cut values
     double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const;
+
+    ///Interpolation between pdf
     double InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const;
+
+    /// Apply a transform to zoom into the LH output peaks. Optionally do pileup correction too
+    double TransformLikelihoodOutput(double ps,double pb, double ip, double et, double eta) const;
+
+    /// Eta binning for pdfs and discriminant cuts.
+    unsigned int getLikelihoodEtaBin(double eta) const ;
+
+    /// Coarse Et binning. Used for the likelihood pdfs.
+    unsigned int getLikelihoodEtHistBin(double eT) const ;
     
+    /// Fine Et binning. Used for the likelihood discriminant cuts.
+    unsigned int getLikelihoodEtDiscBin(double eT , const bool isLHbinning) const;
+    //get IP bin
+    unsigned int getIpBin(double ip) const;
+    //get Bin Name
+    void getBinName(char* buffer, int etbin,int etabin) const;
+
+   
   public:
     /** @brief cut min on b-layer hits*/
     std::vector<int> CutBL;
@@ -266,8 +249,6 @@ namespace Root {
     bool doRemoveTRTPIDAtHighEt;
     /** @brief do smooth interpolation between bins */
     bool doSmoothBinInterpolation;
-    /** @brief use binning for high ET LH*/
-    bool useHighETLHBinning;
     /** @brief use one extra bin for high ET LH*/
     bool useOneExtraHighETLHBin;
     /** @brief ET threshold for using high ET cuts and bin */
@@ -314,94 +295,58 @@ namespace Root {
     std::string PdfFileName;
 
 
-    // Private methods
-  private:
-    /// Apply a transform to zoom into the LH output peaks. Optionally do pileup correction too
-    double TransformLikelihoodOutput(double ps,double pb, double ip, double et, double eta) const;
-
-    /// Eta binning for pdfs and discriminant cuts.
-    unsigned int getLikelihoodEtaBin(double eta) const ;
-
-    /// Coarse Et binning. Used for the likelihood pdfs.
-    unsigned int getLikelihoodEtHistBin(double eT) const ;
-    
-    /// Fine Et binning. Used for the likelihood discriminant cuts.
-    unsigned int getLikelihoodEtDiscBin(double eT , const bool isLHbinning) const;
-
-
-    // Private member variables
-  private:
-
     /// The bitmask corresponding to the variables in the likelihood. For internal use.
     unsigned int        m_variableBitMask;
-
-    /// Deprecated.
-    std::string         m_ipBinning;
-
     /// Pointer to the opened TFile that holds the PDFs
     TFile*              m_pdfFile;
-
     /// The prefix string for the result
     std::string m_resultPrefix;
-
     /// The string for the result
     std::string m_resultName;
-
     /// The position of the kinematic cut bit in the TAccept return object
     int m_cutPosition_kinematic;
-
     /// The position of the NSilicon cut bit in the TAccept return object
     int m_cutPosition_NSilicon;
-
     /// The position of the NPixel cut bit in the TAccept return object
     int m_cutPosition_NPixel;
-
     /// The position of the NBlayer cut bit in the TAccept return object
     int m_cutPosition_NBlayer;
-
     /// The position of the conversion cut bit in the TAccept return object
     int m_cutPosition_conversion;
-
     /// The position of the ambiguity cut bit in the TAccept return object
     int m_cutPosition_ambiguity;
-
     /// The position of the likelihood cut bit in the TAccept return object
     int m_cutPosition_LH;
-
     /// The position of the d0 cut bit in the TAccept return object
     int m_cutPositionTrackA0;
-
     /// The position of the deltaeta cut bit in the TAccept return object
     int m_cutPositionTrackMatchEta;
-
-    // /// The position of the deltaphi cut bit in the TAccept return object
+    /// The position of the deltaphi cut bit in the TAccept return object
     int m_cutPositionTrackMatchPhiRes;
-
-    // /// The position of the high ET wstot cut bit in the TAccept return object
+    /// The position of the high ET wstot cut bit in the TAccept return object
     int m_cutPositionWstotAtHighET;
-
-    // /// The position of the high ET EoverP cut bit in the TAccept return object
+    /// The position of the high ET EoverP cut bit in the TAccept return object
     int m_cutPositionEoverPAtHighET;
-
     /// The position of the likelihood value bit in the TResult return object
     int m_resultPosition_LH;
 
-    static const double fIpBounds[IP_BINS+1];
-    static const unsigned int  s_fnEtBinsHist     = 8;  // number of hists stored for LH with many high ET bins (useHighETLHBinning), including 4GeV bin
-    static const unsigned int  s_fnDiscEtBins     = 33; // number of discs stored for LH with many high ET bins (useHighETLHBinning), excluding 4GeV bin
-    static const unsigned int  s_fnEtBinsHistOrig = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
-    static const unsigned int  s_fnDiscEtBinsOrig = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
-    static const unsigned int  s_fnDiscEtBinsOneExtra = 10; // number of discs stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
-    static const unsigned int  s_fnEtaBins        = 10;
+    //Pile-up bounds (we have only one bin in practice 
+    static const unsigned int  s_IP_BINS=1;
+    static const double s_fIpBounds[s_IP_BINS+1];
+    // number of histogram vs Et stored for original LH, including 4GeV bin (for backwards compatibility)
+    static const unsigned int  s_fnEtBinsHist = 7;  
+    // Number of discriminants vs Et stored for original LH, excluding 4GeV bin (for backwards compatibility)
+    static const unsigned int  s_fnDiscEtBins = 9;  
+    // number of discrimintants vs Et stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
+    static const unsigned int  s_fnDiscEtBinsOneExtra = 10; 
+    // number of discriminants vs |eta|
+    static const unsigned int  s_fnEtaBins        = 10;  
+    // number of allowed variables
     static const unsigned int  s_fnVariables      = 13;
-    TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const std::string  fVariables                [s_fnVariables];
-
-    unsigned int getIpBin(double ip) const;
-    void getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const;
+    //Allowed variables 
+    static const std::string   s_fVariables [s_fnVariables];
+    EGSelectors::SafeTH1* m_fPDFbins  [2][s_IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
   };
-
 } // End: namespace Root
 
-//----------------------------------------------------------------------------------------
 #endif

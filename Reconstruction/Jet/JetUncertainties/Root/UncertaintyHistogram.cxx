@@ -9,9 +9,12 @@
 #include "TMath.h"
 #include "TFile.h"
 #include "TAxis.h"
+#include "TH2.h"
 #include "TH3.h"
 #include "TH3F.h"
 #include "TH3D.h"
+
+#include <stdexcept>
 
 namespace jet
 {
@@ -22,24 +25,25 @@ namespace jet
 //                                              //
 //////////////////////////////////////////////////
 
-UncertaintyHistogram::UncertaintyHistogram(const std::string& histName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const std::string& histName, const Interpolate::TypeEnum interpolate)
     : asg::AsgMessaging(histName)
     , m_isInit(false)
     , m_name(histName.c_str())
     , m_interpolate(interpolate)
     , m_histo(NULL)
     , m_nDim(0)
+    , m_cachedProj()
 {
     if (histName == "")
         JESUNC_NO_DEFAULT_CONSTRUCTOR;
     ATH_MSG_DEBUG(Form("Creating UncertaintyHistogram named %s",getName().Data()));
 }
 
-UncertaintyHistogram::UncertaintyHistogram(const TString histName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const TString histName, const Interpolate::TypeEnum interpolate)
     : UncertaintyHistogram(std::string(histName.Data()),interpolate)
 { }
 
-UncertaintyHistogram::UncertaintyHistogram(const char* histName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const char* histName, const Interpolate::TypeEnum interpolate)
     : UncertaintyHistogram(std::string(histName),interpolate)
 { }
 
@@ -50,6 +54,7 @@ UncertaintyHistogram::UncertaintyHistogram(const UncertaintyHistogram& toCopy)
     , m_interpolate(toCopy.m_interpolate)
     , m_histo(NULL)
     , m_nDim(toCopy.m_nDim)
+    , m_cachedProj()
 {
     ATH_MSG_DEBUG("Creating copy of UncertaintyHistogram named " << getName().Data());
 
@@ -57,8 +62,18 @@ UncertaintyHistogram::UncertaintyHistogram(const UncertaintyHistogram& toCopy)
     {
         m_histo = dynamic_cast<TH1*>(toCopy.m_histo->Clone());
         if (!m_histo)
+        {
             ATH_MSG_FATAL("Failed to copy uncertainty histogram for " << getName().Data());
+            throw std::runtime_error("Failed to copy histogram in UncertaintyHistogram copy constructor");
+        }
     }
+
+    if (toCopy.m_cachedProj.size())
+        if (cacheProjections().isFailure())
+        {
+            ATH_MSG_FATAL("Failed to build the required cache for " << getName().Data());
+            throw std::runtime_error("Failed to build projection cache in UncertaintyHistogram copy constructor");
+        }
 }
 
 UncertaintyHistogram::~UncertaintyHistogram()
@@ -102,6 +117,11 @@ StatusCode UncertaintyHistogram::initialize(TFile* histFile)
 
     // Cache dimensionality
     m_nDim = m_histo->GetDimension();
+
+    // Cache the projections if relevant
+    if (m_interpolate == Interpolate::OnlyX || m_interpolate == Interpolate::OnlyY)
+        if (cacheProjections().isFailure())
+            return StatusCode::FAILURE;
 
     // Print a summary
     ATH_MSG_DEBUG(Form("%s: Found histogram",getName().Data()));
@@ -176,22 +196,71 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     const float valX = checkBoundaries(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
-        if (m_interpolate) return Interpolate(m_histo,valX);
-        else               return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX));
+        switch (m_interpolate)
+        {
+            case Interpolate::Full:
+            case Interpolate::OnlyX:
+                return Interpolate(m_histo,valX);
+
+            case Interpolate::None:
+                return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX));
+
+            default:
+                ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
+                return JESUNC_ERROR_CODE;
+        }
     }
 
     // Check second dimension boundaries, if applicable
     const float valY = checkBoundaries(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
-        if (m_interpolate) return Interpolate(m_histo,valX,valY);
-        else               return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY));
+        // We need a 2D histogram for the projection calls
+        switch (m_interpolate)
+        {
+            case Interpolate::Full:
+                return Interpolate(m_histo,valX,valY);
+
+            case Interpolate::OnlyX:
+                // Interpolate on the x projection for a given Y bin
+                return Interpolate(m_cachedProj.at(0).at(FindBin(m_histo->GetYaxis(),valY)).get(),valX);
+
+            case Interpolate::OnlyY:
+                // Interpolate on the y projection for a given X bin
+                return Interpolate(m_cachedProj.at(0).at(FindBin(m_histo->GetXaxis(),valX)).get(),valY);
+
+            case Interpolate::None:
+                return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY));
+
+            default:
+                ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
+                return JESUNC_ERROR_CODE;
+        }
     }
 
     // Check third dimension boundaries, if applicable
     const float valZ = checkBoundaries(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
-    if (m_interpolate) return Interpolate(m_histo,valX,valY,valZ);
-    return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
+    
+    switch (m_interpolate)
+    {
+        case Interpolate::Full:
+            return Interpolate(m_histo,valX,valY,valZ);
+
+        case Interpolate::OnlyX:
+            // Interpolate on the x projection for a given y,z bin
+            return Interpolate(m_cachedProj.at(FindBin(m_histo->GetYaxis(),valY)).at(FindBin(m_histo->GetZaxis(),valZ)).get(),valX);
+
+        case Interpolate::OnlyY:
+            // Interpolate on the y projection for a given x,z bin
+            return Interpolate(m_cachedProj.at(FindBin(m_histo->GetXaxis(),valX)).at(FindBin(m_histo->GetZaxis(),valZ)).get(),valY);
+
+        case Interpolate::None:
+            return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
+
+        default:
+            ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
+            return JESUNC_ERROR_CODE;
+    }
 }
 
 
@@ -446,10 +515,8 @@ double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const
     Int_t obz = ubz + 1;
     
     // Calculate distance weights before checking under/overflow bins
-    Double_t xw = fXaxis->GetBinCenter(obx) - fXaxis->GetBinCenter(ubx);
-    Double_t yw = fYaxis->GetBinCenter(oby) - fYaxis->GetBinCenter(uby);
-    Double_t zw = fZaxis->GetBinCenter(obz) - fZaxis->GetBinCenter(ubz);
-    
+    // No longer here, see note below
+
     if (x < fXaxis->GetBinCenter(ubx)) { ubx -= 1; obx -= 1; }
     if (ubx < 1) ubx = 1;
     if (obx > histo->GetNbinsX()) obx = histo->GetNbinsX();
@@ -477,6 +544,13 @@ double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const
             return Interpolate2D(histo,y,z,2,3,ubx);
         
     }
+    
+    // Moved from the point which says "see note below" to better handle non-uniform bins
+    // Particularly important for logarithmic bins, which are commonly used in this tool
+    // Done following studies/suggestion by P-A Delsart
+    Double_t xw = fXaxis->GetBinCenter(obx) - fXaxis->GetBinCenter(ubx);
+    Double_t yw = fYaxis->GetBinCenter(oby) - fYaxis->GetBinCenter(uby);
+    Double_t zw = fZaxis->GetBinCenter(obz) - fZaxis->GetBinCenter(ubz);
     
     // Not a boundary case, resume normal ROOT::TH3::Interpolate()
     Double_t xd = (x - fXaxis->GetBinCenter(ubx)) / xw;
@@ -527,6 +601,155 @@ Int_t UncertaintyHistogram::FindBin(const TAxis* axis, const double x) const
        }
     }
     return bin;
+}
+
+
+StatusCode UncertaintyHistogram::cacheProjections()
+{
+    // Ensure the histogram exists
+    if (!m_histo)
+    {
+        ATH_MSG_FATAL("Cannot cache histogram as it doesn't exist: " << m_name.Data());
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure the number of dimensions is sane
+    if (m_histo->GetDimension() < 1 || m_histo->GetDimension() > 3)
+    {
+        ATH_MSG_FATAL("Unsupported histogram dimensionality for projection caching: " << m_histo->GetDimension());
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure the cache doesn't already exist
+    if (m_cachedProj.size())
+    {
+        ATH_MSG_FATAL("Cannot cache histogram as the cache is non-empty: " << m_name.Data());
+        return StatusCode::FAILURE;
+    }
+
+    // Protect vs Interpolate
+    switch (m_interpolate)
+    {
+        case Interpolate::OnlyX:
+            // Simple case of 1D
+            if (m_histo->GetDimension() == 1)
+                return StatusCode::SUCCESS;
+            break;
+
+        case Interpolate::OnlyY:
+            //  Failure case of 1D
+            if (m_histo->GetDimension() == 1)
+            {
+                ATH_MSG_FATAL("Cannot project in Y for a 1D histogram: " << m_name.Data());
+                return StatusCode::FAILURE;
+            }
+            break;
+
+        default:
+            ATH_MSG_FATAL("The interpolation type is not supported for caching: " << m_name.Data());
+            return StatusCode::FAILURE;
+    }
+    
+    // If we got here, then the request makes sense
+    // Start the projections
+    // Intentionally include underflow and overflow bins
+    // This keeps the same indexing scheme as root
+    // Avoids confusion and problems later at cost of a small amount of RAM
+    if (m_histo->GetDimension() == 2)
+    {
+        // Prepare to cache
+        TH2* localHist = dynamic_cast<TH2*>(m_histo);
+        m_cachedProj.resize(1); // 2D is a single slice of 3D
+        if (!localHist)
+        {
+            ATH_MSG_FATAL("Failed to convert histogram to a TH2, please check inputs: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
+
+        // Create the projections
+        if (m_interpolate == Interpolate::OnlyX)
+        {
+            for (Long64_t binY = 0; binY < localHist->GetNbinsY()+1; ++binY)
+            {
+                // Single bin of Y, interpolate across X
+                m_cachedProj.at(0).emplace_back(localHist->ProjectionX(Form("projx_%lld",binY),binY,binY));
+            }
+        }
+        else if (m_interpolate == Interpolate::OnlyY)
+        {
+            for (Long64_t binX = 0; binX < localHist->GetNbinsX()+1; ++binX)
+            {
+                // Single bin of X, interpolate across Y
+                m_cachedProj.at(0).emplace_back(localHist->ProjectionY(Form("projy_%lld",binX),binX,binX));
+            }
+        }
+        else
+        {
+            // We shouldn't make it here due to earlier checks
+            ATH_MSG_FATAL("Unexpected interpolation type, somehow escaped earlier checks: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
+    }
+    else if (m_histo->GetDimension() == 3)
+    {
+        // Prepare to cache
+        TH3* localHist = dynamic_cast<TH3*>(m_histo);
+        if (!localHist)
+        {
+            ATH_MSG_FATAL("Failed to convert histogram to a TH3, please check inputs: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
+
+        // Create the projections
+        if (m_interpolate == Interpolate::OnlyX)
+        {
+            m_cachedProj.resize(localHist->GetNbinsY()+1); // 3D is a full double-index scan
+            for (Long64_t binY = 0; binY < localHist->GetNbinsY()+1; ++binY)
+            {
+                for (Long64_t binZ = 0; binZ < localHist->GetNbinsZ()+1; ++binZ)
+                {
+                    // Single bin of Y-Z, interpolate across X
+                    m_cachedProj.at(binY).emplace_back(localHist->ProjectionX(Form("projx_%lld_%lld",binY,binZ),binY,binY,binZ,binZ));
+                }
+            }
+        }
+        else if (m_interpolate == Interpolate::OnlyY)
+        {
+            m_cachedProj.resize(localHist->GetNbinsX()+1); // 3D is a full double-index scan
+            for (Long64_t binX = 0; binX < localHist->GetNbinsX()+1; ++binX)
+            {
+                for (Long64_t binZ = 0; binZ < localHist->GetNbinsZ()+1; ++binZ)
+                {
+                    // Single bin of X-Z, interpolate across Y
+                    m_cachedProj.at(binX).emplace_back(localHist->ProjectionY(Form("projy_%lld_%lld",binX,binZ),binX,binX,binZ,binZ));
+                }
+            }
+        }
+        else
+        {
+            // We shouldn't make it here due to earlier checks
+            ATH_MSG_FATAL("Unexpected interpolation type, somehow escaped earlier checks: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
+    }
+    else
+    {
+        // We shouldn't make it here due to earlier checks
+        ATH_MSG_FATAL("Unexpected dimensionality: " << m_histo->GetDimension());
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure that ROOT doesn't try to take posession of any of the projections
+    for (size_t index = 0; index < m_cachedProj.size(); ++index)
+    {
+        for (auto& hist : m_cachedProj.at(index))
+        {
+            hist->SetDirectory(nullptr);
+        }
+    }
+
+    // All done
+    return StatusCode::SUCCESS;
 }
 
 } // end jet namespace

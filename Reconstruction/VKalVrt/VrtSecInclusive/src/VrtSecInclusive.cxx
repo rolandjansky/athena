@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -94,8 +94,8 @@ namespace VKalVrtAthena {
     return StatusCode::SUCCESS;
   }
   
-  
-  
+
+
   //__________________________________________________________________________
   StatusCode VrtSecInclusive::initialize()
   {
@@ -226,6 +226,10 @@ namespace VKalVrtAthena {
       m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0]) );
       m_hists["CPUTime"]           = new TH1F("CPUTime",           ";Step;Accum. CPU Time [s]",                 10, -0.5, 10-0.5                                         );
       m_hists["nMatchedTruths"]    = new TH2F("nMatchedTruths",    ";Step;;r [mm];Matched truth vertices",      11, -0.5, 11-0.5, rbins.size()-1, &(rbins[0])            );
+      m_hists["vPosMomAngT"]       = new TH1F("vPosMomAngT",       ";cos(#vec{r},#vec{p}_{T}",                  200, -1.0, 1.0                                           );
+      m_hists["vPosMomAng3D"]      = new TH1F("vPosMomAng3D",      ";cos(#vec{r},#vec{p})",                     200, -1.0, 1.0                                           );
+      m_hists["2trkVtxDistFromPV"] = new TH1F("2trkVtDistFromPV",  ";2tr vertex distance from PV;Events",       100, 0, 3                                                );
+
       
       std::string histDir("/AANT/VrtSecInclusive" + m_jp.augVerString + "/");
       

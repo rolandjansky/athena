@@ -19,7 +19,7 @@ StatusCode JetLArHVTool::initialize()
 }
 
 
-int JetLArHVTool::modifyJet( xAOD::Jet& jet ) const 
+int JetLArHVTool::modifyJet( xAOD::Jet& jet ) const
 {
   double energyHVaff=0;
   int numCellsHVaff=0;
@@ -29,7 +29,7 @@ int JetLArHVTool::modifyJet( xAOD::Jet& jet ) const
   for(size_t i=0;i<num;i++) {
     const xAOD::CaloCluster * cl = dynamic_cast<const xAOD::CaloCluster *>(jet.rawConstituent(i));
     if( !cl) continue;
-    
+
     double m;
     if(cl->retrieveMoment(xAOD::CaloCluster::ENG_BAD_HV_CELLS,m) ) energyHVaff  += m;
     if(cl->retrieveMoment(xAOD::CaloCluster::N_BAD_HV_CELLS, m) ) numCellsHVaff += m;
@@ -39,8 +39,6 @@ int JetLArHVTool::modifyJet( xAOD::Jet& jet ) const
   // set the attributes
   jet.setAttribute<float>("LArBadHVEnergyFrac", energyHVaff / emE);
   jet.setAttribute<int>("LArBadHVNCell", numCellsHVaff);
-    
+
   return 0;
 }
-
-

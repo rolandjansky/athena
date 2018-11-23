@@ -53,13 +53,25 @@ elif not HIDerivationFlags.isPP():
         triggers += ['HLT_e15_loose_ion_L1EM12']
         triggers += ['HLT_mu8']
         triggers += ['HLT_g20_loose_ion']
+        triggers += ['HLT_e15_lhloose_ion_L1EM12']
+        triggers += ['HLT_e15_loose_ion']
     else :
         triggers += ['HLT_noalg_mb_L1TE50']
         triggers += ['HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50']    
+
+    #remove egamma tools scheduled for ForwardElectrons, which are missing in Pb+Pb reconstruction
+    toolsToRemove = []
+    for tool in topSequence.EGammaCommonKernel.AugmentationTools:
+        if 'ForwardElectron' in tool.getName():
+            toolsToRemove.append(tool)
+
+    for tool in toolsToRemove:
+        topSequence.EGammaCommonKernel.AugmentationTools.remove(tool)
 else:
     triggers += ['HLT_e15_lhloose_L1EM13VH']
     triggers += ['HLT_mu14']
     triggers += ['HLT_g30_loose']    
+    triggers += ['HLT_g35_loose_L1EM15']    
 
 
 #==========================================================
@@ -159,8 +171,7 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-if HIDerivationFlags.isPP(): JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets']
-else : JetCollectionList = ['DFAntiKt2HIJets', 'DFAntiKt4HIJets']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets']
 
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -203,12 +214,20 @@ for collection in JetCollectionList :
         ExtraContentAll.append(collection+'.'+j)
 HION5SlimmingHelper.ExtraVariables = ExtraContentAll
 
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HION5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+HION5SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+HION5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
+
 addMETOutputs(HION5SlimmingHelper,met_ptCutList)
 #HION5SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt4HIJets","AntiKt4HITrackJets","HIClusters"]
 HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets"]
 HION5SlimmingHelper.AllVariables += HIGlobalVars
 if HIDerivationFlags.isPPb(): HION5SlimmingHelper.AllVariables += ["HIEventShape", "ForwardElectrons", "ForwardElectronClusters"]
-if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","egammaTruthParticles","TruthEvents","TruthParticles"]
+if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles"]
 
 
 HION5SlimmingHelper.IncludeEGammaTriggerContent = True

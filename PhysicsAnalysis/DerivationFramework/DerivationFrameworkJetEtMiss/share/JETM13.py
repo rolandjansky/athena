@@ -39,7 +39,8 @@ svcMgr += createThinningSvc( svcName="JETM13ThinningSvc", outStreams=[evtStream]
 # THINNING TOOLS
 #====================================================================
 # Retain only stable truth particles, remove G4
-# We want to keep all constituents
+# We want to keep all truth jet constituents
+# Also keep the first 10 particles mainly for the HS truth vertex
 jetm13thin = []
 if DerivationFrameworkIsMonteCarlo:
 
@@ -57,7 +58,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                              WriteBHadrons      = True,
                                                              WriteCHadrons      = False,
                                                              WriteGeant         = False,
-                                                             WriteFirstN        = -1)
+                                                             WriteFirstN        = 10)
   ToolSvc += TruthThinningTool
   jetm13thin.append(TruthThinningTool)
 
@@ -75,18 +76,13 @@ runTCCReconstruction(jetm13Seq,ToolSvc)
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
+OutputJets["JETM13"] = []
 reducedJetList = ["AntiKt4TruthJets","AntiKt10TruthJets",]
 replaceAODReducedJets(reducedJetList,jetm13Seq,"JETM13")
 
 jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel",
                                                           SkimmingTools = [],
                                                           ThinningTools = jetm13thin)
-
-#====================================================================
-# Special jets
-#====================================================================
-
-OutputJets["JETM13"] = []
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -105,6 +101,7 @@ JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                      "JetETMissNeutralParticleFlowObjects",
                                      "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      "TruthParticles",
+                                     "TruthVertices",
                                      "TruthEvents",
                                      ]
 JETM13SlimmingHelper.ExtraVariables = [

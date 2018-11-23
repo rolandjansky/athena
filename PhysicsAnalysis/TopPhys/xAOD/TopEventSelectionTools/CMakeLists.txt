@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           TopCorrections
                           TopParticleLevel
+                          TriggerAnalysisInterfaces
 			  JetSelectorTools )
 
 # This package uses ROOT:

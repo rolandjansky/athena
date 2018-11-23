@@ -41,7 +41,7 @@ atlas_add_root_dictionary( xAODRootAccess xAODRootAccessDictSource
 atlas_add_library( xAODRootAccess
    xAODRootAccess/*.h xAODRootAccess/*.icc
    xAODRootAccess/tools/*.h xAODRootAccess/tools/*.icc
-   Root/*.cxx ${xAODRootAccessDictSource}
+   Root/*.h Root/*.cxx ${xAODRootAccessDictSource}
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
@@ -90,17 +90,25 @@ _add_test( ut_xaodrootaccess_tchain_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
 _add_test( ut_xaodrootaccess_tstore_test )
+_add_test( ut_xaodrootaccess_athenaMode_test )
 atlas_add_test( ut_xaodrootaccess_tpystore_test
-   SCRIPT test/ut_xaodrootaccess_tpystore_test.py )
+   SCRIPT python
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpystore_test.py )
 
 if( XAOD_ANALYSIS )
    _add_test( ut_xaodrootaccess_tevent_test )
    _add_test( ut_xaodrootaccess_tevent_copy_test )
    _add_test( ut_xaodrootaccess_transtree_test )
    atlas_add_test( ut_xaodrootaccess_tpyevent_test
-      SCRIPT test/ut_xaodrootaccess_tpyevent_test.py
+      SCRIPT python
+      ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpyevent_test.py
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_xaodrootaccess_transtree2_test
-      SCRIPT test/ut_xaodrootaccess_transtree2_test.py
+      SCRIPT python
+      ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_transtree2_test.py
       PROPERTIES TIMEOUT 600 )
+endif()
+
+if( NOT XAOD_STANDALONE )
+   _add_test( ut_xaodrootaccess_proxydict_test )
 endif()

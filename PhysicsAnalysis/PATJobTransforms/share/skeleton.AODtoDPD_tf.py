@@ -135,8 +135,7 @@ if hasattr(runArgs,"outputNTUP_MCPScaleFile"):
     from MuonPtCalibNtupleMaker import MuonPtCalibNtupleMaker_Config
     MuonPtCalibNtupleMaker_Config.MuonScaleConfig(runArgs.outputNTUP_MCPScaleFile)
 
-#Import D3PD flags before preExec, for convenience
-from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
+
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -169,9 +168,14 @@ else:
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
-## Make "old style" D3PDs.
-for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
-
+try:
+    #Import D3PD flags before preExec, for convenience
+    from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
+    ## Make "old style" D3PDs.
+    for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
+except ImportError:
+    print "WARNING: Old prod flags could not be included this. Only OK if you're using job transforms without the AtlasAnalysis project."
+    
 ## Offline prescales (has to be *after* the topOptions)
 if hasattr(runArgs,"prescales"):
     recoLog.info( '**** DPD offline prescale arguments:' )

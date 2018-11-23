@@ -35,6 +35,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "PATCore/PATCoreEnums.h"
+#include "AthContainers/AuxElement.h"
 
 // stdlib include(s):
 #include <random>
@@ -99,14 +100,14 @@ int main(int argc, char* argv[])
          /// {<list of trigger legs>, <key in map file>}
          /// Single-electron trigger (same tool instance for 2015 and 2016):
         {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose, e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0",
-            "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
-        /// Dielectron trigger (same tool instance for 2015 and 2016):
-        {"e12_lhloose_L1EM10VH, e17_lhvloose_nod0", 
-            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0"}
+            "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
+        /// Dielectron trigger (same tool instance for 2015-2017):
+        {"e12_lhloose_L1EM10VH, e17_lhvloose_nod0, e24_lhvloose_nod0_L1EM20VH", 
+            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"}
      };
 
-    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
-            "rel20.7/Moriond_February2017_v3/map1.txt";
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
+            "rel21.2/Moriond_February2018_v2/map6.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
@@ -117,7 +118,7 @@ int main(int argc, char* argv[])
         t->setProperty("MapFilePath", mapPath).ignore();
         t->setProperty("TriggerKey", string(j?"":"Eff_") + cfg[cKEY]).ignore();
         t->setProperty("IdKey", "Tight").ignore();
-        t->setProperty("IsoKey", "Tight").ignore();
+        t->setProperty("IsoKey", "FixedCutTightTrackOnly").ignore();
 
         t->setProperty("CorrelationModel", "TOTAL").ignore();
         t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full).ignore();
@@ -142,10 +143,9 @@ int main(int argc, char* argv[])
     /// For property 'MuonTools':
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180312_TriggerUpdate").ignore();
+    muonTool.setProperty("CalibrationRelease", "180905_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
-    muonTool.setProperty("useRel207", true).ignore();
-    // muonTool.setProperty("Isolation", "GradientLoose").ignore();
+    muonTool.setProperty("useRel207", false).ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
     {
         Error(MSGSOURCE, "Unable to initialize the muon CP tool!");
@@ -172,6 +172,12 @@ int main(int argc, char* argv[])
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e17_lhvloose_nod0";
     myTool.setProperty("TriggerCombination2016", triggers2016).ignore();
+    const char* triggers2017 = 
+        "mu26_ivarmedium_OR_mu50"
+        "|| mu22_mu8noL1"
+        "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
+        "|| 2e24_lhvloose_nod0";
+    myTool.setProperty("TriggerCombination2017", triggers2017).ignore();
     myTool.setProperty("ListOfLegsPerTool", legsPerTool).ignore();
 
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
@@ -185,13 +191,21 @@ int main(int argc, char* argv[])
     /// Uniform random run number generation spanning the target dataset.
     /// In real life, use the PileupReweightingTool instead!
     const unsigned periodRuns[] = {
-        276073, 278727, 279932, 280423, 281130, 282625, /// 2015 periods D-H, J
+        /// 2015 periods D-H, J
+        276073, 278727, 279932, 280423, 281130, 282625,
+        /// 2016 periods A-L
         296939, 300345, 301912, 302737, 303638, 303943, 305291, 307124, 
-        305359, 309311, 310015 /// 2016 periods A-L
+        305359, 309311, 310015,
+        /// 2017 periods B-K
+        325713, 329385, 330857, 332720, 334842, 335302, 336497, 336832, 
+        338183
     };
     std::uniform_int_distribution<unsigned> uniformPdf(0,
             sizeof(periodRuns)/sizeof(*periodRuns) - 1);
     std::default_random_engine randomEngine;
+    
+    SG::AuxElement::ConstAccessor<int> truthType("truthType");
+    SG::AuxElement::ConstAccessor<int> truthOrigin("truthOrigin");
     
     /* ********************************************************************** */
     
@@ -219,11 +233,14 @@ int main(int argc, char* argv[])
             float eta = fabs(electron->caloCluster()->etaBE(2));
             float pt = electron->pt();
             if(pt<10e3f || eta>=2.47) continue;
-            int t = electron->auxdata<int>("truthType");
-            int o = electron->auxdata<int>("truthOrigin");
+            if(!truthType.isAvailable(*electron)) continue;
+            if(!truthOrigin.isAvailable(*electron)) continue;
+            int t = truthType(*electron), o = truthOrigin(*electron);
             if(t!=2 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
-            /// lepton must be above softest trigger threshold (2e12/2e17 here):
-            if(pt < (runNumber>290000? 18e3f : 13e3f)) continue;
+            /// lepton must be above softest trigger threshold:
+            if((runNumber>320000 && pt<25e3f) /// 2017: 2e24
+                || (runNumber>290000 && pt<18e3f) /// 2016: 2e17
+                || (pt<13e3f)) continue; /// 2015: 2e12
             /// also count leptons above single-lepton trigger threshold
             if(pt >= (runNumber>290000? 27e3f : 25e3f)) ++nTrig1L;
 
@@ -235,12 +252,15 @@ int main(int argc, char* argv[])
         event.retrieve(muons,"Muons").ignore();
         for(auto muon : *muons)
         {
+            if(runNumber >= 324320) break; // delete line once all SFs available for 2017
             float pt = muon->pt();
             if(pt<10e3f || fabs(muon->eta())>=2.5) continue;
             auto mt = muon->muonType();
             if(mt!=xAOD::Muon::Combined && mt!=xAOD::Muon::MuonStandAlone) continue;
-            int t = muon->primaryTrackParticle()->auxdata<int>("truthType");
-            int o = muon->primaryTrackParticle()->auxdata<int>("truthOrigin");
+            auto& mtp = *(muon->primaryTrackParticle());
+            if(!truthType.isAvailable(mtp)) continue;
+            if(!truthOrigin.isAvailable(mtp)) continue;
+            int t = truthType(mtp), o = truthOrigin(mtp);
             if(t!=6 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
             /// lepton must be above softest trigger threshold (mu8noL1 here):
             if(pt < 10e3f) continue;

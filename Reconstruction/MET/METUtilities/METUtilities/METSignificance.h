@@ -17,7 +17,6 @@
 #include <tuple>
 #include "TH2F.h"
 #include "TFile.h"
-//#include <TMatrixD.h>
 
 // FrameWork includes
 #include "AsgTools/AnaToolHandle.h"
@@ -33,12 +32,13 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 // Tool interfaces
-class IJERTool;
+class IJetCalibrationTool;
 namespace CP {
   class IMuonCalibrationAndSmearingTool;
   class IEgammaCalibrationAndSmearingTool;
 }
 class ITauToolBase;
+class IJERTool;
 
 // Forward declaration
 namespace met {
@@ -73,7 +73,7 @@ namespace met {
     StatusCode  initialize();
     StatusCode  finalize();
       
-    StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName);
+    StatusCode varianceMET(xAOD::MissingETContainer* metCont, float avgmu, std::string jetTermName, std::string softTermName, std::string totalMETName);
 
     // rotates the phi direction of the object resolutions & recomputes the MET significance
     StatusCode RotateToPhi(float phi);
@@ -108,6 +108,7 @@ namespace met {
 
     // tools
     asg::AnaToolHandle<IJERTool> m_jerTool;
+    asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
@@ -115,11 +116,11 @@ namespace met {
     StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
-    void AddJet     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    StatusCode AddJet     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float &avgmu);
     void AddTau     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddSoftTerm(const xAOD::MissingET* soft,  const TVector3 &met_vect, double (&particle_sum)[2][2]);
 
-    double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt);
+    double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt, double jet_fjvt, float avgmu);
     double GetPhiUnc(double jet_eta, double jet_phi,double jet_pt);
 
     std::tuple<double,double,double> CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi);
@@ -154,12 +155,18 @@ namespace met {
     int    m_softTermParam;
     double m_softTermReso;
     bool   m_treatPUJets;
+    bool   m_treatPUJetsOld;
     bool   m_doPhiReso;
     bool   m_applyBias;
+    bool   m_jerRun1;
 
     bool m_isDataJet;
     bool m_isDataMuon;
     bool m_isAFII;
+
+    // set limits
+    float m_jetPtThr;
+    float m_jetEtaThr;
 
     double m_scalarBias;
     double m_significance;
@@ -193,6 +200,8 @@ namespace met {
 
     std::string m_configPrefix;
     std::string m_configJetPhiResoFile;
+    std::string m_JetResoAux;
+    std::string m_JetCollection;
   };
 
 } //> end namespace met

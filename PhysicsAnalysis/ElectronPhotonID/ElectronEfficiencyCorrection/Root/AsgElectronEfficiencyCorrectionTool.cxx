@@ -58,7 +58,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         // Declare the needed properties
         declareProperty("CorrectionFileNameList", m_corrFileNameList,
                 "List of file names that store the correction factors for simulation.");
-        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map5.txt" ,
+        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map0.txt" ,
                 "Full path to the map file");
         declareProperty("RecoKey", m_recoKey = "" ,
                 "Key associated with reconstruction");
@@ -77,6 +77,8 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         declareProperty("NumberOfToys", m_number_of_toys = 100,"Number of ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only.");
         declareProperty("MCToySeed", m_seed_toys = 0,"Seed for ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only." );
         declareProperty("MCToyScale", m_scale_toys = 1,"Scales Toy systematics up by this factor, affecting MCTOYS and COMBMCTOYS correlation models only." );
+        declareProperty("UncorrEtaBinsUser", m_uncorrSimplfEtaBinsUser = {0.0,1.37,4.9},"Custom Eta/Pt binning for the SIMPLIFIED correlation model.");
+        declareProperty("UncorrEtBinsUser" , m_uncorrSimplfEtBinsUser  = {4000,7000,10000,15000,20000,25000,30000,60000,80000,13000000},"Custom Eta/Pt binning for the SIMPLIFIED correlation model.");
         declareProperty("EventInfoCollectionName",  m_eventInfoCollectionName= "EventInfo", "The EventInfo Collection Name");
         declareProperty("UseRandomRunNumber",  m_useRandomRunNumber = true);
         declareProperty("DefaultRandomRunNumber",  m_defaultRandomRunNumber = 999999);
@@ -85,9 +87,6 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
 AsgElectronEfficiencyCorrectionTool::~AsgElectronEfficiencyCorrectionTool() {
     if (m_UncorrRegions) {
         delete m_UncorrRegions;
-    }
-    if (finalize().isFailure()) {
-        ATH_MSG_ERROR("Failure in AsgElectronEfficiencyCorrectionTool finalize()");
     }
     delete m_rootTool;
 }
@@ -148,6 +147,9 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         if (m_corrFileNameList.at(i).find("efficiencySF.offline.RecoTrk") != std::string::npos) {
             m_sysSubstring = "Reco_";
         }
+        if (m_corrFileNameList.at(i).find("efficiencySF.offline.Fwd") != std::string::npos) {
+            m_sysSubstring = "FwdID_";
+        }
         if (m_corrFileNameList.at(i).find("efficiencySF.Isolation") != std::string::npos) {
             m_sysSubstring = "Iso_";
         }
@@ -174,7 +176,15 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         m_correlation_model= correlationModel::FULL;
     }
     else if(m_correlation_model_name == "SIMPLIFIED"){
-        m_correlation_model= correlationModel::SIMPLIFIED;
+      m_correlation_model= correlationModel::SIMPLIFIED;
+      // a few checks on the binning that the user might have specified
+      if ( m_uncorrSimplfEtaBinsUser.empty() ||
+	   m_uncorrSimplfEtBinsUser.empty()  ||
+	   m_uncorrSimplfEtBinsUser.size()  < 2 ||
+	   m_uncorrSimplfEtaBinsUser.size() < 2 ) {
+	ATH_MSG_ERROR("Something went wrong when specifying bins for the SIMPLIFIED correlation model ");
+	return StatusCode::FAILURE;
+      }
     }
     else if(m_correlation_model_name == "TOTAL"){
         m_correlation_model= correlationModel::TOTAL;
@@ -190,13 +200,12 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
 
     //Finish the preaparation of the underlying tool
     if (m_correlation_model == correlationModel::SIMPLIFIED) {
-        // cretate uncorrelated eta/pt bins
-        static const std::vector<float> eta{0.0,1.37,2.47};
-        static const std::vector<float> pt {4500,7000,10000,15000,20000,25000,30000,60000,80000,13000000};
-        m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", pt.size() - 1, &(pt[0]), eta.size() - 1, &(eta[0]));
-        m_UncorrRegions->SetDirectory(0);
-        // bins not entries here
-        m_nSimpleUncorrSyst = (eta.size() - 1) * (pt.size() - 1);
+
+      m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", m_uncorrSimplfEtBinsUser.size() - 1, &(m_uncorrSimplfEtBinsUser[0]), m_uncorrSimplfEtaBinsUser.size() - 1, &(m_uncorrSimplfEtaBinsUser[0]));
+      m_UncorrRegions->SetDirectory(0);
+
+      // bins not entries here
+      m_nSimpleUncorrSyst = (m_uncorrSimplfEtaBinsUser.size() - 1) * (m_uncorrSimplfEtBinsUser.size() - 1);
     }
     //
     if (m_seed_toys != 0) {
@@ -241,15 +250,6 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode
-AsgElectronEfficiencyCorrectionTool::finalize() {
-    if (!(m_rootTool->finalize())) {
-        ATH_MSG_ERROR("Something went wrong at finalize!");
-        return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
-}
-
 CP::CorrectionCode
 AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron &inputObject,
         double &efficiencyScaleFactor) const {
@@ -282,7 +282,14 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
         ATH_MSG_ERROR("ERROR no cluster associated to the Electron \n"); 
         return CP::CorrectionCode::Error; 
     }
-    cluster_eta = cluster->etaBE(2);
+
+    // we need to use different variables for central and forward electrons
+    static const SG::AuxElement::ConstAccessor< uint16_t > accAuthor( "author" );
+    if( accAuthor.isAvailable(inputObject) && accAuthor(inputObject) == xAOD::EgammaParameters::AuthorFwdElectron ) { 
+      cluster_eta = cluster->eta();
+    } else {
+      cluster_eta = cluster->etaBE(2);
+    }
 
     size_t CorrIndex{0};
     size_t MCToysIndex{0};
@@ -394,7 +401,9 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     else if (m_correlation_model == correlationModel::SIMPLIFIED) {
 
         int currentSimplifiedUncorrSystReg = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-
+	if ( currentSimplifiedUncorrSystReg < 0 ) {
+	  return CP::CorrectionCode::OutOfValidityRange;
+	}
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                         m_correlation_model_name + "_" +
                         Form("UncorrUncertaintyNP%d",
@@ -676,7 +685,15 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
 
 int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
     int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
+    if ( ptbin < 0  || ptbin  >= m_UncorrRegions->GetXaxis()->GetNbins() ) {
+      ATH_MSG_WARNING( " Found electron with Et = " << et/1000. << " GeV, where you specified boundaries of [" << m_UncorrRegions->GetXaxis()->GetBinLowEdge(1) << "," << m_UncorrRegions->GetXaxis()->GetBinUpEdge(m_UncorrRegions->GetXaxis()->GetNbins()) << "] for the SIMPLIFIED correlation model " );
+      return -1;
+    }
     int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
+    if ( etabin < 0 || etabin >= m_UncorrRegions->GetYaxis()->GetNbins() ) {
+      ATH_MSG_WARNING( " Found electron with |eta| = " << fabs(cluster_eta) << ", where you specified boundaries of [" << m_UncorrRegions->GetYaxis()->GetBinLowEdge(1) << "," << m_UncorrRegions->GetYaxis()->GetBinUpEdge(m_UncorrRegions->GetYaxis()->GetNbins()) << "] for the SIMPLIFIED correlation model " );
+      return -1;
+    }
     int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
     return reg;
 }

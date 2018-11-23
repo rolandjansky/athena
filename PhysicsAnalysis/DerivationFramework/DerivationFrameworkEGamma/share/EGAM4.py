@@ -153,7 +153,7 @@ if DoCellReweighting:
 #====================================================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EGAM4ThinningHelper = ThinningHelper( "EGAM4ThinningHelper" )
-EGAM4ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
+EGAM4ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_g[1-9].*|HLT_2g[1-9].*|HLT_mu.*|HLT_2mu.*))'
 if globalflags.DataSource()!='geant4':
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 EGAM4ThinningHelper.AppendToStream( EGAM4Stream, ExtraContainersTrigger )
@@ -350,6 +350,7 @@ for tool in EGAM4_ClusterEnergyPerLayerDecorators:
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 EGAM4SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+EGAM4SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM4SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 

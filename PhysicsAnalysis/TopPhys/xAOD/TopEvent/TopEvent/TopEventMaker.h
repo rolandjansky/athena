@@ -64,7 +64,7 @@ namespace top {
        * objects, which you can then perform selection based on event-level info
        * with.  Such as object multiplicity. Fun times are ahead.
        */
-      top::Event makeTopEvent(const xAOD::SystematicEvent& currentSystematic);
+      top::Event makeTopEvent(const xAOD::SystematicEvent* currentSystematic);
       
       /// As top-xaod isn't an asg::AsgTool, it doesn't have access to all the information
       /// Very annoying

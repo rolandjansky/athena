@@ -422,8 +422,10 @@ int main(int argc, char** argv) {
 	// skip the file, after the meta data access above
         const TTree* const collectionTree = dynamic_cast<TTree* > (inputFile->Get("CollectionTree"));
         if (!collectionTree && !topConfig->isMC()) {
+          if (top::ConfigurationSettings::get()->feature("SkipInputFilesWithoutCollectionTree")) {
             std::cout << "No CollectionTree found, skipping file\n";
             continue;
+          }
         }
 
 	top::check(xaodEvent.readFrom(inputFile.get()), "xAOD::TEvent readFrom failed");
@@ -740,7 +742,7 @@ int main(int argc, char** argv) {
               const xAOD::SystematicEventContainer* allSystematics = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEvents() );
               for (auto currentSystematic : *allSystematics) {
                 ///-- Make a top::Event --///
-                top::Event topEvent = topEventMaker->makeTopEvent( *currentSystematic );
+                top::Event topEvent = topEventMaker->makeTopEvent( currentSystematic );
                 ///-- Apply event selection --///
                 const bool passAnyEventSelection = eventSelectionManager.apply(topEvent,*currentSystematic );
                 currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
@@ -761,7 +763,7 @@ int main(int argc, char** argv) {
               const xAOD::SystematicEventContainer* allSystematicsLoose = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEventsLoose() );
               for (auto currentSystematic : *allSystematicsLoose) {
                 ///-- Make a top::Event --///
-                top::Event topEvent = topEventMaker->makeTopEvent( *currentSystematic );
+                top::Event topEvent = topEventMaker->makeTopEvent( currentSystematic );
                 ///-- Apply event selection --///
                 const bool passAnyEventSelection = eventSelectionManager.apply(topEvent,*currentSystematic );
                 currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;

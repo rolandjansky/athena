@@ -277,9 +277,6 @@ StatusCode TauCPTools::setupCalibration() {
     m_tauSmearingTool = asg::ToolStore::get<TauAnalysisTools::ITauSmearingTool>(tauSmearName);
   } else {
     TauAnalysisTools::TauSmearingTool* tauSmearingTool =  new TauAnalysisTools::TauSmearingTool(tauSmearName);
-    if (m_config->applyTauMVATES()) {
-      top::check(tauSmearingTool->setProperty("ApplyMVATES", true) , "Failed to enable MVA TES for tau smearing tool");
-    }
     top::check(tauSmearingTool->initialize() , "Failed to initialize");
     m_tauSmearingTool = tauSmearingTool;
   }

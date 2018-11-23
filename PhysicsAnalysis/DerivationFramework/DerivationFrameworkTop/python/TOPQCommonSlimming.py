@@ -138,6 +138,10 @@ def setup(TOPQname, stream):
   #================================
   TOPQSlimmingHelper.StaticContent = []
   TOPQSlimmingHelper.StaticContent += TOPQStaticContent
+  
+  # for TOPQDERIV-69
+  if TOPQname == 'TOPQ1':
+    TOPQSlimmingHelper.StaticContent += TOPQStaticContentV0
 
   if DFisMC:
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentTruth
@@ -179,6 +183,7 @@ def setup(TOPQname, stream):
                 ["AntiKt4EMTopoJets", # smart list
                  "AntiKt4EMPFlowJets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                 "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                  ],
                 ["AntiKt3PV0TrackJets",
                  "AntiKt4PV0TrackJets",

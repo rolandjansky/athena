@@ -116,6 +116,18 @@ DerivationFrameworkJob += exot17Seq
 exot17Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT17Kernel_skim", SkimmingTools = [EXOT17SkimmingTool])
 exot17Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT17Kernel", ThinningTools = thinningTools)
 
+#=======================================
+# JETS
+#=======================================
+
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+OutputJets["EXOT17"] = []
+reducedJetList = [
+  "AntiKt4TruthWZJets" , "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,exot17Seq,"EXOT17")
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

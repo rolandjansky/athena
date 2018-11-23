@@ -247,7 +247,7 @@ def FlavorTagInit(DoReduceInfo = False,
 def applyBTagging(jetalg,algname,sequence):
     btagWPlist = [ 'FixedCutBEff_60', 'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_85',
                    'HybBEff_60', 'HybBEff_70', 'HybBEff_77', 'HybBEff_85' ]
-    btagAlglist = [ 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'DL1', 'DL1rnn', 'DL1mu' ]
+    btagAlglist = [ 'MV2c10', 'MV2r', 'MV2rmu', 'DL1', 'DL1r', 'DL1rmu']
 
     btagtooldict = {}
     from AthenaCommon.AppMgr import ToolSvc
@@ -266,7 +266,7 @@ def applyBTagging(jetalg,algname,sequence):
                 btagtool.OperatingPoint = btagWP
                 btagtool.JetAuthor = jetalg+"Jets"
                 btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrived, and only print a warning
-                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"
+                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root"
             btagKey = btagWP+'_'+btagAlg
             btagtooldict[btagKey] = btagtool
 
@@ -274,9 +274,9 @@ def applyBTagging(jetalg,algname,sequence):
     applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict)
 
 def applyBTagging_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo']
+    supportedJets = ['AntiKt4EMTopo', 'AntiKt4EMPFlow']
     if not jetalg in supportedJets:
-        ftaglog.warning('B-tagging requested for unsupported jet collection!')
+        ftaglog.warning('B-tagging requested for unsupported jet collection {}!'.format(jetalg))
         return
     else:
-        applyBTagging(jetalg,'JetCommonKernel_xAODJets',sequence)
+        applyBTagging(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)

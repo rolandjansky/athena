@@ -15,7 +15,7 @@ class DipolarityTool :
       // Constructor and destructor
       DipolarityTool(std::string name);
 
-      int modifyJet(xAOD::Jet &jet) const;
+      int modifyJet(xAOD::Jet &injet) const;
 
     private:
       double m_SubJetRadius;

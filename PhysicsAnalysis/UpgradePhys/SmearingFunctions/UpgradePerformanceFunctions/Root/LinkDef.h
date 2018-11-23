@@ -15,8 +15,8 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ namespace Upgrade;
-#pragma link C++ class UpgradePerformanceFunctions;
+#pragma link C++ class Upgrade::UpgradePerformanceFunctions+;
 
-#endif
+#endif 
 
 #endif

@@ -29,26 +29,31 @@ struct strObj {
 namespace CP {
     class IsolationCondition {
         public:
-            IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType);
+            IsolationCondition(const std::string& name, xAOD::Iso::IsolationType isoType);
+            IsolationCondition(const std::string& name, const std::vector<xAOD::Iso::IsolationType>& isoTypes);
+            IsolationCondition(const std::string& name, std::string &isoType);
+            IsolationCondition(const std::string& name, const std::vector<std::string>& isoTypes);
+           
             IsolationCondition(const IsolationCondition& rhs) = delete;
             IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
-
             virtual ~IsolationCondition();
-            IsolationCondition();
-            void setName(const std::string &name);
-            void setCut(xAOD::Iso::IsolationType isoType);
-
+         
             std::string name() const;
-            xAOD::Iso::IsolationType  type() const;
-            SG::AuxElement::Accessor<float>* accessor() const;
-
+            
+            unsigned int num_types() const;
+            xAOD::Iso::IsolationType  type(unsigned int n = 0) const;
+            SG::AuxElement::Accessor<float>* accessor(unsigned int n = 0) const;
+            
             virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
             virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
 
-        protected:
+        private:
             std::string m_name;
-            xAOD::Iso::IsolationType m_isolationType;
-            SG::AuxElement::Accessor<float>* m_acc;
+            std::vector<xAOD::Iso::IsolationType> m_isolationType;
+            std::vector<SG::AuxElement::Accessor<float>*> m_acc;
+            //Flag to indicate use of custom vs. predefined accessor, to know if it should be deleted in the destructor.
+            bool m_customAcc;
+        protected:
             float m_cutValue;
     };
 }

@@ -104,7 +104,7 @@ namespace xAOD {
    //
    // Initialise the static data:
    //
-   const ::Int_t TEvent::CACHE_SIZE = 30000000;
+   const ::Int_t TEvent::CACHE_SIZE = -1;
    const char* TEvent::EVENT_TREE_NAME    = "CollectionTree";
    const char* TEvent::METADATA_TREE_NAME = "MetaData";
 
@@ -248,8 +248,8 @@ namespace xAOD {
       // If this is set up as the active event at the moment, notify
       // the active event object that this object will no longer be
       // available.
-      if( TActiveEvent::s_event == this ) {
-         TActiveEvent::s_event = 0;
+      if( TActiveEvent::event() == this ) {
+         TActiveEvent::setEvent( nullptr );
       }
 #ifndef XAOD_STANDALONE
       if( SG::CurrentEventStore::store() == this ) {
@@ -751,7 +751,7 @@ namespace xAOD {
       // Do the deed. Since this needs both a static and a const cast at
       // the same time, let's just do the "brutal" cast instead of writing
       // way too much for the same thing...
-      TActiveEvent::s_event = ( TVirtualEvent* ) this;
+      TActiveEvent::setEvent( ( TVirtualEvent* ) this );
 
 #ifndef XAOD_STANDALONE
       SG::CurrentEventStore::setStore( const_cast< TEvent* >( this ) );
@@ -2797,7 +2797,7 @@ namespace xAOD {
    TReturnCode TEvent::setUpDynamicStore( TObjectManager& mgr, ::TTree* tree ) {
 
       // Check if we can call setName(...) on the object:
-      static ::TMethodCall setNameCall;
+      ::TMethodCall setNameCall;
       // Don't use this code in Athena access mode. And just accept that access
       // monitoring is disabled in this case...
       if( m_auxMode != kAthenaAccess ) {
@@ -2892,17 +2892,6 @@ namespace xAOD {
       Object_t& objects = ( metadata ?
                             m_inputMetaObjects : m_inputObjects );
 
-      // If it's an auxiliary store, then all we need to do is to make sure that
-      // its dynamic store is updated as well.
-      if( ( ! metadata ) && isAuxStore( mgr ) ) {
-         Object_t::const_iterator dynAuxMgr =
-            objects.find( key + "Dynamic" );
-         if( dynAuxMgr != objects.end() ) {
-            dynAuxMgr->second->getEntry( m_entry );
-         }
-         return TReturnCode::kSuccess;
-      }
-
       // The classes whose children can have an auxiliary store attached
       // to them:
       static const TClass* dvClass =
@@ -2911,52 +2900,66 @@ namespace xAOD {
          TClass::GetClass( typeid( SG::AuxElement ) );
 
       // Look up the auxiliary object's manager:
-      Object_t::const_iterator auxMgr = objects.find( key + "Aux." );
-      if( auxMgr == objects.end() ) {
-         // Apparently there's no auxiliary object for this DV, so let's
-         // give up:
-         return TReturnCode::kSuccess;
+      TVirtualManager* auxMgr = nullptr;
+      std::string auxKey;
+      if( isAuxStore( mgr ) ) {
+         auxMgr = &mgr;
+         auxKey = key;
+      } else {
+         auto itr = objects.find( key + "Aux." );
+         if( itr == objects.end() ) {
+            // Apparently there's no auxiliary object for this DV, so let's
+            // give up:
+            return TReturnCode::kSuccess;
+         }
+         auxMgr = itr->second;
+         auxKey = key + "Aux.";
       }
 
       if( ! metadata ) {
          // Make sure the auxiliary object is up to date:
-         ::Int_t readBytes = auxMgr->second->getEntry( m_entry );
+         ::Int_t readBytes = auxMgr->getEntry( m_entry );
 
          // Check if there is a separate auxiliary object for the dynamic
          // variables:
-         Object_t::const_iterator dynAuxMgr =
-            objects.find( key + "Aux.Dynamic" );
-         if( dynAuxMgr != objects.end() ) {
-            if( readBytes ) {
-               // Do different things based on the access mode:
-               if( m_auxMode != kAthenaAccess ) {
-                  // In "normal" access modes just tell the dynamic store object
-                  // to switch to a new event.
-                  dynAuxMgr->second->getEntry( m_entry );
-               } else {
-                  // In "Athena mode" this object has already been deleted when
-                  // the main auxiliary store object was switched to the new
-                  // event. So let's re-create it:
-                  xAOD::TObjectManager& auxMgrRef =
-                     dynamic_cast< xAOD::TObjectManager& >( *( auxMgr->second ) );
-                  RETURN_CHECK( "xAOD::TEvent::setAuxStore",
-                                setUpDynamicStore( auxMgrRef,
-                                                   ( metadata ?
-                                                     m_inMetaTree :
-                                                     m_inTree ) ) );
-                  // Now tell the newly created dynamic store object which event
-                  // it should be looking at:
-                  Object_t::const_iterator dynAuxMgr =
-                     objects.find( key + "Aux.Dynamic" );
-                  if( dynAuxMgr == objects.end() ) {
-                     ::Error( "xAOD::TEvent::setAuxStore",
-                              XAOD_MESSAGE( "Internal logic error detected" ) );
-                     return TReturnCode::kFailure;
-                  }
-                  dynAuxMgr->second->getEntry( m_entry );
+         const std::string dynAuxKey = auxKey + "Dynamic";
+         auto dynAuxMgr = objects.find( dynAuxKey );
+
+         if( ( dynAuxMgr != objects.end() ) &&
+             ( readBytes || ( m_auxMode == kAthenaAccess ) ||
+               ( auxMgr == &mgr ) ) ) {
+            // Do different things based on the access mode:
+            if( m_auxMode != kAthenaAccess ) {
+               // In "normal" access modes just tell the dynamic store object
+               // to switch to a new event.
+               dynAuxMgr->second->getEntry( m_entry );
+            } else {
+               // In "Athena mode" this object has already been deleted when
+               // the main auxiliary store object was switched to the new
+               // event. So let's re-create it:
+               xAOD::TObjectManager& auxMgrRef =
+                  dynamic_cast< xAOD::TObjectManager& >( *auxMgr );
+               RETURN_CHECK( "xAOD::TEvent::setAuxStore",
+                             setUpDynamicStore( auxMgrRef,
+                                                ( metadata ?
+                                                  m_inMetaTree :
+                                                  m_inTree ) ) );
+               // Now tell the newly created dynamic store object which event
+               // it should be looking at:
+               auto dynAuxMgr = objects.find( dynAuxKey );
+               if( dynAuxMgr == objects.end() ) {
+                  ::Error( "xAOD::TEvent::setAuxStore",
+                           XAOD_MESSAGE( "Internal logic error detected" ) );
+                  return TReturnCode::kFailure;
                }
+               dynAuxMgr->second->getEntry( m_entry );
             }
          }
+      }
+
+      // Stop here if we've set up an auxiliary store.
+      if( auxMgr == &mgr ) {
+         return TReturnCode::kSuccess;
       }
 
       // Access the auxiliary base class of the object/vector:
@@ -2994,11 +2997,11 @@ namespace xAOD {
       const SG::IConstAuxStore* store = 0;
       if( m_auxMode == kBranchAccess ) {
          // Get the concrete auxiliary manager:
-         TAuxManager* amgr = dynamic_cast< TAuxManager* >( auxMgr->second );
+         TAuxManager* amgr = dynamic_cast< TAuxManager* >( auxMgr );
          if( ! amgr ) {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
-                                   "right type" ), auxMgr->first.c_str() );
+                                   "right type" ), auxKey.c_str() );
          }
          store = amgr->getConstStore();
          // If the store still doesn't know its type, help it now:
@@ -3012,11 +3015,11 @@ namespace xAOD {
       } else if( m_auxMode == kClassAccess || m_auxMode == kAthenaAccess ) {
          // Get the concrete auxiliary manager:
          TObjectManager* omgr =
-            dynamic_cast< TObjectManager* >( auxMgr->second );
+            dynamic_cast< TObjectManager* >( auxMgr );
          if( ! omgr ) {
             ::Fatal( "xAOD::TEvent::setAuxStore",
                      XAOD_MESSAGE( "Auxiliary manager for \"%s\" is not of the "
-                                   "right type" ), auxMgr->first.c_str() );
+                                   "right type" ), auxKey.c_str() );
          }
          void* p = omgr->holder()->getAs( typeid( SG::IConstAuxStore ) );
          store = reinterpret_cast< const SG::IConstAuxStore* >( p );

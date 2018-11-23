@@ -11,229 +11,13 @@
 #include "AsgTools/AsgMessaging.h"
 
 #include <random>
+#include <iterator>
 
 using namespace TrigGlobEffCorr;
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
-
-Calculator::Helper::Helper(const std::vector<TrigDef>& defs) :
-	m_n1L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_SINGLELEPTON_FLAG;})),
-	m_n2L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_DILEPTON_FLAG;})),
-	m_n3L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_TRILEPTON_FLAG;})),
-	m_nPhotonTriggers(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_PHOTON_FLAG;})),
-	m_func(nullptr), m_defs(defs)
-{
-}
-
-namespace TrigGlobEffCorr
-{
-
-template<typename Trig1L>
-bool Calculator::Helper::bind_1x1L()
-{
-	auto n1 = count<Trig1L>();
-	if(!n1 || n1!=m_defs.size()) return false;
-	if(n1>1)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const flat_set<Trig1L>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Several1L, ::_1, ::_2, ::_3, get_all<Trig1L>(), ::_4);
-	}
-	else
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig1L, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One1L, ::_1, ::_2, ::_3, get<Trig1L>(0), ::_4);
-	}
-	return true;
-}
-
-template<>
-bool Calculator::Helper::bind_1x1L<void>()
-{
-	auto nE = count<Trig1E>(), nM = count<Trig1MU>(), n1 = nE+nM;
-	if(!n1 || n1!=m_defs.size()) return false;
-	if(nE>1 || nM>1)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Several1L, ::_1, ::_2, ::_3, get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
-	}
-	else if(nE>0 && nM>0)
-	{
-		m_func = std::bind(&Calculator::globalEfficiency_Two1L, ::_1, ::_2, ::_3, get<Trig1E>(0), get<Trig1MU>(0), ::_4);
-	}
-	else if(!nE) return bind_1x1L<Trig1MU>();
-	else return bind_1x1L<Trig1E>();
-	return true;
-}
-
-template<typename Trig2L>
-bool Calculator::Helper::bind_1x2L_singleFlavour()
-{
-	using Trig1L = typename Trig2L::companionTrig1LType;
-	auto n2 = count<Trig2L>(), n1 = count<Trig1L>();
-	if(n2!=1 || n2+n1!=m_defs.size()) return false;
-	if(n1 > 0)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1L>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1L>(), ::_4);
-	}
-	else
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2L, ::_1, ::_2, ::_3, get<Trig2L>(0), ::_4);
-	}
-	return true;
-}
-
-template<typename Trig2L>
-bool Calculator::Helper::bind_1x2L()
-{
-	using Trig1L = typename Trig2L::companionTrig1LType;
-	std::size_t n2 = count<Trig2L>(), n1 = count<Trig1E>()+count<Trig1MU>(), n1sf = count<Trig1L>();
-	if(n2!=1 || n2+n1!=m_defs.size()) return false;
-	if(n1 > n1sf)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
-		return true;
-	}
-	return bind_1x2L_singleFlavour<Trig2L>();
-}
-
-template<>
-bool Calculator::Helper::bind_1x2L<TrigEMU>()
-{
-	auto n2 = count<TrigEMU>(), n1 = count<Trig1E>()+count<Trig1MU>();
-	if(n2!=1 || n2+n1!=m_defs.size()) return false;
-	if(n1 > 0)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
-	}
-	else
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const TrigEMU, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2L, ::_1, ::_2, ::_3, get<TrigEMU>(0), ::_4);
-	}
-	return true;
-}
-
-template<typename Trig2L1, typename Trig2L2>
-bool Calculator::Helper::bind_2x2L_singleFlavour()
-{
-	static_assert((Trig2L1::object()==Trig2L2::object()) && !Trig2L1::mixed() && !Trig2L2::mixed(), "");
-	using Trig1L = typename Trig2L1::companionTrig1LType;
-	constexpr bool sameType = (Trig2L1::type()==Trig2L2::type());
-	auto n2 = count<Trig2L1>()+(sameType?0:count<Trig2L2>()), n1 = count<Trig1L>();
-	if(n2!=2 || n2+n1!=m_defs.size()) return false;
-	using Trig2Lsym = typename std::conditional<Trig2L1::is2Lasym(), Trig2L2, Trig2L1>::type;
-	using Trig2L = typename std::conditional<Trig2L1::is2Lasym(), Trig2L1, Trig2L2>::type;
-	using fnptr = bool(Calculator::*)(const LeptonList& leptons, unsigned runNumber, const Trig2L, const Trig2Lsym, const flat_set<Trig1L>&, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Two2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get<Trig2Lsym>(sameType*1), get_all<Trig1L>(), ::_4);
-	return true;
-}
-
-template<typename Trig2E, typename Trig2MU>
-bool Calculator::Helper::bind_3x2L()
-{
-	static_assert(Trig2E::object()==xAOD::Type::Electron && Trig2MU::object()==xAOD::Type::Muon, "");
-	std::size_t n2E = count<Trig2E>(), n2M = count<Trig2MU>(), nEM = count<TrigEMU>(), n1 = count<Trig1E>()+count<Trig1MU>();
-	if(n2E>1 || n2M>1 || nEM>1 || n2E+n2M+nEM+n1!=m_defs.size()) return false;
-	if(n1 > 0)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2MU, 
-			const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Three2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2E>(0), get<Trig2MU>(0), 
-			get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
-	}
-	else
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2MU, const TrigEMU, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Three2L, ::_1, ::_2, ::_3, get<Trig2E>(0), get<Trig2MU>(0), get<TrigEMU>(0), ::_4);
-	}
-	return true;
-}
-
-template<typename Trig2E, typename Trig2MU>
-bool Calculator::Helper::bind_6x2L()
-{
-	static_assert(Trig2E::object()==xAOD::Type::Electron && Trig2MU::object()==xAOD::Type::Muon, "");
-	constexpr bool two2Esym = std::is_same<Trig2E, Trig2Esym>::value, two2MUsym = std::is_same<Trig2MU, Trig2MUsym>::value;
-	auto n2E = count<Trig2Esym>() + (two2Esym? 0 : count<Trig2E>());
-	auto n2M = count<Trig2MUsym>() + (two2MUsym? 0 : count<Trig2MU>());
-	auto nEM = count<TrigEMU>(), n1 = count<Trig1E>()+count<Trig1MU>();
-	if(n2E>2 || n2M>2 || count<Trig2Easym>()>1 || count<Trig2MUasym>()>1 || nEM>2 || n2E+n2M+nEM+n1!=m_defs.size()) return false;
-	Trig2Esym trig2Esym = get<Trig2Esym>(two2Esym? 1 : 0);
-	Trig2MUsym trig2MUsym = get<Trig2MUsym>(two2MUsym? 1 : 0);
-	using fnptr =  bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2Esym, const Trig2MU, const Trig2MUsym, 
-		const TrigEMU, const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Six2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2E>(0), trig2Esym, get<Trig2MU>(0), trig2MUsym, 
-		get<TrigEMU>(0), get<TrigEMU>(1), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
-	return true;
-}
-
-template<typename Trig3L>
-bool Calculator::Helper::bind_1x3L()
-{
-	std::size_t n3 = count<Trig3L>();
-	if(n3!=1 || n3!=m_defs.size()) return false;
-	using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig3L, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One3L, ::_1, ::_2, ::_3, get<Trig3L>(0), ::_4);
-	return true;
-}
-   
-template<typename Trig3L1, typename Trig3L2>
-bool Calculator::Helper::bind_2x3L()
-{
-	static_assert((Trig3L1::type()!=Trig3L2::type()) && Trig3L1::is3Lmix() && Trig3L2::is3Lmix(), "");
-	std::size_t n31 = count<Trig3L1>(), n32 = count<Trig3L2>();
-	if(n31!=1 || n32!=1 || n31+n32!=m_defs.size()) return false;
-	using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig3L1, const Trig3L2, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Two3L, ::_1, ::_2, ::_3, get<Trig3L1>(0), get<Trig3L2>(0), ::_4);
-	return true;
-}
-
-template<typename Trig>
-Trig Calculator::Helper::get(unsigned index) const
-{
-	unsigned discarded = 0;
-	for(auto& def : m_defs)
-	{
-		if(def.type != Trig::type()) continue;
-		if(index < ++discarded)	
-		{
-			Trig t;
-			t.set_definition(def);
-			return t;
-		}
-	}
-	return Trig();
-}
-
-template<typename Trig>
-auto Calculator::Helper::get_all() const -> flat_set<Trig>
-{
-	flat_set<Trig> trigs;
-	for(auto& def : m_defs)
-	{
-		if(def.type != Trig::type()) continue;
-		Trig t;
-		t.set_definition(def);
-		trigs.emplace(t);
-	}
-	return trigs;
-}
-
-bool Calculator::Helper::duplicates() const
-{
-	for(auto itr1=m_defs.cbegin(); itr1!=m_defs.cend(); ++itr1)
-		for(auto itr2=itr1+1; itr2!=m_defs.cend(); ++itr2)
-			if(itr1->type==itr2->type && itr1->leg==itr2->leg) return true;
-	return false;
-}
-
-}
 
 Calculator::Calculator(TrigGlobalEfficiencyCorrectionTool& parent, unsigned nPeriodsToReserve) :
 	asg::AsgMessaging(&parent),
@@ -244,56 +28,23 @@ Calculator::Calculator(TrigGlobalEfficiencyCorrectionTool& parent, unsigned nPer
 }
 		
 bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>& boundaries, const std::string& combination, 
-	bool useToys, bool useDefaultElectronTools, std::size_t& uniqueElectronLeg, bool useDefaultPhotonTools, std::size_t& uniquePhotonLeg)
+	bool useToys, std::size_t& uniqueElectronLeg, std::size_t& uniquePhotonLeg)
 {
 	bool success = true;
 	m_parent = data.getParent();
 	
-	auto triggers = data.parseTriggerString(combination,success);
+	auto triggers = data.parseTriggerString(combination, success);
 	if(!success) return false;
-
-	uniqueElectronLeg = uniquePhotonLeg = 0;
-	bool severalElectronLegs = false, severalPhotonLegs = false;
-	for(auto& trig : triggers)
+	if(!triggers.size())
 	{
-		switch(trig.type)
-		{
-		case TT_SINGLE_MU: case TT_2MU_ASYM: case TT_2MU_SYM: case TT_3MU_ASYM: case TT_3MU_SYM:
-			break;
-		case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: case TT_E_2MU_ASYM: case TT_E_2MU_SYM:
-			if(!severalElectronLegs)
-			{
-				if(uniqueElectronLeg && uniqueElectronLeg!=trig.leg[0]) severalElectronLegs = true;
-				uniqueElectronLeg = trig.leg[0];
-			}
-			break;
-		case TT_SINGLE_PH: case TT_2PH_SYM: case TT_3PH_SYM:
-			if(!severalPhotonLegs)
-			{
-				if(uniquePhotonLeg && uniquePhotonLeg!=trig.leg[0]) severalPhotonLegs = true;
-				uniquePhotonLeg = trig.leg[0];
-			}
-			break;
-		case TT_2PH_ASYM: case TT_3PH_HALFSYM: case TT_3PH_ASYM:
-			severalPhotonLegs = true;
-			break;
-		default: // other defined triggers have >= 2 distinct electron legs
-			severalElectronLegs = true;
-		}
-	}
-	if(useDefaultElectronTools && severalElectronLegs)
-	{
-		ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several electron trigger legs");
+		ATH_MSG_ERROR("The trigger combination is empty!");
 		return false;
 	}
-	if(useDefaultPhotonTools && severalPhotonLegs)
-	{
-		ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several photon trigger legs");
-		return false;
-	}
+	
+	if(!findUniqueLeg(xAOD::Type::Electron, uniqueElectronLeg, triggers)) return false;
+	if(!findUniqueLeg(xAOD::Type::Photon, uniquePhotonLeg, triggers)) return false;
 	
 	/// Choose the appropriate function to compute efficiencies for this particular trigger combination
-	
 	Helper helper(triggers);
 	if(helper.duplicates())
 	{
@@ -302,60 +53,8 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	if(!useToys)
 	{	
-		const unsigned n1L = helper.m_n1L, n2L = helper.m_n2L, n3L = helper.m_n3L;
-		if(!(n1L+n2L+n3L))
-		{
-			ATH_MSG_ERROR("The trigger combination is empty!");
-			return false;
-		}
-		else if(n1L && !(n2L+n3L)) // only single-lepton triggers
-		{
-			success = helper.bind_1x1L();
-		}
-		else if(!helper.m_nPhotonTriggers)
-		{
-			
-			if(n2L==1 && !n3L) // one dilepton trigger (+ single-lepton triggers)
-			{
-				success = helper.bind_1x2L<TrigEMU>() || helper.bind_1x2L<Trig2Esym>() || helper.bind_1x2L<Trig2Easym>()
-					|| helper.bind_1x2L<Trig2MUsym>() || helper.bind_1x2L<Trig2MUasym>();
-			}
-			else if(n2L>=2 && n2L<=6 && !n3L) // several dilepton triggers (+ single-lepton triggers)
-			{
-				success = helper.bind_3x2L<Trig2Esym,Trig2MUsym>() || helper.bind_3x2L<Trig2Easym,Trig2MUsym>() 
-					|| helper.bind_3x2L<Trig2Esym,Trig2MUasym>() || helper.bind_3x2L<Trig2Easym,Trig2MUasym>() 
-					|| helper.bind_6x2L<Trig2Esym,Trig2MUsym>() || helper.bind_6x2L<Trig2Easym,Trig2MUsym>()
-					|| helper.bind_6x2L<Trig2Esym,Trig2MUasym>() || helper.bind_6x2L<Trig2Easym,Trig2MUasym>();
-			}
-			else if(n3L==1 && !n2L && !n1L)
-			{
-				success = helper.bind_1x3L<Trig3Esym>() || helper.bind_1x3L<Trig3Ehalfsym>()
-					|| helper.bind_1x3L<Trig3MUsym>() || helper.bind_1x3L<Trig3MUhalfsym>()
-					|| helper.bind_1x3L<Trig2EMUsym>() || helper.bind_1x3L<Trig2EMUasym>()
-					|| helper.bind_1x3L<TrigE2MUsym>() || helper.bind_1x3L<TrigE2MUasym>();			
-			}
-			else if(n3L==2 && !n2L && !n1L)
-			{
-				success = helper.bind_2x3L<Trig2EMUsym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUsym,TrigE2MUasym>()
-					|| helper.bind_2x3L<Trig2EMUasym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUasym,TrigE2MUasym>();
-			}
-		}
-		else if(helper.m_nPhotonTriggers == triggers.size())
-		{
-			if(n2L==1 && !n3L) // one diphoton trigger (+ single-photon triggers)
-			{
-				success = helper.bind_1x2L_singleFlavour<Trig2PHsym>() || helper.bind_1x2L_singleFlavour<Trig2PHasym>();
-			}
-			else if(n2L==2 && !n3L) // two diphoton triggers (+ single-photon triggers)
-			{
-				success = helper.bind_2x2L_singleFlavour<Trig2PHasym,Trig2PHsym>() || helper.bind_2x2L_singleFlavour<Trig2PHsym,Trig2PHsym>();
-			}
-			else if(n3L==1 && !n2L && !n1L)
-			{
-				success = helper.bind_1x3L<Trig3PHsym>() || helper.bind_1x3L<Trig3PHhalfsym>();	
-			}
-		}
-		if(!helper.m_func)
+		success = helper.findAndBindFunction();
+		if(!helper.m_formula)
 		{
 			ATH_MSG_ERROR("This trigger combination is currently not supported with an explicit formula (you may use toys instead, slower): " << combination);
 			return false;
@@ -363,30 +62,44 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	else
 	{
-		if(!helper.m_nPhotonTriggers || helper.m_nPhotonTriggers==triggers.size())
-		{
-			helper.m_func = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
-		}
-		else
-		{
-			ATH_MSG_ERROR("Currently it is not possible to combine electron/muon and photon triggers: " << combination);
-			return false;
-		}
+		helper.m_formula = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
 	}
 	if(success)
 	{
-		if(m_parent->m_validTrigMatchTool)
+		if(data.adaptTriggerListForTriggerMatching(triggers))
 		{
-			if(!data.adaptTriggerListForTriggerMatching(triggers)) return false;
-			m_periods.emplace_back(boundaries, std::move(helper.m_func), std::move(triggers));
+			m_periods.emplace_back(boundaries, std::move(helper.m_formula), std::move(triggers));
 		}
-		else m_periods.emplace_back(boundaries, std::move(helper.m_func));
+		else
+		{
+			if(m_parent->m_validTrigMatchTool) return false;
+			m_periods.emplace_back(boundaries, std::move(helper.m_formula));
+		}
 	}
 	else
 	{
 		ATH_MSG_ERROR("Unspecified error occurred while trying to find the formula for the trigger combination " << combination);
 	}
 	return success;
+}
+
+bool Calculator::findUniqueLeg(xAOD::Type::ObjectType obj, std::size_t& uniqueLeg, const std::vector<TrigDef>& defs)
+{
+	if(uniqueLeg) return true; /// initial non-zero value means that ListOfLegsPerTool is filled
+	for(auto& def : defs)
+	{
+		TriggerProperties tp(def);
+		for(auto itr=tp.cbegin(obj);itr!=tp.cend(obj);++itr)
+		{
+			if(uniqueLeg && uniqueLeg!=*itr)
+			{
+				ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several electron (or photon) trigger legs");
+				return false;
+			}
+			uniqueLeg = *itr;
+		}
+	}
+	return true;
 }
 
 const Calculator::Period* Calculator::getPeriod(unsigned runNumber) const
@@ -491,9 +204,36 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 	return true;
 }
 
-Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned /* runNumber */, std::size_t leg, bool& success)
+bool Calculator::getRelevantTriggersForUser(TrigGlobalEfficiencyCorrectionTool& parent, std::vector<std::string>& triggers, unsigned runNumber)
 {
-	auto insertion = m_cachedEfficiencies.emplace(std::make_pair(&lepton,leg),Efficiencies());
+	triggers.clear();
+	m_parent = &parent;
+	auto period = getPeriod(runNumber);
+	if(!period) return false;
+	if(!period->m_triggers.size())
+	{
+		ATH_MSG_ERROR("Empty list of triggers for run number " << runNumber << " (was there a configuration issue? please check for warnings during initialization)");
+		return false;
+	}
+	bool success = true;
+	auto notfound = parent.m_dictionary.end();
+	for(auto& trig : period->m_triggers)
+	{
+		auto itr = parent.m_dictionary.find(trig.name);
+		if(itr == notfound)
+		{
+			ATH_MSG_ERROR("can't retrieve name of trigger with hash " << trig.name << " (shouldn't happen; contact tool developers!)");
+			success = false;
+		}
+		else triggers.push_back(itr->second);
+	}
+	if(!success) triggers.clear();
+	return success;
+}
+
+Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned runNumber, std::size_t leg, bool& success)
+{
+	auto insertion = m_cachedEfficiencies.emplace(std::make_pair(&lepton, leg), Efficiencies());
 	Efficiencies& efficiencies = insertion.first->second;
 	if(insertion.second)
 	{
@@ -501,13 +241,13 @@ Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, u
 		switch(lepton.type())
 		{
 		case xAOD::Type::Electron:
-			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.electron(), leg, lepton.tag(), efficiencies);
+			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.electron(), runNumber, leg, lepton.tag(), efficiencies);
 			break;
 		case xAOD::Type::Muon:
 			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.muon(), leg, lepton.tag(), efficiencies);
 			break;
 		case xAOD::Type::Photon:
-			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.photon(), leg, lepton.tag(), efficiencies);
+			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.photon(), runNumber, leg, lepton.tag(), efficiencies);
 			break;
 		default: ATH_MSG_ERROR("Unsupported particle type");
 		}
@@ -522,10 +262,12 @@ Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, u
 	return efficiencies;
 }
 
-
+///
+/// One single-lepton trigger
+///
 template<typename Trig1L>
-auto Calculator::globalEfficiency_One1L(const LeptonList& leptons, unsigned runNumber, const Trig1L trig, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig1L::is1L(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig1L trig, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig1L::is1L(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One1L() at line " << __LINE__);
 	if(!trig)
@@ -546,16 +288,27 @@ auto Calculator::globalEfficiency_One1L(const LeptonList& leptons, unsigned runN
 	return success;
 }
 
-bool Calculator::globalEfficiency_Two1L(const LeptonList& leptons, unsigned runNumber, const Trig1E trig1E, const Trig1MU trig1MU, Efficiencies& globalEfficiencies)
+///
+/// Two single-lepton triggers, two object types
+///
+template<typename Trig1L_obj1, typename Trig1L_obj2>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig1L_obj1 trig1, const Trig1L_obj2 trig2, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig1L_obj1::is1L()
+						&& Trig1L_obj2::is1L()
+						&& Trig1L_obj1::object() != Trig1L_obj2::object(),
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Two1L() at line " << __LINE__);
-	if(!trig1E) return globalEfficiency_One1L(leptons, runNumber, trig1MU, globalEfficiencies);
-	if(!trig1MU) return globalEfficiency_One1L(leptons, runNumber, trig1E, globalEfficiencies);
+	if(!trig1) return globalEfficiency(leptons, runNumber, trig2, globalEfficiencies);
+	if(!trig2) return globalEfficiency(leptons, runNumber, trig1, globalEfficiencies);
 	globalEfficiencies = {1.};
 	bool success = true;
 	for(auto& lepton : leptons)
 	{
-		std::size_t leg = Trig1E::relevantFor(lepton)? trig1E() : trig1MU();
+		std::size_t leg;
+		if(trig1.relevantFor(lepton)) leg = trig1();
+		else if(trig2.relevantFor(lepton)) leg = trig2();
+		else continue;
 		if(!aboveThreshold(lepton, leg)) continue;
 		auto efficiencies = getCachedTriggerLegEfficiencies(lepton, runNumber, leg, success);
 		globalEfficiencies *= ~efficiencies;
@@ -564,12 +317,15 @@ bool Calculator::globalEfficiency_Two1L(const LeptonList& leptons, unsigned runN
 	return success;
 }
 
+///
+/// Several single-lepton triggers, one object type
+///
 template<typename Trig1L>
-auto Calculator::globalEfficiency_Several1L(const LeptonList& leptons, unsigned runNumber, const flat_set<Trig1L>& trigs, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig1L::is1L(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const flat_set<Trig1L>& trigs, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig1L::is1L(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Several1L() at line " << __LINE__);
-	if(trigs.size() == 1) return globalEfficiency_One1L(leptons, runNumber, *trigs.cbegin(), globalEfficiencies);
+	if(trigs.size() == 1) return globalEfficiency(leptons, runNumber, *trigs.cbegin(), globalEfficiencies);
 	if(!trigs.size())
 	{
 		globalEfficiencies = {0.};
@@ -591,23 +347,32 @@ auto Calculator::globalEfficiency_Several1L(const LeptonList& leptons, unsigned 
 	return success;
 }
 
-bool Calculator::globalEfficiency_Several1L(const LeptonList& leptons, unsigned runNumber, 
-	const flat_set<Trig1E>& trigs1E, const flat_set<Trig1MU>& trigs1MU, Efficiencies& globalEfficiencies)
+///
+/// Several single-lepton triggers, two object types
+///
+template<typename Trig1L_obj1, typename Trig1L_obj2>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
+			const flat_set<Trig1L_obj1>& trigs1, const flat_set<Trig1L_obj2>& trigs2, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig1L_obj1::is1L()
+						&& Trig1L_obj2::is1L()
+						&& Trig1L_obj1::object() != Trig1L_obj2::object(),
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Several1L() at line " << __LINE__);
-	if(trigs1E.size()==1 && trigs1MU.size()==1)
+	if(trigs1.size()==1 && trigs2.size()==1)
 	{
-		return globalEfficiency_Two1L(leptons, runNumber, *trigs1E.cbegin(), *trigs1MU.cbegin(), globalEfficiencies);
+		return globalEfficiency(leptons, runNumber, *trigs1.cbegin(), *trigs2.cbegin(), globalEfficiencies);
 	}
-	if(!trigs1E.size()) return globalEfficiency_Several1L(leptons, runNumber, trigs1MU, globalEfficiencies);
-	if(!trigs1MU.size()) return globalEfficiency_Several1L(leptons, runNumber, trigs1E, globalEfficiencies);
+	if(!trigs1.size()) return globalEfficiency(leptons, runNumber, trigs2, globalEfficiencies);
+	if(!trigs2.size()) return globalEfficiency(leptons, runNumber, trigs1, globalEfficiencies);
 	globalEfficiencies = {1.};
 	bool success = true;
 	for(auto& lepton : leptons)
 	{
-		std::size_t loosestLeg = (Trig1E::relevantFor(lepton))?
-			getLoosestLegAboveThreshold(lepton, trigs1E, success): 
-			getLoosestLegAboveThreshold(lepton, trigs1MU, success);
+		std::size_t loosestLeg;
+		if(Trig1L_obj1::relevantFor(lepton)) loosestLeg = getLoosestLegAboveThreshold(lepton, trigs2, success);
+		else if(Trig1L_obj2::relevantFor(lepton)) loosestLeg = getLoosestLegAboveThreshold(lepton, trigs2, success);
+		else continue;
 		if(loosestLeg && success)
 		{
 			auto efficiencies = getCachedTriggerLegEfficiencies(lepton, runNumber, loosestLeg, success);
@@ -618,20 +383,28 @@ bool Calculator::globalEfficiency_Several1L(const LeptonList& leptons, unsigned 
 	return success;
 }
 
-bool Calculator::globalEfficiency_One2L(const LeptonList& leptons, unsigned runNumber, const TrigEMU trig, Efficiencies& globalEfficiencies)
+///
+/// One mixed-flavour dilepton trigger
+///
+template<typename Trig2Lmix>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig2Lmix trig, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lmix::is2Lmix(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2L() at line " << __LINE__);
-	Efficiencies electronEfficiencies, muonEfficiencies;
-	bool success = globalEfficiency_One1L(leptons, runNumber, trig.side<xAOD::Type::Electron>(), electronEfficiencies)
-		&& globalEfficiency_One1L(leptons, runNumber, trig.side<xAOD::Type::Muon>(), muonEfficiencies);
-	if(success) globalEfficiencies = electronEfficiencies * muonEfficiencies;
+	Efficiencies efficiencies[2];
+	bool success = globalEfficiency(leptons, runNumber, trig.side1(), efficiencies[0])
+		&& globalEfficiency(leptons, runNumber, trig.side2(), efficiencies[1]);
+	if(success) globalEfficiencies = efficiencies[0] * efficiencies[1];
 	else globalEfficiencies = {0.};
 	return success;
 }
 
+///
+/// One symmetric dilepton trigger
+///
 template<typename Trig2Lsym>
-auto Calculator::globalEfficiency_One2L(const LeptonList& leptons, unsigned runNumber, const Trig2Lsym trig , Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2Lsym::is2Lsym(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig2Lsym trig , Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lsym::is2Lsym(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2L() at line " << __LINE__);
 	globalEfficiencies = {0.};
@@ -650,12 +423,15 @@ auto Calculator::globalEfficiency_One2L(const LeptonList& leptons, unsigned runN
 	return success;
 }
 
+///
+/// One asymmetric dilepton trigger
+///
 template<typename Trig2Lasym>
-auto Calculator::globalEfficiency_One2L(const LeptonList& leptons, unsigned runNumber, const Trig2Lasym trig, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2Lasym::is2Lasym(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig2Lasym trig, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lasym::is2Lasym(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2L() at line " << __LINE__);
-	if(trig.symmetric()) return globalEfficiency_One2L(leptons, runNumber, trig.to_symmetric(), globalEfficiencies);
+	if(trig.symmetric()) return globalEfficiency(leptons, runNumber, trig.to_symmetric(), globalEfficiencies);
 	globalEfficiencies = {0.};
 	if(!trig) return true;
 	Efficiencies singleInefficiencies[2] = {{1.},{1.}}, twoSingleInefficiencies = {1.};
@@ -690,19 +466,27 @@ auto Calculator::globalEfficiency_One2L(const LeptonList& leptons, unsigned runN
 	return success;
 }
 
-bool Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsigned runNumber,
-	const TrigEMU trigEMU, const flat_set<Trig1E>& trigs1E, const flat_set<Trig1MU>& trigs1MU, Efficiencies& globalEfficiencies)
+///
+/// One mixed-flavour dilepton trigger + single-lepton triggers
+///
+template<typename Trig2Lmix, typename Trig1L_obj1, typename Trig1L_obj2>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
+		const Trig2Lmix trig2Lmix, const flat_set<Trig1L_obj1>& trigs1L1, const flat_set<Trig1L_obj2>& trigs1L2, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lmix::is2Lmix()
+						&& Trig1L_obj1::is1L() && Trig2Lmix::object1()==Trig1L_obj1::object()
+						&& Trig1L_obj2::is1L() && Trig2Lmix::object2()==Trig1L_obj2::object(),
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2LSeveral1L() at line " << __LINE__);
-	if(!(trigs1E.size() + trigs1MU.size()))
-		return globalEfficiency_One2L(leptons, runNumber, trigEMU, globalEfficiencies);
-	if(trigEMU.hiddenBy(trigs1E) || trigEMU.hiddenBy(trigs1MU))
-		return globalEfficiency_Several1L(leptons, runNumber, trigs1E, trigs1MU, globalEfficiencies);
+	if(!(trigs1L1.size() + trigs1L2.size()))
+		return globalEfficiency(leptons, runNumber, trig2Lmix, globalEfficiencies);
+	if(trig2Lmix.hiddenBy(trigs1L1) || trig2Lmix.hiddenBy(trigs1L2))
+		return globalEfficiency(leptons, runNumber, trigs1L1, trigs1L2, globalEfficiencies);
 	Efficiencies efficiencies[4];
-	bool success = globalEfficiency_Several1L(leptons, runNumber, trigs1E, efficiencies[0])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigs1MU, efficiencies[1])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigEMU.addTo(trigs1E), efficiencies[2])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigEMU.addTo(trigs1MU), efficiencies[3]);
+	bool success = globalEfficiency(leptons, runNumber, trigs1L1, efficiencies[0])
+		&& globalEfficiency(leptons, runNumber, trigs1L2, efficiencies[1])
+		&& globalEfficiency(leptons, runNumber, trig2Lmix.addTo(trigs1L1), efficiencies[2])
+		&& globalEfficiency(leptons, runNumber, trig2Lmix.addTo(trigs1L2), efficiencies[3]);
 	if(success)
 	{
 		globalEfficiencies = Efficiencies(1.) - ~efficiencies[0]*~efficiencies[1]
@@ -712,23 +496,35 @@ bool Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsi
 	return success;
 }
 
+///
+/// One dilepton trigger + one single-lepton trigger
+///
 template<typename Trig2L, typename Trig1L>
-inline auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
+inline auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 			const Trig2L trig2L, const Trig1L trig1L, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2L::is2L(Trig1L::object()) && Trig1L::is1L(), bool>::type
+	-> std::enable_if_t<Trig2L::is2Lnomix() 
+						&& Trig1L::is1L()
+						&& Trig2L::object()==Trig1L::object(),
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2LSeveral1L() at line " << __LINE__);
-	return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2L, flat_set<Trig1L>{trig1L}, globalEfficiencies);
+	return globalEfficiency(leptons, runNumber, trig2L, flat_set<Trig1L>{trig1L}, globalEfficiencies);
 }
 
+///
+/// One symmetric dilepton trigger + several single-lepton triggers
+///
 template<typename Trig2Lsym, typename Trig1L>
-auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 			const Trig2Lsym trig2L, const flat_set<Trig1L>& trigs1L, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2Lsym::is2Lsym(Trig1L::object()) && Trig1L::is1L(), bool>::type
+	-> std::enable_if_t<Trig2Lsym::is2Lsym() 
+						&& Trig1L::is1L() 
+						&& Trig1L::object() == Trig2Lsym::object(), 
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2LSeveral1L() at line " << __LINE__);
-	if(!trigs1L.size()) return globalEfficiency_One2L(leptons, runNumber, trig2L, globalEfficiencies);
-	if(!trig2L || trig2L.hiddenBy(trigs1L)) return globalEfficiency_Several1L(leptons, runNumber, trigs1L, globalEfficiencies);
+	if(!trigs1L.size()) return globalEfficiency(leptons, runNumber, trig2L, globalEfficiencies);
+	if(!trig2L || trig2L.hiddenBy(trigs1L)) return globalEfficiency(leptons, runNumber, trigs1L, globalEfficiencies);
 	globalEfficiencies = {0.};
 	Efficiencies twoSingleInefficiencies = {1.};
 	bool success = true;
@@ -761,15 +557,21 @@ auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsi
 	return success;
 }
 
+///
+/// One asymmetric dilepton trigger + several single-lepton triggers
+///
 template<typename Trig2Lasym, typename Trig1L>
-auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 			const Trig2Lasym trig2L, const flat_set<Trig1L>& trigs1L, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2Lasym::is2Lasym(Trig1L::object()) && Trig1L::is1L(), bool>::type
+	-> std::enable_if_t<Trig2Lasym::is2Lasym() 
+						&& Trig1L::is1L() 
+						&& Trig1L::object() == Trig2Lasym::object(), 
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2LSeveral1L() at line " << __LINE__);
-	if(trig2L.symmetric()) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2L.to_symmetric(), trigs1L, globalEfficiencies);
-	if(!trigs1L.size()) return globalEfficiency_One2L(leptons, runNumber, trig2L, globalEfficiencies);
-	if(!trig2L || trig2L.hiddenBy(trigs1L)) return globalEfficiency_Several1L(leptons, runNumber, trigs1L, globalEfficiencies);
+	if(trig2L.symmetric()) return globalEfficiency(leptons, runNumber, trig2L.to_symmetric(), trigs1L, globalEfficiencies);
+	if(!trigs1L.size()) return globalEfficiency(leptons, runNumber, trig2L, globalEfficiencies);
+	if(!trig2L || trig2L.hiddenBy(trigs1L)) return globalEfficiency(leptons, runNumber, trigs1L, globalEfficiencies);
 	globalEfficiencies = {0.};
 	Efficiencies twoSingleInefficiencies[2] = {{1.}, {1.}}, threeSingleInefficiencies = {1.};
 	bool success = true;
@@ -798,46 +600,26 @@ auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsi
 			if(loosest1lepLeg!=looseLegs.second) globalEfficiencies += (efficienciesMedium-efficiencies1L)*~threeSingleInefficiencies;
 		}
 		threeSingleInefficiencies *= ~efficienciesLoose;
-		twoSingleInefficiencies[0] *= (looseLegs.first!=trig2L.legs[1])?~efficienciesLoose:~efficienciesMedium; // S1 v S3
-		twoSingleInefficiencies[1] *= (looseLegs.first!=trig2L.legs[0])?~efficienciesLoose:~efficienciesMedium; // S2 v S3
+		twoSingleInefficiencies[0] *= (looseLegs.first!=trig2L.legs[1])?~efficienciesLoose:~efficienciesMedium; /// S1 v S3
+		twoSingleInefficiencies[1] *= (looseLegs.first!=trig2L.legs[0])?~efficienciesLoose:~efficienciesMedium; /// S2 v S3
 	}
 	return success;
 }
 
-template<typename Trig2E>
-auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
-		const Trig2E trig2E, const flat_set<Trig1E>& trigs1E, const flat_set<Trig1MU>& trigs1MU, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2E::is2L(xAOD::Type::Electron), bool>::type
-{
-	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2LSeveral1L() at line " << __LINE__);
-	Efficiencies effs[2] = {{0.}, {0.}};
-	bool success = globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2E, trigs1E, effs[0])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigs1MU, effs[1]);
-	globalEfficiencies = ~(~effs[0] * ~effs[1]);
-	return success;
-}
-
-template<typename Trig2MU>
-auto Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
-		const Trig2MU trig2MU, const flat_set<Trig1E>& trigs1E, const flat_set<Trig1MU>& trigs1MU, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2MU::is2L(xAOD::Type::Muon), bool>::type
-{
-	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One2LSeveral1L() at line " << __LINE__);
-	Efficiencies effs[2] = {{0.}, {0.}};
-	bool success = globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2MU, trigs1MU, effs[0])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigs1E, effs[1]);
-	globalEfficiencies = ~(~effs[0] * ~effs[1]);
-	return success;
-}
-
+///
+/// Two symmetric dilepton triggers + several single-lepton triggers
+///
 template<typename Trig2Lsym, typename Trig1L> 
-auto Calculator::globalEfficiency_Two2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 			const Trig2Lsym trig2L1, const Trig2Lsym trig2L2, const flat_set<Trig1L>& trigs1L, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2Lsym::is2Lsym(Trig1L::object()) && Trig1L::is1L(), bool>::type
+	-> std::enable_if_t<Trig2Lsym::is2Lsym() 
+						&& Trig1L::is1L()
+						&& Trig1L::object() == Trig2Lsym::object(), 
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Two2LSeveral1L() at line " << __LINE__);
-	if(!trig2L1 || trig2L1==trig2L2 || trig2L1.hiddenBy(trigs1L)) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2L2, trigs1L, globalEfficiencies);
-	if(!trig2L2 || trig2L2.hiddenBy(trigs1L)) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2L1, trigs1L, globalEfficiencies);
+	if(!trig2L1 || trig2L1==trig2L2 || trig2L1.hiddenBy(trigs1L)) return globalEfficiency(leptons, runNumber, trig2L2, trigs1L, globalEfficiencies);
+	if(!trig2L2 || trig2L2.hiddenBy(trigs1L)) return globalEfficiency(leptons, runNumber, trig2L1, trigs1L, globalEfficiencies);
 	globalEfficiencies = {0.};
 	Efficiencies singleInefficiencies{1.};
 	Efficiencies efficiencies2Lsym[2] = {{0.},{0.}};
@@ -875,20 +657,26 @@ auto Calculator::globalEfficiency_Two2LSeveral1L(const LeptonList& leptons, unsi
 	return success;
 }
 
+///
+/// Two dilepton triggers (one asym., one sym.) + several single-lepton triggers
+///
 template<typename Trig2Lasym, typename Trig2Lsym, typename Trig1L>
-auto Calculator::globalEfficiency_Two2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 			const Trig2Lasym trig2Lasym, const Trig2Lsym trig2Lsym, const flat_set<Trig1L>& trigs1L, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2Lasym::is2Lasym(Trig1L::object()) && Trig2Lsym::is2Lsym(Trig1L::object()) && Trig1L::is1L(), bool>::type
+	-> std::enable_if_t<Trig2Lasym::is2Lasym() 
+						&& Trig2Lsym::is2Lsym() && Trig2Lsym::object()==Trig2Lasym::object()
+						&& Trig1L::is1L() && Trig1L::object()==Trig2Lasym::object(), 
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Two2LSeveral1L() at line " << __LINE__);
-	if(!trig2Lasym || trig2Lasym.hiddenBy(trigs1L)) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2Lsym, trigs1L, globalEfficiencies);
-	if(!trig2Lsym || trig2Lsym.hiddenBy(trigs1L)) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2Lasym, trigs1L, globalEfficiencies);
+	if(!trig2Lasym || trig2Lasym.hiddenBy(trigs1L)) return globalEfficiency(leptons, runNumber, trig2Lsym, trigs1L, globalEfficiencies);
+	if(!trig2Lsym || trig2Lsym.hiddenBy(trigs1L)) return globalEfficiency(leptons, runNumber, trig2Lasym, trigs1L, globalEfficiencies);
 	if(trig2Lasym(0)==trig2Lsym() || trig2Lasym(1)==trig2Lsym())
 	{
 		ATH_MSG_ERROR("implementation -- does this function work properly when the two 2L triggers have one leg in common? Must be checked");
 		return false;
 	}
-	if(trig2Lasym.symmetric()) return globalEfficiency_Two2LSeveral1L(leptons, runNumber, trig2Lasym.to_symmetric(), trig2Lsym, trigs1L, globalEfficiencies);
+	if(trig2Lasym.symmetric()) return globalEfficiency(leptons, runNumber, trig2Lasym.to_symmetric(), trig2Lsym, trigs1L, globalEfficiencies);
 	globalEfficiencies = {0.};
 	Efficiencies singleInefficiencies[3] = {{1.}, {1.}, {1.}};
 	Efficiencies efficiencies2Lasym {0.}, efficiencies2Lsym[3] = {{0.},{0.},{0.}};
@@ -937,7 +725,7 @@ auto Calculator::globalEfficiency_Two2LSeveral1L(const LeptonList& leptons, unsi
 		else if(secondTightestLeg==trig2Lasym(0) || secondTightestLeg==trig2Lasym(1)) tau23 = (secondTightestLeg==trig2Lasym(0))? trig2Lasym(1) : trig2Lasym(0);
 		else if(tightestLeg==trig2Lasym(0) || tightestLeg==trig2Lasym(1)) tau23 = (tightestLeg==trig2Lasym(0))? trig2Lasym(1) : trig2Lasym(0);
 
-		// can't use tightestLeg==trig2Lsym because it might also be 0
+		/// can't use tightestLeg==trig2Lsym because it might also be 0
 		globalEfficiencies = globalEfficiencies*~efficiencies[loosestLeg] + efficiencies[loosest1lepLeg]
 			+ (efficiencies[tau13] - efficiencies[secondTightestLeg])*~singleInefficiencies[0]
 			+ (efficiencies[tau12] - efficiencies[secondTightestLeg])*~singleInefficiencies[1]
@@ -945,13 +733,13 @@ auto Calculator::globalEfficiency_Two2LSeveral1L(const LeptonList& leptons, unsi
 		if(loosestLeg==trig2Lsym()) globalEfficiencies += (efficiencies[trig2Lsym()]-efficiencies[secondLoosestLeg])*efficiencies2Lasym;
 		else if(loosestLeg==trig2Lasym(1)) globalEfficiencies += (efficiencies[trig2Lasym(1)]-efficiencies[secondLoosestLeg])*efficiencies2Lsym[0];
 		else if(loosestLeg==trig2Lasym(0)) globalEfficiencies += (efficiencies[trig2Lasym(0)]-efficiencies[secondLoosestLeg])*efficiencies2Lsym[1];
-		if(secondTightestLeg && tightestLeg==loosest1lepLeg) // this works because loosest1lepLeg is 0 if not on plateau...
+		if(secondTightestLeg && tightestLeg==loosest1lepLeg) /// this works because loosest1lepLeg is 0 if not on plateau...
 			globalEfficiencies += (efficiencies[secondTightestLeg]-efficiencies[tightestLeg])*~singleInefficiencies[2];
 
 		efficiencies2Lasym = ~efficiencies[loosestLeg]*efficiencies2Lasym + efficiencies[lambda14];
 		if(loosestLeg==trig2Lasym(0) || loosestLeg==trig2Lasym(1))
 		{
-			// note: secondLoosestLeg is valid because the loosest leg is either trig2Lasym(0) or trig2Lasym(1)
+			/// note: secondLoosestLeg is valid because the loosest leg is either trig2Lasym(0) or trig2Lasym(1)
 			efficiencies2Lasym += (efficiencies[loosestLeg]-efficiencies[secondLoosestLeg])*~singleInefficiencies[loosestLeg==trig2Lasym(0)]
 				+ (efficiencies[secondLoosestLeg]-efficiencies[lambda14])*~singleInefficiencies[2];
 		}
@@ -968,9 +756,12 @@ auto Calculator::globalEfficiency_Two2LSeveral1L(const LeptonList& leptons, unsi
 	return success;
 }
 
+///
+/// One symmetric trilepton trigger
+///
 template<typename Trig3Lsym>
-auto Calculator::globalEfficiency_One3L(const LeptonList& leptons, unsigned runNumber, const Trig3Lsym trig, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig3Lsym::is3Lsym(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig3Lsym trig, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig3Lsym::is3Lsym(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One3L() at line " << __LINE__);
 	globalEfficiencies = {0.};
@@ -987,12 +778,15 @@ auto Calculator::globalEfficiency_One3L(const LeptonList& leptons, unsigned runN
 	return success;
 }
 
+///
+/// One half-symmetric trilepton trigger
+///
 template<typename Trig3Lhalfsym>
-auto Calculator::globalEfficiency_One3L(const LeptonList& leptons, unsigned runNumber, const Trig3Lhalfsym trig, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig3Lhalfsym::is3Lhalfsym(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig3Lhalfsym trig, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig3Lhalfsym::is3Lhalfsym(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One3L() at line " << __LINE__);
-	if(trig.symmetric()) return globalEfficiency_One3L(leptons, runNumber, trig.to_symmetric(), globalEfficiencies);
+	if(trig.symmetric()) return globalEfficiency(leptons, runNumber, trig.to_symmetric(), globalEfficiencies);
 	globalEfficiencies = {0.};
 	Efficiencies singleInefficiencies[2] = {{1.}, {1.}}, twoSingleInefficiencies{1.};
 	Efficiencies efficiencies2Lsym{0.}, efficiencies2Lasym{0.}, efficiencies2L2L{0.};
@@ -1024,171 +818,232 @@ auto Calculator::globalEfficiency_One3L(const LeptonList& leptons, unsigned runN
 		{
 			globalEfficiencies = ~efficiencies[asym]*globalEfficiencies + efficiencies[sym]*efficiencies2L2L + delta*efficiencies2Lsym;
 			efficiencies2L2L = ~efficiencies[asym]*efficiencies2L2L + efficiencies[sym]*~twoSingleInefficiencies + delta*~singleInefficiencies[sym];
-			efficiencies2Lasym = ~efficiencies[asym]*efficiencies2Lasym + efficiencies[sym]*~twoSingleInefficiencies + delta*~singleInefficiencies[0];
+			efficiencies2Lasym = ~efficiencies[asym]*efficiencies2Lasym + efficiencies[sym]*~twoSingleInefficiencies + delta*~singleInefficiencies[sym];
 		}
 		else
 		{
 			globalEfficiencies = ~efficiencies[sym]*globalEfficiencies + efficiencies[asym]*efficiencies2L2L - delta*efficiencies2Lasym;
 			efficiencies2L2L = ~efficiencies[sym]*efficiencies2L2L + efficiencies[sym]*~twoSingleInefficiencies;
-			efficiencies2Lasym = ~efficiencies[sym]*efficiencies2Lasym + efficiencies[asym]*~twoSingleInefficiencies - delta*~singleInefficiencies[1];
+			efficiencies2Lasym = ~efficiencies[sym]*efficiencies2Lasym + efficiencies[asym]*~twoSingleInefficiencies - delta*~singleInefficiencies[asym];
 		}
-		efficiencies2Lsym = ~efficiencies[sym]*efficiencies2Lsym + efficiencies[sym]*~singleInefficiencies[0];
+		efficiencies2Lsym = ~efficiencies[sym]*efficiencies2Lsym + efficiencies[sym]*~singleInefficiencies[sym];
 		twoSingleInefficiencies *= ~efficiencies[loosestLeg];
-		singleInefficiencies[0] *= ~efficiencies[sym];
-		singleInefficiencies[1] *= ~efficiencies[asym];
+		singleInefficiencies[sym] *= ~efficiencies[sym];
+		singleInefficiencies[asym] *= ~efficiencies[asym];
 	}
 	return success;
 }
 
-template<typename Trig2L>
-auto Calculator::globalEfficiency_Two2L(const LeptonList& leptons, unsigned runNumber, const Trig2L trig2L, const TrigEMU trigEMU, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2L::is2L(), bool>::type
+///
+/// One dilepton trigger + one mixed-flavour dilepton trigger
+///
+template<typename Trig2L, typename Trig2Lmix>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig2L trig2L, const Trig2Lmix trig2Lmix, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2L::is2Lnomix()
+						&& Trig2Lmix::is2Lmix()
+						&& (Trig2Lmix::object1()==Trig2L::object() || Trig2Lmix::object2()==Trig2L::object()),
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Two2L() at line " << __LINE__);
 	Efficiencies efficiencies1L, efficiencies2L, efficiencies2Lor1L;
-	bool success = globalEfficiency_One1L(leptons, runNumber, trigEMU.antiside<Trig2L>(), efficiencies1L);
-	success = success && globalEfficiency_One2L(leptons, runNumber, trig2L, efficiencies2L);
-	success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2L, trigEMU.side<Trig2L>(), efficiencies2Lor1L);
+	bool success = globalEfficiency(leptons, runNumber, trig2Lmix.template antiside<Trig2L>(), efficiencies1L);
+	success = success && globalEfficiency(leptons, runNumber, trig2L, efficiencies2L);
+	success = success && globalEfficiency(leptons, runNumber, trig2L, trig2Lmix.template side<Trig2L>(), efficiencies2Lor1L);
 	globalEfficiencies = efficiencies2L*~efficiencies1L + efficiencies1L*efficiencies2Lor1L;
 	return success;
 }
 
-template<typename Trig2E, typename Trig2MU>
-auto Calculator::globalEfficiency_Three2L(const LeptonList& leptons, unsigned runNumber, 
-		const Trig2E trig2E, const Trig2MU trig2MU, const TrigEMU trigEMU, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2E::is2L(xAOD::Type::Electron) && Trig2MU::is2L(xAOD::Type::Muon), bool>::type
+///
+/// Combinaisons with 3 dilepton triggers including one mixed-flavour, and one sym./asym. dilepton for each flavour
+///
+template<typename Trig2L_obj1, typename Trig2L_obj2, typename Trig2Lmix>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
+		const Trig2L_obj1 trig2L_obj1, const Trig2L_obj2 trig2L_obj2, const Trig2Lmix trig2Lmix, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lmix::is2Lmix()
+						&& Trig2L_obj1::is2Lnomix() && Trig2L_obj1::object() == Trig2Lmix::object1()
+						&& Trig2L_obj2::is2Lnomix() && Trig2L_obj2::object() == Trig2Lmix::object2(),
+						
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Three2L() at line " << __LINE__);
 	Efficiencies efficiencies2L[2] = {{0.}, {0.}}, efficiencies2Lor1L[2] = {{0.}, {0.}};
 	bool success = true;
-	if(trig2E)
+	if(trig2L_obj1)
 	{
-		success = success && globalEfficiency_One2L(leptons, runNumber, trig2E, efficiencies2L[0]);
-		if(trigEMU) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2E, trigEMU.side<Trig2E>(), efficiencies2Lor1L[0]);
+		success = success && globalEfficiency(leptons, runNumber, trig2L_obj1, efficiencies2L[0]);
+		if(trig2Lmix) success = success && globalEfficiency(leptons, runNumber, trig2L_obj1, trig2Lmix.template side<Trig2L_obj1>(), efficiencies2Lor1L[0]);
 		else efficiencies2Lor1L[0] = efficiencies2L[0];
 	}
-	else if(trigEMU) success = success && globalEfficiency_One1L(leptons, runNumber, trigEMU.side<Trig2E>(), efficiencies2Lor1L[0]);
-	if(trig2MU)
+	else if(trig2Lmix) success = success && globalEfficiency(leptons, runNumber, trig2Lmix.template side<Trig2L_obj1>(), efficiencies2Lor1L[0]);
+	if(trig2L_obj2)
 	{
-		success = success && globalEfficiency_One2L(leptons, runNumber, trig2MU, efficiencies2L[1]);
-		if(trigEMU) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2MU, trigEMU.side<Trig2MU>(), efficiencies2Lor1L[1]);
+		success = success && globalEfficiency(leptons, runNumber, trig2L_obj2, efficiencies2L[1]);
+		if(trig2Lmix) success = success && globalEfficiency(leptons, runNumber, trig2L_obj2, trig2Lmix.template side<Trig2L_obj2>(), efficiencies2Lor1L[1]);
 		else efficiencies2Lor1L[1] = efficiencies2L[1];
 	}
-	else if(trigEMU) success = success && globalEfficiency_One1L(leptons, runNumber, trigEMU.side<Trig2MU>(), efficiencies2Lor1L[1]);
+	else if(trig2Lmix) success = success && globalEfficiency(leptons, runNumber, trig2Lmix.template side<Trig2L_obj2>(), efficiencies2Lor1L[1]);
 	globalEfficiencies = efficiencies2L[0]*~efficiencies2Lor1L[1] +  efficiencies2L[1]*~efficiencies2Lor1L[0] + efficiencies2Lor1L[0]*efficiencies2Lor1L[1];
 	return success;
 }
 
-template<typename Trig2E, typename Trig2MU>
-auto Calculator::globalEfficiency_Three2LSeveral1L(const LeptonList& leptons, unsigned runNumber, const Trig2E trig2E, const Trig2MU trig2MU, 
-		const TrigEMU trigEMU, const flat_set<Trig1E>& trigs1E, const flat_set<Trig1MU>& trigs1MU, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2E::is2L(xAOD::Type::Electron) && Trig2MU::is2L(xAOD::Type::Muon), bool>::type
+///
+/// Same combinaisons with 3 dilepton triggers, + single-lepton triggers
+///
+template<typename Trig2L_obj1, typename Trig2L_obj2, typename Trig2Lmix, typename Trig1L_obj1, typename Trig1L_obj2>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig2L_obj1 trig2L_obj1, const Trig2L_obj2 trig2L_obj2,
+		const Trig2Lmix trig2Lmix, const flat_set<Trig1L_obj1>& trigs1L_obj1, const flat_set<Trig1L_obj2>& trigs1L_obj2, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lmix::is2Lmix()
+						&& Trig2L_obj1::is2Lnomix() && Trig2L_obj1::object()==Trig2Lmix::object1()
+						&& Trig2L_obj2::is2Lnomix() && Trig2L_obj2::object()==Trig2Lmix::object2()
+						&& Trig1L_obj1::is1L() && Trig1L_obj1::object()==Trig2Lmix::object1()
+						&& Trig1L_obj2::is1L() && Trig1L_obj2::object()==Trig2Lmix::object2(),
+						
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Three2LSeveral1L() at line " << __LINE__);
 	Efficiencies efficiencies[4];
 	bool success = true;
-	if(trig2E) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2E, trigs1E, efficiencies[0]);
-	else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1E, efficiencies[0]);
-	if(trig2MU) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2MU, trigs1MU, efficiencies[1]);
-	else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1MU, efficiencies[1]);
-	if(trigEMU && !trigEMU.hiddenBy(trigs1E))
+	if(trig2L_obj1) success = success && globalEfficiency(leptons, runNumber, trig2L_obj1, trigs1L_obj1, efficiencies[0]);
+	else success = success && globalEfficiency(leptons, runNumber, trigs1L_obj1, efficiencies[0]);
+	if(trig2L_obj2) success = success && globalEfficiency(leptons, runNumber, trig2L_obj2, trigs1L_obj2, efficiencies[1]);
+	else success = success && globalEfficiency(leptons, runNumber, trigs1L_obj2, efficiencies[1]);
+	if(trig2Lmix && !trig2Lmix.hiddenBy(trigs1L_obj1))
 	{
-		auto trigs1E_plusEMU = trigEMU.addTo(trigs1E);
-		if(trig2E) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2E, trigs1E_plusEMU, efficiencies[2]);
-		else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1E_plusEMU, efficiencies[2]);
+		auto t = trig2Lmix.addTo(trigs1L_obj1);
+		if(trig2L_obj1) success = success && globalEfficiency(leptons, runNumber, trig2L_obj1, t, efficiencies[2]);
+		else success = success && globalEfficiency(leptons, runNumber, t, efficiencies[2]);
 	}
 	else efficiencies[2] = efficiencies[0];
-	if(trigEMU && !trigEMU.hiddenBy(trigs1MU))
+	if(trig2Lmix && !trig2Lmix.hiddenBy(trigs1L_obj2))
 	{
-		auto trigs1MU_plusEMU = trigEMU.addTo(trigs1MU);
-		if(trig2MU) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2MU, trigs1MU_plusEMU, efficiencies[3]);
-		else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1MU_plusEMU, efficiencies[3]);
+		auto t = trig2Lmix.addTo(trigs1L_obj2);
+		if(trig2L_obj2) success = success && globalEfficiency(leptons, runNumber, trig2L_obj2, t, efficiencies[3]);
+		else success = success && globalEfficiency(leptons, runNumber, t, efficiencies[3]);
 	}
 	else efficiencies[3] = efficiencies[1];
 	globalEfficiencies = Efficiencies(1.) - ~efficiencies[0]*~efficiencies[1] + (efficiencies[2]-efficiencies[0])*(efficiencies[3]-efficiencies[1]);
 	return success;
 }
 
-template<typename Trig2L, typename Trig2Lsym, typename Trig1L>
-auto Calculator::globalEfficiency_Six2LSeveral1L_singleObjectFactor(const LeptonList& leptons, unsigned runNumber, 
-	const Trig2L trig2L, const Trig2Lsym trig2Lsym, const TrigEMU trigEMU1, const TrigEMU trigEMU2, const flat_set<Trig1L>& trigs1L, Efficiencies (&efficiencies)[4])
-	-> typename std::enable_if<Trig2L::is2L() && Trig2Lsym::is2Lsym(Trig2L::object()) && Trig1L::is1L(Trig2L::object()), bool>::type
-{
-	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Six2LSeveral1L_singleObjectFactor() at line " << __LINE__);
-	auto eval_for = [=](const flat_set<Trig1L>& trigs1L_extended, Efficiencies& eff) -> bool
-	{
-		if(trig2L && trig2Lsym) return globalEfficiency_Two2LSeveral1L(leptons, runNumber, trig2L, trig2Lsym, trigs1L_extended, eff);
-		else if(trig2L) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2L, trigs1L_extended, eff);
-		else if(trig2Lsym) return globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2Lsym, trigs1L_extended, eff);
-		else return globalEfficiency_Several1L(leptons, runNumber, trigs1L_extended, eff);
-	};
-	bool success = eval_for(trigs1L, efficiencies[0]);
-	if(trigEMU1) success = success && eval_for(trigEMU1.addTo(trigs1L), efficiencies[1]);
-	else efficiencies[1] = efficiencies[0];
-	if(trigEMU2)
-	{
-		auto trigs1L_withEMU2 = trigEMU2.addTo(trigs1L);
-		success = success && eval_for(trigs1L_withEMU2, efficiencies[2]);
-		if(trigEMU1) success && eval_for(trigEMU1.addTo(trigs1L_withEMU2), efficiencies[3]);
-		else efficiencies[3] = efficiencies[2];
-	}
-	else
-	{
-		efficiencies[2] = efficiencies[0];
-		efficiencies[3] = efficiencies[1];
-	}
-	return success;
-}
-
-template<typename Trig2E, typename Trig2MU>
-auto Calculator::globalEfficiency_Six2LSeveral1L(const LeptonList& leptons, unsigned runNumber, 
-		const Trig2E trig2E, const Trig2Esym trig2Esym, const Trig2MU trig2MU, const Trig2MUsym trig2MUsym,
-		const TrigEMU trigEMU1, const TrigEMU trigEMU2, const flat_set<Trig1E>& trigs1E, const flat_set<Trig1MU>& trigs1MU, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig2E::is2L(xAOD::Type::Electron) && Trig2MU::is2L(xAOD::Type::Muon), bool>::type
+///
+/// Six dilepton triggers (two mixed-flavour, two sym., two asym./sym.) for two object types
+///
+template<typename Trig2L_obj1, typename Trig2Lsym_obj1, typename Trig2L_obj2, typename Trig2Lsym_obj2,
+	typename Trig2Lmix, typename Trig1L_obj1, typename Trig1L_obj2>
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
+		const Trig2L_obj1 trig2L_obj1, const Trig2Lsym_obj1 trig2Lsym_obj1, const Trig2L_obj2 trig2L_obj2, const Trig2Lsym_obj2 trig2Lsym_obj2,
+		const Trig2Lmix trig2Lmix1, const Trig2Lmix trig2Lmix2, 
+		const flat_set<Trig1L_obj1>& trigs1L_obj1, const flat_set<Trig1L_obj2>& trigs1L_obj2, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig2Lmix::is2Lmix()
+						&& Trig2L_obj1::is2Lnomix() && Trig2L_obj1::object()==Trig2Lmix::object1()
+						&& Trig2L_obj2::is2Lnomix() && Trig2L_obj2::object()==Trig2Lmix::object2()
+						&& Trig2Lsym_obj1::is2Lsym() && Trig2Lsym_obj1::object()==Trig2Lmix::object1()
+						&& Trig2Lsym_obj2::is2Lsym() && Trig2Lsym_obj2::object()==Trig2Lmix::object2()
+						&& Trig1L_obj1::is1L() && Trig1L_obj1::object()==Trig2Lmix::object1()
+						&& Trig1L_obj2::is1L() && Trig1L_obj2::object()==Trig2Lmix::object2(),
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Six2LSeveral1L() at line " << __LINE__);
-	Efficiencies efficienciesE[4], efficienciesM[4];
-	bool success = globalEfficiency_Six2LSeveral1L_singleObjectFactor(leptons, runNumber, trig2E, trig2Esym, trigEMU1, trigEMU2, trigs1E, efficienciesE)
-		&& globalEfficiency_Six2LSeveral1L_singleObjectFactor(leptons, runNumber, trig2MU, trig2MUsym, trigEMU1, trigEMU2, trigs1MU, efficienciesM);
-	globalEfficiencies = Efficiencies(1.) - ~efficienciesE[0]*~efficienciesM[0] + (efficienciesE[1]-efficienciesE[0])*(efficienciesM[1]-efficienciesM[0])
-		+ (efficienciesE[2]-efficienciesE[0])*(efficienciesM[2]-efficienciesM[0]) 
-		- (efficienciesE[0]-efficienciesE[1]-efficienciesE[2]+efficienciesE[3])*(efficienciesM[0]-efficienciesM[1]-efficienciesM[2]+efficienciesM[3]);
+	
+	auto singleObjectFactor = [=](auto trig2L, auto trig2Lsym, auto& trigs1L, Efficiencies (&efficiencies)[4]) -> bool
+	{
+		auto eval_for = [=](const auto& trigs1L_extended, Efficiencies& eff) -> bool
+		{
+			if(trig2L && trig2Lsym) return this->globalEfficiency(leptons, runNumber, trig2L, trig2Lsym, trigs1L_extended, eff);
+			else if(trig2L) return this->globalEfficiency(leptons, runNumber, trig2L, trigs1L_extended, eff);
+			else if(trig2Lsym) return this->globalEfficiency(leptons, runNumber, trig2Lsym, trigs1L_extended, eff);
+			else return this->globalEfficiency(leptons, runNumber, trigs1L_extended, eff);
+		};
+	
+		bool success = eval_for(trigs1L, efficiencies[0]);
+		if(trig2Lmix1) success = success && eval_for(trig2Lmix1.addTo(trigs1L), efficiencies[1]);
+		else efficiencies[1] = efficiencies[0];
+		if(trig2Lmix2)
+		{
+			auto t = trig2Lmix2.addTo(trigs1L);
+			success = success && eval_for(t, efficiencies[2]);
+			if(trig2Lmix1) success && eval_for(trig2Lmix1.addTo(t), efficiencies[3]);
+			else efficiencies[3] = efficiencies[2];
+		}
+		else
+		{
+			efficiencies[2] = efficiencies[0];
+			efficiencies[3] = efficiencies[1];
+		}
+		return success;
+	};
+	
+	Efficiencies efficiencies1[4], efficiencies2[4];
+	bool success = singleObjectFactor(trig2L_obj1, trig2Lsym_obj1, trigs1L_obj1, efficiencies1)
+		&& singleObjectFactor(trig2L_obj2, trig2Lsym_obj2, trigs1L_obj2, efficiencies2);
+	globalEfficiencies = Efficiencies(1.) - ~efficiencies1[0]*~efficiencies2[0] + (efficiencies1[1]-efficiencies1[0])*(efficiencies2[1]-efficiencies2[0])
+		+ (efficiencies1[2]-efficiencies1[0])*(efficiencies2[2]-efficiencies2[0]) 
+		- (efficiencies1[0]-efficiencies1[1]-efficiencies1[2]+efficiencies1[3])*(efficiencies2[0]-efficiencies2[1]-efficiencies2[2]+efficiencies2[3]);
 	return success;
 }
 
+///
+/// One mixed-flavour trilepton trigger
+///
 template<typename Trig3Lmix>
-auto Calculator::globalEfficiency_One3L(const LeptonList& leptons, unsigned runNumber, const Trig3Lmix trig, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig3Lmix::is3Lmix(), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig3Lmix trig, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig3Lmix::is3Lmix(), bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_One3L() at line " << __LINE__);
 	Efficiencies efficiencies[2] = {{0.}, {0.}};
-	bool success = globalEfficiency_One2L(leptons, runNumber, trig.template side<Trig3Lmix::major_object()>(), efficiencies[0])
-		&& globalEfficiency_One1L(leptons, runNumber, trig.template side<Trig3Lmix::minor_object()>(), efficiencies[1]);
+	bool success = globalEfficiency(leptons, runNumber, trig.template side<Trig3Lmix::object1()>(), efficiencies[0])
+		&& globalEfficiency(leptons, runNumber, trig.template side<Trig3Lmix::object2()>(), efficiencies[1]);
 	globalEfficiencies = efficiencies[0]*efficiencies[1];
 	return success;
 }
 
+///
+/// Two complementary mixed-flavour trilepton triggers
+///
 template<typename Trig3Lmix1, typename Trig3Lmix2>
-auto Calculator::globalEfficiency_Two3L(const LeptonList& leptons, unsigned runNumber, const Trig3Lmix1 trig1, const Trig3Lmix2 trig2, Efficiencies& globalEfficiencies)
-	-> typename std::enable_if<Trig3Lmix1::is3Lmix() && Trig3Lmix2::is3Lmix() && (Trig3Lmix1::major_object()!=Trig3Lmix2::major_object()), bool>::type
+auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber, const Trig3Lmix1 trig1, const Trig3Lmix2 trig2, Efficiencies& globalEfficiencies)
+	-> std::enable_if_t<Trig3Lmix1::is3Lmix() 
+					&& Trig3Lmix2::is3Lmix() 
+					&& Trig3Lmix1::object1() == Trig3Lmix2::object2()
+					&& Trig3Lmix1::object2() == Trig3Lmix2::object1(), 
+		bool>
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Two3L() at line " << __LINE__);
 	Efficiencies efficiencies[6] = {{0.}, {0.}, {0.}, {0.}, {0.}, {0.}};
-	auto trig2La = trig1.template side<Trig3Lmix1::major_object()>();
-	auto trig1La = trig2.template side<Trig3Lmix2::minor_object()>();
-	bool success = globalEfficiency_One1L(leptons, runNumber, trig1La, efficiencies[0])
-		&& globalEfficiency_One2L(leptons, runNumber, trig2La, efficiencies[1]);
-	if(!trig2La.hiddenBy(trig1La)) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2La, trig1La, efficiencies[2]);
+	auto trig2La = trig1.template side<Trig3Lmix1::object1()>();
+	auto trig1La = trig2.template side<Trig3Lmix2::object2()>();
+	bool success = globalEfficiency(leptons, runNumber, trig1La, efficiencies[0])
+		&& globalEfficiency(leptons, runNumber, trig2La, efficiencies[1]);
+	if(!trig2La.hiddenBy(trig1La)) success = success && globalEfficiency(leptons, runNumber, trig2La, trig1La, efficiencies[2]);
 	else efficiencies[2] = efficiencies[0];
-	auto trig2Lb = trig2.template side<Trig3Lmix2::major_object()>();
-	auto trig1Lb = trig1.template side<Trig3Lmix1::minor_object()>();
-	success = success && globalEfficiency_One1L(leptons, runNumber, trig1Lb, efficiencies[3])
-		&& globalEfficiency_One2L(leptons, runNumber, trig2Lb, efficiencies[4]);
-	if(!trig2Lb.hiddenBy(trig1Lb)) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2Lb, trig1Lb, efficiencies[5]);
+	auto trig2Lb = trig2.template side<Trig3Lmix2::object1()>();
+	auto trig1Lb = trig1.template side<Trig3Lmix1::object2()>();
+	success = success && globalEfficiency(leptons, runNumber, trig1Lb, efficiencies[3])
+		&& globalEfficiency(leptons, runNumber, trig2Lb, efficiencies[4]);
+	if(!trig2Lb.hiddenBy(trig1Lb)) success = success && globalEfficiency(leptons, runNumber, trig2Lb, trig1Lb, efficiencies[5]);
 	else efficiencies[5] = efficiencies[3];
 	globalEfficiencies = efficiencies[0]*efficiencies[4] + efficiencies[3]*efficiencies[1] 
 		+ (efficiencies[2]-efficiencies[0]-efficiencies[1])*(efficiencies[3]+efficiencies[4]-efficiencies[5]);
 	return success;
+}
+
+bool Calculator::globalEfficiency_Factorized2(const LeptonList& leptons, unsigned runNumber, GlobEffFunc func1, GlobEffFunc func2, Efficiencies& globalEfficiencies)
+{
+	Efficiencies efficiencies[2];
+	if(!func1(this, leptons, runNumber, efficiencies[0])) return false;
+	if(!func2(this, leptons, runNumber, efficiencies[1])) return false;
+	globalEfficiencies = ~(~efficiencies[0] * ~efficiencies[1]);
+	return true;
+}
+
+bool Calculator::globalEfficiency_Factorized3(const LeptonList& leptons, unsigned runNumber, GlobEffFunc func1, GlobEffFunc func2, GlobEffFunc func3, Efficiencies& globalEfficiencies)
+{
+	Efficiencies efficiencies[3];
+	if(!func1(this, leptons, runNumber, efficiencies[0])) return false;
+	if(!func2(this, leptons, runNumber, efficiencies[1])) return false;
+	if(!func3(this, leptons, runNumber, efficiencies[2])) return false;
+	globalEfficiencies = ~(~efficiencies[0] * ~efficiencies[1]* ~efficiencies[2]);
+	return true;
 }
 
 bool Calculator::fillListOfLegsFor(const Lepton& lepton, const std::vector<TrigDef>& triggers, flat_set<std::size_t>& validLegs) const
@@ -1196,71 +1051,14 @@ bool Calculator::fillListOfLegsFor(const Lepton& lepton, const std::vector<TrigD
 	validLegs.clear();
 	for(auto& trig : triggers)
 	{
-		bool success = true;
-		if(lepton.type() == xAOD::Type::Electron)
-		{
-			switch(trig.type)
-			{
-			case TT_3E_ASYM:
-				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-			case TT_2E_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
-				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
-			case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: 
-			case TT_2E_MU_SYM: case TT_E_2MU_SYM: case TT_E_2MU_ASYM:
-				if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
-				break;
-			default:
-				if(trig.type&TT_ELECTRON_FLAG) success = false;
-			}
-		}
-		else if(lepton.type() == xAOD::Type::Muon)
-		{
-			switch(trig.type)
-			{
-			case TT_3MU_ASYM: 
-				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-			case TT_2MU_ASYM: case TT_3MU_HALFSYM:
-				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
-			case TT_SINGLE_MU: case TT_2MU_SYM: case TT_3MU_SYM: 
-				if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
-				break;
-			case TT_E_2MU_ASYM:
-				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-			case TT_EMU: case TT_E_2MU_SYM: 
-				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]);
-				break;
-			case TT_2E_MU_SYM: case TT_2E_MU_ASYM: 
-				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]);
-				break;
-			default:
-				if(trig.type&TT_MUON_FLAG) success = false;
-			}
-		}
-		else if(lepton.type() == xAOD::Type::Photon)
-		{
-			switch(trig.type)
-			{
-			case TT_3PH_ASYM:
-				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-			case TT_2PH_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
-				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
-			case TT_SINGLE_PH: case TT_2PH_SYM: case TT_3PH_SYM:
-				if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
-				break;
-			default:
-				if(trig.type&TT_PHOTON_FLAG) success = false;
-			}
-		}
-		else
-		{
-			ATH_MSG_ERROR("Unknown lepton type");
-			return false;
-		}
-		if(!success)
+		TriggerProperties tp(trig);
+		if(!tp.valid())
 		{
 			ATH_MSG_ERROR("Unrecognized trigger type " << trig.type);
 			return false;
 		}
+		auto end = tp.cend(lepton.type());
+		for(auto itr=tp.cbegin(lepton.type()); itr!=end; ++itr)if(aboveThreshold(lepton, *itr)) validLegs.emplace(*itr);
 	}
 	return true;
 }
@@ -1312,7 +1110,7 @@ bool Calculator::canTriggerBeFired(const TrigDef& trig, const std::vector<flat_s
 	return false;
 }
 
-bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNumber, 
+bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNumber,
 	const std::vector<TrigDef>& triggers, Efficiencies& globalEfficiencies)
 {
 	ATH_MSG_DEBUG("Entered Calculator::globalEfficiency_Toys() at line " << __LINE__);
@@ -1379,4 +1177,230 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 	globalEfficiencies.data() = double(nPassed[0]) / double(m_parent->m_numberOfToys);
 	globalEfficiencies.mc() = double(nPassed[1]) / double(m_parent->m_numberOfToys);
 	return true;
+}
+
+Calculator::Helper::Helper(const std::vector<TrigDef>& defs) :
+	m_formula(nullptr), m_defs(defs)
+{
+}
+
+bool Calculator::Helper::duplicates() const
+{
+	for(auto itr1=m_defs.cbegin(); itr1!=m_defs.cend(); ++itr1)
+		for(auto itr2=itr1+1; itr2!=m_defs.cend(); ++itr2)
+			if(itr1->type==itr2->type && itr1->leg==itr2->leg) return true;
+	return false;
+}
+
+namespace TrigGlobEffCorr /// the template specializations below must be enclosed in this namespace
+{
+	template<typename T>
+	struct TrigGlobEffCorr::Calculator::Helper::BindPackedParam
+	{
+		using TrigType = T;
+		using ArgType = std::add_const_t<T>;
+		static constexpr bool multiple() { return false; }
+		static constexpr bool optional() { return false; }
+		static void add(T& arg, ImportData::TrigDef& def) { arg.setDefinition(def); }
+		static constexpr bool valid(const T& arg) { return bool(arg); }
+	};
+
+	template<typename T>
+	struct TrigGlobEffCorr::Calculator::Helper::BindPackedParam<flat_set<T>>
+	{
+		using TrigType = T;
+		using ArgType = const flat_set<T>&;
+		static constexpr bool multiple() { return true; }
+		static constexpr bool optional() { return false; }
+		static void add(flat_set<T>& arg, ImportData::TrigDef& def) { arg.emplace().first->setDefinition(def); }
+		static constexpr bool valid(const flat_set<T>& arg) { return arg.size(); }
+	};
+
+	template<typename T>
+	struct TrigGlobEffCorr::Calculator::Helper::BindPackedParam<Calculator::Helper::Optional<T>>
+	{
+		using TrigType = typename BindPackedParam<T>::TrigType;
+		using ArgType = typename BindPackedParam<T>::ArgType;
+		static constexpr bool multiple() { return BindPackedParam<T>::multiple(); }
+		static constexpr bool optional() { return true; }
+		static void add(std::remove_cv_t<std::remove_reference_t<ArgType>>& arg, ImportData::TrigDef def) { BindPackedParam<T>::add(arg, def); }
+		static constexpr bool valid(ArgType& arg) { return BindPackedParam<T>::valid(arg); }
+	};
+}
+
+template<typename Param>
+auto Calculator::Helper::extract() 
+{
+	std::remove_cv_t<std::remove_reference_t<typename Param::ArgType>> trigs;
+	for(auto& def : m_defs)
+	{
+		if(def.used || def.type!=Param::TrigType::type()) continue;
+		def.used = true;
+		Param::add(trigs, def);
+		if(!Param::multiple()) break;
+	}
+	if(!Param::optional() && !Param::valid(trigs)) throw NoSuchTrigger();
+	return trigs;
+}
+
+template<typename... Trigs>
+bool Calculator::Helper::bindFunction()
+{
+	for(auto& def : m_defs) def.used = false;
+	using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, typename BindPackedParam<Trigs>::ArgType..., Efficiencies&);
+	try
+	{
+		m_formula = std::bind<fnptr>(&Calculator::globalEfficiency, ::_1, ::_2, ::_3, extract<BindPackedParam<Trigs>>()..., ::_4);
+		if(std::all_of(m_defs.cbegin(), m_defs.cend(), [](auto& def){return def.used;})) return true;
+	}
+	catch(NoSuchTrigger){}
+	m_formula = nullptr;
+	return false;
+}
+
+template<TriggerType object_flag>
+bool Calculator::Helper::findAndBindFunction() /// for combinations with a single flavour present
+{
+	using A = TriggerClass<object_flag>;
+	using A1L = flat_set<typename A::T_1>;
+	using A_2sym = typename A::T_2sym;
+	using A_2asym = typename A::T_2asym;
+	if(!m_n2L && !m_n3L)
+	{
+		return bindFunction<typename A::T_1>() || bindFunction<A1L>();
+	}
+	else if(m_n2L==1 && !m_n3L)
+	{
+		return bindFunction<A_2sym>() || bindFunction<A_2asym>()
+			|| bindFunction<A_2sym, A1L>() || bindFunction<A_2asym, A1L>();
+	}
+	else if(m_n2L==2 && !m_n3L)
+	{
+		return bindFunction<A_2sym, A_2sym, Optional<A1L>>() || bindFunction<A_2asym, A_2sym, Optional<A1L>>();
+	}
+	else if(m_n3L==1 && !m_n1L && !m_n2L)
+	{
+		return bindFunction<typename A::T_3sym>() || bindFunction<typename A::T_3halfsym>();
+	}
+	return false;
+}
+
+template<TriggerType object_flag1, TriggerType object_flag2>
+bool Calculator::Helper::findAndBindFunction() /// for combinations with two flavours present
+{
+	/// this only deals with the presence of mixed triggers
+	using A = TriggerClass<object_flag1>;
+	using B = TriggerClass<object_flag2>;
+	using AB = TriggerClass<object_flag1, object_flag2>;
+	using A_1 = typename A::T_1;
+	using B_1 = typename B::T_1;		
+	using OA1L = Optional<flat_set<A_1>>;
+	using OB1L = Optional<flat_set<B_1>>;
+	using A_2sym = typename A::T_2sym;
+	using B_2sym = typename B::T_2sym;
+	using A_2asym = typename A::T_2asym;
+	using B_2asym = typename B::T_2asym;
+	using AB_1_1 = typename AB::T_1_1;
+	
+	/// checked if triggers can be factorized = no mixed trigger in the combination.
+	if(m_n1L>0 && !m_n2L && !m_n3L)
+	{
+		return bindFunction<A_1, B_1>() || bindFunction<flat_set<A_1>, flat_set<B_1>>();
+	}
+	else if(m_n2L==1 && !m_n3L) /// one dilepton trigger (+ single-lepton triggers)
+	{
+		return bindFunction<AB_1_1>() || bindFunction<AB_1_1, flat_set<A_1>, flat_set<B_1>>();
+	}
+	else if(m_n2L>=2 && m_n2L<=6 && !m_n3L) /// several dilepton triggers (+ single-lepton triggers)
+	{
+		return 
+			/// 2 dilepton triggers
+			   bindFunction<A_2sym, AB_1_1>() || bindFunction<A_2asym, AB_1_1>()
+			|| bindFunction<B_2sym, AB_1_1>() || bindFunction<B_2asym, AB_1_1>()
+			/// 3 dilepton triggers
+			|| bindFunction<Optional<A_2sym>, Optional<B_2sym>, Optional<AB_1_1>, OA1L, OB1L>()
+			|| bindFunction<Optional<A_2asym>, Optional<B_2sym>, Optional<AB_1_1>, OA1L, OB1L>()
+			|| bindFunction<Optional<A_2sym>, Optional<B_2asym>, Optional<AB_1_1>, OA1L, OB1L>()
+			|| bindFunction<Optional<A_2asym>, Optional<B_2asym>, Optional<AB_1_1>, OA1L, OB1L>()
+			/// 6 dilepton triggers
+			|| bindFunction<Optional<A_2sym>, Optional<A_2sym>, Optional<B_2sym>, Optional<B_2sym>, Optional<AB_1_1>, Optional<AB_1_1>, OA1L, OB1L>()
+			|| bindFunction<Optional<A_2asym>, Optional<A_2sym>, Optional<B_2sym>, Optional<B_2sym>, Optional<AB_1_1>, Optional<AB_1_1>, OA1L, OB1L>()
+			|| bindFunction<Optional<A_2sym>, Optional<A_2sym>, Optional<B_2asym>, Optional<B_2sym>, Optional<AB_1_1>, Optional<AB_1_1>, OA1L, OB1L>()
+			|| bindFunction<Optional<A_2asym>, Optional<A_2sym>, Optional<B_2asym>, Optional<B_2sym>, Optional<AB_1_1>, Optional<AB_1_1>, OA1L, OB1L>();
+	}
+	else if(m_n3L==1 && !m_n2L && !m_n1L) /// one mixed trilepton trigger
+	{
+		return bindFunction<typename AB::T_2sym_1>() || bindFunction<typename AB::T_1_2sym>()
+			||  bindFunction<typename AB::T_2asym_1>() || bindFunction<typename AB::T_1_2asym>();
+	}
+	else if(m_n3L==2 && !m_n2L && !m_n1L) /// two mixed trilepton triggers
+	{
+		return bindFunction<typename AB::T_2sym_1, typename AB::T_1_2sym>() 
+			|| bindFunction<typename AB::T_2asym_1, typename AB::T_1_2sym>()
+			|| bindFunction<typename AB::T_2sym_1, typename AB::T_1_2asym>() 
+			|| bindFunction<typename AB::T_2asym_1, typename AB::T_1_2asym>();
+	}
+	return false;
+}
+
+bool Calculator::Helper::findAndBindFunction() /// top-level function
+{
+	auto countTriggers = [&](auto nlep_flag) { return std::count_if(m_defs.cbegin(), m_defs.cend(), [=](auto& def){return def.type&nlep_flag;}); };
+	m_n1L = countTriggers(TT_SINGLELEPTON_FLAG);
+	m_n2L = countTriggers(TT_DILEPTON_FLAG);
+	m_n3L = countTriggers(TT_TRILEPTON_FLAG);
+	auto exclusively = [&](auto obj_flags) { return std::none_of(m_defs.cbegin(), m_defs.cend(), [=](auto& def){return def.type&TT_MASK_FLAVOUR&~obj_flags;}); };
+
+	/// First check if the trigger combination refers to a single object type
+	if(exclusively(TT_ELECTRON_FLAG)) return findAndBindFunction<TT_ELECTRON_FLAG>();
+	if(exclusively(TT_MUON_FLAG)) return findAndBindFunction<TT_MUON_FLAG>();
+	if(exclusively(TT_PHOTON_FLAG)) return findAndBindFunction<TT_PHOTON_FLAG>();
+
+	/// Then try to rely on available formulas for combinations with two object types
+	bool success = false;
+	if(exclusively(TT_ELECTRON_FLAG|TT_MUON_FLAG)) success = findAndBindFunction<TT_ELECTRON_FLAG,TT_MUON_FLAG>();
+	else if(exclusively(TT_ELECTRON_FLAG|TT_PHOTON_FLAG)) success = findAndBindFunction<TT_ELECTRON_FLAG,TT_PHOTON_FLAG>();
+	else if(exclusively(TT_MUON_FLAG|TT_PHOTON_FLAG)) success = findAndBindFunction<TT_MUON_FLAG,TT_PHOTON_FLAG>();
+	if(success) return true;
+	
+	/// As a last resort, maybe factorizing helps
+	std::vector<Helper> helpers;
+	for(auto obj_flag : {TT_ELECTRON_FLAG, TT_MUON_FLAG, TT_PHOTON_FLAG})
+	{
+		if(std::any_of(m_defs.cbegin(), m_defs.cend(), /// check there's no mixed-flavour trigger involving 'obj_flag'
+			[&](auto& def){ return (def.type&obj_flag) && TriggerProperties(def.type).mixed();})) continue;
+		std::vector<ImportData::TrigDef> trigs1, trigs2;
+		std::partition_copy(m_defs.begin(), m_defs.end(), std::back_inserter(trigs1), std::back_inserter(trigs2), [&](auto& def){ return (def.type&obj_flag); });
+		m_defs.swap(trigs2);
+		if(!trigs1.size()) continue;
+		helpers.emplace_back(trigs1);
+		if(!helpers.back().findAndBindFunction()) return false;
+	}
+	if(helpers.size())
+	{
+		if(m_defs.size())
+		{
+			if(!findAndBindFunction()) return false;
+			if(helpers.size() == 1) m_formula = std::bind(&Calculator::globalEfficiency_Factorized2, ::_1, ::_2, ::_3, 
+				std::move(m_formula), std::move(helpers[0].m_formula), ::_4);
+			else if(helpers.size()==2) m_formula = std::bind(&Calculator::globalEfficiency_Factorized3, ::_1, ::_2, ::_3, 
+				std::move(m_formula), std::move(helpers[0].m_formula), std::move(helpers[1].m_formula), ::_4);
+			else
+			{
+				m_formula = nullptr;
+				return false;
+			}
+		}
+		else	
+		{
+			if(helpers.size() == 2) m_formula = std::bind(&Calculator::globalEfficiency_Factorized2, ::_1, ::_2, ::_3, 
+				std::move(helpers[0].m_formula), std::move(helpers[1].m_formula), ::_4);
+			else if(helpers.size() == 3) m_formula = std::bind(&Calculator::globalEfficiency_Factorized3, ::_1, ::_2, ::_3, 
+				std::move(helpers[0].m_formula), std::move(helpers[1].m_formula), std::move(helpers[2].m_formula), ::_4);
+			else return false;
+		}
+		return true;
+	}
+
+	return false;
 }

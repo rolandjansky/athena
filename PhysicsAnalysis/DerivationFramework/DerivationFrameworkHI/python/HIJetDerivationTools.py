@@ -20,8 +20,9 @@ def addJetClusterThinningTool(collection="AntiKt4HIJets",deriv="HION7",pt_cut=25
                                                               ThinningService        = "%sThinningSvc" % deriv,
                                                               SGKey                  = collection,
                                                               TopoClCollectionSGKey  = "HIClusters",
-                                                              SelectionString        = "%s.pt > %f*GeV" % (collection,pt_cut),
-                                                              ConeSize               = 0)
+                                                              SelectionString        = "%s.pt > %f*GeV" % (collection,pt_cut))
+                                                              #ConeSize               = 0
+								
 
     ToolSvc+=jet_cl_tool
     return jet_cl_tool
@@ -62,10 +63,10 @@ def addTrackThinningToolTight(deriv="HION7", track_pt_threshold=4) :
     return TPThinningTool
 
 
-HIJetTriggerVars=["HLT_xAOD__JetContainer_a4ionemsubjesFS.pt",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesFS.eta",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesFS.phi",
-                  "HLT_xAOD__JetContainer_a4ionemsubjesFS.m"]
+HIJetTriggerVars=["HLT_xAOD__JetContainer_a4ionemsubjesISFS.pt"
+                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.eta",
+                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.phi",
+                  "HLT_xAOD__JetContainer_a4ionemsubjesISFS.m"]
 
 HIClusterVars=["HIClusters.eta0",
                "HIClusters.phi0",
@@ -174,18 +175,18 @@ from JetRec.JetRecConf import JetAlgorithm
 from JetRec.JetRecFlags import jetFlags
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
 if HIDerivationFlags.isSimulation() : jetFlags.useTruth.set_Value_and_Lock(True)
-topo_upc_mods = jtm.modifiersMap["calib_topo_ungroomed"]
-print topo_upc_mods
-if jetFlags.useTruth():
-    truth_upc_mods = jtm.modifiersMap["truth_ungroomed"]
-    print truth_upc_mods
-skipmods = ["ktdr","nsubjettiness","ktsplitter","angularity","dipolarity","planarflow","ktmassdrop","encorr","comshapes"]
-for mod in skipmods:
-    print "remove", mod
-    topo_upc_mods.remove(jtm.tools[mod])
-    if jetFlags.useTruth(): truth_upc_mods.remove(jtm.tools[mod])
-jtm.modifiersMap["topo_upc"] = topo_upc_mods
-if jetFlags.useTruth(): jtm.modifiersMap["truth_upc"] = truth_upc_mods
+#topo_upc_mods = jtm.modifiersMap["calib_topo_ungroomed"]
+#print topo_upc_mods
+#if jetFlags.useTruth():
+#    truth_upc_mods = jtm.modifiersMap["truth_ungroomed"]
+#    print truth_upc_mods
+#skipmods = ["ktdr","nsubjettiness","ktsplitter","angularity","dipolarity","planarflow","ktmassdrop","encorr","comshapes"]
+#for mod in skipmods:
+#    print "remove", mod
+#    topo_upc_mods.remove(jtm.tools[mod])
+#    if jetFlags.useTruth(): truth_upc_mods.remove(jtm.tools[mod])
+#jtm.modifiersMap["topo_upc"] = topo_upc_mods
+#if jetFlags.useTruth(): jtm.modifiersMap["truth_upc"] = truth_upc_mods
 
 OutputJetsUPC = {}
 def addStandardJetsUPC(jetalg, rsize, inputtype, ptmin=2000, ptminFilter=5000,
@@ -232,3 +233,37 @@ def addUPCJets(jetalg,radius,inputtype,sequence,outputlist):
 #99% trigger efficiency points for different items
 HITriggerDict = {'HLT_j50_ion_L1TE20':  68, 'HLT_j60_ion_L1TE50': 79, 'HLT_j75_ion_L1TE50': 89}
 ppTriggerDict = {'HLT_j30_L1TE5': 34,'HLT_j40_L1TE10':  44, 'HLT_j50_L1J12': 59, 'HLT_j60_L1J15': 70, 'HLT_j75_L1J20': 79, 'HLT_j85': 89}
+
+HI18TriggerDict = {
+'HLT_mb_sptrk_L1ZDC_A_C_VTE50': 20,
+'HLT_noalg_pc_L1TE50_VTE600.0ETA49': 20,
+'HLT_noalg_cc_L1TE600.0ETA49': 20,
+'HLT_mb_sptrk': 20,
+'HLT_noalg_mb_L1TE50': 20,
+'HLT_j50_ion_L1J12': 50,
+'HLT_j60_ion_L1J15': 60,
+'HLT_j60_ion_L1J20': 60,
+'HLT_j75_ion_L1J20': 75,
+'HLT_j75_ion_L1J30': 75,
+'HLT_j85_ion_L1J20': 85,
+'HLT_j85_ion_L1J30': 85,
+'HLT_j100_ion_L1J20': 100,
+'HLT_j100_ion_L1J30': 100,
+'HLT_j110_ion_L1J30': 110,
+'HLT_j110_ion_L1J50': 110,
+'HLT_j120_ion_L1J30': 120,
+'HLT_j120_ion_L1J50': 120,
+'HLT_j130_ion_L1J30': 130,
+'HLT_j150_ion_L1J30': 150,
+'HLT_j150_ion_L1J50': 150,
+'HLT_j180_ion_L1J50': 180,
+'HLT_j200_ion_L1J50': 200}
+
+
+
+
+
+
+
+
+

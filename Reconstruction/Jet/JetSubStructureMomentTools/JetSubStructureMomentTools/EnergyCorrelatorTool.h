@@ -15,12 +15,15 @@ class EnergyCorrelatorTool :
       // Constructor and destructor
       EnergyCorrelatorTool(std::string name);
 
-      int modifyJet(xAOD::Jet &jet) const;
+      
+      int modifyJet(xAOD::Jet &injet) const;
+      
 
     private:
       float m_Beta;
       bool m_includeBeta2;
       bool m_includeECF4;
+      
 };
 
 

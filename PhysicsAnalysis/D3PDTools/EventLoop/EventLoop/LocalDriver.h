@@ -62,7 +62,8 @@ namespace EL
   private:
     virtual void
     batchSubmit (const std::string& location, const SH::MetaObject& options,
-		 std::size_t njob) const override;
+ 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
+      const override;
 
 
 

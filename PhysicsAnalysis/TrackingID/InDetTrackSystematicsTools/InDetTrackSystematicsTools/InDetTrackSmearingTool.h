@@ -64,6 +64,10 @@ namespace InDet {
     virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& );
 
   private:
+
+    StatusCode initHistograms(int runNumber);
+    StatusCode firstCall();
+
     /// Get smearing widths to add to IPs
     float GetSmearD0Sigma(const xAOD::TrackParticle&);
     float GetSmearZ0Sigma(const xAOD::TrackParticle&);
@@ -100,7 +104,18 @@ namespace InDet {
     std::string m_calibFileZ0Dead;
     
     std::string m_calibFileIP_lowpt;
-    std::string m_calibFileIP_highpt;
+    std::string m_calibFileIP_highpt_Data16;
+    std::string m_calibFileIP_highpt_Data17;
+
+    std::string m_calibFileIP_dijet_Data16;
+    std::string m_calibFileIP_dijet_Data17;
+
+    uint32_t m_runNumber = 0;
+
+    // for now, just set a flag to use dijet-based smearing for tracks in jets
+    bool m_useDijetMaps = false;
+
+    bool firstTime = true;
      
   }; /// class InDetTrackSmearingTool
 

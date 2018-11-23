@@ -37,7 +37,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
 
   public: 
     /** Levels of cut */
-    enum CleaningLevel{ LooseBad , LooseBadLLP, LooseBadTrigger, TightBad , UnknownCut };
+    enum CleaningLevel{ VeryLooseBadLLP , LooseBad , LooseBadLLP, LooseBadTrigger, TightBad , UnknownCut };
 
     /** Standard constructor */
     JetCleaningTool(const std::string& name="JetCleaningTool");
@@ -70,7 +70,6 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
                  const double hecf,
                  const double larq,
                  const double hecq,
-                 //const double time,     //in ns
                  const double sumpttrk, //in MeV, same as sumpttrk
                  const double eta,      //emscale Eta  
                  const double pt,       //in MeV, same as sumpttrk
@@ -112,6 +111,8 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     std::string m_hotCellsFile;
     std::unordered_map<unsigned int, std::vector<JCT::HotCell*>*>* m_hotCellsMap;
     StatusCode readHotCells();
+    
+    void missingVariable(const std::string& varName) const;
 
 }; // End: class definition
 

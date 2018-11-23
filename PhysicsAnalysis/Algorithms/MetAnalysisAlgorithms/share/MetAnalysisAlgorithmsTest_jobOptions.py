@@ -23,6 +23,16 @@ sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
 algSeq += sysLoader
 
+# Include, and then set up the jet analysis algorithm sequence:
+from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
+jetContainer = 'AntiKt4EMTopoJets'
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+print( jetSequence ) # For debugging
+
+# Add all algorithms to the job:
+algSeq += jetSequence
+
 # Set up a selection alg for demonstration purposes
 # Also to avoid warnings from building MET with very soft electrons
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
@@ -48,18 +58,30 @@ print( viewalg ) # For debugging
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-# Touch the ObjectType enum to trigger dict loading
-from ROOT import xAOD
-xAOD.Type.ObjectType
-metSequence = makeMetAnalysisSequence( dataType, metSuffix="AntiKt4EMTopo",
-                                       jetContainer="AntiKt4EMTopoJets", jetSystematics="(^$)",
-                                       components=[
-                                        {"containerName":"Muons", "regex":"(^$)", "type":xAOD.Type.Muon, "termName":"RefMuon"},
-                                        {"containerName":"METElectrons_%SYS%", "regex":"(^$)", "type":xAOD.Type.Electron, "termName":"RefEle"}] )
+metSequence = makeMetAnalysisSequence( dataType, metSuffix = jetContainer[:-4] )
+metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
+                                     'muons'     : 'Muons',
+                                     'electrons' : 'METElectrons_%SYS%' },
+                       outputName = 'AnalysisMET_%SYS%',
+                       affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
+                                                'muons'     : '(^$)',
+                                                'electrons' : '(^$)' } )
 print( metSequence ) # For debugging
 
 # Add the sequence to the job:
 algSeq += metSequence
+
+# Write the freshly produced MET object(s) to an output file:
+ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+ntupleMaker.TreeName = 'met'
+ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
+                         'EventInfo.eventNumber   -> eventNumber',
+                         'AnalysisMET_%SYS%.mpx   -> met_%SYS%_mpx',
+                         'AnalysisMET_%SYS%.mpy   -> met_%SYS%_mpy',
+                         'AnalysisMET_%SYS%.sumet -> met_%SYS%_sumet',
+                         'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
+ntupleMaker.systematicsRegex = '.*'
+algSeq += ntupleMaker
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()

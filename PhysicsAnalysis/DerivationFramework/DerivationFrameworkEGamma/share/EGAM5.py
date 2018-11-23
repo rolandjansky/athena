@@ -400,6 +400,7 @@ for tool in EGAM5_ClusterEnergyPerLayerDecorators:
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 EGAM5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+EGAM5SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 

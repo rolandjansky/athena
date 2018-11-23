@@ -8,7 +8,8 @@
 #define PMGTOOLS_PMGCROSSSECTIONTOOL_H
 
 // System include(s):
-#include <array>
+#include <map>
+#include <string>
 
 // Infrastructure include(s):
 #include "AsgTools/AsgTool.h"
@@ -72,7 +73,7 @@ namespace PMGTools {
   private:
       
     // store vector of structures, each structure contains full info for DSID
-    std::vector<PMGTools::AllSampleInfo> fStoreSampleInfo;
+    std::map<unsigned, PMGTools::AllSampleInfo> fStoreSampleInfo;
     std::string m_InputFileName;
     
   }; // class PMGCrossSectionTool

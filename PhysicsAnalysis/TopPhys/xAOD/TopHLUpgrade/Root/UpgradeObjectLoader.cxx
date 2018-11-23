@@ -18,6 +18,8 @@
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 
+#include "TruthUtils/PIDHelpers.h"
+
 #include <algorithm>
 #include <memory>
 
@@ -117,7 +119,38 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
   // Create the ParticleLevelEvent object
   ParticleLevelEvent particleEvent;
+ 
+  //
+  // Retrieve the truth collections
+  const xAOD::TruthParticleContainer* importedAllTruthParticles(nullptr);
+  top::check( evtStore()->retrieve(importedAllTruthParticles, "TruthParticles"), 
+      "xAOD::TEvent::retrieve failed for TruthParticles"  );
+
+  // Vectors to store particles which will be dressed
+  std::vector<const xAOD::TruthParticle*>  candidateParticlesList;
+
+  //make a list of all candidate particles that could fall inside the cone of the particle of interest from listOfParticlesForIso
   
+  std::vector<int> excludeFromCone = {-16,-14,-12,12,14,16};
+
+  int g4BarcodeOffset = 200000;
+
+  std::vector<int> pdgId = {11,13,22};
+
+  for (const xAOD::TruthParticle *particle : *importedAllTruthParticles) {
+    if (particle->status() != 1) continue;
+                 
+    if (find(pdgId.begin(), pdgId.end(), abs(particle->pdgId())) == pdgId.end()) continue;
+                 
+    //ensure particles are not from GEANT
+    if (particle->barcode() >= g4BarcodeOffset) continue;
+
+    candidateParticlesList.push_back(particle);
+  }
+
+  // ----------------------------------------------------------
+
+
   // Load event info object directly into the particleEvent
   top::check( evtStore()->retrieve( particleEvent.m_info, m_config->sgKeyEventInfo() ),
       "xAOD::TEvent::retrieve failed for EventInfo" );
@@ -168,8 +201,9 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
             ("prodVtxLink");
           if(prodVtxLink.isValid()) {
             const xAOD::TruthVertex *tvtx = *prodVtxLink;
-            muon->auxdata<float>("prodVtx_z") = tvtx->z();
+            muon->auxdata<float>("prodVtx_z")    = tvtx->z();
             muon->auxdata<float>("prodVtx_perp") = tvtx->perp();
+            muon->auxdata<float>("prodVtx_phi")  = tvtx->phi();
           }
           break;
         }
@@ -177,6 +211,41 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
       m_selectedMuons->push_back( muon );
     }
+  }
+
+  // loop over the selected muons
+  for (xAOD::TruthParticle *particle : *m_selectedMuons) {
+    double ptcone30 = 0;
+    double etcone20 = 0;
+
+    TLorentzVector p1;
+    p1.SetPtEtaPhiE(particle->pt(),particle->eta(),particle->phi(),particle->e());
+
+    // loop over the truth particles that could be around the muon
+    for (const auto& cand_part : candidateParticlesList) {
+      if (find(excludeFromCone.begin(), excludeFromCone.end(), cand_part->pdgId()) != excludeFromCone.end()) {
+        //skip if we find a particle in the exclude list
+        continue;
+      }
+      if (MC::isNonInteracting(cand_part->pdgId())){
+        // Do not include non-interacting particles, and this particle is non-interacting
+        continue;
+      }
+      if (cand_part->barcode() != particle->barcode()) {
+        TLorentzVector p2;
+        p2.SetPtEtaPhiE(cand_part->pt(),cand_part->eta(),cand_part->phi(),cand_part->e());
+        if(p1.DeltaR(p2) < 0.2)
+        {
+          etcone20 += cand_part->e() / cosh( cand_part->eta() );
+        }
+	if(p1.DeltaR(p2) < 0.3)
+        {
+          ptcone30 += cand_part->pt();
+        }
+      }
+    }
+    particle->auxdata<float>("ptcone30") = ptcone30;
+    particle->auxdata<float>("etcone20") = etcone20;
   }
 
   // sort the muons by pT
@@ -254,6 +323,41 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
       m_selectedElectrons->push_back( newElec ); //particle acquires the selectedElectrons auxStore
       *newElec = *electron; //deep copy
     }
+  }
+
+  // loop over the selected electrons
+  for (xAOD::TruthParticle *particle : *m_selectedElectrons) {
+    double ptcone30 = 0;
+    double etcone20 = 0;
+
+    TLorentzVector p1;
+    p1.SetPtEtaPhiE(particle->pt(),particle->eta(),particle->phi(),particle->e());
+
+    // loop over the truth particles that could	be around the electron
+    for (const auto& cand_part : candidateParticlesList) {
+      if (find(excludeFromCone.begin(), excludeFromCone.end(), cand_part->pdgId()) != excludeFromCone.end()) {
+        //skip if we find a particle in the exclude list
+        continue;
+      }
+      if (MC::isNonInteracting(cand_part->pdgId())){
+        // Do not include non-interacting particles, and this particle is non-interacting
+        continue;
+      }
+      if (cand_part->barcode() != particle->barcode()) {
+        TLorentzVector p2;
+        p2.SetPtEtaPhiE(cand_part->pt(),cand_part->eta(),cand_part->phi(),cand_part->e());
+        if(p1.DeltaR(p2) < 0.2)
+        {
+          etcone20 += cand_part->e() / cosh( cand_part->eta() );
+        }
+	if(p1.DeltaR(p2) < 0.3)
+        {
+          ptcone30 += cand_part->pt();
+        }
+      }
+    }
+    particle->auxdata<float>("ptcone30") = ptcone30;
+    particle->auxdata<float>("etcone20") = etcone20;
   }
 
   /* ------------------------------ Jets-----------------------------------------------------------*/
@@ -355,7 +459,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
       }
       if(m_config->useTruthPhotons()){
         //fake photon efficiency
-        const float fakeEff2 = m_upgrade->getPhotonFakeRate(puJet.Pt());
+        const float fakeEff2 = m_upgrade->getPhotonPileupFakeRate(puJet.Pt());
         if(m_upgrade->getRandom3()->Uniform() < fakeEff2) {//TODO: are we going to use uniform?
           xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
           fakePhotons->push_back( fakePhoton );

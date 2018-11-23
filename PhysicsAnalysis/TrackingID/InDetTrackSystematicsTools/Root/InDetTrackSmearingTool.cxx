@@ -58,11 +58,16 @@ namespace InDet {
 
     declareProperty("Seed", m_seed);
 
-    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/res_diff_d0_vs_pt.hist.root");
-    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/res_diff_z0_vs_pt.hist.root");
+    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/res_diff_d0_vs_pt.hist.root");
+    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/res_diff_z0_vs_pt.hist.root");
 
-    declareProperty("calibFileIP_lowpt", m_calibFileIP_lowpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/trackIPAlign_dec2017.root");
-    declareProperty("calibFileIP_highpt", m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/trackIPAlignTight.root");
+    declareProperty("calibFileIP_lowpt", m_calibFileIP_lowpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/trackIPAlign_dec2017.root");
+    declareProperty("calibFileIP_highpt_Data16", m_calibFileIP_highpt_Data16 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v18/trackIPAlignTight.root");
+    declareProperty("calibFileIP_highpt_Data17", m_calibFileIP_highpt_Data17 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight_data2017.root");
+    declareProperty("calibFileIP_dijet_Data16", m_calibFileIP_dijet_Data16 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v20/trackIPAlignTightPrimary_syst_dijet_2016.root");
+    declareProperty("calibFileIP_dijet_Data17", m_calibFileIP_dijet_Data17 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v20/trackIPAlignTightPrimary_syst_dijet_2017.root");
+    declareProperty("runNumber", m_runNumber);
+    declareProperty("useDijetMaps", m_useDijetMaps);
   }
     
 
@@ -70,31 +75,22 @@ namespace InDet {
 
     // Greet the user:
     ATH_MSG_INFO( "Initializing..." );
-    
-    ATH_CHECK( initObject<TH1>(m_smearD0Dead, m_calibFileD0Dead, "res_pt_d0_0") );
-    ATH_CHECK( initObject<TH1>(m_smearZ0Dead, m_calibFileZ0Dead, "res_pt_z0_0") );
-
-    ATH_CHECK( initObject<TH2>(m_smearD0_lowpt, m_calibFileIP_lowpt, "d0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt, m_calibFileIP_lowpt, "z0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_lowpt_sys_up, m_calibFileIP_lowpt, "d0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt_sys_up, m_calibFileIP_lowpt, "z0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_lowpt_sys_dw, m_calibFileIP_lowpt, "d0quaddiff_comb_Pt_Eta_sys_dw" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt_sys_dw, m_calibFileIP_lowpt, "z0quaddiff_comb_Pt_Eta_sys_dw" ) );
-
-    ATH_CHECK( initObject<TH2>(m_smearD0_highpt, m_calibFileIP_highpt, "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_highpt, m_calibFileIP_highpt, "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_highpt_sys_up, m_calibFileIP_highpt, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_highpt_sys_up, m_calibFileIP_highpt, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_highpt_sys_dw, m_calibFileIP_highpt, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_highpt_sys_dw, m_calibFileIP_highpt, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
 
     ATH_MSG_INFO( "Using seed of " << m_seed << " to initialize RNG" );
     m_rnd = make_unique<TRandom3>(m_seed);
 
     ATH_MSG_INFO( "Using for TRK_RES_D0_DEAD case the calibration file " << PathResolverFindCalibFile(m_calibFileD0Dead) );
     ATH_MSG_INFO( "Using for TRK_RES_Z0_DEAD case the calibration file " << PathResolverFindCalibFile(m_calibFileZ0Dead) );
-    ATH_MSG_INFO( "Using for all other cases the low pT (< 15 GeV) calibration file " << PathResolverFindCalibFile(m_calibFileIP_lowpt) );
-    ATH_MSG_INFO( "Using for all other cases the high pT (> 15 GeV) calibration file " << PathResolverFindCalibFile(m_calibFileIP_highpt) );
+
+    if (m_useDijetMaps) {
+      ATH_MSG_INFO( "Using dedicated dijet smearing maps for tracks in jets" );
+      ATH_MSG_INFO( "Using for the full pT range the dijet Data16 calibration file " << PathResolverFindCalibFile(m_calibFileIP_dijet_Data16) );
+      ATH_MSG_INFO( "Using for the full pT range the dijet Data17 calibration file " << PathResolverFindCalibFile(m_calibFileIP_dijet_Data17) );
+    } else {
+      ATH_MSG_INFO( "Using the low pT (< 15 GeV) calibration file " << PathResolverFindCalibFile(m_calibFileIP_lowpt) );
+      ATH_MSG_INFO( "Using the high pT (> 15 GeV) Data16 calibration file " << PathResolverFindCalibFile(m_calibFileIP_highpt_Data16) );
+      ATH_MSG_INFO( "Using the high pT (> 15 GeV) Data17 calibration file " << PathResolverFindCalibFile(m_calibFileIP_highpt_Data17) );
+    }
 
     // do common initialization (at time of writing, register affecting systematics)
     ATH_CHECK( InDetTrackSystematicsTool::initialize() );
@@ -244,6 +240,14 @@ namespace InDet {
   }
  
   CP::CorrectionCode InDetTrackSmearingTool::applyCorrection( xAOD::TrackParticle& track ) {
+
+    if (firstTime) {
+      firstTime = false; // don't try to do this again
+      if ( ! firstCall().isSuccess() ) { // this will check the run number
+        return CP::CorrectionCode::Error;
+      }
+    }
+
     float sigmaD0 = GetSmearD0Sigma( track );
     float sigmaZ0 = GetSmearZ0Sigma( track );
 
@@ -255,6 +259,111 @@ namespace InDet {
     if ( sigmaZ0 > 0. ) accZ0( track ) = m_rnd->Gaus( track.z0(), sigmaZ0 );
 
     return CP::CorrectionCode::Ok;
+  }
+
+  StatusCode InDetTrackSmearingTool::initHistograms(int runNumber)
+  {
+
+    // For now, the Dead and lowpt histograms can be initialized without knowing the run number
+    ATH_CHECK( initObject<TH1>(m_smearD0Dead, m_calibFileD0Dead, "res_pt_d0_0") );
+    ATH_CHECK( initObject<TH1>(m_smearZ0Dead, m_calibFileZ0Dead, "res_pt_z0_0") );
+
+    // determine maps based on which year to use
+    bool useData17Maps = false;
+    if (runNumber <= 0) {
+        ATH_MSG_WARNING( "Run number not set." );
+    }
+    if (runNumber >= 311481 && runNumber <= 341649) {
+      ATH_MSG_INFO( "runNumber corresponds to 2017 - using the Data17 smearing maps where appropriate" );
+      useData17Maps = true;
+    } else {
+      ATH_MSG_INFO( "using the Data16 smearing maps where appropriate" );
+    }
+
+    string rootfileName_lowpt;
+    string rootfileName_highpt;
+
+    if (m_useDijetMaps) {
+
+      // tool configured for tracks in jets
+      // same map for lowpt and highpt
+
+      if (useData17Maps) {
+        rootfileName_lowpt  = m_calibFileIP_dijet_Data17;
+        rootfileName_highpt = m_calibFileIP_dijet_Data17;
+      } else {
+        rootfileName_lowpt  = m_calibFileIP_dijet_Data16;
+        rootfileName_highpt = m_calibFileIP_dijet_Data16;
+      }
+      ATH_CHECK( initObject<TH2>(m_smearD0_lowpt, rootfileName_lowpt, "quad_diff/d0unf_PtEta_quaddiff_comb" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt, rootfileName_lowpt, "quad_diff/z0unf_PtEta_quaddiff_comb" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_lowpt_sys_up, rootfileName_lowpt, "quad_diff/d0unf_PtEta_quaddiff_comb_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt_sys_up, rootfileName_lowpt, "quad_diff/z0unf_PtEta_quaddiff_comb_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_lowpt_sys_dw, rootfileName_lowpt, "quad_diff/d0unf_PtEta_quaddiff_comb_sys_dw" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt_sys_dw, rootfileName_lowpt, "quad_diff/z0unf_PtEta_quaddiff_comb_sys_dw" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_highpt, rootfileName_highpt, "quad_diff/d0unf_PtEta_quaddiff_comb" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_highpt, rootfileName_highpt, "quad_diff/z0unf_PtEta_quaddiff_comb" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_highpt_sys_up, rootfileName_highpt, "quad_diff/d0unf_PtEta_quaddiff_comb_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_highpt_sys_up, rootfileName_highpt, "quad_diff/z0unf_PtEta_quaddiff_comb_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_highpt_sys_dw, rootfileName_highpt, "quad_diff/d0unf_PtEta_quaddiff_comb_sys_dw" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_highpt_sys_dw, rootfileName_highpt, "quad_diff/z0unf_PtEta_quaddiff_comb_sys_dw" ) );
+
+    } else {
+
+      // nominally use the minbias and Zmumu maps
+
+      // for now, the minbias maps used for lowpt don't have a year dependence
+      rootfileName_lowpt = m_calibFileIP_lowpt;
+      ATH_CHECK( initObject<TH2>(m_smearD0_lowpt, rootfileName_lowpt, "d0quaddiff_comb_Pt_Eta" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt, rootfileName_lowpt, "z0quaddiff_comb_Pt_Eta" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_lowpt_sys_up, rootfileName_lowpt, "d0quaddiff_comb_Pt_Eta_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt_sys_up, rootfileName_lowpt, "z0quaddiff_comb_Pt_Eta_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_lowpt_sys_dw, rootfileName_lowpt, "d0quaddiff_comb_Pt_Eta_sys_dw" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_lowpt_sys_dw, rootfileName_lowpt, "z0quaddiff_comb_Pt_Eta_sys_dw" ) );
+
+      // Zmumu maps for highpt
+      if (useData17Maps) {
+        rootfileName_highpt = m_calibFileIP_highpt_Data17;
+      } else {
+        rootfileName_highpt = m_calibFileIP_highpt_Data16;
+      }
+      ATH_CHECK( initObject<TH2>(m_smearD0_highpt, rootfileName_highpt, "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_highpt, rootfileName_highpt, "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_highpt_sys_up, rootfileName_highpt, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_highpt_sys_up, rootfileName_highpt, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
+      ATH_CHECK( initObject<TH2>(m_smearD0_highpt_sys_dw, rootfileName_highpt, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
+      ATH_CHECK( initObject<TH2>(m_smearZ0_highpt_sys_dw, rootfileName_highpt, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
+
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode InDetTrackSmearingTool::firstCall()
+  {
+
+    const xAOD::EventInfo* ei = nullptr;
+    auto sc = evtStore()->retrieve( ei, "EventInfo" );
+    if ( ! sc.isSuccess() ) {
+      if (m_runNumber <= 0) {
+        ATH_MSG_ERROR( "Unable to retrieve from event store. Manually set run number." );
+        return CP::CorrectionCode::Error;
+      }
+    }
+
+    auto runNumber = ei->runNumber();
+    if (m_runNumber > 0) {
+      if ( m_runNumber != runNumber ) {
+        ATH_MSG_WARNING( "Manually-set run number (" << m_runNumber <<
+                         ") does not match that from the event store (" << runNumber << ")." );
+        ATH_MSG_WARNING( "Will use the manually set run number, but you must make sure this is the desired behaviour!" );
+      }
+      runNumber = m_runNumber;
+    }
+    if ( ! initHistograms( runNumber ).isSuccess() ) {
+      return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
   }
 
   CP::CorrectionCode InDetTrackSmearingTool::correctedCopy( const xAOD::TrackParticle& in,

@@ -94,10 +94,12 @@ def basicInDSNameShortener(*args):
 
 class Config:
     code = 'top-xaod'
-    cutsFile = 'nocuts.txt'
+    settingsFile = 'nocuts.txt'
+    combine_outputFile = None
+    combine_prefixes = None
 
     gridUsername    = ''
-    groupProduction = False
+    groupProduction = None
     suffix          = ''
     excludedSites   = ''
     forceSite       = ''
@@ -115,17 +117,35 @@ class Config:
     checkPRW        = False
 
     def details(self):
-        cutsFileIsARealFile = checkForFile(self.settingsFile)
-        txt = '(' + logger.FAIL + 'not found' + logger.ENDC + ')'
-        if cutsFileIsARealFile:
-            txt = '(exists)'
+        txt = '('
+        iconfigFile=0
+        for configFile in self.settingsFile.split(','):
+            cutsFileIsARealFile = checkForFile(configFile)
+            if cutsFileIsARealFile:
+                txt += 'exists'
+            else:
+                txt += logger.FAIL + 'not found' + logger.ENDC + ')'
+            if iconfigFile!=len(self.settingsFile.split(','))-1:
+                txt += ','
+                iconfigFile += 1
+        txt += ')'
 
         print logger.OKBLUE + 'Analysis Settings:' + logger.ENDC
         print ' -Code:          ', self.code
         print ' -CutsFile:      ', self.settingsFile, txt
+        print ' -Combine_outputFile:      ', self.combine_outputFile
+        print ' -Combine_prefixes:      ', self.combine_prefixes
 
+        if (self.groupProduction != None):
+            logger.WARNING + "Option groupProduction is obsolete. Production mode is deduced from gridUsername (e.g. if it's 'phys-top')." + logger.ENDC
+        if self.gridUsername.find('phys-') == 0:
+            self.groupProduction = True
+            txt = ' (group production)'
+        else:
+            self.groupProduction = False
+            txt = ''
         print logger.OKBLUE + 'Grid Settings:' + logger.ENDC
-        print ' -GridUsername:  ', self.gridUsername
+        print ' -GridUsername:  ', self.gridUsername, txt
         print ' -Suffix:        ', self.suffix
         print ' -ExcludedSites: ', self.excludedSites
         print ' -ForceSite:     ', self.forceSite
@@ -191,9 +211,11 @@ def submit(config, allSamples):
   checkMergeType(config)
   config.details()
   if not config.skipShowerCheck:
-      checkForShowerAlgorithm(allSamples, config.settingsFile)
+      for configFile in config.settingsFile.split(','):
+        checkForShowerAlgorithm(allSamples, configFile)
   if config.checkPRW:
-      checkPRWFile(allSamples, config.settingsFile)
+      for configFile in config.settingsFile.split(','):
+        checkPRWFile(allSamples, configFile)
 
   tarfile = 'top-xaod.tar.gz'
 
@@ -210,42 +232,89 @@ def submit(config, allSamples):
 
 
   #Check for cuts file
-  if not checkForFile(config.settingsFile):
-      print logger.FAIL    + " Error - %s does not exist in this directory "%(config.settingsFile) + logger.ENDC
-      print logger.WARNING + "       - Attempt to find this file in a sensible location... " + logger.ENDC
-      settingsFilePath = ROOT.PathResolver.find_file(config.settingsFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
-      if settingsFilePath == "":
-          print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
-          print '%s does not exist in this directory and cannot be found' % config.settingsFile
-          print 'Please make it before submitting'
-          sys.exit(1)      
-      else:
-          print logger.WARNING + "       - Found an appropriate file " + logger.ENDC
-          print logger.WARNING + "       - Will copy " + logger.ENDC + config.settingsFile + logger.WARNING + " from " + logger.ENDC + settingsFilePath 
-          print logger.WARNING + "       - Confirm this is okay before continuing " + logger.ENDC
-          user_check = raw_input(logger.OKBLUE + "Type yes/y/Y in order to proceed ...: " + logger.ENDC)
-          if(user_check != "yes" and user_check != "y" and user_check != "Y"):
-              print logger.FAIL + " Exiting submission " + logger.ENDC
-              sys.exit(2)
-          print logger.OKGREEN + "       - Confirmed " + logger.ENDC
-          os.system("cp %s %s"%(settingsFilePath,"./"))
+  for configFile in config.settingsFile.split(','):
+    if not checkForFile(configFile):
+        print logger.FAIL    + " Error - %s does not exist in this directory "%(configFile) + logger.ENDC
+        print logger.WARNING + "       - Attempt to find this file in a sensible location... " + logger.ENDC
+        settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
+        if settingsFilePath == "":
+            print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
+            print '%s does not exist in this directory and cannot be found' % configFile
+            print 'Please make it before submitting'
+            sys.exit(1)      
+        else:
+            print logger.WARNING + "       - Found an appropriate file " + logger.ENDC
+            print logger.WARNING + "       - Will copy " + logger.ENDC + configFile + logger.WARNING + " from " + logger.ENDC + settingsFilePath 
+            print logger.WARNING + "       - Confirm this is okay before continuing " + logger.ENDC
+            user_check = raw_input(logger.OKBLUE + "Type yes/y/Y in order to proceed ...: " + logger.ENDC)
+            if(user_check != "yes" and user_check != "y" and user_check != "Y"):
+                print logger.FAIL + " Exiting submission " + logger.ENDC
+                sys.exit(2)
+            print logger.OKGREEN + "       - Confirmed " + logger.ENDC
+            os.system("cp %s %s"%(settingsFilePath,"./"))
 
-  #Look in the cuts file for the output filename
-  outputFilename = 'EMPTY'
-  for l in open(config.settingsFile):
-      #ignore text after comments
-      if l.find('#') > -1:
-          l = l.split('#')[0]
+  outputFiles = []
+  for configFile in config.settingsFile.split(','):
+    #Look in the cuts file for the output filename
+    outputFilename = 'EMPTY'
+    for l in open(configFile):
+        #ignore text after comments
+        if l.find('#') > -1:
+            l = l.split('#')[0]
 
-      if l.find('OutputFilename') > -1:
-          outputFilename = l.replace('OutputFilename', '').strip()
-          outputFilename = outputFilename.replace(".root","_root") + ":" + outputFilename
+        if l.find('OutputFilename') > -1:
+            outputFilename = l.replace('OutputFilename', '').strip()
+    if outputFilename == 'EMPTY':
+        print logger.FAIL + 'OutputFilename not found in ' + configFile + logger.ENDC
+        sys.exit(1)
+    else:
+        outputFiles.append(outputFilename)
 
-  if outputFilename == 'EMPTY':
-      print 'OutputFilename not found in %s' % config.settingsFile
-      sys.exit(1)
+  outputFilenames='' # string defining the output file(s)
+  combineArgument='' # argument of command for combining the multiple output files, if need be
+  if len(outputFiles) == 0: # at this stage this shouldn't happen
+    print logger.FAIL + 'No OutputFileName found' + logger.ENDC
+    sys.exit(1)
+  elif len(outputFiles) ==1: # the simplest case
+    outputFilenames = outputFiles[0]
+  else: # len(outputFiles) >=2: multiple output files, or a single combined one
+    # check if the output files are unique
+    if len(outputFiles) != len(set(outputFiles)):
+        print logger.FAIL + 'Two of the output file names are identical. Check the config files (separated by commas).' + logger.ENDC
+        sys.exit(1)
+    if config.combine_outputFile == None: # no combination asked
+        iconfigFile = 0
+        for configFile in outputFiles:
+            cFile = configFile.replace(".root","_root") + ":" + configFile
+            outputFilenames += cFile
+            if iconfigFile != len(outputFiles)-1:
+                outputFilenames += ','
+                iconfigFile += 1
+    else: # combination of the multiple output files
+        # retrieving the prefixes
+        prefixes = config.combine_prefixes.split(',')
+        # check if the prefixes are unique
+        if len(prefixes) != len(set(prefixes)):
+            print logger.FAIL + 'Two of the prefixes (separated by commas) are identical. Check the combine_prefixes option.' + logger.ENDC
+            sys.exit(1)
+        # check if the prefixes and the output files have same length
+        if len(prefixes) != len(outputFiles):
+            print logger.FAIL + 'When combining the outputs, there should be as many prefixes as there are output files (separated by commas). Check the combine_prefixes and settingsFile options.' + logger.ENDC
+            sys.exit(1)
+        # using combined file name
+        outputFilenames = config.combine_outputFile.replace(".root","_root") + ":" + config.combine_outputFile
+        # building the input file argument of the combination
+        iconfigFile = 0
+        for outFile in outputFiles:
+            combineArgument += outFile
+            combineArgument += ":"
+            combineArgument += prefixes[iconfigFile]
+            if iconfigFile != len(outputFiles)-1:
+                combineArgument += ','
+                iconfigFile += 1
+  
 
-  #print outputFilename
+  #print outputFilenames
 
   these = []
   print logger.OKBLUE + 'For these samples' + logger.ENDC
@@ -299,8 +368,20 @@ def submit(config, allSamples):
      else:
          cmd += '--useRootCore \\\n'
      cmd += '--writeInputToTxt=IN:in.txt \\\n'
-     cmd += '--outputs=%s \\\n' % outputFilename
-     cmd += '--exec="%s %s in.txt" \\\n' % (config.code, config.settingsFile)
+     cmd += '--outputs=%s \\\n' % outputFilenames
+     # write the --exec commands - will possibly AnalysisTop several times
+     cmd += '--exec="'
+     iconfigFile=0
+     for configFile in config.settingsFile.split(','):
+         cmd += '%s %s in.txt' % (config.code, configFile)
+         if iconfigFile!=len(config.settingsFile.split(','))-1:
+             cmd += '; '
+             iconfigFile += 1
+         elif combineArgument != '':
+             cmd += '; combineATOutputs ' + config.combine_outputFile + " " + combineArgument
+             cmd += '" \\\n'
+         else:
+             cmd += '" \\\n'
 
      #you might really hate a certain site
      if len(config.excludedSites) > 0:
@@ -465,10 +546,26 @@ def checkForShowerAlgorithm(Samples, cutfile):
                     noShowerDatasets += [dsid]
 
     if len(noShowerDatasets) > 0:
+        print 'TopDataPreparation .data file specified in '+cutfile+' was checked.'
         print 'The following datasets do not have a showering algorithm defined in TopDataPreparation and will fail on the grid. Please ask for this to be fixed in TopDataPreparation!'
         for ds in set(noShowerDatasets):
             print ds
         raise RuntimeError("Datasets without shower.")
+
+def isAF2(dataset):
+    tags = dataset.split('.')[-1]
+    tagList = tags.split('_')
+    for tag in tagList:
+        if tag.find('a')>-1:
+            return True
+    return False
+
+def isData(dataset):
+    scope = dataset.split('.')[0]
+    if scope.find('data')>-1:
+        return True
+    else:
+        return False
 
 def checkPRWFile(Samples, cutfile):
     # Some imports
@@ -477,37 +574,85 @@ def checkPRWFile(Samples, cutfile):
     # We need to find the PRW files being used and make use of the checkPRW 
     # checkPRW.py --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
     # First, find the PRW names from cutfile
-    print logger.OKBLUE + " - Processing checks for PRWConfig" + logger.ENDC
+    print logger.OKBLUE + " - Processing checks for PRWConfig in " + cutfile + logger.ENDC
     tmp = open(cutfile, "r")
     PRWConfig = None
+    PRWConfig_FS = None
+    PRWConfig_AF = None
     for line in tmp.readlines():
-        if "PRWConfigFiles" not in line:
-            continue
-        else:
+        if "PRWConfigFiles_AF" in line:
+            PRWConfig_AF = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig_AF.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        elif "PRWConfigFiles_FS" in line:
+            PRWConfig_FS = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig_FS.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        elif "PRWConfigFiles" in line:
             PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+        else:
+            continue
 
-    if not PRWConfig:
+    if PRWConfig and PRWConfig_AF:
+        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_AF" + logger.ENDC
+        return
+    elif PRWConfig and PRWConfig_FS:
+        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_FS" + logger.ENDC
+        return
+    elif PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
+        PRWConfig_FS = PRWConfig
+        PRWConfig_AF = PRWConfig
+    elif not PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
         print logger.FAIL + " - Error reading PRWConfigFiles from cutfile" + logger.ENDC
-        return 
+        return
+    # else: we assume that PRWConfigFiles_FS and PRWConfigFiles_AF are set
+
     # Print the PRW files
-    print logger.OKGREEN + "\n".join(PRWConfig) + logger.ENDC
+    print logger.OKGREEN + "PRW files used for FS:" + logger.ENDC
+    print logger.OKGREEN + "\n".join(PRWConfig_FS) + logger.ENDC
+    print logger.OKGREEN + "PRW files used for AF2:" + logger.ENDC
+    print logger.OKGREEN + "\n".join(PRWConfig_AF) + logger.ENDC
+
     # Create a temporary sample list
-    tmpFileName = "samplesforprwcheck.txt"
-    tmpOut = open(tmpFileName,"w")
+    tmpFileNameFS = "samplesforprwcheck_FS.txt"
+    tmpOutFS = open(tmpFileNameFS,"w")
+    tmpFileNameAF = "samplesforprwcheck_AF.txt"
+    tmpOutAF = open(tmpFileNameAF,"w")
     for List in Samples:
         SublistSamples = List.datasets
         for sample_concatenated in SublistSamples: # the listed samples may be comma-separated list of samples
             for sample in sample_concatenated.split(','): # we need to check all of them, not just the first one
-                tmpOut.write(sample+"\n")
-    tmpOut.close()
-    # Make a command
-    cmd = "checkPRW.py --inDsTxt %s %s"%(tmpFileName, " ".join(PRWConfig))
-    print logger.OKBLUE + " - Running command : " + cmd + logger.ENDC
-    # Run
-    proc = subprocess.Popen(shlex.split(cmd))
-    proc.wait()
+                if (isData(sample)):
+                    continue
+                else:
+                    if not isAF2(sample):
+                        tmpOutFS.write(sample+"\n")
+                    else:
+                        tmpOutAF.write(sample+"\n")
+    tmpOutFS.close()
+    tmpOutAF.close()
+
+    # then do the check
+    if (os.path.getsize(tmpFileNameFS)): # what follows only makes sense if the file isn't empty
+        # Make the FS command
+        cmdFS = "checkPRW.py --inDsTxt %s %s"%(tmpFileNameFS, " ".join(PRWConfig_FS))
+        print logger.OKBLUE + " - Running command : " + cmdFS + logger.ENDC
+        # Run
+        procFS = subprocess.Popen(shlex.split(cmdFS))
+        procFS.wait()
+    else:
+        print logger.OKBLUE + " - No PRWConfig check is needed for FS." + logger.ENDC
+    if (os.path.getsize(tmpFileNameAF)): # what follows only makes sense if the file isn't empty
+        # Make the AF command
+        cmdAF = "checkPRW.py --inDsTxt %s %s"%(tmpFileNameAF, " ".join(PRWConfig_AF))
+        print logger.OKBLUE + " - Running command : " + cmdAF + logger.ENDC
+        # Run
+        procAF = subprocess.Popen(shlex.split(cmdAF))
+        procAF.wait()
+    else:
+        print logger.OKBLUE + " - No PRWConfig check is needed for AF2." + logger.ENDC
     # At the moment, just print the output, but we need to learn what to catch also
 
 ## gets the first AMI tag of a kind

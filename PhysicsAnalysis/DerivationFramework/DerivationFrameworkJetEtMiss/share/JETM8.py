@@ -232,6 +232,13 @@ addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm8Seq,"JETM8")
 
+# AntiKt2LCTopo
+if DerivationFrameworkIsMonteCarlo:
+    if jetFlags.useTruth:
+        addStandardJets("AntiKt",0.2,"Truth", mods="truth_ungroomed", calibOpt="none", ghostArea=0.01, ptmin=5000, algseq=jetm8Seq, outputGroup="JETM8")
+
+addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none", ghostArea=0.01, ptmin=2000, ptminFilter=7000, algseq=jetm8Seq, outputGroup="JETM8")
+
 # AntiKtVR600Rmax10Rmin2*PtFrac5Rclus20
 from DerivationFrameworkFlavourTag.HbbCommon import addVRCaloJets
 addVRCaloJets(jetm8Seq,"JETM8")
@@ -267,6 +274,7 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt2LCTopoJets",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo", "BTagging_AntiKt2Track",

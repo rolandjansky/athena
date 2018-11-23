@@ -64,46 +64,21 @@ double ev_weight = 1;
 
 
 void fillHistograms(std::string sBaseName, const xAOD::TauJet& xTau, double val);
+void initializeHistograms(std::string sEleOlrWP);
 
 
 int main( int argc, char* argv[] )
 {
+  // argument 1: input file 
+  // argument 2: maximum number of events (default: all events available)
+  // argument 3: output file name (default: output.root)
+  // argument 4: ID working point (default: loose, choose between: loose, medium or tight)
+  // argument 5: electron veto working point (default: no e veto, choose between: TauEleOLR,
+  //             eleBDTLoosePlusVeto, eleBDTLoose, eleBDTMediumPlusVeto or eleBDTMedium
+
   CP::SystematicCode::enableFailure();
 
   xAOD::TReturnCode::enableFailure();
-
-  std::string sNominalNames[3]     = {"TauScaleFactorReconstructionHadTau", 
-                                      "TauScaleFactorJetIDHadTau", 
-                                      "TESScaleFactorHadTau"};
-  std::string sSystematicsNames[10] = {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", 
-                                      "TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", 
-                                      "TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",
-                                      "TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",
-                                      "TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 
-                                      "TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up", 
-                                      "TAUS_TRUEHADTAU_SME_TES_INSITU__1down",
-                                      "TAUS_TRUEHADTAU_SME_TES_INSITU__1up",
-                                      "TAUS_TRUEHADTAU_SME_TES_MODEL__1down",
-                                      "TAUS_TRUEHADTAU_SME_TES_MODEL__1up"};
-
-  double ptBins[7] = {20,30,40,60,100,300,1000};
-  double etaBins[10] = {-2.5, -1.6, -1.3, -0.8, -0.3, 0.3, 0.8, 1.3, 1.6, 2.5};
-  for (auto s: sNominalNames)
-  {
-    mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  6, ptBins,  201, 0.8, 1.2);
-    mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  6, ptBins,  201, 0.8, 1.2);
-    mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 9, etaBins, 201, 0.8, 1.2);
-    mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 9, etaBins, 201, 0.8, 1.2); 
-  }
-   
-  for (auto s: sSystematicsNames)
-  {
-    mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  6, ptBins,  201, -0.2, 0.2);
-    mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  6, ptBins,  201, -0.2, 0.2);
-    mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 9, etaBins, 201, -0.2, 0.2);
-    mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 9, etaBins, 201, -0.2, 0.2);
-  }
-
 
   // Check if we received a file name:
   if( argc < 2 )
@@ -111,6 +86,25 @@ int main( int argc, char* argv[] )
     Error( "TauAnalysisToolsValidation", "No file name received!" );
     Error( "TauAnalysisToolsValidation", "  Usage: %s [xAOD file name]", "TauAnalysisToolsValidation" );
     return 1;
+  }
+
+  // Check for ID working point
+  std::string sWP = "loose";
+  if (argc>4)
+    sWP = TString(argv[4]);
+  if (sWP != "loose" && sWP != "medium" && sWP != "tight")
+  {
+    Error("TauAnalysisToolsValidation", "Given working point is unknown. Choose between loose, medium and tight");
+    return 1;
+  }
+  // Check for electron rejection working point
+  std::string sEleOlrWP = "";
+  if (argc>5)
+    sEleOlrWP = TString(argv[5]);
+  if (sEleOlrWP != "" && sEleOlrWP != "TauEleOLR" && sEleOlrWP != "eleBDTLoosePlusVeto" && sEleOlrWP != "eleBDTLoose" && sEleOlrWP != "eleBDTMediumPlusVeto" && sEleOlrWP != "eleBDTMedium" )
+  {
+    Error("TauAnalysisToolsValidation", "Given working point is unknown. Choose between TauEleOLR, eleBDTLoosePlusVeto, eleBDTLoose, eleBDTMediumPlusVeto and eleBDTMedium");
+    return 1;  
   }
 
   // Initialise the application:
@@ -156,16 +150,11 @@ int main( int argc, char* argv[] )
     }
   }
 
+  initializeHistograms(sEleOlrWP);
+
   // defining needed Container
   const xAOD::EventInfo* xEventInfo = 0;
   const xAOD::TauJetContainer* xTauJetContainer = 0;
-
-  // CP::PileupReweightingTool* m_tPRWTool = new CP::PileupReweightingTool("PileupReweightingTool");
-  // std::vector<std::string> vLumiCalcFiles = {"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root"};
-  // CHECK(m_tPRWTool->setProperty("LumiCalcFiles", vLumiCalcFiles));
-  // // CHECK(m_tPRWTool->setProperty("DefaultChannel", "" ));
-  // CHECK(m_tPRWTool->initialize());
-  // ToolHandle<CP::IPileupReweightingTool> m_tPRWToolHandle = m_tPRWTool;
 
   // ===========================================================================
   // TauSelectionTool
@@ -173,13 +162,36 @@ int main( int argc, char* argv[] )
   TauAnalysisTools::TauSelectionTool* TauSelTool = new TauAnalysisTools::TauSelectionTool( "TauSelectionTool" );
   TauSelTool->msg().setLevel( MSG::DEBUG );
   TauSelTool->setOutFile( fOutputFile.get() );
-  CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
-  // CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTLOOSE) ));
-  // CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTMEDIUM) ));
-  CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTTIGHT) ));
+
+  // configure cut on pt
   CHECK(TauSelTool->setProperty("PtMin", 20. ));
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
-  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutJetIDWP) ));
+
+  // configure cut on ID working point 
+  CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
+  if (sWP == "loose")
+    CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTLOOSE) ));
+  else if (sWP == "medium")
+    CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTMEDIUM) ));
+  else if (sWP == "tight")
+    CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTTIGHT) ));
+  // configure cut on electron removal working point 
+  if (sEleOlrWP == "TauEleOLR" || sEleOlrWP == "eleBDTLoosePlusVeto" || sEleOlrWP == "eleBDTMediumPlusVeto" )
+    CHECK(TauSelTool->setProperty("EleOLR", true ));
+  if (sEleOlrWP == "eleBDTLoose" || sEleOlrWP == "eleBDTLoosePlusVeto" )
+    CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
+  if (sEleOlrWP == "eleBDTMedium" || sEleOlrWP == "eleBDTMediumPlusVeto" )
+    CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTMEDIUM) ));
+  // set pt, ID and electron removal cuts
+  if (sEleOlrWP == "")
+    CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutJetIDWP) ));
+  else if (sEleOlrWP == "TauEleOLR")
+    CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutJetIDWP|CutEleOLR) ));
+  else if (sEleOlrWP == "eleBDTLoosePlusVeto" || sEleOlrWP == "eleBDTMediumPlusVeto")
+    CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutJetIDWP|CutEleOLR|CutEleBDTWP) ));
+  else if ( sEleOlrWP == "eleBDTLoose" || sEleOlrWP == "eleBDTMedium")
+    CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutJetIDWP|CutEleBDTWP) ));
+
   CHECK(TauSelTool->initialize());
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
@@ -228,6 +240,7 @@ int main( int argc, char* argv[] )
   TauAnalysisTools::TauTruthMatchingTool T2MT( "TauTruthMatchingTool");
   T2MT.msg().setLevel( MSG::INFO );
   CHECK(T2MT.setProperty("WriteTruthTaus", true));
+  CHECK(T2MT.setProperty("TruthElectronContainerName", "egammaTruthParticles"));
   CHECK(T2MT.initialize());
 
 
@@ -262,64 +275,118 @@ int main( int argc, char* argv[] )
       auto xTruthTau = T2MT.getTruth(*xTau);
 
       // skip tau candidates that are not true hadronic decays
-      if (!(bool)xTau->auxdata<char>("IsTruthMatched") or !(bool)xTruthTau->auxdata<char>("IsHadronicTau")) continue;
+      bool isTrueHadTau = false;
+      bool isTrueElectron = false;
+      if (xTau->auxdata<char>("IsTruthMatched"))
+      {
+        if (xTruthTau->isTau())
+          isTrueHadTau = xTruthTau->auxdata<char>("IsHadronicTau");
+        isTrueElectron = xTruthTau->isElectron();
+      }
 
       // Select "good" taus:
       if( ! TauSelTool->accept( *xTau ) ) continue;
 
-      double originalPt = xTau->pt();
-      CHECK(TauSmeTool.applySystematicVariation(CP::SystematicSet())) ;
-      CHECK(TauSmeTool.applyCorrection(*xTau));
-
-      double sfNominalTES = xTau->pt() / originalPt;
-      double sfVarTES = 0;
-      fillHistograms("TESScaleFactorHadTau", *xTau, sfNominalTES);
-
-      xTau->setP4( originalPt, xTau->eta(), xTau->phi(), xTau->m());
-      for (auto sSystematicSet: vSmearingSystematicSet)
+      // Apply tau smearing systematics and fill validation plots
+      if (isTrueHadTau)
       {
-        CHECK( TauSmeTool.applySystematicVariation(sSystematicSet)) ;
-        CHECK( TauSmeTool.applyCorrection(*xTau) );
-        sfVarTES = xTau->pt()/originalPt;
-        fillHistograms(sSystematicSet.name().c_str(), *xTau, (sfVarTES-sfNominalTES)/sfNominalTES);
+        double originalPt = xTau->pt();
+        CHECK(TauSmeTool.applySystematicVariation(CP::SystematicSet())) ;
+        CHECK(TauSmeTool.applyCorrection(*xTau));
+        double sfNominalTES = xTau->pt() / originalPt;
+        double sfVarTES = 0;
+        fillHistograms("TESScaleFactorHadTau", *xTau, sfNominalTES);
 
-        // reset tau pt 
         xTau->setP4( originalPt, xTau->eta(), xTau->phi(), xTau->m());
+
+        for (auto sSystematicSet: vSmearingSystematicSet)
+        {
+          CHECK( TauSmeTool.applySystematicVariation(sSystematicSet)) ;
+          CHECK( TauSmeTool.applyCorrection(*xTau) );
+          sfVarTES = xTau->pt()/originalPt;
+          fillHistograms(sSystematicSet.name().c_str(), *xTau, (sfVarTES-sfNominalTES)/sfNominalTES);
+          // reset tau pt 
+          xTau->setP4( originalPt, xTau->eta(), xTau->phi(), xTau->m());
+        }
       }
 
-      // apply efficiency corrections and fill validation plots
-      double sfNominalReco = 0;
-      double sfNominalID = 0;
-      double sfVar = 0;
+      // Apply tau efficiency corrections and fill validation plots
+      if (isTrueHadTau)
+      {
+        double sfNominalReco = 0;
+        double sfNominalID = 0;
+        double sfVar = 0;
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["NOMINAL"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfNominalReco = xTau->auxdata<double>("TauScaleFactorReconstructionHadTau");
+        sfNominalID = xTau->auxdata<double>("TauScaleFactorJetIDHadTau");
+        fillHistograms("TauScaleFactorReconstructionHadTau", *xTau, sfNominalReco);
+        fillHistograms("TauScaleFactorJetIDHadTau", *xTau, sfNominalID);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorReconstructionHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", *xTau, (sfVar-sfNominalReco)/sfNominalReco);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorReconstructionHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", *xTau, (sfVar-sfNominalReco)/sfNominalReco);
 
-      CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["NOMINAL"]));
-      CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
-      sfNominalReco = xTau->auxdata<double>("TauScaleFactorReconstructionHadTau");
-      sfNominalID = xTau->auxdata<double>("TauScaleFactorJetIDHadTau");
-      fillHistograms("TauScaleFactorReconstructionHadTau", *xTau, sfNominalReco);
-      fillHistograms("TauScaleFactorJetIDHadTau", *xTau, sfNominalID);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR2025__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR2025__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
-      CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up"]));
-      CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
-      sfVar = xTau->auxdata< double >("TauScaleFactorReconstructionHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", *xTau, (sfVar-sfNominalReco)/sfNominalReco);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR2530__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR2530__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
-      CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up"]));
-      CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
-      sfVar = xTau->auxdata< double >("TauScaleFactorReconstructionHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", *xTau, (sfVar-sfNominalReco)/sfNominalReco);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR3040__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR3040__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
-      CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up"]));
-      CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
-      sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORRGE40__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORRGE40__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
-      CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up"]));
-      CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
-      sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_3PRONGSTATSYSTUNCORR2030__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_3PRONGSTATSYSTUNCORR2030__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_3PRONGSTATSYSTUNCORRGE30__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_3PRONGSTATSYSTUNCORRGE30__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
+
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_SYST__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_SYST__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
+
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up"]));
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
+        fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
+      }
+      // Apply electron rejection systematics and fill validation plots
+      if (isTrueElectron)
+      {
+        double sfNominal = 0;
+        double sfVar = 0;
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["NOMINAL"]) );
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfNominal = xTau->auxdata<double>("TauScaleFactorEleOLRElectron");
+        fillHistograms("TauScaleFactorEleOLRElectron", *xTau, sfNominal);
+        CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEELECTRON_EFF_ELEOLR_TOTAL__1up"]) );
+        CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
+        sfVar = xTau->auxdata< double >("TauScaleFactorEleOLRElectron");
+        fillHistograms("TAUS_TRUEELECTRON_EFF_ELEOLR_TOTAL__1up", *xTau, (sfVar-sfNominal)/sfNominal);
+      }
     }
+
     if (xTauJetContainer->empty())
       CHECK(T2MT.retrieveTruthTaus());
     CHECK(xEvent.fill());
@@ -358,5 +425,72 @@ void fillHistograms( std::string sBaseName, const xAOD::TauJet& xTau, double val
   {
     mTH2F[sBaseName+"__3p__pt"]->Fill(xTau.pt()/1000, val, ev_weight);
     mTH2F[sBaseName+"__3p__eta"]->Fill(xTau.eta(), val, ev_weight);
+  }
+}
+
+
+void initializeHistograms(std::string sEleOlrWP)
+{
+  std::string sNominalNames[4]     = {"TauScaleFactorReconstructionHadTau", 
+                                      "TauScaleFactorJetIDHadTau", 
+                                      "TESScaleFactorHadTau",
+                                      "TauScaleFactorEleOLRElectron"};
+
+  std::string sSystematicsNames[17] = {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", 
+                                      "TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", 
+                                      "TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR2025__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR2530__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORR3040__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_1PRONGSTATSYSTUNCORRGE40__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_3PRONGSTATSYSTUNCORR2030__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_3PRONGSTATSYSTUNCORRGE30__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",
+                                      "TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 
+                                      "TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up", 
+                                      "TAUS_TRUEHADTAU_SME_TES_INSITU__1down",
+                                      "TAUS_TRUEHADTAU_SME_TES_INSITU__1up",
+                                      "TAUS_TRUEHADTAU_SME_TES_MODEL__1down",
+                                      "TAUS_TRUEHADTAU_SME_TES_MODEL__1up",
+                                      "TAUS_TRUEELECTRON_EFF_ELEOLR_TOTAL__1up"};
+
+  if (sEleOlrWP == "")
+  {
+    double ptBins[8] = {20,25,30,40,60,100,300,1000};
+    double etaBins[10] = {-2.5, -1.6, -1.3, -0.8, -0.3, 0.3, 0.8, 1.3, 1.6, 2.5};
+    for (auto s: sNominalNames)
+    {
+      mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  7, ptBins,  201, 0.8, 1.2);
+      mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  7, ptBins,  201, 0.8, 1.2);
+      mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 9, etaBins, 201, 0.8, 1.2);
+      mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 9, etaBins, 201, 0.8, 1.2); 
+    }
+    for (auto s: sSystematicsNames)
+    {
+      mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  7, ptBins,  201, -0.2, 0.2);
+      mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  7, ptBins,  201, -0.2, 0.2);
+      mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 9, etaBins, 201, -0.2, 0.2);
+      mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 9, etaBins, 201, -0.2, 0.2);
+    }
+  }
+  else
+  {
+    double ptBins[8] = {20,25,30,40,60,100,300,1000};
+    double etaBins[14] = {-2.47, -2.37, -2.01, -1.52, -1.37, -0.80, -0.10, 0.10, 0.80, 1.37, 1.52, 2.01, 2.37, 2.47};
+    for (auto s: sNominalNames)
+    {
+      mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  7, ptBins,  3216, -3.2, 3.2);
+      mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  7, ptBins,  3216, -3.2, 3.2);
+      mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 13, etaBins, 3216, -3.2, 3.2);
+      mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 13, etaBins, 3216, -3.2, 3.2); 
+    }
+     
+    for (auto s: sSystematicsNames)
+    {
+      mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  7, ptBins,  201, -0.2, 0.2);
+      mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  7, ptBins,  201, -0.2, 0.2);
+      mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 13, etaBins, 201, -0.2, 0.2);
+      mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 13, etaBins, 201, -0.2, 0.2);
+    }
   }
 }

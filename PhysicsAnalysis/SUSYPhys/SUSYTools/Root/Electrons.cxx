@@ -23,7 +23,6 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
@@ -54,6 +53,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
 
   const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
+  const static SG::AuxElement::ConstAccessor<char> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
 
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
@@ -82,30 +82,9 @@ StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::S
     electrons=copy;
   }
 
-  bool cached_doIsoSig = m_doElIsoSignal;
   for (const auto& electron : *copy) {
     ATH_CHECK( this->FillElectron(*electron, m_eleBaselinePt, m_eleBaselineEta) );
-    if(m_doIsoCloseByOR) //switch off isolation for now if close-by OR corrections were requested
-      m_doElIsoSignal = false;
     this->IsSignalElectron(*electron, m_elePt, m_eled0sig, m_elez0, m_eleEta);
-  }
-
-  //apply close-by corrections to isolation if requested
-  if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
-    std::vector<const xAOD::IParticle*> pVec;
-    for(auto pobj: *copy) {
-      pVec.push_back((const xAOD::IParticle*) pobj);
-    }
-
-    //restore isSignal settings
-    m_doElIsoSignal = cached_doIsoSig;
-
-    //correct isolation and propagate to signal deco
-    for (const auto& electron : *copy) {
-      dec_isol(*electron) = m_isoCloseByTool->acceptCorrected(*electron, pVec);
-      if(m_doElIsoSignal) dec_signal(*electron) &= acc_isol(*electron); //add isolation to signal deco if requested
-    }
   }
 
   if (recordSG) {
@@ -216,6 +195,9 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   if (m_elebaselinez0>0. && fabs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
   if (m_elebaselined0sig>0. && fabs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
 
+  //--- Do baseline isolation check
+  if ( !( m_eleBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
+
   dec_baseline(input) = true;
   dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);
@@ -227,10 +209,13 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   //ChargeIDSelector
   if( m_runECIS ){
-    ATH_MSG_WARNING( "ChargeIDSelector tool is not available in R21 yet.");
-    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
-    double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
-    dec_ecisBDT(input) = bdt;
+    if (acc_passECIDS.isAvailable(input)) {
+      dec_passChID(input) = acc_passECIDS(input); // Loose 97% WP!
+    } else {
+      dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
+      double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
+      dec_ecisBDT(input) = bdt;
+    }
 
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
     if( !isData() ) {
@@ -320,8 +305,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
-  if (chfSF) 
-    ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
+  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
 
   //shortcut keys for trigger SF config
   std::string singleLepStr = "singleLepton";
@@ -424,6 +408,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
   // new : charge flip SF 
   if (chfSF){
+    ATH_MSG_WARNING ("Be aware that charge mis-ID SF is not provided in R21 yet. Use at your own risk!");
     double chf_sf(1.);
 
     //ECIS SF 
@@ -459,7 +444,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }   
 
   }
-
   
   dec_effscalefact(el) = sf;
   return sf;

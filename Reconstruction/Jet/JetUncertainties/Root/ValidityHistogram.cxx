@@ -211,7 +211,7 @@ double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
 //////////////////////////////////////////////////
 
 ValidityHistogram::ValidityHistogram(const std::string& histName, const CompParametrization::TypeEnum parametrization, const float energyScale, const CompMassDef::TypeEnum massDef)
-    : UncertaintyHistogram(histName,false)
+    : UncertaintyHistogram(histName,Interpolate::None)
     , m_isInit(false)
     , m_param(parametrization)
     , m_energyScale(energyScale)

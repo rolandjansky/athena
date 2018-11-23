@@ -17,6 +17,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon              import *
 from DerivationFrameworkJetEtMiss.JetCommon            import *
 from DerivationFrameworkEGamma.EGammaCommon            import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon              import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon    import *
 from DerivationFrameworkHiggs.TruthCategories          import *
@@ -251,7 +252,7 @@ MUON5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4Track'   : 'xAOD::BTa
 # Add extra variables to collections
 MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink."
                                       "scatteringCurvatureSignificance.scatteringNeighbourSignificance",
-                                      "Electrons.author.charge",
+                                      "Electrons.author.charge.topoetcone30.ptvarcone30",
                                       "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m."
                                       "ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt.TileStatus",
                                       "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
@@ -266,6 +267,7 @@ MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extra
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m"]
 MUON5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+MUON5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
 MUON5SlimmingHelper.AllVariables = ["egammaClusters", "CaloCalTopoClusters", "AntiKt4PV0TrackJets", "BTagging_AntiKt4Track", "InDetTrackParticles"]
 

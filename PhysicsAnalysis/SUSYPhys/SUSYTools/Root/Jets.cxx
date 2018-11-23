@@ -13,8 +13,6 @@
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetInterface/IJetSelector.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
@@ -41,12 +39,22 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char>  acc_passFJvt("passFJvt");
 
   const static SG::AuxElement::Decorator<float> dec_jvt("Jvt");
-  const static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
+  const static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
   
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
+  const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
+
   const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
   const static SG::AuxElement::Decorator<char> dec_bjet_loose("bjet_loose");
 
+  const static SG::AuxElement::Decorator<double> dec_btag_weight("btag_weight");
+
+  const static SG::AuxElement::Decorator<float> dec_VRradius("VRradius");
+  const static SG::AuxElement::ConstAccessor<float> acc_VRradius("VRradius");
+
+  const static SG::AuxElement::Decorator<char> dec_passDRcut("passDRcut");
+  const static SG::AuxElement::ConstAccessor<char> acc_passDRcut("passDRcut");
+  
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
   {
     if (!m_tool_init) {
@@ -85,12 +93,11 @@ namespace ST {
       ATH_CHECK( this->FillJet(*jet, true) );
     }
     // Tool requires a loop over all jets
-    if (m_doFwdJVT){
-      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-    }
+    m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
+
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
@@ -113,6 +120,63 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode SUSYObjDef_xAOD::GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
+  {
+    if (!m_tool_init) {
+      ATH_MSG_ERROR("SUSYTools was not initialized!!");
+      return StatusCode::FAILURE;
+    }
+
+    std::string jetkey_tmp = jetkey;
+    if (jetkey.empty()) {
+      jetkey_tmp = m_defaultTrackJets;
+    }
+
+    const xAOD::JetContainer* jets(0);
+    if (copy==NULL) { // empty container provided
+      if (containerToBeCopied != nullptr) {
+        jets = containerToBeCopied;
+      }
+      else {
+        ATH_MSG_DEBUG("Retrieve jet collection: " << jetkey_tmp);
+        ATH_CHECK( evtStore()->retrieve(jets, jetkey_tmp) );
+      }
+      std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*jets);
+      copy = shallowcopy.first;
+      copyaux = shallowcopy.second;
+      bool setLinks = xAOD::setOriginalObjectLink(*jets, *copy);
+      if (!setLinks) {
+        ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
+      }
+    } else { // use the user-supplied collection instead 
+      ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
+      jets=copy;
+    }
+
+    // Update the jets
+    for (const auto& jet : *copy) {
+      ATH_CHECK( this->FillTrackJet(*jet) );
+    }
+
+    if (m_defaultTrackJets == "AntiKtVR30Rmax4Rmin02TrackJets") {
+      for (const auto& jet1 : *copy) {
+        if (!acc_signal(*jet1)) continue;
+        for (const auto& jet2 : *copy) {
+          if (!acc_baseline(*jet2)) continue;
+          if (jet1 == jet2) continue;
+          float dr_jets = sqrt( ((*jet1).eta()-(*jet2).eta())*((*jet1).eta()-(*jet2).eta()) + ((*jet1).phi()-(*jet2).phi())*((*jet1).phi()-(*jet2).phi()) );
+          float smaller_radius = std::min(acc_VRradius(*jet1),acc_VRradius(*jet2));
+          if ( dr_jets < smaller_radius) dec_passDRcut(*jet1) = false;
+        }
+      }
+    }
+
+    if (recordSG) {
+      ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
+      ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
+    }
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode SUSYObjDef_xAOD::GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const bool doLargeRdecorations, const xAOD::JetContainer* containerToBeCopied)
   {
@@ -202,12 +266,10 @@ namespace ST {
       ATH_CHECK( this->FillJet(*jet, false) );
     }
     // Tool requires a loop over all jets
-    if (m_doFwdJVT){
-      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-    }
+    m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
@@ -230,7 +292,6 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
-
   StatusCode SUSYObjDef_xAOD::FillJet(xAOD::Jet& input, bool doCalib, bool isFat) {
 
     ATH_MSG_VERBOSE( "Starting FillJet on jet with pt=" << input.pt() );
@@ -249,6 +310,7 @@ namespace ST {
         dec_effscalefact(input) = 1.;
         dec_passOR(input) = true;
         dec_bjet_jetunc(input) = false;
+        dec_btag_weight(input) = -999.;
 
         // If a user hasn't specified an uncertainty config, then this tool will be empty
         if (!m_fatjetUncertaintiesTool.empty()){
@@ -307,8 +369,6 @@ namespace ST {
   
     ATH_MSG_VERBOSE(  " jet (pt,eta,phi) after JES correction " << input.pt() << " " << input.eta() << " " << input.phi() );
 
-    if ( m_jerSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) ATH_MSG_ERROR("Failed to apply JER smearing ");
-
     dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
     dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
     dec_bad(input) = false;
@@ -340,15 +400,42 @@ namespace ST {
       ATH_MSG_INFO( "JET CE: " << input.jetP4(xAOD::JetConstitScaleMomentum).e() );
       ATH_MSG_INFO( "JET Cm: " << input.jetP4(xAOD::JetConstitScaleMomentum).M() ); // fix-me M
 
-      // TEST JER:
-      // Get the MC resolution
-      double mcRes = m_jerTool->getRelResolutionMC(&input);
-      // Get the resolution uncertainty
-      double uncert = m_jerTool->getUncertainty(&input);
+    }
 
-      // Print the resolution information
-      ATH_MSG_INFO( "  MC resolution = " << mcRes );
-      ATH_MSG_INFO( "  Res uncertainty = " << uncert );
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode SUSYObjDef_xAOD::FillTrackJet(xAOD::Jet& input) {
+
+    ATH_MSG_VERBOSE( "Starting FillTrackJet on jet with pt=" << input.pt() );
+
+    dec_btag_weight(input) = -999.;
+    dec_effscalefact(input) = 1.;
+
+    if (m_defaultTrackJets == "AntiKtVR30Rmax4Rmin02TrackJets") {
+      // VR recommendation
+      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalib2017#Recommendations_for_variable_rad
+      dec_baseline(input) = input.pt() >= 5e3 && input.numConstituents() >= 2;
+      if (m_trkJetPt < 10e3)
+        ATH_MSG_WARNING ("The pt threshold of VR jets you set is: " << m_trkJetPt/1000. << " GeV. But VR jets with pt < 10GeV are uncalibrated.");
+      dec_signal(input) = acc_baseline(input) && input.pt() >= m_trkJetPt && fabs(input.eta()) <= m_trkJetEta;
+      dec_VRradius(input) = std::max(0.02,std::min(0.4,30000./input.pt()));
+      dec_passDRcut(input) = acc_signal(input);
+    } else {
+      dec_baseline(input) = input.pt() >= m_trkJetPt && fabs(input.eta()) <= m_trkJetEta;
+      dec_signal(input) = acc_baseline(input);
+    }
+
+    if (m_useBtagging) {
+      if (m_BtagWP != "Continuous") this->IsTrackBJet(input);
+      else this->IsTrackBJetContinuous(input);
+    }
+
+    if (m_debug) {
+      ATH_MSG_INFO( "TRK JET pt: " << input.pt() );
+      ATH_MSG_INFO( "TRK JET eta: " << input.eta() );
+      ATH_MSG_INFO( "TRK JET phi: " << input.phi() );
+      ATH_MSG_INFO( "TRK JET E: " << input.e() );
     }
 
     return StatusCode::SUCCESS;
@@ -459,9 +546,30 @@ namespace ST {
     bool isbjet = m_btagSelTool->accept(input);
     dec_bjet(input) = isbjet;
 
+    double weight = 0.;
+    if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+      ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
+    }
+    dec_btag_weight(input) = weight;
+    ATH_MSG_VERBOSE( "b-tag weight?: " << weight );
+
     return isbjet;
   }
 
+  bool SUSYObjDef_xAOD::IsTrackBJet(const xAOD::Jet& input) const {
+
+    bool isbjet = m_btagSelTool_trkJet->accept(input);
+    dec_bjet(input) = isbjet;
+
+    double weight = 0.;
+    if ( m_btagSelTool_trkJet->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+      ATH_MSG_ERROR ("btagSelTool_trkJet:: could not retrieve b-tag weight.");
+    }
+    dec_btag_weight(input) = weight;
+    ATH_MSG_VERBOSE( "b-tag weight (track jets)?: " << weight );
+
+    return isbjet;
+  }
 
   int SUSYObjDef_xAOD::IsBJetContinuous(const xAOD::Jet& input) const {
     //////////////////////
@@ -481,6 +589,13 @@ namespace ST {
     return isbjet;
   }
 
+  int SUSYObjDef_xAOD::IsTrackBJetContinuous(const xAOD::Jet& input) const {
+
+    int isbjet = m_btagSelTool_trkJet->getQuantile(input);
+    dec_bjet(input) = isbjet;
+
+    return isbjet;
+  }
 
   float SUSYObjDef_xAOD::BtagSF(const xAOD::JetContainer* jets) const {
 
@@ -491,7 +606,7 @@ namespace ST {
 
       if ( fabs(jet->eta()) > 2.5 ) {
         ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with |eta|>2.5 (jet eta=" << jet->eta() << "), jet will be skipped");
-      } else if ( jet->pt() < 20e3 ){ //|| jet->pt() > 1e6 ) {
+      } else if ( jet->pt() < 20e3 ){ 
         ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with invalid pt (jet pt=" << jet->pt() << "), jet will be skipped");
       } else {
 
@@ -500,7 +615,6 @@ namespace ST {
         if (!jet->getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
           ATH_MSG_ERROR("Failed to get jet truth label!");
         }
-        const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
         ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*jet) ? "" : "not ") << "b-tagged.");
         ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
 
@@ -509,13 +623,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_ERROR( " Failed to retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid SF for jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_VERBOSE( " No valid SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged jet in SUSYTools_xAOD::BtagSF with value " << sf );
+            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
           }
         } else {
 
@@ -523,13 +637,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged jet in SUSYTools_xAOD::BtagSF with value " << sf );
+            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
           }
         }
       }
@@ -567,6 +681,89 @@ namespace ST {
 
   }
 
+  float SUSYObjDef_xAOD::BtagSF_trkJet(const xAOD::JetContainer* trkjets) const {
+
+    float totalSF = 1.;
+    for ( const auto& trkjet : *trkjets ) {
+
+      float sf = 1.;
+
+      if ( fabs(trkjet->eta()) > 2.5 ) {
+        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for trkjet with |eta|>2.5 (trkjet eta=" << trkjet->eta() << "), trkjet will be skipped");
+      } else if ( trkjet->pt() < 20e3 ){ 
+        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for trkjet with invalid pt (trkjet pt=" << trkjet->pt() << "), jet will be skipped");
+      } else {
+
+        CP::CorrectionCode result;
+        int truthlabel(-1);
+        if (!trkjet->getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
+          ATH_MSG_ERROR("Failed to get jet truth label!");
+        }
+        ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*trkjet) ? "" : "not ") << "b-tagged.");
+        ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
+
+        if ( acc_bjet(*trkjet) ) {
+          result = m_btagEffTool_trkJet->getScaleFactor(*trkjet, sf);
+
+          switch (result) {
+          case CP::CorrectionCode::Error:
+            ATH_MSG_ERROR( " Failed to retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          case CP::CorrectionCode::OutOfValidityRange:
+            ATH_MSG_VERBOSE( " No valid SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          default:
+            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
+          }
+        } else {
+
+          result = m_btagEffTool_trkJet->getInefficiencyScaleFactor(*trkjet, sf);
+
+          switch (result) {
+          case CP::CorrectionCode::Error:
+            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          case CP::CorrectionCode::OutOfValidityRange:
+            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          default:
+            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
+          }
+        }
+      }
+
+      dec_effscalefact(*trkjet) = sf;
+
+      if( acc_signal(*trkjet) ) totalSF *= sf; 
+
+    }
+
+    return totalSF;
+
+  }
+
+
+  float SUSYObjDef_xAOD::BtagSFsys_trkJet(const xAOD::JetContainer* trkjets, const CP::SystematicSet& systConfig)
+  {
+
+    float totalSF = 1.;
+
+    //Set the new systematic variation
+    CP::SystematicCode ret = m_btagEffTool_trkJet->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure BTaggingEfficiencyTool (track jets) for systematic var. " << systConfig.name() );
+    }
+
+    totalSF = BtagSF_trkJet( trkjets );
+
+    ret = m_btagEffTool_trkJet->applySystematicVariation(m_currentSyst);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure BTaggingEfficiencyTool (track jets) for systematic var. " << systConfig.name() );
+    }
+
+    return totalSF;
+
+  }
 
   double SUSYObjDef_xAOD::JVT_SF(const xAOD::JetContainer* jets) {
 
@@ -622,24 +819,78 @@ namespace ST {
 
   }
 
+  double SUSYObjDef_xAOD::FJVT_SF(const xAOD::JetContainer* jets) {
 
-  double SUSYObjDef_xAOD::GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF, const bool jvtSF) {
+    float totalSF = 1.;
+
+    ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
+    for (const auto& jet : *jets) {
+      // Only jets that were good for every cut except JVT
+      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
+        fjvtjets.push_back(jet);
+      }
+    }
+
+    CP::CorrectionCode ret = m_jetFJvtEfficiencyTool->applyAllEfficiencyScaleFactor( fjvtjets.asDataVector() , totalSF );
+
+    switch (ret) {
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::FJVT_SF" );
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::FJVT_SF" );
+    default:
+      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::FJVT_SF with value " << totalSF );
+    }
+
+    return totalSF;
+
+  }
+
+  double SUSYObjDef_xAOD::FJVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) {
+
+    float totalSF = 1.;
+
+    //Set the new systematic variation
+    CP::SystematicCode ret = m_jetFJvtEfficiencyTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
+    }
+
+    // Delegate
+    totalSF = SUSYObjDef_xAOD::FJVT_SF( jets );
+
+    if (m_applyJVTCut) {
+      ret = m_jetFJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
+      if ( ret != CP::SystematicCode::Ok) {
+        ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
+      }
+    }
+
+    return totalSF;
+
+  }
+
+  double SUSYObjDef_xAOD::GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF, const bool jvtSF, const bool fjvtSF) {
 
     double totalSF = 1.;
     if (btagSF) totalSF *= BtagSF(jets);
 
     if (jvtSF && m_applyJVTCut) totalSF *= JVT_SF(jets);
 
+    if (fjvtSF) totalSF *= FJVT_SF(jets);
+
     return totalSF;
   }
 
 
-  double SUSYObjDef_xAOD::GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF, const bool jvtSF) {
+  double SUSYObjDef_xAOD::GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF, const bool jvtSF, const bool fjvtSF) {
 
     double totalSF = 1.;
     if (btagSF) totalSF *= BtagSFsys(jets, systConfig);
 
     if (jvtSF && m_applyJVTCut) totalSF *= JVT_SFsys(jets, systConfig);
+
+    if (fjvtSF) totalSF *= FJVT_SFsys(jets, systConfig);
 
     return totalSF;
   }

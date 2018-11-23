@@ -118,11 +118,13 @@ void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
   }
 
   // RNN
-  if ( tau.hasDiscriminant(xAOD::TauJetParameters::RNNJetScore) ) {
+  SG::AuxElement::ConstAccessor<float> acc_RNNJetScore("RNNJetScore");
+  if ( acc_RNNJetScore.isAvailable(tau) ) {
      float rnnScore = tau.discriminant(xAOD::TauJetParameters::RNNJetScore);
      if ( rnnScore > -2.0 ) m_RNNScore->Fill(rnnScore);
   }
-  if ( tau.hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) ) {
+  SG::AuxElement::ConstAccessor<float> acc_RNNJetScoreSigTrans("RNNJetScoreSigTrans");
+  if ( acc_RNNJetScoreSigTrans.isAvailable(tau) ) {
      float rnnScore = tau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
      if ( rnnScore > -2.0 ) m_RNNScoreSigTrans->Fill(rnnScore);
   }

@@ -42,3 +42,4 @@ atlas_add_dictionary( JetJvtEfficiencyDict
 
 # Install files from the package:
 atlas_install_data( share/*.root )
+atlas_install_python_modules( python/*.py )

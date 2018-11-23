@@ -31,6 +31,7 @@ namespace top{
     m_electronIDLoose("SetMe"),
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
+    m_useElectronChargeIDSelection(false),
 
     m_muon_trigger_SF("SetMe"),
     m_muonQuality("SetMe"),

@@ -10,7 +10,7 @@
 namespace top {
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose, StandardIsolation* isolation, const bool applyTTVACut) :
+                                                 const std::string& operatingPointLoose, StandardIsolation* isolation, const bool applyTTVACut,const bool applyChargeIDCut) :
     m_ptcut(ptcut),
     m_vetoCrack(vetoCrack),
     m_operatingPoint("SetMe"),
@@ -19,7 +19,7 @@ namespace top {
     m_operatingPointLoose_DF("SetMe"),
     m_isolation(isolation),
     m_applyTTVACut(applyTTVACut),
-    m_applyChargeIDCut(false)
+    m_applyChargeIDCut(applyChargeIDCut)
   {
     /** Egamma use different naming styles for the likelihood in:
       *    Trigger = HLT_e24_lhmedium_iloose_L1EM20VH  HLT_e60_lhmedium
@@ -50,13 +50,11 @@ namespace top {
     m_operatingPoint         = operatingPoint;
     m_operatingPointLoose    = operatingPointLoose;
 
-    // currently implemented only for this working point
-    if (m_operatingPoint == "MediumLH" && (m_isolation->tightLeptonIsolation() == "FixedCutTight" || m_isolation->looseLeptonIsolation() == "FixedCutTight"))
-      m_applyChargeIDCut = true;
+    
     
     // We cannot allow the HighPtCaloOnly isolation to be implemented for pt cut which is lower than the non-isolation triggers
-    if( (m_isolation->tightLeptonIsolation() == "FixedCutHighPtCaloOnly" || m_isolation->looseLeptonIsolation() == "FixedCutHighPtCaloOnly") && m_ptcut < 60000){
-      std::cerr <<  "ElectronLikelihoodMC15 - Cannot use FixedCutHighPtCaloOnly isolation with pt cut below 60 GeV due to lack of isolation trigger scale factors" << std::endl;
+    if( (m_isolation->tightLeptonIsolation() == "FCHighPtCaloOnly" || m_isolation->looseLeptonIsolation() == "FCHighPtCaloOnly") && m_ptcut < 60000){
+      std::cerr <<  "ElectronLikelihoodMC15 - Cannot use FCHighPtCaloOnly isolation with pt cut below 60 GeV due to lack of isolation trigger scale factors" << std::endl;
       std::cerr <<  "ElectronLikelihoodMC15 - If you need two different isolation/trigger/pt thresholds, please open an ANALYSISTO JIRA ticket" << std::endl;
       throw 1; // ATH_MSG_ERROR is not working, so just throw and quit
     }
@@ -65,9 +63,9 @@ namespace top {
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
                                                  const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose, StandardIsolation* isolation, const bool applyTTVACut) :
+                                                 const std::string& operatingPointLoose, StandardIsolation* isolation, const bool applyTTVACut,const bool applyChargeIDCut) :
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
-                                                 operatingPointLoose, isolation, applyTTVACut) {}
+                                                 operatingPointLoose, isolation, applyTTVACut,applyChargeIDCut) {}
 
   bool ElectronLikelihoodMC15::passSelection(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPoint_DF, m_operatingPoint))
@@ -215,14 +213,9 @@ bool ElectronLikelihoodMC15::passTTVACuts(const xAOD::Electron& el) const
 
 bool ElectronLikelihoodMC15::passChargeIDCut(const xAOD::Electron& el) const
 {
-
-  // Electron Charge ID Selector Tool
-  // see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronChargeFlipTaggerTool
-  if ( asg::ToolStore::contains<AsgElectronChargeIDSelectorTool> ("ECIDS_medium") ) {
-    AsgElectronChargeIDSelectorTool* electronChargeIDSelectorTool = asg::ToolStore::get<AsgElectronChargeIDSelectorTool> ("ECIDS_medium");
-    if (!electronChargeIDSelectorTool->accept(&el)) return false;
-  }
-  return true;
+  static SG::AuxElement::ConstAccessor<char> acc_ECIDS("DFCommonElectronsECIDS");
+  top::check(acc_ECIDS.isAvailable(el),"ElectronLikelihoodMC15::passChargeIDCut: DFCommonElectronsECIDS is not available");
+  return acc_ECIDS(el) ? true : false;
 }
 
   void ElectronLikelihoodMC15::print(std::ostream& os) const {

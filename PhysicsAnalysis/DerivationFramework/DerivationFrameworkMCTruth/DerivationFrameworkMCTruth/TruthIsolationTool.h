@@ -38,6 +38,8 @@ namespace DerivationFramework {
       std::vector<int> m_excludeFromCone;
       /// Parameter: name of output variable
       std::string m_isoVarNamePrefix;
+      /// Parameter: Include non-interacting particles?
+      bool m_includeNonInteracting;
 
       std::vector<float> *m_coneSizesSort;
       std::vector<float> *m_coneSizes2;

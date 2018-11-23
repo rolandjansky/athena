@@ -112,6 +112,7 @@ namespace met {
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
     declareProperty("CustomJetJvtPtMax",  m_customJvtPtMax     = 60e3                );
     declareProperty("CustomJetEtaMax",    m_JetEtaMax          = 4.5                 );
+    declareProperty("CustomJetEtaForw",   m_JetEtaForw         = 2.4                 );
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
@@ -131,7 +132,7 @@ namespace met {
     declareProperty("JetPsEMuOlap",       m_jetPsEMuOlap = 2.5e3                     );    
     declareProperty("JetEmfMuOlap",       m_jetEmfMuOlap = 0.9                       );    
     declareProperty("JetTrkPtMuPt",       m_jetTrkPtMuPt = 0.8                       );    
-    declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );    
+    declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );   
 
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
   }
@@ -163,6 +164,16 @@ namespace met {
       m_JvtCutTight  = 0.91; m_JvtTightPtMax  = 40.0e3;
       m_JvtCutMedium = 0.59; m_JvtMediumPtMax = 60.0e3;
       m_JvtCut       = 0.11; m_JvtPtMax = 120e3; }
+    else if (m_jetSelection == "LooseJVT04_WIP")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.4; m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "TightJVT04_WIP")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; m_JvtCut = 0.4; m_JvtPtMax = 60e3; ATH_MSG_WARNING("Caution: For testing with PFlow collections only!"); }
+    else if (m_jetSelection == "TighterJVT04_WIP"){ m_CenJetPtCut = 20e3; m_FwdJetPtCut = 35e3;  m_JvtCut = 0.4; m_JvtPtMax = 60e3; ATH_MSG_WARNING("Caution: For testing with PFlow collections only!"); }
+    else if (m_jetSelection == "TenaciousJVT641_WIP")  {
+        m_CenJetPtCut  = 20e3; m_FwdJetPtCut = 35e3;
+        m_JvtCutTight  = 0.6; m_JvtTightPtMax  = 40.0e3;
+        m_JvtCutMedium = 0.4; m_JvtMediumPtMax = 60.0e3;
+        m_JvtCut       = 0.1; m_JvtPtMax = 120e3;
+        ATH_MSG_WARNING("Caution: For testing with PFlow collections only!");
+    }
     else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0; }
     else if (m_jetSelection == "Expert")  { 
       ATH_MSG_INFO("Custom jet selection configured. *** FOR EXPERT USE ONLY ***");
@@ -170,12 +181,20 @@ namespace met {
       m_FwdJetPtCut = m_customFwdJetPtCut;
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
-    }
+    }  
+    else if (m_jetSelection == "HRecoil")  { 
+      ATH_MSG_INFO("Jet selection for hadronic recoil calculation is configured.");
+      m_CenJetPtCut = 9999e3;
+      m_FwdJetPtCut = 9999e3;
+      m_JetEtaMax   = 5;      
+      //m_JvtCut   = 0.;    // currently skip
+      //m_JvtPtMax = 0.;  // currently skip
+    }   
     else { 
       if (m_jetSelection == "Default") ATH_MSG_WARNING( "WARNING:  Default is now deprecated" ); 
-      ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, PFlow, Expert" ); 
+      ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, Tighter, Tenacious, PFlow, Expert" ); 
       return StatusCode::FAILURE; 
-    }
+    }   
 
     if (!m_jetRejectionDec.empty()) m_extraJetRejection = true;
 
@@ -633,7 +652,7 @@ namespace met {
       }
       if(assoc && !assoc->isMisc()) {
         ATH_MSG_VERBOSE( "Jet calib pt = " << jet->pt());
-        bool selected = (fabs(jet->eta())<2.4 && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=2.4 && jet->pt()>m_FwdJetPtCut );//jjj
+        bool selected = (fabs(jet->eta())<m_JetEtaForw && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=m_JetEtaForw && jet->pt()>m_FwdJetPtCut );//jjj
         bool JVT_reject(false);
 	bool isMuFSRJet(false);
 	
@@ -642,7 +661,7 @@ namespace met {
 
 	// Apply the JVT
         if(doJetJVT) {
-	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
+	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<m_JetEtaForw) {
 	    float jvt=-100.0;	
 	    bool gotJVT = jet->getAttribute<float>(m_jetJvtMomentName,jvt);
 	    if(gotJVT) {

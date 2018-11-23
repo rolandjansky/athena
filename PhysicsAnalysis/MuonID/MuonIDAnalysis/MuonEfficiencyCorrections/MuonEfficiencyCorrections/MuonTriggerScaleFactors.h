@@ -144,6 +144,7 @@ namespace CP {
             bool m_allowZeroSF;
             bool m_experimental;
             bool m_useRel207;
+            bool m_useMC16c;
             
             //Variables for toy replicas setup
             std::vector<std::string> m_replicaTriggerList;

@@ -357,12 +357,14 @@ namespace ana
             my_muons.push_back( m ); // 1.05*online pt requirement
             //// As long as we are here, get the efficiency
             double trig_eff_mc = 1., trig_eff_data = 1.;
-            QA_CHECK_WEIGHT
-              ( double , trig_eff_mc, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_mc,m_muon_trig_str,false) );
-            m->auxdata<double>(m_groupName + "_Mu_TrigEff_MC") = trig_eff_mc;
-            QA_CHECK_WEIGHT
-              ( double , trig_eff_data, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_data,m_muon_trig_str,true) );
-            m->auxdata<double>(m_groupName + "_Mu_TrigEff_Data") = trig_eff_data;
+            if (!isDiMuTrig) {
+               QA_CHECK_WEIGHT
+                 ( double , trig_eff_mc, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_mc,m_muon_trig_str,false) );
+               m->auxdata<double>(m_groupName + "_Mu_TrigEff_MC") = trig_eff_mc;
+               QA_CHECK_WEIGHT
+                 ( double , trig_eff_data, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_data,m_muon_trig_str,true) );
+               m->auxdata<double>(m_groupName + "_Mu_TrigEff_Data") = trig_eff_data;
+            }
           }
         }
       }

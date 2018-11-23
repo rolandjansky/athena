@@ -217,15 +217,20 @@ if (HIDerivationFlags.isPPb() or HIDerivationFlags.isPP()):
     MBTriggers = [ 
     	"HLT_mb_mbts_L1MBTS_1"]
     MuonTriggers = [ 
-   	"L1_MU4", 
-   	"L1_MU6", 
-   	"HLT_mu4", 
-   	"HLT_mu6", 
-   	"HLT_2mu4", 
-   	"HLT_mu4_mu4noL1", 
-   	"HLT_2mu4_nomucomb", 
-   	"HLT_mu4_bJpsi_Trkloose", 
-   	"HLT_mu6_bJpsi_Trkloose" ]
+    "L1_MU4",
+    "L1_2MU4",
+    "L1_MU6",
+    "HLT_2mu4",
+    "HLT_2mu6",
+    "HLT_2mu4_nomucomb",
+    "HLT_2mu4_bJpsimumu",
+    "HLT_2mu4_bUpsimumu",
+    "HLT_mu4",
+    "HLT_mu6",
+    "HLT_mu4_nomucomb",
+    "HLT_mu6_nomucomb",
+    "HLT_mu4_bJpsi_Trkloose",
+    "HLT_mu6_bJpsi_Trkloose" ]
 
 else: 
     onia_cut = "count(HION3OniaCandidates.passed_Jpsi) > 0 || count(HION3OniaCandidates.passed_Psi) > 0 || count(HION3OniaCandidates.passed_Upsi) > 0"

@@ -43,6 +43,9 @@ namespace xAODPrivate {
    class THolderBucket;
    class TLoader;
 }
+namespace CP {
+   class xAODWriterAlg;
+}
 
 namespace xAOD {
 
@@ -83,6 +86,7 @@ namespace xAOD {
       friend class xAOD::TTreeMgr;
       friend class xAODPrivate::THolderBucket;
       friend class xAODPrivate::TLoader;
+      friend class CP::xAODWriterAlg;
 
    public:
       /// Auxiliary store "mode"

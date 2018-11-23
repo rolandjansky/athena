@@ -8,6 +8,7 @@
 #include "AsgTools/AsgMessaging.h"
 #include <vector>
 #include <utility>
+#include <stdexcept>
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
@@ -34,6 +35,7 @@ class OptionHelper : public asg::AsgMessaging
         TString GetNamePrefix()   const { checkInit(); return m_compNamePrefix; }
         TString GetCalibArea()    const { checkInit(); return m_calibArea;      }
         TString GetPath()         const { checkInit(); return m_path;           }
+        bool    GetIsData()       const { checkInit(); return m_isData;         }
 
         // Plot control
         bool    DoATLASLabel()    const { checkInit(); return m_doATLASLabel;  }
@@ -76,9 +78,13 @@ class OptionHelper : public asg::AsgMessaging
         // Variable control
         std::vector<CompScaleVar::TypeEnum> GetScaleVars() const { checkInit(); return m_scaleVars; }
         const std::vector<std::string> VariablesToShift() const { checkInit(); return m_systFilters; }
+        JetTopology::TypeEnum GetTopology() const { checkInit(); return m_topology; }
   
         // Layout control
         TString GetInputsDir() const {  checkInit(); return m_inputsDir; }
+        
+        // Debug/similar control
+        TString GetDumpFile() const { checkInit(); return m_dumpFile; }
 
     private:
         bool    m_isInit;
@@ -89,6 +95,7 @@ class OptionHelper : public asg::AsgMessaging
         TString m_compNamePrefix;
         TString m_calibArea;
         TString m_path;
+        bool    m_isData;
 
         bool    m_doATLASLabel;
         TString m_ATLASLabel;
@@ -125,10 +132,13 @@ class OptionHelper : public asg::AsgMessaging
         
         std::vector<CompScaleVar::TypeEnum> m_scaleVars;
         std::vector<std::string> m_systFilters;
+        JetTopology::TypeEnum m_topology;
   
         // allowing MakeUncertaintyPlots to be run from outside
         // of the testInputs/run/ directory
         TString m_inputsDir;
+
+        TString m_dumpFile;
 
         TString getOptionValue(const std::vector<TString>& options, const TString optionName) const;
         template <typename T>
@@ -150,6 +160,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_compNamePrefix("JET_")
     , m_calibArea("")
     , m_path("")
+    , m_isData(false)
 
     , m_doATLASLabel(true)
     , m_ATLASLabel("Internal")
@@ -186,8 +197,11 @@ OptionHelper::OptionHelper(const std::string& name)
 
     , m_scaleVars()
     , m_systFilters()
+    , m_topology(JetTopology::UNKNOWN)
   
-    , m_inputsDir("//eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/")
+    , m_inputsDir("/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/")
+
+    , m_dumpFile("")
 { }
 
 bool OptionHelper::Initialize(const std::vector<TString>& options)
@@ -209,6 +223,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_compNamePrefix = getOptionValueWithDefault(options,"prefix",m_compNamePrefix);
     m_calibArea      = getOptionValueWithDefault(options,"CalibArea",m_calibArea);
     m_path           = getOptionValueWithDefault(options,"Path",m_path);
+    m_isData         = getOptionValueWithDefault(options,"IsData",m_isData);
 
     m_doATLASLabel   = getOptionValueWithDefault(options,"DoATLASLabel",m_doATLASLabel);
     m_ATLASLabel     = getOptionValueWithDefault(options,"ATLASLabel",m_ATLASLabel);
@@ -253,12 +268,12 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_isDijet        = getOptionValueWithDefault(options,"isDijet",m_isDijet);
     if (m_isDijet)
     {
-        if (!m_composition)
+        if (m_composition == "")
             m_composition = "Dijet";
         else
         {
             ATH_MSG_ERROR("The composition was double-specified, please check that you don't specify both \"Composition\" and \"isDijet\"");
-            throw std::string("Double composition failure");
+            throw std::runtime_error("Double composition failure");
         }
     }
 
@@ -267,6 +282,8 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_compareVals    = getCompareVals(options);
 
     m_inputsDir      = getOptionValueWithDefault(options,"inputsDir",m_inputsDir);
+
+    m_dumpFile       = getOptionValueWithDefault(options,"dumpFile",m_dumpFile);
 
     const TString localScaleVar = getOptionValue(options,"scaleVar");
     if (localScaleVar == "")
@@ -279,6 +296,16 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
         std::vector<TString> localScaleVarVec = jet::utils::vectorize<TString>(localScaleVar,"&");
         for (size_t iVar = 0; iVar < localScaleVarVec.size(); ++iVar)
             m_scaleVars.push_back(CompScaleVar::stringToEnum(localScaleVarVec.at(iVar)));
+    }
+    const TString jetTopology = getOptionValue(options,"topology");
+    if (jetTopology != "")
+    {
+        m_topology = JetTopology::stringToEnum(jetTopology);
+        if (m_topology == JetTopology::UNKNOWN)
+        {
+            ATH_MSG_ERROR("The topology specified is invalid: " << jetTopology.Data());
+            throw std::runtime_error("Topology failure");
+        }
     }
 
     const TString systFilterString = getOptionValue(options,"VariablesToShift");
@@ -332,7 +359,7 @@ void OptionHelper::checkInit() const
     if (!m_isInit)
     {
         ATH_MSG_FATAL("Asked for a value before initializing the tool");
-        throw std::string("Initialization failure");
+        throw std::runtime_error("Initialization failure");
     }
 }
 
@@ -351,7 +378,7 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (tokens.size() != 4)
     {
         ATH_MSG_FATAL("Unexpected format for bins: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Check the type
@@ -360,7 +387,7 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (!isUniform && !isLog)
     {
         ATH_MSG_FATAL("Unexpected binning type (token 0), only U/u and L/l are currently supported: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Check the number of bins
@@ -368,7 +395,7 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (!jet::utils::getTypeObjFromString(tokens.at(1),numBins))
     {
         ATH_MSG_FATAL("Number of bins (token 1) was not an unsigned int: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Check the min and max
@@ -376,17 +403,17 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (!jet::utils::getTypeObjFromString(tokens.at(2),minVal))
     {
         ATH_MSG_FATAL("Number of bins (token 2) was not a double: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
     if (!jet::utils::getTypeObjFromString(tokens.at(3),maxVal))
     {
         ATH_MSG_FATAL("Number of bins (token 3) was not a double: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
     if (maxVal < minVal)
     {
         ATH_MSG_FATAL("The maximum value is smaller than the minimum: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Done checking, finally return the bins
@@ -436,7 +463,10 @@ std::vector<double> OptionHelper::GetFixedPtVals() const
     std::vector<double> bins;
 
     if (m_fixedPtVals != "")
-        bins = jet::utils::vectorize<double>(m_fixedPtVals,",");
+    {
+        if (m_fixedPtVals != "NONE")
+            bins = jet::utils::vectorize<double>(m_fixedPtVals,",");
+    }
     else
         bins = jet::utils::vectorize<double>("25,40,60,80,120",",");
 
@@ -449,7 +479,10 @@ std::vector<double> OptionHelper::GetFixedEtaVals() const
     std::vector<double> bins;
 
     if (m_fixedEtaVals != "")
-        bins = jet::utils::vectorize<double>(m_fixedEtaVals,",");
+    {
+        if (m_fixedEtaVals != "NONE")
+            bins = jet::utils::vectorize<double>(m_fixedEtaVals,",");
+    }
     else if (IsLargeR())
         bins = jet::utils::vectorize<double>("0",",");
     else if (IsJER())
@@ -466,7 +499,10 @@ std::vector<double> OptionHelper::GetFixedMoverPtVals() const
     std::vector<double> bins;
 
     if (m_fixedMoverPtVals != "")
-        bins = jet::utils::vectorize<double>(m_fixedMoverPtVals,",");
+    {
+        if (m_fixedMoverPtVals != "NONE")
+            bins = jet::utils::vectorize<double>(m_fixedMoverPtVals,",");
+    }
     else if (!IsLargeR())
         bins = jet::utils::vectorize<double>("0",",");
     else if (IsPublicFormat())
@@ -499,7 +535,7 @@ TString OptionHelper::GetCompositionPath() const
     }
     
     ATH_MSG_FATAL("Unable to interpret special composition path: " << m_composition);
-    throw std::string("Composition path failure");
+    throw std::runtime_error("Composition path failure");
     return "";
 }
 
@@ -528,7 +564,7 @@ TString OptionHelper::GetCompositionName() const
     }
 
     ATH_MSG_FATAL("Unable to interpret special composition name: " << m_composition);
-    throw std::string("Composition name failure");
+    throw std::runtime_error("Composition name failure");
     return "";
 }
 

@@ -89,6 +89,10 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
          out << static_cast< int >( obj.auxdata< int8_t >( reg.getName( auxid ) ) );
       } else if( *ti == typeid( uint8_t ) ) {
          out << static_cast< int >( obj.auxdata< uint8_t >( reg.getName( auxid ) ) );
+      } else if( *ti == typeid( char ) ) {
+         out << static_cast< int >( obj.auxdata< char >( reg.getName( auxid ) ) );
+      } else if( *ti == typeid( unsigned char ) ) {
+         out << static_cast< int >( obj.auxdata< unsigned char >( reg.getName( auxid ) ) );
       } else if( *ti == typeid( int16_t ) ) {
          PRINTER( int16_t );
       } else if( *ti == typeid( uint16_t ) ) {

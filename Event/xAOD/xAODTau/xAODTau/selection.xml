@@ -1,5 +1,17 @@
-<!-- $Id: selection.xml 767396 2016-08-11 02:39:30Z griffith $ -->
 <lcgdict>
+
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::TauJet" />
+  <typedef name="xAOD::TauJetContainer" />
+  <typedef name="xAOD::TauJetAuxContainer" />
+
+  <typedef name="xAOD::DiTauJet" />
+  <typedef name="xAOD::DiTauJetContainer" />
+  <typedef name="xAOD::DiTauJetAuxContainer" />
+
+  <typedef name="xAOD::TauTrack" />
+  <typedef name="xAOD::TauTrackContainer" />
+  <typedef name="xAOD::TauTrackAuxContainer" />
 
   <!-- TauJet_v1 dictionaries: -->
   <class name="xAOD::TauJet_v1" >
@@ -149,7 +161,7 @@
 
   <!--Add Helper Functions -->
   <function pattern="xAOD::TauHelpers::*" />
-  
+
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>

@@ -14,6 +14,12 @@ if DerivationFrameworkIsMonteCarlo:
   addStandardTruthContents()
 
 #====================================================================
+# ADD PFLOW AUG INFORMATION 
+#====================================================================
+from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
+applyPFOAugmentation(DerivationFrameworkJob)
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 expression = '( (EventInfo.eventTypeBitmask==1) || HLT_noalg_zb_L1ZB )'
@@ -127,7 +133,7 @@ JETM5SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 JETM5SlimmingHelper.ExtraVariables = ["JetETMissNeutralParticleFlowObjects.m.mEM.pfo_TrackLinks.eflowRec_ISOLATION.pfo_ClusterLinks.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_EM_PROBABILITY.eflowRec_CENTER_LAMBDA.centerMag.pt.ptEM.phi.eta",
-"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks",]
+"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",]
 
 for truthc in [
     "TruthMuons",

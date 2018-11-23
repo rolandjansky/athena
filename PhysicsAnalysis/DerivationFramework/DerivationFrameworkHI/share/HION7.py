@@ -19,6 +19,15 @@ from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
 GetConditionsFromMetaData()
 
 #====================================================================
+#Check to see if it is Pb+Pb or p+Pb Derivation
+#====================================================================
+from PyUtils import AthFile
+af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
+project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
+beam_energy = af.fileinfos['metadata']['/TagInfo']['beam_energy']
+print '+++++++++++++++++++++++++++++++ project tag: ',project_tag,' +++++++++++++++++++++++++++++++'
+
+#====================================================================
 #Now do the skimming/thinning
 #====================================================================
 
@@ -27,11 +36,22 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HION7Stream )
 DerivationName=streamName.split('_')[-1]
 TrackThinningThreshold=900 #in MeV
 #Thinning threshods for jets is applied only in data
-JetThinningThreshold = {'DFAntiKt4HIJets':  35, 'DFAntiKt2HIJets': 35, 'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35} #in GeV
-expression='(HLT_j50_ion_L1TE20 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1)' % (HITriggerDict['HLT_j50_ion_L1TE20'],HITriggerDict['HLT_j60_ion_L1TE50'],HITriggerDict['HLT_j75_ion_L1TE50'])  
+JetThinningThreshold = {'AntiKt2HIJets': 35, 'AntiKt4HIJets': 35} #in GeV
+if project_tag=='data15_hi':
+	expression='(HLT_j50_ion_L1TE20 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j60_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_ion_L1TE50 && count(DFAntiKt4HIJets.pt > %d*GeV) >=1)' % (HITriggerDict['HLT_j50_ion_L1TE20'],HITriggerDict['HLT_j60_ion_L1TE50'],HITriggerDict['HLT_j75_ion_L1TE50'])  
 #TODO to be changed to DF when their performance is understood  
 if HIDerivationFlags.isPP() : expression='(HLT_j60_L1J15 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j75_L1J20 && count(AntiKt4HIJets.pt > %d*GeV) >=1) || (HLT_j85 && count(AntiKt4HIJets.pt > %d*GeV) >=1) ' % (ppTriggerDict['HLT_j60_L1J15'],ppTriggerDict['HLT_j75_L1J20'],ppTriggerDict['HLT_j85'])
 if HIDerivationFlags.doMinBiasSelection() : expression = 'HLT_noalg_mb_L1TE50 || HLT_mb_sptrk_ion_L1ZDC_A_C_VTE50'
+if project_tag=='data18_hi':
+	expression=''
+	for i, key in enumerate(HI18TriggerDict):
+		expression = expression + '(' + key + ' && count(AntiKt4HIJets.pt >' + str(HI18TriggerDict[key]) + '*GeV) >=1 ) '
+		if not i == len(HI18TriggerDict) - 1:
+			expression = expression + ' || ' 
+	
+print "================AND====BEGIN=================="
+print expression
+print "================AND====END===================="
 
 #########Skimming#########
 skimmingTools=[]
@@ -78,9 +98,11 @@ TPThinningTool=DerivationFramework__HITrackParticleThinningTool(name='%sTPThinni
 ToolSvc+=TPThinningTool
 thinningTools=[TPThinningTool]
 
-CollectionList=['DFAntiKt2HIJets','DFAntiKt4HIJets']
+CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets']
  
 if HIDerivationFlags.isPP() : CollectionList=['AntiKt2HIJets','AntiKt4HIJets','DFAntiKt2HIJets','DFAntiKt4HIJets'] 
+
+if project_tag=='data18_hi': CollectionList=['AntiKt2HIJets','AntiKt4HIJets']
 
 #Jet thinning only for PbPb data
 if not HIDerivationFlags.isSimulation() and not HIDerivationFlags.doMinBiasSelection() and not HIDerivationFlags.isPP() : 
@@ -158,3 +180,4 @@ for es in ["EventShapeWeighted_iter0_Modulate","EventShapeWeighted_iter1_Modulat
 
 #    TheStream.AddItem("xAOD::JetContainer#DF"+collection)
 #    TheStream.AddItem("xAOD::JetAuxContainer#DF"+collection+"Aux.")
+

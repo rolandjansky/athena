@@ -40,7 +40,7 @@ Ele.Et: 25000.
 Ele.Eta: 2.47
 Ele.CrackVeto: false
 Ele.Iso: ${ELE_ISO}
-Ele.IsoHighPt: FixedCutHighPtCaloOnly # tight iso required for electrons pt > 400 GeV
+Ele.IsoHighPt: FCHighPtCaloOnly # tight iso required for electrons pt > 400 GeV
 Ele.Id: ${ELE_ID}
 Ele.d0sig: 5.
 Ele.z0: 0.5
@@ -75,7 +75,6 @@ Photon.Iso: ${PH_ISO}
 Tau.Pt: 20000.
 Tau.Eta: 2.5
 Tau.Id: Medium
-Tau.IDRedecorate: False
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
@@ -102,7 +101,6 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -132,7 +130,6 @@ OR.EleFatJetDR: 1.
 OR.JetFatJetDR: 1.
 #
 SigLep.RequireIso: true
-SigLepPh.IsoCloseByOR: false
 #
 MET.EleTerm: RefEle
 MET.GammaTerm: RefGamma
@@ -149,12 +146,6 @@ MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
 #
 METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
-#
-#METSig.SoftTermParam: met::Random
-METSig.TreatPUJets: true
-METSig.DoPhiReso: true
-#
-PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
 Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
@@ -183,18 +174,21 @@ class TestSUSYTools(unittest.TestCase):
     #Files and commands
     theConfig = 'mySTdefs_conf.tmp'
 
-    theSample = os.environ['ASG_TEST_FILE_MC']
+    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.artDAODmc16e.PHYSVAL.pool.root'
 
     theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
-    #guess the MC campaign for the prw file if needed
-    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root'
+    # The prw file
+    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root'
+
+    # The lumicalc file
+    theTest += ' ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root'
 
     #Working points
-    EL_ID_WP  = [ 'LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
-    EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly']
+    EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
+    EL_ISO_WP = ['FCHighPtCaloOnly','Gradient','FCLoose','FCTight']
     MU_ID_WP  = ['1']
-    MU_ISO_WP = ['GradientLoose']
+    MU_ISO_WP = ['FCLoose']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
     BTAG_WP   = ['FixedCutBEff_77'] #,'FixedCutBEff_85']
@@ -203,10 +197,10 @@ class TestSUSYTools(unittest.TestCase):
     #default settings
     defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
                      'el_id'      : 'TightLLH',
-                     'el_iso'     : 'GradientLoose',
+                     'el_iso'     : 'Gradient',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
-                     'mu_iso'     : 'GradientLoose',
+                     'mu_iso'     : 'FCLoose',
                      'ph_id_base' : 'Tight',
                      'ph_id'      : 'Tight',
                      'ph_iso'     : 'FixedCutTight',

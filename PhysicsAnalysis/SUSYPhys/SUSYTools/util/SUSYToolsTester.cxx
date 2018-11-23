@@ -251,14 +251,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   //xsec DB
   SUSY::CrossSectionDB *my_XsecDB(0);
   if (!isData) {
-    //my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
-    my_XsecDB = new SUSY::CrossSectionDB(PathResolverFindCalibDirectory("SUSYTools/mc15_13TeV/"));
-    //my_XsecDB = new SUSY::CrossSectionDB("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/mc15_13TeV/");
-
+    my_XsecDB = new SUSY::CrossSectionDB(PathResolverFindCalibFile("dev/PMGTools/PMGxsecDB_mc16.txt"));
     Info(APP_NAME, "xsec DB initialized" );
-
-    // In case you want to overwrite the default with your local values
-    // my_XsecDB->loadFile( <PATH_TO_YOUR_XSECTION_FILE> );
   }
 
   // Create the tool(s) to test:
@@ -564,6 +558,11 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::ShallowAuxContainer* jets_nominal_aux(0);
     ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux) );
 
+    // TrackJets
+    xAOD::JetContainer* trkjets_nominal(0);
+    xAOD::ShallowAuxContainer* trkjets_nominal_aux(0);
+    ANA_CHECK( objTool.GetTrackJets(trkjets_nominal, trkjets_nominal_aux) );
+
     // FatJets
     const xAOD::JetContainer* FJC(0);
     xAOD::JetContainer* fatjets_nominal(0);
@@ -624,6 +623,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     double muonSF_nominal(1.);
     //    double tauSF_nominal(1.);
     double btagSF_nominal(1.);
+    double btagSF_trkJet_nominal(1.);
 
     bool isNominal(true);
     isys = 0;
@@ -682,6 +682,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       xAOD::PhotonContainer* photons(photons_nominal);
       xAOD::MuonContainer* muons(muons_nominal);
       xAOD::JetContainer* jets(jets_nominal);
+      xAOD::JetContainer* trkjets(trkjets_nominal);
       xAOD::TauJetContainer* taus(taus_nominal);
       xAOD::MissingETContainer* metcst(metcst_nominal);
       xAOD::MissingETContainer* mettst(mettst_nominal);
@@ -749,6 +750,13 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           xAOD::ShallowAuxContainer* jets_syst_aux(0);
           ANA_CHECK( objTool.GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux) );
 	  jets = jets_syst;
+        }
+
+        if (syst_affectsBTag) {
+          xAOD::JetContainer* trkjets_syst(0);
+          xAOD::ShallowAuxContainer* trkjets_syst_aux(0);
+          ANA_CHECK( objTool.GetTrackJets(trkjets_syst, trkjets_syst_aux) );
+          trkjets = trkjets_syst;
         }
 
         xAOD::MissingETContainer* metcst_syst = new xAOD::MissingETContainer;
@@ -1147,6 +1155,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       }
       event_weight *= btagSF;
 
+      // checking BtagSF 
+      if ( xStream.Contains("SUSY1") ) { // PHYS_VAL doesn't contain truthlabel for VR jets
+        float btagSF_trkJet(1.);
+        if (!isData) {
+          if (isNominal) {btagSF_trkJet = btagSF_trkJet_nominal = objTool.BtagSF_trkJet(trkjets);}
+          else if (syst_affectsBTag || (sysInfo.affectsKinematics && syst_affectsJets)) {btagSF_trkJet = objTool.BtagSF_trkJet(trkjets);}
+          else {btagSF_trkJet = btagSF_trkJet_nominal;}
+        }
+        event_weight *= btagSF_trkJet;
+      }
+ 
       if (debug) Info(APP_NAME, "Jet SF done");
 
       // Cosmics

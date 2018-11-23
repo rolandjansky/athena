@@ -18,7 +18,7 @@
 #   TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
 #   TOPQExtraVariables_AntiKt4EMPFlowJets
 #   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-#   TOPQExtraVariables_AntiKt2PV0TrackJets 
+#   TOPQExtraVariables_AntiKt2PV0TrackJets
 #   TOPQExtraVariables_BTagging_AntiKt4EMPFlow
 #   TOPQExtraVariables_BTagging_AntiKt4EMTopo
 #   TOPQExtraVariables_CombinedMuonTrackParticles
@@ -67,13 +67,14 @@
 #   TOPQExtraVariables_MET_TruthRegions
 #
 #   TOPQStaticContent
+#   TOPQStaticContentV0
 #   TOPQStaticContentTruth
 #====================================================================
 
 #================================
 # SMART SLIMMING COLLECTIONS
 #================================
-# list of existing containers with a smart list is available here : 
+# list of existing containers with a smart list is available here :
 # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/FullListOfSmartContainers.py
 TOPQSmartSlimmingCollections = ["AntiKt4EMPFlowJets",
                                 "AntiKt4EMTopoJets",
@@ -162,7 +163,7 @@ TOPQExtraVariables_Muons      = ["Muons."
                                  + "etcone30."
                                  + "etcone40."
                                  + "EnergyLoss."
-                                 + "PromptLeptonInput_DL1mu."
+                                 + "PromptLeptonInput_DL1r."
                                  + "PromptLeptonInput_DRlj."
                                  + "PromptLeptonInput_LepJetPtFrac."
                                  + "PromptLeptonInput_PtFrac."
@@ -188,7 +189,7 @@ TOPQExtraVariables_TauJets   = ["TauJets."
                                 + "PromptTauInput_DRlj."
                                 + "PromptTauInput_JetF."
                                 + "PromptTauInput_LepJetPtFrac."
-                                + "PromptTauInput_MV2c10rnn."
+                                + "PromptTauInput_MV2rmu."
                                 + "PromptTauInput_SV1."
                                 + "PromptTauInput_TrackJetNTrack."
                                 + "PromptTauInput_ip2."
@@ -352,46 +353,46 @@ TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1 =  ["AntiKt4EMTopoJets."
                                                   + "DoubleTagBDTOutput."
                                                   + "LargeJetLabel."
                                                   + "ExKtbb_MaxMV2c10."
-                                                  + "ExKtbb_MaxMV2c10rnn."
+                                                  + "ExKtbb_MaxMV2r."
                                                   + "ExKtbb_MaxDL1_pb."
                                                   + "ExKtbb_MaxDL1_pc."
                                                   + "ExKtbb_MaxDL1_pu."
-                                                  + "ExKtbb_MaxDL1rnn_pb."
-                                                  + "ExKtbb_MaxDL1rnn_pc."
-                                                  + "ExKtbb_MaxDL1rnn_pu."
+                                                  + "ExKtbb_MaxDL1r_pb."
+                                                  + "ExKtbb_MaxDL1r_pc."
+                                                  + "ExKtbb_MaxDL1r_pu."
                                                   + "ExKtbb_MinMV2c10."
-                                                  + "ExKtbb_MinMV2c10rnn."
+                                                  + "ExKtbb_MinMV2r."
                                                   + "ExKtbb_MinDL1_pb."
                                                   + "ExKtbb_MinDL1_pc."
                                                   + "ExKtbb_MinDL1_pu."
-                                                  + "ExKtbb_MinDL1rnn_pb."
-                                                  + "ExKtbb_MinDL1rnn_pc."
-                                                  + "ExKtbb_MinDL1rnn_pu."
+                                                  + "ExKtbb_MinDL1r_pb."
+                                                  + "ExKtbb_MinDL1r_pc."
+                                                  + "ExKtbb_MinDL1r_pu."
                                                   + "ExKtbb_SubjetDR."
                                                   + "ExKtbb_SubjetPtAsym."
                                                   + "ExKt3bb_MaxMV2c10."
                                                   + "ExKt3bb_MinMV2c10."
-                                                  + "ExKt3bb_j1_MV2c10rnn."
+                                                  + "ExKt3bb_j1_MV2r."
                                                   + "ExKt3bb_j1_DL1_pb."
                                                   + "ExKt3bb_j1_DL1_pc."
                                                   + "ExKt3bb_j1_DL1_pu."
-                                                  + "ExKt3bb_j1_DL1rnn_pb."
-                                                  + "ExKt3bb_j1_DL1rnn_pc."
-                                                  + "ExKt3bb_j1_DL1rnn_pu."
-                                                  + "ExKt3bb_j2_MV2c10rnn."
+                                                  + "ExKt3bb_j1_DL1r_pb."
+                                                  + "ExKt3bb_j1_DL1r_pc."
+                                                  + "ExKt3bb_j1_DL1r_pu."
+                                                  + "ExKt3bb_j2_MV2r."
                                                   + "ExKt3bb_j2_DL1_pb."
                                                   + "ExKt3bb_j2_DL1_pc."
                                                   + "ExKt3bb_j2_DL1_pu."
-                                                  + "ExKt3bb_j2_DL1rnn_pb."
-                                                  + "ExKt3bb_j2_DL1rnn_pc."
-                                                  + "ExKt3bb_j2_DL1rnn_pu."
-                                                  + "ExKt3bb_j3_MV2c10rnn."
+                                                  + "ExKt3bb_j2_DL1r_pb."
+                                                  + "ExKt3bb_j2_DL1r_pc."
+                                                  + "ExKt3bb_j2_DL1r_pu."
+                                                  + "ExKt3bb_j3_MV2r."
                                                   + "ExKt3bb_j3_DL1_pb."
                                                   + "ExKt3bb_j3_DL1_pc."
                                                   + "ExKt3bb_j3_DL1_pu."
-                                                  + "ExKt3bb_j3_DL1rnn_pb."
-                                                  + "ExKt3bb_j3_DL1rnn_pc."
-                                                  + "ExKt3bb_j3_DL1rnn_pu."
+                                                  + "ExKt3bb_j3_DL1r_pb."
+                                                  + "ExKt3bb_j3_DL1r_pc."
+                                                  + "ExKt3bb_j3_DL1r_pu."
                                                   + "ExKt3bb_SubjetDR."
                                                   + "ExKt3bb_SubjetPtAsym."
                                                   + "ExKtbb_leadingPtNBHadrons."
@@ -403,7 +404,7 @@ TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1 =  ["AntiKt4EMTopoJets."
                                                   + "ExKt3bb_subleadingMV2c10NBHadrons."
                                                   + "ExKt3bb_subleadingMV2c10NCHadrons"
                                                   ]
-                                                  
+
 
 # list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
@@ -1182,7 +1183,7 @@ TOPQExtraVariables_Taus_Truth = ["TauJets."
                                  + "truthParticleLink"]
 
 TOPQExtraVariables_AntiKt4EMTopoJets_Truth =  ["AntiKt4EMTopoJets."
-                                               + "ConeExclTausFinal."         
+                                               + "ConeExclTausFinal."
                                                + "GhostBHadronsFinal."
                                                + "GhostBHadronsFinalCount."
                                                + "GhostBHadronsFinalPt."
@@ -1722,6 +1723,11 @@ TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR
                           'xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets',
                           'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.']
 
+# For TOPQDERIV-69
+TOPQStaticContentV0	 = ['xAOD::VertexContainer#TOPQ1RecoV0Candidates',
+                            'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux.-vxTrackAtVertex.-vertexType.-neutralParticleLinks.-neutralWeights.-KshortLink.-LambdaLink.-LambdabarLink.-gamma_fit.-gamma_mass.-gamma_massError.-gamma_probability']
+
+
 TOPQStaticContentTruth = ['xAOD::TruthParticleContainer#TruthElectrons',
                           'xAOD::TruthParticleAuxContainer#TruthElectronsAux.',
                           'xAOD::TruthParticleContainer#TruthMuons',
@@ -1732,5 +1738,3 @@ TOPQStaticContentTruth = ['xAOD::TruthParticleContainer#TruthElectrons',
                           'xAOD::TruthParticleAuxContainer#TruthTausAux.',
                           'xAOD::TruthParticleContainer#TruthNeutrinos',
                           'xAOD::TruthParticleAuxContainer#TruthNeutrinosAux.']
-
-

@@ -145,9 +145,13 @@ namespace VKalVrtAthena {
         Amg::Vector3D vDist = wrkvrt.vertex - m_thePV->position();
         const double vPos = ( vDist.x()*wrkvrt.vertexMom.Px()+vDist.y()*wrkvrt.vertexMom.Py()+vDist.z()*wrkvrt.vertexMom.Pz() )/wrkvrt.vertexMom.Rho();
         const double vPosMomAngT = ( vDist.x()*wrkvrt.vertexMom.Px()+vDist.y()*wrkvrt.vertexMom.Py() ) / vDist.perp() / wrkvrt.vertexMom.Pt();
+        const double vPosMomAng3D = ( vDist.x()*wrkvrt.vertexMom.Px()+vDist.y()*wrkvrt.vertexMom.Py()+vDist.z()*wrkvrt.vertexMom.Pz() ) / (vDist.norm() * wrkvrt.vertexMom.Rho());
         
         double dphi1 = vDist.phi() - (*itrk)->phi(); while( dphi1 > TMath::Pi() ) { dphi1 -= TMath::TwoPi(); } while( dphi1 < -TMath::Pi() ) { dphi1 += TMath::TwoPi(); }
         double dphi2 = vDist.phi() - (*itrk)->phi(); while( dphi2 > TMath::Pi() ) { dphi2 -= TMath::TwoPi(); } while( dphi2 < -TMath::Pi() ) { dphi2 += TMath::TwoPi(); }
+        
+	const double dist_fromPV = vDist.norm();
+        if( m_jp.FillHist ) m_hists["2trkVtxDistFromPV"]->Fill( dist_fromPV );
         
         if( m_jp.FillNtuple ) {
           // Fill the 2-track vertex properties to AANT
@@ -243,7 +247,21 @@ namespace VKalVrtAthena {
         if( m_jp.FillHist ) {
           dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
           dynamic_cast<TH2F*>( m_hists["vPosMomAngTDist"] )->Fill( wrkvrt.vertex.perp(), vPosMomAngT );
+	  m_hists["vPosMomAngT"] ->Fill( vPosMomAngT );
+	  m_hists["vPosMomAng3D"] ->Fill(  vPosMomAng3D );
         }
+
+	if( m_jp.doTwoTrSoftBtag ){
+	  if(dist_fromPV < m_jp.twoTrVrtMinDistFromPV ){
+	    ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the 2tr vertex min distance from PV cut." );
+	    continue;
+	  }
+        
+	  if( vPosMomAng3D < m_jp.twoTrVrtAngleCut ){
+	    ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vertex angle cut." );
+	    continue;
+	  }
+	}
         
         if( m_jp.doPVcompatibilityCut ) {
           if( cos( dphi1 ) < -0.8 && cos( dphi2 ) < -0.8 ) {
@@ -310,6 +328,7 @@ namespace VKalVrtAthena {
         
       }
     }
+
     
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": compatible track pairs = " << msg );
     

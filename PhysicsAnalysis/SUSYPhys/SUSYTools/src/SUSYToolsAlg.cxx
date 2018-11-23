@@ -70,6 +70,7 @@ SUSYToolsAlg::SUSYToolsAlg(const std::string& name,
   //
   declareProperty( "PRWConfigs", m_PRWConfigs );
   declareProperty( "PRWLumiCalc", m_PRWLumiCalcFiles );
+  declareProperty( "UsePRWAutoconfig", m_usePRWAutoconfig = false );
 
   // asg Tool Handles must be dealt with differently
   m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
@@ -88,8 +89,13 @@ StatusCode SUSYToolsAlg::initialize() {
 
   //--- ST config and retrieval
   ATH_CHECK( m_SUSYTools.setProperty("DataSource",m_dataSource) );
-  ATH_CHECK(m_SUSYTools.setProperty("PRWConfigFiles", m_PRWConfigs) );
   ATH_CHECK(m_SUSYTools.setProperty("PRWLumiCalcFiles", m_PRWLumiCalcFiles) );
+  if (m_usePRWAutoconfig){
+    ATH_CHECK(m_SUSYTools.setProperty("AutoconfigurePRWTool", true) );
+    ATH_CHECK(m_SUSYTools.setProperty("mcCampaign", "mc16a") );
+  }else{
+    ATH_CHECK(m_SUSYTools.setProperty("PRWConfigFiles", m_PRWConfigs) );
+  }
   //
   m_SUSYTools.setTypeAndName("ST::SUSYObjDef_xAOD/SUSYTools");
   ATH_CHECK(m_SUSYTools.retrieve());
@@ -374,6 +380,7 @@ StatusCode SUSYToolsAlg::finalize() {
 //**********************************************************************
 
 StatusCode SUSYToolsAlg::execute() {
+
   ATH_MSG_VERBOSE("Executing " << name() << "...");
   m_clock0.Start(false);
   if (m_Nevts == 0) {
@@ -503,8 +510,8 @@ StatusCode SUSYToolsAlg::execute() {
   double metsig_cst(0.);
 
   ATH_CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
-        			metsig_cst,
-                             	false, false) );
+				    metsig_cst,
+				    false, false) );
 
   ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
 

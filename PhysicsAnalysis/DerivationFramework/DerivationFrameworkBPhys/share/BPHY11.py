@@ -112,7 +112,8 @@ LbJpsipKVertexFit = Trk__TrkVKalVrtFitter(
     name                = "LbJpsipKVertexFit",
     Extrapolator        = BPHY11_VertexTools.InDetExtrapolator,
     FirstMeasuredPoint  = True,
-    MakeExtendedVertex  = True
+    MakeExtendedVertex  = True,
+    usePassWithTrkErrCnst = True
 )
 
 ToolSvc += LbJpsipKVertexFit
@@ -134,7 +135,7 @@ BPHY11_LbJpsipK = Analysis__JpsiPlus2Tracks(
   BMassUpper		    = 6500.0,
   BMassLower		    = 4000.0,
 #  DiTrackMassUpper          = 10000.,
-  DiTrackMassLower          = 1500.,
+  DiTrackMassLower          = 0.,
   Chi2Cut                   = 200.0,
   TrkQuadrupletMassUpper    = 7000.0,
   TrkQuadrupletMassLower    = 4000.0,
@@ -143,7 +144,9 @@ BPHY11_LbJpsipK = Analysis__JpsiPlus2Tracks(
   MuonsUsedInJpsi	    = "Muons",
   TrkVertexFitterTool	    = LbJpsipKVertexFit,
   TrackSelectorTool	    = BPHY11_VertexTools.InDetTrackSelectorTool,
-  UseMassConstraint	    = True
+  UseMassConstraint	    = True,
+  UseVertexFittingWithPV    = True,
+  VertexContainer           = "PrimaryVertices"
 )
         
 ToolSvc += BPHY11_LbJpsipK
@@ -174,7 +177,8 @@ BPHY11_Select_Lb2JpsipK = DerivationFramework__Select_onia2mumu(
   VtxMassHypo               = 5619.6,
   MassMin                   = 4000.0,
   MassMax                   = 6500.0,
-  Chi2Max                   = 200
+  Chi2Max                   = 200,
+  LxyMin                    = 0.3
 )
 
 ToolSvc += BPHY11_Select_Lb2JpsipK
@@ -190,7 +194,8 @@ BPHY11_Select_Lb2JpsiKp = DerivationFramework__Select_onia2mumu(
   VtxMassHypo               = 5619.6,
   MassMin                   = 4000.0,
   MassMax                   = 6500.0,
-  Chi2Max                   = 200.0
+  Chi2Max                   = 200.0,
+  LxyMin                    = 0.3
 )
 
 ToolSvc += BPHY11_Select_Lb2JpsiKp

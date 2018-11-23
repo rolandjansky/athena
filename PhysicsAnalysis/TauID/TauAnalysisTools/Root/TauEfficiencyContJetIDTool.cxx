@@ -37,7 +37,7 @@ StatusCode TauEfficiencyContJetIDTool::initialize()
 
 //______________________________________________________________________________
 CP::CorrectionCode TauEfficiencyContJetIDTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor)
+    double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   // obtain ID SF value
   if (!m_bUseInclusiveEta)
@@ -47,11 +47,12 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::getEfficiencyScaleFactor(const xA
 }
 
 //______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
+CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+    unsigned int iRunNumber, unsigned int iMu)
 {
   double sf = 0.;
   // retreive scale factor
-  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, sf);
+  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, sf, iRunNumber, iMu);
   // adding scale factor
   xTau.auxdecor<double>(m_sVarName) = sf;
   ATH_MSG_VERBOSE("Stored value " << sf << " as " << m_sVarName << " in auxdecor");

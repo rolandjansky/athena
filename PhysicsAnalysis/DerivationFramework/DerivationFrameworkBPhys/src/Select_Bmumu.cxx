@@ -315,7 +315,7 @@ namespace DerivationFramework {
       // flag the vertex indicating that it is selected by this selector
       bcand.setPass(true);
       if ( m_doBlinding ) {
-        setPass(*const_cast<xAOD::Vertex*>(bcand.vtx()),
+        setPass(*bcand.vtx(),
                 m_hypoName+"_blinded", false);
       }
       
@@ -344,7 +344,7 @@ namespace DerivationFramework {
       if ( blindedMass && blindedMuCalcMass ) {
         if ( m_doBlinding ) {
           nInBlindedRegion++;
-          setPass(*const_cast<xAOD::Vertex*>(bcand.vtx()),
+          setPass(*bcand.vtx(),
                   m_hypoName+"_blinded", true);
         }
       }
@@ -386,10 +386,10 @@ namespace DerivationFramework {
       }
       // mark preceeding vertices
       for (int ipv=0; ipv<npVtx; ++ipv) {
-        setPass(*const_cast<xAOD::Vertex*>(bcand.precedingVertex(ipv)),
+        setPass(*bcand.precedingVertex(ipv),
                 m_subDecVtxHypoFlagNames[ipv], true);
         if ( m_doBlinding && !(blindedMass && blindedMuCalcMass) ) {
-          setPass(*const_cast<xAOD::Vertex*>(bcand.precedingVertex(ipv)),
+          setPass(*bcand.precedingVertex(ipv),
                   m_subDecVtxHypoFlagNames[ipv]+"_blinded", false);
         }
       }
@@ -456,7 +456,7 @@ namespace DerivationFramework {
   //---------------------------------------------------------------------------
   // Helper to set an element marked as passing a specific hypothesis.
   //---------------------------------------------------------------------------
-  bool Select_Bmumu::setPass(SG::AuxElement& em, std::string hypo,
+  bool Select_Bmumu::setPass(const SG::AuxElement& em, std::string hypo,
                              bool passVal) const {
 
     SG::AuxElement::Decorator<Char_t> flagDec("passed_"+hypo);

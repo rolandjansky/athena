@@ -24,17 +24,14 @@ namespace CP {
 
             IsolationConditionCombined(const IsolationConditionCombined& rhs) = delete;
             IsolationConditionCombined& operator=(const IsolationConditionCombined& rhs) = delete;
-            void setCut(std::vector<xAOD::Iso::IsolationType> isoType, const TF2& isoFunction, const std::string& cutFunction);
-
+           
             bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
             bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
             void getCutValue(const float pt);
 
         private:
-            std::vector<xAOD::Iso::IsolationType> m_isolationTypes;
             std::shared_ptr<TF1> m_cutFunction;
             std::shared_ptr<TF1> m_isoFunction;
-            std::vector<SG::AuxElement::Accessor<float>*> m_accs;
     };
 }
 #endif

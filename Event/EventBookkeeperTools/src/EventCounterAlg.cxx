@@ -33,14 +33,14 @@
 EventCounterAlg::EventCounterAlg( const std::string& name,
                                   ISvcLocator* pSvcLocator ) :
   ::AthFilterAlgorithm( name, pSvcLocator ),
-  m_trackOtherMCWeights(false),
+  m_trackOtherMCWeights(true),
   m_eventsProcessed(0),
   m_mcCutIDs()
 {
   //
   // Property declaration
   //
-  declareProperty( "BookkeepOtherMCEventWeights", m_trackOtherMCWeights=false,
+  declareProperty( "BookkeepOtherMCEventWeights", m_trackOtherMCWeights=true,
                    "If true, the non-nominal MC event weights will be bookkept as well" );
 }
 

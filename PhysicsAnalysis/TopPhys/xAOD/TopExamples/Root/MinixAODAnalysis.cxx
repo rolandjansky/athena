@@ -98,7 +98,7 @@ namespace top{
     
     for (auto currentSystematic : *allSystematics) {
       ///-- Make a top::Event --///
-      top::Event topEvent = m_evtMaker->makeTopEvent( *currentSystematic );
+      top::Event topEvent = m_evtMaker->makeTopEvent( currentSystematic );
 
       ///-- Loop over all selections --///
       for (auto sel : *m_config->allSelectionNames()) {

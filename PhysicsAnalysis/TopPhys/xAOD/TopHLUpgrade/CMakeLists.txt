@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODJet
                           xAODMissingET
                           TopParticleLevel
+                          TruthUtils
                           UpgradePerformanceFunctions )
 
 # This package uses ROOT:
@@ -32,6 +33,7 @@ atlas_add_library( TopHLUpgrade Root/*.cxx Root/*.h Root/*.icc
                                   xAODJet
                                   xAODMissingET
                                   TopParticleLevel
+                                  TruthUtils
                                   UpgradePerformanceFunctionsLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
