@@ -60,6 +60,10 @@ StatusCode DerivationFramework::VertexAugmentationTool::initialize()
   m_cl_layer1   = new std::vector<float>(0);
   m_cl_layer2   = new std::vector<float>(0);
   m_cl_layer3   = new std::vector<float>(0);
+  m_clem_layer0   = new std::vector<float>(0);
+  m_clem_layer1   = new std::vector<float>(0);
+  m_clem_layer2   = new std::vector<float>(0);
+  m_clem_layer3   = new std::vector<float>(0);
 
   // clusters outside a muon
   o_cl_pt       = new std::vector<float>(0);
@@ -75,39 +79,52 @@ StatusCode DerivationFramework::VertexAugmentationTool::initialize()
   o_cl_layer1   = new std::vector<float>(0);
   o_cl_layer2   = new std::vector<float>(0);
   o_cl_layer3   = new std::vector<float>(0);
+  o_clem_layer0   = new std::vector<float>(0);
+  o_clem_layer1   = new std::vector<float>(0);
+  o_clem_layer2   = new std::vector<float>(0);
+  o_clem_layer3   = new std::vector<float>(0);
 
   // near a muon
-  tree_muon->SetBranchAddress("mu_pt",&m_mu_pt);
-  tree_muon->SetBranchAddress("mu_eta",&m_mu_eta);
-  tree_muon->SetBranchAddress("mu_phi",&m_mu_phi);
-  tree_muon->SetBranchAddress("cl_pt",&m_cl_pt);
-  tree_muon->SetBranchAddress("cl_eta",&m_cl_eta);
-  tree_muon->SetBranchAddress("cl_phi",&m_cl_phi);
-  tree_muon->SetBranchAddress("cl_e",&m_cl_e);
-  tree_muon->SetBranchAddress("cl_dr",&m_cl_dr);
-  tree_muon->SetBranchAddress("cl_sizePhi",&m_cl_sizePhi);
-  tree_muon->SetBranchAddress("cl_sizeEta",&m_cl_sizeEta);
-  tree_muon->SetBranchAddress("cl_nSample",&m_cl_nSample);
-  tree_muon->SetBranchAddress("cl_calo",&m_cl_calo);
-  tree_muon->SetBranchAddress("cl_layer0",&m_cl_layer0);
-  tree_muon->SetBranchAddress("cl_layer1",&m_cl_layer1);
-  tree_muon->SetBranchAddress("cl_layer2",&m_cl_layer2);
-  tree_muon->SetBranchAddress("cl_layer3",&m_cl_layer3);
+  tree_muon->Branch("mu_pt",&m_mu_pt);
+  tree_muon->Branch("mu_eta",&m_mu_eta);
+  tree_muon->Branch("mu_phi",&m_mu_phi);
+  tree_muon->Branch("cl_pt",&m_cl_pt);
+  tree_muon->Branch("cl_eta",&m_cl_eta);
+  tree_muon->Branch("cl_phi",&m_cl_phi);
+  tree_muon->Branch("cl_e",&m_cl_e);
+  tree_muon->Branch("cl_dr",&m_cl_dr);
+  tree_muon->Branch("cl_sizePhi",&m_cl_sizePhi);
+  tree_muon->Branch("cl_sizeEta",&m_cl_sizeEta);
+  tree_muon->Branch("cl_nSample",&m_cl_nSample);
+  tree_muon->Branch("cl_calo",&m_cl_calo);
+  tree_muon->Branch("cl_layer0",&m_cl_layer0);
+  tree_muon->Branch("cl_layer1",&m_cl_layer1);
+  tree_muon->Branch("cl_layer2",&m_cl_layer2);
+  tree_muon->Branch("cl_layer3",&m_cl_layer3);
+
+  tree_muon->Branch("clem_layer0",&m_clem_layer0);
+  tree_muon->Branch("clem_layer1",&m_clem_layer1);
+  tree_muon->Branch("clem_layer2",&m_clem_layer2);
+  tree_muon->Branch("clem_layer3",&m_clem_layer3);
 
   // not near a muon
-  tree_NOTmuon->SetBranchAddress("cl_pt",&o_cl_pt);
-  tree_NOTmuon->SetBranchAddress("cl_eta",&o_cl_eta);
-  tree_NOTmuon->SetBranchAddress("cl_phi",&o_cl_phi);
-  tree_NOTmuon->SetBranchAddress("cl_e",&o_cl_e);
-  tree_NOTmuon->SetBranchAddress("cl_dr",&o_cl_dr);
-  tree_NOTmuon->SetBranchAddress("cl_sizePhi",&o_cl_sizePhi);
-  tree_NOTmuon->SetBranchAddress("cl_sizeEta",&o_cl_sizeEta);
-  tree_NOTmuon->SetBranchAddress("cl_nSample",&o_cl_nSample);
-  tree_NOTmuon->SetBranchAddress("cl_calo",&o_cl_calo);
-  tree_NOTmuon->SetBranchAddress("cl_layer0",&o_cl_layer0);
-  tree_NOTmuon->SetBranchAddress("cl_layer1",&o_cl_layer1);
-  tree_NOTmuon->SetBranchAddress("cl_layer2",&o_cl_layer2);
-  tree_NOTmuon->SetBranchAddress("cl_layer3",&o_cl_layer3);
+  tree_NOTmuon->Branch("cl_pt",&o_cl_pt);
+  tree_NOTmuon->Branch("cl_eta",&o_cl_eta);
+  tree_NOTmuon->Branch("cl_phi",&o_cl_phi);
+  tree_NOTmuon->Branch("cl_e",&o_cl_e);
+  tree_NOTmuon->Branch("cl_dr",&o_cl_dr);
+  tree_NOTmuon->Branch("cl_sizePhi",&o_cl_sizePhi);
+  tree_NOTmuon->Branch("cl_sizeEta",&o_cl_sizeEta);
+  tree_NOTmuon->Branch("cl_nSample",&o_cl_nSample);
+  tree_NOTmuon->Branch("cl_calo",&o_cl_calo);
+  tree_NOTmuon->Branch("cl_layer0",&o_cl_layer0);
+  tree_NOTmuon->Branch("cl_layer1",&o_cl_layer1);
+  tree_NOTmuon->Branch("cl_layer2",&o_cl_layer2);
+  tree_NOTmuon->Branch("cl_layer3",&o_cl_layer3);
+  tree_NOTmuon->Branch("clem_layer0",&o_clem_layer0);
+  tree_NOTmuon->Branch("clem_layer1",&o_clem_layer1);
+  tree_NOTmuon->Branch("clem_layer2",&o_clem_layer2);
+  tree_NOTmuon->Branch("clem_layer3",&o_clem_layer3);
 
   return StatusCode::SUCCESS;
 }
@@ -115,6 +132,8 @@ StatusCode DerivationFramework::VertexAugmentationTool::initialize()
 StatusCode DerivationFramework::VertexAugmentationTool::finalize()
 {
   ATH_MSG_VERBOSE("finalize() ...");
+  tree_muon->Write();
+  tree_NOTmuon->Write();
   fout->Write();
   fout->Close();
   return StatusCode::SUCCESS;
@@ -249,12 +268,16 @@ StatusCode DerivationFramework::VertexAugmentationTool::addBranches() const {
       m_cl_layer1 ->clear();     
       m_cl_layer2 ->clear();     
       m_cl_layer3 ->clear();     
+      m_clem_layer0 ->clear();     
+      m_clem_layer1 ->clear();     
+      m_clem_layer2 ->clear();     
+      m_clem_layer3 ->clear();     
       
       for(auto cl : *cls){
 	if(fabs(cl->eta())>2.5){
 	  hcl_dr->Fill(cl->p4().DeltaR(part->p4()));
 	}
-	if(cl->p4().DeltaR(part->p4())<0.5){
+	if(cl->p4().DeltaR(part->p4())<1.2){
    
 	  m_cl_pt->push_back(cl->pt()/1.0e3);
 	  m_cl_eta->push_back(cl->eta());
@@ -280,15 +303,24 @@ StatusCode DerivationFramework::VertexAugmentationTool::addBranches() const {
 	  calo_code+= fabs(cl->eSample(CaloSampling::TileExt0))>0 ? 1 << 12 :0; 
 	  calo_code+= fabs(cl->eSample(CaloSampling::TileExt1))>0 ? 1 << 13 :0; 
 	  calo_code+= fabs(cl->eSample(CaloSampling::TileExt2))>0 ? 1 << 14 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::PreSamplerE))>0 ? 1 << 15 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::EME1))>0 ? 1 << 16 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::EME2))>0 ? 1 << 17 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::EME3))>0 ? 1 << 18 :0; 
 	  float layer0 = cl->eSample(CaloSampling::HEC0) +cl->eSample(CaloSampling::FCAL0) +cl->eSample(CaloSampling::MINIFCAL0);
 	  float layer1 = cl->eSample(CaloSampling::HEC1) +cl->eSample(CaloSampling::FCAL1)+cl->eSample(CaloSampling::MINIFCAL1);
 	  float layer2 = cl->eSample(CaloSampling::HEC2) +cl->eSample(CaloSampling::MINIFCAL2);
 	  float layer3 = cl->eSample(CaloSampling::HEC3) +cl->eSample(CaloSampling::FCAL2)+cl->eSample(CaloSampling::MINIFCAL3);
 	  m_cl_calo->push_back(calo_code);
-	  m_cl_layer0->push_back(layer0);
-	  m_cl_layer1->push_back(layer1);
-	  m_cl_layer2->push_back(layer2);
-	  m_cl_layer3->push_back(layer3);
+	  m_cl_layer0->push_back(layer0/1.0e3);
+	  m_cl_layer1->push_back(layer1/1.0e3);
+	  m_cl_layer2->push_back(layer2/1.0e3);
+	  m_cl_layer3->push_back(layer3/1.0e3);
+
+	  m_clem_layer0->push_back(cl->eSample(CaloSampling::PreSamplerE)/1.0e3);
+	  m_clem_layer1->push_back(cl->eSample(CaloSampling::EME1)/1.0e3);
+	  m_clem_layer2->push_back(cl->eSample(CaloSampling::EME2)/1.0e3);
+	  m_clem_layer3->push_back(cl->eSample(CaloSampling::EME3)/1.0e3);
 
 	  hcl_pt->Fill(cl->pt()/1.0e3);
 	  hcl_e->Fill(cl->e()/1.0e3);
@@ -347,24 +379,6 @@ StatusCode DerivationFramework::VertexAugmentationTool::addBranches() const {
 
   // not near a muon
   unsigned iCl=0;
-  //std::set<unsigned> cl_set;
-      for(auto cl : *cls){
-
-	++iCl;
-	if(fabs(cl->eta())<2){
-	  continue;
-	}
-	bool skip=false;
-	for(unsigned i=0; i<my_muons.size(); ++i){
-	  if(my_muons.at(i).DeltaR(cl->p4())<0.7){
-	    skip=true;
-	    break;
-	  }
-	}
-
-	//cl_set.insert(iCl);
-	if(skip) continue;
-
       o_cl_pt->clear();
       o_cl_dr->clear();
       o_cl_eta->clear();
@@ -378,6 +392,29 @@ StatusCode DerivationFramework::VertexAugmentationTool::addBranches() const {
       o_cl_layer1 ->clear();     
       o_cl_layer2 ->clear();     
       o_cl_layer3 ->clear();     
+      o_clem_layer0 ->clear();     
+      o_clem_layer1 ->clear();     
+      o_clem_layer2 ->clear();     
+      o_clem_layer3 ->clear();     
+
+  //std::set<unsigned> cl_set;
+      for(auto cl : *cls){
+
+	++iCl;
+	if(fabs(cl->eta())<2){
+	  continue;
+	}
+	bool skip=false;
+	for(unsigned i=0; i<my_muons.size(); ++i){
+	  if(my_muons.at(i).DeltaR(cl->p4())<1.2){
+	    skip=true;
+	    break;
+	  }
+	}
+
+	//cl_set.insert(iCl);
+	if(skip) continue;
+
 
 	  o_cl_pt->push_back(cl->pt()/1.0e3);
 	  o_cl_eta->push_back(cl->eta());
@@ -403,19 +440,26 @@ StatusCode DerivationFramework::VertexAugmentationTool::addBranches() const {
 	  calo_code+= fabs(cl->eSample(CaloSampling::TileExt0))>0 ? 1 << 12 :0; 
 	  calo_code+= fabs(cl->eSample(CaloSampling::TileExt1))>0 ? 1 << 13 :0; 
 	  calo_code+= fabs(cl->eSample(CaloSampling::TileExt2))>0 ? 1 << 14 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::PreSamplerE))>0 ? 1 << 15 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::EME1))>0 ? 1 << 16 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::EME2))>0 ? 1 << 17 :0; 
+	  calo_code+= fabs(cl->eSample(CaloSampling::EME3))>0 ? 1 << 18 :0; 
 	  float layer0 = cl->eSample(CaloSampling::HEC0) +cl->eSample(CaloSampling::FCAL0) +cl->eSample(CaloSampling::MINIFCAL0);
 	  float layer1 = cl->eSample(CaloSampling::HEC1) +cl->eSample(CaloSampling::FCAL1)+cl->eSample(CaloSampling::MINIFCAL1);
 	  float layer2 = cl->eSample(CaloSampling::HEC2) +cl->eSample(CaloSampling::MINIFCAL2);
 	  float layer3 = cl->eSample(CaloSampling::HEC3) +cl->eSample(CaloSampling::FCAL2)+cl->eSample(CaloSampling::MINIFCAL3);
 	  o_cl_calo->push_back(calo_code);
-	  o_cl_layer0->push_back(layer0);
-	  o_cl_layer1->push_back(layer1);
-	  o_cl_layer2->push_back(layer2);
-	  o_cl_layer3->push_back(layer3);
+	  o_cl_layer0->push_back(layer0/1.0e3);
+	  o_cl_layer1->push_back(layer1/1.0e3);
+	  o_cl_layer2->push_back(layer2/1.0e3);
+	  o_cl_layer3->push_back(layer3/1.0e3);
+	  o_clem_layer0->push_back(cl->eSample(CaloSampling::PreSamplerE)/1.0e3);
+	  o_clem_layer1->push_back(cl->eSample(CaloSampling::EME1)/1.0e3);
+	  o_clem_layer2->push_back(cl->eSample(CaloSampling::EME2)/1.0e3);
+	  o_clem_layer3->push_back(cl->eSample(CaloSampling::EME3)/1.0e3);
 
-	  tree_NOTmuon->Fill();
 	}
-
+      tree_NOTmuon->Fill();
 
 
   // add truth muons

@@ -58,7 +58,11 @@ namespace DerivationFramework {
       std::vector<float> *m_cl_layer0;
       std::vector<float> *m_cl_layer1;
       std::vector<float> *m_cl_layer2;
-      std::vector<float> *m_cl_layer3;
+      std::vector<float> *m_cl_layer3;      
+      std::vector<float> *m_clem_layer0;
+      std::vector<float> *m_clem_layer1;
+      std::vector<float> *m_clem_layer2;
+      std::vector<float> *m_clem_layer3;
 
       std::vector<float> *o_cl_pt;
       std::vector<float> *o_cl_eta;
@@ -73,6 +77,10 @@ namespace DerivationFramework {
       std::vector<float> *o_cl_layer1;
       std::vector<float> *o_cl_layer2;
       std::vector<float> *o_cl_layer3;
+      std::vector<float> *o_clem_layer0;
+      std::vector<float> *o_clem_layer1;
+      std::vector<float> *o_clem_layer2;
+      std::vector<float> *o_clem_layer3;
   }; 
 
 }
