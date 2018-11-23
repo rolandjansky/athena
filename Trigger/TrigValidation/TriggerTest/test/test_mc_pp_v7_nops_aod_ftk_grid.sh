@@ -20,7 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
-# art-output: *.regtest
+# art-output: *.regtest.new
 
 export NAME="mc_pp_v7_nops_aod_ftk_grid"
 export MENU="MC_pp_v7_no_prescale"
