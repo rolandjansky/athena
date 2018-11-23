@@ -68,3 +68,5 @@ if TriggerFlags.doCalo:
   algo.RoIs="StoreGateSvc+EMRoIs"
   topSequence += algo
 
+  from AthenaCommon.AlgSequence import dumpMasterSequence
+  dumpMasterSequence()

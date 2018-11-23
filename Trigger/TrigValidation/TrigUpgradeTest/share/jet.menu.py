@@ -32,9 +32,9 @@ if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
 # map L1 decisions for menu
-for unpack in topSequence.L1DecoderTest.roiUnpackers:
-    if unpack.name() is "JRoIsUnpackingTool":
-       unpack.Decisions="L1JET"
+## for unpack in topSequence.L1DecoderTest.roiUnpackers:
+##     if unpack.name() is "JRoIsUnpackingTool":
+##        unpack.Decisions="L1JET"
        
    
         

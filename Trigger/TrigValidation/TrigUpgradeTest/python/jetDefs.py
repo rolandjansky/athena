@@ -51,17 +51,20 @@ def jetRecoSequence(RoIs):
     #     algo1.RoIs="StoreGateSvc+FSJETRoIs"
     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
     algo1.roiMode = True
+    algo1.CellsName="CellsClusters"
     algo1.OutputLevel=VERBOSE
     jetRecoSequence += algo1
 
-    
+
 
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-    algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
-    algo2.Cells = "CellsClusters"
+    algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False, cells="CellsClusters")
+#    algo2.Cells = "CellsClusters"
     algo2.OutputLevel = VERBOSE
     jetRecoSequence += algo2
-
+    print algo2
+    for tool in algo2.ClusterMakerTools:
+        print tool
 
     # PseudoJetAlgorithm uses a tool to convert IParticles (eg CaloClusters)
     # to PseudoJets, which are the input to FastJet. The PseudoJets are
@@ -121,7 +124,7 @@ def jetRecoSequence(RoIs):
 
     jetRecTool = JetRecTool()
     jetRecTool.InputContainer = ''  # name of a jet collection.
-    jetRecTool.OutputContainer = 'StoreGateSvc+jets'
+    jetRecTool.OutputContainer = 'jets'
     jetRecTool.JetFinder = jetFinder
     jetRecTool.JetModifiers = []
     jetRecTool.Trigger = False
@@ -132,7 +135,6 @@ def jetRecoSequence(RoIs):
 
     algo4 = JetAlgorithm()
     algo4.Tools = [jetRecTool]
-
     jetRecoSequence += algo4
 
 

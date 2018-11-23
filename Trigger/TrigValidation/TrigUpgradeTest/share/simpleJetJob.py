@@ -38,7 +38,7 @@ if TriggerFlags.doCalo:
              L1JetDecisions=unpack.Decisions
              
 
-     addFiltering=True
+     addFiltering=False
 
      inputRoIs="FSRoI"
      hypoDecisions=L1JetDecisions
@@ -52,7 +52,7 @@ if TriggerFlags.doCalo:
          #filter
          from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
          filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-         filterL1RoIsAlg.Input = [hypoDecisions] #["L1JET"] #"FSJetDecisions"];
+         filterL1RoIsAlg.Input = [hypoDecisions]
          filterL1RoIsAlg.Output = ["FilteredL1JET"]
          filterL1RoIsAlg.Chains = testChains
          filterL1RoIsAlg.OutputLevel = DEBUG

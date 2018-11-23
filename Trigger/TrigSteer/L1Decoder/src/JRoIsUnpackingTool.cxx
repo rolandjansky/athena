@@ -65,7 +65,8 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   
   auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
   CHECK( roiEL.isValid() );
-  ATH_MSG_DEBUG("Linking Decision to the FS roI");
+  ATH_MSG_DEBUG("Linked new Decision to the FS roI");
+  ATH_MSG_DEBUG("Now get jet L1 thresholds from RoIB");
 
   // RoIBResult contains vector of jet fragments
   for ( auto& jetFragment : roib.jetEnergyResult() ) {
@@ -129,7 +130,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
-  ATH_MSG_DEBUG( "Number of decisions associated with FS RoI: " <<  TrigCompositeUtils::decisionIDs( decision ).size()  );
+  ATH_MSG_DEBUG( "Number of decision IDs associated with FS RoI: " <<  TrigCompositeUtils::decisionIDs( decision ).size()  );
 
 
   // recording
