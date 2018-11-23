@@ -113,7 +113,14 @@ namespace ana
     if (muon.muonType() != xAOD::Muon::MuonStandAlone) {
       const xAOD::EventInfo* evt = 0;
       ATH_CHECK( evtStore()->retrieve( evt, "EventInfo" ) );
-      d0sig = (muon.primaryTrackParticle() && evt) ? xAOD::TrackingHelpers::d0significance( muon.primaryTrackParticle() , evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY() ) : -999.0;
+      try
+      {
+        d0sig = (muon.primaryTrackParticle() && evt) ? xAOD::TrackingHelpers::d0significance( muon.primaryTrackParticle() , evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY() ) : -999.0;
+      } catch (std::exception& e)
+      {
+        d0sig = -999.0;
+        ATH_MSG_INFO ("WARNING of d0sig and assign a default value -999.0 : " << e.what());
+      }
     }
     muon.auxdata<double>("d0Sig") = d0sig;
 
