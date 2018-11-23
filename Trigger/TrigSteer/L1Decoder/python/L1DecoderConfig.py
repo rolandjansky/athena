@@ -26,7 +26,7 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET"),
                                                       OutputTrigRoI = recordable("METRoI")) ]
 
-    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1JET"),
+    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1J"),
                                                       OutputTrigRoIs = recordable("JETRoI")) ]
 
 
