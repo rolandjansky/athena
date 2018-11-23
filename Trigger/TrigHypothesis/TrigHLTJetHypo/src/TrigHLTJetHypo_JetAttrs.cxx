@@ -24,7 +24,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/KtDRInterpreter.h"
 
 #include <map>
-//#include <utility> //for std::move
 #include <memory>
 
 TrigHLTJetHypo_JetAttrs::TrigHLTJetHypo_JetAttrs(const std::string& name,
@@ -46,7 +45,8 @@ TrigHLTJetHypo_JetAttrs::~TrigHLTJetHypo_JetAttrs(){
 
 HLT::ErrorCode TrigHLTJetHypo_JetAttrs::hltInitialize()
 {
-  ATH_MSG_INFO("in initialize()");
+  ATH_MSG_INFO("amanda - in initialize()");
+  ATH_MSG_INFO("amanda - momentstr = " << m_momentstr);
 
   //initialize map (m_conversionMap)
   m_conversionMap["width"] = std::make_unique<WidthInterpreter>();
@@ -58,9 +58,12 @@ HLT::ErrorCode TrigHLTJetHypo_JetAttrs::hltInitialize()
 
 Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     
+    ATH_MSG_INFO("amanda - in getConditions()");
+    
     std::string match ("yes");
 
-    if(m_jetVars.size() == 0){    
+    if(m_jetVars.size() == 0){
+      ATH_MSG_INFO("amanda - no defined jet moments, return false");    
       auto conditions = conditionsFactoryFalse(0.0,1.0);
       std::sort(conditions.begin(), conditions.end(),ConditionsSorter());
       return conditions;
@@ -68,13 +71,18 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     else{
       for(unsigned int count=0; count<m_has.size(); count++){
           if(m_has[count].compare(match)==0){
+            ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[count%2]);
             std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[count%2]))(m_limitMins[count], m_limitMaxs[count]);
 
+            ATH_MSG_INFO("amanda - got limits " << limits);
+
+            ATH_MSG_INFO("amanda - passing limits to condition");
             auto conditions = JetAttrsSort(m_jetVars[count%2], limits.first, limits.second);
             std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
             return conditions;
           }
           else{
+            ATH_MSG_INFO("amanda - m_has=false, return false");
             auto conditions = conditionsFactoryFalse(0.0,1.0);
             std::sort(conditions.begin(), conditions.end(),ConditionsSorter());
             return conditions;
