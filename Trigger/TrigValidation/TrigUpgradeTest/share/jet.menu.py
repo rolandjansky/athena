@@ -31,12 +31,7 @@ if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
-# map L1 decisions for menu
-## for unpack in topSequence.L1DecoderTest.roiUnpackers:
-##     if unpack.name() is "JRoIsUnpackingTool":
-##        unpack.Decisions="L1JET"
-       
-   
+
         
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
