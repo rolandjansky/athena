@@ -38,15 +38,15 @@ class SCTRawContByteStreamCnv : public Converter
   virtual ~SCTRawContByteStreamCnv() = default;
   
   /** Initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
   /** Storage type and class ID */
-  virtual long repSvcType() const { return ByteStream_StorageType; }
+  virtual long repSvcType() const override { return ByteStream_StorageType; }
   static long storageType() { return ByteStream_StorageType; } 
   static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
   
   /** createObj method (not used!) */
-  virtual StatusCode createObj(IOpaqueAddress*, DataObject*&) { return StatusCode::FAILURE; }
+  virtual StatusCode createObj(IOpaqueAddress*, DataObject*&) override { return StatusCode::FAILURE; }
 
   /** 
    * @brief Method to convert SCT Raw Data into ByteStream
@@ -59,7 +59,7 @@ class SCTRawContByteStreamCnv : public Converter
    * @param pDataObject Pointer to data object
    * @param pOpaqueAddress Opaque address to object
    */
-  virtual StatusCode createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress);
+  virtual StatusCode createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress) override;
 
  private: 
 
