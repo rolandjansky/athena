@@ -124,7 +124,9 @@ STDM6SlimmingHelper.IncludeMinBiasTriggerContent = True
 STDM6SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM6SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.pixeldEdx.numberOfUsedHitsdEdx.numberOfIBLOverflowsdEdx",
-    "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt"
+    "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt",
+    "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
+    "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE"   
 ]
 # STDM6SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM6SlimmingHelper.AllVariables += ExtraContainersAll
