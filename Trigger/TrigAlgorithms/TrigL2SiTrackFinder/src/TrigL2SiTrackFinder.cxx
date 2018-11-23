@@ -292,7 +292,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
   msg() << MSG::INFO << " TrigL2SiTrackFinder : MinHits set to " << m_minHits << endmsg;
 
   if (m_useBeamSpot) {
-    ATH_CHECK(m_beamSpotKey.initialize());
+    if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
   }
 
   if ( m_outputCollectionSuffix != "" )  {

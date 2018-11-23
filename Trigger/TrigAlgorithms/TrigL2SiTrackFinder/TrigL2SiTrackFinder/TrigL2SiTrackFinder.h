@@ -32,14 +32,13 @@
 #include "TrkTrack/Track.h"
 
 #include "IRegionSelector/RoiUtil.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class ISpacePointProvider;
 class ITrigInDetTrackFitter;
 class ITrigTRT_TrackExtensionTool;
 class ITrigL2ResidualCalculator;
 class IRegSelSvc;
-class IBeamCondSvc;
 class EventID;
 class ITrigL2PattRecoStrategy;
 class SCT_ID;
