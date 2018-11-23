@@ -800,7 +800,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_acc_photonId = m_photonIdDFName;
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
-  if (m_autoconfigPRWPath == "dev/PileupReweighting/mc16_13TeV/")
+  if (m_autoconfigPRWPath == "dev/PileupReweighting/share/")
     ATH_CHECK( autoconfigurePileupRWTool() );
   else 
     // need to set a full path if you don't use the one in CVMFS
@@ -869,7 +869,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
 
     // Retrieve the input file
     int DSID_INT = (int) dsid;
-    prwConfigFile += "pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
+    prwConfigFile += "DSID" + std::to_string(DSID_INT/1000) + "xxx/pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
     TFile testF(prwConfigFile.data(),"read");
     if(testF.IsZombie()) {
       ATH_MSG_WARNING( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() );
@@ -1201,12 +1201,12 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
-  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config");
+  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config");
   configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config");
-  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config");
+  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config");
   configFromFile(m_jesConfigEMPFlowAFII, "Jet.JESConfigEMPFlowAFII", rEnv, "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config");
   configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config");
-  configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config");
+  configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config");
   configFromFile(m_jesCalibSeq, "Jet.CalibSeq", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
   configFromFile(m_jesCalibSeqAFII, "Jet.CalibSeqAFII", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqEMPFlow, "Jet.CalibSeqEMPFlow", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
@@ -1302,7 +1302,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
-  configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/mc16_13TeV/"); 
+  configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/share/"); 
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 

@@ -210,6 +210,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 	if ( ! isAtlfast() ) calibseq.append("_Smear");
       }
     }
+
     // now instantiate the tool
     ATH_CHECK( m_jetCalibTool.setProperty("JetCollection", jetname) );
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
@@ -329,7 +330,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetJvtUpdateTool.isUserConfigured()) {
     toolName = "JetVertexTaggerTool";
     m_jetJvtUpdateTool.setTypeAndName("JetVertexTaggerTool/"+toolName);
-    ATH_CHECK( m_jetJvtUpdateTool.setProperty("JVTFileName", "JetMomentTools/JVTlikelihood_20140805.root") );
     ATH_CHECK( m_jetJvtUpdateTool.retrieve() );
   }
 
@@ -348,11 +348,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     //    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("JetJvtMomentName", "Jvt") ); //default!
 
     if (m_jetInputType == xAOD::JetInput::EMTopo){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root") );
+      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root") );
     } else if (m_jetInputType == xAOD::JetInput::LCTopo){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root") );
+      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_LC.root") );
     } else if (m_jetInputType == xAOD::JetInput::EMPFlow){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_EMPFlow.root") );
+      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root") );
     } else {
       ATH_MSG_ERROR("Cannot configure JVT uncertainties for unsupported jet input type (neither EM nor LC)");
       return StatusCode::FAILURE;
@@ -387,7 +387,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
     if (m_doFwdJVT && m_metJetSelection == "Tight") {
       ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", true) ); // Tight
-    } else if (m_doFwdJVT && m_metJetSelection == "Tenacious") {
+    } else if (m_doFwdJVT && (m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641")) {
       ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", false) ); // Loose
     } else {
       ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fwdjetTightOp) ); // Tight or Loose
@@ -405,10 +405,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     //
     if (m_muOverride2017SmearingDefaults){
       ATH_MSG_WARNING("You have enabled overriding the 2017 muon calibration and smearing tool defaults. Note that *all* configurable parameters for 2017 will be set by SUSYTools");
-      m_muonCalibrationAndSmearingTool.setProperty("StatComb17", m_muStatComb17);
-      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr17", m_muSagittaCorr17);
-      m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion17", m_muSagittaMCDistortion17);
-      m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17);
+      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb17", m_muStatComb17) );
+      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr17", m_muSagittaCorr17) );
+      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion17", m_muSagittaMCDistortion17) );
+      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17) );
     }
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
@@ -1222,7 +1222,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_metMaker.setProperty("JetSelection", m_metJetSelection) );
     }
     if (m_doFwdJVT || m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641") {
-     ATH_CHECK( m_metMaker.setProperty("JetRejectionDec", "passFJvt") );
+      ATH_CHECK( m_metMaker.setProperty("JetRejectionDec", "passFJvt") );
     }
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
       ATH_CHECK( m_metMaker.setProperty("DoPFlow", true) );
