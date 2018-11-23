@@ -38,7 +38,7 @@ if TriggerFlags.doCalo:
              L1JetDecisions=unpack.Decisions
              
 
-     addFiltering=False
+     addFiltering=True
 
      inputRoIs="FSRoI"
      hypoDecisions=L1JetDecisions
@@ -56,6 +56,7 @@ if TriggerFlags.doCalo:
          filterL1RoIsAlg.Output = ["FilteredL1JET"]
          filterL1RoIsAlg.Chains = testChains
          filterL1RoIsAlg.OutputLevel = DEBUG
+      
          
          #inputmaker
          from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
@@ -102,7 +103,7 @@ if TriggerFlags.doCalo:
         jetStep = seqAND("jetStep", [filterL1RoIsAlg, jetSequence ] )
 
      else:
-       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])   #, hypo
+       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])  
 
 
      summary0 = summarySteps("Step1", [hypo.HypoOutputDecisions] )
