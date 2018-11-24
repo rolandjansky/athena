@@ -29,16 +29,19 @@ namespace FlavorTagDiscriminants {
   DL2::DL2(const lwt::GraphConfig& graph_config,
            const std::vector<DL2InputConfig>& inputs,
            const std::vector<DL2TrackSequenceConfig>& track_sequences):
-    m_input_node_name(graph_config.inputs.at(0).name),
+    m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config)),
-    m_variable_cleaner(new lwt::NanReplacer(
-                         graph_config.inputs.at(0).defaults))
+    m_variable_cleaner(nullptr)
   {
     using namespace internal;
     // set up inputs
-    if (graph_config.inputs.size() != 1) {
+    if (graph_config.inputs.size() > 1) {
       throw std::logic_error("We don't currently support graphs with "
                              "more than one input");
+    } else if (graph_config.inputs.size() == 1){
+      m_input_node_name = graph_config.inputs.at(0).name;
+      m_variable_cleaner.reset(new lwt::NanReplacer(
+                                 graph_config.inputs.at(0).defaults));
     }
     for (const auto& input: inputs) {
       auto filler = get_filler(input.name, input.type, input.default_flag);
@@ -72,14 +75,16 @@ namespace FlavorTagDiscriminants {
     for (const auto& getter: m_getters) {
       vvec.push_back(getter(jet));
     }
-    std::map<std::string, double> variables(vvec.begin(), vvec.end());
-    auto cleaned = m_variable_cleaner->replace(variables);
+    std::map<std::string, std::map<std::string, double> > nodes;
+    if (m_variable_cleaner) {
+      std::map<std::string, double> variables(vvec.begin(), vvec.end());
+      auto cleaned = m_variable_cleaner->replace(variables);
 
-    // Note, you can hack in more variables to `cleaned` here.
+      // Note, you can hack in more variables to `cleaned` here.
 
     // put the cleaned inputs into the node structure
-    std::map<std::string, std::map<std::string, double> > nodes{ {
-        m_input_node_name, cleaned} };
+      nodes[m_input_node_name] =  cleaned;
+    }
 
     // add track sequences
     std::map<std::string,std::map<std::string, std::vector<double>>> seqs;
@@ -145,27 +150,36 @@ namespace FlavorTagDiscriminants {
     return nodes;
   }
 
-  TrackGetter::TrackGetter(SortOrder order):
-    m_track_associator("BTagTrackToJetAssociator"),
-    m_sort_function(internal::get_track_sort(order))
-  {
-  }
-  internal::Tracks TrackGetter::operator()(const xAOD::Jet& jet) const {
-    const xAOD::BTagging *btagging = jet.btagging();
-    if (!btagging) throw std::runtime_error("can't find btagging object");
-    std::vector<const xAOD::TrackParticle*> tracks;
-    for (const auto &link : m_track_associator(*btagging)) {
-      if(!link.isValid()) {
-        throw std::logic_error("invalid track link");
-      }
-      const xAOD::TrackParticle *tp = *link;
-      tracks.push_back(tp);
-    }
-    std::sort(tracks.begin(), tracks.end(), m_sort_function);
-    return tracks;
-  }
 
+  // ________________________________________________________________________
+  // Internal code
   namespace internal {
+
+    // Track Getter Class
+    TrackGetter::TrackGetter(SortOrder order):
+      m_track_associator("BTagTrackToJetAssociator"),
+      m_sort_function(get_track_sort(order))
+    {
+    }
+    Tracks TrackGetter::operator()(const xAOD::Jet& jet) const {
+      const xAOD::BTagging *btagging = jet.btagging();
+      if (!btagging) throw std::runtime_error("can't find btagging object");
+      std::vector<const xAOD::TrackParticle*> tracks;
+      for (const auto &link : m_track_associator(*btagging)) {
+        if(!link.isValid()) {
+          throw std::logic_error("invalid track link");
+        }
+        const xAOD::TrackParticle *tp = *link;
+        tracks.push_back(tp);
+      }
+      std::sort(tracks.begin(), tracks.end(), m_sort_function);
+      return tracks;
+    }
+
+
+    // ______________________________________________________________________
+    // Internal utility functions
+    //
     Getter get_filler(std::string name, EDMType type,
                       std::string default_flag) {
       switch (type) {

@@ -34,10 +34,6 @@ namespace FlavorTagDiscriminants {
     // __________________________________________________________________
     // build the standard inputs
     //
-    std::vector<std::string> input_names;
-    for (const auto& var: config.inputs.at(0).variables) {
-      input_names.push_back(var.name);
-    }
 
     // type and default value-finding regexes are hardcoded for now
     TypeRegexes type_regexes{
@@ -54,8 +50,18 @@ namespace FlavorTagDiscriminants {
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
 
-    std::vector<DL2InputConfig> input_config = get_input_config(
-      input_names, type_regexes, default_flag_regexes);
+    std::vector<DL2InputConfig> input_config;
+    if (config.inputs.size() == 1) {
+      std::vector<std::string> input_names;
+      for (const auto& var: config.inputs.at(0).variables) {
+        input_names.push_back(var.name);
+      }
+
+      input_config = get_input_config(
+        input_names, type_regexes, default_flag_regexes);
+    } else if (config.inputs.size() > 1) {
+      throw std::logic_error("DL2 doesn't support multiple inputs");
+    }
 
 
     // ___________________________________________________________________
@@ -72,7 +78,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
-      {".*_(d|z)0.*"_r, EDMType::FLOAT},
+      {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
     SortRegexes trk_sort_regexes {

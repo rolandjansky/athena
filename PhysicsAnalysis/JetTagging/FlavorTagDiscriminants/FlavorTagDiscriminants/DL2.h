@@ -73,35 +73,8 @@ namespace FlavorTagDiscriminants {
     const SortRegexes& sort_regexes);
 
 
-  // ___________________________________________________________________
-  // Getter functions
-  //
-  // internally we want a bunch of std::functions that return pairs to
-  // populate the lwtnn input map. We define a functor here to deal
-  // with the b-tagging cases.
-  //
-  template <typename T>
-  class BVarGetter
-  {
-  private:
-    typedef SG::AuxElement AE;
-    AE::ConstAccessor<T> m_getter;
-    AE::ConstAccessor<char> m_default_flag;
-    std::string m_name;
-  public:
-    BVarGetter(std::string name, std::string default_flag):
-      m_getter(name),
-      m_default_flag(default_flag),
-      m_name(name)
-      {
-      }
-    std::pair<std::string, double> operator()(const xAOD::Jet& jet) const {
-      const xAOD::BTagging* btag = jet.btagging();
-      if (!btag) throw std::runtime_error("can't find btagging object");
-      return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
-    }
-  };
-
+  // _____________________________________________________________________
+  // Internal code
 
   namespace internal {
     // typedefs
@@ -116,41 +89,68 @@ namespace FlavorTagDiscriminants {
     typedef std::function<NamedVar(const Jet&)> Getter;
     typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqGetter;
 
+    // ___________________________________________________________________
+    // Getter functions
+    //
+    // internally we want a bunch of std::functions that return pairs
+    // to populate the lwtnn input map. We define a functor here to
+    // deal with the b-tagging cases.
+    //
+    template <typename T>
+    class BVarGetter
+    {
+    private:
+      typedef SG::AuxElement AE;
+      AE::ConstAccessor<T> m_getter;
+      AE::ConstAccessor<char> m_default_flag;
+      std::string m_name;
+    public:
+      BVarGetter(const std::string& name, const std::string& default_flag):
+        m_getter(name),
+        m_default_flag(default_flag),
+        m_name(name)
+        {
+        }
+      NamedVar operator()(const xAOD::Jet& jet) const {
+        const xAOD::BTagging* btag = jet.btagging();
+        if (!btag) throw std::runtime_error("can't find btagging object");
+        return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
+      }
+    };
+
+    class TrackGetter
+    {
+    public:
+      TrackGetter(SortOrder);
+      Tracks operator()(const xAOD::Jet& jet) const;
+    private:
+      typedef SG::AuxElement AE;
+      typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
+      AE::ConstAccessor<TrackLinks> m_track_associator;
+      TrackSort m_sort_function;
+    };
+
+    template <typename T>
+    class SequenceGetter
+    {
+    private:
+      SG::AuxElement::ConstAccessor<T> m_getter;
+      std::string m_name;
+    public:
+      SequenceGetter(const std::string& name):
+        m_getter(name),
+        m_name(name)
+        {
+        }
+      NamedSeq operator()(const xAOD::Jet&, const Tracks& trks) const {
+        std::vector<double> seq;
+        for (const xAOD::TrackParticle* track: trks) {
+          seq.push_back(m_getter(*track));
+        }
+        return {m_name, seq};
+      }
+    };
   }
-
-  class TrackGetter
-  {
-  public:
-    TrackGetter(SortOrder);
-    internal::Tracks operator()(const xAOD::Jet& jet) const;
-  private:
-    typedef SG::AuxElement AE;
-    typedef std::vector<ElementLink<xAOD::TrackParticleContainer> > TrackLinks;
-    AE::ConstAccessor<TrackLinks> m_track_associator;
-    internal::TrackSort m_sort_function;
-  };
-
-  template <typename T>
-  class SequenceGetter
-  {
-  private:
-    SG::AuxElement::ConstAccessor<T> m_getter;
-    std::string m_name;
-  public:
-    SequenceGetter(const std::string& name):
-      m_getter(name),
-      m_name(name)
-      {
-      }
-    internal::NamedSeq operator()(const xAOD::Jet&, const internal::Tracks& trks) const {
-      std::vector<double> seq;
-      for (const xAOD::TrackParticle* track: trks) {
-        seq.push_back(m_getter(*track));
-      }
-      return {m_name, seq};
-    }
-  };
-
   class DL2
   {
   public:
@@ -162,7 +162,7 @@ namespace FlavorTagDiscriminants {
     struct TrackSequenceGetter {
       TrackSequenceGetter(SortOrder);
       std::string name;
-      TrackGetter getter;
+      internal::TrackGetter getter;
       std::vector<internal::SeqGetter> sequence_getters;
     };
     typedef SG::AuxElement::Decorator<float> OutputDecorator;

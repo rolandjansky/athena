@@ -5,8 +5,12 @@
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
 
 namespace {
+  // ______________________________________________________________________
+  // Custom getters for jet-wise quantities
+  //
   // this function is not at all optimized, but then it doesn't have
   // to be since it should only be called in the initialization stage.
+  //
   std::function<double(const xAOD::Jet&)> customGetter(const std::string& name)
   {
     if (name == "pt") {
@@ -18,7 +22,9 @@ namespace {
     throw std::logic_error("no match for custom getter " + name);
   }
 
-  // functions to get track variables
+
+  // _______________________________________________________________________
+  // Custom getters for track variables
   //
   // TODO: only use a subset of the signed_ip functions from the
   // augmenter below
@@ -55,8 +61,13 @@ namespace {
     }
   };
 
+
   // ________________________________________________________________________
-  // master sequence getter list
+  // Master track getter list
+  //
+  // These functions are wrapped by the customNamedSeqGetter function
+  // below to become the ones that are actually used in DL2.
+  //
   std::function<std::vector<double>(
     const xAOD::Jet&,
     const std::vector<const xAOD::TrackParticle*>&)> customSeqGetter(
@@ -93,29 +104,35 @@ namespace {
 }
 
 namespace FlavorTagDiscriminants {
+  namespace internal {
 
-  // as long as we're giving lwtnn pair<name, double> objects, we
-  // can't use the raw getter functions above (which only return a
-  // double). Instead we'll wrap those functions in another function,
-  // which returns the pair we wanted.
-  std::function<std::pair<std::string, double>(const xAOD::Jet&)>
-  customGetterAndName(const std::string& name) {
-    auto getter = customGetter(name);
-    return [name, getter](const xAOD::Jet& j) {
-             return std::make_pair(name, getter(j));
-           };
+    // ________________________________________________________________
+    // Interface functions
+    //
+    // As long as we're giving lwtnn pair<name, double> objects, we
+    // can't use the raw getter functions above (which only return a
+    // double). Instead we'll wrap those functions in another function,
+    // which returns the pair we wanted.
+    //
+    // Case for jet variables
+    std::function<std::pair<std::string, double>(const xAOD::Jet&)>
+    customGetterAndName(const std::string& name) {
+      auto getter = customGetter(name);
+      return [name, getter](const xAOD::Jet& j) {
+               return std::make_pair(name, getter(j));
+             };
+    }
+
+    // Case for track variables
+    std::function<std::pair<std::string, std::vector<double>>(
+      const xAOD::Jet&,
+      const std::vector<const xAOD::TrackParticle*>&)>
+    customNamedSeqGetter(const std::string& name) {
+      auto getter = customSeqGetter(name);
+      return [name, getter](const xAOD::Jet& j,
+                            const std::vector<const xAOD::TrackParticle*>& t) {
+               return std::make_pair(name, getter(j, t));
+             };
+    }
   }
-
-
-  std::function<std::pair<std::string, std::vector<double>>(
-    const xAOD::Jet&,
-    const std::vector<const xAOD::TrackParticle*>&)>
-  customNamedSeqGetter(const std::string& name) {
-    auto getter = customSeqGetter(name);
-    return [name, getter](const xAOD::Jet& j,
-                          const std::vector<const xAOD::TrackParticle*>& t) {
-             return std::make_pair(name, getter(j, t));
-           };
-  }
-
 }
