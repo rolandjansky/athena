@@ -8,20 +8,14 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 
+from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu
+
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-#theApp.setup()
 
 flags = ConfigFlags
-# TODO move to the new (real menu like contqent for this flags )
-flags.addFlag('Trigger.menu.electrons', [ "HLT_e3_etcut L1_EM3",        
-	                                  "HLT_e5_etcut L1_EM3",        	                          
-	                                  "HLT_e7_etcut L1_EM7"])
-flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 
-	                               'HLT_g15_etcut L1_EM12' ])
-
-
+setupMenu(flags)
 
 
 flags.Input.isMC = False
@@ -67,30 +61,31 @@ acc.merge(TrigBSReadCfg(flags ))
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
-def menu( mf ):
-    menuAcc = ComponentAccumulator()
-    menuAcc.addSequence( seqAND("HLTAllSteps") )
+# def menu( mf ):
+    # menuAcc = ComponentAccumulator()
+    # menuAcc.addSequence( seqAND("HLTAllSteps") )
+    #
+    #
+    # from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
+    # electronAcc, electronChains = generateElectronsCfg( mf )
+    # menuAcc.merge( electronAcc )
+    #
+    # from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
+    # photonsAcc, photonChains = generatePhotonsCfg( mf )
+    # menuAcc.merge( photonsAcc )
+    #
+    # allChains =   photonChains + electronChains
+    # from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains
+    # decisionTree_From_Chains( menuAcc.getSequence("HLTAllSteps"), allChains )
+    # menuAcc.printConfig()
+    #
+    # return menuAcc
 
 
-    from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
-    electronAcc, electronChains = generateElectronsCfg( mf )
-    menuAcc.merge( electronAcc )
 
-    from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
-    photonsAcc, photonChains = generatePhotonsCfg( mf )
-    menuAcc.merge( photonsAcc )
-    
-    allChains =   photonChains + electronChains
-    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains       
-    decisionTree_From_Chains( menuAcc.getSequence("HLTAllSteps"), allChains )
-    menuAcc.printConfig()
-    
-    return menuAcc
-
-
-
+from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
-acc.merge( triggerRunCfg( flags, menu ) )
+acc.merge( triggerRunCfg( flags, generateMenu ) )
 
 
 

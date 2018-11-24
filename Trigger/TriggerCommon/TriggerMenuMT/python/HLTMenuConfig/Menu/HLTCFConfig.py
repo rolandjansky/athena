@@ -218,8 +218,7 @@ def decisionTree_From_Chains(HLTNode, chains):
                 continue
 
             chain_step=chain.steps[nstep]
-            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)      
-            
+            log.debug("\n************* Start step %d %s for chain %s", nstep+1, stepCF_name, chain.name)
             # one filter per ChainStep - same name indeed
             # one filter input per previous menusequence output (the L1Seed for first step)
             # one filter output per menuSeq
@@ -241,7 +240,8 @@ def decisionTree_From_Chains(HLTNode, chains):
                     previous_seeds.append(seq.seed)
                 log.debug("Connect to previous sequence through these filter inputs: %s" %str( filter_input) )
                 if len(filter_input) != len(previous_seeds):
-                    log.error("found %d filter inputs and %d seeds", len(filter_input), len(previous_seeds))
+                    log.warning("found %d filter inputs and %d seeds", len(filter_input), len(previous_seeds))
+
             # get the filter:
             filter_name = "Filter_%s" % chain_step.name
 
