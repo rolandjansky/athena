@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //  HECModuleConstruction.cxx 1.0.0
@@ -27,7 +27,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/GenericFunctions/Variable.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GaudiKernel/MsgStream.h"
@@ -94,21 +93,21 @@ GeoFullPhysVol* LArGeo::HECModuleConstruction::GetEnvelope()
   }
 
   
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in HECModuleConstruction, cannot access Material Manager");
   }
   
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in HECModuleConstruction, std::LiquidArgon is not found.");
   
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in HECModuleConstruction, std::Iron is not found.");
   
-  GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
+  const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in HECModuleConstruction, std::Copper is not found.");
   
-  GeoMaterial *Kapton  = materialManager->getMaterial("std::Kapton");
+  const GeoMaterial *Kapton  = materialManager->getMaterial("std::Kapton");
   if (!Kapton) throw std::runtime_error("Error in HECModuleConstruction, std::Kapton is not found.");
   
 
