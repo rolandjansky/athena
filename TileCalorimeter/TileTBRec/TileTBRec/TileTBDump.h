@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -203,7 +203,9 @@ class TileTBDump: public AthAlgorithm {
                          , unsigned int version, int verbosity, int* ngain, int* nchannel);
 
     int tile_unpack_reco_calib(T_RodDataFrag* frag, T_TileRecoCalib* recocalib, int nchannel_max
-                               , unsigned int version, int verbosity, int* ngain, int* nchannel); // Baxo
+                               , unsigned int version
+                               , unsigned int unit
+                               , int verbosity, int* ngain, int* nchannel); // Baxo
 
     int tile_unpack_quality(T_RodDataFrag* frag, T_TileRecoQuality & DQword);
 
