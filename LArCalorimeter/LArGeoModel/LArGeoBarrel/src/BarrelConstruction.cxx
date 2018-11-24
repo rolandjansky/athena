@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,7 +38,6 @@
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrap.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -212,48 +211,48 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   }
   
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in BarrelConstruction, stored MaterialManager is not found.");
   }
   
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in BarrelConstruction, std::Iron is not found.");
   
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in BarrelConstruction, std::LiquidArgon is not found.");
 
-  GeoMaterial *Lead = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead = materialManager->getMaterial("std::Lead");
   if (!Lead) throw std::runtime_error("Error in BarrelConstruction, std::Lead is not found.");
   
-  GeoMaterial *G10_bar  = materialManager->getMaterial("LAr::G10_bar");
+  const GeoMaterial *G10_bar  = materialManager->getMaterial("LAr::G10_bar");
   if (!G10_bar) throw std::runtime_error("Error in BarrelConstruction, LAr::G10_bar is not found.");
   
-  GeoMaterial *Moth_elect  = materialManager->getMaterial("LAr::MBoards");
+  const GeoMaterial *Moth_elect  = materialManager->getMaterial("LAr::MBoards");
   if (!Moth_elect) throw std::runtime_error("Error in BarrelConstruction, LAr::MBoards is not found.");
   
-  GeoMaterial *Cable_elect  = materialManager->getMaterial("LAr::Cables");
+  const GeoMaterial *Cable_elect  = materialManager->getMaterial("LAr::Cables");
   if (!Cable_elect) throw std::runtime_error("Error in BarrelConstruction, LAr::Cables is not found.");
   
-  GeoMaterial *Thin_abs  = materialManager->getMaterial("LAr::Thinabs");
+  const GeoMaterial *Thin_abs  = materialManager->getMaterial("LAr::Thinabs");
   if (!Thin_abs) throw std::runtime_error("Error in BarrelConstruction, LAr::Thinabs is not found.");
   
-  GeoMaterial *Thick_abs  = materialManager->getMaterial("LAr::Thickabs");
+  const GeoMaterial *Thick_abs  = materialManager->getMaterial("LAr::Thickabs");
   if (!Thick_abs) throw std::runtime_error("Error in BarrelConstruction, LAr::Thickabs is not found.");
   
-  GeoMaterial *Kapton_Cu  = materialManager->getMaterial("LAr::KaptonC");
+  const GeoMaterial *Kapton_Cu  = materialManager->getMaterial("LAr::KaptonC");
   if (!Kapton_Cu) throw std::runtime_error("Error in BarrelConstruction, LAr::KaptonC is not found.");
 
-  GeoMaterial *Sumb       = materialManager->getMaterial("LAr::SBoard");
+  const GeoMaterial *Sumb       = materialManager->getMaterial("LAr::SBoard");
   if (!Sumb) throw std::runtime_error("Error in BarrelConstruction, LAr::SBoard is not found.");
 
-  GeoMaterial *Glue  = materialManager->getMaterial("LAr::Glue");
+  const GeoMaterial *Glue  = materialManager->getMaterial("LAr::Glue");
   if (!Glue) throw std::runtime_error("Error in BarrelConstruction, LAr::Glue is not found.");
 
-  GeoElement *Pb = materialManager->getElement("Lead");
+  const GeoElement *Pb = materialManager->getElement("Lead");
   if (!Pb)  throw std::runtime_error("Error in BarrelConstruction,  element lead not found ");
 
-  GeoElement *Fe = materialManager->getElement("Iron");
+  const GeoElement *Fe = materialManager->getElement("Iron");
   if (!Fe)  throw std::runtime_error("Error in BarrelConstruction,  element Fe not found ");
 
 
