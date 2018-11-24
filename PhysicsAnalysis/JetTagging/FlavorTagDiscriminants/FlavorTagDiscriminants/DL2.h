@@ -29,20 +29,37 @@ namespace lwt {
 
 namespace FlavorTagDiscriminants {
 
-  enum class EDMType {INT, FLOAT, DOUBLE, CUSTOM_GETTER};
+  enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
+  enum class SortOrder {D0, PT};
 
-  // we define a few structures to map variable names to type, default
-  // value, etc.
-  typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
-  typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
-
-  // Structure to define a DL2 input.
+  // Structures to define DL2 input.
+  //
   struct DL2InputConfig
   {
     std::string name;
     EDMType type;
     std::string default_flag;
   };
+  struct DL2TrackInputConfig
+  {
+    std::string name;
+    EDMType type;
+  };
+  struct DL2TrackSequenceConfig
+  {
+    std::string name;
+    SortOrder order;
+    std::vector<DL2TrackInputConfig> inputs;
+  };
+
+  // ____________________________________________________________________
+  // High level adapter stuff
+  //
+  // We define a few structures to map variable names to type, default
+  // value, etc. These are only used by the high level interface.
+  typedef std::vector<std::pair<std::regex, EDMType> > TypeRegexes;
+  typedef std::vector<std::pair<std::regex, std::string> > StringRegexes;
+  typedef std::vector<std::pair<std::regex, SortOrder> > SortRegexes;
 
   // Function to map the regular expressions + the list of inputs to a
   // list of variable configurations.
@@ -50,7 +67,15 @@ namespace FlavorTagDiscriminants {
     const std::vector<std::string>& variable_names,
     const TypeRegexes& type_regexes,
     const StringRegexes& default_flag_regexes);
+  std::vector<DL2TrackSequenceConfig> get_track_input_config(
+    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
+    const TypeRegexes& type_regexes,
+    const SortRegexes& sort_regexes);
 
+
+  // ___________________________________________________________________
+  // Getter functions
+  //
   // internally we want a bunch of std::functions that return pairs to
   // populate the lwtnn input map. We define a functor here to deal
   // with the b-tagging cases.

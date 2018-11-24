@@ -43,6 +43,10 @@ namespace FlavorTagDiscriminants {
       m_getters.push_back(filler);
     }
 
+    // set up sequence inputs
+    // for (const auto& input: graph_config.input_sequences
+
+    // set up outputs
     for (const auto& out_node: graph_config.outputs) {
       std::string node_name = out_node.first;
       OutNode node;
@@ -68,11 +72,11 @@ namespace FlavorTagDiscriminants {
         m_input_node_name, cleaned} };
 
     // add track sequences
-    for (const auto& getter: m_track_getters) {
+    // for (const auto& getter: m_track_getters) {
       // const auto& name = std::get<const std::string>(getter);
       // const auto& trk_getter = std::get<const TrackGetter>(getter);
       // const auto& sequence_getters = std::get<const pair.second.second;
-    }
+    // }
 
     // save out things
     for (const auto& dec: m_decorators) {
@@ -85,6 +89,10 @@ namespace FlavorTagDiscriminants {
     }
   }
 
+
+  // ______________________________________________________________________
+  // High level configuration functions
+  //
   std::vector<DL2InputConfig> get_input_config(
     const std::vector<std::string>& variable_names,
     const TypeRegexes& type_regexes,
@@ -100,6 +108,26 @@ namespace FlavorTagDiscriminants {
     }
     return inputs;
   }
+  std::vector<DL2TrackSequenceConfig> get_track_input_config(
+    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
+    const TypeRegexes& type_regexes,
+    const SortRegexes& sort_regexes) {
+    std::vector<DL2TrackSequenceConfig> nodes;
+    for (const auto& name_node: names) {
+      DL2TrackSequenceConfig node;
+      node.name = name_node.first;
+      node.order = match_first(sort_regexes, name_node.first);
+      for (const auto& varname: name_node.second) {
+        DL2TrackInputConfig input;
+        input.name = varname;
+        input.type = match_first(type_regexes, varname);
+        node.inputs.push_back(input);
+      }
+      nodes.push_back(node);
+    }
+    return nodes;
+  }
+
 
   std::function<std::pair<std::string, double>(const xAOD::Jet&)>
   get_filler(std::string name, EDMType type, std::string default_flag) {
