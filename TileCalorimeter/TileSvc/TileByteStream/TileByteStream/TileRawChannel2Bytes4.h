@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNEL2BYTES4_H 
@@ -66,41 +66,30 @@ class TileFastRawChannel;
 class TileRawChannel2Bytes4 {
   public:
     TileRawChannel2Bytes4()
-        : m_verbose(false), m_rChUnit(0) {
+    {
     }
 
     /** Adds an entry to the vector<int> v for this TileRawChannel.
      The entry is the single 32-bit word generated using TileRawChannel2Bytes4::getWord() method.<p>
      Returns 1 which is the number of entries added to the vector. */
-    int getBytes(const TileFastRawChannel* rc, int gain, std::vector<unsigned int>& v);
+    int getBytes(const TileFastRawChannel& rc, unsigned int unit,
+                 int gain, std::vector<unsigned int>& v) const;
     /** Returns a single 32-bit word which encodes the TileRawChannel information
      (gain,amplitude,phase and quality) for a single read-out channel. */
-    unsigned int getWord(const TileFastRawChannel* rc, int gain);
+    unsigned int getWord(const TileFastRawChannel& rc, unsigned int unit, int gain) const;
 
     /** Returns the gain unpacked from the single 32-bit word w. */
     inline int gain(unsigned int w) const;
     /** Returns the amplitude in the corresponding units, unpacked from the single 32-bit word w. */
-    inline float amplitude(unsigned int w) const;
+    inline float amplitude(unsigned int w, unsigned int unit) const;
     /** Returns the phase of the pulse in ns, unpacked from the single 32-bit word w. */
     inline float time(unsigned int w) const;
     /** Returns the quality factor unpacked from the single 32-bit word w. */
     inline float quality(unsigned int w) const;
 
     /** Sets verbose mode true or false. */
-    inline void setVerbose(bool verbose) {
-      m_verbose = verbose;
+    inline void setVerbose(bool /*verbose*/) {
     }
-
-    /** Sets the energy units value (TileRawChannel2Bytes4::m_rChUnit). */
-    inline void setUnit(unsigned int unit) {
-      m_rChUnit = unit;
-    }
-
-  private:
-    /** Verbose flag. */
-    bool m_verbose;
-    /** Energy units. */
-    unsigned int m_rChUnit;
 };
 
 // inline functions
@@ -110,11 +99,11 @@ inline int TileRawChannel2Bytes4::gain(unsigned int w) const {
   return g;
 }
 
-inline float TileRawChannel2Bytes4::amplitude(unsigned int w) const {
+inline float TileRawChannel2Bytes4::amplitude(unsigned int w, unsigned int unit) const {
   int g = (w >> GAIN_SHIFT4) & GAIN_RANGE4;
   float a = (((w >> AMPLITUDE_SHIFT4) & AMPLITUDE_RANGE4) - AMPLITUDE_OFFSET4[g])
-      / AMPLITUDE_FACTOR4[m_rChUnit];
-  if (m_rChUnit != 0 && g == 1) a = a / 64.0F;
+      / AMPLITUDE_FACTOR4[unit];
+  if (unit != 0 && g == 1) a = a / 64.0F;
   return a;
 }
 

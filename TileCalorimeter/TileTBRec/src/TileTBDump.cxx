@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -1549,8 +1549,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
 
           case 4: // fragment with gain/amp/time/bad/quality in 32 bit words
             m_unit = unit;
-            m_rc2bytes4.setUnit(unit);
-            tile_unpack_reco_calib(frag[f], recocalib, MAX_DIGI_CHAN, version, verbosity, &ngain,
+            tile_unpack_reco_calib(frag[f], recocalib, MAX_DIGI_CHAN, version, unit, verbosity, &ngain,
                 &nchan);
 
             std::cout << "\nReco calibrated energy fragment 0x" << std::hex  << id << std::dec << ", " << size << " words found:"
@@ -2025,6 +2024,7 @@ int TileTBDump::tile_unpack_reco(T_RodDataFrag *frag, T_TileRecoChannel * channe
 /*--------------------------------------------------------------------------*/
 int TileTBDump::tile_unpack_reco_calib(T_RodDataFrag* frag, T_TileRecoCalib* recocalib
                                        , int nchannel_max, unsigned int /* version */
+                                       , unsigned int unit
                                        , int /* verbosity */, int *ngain, int *nchannel) {// Baxo
     /*--------------------------------------------------------------------------*/
 
@@ -2043,7 +2043,7 @@ int TileTBDump::tile_unpack_reco_calib(T_RodDataFrag* frag, T_TileRecoCalib* rec
     recocalib[ch].time = (w >> TIME_SHIFT4) & TIME_RANGE4;
     recocalib[ch].bad = ((w >> QUALITY_SHIFT4) & QUALITY_RANGE4 & 0x10) >> 4;
     recocalib[ch].quality = ((w >> QUALITY_SHIFT4) & QUALITY_RANGE4 & 0xF);
-    recocalib[ch].d_amp = m_rc2bytes4.amplitude(w);
+    recocalib[ch].d_amp = m_rc2bytes4.amplitude(w, unit);
     recocalib[ch].d_time = m_rc2bytes4.time(w);
     recocalib[ch].d_quality = m_rc2bytes4.quality(w);
   }
