@@ -168,7 +168,7 @@ bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
   const unsigned short digitValue_l = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
 
   // Gluino R-Hadrons have the form 109xxxx or 1009xxx
-  if ((digitValue_q1 == 0 && digitValue_l == 9) || digitValue_q1 == 9 ){
+  if (digitValue_l == 9 || (digitValue_l==0 && digitValue_q1 == 9) ){
     // This is a gluino R-Hadron
     return true;
   }
@@ -223,7 +223,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   double fracR = mRBef / mRHad;
 
   if (fracR >= 1.){
-    G4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!" << G4endl;
+    G4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!  mRBef=" << mRBef << " mRHad=" << mRHad << " idRBef=" << idRBef << G4endl;
     return;
   }
 
