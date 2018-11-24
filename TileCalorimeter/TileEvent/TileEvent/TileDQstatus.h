@@ -20,7 +20,7 @@
 
 
 class TileBeamInfoProvider;
-class TileDQstatusAlg;
+class TileDQstatusTool;
 class TileRawChannelCollection;
 class TileDigitsContainer;
 class MsgStream;
@@ -48,7 +48,7 @@ class TileDQstatus
 {
   //FIXME: Remove
   friend class TileBeamInfoProvider;
-  friend class TileDQstatusAlg;
+  friend class TileDQstatusTool;
 
 public:
 
@@ -158,6 +158,8 @@ public:
   /** @brief Trigger type. */
   int            trigType()  const { return m_trigType; }
   void setTrigType (int trigType);
+
+  uint32_t RODBCID() const   {return m_BCID;}
 
 
 protected:
