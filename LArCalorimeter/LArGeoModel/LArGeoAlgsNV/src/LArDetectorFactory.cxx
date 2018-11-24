@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactory.h"
@@ -22,7 +22,6 @@
 #include "LArGeoCode/LArMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/GeoDBUtils.h"
-#include "StoreGate/DataHandle.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -113,7 +112,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       }
 
   
-      DataHandle<StoredMaterialManager> materialManager;
+      StoredMaterialManager* materialManager = nullptr;
       if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
 	throw std::runtime_error("Error in LArDetectorFactory, cannot access Material Manager");
       }
