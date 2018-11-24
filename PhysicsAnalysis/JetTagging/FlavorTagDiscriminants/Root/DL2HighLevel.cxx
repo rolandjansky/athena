@@ -76,14 +76,13 @@ namespace FlavorTagDiscriminants {
       {"(log_)?(ptfrac|dr)"_r, EDMType::CUSTOM_GETTER}
     };
     SortRegexes trk_sort_regexes {
-      {".*d0sort"_r, SortOrder::D0},
-      {".*ptsort"_r, SortOrder::PT},
+      {".*d0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
+      {".*ptsort"_r, SortOrder::PT_DESCENDING},
     };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes);
-    // TODO: feed these to DL2
-    
-    m_dl2.reset(new DL2(config, input_config));
+
+    m_dl2.reset(new DL2(config, input_config, trk_config));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;

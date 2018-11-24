@@ -43,7 +43,7 @@ void BTagTrackAugmenter::augment(const xAOD::TrackParticle &track, const xAOD::J
   augment_with_ip(track, jet);
 }
 
-BTagSignedIP BTagTrackAugmenter::get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) {
+BTagSignedIP BTagTrackAugmenter::get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const {
   const TLorentzVector jet_fourVector = jet.p4();
   const Amg::Vector3D jet_threeVector(jet_fourVector.X(),jet_fourVector.Y(),jet_fourVector.Z());
   const Amg::Vector3D track_displacement = get_vector3d(m_track_displacement(track));

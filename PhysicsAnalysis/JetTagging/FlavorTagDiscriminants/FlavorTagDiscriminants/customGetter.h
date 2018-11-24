@@ -14,6 +14,11 @@
 namespace FlavorTagDiscriminants {
   std::function<std::pair<std::string, double>(const xAOD::Jet&)>
   customGetterAndName(const std::string&);
+
+  std::function<std::pair<std::string, std::vector<double>>(
+    const xAOD::Jet&,
+    const std::vector<const xAOD::TrackParticle*>&)>
+  customNamedSeqGetter(const std::string&);
 }
 
 #endif
