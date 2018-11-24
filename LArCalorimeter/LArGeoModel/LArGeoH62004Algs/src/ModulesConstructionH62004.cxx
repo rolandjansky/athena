@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ModulesConstructionH62004
@@ -8,7 +8,7 @@
 #include "HECConstructionH62004.h"
 #include "FCALConstructionH62004.h"
 
-// need if we want tu use EMEC from LArGeoTBEC:
+// need if we want to use EMEC from LArGeoTBEC:
 #include "LArGeoTBEC/EMECModuleConstruction.h"
 //#include "LArGeoEndcap/EMECConstruction.h"
 
@@ -41,7 +41,6 @@
 #include "CLHEP/GenericFunctions/Sin.hh"
 #include "CLHEP/GenericFunctions/Cos.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -155,17 +154,16 @@ LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),
   if(!status.isSuccess() ) {
      std::cout << "ModulesConstructionH62004:\tCan't access LArGeoTB2004Options, using default values\n";
   }
-
-  if (StatusCode::SUCCESS != m_detectorStore->retrieve(m_materialManager, std::string("MATERIALS"))) {
-    throw std::runtime_error("Error in ModulesConstruction, cannot access Material manager");
-  }
-
 }
 
 LArGeo::ModulesConstructionH62004::~ModulesConstructionH62004() {}
 
 GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
 {
+  const StoredMaterialManager* materialManager = nullptr;
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+    throw std::runtime_error("Error in ModulesConstruction, cannot access Material manager");
+  }
 
   if (m_ModulesPhys) return (m_ModulesPhys);
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -181,7 +179,7 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   log << "+                                                  +" << std::endl;
   log << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 
-  GeoMaterial *LAr  = m_materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in ModulesConstruction, std::LiquidArgon is not found.");
 
   // How to get Rohacell ????
@@ -190,10 +188,10 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   // Rohacell foam has density: 0.11g/cm3
   std::string name;
   double density;
-  GeoElement*  C=m_materialManager->getElement("Carbon");
-  GeoElement*  H=m_materialManager->getElement("Hydrogen");
-  GeoElement*  O=m_materialManager->getElement("Oxygen");
-  GeoElement*  N=m_materialManager->getElement("Nitrogen");
+  const GeoElement*  C=materialManager->getElement("Carbon");
+  const GeoElement*  H=materialManager->getElement("Hydrogen");
+  const GeoElement*  O=materialManager->getElement("Oxygen");
+  const GeoElement*  N=materialManager->getElement("Nitrogen");
   GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.112*CLHEP::g/CLHEP::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);
@@ -208,7 +206,7 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   G4Material* Rohacell = new G4Material(name="Rohacell",z, a, density);
   */
 
-  GeoMaterial  *Alu = m_materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial  *Alu = materialManager->getMaterial("std::Aluminium");
   if (!Alu) throw std::runtime_error("Error in ModulesConstruction, std::Aluminium is not found.");
 
   // DB numbers:
@@ -596,7 +594,9 @@ int LArGeo::ModulesConstructionH62004::GetID(int side, int dir, int calo)
 }
 
 
-GeoLogVol * LArGeo::ModulesConstructionH62004::construct(int side, int dir, int calo)
+GeoLogVol*
+LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materialManager,
+                                             int side, int dir, int calo)
 {
 //--------- Material definition for leakage detectors ---------
   //double density, pressure, temperature;
@@ -605,7 +605,7 @@ GeoLogVol * LArGeo::ModulesConstructionH62004::construct(int side, int dir, int 
   //density     = universe_mean_density;    //from PhysicalConstants.h
   //pressure    = 3.e-18*pascal;
   //temperature = 2.73*CLHEP::kelvin;
-  GeoMaterial* Vacuum = m_materialManager->getMaterial("std::Vacuum");
+  const GeoMaterial* Vacuum = materialManager->getMaterial("std::Vacuum");
   if (!Vacuum) throw std::runtime_error("Error in ModulesConstruction, std::Vacuum is not found.");
 
 //----------------- construct ID and name

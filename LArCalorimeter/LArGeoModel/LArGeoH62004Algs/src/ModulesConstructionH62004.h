@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOH62004ALGS_MODULESCONSTRUCTIONH62004_H
@@ -9,8 +9,8 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
 
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "StoreGate/StoreGateSvc.h"
 
 class LArGeoTB2004Options;
 
@@ -28,7 +28,8 @@ namespace LArGeo {
             ModulesConstructionH62004 & operator= (const ModulesConstructionH62004 &);
 
            int GetID(int side, int dir, int calo);
-           GeoLogVol* construct(int side, int dir, int calo);
+           GeoLogVol* construct(const StoredMaterialManager* materialManager,
+                                int side, int dir, int calo);
            HepGeom::Transform3D position(int side, int dir, int calo);
                         //  side = 0 - left, 1 - right
                         //  dir  = 0 - side, 1 - up, 2 - back
@@ -37,7 +38,6 @@ namespace LArGeo {
 
 	   GeoFullPhysVol*  m_ModulesPhys;
 	   StoreGateSvc * m_detectorStore;
-	   DataHandle<StoredMaterialManager> m_materialManager;
 
 	   const LArGeoTB2004Options      *m_Options;
 
