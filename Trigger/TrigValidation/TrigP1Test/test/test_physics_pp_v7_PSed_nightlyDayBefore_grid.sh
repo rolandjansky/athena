@@ -15,7 +15,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: *.regtest
-# art-output: athena_stdout.txt
+# art-output: *stdout*
 
 export NAME="athenaHLT_prescaled_PhysicsV7"
 export JOB_LOG="${NAME}.log"
@@ -49,7 +49,7 @@ echo "running in subshell: $subshellcmd"
 (eval $subshellcmd)
 
 grep -r "RATE_" costMonitoring_*/csv/Table_Rate_Group_HLT_All.csv  | awk '{split($0,a,","); print a[1]"\t"a[4] }' >> HLTChain.txt
-grep "TrigSteer_HLT.TrigChainMoni" stdout.txt | awk '{split($0,a,":|\t"); print a[4]" "a[10] }' | sed 's/\s*active\s*/_rerun\t/g' | sed 's/\s*HLT/HLT/g' >> HLTChain.txt
+grep "TrigSteer_HLT.TrigChainMoni" *stdout* | awk '{split($0,a,":|\t"); print a[4]" "a[10] }' | sed 's/\s*active\s*/_rerun\t/g' | sed 's/\s*HLT/HLT/g' >> HLTChain.txt
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
