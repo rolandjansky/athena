@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // TBBarrelCryostatConstruction
@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoTransform.h"  
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -89,40 +88,40 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 // Get the materials from the material manager:---------------------------------------------------
 //                                                                                                
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, std::Air is not found.");
   }
 
-  GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
   if (!Aluminium) {
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, std::Aluminium is not found.");
   }
 
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) {
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, std::LiquidArgon is not found.");
   }
 
-  GeoMaterial* Iron = materialManager->getMaterial("std::Iron");
+  const GeoMaterial* Iron = materialManager->getMaterial("std::Iron");
   if (!Iron) {
    throw std::runtime_error("Error in TBBarrelCryostatConstruction, std::Iron is not found.");
   }
 
-  GeoElement* Hydrogen = materialManager->getElement("Hydrogen");
+  const GeoElement* Hydrogen = materialManager->getElement("Hydrogen");
   if (!Hydrogen) {
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, hydrogen not found.");
   }
 
-  GeoElement* Carbon = materialManager->getElement("Carbon");
+  const GeoElement* Carbon = materialManager->getElement("Carbon");
   if (!Carbon) {
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, carbon not found.");
   }
 
-  GeoElement* Oxygen = materialManager->getElement("Oxygen");
+  const GeoElement* Oxygen = materialManager->getElement("Oxygen");
   if (!Oxygen) {
     throw std::runtime_error("Error in TBBarrelCryostatConstruction, oxygen not found.");
   }
