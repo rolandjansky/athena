@@ -20,7 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
-# art-output: *.regtest
+# art-output: *.regtest.new
 
 export NAME="physics_hi_v5_build"
 export MENU="Physics_HI_v5"

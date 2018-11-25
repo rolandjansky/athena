@@ -16,7 +16,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
-# art-output: *.regtest
+# art-output: *.regtest.new
 
 export NAME="physics_pp_v7_build"
 export MENU="Physics_pp_v7_primaries"
