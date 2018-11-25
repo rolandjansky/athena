@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -86,7 +86,8 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
             if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            if jobproperties.Beam.beamType()!="cosmics":
+                tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())
             #
@@ -271,7 +272,8 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
             
             #these tools need pantau info
             tools.append(taualgs.getCombinedP4FromRecoTaus())
-            tools.append(taualgs.getMvaTESVariableDecorator())
+            if jobproperties.Beam.beamType()!="cosmics":
+                tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
 
             if tauFlags.doRunTauDiscriminant():
