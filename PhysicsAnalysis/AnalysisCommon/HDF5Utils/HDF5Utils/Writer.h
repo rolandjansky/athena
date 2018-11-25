@@ -164,16 +164,26 @@ namespace H5Utils {
     // We check to make sure the depth of the input matches the rank
     // of the output, and that the types match.
     using std::begin;
-    template <typename T, typename I, typename = void>
+    template <size_t N, typename T, typename I, typename = void>
     struct CheckType {
       static const bool ok_type = std::is_convertible<T,I>::value;
+      static const bool any_type = ok_type;
       static const int depth = 0;
     };
+    template <size_t N, typename T, typename I>
+    struct CheckType <N,T,I,decltype(*begin(std::declval<T&>()), void())> {
+      typedef CheckType<N-1,decltype(*begin(std::declval<T&>())),I> subtype;
+      static const bool ok_type = subtype::ok_type;
+      static const bool any_type = (
+        subtype::any_type || std::is_convertible<T,I>::value);
+      static const int depth = subtype::depth + 1;
+    };
     template <typename T, typename I>
-    struct CheckType <T,I,decltype(*begin(std::declval<T&>()), void())> {
-      typedef decltype(*begin(std::declval<T&>())) iter_type;
-      static const bool ok_type = CheckType<iter_type,I>::ok_type;
-      static const int depth = CheckType<iter_type,I>::depth + 1;
+    struct CheckType <0,T,I,decltype(*begin(std::declval<T&>()), void())> {
+      typedef CheckType<0,decltype(*begin(std::declval<T&>())),I> subtype;
+      static const bool ok_type = std::is_convertible<T,I>::value;
+      static const bool any_type = subtype::any_type || ok_type;
+      static const int depth = subtype::depth + 1;
     };
 
     /// Data flattener class: this is used by the writer to read in the
@@ -376,15 +386,21 @@ namespace H5Utils {
     // make some assertions
     typedef typename
       decltype(m_consumers)::value_type::element_type::input_type input_type;
+    typedef internal::CheckType<N, T, input_type> checkType;
     static_assert(
-      internal::CheckType<T, input_type>::depth == N,
+      checkType::depth >= N,
       "\n\n"
-      " ** H5 Writer rank does not match input to fill(...)! **"
+      " ** H5 Writer rank is greater than the depth of fill(...) input! **"
       " \n");
     static_assert(
-      internal::CheckType<T, input_type>::ok_type,
+      !(checkType::any_type && !checkType::ok_type),
       "\n\n"
-      " ** H5 Writer input type doesn't match input type for fill(...)! **"
+      " ** H5 Writer input type matches fill(...), but rank is incorrect! **"
+      " \n");
+    static_assert(
+      checkType::any_type,
+      "\n\n"
+      " ** H5 Writer input type doesn't match input for fill(...)! **"
       " \n");
 
     internal::DataFlattener<N, decltype(m_consumers), T> buf(
