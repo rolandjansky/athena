@@ -22,7 +22,6 @@ namespace G4UA
       StoppedParticleAction(const int condition);
       virtual void UserSteppingAction(const G4Step*) override;
     private:
-      bool isSUSYParticle(const int) const; // Local helper for whether this is a SUSY particle
       TrackFastSimSD * m_fsSD; // Sensitive detector for storing the records of stopped particles
       bool m_init; // Whether the tool has been initialized or not
       int m_stoppingCondition; // Enum describing stopping configuration

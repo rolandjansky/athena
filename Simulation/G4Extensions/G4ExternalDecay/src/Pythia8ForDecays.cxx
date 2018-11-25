@@ -29,7 +29,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-
+#include <fstream>
 
 std::unique_ptr<Pythia8ForDecays> Pythia8ForDecays::s_instance(nullptr);
 std::once_flag Pythia8ForDecays::m_onceFlag;
@@ -54,6 +54,16 @@ Pythia8ForDecays::Pythia8ForDecays()
   m_pythia->readString("RHadrons:allowDecay = on");
   m_pythia->readString("RHadrons:probGluinoball = 0.1");
   m_pythia->readString("PartonLevel:FSR = off");
+
+  // Process the file of commands left for us by the python layer
+  std::string line;
+  std::ifstream command_stream ("PYTHIA8_COMMANDS.TXT");
+  while(getline(command_stream,line)){
+    // Leaving it to the top-level to get this file right
+    m_pythia->readString(line);
+  }
+  command_stream.close();
+
   m_pythia->init();
 
 }
