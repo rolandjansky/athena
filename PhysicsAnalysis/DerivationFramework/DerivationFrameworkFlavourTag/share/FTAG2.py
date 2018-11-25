@@ -22,6 +22,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
 from DerivationFrameworkFlavourTag.FlavourTagAllVariables import FTAllVars_bjetTriggerVtx
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackToVertexWrapper
 from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
@@ -123,6 +124,25 @@ addHbbTagger(FTAG2Seq, ToolSvc)
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+#==============================================================================
+# Soft Tagging
+#==============================================================================
+from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+
+BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+ToolSvc += BJetSVFinderTool
+BJetSVFinderTool.ConeForTag = 0.6
+
+softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+
+FTAG2Seq += softTagAlg
+
+applySoftBtagging("softBtag", FTAG2Seq ) # SV tagger in VrtSecInclusive
 
 #===================================================================
 # Tag custom or pre-built jet collections
@@ -210,6 +230,7 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
                                        "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
                                        "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+                                       "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                        ]
 
 #----------------------------------------------------------------------
@@ -250,7 +271,17 @@ FTAG2SlimmingHelper.AppendToDictionary = {
 }
 
 #----------------------------------------------------------------------
+# Add soft b-tagging containers
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
+
+FTAG2SlimmingHelper.StaticContent = StaticContent
+#----------------------------------------------------------------------
 
 addJetOutputs(FTAG2SlimmingHelper,["FTAG2"])
 
