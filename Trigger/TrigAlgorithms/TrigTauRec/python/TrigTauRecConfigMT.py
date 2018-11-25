@@ -268,7 +268,7 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
                 
             from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
             time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
+            #self.AthenaMonTools = [ time, validation, online ]
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []

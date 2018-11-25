@@ -59,11 +59,12 @@ CaloRoiUpdater.OutputLevel  = DEBUG
 CaloRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
 CaloRoiUpdater.RoIOutputKey = "RoiForTau"
 
-from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_TauCaloOnly
+from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnly
 caloRec = TrigTauRecMerged_TauCaloOnly()
-#caloRec.RoIInputKey = "RoiForTau"
-#caloRec.L1RoIKey    = "initialRoI"
-#caloRec.clustersKey = "caloclusters"
+caloRec.OutputLevel  = DEBUG
+caloRec.RoIInputKey = "RoiForTau"
+caloRec.L1RoIKey    = "initialRoI"
+caloRec.clustersKey = "caloclusters"
 
 fastCaloInViewAlgs  = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker,CaloRoiUpdater,caloRec])
 fastCaloAthSequence = seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs])
