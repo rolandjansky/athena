@@ -35,7 +35,7 @@ EXOT7ExtraVariables = [
 
 EXOT7AllVariables = [
     "AntiKt2PV0TrackJets",
-    "AntiKtVR30Rmax4Rmin02Track",
+    "AntiKtVR30Rmax4Rmin02TrackJets",
     "TruthParticles",
     "TruthEvents",
     "TruthVertices"
