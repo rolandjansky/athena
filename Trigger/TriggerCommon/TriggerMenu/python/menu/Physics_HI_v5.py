@@ -573,6 +573,7 @@ def setupMenu():
 	['mb_sptrk_L1ZDC_XOR_TE3.0ETA49_VTE200',  'L1_ZDC_XOR_TE3.0ETA49_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	
+	['mb_sptrk_exclusiveloose2_L12TAU1_VTE50',  'L1_2TAU1_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE50',  'L1_2TAU2_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE100',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE200',  'L1_2TAU2_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
