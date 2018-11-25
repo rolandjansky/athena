@@ -24,8 +24,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
 #     ]
 
 from TrigUpgradeTest.tauMenuDefs import tauCaloSequence
+#, tauCaloRecSequence
 step1=ChainStep("Step1_tau", [tauCaloSequence()])
-# step2=ChainStep("Step2_etcut", [electronStep])
+#step2=ChainStep("Step2_taucalorec", [tauCaloRecSequence()])
 
 
 

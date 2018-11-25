@@ -48,7 +48,7 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
   SG::ReadHandle< xAOD::CaloClusterContainer > CCContainerHandle = SG::makeHandle( m_clustersKey,ctx );
   CHECK( CCContainerHandle.isValid() );
   const xAOD::CaloClusterContainer *RoICaloClusterContainer = CCContainerHandle.get();
-  ATH_MSG_DEBUG( "Found " << RoICaloClusterContainer->size() << " jets, creating corresponding RoIs ... " );
+  ATH_MSG_DEBUG( "Found " << RoICaloClusterContainer->size() << " caloClusters, updating the corresponding RoI ... " );
 
   if(RoICaloClusterContainer != NULL) {
     ATH_MSG_DEBUG( "REGTEST: Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
