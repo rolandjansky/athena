@@ -90,7 +90,6 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       self.gangedAmbiguitiesFinder = InDetTrigPixelGangedAmbiguitiesFinder
       self.Pixel_RDOContainerName  = EF_PixRDOKey
       self.skipBSDecoding = not TriggerFlags.doTransientByteStream() 
-      #self.OutputLevel=1   #VERBOSE
       
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]
