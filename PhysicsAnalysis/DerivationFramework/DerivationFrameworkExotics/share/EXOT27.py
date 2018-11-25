@@ -10,7 +10,9 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
     DerivationFramework__xAODStringSkimmingTool,
     DerivationFramework__TriggerSkimmingTool,
-    DerivationFramework__GenericObjectThinning)
+    DerivationFramework__GenericObjectThinning,
+    DerivationFramework__FilterCombinationAND,
+    DerivationFramework__FilterCombinationOR)
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
@@ -238,9 +240,14 @@ for large_r in OutputLargeR:
         SelectionString="{0}.pt > 100*GeV".format(large_r),
         ContainerName = large_r) )
 
-EXOT27ElectronThinning = "Electrons.DFCommonElectronsLHLooseBL"
-EXOT27PhotonThinning = "Photons.pt > 10.*GeV && Photons.DFCommonPhotonsIsEMTight"
-EXOT27TauJetThinning = "TauJets.pt > 10.*GeV"
+EXOT27BaselineElectron = "Electrons.DFCommonElectronsLHLooseBL"
+EXOT27BaselineMuon     = "Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
+EXOT27BaselinePhoton   = "Photons.pt > 15.*GeV && Photons.DFCommonPhotonsIsEMTight"
+EXOT27BaselineTauJet   = "TauJets.pt > 10.*GeV"
+EXOT27SignalElectron   = (EXOT27BaselineElectron + " && Electrons.DFCommonElectronsLHTight "
+    + "&& Electrons.pt > 20.*GeV")
+EXOT27SignalMuon       = EXOT27BaselineMuon + " && Muons.pt > 20.*GeV"
+EXOT27SignalPhoton     = EXOT27BaselinePhoton + " && Photons.pt > 100.*GeV"
 
 # Set up the standard set of track thinning tools
 EXOT27ThinningTools += [
@@ -248,13 +255,13 @@ EXOT27ThinningTools += [
       "EXOT27ElectronTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Electrons",
-      SelectionString = EXOT27ElectronThinning
+      SelectionString = EXOT27BaselineElectron
       ),
   DerivationFramework__EgammaTrackParticleThinning(
       "EXOT27PhotonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Photons",
-      SelectionString = EXOT27PhotonThinning
+      SelectionString = EXOT27BaselinePhoton
       ),
   DerivationFramework__MuonTrackParticleThinning(
       "EXOT27MuonTrackParticleThinningTool",
@@ -265,7 +272,7 @@ EXOT27ThinningTools += [
       "EXOT27TauTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       TauKey          = "TauJets",
-      SelectionString = EXOT27TauJetThinning
+      SelectionString = EXOT27BaselineTauJet
       ),
   ]
 
@@ -274,17 +281,17 @@ EXOT27ThinningTools += [
   DerivationFramework__GenericObjectThinning(
       "EXOT27ElectronsThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27ElectronThinning,
+      SelectionString = EXOT27BaselineElectron,
       ContainerName   = "Electrons"),
   DerivationFramework__GenericObjectThinning(
       "EXOT27PhotonsThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27PhotonThinning,
+      SelectionString = EXOT27BaselinePhoton,
       ContainerName   = "Photons"),
   DerivationFramework__GenericObjectThinning(
       "EXOT27TauJetsThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27TauJetThinning,
+      SelectionString = EXOT27BaselineTauJet,
       ContainerName   = "TauJets"),
   ]
 
@@ -324,10 +331,14 @@ EXOT27SkimmingTools = []
 # string selection
 sel_list = []
 # Common SR selection
-# Resolved requirement - analysis level selection is 2 central jets with pT > 45
+# Resolved requirement - analysis level selection is 1 central jet with pT > 45
 # GeV. Use 30 GeV and |eta| < 2.8 to allow for future differences in calibration
 sel_list.append("count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.*GeV) && " +
-    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 2")
+    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 1")
+# NB - this selection is almost comically loose - is there really nothing
+# tighter we can apply?
+
+
 # Merged requirement - analysis level selection is 1 central large-R jet with pT
 # > 200 GeV. Use 100 GeV and |eta| < 2.4 to allow for future differences in
 # calibration. Do this for all of the large-R jet collections that are output
@@ -346,6 +357,80 @@ if sel_string:
       )
   EXOT27SkimmingTools.append(EXOT27StringSkimmingTool)
 
+# Add additional skimming for events passing lepton and photon triggers
+# Ideally we would add similar requirements for events passing the MET triggers
+# but I don't know how far I trust the resolution on the reference MET
+# collection. If we find that the size is still too great we can look at it.
+EXOT27SkimmingORTools = []
+# The lepton triggers are only used for the 2l control regions (1l is MET
+# trigger)
+# These regions require >=1 signal lepton && >=2 baseline leptons
+# Electrons:
+ToolSvc += DerivationFramework__TriggerSkimmingTool(
+    "EXOT27EleTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.el,
+    livefraction = 0.95) )
+ToolSvc += DerivationFramework__xAODStringSkimmingTool(
+    "EXOT27EleOfflineSkimmingTool",
+    expression = " && ".join(map("({0})".format, [
+      "count("+EXOT27BaselineElectron+") >= 2",
+      "count("+EXOT27SignalElectron+") >= 1"]) ) )
+EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
+      "EXOT27EleChannelSkim",
+      FilterList=[
+        ToolSvc.EXOT27EleTriggerSkimmingTool,
+        ToolSvc.EXOT27EleOfflineSkimmingTool]) )
+
+# Muons:
+ToolSvc += DerivationFramework__TriggerSkimmingTool(
+    "EXOT27MuonTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.mu,
+    livefraction = 0.95) )
+ToolSvc += DerivationFramework__xAODStringSkimmingTool(
+    "EXOT27MuonOfflineSkimmingTool",
+    expression = " && ".join(map("({0})".format, [
+      "count("+EXOT27BaselineMuon+") >= 2",
+      "count("+EXOT27SignalMuon+") >= 1"]) ) )
+EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
+      "EXOT27MuonChannelSkim",
+      FilterList=[
+        ToolSvc.EXOT27MuonTriggerSkimmingTool,
+        ToolSvc.EXOT27MuonOfflineSkimmingTool]) )
+
+# Photons:
+ToolSvc += DerivationFramework__TriggerSkimmingTool(
+    "EXOT27PhotonTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.g,
+    livefraction = 0.95) )
+ToolSvc += DerivationFramework__xAODStringSkimmingTool(
+    "EXOT27PhotonOfflineSkimmingTool",
+    expression = "count("+EXOT27SignalPhoton+") >= 1")
+EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
+      "EXOT27PhotonChannelSkim",
+      FilterList=[
+        ToolSvc.EXOT27PhotonTriggerSkimmingTool,
+        ToolSvc.EXOT27PhotonOfflineSkimmingTool]) )
+
+# Apply no extra selection to events passing the MET trigger
+EXOT27SkimmingORTools.append(DerivationFramework__TriggerSkimmingTool(
+    "EXOT27METTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.xe,
+    livefraction = 0.95) ) )
+
+for tool in EXOT27SkimmingORTools:
+  ToolSvc += tool
+
+EXOT27SkimmingTools.append(DerivationFramework__FilterCombinationOR(
+      "EXOTTriggerChannelORTool",
+      FilterList = EXOT27SkimmingORTools) )
 
 for tool in EXOT27SkimmingTools:
   ToolSvc += tool
@@ -399,7 +484,7 @@ EXOT27SlimmingHelper.AppendToDictionary = {
 
 EXOT27SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT27SlimmingHelper.IncludeEGammaTriggerContent = True
-EXOT27SlimmingHelper.InlcudeEtMissTriggerContent = True
+EXOT27SlimmingHelper.IncludeEtMissTriggerContent = True
 EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
 
 ################################################################################
