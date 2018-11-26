@@ -58,7 +58,10 @@ StatusCode TrackBeamlineParametersAssociationTool::initialize()
 const Trk::TrackParameters*
 TrackBeamlineParametersAssociationTool::get (const Trk::Track& p)
 {
-  return m_trackToVertexTool->trackAtBeamline (p);
+  const InDet::BeamSpotData* bsd = m_trackToVertexTool->GetBeamSpotData (Gaudi::Hive::currentContext());
+  std::unique_ptr<Trk::StraightLineSurface> bl =
+    m_trackToVertexTool->GetBeamLine (bsd);
+  return m_trackToVertexTool->trackAtBeamline (p, bl.get());
 }
 
 
@@ -84,7 +87,10 @@ TrackBeamlineParametersAssociationTool::get (const Rec::TrackParticle& p)
 const Trk::TrackParameters*
 TrackBeamlineParametersAssociationTool::get (const Trk::TrackParameters& p)
 {
-  return m_trackToVertexTool->trackAtBeamline (p);
+  const InDet::BeamSpotData* bsd = m_trackToVertexTool->GetBeamSpotData (Gaudi::Hive::currentContext());
+  std::unique_ptr<Trk::StraightLineSurface> bl =
+    m_trackToVertexTool->GetBeamLine (bsd);
+  return m_trackToVertexTool->trackAtBeamline (p, bl.get());
 }
 
 
