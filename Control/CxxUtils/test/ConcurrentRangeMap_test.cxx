@@ -76,6 +76,12 @@ struct Payload
 };
 
 
+void delfcn (const Payload* p)
+{
+  delete p;
+}
+
+
 template <class T>
 class TestUpdater
 {
@@ -152,7 +158,7 @@ void test1a()
   std::cout << "test1a\n";
   Payload::Hist phist;
   {
-    TestMap map (TestMap::Updater_t(), 3);
+    TestMap map (TestMap::Updater_t(), delfcn, 3);
 
     assert (map.size() == 0);
     assert (map.empty());
@@ -555,7 +561,7 @@ void test1b()
   std::cout << "test1b\n";
 
   Payload::Hist phist;
-  TestMap map (TestMap::Updater_t(), 100);
+  TestMap map (TestMap::Updater_t(), delfcn, 100);
   assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)));
   assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
   assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)));
@@ -785,7 +791,7 @@ void test2_Reader::operator()()
 
 void test2_iter()
 {
-  TestMap map (TestMap::Updater_t(), 20);
+  TestMap map (TestMap::Updater_t(), delfcn, 20);
 
   const int nthread = 4;
   std::thread threads[nthread];

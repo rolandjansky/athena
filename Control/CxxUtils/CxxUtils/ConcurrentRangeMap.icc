@@ -19,11 +19,14 @@ namespace CxxUtils {
 
 /**
  * @brief Constructor.
+ * @param delfcn Deletion function.
  * @param capacity Size of the data vector to allocate.
  */
 T_CONCURRENTRANGEMAP
-CONCURRENTRANGEMAP::Impl::Impl (size_t capacity /*= 10*/)
-  : m_data (capacity)
+CONCURRENTRANGEMAP::Impl::Impl (delete_function* delfcn,
+                                size_t capacity /*= 10*/)
+  : m_delete (delfcn),
+    m_data (capacity)
 {
 }
 
@@ -37,7 +40,7 @@ T_CONCURRENTRANGEMAP
 CONCURRENTRANGEMAP::Impl::~Impl()
 {
   for (const T* p : m_garbage) {
-    delete p;
+    m_delete (p);
   }
 }
 
@@ -79,19 +82,23 @@ CONCURRENTRANGEMAP::Impl::discard (const T* p)
  * @brief Constructor.
  * @param updater Object used to manage memory
  *                (see comments at the start of the class).
+ * @param delfcn Deletion function.
  * @param capacity Initial capacity of the map.
  * @param compare Comparison object.
  */
 T_CONCURRENTRANGEMAP
 CONCURRENTRANGEMAP::ConcurrentRangeMap (Updater_t&& updater,
+                                        delete_function* delfcn,
                                         size_t capacity /*= 16*/,
                                         const COMPARE& compare /*= COMPARE()*/)
+
   : m_updater (std::move (updater)),
     m_compare (compare),
+    m_delete (delfcn),
     m_nInserts (0),
     m_maxSize (0)
 {
-  auto impl = std::make_unique<Impl> (capacity);
+  auto impl = std::make_unique<Impl> (m_delete, capacity);
   value_type* data = impl->data();
   installImpl (std::move (impl),
                data, data,
@@ -110,7 +117,7 @@ CONCURRENTRANGEMAP::~ConcurrentRangeMap()
   value_type* last = m_last;
   if (last) {
     for (value_type* p = m_begin; p <= m_last; ++p) {
-      delete p->second;
+      m_delete (p->second);
     }
       
   }
@@ -165,7 +172,7 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
 T_CONCURRENTRANGEMAP
 bool
 CONCURRENTRANGEMAP::emplace (const RANGE& range,
-                             std::unique_ptr<T> ptr,
+                             payload_unique_ptr ptr,
                              const typename Updater_t::Context_t& ctx
                                /*= Updater_t::defaultContext()*/)
 {
@@ -209,7 +216,7 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   }
 
   // Allocate the new object.
-  auto new_impl = std::make_unique<Impl> (new_capacity);
+  auto new_impl = std::make_unique<Impl> (m_delete, new_capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
 
@@ -293,7 +300,7 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
 
   // Need to make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();
-  auto new_impl = std::make_unique<Impl> (capacity);
+  auto new_impl = std::make_unique<Impl> (m_delete, capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
 
@@ -355,7 +362,7 @@ CONCURRENTRANGEMAP::extendLastRange (const RANGE& newRange,
 
   // Make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();
-  auto new_impl = std::make_unique<Impl> (capacity);
+  auto new_impl = std::make_unique<Impl> (m_delete, capacity);
   value_type* new_begin = new_impl->data();
   value_type* new_end = new_begin;
   value_type* begin = m_begin;
@@ -426,7 +433,7 @@ CONCURRENTRANGEMAP::trim (const std::vector<key_query_type>& keys)
 
     if (!garbage) {
       // Allocate a dummy impl object if we haven't done so yet.
-      garbage = std::make_unique<Impl> (0);
+      garbage = std::make_unique<Impl> (m_delete, 0);
     }
 
     // Add it to the garbage list.
@@ -531,6 +538,18 @@ void
 CONCURRENTRANGEMAP::quiescent (const typename Updater_t::Context_t& ctx /*= Updater_t::defaultContext()*/)
 {
   m_updater.quiescent (ctx);
+}
+
+
+/**
+ * @brief Return the deletion function for this container.
+ */
+T_CONCURRENTRANGEMAP
+inline
+typename CONCURRENTRANGEMAP::delete_function*
+CONCURRENTRANGEMAP::delfcn() const
+{
+  return m_delete;
 }
 
 
