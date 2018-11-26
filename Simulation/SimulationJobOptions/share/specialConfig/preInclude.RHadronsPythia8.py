@@ -189,7 +189,6 @@ if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
 # Set up R-hadron masses in Pythia8
 from RHadrons.RHadronMasses import get_Pythia8_commands
 genSeq.Pythia8.Commands += get_Pythia8_commands('SLHA_INPUT.DAT',spectrum)
-print 'ZLM',genSeq.Pythia8.Commands
 f = open('PYTHIA8_COMMANDS.TXT','w')
 f.write('\n'.join(genSeq.Pythia8.Commands))
 f.close()
