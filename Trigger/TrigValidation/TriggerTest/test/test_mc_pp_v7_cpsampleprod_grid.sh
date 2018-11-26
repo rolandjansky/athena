@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: No menu (L1) TriggerTest on MC
+# art-description: MC v7 tight TriggerTest on MC
 # art-type: grid
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
@@ -22,8 +22,9 @@
 # art-output: TotalEventsProcessed.txt
 # art-output: *.regtest
 
-export NAME="slice_l1_grid"
-export JOBOPTIONS="TriggerTest/testLVL1CTPAthenaTrigRDO.py"
+export NAME="mc_pp_v7_cpsampleprod_grid"
+export MENU="MC_pp_v7_CPSampleProd_mc_prescale"
+export EVENTS="500"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
