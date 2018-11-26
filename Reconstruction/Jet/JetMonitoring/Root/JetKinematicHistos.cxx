@@ -50,8 +50,8 @@ int JetKinematicHistos::buildHistos(){
   m_eta = bookHisto( new TH1F(prefixn+"eta" ,  "Jet #eta;#eta;Entries", 50,-6,6) );
   m_phi = bookHisto( new TH1F(prefixn+"phi" ,  "Jet #phi;#phi;Entries", 50,-3.3,3.3) );
 
-  // high pT
-  m_pt_high  = bookHisto( new TH1F(prefixn+"pt_high"  ,  "Jet P_{T} pT.gt.200 GeV;P_{T} (GeV);Entries", 100,0,2000) );
+  // high pT jets in a new histogram range
+  m_pt_high  = bookHisto( new TH1F(prefixn+"pt_high"  ,  "Jet P_{T} pT.gt.200 GeV;P_{T} (GeV);Entries", 100,0,4000) );
   m_eta_high = bookHisto( new TH1F(prefixn+"eta_high" ,  "Jet #eta pT.gt.200 GeV;#eta;Entries", 50,-6,6) );
   
 

@@ -30,8 +30,11 @@
 
 using namespace std;
 
+double HUFbytes(TH1D const *hist);
+
 int main(int argc, char const *argv[]) {
    FTKLogging logging("main");
+   FTKLogging::SetAbortLevel(1);
    std::string output;
    std::vector<std::string> files;
    try {
@@ -67,33 +70,41 @@ int main(int argc, char const *argv[]) {
    TDirectory *statFile=FTKRootFile::Instance()->
       CreateRootFile(output.c_str());
    std::map<int,uint64_t> s100sector,s100pattern,s1pattern;
+
+   // bank compression analysis
+   vector<int> nDataMax;
+
    int ifilesRead=0;
    for(unsigned ifile=0;ifile<files.size();ifile++) {
-      TDirectory *bankFile=FTKRootFile::Instance()->
-         OpenRootFileReadonly(files[ifile].c_str());
+      FTKRootFileChain fileChain;
+      fileChain.Open(files[ifile].c_str());
+      TDirectory *bankFile=fileChain.GetDirectory();
       if(!bankFile) {
          logging.Fatal("openInputFile")<<"can not open: "<<files[ifile]<<"\n";
       } else {
          logging.Info("openInputFile")<<"file opened: "<<files[ifile]<<"\n";
-         FTKPatternBySectorReader bankReader(*bankFile);
+         FTKPatternBySectorReader *bankReader=
+            FTKPatternBySectorReader::Factory(fileChain);
          int nSector=0;
-         for(int sector=bankReader.GetFirstSector();sector>=0;
-             sector=bankReader.GetNextSector(sector)) {
+         for(int sector=bankReader->GetFirstSector();sector>=0;
+             sector=bankReader->GetNextSector(sector)) {
             nSector++;
             int i100=sector/100;
             s100sector[i100]++;
-            uint64_t nPattern=bankReader.GetNPatterns(sector);
+            uint64_t nPattern=bankReader->GetNPatterns(sector);
             s100pattern[i100]+=nPattern;
             s1pattern[sector]+=nPattern;
          }
+         logging.Info("openInputFile")<<"nsector="<<nSector<<"\n";
          if(nSector) {
             logging.Info("sectorOrderedFile")
-               <<"total number of patterns: "<<bankReader.GetNPatterns()<<"\n";
+               <<"total number of patterns: "
+               <<bankReader->GetNPatternsTotal()<<"\n";
             logging.Info("sectorOrderedFile")
                <<"total number of sectors: "<<nSector
                <<" ["<<(*s1pattern.begin()).first<<","
                <<(*s1pattern.rbegin()).first<<"]\n";
-            if(bankReader.GetContentType()==
+            if(bankReader->GetContentType()==
                FTKPatternBySectorReader::CONTENT_NOTMERGED) {
                logging.Warning("sectorOrderedFile")
                   <<"This bank is not merged, coverage details unknown\n";
@@ -114,17 +125,18 @@ int main(int argc, char const *argv[]) {
                TH1D *h_s100_covPattern=
                   new TH1D("h_s100_covPattern",";sector;coverage*npattern",
                            nBin100,0,nBin100*100.);
-               std::map<int,std::map<int,int> > scMap;
-               bankReader.GetNPatternsBySectorCoverage(scMap);
+               FTKPatternBySectorReader::SectorByCoverage_t 
+                  const &scMap=bankReader->GetSectorByCoverage();
                uint64_t covPatt=0;
                uint64_t npattTotal=0;
-               for(std::map<int,std::map<int,int> >::const_iterator
-                      is=scMap.begin();is!=scMap.end();is++) {
-                  int sector=(*is).first;
-                  for(std::map<int,int>::const_iterator ic=(*is).second.begin();
-                      ic!=(*is).second.end();ic++) {
-                     int coverage=(*ic).first;
-                     int npattern=(*ic).second;
+               for(FTKPatternBySectorReader::SectorByCoverage_t::const_iterator
+                      iCov=scMap.begin();iCov!=scMap.end();iCov++) {
+                  int coverage=(*iCov).first;
+                  for(FTKPatternBySectorReader::SectorMultiplicity_t
+                         ::const_iterator iSector=(*iCov).second.begin();
+                      iSector!=(*iCov).second.end();iSector++) {
+                     int sector=(*iSector).first;
+                     int npattern=(*iSector).second;
                      h_coverage100->Fill(coverage,npattern);
                      h_coverage1000->Fill(coverage,npattern);
                      h_s100_covPattern->Fill(sector,coverage*npattern);
@@ -187,9 +199,156 @@ int main(int argc, char const *argv[]) {
                   sectorPatterns[sectorID]++;
                   npatt++;
                }
-               logging.Info("stat")<<"non-empty sectors: "<<sectorPatterns.size()<<"\n";
+               logging.Info("stat")<<"non-empty sectors: bank "
+                                   <<sectorPatterns.size()
+                                   <<" total "<<s1pattern.size()<<"\n";
             }
-            delete bankFile;
+            // analyze lookup-tables
+            for(int layer=0;layer<16;layer++) {
+               TString treeName(TString::Format("Layer%d",layer));
+               tree=0;
+               bankFile->GetObject(treeName,tree);
+               if(!tree) break;
+               Int_t nData;
+               tree->SetBranchAddress("nData",&nData);
+               nDataMax.resize(layer+1);
+               for(int i=0;i<tree->GetEntries();i++) {
+                  tree->GetEntry(i);
+                  if(nData>nDataMax[layer]) nDataMax[layer]=nData;
+               }
+               Int_t nPattern,firstPattern;
+               vector<Int_t> data(nDataMax[layer]);
+               tree->SetBranchAddress("data",data.data());
+               tree->SetBranchAddress("nPattern",&nPattern);
+               tree->SetBranchAddress("firstPattern",&firstPattern);
+               TH1D *hist_nPattern=0,*hist_nData=0,*hist_iPatt=0;
+               TH1D *hist_pattDensity=0, *hist_pattDensity20=0,
+                  *hist_iPatt8=0,*hist_patt8Data=0,
+                  *hist_pattData=0,*hist_nbits=0;
+               int nPatternTotal=0;
+               int nDataTotal=0;
+               int iPattTotal=0;
+               int iPatt8Total=0;
+               if(statFile) {
+                  statFile->cd();
+                  hist_nPattern=new TH1D
+                     (TString::Format("hist_nPattern%d",layer),";nPattern",
+                      1000,0.5,10000.5);
+                  hist_nData=new TH1D
+                     (TString::Format("hist_nData%d",layer),";nData",
+                      1000,0.5,10000.5);
+                  hist_iPatt=new TH1D
+                     (TString::Format("hist_iPatt%d",layer),";iPatt",
+                      1000,0.5,100000.5);
+                  hist_iPatt8=new TH1D
+                     (TString::Format("hist_iPatt8%d",layer),";iPatt8",
+                      1000,0.5,100000.5);
+                  hist_pattDensity=new TH1D
+                     (TString::Format("hist_pattDensity%d",layer),
+                      ";nPattern/range",100,0.,1.);
+                  hist_pattDensity20=new TH1D
+                     (TString::Format("hist_pattDensity20_%d",layer),
+                      ";nPattern/range (nPattern>=20)",100,0.,1.);
+                  hist_pattData=new TH1D
+                     (TString::Format("hist_pattData%d",layer),
+                     ";data", 256,-0.5,255.5);
+                  hist_patt8Data=new TH1D
+                     (TString::Format("hist_patt8Data%d",layer),
+                      ";data8", 256,-0.5,255.5);
+                  hist_nbits=new TH1D
+                     (TString::Format("hist_nbits%d",layer),
+                      ";data8", 9,-0.5,8.5);
+               }
+               vector<uint8_t> patterns;
+               patterns.reserve(1000000);
+               for(int i=0;i<tree->GetEntries();i++) {
+                  tree->GetEntry(i);
+                  nPatternTotal += nPattern;
+                  nDataTotal += nData;
+                  // expand data
+                  int ipatt=firstPattern & 0x7;
+                  int ipatt0=ipatt;
+                  patterns.resize(0);
+                  patterns.push_back(1<<ipatt);
+                  for(int iData=0;iData<nData;) {
+                     int d=data[iData++];
+                     if(d>=0xf0) {
+                        for(int k=0;k<d-0xee;k++) {
+                           ipatt ++;
+                           size_t pos8=ipatt>>3;
+                           if(patterns.size()<=pos8) {
+                              patterns.resize(pos8+1);
+                           }
+                           patterns[pos8] |= 1<<(ipatt &7);
+                        }
+                     } else {
+                        // process one pattern
+                        uint32_t delta=1;
+                        while(d & 0x80) {
+                           // pattern with more than 7 bits
+                           //  add non-zero high bits in groups of 4 bits
+                           int shift=((d>>2)&0x3c)-25;
+                           delta += ((uint32_t)(d&0xf))<<shift;
+                           d=data[iData++];
+                        }
+                        delta += d;
+                        ipatt += delta;
+                        size_t pos8=ipatt>>3;
+                        if(patterns.size()<=pos8) {
+                           patterns.resize(pos8+1);
+                        }
+                        patterns[pos8] |= 1<<(ipatt &7);
+                     }
+                  }
+                  // 
+                  int iPatt8=patterns.size();
+                  if(statFile) {
+                     for(int iData=0;iData<nData;iData++) {
+                        hist_pattData->Fill(data[iData]);
+                     }
+                     for(int k=0;k<iPatt8;k++) {
+                        hist_patt8Data->Fill(patterns[k]);
+                        int mult=patterns[k];
+                        mult=(mult & 0x55)+((mult>>1)&0x55);
+                        mult=(mult & 0x33)+((mult>>2)&0x33);
+                        mult=(mult & 0xf)+(mult>>4);
+                        hist_nbits->Fill(mult);
+                     }
+
+                     hist_nPattern->Fill(nPattern);
+                     hist_nData->Fill(nData);
+                     hist_iPatt->Fill(ipatt);
+                     hist_iPatt8->Fill(iPatt8);
+                     int range=ipatt-ipatt0+1;
+                     hist_pattDensity->Fill((nPattern)/(double)range);
+                     if(nPattern>=20) {
+                        hist_pattDensity20->Fill((nPattern)/(double)range);
+                     }
+                  }
+                  iPattTotal += ipatt-(firstPattern & 0x7);
+                  iPatt8Total += iPatt8;
+               }
+               logging.Info("compress")
+                  <<"layer="<<layer<<" ndataMax="<<nDataMax[layer]
+                  <<" nPatternTotal="<<nPatternTotal
+                  <<" nDataTotal="<<nDataTotal
+                  <<" niPattTotal="<<iPattTotal
+                  //<<" fractionNIpatt="<<((double)nPatternTotal)/iPattTotal
+                  <<" fractionNpatt="<<((double)nDataTotal)/nPatternTotal
+                  <<" fraction8Npatt="<<((double)iPatt8Total)/nPatternTotal
+                  <<"\n";
+               if(statFile) {
+                  hist_nPattern->Write();
+                  hist_nData->Write();
+                  hist_nbits->Write();
+                  hist_iPatt->Write();
+                  hist_iPatt8->Write();
+                  hist_pattData->Write();
+                  hist_patt8Data->Write();
+                  hist_pattDensity->Write();
+                  hist_pattDensity20->Write();
+               }
+            }
          }
          ifilesRead++;
       }
@@ -221,7 +380,7 @@ int main(int argc, char const *argv[]) {
          h_s100_patternPerSector->Write();
       } else {
          logging.Warning("statistics")
-            <<"no pattern data was found (bank is empty)\n";
+            <<"no output file specified\n";
       }
    }
    if(statFile) delete statFile;

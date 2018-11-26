@@ -10,6 +10,8 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "xAODTruth/xAODTruthHelpers.h"
 
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
@@ -29,6 +31,15 @@ namespace egammaMonitoring{
     StatusCode initializePlots();
 
     void fill(const xAOD::IParticle& egamma);
+
+    void fill(const xAOD::Electron& electron) {
+      fill( static_cast<const xAOD::IParticle& >(electron) );
+    };
+  
+    void fill(const xAOD::Photon& photon) {
+      fill( static_cast<const xAOD::IParticle&>(photon) );   
+    };
+
 
   private:
 

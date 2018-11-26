@@ -19,6 +19,7 @@ TFCSSimulationState::TFCSSimulationState(CLHEP::HepRandomEngine* randomEngine)
 
 void TFCSSimulationState::clear()
 {
+  m_SF=1;
   m_Ebin=-1;
   m_Etot=0;
   for(int i=0;i<CaloCell_ID_FCS::MaxSample;++i)

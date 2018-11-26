@@ -181,11 +181,19 @@ validation_mam=monitoring_mam
 monitoring_mam_hi = {'primary_single_ele_cutbased':'HLT_e15_loose_ion',
                      'primary_single_ele':'HLT_e15_lhloose_ion_L1EM12',
                      'primary_single_pho':'HLT_g20_loose_ion'}
-monitoring_electron_hi=["HLT_e15_etcut_ion", "HLT_e15_loose_ion",
-"HLT_e15_medium_ion", "HLT_e15_lhloose_ion_L1EM12",
-"HLT_e15_lhmedium_ion_L1EM12", "HLT_e18_etcut_ion", "HLT_e18_loose_ion",
-"HLT_e18_medium_ion", "HLT_e18_lhloose_ion", "HLT_e18_lhmedium_ion",
-"HLT_e20_loose_ion"]
+monitoring_electron_hi=[
+    "HLT_e15_etcut_ion", #OK
+    "HLT_e15_loose_ion",#OK
+    "HLT_e15_medium_ion", #OK
+    "HLT_e15_lhloose_ion_L1EM12",#OK
+    "HLT_e15_lhmedium_ion_L1EM12", #<-- Breaks TrigEgammaMon
+    "HLT_e18_etcut_ion", #OK
+    "HLT_e18_loose_ion",#OK
+    "HLT_e18_medium_ion", #OK
+    "HLT_e18_lhloose_ion", #OK
+    "HLT_e18_lhmedium_ion", #<-- Breaks TrigEgammaMon
+    "HLT_e20_loose_ion" #OK
+]
 
 monitoring_photon_hi=["HLT_g20_loose_ion", "HLT_g18_etcut_ion",
 "HLT_g15_loose_ion", "HLT_g13_etcut_ion"]
