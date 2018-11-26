@@ -27,7 +27,7 @@ if TriggerFlags.doCalo:
 
 
     # menu items
-     CTPToChainMapping = {"HLT_j85":       "L1_J20"  , "HLT_j100" : "L1_EM3" }
+     CTPToChainMapping = {"HLT_j85":       "L1_J20"  , "HLT_j100" : "L1_J20" }
      testChains =[x for x, y in CTPToChainMapping.items()]
      topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
      print testChains
@@ -38,15 +38,10 @@ if TriggerFlags.doCalo:
              L1JetDecisions=unpack.Decisions
              
 
-     addFiltering=True
-
      inputRoIs="FSRoI"
      hypoDecisions=L1JetDecisions
 
-     testEM=False
-     if testEM:
-         inputRoIs="StoreGateSvc+EMRoIs"
-         hypoDecisions="L1EM"
+     addFiltering=True
      
      if addFiltering:
          #filter

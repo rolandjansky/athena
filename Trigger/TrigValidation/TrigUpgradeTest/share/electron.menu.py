@@ -38,10 +38,6 @@ if globalflags.InputFormat.is_bytestream():
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
 topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
-#EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in testChains]
-#emUnpacker.ThresholdToChainMapping = EnabledElChains
-
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 

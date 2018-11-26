@@ -81,10 +81,7 @@ if  TriggerFlags.doMuon==True:
     # this is a temporary hack to include new test chains
     EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in MenuChains])
     topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
-    #EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MenuChains]
-    #muUnpacker.ThresholdToChainMapping = EnabledMuChains
-
+  
 
     ##########################################
     # CF construction

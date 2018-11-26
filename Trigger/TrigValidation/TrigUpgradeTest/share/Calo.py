@@ -31,14 +31,7 @@ if TriggerFlags.doCalo:
     
      svcMgr += TrigCaloDataAccessSvc()
      svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
-     svcMgr.TrigCaloDataAccessSvc.MonTool = mon
-    
-    
-    
-     #topSequence += algo
-     #from TrigUpgradeTest.TestUtils import L1DecoderTest
-     #l1DecoderTest=L1DecoderTest()
-     #topSequence+=l1DecoderTest
+     svcMgr.TrigCaloDataAccessSvc.MonTool = mon           
     
      from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
      from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker

@@ -27,7 +27,6 @@ StatusCode  InputMakerForRoI::initialize() {
 }
 
 StatusCode  InputMakerForRoI::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 
@@ -37,7 +36,7 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
   
   // call base class helper method to read input decisions, loop over them create outputs and connect them, returns with outputHandles filled
   std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > outputHandles;
-  CHECK (decisionInputToOutput(context, outputHandles));
+  ATH_CHECK (decisionInputToOutput(context, outputHandles));
   
   // Prepare Outputs
   std::unique_ptr< TrigRoiDescriptorCollection > oneRoIColl( new TrigRoiDescriptorCollection() );
@@ -61,7 +60,7 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
       ElementLink<DecisionContainer> inputLink = linkToPrevious(outputDecision);
       const Decision* inputDecision = *inputLink;
       auto roiEL = inputDecision->objectLink<TrigRoiDescriptorCollection>(m_linkName.value() ); //"initialRoI" 
-      CHECK( roiEL.isValid() );
+      ATH_CHECK( roiEL.isValid() );
       
       // avoid adding the same feature multiple times: check if not in container, if not add it
       if ( find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL)
@@ -81,7 +80,7 @@ StatusCode  InputMakerForRoI::execute_r( const EventContext& context ) const {
     // Finally, record output
   ATH_MSG_DEBUG("Produced "<<oneRoIColl->size() <<" output RoIs");
   auto roi_outputHandle = SG::makeHandle(m_RoIs, context);
-  CHECK( roi_outputHandle.record(std::move(oneRoIColl)) );
+  ATH_CHECK( roi_outputHandle.record(std::move(oneRoIColl)) );
   
   // call base class helper method to print some debug messages summarising the content of the outputHandles.
   CHECK( debugPrintOut(context, outputHandles) );
