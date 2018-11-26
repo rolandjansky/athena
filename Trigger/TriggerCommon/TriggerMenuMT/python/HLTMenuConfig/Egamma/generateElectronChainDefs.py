@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import Chain_electron as Chain_electron
+from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import generteChain as generateElectronChain
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils import splitChainDict
 
@@ -20,8 +20,8 @@ def generateChainConfigs( chainDict ):
 
     for subChainDict in listOfChainDicts:
         log.debug("IN ELECTRON GENERATION CODE")
-        Electron = Chain_electron(subChainDict).assembleChain()            
-        log.debug('Electron object: type name of class: %s', Electron.__class__.__name__)
+        Electron = generateElectronChain( subChainDict )
+
 
         listOfChainDefs += [Electron]
         log.debug('length of chaindefs %s', len(listOfChainDefs) )
