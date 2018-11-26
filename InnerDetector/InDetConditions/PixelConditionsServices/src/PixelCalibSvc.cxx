@@ -31,9 +31,10 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
+/*
+These are obtained from the PixelModuelDesign these days
 static unsigned int columnsPerFEI3 = 18;   // number of columns per FEI3 (18x160)
 
-/*
 static unsigned int rowsPerFEI3    = 164;   // number of rows per FEI3
 
 static unsigned int rowsFGangedFEI3  =153;   // first ganged pixel row for FEI3
@@ -41,7 +42,6 @@ static unsigned int rowsLGangedFEI3  =159;   // last ganged pixel row for FEI3
 
 static unsigned int columnsPerFEI4 = 80;   // number of columns per FEI4 (80x336)
 static unsigned int rowsPerFEI4 = 336; // number of rows per FEI4
-*/
 
 static unsigned int columnsPerFEI50 = 132; // number of columns per FEI5-type 0 (132x672) for barrel layer 0
 static unsigned int rowsPerFEI50 = 672; // number of rows per FEI50
@@ -55,6 +55,7 @@ static unsigned int columnsPerFEI51 = 80; // number of columns per FEI5-type 1 (
 static unsigned int rowsPerFEI51 = 339; // number of rows per FEI51
 static unsigned int rowsFGangedFEI51  =331;   // first ganged pixel row for FEI51
 static unsigned int rowsLGangedFEI51  =335;   // last ganged pixel row for FEI51
+*/
 
 static bool isITK(false);
 
@@ -179,7 +180,7 @@ int PixelCalibSvc::PixelType(const Identifier wafer_id, int row, int col) const 
   // local row and col of ith circuit(0-15) 
   // each circuit contains 160 rows and 18 columns 
   if(isITK){ 
-    if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+    /*if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
       if (p_design->numberOfCircuits()==2) {     // IBL planar
         if(col==0||col==(static_cast<int>(columnsPerFEI50)-1))return 1; // long pixel
       }
@@ -190,7 +191,9 @@ int PixelCalibSvc::PixelType(const Identifier wafer_id, int row, int col) const 
       int il = m_pixid->layer_disk(wafer_id); 
       if(iec==0&&il==1)return gangedType(row, col, columnsPerFEI52,rowsFGangedFEI52,rowsLGangedFEI52);
       else return gangedType(row, col, columnsPerFEI51,rowsFGangedFEI51,rowsLGangedFEI51);
-    }
+    }*/
+    //Pixel module design not yet final. Comment out ganged/long for now until any decision is made
+    return 0;
   }
   else {
     if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
@@ -216,10 +219,10 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-  int layer_disk = m_pixid->layer_disk(wafer_id);
+//  int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
 
-  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
+//  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
 // int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int col;
   int row;
@@ -303,9 +306,9 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-  int layer_disk = m_pixid->layer_disk(wafer_id);
+//  int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
-  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
+//  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
 // int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int circ(-1);
   if (isITK) {
@@ -726,7 +729,8 @@ float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const {
     }
   }
   else {
-    ATH_MSG_WARNING("Condition DB is not available. Use hardcoded value.");
+    //Remove warning for ITk as Condition DB is not yet setup
+    if(!isITK)ATH_MSG_WARNING("Condition DB is not available. Use hardcoded value.");
     ToT = m_totparA*(m_totparE+Q)/(m_totparC+Q);
   }
 
