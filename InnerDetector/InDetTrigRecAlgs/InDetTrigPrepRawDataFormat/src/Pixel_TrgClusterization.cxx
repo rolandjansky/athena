@@ -69,7 +69,8 @@ namespace InDet{
     m_phiHalfWidth(0.1),
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
-    m_doTimeOutChecks(true)
+    m_doTimeOutChecks(true),
+    m_skipBSDecoding(false)
   {  
     // Get parameter values from jobOptions file
     declareProperty("DetectorManagerName",     m_managerName);
