@@ -57,7 +57,7 @@ namespace xAOD
     /*!@{*/
     const std::string& name() const;                /*!< @brief MET object name */
     MissingETBase::Types::bitmask_t source() const; /*!< @brief MET object source tag */
-    const std::size_t& nameHash() const;            /*!< @brief Return hash associated to the MET object name */
+    std::size_t nameHash() const;                   /*!< @brief Return hash associated to the MET object name */
     /*!@}*/
 
     /*! @name Identifier setters */

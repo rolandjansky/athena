@@ -17,7 +17,7 @@ inline double xAOD::MissingET_v1::sumet() const { static SG::AuxElement::Accesso
 
 inline const std::string&              xAOD::MissingET_v1::name()     const { static SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
 //inline const std::string&              xAOD::MissingET_v1::name()     const { return m_nameHashPair.first;  };
-inline const std::size_t&              xAOD::MissingET_v1::nameHash() const {
+inline std::size_t xAOD::MissingET_v1::nameHash() const {
   if(!name().empty() && m_nameHashPair.second==0) {
     return std::hash<std::string>()(name());
   }
