@@ -50,6 +50,12 @@ namespace CP {
                 m_acc_quality(),
                 m_acc_passOR(),
                 m_acc_ToCorrect(),
+                m_chk_assocEtaPhi("IsoCloseByCorrTool_hasAssocEtaPhi"),
+                m_acc_assocEta("IsoCloseByCorrTool_assocEta"),
+                m_acc_assocPhi("IsoCloseByCorrTool_assocPhi"),
+                m_dec_assocEtaPhi("IsoCloseByCorrTool_hasAssocEtaPhi"),
+                m_dec_assocEta("IsoCloseByCorrTool_assocEta"),
+                m_dec_assocPhi("IsoCloseByCorrTool_assocPhi"),
                 m_backup_prefix(),
                 m_trkselTool(),
                 m_ttvaTool(),
@@ -506,6 +512,20 @@ namespace CP {
         return coreToBeRemoved * fraction;
     }
     void IsolationCloseByCorrectionTool::getExtrapEtaPhi(const xAOD::IParticle* par, float& eta, float& phi) const {
+        // if we did not already decorate the info: compute it once and decorate it 
+        if (!m_chk_assocEtaPhi.isAvailable(*par) || !m_chk_assocEtaPhi(*par)){
+            calcExtrapEtaPhi(par,eta,phi); 
+            m_dec_assocEtaPhi(*par) = true;
+            m_dec_assocEta(*par) = eta;
+            m_dec_assocPhi(*par) = phi;
+        }
+        // otherwise, we can retrieve the decoration
+        else {
+            eta = m_acc_assocEta(*par);
+            phi = m_acc_assocPhi(*par);
+        }
+    }   
+    void IsolationCloseByCorrectionTool::calcExtrapEtaPhi(const xAOD::IParticle* par, float& eta, float& phi) const {
         phi = par->phi();
         eta = par->eta();
         if (par->type() == xAOD::Type::ObjectType::Muon) {
