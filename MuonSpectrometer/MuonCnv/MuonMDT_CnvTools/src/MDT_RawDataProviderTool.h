@@ -15,10 +15,13 @@
 #include <set>
 #include <string>
 
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+
 class MdtCsmContainer;
 class StoreGateSvc;
 class ActiveStoreSvc;
-class MuonMDT_CablingSvc;
 class IROBDataProviderSvc;
 
 namespace MuonGM {
@@ -66,10 +69,11 @@ class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, virtual
   ActiveStoreSvc*                   m_activeStore;
   unsigned int m_maxhashtoUse;
   bool m_useContainer;
-  /// MDT cabling Svc
-  MuonMDT_CablingSvc * m_mdtCabling;
   // Rob Data Provider handle 
   ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
+
+    SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+
 
 };
 }
