@@ -6,8 +6,8 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMultivariateTagManager = { 'IsATagger'          : True,
 #              'xAODBaseName'       : 'MultivariateTagManager',
-              'DependsOn'          : ['AtlasExtrapolator',
-                                      'BTagTrackToVertexTool',
+              'DependsOn'          : [#'AtlasExtrapolator',
+                                      #'BTagTrackToVertexTool',
                                       'IP2DTag',
                                       'IP3DTag',                                      
                                       #'NewJetFitterVxFinder',

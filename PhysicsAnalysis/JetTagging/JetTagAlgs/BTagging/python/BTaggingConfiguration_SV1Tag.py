@@ -6,11 +6,12 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaSV1Tag = { 'IsATagger'         : True,
                'xAODBaseName'      : 'SV1',
-               'DependsOn'         : ['AtlasExtrapolator',
-                                      'BTagTrackToVertexTool',
+               'DependsOn'         : [#'AtlasExtrapolator',
+                                      #'BTagTrackToVertexTool',
                                       #'InDetVKalVxInJetTool',
-                                      'SV1NewLikelihoodTool'],
-               'PassByPointer'     : {'LikelihoodTool'  : 'SV1NewLikelihoodTool'},
+                                      #'SV1NewLikelihoodTool'
+                                     ],
+               #'PassByPointer'     : {'LikelihoodTool'  : 'SV1NewLikelihoodTool'},
                'JetCollectionList' : 'jetCollectionList',
                'ToolCollection'    : 'SV1Tag' }
 
@@ -33,6 +34,7 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        likelihood = toolSV1NewLikelihoodTool('SV1NewLikelihoodTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
@@ -42,7 +44,7 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
                      'SecVxFinderName'                  : 'SV1',
                      'UseCHypo'                         : True,
 #                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
-                     'LikelihoodTool'                   : None }
+                     'LikelihoodTool'                   : likelihood }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

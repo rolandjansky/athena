@@ -6,9 +6,10 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMV2c10rnnTag = { 'IsATagger'          : False,#True,
                   'xAODBaseName'       : 'MV2c10rnn',
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'SoftMuonTag',
-                                          'BTagTrackToVertexTool'],
+                  'DependsOn'          : [#'AtlasExtrapolator',
+                                          #'SoftMuonTag',
+                                          #'BTagTrackToVertexTool'
+                                         ],
                   'CalibrationTaggers' : ['MV2c10rnn',],
                   'ToolCollection'     : 'MV2c10rnnTag'}
 

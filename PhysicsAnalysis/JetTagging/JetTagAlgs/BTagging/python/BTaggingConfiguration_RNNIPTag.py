@@ -12,21 +12,23 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
     meta = {'IsATagger'         : True,
             'xAODBaseName'      : basename,
             'CalibrationTaggers' : [cal_dir],
-            'DependsOn'         : ['AtlasExtrapolator',
-                                   'BTagTrackToVertexTool',
+            'DependsOn'         : [#'AtlasExtrapolator',
+                                   #'BTagTrackToVertexTool',
                                    #'InDetVKalVxInJetTool',
-                                   'BTagTrackToVertexIPEstimator',
-                                   'IP3DTrackSelector',
-                                   'InDetTrackSelector',
-                                   'SpecialTrackAssociator',
-                                   'SVForIPTool_IP3D',
-                                   'IP3DBasicTrackGradeFactory',
-                                   'IP3DDetailedTrackGradeFactory'],
+                                   #'BTagTrackToVertexIPEstimator',
+                                   #'IP3DTrackSelector',
+                                   #'InDetTrackSelector',
+                                   #'SpecialTrackAssociator',
+                                   #'SVForIPTool_IP3D',
+                                   #'IP3DBasicTrackGradeFactory',
+                                   #'IP3DDetailedTrackGradeFactory'],
+                                   ],
             'PassByPointer'     : {
-                'SVForIPTool'                : 'SVForIPTool_IP3D',
-                'trackSelectorTool'          : 'IP3DTrackSelector',
-                'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
-                'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator'},
+                #'SVForIPTool'                : 'SVForIPTool_IP3D',
+                #'trackSelectorTool'          : 'IP3DTrackSelector',
+                #'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory'},
+                #'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator'},
+                                 },
             'PassTracksAs'      : 'trackAssociationName',
             'ToolCollection'    : 'IP3DTag' }
 
@@ -44,6 +46,14 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
                       "InANDNInSplit", "PixSplit",
                       "Good"]
 
+            from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexIPEstimator as toolBTagTrackToVertexIPEstimator
+            trackToVertexIPEstimator = toolBTagTrackToVertexIPEstimator('TrkToVxIPEstimator')
+            from BTagging.BTaggingConfiguration_IP3DTag import toolSVForIPTool_IP3D as toolSVForIPTool_IP3D
+            svForIPTool = toolSVForIPTool_IP3D('SVForIPTool')
+            from BTagging.BTaggingConfiguration_IP3DTag import toolIP3DDetailedTrackGradeFactory as toolIP3DDetailedTrackGradeFactory
+            trackGradeFactory = toolIP3DDetailedTrackGradeFactory('RNNIPDetailedTrackGradeFactory')
+            from BTagging.BTaggingConfiguration_IP3DTag import toolIP3DTrackSelector as toolIP3DTrackSelector
+            trackSelectorTool = toolIP3DTrackSelector('IP3DTrackSelector')
             defaults = {
                 'OutputLevel'               : BTaggingFlags.OutputLevel,
                 'trackGradePartitions'      : grades ,
@@ -54,7 +64,11 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
                 #'trackAssociation'          : "Tracks" }
                 'SecVxFinderName'           : 'SV1',
                 'calibration_directory'     : cal_dir,
-                'writeInputsToBtagObject': BTaggingFlags.WriteRNNInputs
+                'writeInputsToBtagObject'   : BTaggingFlags.WriteRNNInputs,
+                'trackSelectorTool'         : trackSelectorTool,
+                'SVForIPTool'               : svForIPTool,
+                'trackGradeFactory'         : trackGradeFactory,
+                'TrackToVertexIPEstimator'  : trackToVertexIPEstimator,
             }
             if is_flipped:
                 defaults.update({

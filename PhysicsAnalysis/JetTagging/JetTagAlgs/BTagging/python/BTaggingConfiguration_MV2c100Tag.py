@@ -6,8 +6,9 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMV2c100Tag = { 'IsATagger'          : False,#True,
                   'xAODBaseName'       : 'MV2c100',
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool'],
+                  'DependsOn'          : [#'AtlasExtrapolator',
+                                          #'BTagTrackToVertexTool'
+                                         ],
                   'CalibrationTaggers' : ['MV2c100',],
                   'ToolCollection'     : 'MV2c100Tag'}
 

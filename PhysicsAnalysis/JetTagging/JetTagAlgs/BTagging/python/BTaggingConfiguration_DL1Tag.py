@@ -10,8 +10,9 @@ def buildDL1(basename):
 
   metaInstance = { 'IsATagger'          : False,
                   'xAODBaseName'       : basename,
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool'],
+                  'DependsOn'          : [#'AtlasExtrapolator',
+                                          #'BTagTrackToVertexTool'
+                                         ],
                   'CalibrationTaggers' : [basename],
                   'ToolCollection'     : basename+'Tag'}
 

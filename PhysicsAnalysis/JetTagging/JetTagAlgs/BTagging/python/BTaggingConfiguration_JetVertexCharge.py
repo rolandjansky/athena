@@ -6,15 +6,16 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaJetVertexCharge = { 'IsATagger'           : True,
                        'NeedsMuonAssociator'  : True,
-                       'DependsOn'            : ['AtlasExtrapolator',
-                                                 'BTagTrackToVertexTool',   #LC FIXME  check if it works  
+                       'DependsOn'            : [#'AtlasExtrapolator',
+                                                 #'BTagTrackToVertexTool',   #LC FIXME  check if it works
                                                  #'NewJetFitterVxFinder',
-                                                 'MuonCorrectionsTool',
-                                                 'MuonSelectorTool',
+                                                 #'MuonCorrectionsTool',
+                                                 #'MuonSelectorTool',
                                                  ],
                         'CalibrationTaggers'  : ['JetVertexCharge',], 
-                        'PassByPointer'       : {'muonCorrectionTool' : 'MuonCorrectionsTool' ,
-                                                 'muonSelectorTool'   : 'MuonSelectorTool' },
+                        'PassByPointer'       : {#'muonCorrectionTool' : 'MuonCorrectionsTool' ,
+                                                 #'muonSelectorTool'   : 'MuonSelectorTool'
+                                                },
                         'ToolCollection'      : 'JetVertexCharge' }
 
 def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
@@ -47,6 +48,8 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        muonCorrectionsTool = toolMuonCorrectionsTool('MuonCorrectionsTool')
+        muonSelectorTool = toolMuonSelectorTool('MuonSelectorTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'taggerNameBase'                   : 'JetVertexCharge',
@@ -65,6 +68,8 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
                      'CutSCTHits'                       : 4,
                      'CutSharedHits'                    : 2,
                      'MuonQuality'                      : 2,
+                     'muonCorrectionTool'               : muonCorrectionsTool,
+                     'muonSelectorTool'                 : muonSelectorTool,
                     }
         for option in defaults:
             options.setdefault(option, defaults[option])

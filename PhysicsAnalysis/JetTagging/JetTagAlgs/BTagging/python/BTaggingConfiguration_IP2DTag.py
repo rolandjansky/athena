@@ -14,21 +14,23 @@ elif conddb.isMC:
 
 metaIP2DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP2D',
-                'DependsOn'         : ['AtlasExtrapolator',
-                                       'BTagTrackToVertexTool',
+                'DependsOn'         : [#'AtlasExtrapolator',
+                                       #'BTagTrackToVertexTool',
                                        #'InDetVKalVxInJetTool',
-                                       'BTagFullLinearizedTrackFactory',
-                                       'BTagTrackToVertexIPEstimator',
-                                       'IP2DDetailedTrackGradeFactory',
-                                       'IP2DBasicTrackGradeFactory',
-                                       'SVForIPTool_IP2D',
-                                       'IP2DTrackSelector',
-                                       'IP2DNewLikelihoodTool'],
-                'PassByPointer'     : {'SVForIPTool'                : 'SVForIPTool_IP2D',
-                                       'trackSelectorTool'          : 'IP2DTrackSelector',
-                                       'trackGradeFactory'          : 'IP2DDetailedTrackGradeFactory',
-                                       'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
-                                       'LikelihoodTool'             : 'IP2DNewLikelihoodTool'},
+                                       #'BTagFullLinearizedTrackFactory',
+                                       #'BTagTrackToVertexIPEstimator',
+                                       #'IP2DDetailedTrackGradeFactory',
+                                       #'IP2DBasicTrackGradeFactory',
+                                       #'SVForIPTool_IP2D',
+                                       #'IP2DTrackSelector',
+                                       #'IP2DNewLikelihoodTool'
+                                       ],
+                'PassByPointer'     : {#'SVForIPTool'                : 'SVForIPTool_IP2D',
+                                       #'trackSelectorTool'          : 'IP2DTrackSelector',
+                                       #'trackGradeFactory'          : 'IP2DDetailedTrackGradeFactory',
+                                       #'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
+                                       #'LikelihoodTool'             : 'IP2DNewLikelihoodTool'
+                                      },
                 'PassTracksAs'      : 'trackAssociationName',
                 'JetCollectionList' : 'jetCollectionList',
                 'ToolCollection'    : 'IP2DTag' }
@@ -62,6 +64,14 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                   "InANDNInSplit", "PixSplit",
                   "Good"]
         if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
+
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexIPEstimator as toolBTagTrackToVertexIPEstimator
+        trackToVertexIPEstimator = toolBTagTrackToVertexIPEstimator('TrkToVxIPEstimator')
+        svForIPTool = toolSVForIPTool_IP2D('SVForIPTool')
+        trackGradeFactory = toolIP2DDetailedTrackGradeFactory('IP2DDetailedTrackGradeFactory')
+        trackSelectorTool = toolIP2DTrackSelector('IP2DTrackSelector')
+        likelihood = toolIP2DNewLikelihoodTool('IP2DNewLikelihoodTool')
+
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
@@ -77,6 +87,11 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                      'storeTrackParticles': True,
                      'storeTrackParameters': True,
                      'storeIpValues': False,
+                     'LikelihoodTool'                   : likelihood,
+                     'trackSelectorTool'                : trackSelectorTool,
+                     'SVForIPTool'                      : svForIPTool,
+                     'trackGradeFactory'                : trackGradeFactory,
+                     'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -169,8 +184,8 @@ def toolSVForIPTool_IP2D(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP2DTrackSelector = { 'DependsOn'      : ['BTagTrackToVertexTool',],
-                          'PassByPointer'  : {'trackToVertexTool' : 'BTagTrackToVertexTool'},
+metaIP2DTrackSelector = { #'DependsOn'      : ['BTagTrackToVertexTool',],
+                          #'PassByPointer'  : {'trackToVertexTool' : 'BTagTrackToVertexTool'},
                           'ToolCollection' : 'IP2DTag' }
 
 def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
@@ -188,10 +203,13 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexTool as toolBTagTrackToVertexTool
+        trackToVertexTool = toolBTagTrackToVertexTool('BTagTrackToVertexTool')
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useBLayerHitPrediction' : True,
                      'nHitBLayer'             : 0 ,
-                     'usepTDepTrackSel'       : False }
+                     'usepTDepTrackSel'       : False, 
+                     'trackToVertexTool'      : trackToVertexTool,}
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

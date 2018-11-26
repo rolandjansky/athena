@@ -1447,11 +1447,11 @@ class Configuration:
       #options['BTagSecVertexingTool'] = thisSecVtxTool # MOVED TO JETBTAGGERTOOL
       del options['storeSecondaryVerticesInJet'] # we don't want it passed to the main b-tag tool
       #options['name'] = 'myBTagTool_'+jetcol+self.GeneralToolSuffix()
-      options['name'] = 'btag'+self.GeneralToolSuffix()
-      options.setdefault('BTagLabelingTool', None)
-      options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
-      options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
-      btagtool = toolMainBTaggingTool(**options)
+      #options['name'] = 'btag'+self.GeneralToolSuffix()
+      #options.setdefault('BTagLabelingTool', None)
+      #options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
+      #options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
+      btagtool = toolMainBTaggingTool('btag', **options)
       if BTaggingFlags.OutputLevel < 3:
           print self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol
       if self._BTaggingConfig_JetCollections.get(jetcol, None) is None:
@@ -1914,9 +1914,13 @@ def toolMainBTaggingTool(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        from BTagging.BTaggingConfiguration_CommonTools import toolthisBTagLabeling as toolthisBTagLabeling
+        btagLabeling = toolthisBTagLabeling('thisBTagLabeling')
         defaults = { 'Runmodus'                     : BTaggingFlags.Runmodus,
                      'PrimaryVertexName'            : BTaggingFlags.PrimaryVertexCollectionName,
                      'BaselineTagger'               : BTaggingFlags.BaselineTagger,
+                     'BTagLabelingTool'             : btagLabeling,
+                     'vxPrimaryCollectionName'      : BTaggingFlags.PrimaryVertexCollectionName,
                      'OutputLevel'                  : BTaggingFlags.OutputLevel }
         for option in defaults:
             options.setdefault(option, defaults[option])

@@ -565,8 +565,8 @@ def toolNeuralNetworkToHistoToolNN(name, useBTagFlagsDefaults = True, **options)
 #-------------------------------------------------------------------------
 
 metaJetFitterNNTool = { 'CalibrationTaggers' : ['JetFitter',],
-                        'DependsOn'          : ['NeuralNetworkToHistoToolNN'],
-                        'PassByPointer'      : {'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolNN'},
+                        #'DependsOn'          : ['NeuralNetworkToHistoToolNN'],
+                        #'PassByPointer'      : {'NeuralNetworkToHistoTool' : 'NeuralNetworkToHistoToolNN'},
                         'ToolCollection'     : 'JetFitterCollection' }
 
 def _slim_jf_options(options):
@@ -595,11 +595,13 @@ def toolJetFitterNNTool(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        nnToHistoTool = toolNeuralNetworkToHistoToolNN('NeuralNetworkToHistoToolNN')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'useCombinedIPNN'                  : False,
                      'CalibrationDirectory'             : 'JetFitter',
                      'CalibrationSubDirectory'          : 'NeuralNetwork',
-                     'usePtCorrectedMass'               : True, }
+                     'usePtCorrectedMass'               : True,
+                     'NeuralNetworkToHistoTool'         : nnToHistoTool, }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -614,14 +616,16 @@ def toolJetFitterNNTool(name, useBTagFlagsDefaults = True, **options):
 
 metaJetFitterTagNN = { 'IsATagger'         : True,
                        'xAODBaseName'      : 'JetFitter',
-                       'DependsOn'         : ['AtlasExtrapolator',
-                                              'BTagTrackToVertexTool',
+                       'DependsOn'         : [#'AtlasExtrapolator',
+                                              #'BTagTrackToVertexTool',
                                               #'NewJetFitterVxFinder',
-                                              'JetFitterNNTool',
-                                              'NeuralNetworkToHistoToolNN',
-                                              'JetFitterNtupleWriterNN'],
-                       'PassByPointer'     : { 'jetfitterClassifier'       : 'JetFitterNNTool',
-                                               'jetfitterNtupleWriter'     : 'JetFitterNtupleWriterNN' },
+                                              #'JetFitterNNTool',
+                                              #'NeuralNetworkToHistoToolNN',
+                                              #'JetFitterNtupleWriterNN'
+                                             ],
+                       'PassByPointer'     : { #'jetfitterClassifier'       : 'JetFitterNNTool',
+                                               #'jetfitterNtupleWriter'     : 'JetFitterNtupleWriterNN'
+                                             },
                        'JetCollectionList' : 'jetCollectionList',
                        'ToolCollection'    : 'JetFitterCollection' }
 
@@ -642,12 +646,16 @@ def toolJetFitterTagNN(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        jetFitterNtupleWriterNN = toolJetFitterNtupleWriterNN('JetFitterNtupleWriterNN')
+        jetfitterClassifier = toolJetFitterNNTool('JetFitterNNTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'JetFitter',
                      'useForcedCalibration'             : False,
                      'ipinfoTaggerName'                 : "",
+                     'jetfitterNtupleWriter'            : jetFitterNtupleWriterNN,
+                     'jetfitterClassifier'              : jetfitterClassifier,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -31,7 +31,7 @@ namespace Analysis {
     m_BaselineTagger("IP3D+SV1"),
     m_vxPrimaryName("PrimaryVertices"),
     m_runModus("analysis"),
-    m_BTagLabelingTool("Analysis::BTagLabeling")
+    m_BTagLabelingTool("Analysis::BTagLabeling", this)
   {
     declareInterface<IBTagTool>(this);
 
