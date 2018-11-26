@@ -23,7 +23,7 @@
 export NAME="physics_pp_v7_rdotoesdaod_build"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
-export MENU="Physics_pp_v7"
+export MENU="Physics_pp_v7_primraies"
 export EVENTS="3"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoESDAOD.py"
 
