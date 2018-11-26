@@ -1,21 +1,18 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKD3PDMAKER_VERTEXTRACKPARTICLEASSOCIATIONTOOL_H
 #define TRACKD3PDMAKER_VERTEXTRACKPARTICLEASSOCIATIONTOOL_H
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
+#include "Particle/TrackParticle.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 
 #include <vector>
-
-namespace Rec{
-class TrackParticle;
-}
 
 namespace Trk{
 class VxCandidate;

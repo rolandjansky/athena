@@ -9,7 +9,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-// STSTST #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 

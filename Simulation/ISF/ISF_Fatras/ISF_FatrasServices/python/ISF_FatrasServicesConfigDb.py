@@ -65,3 +65,11 @@ addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupHitCreatorPi
 addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupHitCreatorSCT",               "ISF_FatrasPileupHitCreatorSCT")
 addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupHitCreatorTRT",               "ISF_FatrasPileupHitCreatorTRT")
 addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupSimHitCreatorID",             "ISF_FatrasPileupSimHitCreatorID")
+
+addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasSimulatorToolST"                  , "ISF_FatrasSimulatorToolST"                    )
+addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasSimulatorTool"                    , "ISF_FatrasSimulatorTool"                    )
+addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasNewExtrapolationSimulatorToolST"  , "ISF_FatrasNewExtrapolationSimulatorToolST"    )
+addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasNewExtrapolationSimulatorTool"    , "ISF_FatrasNewExtrapolationSimulatorTool"    )
+addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupSimulatorToolST"            , "ISF_FatrasPileupSimulatorToolST"                )
+addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupSimulatorTool"              , "ISF_FatrasPileupSimulatorTool"                )
+#addTool("ISF_FatrasServices.ISF_FatrasServicesConfig.getFatrasPileupSimulatorTool_noHits"       , "ISF_FatrasPileupSimulatorTool_noHits"         )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -95,10 +95,16 @@ class EMECSupportConstruction
     std::string m_BaseName;
     double m_Position, m_PhiStart, m_PhiSize;
 
-	GeoMaterial *m_LAr, *m_Alu, *m_Gten, *m_PermaliE730;
-	GeoMaterial *m_G10FeInner, *m_G10FeOuter, *m_Kapton_Cu;
-	GeoMaterial *m_Cable, *m_Copper;
-        GeoMaterial *m_Lead;
+        const GeoMaterial* m_LAr;
+        const GeoMaterial* m_Alu;
+        const GeoMaterial* m_Gten;
+        const GeoMaterial* m_PermaliE730;
+        const GeoMaterial* m_G10FeInner;
+        const GeoMaterial* m_G10FeOuter;
+        const GeoMaterial* m_Kapton_Cu;
+        const GeoMaterial* m_Cable;
+        const GeoMaterial* m_Copper;
+        const GeoMaterial* m_Lead;
 
 	IRDBRecordset_ptr m_DB_EmecGeometry, m_DB_EmecWheelParameters, m_DB_mn;
 	IRDBRecordset_ptr m_DB_boxes, m_DB_numbers, m_DB_tubes, m_DB_pcons;

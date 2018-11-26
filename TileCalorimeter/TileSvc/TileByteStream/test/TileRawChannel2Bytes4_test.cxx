@@ -21,22 +21,20 @@ void test1()
   TileRawChannel2Bytes4 rch;
   TileFastRawChannel fch;
   fch.set (0, 0, 0, 120.5, 1.25, 5);
-  rch.setUnit (0);
-  unsigned int w = rch.getWord (&fch, 0);
+  unsigned int w = rch.getWord (fch, 0, 0);
   assert (w == (2440<<16) + (1044<<5) + 5);
   assert (rch.gain(w) == 0);
-  assert (rch.amplitude(w) == 120.5);
+  assert (rch.amplitude(w, 0) == 120.5);
   assert (rch.time(w) == 1.25);
   assert (rch.quality(w) == 5);
 
   std::vector<unsigned int> v;
   fch.set (0, 0, 0, -0.5, 1.25, 3);
-  rch.setUnit (1);
-  assert (rch.getBytes (&fch, 1, v) == 1);
+  assert (rch.getBytes (fch, 1, 1, v) == 1);
   assert (v.size() == 1);
   assert (v[0] == (1024u<<16) + (1044u<<5) + 3u + (1u<<31));
   assert (rch.gain(v[0]) == 1);
-  assert (rch.amplitude(v[0]) == -0.5);
+  assert (rch.amplitude(v[0], 1) == -0.5);
   assert (rch.time(v[0]) == 1.25);
   assert (rch.quality(v[0]) == 3);
 }

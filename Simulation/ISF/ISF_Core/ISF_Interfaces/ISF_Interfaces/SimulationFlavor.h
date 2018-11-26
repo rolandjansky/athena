@@ -18,11 +18,17 @@ namespace ISF {
   /** enum to make the code more readable */
   enum SimulationDefinitions {
     UndefinedSim = 0,
-    FatrasSim = 1,
-    Geant4Sim = 2,
-    FastCaloSim = 3
+    ParticleKiller = 1,
+    Fatras = 2,
+    Geant4 = 3,
+    FastCaloSim = 4,
+    FastCaloSimV2 = 5,
+    Parametric = 6,
+    FatrasPileup = 7,
+    FastCaloSimPileup = 8,
+    NFlavors = 9
   };
 
 }
 
-#endif 
+#endif

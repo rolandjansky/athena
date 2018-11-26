@@ -58,7 +58,6 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ), 
    m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool"), 
-   m_mdtCabling("MuonMDT_CablingSvc", name), 
    m_regionSelector("RegSelSvc", name ), 
    m_robDataProvider("ROBDataProviderSvc", name), 
    m_recMuonRoIUtils(),
@@ -120,9 +119,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    ATH_CHECK( m_mdtRegionDefiner.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_mdtRegionDefiner);
 
-   // initialize the NEW cabling service
-   ATH_CHECK( m_mdtCabling.retrieve());
-   ATH_MSG_DEBUG("Retrieved the new cabling service ");
+   ATH_CHECK( m_readKey.initialize() );
    
    // retrieve the mdtidhelper
    ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
@@ -290,12 +287,19 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     ATH_MSG_DEBUG("size of the hashids in getMdtHits " << mdtHashList.size());
     
     if (roi) delete roi;
+
+    SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+    const MuonMDT_CablingMap* readCdo{*readHandle};
+    if(readCdo==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE;
+    }
     
     bool redundant;
     for(int hash_iter=0; hash_iter<(int)mdtHashList.size(); hash_iter++){
       redundant = false;
       
-      uint32_t newROBId = m_mdtCabling->getROBId(mdtHashList[hash_iter]);
+      uint32_t newROBId = readCdo->getROBId(mdtHashList[hash_iter]);
       
       for (int rob_iter=0; rob_iter<(int)v_robIds.size(); rob_iter++){
 	if(newROBId == v_robIds[rob_iter])
@@ -525,13 +529,14 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
    unsigned short int MrodId      = csm->MrodId();
    unsigned short int LinkId      = csm->CsmId();
 
-   MuonMDT_CablingMap* cablingMap = m_mdtCabling->getCablingMap();
-   if (!cablingMap) {
-     ATH_MSG_DEBUG("Null pointer to MuonMDT_CablingMap");
+   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+   const MuonMDT_CablingMap* readCdo{*readHandle};
+   if(readCdo==nullptr){
+     ATH_MSG_ERROR("Null pointer to the read conditions object");
      return true;
    }
 
-   MdtSubdetectorMap* subdetectorMap = cablingMap->getSubdetectorMap(SubsystemId);
+   MdtSubdetectorMap* subdetectorMap = readCdo->getSubdetectorMap(SubsystemId);
    if (!subdetectorMap) {
      ATH_MSG_DEBUG("Null pointer to MdtSubdetectorMap");
      return true;

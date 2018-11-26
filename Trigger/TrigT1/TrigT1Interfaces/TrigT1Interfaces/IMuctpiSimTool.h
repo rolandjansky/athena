@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TrigT1Muctpi_IMuctpiSimTool
 #define TrigT1Muctpi_IMuctpiSimTool
 
@@ -26,7 +29,7 @@ namespace LVL1MUCTPI {
       *  \param inputEvent reference to the inputEvent
       */
 
-     virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo & ) const = 0;
+     virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo &, int bcidOffset=0) const = 0;
 
   };
 

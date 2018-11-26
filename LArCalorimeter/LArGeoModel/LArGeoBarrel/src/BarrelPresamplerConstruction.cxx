@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoBarrel/BarrelPresamplerConstruction.h"
@@ -26,7 +26,6 @@
 #include "GeoModelKernel/GeoTrap.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
@@ -82,47 +81,47 @@ LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo
   }
   
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in BarrelPresamplerConstruction, stored MaterialManager is not found.");
   }
   
-  GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
+  const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in BarrelPresamplerConstruction, std::Copper is not found.");
   
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in BarrelPresamplerConstruction, std::Iron is not found.");
   
-  GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
   if (!Lead) throw std::runtime_error("Error in BarrelPresamplerConstruction, std::Lead is not found.");
   
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in BarrelPresamplerConstruction, std::LiquidArgon is not found.");
   
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in BarrelPresamplerConstruction, std::Air is not found.");
   
-  GeoMaterial *Kapton  = materialManager->getMaterial("std::Kapton");
+  const GeoMaterial *Kapton  = materialManager->getMaterial("std::Kapton");
   if (!Kapton) throw std::runtime_error("Error in BarrelPresamplerConstruction, std::Kapton is not found."); 
-  GeoMaterial *Glue  = materialManager->getMaterial("LAr::Glue");
+  const GeoMaterial *Glue  = materialManager->getMaterial("LAr::Glue");
   if (!Glue) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::Glue is not found.");
   
-  GeoMaterial *G10  = materialManager->getMaterial("LAr::G10");
+  const GeoMaterial *G10  = materialManager->getMaterial("LAr::G10");
   if (!G10) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::G10 is not found.");
   
-  GeoMaterial *FR4  = materialManager->getMaterial("LAr::FR4");
+  const GeoMaterial *FR4  = materialManager->getMaterial("LAr::FR4");
   if (!FR4) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::FR4 is not found.");
 
-  GeoMaterial *MBMat  = materialManager->getMaterial("LAr::MBMat");
+  const GeoMaterial *MBMat  = materialManager->getMaterial("LAr::MBMat");
   if (!MBMat) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::MBMat is not found.");
 
-  GeoMaterial *AnodeMat  = materialManager->getMaterial("LAr::AnodeMat");
+  const GeoMaterial *AnodeMat  = materialManager->getMaterial("LAr::AnodeMat");
   if (!AnodeMat) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::AnodeMat is not found.");
 
-  GeoMaterial *CathodeMat  = materialManager->getMaterial("LAr::CathodeMat");
+  const GeoMaterial *CathodeMat  = materialManager->getMaterial("LAr::CathodeMat");
   if (!CathodeMat) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::CathodeMat is not found.");
 
-  GeoMaterial *ConnecMat  = materialManager->getMaterial("LAr::ConnecMat");
+  const GeoMaterial *ConnecMat  = materialManager->getMaterial("LAr::ConnecMat");
   if (!ConnecMat) throw std::runtime_error("Error in BarrelPresamplerConstruction, LAr::ConnecMat is not found.");
   //  double rMinPresamplerMother   =1385*CLHEP::mm;
   double rMinPresamplerMother   =1410*CLHEP::mm;

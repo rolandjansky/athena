@@ -338,6 +338,15 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
                     mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                     mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
 
+                #--- add OnlineWrongBCID if either of the ADCs has isWrongBCID
+                if statlo.isWrongBCID() or stathi.isWrongBCID():
+                    mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineWrongBCID)
+                    mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineWrongBCID)
+                else:
+                    #--- delete OnlineWrongBCID if the both ADCs has not isWrongBCID
+                    mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineWrongBCID)
+                    mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineWrongBCID)
+
 
     #=== print online channel status
     if verbose:

@@ -16,7 +16,8 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "MDT_Hid2RESrcID.h"
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <stdint.h>
 #include <map>
@@ -81,7 +82,7 @@ private:
 
         StoreGateSvc *m_EvtStore;
         MDT_Hid2RESrcID* m_hid2re;
-        MuonMDT_CablingSvc* m_cabling;
+	SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
         const MdtIdHelper* m_mdtIdHelper;
 
@@ -101,6 +102,7 @@ private:
         
 	//        bool    m_debug; //!< If true, output debugging information
         //MsgStream       m_log;
+	
 }; 
 
 /*

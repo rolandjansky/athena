@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -34,8 +34,8 @@ void const * DecisionObjectHandleEventInfo::getNavigation() const {
   return 0;
 }
 
-void DecisionObjectHandleEventInfo::reset() {
-  DataHandle<EventInfo>::reset();
+void DecisionObjectHandleEventInfo::reset (bool hard) {
+  DataHandle<EventInfo>::reset (hard);
   m_object = 0;
   invalidate();
   ATH_MSG_DEBUG("invalidated decision object");

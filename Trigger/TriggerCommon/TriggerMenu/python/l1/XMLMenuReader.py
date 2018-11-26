@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from Lvl1Thresholds import LVL1Threshold, LVL1TopoInput, ThresholdValue
 from Lvl1MenuItems import LVL1MenuItem
@@ -8,7 +8,7 @@ from PrescaleHelper import getCutFromPrescale
 from Logic import Logic
 from Lvl1Condition import Lvl1InternalTrigger, ThrCondition
 from CaloInfo import MinimumTOBPt
-from Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+from Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 
 from AthenaCommon.Logging import logging

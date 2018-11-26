@@ -22,6 +22,10 @@ namespace Rec
   class TrackParticle;
 }
 
+namespace InDet{
+  class BeamSpotData;
+}
+
 namespace Trk 
 {
     class Track;
@@ -47,8 +51,8 @@ namespace Trk
           @warning In my opinion, the interface is not optimal - we're not taking ownership of the Trk::Track or Vx::Candidate,  
           so they should be passed by reference. 
       */ 
-      virtual Rec::TrackParticle* createParticle( const Trk::Track* track, 
-                                                  const Trk::VxCandidate* vxCandidate = 0, 
+      virtual Rec::TrackParticle* createParticle( const Trk::Track* track,
+                                                  const Trk::VxCandidate* vxCandidate = 0,
                                                   Trk::TrackParticleOrigin prtOrigin = Trk::NoVtx)=0; 
 
         /** Method to construct a xAOD::TrackParticle from a Rec::TrackParticle.
@@ -88,7 +92,9 @@ namespace Trk
                                                    const std::vector< xAOD::ParameterPosition>& positions,  
 						   xAOD::ParticleHypothesis prtOrigin = xAOD::noHypothesis,
 						   xAOD::TrackParticleContainer* container = 0 ) const = 0;
-      
+
+      /** Convenience method to retrieve Beamspot Data object -- cache this once per event for optimal performance */
+      virtual const InDet::BeamSpotData* CacheBeamSpotData(const EventContext &ctx) const =0;
 
     };
 

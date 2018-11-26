@@ -37,5 +37,6 @@ atlas_add_dictionary( CollectionDict
 
 atlas_add_test( Factory_test
                 SOURCES test/Factory_test.cxx
-                LINK_LIBRARIES CollectionBase )
+                LINK_LIBRARIES CollectionBase
+                PROPERTIES TIMEOUT 300 )
 

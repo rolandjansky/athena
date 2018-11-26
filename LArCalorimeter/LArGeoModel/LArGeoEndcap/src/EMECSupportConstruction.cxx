@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // EMECSupportConstruction
@@ -104,8 +104,10 @@ EMECSupportConstruction::EMECSupportConstruction
 	if(svcLocator->service("DetectorStore", detStore, false) == StatusCode::FAILURE){
 		throw std::runtime_error("Error in EMECSupportConstruction, cannot access DetectorStore");
 	}
-	DataHandle<StoredMaterialManager> materialManager;
-	detStore->retrieve(materialManager, std::string("MATERIALS"));
+	const StoredMaterialManager* materialManager = nullptr;
+	if (detStore->retrieve(materialManager, std::string("MATERIALS")).isFailure()) {
+          throw std::runtime_error("Error in EMECSupportConstruction, cannot access MATERIALS");
+        }
 
 	m_PhiStart = 0.;
 	m_PhiSize = CLHEP::twopi*CLHEP::rad;
@@ -1689,11 +1691,13 @@ void EMECSupportConstruction::put_front_outer_extracyl(GeoPhysVol *motherPhysica
               if(svcLocator->service("DetectorStore", detStore, false) == StatusCode::FAILURE){
                 throw std::runtime_error("Error in EMECSupportConstruction/extracyl, cannot access DetectorStore");
               }
-              DataHandle<StoredMaterialManager> materialManager;
-              detStore->retrieve(materialManager, std::string("MATERIALS"));
+              const StoredMaterialManager* materialManager = nullptr;
+              if (detStore->retrieve(materialManager, std::string("MATERIALS")).isFailure()) {
+                throw std::runtime_error("Error in EMECSupportConstruction: cannot find MATERIALS.");
+              }
 
               std::string material=(*m_DB_emecExtraCyl)[i]->getString("MATERIAL"); //lead
-              GeoMaterial *mat = materialManager->getMaterial(material);
+              const GeoMaterial *mat = materialManager->getMaterial(material);
               if (!mat) {
                 throw std::runtime_error("Error in EMECSupportConstruction/extracyl,material for CylBeforePS is not found.");
               }

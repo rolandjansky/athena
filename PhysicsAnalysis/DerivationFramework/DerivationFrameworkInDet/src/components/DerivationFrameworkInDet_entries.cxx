@@ -15,6 +15,7 @@
 #include "DerivationFrameworkInDet/EGammaPrepRawDataThinning.h"
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
+#include "DerivationFrameworkInDet/PixelNtupleMaker.h"
 
 using namespace DerivationFramework;
 
@@ -35,4 +36,5 @@ DECLARE_COMPONENT( EGammaTracksThinning )
 DECLARE_COMPONENT( EGammaPrepRawDataThinning )
 DECLARE_COMPONENT( TrackMeasurementThinning )
 DECLARE_COMPONENT( EventInfoPixelDecorator )
+DECLARE_COMPONENT( PixelNtupleMaker )
 

@@ -17,7 +17,6 @@
 // Removing checks for showershape checks, track particle checks
 // Assume that electrons must have this information
 //
-#include <list>
 #include <iterator>
 #include <sstream>
 #include <map>
@@ -36,7 +35,6 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgammaCnv/xAODElectronMonFuncs.h"
 #include "VxVertex/RecVertex.h"
-#include "ITrackToVertex/ITrackToVertex.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "PATCore/AcceptData.h"
 #include "xAODTrigger/TrigPassBits.h"
@@ -58,9 +56,7 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
 				   ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-    m_primaryVertex(Amg::Vector3D()), 
-    m_trackToVertexTool("Reco::TrackToVertex")
-  
+    m_primaryVertex(Amg::Vector3D())  
 {
   declareProperty("AcceptAll",      m_acceptAll=true);
   declareProperty("CaloCutsOnly", m_caloCutsOnly);
@@ -76,10 +72,6 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   declareProperty("AthenaElectronLHIDSelectorToolName", m_athElectronLHIDSelectorToolName="");
   declareProperty("UseAthenaElectronLHIDSelectorTool", m_useAthElectronLHIDSelector=false);
   
-  //Tool for track extrapolation to vertex  	  
-  declareProperty("trackToVertexTool", m_trackToVertexTool,  
-		  "Tool for track extrapolation to vertex"); 
-
   /** Luminosity tool */
   declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
   
@@ -223,15 +215,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   //------------------------------
   if (timerSvc())
     m_totalTimer = addTimer("TrigEFElectronHypoTot");  
-
- 
-  //retrieving TrackToVertex:    
-  if ( m_trackToVertexTool.retrieve().isFailure() ) {  
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
-      return HLT::BAD_JOB_SETUP;  
-  } else {  
-    ATH_MSG_DEBUG("Retrieved tool " << m_trackToVertexTool);
-  }
 
   //-------------------------------------------------------------------------------
   // Use egammaElectronCutIDTool to run the Offline isEM Buildre in the Hypo.
@@ -814,33 +797,3 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   return HLT::OK;
 }
 
-
-// ==============================================================
-double TrigEFElectronHypo::findImpact(const xAOD::TrackParticle* track) const
-{
-  //
-  // recalculate transverse impact parameter
-  // in case no Vertex is provided by the user,
-  // beam position will be used if available
-  //
-
-  double trackD0 = -9999.;
-  // protection against bad pointers
-  if (track==0) return -9999.;
-  
-  // use beam spot
-  const Trk::Perigee* perigee =
-    m_trackToVertexTool->perigeeAtBeamspot(*track);
-  
-  if (perigee==0) {
-    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING <<"No perigee using beam spot; no d0 calculation"<<endmsg;    
-    perigee = m_trackToVertexTool->perigeeAtVertex(*track, m_primaryVertex);    
-  }
-
-  // destroy object
-  if (perigee!=0)
-    trackD0 = perigee->parameters()[Trk::d0];
-  delete perigee;
-
-  return trackD0; 
-} 

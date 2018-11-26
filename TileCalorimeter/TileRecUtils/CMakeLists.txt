@@ -73,3 +73,15 @@ atlas_add_test( TileRawChannelBuilder_test
   PROPERTIES TIMEOUT 600
   EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment" )
 
+
+atlas_add_test( TileDQstatusAlg_test
+  SCRIPT test/TileDQstatusAlg_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment" )
+
+
+atlas_add_test( TileDQstatusTool_test
+  SCRIPT test/TileDQstatusTool_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore|TileDetectorTool|Creating TileCondProxyFile|Cache alignment" )
+

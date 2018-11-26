@@ -25,7 +25,7 @@ static const InterfaceID IID_IMdtROD_Decoder
 MdtROD_Decoder::MdtROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
 :  AthAlgTool(type,name,parent), 
-   m_EvtStore(0), m_hid2re(0), m_cabling(0), m_mdtIdHelper(0), m_rodReadOut(0), m_csmReadOut(0), 
+   m_EvtStore(0), m_hid2re(0), m_mdtIdHelper(0), m_rodReadOut(0), m_csmReadOut(0), 
    m_amtReadOut(0), m_hptdcReadOut(0), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
    //   m_debug(false),
    //   m_log (msgSvc(), name) 
@@ -68,16 +68,13 @@ StatusCode MdtROD_Decoder::initialize() {
     return sc;
   }
 
-  m_hid2re=new MDT_Hid2RESrcID();
-
   // Here the mapping service has to be initialized
-
-  if (StatusCode::SUCCESS != service("MuonMDT_CablingSvc", m_cabling)) {
-    ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
-    return StatusCode::FAILURE; 
-  }  
-  m_hid2re->set(m_cabling,m_mdtIdHelper);
-  
+  m_hid2re=new MDT_Hid2RESrcID();
+  sc = m_hid2re->set(m_mdtIdHelper); 
+  if ( !sc.isSuccess() ) {
+    ATH_MSG_ERROR(" Can't initialize MDT mapping");
+    return sc;
+  }
 
   // Initialize decoding classes
   m_rodReadOut = new MdtRODReadOut();
@@ -96,6 +93,8 @@ StatusCode MdtROD_Decoder::initialize() {
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
   }
+
+  ATH_CHECK( m_readKey.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -287,7 +286,13 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 
     bool cab;
 
-    cab = m_cabling->getOfflineId(subdetId, mrodId, csmId, tdc, cha,
+    SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+    const MuonMDT_CablingMap* readCdo{*readHandle};
+    if(readCdo==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read conditions object");
+      return StatusCode::FAILURE;
+    }
+    cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, cha,
 				  StationName, StationEta, StationPhi,
 				  MultiLayer, TubeLayer, Tube);
 

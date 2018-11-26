@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from Limits import CaloLimits as CL
 IsolationOff = CL.IsolationOff
 
-from Lvl1MenuUtil import log
 from copy import deepcopy
 
 class ThresholdValue:

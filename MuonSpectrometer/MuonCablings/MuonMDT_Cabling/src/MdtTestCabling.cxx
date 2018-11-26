@@ -4,14 +4,11 @@
 
 #include "MuonMDT_Cabling/MdtTestCabling.h"
 
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_cablingSvc("MuonMDT_CablingSvc", name),
   m_mdtIdHelper(0),
   m_chronoSvc("ChronoStatSvc", name)
 { 
@@ -23,7 +20,6 @@ MdtTestCabling::~MdtTestCabling() { }
 StatusCode MdtTestCabling::initialize()
 {
   ATH_CHECK( m_chronoSvc.retrieve() );
-  ATH_CHECK( m_cablingSvc.retrieve() );
 
   // initialize the pointer to the MdtIdHelper
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name());
@@ -33,6 +29,8 @@ StatusCode MdtTestCabling::initialize()
   m_chrono1 = "newcab";
   m_chrono2 = "oldcab";
   m_chrono3 = "OfflineToOnline";
+
+  ATH_CHECK( m_readKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -64,22 +62,25 @@ StatusCode MdtTestCabling::finalize()
 bool MdtTestCabling::testMap()
 {
 
-  // print the list of ROBids
-  std::vector<uint32_t> robVector = m_cablingSvc->getAllROBId();
-  std::cout << "============================= List of ROBids:" << std::endl;
-  for (unsigned int i=0 ; i<robVector.size() ; ++i) {
-    std::cout << std::hex << robVector[i] << std::dec << std::endl;
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return false;
   }
-  std::cout << "=============================================" << std::endl;
+
+  // print the list of ROBids
+  std::vector<uint32_t> robVector = readCdo->getAllROBId();
+  ATH_MSG_DEBUG( "============================= List of ROBids:" );
+  for (unsigned int i=0 ; i<robVector.size() ; ++i) {
+    ATH_MSG_DEBUG( std::hex << robVector[i] << std::dec );
+  }
+  ATH_MSG_DEBUG( "=============================================" );
 
   // loop on the hardware objects to get online identifiers
-  //  if (m_debug) {
+
   ATH_MSG_DEBUG( "in testMap()" );
-  //}
-  DataHandle<MuonMDT_CablingMap> cablingMap = m_cablingSvc->getCablingMap();
-  //if (m_debug) {
   ATH_MSG_DEBUG( "retrieved the map from the service" );
-    //}
 
   std::map<uint8_t, MdtSubdetectorMap*, std::less<uint8_t> >* listOfSubdet;
   std::map<uint8_t, MdtSubdetectorMap*, std::less<uint8_t> >::const_iterator it_sub;
@@ -93,7 +94,7 @@ bool MdtTestCabling::testMap()
   std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >* listOfAmt;
   std::map<uint8_t, MdtAmtMap*, std::less<uint8_t> >::const_iterator it_amt;
 
-  listOfSubdet = cablingMap->getListOfElements();
+  listOfSubdet = readCdo->getListOfElements();
 
   //  if (m_debug) {
   ATH_MSG_DEBUG( "Got the list of subdetectors" );
@@ -142,8 +143,7 @@ bool MdtTestCabling::testMap()
 	    int tube=0;
 
 	    m_chronoSvc->chronoStart(m_chrono1);
-
-	    bool cabling = m_cablingSvc->getOfflineId(subdetectorId,rodId,csmId,
+	    bool cabling = readCdo->getOfflineId(subdetectorId,rodId,csmId,
 						      amtId,chanId,
 						      station,eta,phi,multi,
 						      layer,tube);
@@ -168,8 +168,8 @@ bool MdtTestCabling::testMap()
 
 	      // test the back-conversion to online indeces
 	      m_chronoSvc->chronoStart(m_chrono3);
-	      cabling =  m_cablingSvc->getOnlineId(station,eta,phi,multi,layer,tube,
-						   newSubdet,newRod,newCsm,newAmt,newChan);
+	      cabling = readCdo->getOnlineId(station,eta,phi,multi,layer,tube,newSubdet,newRod,newCsm,newAmt,newChan);
+
 	      m_chronoSvc->chronoStop(m_chrono3);
 
 	      if (!cabling) {
@@ -240,10 +240,17 @@ bool MdtTestCabling::testMapTiming()
 
   bool found;
 
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  const MuonMDT_CablingMap* readCdo{*readHandle};
+  if(readCdo==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return false;
+  }  
+
   //
   m_chronoSvc->chronoStart(m_chrono1);
   for (int i = 0 ; i<1000 ; i++) {
-    found = m_cablingSvc->getOfflineId(1,1,1,1,1,
+    found = readCdo->getOfflineId(1,1,1,1,1,
 				       stationName,stationEta,stationPhi,
 				       multiLayer,layer,tube);
     if (!found) {
@@ -251,12 +258,9 @@ bool MdtTestCabling::testMapTiming()
       return found;
     }
 
-    //found = m_cablingSvc->getOfflineId(1,1,1,1,1,
-    //			       stationName,stationEta,stationPhi,
-    //			       multiLayer,layer,tube);
-    found = m_cablingSvc->getOfflineId(1,1,1,1,3,
-				       stationName,stationEta,stationPhi,
-				       multiLayer,layer,tube);
+    found = readCdo->getOfflineId(1,1,1,1,3,
+				  stationName,stationEta,stationPhi,
+				  multiLayer,layer,tube);
     if (!found) {
       ATH_MSG_FATAL( " coul dnot find the test channel" );
       return false;

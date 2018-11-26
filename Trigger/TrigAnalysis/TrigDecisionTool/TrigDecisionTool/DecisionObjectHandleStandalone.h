@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -39,11 +39,11 @@ namespace Trig {
                                       const std::string& navikey );
 
       /// Reset the object at the end of an event
-      virtual void reset();
+      virtual void reset(bool hard = false);
       /// Retrieve the decision object
-      virtual xAOD::TrigDecision const * getDecision() const;
+      virtual xAOD::TrigDecision const * getDecision() const override;
       /// Retrieve the navigation object
-      virtual xAOD::TrigNavigation const * getNavigation() const;
+      virtual xAOD::TrigNavigation const * getNavigation() const override;
 
    private:
       /// Pointer to the event store
