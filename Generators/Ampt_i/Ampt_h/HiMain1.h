@@ -1,0 +1,157 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef HiMain1_h
+#define HiMain1_h
+
+extern "C" { void* himain1_address_(void); }
+/**
+@class HiMain1
+
+@brief       Class definition for HiMain1, which is used
+      to modify the Hijing HIMAIN1 common.
+*/
+
+class HiMain1 {
+public:
+    HiMain1();
+    ~HiMain1();
+    
+    float&  	eatt	(void);
+    int&    	jatt	(void);
+    int&    	natt	(void);
+    int&    	nt     	(void);
+    int&    	np     	(void);
+    int&    	n0     	(void);
+    int&    	n01    	(void);
+    int&    	n10    	(void);
+    int&    	n11   	(void);
+
+    //+++BAC 
+    // 
+    //    Added error status variable to HIMAIN1
+    //
+    //---BAC
+    int&        ierrstat(void);
+
+    void	init	(void);
+
+private: 
+
+    struct HIMAIN1;
+    friend struct HIMAIN1;
+
+    struct HIMAIN1
+    {
+      float  	eatt;
+      int    	jatt;
+      int    	natt;
+      int    	nt;
+      int    	np;
+      int    	n0;
+      int    	n01;
+      int    	n10;
+      int    	n11;
+
+      //+++BAC 
+      // 
+      //    Added error status variable to HIMAIN1
+      //
+      //---BAC
+
+      int       ierrstat;
+    };
+
+    static HIMAIN1* s_himain1;
+};
+
+// set pointer to zero at start
+HiMain1::HIMAIN1* HiMain1::s_himain1 =0;
+
+inline void
+HiMain1::init(void)
+{ if (!s_himain1) s_himain1 = static_cast<HIMAIN1*>(himain1_address_()); }
+
+// Constructor
+inline
+HiMain1::HiMain1()
+{}
+
+// Destructor
+inline
+HiMain1::~HiMain1()
+{}
+
+inline int&
+HiMain1::natt	(void)
+{
+    init();
+    return s_himain1->natt;
+}
+
+inline float&
+HiMain1::eatt	(void)
+{
+    init();
+    return s_himain1->eatt;
+}
+
+inline int&
+HiMain1::jatt	(void)
+{
+    init();
+    return s_himain1->jatt;
+}
+
+inline int&
+HiMain1::nt	(void)
+{
+    init();
+    return s_himain1->nt;
+}
+
+inline int&
+HiMain1::np	(void)
+{
+    init();
+    return s_himain1->np;
+}
+
+inline int&
+HiMain1::n0	(void)
+{
+    init();
+    return s_himain1->n0;
+}
+
+inline int&
+HiMain1::n01	(void)
+{
+    init();
+    return s_himain1->n01;
+}
+
+inline int&
+HiMain1::n10	(void)
+{
+    init();
+    return s_himain1->n10;
+}
+
+inline int&
+HiMain1::n11	(void)
+{
+    init();
+    return s_himain1->n11;
+}
+
+inline int&
+HiMain1::ierrstat (void)
+{
+    init();
+    return s_himain1->ierrstat;
+}
+
+#endif

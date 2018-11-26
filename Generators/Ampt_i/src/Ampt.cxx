@@ -11,8 +11,8 @@
 //    Alexandre (Sasha) Lebedev: Initial code, October 2018
 //
 
-#include "Ampt_i/Ampt.h"
-#include "Ampt_i/VertexShift.h"
+#include "Ampt_h/Ampt.h"
+#include "Ampt_h/VertexShift.h"
 #include "TruthUtils/GeneratorName.h"
 
 #include "GaudiKernel/MsgStream.h"
