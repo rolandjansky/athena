@@ -10,14 +10,14 @@ if RUN2:
     from AthenaCommon.GlobalFlags import jobproperties
 
     if not 'CondDbTag' in dir():
-        CondDbTag = 'CONDBR2-BLKPA-2015-14'
+        CondDbTag = 'CONDBR2-BLKPA-2018-03'
 
     jobproperties.Global.ConditionsTag = CondDbTag
     conddb.setGlobalTag(CondDbTag)
     globalflags.ConditionsTag.set_Value_and_Lock(CondDbTag)
 
     if not 'DetDescrVersion' in dir():
-        DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+        DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
 
     jobproperties.Global.DetDescrVersion = DetDescrVersion
     globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
@@ -68,7 +68,7 @@ if not 'InputFile' in dir():
         if not 'RunStream' in dir():
             RunStream = ("express_express" if ReadESD else "physics_Main") if RUN2 else "physics_JetTauEtmiss"
         if not 'DataProject' in dir():
-            DataProject = "data15_13TeV" if RUN2 else "data12_8TeV"
+            DataProject = "data18_13TeV" if RUN2 else "data12_8TeV"
         if RUN2:
             TopDir="/eos/atlas/atlastier0/rucio/%(D)s/%(S)s/%(R)08d" % {'D':DataProject, 'S':RunStream, 'R':RunNumber}
             for f in popen("xrd eosatlas dirlist %(path)s | grep %(filt)s | grep -v -i -e log -e tgz | awk '{print $NF}' | sort -r | tail -1" % {'path': TopDir, 'filt':filter }):
@@ -142,7 +142,7 @@ rec.doDetailedPerfMon.set_Value_and_Lock(False)
 rec.doSemiDetailedPerfMon.set_Value_and_Lock(False)
 rec.doMonitoring.set_Value_and_Lock(False)
 
-if not ReadESD and WriteESD:
+if not ReadESD:
     from AthenaCommon.DetFlags import DetFlags
     DetFlags.Calo_setOff()
     DetFlags.ID_setOff()
@@ -209,7 +209,7 @@ if 'ForceTimeStamp' in dir():
 include ("RecExCommon/RecExCommon_topOptions.py")
 ##############################
 
-if not ReadESD and WriteESD:
+if not ReadESD:
     if not rec.doLArg:
         topSequence.CaloCellMaker.CaloCellMakerToolNames = [ ToolSvc.TileCellBuilder.getFullName() ]
     #ToolSvc.TileCellBuilder.OutputLevel=2
@@ -290,7 +290,8 @@ seq.TileSelector.PedDetlaLG=4.1
 seq.TileSelector.ConstLength=7
 seq.TileSelector.MinBadMB=4
 seq.TileSelector.MinBadDMU=4
-seq.TileSelector.MaxBadDMU=16
+seq.TileSelector.MaxBadDMU=15
+seq.TileSelector.SkipEmpty=True
 seq.TileSelector.SkipMasked=True
 seq.TileSelector.CheckDCS=TileUseDCS
 seq.TileSelector.SkipMBTS=True
@@ -298,7 +299,7 @@ seq.TileSelector.CheckDMUs=True
 seq.TileSelector.CheckJumps=True
 seq.TileSelector.CheckOverLG=True
 seq.TileSelector.CheckOverHG=False
-seq.TileSelector.MaxVerboseCnt=99999999
+seq.TileSelector.MaxVerboseCnt=10000
 seq.TileSelector.OutputLevel=1
 
 # get a handle on the job main sequence                                         

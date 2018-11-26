@@ -16,6 +16,7 @@ def find_standby(nlayer, hhits, lb_max, standby_lb):
           start = 0
           start_lb = 0
           end_lb = 0
+
           nbin = hhits[i].GetNbinsX()
 
           start_lb = 0
@@ -44,10 +45,12 @@ def find_standby(nlayer, hhits, lb_max, standby_lb):
 
 
 def find_notready(nlayer, hist, pct_low, pct_high, notready_lb):
+
      for i in range(0, nlayer):
           start = 0
           start_lb = 0
           end_lb = 0
+
           nbin = hist[i].GetNbinsX()
           if i == 2:
                for j in range(1, nbin-1):
@@ -144,6 +147,7 @@ def execute(run, sfile, lb_max):
 
      sdisabled = []
      sdisabled.append("InnerDetector/Pixel/PIXIBL/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL2D_byPostProcess")
+     #sdisabled.append("InnerDetector/Pixel/PIXIBL/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL_byPostProcess")
      sdisabled.append("InnerDetector/Pixel/PIX0/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B0_byPostProcess")
      sdisabled.append("InnerDetector/Pixel/PIX1/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B1_byPostProcess")
      sdisabled.append("InnerDetector/Pixel/PIX2/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B2_byPostProcess")
@@ -153,23 +157,36 @@ def execute(run, sfile, lb_max):
      nlayer = 6
      hhits = []
      hdisabled = []
+     fexist_hhits = True
+     fexist_hdisabled = True
      for i in range(0, nlayer):
+          if not file.Get(shits[i]):
+               fexist_hhits = False
+               continue
+ 
+          if not file.Get(sdisabled[i]):
+               fexist_hdisabled = False
+               continue
+
           hhits.append(file.Get(shits[i]))
           hdisabled.append(file.Get(sdisabled[i]))
 
      standby_lb = []
-     find_standby(nlayer, hhits, lb_max, standby_lb)
+     if fexist_hhits == True:
+          find_standby(nlayer, hhits, lb_max, standby_lb)
 
      notready5to7pct_lb = []
      notready7to10pct_lb = []
      notready10to20pct_lb = []
      notready20to30pct_lb = []
      notready_gt30pct_lb = []
-     find_notready(nlayer, hdisabled, 0.05, 0.07, notready5to7pct_lb)
-     find_notready(nlayer, hdisabled, 0.07, 0.1, notready7to10pct_lb)
-     find_notready(nlayer, hdisabled, 0.1, 0.2, notready10to20pct_lb)
-     find_notready(nlayer, hdisabled, 0.2, 0.3, notready20to30pct_lb)
-     find_notready(nlayer, hdisabled, 0.3, 1., notready_gt30pct_lb)
+
+     if fexist_hhits == True and fexist_hdisabled == True:
+          find_notready(nlayer, hdisabled, 0.05, 0.07, notready5to7pct_lb)
+          find_notready(nlayer, hdisabled, 0.07, 0.1, notready7to10pct_lb)
+          find_notready(nlayer, hdisabled, 0.1, 0.2, notready10to20pct_lb)
+          find_notready(nlayer, hdisabled, 0.2, 0.3, notready20to30pct_lb)
+          find_notready(nlayer, hdisabled, 0.3, 1., notready_gt30pct_lb)
 
      #print_def("standby", standby_lb)
      #user = "atlpixdq"

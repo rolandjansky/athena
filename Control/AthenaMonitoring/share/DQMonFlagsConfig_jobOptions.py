@@ -274,9 +274,10 @@ if DQMonFlags.doStreamAwareMon:
    LArMonFlags.doLArNoisyROMon=True
 
    # All monitoring turned on for express stream (except LArRawChannelMon)
-   # HIP runs will use the express settings for MinBias, MinBiasOverlay, HardProbes, bulk, and UPC
+   # HIP/HI runs will use the express settings for MinBias, MinBiasOverlay, HardProbes, bulk, and UPC
    if (rec.triggerStream()=='express' or rec.triggerStream()=='Main' or
-       (rec.doHIP() and rec.triggerStream() in ['MinBias', 'MinBiasOverlay', 'HardProbes', 'bulk', 'UPC'])):
+       ((rec.doHIP() or rec.doHeavyIon())
+        and rec.triggerStream() in ['MinBias', 'MinBiasOverlay', 'HardProbes', 'bulk', 'UPC'])):
       LArMonFlags.doLArCollisionTimeMon=True
       LArMonFlags.doLArAffectedRegions=True
       LArMonFlags.doLArHVCorrectionMonTool=True
