@@ -84,22 +84,28 @@ H5Utils::Writer<1,const xAOD::Jet*> writer(file, "jets", cons, {{5}});
 The writer has a signature
 
 ```C++
-Writer<N,C>::Writer(Group& group, string ds_name , Consumers, Array shape);
+Writer<N,C>::Writer(Group, string name, Consumers, Array shape, size_t buffer);
 ```
 
 where `N` 1 in the case above because we want to write out a rank 1
 block in each event (5 jet). In general this can be any rank (think
 images, or tracks associated to jets) and the rank of the output
-dataset will be `N` + 1, since one row is added per event. The `Group`
-can be an `H5File` or a subgroup.
+dataset will be `N` + 1, since one row is added per event.
 
-The last argument is the `shape` array, which must be of rank
-`N`. HDF5 datasets are n-dimensional, but the shape must be a
-hypercube. In the case above, we're going to create a M x N block,
-where M is the number of entries. In cases where we have more than N
-jets, this means we'll have to truncate them, whereas in cases where
-we have fewer than N we'll pad the output dataset with
-`default_value`.
+The `Group` can be an `H5File` or a subgroup. A dataset named `name`
+will be created in this group.
+
+The `shape` argument is an array, which must be of rank `N`. HDF5
+datasets are n-dimensional, but the shape must be a hypercube. In the
+case above, we're going to create a M x N block, where M is the number
+of entries. In cases where we have more than N jets, this means we'll
+have to truncate them, whereas in cases where we have fewer than N
+we'll pad the output dataset with `default_value`.
+
+You can also specify the `buffer` size, which is the number of times
+that `fill` is called before the writer flushes to file. This has a
+default value of a few thousand, but you can tweak it if performance
+is a problem.
 
 Finally, we have to fill the dataset, which we'll do in your event
 loop:
