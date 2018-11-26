@@ -56,6 +56,8 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
   declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_trkmht");
   declareProperty("hlt_trkmhtFTK_key", m_hlt_trkmhtFTK_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_trkmhtFTK");
+  declareProperty("hlt_trktc_key", m_hlt_trktc_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_trktc");
+  declareProperty("hlt_trktcFTK_key", m_hlt_trktcFTK_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_trktcFTK");
   declareProperty("hlt_topocl_key", m_hlt_topocl_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl");
   declareProperty("hlt_topocl_PS_key", m_hlt_topocl_PS_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS");
   declareProperty("hlt_topocl_PUC_key", m_hlt_topocl_PUC_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
@@ -261,7 +263,7 @@ StatusCode HLTMETMonTool::book() {
   setCurrentMonGroup(monFolderName);
   addHLTStatusHistograms();
 
-  /// Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, etc.
+  /// Alternative algorithms: tc_lcw, tc_em, pufit, mht, etc.
   for (std::vector<std::string>::iterator it2 = m_monitoring_alg_shifter.begin(); it2 != m_monitoring_alg_shifter.end(); it2++) {
 
     monFolderName = monGroupName + "/" + *it2;
@@ -513,6 +515,26 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_DEBUG("Accessing met(trkmhtFTK) with " << m_hlt_trkmhtFTK_met_cont->size() << " elements");
   }
 
+  // Get HLT trktc container
+  const xAOD::TrigMissingETContainer *m_hlt_trktc_met_cont = 0;
+  sc = evtStore()->retrieve(m_hlt_trktc_met_cont, m_hlt_trktc_met_key);
+  if (sc.isFailure() || !m_hlt_trktc_met_cont) {
+    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trktc_met_key << " from TDS");
+  }
+  else {
+    ATH_MSG_DEBUG("Accessing met(trktc) with " << m_hlt_trktc_met_cont->size() << " elements");
+  }
+
+  // Get HLT trktcFTK container
+  const xAOD::TrigMissingETContainer *m_hlt_trktcFTK_met_cont = 0;
+  sc = evtStore()->retrieve(m_hlt_trktcFTK_met_cont, m_hlt_trktcFTK_met_key);
+  if (sc.isFailure() || !m_hlt_trktcFTK_met_cont) {
+    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trktcFTK_met_key << " from TDS");
+  }
+  else {
+    ATH_MSG_DEBUG("Accessing met(trktcFTK) with " << m_hlt_trktcFTK_met_cont->size() << " elements");
+  }
+
   // Get HLT topocl container
   const xAOD::TrigMissingETContainer *m_hlt_topocl_met_cont = 0;
   sc = evtStore()->retrieve(m_hlt_topocl_met_cont, m_hlt_topocl_met_key);
@@ -722,6 +744,12 @@ StatusCode HLTMETMonTool::fillMETHist() {
   } else if (primary_algo == "trkmhtFTK" && m_hlt_trkmhtFTK_met_cont && m_hlt_trkmhtFTK_met_cont->size()>0) {
     ATH_MSG_DEBUG("Primary Alg : trkmhtFTK");
     m_hlt_met = m_hlt_trkmhtFTK_met_cont->at(0);
+  } else if (primary_algo == "trktc" && m_hlt_trktc_met_cont && m_hlt_trktc_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : trktc");
+    m_hlt_met = m_hlt_trktc_met_cont->at(0);
+  } else if (primary_algo == "trktcFTK" && m_hlt_trktcFTK_met_cont && m_hlt_trktcFTK_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : trktcFTK");
+    m_hlt_met = m_hlt_trktcFTK_met_cont->at(0);
   } else if (primary_algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
     ATH_MSG_DEBUG("Primary Alg : TopoCL");
     m_hlt_met = m_hlt_topocl_met_cont->at(0);
@@ -962,6 +990,12 @@ StatusCode HLTMETMonTool::fillMETHist() {
     } else if (algo == "trkmhtFTK" && m_hlt_trkmhtFTK_met_cont && m_hlt_trkmhtFTK_met_cont->size()>0) {
       ATH_MSG_DEBUG("Alternative Alg : trkmhtFTK");
       m_hlt_met = m_hlt_trkmhtFTK_met_cont->at(0);
+    } else if (algo == "trktc" && m_hlt_trktc_met_cont && m_hlt_trktc_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trktc");
+      m_hlt_met = m_hlt_trktc_met_cont->at(0);
+    } else if (algo == "trktcFTK" && m_hlt_trktcFTK_met_cont && m_hlt_trktcFTK_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trktcFTK");
+      m_hlt_met = m_hlt_trktcFTK_met_cont->at(0);
     } else if (algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
       ATH_MSG_DEBUG("Alternative Alg : TopoCL");
       m_hlt_met = m_hlt_topocl_met_cont->at(0);
@@ -1225,6 +1259,12 @@ StatusCode HLTMETMonTool::fillMETHist() {
     } else if (algo == "trkmhtFTK" && m_hlt_trkmhtFTK_met_cont && m_hlt_trkmhtFTK_met_cont->size()>0) {
       ATH_MSG_DEBUG("Alternative Alg : trkmhtFTK");
       m_hlt_met = m_hlt_trkmhtFTK_met_cont->at(0);
+    } else if (algo == "trktc" && m_hlt_trktc_met_cont && m_hlt_trktc_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trktc");
+      m_hlt_met = m_hlt_trktc_met_cont->at(0);
+    } else if (algo == "trktcFTK" && m_hlt_trktcFTK_met_cont && m_hlt_trktcFTK_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trktcFTK");
+      m_hlt_met = m_hlt_trktcFTK_met_cont->at(0);
     } else if (algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
       ATH_MSG_DEBUG("Alternative Alg : TopoCL");
       m_hlt_met = m_hlt_topocl_met_cont->at(0);
@@ -1801,6 +1841,10 @@ std::string HLTMETMonTool::get_trigger_algo(std::string item)
     algo = "trkmht";
   else if (item.find("trkmht_FTK") != std::string::npos)
     algo = "trkmhtFTK";
+  else if (item.find("trktc_FS") != std::string::npos)
+    algo = "trktc";
+  else if (item.find("trktc_FTK") != std::string::npos)
+    algo = "trktcFTK";
   else if (item.find("tc_lcw") != std::string::npos)
     algo = "topocl";
   else if (item.find("tc_em") != std::string::npos)
