@@ -69,11 +69,11 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
       std::ostringstream moduleTag;
       moduleTag << "_s" << side << "_m" << module;
       
-      m_moduleAnalyzers[side][module] = new ZDCPulseAnalyzer(moduleTag.str().c_str(), m_nSample, m_deltaTSample, m_preSampleIdx, 
+      m_moduleAnalyzers[side][module].reset (new ZDCPulseAnalyzer(moduleTag.str().c_str(), m_nSample, m_deltaTSample, m_preSampleIdx, 
 							    m_pedestals[side][module], m_HGGains[side][module], m_fitFunction, 
 							    peak2ndDerivMinSamples[side][module], 
 							    peak2ndDerivMinThresholdsHG[side][module],
-							    peak2ndDerivMinThresholdsLG[side][module]);
+                                                                  peak2ndDerivMinThresholdsLG[side][module]));
       if (m_forceLG) m_moduleAnalyzers[side][module]->SetForceLG(true);
     }
   }
@@ -85,13 +85,6 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
 
 ZDCDataAnalyzer::~ZDCDataAnalyzer() 
 {
-  //  Delete the per-module pulse analyzers
-  //
-  for (size_t side : {0, 1}) {
-    for (size_t module : {0, 1, 2, 3}) {
-      if (!m_moduleAnalyzers[side][module]) delete m_moduleAnalyzers[side][module];
-    }
-  }
 }
 
 bool ZDCDataAnalyzer::DisableModule(size_t side, size_t module)
@@ -323,7 +316,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
     }
   }
 
-  ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module];
+  ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
   bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples);
   m_dataLoaded[side][module] = true;
@@ -407,7 +400,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
     }
   }
 
-  ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module];
+  ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
   //  bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
   bool result = false;

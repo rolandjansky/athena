@@ -27,7 +27,7 @@ private:
   std::array<std::array<int, 4>, 2> m_delayedOrder;
 
   ZDCModuleBoolArray m_moduleDisabled;
-  std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> m_moduleAnalyzers;
+  std::array<std::array<std::unique_ptr<ZDCPulseAnalyzer>, 4>, 2> m_moduleAnalyzers;
 
   int m_debugLevel;
   int m_eventCount;
@@ -36,11 +36,11 @@ private:
   ZDCModuleFloatArray m_pedestals;
 
   bool m_haveECalib;
-  std::array<std::array<TSpline*, 4>, 2> m_LBDepEcalibSplines;
+  std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> m_LBDepEcalibSplines;
 
   bool m_haveT0Calib;
-  std::array<std::array<TSpline*, 4>, 2> m_T0HGOffsetSplines;
-  std::array<std::array<TSpline*, 4>, 2> m_T0LGOffsetSplines;
+  std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> m_T0HGOffsetSplines;
+  std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> m_T0LGOffsetSplines;
 
   // Transient data that is updated each LB or each event
   //
@@ -108,7 +108,7 @@ public:
   float GetModuleCalibTime(size_t side, size_t module) const {return m_calibTime.at(side).at(module);}
   float GetModuleStatus(size_t side, size_t module) const {return m_moduleStatus.at(side).at(module);}
 
-  const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module);}
+  const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module).get();}
 
   bool DisableModule(size_t side, size_t module);
 
@@ -133,24 +133,24 @@ public:
 
   void SetNonlinCorrParams(const std::array<std::array<std::vector<float>, 4>, 2>& HGNonlinCorrParams);
 
-  void LoadEnergyCalibrations(const std::array<std::array<TSpline*, 4>, 2>& calibSplines) 
+  void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> calibSplines) 
   {
     if (m_debugLevel > 0) {
       std::cout << "Loading energy calibrations" << std::endl;
     }
 
-    m_LBDepEcalibSplines = calibSplines;
+    m_LBDepEcalibSplines = std::move (calibSplines);
     m_haveECalib = true;
   }
 
-  void LoadT0Calibrations(const std::array<std::array<TSpline*, 4>, 2>& T0HGOffsetSplines, 
-			   const std::array<std::array<TSpline*, 4>, 2>& T0LGOffsetSplines) 
+  void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0HGOffsetSplines, 
+                          std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0LGOffsetSplines) 
   {
     if (m_debugLevel > 0) {
       std::cout << "Loading timing calibrations" << std::endl;
     }
-    m_T0HGOffsetSplines = T0HGOffsetSplines;
-    m_T0LGOffsetSplines = T0LGOffsetSplines;
+    m_T0HGOffsetSplines = std::move (T0HGOffsetSplines);
+    m_T0LGOffsetSplines = std::move (T0LGOffsetSplines);
 
     m_haveT0Calib = true;
   }
