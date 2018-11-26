@@ -128,6 +128,8 @@ namespace H5Utils {
 
     std::vector<SharedConsumer<I> > getConsumers() const;
 
+    typedef I input_type;
+
   private:
     std::vector<SharedConsumer<I> > m_consumers;
     std::set<std::string> m_used;
@@ -384,9 +386,7 @@ namespace H5Utils {
     }
 
     // make some assertions
-    typedef typename
-      decltype(m_consumers)::value_type::element_type::input_type input_type;
-    typedef internal::CheckType<N, T, input_type> checkType;
+    typedef internal::CheckType<N, T, I> checkType;
     static_assert(
       checkType::depth >= N,
       "\n\n"
