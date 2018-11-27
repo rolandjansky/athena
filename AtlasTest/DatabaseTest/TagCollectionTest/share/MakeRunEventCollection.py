@@ -27,10 +27,15 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from RecExConfig.ObjKeyStore import objKeyStore
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and \
-      ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-  from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-  topSequence+=xAODMaker__EventInfoCnvAlg()
+if not objKeyStore.isInInput( "xAOD::EventInfo" ):
+    if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+        topSequence += xAODMaker__EventInfoCnvAlg()
+        pass
+else:
+    if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+        topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+        pass
 
 
 from AthenaCommon.AppMgr import theApp
@@ -150,5 +155,3 @@ topSequence+=RegStream1
 # End of job options file
 #
 ###############################################################
-
-
