@@ -19,11 +19,20 @@ namespace CP {
 
 
 class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgMetadataTool {
-
+  
   // Create a proper constructor for Athena
   ASG_TOOL_CLASS2( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
-
+  
   public:
+     // There are two recommended options by MCP to setup the tool (https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisConsolidationMC16)
+     //  1) Correct data for the sagitta bias -- if no statistical limits
+     //  2) Add extra systematic for MC and keep data untouched
+     //  The calibration mode can be set via the property 'calibrationMode'
+     enum CalibMode{
+        correctData =0,
+        additionalMCsys = 1, // <--- default
+        expert =2
+     };
      /// Apply the correction on a modifyable object
     virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const override;
     /// Create a corrected copy from a constant muon
@@ -76,6 +85,8 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         std::string m_sagittaRelease17;
         std::string m_sagittaRelease18;
         std::string m_release;
+        
+        int m_calib_mode;
         
         bool m_StatComb1516;
         bool m_SagittaCorr1516;
