@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDC_DetFactory.h"
@@ -19,7 +19,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
@@ -46,7 +45,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 {
   m_detectorManager = new ZDC_DetManager();
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) return;
 
   //------------------------------------------------------------------------------------------------------------
