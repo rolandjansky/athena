@@ -264,7 +264,7 @@ GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
   for(int cal = 0; cal <= 5; ++cal){
     for(int dir = 0; dir <= 2; ++dir){
       for(int sid = 0; sid <= 1; ++sid){
-        GeoLogVol *leak_log = construct(sid, dir, cal);
+        GeoLogVol *leak_log = construct(materialManager, sid, dir, cal);
         if(leak_log == 0) continue;
         leak_log->SetSensitiveDetector(LeakSDdetector);
 	leak_log->SetVisAttributes(G4VisAttributes::Invisible);
