@@ -12,9 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Reconstruction/Jet/JetCalibTools
                           Trigger/TrigAnalysis/TrigDecisionTool
-			  Tracking/TrkVertexFitter/TrkVKalVrtFitter
-			  Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-			  PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
                           PhysicsAnalysis/AnalysisCommon/PATInterfaces
                           Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
