@@ -17,7 +17,9 @@ Examples:
 """
 
 import subprocess
-import os, sys, shutil
+import os
+import sys
+import shutil
 import tempfile
 import cPickle
 import re
@@ -31,7 +33,8 @@ opt = None
 
 class Config:
    # Possible locations for AtlasSetup
-   atlasSetupHome = ['/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/current/AtlasSetup',
+   atlasSetupHome = ['/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/testing/AtlasSetup',  # temporary
+                     #'/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/current/AtlasSetup',
                      '/afs/cern.ch/atlas/software/dist/AtlasSetup',
                      '/sw/atlas/AtlasSetup',  # Point1
                      os.environ.get('AtlasSetup',None)
@@ -50,9 +53,7 @@ class Config:
                  'SVN.*','RPM_release_package$',                 
                  'LCG_INST_PATH$',
                  'AtlasLoginRoot$',
-                 'CMTBIN$','CMTEXTRATAGS$','CMTHEADVERSION$','CMTHOME$',
-                 'CMTPROJECTPATH$','CMTRELEASE$','CMTROOT$','CMTSITE$','MAKEFLAGS$',
-                 'LANG$','LC_ALL$','PEDANTIC$','_$','OLDPWD$'
+                 'MAKEFLAGS$', 'LANG$','LC_ALL$','PEDANTIC$','_$','OLDPWD$'
                  ]
 
    # Additonal variables (with source DB file) to add to HLT-Environment
@@ -85,7 +86,7 @@ def ignoreVar(var):
    """Should we ignore this variable?"""
    
    for v in Config.ignoreVars:
-      if re.match(v,var)!=None: return True
+      if re.match(v,var) is not None: return True
    return False
 
 
@@ -93,7 +94,7 @@ def getAtlasSetup():
    """Return location of AtlasSetup home directory"""
    
    for p in Config.atlasSetupHome:
-      if p!=None and os.path.exists(p): return p
+      if p is not None and os.path.exists(p): return p
 
    raise RuntimeError('Cannot find AtlasSetup. Please set $AtlasSetup')
       
@@ -123,7 +124,7 @@ def symbolicReplace(hltenv):
             
 
 def getHltEnv(asetup, asetup_opts):
-   """Extract the process environment by running CMT setup"""
+   """Extract the process environment by running asetup"""
 
    sh = tempfile.mkstemp()[1]
    fenv1 = tempfile.mkstemp()[1]
@@ -183,7 +184,7 @@ def writeHltEnv(hltenv, filename, prefix):
       try:
          db = pm.project.Project(Config.common_env)
          common_vars = db.getObject('VariableSet', 'CommonEnvironment').Contains
-      except:
+      except Exception:
          print ('Could not load CommonEnvironment from', Config.common_env)
    
    hltvars = dal.VariableSet('%s-Environment' % prefix,
@@ -212,7 +213,7 @@ def writeHltEnv(hltenv, filename, prefix):
          db = pm.project.Project(inc)
          v = db.getObject('Variable', var)
          hltvars.Contains += [v]
-      except:
+      except Exception:
          print ('Cannot find variable %s in %s' % (var,inc))
          
    for v in hltvars.Contains:
@@ -231,13 +232,13 @@ def createWrapper(hltenv, filename):
    
    try:
       db = pm.project.Project(hltenv)
-   except:
+   except Exception:
       print ('Could not open', hltenv)
       return
 
    try:
       rel = db.getObject('Variable','%s-AtlasArea' % prefix).Value.split('/')[-1]
-   except:
+   except Exception:
       print ('Could not determine release number from AtlasArea')
       return
 
@@ -312,51 +313,46 @@ def main():
    else:
       filename = args[0]
 
-   cmtconfig = None
+   platform = None
    lba = ''
    if not opt.tags:      
-      cmtconfig = os.getenv('CMTCONFIG')
+      platform = os.getenv('BINARY_TAG')
       prj = os.getenv('AtlasProject')
-      ver = os.getenv('AtlasVersion')
-      # Example for local build area: /build/atnight/localbuilds/nightlies/15.X.0
-      lba = os.environ.get('NICOS_PROJECT_HOME','').rstrip('AtlasHLT')   # NICOS use
+      lba = os.environ.get('NICOS_PROJECT_HOME','')                      # NICOS use (local build area)
       if len(lba)==0: lba = os.environ.get('AtlasBaseDir','')            # interactive use
       
-      if cmtconfig==None or prj==None or ver==None:
+      if platform is None or prj is None:
          print('Cannot deduce asetup tags from current environment')
          return 2
-      opt.tags = '%s,%s' % (prj,ver)
+      opt.tags = '%s' % prj
       
    if opt.wrap:
       createWrapper(opt.wrap, filename)
       return
          
-   tags = ','.join([opt.tags,'setup','notest'])
-
-   asetup_opts = '--tags=%s --input=None' % tags         
+   asetup_opts = opt.tags
+   #asetup_opts += ' --input=None'   # ignore any user-specific .asetup files (restore once ATLINFR-2817 fixed)
    
-   if len(lba)>0 and (opt.asetupargs==None or opt.asetupargs.find('--releasebase')==-1):
+   if len(lba)>0 and (opt.asetupargs is None or opt.asetupargs.find('--releasebase')==-1):
       asetup_opts += ' --releasebase=%s' % lba
       
-   if cmtconfig!=None:
-      asetup_opts += ' --cmtconfig=%s' % cmtconfig
+   if platform is not None:
+      asetup_opts += ' --platform=%s' % platform
 
-   if opt.asetupargs!=None:
+   if opt.asetupargs is not None:
       asetup_opts += ' '+opt.asetupargs
 
-   if opt.asetuphome==None:
+   if opt.asetuphome is None:
       asetup = getAtlasSetup()
    else:
       asetup = opt.asetuphome
       
-   hltenv = getHltEnv(asetup, asetup_opts)   
+   hltenv = getHltEnv(asetup, asetup_opts)
 
-   # This will point one directory below the project, e.g.: /afs/cern.ch/atlas/software/builds
+   # This will point one directory below the project, e.g.: /cvmfs/atlas-nightlies.cern.ch/repo/sw/master
    hltenv['ATLAS_BASE'] = hltenv['AtlasArea'].split(hltenv['AtlasProject'])[0].rstrip('/')
    # Use tcmalloc
    hltenv['LD_LIBRARY_PATH'] += os.pathsep+hltenv['TCMALLOCDIR']
-   if hltenv['CMTCONFIG'].startswith('i686'):  # need both 64 and 32 bit version on a x86 host
-      hltenv['LD_LIBRARY_PATH'] += os.pathsep+hltenv['TCMALLOCDIR'].replace('i686','x86_64')
 
    # Preload tcmalloc and intel math libraries (ATR-14499)
    hltenv['LD_PRELOAD'] = 'libtcmalloc_minimal.so'
