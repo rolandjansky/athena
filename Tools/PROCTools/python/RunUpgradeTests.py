@@ -494,6 +494,15 @@ def main():
                               performed against pre-defined reference files stored in the directory
                               /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests and performance comparison
                               tests will not be run.""")
+
+    parser.add_option("-i",
+                      "--ignoreComparisons",
+                      action="store_true",
+                      dest="nocheck_flag",
+                      default=False,
+                      help="""No output comparisons will be run. For CI tests while no fixed references are available.""")
+    
+
     parser.add_option("-n",
                       "--no-setup",
                       action="store_true",
@@ -515,6 +524,7 @@ def main():
     RunPatchedOnly  = options.patched_flag
     CleanRunHeadDir = options.cleanDir  
     ciMode          = options.ci_flag
+    NoCheck         = options.nocheck_flag
 
 #        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
@@ -527,6 +537,7 @@ def main():
         logging.info("If you don't know what this mode does, you shouldn't be using it.")
         logging.info("")
         RunPatchedOnly = True
+        NoCheck = True
 
 ########### Does the clean run head directory exist?
     if str(CleanRunHeadDir) == "/tmp/":
@@ -537,8 +548,11 @@ def main():
         logging.info("")
         if RunPatchedOnly:
             logging.info("You are running in patched only mode whereby only q-tests against your build are being run.")
-            logging.info("In this mode ESD and AOD outputs are compared with pre-defined reference files found in the directory")
-            logging.info("/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
+            if not NoCheck:               
+                logging.info("In this mode ESD and AOD outputs are compared with pre-defined reference files found in the directory")
+                logging.info("/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
+            else:
+                logging.info("You are running in ignoreComparisons mode, so no checks will be performed on output files.") 
             if not os.path.exists('/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests'):
                 logging.info("")
                 logging.error("Exit. Patched only mode can only be run on nodes with access to /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
@@ -636,7 +650,7 @@ def main():
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=False, trigConfig=trigRun2Config, nosetup=ciMode)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg,nosetup=ciMode)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
@@ -687,6 +701,12 @@ def main():
             if not QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName,RunPatchedOnly):
                 All_Tests_Passed = False
                 continue
+
+            if NoCheck:
+                logging.info("-----------------------------------------------------"    )
+                logging.info("-- Running in ignoreComparisons mode, no tests run --"    )
+                continue
+                
 
             if RunSim:
                 if not RunFrozenTier0PolicyTest(q,"HITS",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
