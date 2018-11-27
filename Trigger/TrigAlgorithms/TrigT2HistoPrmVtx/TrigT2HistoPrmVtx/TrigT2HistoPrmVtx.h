@@ -16,12 +16,11 @@
 #define TRIGT2HISTOPRMVTX_TRIGT2HISTOPRMVTX_H
 
 #include "TrigInterfaces/FexAlgo.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TrigInDetTrackCollection;
 class TrigInDetTrack;
 class TrigVertexCollection;
-
 namespace Rec {
   class TrackParticleContainer;
   class TrackParticle;
@@ -66,7 +65,7 @@ class TrigT2HistoPrmVtx : public HLT::FexAlgo {
 
   /** @brief Pointer to TrigVertex collection. */
   xAOD::VertexContainer* m_trigVertexColl;
-
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
  
 #endif 

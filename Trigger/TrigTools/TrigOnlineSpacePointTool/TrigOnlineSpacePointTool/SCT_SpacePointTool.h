@@ -13,10 +13,9 @@
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 
 #include "GaudiKernel/ToolHandle.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include <vector>
 
-class IBeamCondSvc;
 class ITrigL2LayerNumberTool;
 class SCT_GCBuilder;
 class SCT_ID;
@@ -34,9 +33,9 @@ class SCT_SpacePointTool : public AthAlgTool {
 
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     // Convert clusters to space points
     StatusCode fillCollections(ClusterCollectionVector& clusterCollData, std::vector<int>&);
@@ -60,9 +59,9 @@ class SCT_SpacePointTool : public AthAlgTool {
           m_wafer_uv=wafer;
         }
 
-        const InDet::SCT_ClusterCollection* phiWafer() {return m_wafer_phi;}
+        const InDet::SCT_ClusterCollection* phiWafer() const {return m_wafer_phi;}
 
-        const InDet::SCT_ClusterCollection* uvWafer() {return m_wafer_uv;}
+        const InDet::SCT_ClusterCollection* uvWafer() const {return m_wafer_uv;}
 
         void prnt() {
 
@@ -98,7 +97,7 @@ class SCT_SpacePointTool : public AthAlgTool {
     double m_xCenter;
     double m_yCenter;
 
-    IBeamCondSvc* m_iBeamCondSvc; 
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     bool m_useBeamSpot;
     bool m_useOfflineAlgorithm;
 
