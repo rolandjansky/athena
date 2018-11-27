@@ -265,6 +265,21 @@ triggers = [
     'HLT_mu50',
     # Photons
     'HLT_g140_loose',
+    # photon+MET 2018+2017
+    'HLT_g80_loose_xe80noL1',
+    # photon+MET 2016
+    'HLT_g60_loose_xe60noL1',
+    'HLT_g45_tight_L1EM22VHI_xe45noL1',
+    'HLT_g70_loose_xe70noL1',
+    # photon+MET 2015
+    'HLT_g40_tight_xe40noL1',
+    # VBF+photon
+    'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c1077_split_2j35_0eta490',
+    'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c1077_split_3j35_0eta490_invm700',
+    'HLT_g25_medium_L1EM22VHI_4j35_0eta490_invm1000',
+    'HLT_g20_tight_icaloloose_j35_bmv2c1077_split_3j35_0eta490_invm500',
+    'HLT_g20_tight_icaloloose_j15_gsc35_bmv2c1077_split_3j35_0eta490_invm500',
+    #'HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', # added below due to the dash
     # Triggers successfully running in Run 2 throughout 50 ns
     'HLT_j30_xe10_razor100',
     'HLT_j30_xe10_razor170',
@@ -356,6 +371,8 @@ lepton_triggers = [
    "HLT_e60_lhmedium_nod0_L1EM24VHI",
    "HLT_e140_lhloose_nod0_L1EM24VHI",
    "HLT_e300_etcut_L1EM24VHI",
+   "HLT_2e17_lhvloose_nod0_L12EM15VHI", # same in 2018
+   "HLT_2e24_lhvloose_nod0", # same in 2018
    # el - y2018
    "HLT_e140_lhloose_nod0_L1EM24VHIM",
    "HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM",
@@ -401,22 +418,50 @@ lepton_triggers = [
    "HLT_mu60_msonly_3layersEC",
    "HLT_mu80",
    "HLT_mu80_msonly_3layersEC"
+   # lep+had triggers 2018
+   "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwoEF",
+   "HLT_e17_lhmedium_nod0_ivarloose_tau25_mediumRNN_tracktwoMVA",
+   "HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA",
+   "HLT_mu14_ivarloose_tau35_medium1_tracktwoEF",
+   "HLT_mu14_ivarloose_tau25_medium1_tracktwoEF",
+   "HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA",
+   # lep+had triggers 2017
+   "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo",
+   #"HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25", # added below
+   #"HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25", # added below
+   "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo",
+   "HLT_mu14_ivarloose_tau35_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20",
+   "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
+   "HLT_mu14_ivarloose_tau25_medium1_tracktwo", 
+   "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
+   # lep+had triggers 2016
+   "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo",
+    "HLT_mu14_tau25_medium1_tracktwo",
+    "HLT_mu14_iloose_tau25_medium1_tracktwo",
+    "HLT_mu14_iloose_tau35_medium1_tracktwo",
+    "HLT_mu14_ivarloose_tau25_medium1_tracktwo",
+    "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
+    # lep+had triggers 2015
+    "HLT_mu14_tau35_medium1_tracktwo",
+    "HLT_mu14_tau25_medium1_tracktwo",
+    "HLT_mu14_tau25_medium1_tracktwo",
+    "HLT_mu14_tau35_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo",
+    "HLT_e17_lhmedium_tau25_medium1_tracktwo",
+    "HLT_e17_lhmedium_tau80_medium1_tracktwo",    
     ]
-
-expression = ' || '.join(triggers+lepton_triggers)
+triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF","HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF", "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25", "HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25", ]
 
 if not DerivationFrameworkIsMonteCarlo:
-    EXOT5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
-        name='EXOT5StringSkimmingTool',
-        expression=expression)
-    ToolSvc += EXOT5StringSkimmingTool
-    skimmingTools.append(EXOT5StringSkimmingTool)
-
-triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF"]
-EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
-                                                                         TriggerListOR           = triggerVBF )
-ToolSvc += EXOT5VBFStringSkimmingTool
-
+    EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
+                                                                             TriggerListOR           = (triggers+lepton_triggers+triggerVBF) )
+    ToolSvc += EXOT5VBFStringSkimmingTool
+    skimmingTools.append(EXOT5VBFStringSkimmingTool)
 
 EXOT5SkimmingTool_EMTopo = DerivationFramework__SkimmingToolEXOT5(
     name                = 'EXOT5SkimmingTool_EMTopo',
@@ -466,12 +511,36 @@ applyJetCalibration_xAODColl("AntiKt4EMPFlow", exot5Seq)
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
+isMC = False
+if globalflags.DataSource() == 'geant4':
+  isMC = True
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+if isMC:
+  ToolSvc += BunchCrossingTool( "MC" )
+else:
+  ToolSvc += BunchCrossingTool( "LHC" )
+
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BCDistanceAugmentationTool
+
+EXOT5BCDistanceAugmentationTool = DerivationFramework__BCDistanceAugmentationTool(name="EXOT5BCDistanceAugmentationTool")
+
+if isMC:
+  EXOT5BCDistanceAugmentationTool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
+else:
+  EXOT5BCDistanceAugmentationTool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+ToolSvc += EXOT5BCDistanceAugmentationTool
+
+augmentationTools.append(EXOT5BCDistanceAugmentationTool)
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel_skim', SkimmingTools=skimmingTools)
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel', AugmentationTools=augmentationTools, ThinningTools=thinningTools)
+
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
 
 #========================================
 # Add the containers to the output stream
@@ -512,6 +581,7 @@ EXOT5SlimmingHelper.ExtraVariables = [
     ]
 
 if DerivationFrameworkIsMonteCarlo:
+    EXOT5SlimmingHelper.AllVariables = ['TruthVertex']
     EXOT5SlimmingHelper.StaticContent = [
         'xAOD::TruthParticleContainer#EXOT5TruthMuons',
         'xAOD::TruthParticleAuxContainer#EXOT5TruthMuonsAux.',
@@ -526,9 +596,11 @@ if DerivationFrameworkIsMonteCarlo:
         'AntiKt4TruthJets.pt.eta.phi.m.ConstituentScale.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.InputType.AlgorithmType.SizeParameter.JetGhostArea.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.Width.WidthPhi.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.GhostHBosons.GhostHBosonsCount.GhostHBosonsPt.GhostPartons.GhostPartonsCount.GhostPartonsPt.GhostTQuarksFinal.GhostTQuarksFinalCount.GhostTQuarksFinalPt.GhostTausFinal.GhostTausFinalCount.GhostTausFinalPt.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
         'MET_Truth.name.mpx.mpy.source.sumet',
         'TruthEvents.truthParticleLinks.truthVertexLinks.signalProcessVertexLink.beamParticle1Link.beamParticle2Link.crossSectionError.weights.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.crossSection',
-        'TruthParticles.px.py.pz.pdgId.status.e.barcode.prodVtxLink'
+        'TruthParticles.px.py.pz.pdgId.status.e.barcode.prodVtxLink',
         'AntiKt4EMPFlowJets.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID',
-        'TruthVertices.incomingParticleLinks'
+        'TruthVertices.incomingParticleLinks',
+        'TruthVertices.z',
+        'PrimaryVertices.z.sumPt2.chiSquared',
         ]
 
 EXOT5SlimmingHelper.UserContent = []
