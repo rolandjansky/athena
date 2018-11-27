@@ -65,6 +65,7 @@ namespace DerivationFramework{
           || (m_DSID>=410470 && m_DSID<=410472) || (m_DSID>=410480 && m_DSID<=410482) //new Powheg+P8 mc16
           || m_DSID==410452 //new aMC@NLO+P8 FxFx mc16
           || (m_DSID>=411073 && m_DSID<=411081) //Powheg+P8 HF-filtered
+          || (m_DSID>=412066 && m_DSID<=412074) //aMC@NLO+P8 HF-filtered
           || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
           || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
            ){
