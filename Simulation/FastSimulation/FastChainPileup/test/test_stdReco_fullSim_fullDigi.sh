@@ -31,7 +31,8 @@ Reco_tf.py --inputRDOFile=RDO_pileup_fullsim_fulldigi.pool.root \
     --outputAODFile=AOD_fullSim_fullDigi.pool.root \
     --autoConfiguration=everything \
     --maxEvents=500 \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
+    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config_reco.txt")' \
 
 echo "art-result: $? RDOtoAOD step"
 #add an additional payload from the job (corollary file).

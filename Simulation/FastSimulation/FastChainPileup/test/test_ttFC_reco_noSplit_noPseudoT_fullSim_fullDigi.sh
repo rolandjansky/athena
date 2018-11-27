@@ -7,6 +7,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-output: config.txt
+# art-output: RDOtoAOD_config.txt
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \
@@ -34,6 +35,8 @@ FastChain_tf.py --maxEvents 500 \
     --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root \
     --outputAODFile AOD_noSplit_noPseudoT_fullSim_fullDigi.pool.root \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+--postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveTo\
+Ascii("RDOtoAOD_config.txt")'
     --imf False
 
 echo "art-result: $? RDOtoAOD step"

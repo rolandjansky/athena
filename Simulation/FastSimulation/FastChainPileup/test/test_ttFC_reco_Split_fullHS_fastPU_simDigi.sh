@@ -6,7 +6,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-output: config.txt
-
+# art-output: config_RDOtoAOD.txt
 # Run FastChain 'Fast PU, Full HS' and tests: G4HS_FastPileup sim (G4 for HS, Pythia on the fly + FastCaloSim for PU) + fast digi PU/full digi HS + Split reco (truth tracking PU, full HS)
 
 FastChain_tf.py --simulator G4HS_FastPileup \
@@ -37,7 +37,7 @@ FastChain_tf.py --maxEvents 10 \
     --inputRDOFile 'RDO_fullHS_fastPU_simdigi.pool.root' \
     --outputAODFile AOD_Split_fullHS_fastPU_simDigi.pool.root \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);InDetFlags.doStatistics.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True);InDetFlags.doSplitReco.set_Value_and_Lock(True);from InDetRecExample.InDetKeys import InDetKeys; InDetKeys.PixelPUClusters.set_Value_and_Lock('PixelFast_PU_Clusters');InDetKeys.SCT_PU_ClustersTruth.set_Value_and_Lock('PRD_MultiTruthSCT_PU');InDetKeys.TRT_PU_DriftCirclesTruth.set_Value_and_Lock('PRD_MultiTruthTRT_PU');InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True); from InDetRecExample.InDetKeys import InDetKeys; InDetKeys.PixelPUClusters.set_Value_and_Lock('PixelFast_PU_Clusters');InDetKeys.PixelPUClustersTruth.set_Value_and_Lock('PRD_MultiTruthPixel_PU');InDetKeys.SCT_PU_ClustersTruth.set_Value_and_Lock('PRD_MultiTruthSCT_PU');InDetKeys.TRT_PU_DriftCirclesTruth.set_Value_and_Lock('PRD_MultiTruthTRT_PU');" \
-    --postExec 'RAWtoESD:import AthenaCommon.AlgSequence as acas;job = acas.AlgSequence();del job.InDetSCT_ClusterizationPU;del job.InDetPixelClusterizationPU;del job.InDetPRD_MultiTruthMakerSiPU;del job.InDetPRD_MultiTruthMakerTRTPU;' \
+    --postExec 'RAWtoESD:import AthenaCommon.AlgSequence as acas;job = acas.AlgSequence();del job.InDetSCT_ClusterizationPU;del job.InDetPixelClusterizationPU;del job.InDetPRD_MultiTruthMakerSiPU;del job.InDetPRD_MultiTruthMakerTRTPU;from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --imf False
 
 echo "art-result: $? RDOtoAOD step"
