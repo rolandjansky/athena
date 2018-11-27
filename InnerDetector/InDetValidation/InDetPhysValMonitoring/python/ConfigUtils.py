@@ -46,14 +46,17 @@ def injectNameArgument(inFunction):
 
     return outFunction
 
-
 def checkKWArgs(inFunction):
     '''
     Auxiliary method to check that only a name kw arg is given.
     '''
 
     def outFunction(*args,**kwargs):
-        if len(kwargs)>1 or kwargs.keys()[0] != 'name' :
+        if len(args)==2 and isinstance(args[1],basestring) and len(kwargs)==0 :
+            kwargs['name']=args[1]
+            args=args[0:1]
+
+        if len(kwargs)>0 and (len(kwargs)>1 or kwargs.keys()[0] != 'name') :
             raise(' No keyword arguments shall be given')
 
         return inFunction(*args,**kwargs)
