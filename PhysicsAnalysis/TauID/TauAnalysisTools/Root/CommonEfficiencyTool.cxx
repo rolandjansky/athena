@@ -91,6 +91,9 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   declareProperty( "EVLevel",             m_iEVLevel             = (int)ELEIDBDTLOOSE );
   declareProperty( "OLRLevel",            m_iOLRLevel            = (int)TAUELEOLR );
   declareProperty( "ContSysType",         m_iContSysType         = (int)TOTAL );
+  declareProperty( "SplitMu",             m_bSplitMu             = false );
+  declareProperty( "SplitMCCampaign",     m_bSplitMCCampaign     = false );
+  declareProperty( "MCCampaign",          m_sMCCampaign          = "");
 }
 
 /*
@@ -153,7 +156,7 @@ StatusCode CommonEfficiencyTool::initialize()
 
 //______________________________________________________________________________
 CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor)
+    double& dEfficiencyScaleFactor, unsigned int iRunNumber, unsigned int iMu)
 {
   // save calo based TES if not available
   if (not m_bPtTauEtaCalibIsAvailableIsChecked)
@@ -185,9 +188,15 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
 
   // get prong extension for histogram name
   std::string sProng = ConvertProngToString(xTau.nTracks());
+  std::string sMu = "";
+  std::string sMCCampaign = "";
+
+  if (m_bSplitMu) sMu = ConvertMuToString(iMu);
+  if (m_bSplitMCCampaign) sMCCampaign = GetMcCampaignString(iRunNumber);
+  std::string sHistName = m_sSFHistName + sProng + sMu + sMCCampaign;
 
   // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode = getValue(m_sSFHistName+sProng,
+  CP::CorrectionCode tmpCorrectionCode = getValue(sHistName,
                                                   xTau,
                                                   dEfficiencyScaleFactor);
   // return correction code if histogram is not available
@@ -213,11 +222,11 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     dDirection = syst.parameter();
 
     // build up histogram name
-    std::string sHistName = it->second;
+    sHistName = it->second;
     if (dDirection>0)   sHistName+="_up";
     else                sHistName+="_down";
     if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    sHistName += sProng;
+    sHistName += sProng + sMu + sMCCampaign;
 
     // get the uncertainty from the histogram
     tmpCorrectionCode = getValue(sHistName,
@@ -254,7 +263,8 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   multiple instances of this tool with different decoration names.
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau)
+CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+  unsigned int iRunNumber, unsigned int iMu)
 {
   double dSf = 0.;
 
@@ -286,7 +296,7 @@ CP::CorrectionCode CommonEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::
     return CP::CorrectionCode::Ok;
 
   // retreive scale factor
-  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, dSf);
+  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, dSf, iRunNumber, iMu);
   // adding scale factor to tau as decoration
   xTau.auxdecor<double>(m_sVarName) = dSf;
 
@@ -396,6 +406,39 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
     ATH_MSG_DEBUG("passed tau with 0 tracks, which is not supported, taking multiprong SF for now");
   fProngness == 1 ? prong = "_1p" : prong = "_3p";
   return prong;
+}
+
+/*
+  mu converter, returns "_highMu" for average number of vertices higher than 35 and
+  "_lowMu" for everything below
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::ConvertMuToString(const int& iMu)
+{
+  if (iMu > 35 )
+    return "_highMu";
+
+  return "_lowMu";
+}
+
+/*
+  run number converter, first checks if m_sMCCampaign is set. If yes, use it. 
+  If not, use random run number to determine MC campaign 
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
+{
+  if (m_sMCCampaign == "MC16a" || m_sMCCampaign == "MC16d")
+    return std::string("_")+m_sMCCampaign;
+  else if (m_sMCCampaign == "MC16e")
+    return "_MC16d"; // MC16e recommendations not available yet, use MC16d instead
+  else if (m_sMCCampaign != "")
+    ATH_MSG_WARNING("unsupported mc campaign: " << m_sMCCampaign);
+
+  if (iRunNumber > 324320 )
+    return "_MC16d";
+
+  return "_MC16a";
 }
 
 /*
@@ -538,11 +581,12 @@ void CommonEfficiencyTool::generateSystematicSets()
 
   // set truth type to check for in truth matching
   if (sTruthType=="TRUEHADTAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicTau;
-  if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
-  if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
-  if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
-  if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
+  else if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
+  else if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
+  else if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
+  else if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
   if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
+  else if (sEfficiencyType=="ELEBDT") m_bNoMultiprong = true;
 
   for (auto mSF : *m_mSF)
   {

@@ -30,13 +30,27 @@ namespace top {
       if (m_level == "LooseBad") m_useLooseBad = true;
       if (m_level == "TightBad") m_useLooseBad = false;
       
-      // we can't yet use jet cleaning for particle-flow jets
-      if (!m_config->useParticleFlowJets()) {
-	if (m_useLooseBad)top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
-	else top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
+      
+      m_useEventLevelJetCleaningTool=m_config->useEventLevelJetCleaningTool();
+      
+      // Checking configuration for particle-flow jets:
+      if (m_config->useParticleFlowJets()) {
+	top::check(m_useLooseBad, "JetCleaningSelector: This cleaning configuration is not available for particle-flow jets. The only available configuration is\n JETCLEAN LooseBad");
       }
-      if (m_useLooseBad)top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
-      else top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
+      
+      // We can't yet use jet cleaning or event cleaning tools for particle-flow jets
+      if (!m_config->useParticleFlowJets()) {
+	
+	if(m_useEventLevelJetCleaningTool){
+	  if (m_useLooseBad)top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
+	  else top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
+	}
+	else{
+	  if (m_useLooseBad)top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
+	  else top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
+	}
+      } // end (!m_config->useParticleFlowJets())
+      
     }
   }
 
@@ -44,26 +58,32 @@ namespace top {
 
     if (m_config->isTruthDxAOD()) return true;
     
+    if(m_config->useParticleFlowJets()){
+      top::check(event.m_info->isAvailable<char>("DFCommonJets_eventClean_LooseBad"),"JetCleaningSelector: DFCommonJets_eventClean_LooseBad not available in EventInfo. Needed for particle-flow jets cleaning");
+      bool result = event.m_info->auxdataConst<char>("DFCommonJets_eventClean_LooseBad");
+      return result;
+    }
+    
+    
     // There are two jet cleaning tools and we have a request to test the event level one
     // These should be very close/ equivalent as we already handle the OR and JVT elsewhere
-    if(m_config->useEventLevelJetCleaningTool()){
+    if(m_useEventLevelJetCleaningTool){
       // If we are to use the event object, we can just do acceptEvent
-      if (m_useLooseBad)  return m_jetEventCleaningToolLooseBad->acceptEvent(&event.m_jets);
-      if (!m_useLooseBad) return m_jetEventCleaningToolTightBad->acceptEvent(&event.m_jets);
+
+      if (m_useLooseBad) return m_jetEventCleaningToolLooseBad->acceptEvent(&event.m_jets);
+      else return m_jetEventCleaningToolTightBad->acceptEvent(&event.m_jets);
+      
     }
     // This is the default/standard method for jet cleaning
     else{
       for (const auto* const jetPtr : event.m_jets){
-	// we can't yet use jet cleaning for particle-flow jets, so do nothing in this case
-	top::check(!m_config->useParticleFlowJets(),"Jet cleaning can't be used for PFlow jets");
 	
 	if (m_useLooseBad) {
 	  if (m_jetCleaningToolLooseBad->keep(*jetPtr) == 0) {
 	    return false;
 	  }
 	}
-      
-	if (!m_useLooseBad) {
+	else {
 	  if (m_jetCleaningToolTightBad->keep(*jetPtr) == 0) {
 	    return false;
 	  }
@@ -71,6 +91,10 @@ namespace top {
 	
       }
     }
+
+    
+    
+    
 
     return true;
   }

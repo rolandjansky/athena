@@ -89,6 +89,7 @@ namespace CP {
             const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
 
             void getExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
+            void calcExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
 
             //Returns the Size of the Isolation cone
             double coneSize(const xAOD::IParticle*  particle, IsoType Cone) const;
@@ -192,6 +193,14 @@ namespace CP {
             SelectionAccessor m_acc_ToCorrect;
 
             SelectionDecorator m_dec_isoselection;
+
+            SG::AuxElement::Accessor<bool> m_chk_assocEtaPhi;
+            SG::AuxElement::Accessor<double> m_acc_assocEta;
+            SG::AuxElement::Accessor<double> m_acc_assocPhi;
+
+            SG::AuxElement::Decorator<bool> m_dec_assocEtaPhi;
+            SG::AuxElement::Decorator<double> m_dec_assocEta;
+            SG::AuxElement::Decorator<double> m_dec_assocPhi;
 
             //Functionallity to backup the original cone variables if needed
             std::string m_backup_prefix;

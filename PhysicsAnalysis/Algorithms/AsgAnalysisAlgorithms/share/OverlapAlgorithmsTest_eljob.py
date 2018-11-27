@@ -79,7 +79,7 @@ algSeq += pileupSequence
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
     makeElectronAnalysisSequence
-electronSequence = makeElectronAnalysisSequence( dataType,
+electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose',
                                                  recomputeLikelihood = True )
 electronSequence.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElectrons_%SYS%' )
@@ -88,7 +88,7 @@ algSeq += electronSequence
 # Include, and then set up the photon analysis sequence:
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
     makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, recomputeIsEM = True )
+photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', recomputeIsEM = True )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons_%SYS%' )
 algSeq += photonSequence

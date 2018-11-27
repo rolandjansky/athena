@@ -55,6 +55,7 @@
 #include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTTZPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
+#include "TopPartons/CalcTtbarGammaPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
@@ -323,6 +324,11 @@ int main(int argc, char** argv) {
       topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTTZPartonHistory( "top::CalcTTZPartonHistory" ) );
       top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTTZPartonHistory");
     }
+    else if(settings->value("TopPartonHistory") == "ttgamma"){
+      topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarGammaPartonHistory( "top::CalcTtbarGammaPartonHistory" ) );
+      top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarGammaPartonHistory");
+    }
+
 
     //LHAPDF SF calculation
     std::unique_ptr<top::PDFScaleFactorCalculator> PDF_SF(nullptr);

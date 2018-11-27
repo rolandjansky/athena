@@ -2,14 +2,26 @@
 # EXOT27 - MonoHbb tests - candidate for official monoHbb+monoScalar derviation
 ################################################################################
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool, DerivationFramework__TriggerSkimmingTool, DerivationFramework__GenericObjectThinning
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    derivationFlags, buildFileName, MSMgr, DerivationFrameworkJob,
+    DerivationFrameworkIsMonteCarlo)
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+    DerivationFramework__DerivationKernel)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
+    DerivationFramework__xAODStringSkimmingTool,
+    DerivationFramework__TriggerSkimmingTool,
+    DerivationFramework__GenericObjectThinning,
+    DerivationFramework__FilterCombinationAND,
+    DerivationFramework__FilterCombinationOR)
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning, DerivationFramework__MuonTrackParticleThinning, DerivationFramework__TauTrackParticleThinning, DerivationFramework__JetTrackParticleThinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
+    DerivationFramework__EgammaTrackParticleThinning,
+    DerivationFramework__MuonTrackParticleThinning,
+    DerivationFramework__TauTrackParticleThinning,
+    DerivationFramework__JetTrackParticleThinning)
 
 # CP group common variables
 import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
@@ -19,10 +31,12 @@ import DerivationFrameworkEGamma.EGammaCommon as EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon as MuonsCommon
 import DerivationFrameworkFlavourTag.HbbCommon as HbbCommon
 from JetRec.JetRecStandardToolManager import jtm
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import (
+    DerivationFramework__GenericTruthThinning)
 import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
 from BTagging.BTaggingFlags import BTaggingFlags
-from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
+from DerivationFrameworkCore.FullListOfSmartContainers import (
+    FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
 if DerivationFrameworkIsMonteCarlo: 
   MCTruthCommon.addStandardTruthContents()
@@ -63,7 +77,8 @@ if DerivationFrameworkIsMonteCarlo:
     "TruthParticles",
     "MET_Truth",
     ]
-EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink", "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
+EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink",
+    "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
 def outputContainer(container, warnIfNotSmart=True):
   if container in EXOT27SmartContainers + EXOT27AllVariables:
     logger.debug("Container '{0}' already requested for output!")
@@ -123,10 +138,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
 vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets)
+JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets+"Jets")
 vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets)
+JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
 
 # We need the AntiKt10LCTopo jets here though so that the trimmed jets are
 # produced correctly
@@ -156,7 +171,7 @@ ExtendedJetCommon.addCSSKSoftDropJets(EXOT27Seq, "EXOT27Jets")
 OutputLargeR = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets",
-  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
+  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
   ]
 # XAMPP seems to use the 'Width' variable from these?
 for lrj in OutputLargeR:
@@ -164,6 +179,13 @@ for lrj in OutputLargeR:
       "Width",
       "GhostBQuarksFinal",
       ])
+OutputLargeRParent = [
+  "AntiKt10LCTopoJets",
+  "AntiKtVR600Rmax10Rmin2LCTopoJets",
+  "AntiKt10LCTopoCSSKJets"
+  ]
+for lrj in OutputLargeRParent:
+  EXOT27ExtraVariables[lrj].update(["GhostBQuarksFinal"])
 
 # Ghost-associated the track jets to these large-R jets
 toBeAssociatedTo = [
@@ -186,7 +208,7 @@ ungroomed, labels = EXOT27Utils.linkPseudoJetGettersToExistingJetCollection(
     {vrTrackJetGhosts : vrTrackJetGhosts.lower()})
 # However, we still want to write out both so add both to the extra variables
 EXOT27ExtraVariables[ungroomed].update(labels)
-EXOT27ExtraVariables[ungroomed].update(vrGhostTagTrackJetsGhosts)
+EXOT27ExtraVariables[ungroomed].update([vrGhostTagTrackJetsGhosts])
 
 # Alias b-tagging container for VR track jets
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -218,10 +240,14 @@ for large_r in OutputLargeR:
         SelectionString="{0}.pt > 100*GeV".format(large_r),
         ContainerName = large_r) )
 
-EXOT27ElectronThinning = "Electrons.DFCommonElectronsLHLooseBL"
-# EXOT27MuonThinning = "Muons.pt > 10.*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
-EXOT27PhotonThinning = "Photons.pt > 10.*GeV && Photons.DFCommonPhotonsIsEMTight"
-EXOT27TauJetThinning = "TauJets.pt > 10.*GeV"
+EXOT27BaselineElectron = "Electrons.DFCommonElectronsLHLooseBL"
+EXOT27BaselineMuon     = "Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
+EXOT27BaselinePhoton   = "Photons.pt > 15.*GeV && Photons.DFCommonPhotonsIsEMTight"
+EXOT27BaselineTauJet   = "TauJets.pt > 10.*GeV"
+EXOT27SignalElectron   = (EXOT27BaselineElectron + " && Electrons.DFCommonElectronsLHTight "
+    + "&& Electrons.pt > 20.*GeV")
+EXOT27SignalMuon       = EXOT27BaselineMuon + " && Muons.pt > 20.*GeV"
+EXOT27SignalPhoton     = EXOT27BaselinePhoton + " && Photons.pt > 100.*GeV"
 
 # Set up the standard set of track thinning tools
 EXOT27ThinningTools += [
@@ -229,33 +255,25 @@ EXOT27ThinningTools += [
       "EXOT27ElectronTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Electrons",
-      SelectionString = EXOT27ElectronThinning
+      SelectionString = EXOT27BaselineElectron
       ),
   DerivationFramework__EgammaTrackParticleThinning(
       "EXOT27PhotonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       SGKey           = "Photons",
-      SelectionString = EXOT27PhotonThinning
+      SelectionString = EXOT27BaselinePhoton
       ),
   DerivationFramework__MuonTrackParticleThinning(
       "EXOT27MuonTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       MuonKey         = "Muons",
-      # SelectionString = "Muons.pt > 10*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
       ),
   DerivationFramework__TauTrackParticleThinning(
       "EXOT27TauTrackParticleThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       TauKey          = "TauJets",
-      SelectionString = EXOT27TauJetThinning
+      SelectionString = EXOT27BaselineTauJet
       ),
-  # I asked TJ and we don't need tracks associated to jets!
-  # DerivationFramework__JetTrackParticleThinning(
-  #     "EXOT27JetTrackParticleThinningTool",
-  #     ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-  #     JetKey          = "AntiKt4EMTopoJets",
-  #     SelectionString = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV"
-  #     ),
   ]
 
 # Also thin the output objects by the same rules
@@ -263,24 +281,25 @@ EXOT27ThinningTools += [
   DerivationFramework__GenericObjectThinning(
       "EXOT27ElectronsThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27ElectronThinning,
+      SelectionString = EXOT27BaselineElectron,
       ContainerName   = "Electrons"),
   DerivationFramework__GenericObjectThinning(
       "EXOT27PhotonsThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27PhotonThinning,
+      SelectionString = EXOT27BaselinePhoton,
       ContainerName   = "Photons"),
   DerivationFramework__GenericObjectThinning(
       "EXOT27TauJetsThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27TauJetThinning,
+      SelectionString = EXOT27BaselineTauJet,
       ContainerName   = "TauJets"),
   ]
 
 
 # TODO (perhaps): truth thinning
 # What I have here is extremely simplistic - designed to at least have what I
-# need for my immediate studies
+# need for my immediate studies and (by inspection) what is used by XAMPP truth
+# code
 if DerivationFrameworkIsMonteCarlo:
   truth_with_descendants = [6, 23, 24, 25]
   truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
@@ -312,10 +331,14 @@ EXOT27SkimmingTools = []
 # string selection
 sel_list = []
 # Common SR selection
-# Resolved requirement - analysis level selection is 2 central jets with pT > 45
+# Resolved requirement - analysis level selection is 1 central jet with pT > 45
 # GeV. Use 30 GeV and |eta| < 2.8 to allow for future differences in calibration
 sel_list.append("count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.*GeV) && " +
-    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 2")
+    "(abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.8)) >= 1")
+# NB - this selection is almost comically loose - is there really nothing
+# tighter we can apply?
+
+
 # Merged requirement - analysis level selection is 1 central large-R jet with pT
 # > 200 GeV. Use 100 GeV and |eta| < 2.4 to allow for future differences in
 # calibration. Do this for all of the large-R jet collections that are output
@@ -334,6 +357,80 @@ if sel_string:
       )
   EXOT27SkimmingTools.append(EXOT27StringSkimmingTool)
 
+# Add additional skimming for events passing lepton and photon triggers
+# Ideally we would add similar requirements for events passing the MET triggers
+# but I don't know how far I trust the resolution on the reference MET
+# collection. If we find that the size is still too great we can look at it.
+EXOT27SkimmingORTools = []
+# The lepton triggers are only used for the 2l control regions (1l is MET
+# trigger)
+# These regions require >=1 signal lepton && >=2 baseline leptons
+# Electrons:
+ToolSvc += DerivationFramework__TriggerSkimmingTool(
+    "EXOT27EleTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.el,
+    livefraction = 0.95) )
+ToolSvc += DerivationFramework__xAODStringSkimmingTool(
+    "EXOT27EleOfflineSkimmingTool",
+    expression = " && ".join(map("({0})".format, [
+      "count("+EXOT27BaselineElectron+") >= 2",
+      "count("+EXOT27SignalElectron+") >= 1"]) ) )
+EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
+      "EXOT27EleChannelSkim",
+      FilterList=[
+        ToolSvc.EXOT27EleTriggerSkimmingTool,
+        ToolSvc.EXOT27EleOfflineSkimmingTool]) )
+
+# Muons:
+ToolSvc += DerivationFramework__TriggerSkimmingTool(
+    "EXOT27MuonTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.mu,
+    livefraction = 0.95) )
+ToolSvc += DerivationFramework__xAODStringSkimmingTool(
+    "EXOT27MuonOfflineSkimmingTool",
+    expression = " && ".join(map("({0})".format, [
+      "count("+EXOT27BaselineMuon+") >= 2",
+      "count("+EXOT27SignalMuon+") >= 1"]) ) )
+EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
+      "EXOT27MuonChannelSkim",
+      FilterList=[
+        ToolSvc.EXOT27MuonTriggerSkimmingTool,
+        ToolSvc.EXOT27MuonOfflineSkimmingTool]) )
+
+# Photons:
+ToolSvc += DerivationFramework__TriggerSkimmingTool(
+    "EXOT27PhotonTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.g,
+    livefraction = 0.95) )
+ToolSvc += DerivationFramework__xAODStringSkimmingTool(
+    "EXOT27PhotonOfflineSkimmingTool",
+    expression = "count("+EXOT27SignalPhoton+") >= 1")
+EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
+      "EXOT27PhotonChannelSkim",
+      FilterList=[
+        ToolSvc.EXOT27PhotonTriggerSkimmingTool,
+        ToolSvc.EXOT27PhotonOfflineSkimmingTool]) )
+
+# Apply no extra selection to events passing the MET trigger
+EXOT27SkimmingORTools.append(DerivationFramework__TriggerSkimmingTool(
+    "EXOT27METTriggerSkimmingTool",
+    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
+    trigger_all_periods,
+    triggerType = TriggerType.xe,
+    livefraction = 0.95) ) )
+
+for tool in EXOT27SkimmingORTools:
+  ToolSvc += tool
+
+EXOT27SkimmingTools.append(DerivationFramework__FilterCombinationOR(
+      "EXOTTriggerChannelORTool",
+      FilterList = EXOT27SkimmingORTools) )
 
 for tool in EXOT27SkimmingTools:
   ToolSvc += tool
@@ -353,12 +450,15 @@ EXOT27Seq += CfgMgr.DerivationFramework__DerivationKernel(
 EXOT27SlimmingHelper = SlimmingHelper("EXOT27SlimmingHelper")
 EXOT27SlimmingHelper.SmartCollections += EXOT27SmartContainers
 EXOT27SlimmingHelper.AllVariables += EXOT27AllVariables
+logger.info("EXOT27Jets: {0}".format(JetCommon.OutputJets["EXOT27Jets"]) )
+for alg in EXOT27Seq:
+  logger.info("Alg: {0}".format(alg) )
 JetCommon.addJetOutputs(
     slimhelper = EXOT27SlimmingHelper,
     contentlist=["EXOT27Jets"],
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-      "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
+      "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",
@@ -375,9 +475,16 @@ EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
 
+EXOT27SlimmingHelper.AppendToDictionary = {
+    "AntiKtVR600Rmax10Rmin2LCTopoJets" : "xAOD::JetContainer",
+    "AntiKtVR600Rmax10Rmin2LCTopoJetsAux" : "xAOD::JetAuxContainer",
+    "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20Jets" : "xAOD::JetContainer",
+    "AntiKtVR600Rmax10Rmin2LCTopoTrimmedPtFrac5SmallR20JetsAux" : "xAOD::JetAuxContainer",
+    }
+
 EXOT27SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT27SlimmingHelper.IncludeEGammaTriggerContent = True
-EXOT27SlimmingHelper.InlcudeEtMissTriggerContent = True
+EXOT27SlimmingHelper.IncludeEtMissTriggerContent = True
 EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
 
 ################################################################################

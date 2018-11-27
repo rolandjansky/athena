@@ -40,6 +40,7 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*

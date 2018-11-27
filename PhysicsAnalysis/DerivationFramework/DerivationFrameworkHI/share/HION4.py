@@ -234,6 +234,8 @@ triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE50']
 triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE100']
 triggers += ['HLT_mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE200']
 triggers += ['HLT_mb_sp_L1VTE50']
+triggers += ['HLT_mb_sptrk_exclusiveloose2_L12TAU1_VTE50']
+triggers += ['HLT_mu4_hi_upc_FgapAC3_L1MU4_VTE50']
 
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression

@@ -82,7 +82,7 @@ StatusCode CommonDiTauEfficiencyTool::initialize()
 */
 //______________________________________________________________________________
 CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau,
-    double& dEfficiencyScaleFactor)
+    double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   // check which true state is requestet
   if (checkTruthMatch(xDiTau) != m_eCheckTruth)
@@ -158,7 +158,8 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAO
   multiple instances of this tool with different decoration names.
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau)
+CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau,
+    unsigned int iRunNumber, unsigned int iMu)
 {
   double dSf = 0.;
 
@@ -177,7 +178,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const x
     return CP::CorrectionCode::Ok;
 
   // retreive scale factor
-  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xDiTau, dSf);
+  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xDiTau, dSf, iRunNumber, iMu);
   // adding scale factor to tau as decoration
   xDiTau.auxdecor<double>(m_sVarName) = dSf;
 

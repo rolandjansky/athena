@@ -53,8 +53,10 @@ public:
   // next two lines are needed to achieve overloading of those methods 
   using CommonEfficiencyTool::getEfficiencyScaleFactor;
   using CommonEfficiencyTool::applyEfficiencyScaleFactor;
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor) override;
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau) override;
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 ) override;
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau,
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 ) override;
 
   double (*m_fX)(const xAOD::DiTauJet& xDiTau);
   double (*m_fY)(const xAOD::DiTauJet& xDiTau);

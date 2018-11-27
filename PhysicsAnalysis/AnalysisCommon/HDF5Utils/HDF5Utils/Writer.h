@@ -48,6 +48,7 @@ namespace H5Utils {
       virtual data_buffer_t getDefault() const = 0;
       virtual H5::DataType getType() const = 0;
       virtual std::string name() const = 0;
+      typedef I input_type;
     };
 
     /// implementation for variable filler
@@ -127,6 +128,8 @@ namespace H5Utils {
 
     std::vector<SharedConsumer<I> > getConsumers() const;
 
+    typedef I input_type;
+
   private:
     std::vector<SharedConsumer<I> > m_consumers;
     std::set<std::string> m_used;
@@ -156,6 +159,35 @@ namespace H5Utils {
   /// @{
   namespace internal {
 
+    // This class exists to inspect the way the fill(...) function is
+    // called, so that errors can be caught with a static assert and
+    // give a much less cryptic error message.
+    //
+    // We check to make sure the depth of the input matches the rank
+    // of the output, and that the types match.
+    using std::begin;
+    template <size_t N, typename T, typename I, typename = void>
+    struct CheckType {
+      static const bool ok_type = std::is_convertible<T,I>::value;
+      static const bool any_type = ok_type;
+      static const int depth = 0;
+    };
+    template <size_t N, typename T, typename I>
+    struct CheckType <N,T,I,decltype(*begin(std::declval<T&>()), void())> {
+      typedef CheckType<N-1,decltype(*begin(std::declval<T&>())),I> subtype;
+      static const bool ok_type = subtype::ok_type;
+      static const bool any_type = (
+        subtype::any_type || std::is_convertible<T,I>::value);
+      static const int depth = subtype::depth + 1;
+    };
+    template <typename T, typename I>
+    struct CheckType <0,T,I,decltype(*begin(std::declval<T&>()), void())> {
+      typedef CheckType<0,decltype(*begin(std::declval<T&>())),I> subtype;
+      static const bool ok_type = std::is_convertible<T,I>::value;
+      static const bool any_type = subtype::any_type || ok_type;
+      static const int depth = subtype::depth + 1;
+    };
+
     /// Data flattener class: this is used by the writer to read in the
     /// elements one by one and put them in an internal buffer.
     ///
@@ -165,6 +197,7 @@ namespace H5Utils {
     ///
     template <size_t N, typename F, typename T, size_t M = N>
     struct DataFlattener {
+
       std::vector<data_buffer_t> buffer;
       std::vector<std::array<hsize_t, N> > element_offsets;
       DataFlattener(const F& filler, T args,
@@ -351,6 +384,25 @@ namespace H5Utils {
     if (m_buffer_rows == m_par.batch_size) {
       flush();
     }
+
+    // make some assertions
+    typedef internal::CheckType<N, T, I> checkType;
+    static_assert(
+      checkType::depth >= N,
+      "\n\n"
+      " ** H5 Writer rank is greater than the depth of fill(...) input! **"
+      " \n");
+    static_assert(
+      !(checkType::any_type && !checkType::ok_type),
+      "\n\n"
+      " ** H5 Writer input type matches fill(...), but rank is incorrect! **"
+      " \n");
+    static_assert(
+      checkType::any_type,
+      "\n\n"
+      " ** H5 Writer input type doesn't match input for fill(...)! **"
+      " \n");
+
     internal::DataFlattener<N, decltype(m_consumers), T> buf(
       m_consumers, arg, m_par.extent);
     hsize_t n_el = buf.element_offsets.size();

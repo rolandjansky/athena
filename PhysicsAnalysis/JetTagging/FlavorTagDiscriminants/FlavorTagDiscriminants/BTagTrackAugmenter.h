@@ -42,7 +42,7 @@ public:
   // Better advice: don't use this at all, use get_signed_ip() instead
   void augment_with_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
-  BTagSignedIP get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
+  BTagSignedIP get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
 private:
   typedef SG::AuxElement AE;
 

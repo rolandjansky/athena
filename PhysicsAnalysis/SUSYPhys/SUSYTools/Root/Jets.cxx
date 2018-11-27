@@ -819,24 +819,78 @@ namespace ST {
 
   }
 
+  double SUSYObjDef_xAOD::FJVT_SF(const xAOD::JetContainer* jets) {
 
-  double SUSYObjDef_xAOD::GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF, const bool jvtSF) {
+    float totalSF = 1.;
+
+    ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
+    for (const auto& jet : *jets) {
+      // Only jets that were good for every cut except JVT
+      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
+        fjvtjets.push_back(jet);
+      }
+    }
+
+    CP::CorrectionCode ret = m_jetFJvtEfficiencyTool->applyAllEfficiencyScaleFactor( fjvtjets.asDataVector() , totalSF );
+
+    switch (ret) {
+    case CP::CorrectionCode::Error:
+      ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::FJVT_SF" );
+    case CP::CorrectionCode::OutOfValidityRange:
+      ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::FJVT_SF" );
+    default:
+      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::FJVT_SF with value " << totalSF );
+    }
+
+    return totalSF;
+
+  }
+
+  double SUSYObjDef_xAOD::FJVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) {
+
+    float totalSF = 1.;
+
+    //Set the new systematic variation
+    CP::SystematicCode ret = m_jetFJvtEfficiencyTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
+    }
+
+    // Delegate
+    totalSF = SUSYObjDef_xAOD::FJVT_SF( jets );
+
+    if (m_applyJVTCut) {
+      ret = m_jetFJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
+      if ( ret != CP::SystematicCode::Ok) {
+        ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
+      }
+    }
+
+    return totalSF;
+
+  }
+
+  double SUSYObjDef_xAOD::GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF, const bool jvtSF, const bool fjvtSF) {
 
     double totalSF = 1.;
     if (btagSF) totalSF *= BtagSF(jets);
 
     if (jvtSF && m_applyJVTCut) totalSF *= JVT_SF(jets);
 
+    if (fjvtSF) totalSF *= FJVT_SF(jets);
+
     return totalSF;
   }
 
 
-  double SUSYObjDef_xAOD::GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF, const bool jvtSF) {
+  double SUSYObjDef_xAOD::GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF, const bool jvtSF, const bool fjvtSF) {
 
     double totalSF = 1.;
     if (btagSF) totalSF *= BtagSFsys(jets, systConfig);
 
     if (jvtSF && m_applyJVTCut) totalSF *= JVT_SFsys(jets, systConfig);
+
+    if (fjvtSF) totalSF *= FJVT_SFsys(jets, systConfig);
 
     return totalSF;
   }

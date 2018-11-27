@@ -152,8 +152,8 @@ int main( int argc, char* argv[] ) {
   //   corrTool.setProperty("sgItersID",             11);
   //   corrTool.setProperty("sgItersME",             11);
   //   corrTool.setProperty("sgIetrsMamual",         false);
-  //   corrTool.setProperty("fixedRho",              1.0);
-  //   corrTool.setProperty("useFixedRho",           false);
+  corrTool.setProperty("fixedRho",              0.0);
+  corrTool.setProperty("useFixedRho",           true);
   corrTool.setProperty("noEigenDecor" ,         false);
   //   corrTool.setProperty("useExternalSeed" ,      false);
   //   corrTool.setProperty("externalSeed" ,         0);
@@ -191,7 +191,7 @@ int main( int argc, char* argv[] ) {
   //::: Systematics initialization
   ////////////////////////////////////////////////////
   std::vector< CP::SystematicSet > sysList;
-  //sysList.push_back( CP::SystematicSet() );
+  sysList.push_back( CP::SystematicSet() );
 
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
@@ -220,7 +220,7 @@ int main( int argc, char* argv[] ) {
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
 
     // create new tree for the systematic in question
-    std::string treeName = "test_tree_" + sysListItr->name();
+    std::string treeName = "test_tree_" + (sysListItr->name().size()==0 ? "NOMINAL":sysListItr->name());
     TTree* sysTree = new TTree( treeName.c_str(), "test tree for MCAST" );
 
     // add branches
@@ -277,7 +277,7 @@ int main( int argc, char* argv[] ) {
     //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
 
-      //Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+      Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
 
       //::: Check if systematic is applicable to the correction tool
       if( corrTool->applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) {

@@ -29,6 +29,36 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSVALStre
 listAODtoDPD.append(WriteDAOD_PHYSVALStream.StreamName)
 
 ####################################
+# Run-3 prototypes
+####################################
+
+class WriteDAOD_MINIStream(JobProperty):
+    """ DAOD_MINI - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_MINI"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/MINI.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MINIStream)
+listAODtoDPD.append(WriteDAOD_MINIStream.StreamName)
+
+class WriteDAOD_NANOStream(JobProperty):
+    """ DAOD_NANO - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_NANO"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/NANO.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_NANOStream)
+listAODtoDPD.append(WriteDAOD_NANOStream.StreamName)
+
+####################################
 # Defined by ASG for tests/examples
 ####################################
 
@@ -1628,6 +1658,20 @@ class WriteDAOD_JETM14Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM14Stream)
 listAODtoDPD.append(WriteDAOD_JETM14Stream.StreamName)
+
+class WriteDAOD_JETM15Stream(JobProperty):
+    """JETM16: Grooming scan data derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_JETM15'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkJetEtMiss/JETM15.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM15Stream)
+listAODtoDPD.append(WriteDAOD_JETM15Stream.StreamName)
+
 
 #####################################
 # Defined by the inner tracking group

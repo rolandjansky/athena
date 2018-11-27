@@ -63,9 +63,10 @@ public:
 
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
-      double& eff );
+      double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0);
   /// Decorate the tau with its efficiency
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau );
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau,
+      unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -111,6 +112,7 @@ private:
   std::string m_sInputFilePathRecoHadTau;
   std::string m_sInputFilePathEleOLRHadTau;
   std::string m_sInputFilePathEleOLRElectron;
+  std::string m_sInputFilePathEleBDTElectron;
   std::string m_sInputFilePathJetIDHadTau;
   std::string m_sInputFilePathContJetIDHadTau;
   std::string m_sInputFilePathEleIDHadTau;
@@ -141,8 +143,10 @@ private:
   int m_iOLRLevel;
   int m_iContSysType;
   int m_iTriggerPeriodBinning;
+  std::string m_sMCCampaign;
 
   unsigned int m_iRunNumber;
+  unsigned int m_iMu;
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tTauSelectionToolHandle;
 #ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE

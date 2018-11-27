@@ -152,7 +152,7 @@ namespace top{
 	for (size_t k=0; k < particle->nChildren(); k++) {
 		const xAOD::TruthParticle* topChildren = particle->child(k);	
 		
-		if (abs(topChildren->pdgId()) == 24){				
+		if (abs(topChildren->pdgId()) == 24){			
 			
 			W_p4 = topChildren->p4();  // W boson after FSR
 			hasW = true;
@@ -181,6 +181,7 @@ namespace top{
 		} //else if		
 	
 	} //for (size_t k=0; k < particle->nChildren(); k++)
+
 	if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2)	return true;
     } //for (const xAOD::TruthParticle* particle : *truthParticles)
     
@@ -405,6 +406,184 @@ namespace top{
     
     return false;
   }
+
+
+  // for ttbar + photon events
+  bool CalcTopPartonHistory::topPhWb( const xAOD::TruthParticleContainer* truthParticles, int topId, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& Ph_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId, bool& has_ph, int& BranchType, int& IniPartonType, bool& missingTop){
+    
+    bool hasT		    	= false;
+    bool hasW		    	= false;
+    bool hasAbsentW		= false;
+    bool hasB		    	= false;
+    has_ph			= false;
+    bool ph_W			= false;
+    bool ph_Top			= false;
+    bool ph_ISR			= false;
+    bool ph_b			= false;
+    bool hasWdecayProd1		= false;
+    bool hasWdecayProd2		= false;   
+    missingTop			= false;
+
+    for (const xAOD::TruthParticle* particle : *truthParticles) {
+    
+    	if (particle->pdgId() != topId) continue; 
+	
+	if (hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR			
+	BranchType = -1;// 10(50): leptonic(hadronic), 12(52):topRad, 14(54):Wrad, 15(55):ISR, 18(58):b
+	IniPartonType = -1; 
+
+	// finding siblings
+        for(size_t iparent=0; iparent<particle->nParents(); iparent++){
+		if(abs(particle->parent(iparent)->pdgId())==21) {IniPartonType = 1;} // gg fusion
+		else if(abs(particle->parent(iparent)->pdgId())<6) {IniPartonType = 2;} //qq annihilation
+
+		for(size_t ichild=0;ichild<particle->parent(iparent)->nChildren();ichild++){
+			if(particle->parent(iparent)->child(ichild)->pdgId()==22){
+				const xAOD::TruthParticle* photon = findAfterFSR(particle->parent(iparent)->child(ichild));
+				Ph_p4 = photon->p4();
+				has_ph = true;
+				ph_ISR = true;
+			}
+			if(!missingTop && (abs(particle->parent(iparent)->child(ichild)->pdgId())==5 || abs(particle->parent(iparent)->child(ichild)->pdgId())==24)){
+				missingTop = true;
+			}
+		}
+	}
+
+	t_beforeFSR_p4 = particle->p4(); // top before FSR
+        hasT = true;
+	// demanding the last tops after FSR
+	particle = findAfterFSR(particle);
+	t_afterFSR_p4 = particle->p4(); // top after FSR
+    	
+	for (size_t k=0; k < particle->nChildren(); k++) {// top children
+		const xAOD::TruthParticle* topChildren = particle->child(k);	
+		
+		if (abs(topChildren->pdgId()) == 24){
+			
+			W_p4 = topChildren->p4();  // W boson before FSR
+			hasW = true;
+		
+			// demanding the last W after FSR 
+			topChildren = findAfterFSR(topChildren);		
+			
+			for (size_t q = 0; q < topChildren->nChildren(); q++) {// W children
+				const xAOD::TruthParticle* WChildren = topChildren->child(q);
+				if (abs(WChildren->pdgId())>0 && abs(WChildren->pdgId())<17){
+
+				   if (abs(WChildren->pdgId())<7) {BranchType=50;}// hadronic
+                                   else if (abs(WChildren->pdgId())>10 && abs(WChildren->pdgId())<17) {BranchType=10;}// leptonic
+				   if (WChildren->pdgId()>0){
+					WChildren = findAfterFSR(WChildren);
+					Wdecay1_p4 = WChildren->p4();
+					Wdecay1_pdgId = WChildren->pdgId();
+					hasWdecayProd1 = true;
+				   }else{
+					WChildren = findAfterFSR(WChildren);
+					Wdecay2_p4 = WChildren->p4();
+					Wdecay2_pdgId = WChildren->pdgId();
+					hasWdecayProd2 = true;
+				   }//else
+				}
+				else if (abs(WChildren->pdgId())==22){// photon
+					// JUST FOR EXTRA SAFETY (not necessary)
+					// check if there exists a photon already
+					// if it does, check the photon's Pt
+					// if found harder then consider, else do nothing
+					if(has_ph){
+						if(WChildren->p4().Pt()>Ph_p4.Pt()){
+                                        	   ph_W = true;ph_ISR = false;ph_Top = false;ph_b = false;
+						   WChildren = findAfterFSR(WChildren);
+                                        	   Ph_p4 = WChildren->p4();
+						}
+					}
+					else{
+ 						has_ph = true;
+                                        	ph_W   = true;
+						WChildren = findAfterFSR(WChildren);
+                                        	Ph_p4 = WChildren->p4();
+					}
+                                }
+				
+			}// W children
+
+		} else if (abs(topChildren->pdgId()) == 5){	// b		
+			hasB = true;
+			topChildren = findAfterFSR(topChildren);// b After FSR
+			b_p4 = topChildren->p4();
+			// In MG5 generation of ttgamma it is not expected to have any b radiation 'recorded'
+			for (size_t b = 0; b<topChildren->nChildren(); b++){// b Children
+			  const xAOD::TruthParticle* bChildren = topChildren->child(b);
+			  if(bChildren && bChildren->pdgId()==22){
+			        // JUST FOR EXTRA SAFETY (not necessary)
+				if(has_ph){
+				  if(bChildren->p4().Pt()>Ph_p4.Pt()){
+                                    ph_b = true;ph_ISR = false;ph_Top = false;ph_W = false;
+				    bChildren = findAfterFSR(bChildren);
+                                    Ph_p4 = bChildren->p4();
+				  }
+				}
+				else{
+ 				  has_ph = true;
+                                  ph_b   = true;
+				  bChildren = findAfterFSR(bChildren);
+                                  Ph_p4 = bChildren->p4();
+				}
+			  }
+			}
+		} else if (abs(topChildren->pdgId()) == 22){
+			// JUST FOR EXTRA SAFETY (not necessary)
+			if(has_ph){
+				if(topChildren->p4().Pt()>Ph_p4.Pt()){
+				 topChildren=findAfterFSR(topChildren);			
+				 Ph_p4 = topChildren->p4();
+				 ph_Top = true;
+				}
+			}
+			else{
+				topChildren = findAfterFSR(topChildren);
+				Ph_p4 = topChildren->p4();
+				has_ph = true;
+				ph_Top = true; ph_W = false; ph_ISR = false;ph_b = false;
+			}	
+		}
+
+		// sometimes the W is not recorded and the W products are recorded as top products
+		else if (abs(topChildren->pdgId())<=4 || (abs(topChildren->pdgId())>10 && abs(topChildren->pdgId())<17)){
+			hasW = true; hasAbsentW = true;
+			if (abs(topChildren->pdgId())<7) {BranchType=50;}// hadronic
+                        else if (abs(topChildren->pdgId())>10 && abs(topChildren->pdgId())<17) {BranchType=10;}// leptonic
+			if (topChildren->pdgId()>0){
+				topChildren = findAfterFSR(topChildren);
+				Wdecay1_p4 = topChildren->p4();
+				Wdecay1_pdgId = topChildren->pdgId();
+				hasWdecayProd1 = true;
+			}else{
+				topChildren = findAfterFSR(topChildren);
+				Wdecay2_p4 = topChildren->p4();
+				Wdecay2_pdgId = topChildren->pdgId();
+				hasWdecayProd2 = true;
+			}//else
+			W_p4 = W_p4 + topChildren->p4();
+		}// if top children
+	
+	} // for top children
+
+        // BranchType Determination if there is a photon
+	if(hasAbsentW && (ph_Top || ph_W)) {BranchType = -1;}// if the W is not recorded and still the photon is from the top, the source of the photon is then ambiguous among top and W. BranchType would be +1. Category would be 0.
+        if(has_ph && ph_Top){BranchType=BranchType+2;}
+        if(has_ph && ph_W)  {BranchType=BranchType+4;}
+        if(has_ph && ph_ISR){BranchType=BranchType+5;}
+        if(has_ph && ph_b)  {BranchType=BranchType+8;}
+
+	if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2 && BranchType!=-1)	return true;
+    }// particle
+    
+    return false;		
+				  
+  }
+
+
 
   const xAOD::TruthParticle* CalcTopPartonHistory::findAfterFSR(const xAOD::TruthParticle* particle) {
      bool isAfterFSR(false);

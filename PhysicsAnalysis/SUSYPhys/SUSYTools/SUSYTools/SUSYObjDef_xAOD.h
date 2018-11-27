@@ -130,9 +130,6 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
-    bool eleIsoSFExist(std::string eleWP);
-    bool muIsoSFExist(std::string muWP);
-
     bool isData() const override final {return m_dataSource == Data;}
     bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
@@ -227,6 +224,10 @@ namespace ST {
 
     double JVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
 
+    double FJVT_SF(const xAOD::JetContainer* jets) override final;
+
+    double FJVT_SFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig) override final;
+
     //SF helpers
     //muons
     float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) override final;
@@ -275,9 +276,9 @@ namespace ST {
     double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) override final;
 
     //jets
-    double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true) override final;
+    double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) override final;
 
-    double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true) override final;
+    double GetTotalJetSFsys(const xAOD::JetContainer* jets, const CP::SystematicSet& systConfig, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) override final;
 
     //Trigger
     bool IsMETTrigPassed(unsigned int runnumber = 0, bool j400_OR = false) const override final;
@@ -408,7 +409,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/mc16_13TeV/", bool usePathResolver = true);
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/share/", bool usePathResolver = true);
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -504,15 +505,22 @@ namespace ST {
     double m_prwDataSF_DW;
 
     // bookkeep supported configurations (in increasing order of tightness)
-    std::vector<std::string> el_id_support;
-    std::vector<std::string> ph_id_support;
-    int mu_id_support; //max value
-    std::vector<std::string> ph_trig_support;
+    std::vector<std::string> m_el_id_support;
+    std::vector<std::string> m_ph_id_support;
+    int m_mu_id_support; //max value
+    std::vector<std::string> m_ph_trig_support;
+    std::vector<std::string> m_tau_id_support;
+    std::vector<std::string> m_el_iso_support;
+    std::vector<std::string> m_mu_iso_support;
+
+    // Iso SF mapping file (temporary while not all SFs are available)
+    std::map<std::string, std::string> m_el_iso_fallback;
+    std::map<std::string, std::string> m_mu_iso_fallback;
 
     // strings needed for dealing with 2015+2016 electron trigger SFs
     std::string m_electronTriggerSFStringSingle;
 
-    std::vector<std::string> tau_trig_support;
+    std::vector<std::string> m_tau_trig_support;
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
@@ -593,6 +601,7 @@ namespace ST {
     double m_jetEta;
     double m_jetJvt;
     std::string m_JVT_WP;
+    double m_JvtPtMax;
 
     double m_trkJetPt;
     double m_trkJetEta;
@@ -671,6 +680,7 @@ namespace ST {
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
+    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
     std::string m_WtagConfig;
     std::string m_ZtagConfig;

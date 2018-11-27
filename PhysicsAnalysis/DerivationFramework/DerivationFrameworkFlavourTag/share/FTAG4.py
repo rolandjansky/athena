@@ -13,6 +13,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExKtCoM
+from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -100,6 +101,28 @@ ExCoMJetCollection__SubJet = addExKtCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__F
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
+#==============================================================================
+# Soft Tagging
+#==============================================================================
+from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+
+FTAG4Seq += CfgMgr.BTagVertexAugmenter()
+
+BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+ToolSvc += BJetSVFinderTool
+BJetSVFinderTool.ConeForTag = 0.6
+
+softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+
+FTAG4Seq += softTagAlg
+
+applySoftBtagging("softBtag", FTAG4Seq ) # SV tagger in VrtSecInclusive
+
 #===================================================================
 # Variable Radius (VR) Jets
 #===================================================================
@@ -171,6 +194,7 @@ FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
                                        "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
                                        "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
+                                       "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                        "PrimaryVertices.x.y.z.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
                                        "CombinedMuonTrackParticles.vx.vy.vz",
                                        "ExtrapolatedMuonTrackParticles.vx.vy.vz",
@@ -220,6 +244,18 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
 }
 #----------------------------------------------------------------------
+# Add soft b-tagging containers
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
+
+FTAG4SlimmingHelper.StaticContent = StaticContent
+#----------------------------------------------------------------------
+
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
 
 FTAG4SlimmingHelper.IncludeMuonTriggerContent = True

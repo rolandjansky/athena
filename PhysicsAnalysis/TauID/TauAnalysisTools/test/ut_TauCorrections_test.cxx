@@ -192,7 +192,7 @@ int main()
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",     0.        },
     {"TauScaleFactorJetIDHadTau",                1.094     },
     {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",      0.069     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",    0.0282150 }
+    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",    0.0140745 }
   });
 
 

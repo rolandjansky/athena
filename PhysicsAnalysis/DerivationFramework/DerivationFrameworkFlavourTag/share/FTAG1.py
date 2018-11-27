@@ -14,6 +14,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -152,6 +153,8 @@ softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
 
 FTAG1Seq += softTagAlg
 
+applySoftBtagging("softBtag", FTAG1Seq ) # SV tagger in VrtSecInclusive
+
 #===================================================================
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
@@ -260,6 +263,7 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
                                        "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
                                        "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
+                                       "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                        "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
                                        "PrimaryVertices.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
                                        "CombinedMuonTrackParticles.vx.vy.vz",
@@ -356,6 +360,8 @@ excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 StaticContent = []
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
 
 FTAG1SlimmingHelper.StaticContent = StaticContent
 #----------------------------------------------------------------------
