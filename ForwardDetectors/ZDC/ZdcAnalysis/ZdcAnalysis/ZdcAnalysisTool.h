@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCANALYSISTOOL_H
@@ -59,11 +59,6 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   //float getModuleCalibTime(int side, int imod);
 
   float getCalibModuleSum(int side);
-  float getCalibModuleSumErr(int side);
-
-  float getUncalibModuleSum(int side);
-  float getUncalibModuleSumErr(int side);
-
   float getAverageTime(int side);
   bool  sideFailed(int side);
   unsigned int getModuleMask();

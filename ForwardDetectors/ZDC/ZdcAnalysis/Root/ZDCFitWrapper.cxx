@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZDCFitWrapper.h"
@@ -84,7 +84,7 @@ ZDCFitExpFermiPrePulse::ZDCFitExpFermiPrePulse(std::string tag, float tmin, floa
   //
   std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
   
-  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 5);
 
   m_expFermiFunc->SetParameter(0, 1);
   m_expFermiFunc->SetParameter(1, 0);
@@ -118,7 +118,7 @@ void ZDCFitExpFermiPrePulse::Initialize(float initialAmp, float initialT0)
   GetWrapperTF1()->SetParameter(1, initialT0);
   GetWrapperTF1()->SetParameter(2, 5);
   GetWrapperTF1()->SetParameter(3, 0);
-  //  GetWrapperTF1()->SetParameter(4, 0);
+  GetWrapperTF1()->SetParameter(4, 0);
 }
 
 ZDCFitExpFermiPulseSequence::ZDCFitExpFermiPulseSequence(std::string tag, float tmin, float tmax, float nominalT0, float deltaT,  float tau1, float tau2) :

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCFitWrapper_h
@@ -237,18 +237,18 @@ public:
     double t0 = p[1];
     double preAmp = p[2];
     double preT0 = p[3];
-    //    double linSlope = p[4];
+    double linSlope = p[4];
 
     double deltaT = t - t0;
     double deltaTPre = t - preT0;
-   
-    // double bckgd = linSlope*t; 
+
+    double bckgd = linSlope*t; 
 
     double pulse1 =  amp*m_norm*m_expFermiFunc->operator()(deltaT);
     double pulse2 =  preAmp*m_norm*(m_expFermiFunc->operator()(deltaTPre) - 
 				   m_expFermiFunc->operator()(-preT0));
 
-    return pulse1 + pulse2;// + bckgd;
+    return pulse1 + pulse2 + bckgd;
   }
 };
 
