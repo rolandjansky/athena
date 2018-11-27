@@ -5,6 +5,7 @@ Tools configurations for ISF for ISF_FatrasServicesConfig
 KG Tan, 04/12/2012
 """
 
+from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
         getService,getServiceClone,getAlgorithm,getAlgorithmClone
 
