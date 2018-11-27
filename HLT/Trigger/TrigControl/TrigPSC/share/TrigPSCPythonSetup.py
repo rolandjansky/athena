@@ -20,7 +20,9 @@ else:
    pscServiceSetupBegin = "TrigServices/TrigServicesCommonBegin.py" # Service definitions
    pscServiceSetupEnd   = "TrigServices/TrigServicesCommonEnd.py"   # Service definitions
 
-   import sys, os, string
+   import sys
+   import os
+   import string
 
    ### Set up some common flags --------------------------------------------------
 
@@ -74,6 +76,9 @@ else:
 
    del logLevel
 
+   ## file inclusion and tracing
+   from AthenaCommon.Include import Include, IncludeError, include
+
    ## set the default values
    try:
       include( pscBootstrapFile )
@@ -96,7 +101,7 @@ else:
    # in case this is not available try for backward compatibility
    # to load the old libAthenaServicesDict and try to install it from there
    #
-   if ServiceMgr.CoreDumpSvc.properties().has_key('FatalHandler'): 
+   if 'FatalHandler' in ServiceMgr.CoreDumpSvc.properties():
       ServiceMgr.CoreDumpSvc.FatalHandler = -1         # make SIG_INT fatal
 
    ## set resource limits

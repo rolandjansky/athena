@@ -2,7 +2,6 @@
 ## @file   TrigPSCPythonDbSetup.py
 ## @brief  Minimal Python setup for running from TrigDB
 ## @author Frank Winklmeier
-## $Id: TrigPSCPythonDbSetup.py 11 2013-05-14 15:22:39Z ricab $
 ###############################################################
 
 ## This is a very minimal Python setup. It is only included when
@@ -11,9 +10,6 @@
 ## switching the OutputLevel in case the "-l" option was used.
 
 ## !!! Do NOT import theApp. It will screw up the configuration !!!
-
-import string, os, sys
-
 
 def setTHistSvcOutput():
    """Helper to set THistSvc.Output"""
