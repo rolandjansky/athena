@@ -81,19 +81,6 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
           }
         }
       }
-    //else{
-    //  int count = 0;
-    //  for(auto& var : m_jetVars){
-    //    std::pair<double,double> limits = (*m_conversionMap.at(var))(m_limitMins[count], m_limitMaxs[count]);
-
-    //auto conditions = JetAttrsSort(var, limits.first, limits.second);
-    //std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
-    //return conditions;
-
-    //    count+=1;
-    //    }
-    //  }
-
 
 
   //Should never reach this... included for compilation
