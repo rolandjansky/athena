@@ -64,6 +64,7 @@ private:
     ///The level to configure to, so we can print it in the name.
     std::string m_level;
     bool m_useLooseBad;
+    bool m_useEventLevelJetCleaningTool;
 
     std::shared_ptr<top::TopConfig> m_config;
 };

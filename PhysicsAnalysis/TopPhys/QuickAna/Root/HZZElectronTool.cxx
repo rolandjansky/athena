@@ -168,10 +168,17 @@ namespace ana
     ATH_CHECK( evtStore()->retrieve( evt, "EventInfo" ) );
     double d0sig = -999.;
     if(electron.trackParticle() && evt) {
-      d0sig = xAOD::TrackingHelpers::d0significance( electron.trackParticle(),
-                                                     evt->beamPosSigmaX(),
-                                                     evt->beamPosSigmaY(),
-                                                     evt->beamPosSigmaXY() );
+      try
+      {
+        d0sig = xAOD::TrackingHelpers::d0significance( electron.trackParticle(),
+                                                       evt->beamPosSigmaX(),
+                                                       evt->beamPosSigmaY(),
+                                                       evt->beamPosSigmaXY() );
+      } catch (std::exception& e)
+      {
+        d0sig = -999.0;
+        ATH_MSG_INFO ("WARNING of d0sig and assign a default value -999.0 : " << e.what());
+      }
     }
     electron.auxdata<double>("d0Sig") = d0sig;
     electron.auxdata<double>("d0value") = d0;

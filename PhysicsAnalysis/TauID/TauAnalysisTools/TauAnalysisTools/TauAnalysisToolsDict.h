@@ -31,5 +31,6 @@
 #include "TauAnalysisTools/CommonDiTauEfficiencyTool.h"
 #include "TauAnalysisTools/DiTauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/DiTauTruthMatchingTool.h"
+#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 #endif // not TAUANALYSISTOOLS_TAUANALYSISTOOLSDICT_H

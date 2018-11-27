@@ -25,3 +25,11 @@ There are several user-level tools here:
 
    - `DL2HighLevel`: higher-level implementation of the DL2 tagger. Takes
      only one argument to construct: the path to the saved NN file.
+
+### Other Files ###
+
+There are also several tools that you _probably_ don't have to touch:
+
+ - `customGetter`: DL2 relies on some information that isn't stored in
+   accessors that we can get with a string (i.e. `pt`, `eta`,
+   ...). These are defined in `customGetter`.
