@@ -13,7 +13,6 @@
 #+ HLT/Trigger/TrigTransforms/TrigTransform
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
-- HLT/HLToks
 
 # Offload service has build problems
 - Offloading/.*
