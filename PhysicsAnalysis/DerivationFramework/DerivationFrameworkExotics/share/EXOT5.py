@@ -279,7 +279,7 @@ triggers = [
     'HLT_g25_medium_L1EM22VHI_4j35_0eta490_invm1000',
     'HLT_g20_tight_icaloloose_j35_bmv2c1077_split_3j35_0eta490_invm500',
     'HLT_g20_tight_icaloloose_j15_gsc35_bmv2c1077_split_3j35_0eta490_invm500',
-    'HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF',
+    #'HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', # added below due to the dash
     # Triggers successfully running in Run 2 throughout 50 ns
     'HLT_j30_xe10_razor100',
     'HLT_j30_xe10_razor170',
@@ -427,16 +427,16 @@ lepton_triggers = [
    "HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA",
    # lep+had triggers 2017
    "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo",
-   "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25",
+   #"HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25", # added below
+   #"HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25", # added below
    "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo",
-   "HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25",
    "HLT_mu14_ivarloose_tau35_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20",
    "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
    "HLT_mu14_ivarloose_tau25_medium1_tracktwo", 
    "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
    # lep+had triggers 2016
    "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo",
-    "HLT_e17_lhmedium_nod0_i(var)loose_tau25_medium1_tracktwo",
+    "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo",
     "HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo",
     "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo",
     "HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo",
@@ -455,21 +455,13 @@ lepton_triggers = [
     "HLT_e17_lhmedium_tau25_medium1_tracktwo",
     "HLT_e17_lhmedium_tau80_medium1_tracktwo",    
     ]
-
-triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF"]
-expression = ' || '.join(triggers+lepton_triggers+triggerVBF)
+triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF","HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF", "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25", "HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25", ]
 
 if not DerivationFrameworkIsMonteCarlo:
-    EXOT5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
-        name='EXOT5StringSkimmingTool',
-        expression=expression)
-    ToolSvc += EXOT5StringSkimmingTool
-    skimmingTools.append(EXOT5StringSkimmingTool)
-
-#EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
-#                                                                         TriggerListOR           = triggerVBF )
-#ToolSvc += EXOT5VBFStringSkimmingTool
-
+    EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
+                                                                             TriggerListOR           = (triggers+lepton_triggers+triggerVBF) )
+    ToolSvc += EXOT5VBFStringSkimmingTool
+    skimmingTools.append(EXOT5VBFStringSkimmingTool)
 
 EXOT5SkimmingTool_EMTopo = DerivationFramework__SkimmingToolEXOT5(
     name                = 'EXOT5SkimmingTool_EMTopo',
@@ -608,7 +600,7 @@ if DerivationFrameworkIsMonteCarlo:
         'AntiKt4EMPFlowJets.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID',
         'TruthVertices.incomingParticleLinks',
         'TruthVertices.z',
-        'PrimaryVertices.z.sumPt.sumPt2.chiSquared',
+        'PrimaryVertices.z.sumPt2.chiSquared',
         ]
 
 EXOT5SlimmingHelper.UserContent = []
