@@ -10,9 +10,16 @@ if (objKeyStore.isInInput("<McEventCollection","TruthEvent")):
     topSequence += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
 
 #EventInfo:
-    if (objKeyStore.isInInput("EventInfo") and not objKeyStore.isInInput( "xAOD::EventInfo")):
-        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-        topSequence+=xAODMaker__EventInfoCnvAlg()
+    if objKeyStore.isInInput( "EventInfo" ) and not objKeyStore.isInInput( "xAOD::EventInfo" ):
+        if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ):
+            from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+            topSequence += xAODMaker__EventInfoCnvAlg()
+            pass
+    else:
+        if not hasattr( topSequence, "xAODMaker::EventInfoNonConstCnvAlg" ):
+            topSequence += CfgMgr.xAODMaker__EventInfoNonConstCnvAlg()
+            pass
+
 #CaloClusters:
 if (objKeyStore.isInInput("CaloClusterContainer")):
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
@@ -90,5 +97,3 @@ if rec.doTruth() and rec.readRDO():
             pass
         pass
     pass
-
-
