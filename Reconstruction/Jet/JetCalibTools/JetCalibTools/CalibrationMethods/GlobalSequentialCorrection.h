@@ -48,15 +48,19 @@ class GlobalSequentialCorrection
   double getEM3Response(double pT, uint etabin, double EM3) const;
   double getChargedFractionResponse(double pT, uint etabin, double ChargedFraction) const;
   double getPunchThroughResponse(double E, double eta_det, int Nsegments) const;
+  double getCaloWIDTHResponse(double pT, uint etabin, double caloWIDTH) const;
+  double getN90ConstituentsResponse(double pT, uint etabin, double N90Constituents) const;
 
   double getGSCCorrection(xAOD::JetFourMom_t jetP4, double eta,
-			  double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction) const;
+                          double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction, double caloWIDTH, double N90Constituents) const;
 
   double getJetPropertyMax(TString jetPropName, unsigned int etabin) {
     if ( jetPropName.Contains("EM3") && etabin < m_EM3MaxEtaBin ) return m_respFactorsEM3[etabin]->GetYaxis()->GetXmax();
     else if ( jetPropName.Contains("Tile0") && etabin < m_Tile0MaxEtaBin ) return m_respFactorsTile0[etabin]->GetYaxis()->GetXmax();
     else if ( jetPropName.Contains("nTrk") && etabin < m_nTrkMaxEtaBin ) return m_respFactorsnTrk[etabin]->GetYaxis()->GetXmax();
     else if ( jetPropName.Contains("trackWIDTH") && etabin < m_trackWIDTHMaxEtaBin ) return m_respFactorstrackWIDTH[etabin]->GetYaxis()->GetXmax();
+    else if ( jetPropName.Contains("N90Constituents") && etabin < m_N90ConstituentsMaxEtaBin ) return m_respFactorsN90Constituents[etabin]->GetYaxis()->GetXmax();
+    else if ( jetPropName.Contains("caloWIDTH") && etabin < m_caloWIDTHMaxEtaBin ) return m_respFactorscaloWIDTH[etabin]->GetYaxis()->GetXmax();
     else return 1;
   }
 
@@ -75,32 +79,8 @@ class GlobalSequentialCorrection
   double readPtJetPropertyHisto(double pT, double jetProperty,
 				TH2F *respFactors) const;
 
-
-  /*
-  bool fileExist(TString fn) { return gSystem->AccessPathName(fn)==false; };
-
-  TFile* openInputFile(TString fn) { 
-    if ( !FileExist(fn)) error("Cannot open GSC factors file"+fn);
-    TFile* fileHandle = new TFile(fn);
-    if (fileHandle == NULL) error( "Found but could not open file %s"+fn);
-    return fileHandle;
-  };
-
-  TH2F *GetHisto(TFile *file, TString hname) {
-    TH2F *h = (TH2F*)file->Get(hname);
-    if (h==NULL) printf("WARNING: Cannot access histogram \"%s\" in file %s",hname.Data(),file->GetName());
-    return h;
-  }
-  */
-
-  //shared functions/variables with JetCalibrationTool
-  //void error(TString msg) 
-  //{ printf("\nERROR - GlobalSequentialCorrection:\n\n  %s\n\n",msg.Data()); abort(); }
-  //TString FindFile(TString fn);
-  //end shared functions
-
  private:
-  enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32 };
+  enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32, ApplyN90Constituents = 64, ApplycaloWIDTH = 128 };
 
   //Private members set in the constructor
   TEnv * m_config;
@@ -108,15 +88,16 @@ class GlobalSequentialCorrection
   bool m_dev;
 
   //Private members set during initialization
-  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction;
+  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction, m_respFactorsN90Constituents, m_respFactorscaloWIDTH;
   double m_binSize;
-  uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin;
-  //double m_etaGapMin, m_etaGapMax;
+  uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin, m_caloWIDTHMaxEtaBin, m_N90ConstituentsMaxEtaBin;
   VecD m_punchThroughEtaBins;
   double m_punchThroughMinPt;
   bool m_turnOffTrackCorrections;
   bool m_PFlow;
+  bool m_caloBased;
   bool m_pTResponseRequirementOff;
+  bool m_nTrkwTrk_4PFlow;
   double m_turnOffStartingpT, m_turnOffEndpT;
 
 };

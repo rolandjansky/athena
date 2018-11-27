@@ -142,7 +142,6 @@ int main(int argc, char* argv[]){
   POOL::TEvent event( POOL::TEvent::kClassAccess );
   CHECK_WITH_CONTEXT( event.readFrom( ifile.get() ), APP_NAME, 1 );
 #endif
- 
 
   //----------------------------------
   // Initialization of JetCalibTools

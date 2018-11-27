@@ -54,7 +54,7 @@ class JetRecCalibrationFinder:
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
-  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix):
+  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix, calibareatag="00-04-77"):
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
@@ -117,7 +117,8 @@ class JetRecCalibrationFinder:
       evskey = evsprefix + evssuf
       jetlog.info( myname + "  Event shape key: " + evskey )
       # ...create the tool.
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey)
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey,
+                                CalibArea=calibareatag)
 
     return jtm.tools[tname]
 
