@@ -21,8 +21,8 @@ def parse(s, vals):
     j_dicts = []
 
     known_defaults = {
-    'ktdr' : {'low' : '0', 'high' : '10'},
-    'width' : {'low' : '0', 'high' : '1'},
+    'ktdr' : {'low' : '0', 'high' : '20'}, #scaled by 0.1
+    'width' : {'low' : '0', 'high' : '10'}, #scaled by 0.1
     }
 
 

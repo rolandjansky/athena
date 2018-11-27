@@ -6,7 +6,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsStringToDouble.h"
 class KtDRInterpreter: public IJetAttrsValueInterpreter
 {
-  constexpr static double m_cfact{1.0};
+  constexpr static double m_cfact{0.1};
   JetAttrsStringToDouble m_converter;
 
 public:
