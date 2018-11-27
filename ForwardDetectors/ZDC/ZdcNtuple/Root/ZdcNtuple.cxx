@@ -912,7 +912,7 @@ StatusCode ZdcNtuple :: execute ()
       m_zdcSums=0;
       ANA_CHECK( evtStore()->retrieve( m_zdcSums, "ZdcSums"+auxSuffix) );      
 
-      m_zdcModules;
+      m_zdcModules=0;
       ANA_CHECK(evtStore()->retrieve( m_zdcModules, "ZdcModules" ) ); // ZDC modules keep same name, but the aux data get different suffix during reprocessing
 
       processModules();
