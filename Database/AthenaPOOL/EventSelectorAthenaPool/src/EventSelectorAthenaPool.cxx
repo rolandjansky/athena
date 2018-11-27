@@ -15,6 +15,7 @@
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "PersistentDataModel/Token.h"
+#include "PersistentDataModel/TokenAddress.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "PoolSvc/IPoolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -727,7 +728,9 @@ StatusCode EventSelectorAthenaPool::createAddress(const IEvtSelector::Context& /
       ATH_MSG_WARNING("Cannot find AthenaAttribute, key = " << m_attrListKey.value());
       tokenStr = m_poolCollectionConverter->retrieveToken(m_headerIterator, m_refName.value());
    }
-   iop = new GenericAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, "EventSelector");
+   Token* token = new Token;
+   token->fromString(tokenStr);
+   iop = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", "EventSelector", IPoolSvc::kInputStream, token);
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________

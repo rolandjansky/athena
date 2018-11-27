@@ -67,7 +67,7 @@ protected:
    /// @param token [OUT] POOL token of the persistent representation.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
    template <class P>
-   StatusCode objectToPool(P* pObj, const Token*& token, const std::string& key = "");
+   StatusCode objectToPool(P* pObj, Token*& token, const std::string& key = "");
 
    /// Read an object from POOL.
    /// @param token [IN]  POOL token of the persistent representation.
