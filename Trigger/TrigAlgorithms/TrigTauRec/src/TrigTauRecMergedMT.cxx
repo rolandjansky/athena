@@ -161,8 +161,8 @@ StatusCode TrigTauRecMergedMT::execute()
    std::vector<float> deltaZ0coreTrks(0);
    std::vector<float> deltaZ0wideTrks(0);
 
-   auto nCells             = MonitoredScalar::declare("nRoI_EFTauCells",    0);
-   auto nTracks            = MonitoredScalar::declare("nRoI_EFTauTracks", -10);
+   auto nCells             = MonitoredScalar::declare<int>("nRoI_EFTauCells",    0);
+   auto nTracks            = MonitoredScalar::declare<int>("nRoI_EFTauTracks", -10);
    auto dEta               = MonitoredScalar::declare("dEtaEFTau_RoI",    -10);
    auto dPhi               = MonitoredScalar::declare("dPhiEFTau_RoI",    -10);
    auto emRadius           = MonitoredScalar::declare<float>("EF_EMRadius", -0.099);
@@ -174,12 +174,12 @@ StatusCode TrigTauRecMergedMT::execute()
    auto EMFrac             = MonitoredScalar::declare("EF_EMFrac",-10.);
    auto IsoFrac            = MonitoredScalar::declare<float>("EF_IsoFrac",-1.);
    auto centFrac           = MonitoredScalar::declare("EF_centFrac",-10);
-   auto nWideTrk           = MonitoredScalar::declare("EF_nWideTrk",0);
+   auto nWideTrk           = MonitoredScalar::declare<int>("EF_nWideTrk",0);
    auto ipSigLeadTrk       = MonitoredScalar::declare("EF_ipSigLeadTrk",-1000);
    auto trFlightPathSig    = MonitoredScalar::declare("EF_trFlightPathSig",-10);
    auto massTrkSys         = MonitoredScalar::declare("EF_massTrkSys",-10);
    auto dRmax              = MonitoredScalar::declare<float>("EF_dRmax",-10.);
-   auto numTrack           = MonitoredScalar::declare("EF_NTrk", -10);
+   auto numTrack           = MonitoredScalar::declare<int>("EF_NTrk", -10);
    auto trkAvgDist         = MonitoredScalar::declare<float>("EF_TrkAvgDist",-1.0);
    auto etovPtLead         = MonitoredScalar::declare<float>("EF_EtovPtLead",-10.);
    auto PSSFraction        = MonitoredScalar::declare("EF_PSSFraction",-999);
@@ -187,7 +187,7 @@ StatusCode TrigTauRecMergedMT::execute()
    auto ChPiEMEOverCaloEME = MonitoredScalar::declare("EF_ChPiEMEOverCaloEME",-999);
    auto SumPtTrkFrac       = MonitoredScalar::declare("EF_SumPtTrkFrac",-999);
    auto innerTrkAvgDist    = MonitoredScalar::declare<float>("EF_innerTrkAvgDist",-1.0);
-   auto Ncand              = MonitoredScalar::declare("EF_nCand",0);
+   auto Ncand              = MonitoredScalar::declare<int>("EF_nCand",0);
    auto ActualInteractions = MonitoredScalar::declare("EF_ActualInteractions",-999.9);
    auto AvgInteractions    = MonitoredScalar::declare("EF_AvgInteractions",-999.9);
    auto beamspot_x         = MonitoredScalar::declare("EF_beamspot_x",-999.9);
@@ -711,10 +711,9 @@ StatusCode TrigTauRecMergedMT::execute()
 
 	  std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
 
-     // get TrackContainer
+     // get TauJetContainer
      SG::ReadHandle< xAOD::TauJetContainer > TJContainerHandle = SG::makeHandle( m_trigTauJetKey,ctx );
      const xAOD::TauJetContainer *tempCaloOnlyCont=TJContainerHandle.get();
-
      tempCaloOnlyContVec.push_back(tempCaloOnlyCont);
 
 	  /*if( !tempCaloOnlyContVec.isValid()){
@@ -722,27 +721,26 @@ StatusCode TrigTauRecMergedMT::execute()
 	    ATH_MSG_DEBUG( "Can't get container TrigTauRecCaloOnly to copy four-vector");
 
 	  } else {*/
-
-	    ATH_MSG_DEBUG( "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size());
-	     
-	    if ( tempCaloOnlyContVec.size() != 0 ) {
+	    if (tempCaloOnlyCont) {
 
 	      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
 	      // for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyTauCont->begin(); tauIt != tempCaloOnlyTauCont->end(); tauIt++){ 
 
 	      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
 
-	      for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyContVec.back()->begin(); tauIt != tempCaloOnlyContVec.back()->end(); tauIt++){ 
-
-	   	ATH_MSG_DEBUG("pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() );
+	      for(auto tauIt: *tempCaloOnlyCont){
+           ATH_MSG_DEBUG("On the loop");
+	   	  ATH_MSG_DEBUG("pT(tau) = " << tauIt->pt() << " pT(caloOnly) = " << tauIt->ptTrigCaloOnly() );
 	  	
-	   	p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, (*tauIt)->ptTrigCaloOnly(), (*tauIt)->etaTrigCaloOnly(), (*tauIt)->phiTrigCaloOnly(), (*tauIt)->mTrigCaloOnly());
+	   	  p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, tauIt->ptTrigCaloOnly(), tauIt->etaTrigCaloOnly(), tauIt->phiTrigCaloOnly(), tauIt->mTrigCaloOnly());
 
 	      }
 	      
 	    //}
 	    
-	  }
+	  }else{
+               ATH_MSG_WARNING( "TauJetContainer not found :");
+     }
 
 
 	  //
@@ -786,15 +784,20 @@ StatusCode TrigTauRecMergedMT::execute()
 	//-------------------------------------------------------------------------
 
    // Prepare Outputs
-   std::unique_ptr< xAOD::TauJetContainer > taujetContainer( new xAOD::TauJetContainer() );
-   std::unique_ptr< xAOD::TauTrackContainer > tautrkContainer( new xAOD::TauTrackContainer() );
+   //std::unique_ptr< xAOD::TauJetContainer > taujetContainer( new xAOD::TauJetContainer() );
+   //std::unique_ptr< xAOD::TauTrackContainer > tautrkContainer( new xAOD::TauTrackContainer() );
 
    // Save Outputs
-   SG::WriteHandle< xAOD::TauJetContainer > outTauJetHandle = SG::makeHandle( m_trigtauRecOutKey,ctx );
-   SG::WriteHandle< xAOD::TauTrackContainer > outTauTrackHandle = SG::makeHandle( m_trigtauTrkOutKey,ctx );
+   SG::WriteHandle<xAOD::TauJetContainer> outTauJetHandle( m_trigtauRecOutKey );
+   SG::WriteHandle<xAOD::TauTrackContainer> outTauTrackHandle( m_trigtauTrkOutKey );
 
-   CHECK( outTauJetHandle.record( std::move( taujetContainer ) ) );
-   CHECK( outTauTrackHandle.record( std::move( tautrkContainer ) ) );
+   //if(pContainer) taujetContainer->push_back(&pContainer);
+   //if(pTrackContainer) tautrkContainer->push_back(pTrackContainer);
+   ATH_MSG_DEBUG("Output TauJetContainer size:"<< pContainer->size());
+   ATH_MSG_DEBUG("Output TauTrackJetContainer size:"<< pTrackContainer->size());
+
+   CHECK( outTauJetHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{&pAuxContainer}) );
+   //if(pTrackContainer->size()!=0) ATH_CHECK( outTauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{&pTrackAuxContainer}) );
 
 	//hltStatus=attachFeature(outputTE, pContainer, m_outputName);
 	//hltStatus=attachFeature(outputTE, pTrackContainer, m_outputName+"Tracks");

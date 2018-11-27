@@ -63,6 +63,7 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
 
   //get RoI descriptor
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roIInputKey, ctx );
+  ATH_MSG_DEBUG("Size of roisHandle: "<<roisHandle->size());
   const TrigRoiDescriptor *roiDescriptor = roisHandle->at(0);
 
   ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
@@ -105,6 +106,8 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
 
   ATH_MSG_DEBUG("Input RoI " << *roiDescriptor);
   ATH_MSG_DEBUG("Output RoI " << *outRoi);
+
+  roICollection->push_back(outRoi);
 
   // Save Outputs
   ATH_MSG_DEBUG( "Saving RoIs to be used as input to Fast Tracking -- TO BE CHANGED -- ::: " << m_roIOutputKey.key() );

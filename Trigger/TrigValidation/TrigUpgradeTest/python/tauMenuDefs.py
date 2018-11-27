@@ -63,7 +63,7 @@ from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnly
 caloRec = TrigTauRecMerged_TauCaloOnly()
 caloRec.OutputLevel  = DEBUG
 caloRec.RoIInputKey = "RoiForTau"
-caloRec.L1RoIKey    = "initialRoI"
+caloRec.L1RoIKey    = "TAUCaloRoIs"
 caloRec.clustersKey = "caloclusters"
 
 fastCaloInViewAlgs  = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker,CaloRoiUpdater,caloRec])
