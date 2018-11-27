@@ -41,7 +41,7 @@ ArtPackage=$1
 ArtJobName=$2
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_stdReco_fullSim_fullDigi.sh InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_stdReco_fullSim_fullDigi.sh InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
 
 
 # art-output: dcube/dcube.xml
