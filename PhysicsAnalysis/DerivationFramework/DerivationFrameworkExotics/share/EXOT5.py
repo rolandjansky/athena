@@ -456,7 +456,8 @@ lepton_triggers = [
     "HLT_e17_lhmedium_tau80_medium1_tracktwo",    
     ]
 
-expression = ' || '.join(triggers+lepton_triggers)
+triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF"]
+expression = ' || '.join(triggers+lepton_triggers+triggerVBF)
 
 if not DerivationFrameworkIsMonteCarlo:
     EXOT5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
@@ -465,10 +466,9 @@ if not DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT5StringSkimmingTool
     skimmingTools.append(EXOT5StringSkimmingTool)
 
-triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF"]
-EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
-                                                                         TriggerListOR           = triggerVBF )
-ToolSvc += EXOT5VBFStringSkimmingTool
+#EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
+#                                                                         TriggerListOR           = triggerVBF )
+#ToolSvc += EXOT5VBFStringSkimmingTool
 
 
 EXOT5SkimmingTool_EMTopo = DerivationFramework__SkimmingToolEXOT5(
