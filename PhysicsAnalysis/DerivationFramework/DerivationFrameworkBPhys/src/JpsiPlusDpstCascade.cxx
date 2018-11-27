@@ -520,6 +520,12 @@ namespace DerivationFramework {
              continue;
            }*/
 
+           xAOD::Vertex* vtx = *vxcItr;
+           SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Jpsipi");
+           if(flagAcc1.isAvailable(*vtx)){
+              if(!flagAcc1(*vtx)) continue;
+           }
+
            TLorentzVector p4Mup_in, p4Mum_in;
            p4Mup_in.SetPtEtaPhiM((*vxcItr)->trackParticle(0)->pt(), 
                                  (*vxcItr)->trackParticle(0)->eta(),
@@ -554,6 +560,21 @@ namespace DerivationFramework {
 
         std::vector<const xAOD::Vertex*> selectedD0Candidates;
         for(auto vxcItr=d0Container->cbegin(); vxcItr!=d0Container->cend(); ++vxcItr) {
+
+           xAOD::Vertex* vtx = *vxcItr;
+           SG::AuxElement::Accessor<Char_t> flagAcc1("passed_D0");
+           SG::AuxElement::Accessor<Char_t> flagAcc2("passed_D0b");
+           bool isD0(true);
+           bool isD0b(true);
+           if(flagAcc1.isAvailable(*vtx)){
+            //if(!flagAcc1(*vtx)) continue;
+              if(!flagAcc1(*vtx)) isD0 = false;
+           }
+           if(flagAcc2.isAvailable(*vtx)){
+              if(!flagAcc2(*vtx)) isD0b = false;
+           }
+         //if(!isD0) continue;
+           if(!(isD0||isD0b)) continue;
 
               if ((*vxcItr)->trackParticle(0)->charge() != 1 || (*vxcItr)->trackParticle(1)->charge() != -1) {
                  ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the charge requirement: "

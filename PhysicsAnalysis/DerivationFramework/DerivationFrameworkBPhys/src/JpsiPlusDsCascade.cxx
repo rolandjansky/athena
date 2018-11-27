@@ -60,12 +60,14 @@ namespace DerivationFramework {
         }
         if(m_vtx1Daug2MassHypo < 0.) {
          //if(m_Dx_pid ==-411) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
-           if(abs(m_Dx_pid) == 411) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
-           else m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
+           m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
+         //if(abs(m_Dx_pid) == 411) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+         //else m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
         }
         if(m_vtx1Daug3MassHypo < 0.) {
-           if(abs(m_Dx_pid) == 411) m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
-           else m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+         //if(abs(m_Dx_pid) == 411) m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
+         //else m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+           m_vtx1Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
         }
 
         return StatusCode::SUCCESS;
@@ -219,15 +221,26 @@ namespace DerivationFramework {
         if(!BPhysPVCascadeTools::LinkVertices(DxLinksDecor, dxVerticestoLink, dxContainer, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with D_(s)+ vertices");
 
+        bool tagDpst(true);
+        if (dxVertex) {
+          if(abs(m_Dx_pid)==411 && (dxVertex->trackParticle(2)->charge()==-1)) tagDpst = false;
+        }
+
         double mass_b = m_vtx0MassHypo;
         double mass_d = m_vtx1MassHypo;
         std::vector<double> massesJpsi;
         massesJpsi.push_back(m_vtx0Daug1MassHypo);
         massesJpsi.push_back(m_vtx0Daug2MassHypo);
         std::vector<double> massesDx;
-        massesDx.push_back(m_vtx1Daug1MassHypo);
-        massesDx.push_back(m_vtx1Daug2MassHypo);
-        massesDx.push_back(m_vtx1Daug3MassHypo);
+        if(tagDpst){
+          massesDx.push_back(m_vtx1Daug1MassHypo);
+          massesDx.push_back(m_vtx1Daug2MassHypo);
+          massesDx.push_back(m_vtx1Daug3MassHypo);
+        }else{
+          massesDx.push_back(m_vtx1Daug2MassHypo);
+          massesDx.push_back(m_vtx1Daug1MassHypo);
+          massesDx.push_back(m_vtx1Daug3MassHypo);
+        }
         std::vector<double> Masses;
         Masses.push_back(m_vtx0Daug1MassHypo);
         Masses.push_back(m_vtx0Daug2MassHypo);
@@ -273,15 +286,24 @@ namespace DerivationFramework {
         float massKX = 0., massKXpi = 0.;
         if (dxVertex) {
           TLorentzVector  p4_h1, p4_h2, p4_h3;
-          p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
-                             dxVertex->trackParticle(0)->eta(),
-                             dxVertex->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
-          p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
-                             dxVertex->trackParticle(1)->eta(),
-                             dxVertex->trackParticle(1)->phi(), m_vtx1Daug2MassHypo); 
-          p4_h3.SetPtEtaPhiM(dxVertex->trackParticle(2)->pt(), 
-                             dxVertex->trackParticle(2)->eta(),
-                             dxVertex->trackParticle(2)->phi(), m_vtx1Daug3MassHypo); 
+          if(tagDpst){
+            p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
+                               dxVertex->trackParticle(0)->eta(),
+                               dxVertex->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
+            p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
+                               dxVertex->trackParticle(1)->eta(),
+                               dxVertex->trackParticle(1)->phi(), m_vtx1Daug2MassHypo); 
+          }else{
+            p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
+                               dxVertex->trackParticle(0)->eta(),
+                               dxVertex->trackParticle(0)->phi(), m_vtx1Daug2MassHypo); 
+            p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
+                               dxVertex->trackParticle(1)->eta(),
+                               dxVertex->trackParticle(1)->phi(), m_vtx1Daug1MassHypo); 
+          }
+            p4_h3.SetPtEtaPhiM(dxVertex->trackParticle(2)->pt(), 
+                               dxVertex->trackParticle(2)->eta(),
+                               dxVertex->trackParticle(2)->phi(), m_vtx1Daug3MassHypo); 
           massKX = (p4_h1 + p4_h2).M();
           massKXpi = (p4_h1 + p4_h2 + p4_h3).M();
         }
@@ -483,6 +505,10 @@ namespace DerivationFramework {
         massesDx.push_back(m_vtx1Daug1MassHypo);
         massesDx.push_back(m_vtx1Daug2MassHypo);
         massesDx.push_back(m_vtx1Daug3MassHypo);
+        std::vector<double> massesDm;
+        massesDm.push_back(m_vtx1Daug2MassHypo);
+        massesDm.push_back(m_vtx1Daug1MassHypo);
+        massesDm.push_back(m_vtx1Daug3MassHypo);
         std::vector<double> Masses;
         Masses.push_back(m_vtx0Daug1MassHypo);
         Masses.push_back(m_vtx0Daug2MassHypo);
@@ -490,6 +516,13 @@ namespace DerivationFramework {
 
         std::vector<const xAOD::Vertex*> selectedJpsiCandidates;
         for(auto vxcItr=jpsiContainer->cbegin(); vxcItr!=jpsiContainer->cend(); ++vxcItr) {
+
+           xAOD::Vertex* vtx = *vxcItr;
+           SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Jpsi");
+           if(flagAcc1.isAvailable(*vtx)){
+              if(!flagAcc1(*vtx)) continue;
+           }
+
            // Check J/psi candidate invariant mass and skip if need be
            double mass_Jpsi = m_V0Tools->invariantMass(*vxcItr, massesJpsi);
            ATH_MSG_DEBUG("Jpsi mass " << mass_Jpsi);
@@ -528,8 +561,49 @@ namespace DerivationFramework {
                                  << (*vxcItr)->trackParticle(0)->charge() << ", " << (*vxcItr)->trackParticle(1)->charge() << ", " << (*vxcItr)->trackParticle(2)->charge() );
                 continue;
               }*/
+           xAOD::Vertex* vtx = *vxcItr;
+           if(m_Dx_pid==431){
+               SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Ds");
+               if(flagAcc1.isAvailable(*vtx)){
+                  if(!flagAcc1(*vtx)) continue;
+               }
+           } 
 
-              double mass_D = m_V0Tools->invariantMass(*vxcItr,massesDx);
+           if(abs(m_Dx_pid==411)){
+               SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Dp");
+               SG::AuxElement::Accessor<Char_t> flagAcc2("passed_Dm");
+               bool isDp(true);
+               bool isDm(true);
+               if(flagAcc1.isAvailable(*vtx)){
+                  if(!flagAcc1(*vtx)) isDp = false;
+               }
+               if(flagAcc2.isAvailable(*vtx)){
+                  if(!flagAcc2(*vtx)) isDm = false;
+               }
+               if(!(isDp||isDm)) continue;
+           } 
+
+           if(m_Dx_pid==431){
+              TLorentzVector p4Kp_in, p4Km_in;
+              p4Kp_in.SetPtEtaPhiM( (*vxcItr)->trackParticle(0)->pt(), 
+                                    (*vxcItr)->trackParticle(0)->eta(),
+                                    (*vxcItr)->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
+              p4Km_in.SetPtEtaPhiM( (*vxcItr)->trackParticle(1)->pt(), 
+                                    (*vxcItr)->trackParticle(1)->eta(),
+                                    (*vxcItr)->trackParticle(1)->phi(), m_vtx1Daug2MassHypo); 
+              double mass_phi = (p4Kp_in + p4Km_in).M();
+              //ATH_MSG_DEBUG("phi mass " << mass_phi);
+              if (mass_phi > 1100) {
+                ATH_MSG_DEBUG(" Original phi candidate rejected by the mass cut: mass = " << mass_phi );
+                continue;
+              }
+           }
+
+              double mass_D;
+              if(abs(m_Dx_pid)==411 && (*vxcItr)->trackParticle(2)->charge()<0) 
+                mass_D = m_V0Tools->invariantMass(*vxcItr,massesDm);
+              else
+                mass_D = m_V0Tools->invariantMass(*vxcItr,massesDx);
               ATH_MSG_DEBUG("D_(s) mass " << mass_D);
               if (mass_D < m_DxMassLower || mass_D > m_DxMassUpper) {
                  ATH_MSG_DEBUG(" Original D_(s) candidate rejected by the mass cut: mass = "
@@ -638,9 +712,15 @@ namespace DerivationFramework {
               // V0 vertex
               Trk::VertexID vID;
               if (m_constrDx) {
-                vID = m_iVertexFitter->startVertex(tracksDx,massesDx,mass_d);
+                if(abs(m_Dx_pid)==411 && (*dxItr)->trackParticle(2)->charge()<0) 
+                  vID = m_iVertexFitter->startVertex(tracksDx,massesDm,mass_d);
+                else
+                  vID = m_iVertexFitter->startVertex(tracksDx,massesDx,mass_d);
               } else {
-                vID = m_iVertexFitter->startVertex(tracksDx,massesDx);
+                if(abs(m_Dx_pid)==411 && (*dxItr)->trackParticle(2)->charge()<0) 
+                  vID = m_iVertexFitter->startVertex(tracksDx,massesDm);
+                else
+                  vID = m_iVertexFitter->startVertex(tracksDx,massesDx);
               }
               vrtList.push_back(vID);
               // B vertex including Jpsi
