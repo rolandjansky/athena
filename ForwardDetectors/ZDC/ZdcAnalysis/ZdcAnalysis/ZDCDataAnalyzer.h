@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCDataAnalyzer_h
@@ -23,8 +23,6 @@ private:
   size_t m_preSampleIdx;
   std::string m_fitFunction;
   bool m_forceLG;
-
-  std::array<std::array<int, 4>, 2> m_delayedOrder;
 
   ZDCModuleBoolArray m_moduleDisabled;
   std::array<std::array<ZDCPulseAnalyzer*, 4>, 2> m_moduleAnalyzers;
@@ -85,7 +83,6 @@ public:
   }
 
   void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
-  void EnableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
 
   unsigned int GetModuleMask() const {return m_moduleMask;}
 

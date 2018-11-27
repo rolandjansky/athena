@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ZdcAnalysis/ZDCDataAnalyzer.h>
@@ -44,13 +44,10 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
   m_dataLoaded[0] = {{false, false, false, false}};
   m_dataLoaded[1] = {{false, false, false, false}};
 
-  m_delayedOrder[0] = {0, 0, 0, 0};
-  m_delayedOrder[1] = {0, 0, 0, 0};
-
   // For now we are using hard-coded gain factors and pedestals
   //
-  m_HGGains[0] = {{10, 10, 10, 10}};
-  m_HGGains[1] = {{10, 10, 10, 10}};
+  m_HGGains[0] = {{9.51122, 9.51980, 9.51122, 9.51122}};
+  m_HGGains[1] = {{9.50842, 9.49662, 9.50853, 9.50842}};
   
   m_pedestals[0] = {{100, 100, 100, 100}};
   m_pedestals[1] = {{100, 100, 100, 100}};
@@ -115,24 +112,7 @@ void ZDCDataAnalyzer::EnableDelayed(float deltaT, const ZDCModuleFloatArray& und
 {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(deltaT), undelayedDelayedPedestalDiff[side][module]);
-    }
-  }
-}
-
-void ZDCDataAnalyzer::EnableDelayed(const ZDCModuleFloatArray& delayDeltaTArray, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
-{
-  for (size_t side : {0, 1}) {
-    for (size_t module : {0, 1, 2, 3}) {
-      if (delayDeltaTArray[side][module] < 0) m_delayedOrder[side][module] = -1;
-      else m_delayedOrder[side][module] = 1;
-
-      if (m_debugLevel > 0) {
-	std::cout << "Enabling use of delayed samples on side, module = " << side << ", " << module << ", delta t = " 
-		  << delayDeltaTArray[side][module] << std::endl;
-      }
-
-      m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(delayDeltaTArray[side][module]), undelayedDelayedPedestalDiff[side][module]);
+      m_moduleAnalyzers[side][module]->EnableDelayed(deltaT, undelayedDelayedPedestalDiff[side][module]);
     }
   }
 }
@@ -383,12 +363,6 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
     return;
   }
 
-  if (m_delayedOrder[side][module] == 0) {
-    std::cout << "Handling of delayed pulses not enabled, on side, module = " <<  side << ", " << module 
-	      << ", skipping processing for event index " << m_eventCount << std::endl;
-    return;
-  }
-
   if (m_debugLevel > 1) {
     std::cout << "Loading undelayed and delayed data for event index " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
     
@@ -409,14 +383,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
 
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module];
 
-  //  bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
-  bool result = false;
-  if (m_delayedOrder[side][module] > 0) {
-    result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
-  }
-  else {
-    result = pulseAna_p->LoadAndAnalyzeData(HGSamplesDelayed, LGSamplesDelayed, HGSamples, LGSamples);
-  }
+  bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
   m_dataLoaded[side][module] = true;
 
   if (result) {
