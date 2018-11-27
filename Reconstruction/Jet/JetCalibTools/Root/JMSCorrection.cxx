@@ -587,8 +587,6 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   xAOD::JetFourMom_t calibP4 = jet.jetP4();
 
   // For combination
-  float mass_calo;   // saving calibrated calo mass
-  double pT_calo; // saving pT corrected by calo mass calib
   float mass_ta;     // saving calibrated trk-assisted mass
 
   float mass_corr = jetStartP4.mass();

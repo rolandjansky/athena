@@ -255,7 +255,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
+    void unpack_frag4(uint32_t version, unsigned int unit, const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag5 decodes tile subfragment type 0x4. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -306,7 +306,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag4HLT(uint32_t version, unsigned int unit, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag5HLT decodes tile subfragment type 0x5 for the high level trigger (HLT).
      This subfragment contains the
@@ -983,7 +983,6 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
           if (m_useFrag4) {
             m_bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
             int unit = (idAndType & 0xC0000000) >> 30;
-            m_rc2bytes4.setUnit(unit);
 
             int DataType = (idAndType & 0x30000000) >> 28;
 
@@ -1010,7 +1009,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
               m_rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
 
-            unpack_frag4(version, p, pChannel);
+            unpack_frag4(version, unit, p, pChannel);
           }
           break;
 

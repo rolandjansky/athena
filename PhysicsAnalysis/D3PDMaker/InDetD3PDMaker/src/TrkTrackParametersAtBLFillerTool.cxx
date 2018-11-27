@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackParametersAtBLFillerTool.h"
@@ -80,7 +80,10 @@ StatusCode TrkTrackParametersAtBLFillerTool::fill (const Trk::Track& track)
   if(m_levelOfDetails > 0) {
 
     // call the TrackToVertex Tool
-    const Trk::TrackParameters* ataline =  m_trackToVertexTool->trackAtBeamline(track);
+    const InDet::BeamSpotData* bsd = m_trackToVertexTool->GetBeamSpotData (Gaudi::Hive::currentContext());
+    std::unique_ptr<Trk::StraightLineSurface> bl =
+      m_trackToVertexTool->GetBeamLine (bsd);
+    const Trk::TrackParameters* ataline =  m_trackToVertexTool->trackAtBeamline (track, bl.get());
 
     if(!ataline) {
 #if 0

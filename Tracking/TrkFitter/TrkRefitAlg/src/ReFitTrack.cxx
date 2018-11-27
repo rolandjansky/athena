@@ -50,7 +50,6 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   m_trkSelectorTool(""),
   m_constrainFitMode(0),
   m_vxContainerName("VxPrimaryCandidate"),
-  m_iBeamCondSvc("BeamCondSvc", name),
   m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
   m_usetrackhypo(false)
 {  
@@ -71,7 +70,6 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   // constrained fitting
   declareProperty("ConstrainFit",         m_constrainFitMode,"mode switch if/how the track is constrained to the BS/Vx");
   declareProperty("VertexCollection",     m_vxContainerName,"Source for vertex to use for constraining tracks");
-  declareProperty("BeamConditionsSvc",    m_iBeamCondSvc,"Beam spot service in case track is constrained to the BS");
   declareProperty("Extrapolator",         m_extrapolator, "Extrapolator needed for coherent measurement frame.");
   
 
@@ -126,12 +124,8 @@ StatusCode Trk::ReFitTrack::initialize()
   }
   
   // beam conditions service
-  if (m_constrainFitMode && !m_iBeamCondSvc.empty() ) {
-    if ( m_iBeamCondSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve service " << m_iBeamCondSvc );
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_VERBOSE( "Retrieved service " << m_iBeamCondSvc);
+  if (m_constrainFitMode) {
+    ATH_CHECK(m_beamSpotKey.initialize());
   }
   
   // extrapolator
@@ -181,9 +175,10 @@ StatusCode Trk::ReFitTrack::execute()
 
   // constrain fit to be done
   if (m_constrainFitMode > 0){
-      if ( m_constrainFitMode > 1 ){ 
+      if ( m_constrainFitMode > 1 ){
+        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
         // get vertex position and uncertainties from BeamCondSvc
-        constrainVx = new Trk::RecVertex(m_iBeamCondSvc->beamVtx());   
+        constrainVx = new Trk::RecVertex(beamSpotHandle->beamVtx());   
         cleanup_constrainVx.reset( constrainVx );
         ATH_MSG_DEBUG("Track fit with BeamSpot constraint (x/y/z)  = " 
             << constrainVx->position().x() << ", " 

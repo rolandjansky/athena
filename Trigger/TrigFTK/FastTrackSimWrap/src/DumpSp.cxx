@@ -109,7 +109,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -132,7 +132,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
   , m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
   // , m_holeSearchTool( "InDetHoleSearchTool" )
-  , m_beamCondSvc("BeamCondSvc",name)
   , m_pixelClustersName( "PixelClusters" )
   , m_sctClustersName( "SCT_Clusters" )
   , m_pixelSpacePointsName( "PixelSpacePoints" )
@@ -178,7 +177,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("tracksTruthName"  ,        m_tracksTruthName);  
   declareProperty("TruthToTrackTool" ,        m_truthToTrack);
   // declareProperty("HoleSearch" ,             m_holeSearchTool);
-  declareProperty("beamCondSvc" ,             m_beamCondSvc);
   declareProperty("dumpMBTSInfo" ,            m_dumpMBTSInfo , "Dump X fields to output containing MBTS trigger info" );
   declareProperty("useOfflineTrackSelectorTool" , m_useOfflineTrackSelectorTool);
   declareProperty("outputBeamSpotToWrapper" , m_outputBeamSpotToWrapper);
@@ -311,13 +309,7 @@ DumpSp::initialize()
     m_oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits) ); // open the file
   }
 
-  // jordan's code for the beamline
-  if ( m_beamCondSvc.retrieve().isFailure() && ( m_outputBeamSpotToWrapper || !m_useSimpleCuts ) ) {
-    ATH_MSG_FATAL("Failed to retrieve service " << m_beamCondSvc);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved service " << m_beamCondSvc);
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
@@ -597,8 +589,9 @@ DumpSp::dump_truth() const
       float truth_d0corr = track_truth_d0-( primaryVtx.y()*cos(track_truth_phi)-primaryVtx.x()*sin(track_truth_phi) );
       float truth_zvertex = 0.;
       if ( !m_useSimpleCuts ) {  // determine d0_corr based on beam position from BeamCondSvc
-        truth_d0corr = track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(track_truth_phi) );
-        truth_zvertex = m_beamCondSvc->beamPos().z();
+        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+        truth_d0corr = track_truth_d0-( beamSpotHandle->beamPos().y()*cos(track_truth_phi)-beamSpotHandle->beamPos().x()*sin(track_truth_phi) );
+        truth_zvertex = beamSpotHandle->beamPos().z();
         if ( showd0corrSuccess ) {
           ATH_MSG_DEBUG( "Beamspot from BeamCondSvc used to determine cuts in dump_truth()");
           showd0corrSuccess = false;
@@ -1810,15 +1803,16 @@ void
 DumpSp::dump_beamspot() const
 {
   if ( m_outputBeamSpotToWrapper ) { // output beam spot to wrapper
-    (*m_oflraw) << "V\t" << m_beamCondSvc->beamPos().x() << "\t" 
-              << m_beamCondSvc->beamPos().y() << "\t"
-              << m_beamCondSvc->beamPos().z() << "\t"
-              << m_beamCondSvc->beamSigma(0) << "\t"
-              << m_beamCondSvc->beamSigma(1) << "\t"
-              << m_beamCondSvc->beamSigma(2) << "\t"
-              << m_beamCondSvc->beamSigmaXY() << "\t" 
-              << m_beamCondSvc->beamTilt(0) << "\t"
-              << m_beamCondSvc->beamTilt(1) << "\n";
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    (*m_oflraw) << "V\t" << beamSpotHandle->beamPos().x() << "\t" 
+              << beamSpotHandle->beamPos().y() << "\t"
+              << beamSpotHandle->beamPos().z() << "\t"
+              << beamSpotHandle->beamSigma(0) << "\t"
+              << beamSpotHandle->beamSigma(1) << "\t"
+              << beamSpotHandle->beamSigma(2) << "\t"
+              << beamSpotHandle->beamSigmaXY() << "\t" 
+              << beamSpotHandle->beamTilt(0) << "\t"
+              << beamSpotHandle->beamTilt(1) << "\n";
   }
 }
 

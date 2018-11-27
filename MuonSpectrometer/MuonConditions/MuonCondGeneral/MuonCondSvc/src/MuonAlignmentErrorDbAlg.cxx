@@ -45,7 +45,7 @@ StatusCode MuonAlignmentErrorDbAlg::execute(){
   const CondAttrListCollection* readCdo{*readHandle}; 
   //const CondAttrListCollection* atrc(0);
   //readCdo = *readHandle;
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   } 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_SIMULATIONSELECTORS_BASESIMULATIONSELECTOR_H
@@ -71,7 +71,9 @@ class BaseSimulationSelector : public extends<AthAlgTool, ISimulationSelector> {
     ServiceHandle<ISimulationSvc>       m_simulator;  //!< simulation service assigned to a single advisor
     bool                                m_isDynamic;  //!< this selector is either dynamic or static
     bool                                m_invertCuts; //!< invert the result given by passesCuts(..) method
-    ISF::SimulationFlavor               m_simflavor;  //!< simulation flavor
+    Gaudi::CheckedProperty<unsigned short> m_simFlavorProp{0}; //!< the simulation flavour that this selector will select
+    void SimulationFlavorHandler(Property&);
+    ISF::SimulationFlavor               m_simflavor{ISF::UndefinedSim};  //!< simulation flavor
 };
 
 

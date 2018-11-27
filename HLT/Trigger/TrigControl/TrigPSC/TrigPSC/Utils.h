@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file TrigPSC/Utils.h
  * @author Frank Winklmeier
- * $Author: ricab $
- * $Revision: 11 $
- * $Date: 2013-05-14 17:22:39 +0200 (Tue, 14 May 2013) $
  *
  * @brief Some helpers for the PSC
  */
@@ -17,7 +14,7 @@
 
 #include <vector>
 #include <string>
-#include <sys/time.h>
+#include <chrono>
 
 namespace psc {
   
@@ -68,9 +65,9 @@ namespace psc {
       void stop();
             
     private:
-      std::string     m_descr;     ///< description of timer
-      struct timeval  m_t1;        ///< start time
-      bool            m_running;   ///< timer running?
+      std::string     m_descr;                     ///< description of timer
+      std::chrono::system_clock::time_point m_t1;  ///< start time
+      bool            m_running;                   ///< timer running?
     };
     
   } /* namespace Utils */  

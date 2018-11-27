@@ -11,63 +11,45 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthService.h"
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
-
-// DetectorDescription
-#include "AtlasDetDescr/AtlasRegion.h"
-
-// Tracking includes
-#include "TrkTrack/TrackCollection.h"
-
-namespace ISF {
-    class IParticleFilter;
-    class IParticleProcessor;
-    class ISFParticle;
-    class ITruthSvc;
-}
+#include "ISF_Interfaces/ISimulatorTool.h"
 
 namespace iFatras {
 
   /** @class FatrasSimSvc
-  
+
       @author Andreas.Salzburger -at- cern.ch
      */
-  class FatrasSimSvc : public ISF::BaseSimulationSvc { 
+  class FatrasSimSvc : public ISF::BaseSimulationSvc {
 
-    public: 
+    public:
       //** Constructor with parameters */
       FatrasSimSvc( const std::string& name, ISvcLocator* pSvcLocator );
-      
+
       /** Destructor */
-      virtual ~FatrasSimSvc(); 
-      
+      virtual ~FatrasSimSvc();
+
       /** Athena algorithm's interface methods */
-      StatusCode  initialize();
-      StatusCode  finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode  finalize() override;
 
       /** Simulation Call  */
-      StatusCode simulate(const ISF::ISFParticle& isp);
-                                                                 
+      virtual StatusCode simulate(const ISF::ISFParticle& isp) override;
+
       /** Setup Event chain - in case of a begin-of event action is needed */
-      StatusCode setupEvent();
+      virtual StatusCode setupEvent() override;
 
       /** Release Event chain - in case of an end-of event action is needed */
-      StatusCode releaseEvent();
+      virtual StatusCode releaseEvent() override;
 
-    private:     
+    private:
       /** Default constructor */
       FatrasSimSvc();
 
-      /** Track Creation & transport */
-      ToolHandle<ISF::IParticleProcessor>  m_IDsimulationTool;   //!< Pointer to the transport AlgTool
-      bool                                 m_useExtrapolator;  //!< Boolean used to run with the old extrapolator setup
-      ToolHandle<ISF::IParticleProcessor>  m_simulationTool;   //!< Pointer to the transport AlgTool
-      ToolHandle<ISF::IParticleFilter>     m_particleFilter;   //!< the particle filter concerning kinematic cuts, etc.
-
-  }; 
+      PublicToolHandle<ISF::ISimulatorTool> m_simulatorTool{this, "SimulatorTool", "", ""};
+  };
 }
 
 

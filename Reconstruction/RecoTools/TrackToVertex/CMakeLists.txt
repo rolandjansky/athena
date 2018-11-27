@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Reconstruction/RecoTools/ITrackToVertex
                           Tracking/TrkEvent/TrkNeutralParameters
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/StoreGate
                           InnerDetector/InDetConditions/InDetBeamSpotService

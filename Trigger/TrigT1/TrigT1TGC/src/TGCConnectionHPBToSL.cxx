@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //$Id: TGCConnectionHPBToSL.cxx,v 1.2 2006-06-22 00:26:35 nkanaya Exp $

@@ -24,6 +24,7 @@
 #include "xAODTrigBphys/TrigBphys.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 // Forward declaration
 namespace Trk {
@@ -123,7 +124,7 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     // tools
     ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
     Trk::TrkVKalVrtFitter*              m_VKVFitter;
-
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     const double m_massMuon;
 };
 

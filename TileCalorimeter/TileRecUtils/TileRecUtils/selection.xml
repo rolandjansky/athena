@@ -1,4 +1,6 @@
 <lcgdict>
   <class name="TileBeamInfoProvider"/>
+  <class name="ITileDQstatusTool"/>
   <class name="TileRawChannelBuilder"/>
 </lcgdict>
+

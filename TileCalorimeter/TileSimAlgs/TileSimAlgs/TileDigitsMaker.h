@@ -137,6 +137,8 @@ class TileDigitsMaker: public AthAlgorithm {
     bool m_tileThresh;     //!< If true => apply threshold to Digits
     double m_tileThreshHi; //!< Actual threshold value for high gain
     double m_tileThreshLo; //!< Actual threshold value for low gain
+    int m_allChannels;     //!< If set to 1 => always create all channels in output container
+                           //!< If set to 2 => always add noise to all missing channels in overlay
 
     std::vector<double> m_digitShapeHi; //!< High gain pulse shape
     int m_nShapeHi;                     //!< Number of bins in high gain pulse shape 

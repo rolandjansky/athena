@@ -28,6 +28,7 @@ MTCalibPebHypoAlg::~MTCalibPebHypoAlg() {}
 // =============================================================================
 StatusCode MTCalibPebHypoAlg::initialize() {
   ATH_MSG_INFO("Initialising " << name());
+  ATH_CHECK(m_hypoTools.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -36,6 +37,7 @@ StatusCode MTCalibPebHypoAlg::initialize() {
 // =============================================================================
 StatusCode MTCalibPebHypoAlg::finalize() {
   ATH_MSG_INFO("Finalising " << name());
+  ATH_CHECK(m_hypoTools.release());
   return StatusCode::SUCCESS;
 }
 
@@ -50,12 +52,11 @@ StatusCode MTCalibPebHypoAlg::execute_r(const EventContext& eventContext) const 
   auto aux = std::make_unique<DecisionAuxContainer>();
   decisions->setStore(aux.get());
 
-  // Prepare input for hypo tools
-  std::vector<MTCalibPebHypoTool::Input> toolInput;
-
   // Create new decision
   Decision* newd = newDecisionIn(decisions.get()); // DecisionContainer decisions owns the pointer
-  toolInput.emplace_back(newd);
+
+  // Prepare input for hypo tools
+  MTCalibPebHypoTool::Input toolInput(newd, eventContext);
 
   // Call the hypo tools
   for (const auto& tool: m_hypoTools) {

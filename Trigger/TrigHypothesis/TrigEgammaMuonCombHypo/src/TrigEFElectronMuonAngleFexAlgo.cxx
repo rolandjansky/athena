@@ -494,7 +494,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 			<< endmsg;
 			}
 		}
-		
+		auto bsData = m_trackToVertexTool->GetBeamSpotData(Gaudi::Hive::currentContext());
 		ElectronMuonTopoInfoContainer::iterator egMuTopoInfo;
 		for ( egMuTopoInfo = m_egMuTopoColl->begin(); egMuTopoInfo != m_egMuTopoColl->end(); ++egMuTopoInfo ) {
 			if((*egMuTopoInfo)==0) continue;
@@ -527,9 +527,9 @@ HLT::ErrorCode TrigEFElectronMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& /*inp
 			if ( msgLvl() <= MSG::DEBUG )
 				msg() << MSG::DEBUG  << "Muon track at " << m_muon << " was matched to TrkParticle from collection no. " << iColl << " at address " << muonTP << endmsg;
 			
-			const Trk::Perigee* perigeeEL =   m_trackToVertexTool->perigeeAtBeamspot(*m_electron);
+			const Trk::Perigee* perigeeEL =   m_trackToVertexTool->perigeeAtBeamspot(*m_electron, bsData);
 	   
-			const Trk::Perigee* perigeeMU =   m_trackToVertexTool->perigeeAtBeamspot(*muonTP);
+			const Trk::Perigee* perigeeMU =   m_trackToVertexTool->perigeeAtBeamspot(*muonTP, bsData);
 		    
 		   
 			

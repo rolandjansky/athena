@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // EndcapCryostatConstruction
@@ -140,39 +140,39 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
 
-  GeoMaterial *Lead = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead = materialManager->getMaterial("std::Lead");
   if (!Lead) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::Lead is not found.");
   }
   
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::Air is not found.");
   }
   
-  GeoMaterial *Al  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Al  = materialManager->getMaterial("std::Aluminium");
   if (!Al) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::Aluminium is not found.");
   }
 
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, std::LiquidArgon is not found.");
   }
 
-  GeoMaterial *G10  = materialManager->getMaterial("LAr::G10");
+  const GeoMaterial *G10  = materialManager->getMaterial("LAr::G10");
   if (!G10) throw std::runtime_error("Error in EndcapCryostatConstruction, LAr::G10 is not found.");
 
-  GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
+  const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Copper is not found.");
   
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Iron is not found.");
 
-  GeoMaterial *Polystyrene  = materialManager->getMaterial("std::Polystyrene");
+  const GeoMaterial *Polystyrene  = materialManager->getMaterial("std::Polystyrene");
   if (!Polystyrene) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Polystyrene is not found.");
 
   //                                                                                                 //
@@ -334,7 +334,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
                 double dphi=(*cryoExtraCyl)[i]->getDouble("DPHI");
                 if(dphi>6.28) dphi=2.*M_PI;
                 std::string material=(*cryoExtraCyl)[i]->getString("MATERIAL"); //lead
-                GeoMaterial *mat = materialManager->getMaterial(material);
+                const GeoMaterial *mat = materialManager->getMaterial(material);
                 if (!mat) {
                   throw std::runtime_error("Error in EndcapCryostatConstruction,material for CylBeforePS is not found.");
                 }
@@ -398,7 +398,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 			currentRecord->getDouble("DZ")*CLHEP::cm / 2.,
 			(double) 0.,
 			(double) 2.*M_PI*CLHEP::rad);
-	GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
+	const GeoMaterial *material  = materialManager->getMaterial(currentRecord->getString("MATERIAL"));
       
 	if (!material) {
 	  std::ostringstream errorMessage;
@@ -516,7 +516,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   GeoFullPhysVol* totalEMHLArPhysical = new GeoFullPhysVol(totalEMHLArLogical);
 
   // Add brass plugs
-  GeoMaterial *PlugBrass(0);
+  const GeoMaterial *PlugBrass(0);
   for(size_t i(0);i<2;++i) {
     const planeIndMap& brassPlugPlanes = brassPlugPlanesVect[i];
     if (brassPlugPlanes.size()) {
@@ -737,7 +737,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	double dzMM = (*itMother)->getDouble("DZ")*CLHEP::mm;
 	zposMM = (*itMother)->getDouble("ZPOS")*CLHEP::mm;
 	
-	GeoMaterial *matMM  = materialManager->getMaterial((*itMother)->getString("MATERIAL"));
+	const GeoMaterial *matMM  = materialManager->getMaterial((*itMother)->getString("MATERIAL"));
 	
 	GeoTube  *tubeMM = new GeoTube(rminMM,rmaxMM,dzMM);
 	
@@ -770,7 +770,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	double dzMod = (*itModerator)->getDouble("DZ")*CLHEP::mm;
 	double zposMod = (*itModerator)->getDouble("ZPOS")*CLHEP::mm;
 	
-	GeoMaterial *matMod  = materialManager->getMaterial((*itModerator)->getString("MATERIAL"));
+	const GeoMaterial *matMod  = materialManager->getMaterial((*itModerator)->getString("MATERIAL"));
 	
 	GeoTube* solidMod = new GeoTube(rminMM,rmaxMM,dzMod);
 	GeoLogVol* lvMod = new GeoLogVol("Moderator",solidMod, matMod);
@@ -854,7 +854,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	GeoTube* tubeJM = new GeoTube((*mbtsTubs)[0]->getDouble("RMIN"),
 				      (*mbtsTubs)[0]->getDouble("RMAX"),
 				      (*mbtsTubs)[0]->getDouble("DZ"));
-	GeoMaterial* matJM  = materialManager->getMaterial((*mbtsTubs)[0]->getString("MATERIAL"));
+	const GeoMaterial* matJM  = materialManager->getMaterial((*mbtsTubs)[0]->getString("MATERIAL"));
 	GeoLogVol* lvJM = new GeoLogVol("ModeratorJMTube",tubeJM, matJM);
 	GeoPhysVol* pvJM = new GeoPhysVol(lvJM);
 
@@ -890,7 +890,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	  }
 	  catch(std::runtime_error&) {}
 	
-	  GeoMaterial *matScin  = materialManager->getMaterial(curScin->getString("MATERIAL"));
+	  const GeoMaterial *matScin  = materialManager->getMaterial(curScin->getString("MATERIAL"));
 	
 	  std::ostringstream ostr;
 	  ostr << curScin->getInt("SCIN_ID");
@@ -1086,7 +1086,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 }
 
 GeoPhysVol* LArGeo::EndcapCryostatConstruction::buildMbtsTrd(const IRDBRecord* rec
-							     , const DataHandle<StoredMaterialManager>& matmanager
+							     , const StoredMaterialManager* matmanager
 							     , GeoPhysVol* parent)
 {
   // Construct the Trd

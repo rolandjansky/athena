@@ -18,6 +18,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="mc_hi_v5_grid"
 export MENU="MC_HI_v5"

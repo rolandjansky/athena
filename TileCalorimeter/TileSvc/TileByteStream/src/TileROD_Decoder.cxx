@@ -153,7 +153,6 @@ int TileROD_Decoder::getErrorCounter() {
 StatusCode TileROD_Decoder::initialize() {
   
   m_rc2bytes5.setVerbose(m_verbose);
-  m_rc2bytes4.setVerbose(m_verbose);
   m_rc2bytes2.setVerbose(m_verbose);
   m_rc2bytes.setVerbose(m_verbose);
   m_d2Bytes.setVerbose(m_verbose);
@@ -897,7 +896,9 @@ void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
   return;
 }
 
-void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
+                                   unsigned int unit,
+                                   const uint32_t* p,
                                    pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -928,7 +929,7 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
     if (w != 0) { // skip invalid channels
       if (all00) all00 = TileFragStatus::ALL_OK;
       rc = new TileRawChannel(adcID
-                              , m_rc2bytes4.amplitude(w)
+                              , m_rc2bytes4.amplitude(w, unit)
                               , m_rc2bytes4.time(w)
                               , m_rc2bytes4.quality(w));
     } else {
@@ -1864,7 +1865,7 @@ void TileROD_Decoder::unpack_frag14(uint32_t /* version */, const uint32_t* p,
   nDrawer[0] = frag & 0x3F;
   nDrawer[1] = (frag & 0xFC0) >> 6;
   
-  p += 2; // 2 words so far
+  p += 2; // 2 words somethingm far
   
   std::vector<float> sumE(1);
   
@@ -3296,7 +3297,6 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
           if (!m_ignoreFrag4HLT && !fragFound) {
             fragFound = true;
             int unit = (idAndType & 0xC0000000) >> 30;
-            m_rc2bytes4.setUnit(unit);
             
             int DataType = (idAndType & 0x30000000) >> 28;
             
@@ -3314,7 +3314,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
               m_rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
             
-            unpack_frag4HLT(version, p, m_pRwChVec);
+            unpack_frag4HLT(version, unit, p, m_pRwChVec);
           }
           break;
           
@@ -3680,7 +3680,9 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
   return;
 }
 
-void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
+                                      unsigned int unit,
+                                      const uint32_t* p,
                                       pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -3693,7 +3695,7 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */, const uint32_t* p,
     if (w != 0) { // skip invalid channels
       pChannel[ch]->set(ch
                         , m_rc2bytes4.gain(w)
-                        , m_rc2bytes4.amplitude(w)
+                        , m_rc2bytes4.amplitude(w, unit)
                         , m_rc2bytes4.time(w)
                         , m_rc2bytes4.quality(w));
       

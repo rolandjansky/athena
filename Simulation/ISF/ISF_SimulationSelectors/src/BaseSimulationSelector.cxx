@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BaseSimulationSelector.h"
@@ -13,14 +13,32 @@ ISF::BaseSimulationSelector::BaseSimulationSelector(const std::string& type, con
   base_class(type, name, parent),
   m_simulator("DefaultSimulator", name),
   m_isDynamic(false),
-  m_invertCuts(false),
-  m_simflavor(ISF::UndefinedSim)
+  m_invertCuts(false)
 {
   declareProperty("Simulator",      m_simulator  );
   declareProperty("IsDynamic",      m_isDynamic  );
   declareProperty("InvertCuts",     m_invertCuts );
+  declareProperty("SimulationFlavor", m_simFlavorProp);
+  m_simFlavorProp.verifier().setLower(ISF::UndefinedSim+1);
+  m_simFlavorProp.verifier().setUpper(ISF::NFlavors-1);
+  m_simFlavorProp.declareUpdateHandler(&ISF::BaseSimulationSelector::SimulationFlavorHandler, this);
 }
 
+void ISF::BaseSimulationSelector::SimulationFlavorHandler(Property&)
+{
+  // FIXME would probably be better to have this in SimulationFlavor.h
+  switch(m_simFlavorProp.value())
+    {
+    case 1: m_simflavor = ISF::ParticleKiller; break;
+    case 2: m_simflavor = ISF::Fatras; break;
+    case 3: m_simflavor = ISF::Geant4; break;
+    case 4: m_simflavor = ISF::FastCaloSim; break;
+    case 5: m_simflavor = ISF::FastCaloSimV2; break;
+    case 6: m_simflavor = ISF::Parametric; break;
+    case 7: m_simflavor = ISF::FatrasPileup; break;
+    case 8: m_simflavor = ISF::FastCaloSimPileup; break;
+    }
+}
 
 /** Gaudi sysInitialize() method */
 StatusCode ISF::BaseSimulationSelector::sysInitialize()

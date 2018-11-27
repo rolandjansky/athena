@@ -49,6 +49,11 @@ TrigEFCaloHypoNoise::TrigEFCaloHypoNoise(const std::string& name, ISvcLocator* p
   declareProperty( "BadFEBCut", m_MinBadFEB=5 );
   declareProperty( "TimeToClear", m_timeTagPosToClear=300);
   declareProperty( "ISPublishTime", m_publishTime=180);
+  declareProperty( "BadFEBFlaggedPartitions", m_badFEBFlaggedPartitions=true);
+  declareProperty( "SatTightFlaggedPartitions", m_satTightFlaggedPartitions=true);
+  declareProperty( "MNBLooseFlaggedPartitions", m_mNBLooseFlaggedPartitions=true);
+  declareProperty( "MNBTightFlaggedPartitions", m_mNBTightFlaggedPartitions=true);
+  declareProperty( "MNBTight_PsVetoFlaggedPartitions", m_mNBTight_PsVetoFlaggedPartitions=true);
 
 }
 
@@ -111,6 +116,15 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
           m_isInterface = false;
       }
   } // if cfact
+
+  // create mask
+  m_mask = 0x0;
+  if ( m_badFEBFlaggedPartitions ) m_mask|=0x1;
+  if ( m_satTightFlaggedPartitions ) m_mask|=0x2;
+  if ( m_mNBLooseFlaggedPartitions ) m_mask|=0x10;
+  if ( m_mNBTightFlaggedPartitions ) m_mask|=0x20;
+  if ( m_mNBTight_PsVetoFlaggedPartitions ) m_mask|=0x40;
+  msg() << MSG::DEBUG << "using a mask to selec events : " << std::hex << m_mask << std::dec << endmsg;
   
   return HLT::OK;
   

@@ -35,7 +35,6 @@ GaussianDensityTestAlg::GaussianDensityTestAlg( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_useBeamConstraint(true),
   m_firstEvent(true),
-  m_iBeamCondSvc("BeamCondSvc", name),
   m_iTHistSvc("THistSvc", name)
 {
   //
@@ -61,7 +60,7 @@ StatusCode GaussianDensityTestAlg::initialize()
   ATH_CHECK( m_estimator.retrieve() );
   ATH_CHECK( m_trackFilter.retrieve() );
   ATH_CHECK( m_ipEstimator.retrieve() );
-
+  ATH_CHECK(m_beamSpotKey.initialize());
   // setup histograms/trees
   m_h_density = new TH1F("Density", "Density", 800, -200.0, 200.0);
   m_h_truthDensity = new TH1F("Truth", "Truth", 800, -200.0, 200.0);
@@ -139,12 +138,17 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 					std::vector<Trk::ITrackLink*>& trackVector)
 {
   Root::TAccept selectionPassed;
+  const InDet::BeamSpotData* beamspot = nullptr;
+  if(m_useBeamConstraint){
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     if(beamSpotHandle.isValid()) beamspot = beamSpotHandle.retrieve();
+  }
   for (auto itr  = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
     if (m_useBeamConstraint) {
       xAOD::Vertex beamposition;
       beamposition.makePrivateStore();
-      beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-      beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      beamposition.setPosition(beamspot->beamVtx().position());
+      beamposition.setCovariancePosition(beamspot->beamVtx().covariancePosition());
       selectionPassed=m_trackFilter->accept(**itr,&beamposition);
     }
     else

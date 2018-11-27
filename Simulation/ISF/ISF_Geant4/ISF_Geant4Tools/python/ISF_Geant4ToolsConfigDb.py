@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
 
@@ -14,9 +14,8 @@ addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getFullG4TrackProcessorUserAction
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getPassBackG4TrackProcessorUserActionTool"    , "PassBackG4TrackProcessorUserActionTool")
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getAFII_G4TrackProcessorUserActionTool"       , "AFII_G4TrackProcessorUserActionTool")
 
-
-addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getG4TransportTool"                       , "ISFG4TransportTool")
-addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getFullG4TransportTool"                   , "FullG4TransportTool")
-addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getPassBackG4TransportTool"               , "PassBackG4TransportTool")
-addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getAFII_G4TransportTool"                  , "AFII_G4TransportTool")
-addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getQuasiStableG4TransportTool"            , "QuasiStableG4TransportTool")
+addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getGeant4Tool",               "ISF_Geant4Tool")
+addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getFullGeant4Tool",           "ISF_FullGeant4Tool")
+addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getLongLivedGeant4Tool",      "ISF_LongLivedGeant4Tool")
+addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getPassBackGeant4Tool",       "ISF_PassBackGeant4Tool")
+addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getAFIIGeant4Tool",           "ISF_AFIIGeant4Tool")

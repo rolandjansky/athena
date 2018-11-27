@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDD2GeoModelBuilder_H
@@ -39,7 +39,7 @@ public:
 	~AGDD2GeoModelBuilder() {}
 	// elements & materials 
 	GeoElement* CreateElement(std::string);
-	GeoMaterial* CreateMaterial(std::string);
+        const GeoMaterial* CreateMaterial(std::string);
 	void CreateElements();
 	void CreateMaterial();
 		
@@ -73,7 +73,7 @@ public:
 private:
 	GeoPhysVol *m_mother;
 	
-	GeoMaterial* GetMMMaterial(std::string);
+        const GeoMaterial* GetMMMaterial(std::string);
 
 //	std::map<std::string, GeoFullPhysVol*>* m_detectors;
 

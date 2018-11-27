@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 
 Trk::HomogeneousLayerMaterial::HomogeneousLayerMaterial() :
   Trk::LayerMaterialProperties(),
-  m_fullMaterial(0)
+  m_fullMaterial(nullptr)
 {}
 
 Trk::HomogeneousLayerMaterial::HomogeneousLayerMaterial( const Trk::MaterialProperties& full,
@@ -26,18 +26,14 @@ Trk::HomogeneousLayerMaterial::HomogeneousLayerMaterial(const Trk::HomogeneousLa
 {}
 
 Trk::HomogeneousLayerMaterial::~HomogeneousLayerMaterial()
-{
-  delete m_fullMaterial;        
-}
+{}
 
 
 Trk::HomogeneousLayerMaterial& Trk::HomogeneousLayerMaterial::operator=(const Trk::HomogeneousLayerMaterial& lmp)
 {
   if (this!=&lmp) {    
-    // first delete everything
-    delete m_fullMaterial;
-    // now refill evertything
-    m_fullMaterial         = lmp.m_fullMaterial ? lmp.m_fullMaterial->clone() : 0;
+    // now refill everything
+    m_fullMaterial.reset( lmp.m_fullMaterial ? lmp.m_fullMaterial->clone() : nullptr);
     Trk::LayerMaterialProperties::m_splitFactor = lmp.m_splitFactor;
   }
   return (*this);
@@ -45,7 +41,7 @@ Trk::HomogeneousLayerMaterial& Trk::HomogeneousLayerMaterial::operator=(const Tr
 
 Trk::HomogeneousLayerMaterial& Trk::HomogeneousLayerMaterial::operator*=(double scale)
 {
-   // scale the sub properties    
+   // scale the sub-properties    
    if (m_fullMaterial)  
       (*m_fullMaterial) *= scale;
 
