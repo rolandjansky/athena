@@ -12,3 +12,9 @@ atlas_install_scripts(
   share/make_coralServer_rep.py
   share/asetup_wrapper 
   )
+
+# Tests:
+atlas_add_test( test_make_hlt_rep
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/make_hlt_rep.py
+   POST_EXEC_SCRIPT nopost.sh
+)
