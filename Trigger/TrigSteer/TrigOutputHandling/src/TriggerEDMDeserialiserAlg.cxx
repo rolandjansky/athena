@@ -51,7 +51,10 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
   auto resultHandle = SG::makeHandle( m_resultKey, context );
   const Payload* dataptr = nullptr;
   // TODO: revise if there are use cases where result may be not available in some events
-  ATH_CHECK( resultHandle->getSerialisedData( m_moduleID, dataptr ) );
+  if ( resultHandle->getSerialisedData( m_moduleID, dataptr ).isFailure() ) {
+    ATH_MSG_DEBUG("No payload available with moduleId " << m_moduleID << " in this event");
+    return StatusCode::SUCCESS;
+  }
   PayloadIterator start = dataptr->begin();
   
   while ( start != dataptr->end() )  {

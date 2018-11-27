@@ -85,7 +85,8 @@ from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMSerialiserTool, 
 
 # Tool serialising EDM objects to fill the HLT result
 serialiser = TriggerEDMSerialiserTool()
-serialiser.CollectionsToSerialize = [] # nothing at the moment
+serialiser.CollectionsToSerialize = ["xAOD::TrigCompositeContainer_v1#MTCalibPebDecisions",
+                                     "xAOD::TrigCompositeAuxContainer_v1#MTCalibPebDecisionsAux."]
 
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
