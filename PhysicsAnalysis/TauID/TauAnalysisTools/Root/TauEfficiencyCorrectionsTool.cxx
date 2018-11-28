@@ -142,7 +142,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
         m_iOLRLevel = ELEBDTIGHTPLUSVETO;
     }
-    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR) and m_tTauSelectionTool->m_bEleOLR
+    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)
       and m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
     {
       ATH_MSG_DEBUG("TauBDT");
