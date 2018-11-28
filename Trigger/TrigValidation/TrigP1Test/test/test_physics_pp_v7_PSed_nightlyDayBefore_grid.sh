@@ -31,20 +31,20 @@ eval "export $( grep 'hltpsk=' /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #l1psk=120
 #hltpsk=420
 echo 'smk' ${smk} | tee ${JOB_LOG} 
-echo 'l1psk' ${l1psk} | tee ${JOB_LOG} 
-echo 'hltpsk' ${hltpsk} | tee ${JOB_LOG} 
+echo 'l1psk' ${l1psk} | tee -a ${JOB_LOG} 
+echo 'hltpsk' ${hltpsk} | tee -a ${JOB_LOG} 
 
-echo "Reading release from SMK" | tee ${JOB_LOG} 
+echo "Reading release from SMK" | tee -a ${JOB_LOG} 
 get_files releaseFromSMK.py
 python releaseFromSMK.py TRIGGERDBART ${smk} > releaseFromSMK.log
-cat releaseFromSMK.log  | tee ${JOB_LOG}
+cat releaseFromSMK.log  | tee -a ${JOB_LOG}
 eval "$( grep 'export release=' releaseFromSMK.log)" 
 if [ -z ${release} ]; then
-   echo "Release not found" | tee ${JOB_LOG} 
+   echo "Release not found" | tee -a ${JOB_LOG} 
 fi
 
 l1psk="'lvl1key': ${l1psk}"
-subshellcmd='source $AtlasSetup/scripts/asetup.sh AthenaP1,21.1,'${release}'; athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}"; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --monitorRates --isCPUPrediction --useEBWeight --patternsMonitor HLT_costmonitor HLT_mistimemonj400 HLT_mistimemoncaltimenomu HLT_mistimemoncaltime HLT_l1topodebug HLT_l1calooverflow HLT_e5_lhvloose_nod0_bBeexM6000t HLT_2e5_lhvloose_nod0_bBeexM6000t HLT_cscmon_L1All HLT_j0_perf_ds1_L1J100 --patternsInvert  --predictionLumi 1.50e34; chainDump.py -n -S  2>&1 | tee '${JOB_LOG}
+subshellcmd='source $AtlasSetup/scripts/asetup.sh AthenaP1,21.1,'${release}' | tee -a '${JOB_LOG}'; athenaHLT.py -n 5 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey '${smk}' --db-hltpskey '${hltpsk}' --db-extra "{'${l1psk}'}" | tee -a '${JOB_LOG}'; Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root | tee -a '${JOB_LOG}'; RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --monitorRates --isCPUPrediction --useEBWeight --patternsMonitor HLT_costmonitor HLT_mistimemonj400 HLT_mistimemoncaltimenomu HLT_mistimemoncaltime HLT_l1topodebug HLT_l1calooverflow HLT_e5_lhvloose_nod0_bBeexM6000t HLT_2e5_lhvloose_nod0_bBeexM6000t HLT_cscmon_L1All HLT_j0_perf_ds1_L1J100 --patternsInvert  --predictionLumi 1.50e34 | tee -a '${JOB_LOG}'; chainDump.py -n -S | tee -a '${JOB_LOG}
 echo "running in subshell: $subshellcmd"
 (eval $subshellcmd)
 
