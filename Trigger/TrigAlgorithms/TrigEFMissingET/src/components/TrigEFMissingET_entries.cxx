@@ -7,6 +7,8 @@
 #include "TrigEFMissingET/EFMissingETFromFEBHeader.h"
 #include "TrigEFMissingET/EFMissingETFromJets.h"
 #include "TrigEFMissingET/EFMissingETFromTrackAndJets.h"
+#include "TrigEFMissingET/EFMissingETFromClustersTracksPUC.h"
+#include "TrigEFMissingET/EFMissingETFromTrackAndClusters.h"
 //#include "TrigEFMissingET/EFMissingETFromLvl1Ppr.h"
 #include "TrigEFMissingET/EFMissingETFlags.h"
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
@@ -22,6 +24,8 @@ DECLARE_COMPONENT( EFMissingETFromClustersPUC )
 DECLARE_COMPONENT( EFMissingETFromFEBHeader )
 DECLARE_COMPONENT( EFMissingETFromJets )
 DECLARE_COMPONENT( EFMissingETFromTrackAndJets )
+DECLARE_COMPONENT( EFMissingETFromClustersTracksPUC )
+DECLARE_COMPONENT( EFMissingETFromTrackAndClusters )
 //DECLARE_COMPONENT( EFMissingETFromLvl1Ppr )
 DECLARE_COMPONENT( EFMissingETFlags )
 DECLARE_COMPONENT( EFMissingETFromHelper )
