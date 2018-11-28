@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //#define ARTRU          // Choice of TR generator
@@ -112,12 +112,12 @@ void TRTTransitionRadiation::Initialize() {
     ATH_MSG_FATAL ( "Can not access Detector Store " );
     return;
   };
-  DataHandle<StoredMaterialManager> sMaterialManager;
+  const StoredMaterialManager* sMaterialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(sMaterialManager, std::string("MATERIALS"))) {
     ATH_MSG_FATAL ( "Could not retrieve material manager from Detector Store" );
     return;
   };
-  AbsMaterialManager *materialManager = &*sMaterialManager;//TK: figure out why &* (overloaded * ?)
+  const AbsMaterialManager *materialManager = &*sMaterialManager;//TK: figure out why &* (overloaded * ?)
 
   Geo2G4MaterialFactory geo2g4_material_fact;//Note - this is a very lightweight class!
   G4Material *g4mat_Gas(geo2g4_material_fact.Build(materialManager->getMaterial("trt::CO2")));
