@@ -6,6 +6,8 @@ from AthenaPoolCnvSvc import ReadAthenaPool
 from AthenaCommon.AppMgr import ToolSvc
 import glob
 
+from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
+
 from TrigBjetHypo.TrigBjetFexTuningGrade1_IP1D import *
 from TrigBjetHypo.TrigBjetFexTuningGrade1_IP2D import *
 from TrigBjetHypo.TrigBjetFexTuningGrade1_IP3D import *
@@ -91,6 +93,8 @@ from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulat
 emulator = Trig__TrigBtagEmulationTool()
 trackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
 
+emulator.OutputLevel = DEBUG
+
 trackAssocTool.TrackContainerName = "TrigBtagEmulationTool_RetaggingTracks" # Necessary for new track associator in 21.2
 trackAssocTool.MuonContainerName  = "" # Necessary for new track associator in 21.2  
 
@@ -98,7 +102,6 @@ emulator.BTagTrackAssocTool = trackAssocTool
 emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
 emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
 emulator.TagOfflineWeights = True
-emulator.Verbosity = 2
 emulator.EmulatedChainDefinitions = toBeEmulatedTriggers
 ToolSvc += emulator
 
@@ -106,7 +109,7 @@ ToolSvc += emulator
 from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagValidationTest
 test = Trig__TrigBtagValidationTest()
 test.TrigBtagEmulationTool = emulator
-test.ToBeEmulatedTriggers = [x[0] for x in toBeEmulatedTriggers]
+test.ToBeEmulatedTriggers = [[x[0]] for x in toBeEmulatedTriggers]
 test.RetrieveRetaggedJets = False #True
 test.OutputLevel = 0
 theJob += test

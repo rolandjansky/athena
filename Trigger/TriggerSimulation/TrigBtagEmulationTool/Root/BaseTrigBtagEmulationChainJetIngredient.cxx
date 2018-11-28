@@ -44,6 +44,7 @@ BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredien
 
 MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg() const { return m_msg; }
 MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg( const MSG::Level lvl ) const { return msg() << lvl; }
+bool BaseTrigBtagEmulationChainJetIngredient::msgLvl ( const MSG::Level lvl ) const { return msg().level() <= lvl; }
 
 // =================================================== //
 
@@ -591,7 +592,7 @@ int TrigBtagEmulationChainJetIngredient_GSC::getMulteplicityGsc() const { return
 
 void BaseTrigBtagEmulationChainJetIngredient::printFeatures() const {
   if ( m_type_THRESHOLD_features.size() == 0 && m_type_SELECTION_features.size() == 0 ) return;
-  ATH_MSG_INFO( "   : Features" );
+  ATH_MSG_DEBUG( "   : Features" );
 
   std::map< std::string,std::unique_ptr<TriggerFeature> >::const_iterator it=m_type_THRESHOLD_features.begin();
   for ( ; it != m_type_THRESHOLD_features.end(); it++ ) {
@@ -606,11 +607,11 @@ void BaseTrigBtagEmulationChainJetIngredient::printFeatures() const {
 void TrigBtagEmulationChainJetIngredient_L1::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
-  ATH_MSG_INFO( "### L1 Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
-  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_DEBUG( "### L1 Trigger ["<< getName() <<"]" );
+  ATH_MSG_DEBUG( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_DEBUG( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_DEBUG( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_DEBUG( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
@@ -618,11 +619,11 @@ void TrigBtagEmulationChainJetIngredient_L1::print() const {
 void TrigBtagEmulationChainJetIngredient_L1_JJ::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
-  ATH_MSG_INFO( "### L1 JJ Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
-  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_DEBUG( "### L1 JJ Trigger ["<< getName() <<"]" );
+  ATH_MSG_DEBUG( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_DEBUG( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_DEBUG( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_DEBUG( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
@@ -630,11 +631,11 @@ void TrigBtagEmulationChainJetIngredient_L1_JJ::print() const {
 void TrigBtagEmulationChainJetIngredient_HLT::print() const {
   TrigBtagEmulationChainJetIngredient_HLT emul = *this;
 
-  ATH_MSG_INFO( "### HLT Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]"  );
-  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_DEBUG( "### HLT Trigger ["<< getName() <<"]" );
+  ATH_MSG_DEBUG( "   : min_pt  = "<< getPtThreshold() <<" [MeV]"  );
+  ATH_MSG_DEBUG( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_DEBUG( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_DEBUG( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
@@ -642,13 +643,13 @@ void TrigBtagEmulationChainJetIngredient_HLT::print() const {
 void TrigBtagEmulationChainJetIngredient_GSC::print() const {
   TrigBtagEmulationChainJetIngredient_GSC emul = *this;
 
-  ATH_MSG_INFO( "### GSC Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
-  ATH_MSG_INFO( "   : min_gsc = "<< getGscThreshold() );
-  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
-  ATH_MSG_INFO( "   : mult_gsc= "<< getMulteplicityGsc() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_DEBUG( "### GSC Trigger ["<< getName() <<"]" );
+  ATH_MSG_DEBUG( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_DEBUG( "   : min_gsc = "<< getGscThreshold() );
+  ATH_MSG_DEBUG( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_DEBUG( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_DEBUG( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_DEBUG( "   : mult_gsc= "<< getMulteplicityGsc() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
