@@ -2069,6 +2069,8 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   int BvsEC=0;
   if(iCalo==EM || iCalo==EMIW) BvsEC=abs(m_larem_id->barrel_ec(cellId));
 
+  bool addedNoise=false;
+
   if(    m_NoiseOnOff
       && (    (BvsEC==1 && m_NoiseInEMB)
            || (BvsEC>1  && m_NoiseInEMEC)
@@ -2099,6 +2101,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
              m_Noise[i] += m_Rndm[j] * ((*CorGen)[index]);
            }
            m_Noise[i]=m_Noise[i]*SigmaNoise;
+           addedNoise=true;
         }
      } else {
     // overlay case a priori don't add any noise
@@ -2131,6 +2134,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
                 RandGaussZiggurat::shootArray(m_engine,m_NSamples,m_Rndm,0.,1.);
                 ATH_MSG_DEBUG(" -- Different gains " << igain << " " << rndmEvtDigit->gain() << " Noises " << SigmaNoise << " " << SigmaNoiseZB << "  => extra noise in ADC " << SigmaExtraNoise);
                 for (int i=0;i<m_NSamples;i++) m_Noise[i] = SigmaExtraNoise * m_Rndm[i];
+                addedNoise=true;
             }  // different gains
         }      // random digits available
      }         // overlay case
@@ -2168,7 +2172,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
     double xAdc;
     double xAdc_DigiHSTruth;
 
-    if ( m_NoiseOnOff ){
+    if ( addedNoise ){
       xAdc =  m_Samples[i]*energy2adc + m_Noise[i] + Pedestal + 0.5;
       if(m_doDigiTruth) {
         xAdc_DigiHSTruth =  m_Samples_DigiHSTruth[i]*energy2adc + m_Noise[i] + Pedestal + 0.5;
