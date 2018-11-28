@@ -19,6 +19,9 @@ JetAttrsKtDRCondition::JetAttrsKtDRCondition(
 
 
 bool JetAttrsKtDRCondition::isSatisfied(const HypoJetVector& ips) const{
+
+  std::cout << "amanda - in JetAttrsKtDRCondition checking isSatisfied with passed double limit values \n";
+
   if(ips.size() != 1){
     std::stringstream ss;
     ss << "JetAttrs::isSatisfied must see exactly 1 particle, but received "
@@ -32,15 +35,18 @@ bool JetAttrsKtDRCondition::isSatisfied(const HypoJetVector& ips) const{
   float ktdrVar;
   Jet jetStruct;
 
+  std::cout << "amanda - look at one jet and pull width value \n";
   if (jet -> getAttribute("KtDR",ktdrVar)){
     jetStruct.validCondition=true;
     jetStruct.ktdrVal=ktdrVar;
+    std::cout << "amanda - KtDR variable exists, value " << ktdrVar << "\n";
     }
   else{
     jetStruct.validCondition=false;
     throw NonexistantVariable("JetAttrs condition cannot retrieve variable 'KtDR' - does not exist");
     }
 
+  std::cout << "amanda - calling function to see if cut passed. Returning " << passKtDRCut(jetStruct) << "\n";
   return (passKtDRCut(jetStruct));
  
 }
@@ -56,6 +62,11 @@ bool JetAttrsKtDRCondition::passKtDRCut(const Jet& jet) const{
 
 
 std::string JetAttrsKtDRCondition::toString() const noexcept {
+
+    std::cout << "amanda - checking if ktdr passes cuts \n";
+    std::cout << "amanda - jet values: ktdr =  " << jet.widthVal << ", validCondition = "<< jet.validCondition << "\n";
+    std::cout << "amanda - limits: limitMin = " << m_limitMin << ", limitMax = "<< m_limitMax << "\n";
+
   std::stringstream ss;
   ss << "JetAttrsKtDRCondition: "
 
@@ -64,6 +75,8 @@ std::string JetAttrsKtDRCondition::toString() const noexcept {
      << " limit max: "
      << m_limitMax
      <<'\n';
+
+  std::cout << "amanda - Returning result " << result << "\n";
 
   return ss.str();
 }
