@@ -4,9 +4,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALIBRATEDMUONSPROVIDER
-#define CALIBRATEDMUONSPROVIDER
-//author: will buttinger
+#ifndef CALIBRATEDTRACKSPROVIDER
+#define CALIBRATEDTRACKSPROVIDER
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -17,13 +16,13 @@
 
 namespace CP {
 
-   /// decorates a muon collection with efficiency and scale factor
+   /// decorates a track collection with efficiency and scale factor
 
-   class CalibratedMuonsProvider : public AthAlgorithm {
+   class CalibratedTracksProvider : public AthAlgorithm {
 
    public:
       /// Regular Algorithm constructor
-       CalibratedMuonsProvider( const std::string& name, ISvcLocator* svcLoc );
+       CalibratedTracksProvider( const std::string& name, ISvcLocator* svcLoc );
 
       /// Function initialising the algorithm
       virtual StatusCode initialize();
@@ -31,12 +30,15 @@ namespace CP {
       virtual StatusCode execute();
 
    private:
-      /// muon container
+      /// track container
       std::string m_inputKey,m_outputKey;
 
-      /// Scale factor tool
-      ToolHandle <IMuonCalibrationAndSmearingTool > m_tool;
-      ToolHandle <IPileupReweightingTool> m_prwTool;
+      ///Calibration tool handle
+      ToolHandle<IMuonCalibrationAndSmearingTool > m_tool;
+      ToolHandle<IPileupReweightingTool> m_prwTool;
+
+      /// detector type of track (MS or ID)
+      int m_detType;
       bool m_useRndNumber;
 
    }; // class 
