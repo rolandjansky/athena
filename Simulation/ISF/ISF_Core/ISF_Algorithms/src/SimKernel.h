@@ -30,6 +30,7 @@
 
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
+#include "HepMC_Interfaces/IZeroLifetimePatcher.h"
 
 // forward declarations
 namespace PMonUtils {
@@ -116,6 +117,9 @@ namespace ISF {
 
     /** The Simulation Selector Chains */
     ToolHandleArray<ISimulationSelector> m_simSelectors[AtlasDetDescr::fNumAtlasRegions];
+
+    /** QS Patch */
+    ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher;
 
     /** The Event Filters */
     ToolHandleArray<IEventFilterTool>    m_eventFilters;
