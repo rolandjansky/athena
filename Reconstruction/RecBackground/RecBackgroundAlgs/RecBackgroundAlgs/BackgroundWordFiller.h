@@ -29,6 +29,9 @@ class BackgroundWordFiller : public AthAlgorithm
 
  private:
 
+  /** ReadHandleKey for EventInfo object */
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+  
   int m_HaloNumSegment_Cut;
   int m_HaloNumClusterShape_Cut;
   int m_HaloNumOneSidedLoose_Cut;

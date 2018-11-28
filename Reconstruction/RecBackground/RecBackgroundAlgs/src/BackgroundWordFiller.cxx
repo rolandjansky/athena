@@ -142,6 +142,9 @@ BackgroundWordFiller::~BackgroundWordFiller()
 
 StatusCode BackgroundWordFiller::initialize() {
 
+  //initialise the read handle key to the EventInfo object
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  
   return StatusCode::SUCCESS;  
 }
 
@@ -152,16 +155,11 @@ StatusCode BackgroundWordFiller::execute() {
    ///////////////////////// 
    // get the EventInfo
    /////////////////////////
-   const EventInfo * eventInfo_c = 0;
-   StatusCode sc=evtStore()->retrieve( eventInfo_c );
 
-   if(sc.isFailure()){
-     msg(MSG::ERROR) << "Could not retrieve const EventInfo object" << endmsg;      
-     return StatusCode::FAILURE;
-   }
-   EventInfo* eventInfo = const_cast<EventInfo*>(eventInfo_c);
+  SG::ReadHandle<xAOD::EventInfo> eventInfoReadHandle(m_eventInfoKey); 
+  
    
-   m_totalcnt++;
+  m_totalcnt++;
 
    ///////////////////////
    // NOW SET THE BITS!!
@@ -179,25 +177,25 @@ StatusCode BackgroundWordFiller::execute() {
        msg(MSG::WARNING) << "  Could not retrieve BeamBackgroundData." << endmsg;
      else {     
        if( beamBackgroundData->GetNumSegment() > m_HaloNumSegment_Cut ){
-	 if( eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::HaloMuonSegment)==false)
+	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonSegment)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonSegment] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::HaloMuonSegment]++;
        }
        if( beamBackgroundData->GetNumClusterShape() > m_HaloNumClusterShape_Cut ){
-	 if( eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::HaloClusterShape)==false)
+	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloClusterShape)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloClusterShape] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::HaloClusterShape]++; 
        }
        if( beamBackgroundData->GetNumNoTimeLoose() > m_HaloNumOneSidedLoose_Cut ){
-	 if( eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::HaloMuonOneSided)==false)
+	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonOneSided)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonOneSided] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::HaloMuonOneSided]++;
        }
        if( beamBackgroundData->GetNumTwoSidedNoTime() > m_HaloNumTwoSided_Cut ){
-	 if( eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::HaloMuonTwoSided)==false)
+	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonTwoSided)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonTwoSided] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::HaloMuonTwoSided]++;
@@ -225,7 +223,7 @@ StatusCode BackgroundWordFiller::execute() {
 	 LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideC();
        }
        if ( LUCIDcounter>m_LUCIDBeamVeto_Cut ){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::LUCIDBeamVeto)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LUCIDBeamVeto)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::LUCIDBeamVeto] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::LUCIDBeamVeto]++;
@@ -257,19 +255,19 @@ StatusCode BackgroundWordFiller::execute() {
        ATH_MSG_DEBUG( " BCMCollisionTime minDT "<<minTD<<" maxDT "<<maxTD);
        // set time diff bits
        if (fabs(minTD)<  m_BCMTimeDiffCol_Cut) {
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffCol)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffCol)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffCol] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::BCMTimeDiffCol]++;
        }
        if (fabs(maxTD)>m_BCMTimeDiffHalo_CutLo){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffHalo)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffHalo)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffHalo] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::BCMTimeDiffHalo]++;
        }
        if (BCMct->getMultiLG()>m_BCMLowGainCut || BCMct->getMultiHG()>m_BCMHiGainCut){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::BCMBeamVeto)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMBeamVeto)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMBeamVeto] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::BCMBeamVeto]++;
@@ -297,7 +295,7 @@ StatusCode BackgroundWordFiller::execute() {
        
        // set IDMultiplicityHuge
        if ( (NPIXsps)>m_PixMultiplicityHuge_Cut){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::PixMultiplicityHuge)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixMultiplicityHuge)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixMultiplicityHuge] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::PixMultiplicityHuge]++;
@@ -305,14 +303,14 @@ StatusCode BackgroundWordFiller::execute() {
        
        // set PixSPNonEmpty
        if ( (NPIXsps)>m_PixSPNonEmpty_Cut ){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::PixSPNonEmpty)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixSPNonEmpty)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixSPNonEmpty] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::PixSPNonEmpty]++;
        }
        
        if ( (NSCTsps)>m_SCTMultiplicityHuge_Cut){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::SCTMultiplicityHuge)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::SCTMultiplicityHuge)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::SCTMultiplicityHuge] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::SCTMultiplicityHuge]++;
@@ -320,7 +318,7 @@ StatusCode BackgroundWordFiller::execute() {
        
        // set SCTSPNonEmpty
        if ( (NSCTsps)>m_SCTSPNonEmpty_Cut ){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::SCTSPNonEmpty)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::SCTSPNonEmpty)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::SCTSPNonEmpty] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::SCTSPNonEmpty]++;
@@ -339,12 +337,12 @@ StatusCode BackgroundWordFiller::execute() {
    if (!sc.isFailure()) {
      if (mbtsTime->ncellA()>m_MBTS_SideCut && mbtsTime->ncellC()>m_MBTS_SideCut){
        if (fabs(mbtsTime->time())<m_MBTSTimeDiffCol_Cut ){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::MBTSTimeDiffCol)==false) {
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSTimeDiffCol)==false) {
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word!" << endmsg;
 	 }
        }
        if (fabs(mbtsTime->time())<m_MBTSTimeDiffHalo_CutHi && fabs(mbtsTime->time())>m_MBTSTimeDiffHalo_CutLo ){ 
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)==false) {
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)==false) {
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word!" << endmsg;
 	 }
        } // halo timing
@@ -375,7 +373,7 @@ StatusCode BackgroundWordFiller::execute() {
 	 if (fabs((*itr)->time())<m_MBTSBeamVeto_TimeCut) MBTScount++;
        }
        if (MBTScount>m_MBTSBeamVeto_MultiplicityCut){
-	 if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::MBTSBeamVeto)==false)
+	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSBeamVeto)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::MBTSBeamVeto] << endmsg;
 	 else
 	   m_bitcntvec[EventInfo::MBTSBeamVeto]++;
@@ -396,13 +394,13 @@ StatusCode BackgroundWordFiller::execute() {
        if (tps->ncellA() > m_LArEC_SideCut && tps->ncellC() > m_LArEC_SideCut) {
 	 float LArECtimeDiff =   tps->timeA()-tps->timeC();
 	 if (fabs(LArECtimeDiff)<m_LArECTimeDiffCol_Cut){
-	   if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffCol)==false)
+	   if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffCol)==false)
 	     msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " <<  m_bitnamevec[EventInfo::LArECTimeDiffCol] << endmsg;
 	   else
 	     m_bitcntvec[EventInfo::LArECTimeDiffCol]++;
 	 }
 	 if (fabs(LArECtimeDiff)>m_LArECTimeDiffHalo_CutLo && fabs(LArECtimeDiff)<m_LArECTimeDiffHalo_CutHi){ 
-	   if (eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffHalo)==false)
+	   if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffHalo)==false)
 	     msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::LArECTimeDiffHalo]  << endmsg;
 	   else
 	     m_bitcntvec[EventInfo::LArECTimeDiffHalo]++;
@@ -417,23 +415,23 @@ StatusCode BackgroundWordFiller::execute() {
    ///////////////////////////////////////
    if (msgLvl(MSG::DEBUG)) {
      msg(MSG::DEBUG) << "Summary of background word contents:"<< endmsg;
-     msg(MSG::DEBUG) << "MBTSTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "MBTSTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "MBTSBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<< endmsg;
-     msg(MSG::DEBUG) << "LArECTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "LArECTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "PixMultiplicityHuge: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixMultiplicityHuge)<< endmsg;
-     msg(MSG::DEBUG) << "PixSPNonEmpty: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<< endmsg;
-     msg(MSG::DEBUG) << "SCTMultiplicityHuge: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTMultiplicityHuge)<< endmsg;
-     msg(MSG::DEBUG) << "SCTSPNonEmpty: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<< endmsg;
-     msg(MSG::DEBUG) << "CSCTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "CSCTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "BCMTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "BCMTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "BCMBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<< endmsg;
-     msg(MSG::DEBUG) << "MuonTimingCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<< endmsg;
-     msg(MSG::DEBUG) << "MuonTimingCosmic: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<< endmsg;
-     msg(MSG::DEBUG) << "LUCIDBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<< endmsg;
+     msg(MSG::DEBUG) << "MBTSTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<< endmsg;
+     msg(MSG::DEBUG) << "MBTSTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<< endmsg;
+     msg(MSG::DEBUG) << "MBTSBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<< endmsg;
+     msg(MSG::DEBUG) << "LArECTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<< endmsg;
+     msg(MSG::DEBUG) << "LArECTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<< endmsg;
+     msg(MSG::DEBUG) << "PixMultiplicityHuge: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::PixMultiplicityHuge)<< endmsg;
+     msg(MSG::DEBUG) << "PixSPNonEmpty: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<< endmsg;
+     msg(MSG::DEBUG) << "SCTMultiplicityHuge: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTMultiplicityHuge)<< endmsg;
+     msg(MSG::DEBUG) << "SCTSPNonEmpty: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<< endmsg;
+     msg(MSG::DEBUG) << "CSCTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<< endmsg;
+     msg(MSG::DEBUG) << "CSCTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<< endmsg;
+     msg(MSG::DEBUG) << "BCMTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<< endmsg;
+     msg(MSG::DEBUG) << "BCMTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<< endmsg;
+     msg(MSG::DEBUG) << "BCMBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<< endmsg;
+     msg(MSG::DEBUG) << "MuonTimingCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<< endmsg;
+     msg(MSG::DEBUG) << "MuonTimingCosmic: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<< endmsg;
+     msg(MSG::DEBUG) << "LUCIDBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<< endmsg;
    }
    return StatusCode::SUCCESS;
 }
