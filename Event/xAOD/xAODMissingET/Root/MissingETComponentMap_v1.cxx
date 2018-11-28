@@ -26,7 +26,6 @@ size_t MissingETComponentMap_v1::m_clusterLinkReserve = 10000;
 size_t MissingETComponentMap_v1::m_trackLinkReserve   = 10000;
 size_t MissingETComponentMap_v1::m_maxClusterSize     = 5000;
 size_t MissingETComponentMap_v1::m_maxTrackSize       = 5000;
-size_t MissingETComponentMap_v1::m_maxSignalSize      = fmax(m_maxTrackSize,m_maxClusterSize);
 
 /////////////////////////////////
 // Constructors and destructor //
@@ -225,22 +224,9 @@ bool MissingETComponentMap_v1::checkUsage(MissingETBase::Types::object_vector_t&
   return retVal;
 }
 
-bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& signals,signal_vector_t& signalLinks) const
+bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& signals, const signal_vector_t& signalLinks) const
 {
-  if ( signals.empty() ) { return false; }
-  // check if new event
-  if ( signalLinks.empty() )  // this also an indication that there is no overlap!
-    {
-      size_t nSig(m_maxSignalSize);
-      const IParticleContainer* pCont = static_cast<const IParticleContainer*>(signals.front()->container());
-      // if ( pCont == 0 ) 
-      // 	{ printf("MissingETComponentMap::f_checkObjectUsage(...) - WARNING - cannot cast container pointer %p to IParticleContainer\n",(void*)signals.front()->container()); }
-      // else
-      nSig = pCont->size();
-      indexedlink_t sw(MissingETBase::Numerical::invalidLink().get<0>(),MissingETBase::Numerical::invalidLink().get<1>());
-      signalLinks.resize(nSig,sw);
-      return false;
-    }
+  if ( signals.empty() || signalLinks.empty() ) return false;
   // loop on signals
   size_t oldSize(signals.size());
   MissingETBase::Types::object_vector_t::iterator fSig(signals.begin());
@@ -261,7 +247,7 @@ bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_v
   return oldSize != signals.size(); 
 }
 
-bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects,particle_map_t& physicsLinks) const
+bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects, const particle_map_t& physicsLinks) const
 {
   if ( objects.empty() ) { return false; }
   //

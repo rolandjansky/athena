@@ -208,15 +208,15 @@ namespace xAOD
 
     /*! @name Internal data for local cache */
     /*!@{*/
-    mutable signal_vector_t m_clusterLinks;  /*!< @brief Store for linked cluuster signal information lookup 
-					      *   @copydetails signal_vector_t
-					      */
-    mutable signal_vector_t m_trackLinks;    /*!< @brief Store for linked track signal information lookup 
-					      *   @copydetails signal_vector_t
-					      */
-    mutable particle_map_t  m_particleLinks; /*!< @brief Store for linked physics object information lookup
-					      *   @copydetails particle_map_t 
-					      */
+    signal_vector_t m_clusterLinks;  /*!< @brief Store for linked cluuster signal information lookup
+                                      *   @copydetails signal_vector_t
+                                      */
+    signal_vector_t m_trackLinks;    /*!< @brief Store for linked track signal information lookup
+                                      *   @copydetails signal_vector_t
+                                      */
+    particle_map_t  m_particleLinks; /*!< @brief Store for linked physics object information lookup
+                                      *   @copydetails particle_map_t
+                                      */
     /*!@}*/
 
     /*! @name Internal functions for local cache handling  */
@@ -247,7 +247,7 @@ namespace xAOD
      *
      *  @note This method does not add yet unused signal  objects to the signal link list, as this decision is controlled by the specific MET reconstruction tool.   
      */
-    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& sig,signal_vector_t& signalLinks) const ;
+    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& sig, const signal_vector_t& signalLinks) const ;
     /*! @brief Check physics object usage
      *
      *  @return @c true if any of the physics objects in the input list is already marked as used. In addition, all used objects are removed from the input (physics) object list.
@@ -258,7 +258,7 @@ namespace xAOD
      *
      *  @note This method does not add yet unused physics objects to the signal link list, as this decision is controlled by the specific MET reconstruction tool.   
      */
-    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects,particle_map_t& physicsLinks) const;
+    bool f_checkObjectUsage(MissingETBase::Types::object_vector_t& objects, const particle_map_t& physicsLinks) const;
     /*! @brief Fill the lookup cache from the composition map data content */
     void f_fillLookupCache();
     /*! @brief Clear the lookup cache */
@@ -293,7 +293,6 @@ namespace xAOD
     static size_t m_trackLinkReserve; 
     static size_t m_maxClusterSize;
     static size_t m_maxTrackSize;
-    static size_t m_maxSignalSize;
 
   }; // class xAOD::MissingETComponentMap_v1
 } // namespace xAOD
