@@ -7,6 +7,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-output: config.txt
+# art-output: config_reco.txt
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \
@@ -33,6 +34,7 @@ Reco_tf.py --inputRDOFile=RDO_pileup_fullsim_fulldigi.pool.root \
     --maxEvents=500 \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config_reco.txt")' \
+    --imf False
 
 echo "art-result: $? RDOtoAOD step"
 #add an additional payload from the job (corollary file).
