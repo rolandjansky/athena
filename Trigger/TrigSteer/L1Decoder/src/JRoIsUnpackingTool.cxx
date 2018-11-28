@@ -88,8 +88,6 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
       trigRoIs->push_back( trigRoI );
       */
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
-
-
       
       for ( auto th: m_jetThresholds ) {
 	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
@@ -106,12 +104,15 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
 
     }     
   }
-  TrigCompositeUtils::DecisionIDContainer uniqueDecisions; // this is set
-  std::vector<int>& storedIDs = TrigCompositeUtils::decisionIDs( decision );
-  TrigCompositeUtils::decisionIDs( decision, uniqueDecisions ); // copy to set -> unique
-  storedIDs.clear();
-  storedIDs.insert( storedIDs.end(), uniqueDecisions.begin(), uniqueDecisions.end() );
-  //copy back
+
+  TrigCompositeUtils::uniqueDecisionIDs( decision);
+  
+  // TrigCompositeUtils::DecisionIDContainer uniqueDecisions; // this is set
+  // std::vector<int>& storedIDs = TrigCompositeUtils::decisionIDs( decision );
+  // TrigCompositeUtils::decisionIDs( decision, uniqueDecisions ); // copy to set -> unique
+  // storedIDs.clear();
+  // storedIDs.insert( storedIDs.end(), uniqueDecisions.begin(), uniqueDecisions.end() );
+  // //copy back
   
 
 

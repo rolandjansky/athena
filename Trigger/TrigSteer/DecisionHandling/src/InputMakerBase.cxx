@@ -81,7 +81,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       // create new decision for each input	
       Decision*  newDec = newDecisionIn( outDecisions.get() );
       linkToPrevious( newDec, inputKey.key(), input_counter );
-      insertDecisions( decision, newDec );
+      insertDecisionIDs( decision, newDec );
 
       copyBaseLinks( decision, newDec);
       ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" "<< m_roisLink.value());      
@@ -146,15 +146,15 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
 
 
 
-StatusCode InputMakerBase::insertDecisions( const Decision* src, Decision* dest ) const  {
+// StatusCode InputMakerBase::insertDecisions( const Decision* src, Decision* dest ) const  {
 
-  DecisionIDContainer ids;
-  decisionIDs( dest, ids );
-  decisionIDs( src, ids );
-  decisionIDs( dest ).clear(); 
-  decisionIDs(dest).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
-  return StatusCode::SUCCESS;
-}
+//   DecisionIDContainer ids;
+//   decisionIDs( dest, ids );
+//   decisionIDs( src, ids );
+//   decisionIDs( dest ).clear(); 
+//   decisionIDs(dest).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+//   return StatusCode::SUCCESS;
+// }
 
 
 size_t InputMakerBase::countInputHandles( const EventContext& context ) const {

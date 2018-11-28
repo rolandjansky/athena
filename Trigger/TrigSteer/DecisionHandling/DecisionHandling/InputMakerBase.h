@@ -67,7 +67,7 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
 
  
   /// copies decisions ID from unput to output
-  StatusCode insertDecisions( const Decision* src, Decision* dest ) const;
+  //  StatusCode insertDecisions( const Decision* src, Decision* dest ) const;
   
 };
 

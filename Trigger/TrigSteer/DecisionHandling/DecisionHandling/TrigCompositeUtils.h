@@ -49,6 +49,20 @@ namespace TrigCompositeUtils {
    **/
   void addDecisionID( DecisionID id,  Decision* d);
 
+ /**
+   * @brief Appends the decision IDs of src to the dest decision object
+   * @warning Performing merging of IDs and solving the duples (via set)
+   * This helps when making copies of Decision obejcts
+   **/
+  void insertDecisionIDs( const Decision* src, Decision* dest );
+
+ /**
+   * @brief Make unique list of decision IDs of 
+   * @warning Use vector->set_>vector
+   * This helps solving multiple inserts of the Decision obejcts
+   **/
+  void uniqueDecisionIDs( const Decision* dest);
+
       
   /**
    * @brief Extracts DecisionIDs stored in the Decsion object 

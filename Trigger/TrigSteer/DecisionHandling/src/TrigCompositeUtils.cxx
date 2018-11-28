@@ -55,6 +55,21 @@ namespace TrigCompositeUtils {
     return readWriteAccessor( *d );
   }
 
+  void insertDecisionIDs( const Decision* src, Decision* dest ){
+    DecisionIDContainer ids;
+    decisionIDs( src, ids );
+    decisionIDs( dest, ids );
+    decisionIDs( dest ).clear(); 
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  }
+
+  void uniqueDecisionIDs( const Decision* dest){
+    DecisionIDContainer ids;
+    decisionIDs( dest, ids );
+    decisionIDs( dest ).clear(); 
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
+  }
+
   bool allFailed( const Decision* d ) {
     const std::vector<int>& decisions = readOnlyAccessor( *d );    
     return decisions.empty();
