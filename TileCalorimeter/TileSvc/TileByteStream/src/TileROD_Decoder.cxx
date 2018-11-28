@@ -967,7 +967,9 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
   return;
 }
 
-void TileROD_Decoder::unpack_frag5(uint32_t /* version */, const uint32_t* p, pDigiVec & pDigits,
+void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
+                                   unsigned int unit,
+                                   const uint32_t* p, pDigiVec & pDigits,
                                    pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -983,7 +985,7 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */, const uint32_t* p, pD
   
   TileRawChannel2Bytes5::TileChanData ChanData[48];
   uint32_t* ptrFrag = (uint32_t*) (p - 1); // begin of fragment
-  uint32_t* ptrOFW = getOFW(frag, m_rc2bytes5.getUnit()); // get OF Weights
+  const uint32_t* ptrOFW = getOFW(frag, unit); // get OF Weights
   m_rc2bytes5.unpack(ptrOFW, ptrFrag, ChanData);
   
   int wc = m_sizeOverhead; // can be 2 or 3 words
@@ -3322,13 +3324,12 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
           if (!fragFound) {
             fragFound = true;
             int unit = (idAndType & 0xC0000000) >> 30;
-            m_rc2bytes5.setUnit(unit);
             
             m_of2 = ((idAndType & 0x4000000) != 0);
             m_correctAmplitude = true; // fragment 5 will appear only if there is no iterations, so correction required
             m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             
-            unpack_frag5HLT(version, p, m_pRwChVec);
+            unpack_frag5HLT(version, unit, p, m_pRwChVec);
           }
           break;
           
@@ -3719,7 +3720,9 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
   return;
 }
 
-void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
+                                      unsigned int unit,
+                                      const uint32_t* p,
                                       pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -3734,7 +3737,7 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */, const uint32_t* p,
   
   uint32_t code;
   int fmt, bad, gain(0), ene_bin(0), time_bin(0), quality;
-  unsigned int w, unit = m_rc2bytes5.getUnit();
+  unsigned int w;
   float ene(0.0), time(0.0);
   
   unsigned int ch = 0U;
@@ -3744,7 +3747,7 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */, const uint32_t* p,
       w = (*p);
       
       code = w >> 24;
-      fmt = m_rc2bytes5.FormatLookup[code];
+      fmt = m_rc2bytes5.m_FormatLookup[code];
       Frag5_unpack_reco_bin(w, code, gain, ene_bin, time_bin);
       Frag5_unpack_bin2reco(unit, gain, ene_bin, ene, time_bin, time);
       //m_rc2bytes5.unpack_reco(w, fmt, gain, ene, time);
@@ -3859,7 +3862,7 @@ bool TileROD_Decoder::unpack_frag5L2(uint32_t /* version */, const uint32_t* p,
       w = (*p);
       
       code = w >> 24;
-      fmt = m_rc2bytes5.FormatLookup[code];
+      fmt = m_rc2bytes5.m_FormatLookup[code];
       Frag5_unpack_reco_bin(w, code, gain, ene_bin, time_bin);
       Frag5_unpack_bin2reco(unit, gain, ene_bin, ene, time_bin, time);
       //m_rc2bytes5.unpack_reco(w, fmt, gain, ene, time);

@@ -268,7 +268,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x5 contains the reconstructed parameters and residuals from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag5(uint32_t version, const uint32_t* p, pDigiVec & pDigits, pRwChVec & pChannel);
+    void unpack_frag5(uint32_t version, unsigned int unit, const uint32_t* p, pDigiVec & pDigits, pRwChVec & pChannel);
 
     /** unpack_frag6 decodes tile subfragment type 0x6. This subfragment contains the
      tile raw digits with 16 samples and 2 gains from the 48 read-out channels of a tilecal module. */
@@ -319,7 +319,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x5 contains the reconstructed parameters and residuals from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag5HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag5HLT(uint32_t version, unsigned int unit, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_fragA decodes tile subfragment type 0XA. This subfragment contains
      data quality checks. */
@@ -1017,14 +1017,13 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
           if (m_useFrag5Raw || m_useFrag5Reco) {
             m_bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
             int unit = (idAndType & 0xC0000000) >> 30;
-            m_rc2bytes5.setUnit(unit);
 
             // always set special type, which means now that OF is done inside DSP
             m_rChType = TileFragHash::OptFilterDspCompressed;
             m_of2 = ((idAndType & 0x4000000) != 0);
 
             m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
-            unpack_frag5(version, p, pDigits, pChannel);
+            unpack_frag5(version, unit, p, pDigits, pChannel);
           }
           break;
 

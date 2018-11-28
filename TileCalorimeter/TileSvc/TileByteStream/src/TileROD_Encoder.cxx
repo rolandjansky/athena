@@ -95,7 +95,7 @@ void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit
     // 29,28,27 - length of Level2 part ( = 3 - sumEt, sumEz, sumE )
     // 24,25,26 - OF type
     m_unitType = (rChUnit << 30) | (3 << 27) | (OFType << 24) | (m_type << 16);
-    m_rc2bytes5.setUnit(rChUnit);
+    m_rChUnit = rChUnit;
   }
 
 }
