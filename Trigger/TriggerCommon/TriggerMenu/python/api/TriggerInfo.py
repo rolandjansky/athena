@@ -5,6 +5,7 @@ __doc__="Class containing all the information of an HLT chain"
 
 import re
 from TriggerMenu.api.TriggerEnums import TriggerType, TriggerPeriod
+from collections import Counter
 
 class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
@@ -94,7 +95,7 @@ class TriggerInfo:
 
 class TriggerLeg:
     types          = ('e','j','mu','tau','xe','g','ht')
-    legpattern     = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(types))
+    legpattern     = re.compile('([0-9]*)(%s)([0-9]+)(noL1)?' % '|'.join(types))
     detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9 -]+)') #split into text-only vs number-only
     bjetpattern    = re.compile('bmv|bhmv|btight|bmedium|bloose')
     bphyspattern   = re.compile('b[A-Z]')
@@ -103,15 +104,15 @@ class TriggerLeg:
 
     def __init__(self,legname, chainseed, chainname):
         self.legname = legname
-        self.details = []
         self.l1seed = ""
+        details = []
         chainseed= chainseed.replace("L1_","")
         blocks = legname.split("_L1")
 
         for token in blocks[0].split("_"):
             m = self.legpattern.match(token)
             if m:
-                count,legtype,thr = m.groups()
+                count,legtype,thr,noL1 = m.groups()
                 self.count = int(count) if count else 1
                 self.thr = int(thr)
                 if legtype == 'e':
@@ -135,6 +136,7 @@ class TriggerLeg:
                     self.legtype = TriggerType.ht
                 else:
                     print "Unknown trigger type:",legtype
+                if noL1: details.append(noL1)
             else:
                 if self.bjetpattern.match(token):
                     if self.legtype == TriggerType.j_single: self.legtype = TriggerType.bj_single
@@ -145,7 +147,7 @@ class TriggerLeg:
                     self.legtype = TriggerType.exotics
                 if self.afppattern.search(token):
                     self.legtype = TriggerType.afp
-                self.details.append(token)
+                details.append(token)
 
         for l1seed in blocks[1:]:
             if self.exoticspattern.search(l1seed):
@@ -157,9 +159,16 @@ class TriggerLeg:
                 assert self.l1seed=="", (self.l1seed, chainseed, chainname, blocks[1:])
                 self.l1seed = l1seed
         if not self.l1seed: self.l1seed = chainseed
+        self.details = tuple(details)
+
+    def __eq__(self,other):
+        return (self.l1seed == other.l1seed and self.count == other.count and self.thr == other.thr and self.legtype == other.legtype and self.details == other.details)
+
+    def __hash__(self):
+        return hash((self.l1seed,self.count,self.thr,self.legtype,self.details))
 
     def __repr__(self):
-        return self.legname+" {0:b}".format(self.legtype)
+        return "{0} {1} {2} {3} {4} {5:b}".format(self.legname,self.l1seed,self.count,self.thr,self.details,self.legtype)
 
     def isLegLowerThan(self, other, is2015, debug=False):
         ''' Returns -9 if none of them is lower than the other (e.g. different met flavour).
@@ -198,6 +207,18 @@ class TriggerLeg:
 
         if debug: print "compareDetails:",len(self.details), len(other.details),(self.l1seed == other.l1seed),(self.details == other.details) 
         if len(self.details) != len(other.details): 
+            if not is2015 and any([x.startswith("noL1") for x in self.details]):
+                cloneself = deepcopy(self)
+                cloneself.details = [ x for x in self.details if not x.startswith("noL1")]
+                compno = cloneself.compareDetails(other,is2015,debug)
+                if compno ==1 or compno == -1: 
+                    return 1
+            if not is2015 and any([x.startswith("noL1") for x in other.details]):
+                cloneother = deepcopy(other)
+                cloneother.details = [ x for x in other.details if not x.startswith("noL1")]
+                compno = self.compareDetails(cloneother,is2015,debug)
+                if compno ==0 or compno == -1:
+                    return 0
             if not is2015 and any([x.startswith("nod0") for x in self.details]):
                 cloneself = deepcopy(self)
                 cloneself.details = [ x for x in self.details if not x.startswith("nod0")]
@@ -263,9 +284,11 @@ class TriggerLeg:
                 return -9
 
         if tag1 == tag2: return -1
-        #lower mv2 values are tighter, put a minus sign to trick it
-        tag1 = tag1.replace("mv2c","mv2c-")
-        tag2 = tag2.replace("mv2c","mv2c-")
+        #lower mv2 and deltaR/deltaZ/deltaPhi values are tighter, put a minus sign to trick it
+        inverseCuts = ("mv2c","dr","dz","dphi")
+        for cut in inverseCuts:
+            tag1 = tag1.replace(cut,cut+"-")
+            tag2 = tag2.replace(cut,cut+"-")
         #only make a statement on the numerical values, with everything else identical
         reself  = self.detailpattern.findall(tag1)
         reother = self.detailpattern.findall(tag2)
@@ -428,6 +451,22 @@ class TriggerChain:
     def __repr__(self):
         print self.name, self.legs, "{0:b}".format(self.triggerType), self.livefraction, self.activeLB
         return ""
+
+    def isSubsetOf(self, other):
+        ''' Returns -1 if none of them is a strict subset of the other
+            Returns  0 if the legs in other are a subset of self.
+            Returns  1 if the legs in self  are a subset of other.
+        '''
+        if not self.legs or not other.legs: return -1 #problems with AFP
+        selfcounter = Counter(self.legs)
+        othercounter = Counter(other.legs)
+        for leg, count in selfcounter.iteritems():
+            if not leg in othercounter or count > othercounter[leg]: break
+        else: return 1
+        for leg, count in othercounter.iteritems():
+            if not leg in selfcounter or count > selfcounter[leg]: break
+        else: return 0
+        return -1
 
     def isLowerThan(self, other,period=TriggerPeriod.future):
         ''' Returns -1 if none of them is lower than the other (e.g. asymmetric dilepton).
