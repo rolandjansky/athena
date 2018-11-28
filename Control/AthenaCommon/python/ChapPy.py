@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file : ChapPy.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -23,6 +23,7 @@ import os
 import commands
 import subprocess
 import time
+import types
 
 def dump( buf, stdout = sys.stdout ):
     """
@@ -65,14 +66,13 @@ class JobOptionsCmd( JobOptions ):
     def __init__( self, cmds = [] ):
 
         # massaging of input variables
-        if type(cmds) == type(""):
+        if isinstance(cmds, types.StringType):
             cmds = [ cmds ]
             pass
-        if type(cmds) != type([]):
+        if not isinstance(cmds, types.ListType):
             cmds = [ cmds ]
             pass
-        fileName = None
-        
+
         JobOptions.__init__( self, fileName = None )
         self.cmds    = cmds
         self.tmpFile = NamedTemporaryFile( suffix = ".py" )
@@ -97,7 +97,6 @@ class JobOptionsCmd( JobOptions ):
     
     pass # JobOptionsCmd
 
-from tempfile import NamedTemporaryFile
 class Athena( object ):
 
     class Options:
@@ -122,9 +121,8 @@ class Athena( object ):
 
         ## check that we are not called/constructed from a normal Athena job
         if os.path.basename( sys.argv[0] ) == "athena.py":
-            raise RuntimeError, \
-                  "This is not a normal Athena job !! "\
-                  "Run with 'chappy.py myjob.py' instead !"
+            raise RuntimeError("This is not a normal Athena job !! "
+                               "Run with 'chappy.py myjob.py' instead !")
         
         self.bin          = None
         self.cmdOptions   = cmdOptions
@@ -187,7 +185,7 @@ class Athena( object ):
         
         sc, out = commands.getstatusoutput( "which athena.py" )
         if sc != 0:
-            raise RuntimeError, "Could not fetch athena.py executable: %s" % out
+            raise RuntimeError("Could not fetch athena.py executable: %s" % out)
         else:
             self.bin = os.path.realpath(os.path.expandvars(out))
             pass
@@ -195,12 +193,12 @@ class Athena( object ):
         # prepare logFile
         try:
             self.logFile.truncate(0)
-        except IOError,err:
+        except IOError:
             pass
 
         try:
             self.logFile.seek(0)
-        except IOError,err:
+        except IOError:
             pass
 
         # build the command
@@ -224,7 +222,7 @@ class Athena( object ):
         
         # build the jobOptions command line
         cmd.extend( [ jobO.name() for jobO in self.jobOptions
-                                  if jobO.name() != None ] )
+                                  if jobO.name() is not None ] )
 
         # add AthAppMgr commands
         if isinstance( self.EvtMax, int ):
@@ -238,7 +236,7 @@ class Athena( object ):
                               env = env )
         monitor.write(" :::running [")
         monitor.flush()
-        while p.poll() == None:
+        while p.poll() is None:
             monitor.write(".")
             monitor.flush()
             time.sleep(5)
