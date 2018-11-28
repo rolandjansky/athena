@@ -119,6 +119,12 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
 
 
 
+template<class T>
+void remove_duplicates(std::vector<T>& vec) {
+  std::sort(vec.begin(), vec.end());
+  vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+}
+
 
 void AnalysisConfig_Ntuple::loop() {
 
@@ -1550,6 +1556,94 @@ void AnalysisConfig_Ntuple::loop() {
 			roiInfo = 0;
 		}
 
+	}
+
+
+	{ 
+	  /// strip out the offline tracks not in any Roi ...
+
+	  if ( filterOnRoi() || m_ptmin>0 ) { 
+	    
+	    TIDA::Chain* offline = 0;
+	    
+	    std::vector<std::string> chainnames = m_event->chainnames();
+	    
+	    /// get the offline chain
+	    
+	    for ( size_t ic=chainnames.size() ; ic-- ; ) {
+	      if ( chainnames[ic] == "Offline" ) {
+		offline = &(m_event->chains()[ic]);
+		break;
+	      }
+	    }
+	    
+	    if ( offline ) { 
+	      
+	      std::vector<TIDA::Chain>& chains = m_event->chains();
+	      std::vector<TIDA::Chain>::iterator citr = chains.begin();
+	      
+	      std::vector<std::pair<double,double> > philims;
+	      
+	      for ( ; citr!=chains.end() ; citr++ ) {
+		if ( citr->name().find("HLT_")!=std::string::npos ) { 
+		  for ( size_t ir=0 ; ir<citr->size() ; ir++ ) {
+		    TIDARoiDescriptor& roi = citr->rois()[ir].roi();
+		    if ( roi.composite() ) { 
+		      for ( size_t isub=0 ; isub<roi.size() ; isub++ ) { 
+			philims.push_back( std::pair<double,double>( roi[isub]->phiMinus(), roi[isub]->phiPlus() ) ); 
+		      }
+		    }
+		    else philims.push_back( std::pair<double,double>( roi.phiMinus(), roi.phiPlus() ) ); 
+		  }
+		}
+	      }
+	      
+	      remove_duplicates( philims );
+
+	      for ( size_t iroi=0 ; iroi<offline->size() ; iroi++ ) {
+		
+		std::vector<TIDA::Track>& tracks = offline->rois()[iroi].tracks();
+		
+		/// may well put the reporting back in, so leaving this 
+		/// this in place  
+		//  size_t Noffline = tracks.size();
+
+		for ( std::vector<TIDA::Track>::iterator it=tracks.begin() ; it<tracks.end() ; ) {
+		  bool inc = true;
+		  if ( m_ptmin>0 ) { 
+		    if ( std::fabs(it->pT())<m_ptmin ) { inc=false; tracks.erase( it ); }
+		  }
+		  if ( inc && filterOnRoi() ) { 
+		    bool remove_track = true;
+		    for ( size_t isub=0 ; isub<philims.size() ; isub++ ) { 
+		      
+		      if ( philims[isub].first < philims[isub].second ) { 
+			if ( it->phi()>=philims[isub].first && it->phi()<=philims[isub].second ) { 
+			  remove_track = false; 
+			  break;
+			}
+		      }
+		      else  {
+			if ( it->phi()>=philims[isub].first || it->phi()<=philims[isub].second ) { 
+			  remove_track = false; 
+			  break;
+			}
+		      }
+		    }
+		    if ( remove_track ) { inc=false; tracks.erase( it ); }
+		  }
+		  if ( inc ) it++;
+		}
+		
+		/// may well put the reporting back in, so leaving this 
+		/// this in place  		
+		//  m_provider->msg(MSG::DEBUG) << "TIDA::Roi offline track reduction: " << Noffline << " -> " << tracks.size() << endmsg;
+		
+	      }
+	     
+	    }
+	    	    
+	  }
 	}
 
 	if ( m_printInfo ) m_provider->msg(MSG::INFO) << "FILL TREE\n" << (*m_event) << endmsg;      

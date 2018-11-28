@@ -254,9 +254,10 @@ ln -s ../../${hltmenu1}   hlt.xml
 ls -alhtr
 
 # RB configured to ingnore errors and leave unprescaled any new chain not yet defined in RB. It won't try to copy keys to P1
-sed -i -e 's/ignoreErrors = False/ignoreErrors = True/g' runOptions.py
-sed -i -e 's/doUnprescaledIfUndefined = False/doUnprescaledIfUndefined = True/g' runOptions.py
-sed -i -e 's/doUseOnline = True/doUseOnline = False/g' runOptions.py
+sed -i -e 's/ignoreErrors\s*=\s*False/ignoreErrors = True/g' runOptions.py
+sed -i -e 's/doUnprescaledIfUndefined\s*=\s*False/doUnprescaledIfUndefined = True/g' runOptions.py
+sed -i -e 's/doUseOnline\s*=\s*True/doUseOnline = False/g' runOptions.py
+sed -i -e 's/doPbPb\s*=\s*True/doPbPb = False/g' runOptions.py
 
 ./runRuleBook.py 17000
 cd ../..
@@ -287,6 +288,7 @@ echo "smk=${smk}" > prescaleKeys_17000.txt
 echo "l1psk=${l1psk2}" >> prescaleKeys_17000.txt
 echo "hltpsk=${hltpsk2}" >> prescaleKeys_17000.txt
 echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk  " >> prescaleKeys_17000.txt
+echo "Successfully uploaded prescales: l1psk=${l1psk2} and hltpsk=${hltpsk2}"
 
 rm uploadPSK_prescaled.log
 
@@ -322,6 +324,7 @@ echo "smk=${smk}" > prescaleKeys_9000.txt
 echo "l1psk=${l1psk2}" >> prescaleKeys_9000.txt
 echo "hltpsk=${hltpsk2}" >> prescaleKeys_9000.txt
 echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk  " >> prescaleKeys_9000.txt
+echo "Successfully uploaded prescales: l1psk=${l1psk2} and hltpsk=${hltpsk2}"
 
 rm -rf TrigMenuRulebook
 

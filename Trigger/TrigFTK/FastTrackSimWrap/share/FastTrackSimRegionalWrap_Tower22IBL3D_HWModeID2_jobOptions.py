@@ -44,13 +44,15 @@ wrapper.PixelClusteringMode = 101
 wrapper.Ibl3DRealistic = False
 wrapper.SctClustering = True
 wrapper.Clustering = True
+wrapper.EmulateDF = True
 
 ####wrapper.GetOffline = True
 wrapper.GetOffline = False
 
-### Tower 22 ROD list, see slide 53 of https://indico.cern.ch/event/712049/contributions/2924263/attachments/1622355/2581965/ftk_intro_session.pdf 
-wrapper.pixRodIds = ['0x111750', '0x112521', '0x112559', '0x130149', '0x111710', '0x130146', '0x140103', '0x140093']
-wrapper.sctRodIds = ['0x220100', '0x220101', '0x220102', '0x220103']
+### EnhancedSlice22 ROD ID list, see:
+### https://its.cern.ch/jira/browse/FTKSIM-107?focusedCommentId=2350985&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-2350985
+wrapper.pixRodIds = ['0x140103','0x111750','0x112521','0x112559','0x140093','0x130149','0x111710','0x130146'] 
+wrapper.sctRodIds = ['0x220100','0x220103','0x220101','0x220102']
 
 theJob += wrapper
 

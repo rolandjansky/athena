@@ -77,7 +77,7 @@ def setupMenu():
     ['mu6noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
 
     # muon calibration
-    #['mu0_muoncalib',             'L1_MU4',      [],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
+    ['mu0_muoncalib',             'L1_MU6',      [],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
     #['mu0_muoncalib_L1MU15',      'L1_MU15',     [],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
     #['mu0_muoncalib_L1MU4_EMPTY', 'L1_MU4_EMPTY',[],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
     
@@ -137,6 +137,13 @@ def setupMenu():
 	['j60_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	['j75_ion_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 	
+	#Large R jets
+	['j120_a10_ion_L1J30',         'L1_J30',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j120_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j150_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j180_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j200_a10_ion_L1J50',         'L1_J50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],		
+	
 
 	#forward jets ATR-12623
 	['j25_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -172,24 +179,46 @@ def setupMenu():
 
     #photoproduction
     #['j5_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    ['j10_rcu4_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
     ['j10_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 		
     #['j5_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    ['j10_rcu4_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
     ['j10_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j30_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j40_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
+	['j10_rcu4_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j30_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	
 	#supporting
+	['j10_rcu4_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j10_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
+	#eta inclusive versions:
+	['j10_rcu4_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
+	['j10_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream, 'express'], ['RATE:UPC', 'BW:UPC'], -1],
+	['j15_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j20_0eta490_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j30_0eta490_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j40_0eta490_L1ZDC_XOR_TE20_VTE200',                 'L1_ZDC_XOR_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
+	['j10_rcu4_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
+	['j10_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream,'express'], ['RATE:UPC', 'BW:UPC'], -1],
+	['j15_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j20_0eta490_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j30_0eta490_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
+	['j10_rcu4_0eta490_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j10_0eta490_L1ZDC_XOR_VTE200',                 'L1_ZDC_XOR_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	
 	
     #single-jet large-R UPC trigger chains
     ['j10_a10_lcw_subjes_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
@@ -199,6 +228,11 @@ def setupMenu():
 	['j10_a10_lcw_subjes_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j15_a10_lcw_subjes_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
 	['j20_a10_lcw_subjes_L1ZDC_XOR_TE5_VTE200',                 'L1_ZDC_XOR_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+    
+    ['j10_a10_lcw_subjes_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j15_a10_lcw_subjes_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j20_a10_lcw_subjes_L1VZDC_A_C_TE5_VTE200',                 'L1_VZDC_A_C_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
+	['j30_a10_lcw_subjes_L1VZDC_A_C_TE20_VTE200',                 'L1_VZDC_A_C_TE20_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
         
     #forward - to be added back if needed
     #['j10_320eta490_L1TE5_VTE200',                 'L1_TE5_VTE200',[], [UPCStream], ['RATE:UPC', 'BW:UPC'], -1],
@@ -399,34 +433,34 @@ def setupMenu():
       
     TriggerFlags.HeavyIonSlice.signatures = [
 	#event shape triggers
-        ['hi_v2A_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2A_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2A_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2A_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2A_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2A_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th0p_L1TE600.0ETA49',     'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th001p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th01p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th025p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th05p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2A_th10p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
 
-        ['hi_v2C_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2C_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2C_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2C_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2C_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v2C_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th0p_L1TE600.0ETA49',     'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th001p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th01p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th025p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th05p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v2C_th10p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
 
 
-        ['hi_v3A_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3A_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3A_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3A_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3A_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3A_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th0p_L1TE600.0ETA49',     'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th001p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th01p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th025p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th05p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3A_th10p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
 
-        ['hi_v3C_th0p_L1TE50',     'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3C_th001p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3C_th01p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3C_th025p_L1TE50',   'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3C_th05p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
-        ['hi_v3C_th10p_L1TE50',    'L1_TE50',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th0p_L1TE600.0ETA49',     'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th001p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th01p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th025p_L1TE600.0ETA49',   'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th05p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
+        ['hi_v3C_th10p_L1TE600.0ETA49',    'L1_TE600.0ETA49',   [], [MinBiasStream],["BW:EventShape", "RATE:EventShape"], 1],
 
 
 	#ultra-central triggers
@@ -450,9 +484,9 @@ def setupMenu():
         #['hi_th3_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
     
 	#performance/calibration
-	    ['hi_perf_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-	    ['hi_perf_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_perf_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	    ['hi_perf_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	    ['hi_perf_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_perf_ucc_L1All',    '',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         #['hi_perfzdc_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         #['hi_perfzdc_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         
@@ -539,6 +573,7 @@ def setupMenu():
 	['mb_sptrk_L1ZDC_XOR_TE3.0ETA49_VTE200',  'L1_ZDC_XOR_TE3.0ETA49_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	
+	['mb_sptrk_exclusiveloose2_L12TAU1_VTE50',  'L1_2TAU1_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE50',  'L1_2TAU2_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE100',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_exclusiveloose2_L12TAU2_VTE200',  'L1_2TAU2_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
@@ -605,7 +640,10 @@ def setupMenu():
         ['lumipeb_vdm_L1MBTS_1_1',              'L1_MBTS_1_1',              [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1ZDC_A_C',               'L1_ZDC_A_C',               [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
 
-        
+        ['lumipeb_vdm_L1LUCID_BGRP7',          'L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1_BGRP9_LUCID_BGRP7',          'L1_MBTS_1_1_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_2_BGRP9_LUCID_BGRP7',          'L1_MBTS_2_BGRP9,L1_LUCID_BGRP7',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+
         # Monitoritems for saturated towers
         ['satu20em_l1satmon_L1J100_FIRSTEMPTY',  'L1_J100_FIRSTEMPTY',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
         #['satu20em_l1satmon_L1J100.31ETA49_FIRSTEMPTY',  'L1_J100.31ETA49_FIRSTEMPTY',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
@@ -932,6 +970,7 @@ def setupMenu():
         ['mistimemonj400', '', [], ['Mistimed'], ["RATE:Monitoring","BW:Other"], -1],
         
         ['l1calooverflow','', [], ['L1Calo'], ['RATE:Monitoring','BW:Other'], -1],
+        ['l1topodebug', '', [], ['L1TopoMismatches'], ['RATE:Monitoring','BW:Other'], -1],        
         ['timeburner', '', [], ['DISCARD'], ["RATE:DISCARD","BW:DISCARD"], -1],
         ['robrequest', '', [], ['DISCARD'], ["RATE:DISCARD","BW:DISCARD"], -1],
         ['robrequest_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['DISCARD'], ["RATE:DISCARD","BW:DISCARD"], -1], 

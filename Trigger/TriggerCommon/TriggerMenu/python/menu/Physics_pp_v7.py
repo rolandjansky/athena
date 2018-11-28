@@ -4901,6 +4901,8 @@ def setupMenu():
         # Enhanced bias HLT items
         ['eb_low_L1RD2_FILLED',               'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ['eb_high_L1RD2_FILLED',              'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['eb_low_L1RD0_FILLED',               'L1_RD0_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['eb_high_L1RD0_FILLED',              'L1_RD0_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ]
 
 
@@ -5310,13 +5312,6 @@ class Prescales:
         'ht1000_L1J100',
         'ht1200_L1J100',
         'ht1400_L1J100',
-        'j0_perf_ds1_L1J15',
-        'j0_perf_ds1_L1J20',
-        'j0_perf_ds1_L1J30',
-        'j0_perf_ds1_L1J40',
-        'j0_perf_ds1_L1J50_DETA20-J50J',
-        'j0_perf_ds1_L1J50',
-        'j0_perf_ds1_L1J75',
         'j0_perf_ds1_L1J100',
         'j225_gsc420_boffperf_split',
         'j225_gsc440_boffperf_split',

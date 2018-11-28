@@ -3252,7 +3252,6 @@ ps_perform_list = [
     'j0_perf_boffperf_L1J12_EMPTY',
     'j0_perf_boffperf_L1MU10',
     'j0_perf_boffperf_L1RD0_EMPTY',
-    'j35_boffperf_split',
     'e4_etcut',
     'e5_lhmedium_nod0',
     'e5_lhloose_nod0_idperf'

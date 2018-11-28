@@ -11,10 +11,10 @@ from AthenaCommon.Logging import logging
 
 class TriggerAPI:
     log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
-    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180925.pickle")
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20181112.pickle")
     if not centralPickleFile: 
         log.warning("Couldn't find primary pickle file, try backup")
-        centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180904.pickle")
+        centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180925.pickle")
     if centralPickleFile: 
         log.info("Found pickle file:"+centralPickleFile)
         centralPickleFile = os.path.realpath(centralPickleFile)
@@ -201,7 +201,7 @@ def main(dumpFullPickle=False):
         TriggerAPI.dumpFullPickle()
     else:
         try: period = int(sys.argv[1])
-        except: period = TriggerPeriod.y2017
+        except: period = TriggerPeriod.y2018
         for triggerType in TriggerType:
             unprescaled = TriggerAPI.getLowestUnprescaled(period,triggerType)
             print triggerType

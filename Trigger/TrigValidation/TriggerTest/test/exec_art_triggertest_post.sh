@@ -44,6 +44,7 @@ else
   echo "art-result: 999 RegTest"
 fi
 
+
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
   timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root | tee rootcompout.log
