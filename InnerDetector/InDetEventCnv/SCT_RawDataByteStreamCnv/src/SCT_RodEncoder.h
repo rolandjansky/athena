@@ -64,28 +64,25 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   virtual StatusCode finalize();
 
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
-  virtual void fillROD(std::vector<uint32_t>& v, const uint32_t& robid, vRDOs_t& rdoVec) const;
+  virtual void fillROD(std::vector<uint32_t>& vec32data, const uint32_t& robid, vRDOs_t& vecRDOs) const;
 
   /// Encode rdo into the data: called by fillROD(..) 
-  void encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& v16, const RDO *rdo, const int& gSize, const int& strip) const;
+  void encodeData(std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const;
   
   /// pack 32 bit word:  called by  encodeData(..) 
-  void packFragments(std::vector<uint16_t>& v16, std::vector<uint32_t>& v32) const;
+  void packFragments(std::vector<uint16_t>& vec16Words, std::vector<uint32_t>& vec32Words) const;
 
   /// from 16 bits array to 32 bit array   
-  uint32_t set32bits(const unsigned short int* v16, const unsigned short int* pos, const unsigned short int& n) const;
+  uint32_t set32bits(const unsigned short int* arr16Words, const unsigned short int* position, const unsigned short int& numWords) const;
 
   /// Get the side info from the RDO 
   int side(const RDO* rdo) const;
   
   /// Get the time bin info from the RDO
-  int tbin(const RDO* rdo) const;
-
-  /// Get the group size info from the RDO 
-  int groupSize(const RDO* rdo) const { return rdo->getGroupSize(); }
+  int getTimeBin(const RDO* rdo) const;
   
   /// Get the strip number info from the RDO  
-  int strip(const RDO* rdo) const;
+  int getStrip(const RDO* rdo) const;
  
   /// Get the offline Identifirer from the RDO  
   Identifier offlineId(const RDO* rdo) const;
@@ -94,7 +91,7 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   uint32_t onlineId(const RDO* rdo) const;
 
   /// Get the ROD link info from the RDO 
-  int rodLink(const RDO* rdo) const;
+  int getRODLink(const RDO* rdo) const;
 
   /// Get the 16-bit word for a header for a hit 
   uint16_t getHeaderUsingRDO(const RDO* rdo) const;
@@ -119,14 +116,14 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                   RAWDATA_ERR=(3<<13),
                   NULL_TRAILER_ERR=0}; 
   void addHeadersWithErrors(const uint32_t& robid, const std::set<IdentifierHash>* errors, 
-                            const ErrorWords& errType, std::vector<uint16_t>& v16data) const;
+                            const ErrorWords& errType, std::vector<uint16_t>& vec16data) const;
   void addTrailersWithErrors(const uint32_t& robid, const std::set<IdentifierHash>* errors, 
-                             const ErrorWords& errType, std::vector<uint16_t>& v16data) const;
+                             const ErrorWords& errType, std::vector<uint16_t>& vec16data) const;
   void addSpecificErrors(const uint32_t& robid, const std::set<IdentifierHash>* errors, 
-                         const ErrorWords& errType, std::vector<uint16_t>& v16data) const;
-  ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrs{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
+                         const ErrorWords& errType, std::vector<uint16_t>& vec16data) const;
+  ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  const SCT_ID* m_sct_id;
+  const SCT_ID* m_sctID;
   BooleanProperty m_condensed{this, "CondensedMode", false, "Condensed mode (true) or Expanded mode (false)"};
   std::set<Identifier> m_swapModuleId; // Set by SCTRawContByteStreamTool
 };
