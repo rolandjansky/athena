@@ -211,7 +211,11 @@ StatusCode LArPileUpTool::initialize()
   //
   if (m_RndmEvtOverlay)
   {
-    m_NoiseOnOff = false ;
+    if (!m_isMcOverlay) m_NoiseOnOff = false ;
+    else {
+         ATH_MSG_INFO(" MC overlay case => switch back on noise only to emulate extra noise for cells with different gains");
+         m_NoiseOnOff=true;
+    }
     m_PileUp = true ;
     ATH_MSG_INFO(" pileup and/or noise added by overlaying digits of random events");
     if (m_isMcOverlay) ATH_MSG_INFO("   random events are from MC ");
@@ -443,7 +447,7 @@ StatusCode LArPileUpTool::initialize()
 
 // register data handle for conditions data
 
-  if ( !m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff ) {
+  if ( (!m_RndmEvtOverlay || m_isMcOverlay)  && !m_pedestalNoise && m_NoiseOnOff ) {
      sc = detStore()->regHandle(m_dd_noise,"LArNoise");
      if (sc.isFailure()) {
         ATH_MSG_ERROR(" Unable to register handle for LArNoise");
@@ -2096,7 +2100,40 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
            }
            m_Noise[i]=m_Noise[i]*SigmaNoise;
         }
-     } else for (int i=0;i<m_NSamples;i++) m_Noise[i]=0.;
+     } else {
+    // overlay case a priori don't add any noise
+        for (int i=0;i<m_NSamples;i++) m_Noise[i]=0.;
+        // if gain from zerobias events is < gain from mixed events => add extra noise to account for gain vs noise dependance
+        //   done in a simple way without taking into account the time correlation of this extra noise properly
+        if (rndmEvtDigit) {
+            if (igain > rndmEvtDigit->gain()) {
+                double SigmaNoiseZB=0.;
+                double SigmaNoise=0.;
+                double SigmaExtraNoise=0.;
+                if (!m_pedestalNoise) {
+                      SigmaNoiseZB = m_dd_noise->noise(cellId,rndmEvtDigit->gain());
+                      SigmaNoise = m_dd_noise->noise(cellId,igain );
+                } else {
+                      float noise = m_dd_pedestal->pedestalRMS(cellId,rndmEvtDigit->gain()); 
+                      if (noise >= (1.0+LArElecCalib::ERRORCODE) ) SigmaNoiseZB = noise;
+                      else SigmaNoiseZB=0.;
+                      noise = m_dd_pedestal->pedestalRMS(cellId,igain);
+                      if (noise >= (1.0+LArElecCalib::ERRORCODE) ) SigmaNoise = noise;
+                      else SigmaNoise=0.;
+                }
+                // Convert SigmaNoiseZB in noise in ADC counts for igain conversion
+                const std::vector<float>* polynom_adc2mevZB =&(m_adc2mevTool->ADC2MEV(cellId,rndmEvtDigit->gain()) );
+                const std::vector<float>* polynom_adc2mev =&(m_adc2mevTool->ADC2MEV(cellId,igain ) );
+                if ( polynom_adc2mevZB->size()>1 &&  polynom_adc2mev->size()>1) {
+                  SigmaNoiseZB = SigmaNoiseZB * ((*polynom_adc2mevZB)[1])/((*polynom_adc2mev)[1]);
+                  if (SigmaNoise > SigmaNoiseZB) SigmaExtraNoise = sqrt(SigmaNoise*SigmaNoise - SigmaNoiseZB*SigmaNoiseZB);
+                }
+                RandGaussZiggurat::shootArray(m_engine,m_NSamples,m_Rndm,0.,1.);
+                ATH_MSG_DEBUG(" -- Different gains " << igain << " " << rndmEvtDigit->gain() << " Noises " << SigmaNoise << " " << SigmaNoiseZB << "  => extra noise in ADC " << SigmaExtraNoise);
+                for (int i=0;i<m_NSamples;i++) m_Noise[i] = SigmaExtraNoise * m_Rndm[i];
+            }  // different gains
+        }      // random digits available
+     }         // overlay case
   }
 //
 // ......... convert into adc counts  ................................
