@@ -122,17 +122,30 @@ class dummyClass():
         pass
     keywords = [] # So that they can be +='d in
 evgenConfig = dummyClass()
+evgenConfig.generators = []
+evgenConfig.auxfiles = []
 # Set up a fake pythia8...
 genSeq = dummyClass()
 genSeq.Pythia8 = dummyClass()
-genSeq.Pythia8.Commands = []
+# Standard list of commands stolen from the Pythia8 base fragment
+genSeq.Pythia8.Commands = [
+    "6:m0 = 172.5",
+    "23:m0 = 91.1876",
+    "23:mWidth = 2.4952",
+    "24:m0 = 80.399",
+    "24:mWidth = 2.085",
+    "StandardModel:sin2thetaW = 0.23113",
+    "StandardModel:sin2thetaWbar = 0.23146",
+    "ParticleDecays:limitTau0 = on",
+    "ParticleDecays:tau0Max = 10.0"]
 # Set up a fake TestHepMC
 testSeq = dummyClass()
 testSeq.TestHepMC = dummyClass()
 # Block includes that we don't want running
 include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
-include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
-include.block('MC15JobOptions/Pythia8_MadGraph.py')
+include.block('MC15JobOptions/Pythia8_Base_Fragment.py')
+include.block('MC15JobOptions/Pythia8_EvtGen.py')
+include.block('MC15JobOptions/Pythia8_LHEF.py')
 
 # Make sure all the files can be found
 from EvgenJobTransforms.jo_proxy import mk_jo_proxy
@@ -171,4 +184,12 @@ else:
 if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
     addLineToPhysicsConfiguration("DoDecays","1")
     addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)
+
+# Capture Pythia8 commands
+# Set up R-hadron masses in Pythia8
+from RHadrons.RHadronMasses import get_Pythia8_commands
+genSeq.Pythia8.Commands += get_Pythia8_commands('SLHA_INPUT.DAT',spectrum)
+f = open('PYTHIA8_COMMANDS.TXT','w')
+f.write('\n'.join(genSeq.Pythia8.Commands))
+f.close()
 # Done with the Pythia8 setup

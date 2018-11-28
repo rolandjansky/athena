@@ -5,6 +5,7 @@
 #include "G4UserActions/StoppedParticleAction.h"
 
 #include "TrackWriteFastSim/TrackFastSimSD.h"
+#include "TruthUtils/PIDHelpers.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -28,21 +29,6 @@ namespace G4UA
 {
 
   //---------------------------------------------------------------------------
-  bool StoppedParticleAction::isSUSYParticle(const int id) const
-  {
-    if (id==1000021 || id==1000005 || id==1000006 || id==1000512 || id==1000522 || id==1000991 || id==1000993 ||
-        id==1000612 || id==1000622 || id==1000632 || id==1000642 || id==1000652 || id==1005211 ||
-        id==1006113 || id==1006211 || id==1006213 || id==1006223 || id==1006311 ||
-        id==1006313 || id==1006321 || id==1006323 || id==1006333 ||
-        id==1009111 || id==1009113 || id==1009211 || id==1009213 || id==1009311 ||
-        id==1009313 || id==1009321 || id==1009323 || id==1009223 || id==1009333 ||
-        id==1092112 || id==1091114 || id==1092114 || id==1092212 || id==1092214 || id==1092224 ||
-        id==1093114 || id==1093122 || id==1093214 || id==1093224 || id==1093314 || id==1093324 || id==1093334)
-      return true;
-    return false;
-  }
-
-  //---------------------------------------------------------------------------
   StoppedParticleAction::StoppedParticleAction(const int condition)
     : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc"),
                    "StoppedParticleAction")
@@ -59,7 +45,7 @@ namespace G4UA
 
     // Special treatment for SUSY particles and R-hadrons
     if (id>=1000000 && id<=1100000 &&
-        isSUSYParticle(id)){
+        (MC::PID::isRHadron(id) || MC::PID::isSUSY(id)) ){
 
       G4Material * mat = aStep->GetTrack()->GetMaterial();
       double minA=1500000.;
