@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,9 +15,10 @@
 #define TILECELLMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class ITileBadChanTool;
-class TileBeamInfoProvider;
 class TileCell;
 
 #include <array>
@@ -32,15 +33,15 @@ class TileCellMonTool: public TileFatherMonTool {
 
     TileCellMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileCellMonTool();
+    virtual ~TileCellMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     //pure virtual methods
-    StatusCode bookHistograms();
-    StatusCode fillHistograms();
-    StatusCode procHistograms();
-    StatusCode checkHists(bool fromFinalize);
+    virtual StatusCode bookHistograms() override;
+    virtual StatusCode fillHistograms() override;
+    virtual StatusCode procHistograms() override;
+    virtual StatusCode checkHists(bool fromFinalize) override;
 
     StatusCode bookHistTrig(int trig);
     StatusCode bookHistTrigPart(int trig, int part);
@@ -57,7 +58,6 @@ class TileCellMonTool: public TileFatherMonTool {
     void ShiftLumiHist(TProfile2D*, int32_t);
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
 
     bool m_doOnline;
     double m_Threshold;
@@ -154,6 +154,7 @@ class TileCellMonTool: public TileFatherMonTool {
     unsigned int m_nEventsLastLumiblocks;
     std::vector<unsigned int> m_nEventsLastLumiblocksShadow;
     bool m_skipNotPhysicsEvents;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 
 #endif
