@@ -13,13 +13,16 @@ EXOT4SmartCollections = [
     "PrimaryVertices",
     "AntiKt4EMTopoJets",
 #    "AntiKt4LCTopoJets",
+		"AntiKt4EMPFlowJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+		"AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
     "BTagging_AntiKt4EMTopo",
+		"BTagging_AntiKt4EMPFlow",
     "BTagging_AntiKt2Track",
-    "BTagging_AntiKt4Track",
+		"BTagging_AntiKtVR30Rmax4Rmin02Track",
+    #"BTagging_AntiKt4Track",
     "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo",
-    "AntiKt4EMPFlowJets"
+    "MET_Reference_AntiKt4LCTopo"
 ]
 
 # detailed list of extra variables to be used
@@ -28,7 +31,8 @@ EXOT4ExtraVariables = [
     "Muons.charge.truthOrigin.truthType.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome",
     "AntiKt10TruthJets.pt.eta.phi.m",
     "AntiKt2PV0TrackJets.pt.eta.phi.m.constituentLinks.btaggingLink.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostTrack.GhostTruthAssociationLink",
-    "AntiKt4PV0TrackJets.pt.eta.phi.m.constituentLinks.btaggingLink.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostTrack.GhostTruthAssociationLink",
+    #"AntiKt4PV0TrackJets.pt.eta.phi.m.constituentLinks.btaggingLink.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostTrack.GhostTruthAssociationLink",
+		"AntiKtVR30Rmax4Rmin02Track.pt.eta.phi.m.constituentLinks.btaggingLink.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostTrack.GhostTruthAssociationLink",
     "CaloCalTopoClusters.calE.calEta.calPhi.calM.rawM.rawE.rawEta.rawPhi.e_sampl.eta_sampl.etaCalo.phiCalo",
     "AntiKt4TruthJets.pt.eta.phi.m",
     "AntiKt4TruthWZJets.pt.eta.phi.m",
