@@ -68,7 +68,6 @@ def MainServicesThreadedCfg(cfgFlags):
         return cfg
 
     # Migrated code from AtlasThreadedJob.py
-    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
     from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
     from GaudiSvc.GaudiSvcConf import StatusCodeSvc, AuditorSvc
 
@@ -92,7 +91,8 @@ def MainServicesThreadedCfg(cfgFlags):
     cfg.addService( StoreGateConf.StoreGateSvc("ConditionStore") )
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
-    arp=AlgResourcePool( OutputLevel = INFO );
+    from AthenaCommon.Constants import INFO
+    arp=AlgResourcePool( OutputLevel = INFO )
     arp.TopAlg=["AthMasterSeq"] #this should enable control flow
     cfg.addService( arp )
 
