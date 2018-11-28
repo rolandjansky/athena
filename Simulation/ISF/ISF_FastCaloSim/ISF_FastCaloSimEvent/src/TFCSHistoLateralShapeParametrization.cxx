@@ -14,6 +14,8 @@
 #include "TMath.h"
 #include "TH2.h"
 
+#include "HepPDT/ParticleData.hh"
+#include "HepPDT/ParticleDataTable.hh"
 
 //=============================================
 //======= TFCSHistoLateralShapeParametrization =========
@@ -43,11 +45,14 @@ void TFCSHistoLateralShapeParametrization::set_number_of_hits(float nhits)
   m_nhits=nhits;
 }
 
-FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   if (!simulstate.randomEngine()) {
     return FCSFatal;
   }
+  
+  const int     pdgId    = truth->pdgid();
+  const double  charge   = HepPDT::ParticleID(pdgId).charge();
 
   const int cs=calosample();
   const double center_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
@@ -84,8 +89,11 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSS
     return FCSFatal;
   }
   
-  const float delta_eta_mm = r * cos(alpha);
-  const float delta_phi_mm = r * sin(alpha);
+  
+  float delta_eta_mm = r * cos(alpha);
+  float delta_phi_mm = r * sin(alpha);
+  if(center_eta<0.)delta_eta_mm = -delta_eta_mm;
+  if(charge < 0.)  delta_phi_mm = -delta_phi_mm;
 
   const float dist000    = TMath::Sqrt(center_r * center_r + center_z * center_z);
   const float eta_jakobi = TMath::Abs(2.0 * TMath::Exp(-center_eta) / (1.0 + TMath::Exp(-2 * center_eta)));
