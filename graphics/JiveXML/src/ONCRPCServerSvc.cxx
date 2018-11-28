@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -342,8 +342,8 @@ namespace JiveXML {
     //obtain a lock. If the lock can not be obtained after a certain time, an
     //error is reported
     
-    //Timeout of 1 second and 0 nanoseconds
-    struct timespec timeout = { 1, 0 };
+    //Timeout of 5 second and 0 nanoseconds
+    struct timespec timeout = { 5, 0 };
     //Try to obtain the lock
 #ifndef __APPLE__
     int retVal = pthread_mutex_timedlock(&m_accessLock, &timeout);

@@ -151,7 +151,7 @@ JetChainParts = {
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
     # Et cut by the jet build tool (ptmin)
-    'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu5'],
+    'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu4' ,'rcu5'],
     
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],

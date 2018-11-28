@@ -1028,7 +1028,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_HI_v2', 'Physics_HI_v2_no_prescale', 
         'MC_HI_v2',  'MC_HI_v2_no_prescale', 'MC_HI_v2_pPb_mc_prescale',
         #
-        'Physics_default', 'MC_loose_default', 'MC_tight_default',
+        'Physics_default', 'MC_loose_default', 'MC_tight_default', 'default_loose', 'default_tight',
         # -----------------------------------------------------------------
         # Run 2
         'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale','MC_pp_v5_special_mc_prescale', # for development and simulation
@@ -1045,7 +1045,7 @@ class triggerMenuSetup(JobProperty):
         'MC_HI_v5', 'MC_HI_v5_tight_mc_prescale',
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
-        'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_loose_mc_prescale',
+        'MC_pp_v7','Physics_pp_v7','Physics_pp_v7_primaries','MC_pp_v7_no_prescale', 'MC_pp_v7_loose_mc_prescale',
         'MC_pp_v7_BulkMCProd_mc_prescale', 'MC_pp_v7_CPSampleProd_mc_prescale','MC_pp_v7_TriggerValidation_mc_prescale',
         'Physics_pp_v7_tight_physics_prescale','Physics_pp_v7_unprescaled_only_physics_prescale',
 
