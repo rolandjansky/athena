@@ -6,6 +6,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-output: config.txt
+# art-output: RDOtoAOD_config.txt
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" --useISF True \
@@ -35,6 +36,7 @@ FastChain_tf.py --maxEvents 500 \
     --inputRDOFile 'RDO_pileup_fastsim_fulldigi.pool.root' \
     --outputAODFile AOD_Split_fastSim_fullDigi.pool.root \
     --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);InDetFlags.doSplitReco.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True); from InDetRecExample.InDetKeys import InDetKeys; InDetKeys.PixelPUClusters.set_Value_and_Lock('PixelFast_PU_Clusters');InDetKeys.PixelPUClustersTruth.set_Value_and_Lock('PRD_MultiTruthPixel_PU');InDetKeys.SCT_PU_ClustersTruth.set_Value_and_Lock('PRD_MultiTruthSCT_PU');InDetKeys.TRT_PU_DriftCirclesTruth.set_Value_and_Lock('PRD_MultiTruthTRT_PU');rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RDOtoAOD_config.txt")' \
     --imf False
 
 echo "art-result: $? RDOtoAOD step"
@@ -46,7 +48,7 @@ echo  "art-result: $? regression"
 
 #add an additional payload from the job (corollary file).
 # art-output: InDetStandardPlots.root
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_Split_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_Split_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
 
 # art-output: dcube/dcube.xml
 # art-output: dcube/dcube.log
