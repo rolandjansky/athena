@@ -41,7 +41,6 @@ class BackgroundWordFiller : public AthAlgorithm
   int m_SCTMultiplicityHuge_Cut;
   int m_SCTSPNonEmpty_Cut;
   int m_LUCIDBeamVeto_Cut;
-  int m_MBTS_SideCut;
   float m_BCMTimeDiffCol_Cut;
   float m_BCMTimeDiffHalo_CutLo;
   int  m_BCMHiGainCut;

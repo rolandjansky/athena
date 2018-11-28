@@ -59,7 +59,6 @@ BackgroundWordFiller::BackgroundWordFiller(const std::string& name,
   m_SCTMultiplicityHuge_Cut(0),
   m_SCTSPNonEmpty_Cut(0),
   m_LUCIDBeamVeto_Cut(0),
-  m_MBTS_SideCut(0),
   m_BCMTimeDiffCol_Cut(0),
   m_BCMTimeDiffHalo_CutLo(0),
   m_BCMHiGainCut(0),
@@ -108,8 +107,6 @@ BackgroundWordFiller::BackgroundWordFiller(const std::string& name,
 
   // LUCID
   declareProperty("LUCIDBeamVeto_Cut",m_LUCIDBeamVeto_Cut=0); // >0
-  // MBTS
-  declareProperty("MBTS_SideCut",m_MBTS_SideCut=4);
 
   declareProperty("BCMTimeDiffCol_Cut",m_BCMTimeDiffCol_Cut=6.);
   declareProperty("BCMTimeDiffHalo_CutLo",m_BCMTimeDiffHalo_CutLo=6.);
@@ -328,29 +325,6 @@ StatusCode BackgroundWordFiller::execute() {
      } // retrieved RawInfoSummaryForTag object...
    }//indet SG veto
 
-   /*
-   ////////////////////////////////////////////////////////////////////////////////////////
-   // MBTS Time Diff stuff - for filling:  MBTSTimeDiffHalo, MBTSTimeDiffCol, MBTSBeamVeto
-   ////////////////////////////////////////////////////////////////////////////////////////
-   const MBTSCollisionTime * mbtsTime;
-   sc = evtStore()->retrieve(mbtsTime,"MBTSCollisionTime");
-   if (!sc.isFailure()) {
-     if (mbtsTime->ncellA()>m_MBTS_SideCut && mbtsTime->ncellC()>m_MBTS_SideCut){
-       if (fabs(mbtsTime->time())<m_MBTSTimeDiffCol_Cut ){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSTimeDiffCol)==false) {
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word!" << endmsg;
-	 }
-       }
-       if (fabs(mbtsTime->time())<m_MBTSTimeDiffHalo_CutHi && fabs(mbtsTime->time())>m_MBTSTimeDiffHalo_CutLo ){ 
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)==false) {
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word!" << endmsg;
-	 }
-       } // halo timing
-     } // enough hits per side
-   }   else {
-     msg(MSG::WARNING) << "Failed to retrieve MBTSCollisionTime object" << endmsg;
-   }
-   */
    ////////////////
    // MBTSBeamVeto
 
