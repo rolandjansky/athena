@@ -219,7 +219,7 @@ _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 _importFlagsFromModule ('SUSYD3PDMaker.SUSYD3PDProdFlags', True)
 
 # Tracking D3PDs.
-_importFlagsFromModule ('InDetD3PDMaker.VertexD3PDAnalysisProdFlags')
+_importFlagsFromModule ('InDetD3PDMaker.VertexD3PDAnalysisProdFlags', True)
 
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')
