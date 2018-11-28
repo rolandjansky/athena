@@ -52,7 +52,7 @@ namespace Trig {
 
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
-    bool msgLvl (MSG::Level lvl) const;
+    bool msgLvl ( const MSG::Level lvl ) const;
 
   protected:
     std::string m_triggerName;

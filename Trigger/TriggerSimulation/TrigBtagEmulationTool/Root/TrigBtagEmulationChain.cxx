@@ -116,7 +116,7 @@ bool TrigBtagEmulationChain::parseChainName() {
 
 MsgStream& TrigBtagEmulationChain::msg() const { return m_msg; }
 MsgStream& TrigBtagEmulationChain::msg( const MSG::Level lvl ) const { return msg() << lvl; }
-bool TrigBtagEmulationChain::msgLvl (MSG::Level lvl) const { return msg().level() <= lvl; }
+bool TrigBtagEmulationChain::msgLvl ( const MSG::Level lvl ) const { return msg().level() <= lvl; }
 
 void TrigBtagEmulationChain::addDecisionIngredient(const std::string& decision) { m_ingredientsDecision.push_back(decision); }
 

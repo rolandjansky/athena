@@ -44,7 +44,7 @@ BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredien
 
 MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg() const { return m_msg; }
 MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg( const MSG::Level lvl ) const { return msg() << lvl; }
-bool BaseTrigBtagEmulationChainJetIngredient::msgLvl (MSG::Level lvl) const { return msg().level() <= lvl; }
+bool BaseTrigBtagEmulationChainJetIngredient::msgLvl ( const MSG::Level lvl ) const { return msg().level() <= lvl; }
 
 // =================================================== //
 

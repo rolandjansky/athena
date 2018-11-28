@@ -26,7 +26,7 @@ TriggerFeature::~TriggerFeature() {}
 
 MsgStream& TriggerFeature::msg() const { return m_msg; }
 MsgStream& TriggerFeature::msg( const MSG::Level lvl ) const { return msg() << lvl; }
-bool TriggerFeature::msgLvl (MSG::Level lvl) const { return msg().level() <= lvl; }
+bool TriggerFeature::msgLvl ( const MSG::Level lvl ) const { return msg().level() <= lvl; }
 
 const std::string& TriggerFeature::name() const { return m_name; }
 
