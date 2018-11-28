@@ -6,6 +6,7 @@
 
 
 #include <cstring>
+#include <boost/algorithm/string.hpp>
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/StorableConversions.h"
@@ -25,15 +26,15 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
   
   ATH_CHECK( m_serializerSvc.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
-  for ( std::string typeAndKey: m_collectionsToSerialize ) {
-    const std::string type = typeAndKey.substr( 0, typeAndKey.find('#') );
+  for ( std::string typeKeyAux: m_collectionsToSerialize ) {
+    const std::string type = typeKeyAux.substr( 0, typeKeyAux.find('#') );
     if ( type.find('_') == std::string::npos ) {
-      ATH_MSG_ERROR( "Unversioned object to be recorded " << typeAndKey );
+      ATH_MSG_ERROR( "Unversioned object to be recorded " << typeKeyAux );
       return StatusCode::FAILURE;
     }
-    const std::string transientType = typeAndKey.substr( 0, typeAndKey.find('_') );
+    const std::string transientType = typeKeyAux.substr( 0, typeKeyAux.find('_') );
 
-    const std::string key = typeAndKey.substr( typeAndKey.find('#')+1 );    
+    const std::string key = typeKeyAux.substr( typeKeyAux.find('#')+1, typeKeyAux.find('.') );    
     CLID clid;
     if ( m_clidSvc->getIDOfTypeName(transientType, clid).isFailure() )  {
       ATH_MSG_ERROR( "Can not find CLID for " << transientType << " that is needed to stream " << key );
@@ -47,7 +48,21 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
     }
     
     ATH_MSG_DEBUG( "Type " << type << " key " << key <<  " serializable" );
-    m_toSerialize.push_back( Address{ type, clid, classDesc, key } );      
+
+    xAOD::AuxSelection sel;
+    if ( typeKeyAux.find('.') != std::string::npos ) {
+      ATH_MSG_DEBUG( "with aux content: "  );
+      std::string allVars = typeKeyAux.substr( typeKeyAux.find('.')+1 );
+      std::set<std::string> variableNames;
+      boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
+      for ( auto el: variableNames ) 
+	ATH_MSG_DEBUG( " " << el  );
+      sel.selectAux( variableNames );
+    }
+
+
+
+    m_toSerialize.push_back( Address{ type, clid, classDesc, key, sel } );      
   }
   return StatusCode::SUCCESS;
 }
@@ -121,6 +136,9 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     fragment[0] = fragment.size();
     ATH_MSG_DEBUG("Fragment size " << fragment.size() );
     payload.insert( payload.end(), fragment.begin(), fragment.end() );
+
+    
+
     
     if ( mem ) delete [] static_cast<const char*>( mem );
     ATH_MSG_DEBUG( "Payload size after inserting " << address.type << "#" << address.key << " " << payload.size()*sizeof(uint32_t) << " bytes" );
