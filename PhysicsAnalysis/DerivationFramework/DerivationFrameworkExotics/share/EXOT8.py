@@ -230,19 +230,10 @@ singleElectron       = "count((Electrons.Tight)        && (Electrons.pt > 25*GeV
 singleMuon           = "count((Muons.DFCommonGoodMuon) && (Muons.pt     > 25*GeV) && (abs(Muons.eta)     < 2.5)) >= 1"
 singleLepton         = "(%s) || (%s)" % (singleElectron, singleMuon)
 
-boosted_1LargeR_R20  = "count((AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.4)) >= 1"
-boosted_1LargeR      = "(%s)" % (boosted_1LargeR_R20)
+boosted_1LargeR      = "count((AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.4)) >= 1"
 
-# No b-tagging cut on boosted jets
-mv2track = -10.0
-mv2track_tagger = "MV2c10_discriminant"
-boosted_2LargeR_R20  = "count((AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.4)) >= 2"
-boosted_trackjet     = "count(BTagging_AntiKt2Track." +mv2track_tagger+" > %s) >= 2" % mv2track
-
-boosted_2LargeR      = "(%s) && (%s)" % (boosted_2LargeR_R20, boosted_trackjet)
-
-eventSkim_zeroLepton   = "((%s) || (%s))" % (resolved_4jet, boosted_2LargeR)
-eventSkim_singleLepton = "(%s) && ((%s) || (%s))" % (singleLepton, resolved_2jet, boosted_1LargeR)
+eventSkim_zeroLepton   = "((%s) || (%s))" % (resolved_4jet, boosted_1LargeR)
+eventSkim_singleLepton = "((%s) && (%s))" % (singleLepton, resolved_2jet)
 
 #------------------------------------------
 #pre-skimming tools
