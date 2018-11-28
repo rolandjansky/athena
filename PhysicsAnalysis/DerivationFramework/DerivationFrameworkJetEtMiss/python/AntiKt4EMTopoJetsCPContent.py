@@ -9,8 +9,6 @@ AntiKt4EMTopoJetsCPContent = [
 AntiKt4EMTopoJetsCPContentAux,
 "MET_Track",
 "MET_TrackAux.name.mpx.mpy",
-"MuonSegments",
-"MuonSegmentsAux.",
 "PrimaryVertices",
 "PrimaryVerticesAux.vertexType"
 ]
