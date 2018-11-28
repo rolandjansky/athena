@@ -186,22 +186,17 @@ SiDetectorElement::updateCache() const
   if (firstTimeTmp) {
     // Determine the unit vectors in global frame
    
-        
-    	const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
-    	const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
-    	const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
+    const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
+    const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
+    const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
+ 
+    HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
+    HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
+    HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
 
-    	HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
-    	HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
-	HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
-
-
-
-        // unit radial vector
-        HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
-     
-        unitR.setMag(1.);
-
+    // unit radial vector
+    HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
+    unitR.setMag(1.);
 
     HepGeom::Vector3D<double> nominalEta;
     HepGeom::Vector3D<double> nominalNormal;
@@ -299,7 +294,8 @@ SiDetectorElement::updateCache() const
   m_transformCLHEP = geoTransform * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
   m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
-  
+
+  #ifndef NDEBUG
   // Check that local frame is right-handed. (ie transform has no reflection)
   // This can be done by checking that the determinant is >0.
   if (firstTimeTmp) { // Only need to check this once.
@@ -308,21 +304,17 @@ SiDetectorElement::updateCache() const
                  t(0,1) * (t(1,0)*t(2,2) - t(1,2)*t(2,0)) +
                  t(0,2) * (t(1,0)*t(2,1) - t(1,1)*t(2,0));
     if (det < 0) {
-      if (m_design->depthSymmetric()) {
-	if(msgLvl(MSG::DEBUG))  
-	  msg(MSG::DEBUG) << "Local frame is left-handed, Swapping depth axis to make it right handed." 
-			  << endreq;
-	m_depthDirection = !m_depthDirection;
-	m_transformCLHEP = geoTransform * recoToHitTransform();
-	 m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
-	//m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
-       } else {
-	 if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Local frame is left-handed." << endreq;
+      if(msgLvl(MSG::DEBUG)){ 
+        msg(MSG::DEBUG) << "Local frame is left-handed. (hitEtaDirection, hitPhiDirection, hitDepthDirection) = ("
+                        << m_etaDirection <<", "
+                        << m_phiDirection <<", "
+                        << m_depthDirection <<")"
+                        << endreq;
       }
     }
   }
-  
-  
+  #endif 
+
   // Initialize various cached members
   // The unit vectors
   m_normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
@@ -448,16 +440,15 @@ SiDetectorElement::recoToHitTransform() const
     HepGeom::Vector3D<double>(0,0,1)
   };
   //static 
-    
-  const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
-					HepGeom::Point3D<double>(0,0,0),localAxes[m_hitPhi],localAxes[m_hitEta]);
-  
-  // Swap direction of axis as appropriate
-  CLHEP::Hep3Vector scale(1,1,1);
-  if (!m_phiDirection)   scale[distPhi]   = -1;
-  if (!m_etaDirection)   scale[distEta]   = -1;
-  if (!m_depthDirection) scale[distDepth] = -1;
-  return recoToHit * HepGeom::Scale3D(scale[0],scale[1],scale[2]);
+
+  int signPhi = m_phiDirection? +1: -1;
+  int signEta = m_etaDirection? +1: -1;
+
+  const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0, 0, 0),
+  signPhi * localAxes[distPhi], signEta * localAxes[distEta],
+  HepGeom::Point3D<double>(0, 0, 0), localAxes[m_hitPhi], localAxes[m_hitEta]);
+
+  return recoToHit;
 }
 
 const Amg::Transform3D &
