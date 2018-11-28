@@ -666,6 +666,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
 	xAOD::TauTrackAuxContainer pTrackAuxContainer;
 
+	// make dummy container to pass to TauVertexVariables, not actually used in trigger though
+	xAOD::VertexContainer* dummyVxCont = new xAOD::VertexContainer();
+
 	// Set the store: eventually, we want to use a dedicated trigger version
 	pContainer->setStore(&pAuxContainer);
 
@@ -751,7 +754,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		++toolnum;
 		if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->start();
 
-		processStatus = (*firstTool)->execute( *p_tau );
+		if ( (*firstTool)->name().find("VertexVariables") != std::string::npos){
+		  processStatus = (*firstTool)->executeVertexVariables(*p_tau, *dummyVxCont);
+		}
+		else {
+		  processStatus = (*firstTool)->execute( *p_tau );
+		}
+
 		if ( !processStatus.isFailure() ) {
 			if( msgLvl() <= MSG::DEBUG ) {
 				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endmsg;
