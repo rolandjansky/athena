@@ -53,19 +53,22 @@ bool JetAttrsKtDRCondition::isSatisfied(const HypoJetVector& ips) const{
 
 
 bool JetAttrsKtDRCondition::passKtDRCut(const Jet& jet) const{
+
+    std::cout << "amanda - checking if ktdr passes cuts \n";
+    std::cout << "amanda - jet values: ktdr =  " << jet.ktdrVal << ", validCondition = "<< jet.validCondition << "\n";
+    std::cout << "amanda - limits: limitMin = " << m_limitMin << ", limitMax = "<< m_limitMax << "\n";
+
   bool result;
   if(not jet.validCondition){return false;}
   (jet.ktdrVal >= m_limitMin and jet.ktdrVal<= m_limitMax) ? result=true : result=false;
+
+  std::cout << "amanda - Returning result " << result << "\n";
 
   return result;
 }
 
 
 std::string JetAttrsKtDRCondition::toString() const noexcept {
-
-    std::cout << "amanda - checking if ktdr passes cuts \n";
-    std::cout << "amanda - jet values: ktdr =  " << jet.widthVal << ", validCondition = "<< jet.validCondition << "\n";
-    std::cout << "amanda - limits: limitMin = " << m_limitMin << ", limitMax = "<< m_limitMax << "\n";
 
   std::stringstream ss;
   ss << "JetAttrsKtDRCondition: "
@@ -75,8 +78,6 @@ std::string JetAttrsKtDRCondition::toString() const noexcept {
      << " limit max: "
      << m_limitMax
      <<'\n';
-
-  std::cout << "amanda - Returning result " << result << "\n";
 
   return ss.str();
 }

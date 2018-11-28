@@ -16,7 +16,7 @@ public:
   virtual std::pair<double, double> operator()(const std::string& low, const std::string& high) const override {
 
       std::cout << "amanda - in WidthInterpreter \n";
-      std::cout << "amanda - got string inputs, returning doubles " << m_cfact * m_converter(low,high).first << " and " <<  m_cfact * m_converter(low,high).second;
+      std::cout << "amanda - got string inputs, returning doubles " << m_cfact * m_converter(low,high).first << " and " <<  m_cfact * m_converter(low,high).second << "\n";
       return std::make_pair(m_cfact * m_converter(low,high).first, m_cfact * m_converter(low,high).second);
   }
 };
