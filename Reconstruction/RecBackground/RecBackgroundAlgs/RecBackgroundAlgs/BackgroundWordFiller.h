@@ -13,6 +13,9 @@ Updated Mark Tibbetts 6/3/2012
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
+
+#include "RecBackgroundEvent/BeamBackgroundData.h"
+
 #include <array>
 
 class BackgroundWordFiller : public AthAlgorithm
@@ -31,6 +34,9 @@ class BackgroundWordFiller : public AthAlgorithm
 
   /** ReadHandleKey for EventInfo object */
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+
+  /** ReadHandleKey for BeamBackgroundData */
+  SG::ReadHandleKey<BeamBackgroundData> m_beamBackgroundDataKey{this,"beamBackgroundDataKey","BeamBackgroundData","Key for BeamBackgroundData object"};
   
   int m_HaloNumSegment_Cut;
   int m_HaloNumClusterShape_Cut;

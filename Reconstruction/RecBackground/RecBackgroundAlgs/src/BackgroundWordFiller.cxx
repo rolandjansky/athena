@@ -35,7 +35,6 @@ Mark Tibbetts 6/3/2012
 */
 
 #include "RecBackgroundAlgs/BackgroundWordFiller.h"
-#include "RecBackgroundEvent/BeamBackgroundData.h"
 #include "TagEvent/RawInfoSummaryForTag.h"
 #include "TileEvent/MBTSCollisionTime.h"
 #include "LArRecEvent/LArCollisionTime.h"
@@ -139,8 +138,9 @@ BackgroundWordFiller::~BackgroundWordFiller()
 
 StatusCode BackgroundWordFiller::initialize() {
 
-  //initialise the read handle key to the EventInfo object
-  ATH_CHECK( m_eventInfoKey.initialize() );
+  //initialise the read handle keys 
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_beamBackgroundDataKey.initialize());
   
   return StatusCode::SUCCESS;  
 }
@@ -149,57 +149,43 @@ StatusCode BackgroundWordFiller::initialize() {
 
 StatusCode BackgroundWordFiller::execute() {
 
-   ///////////////////////// 
-   // get the EventInfo
-   /////////////////////////
+  ///////////////////////// 
+  // get the EventInfo
+  /////////////////////////
 
-  SG::ReadHandle<xAOD::EventInfo> eventInfoReadHandle(m_eventInfoKey); 
-  
+  SG::ReadHandle<xAOD::EventInfo> eventInfoReadHandle(m_eventInfoKey);   
    
   m_totalcnt++;
 
-   ///////////////////////
-   // NOW SET THE BITS!!
-   ///////////////////////
+  ///////////////////////
+  // NOW SET THE BITS!!
+  ///////////////////////
 
-    ///////////////////////////////////////////////////
-   // Halo Identification
-   //////////////////////////////////////////////////  
+  ///////////////////////////////////////////////////
+  // Halo Identification
+  //////////////////////////////////////////////////  
 
-   if( evtStore()->contains<BeamBackgroundData>("BeamBackgroundData") ){
+  SG::ReadHandle<BeamBackgroundData> beamBackgroundDataReadHandle(m_beamBackgroundDataKey);
 
-     const BeamBackgroundData* beamBackgroundData;
-
-     if (evtStore()->retrieve(beamBackgroundData, "BeamBackgroundData").isFailure() )
-       msg(MSG::WARNING) << "  Could not retrieve BeamBackgroundData." << endmsg;
-     else {     
-       if( beamBackgroundData->GetNumSegment() > m_HaloNumSegment_Cut ){
-	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonSegment)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonSegment] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::HaloMuonSegment]++;
-       }
-       if( beamBackgroundData->GetNumClusterShape() > m_HaloNumClusterShape_Cut ){
-	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloClusterShape)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloClusterShape] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::HaloClusterShape]++; 
-       }
-       if( beamBackgroundData->GetNumNoTimeLoose() > m_HaloNumOneSidedLoose_Cut ){
-	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonOneSided)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonOneSided] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::HaloMuonOneSided]++;
-       }
-       if( beamBackgroundData->GetNumTwoSidedNoTime() > m_HaloNumTwoSided_Cut ){
-	 if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonTwoSided)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonTwoSided] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::HaloMuonTwoSided]++;
-       }
-     }// get BeamBackgroudData
-       
-   }// beambackground SG veto
+  if(!beamBackgroundDataReadHandle.isValid()) ATH_MSG_WARNING("Invalid read handle to BeamBackgoundData with name: " << m_beamBackgroundDataKey.key());
+  else{
+    if( beamBackgroundDataReadHandle->GetNumSegment() > m_HaloNumSegment_Cut ){
+      if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonSegment)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonSegment]);
+      else m_bitcntvec[EventInfo::HaloMuonSegment]++;
+    }
+    if( beamBackgroundDataReadHandle->GetNumClusterShape() > m_HaloNumClusterShape_Cut ){
+      if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloClusterShape)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloClusterShape]);
+      else m_bitcntvec[EventInfo::HaloClusterShape]++; 
+    }
+    if( beamBackgroundDataReadHandle->GetNumNoTimeLoose() > m_HaloNumOneSidedLoose_Cut ){
+      if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonOneSided)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonOneSided]);
+      else m_bitcntvec[EventInfo::HaloMuonOneSided]++;
+    }
+    if( beamBackgroundDataReadHandle->GetNumTwoSidedNoTime() > m_HaloNumTwoSided_Cut ){
+      if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonTwoSided)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonTwoSided]);
+      else m_bitcntvec[EventInfo::HaloMuonTwoSided]++;
+    }
+  }
 
    ///////////////////////////////////////////////////
    // LUCID: LUCIDBeamVeto
