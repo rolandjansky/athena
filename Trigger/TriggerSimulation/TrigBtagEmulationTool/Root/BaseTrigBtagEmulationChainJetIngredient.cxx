@@ -44,7 +44,7 @@ BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredien
 
 MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg() const { return m_msg; }
 MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg( const MSG::Level lvl ) const { return msg() << lvl; }
-bool BaseTrigBtagEmulationChainJetIngredient::msgLvl (MSG::Level lvl) { return msg().level() <= lvl; }
+bool BaseTrigBtagEmulationChainJetIngredient::msgLvl (MSG::Level lvl) const { return msg().level() <= lvl; }
 
 // =================================================== //
 
@@ -590,7 +590,7 @@ int TrigBtagEmulationChainJetIngredient_GSC::getMulteplicityGsc() const { return
 // *** Print Methods
 //**********************************************************************
 
-void BaseTrigBtagEmulationChainJetIngredient::printFeatures() {
+void BaseTrigBtagEmulationChainJetIngredient::printFeatures() const {
   if ( m_type_THRESHOLD_features.size() == 0 && m_type_SELECTION_features.size() == 0 ) return;
   ATH_MSG_DEBUG( "   : Features" );
 
@@ -604,7 +604,7 @@ void BaseTrigBtagEmulationChainJetIngredient::printFeatures() {
   }
 }
 
-void TrigBtagEmulationChainJetIngredient_L1::print() {
+void TrigBtagEmulationChainJetIngredient_L1::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
   ATH_MSG_DEBUG( "### L1 Trigger ["<< getName() <<"]" );
@@ -616,7 +616,7 @@ void TrigBtagEmulationChainJetIngredient_L1::print() {
   printFeatures();
 }
 
-void TrigBtagEmulationChainJetIngredient_L1_JJ::print() {
+void TrigBtagEmulationChainJetIngredient_L1_JJ::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
   ATH_MSG_DEBUG( "### L1 JJ Trigger ["<< getName() <<"]" );
@@ -628,7 +628,7 @@ void TrigBtagEmulationChainJetIngredient_L1_JJ::print() {
   printFeatures();
 }
 
-void TrigBtagEmulationChainJetIngredient_HLT::print() {
+void TrigBtagEmulationChainJetIngredient_HLT::print() const {
   TrigBtagEmulationChainJetIngredient_HLT emul = *this;
 
   ATH_MSG_DEBUG( "### HLT Trigger ["<< getName() <<"]" );
@@ -640,7 +640,7 @@ void TrigBtagEmulationChainJetIngredient_HLT::print() {
   printFeatures();
 }
 
-void TrigBtagEmulationChainJetIngredient_GSC::print() {
+void TrigBtagEmulationChainJetIngredient_GSC::print() const {
   TrigBtagEmulationChainJetIngredient_GSC emul = *this;
 
   ATH_MSG_DEBUG( "### GSC Trigger ["<< getName() <<"]" );

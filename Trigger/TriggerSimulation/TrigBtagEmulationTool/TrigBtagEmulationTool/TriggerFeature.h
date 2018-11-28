@@ -31,7 +31,7 @@ namespace Trig {
     virtual bool isPassed() const = 0;
     virtual bool evaluateJet(const TrigBtagEmulationJet&) = 0;
     virtual void clear() = 0;
-    virtual void print() = 0;
+    virtual void print() const = 0;
     virtual void setCuts(float,float,float) {}
 
     virtual float getCut() const = 0;
@@ -41,7 +41,7 @@ namespace Trig {
   protected:
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
-    bool msgLvl (MSG::Level lvl);
+    bool msgLvl (MSG::Level lvl) const;
 
   protected:
     enum JetElement {PT,ETA,PHI};
@@ -69,7 +69,7 @@ namespace Trig {
     virtual bool isPassed() const;
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
     virtual void clear();
-    virtual void print();
+    virtual void print() const;
 
     virtual float getCut() const;
 
@@ -111,7 +111,7 @@ namespace Trig {
     virtual ~TriggerFeatureAntiBtag();
 
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
-    virtual void print();
+    virtual void print() const;
   };
 
 
@@ -126,7 +126,7 @@ namespace Trig {
     virtual bool isPassed() const;
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
     virtual void clear();
-    virtual void print();
+    virtual void print() const;
     virtual void setCuts(float,float,float);
     virtual float getCut() const;
 
@@ -163,7 +163,7 @@ namespace Trig {
     virtual ~TriggerFeatureHtTop();
     
     virtual void clear();
-    virtual void print();
+    virtual void print() const;
 
     virtual std::unique_ptr< TriggerFeature > uniqueClone() const;
 
@@ -188,7 +188,7 @@ namespace Trig {
     virtual bool isPassed() const;
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
     virtual void clear();
-    virtual void print();
+    virtual void print() const;
     virtual void setCuts(float,float,float);
     virtual float getCut() const;
 
@@ -234,7 +234,7 @@ namespace Trig {
     TriggerFeatureInvmCF(const TriggerFeatureInvmCF&);
     virtual ~TriggerFeatureInvmCF();
 
-    virtual void print();
+    virtual void print() const;
 
   protected:
     virtual bool evaluateJet_L1(const TrigBtagEmulationJet&);    
@@ -249,7 +249,7 @@ namespace Trig {
     TriggerFeatureInvmNFF(const TriggerFeatureInvmNFF&);
     ~TriggerFeatureInvmNFF();
 
-    virtual void print();
+    virtual void print() const;
 
   protected:
     virtual bool evaluateJet_L1(const TrigBtagEmulationJet&);

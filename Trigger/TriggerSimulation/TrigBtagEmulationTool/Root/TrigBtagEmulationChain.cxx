@@ -116,7 +116,7 @@ bool TrigBtagEmulationChain::parseChainName() {
 
 MsgStream& TrigBtagEmulationChain::msg() const { return m_msg; }
 MsgStream& TrigBtagEmulationChain::msg( const MSG::Level lvl ) const { return msg() << lvl; }
-bool TrigBtagEmulationChain::msgLvl (MSG::Level lvl) { return msg().level() <= lvl; }
+bool TrigBtagEmulationChain::msgLvl (MSG::Level lvl) const { return msg().level() <= lvl; }
 
 void TrigBtagEmulationChain::addDecisionIngredient(const std::string& decision) { m_ingredientsDecision.push_back(decision); }
 
@@ -303,7 +303,7 @@ bool TrigBtagEmulationChain::isPassed( const std::string &chain ) const {
   return false;
 }
 
-void TrigBtagEmulationChain::print() {
+void TrigBtagEmulationChain::print() const {
   if ( not msgLvl(MSG::DEBUG) ) return;
 
   ATH_MSG_DEBUG( "" );
