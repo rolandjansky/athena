@@ -39,7 +39,6 @@ Mark Tibbetts 6/3/2012
 #include "TileEvent/MBTSCollisionTime.h"
 #include "LArRecEvent/LArCollisionTime.h"
 #include "TileEvent/TileContainer.h"
-#include "LUCID_RawEvent/LUCID_RawDataContainer.h"
 #include "BCM_CollisionTime/BcmCollisionTime.h"
 
 //----------------------------------------------------------------
@@ -141,6 +140,7 @@ StatusCode BackgroundWordFiller::initialize() {
   //initialise the read handle keys 
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_beamBackgroundDataKey.initialize());
+  ATH_CHECK(m_LUCID_rawDataContainerKey.initialize());
   
   return StatusCode::SUCCESS;  
 }
@@ -191,29 +191,21 @@ StatusCode BackgroundWordFiller::execute() {
    // LUCID: LUCIDBeamVeto
    //////////////////////////////////////////////////
 
-   if( evtStore()->contains<LUCID_RawDataContainer>("Lucid_RawData") ){ 
+  SG::ReadHandle<LUCID_RawDataContainer> LUCID_rawDataContainerReadHandle(m_LUCID_rawDataContainerKey);
 
-     const LUCID_RawDataContainer* LUCID_RawDataContainer;
-     if (evtStore()->retrieve(LUCID_RawDataContainer, "Lucid_RawData").isFailure() ) {
-       msg(MSG::WARNING) << "  Could not retrieve Lucid_RawData" << endmsg;
-     }
-     else {
-       LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = LUCID_RawDataContainer->begin();
-       LUCID_RawDataContainer::const_iterator LUCID_RawData_end = LUCID_RawDataContainer->end();
-       int LUCIDcounter(0);
-       for (; LUCID_RawData_itr != LUCID_RawData_end; LUCID_RawData_itr++) {
-	 LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideA();
-	 LUCIDcounter+=(*LUCID_RawData_itr)->getNhitsPMTsideC();
-       }
-       if ( LUCIDcounter>m_LUCIDBeamVeto_Cut ){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LUCIDBeamVeto)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::LUCIDBeamVeto] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::LUCIDBeamVeto]++;
-       }
-     }// retrieved LUCID stuff
-   }// LUCID SG veto
-
+  if (!LUCID_rawDataContainerReadHandle.isValid()) ATH_MSG_WARNING("Invalid read handle to LUCID_RawDataContainer with name: " << m_LUCID_rawDataContainerKey.key());
+  else{
+    int LUCIDcounter(0);
+    for (auto LUCID_rawData : *LUCID_rawDataContainerReadHandle){
+       LUCIDcounter+=LUCID_rawData->getNhitsPMTsideA();
+       LUCIDcounter+=LUCID_rawData->getNhitsPMTsideC();
+    }
+    if ( LUCIDcounter>m_LUCIDBeamVeto_Cut ){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LUCIDBeamVeto)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::LUCIDBeamVeto]);
+      else m_bitcntvec[EventInfo::LUCIDBeamVeto]++;
+    }
+  }
+    
    ///////////////////////////////////////////////////
    // BCM: BCMTimeDiffHalo, BCMTimeDiffCol, BCMBeamVeto
    //////////////////////////////////////////////////

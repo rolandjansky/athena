@@ -15,6 +15,7 @@ Updated Mark Tibbetts 6/3/2012
 #include "xAODEventInfo/EventInfo.h"
 
 #include "RecBackgroundEvent/BeamBackgroundData.h"
+#include "LUCID_RawEvent/LUCID_RawDataContainer.h"
 
 #include <array>
 
@@ -37,6 +38,9 @@ class BackgroundWordFiller : public AthAlgorithm
 
   /** ReadHandleKey for BeamBackgroundData */
   SG::ReadHandleKey<BeamBackgroundData> m_beamBackgroundDataKey{this,"beamBackgroundDataKey","BeamBackgroundData","Key for BeamBackgroundData object"};
+
+  /** ReadHandleKey for LUCID_RawDataContainer */
+  SG::ReadHandleKey<LUCID_RawDataContainer> m_LUCID_rawDataContainerKey{this,"LUCID_rawDataContainerKey","Lucid_RawData","Key for LUCID_RawDataContainer object"};
   
   int m_HaloNumSegment_Cut;
   int m_HaloNumClusterShape_Cut;
