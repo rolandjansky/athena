@@ -20,6 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="mc_pp_v7_triggervalidation_grid"
 export MENU="MC_pp_v7_TriggerValidation_mc_prescale"

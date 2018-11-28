@@ -33,15 +33,15 @@ timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
-grep REGTEST athena.log > athena.regtest
+grep REGTEST athena.log > athena.regtest.new
 
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest | tee regtest.log
+  timeout 1m regtest.pl --inputfile athena.regtest.new --reffile ${REF_FOLDER}/athena.regtest | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
-  echo "art-result: 5 RegTest"
+  echo "art-result: 999 RegTest"
 fi
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
@@ -53,8 +53,8 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo "art-result: ${PIPESTATUS[0]} CheckCounts"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
-  echo "art-result:  5 RootComp"
-  echo "art-result:  5 CheckCounts"
+  echo "art-result:  999 RootComp"
+  echo "art-result:  999 CheckCounts"
 fi
 
 if [ -f trig_cost.root ]; then 
