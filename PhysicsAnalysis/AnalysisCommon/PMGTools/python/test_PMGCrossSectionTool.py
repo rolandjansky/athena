@@ -8,7 +8,7 @@ def main():
 
     tool = ROOT.PMGTools.PMGCrossSectionTool('MyXSectionTool')
 
-    fn = 'dev/PMGTools/PMGxsecDB_mc16.txt'
+    fn = '/eos/atlas/atlascerngroupdisk/asg-calib/dev/PMGTools/PMGxsecDB_mc16.txt'
     fn = PathResolver.FindCalibFile(fn)
     vv = ROOT.std.vector('std::string')()
     vv.push_back(fn)
@@ -20,12 +20,15 @@ def main():
 
     print '%d sample loaded' % tool.getLoadedDSIDs().size()
     print
-    print 'Sample dsid          = ', sample_id
-    print 'Sample name          = ', tool.getSampleName(sample_id)
-    print 'xsection [pb]        = ', tool.getSampleXsection(sample_id)
-    print 'filter eff           = ', tool.getFilterEff(sample_id)
-    print 'k factor             = ', tool.getKfactor(sample_id)
-    print 'xsection uncertainty = ', tool.getXsectionUncertainty(sample_id)
+    print 'Sample dsid               = ', sample_id
+    print 'Sample name               = ', tool.getSampleName(sample_id)
+    print 'xsection [pb]             = ', tool.getSampleXsection(sample_id)
+    print 'filter eff                = ', tool.getFilterEff(sample_id)
+    print 'k factor                  = ', tool.getKfactor(sample_id)
+    print 'xsection uncertainty      = ', tool.getXsectionUncertainty(sample_id)
+    print 'xsection uncertainty up   = ', tool.getXsectionUncertaintyUP(sample_id)
+    print 'xsection uncertainty down = ', tool.getXsectionUncertaintyDOWN(sample_id)
+       
     print
 
 if __name__ == '__main__':

@@ -58,7 +58,8 @@ bool PMGCrossSectionTool::readInfosFromFiles(std::vector<std::string> InputFiles
       input_line >> help.amiXSec;
       input_line >> help.filterEff;
       input_line >> help.kFactor;
-      input_line >> help.XSecUnc;
+      input_line >> help.XSecUncUP;
+      input_line >> help.XSecUncDOWN;
       // :: below is for future use?
       //input_line >> help.br;
       //input_line >> help.higherOrderXsecTotal;
@@ -157,13 +158,28 @@ double PMGCrossSectionTool::getAMIXsection(const int dsid) const
 }*/
 
 
-double PMGCrossSectionTool::getXsectionUncertainty(const int dsid) const
+double PMGCrossSectionTool::getXsectionUncertaintyUP(const int dsid) const
 {
   const auto it = fStoreSampleInfo.find(dsid);
-  if (it != fStoreSampleInfo.end()) { return it->second.XSecUnc; }
+  if (it != fStoreSampleInfo.end()) { return it->second.XSecUncUP; }
 
   ATH_MSG_ERROR("Sample with DSID " << dsid << " has no info stored!!!");
   return -1;
+}
+
+double PMGCrossSectionTool::getXsectionUncertaintyDOWN(const int dsid) const
+{
+  const auto it = fStoreSampleInfo.find(dsid);
+  if (it != fStoreSampleInfo.end()) { return it->second.XSecUncDOWN; }
+  
+  ATH_MSG_ERROR("Sample with DSID " << dsid << " has no info stored!!!");
+  return -1;
+}
+
+double PMGCrossSectionTool::getXsectionUncertainty(const int dsid) const
+{
+  //symmetrize the up and down variations
+  return 0.5*( fabs(getXsectionUncertaintyDOWN(dsid)) + fabs(getXsectionUncertaintyUP(dsid)) );
 }
 
 double PMGCrossSectionTool::getKfactor(const int dsid) const
