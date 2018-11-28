@@ -79,6 +79,11 @@ def getCrabKissingVertexPositioner(name="CrabKissingVertexPositioner", **kwargs)
 def getGenEventValidityChecker(name="GenEventValidityChecker", **kwargs):
     return CfgMgr.Simulation__GenEventValidityChecker(name, **kwargs)
 
+def getZeroLifetimePositioner(name="ZeroLifetimePositioner", **kwargs):
+    kwargs.setdefault('ApplyPatch', True)
+    kwargs.setdefault('RemovePatch', True)
+    return CfgMgr.Simulation__ZeroLifetimePositioner(name, **kwargs)
+
 def getGenEventVertexPositioner(name="GenEventVertexPositioner", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     readVtxPosFromFile = simFlags.VertexOverrideFile.statusOn or simFlags.VertexOverrideEventFile.statusOn
