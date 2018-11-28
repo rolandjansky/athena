@@ -78,10 +78,12 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
   const xAOD::IParticleContainer* cont;
   auto handle_in = SG::makeHandle(m_incoll);
   if ( handle_in.isValid() ) {
-    ATH_MSG_DEBUG("Retrieving xAOD container " << m_incoll.key() 
+    cont = handle_in.cptr();
+    ATH_MSG_DEBUG("Retrieving xAOD container " << m_incoll.key() << "of size "<<cont->size()
                   << ", ghost scale=" << m_ghostscale  
                   <<  ", isGhost=" << bool(m_ghostscale));
-    cont = handle_in.cptr();
+
+
   } else {
     ATH_MSG_ERROR("Unable to find input collection: " << m_incoll.key());
     ATH_MSG_ERROR("Error creating pseudojets.");

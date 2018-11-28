@@ -2,23 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGUPGRADETEST_TESTINPUTMAKER_H
-#define TRIGUPGRADETEST_TESTINPUTMAKER_H 1
+#define TRIGUPGRADETEST_TESTINPUTMAKER_H 
 
 
-#include <string>
+//#include <string>
 #include "DecisionHandling/InputMakerBase.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "ITestHypoTool.h"
 
 namespace HLTTest {
 
   /**
    * @class TestInputMaker
-   * @brief Used at the start of a sequence: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence.
+   * @brief Used at the start of a sequence: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence. This test version creates TC collection output for emulation tests
    **/
 
   using namespace TrigCompositeUtils;

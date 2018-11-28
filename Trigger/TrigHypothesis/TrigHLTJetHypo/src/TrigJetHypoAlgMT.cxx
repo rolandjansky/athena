@@ -75,11 +75,11 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
 
   CHECK(decide(jets, newDecisions, prevDecisions));
  
- 
+
   // output the decisions for all chains for this event.
   auto outputHandle = SG::makeHandle(decisionOutput(), context);
   CHECK( outputHandle.record( std::move( newDecisions ), std::move( aux ) ) );
-  ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
+  ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions"); 
 
 
   // debug....
