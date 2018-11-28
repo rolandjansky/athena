@@ -1,5 +1,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../GenEventValidityChecker.h"
+#include "../ZeroLifetimePositioner.h"
 #include "../GenEventVertexPositioner.h"
 #include "../VertexBeamCondPositioner.h"
 #include "../LongBeamspotVertexPositioner.h"
@@ -8,6 +9,7 @@
 #include "../GenEventBeamEffectBooster.h"
 #include "../GenEventRotator.h"
 #include "../BeamEffectsAlg.h"
+DECLARE_NAMESPACE_SERVICE_FACTORY( Simulation , ZeroLifetimePositioner    )
 DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , GenEventValidityChecker      )
 DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , GenEventVertexPositioner     )
 DECLARE_NAMESPACE_TOOL_FACTORY( Simulation , VertexBeamCondPositioner     )
