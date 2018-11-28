@@ -21,6 +21,9 @@ toolSvc = CfgMgr.ToolSvc()
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault()
+
 topSequence += CfgMgr.AthenaMonManager( "TileNoiseMon"
                                        , ManualRunLBSetup    = True
                                        , ManualDataTypeSetup = True
@@ -58,7 +61,8 @@ if doTileDigiNoiseMon:
                                            , histoPathBase = "/Tile/DigiNoise"
                                            , FillEmptyFromDB = False
                                            , SummaryUpdateFrequency = TileNoiseUpdateFrequency
-                                           , TriggerTypes        = [ 0x82 ] );
+                                           , CheckDCS           = TileUseDCS
+                                           , TriggerTypes        = [ 0x82 ] )
 
     topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];
     print toolSvc.TileDigiNoiseMon;
@@ -75,6 +79,7 @@ if doTileRawChannelNoiseMon:
                                                  , NBins = 81
                                                  , histoPathBase = "/Tile/RawChannelNoise"
                                                  , SummaryUpdateFrequency = TileNoiseUpdateFrequency 
+                                                 , CheckDCS           = TileUseDCS
                                                  , TriggerTypes        = [ 0x82 ]);
 
     topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileRawChannelNoiseMon ];

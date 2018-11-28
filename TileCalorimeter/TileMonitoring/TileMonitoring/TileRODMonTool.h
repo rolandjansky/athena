@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,12 +15,13 @@
 #define TILERODMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <vector>
 
 class ITileBadChanTool;
 class TileCondToolEmscale;
-class TileBeamInfoProvider;
 class IROBDataProviderSvc;
 
 /** @class TileRODMonTool
@@ -33,15 +34,15 @@ class TileRODMonTool: public TileFatherMonTool {
 
     TileRODMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileRODMonTool();
+    virtual ~TileRODMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     //pure virtual methods
-    StatusCode bookHistograms();
-    StatusCode fillHistograms();
-    StatusCode procHistograms();
-    StatusCode checkHists(bool fromFinalize);
+    virtual StatusCode bookHistograms() override;
+    virtual StatusCode fillHistograms() override;
+    virtual StatusCode procHistograms() override;
+    virtual StatusCode checkHists(bool fromFinalize) override;
 
     StatusCode bookHistTrig(int trig);
 
@@ -60,7 +61,6 @@ class TileRODMonTool: public TileFatherMonTool {
     bool m_isOnline;
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
     ServiceHandle<IROBDataProviderSvc> m_robSvc;
 
@@ -95,6 +95,7 @@ class TileRODMonTool: public TileFatherMonTool {
     int m_nLumiblocks;
     bool m_fillDetailFragmentSize;
     int m_nEvents4FragmentSize;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
     float m_rodFragmentSizeSum[5][16][9]; // accumulator of ROD fragment size per trigger
     float m_lastRodFragmentSize[5][16][9]; // ROD fragment size per trigger in the last event
 };

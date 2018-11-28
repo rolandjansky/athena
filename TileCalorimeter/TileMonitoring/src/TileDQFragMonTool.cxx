@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,8 +19,8 @@
 #include "TileConditions/TileDCSSvc.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH2I.h"
 #include "TProfile.h"
@@ -41,7 +41,6 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileDCSSvc("TileDCSSvc",name)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_dqStatus(0)
   , m_last_lb(0)
   , m_globalErrCount{}
@@ -79,6 +78,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("QualityCut", m_qualityCut = 254.0);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/DMUErrors";
   // starting up the label variable....
@@ -214,8 +214,6 @@ StatusCode TileDQFragMonTool:: initialize() {
 
   ATH_MSG_INFO(  "in initialize()" );
 
-  CHECK( m_beamInfo.retrieve() );
-
   CHECK(  m_tileBadChanTool.retrieve() );
 
   CHECK( TileFatherMonTool::initialize() );
@@ -223,6 +221,8 @@ StatusCode TileDQFragMonTool:: initialize() {
   if (m_checkDCS) {
     CHECK( m_tileDCSSvc.retrieve() );
   }
+
+  CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -500,7 +500,7 @@ void TileDQFragMonTool::fillBadDrawer() {
 /*---------------------------------------------------------*/
 
 
-  m_dqStatus = m_beamInfo->getDQstatus();
+  m_dqStatus = SG::makeHandle (m_DQstatusKey).get();
 
 #if 0
   if (m_contNameDSP.size() > 0) {
@@ -782,7 +782,7 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
     ShiftTprofile(m_hist_error_lb[ros][drawer], cur_lb - m_last_lb);
   }
 
-  m_dqStatus = m_beamInfo->getDQstatus();
+  m_dqStatus = SG::makeHandle (m_DQstatusKey).get();
 
   if (!isModuleDCSgood(ros + 1, drawer)) {
     if (m_doOnline) m_hist_error_lb[ros][drawer]->Fill(0., -1.);

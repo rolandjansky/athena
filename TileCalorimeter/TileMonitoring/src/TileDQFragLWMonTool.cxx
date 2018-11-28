@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,8 +19,8 @@
 #include "TileConditions/TileDCSSvc.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "StoreGate/ReadHandle.h"
 
 #include <iostream>
 #include <sstream>
@@ -36,7 +36,6 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileDCSSvc("TileDCSSvc",name)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_dqStatus(0)
   , m_globalErrCount{}
   , m_global{}
@@ -71,6 +70,7 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("QualityCut", m_qualityCut = 254.0);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/DMUErrors";
   // starting up the label variable....
@@ -151,11 +151,11 @@ StatusCode TileDQFragLWMonTool:: initialize() {
 
   ATH_MSG_INFO(  "in initialize()" );
 
-  CHECK( m_beamInfo.retrieve() );
-
   CHECK(  m_tileBadChanTool.retrieve() );
 
   CHECK( TileFatherMonTool::initialize() );
+
+  CHECK( m_DQstatusKey.initialize() );
 
   if (m_checkDCS) {
     CHECK( m_tileDCSSvc.retrieve() );
@@ -405,7 +405,7 @@ void TileDQFragLWMonTool::fillBadDrawer() {
 /*---------------------------------------------------------*/
 
 
-  m_dqStatus = m_beamInfo->getDQstatus();
+  m_dqStatus = SG::makeHandle (m_DQstatusKey).get();
 
 
   uint32_t lvl1info = getL1info();
@@ -638,7 +638,7 @@ void TileDQFragLWMonTool::fillErrorsHistograms(unsigned int ros, unsigned int dr
   int n_error_nonmask_DMU = 0;
   unsigned int cur_lb = getLumiBlock();
 
-  m_dqStatus = m_beamInfo->getDQstatus();
+  m_dqStatus = SG::makeHandle (m_DQstatusKey).get();
 
   if (!isModuleDCSgood(ros + 1, drawer)) {
 

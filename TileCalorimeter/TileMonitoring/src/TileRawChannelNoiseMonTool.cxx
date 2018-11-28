@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -28,12 +28,12 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -52,7 +52,6 @@
 /*---------------------------------------------------------*/
 TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_DQstatus(0)
@@ -66,6 +65,7 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_gain(1)
   , m_nEventsProcessed(0)
   , m_minimumEventsNumberToFit(100)
+  , m_tileDCS("TileDCSTool")
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -86,6 +86,9 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   declareProperty("Gain", m_gainName = "HG"); // gain to be processed
   declareProperty("TriggerTypes", m_triggerTypes);
   declareProperty("MinimumEventsNumberToFit", m_minimumEventsNumberToFit);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
+  declareProperty("TileDCSTool", m_tileDCS);
+  declareProperty("CheckDCS", m_checkDCS = false);
 
   m_path = "/Tile/RawChannelNoise";
 }
@@ -102,7 +105,6 @@ StatusCode TileRawChannelNoiseMonTool::initialize() {
 
   ATH_MSG_INFO("in initialize() - m_path = " << m_path);
 
-  CHECK(m_beamInfo.retrieve());
   //=== get TileBadChanTool
   CHECK(m_tileBadChanTool.retrieve());
 
@@ -127,6 +129,14 @@ StatusCode TileRawChannelNoiseMonTool::initialize() {
     msg(MSG::INFO) << endmsg;
   }
 
+  CHECK( m_DQstatusKey.initialize() );
+
+  if (m_checkDCS) {
+    CHECK( m_tileDCS.retrieve() );
+  }
+  else {
+    m_tileDCS.disable();
+  }
 
   return TileFatherMonTool::initialize();
 }
@@ -489,7 +499,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
 
   ATH_MSG_VERBOSE("in fillHistoPerRawChannel() ");
 
-  m_DQstatus = m_beamInfo->getDQstatus();
+  m_DQstatus = SG::makeHandle (m_DQstatusKey).get();
 
   const TileRawChannelContainer* rawChannelContainer;
   CHECK(evtStore()->retrieve(rawChannelContainer, m_rawChannelContainerName));
@@ -548,7 +558,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
 
       // if (isDisconnected(ros, drawer, channel)) continue;
 
-      if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
+      if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && isChanDCSgood(ros, drawer, channel)) ) continue;
       if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad() ) continue;
 
       module_name = TileCalibUtils::getDrawerString(ros, drawer);
@@ -630,3 +640,18 @@ StatusCode TileRawChannelNoiseMonTool::procHistograms() {
   return StatusCode::SUCCESS;
 }
 
+
+bool TileRawChannelNoiseMonTool::isChanDCSgood (int ros, int drawer, int channel) const
+{
+  if (!m_checkDCS) return true;
+  TileDCSState::TileDCSStatus status = m_tileDCS->getDCSStatus(ros, drawer, channel);
+
+  if (status > TileDCSState::WARNING) {
+    ATH_MSG_DEBUG("Module=" << TileCalibUtils::getDrawerString(ros, drawer)
+                  << " channel=" << channel
+                  << " masking becasue of bad DCS status=" << status);
+    return false;
+  }
+
+  return true;
+}
