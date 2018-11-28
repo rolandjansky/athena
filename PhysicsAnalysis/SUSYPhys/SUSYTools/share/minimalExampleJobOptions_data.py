@@ -4,33 +4,22 @@
 #You would use this joboption by copying it and substituting the TestAlg for your own algorithm
 #and subtituting your own input files
 
-
 import AthenaPoolCnvSvc.ReadAthenaPool #read xAOD files
 
 theApp.EvtMax = 400 #set to -1 to run on all events
 
-inputFile = os.environ['ASG_TEST_FILE_DATA'] #test input file
+inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/data18_13TeV.00348403.physics_Main.merge.AOD.artDAOD.PHYSVAL.pool.root'
+
 svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
 svcMgr.MessageSvc.OutputLevel = INFO 
 
-#AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
-#                                        name = "AST99TauTruthMatchingTool",
-#                              WriteTruthTaus = True,
-#                                 OutputLevel = INFO,
-#                       MCTruthClassifierTool = "" ) # This is data!
-#ToolSvc += AST99tauTruthTool
-
 ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")
 
-ToolSvc.SUSYTools.ConfigFile = "SUSYTools/SUSYTools_Default.conf" #look in the data directory of SUSYTools for other config files
-ToolSvc.SUSYTools.PRWConfigFiles = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root", 
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
-    ]
+ToolSvc.SUSYTools.ConfigFile = "SUSYTools/SUSYTools_Default.conf" # Grab the default config file
+
+ToolSvc.SUSYTools.AutoconfigurePRWTool = True
 ToolSvc.SUSYTools.PRWLumiCalcFiles = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"
-    #"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"
+    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"
     ]
 
 ToolSvc.SUSYTools.DataSource = 0  #configure to run on data
@@ -44,10 +33,7 @@ try:
 except ImportError:
     myPath="."
 
-
 algseq += CfgMgr.SUSYToolsAlg("DataAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,CheckTruthJets=False) #Substitute your alg here
-#algseq += CfgMgr.SUSYToolsAlg("DataAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,TauTruthMatchingTool=AST99tauTruthTool,STConfigFile=config_file,CheckTruthJets=False) #Substitute your alg here
-
 
 #You algorithm can use the SUSYTools through a ToolHandle:
 #

@@ -13,7 +13,7 @@ echo "Running SUSYTools test: \'TestSUSYToolsAlg.py -t DATA -m -1\'"
 TestSUSYToolsAlg.py -t DATA -m -1
 echo  "art-result: $? TEST"
 
-mv submitDir/hist-DAOD_PHYSVAL.root ./hist-DATA_DAOD_PHYSVAL.root
+mv submitDir/hist-SUSYTools.root ./hist-DATA_DAOD_PHYSVAL.root
 
 echo "Running DCube post-processing"
 

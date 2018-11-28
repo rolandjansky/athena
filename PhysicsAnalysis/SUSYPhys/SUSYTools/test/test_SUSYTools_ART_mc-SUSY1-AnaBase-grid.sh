@@ -9,15 +9,15 @@
 # Create empty pool file
 art.py createpoolfile
 
-echo "Running SUSYTools test: \'TestSUSYToolsAlg.py -t MC -m -1 -d 1\'"
-TestSUSYToolsAlg.py -t MC -m -1 -d 1
+echo "Running SUSYTools test: \'TestSUSYToolsAlg.py -t MCe -m -1 -d 1\'"
+TestSUSYToolsAlg.py -t MCe -m -1 -d 1
 echo  "art-result: $? TEST"
 
 mv submitDir/hist-ARTInput.root ./hist-MC_DAOD_SUSY1.root
 
 echo "Running DCube post-processing"
 
-tName="MC-SUSY1"
+tName="MCe-SUSY1"
 dcubeRef=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ART/References/hist-MC_DAOD_SUSY1.root
 dcubeXml=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ART/xml/dcube_config_master.xml
 
