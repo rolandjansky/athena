@@ -29,7 +29,7 @@ namespace Trig {
     virtual void initialize() = 0;
 
     bool evaluate();
-    virtual void print() const = 0;
+    virtual void print() = 0;
     virtual bool isPassed() const; 
     virtual bool hasFeature(const std::string&) const; 
     virtual void clear(); 
@@ -48,10 +48,11 @@ namespace Trig {
     template<typename T> void extract(const std::string&,const std::string&,T &valA);
     template<typename T,typename U> void extract(const std::string&,const std::string&,T &valA,U &valB);
 
-    void printFeatures() const;
+    void printFeatures();
 
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
+    bool msgLvl (MSG::Level lvl);
 
   protected:
     std::string m_triggerName;
@@ -87,7 +88,7 @@ namespace Trig {
     TrigBtagEmulationChainJetIngredient_L1(const TrigBtagEmulationChainJetIngredient_L1&);
     virtual ~TrigBtagEmulationChainJetIngredient_L1();
 
-    virtual void print() const;
+    virtual void print();
     virtual void initialize();
 
   protected:
@@ -107,7 +108,7 @@ namespace Trig {
     TrigBtagEmulationChainJetIngredient_L1_JJ(const TrigBtagEmulationChainJetIngredient_L1_JJ&);
     virtual ~TrigBtagEmulationChainJetIngredient_L1_JJ();
 
-    virtual void print() const;
+    virtual void print();
   };
 
   // ==========================================================================
@@ -120,7 +121,7 @@ namespace Trig {
     TrigBtagEmulationChainJetIngredient_HLT(const TrigBtagEmulationChainJetIngredient_HLT&);
     virtual ~TrigBtagEmulationChainJetIngredient_HLT();
 
-    virtual void print() const;
+    virtual void print();
     virtual void initialize();
 
     virtual bool overlaps(const TrigBtagEmulationChainJetIngredient_HLT&) const;
@@ -148,7 +149,7 @@ namespace Trig {
     TrigBtagEmulationChainJetIngredient_GSC(const TrigBtagEmulationChainJetIngredient_GSC&);
     virtual ~TrigBtagEmulationChainJetIngredient_GSC();
 
-    virtual void print() const;
+    virtual void print();
     virtual bool isPassed() const;
     virtual bool hasFeature(const std::string&) const;
     virtual void clear();

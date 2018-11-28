@@ -26,6 +26,7 @@ TriggerFeature::~TriggerFeature() {}
 
 MsgStream& TriggerFeature::msg() const { return m_msg; }
 MsgStream& TriggerFeature::msg( const MSG::Level lvl ) const { return msg() << lvl; }
+bool TriggerFeature::msgLvl (MSG::Level lvl) { return msg().level() <= lvl; }
 
 const std::string& TriggerFeature::name() const { return m_name; }
 
@@ -381,21 +382,21 @@ bool TriggerFeatureInvmNFF::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
 
 //**********************************************************************
 
-void TriggerFeatureBtag::print() { ATH_MSG_INFO( "      BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
-void TriggerFeatureAntiBtag::print() { ATH_MSG_INFO( "      ANTI-BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
-void TriggerFeatureHt::print() { ATH_MSG_INFO( "      HT: "<< this->m_count_ht  <<"/"<< this->m_min_ht ); }
+void TriggerFeatureBtag::print() { ATH_MSG_DEBUG( "      BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
+void TriggerFeatureAntiBtag::print() { ATH_MSG_DEBUG( "      ANTI-BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
+void TriggerFeatureHt::print() { ATH_MSG_DEBUG( "      HT: "<< this->m_count_ht  <<"/"<< this->m_min_ht ); }
 void TriggerFeatureHtTop::print() { 
   std::string message = Form( "      HT: %f/%f",this->m_count_ht,this->m_min_ht );
   if (this->m_topEt!=0) message += Form(" [top %d",this->m_topEt);
-  ATH_MSG_INFO( message );
+  ATH_MSG_DEBUG( message );
 }
 void TriggerFeatureInvm::print() { 
   std::string message = "";
   if ( this->m_minPtList != 0 ) message += Form(" [pT > %.0f] ",m_minPtList );
-  ATH_MSG_INFO( "      MJJ" << message << ": " << this->m_count_invm << "/" << this->m_min_invm ); 
+  ATH_MSG_DEBUG( "      MJJ" << message << ": " << this->m_count_invm << "/" << this->m_min_invm ); 
 }
-void TriggerFeatureInvmCF::print() { ATH_MSG_INFO( "      MJJ-CF: " << this->m_count_invm << "/" << this->m_min_invm ); }
-void TriggerFeatureInvmNFF::print() { ATH_MSG_INFO( "      MJJ-NFF: " << this->m_count_invm << "/" << this->m_min_invm ); }
+void TriggerFeatureInvmCF::print() { ATH_MSG_DEBUG( "      MJJ-CF: " << this->m_count_invm << "/" << this->m_min_invm ); }
+void TriggerFeatureInvmNFF::print() { ATH_MSG_DEBUG( "      MJJ-NFF: " << this->m_count_invm << "/" << this->m_min_invm ); }
 
 //**********************************************************************
 

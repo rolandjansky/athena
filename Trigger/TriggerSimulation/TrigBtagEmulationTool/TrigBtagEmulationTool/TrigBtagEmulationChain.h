@@ -67,6 +67,7 @@ namespace Trig {
 
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
+    bool msgLvl (MSG::Level lvl);
 
   private:
     bool recordChain();

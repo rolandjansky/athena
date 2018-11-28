@@ -41,6 +41,7 @@ namespace Trig {
   protected:
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
+    bool msgLvl (MSG::Level lvl);
 
   protected:
     enum JetElement {PT,ETA,PHI};

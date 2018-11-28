@@ -116,6 +116,7 @@ bool TrigBtagEmulationChain::parseChainName() {
 
 MsgStream& TrigBtagEmulationChain::msg() const { return m_msg; }
 MsgStream& TrigBtagEmulationChain::msg( const MSG::Level lvl ) const { return msg() << lvl; }
+bool TrigBtagEmulationChain::msgLvl (MSG::Level lvl) { return msg().level() <= lvl; }
 
 void TrigBtagEmulationChain::addDecisionIngredient(const std::string& decision) { m_ingredientsDecision.push_back(decision); }
 
@@ -303,20 +304,22 @@ bool TrigBtagEmulationChain::isPassed( const std::string &chain ) const {
 }
 
 void TrigBtagEmulationChain::print() {
-  ATH_MSG_INFO( "" );
-  ATH_MSG_INFO( "EMULATING TRIGGER : " << m_name );
+  if ( not msgLvl(MSG::DEBUG) ) return;
+
+  ATH_MSG_DEBUG( "" );
+  ATH_MSG_DEBUG( "EMULATING TRIGGER : " << m_name );
 
   for ( unsigned int i(0); i < m_definition.size(); i++ ) {
-    if ( i != 0 ) ATH_MSG_INFO( " __ OR __ " );
+    if ( i != 0 ) ATH_MSG_DEBUG( " __ OR __ " );
     for ( unsigned int j(0); j<m_definition.at(i).size(); j++ ) 
-      ATH_MSG_INFO( "  AND : " << m_definition.at(i).at(j) );
+      ATH_MSG_DEBUG( "  AND : " << m_definition.at(i).at(j) );
   }
   
-  ATH_MSG_INFO( "### TRIGGER EMULATION ###" );
+  ATH_MSG_DEBUG( "### TRIGGER EMULATION ###" );
   for ( unsigned int i(0); i < m_definition.size(); i++ )
     for ( unsigned int j(0); j < m_definition.at(i).size(); j++ )
       if ( m_definition.at(i).at(j).find("EMUL") != std::string::npos ) m_chains.at( m_definition.at(i).at(j) )->print();
-      else ATH_MSG_INFO( "### TDT Outcome for Trigger " << m_definition.at(i).at(j) << " : " << m_trigDec->isPassed( m_definition.at(i).at(j).c_str() ) );
+      else ATH_MSG_DEBUG( "### TDT Outcome for Trigger " << m_definition.at(i).at(j) << " : " << m_trigDec->isPassed( m_definition.at(i).at(j).c_str() ) );
 }
 
 bool TrigBtagEmulationChain::hasFeature(const std::string& feature) {

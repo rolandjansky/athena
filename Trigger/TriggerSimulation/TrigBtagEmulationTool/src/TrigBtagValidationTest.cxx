@@ -24,8 +24,7 @@ namespace Trig{
       m_chain("HLT_j15_gsc35_boffperf_split"),
       m_eventCount(0),
       m_min_eventCount(-1),
-      m_max_eventCount(-1),
-      m_verbosity(0)
+      m_max_eventCount(-1)
   {
     declareProperty("TrigBtagEmulationTool",m_emulationTool        );
     declareProperty("ToBeEmulatedTriggers" ,m_toBeEmulatedTriggers );
@@ -36,7 +35,6 @@ namespace Trig{
     declareProperty("InputChain"           ,m_chain                );
     declareProperty("MinEvent"             ,m_min_eventCount       );
     declareProperty("MaxEvent"             ,m_max_eventCount       );
-    declareProperty("Verbosity"            ,m_verbosity            );
   }
   
   //**********************************************************************
@@ -112,7 +110,7 @@ namespace Trig{
 
     if ( m_eventCount < m_min_eventCount ) return StatusCode::SUCCESS;
     if ( m_max_eventCount != -1 && m_eventCount >= m_max_eventCount ) return StatusCode::SUCCESS;
-    ATH_MSG_INFO( "Processing Event n. " << m_eventCount );
+    ATH_MSG_DEBUG( "Processing Event n. " << m_eventCount );
     m_eventCount++;
 
     // CHECK CHAINS HAVE BEEN CORRECTLY INTERPRETED
@@ -127,7 +125,7 @@ namespace Trig{
 
 
     // RETRIEVE ORIGINAL JETS VIA NAVIGATION
-    ATH_MSG_VERBOSE( "Retrieving GSC original Jets" );
+    ATH_MSG_DEBUG( "Retrieving GSC original Jets" );
     std::vector< const xAOD::Jet* > originalJets;
     std::vector< const xAOD::BTagging* > originalBtagging;
 
@@ -140,11 +138,11 @@ namespace Trig{
     }
 
     // RETRIEVE RETAGGED JETS
-    ATH_MSG_VERBOSE( "Retrieving GSC retagged Jets" );
+    ATH_MSG_DEBUG( "Retrieving GSC retagged Jets" );
     const xAOD::JetContainer *retaggedJets = m_emulationTool->retaggedJets("GSC");
 
     // *** Check size of the jets we are going to compare.
-    ATH_MSG_VERBOSE( "Retrieved " << originalJets.size() << " original GSC jets and "<< retaggedJets->size() << " retagged GSC jets" );
+    ATH_MSG_DEBUG( "Retrieved " << originalJets.size() << " original GSC jets and "<< retaggedJets->size() << " retagged GSC jets" );
     if (originalJets.size() != retaggedJets->size()) {
       ATH_MSG_ERROR( "Original and Retagged jets have different sizes." );
       if (retaggedJets->size() == 0) {
@@ -161,8 +159,8 @@ namespace Trig{
 
     for ( const xAOD::Jet* jet : *retaggedJets ) {
       std::unique_ptr< const xAOD::BTagging > bjet( jet->btagging() );
-      ATH_MSG_VERBOSE( "Dumping ORIGINAL and RETAGGED jet collections" );
-      ATH_MSG_VERBOSE( "  -- GSC Jet : pt="<< jet->p4().Et()*1e-03 << " eta="<< jet->eta() <<" phi="<< jet->phi() );
+      ATH_MSG_DEBUG( "Dumping ORIGINAL and RETAGGED jet collections" );
+      ATH_MSG_DEBUG( "  -- GSC Jet : pt="<< jet->p4().Et()*1e-03 << " eta="<< jet->eta() <<" phi="<< jet->phi() );
 
       double value_mv2c10  = -1;
       double value_mv2c20  = -1;
@@ -174,18 +172,16 @@ namespace Trig{
       bjet->variable< double >("IP3DSV1" ,"discriminant" ,value_ip3dsv1);
       bjet->variable< double >("COMB"    ,"discriminant" ,value_comb   );
 
-      if ( m_verbosity > 1 ) {
-	ATH_MSG_INFO( "    ** MV2C10  = " << value_mv2c10  );
-	ATH_MSG_INFO( "    ** MV2C20  = " << value_mv2c20  );
-	ATH_MSG_INFO( "    ** IP3DSV1 = " << value_ip3dsv1 );
-	ATH_MSG_INFO( "    ** COMB    = " << value_comb    );
-      }
+      ATH_MSG_DEBUG( "    ** MV2C10  = " << value_mv2c10  );
+      ATH_MSG_DEBUG( "    ** MV2C20  = " << value_mv2c20  );
+      ATH_MSG_DEBUG( "    ** IP3DSV1 = " << value_ip3dsv1 );
+      ATH_MSG_DEBUG( "    ** COMB    = " << value_comb    );
 
       // *** 
 
       const xAOD::Jet *referenceJet = *itJet;
       const xAOD::BTagging *referenceBTagging = *itBtagging;
-      ATH_MSG_VERBOSE( "  -- ORIGINAL GSC Jet : pt="<< referenceJet->p4().Et()*1e-03 << " eta="<< referenceJet->eta() <<" phi="<< referenceJet->phi() );
+      ATH_MSG_DEBUG( "  -- ORIGINAL GSC Jet : pt="<< referenceJet->p4().Et()*1e-03 << " eta="<< referenceJet->eta() <<" phi="<< referenceJet->phi() );
 
       double reference_mv2c10  = -1;
       double reference_mv2c20  = -1;
@@ -199,15 +195,13 @@ namespace Trig{
       if( reference_comb/(1+reference_comb) < 1 ) 
 	reference_comb = -1.0*TMath::Log10(1-(reference_comb/(1+reference_comb)) );
 
-      if ( m_verbosity > 1 ) {
-	ATH_MSG_INFO( "    ** MV2C10  = " << reference_mv2c10  );
-	ATH_MSG_INFO( "    ** MV2C20  = " << reference_mv2c20  );
-	ATH_MSG_INFO( "    ** IP3DSV1 = " << reference_ip3dsv1 );
-	ATH_MSG_INFO( "    ** COMB    = " << reference_comb    );
-      }
+      ATH_MSG_DEBUG( "    ** MV2C10  = " << reference_mv2c10  );
+      ATH_MSG_DEBUG( "    ** MV2C20  = " << reference_mv2c20  );
+      ATH_MSG_DEBUG( "    ** IP3DSV1 = " << reference_ip3dsv1 );
+      ATH_MSG_DEBUG( "    ** COMB    = " << reference_comb    );
 
       // *** Compare jets
-      if ( m_verbosity > 1 ) ATH_MSG_INFO( "Comparing ORIGINAL and RETAGGED jet collections" );
+      ATH_MSG_DEBUG( "Comparing ORIGINAL and RETAGGED jet collections" );
       bool passes = true;
       if ( referenceJet->p4().Et() != jet->p4().Et() ) passes = false;
       else if ( referenceJet->eta() != jet->eta() ) passes = false;
@@ -224,12 +218,12 @@ namespace Trig{
 	ATH_MSG_ERROR( "RETAGGED and ORIGINAL GSC jets are dissimilar." );
 	delete retaggedJets;
 	return StatusCode::FAILURE;
-      } else if ( m_verbosity > 1 ) { ATH_MSG_INFO( "  ** SUCCESS" ); }
+      } else { ATH_MSG_DEBUG( "  ** SUCCESS" ); } 
 
 
     }
     
-    if ( m_verbosity > 1 ) ATH_MSG_INFO( "" );
+    ATH_MSG_DEBUG( "" );
 
     delete retaggedJets;
     return StatusCode::SUCCESS;
@@ -321,7 +315,7 @@ namespace Trig{
       if (!passTDT && passEmul) std::get<mismatchesTDT0EMUL1>( m_counters[ triggerName.c_str() ] )++;
 
       message += Form("TDT=%d EMUL=%d MISMATCH=%d",passTDT?1:0,passEmul?1:0,passTDT != passEmul?1:0);
-      if ( m_verbosity > 1 ) ATH_MSG_INFO( message.c_str() );
+      ATH_MSG_DEBUG( message.c_str() );
 
       if (m_errorAtMismatch && passTDT != passEmul) {
         ATH_MSG_ERROR( "Observed Mismatch for trigger chain ['" << triggerName << "']" );
@@ -329,7 +323,7 @@ namespace Trig{
       }
     }
 
-    if ( m_verbosity > 1 ) ATH_MSG_INFO( "" );
+    ATH_MSG_DEBUG( "" );
 
     return StatusCode::SUCCESS;
   }
