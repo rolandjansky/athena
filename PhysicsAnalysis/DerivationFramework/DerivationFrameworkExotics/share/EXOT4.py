@@ -11,6 +11,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 
 # write heavy flavour hadron information in MC
 if DerivationFrameworkIsMonteCarlo:
@@ -139,7 +140,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 btag_jetnoel = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4EMTopoNoEl", AddToToolSvc=True,
                                                      Verbose=True,
                                                      options={"name"         : "btagging_antikt4emtoponoel",
-                                                              "BTagName"     : "BTagging_AntiKt4TopoNoEl",
+                                                              "BTagName"     : "BTagging_AntiKt4EMTopoNoEl",
                                                               "BTagJFVtxName": "JFVtx",
                                                               "BTagSVName"   : "SecVtx",
                                                               },
@@ -459,6 +460,18 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramew
 #ToolSvc += EXOT4CA15CCThinningTool
 #thinningTools.append(EXOT4CA15CCThinningTool)
 
+#Thinning tool for akt4 topoEM jets
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+EXOT4Ak4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT4Ak4CCThinningTool",
+                                                                        ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
+                                                                        SGKey                   = "AntiKt4EMTopoJets",
+                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                        SelectionString         = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 7*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 3",                                                           
+                                                                        AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
+ToolSvc += EXOT4Ak4CCThinningTool
+thinningTools.append(EXOT4Ak4CCThinningTool)
+
+
 # Keep topoclusters to which the akt10 trimmed jet is ElementLink'ed to
 # Useful for performance studies and to rerun taggers offline
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
@@ -470,6 +483,20 @@ EXOT4Ak10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name      
                                                                        AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT4Ak10CCThinningTool
 thinningTools.append(EXOT4Ak10CCThinningTool)
+
+
+#Calo cluster thinning for CSSK jets
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+EXOT4A10SoftDropThinningTool = DerivationFramework__JetCaloClusterThinning(name             	 = "EXOT4A10SoftDropThinningTool",
+																																			 ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
+																																			 SGKey                   = "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+																																			 TopoClCollectionSGKey   = "CaloCalTopoClusters",
+																																			 SelectionString         = "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets.pt > 150*GeV",
+																																			 AdditionalClustersKey 	 = ["LCOriginCSSKTopoClusters"])
+ToolSvc += EXOT4A10SoftDropThinningTool
+thinningTools.append(EXOT4A10SoftDropThinningTool)
+
+
 
 # TODO Uncomment when merging with HIGG5D2
 # Tracks associated with Photons
@@ -680,6 +707,19 @@ replaceAODReducedJets(reducedJetList,exot4Seq,"EXOT4")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot4Seq,"EXOT4")
 
+#Add Soft drop jets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCSSKSoftDropJets
+addCSSKSoftDropJets(exot4Seq,"EXOT4")
+
+#AddVR Jets
+addVRJets(exot4Seq)
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'],Sequencer = exot4Seq)
+
+
 #some jets collections are not included in the new jet restoring mechanism and need to be added the old way
 
 # also add the C/A 1.5 jet for the HEPTopTagger studies
@@ -779,10 +819,11 @@ if globalflags.DataSource()=='geant4':
 # veto the truth jet, because we will add it in the ExtraVariables manually
 #addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets", "CamKt15LCTopoJets"])#FIX #ATLJETMET-744
 #addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
-addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
+#addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4EMTopoJets","AntiKtVR30Rmax4Rmin02Track"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
+#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
 
 #listJets = ['CamKt15LCTopoJets', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets','AntiKtVR30Rmax4Rmin02Track','AntiKt4EMPFlowJets','AntiKt4EMTopoJets','AntiKt2PV0TrackJets']#FIX #ATLJETMET-744
 if globalflags.DataSource()=='geant4':
   listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
 # need to add the jets that are made on-the-fly into the dictionary, otherwise there is a crash
@@ -793,6 +834,11 @@ for i in listJets:
   EXOT4SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
   # hand picked list of variables to save -- save disk space
   EXOT4SlimmingHelper.ExtraVariables +=[i,i+'.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau1_wta.Tau2_wta.Tau3_wta.Split12.Split23.NTrimSubjets.Parent.GhostAntiKt2TrackJet"']
+
+listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track','BTagging_AntiKt4EMPFlow','BTagging_AntiKt4EMTopo','BTagging_AntiKt2Track']
+for i in listBtag:
+	EXOT4SlimmingHelper.AppendToDictionary[i] = 'xAOD::BTaggingContainer'
+	EXOT4SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::BTaggingAuxContainer'
 
 #EXOT4SlimmingHelper.ExtraVariables += ["AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks.-constituentWeight.-ConstituentScale"]
 #EXOT4SlimmingHelper.ExtraVariables += ["BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant"]
@@ -809,12 +855,13 @@ for jet in listNewJets :
    
 # same procedure to add in the dictionary needs to be done for the btagging information generated on the fly
 # again: hand picked list of variables to save is given
-listBtagNoEl=['BTagging_AntiKt4EMTopoNoEl','BTagging_AntiKt4TrackNoEl']
+listBtagNoEl=['BTagging_AntiKt4EMTopoNoEl']  #BTagging_AntiKt4TrackNoEl' #removing the b-tag information of R=4 track jets
 
 for btag in listBtagNoEl :
    EXOT4SlimmingHelper.AppendToDictionary[btag] = 'xAOD::BTaggingContainer'
    EXOT4SlimmingHelper.AppendToDictionary[btag+'Aux']= 'xAOD::AuxContainerBase' 
-   EXOT4SlimmingHelper.ExtraVariables +=[btag+".SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant.MSV_vertices.MV1c_discriminant.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant"]
+   #EXOT4SlimmingHelper.ExtraVariables +=[btag+".SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant.MSV_vertices.MV1c_discriminant.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant"]
+   EXOT4SlimmingHelper.ExtraVariables +=[btag+".SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant.MSV_vertices.MV1c_discriminant.SV1_badTracksIP.SV1_vertices.B    TagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.MV2r_discriminant.MV2rmu_discriminant.DL1r_pb.DL1r_pc.DL1r_pu.DL1rmu_pb.DL1rmu_pc.DL1rmu_pu"]
 
 # central JetEtMiss function to save the MET necessary information
 addMETOutputs(EXOT4SlimmingHelper, ["Track", "EXOT4","NoEl"], ["AntiKt4EMTopo"])
