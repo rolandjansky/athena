@@ -1588,7 +1588,6 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             isFrag5 = true;
             m_frag5found = true;
             m_unit = unit;
-            m_rc2bytes5.setUnit(unit);
             nchan = 48;
             OFC.clear();
 
