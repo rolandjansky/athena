@@ -16,6 +16,8 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
+#include "SCT_Cabling/ISCT_CablingTool.h"
+
 namespace {
   //int rodLinkFromOnlineID(const uint32_t id) {
   int rodLinkFromOnlineID(const SCT_OnlineId onlineID) {

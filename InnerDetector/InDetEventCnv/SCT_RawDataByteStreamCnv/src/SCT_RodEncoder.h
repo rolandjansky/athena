@@ -20,7 +20,6 @@
 ///InDet
 /**needed for typedef, cannot fwd declare */
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
 ///Gaudi
@@ -29,8 +28,8 @@
 ///STL
 #include <set>
 
+class ISCT_CablingTool;
 class SCT_ID;
-
 class SCT_RDORawData;
 class Identifier;
 class IdentifierHash;

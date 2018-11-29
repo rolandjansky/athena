@@ -19,10 +19,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-///InDet
-/** needed for typedef, cannot fwd declare */
-#include "InDetRawData/SCT_RDO_Container.h"
-
 class SCT_RDORawData;
 
 class ISCT_RodEncoder : virtual public IAlgTool {
