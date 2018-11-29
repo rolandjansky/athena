@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ToyDetectorTool.h"
@@ -42,7 +42,7 @@ ToyDetectorTool::create()
   // 
   // Locate the top level experiment node 
   // 
-  DataHandle<GeoModelExperiment> theExpt; 
+  GeoModelExperiment* theExpt = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
