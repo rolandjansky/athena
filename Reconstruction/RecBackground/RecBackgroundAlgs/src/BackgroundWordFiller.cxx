@@ -323,44 +323,40 @@ StatusCode BackgroundWordFiller::execute() {
     } // enough hits per side
   }
   
-   ////////////////////////////////////////
-   // printout the final background word
-   ///////////////////////////////////////
-   if (msgLvl(MSG::DEBUG)) {
-     msg(MSG::DEBUG) << "Summary of background word contents:"<< endmsg;
-     msg(MSG::DEBUG) << "MBTSTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "MBTSTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "MBTSBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<< endmsg;
-     msg(MSG::DEBUG) << "LArECTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "LArECTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "PixMultiplicityHuge: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::PixMultiplicityHuge)<< endmsg;
-     msg(MSG::DEBUG) << "PixSPNonEmpty: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<< endmsg;
-     msg(MSG::DEBUG) << "SCTMultiplicityHuge: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTMultiplicityHuge)<< endmsg;
-     msg(MSG::DEBUG) << "SCTSPNonEmpty: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<< endmsg;
-     msg(MSG::DEBUG) << "CSCTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "CSCTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "BCMTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<< endmsg;
-     msg(MSG::DEBUG) << "BCMTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<< endmsg;
-     msg(MSG::DEBUG) << "BCMBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<< endmsg;
-     msg(MSG::DEBUG) << "MuonTimingCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<< endmsg;
-     msg(MSG::DEBUG) << "MuonTimingCosmic: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<< endmsg;
-     msg(MSG::DEBUG) << "LUCIDBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<< endmsg;
-   }
-   return StatusCode::SUCCESS;
+  ////////////////////////////////////////
+  // printout the final background word
+  ///////////////////////////////////////
+  ATH_MSG_DEBUG("Summary of background word contents:");
+  ATH_MSG_DEBUG("MBTSTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo));
+  ATH_MSG_DEBUG("MBTSTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol));
+  ATH_MSG_DEBUG("MBTSBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto));
+  ATH_MSG_DEBUG("LArECTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo));
+  ATH_MSG_DEBUG("LArECTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol));
+  ATH_MSG_DEBUG("PixMultiplicityHuge: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::PixMultiplicityHuge));
+  ATH_MSG_DEBUG("PixSPNonEmpty: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty));
+  ATH_MSG_DEBUG("SCTMultiplicityHuge: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTMultiplicityHuge));
+  ATH_MSG_DEBUG("SCTSPNonEmpty: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty));
+  ATH_MSG_DEBUG("CSCTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo));
+  ATH_MSG_DEBUG("CSCTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol));
+  ATH_MSG_DEBUG("BCMTimeDiffHalo: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo));
+  ATH_MSG_DEBUG("BCMTimeDiffCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol));
+  ATH_MSG_DEBUG("BCMBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto));
+  ATH_MSG_DEBUG("MuonTimingCol: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol));
+  ATH_MSG_DEBUG("MuonTimingCosmic: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic));
+  ATH_MSG_DEBUG("LUCIDBeamVeto: "<<eventInfoReadHandle->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto));
+  
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------
 
 StatusCode BackgroundWordFiller::finalize() {
 
-
-  msg(MSG::INFO) << "In finalize()" << endmsg;
+  ATH_MSG_INFO("In finalize()");
   
-  msg( MSG::INFO) << "Job Summary for Background Word (NB. MBTS time bits not counted by this alg)" << endmsg;
-  for(int ibit=0;ibit<EventInfo::NBackgroundWords;++ibit)
-    msg(MSG::INFO) << " " << m_bitnamevec[ibit] << ": " <<  m_bitcntvec[ibit] << "/" << m_totalcnt << " events" <<endmsg;
+  ATH_MSG_INFO("Job Summary for Background Word (NB. MBTS time bits not counted by this alg)");
+  for(int ibit=0;ibit<EventInfo::NBackgroundWords;++ibit) ATH_MSG_INFO(" " << m_bitnamevec[ibit] << ": " <<  m_bitcntvec[ibit] << "/" << m_totalcnt << " events");
   
   return StatusCode::SUCCESS;
-  
 }
 
