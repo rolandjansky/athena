@@ -321,6 +321,7 @@
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
 + Tools/CodeCheck
++ Tools/FilePeeker
 + Tools/JobTransforms
 + Tools/KitValidation
 + Tools/PathResolver
