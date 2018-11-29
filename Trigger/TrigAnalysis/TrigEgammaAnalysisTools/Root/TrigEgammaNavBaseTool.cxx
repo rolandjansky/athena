@@ -181,7 +181,7 @@ bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHMediumHI"){
-        const Root::TAccept& accept=m_electronLHTool[3]->accept(eg);
+        bool accept = (bool) m_electronLHTool[3]->accept(eg);
         return static_cast<bool>(accept);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
