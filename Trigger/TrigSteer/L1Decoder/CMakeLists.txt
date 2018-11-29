@@ -55,6 +55,6 @@ atlas_add_test( L1DecoderNJOTest SCRIPT python -m L1Decoder.L1DecoderConfig )
 
 atlas_add_test( L1DecoderTest
                 SCRIPT test/test_l1decoder.sh
-                PROPERTIES TIMEOUT 500               
+                PROPERTIES TIMEOUT 1000               
               )
 

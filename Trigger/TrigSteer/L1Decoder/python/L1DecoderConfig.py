@@ -23,8 +23,7 @@ def L1DecoderCfg(flags):
                                                       OutputTrigRoIs = recordable("EMRoIs"),
                                                       MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
 
-    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET"),
-                                                      OutputTrigRoI = recordable("METRoI")) ]
+    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET")) ]
 
     decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1J"),
                                                       OutputTrigRoIs = recordable("JETRoI")) ]
