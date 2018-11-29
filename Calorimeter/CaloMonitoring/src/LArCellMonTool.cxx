@@ -42,8 +42,6 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
    m_noiseTool("CaloNoiseTool"),
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
    m_badChannelMask("BadLArRawChannelMask",this),
-   m_badChannelTool("LArBadChanTool"),
-   m_LArCablingService("LArCablingService"),
    m_LArOnlineIDHelper(nullptr),
    m_calo_id(nullptr),
    m_counter_sporadic_protc(0),
@@ -70,7 +68,6 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
   
   // Bad channel masking options 
   declareProperty("LArBadChannelMask",m_badChannelMask,"Tool handle for LArBadChanelMasker AlgTool");
-  declareProperty("LArBadChannelTool",m_badChannelTool,"Tool handle of LAr Bad-Channel tool");
   declareProperty("MaskBadChannels",m_maskKnownBadChannels=false,"Do not fill histograms with values from known bad channels"); 
   declareProperty("MaskNoCondChannels", m_maskNoCondChannels=false,"Do not fill histograms with values from cells reco'ed w/o conditions database");
 
@@ -155,9 +152,8 @@ StatusCode LArCellMonTool::initialize() {
 
   ATH_MSG_INFO("LArCellMonTool::initialize() start");
 
-  //Identfier-helpers & CablingSvc
+  //Identfier-helpers 
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
-  ATH_CHECK( m_LArCablingService.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_calo_id) );
 
   // Bad channel masker tool 
@@ -168,13 +164,12 @@ StatusCode LArCellMonTool::initialize() {
     m_badChannelMask.disable();
   }
 
-  // Retrieve bad channel tool
+  ATH_CHECK( m_cablingKey.initialize() );
+
+  // Bad channels key
   //(used for building eta phi map of known bad channels)
   if( m_doKnownBadChannelsVsEtaPhi) {
-    ATH_CHECK(m_badChannelTool.retrieve());
-  }
-  else {
-    m_badChannelTool.disable();
+    ATH_CHECK(m_BCKey.initialize());
   }
 
   //Calonoise tool
@@ -571,7 +566,7 @@ void LArCellMonTool::checkTriggerAndBeamBackground() {
 } 
 
 
-void LArCellMonTool::sporadicNoiseCandidate(const CaloCell* cell, const LArCellMonTool::LayerEnum iLyr, const float threshold) {
+void LArCellMonTool::sporadicNoiseCandidate(const CaloCell* cell, const LArCellMonTool::LayerEnum iLyr, const float threshold, const LArOnOffIdMapping* cabling) {
   
   const Identifier id=cell->ID();
   const PartitionEnum part=m_layerEnumtoPartitionEnum[iLyr];  
@@ -587,7 +582,7 @@ void LArCellMonTool::sporadicNoiseCandidate(const CaloCell* cell, const LArCellM
     ++m_sporadicPerPartCounter[part];
     ++m_counter_sporadic_protc;
     m_h_sporadicHists[part]->Fill(1.0); //FIXME Sounds like nonsense but used in webdisplay config      
-    bookNoisyCellHistos(snc,cell->caloDDE(),part,threshold);
+    bookNoisyCellHistos(snc,cell->caloDDE(),part,threshold, cabling);
   }// end if reached m_minSporadicNoiseEventsPerCell and  < m_sporadic_protection
 
   if (snc.m_h_energy) {
@@ -602,9 +597,10 @@ void LArCellMonTool::sporadicNoiseCandidate(const CaloCell* cell, const LArCellM
 }
 
 void LArCellMonTool::bookNoisyCellHistos(SporadicNoiseCell_t& result, const CaloDetDescrElement* dde, 
-					 const PartitionEnum part, const float threshold) {
+					 const PartitionEnum part, const float threshold,
+                                         const LArOnOffIdMapping* cabling) {
 
-  const HWIdentifier onlID=m_LArCablingService->createSignalChannelID(dde->identify());
+  const HWIdentifier onlID=cabling->createSignalChannelID(dde->identify());
   const int ft = m_LArOnlineIDHelper->feedthrough(onlID);
   const int slot = m_LArOnlineIDHelper->slot(onlID);
   const int channel = m_LArOnlineIDHelper->channel(onlID);
@@ -657,6 +653,13 @@ void LArCellMonTool::bookNoisyCellHistos(SporadicNoiseCell_t& result, const Calo
 StatusCode LArCellMonTool::fillHistograms(){  
 
   ATH_MSG_DEBUG("LArCellMonTool::fillHistograms() starts");
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling");
+     return StatusCode::FAILURE;
+  }
 
   const CaloCellContainer* cellCont = nullptr;
   ATH_CHECK(evtStore()->retrieve(cellCont, m_cellContainerName));
@@ -772,7 +775,7 @@ StatusCode LArCellMonTool::fillHistograms(){
 	  energyThreshold = m_threshold_HECFCALEMS2S3;
 	}
 	if (cell->energy()> energyThreshold) {
-	  sporadicNoiseCandidate(cell,(LayerEnum)iLyr,energyThreshold);
+	  sporadicNoiseCandidate(cell,(LayerEnum)iLyr,energyThreshold, cabling);
 	}  
       }//end if m_sporadic_switch
     } // end if m_passBeamBackgroundRemoval
@@ -1007,6 +1010,12 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
   }//end loop over thresholds
   
 
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(m_doKnownBadChannelsVsEtaPhi && !bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container !!!" );
+     return StatusCode::FAILURE;
+  }
   
   //filling:
   CaloCellContainer::const_iterator it = cellCont->begin(); 
@@ -1022,7 +1031,7 @@ StatusCode LArCellMonTool::createPerJobHistograms(const CaloCellContainer* cellC
     getHistoCoordinates(caloDDEl, celleta, cellphi, iLyr, iLyrNS);
 
     if (m_doKnownBadChannelsVsEtaPhi) {
-      const LArBadChannel larBadChannel = m_badChannelTool->offlineStatus(id);
+      const LArBadChannel larBadChannel = bcCont->offlineStatus(id);
       if (!larBadChannel.good()) {
 	const uint32_t badCellWord = larBadChannel.packedData();
 	m_h_badChannels_etaphi[iLyr]->Fill(celleta,cellphi,badCellWord);

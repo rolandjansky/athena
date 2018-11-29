@@ -57,15 +57,20 @@ StatusCode CaloCellGroup2Ntuple::stop () {
   m_cellGroupList.printDef();
 
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
 
-
- std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
- std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
- for(; itOnId!=itOnIdEnd;++itOnId){
+  std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
+  std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
+  for(; itOnId!=itOnIdEnd;++itOnId){
    const HWIdentifier hwid = *itOnId;
-   if (m_larCablingSvc->isOnlineConnected(hwid)) {
+   if (cabling->isOnlineConnected(hwid)) {
      fillFromIdentifier(hwid);
-     Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
+     Identifier id=cabling->cnvToIdentifier(hwid);
      const std::vector<float>& v=m_cellGroupList.valuesForCell(id);
      nValues=v.size();
      for (size_t i=0;i<v.size();i++) 
@@ -77,7 +82,7 @@ StatusCode CaloCellGroup2Ntuple::stop () {
        return StatusCode::FAILURE;
      }
    }//end if isConnected
- }//end loop over online ID
+  }//end loop over online ID
 
  (*m_log)  << MSG::INFO << "CaloCellGroup2Ntuple has finished." << endmsg;
  return StatusCode::SUCCESS;

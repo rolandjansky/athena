@@ -111,60 +111,60 @@ StatusCode LArWFParamTool::initialize()
 {
   std::string layerName[4] = { "PS" , "Strips" , "Middle" , "Back" } ;
   
-  msg(MSG::INFO) << "TShaper set to " << m_Tshaper << " ns" << endmsg ;
+  ATH_MSG_INFO( "TShaper set to " << m_Tshaper << " ns" ) ;
 
-  msg(MSG::INFO) << "Step response (Fstep)        -> Ttail = Tmin + " << m_DeltaTtail[0] << " steps" << endmsg ;
+  ATH_MSG_INFO( "Step response (Fstep)        -> Ttail = Tmin + " << m_DeltaTtail[0] << " steps" ) ;
 
   if (!m_UseOmegaScanHelper)
-    msg(MSG::INFO) << "Cosine response (Omega0)     -> Ttail = Tmin + " << m_DeltaTtail[1] << " steps" << endmsg ;
+    ATH_MSG_INFO( "Cosine response (Omega0)     -> Ttail = Tmin + " << m_DeltaTtail[1] << " steps" ) ;
   else
-    msg(MSG::INFO) << "Cosine response (Omega0)     -> Will use OmegaScanHelper() to dynamically select settings" << endmsg;
+    ATH_MSG_INFO( "Cosine response (Omega0)     -> Will use OmegaScanHelper() to dynamically select settings" );
 
-  msg(MSG::INFO) << "Residual oscillations (Taur) -> Ttail = Tmin + " << m_DeltaTtail[2] << " steps" << endmsg ;
+  ATH_MSG_INFO( "Residual oscillations (Taur) -> Ttail = Tmin + " << m_DeltaTtail[2] << " steps" ) ;
   
   for ( unsigned layer=0 ; layer<4 ; ++layer ) {
-    msg(MSG::INFO) << "options for Layer " << layer << " (" << layerName[layer] << ")" << endmsg ;
+    ATH_MSG_INFO( "options for Layer " << layer << " (" << layerName[layer] << ")" ) ;
 
-    msg(MSG::INFO) << "      perform cos resp scan: " ;
+    ATH_MSG_INFO( "      perform cos resp scan: " );
     if ( m_cosRespScan[layer] && !m_UseOmegaScanHelper ) 
-      msg(MSG::INFO) << "YES (" << m_npoints[layer] << " points)" << endmsg ;
+      ATH_MSG_INFO( "YES (" << m_npoints[layer] << " points)" ) ;
     if ( !m_cosRespScan[layer] && !m_UseOmegaScanHelper ) 
-      msg(MSG::INFO) << "NO" << endmsg ;
+      ATH_MSG_INFO( "NO" ) ;
     if ( m_UseOmegaScanHelper )
-      msg(MSG::INFO) << "Will use OmegaScanHelper() to dynamically select settings" << endmsg ;
+      ATH_MSG_INFO( "Will use OmegaScanHelper() to dynamically select settings" ) ;
 
     if (!m_UseOmegaScanHelper) {
-      msg(MSG::INFO) << "      search interval: [ " << m_omegamin[layer] << " ; " << m_omegamax[layer] << " ]" << endmsg ;
+      ATH_MSG_INFO( "      search interval: [ " << m_omegamin[layer] << " ; " << m_omegamax[layer] << " ]" ) ;
       if ( m_omegamin[layer] >= m_omegamax[layer] ) {
-	msg(MSG::ERROR) << "Omega0Min >= Omega0Max in layer " << layer << " -- exit!" << endmsg ;
+	ATH_MSG_ERROR( "Omega0Min >= Omega0Max in layer " << layer << " -- exit!" ) ;
 	return StatusCode::FAILURE ;
       }
     }
 
-    msg(MSG::INFO) << "      store residual oscillation wave:" ;
+    ATH_MSG_INFO( "      store residual oscillation wave:" );
     if ( m_storeResOscill[layer] ) {
-      msg(MSG::INFO) << "YES" << endmsg ;
+      ATH_MSG_INFO( "YES" ) ;
     } else {
-      msg(MSG::INFO) << "NO" << endmsg ;
+      ATH_MSG_INFO( "NO" ) ;
     }
 
   }
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArOnlineID helper" );
     return sc;
   } 
   
   sc = detStore()->retrieve(m_emId, "LArEM_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArOnlineID helper" );
     return sc;
   } 
 
   sc= m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArCablingService" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArCablingService" );
     return sc;
   } 
 
@@ -193,8 +193,8 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.tcal() == DoExtract ) {
     const double Tcal = expTail(gCali,waveTiming) ;
     if ( Tcal < 0 ) {
-      msg(MSG::WARNING) << "Could not extract Tcal for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain << endmsg ;
+      ATH_MSG_WARNING( "Could not extract Tcal for ChID=" << chid.get_compact() 
+			<< " gain=" << (int)gain ) ;
       wfParams.setTcal(FailExtract);
       return StatusCode::FAILURE;
     }
@@ -208,8 +208,8 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.fstep() == DoExtract ) {
     StatusCode sc = GetFstep(gCali,wfParams,waveTiming);
     if ( sc.isFailure() ) {
-      msg(MSG::WARNING) << "Could not extract Fstep for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain <<  endmsg;
+      ATH_MSG_WARNING( "Could not extract Fstep for ChID=" << chid.get_compact() 
+			<< " gain=" << (int)gain );
       wfParams.setFstep(FailExtract);
       return sc ;
     }
@@ -221,8 +221,8 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.omega0() == DoExtract ) {
     StatusCode sc = RTM_Omega0(gCali,chid,wfParams,waveTiming,omegaScanWave);
     if ( sc.isFailure() ) {
-      msg(MSG::WARNING) << "Could not extract Omega0 for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain << endmsg; 
+      ATH_MSG_WARNING( "Could not extract Omega0 for ChID=" << chid.get_compact() 
+			<< " gain=" << (int)gain ); 
       wfParams.setOmega0(FailExtract) ;
       return sc ;
     }
@@ -242,8 +242,8 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
   if ( wfParams.taur() == DoExtract ) { 
     StatusCode sc = RTM_Taur(gCali, wfParams,waveTiming ) ;
     if ( sc.isFailure() ) {
-      msg(MSG::WARNING) << "Could not extract Taur for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain << endmsg ;
+      ATH_MSG_WARNING( "Could not extract Taur for ChID=" << chid.get_compact() 
+			<< " gain=" << (int)gain ) ;
       wfParams.setTaur(FailExtract);
       return sc ;
     }
@@ -316,7 +316,7 @@ double LArWFParamTool::expTail(const LArWave& gCali, const WaveTiming_t& wt) con
 
   const double Tcal = -1./A ;
   if ( Tcal < 0 ) {
-    msg(MSG::WARNING) << "Exponential fit yielded negative Tcal " << Tcal << endmsg;
+    ATH_MSG_WARNING( "Exponential fit yielded negative Tcal " << Tcal );
   }
   ATH_MSG_VERBOSE( "*** Exponential fit\t--> m_Tcal    = " << Tcal ) ;
 
@@ -551,7 +551,7 @@ LArWFParamTool::omegaScanParams_t LArWFParamTool::OmegaScanHelper(const Identifi
 
     ret.DeltaOmega  = 0.001 ;
 
-    //(*m_log) << MSG::WARNING << " m_Tstart= " << m_Tstart << " m_Tcross=" << m_Tcross << endmsg ;
+    //(*m_log) << MSG::WARNING << " m_Tstart= " << m_Tstart << " m_Tcross=" << m_Tcross ) ;
 
     const bool IsEMECInnerWheel = m_emId->is_em_endcap_inner(id);//m_onlineHelper->isEMECinHECchannel(m_chID);
     const int eta=m_emId->eta(id); 
@@ -967,7 +967,7 @@ unsigned LArWFParamTool::checkStatus(const LArCaliWave &larCaliWave) const
 
   unsigned length ;
   if ( (length=larCaliWave.getSize()) < 750 ) {
-   msg(MSG::WARNING) << "Calibration wave is too short!" << endmsg ;
+   ATH_MSG_WARNING( "Calibration wave is too short!" ) ;
     return TooShort ;
   }
 
@@ -977,11 +977,11 @@ unsigned LArWFParamTool::checkStatus(const LArCaliWave &larCaliWave) const
   double maxSample = -9.E+10 ;
   for ( unsigned i=0 ; i<length ; i++ ) {
     if ( larCaliWave.getError(i) < 0 || larCaliWave.getTrigger(i) < 0 ) {
-      msg(MSG::WARNING) << "Calibration wave probably not completely filled" << endmsg ;
+      ATH_MSG_WARNING( "Calibration wave probably not completely filled" ) ;
       return NotFilled ;
     }
     if ( larCaliWave.getTrigger(i) < 50 ) {
-      msg(MSG::WARNING) << "Calibration wave with low statistics" << endmsg ;
+      ATH_MSG_WARNING( "Calibration wave with low statistics" ) ;
       return LowStat ;
     }
     double thisSample = larCaliWave.getTrigger(i) ;
@@ -999,11 +999,11 @@ unsigned LArWFParamTool::checkStatus(const LArCaliWave &larCaliWave) const
     }
   }
   if ( sqrt(tremble/length)/maxSample > 0.1 ) {
-    msg(MSG::WARNING) << "Calibration wave is noisy " << sqrt(tremble/length)/maxSample << endmsg ;
+    ATH_MSG_WARNING( "Calibration wave is noisy " << sqrt(tremble/length)/maxSample ) ;
     return Noisy ;
   }
   if ( nMax > 1 ) {
-    msg(MSG::WARNING) << "Calibration wave oscillates" << endmsg ;
+    ATH_MSG_WARNING( "Calibration wave oscillates" ) ;
     return Oscillating ;
   }
 

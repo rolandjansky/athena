@@ -22,7 +22,7 @@
 //#include "Identifier/HWIdentifier.h"
 //#include "LArElecCalib/ILArPedestal.h"
 //#include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArBadChannelTool/LArBadChanTool.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
@@ -92,7 +92,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    int GetPartitionLayerIndex(const Identifier& id);
    std::vector<int>* GetHVLines(const Identifier& id);
      
-   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling);
+   StatusCode fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont);
 
  private:
 
@@ -101,10 +101,10 @@ class LArNoiseBursts : public AthAlgorithm  {
    TTree* m_tree;
 
    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey { this, "CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey { this, "BadChanKey","LArBadChannel","SG Key of LArBadChannelCont object"};
    /*Tools*/
    ToolHandle<ICaloNoiseTool> m_calo_noise_tool;
    ToolHandle<Trig::IBunchCrossingTool> m_bc_tool;
-   ToolHandle<ILArBadChanTool> m_badchan_tool;
 
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
 

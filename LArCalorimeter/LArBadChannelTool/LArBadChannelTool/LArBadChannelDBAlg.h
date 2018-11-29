@@ -7,11 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include <string>
 
-class LArBadChanTool;
 class EventInfo;
 
 class LArBadChannelDBAlg : public AthAlgorithm 
@@ -26,7 +26,8 @@ public:
 
 private:
 
-  ToolHandle< LArBadChanTool > m_BadChanTool;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey;
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey;
   std::string                  m_dbFolder;
   std::string                  m_dbFebFolder;
   int                          m_mode;

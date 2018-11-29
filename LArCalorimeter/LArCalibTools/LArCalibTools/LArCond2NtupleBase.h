@@ -11,15 +11,16 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+
 class HWIdentifier;
 class LArOnlineID_Base;
-//class LArCablingService;
-//class ILArBadChanTool;
 class StoreGateSvc;
 class LArEM_Base_ID;
 class LArHEC_Base_ID;
@@ -71,9 +72,12 @@ class LArCond2NtupleBase : public AthAlgorithm {
   const LArFCAL_Base_ID* m_fcalId;
   const LArOnlineID_Base* m_onlineId;
   const CaloCell_ID* m_caloId;
-  LArCablingBase* m_larCablingSvc;
-  ToolHandle<ILArBadChanTool> m_badChanTool;
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
+
   bool m_isSC;
   bool m_isFlat;
   bool m_OffId;

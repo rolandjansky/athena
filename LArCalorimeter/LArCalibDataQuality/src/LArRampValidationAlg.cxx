@@ -98,7 +98,7 @@ StatusCode LArRampValidationAlg::preLoop() {
 	  if (fabs(singleRamp[DACIndex].TimeMax) > m_rawrampTimeTolerance){ 
 	    msg().setf(std::ios::fixed,std::ios::floatfield); 
 	    msg().precision(2);
-	    msg() << m_myMsgLvl << "Deviating! " << channelDescription((*cont_it)->channelID(),(*cont_it)->gain()) << " DeltaT=" << singleRamp[DACIndex].TimeMax << " DAC = " << singleRamp[DACIndex].DAC << endmsg;
+	    msg() << m_myMsgLvl << "Deviating! chan= " << (*cont_it)->channelID()<< " gain= "<<(*cont_it)->gain() << " DeltaT=" << singleRamp[DACIndex].TimeMax << " DAC = " << singleRamp[DACIndex].DAC << endmsg;
 	  }
 	  break; //Stop loop after testing the m_rawrampTimeDAC DAC point
 	}
@@ -109,11 +109,11 @@ StatusCode LArRampValidationAlg::preLoop() {
   return StatusCode::SUCCESS;
 }
 
-bool LArRampValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
+bool LArRampValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont) {
 
 
   HWIdentifier febid=m_onlineHelper->feb_Id(chid);
-  Identifier offlineID = m_larCablingSvc->cnvToIdentifier(chid);
+  Identifier offlineID = cabling->cnvToIdentifier(chid);
 
   ++m_nEntriesGlobal;
 
@@ -174,7 +174,7 @@ bool LArRampValidationAlg::validateChannel(const LArCondObj& ref, const LArCondO
       std::stringstream devMsg;
       devMsg.setf(std::ios::fixed,std::ios::floatfield); 
       devMsg.precision(3);
-      devMsg << "Deviating! " << channelDescription(chid,gain) << " Ramp: " << val.m_vRamp[1] << " (" << ref.m_vRamp[1] << ", ";
+      devMsg << "Deviating! " << channelDescription(chid,cabling,bcCont,gain) << " Ramp: " << val.m_vRamp[1] << " (" << ref.m_vRamp[1] << ", ";
       devMsg.precision(2);
       devMsg << 100*(val.m_vRamp[1]-ref.m_vRamp[1])/ref.m_vRamp[1] << "%)";
       msg() << this->m_myMsgLvl << devMsg.str() << endmsg;
@@ -191,7 +191,7 @@ bool LArRampValidationAlg::validateChannel(const LArCondObj& ref, const LArCondO
   
 }
 
-bool LArRampValidationAlg::febSummary() {
+bool LArRampValidationAlg::febSummary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
 
   // FEBs
   unsigned nBadFebs=0;
@@ -203,16 +203,16 @@ bool LArRampValidationAlg::febSummary() {
     dataPerFeb.rampRef/=dataPerFeb.nEntries;
 
     ATH_MSG_DEBUG ( " nb of channels = "  << dataPerFeb.nEntries 
-                    << " for FEB " << channelDescription(dataPerFeb.febid,true) ) ;  
+                    << " for FEB " << channelDescription(dataPerFeb.febid,cabling,bcCont) ) ;  
 
     //Get offline identifier of channel 0 of this FEB, should be good enough ...
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(dataPerFeb.febid);
+    const Identifier id=cabling->cnvToIdentifier(dataPerFeb.febid);
     const float& tolerance=m_toleranceFEB.valuesForCell(id)[dataPerFeb.gain];
     
     if (fabs(dataPerFeb.rampVal-dataPerFeb.rampRef)/dataPerFeb.rampRef > tolerance){
       msg().precision(3);
       msg().setf(std::ios::fixed,std::ios::floatfield); 
-      msg() << m_myMsgLvl << "Deviating! " << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average Ramp: " 
+      msg() << m_myMsgLvl << "Deviating! " << channelDescription(dataPerFeb.febid,cabling,bcCont,dataPerFeb.gain,true) << "Average Ramp: " 
             << dataPerFeb.rampVal << " (reference: " << dataPerFeb.rampRef << ")" << endmsg;
       ATH_MSG_DEBUG ( "Ramp FEB average tolerance: " << tolerance ) ;
       ++nBadFebs;
@@ -247,9 +247,9 @@ bool LArRampValidationAlg::febSummary() {
   */
 }
 
-bool LArRampValidationAlg::deviateFromAvg(const LArCondObj& val, const HWIdentifier chid, const int gain) {
+bool LArRampValidationAlg::deviateFromAvg(const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
 
- Identifier offlineID = m_larCablingSvc->cnvToIdentifier(chid);
+ Identifier offlineID = cabling->cnvToIdentifier(chid);
 
   // Retrieve layer/eta 
   int layer = 0; int pos_neg = 0; int eta = 0 ; int region = 0;
@@ -292,7 +292,7 @@ bool LArRampValidationAlg::deviateFromAvg(const LArCondObj& val, const HWIdentif
     }else{
       float ratio = val.m_vRamp[1]/dataPerSector.rampVal;      
       if ( ratio > 2.){
-	msg() << m_myMsgLvl << "!!! Deviating Sector channel =  " <<channelDescription(chid,dataPerSector.gain) << "Ramp: " << val.m_vRamp[1] << " (Average Sector Ramp: " << dataPerSector.rampRef << ")" << endmsg;
+	msg() << m_myMsgLvl << "!!! Deviating Sector channel =  " <<channelDescription(chid,cabling,bcCont,dataPerSector.gain) << "Ramp: " << val.m_vRamp[1] << " (Average Sector Ramp: " << dataPerSector.rampRef << ")" << endmsg;
 	return false;
       }
     }
@@ -301,13 +301,13 @@ bool LArRampValidationAlg::deviateFromAvg(const LArCondObj& val, const HWIdentif
   return true;
 }
 
-StatusCode LArRampValidationAlg::summary() {
+StatusCode LArRampValidationAlg::summary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
   StatusCode sc=StatusCode::SUCCESS;
   //1nd step: Check the FEB-averages:
-  if (m_doFebAverages && !febSummary())
+  if (m_doFebAverages && !febSummary(cabling, bcCont))
     sc=StatusCode::RECOVERABLE;
   //2nd step: Call the summary method from base-class (single-channel summary)
-  if (!LArRampValidationBase::summary().isSuccess())
+  if (!LArRampValidationBase::summary(cabling, bcCont).isSuccess())
     sc=StatusCode::RECOVERABLE;
   //3rd step: Check the gobal averages:
   if (m_nEntriesGlobal) {
