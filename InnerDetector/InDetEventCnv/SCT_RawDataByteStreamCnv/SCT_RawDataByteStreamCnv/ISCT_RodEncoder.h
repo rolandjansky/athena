@@ -38,7 +38,7 @@ class ISCT_RodEncoder : virtual public IAlgTool {
   DeclareInterfaceID(ISCT_RodEncoder, 1, 0);
 
   /** convert all collections of RDO's in the current  list to vector of 32bit words */
-  virtual void fillROD(std::vector<uint32_t>& vec32data, const uint32_t& robid, vRDOs& vecRDOs) const = 0;
+  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, vRDOs& vecRDOs) const = 0;
 
 }; 
 
