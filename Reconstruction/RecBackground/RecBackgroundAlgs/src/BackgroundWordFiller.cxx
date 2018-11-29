@@ -35,11 +35,9 @@ Mark Tibbetts 6/3/2012
 */
 
 #include "RecBackgroundAlgs/BackgroundWordFiller.h"
-#include "TagEvent/RawInfoSummaryForTag.h"
 #include "TileEvent/MBTSCollisionTime.h"
 #include "LArRecEvent/LArCollisionTime.h"
 #include "TileEvent/TileContainer.h"
-#include "BCM_CollisionTime/BcmCollisionTime.h"
 
 //----------------------------------------------------------------
 
@@ -141,6 +139,8 @@ StatusCode BackgroundWordFiller::initialize() {
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_beamBackgroundDataKey.initialize());
   ATH_CHECK(m_LUCID_rawDataContainerKey.initialize());
+  ATH_CHECK(m_bcmCollisionTimeKey.initialize());
+  ATH_CHECK(m_rawIngoSummaryForTagKey.initialize());
   
   return StatusCode::SUCCESS;  
 }
@@ -167,7 +167,7 @@ StatusCode BackgroundWordFiller::execute() {
 
   SG::ReadHandle<BeamBackgroundData> beamBackgroundDataReadHandle(m_beamBackgroundDataKey);
 
-  if(!beamBackgroundDataReadHandle.isValid()) ATH_MSG_WARNING("Invalid read handle to BeamBackgoundData with name: " << m_beamBackgroundDataKey.key());
+  if(!beamBackgroundDataReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to BeamBackgoundData with name: " << m_beamBackgroundDataKey.key());
   else{
     if( beamBackgroundDataReadHandle->GetNumSegment() > m_HaloNumSegment_Cut ){
       if( eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::HaloMuonSegment)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonSegment]);
@@ -187,13 +187,13 @@ StatusCode BackgroundWordFiller::execute() {
     }
   }
 
-   ///////////////////////////////////////////////////
-   // LUCID: LUCIDBeamVeto
-   //////////////////////////////////////////////////
+  ///////////////////////////////////////////////////
+  // LUCID: LUCIDBeamVeto
+  //////////////////////////////////////////////////
 
   SG::ReadHandle<LUCID_RawDataContainer> LUCID_rawDataContainerReadHandle(m_LUCID_rawDataContainerKey);
 
-  if (!LUCID_rawDataContainerReadHandle.isValid()) ATH_MSG_WARNING("Invalid read handle to LUCID_RawDataContainer with name: " << m_LUCID_rawDataContainerKey.key());
+  if (!LUCID_rawDataContainerReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to LUCID_RawDataContainer with name: " << m_LUCID_rawDataContainerKey.key());
   else{
     int LUCIDcounter(0);
     for (auto LUCID_rawData : *LUCID_rawDataContainerReadHandle){
@@ -206,103 +206,77 @@ StatusCode BackgroundWordFiller::execute() {
     }
   }
     
-   ///////////////////////////////////////////////////
-   // BCM: BCMTimeDiffHalo, BCMTimeDiffCol, BCMBeamVeto
-   //////////////////////////////////////////////////
+  ///////////////////////////////////////////////////
+  // BCM: BCMTimeDiffHalo, BCMTimeDiffCol, BCMBeamVeto
+  //////////////////////////////////////////////////
 
-   if( evtStore()->contains<BcmCollisionTime>("BcmCollisionTime") ){
-     
-     const BcmCollisionTime* BCMct;
-     if (evtStore()->retrieve(BCMct).isFailure() ) {
-       msg(MSG::WARNING) << "  Could not retrieve BCMCollisionTime" << endmsg;
-     }
-     else {
-       std::vector<float> bcmTDs = BCMct->getDeltaT();
-       ATH_MSG_DEBUG( " got BCMCollisionTime object getMultiLG "<<BCMct->getMultiLG()<<" getMultiHG "<<BCMct->getMultiHG()<<" TDs size "<<bcmTDs.size());
-       float minTD=999;
-       float maxTD=0;
-       for(unsigned int i=0; i < bcmTDs.size(); i++){
-	 float td = bcmTDs.at(i);
-	 ATH_MSG_DEBUG( " BCMCollisionTime td "<<i<<" "<<td);
-	 if (fabs(td)>fabs(maxTD)) maxTD=td;
-	 if (fabs(td)<fabs(minTD)) minTD=td;
-       }
-       ATH_MSG_DEBUG( " BCMCollisionTime minDT "<<minTD<<" maxDT "<<maxTD);
-       // set time diff bits
-       if (fabs(minTD)<  m_BCMTimeDiffCol_Cut) {
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffCol)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffCol] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::BCMTimeDiffCol]++;
-       }
-       if (fabs(maxTD)>m_BCMTimeDiffHalo_CutLo){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffHalo)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffHalo] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::BCMTimeDiffHalo]++;
-       }
-       if (BCMct->getMultiLG()>m_BCMLowGainCut || BCMct->getMultiHG()>m_BCMHiGainCut){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMBeamVeto)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMBeamVeto] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::BCMBeamVeto]++;
-       }  
-       
-     }
-   }//BCM SG veto
+  SG::ReadHandle<BcmCollisionTime> bcmCollistionTimeReadHandle(m_bcmCollisionTimeKey);
 
+  if (!bcmCollistionTimeReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to BcmCollisionTime with name: " << m_bcmCollisionTimeKey.key());
+  else{
+    std::vector<float> bcmTDs = bcmCollistionTimeReadHandle->getDeltaT();
+    ATH_MSG_DEBUG( " got BCMCollisionTime object getMultiLG "<<bcmCollistionTimeReadHandle->getMultiLG()<<" getMultiHG "<<bcmCollistionTimeReadHandle->getMultiHG()<<" TDs size "<<bcmTDs.size());
+    float minTD=999;
+    float maxTD=0;
 
-   ////////////////////////////////////////////////////////////////////////////////
-   // ID SP multiplicities from Raw for filling:  IDMultiplicityHuge, IDSPNonEmpty
-   ///////////////////////////////////////////////////////////////////////////////
-   if( evtStore()->contains<RawInfoSummaryForTag>("RawInfoSummaryForTag") ){
-       
+    for(unsigned int i=0; i < bcmTDs.size(); i++){
+      float td = bcmTDs.at(i);
+      ATH_MSG_DEBUG( " BCMCollisionTime td "<<i<<" "<<td);
+      if (fabs(td)>fabs(maxTD)) maxTD=td;
+      if (fabs(td)<fabs(minTD)) minTD=td;
+    }
 
-     const RawInfoSummaryForTag* rawinfo=0;
+    ATH_MSG_DEBUG(" BCMCollisionTime minDT "<<minTD<<" maxDT "<<maxTD);
 
-     if ( evtStore()->retrieve( rawinfo ).isFailure()) {
-       msg(MSG::WARNING) << "Cannot get raw summary info from storegate" << endmsg;
-     }   else {
-       int NSCTsps = rawinfo->getNsctSPs();
-       int NPIXsps = rawinfo->getNpixSPs();
-       //   int NTRTdcs = rawinfo->getNtrtDCs();
-       //   int NTRTdcsHT = rawinfo->getNtrtHtDCs();
-       
-       // set IDMultiplicityHuge
-       if ( (NPIXsps)>m_PixMultiplicityHuge_Cut){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixMultiplicityHuge)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixMultiplicityHuge] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::PixMultiplicityHuge]++;
-       }
-       
-       // set PixSPNonEmpty
-       if ( (NPIXsps)>m_PixSPNonEmpty_Cut ){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixSPNonEmpty)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixSPNonEmpty] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::PixSPNonEmpty]++;
-       }
-       
-       if ( (NSCTsps)>m_SCTMultiplicityHuge_Cut){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::SCTMultiplicityHuge)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::SCTMultiplicityHuge] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::SCTMultiplicityHuge]++;
-       }
-       
-       // set SCTSPNonEmpty
-       if ( (NSCTsps)>m_SCTSPNonEmpty_Cut ){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::SCTSPNonEmpty)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::SCTSPNonEmpty] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::SCTSPNonEmpty]++;
-       }
+    if (fabs(minTD)<  m_BCMTimeDiffCol_Cut) {
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffCol)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffCol]);
+      else m_bitcntvec[EventInfo::BCMTimeDiffCol]++;
+    }
+    if (fabs(maxTD)>m_BCMTimeDiffHalo_CutLo){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffHalo)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffHalo]);
+      else m_bitcntvec[EventInfo::BCMTimeDiffHalo]++;
+    }
+    if (bcmCollistionTimeReadHandle->getMultiLG()>m_BCMLowGainCut || bcmCollistionTimeReadHandle->getMultiHG()>m_BCMHiGainCut){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMBeamVeto)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMBeamVeto]);
+      else  m_bitcntvec[EventInfo::BCMBeamVeto]++;
+    }  
+  }
+    
+  ////////////////////////////////////////////////////////////////////////////////
+  // ID SP multiplicities from Raw for filling:  IDMultiplicityHuge, IDSPNonEmpty
+  ///////////////////////////////////////////////////////////////////////////////
 
-       
-     } // retrieved RawInfoSummaryForTag object...
-   }//indet SG veto
+  SG::ReadHandle<RawInfoSummaryForTag> rawInfoSummaryForTagReadHandle(m_rawIngoSummaryForTagKey);
 
+  if (!rawInfoSummaryForTagReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to RawInfoSummaryForTag: " << m_rawIngoSummaryForTagKey.key());
+  else{
+    int NSCTsps = rawInfoSummaryForTagReadHandle->getNsctSPs();
+    int NPIXsps = rawInfoSummaryForTagReadHandle->getNpixSPs();
+
+    // set IDMultiplicityHuge
+    if ( (NPIXsps)>m_PixMultiplicityHuge_Cut){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixMultiplicityHuge)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixMultiplicityHuge]);
+      else m_bitcntvec[EventInfo::PixMultiplicityHuge]++;
+    }
+
+    // set PixSPNonEmpty
+    if ( (NPIXsps)>m_PixSPNonEmpty_Cut ){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::PixSPNonEmpty)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::PixSPNonEmpty]);
+      else m_bitcntvec[EventInfo::PixSPNonEmpty]++;
+    }
+
+    if ( (NSCTsps)>m_SCTMultiplicityHuge_Cut){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::SCTMultiplicityHuge)==false)	ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::SCTMultiplicityHuge]);
+      else m_bitcntvec[EventInfo::SCTMultiplicityHuge]++;
+    }
+
+    // set SCTSPNonEmpty
+    if ( (NSCTsps)>m_SCTSPNonEmpty_Cut ){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::SCTSPNonEmpty)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::SCTSPNonEmpty]);
+      else m_bitcntvec[EventInfo::SCTSPNonEmpty]++;
+    }
+  }
+  
    ////////////////
    // MBTSBeamVeto
 
