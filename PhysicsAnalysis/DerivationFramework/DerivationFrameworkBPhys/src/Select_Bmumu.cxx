@@ -35,6 +35,7 @@
 //  - BlindMassMax           -- maximum blinded mass range
 //  - DoBlinding             -- switch to enable blinding (default: false)
 //  - DoCutBlinded           -- cut blinded vertices (default: false)
+//  - BlindOnlyAllMuonsTight -- only blind candidates with all tight muons
 //  - UseMuCalcMass          -- use MUCALC mass in mass cuts (default: false)
 //  - SubDecVtxContNames     -- names of containers with sub-decay candidates
 //                              (in order of sub decays)
@@ -72,12 +73,14 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     CfAthAlgTool(t,n,p),
-    m_v0Tools("Trk::V0Tools") {
+    m_v0Tools("Trk::V0Tools"),
+    m_muSelectionTool("CP::MuonSelectionTool/MuonSelectionTool") {
     
     declareInterface<DerivationFramework::IAugmentationTool>(this);
 
     // Declare tools    
     declareProperty("V0Tools", m_v0Tools);
+    declareProperty("MuonSelectionTool", m_muSelectionTool);
 
     // Declare user-defined properties
     
@@ -94,6 +97,7 @@ namespace DerivationFramework {
     declareProperty("BlindMassMax"          , m_blindMassMax           = 0.);
     declareProperty("DoBlinding"            , m_doBlinding             = false);
     declareProperty("DoCutBlinded"          , m_doCutBlinded           = false);
+    declareProperty("BlindOnlyAllMuonsTight", m_blindOnlyAllMuonsTight = false);
     declareProperty("UseMuCalcMass"         , m_useMuCalcMass          = false);
     declareProperty("SubDecVtxContNames"    , m_subDecVtxContNames     = {});
     declareProperty("SubDecVtxHypoCondNames", m_subDecVtxHypoCondNames = {});
@@ -107,6 +111,11 @@ namespace DerivationFramework {
     // retrieve V0 tools
     CHECK( m_v0Tools.retrieve() );
 
+    // retrieve MuonSelectionTool
+    if ( m_blindOnlyAllMuonsTight ) {
+      CHECK( m_muSelectionTool.retrieve() );
+    }
+    
     // check length of sub-decay vertex container and required hypo name
     // vectors
     if ( m_subDecVtxContNames.size() != m_subDecVtxHypoCondNames.size() ) {
@@ -278,10 +287,11 @@ namespace DerivationFramework {
 
     // loop over B candidates and perform selection and augmentation
     // counters
-    int nPassMassCuts    = 0;
-    int nPassChi2Cut     = 0;
-    int nPassPrecVtxCut  = 0;
-    int nInBlindedRegion = 0;
+    int nPassMassCuts                 = 0;
+    int nPassChi2Cut                  = 0;
+    int nPassPrecVtxCut               = 0;
+    int nInBlindedRegion              = 0;
+    int nInBlindedRegionAllMuonsTight = 0;
     xAOD::VertexContainer::iterator bcandItr = bcandContainer->begin();
     for (; bcandItr!=bcandContainer->end(); ++bcandItr) {
       // create BPhysHypoHelper
@@ -340,16 +350,23 @@ namespace DerivationFramework {
       bool passedMassCut = massCuts(bcand.mass());
       bool blindedMass   = massInBlindedRegion(bcand.mass());
 
-      // 1a) mark candidates in blinded region
+      // 1a) muon quality cuts
+      bool allMuonsTight =
+        !m_blindOnlyAllMuonsTight || checkAllMuonsTight(bcand.muons()); 
+
+      // 1b) mark candidates in blinded region
       if ( blindedMass && blindedMuCalcMass ) {
         if ( m_doBlinding ) {
           nInBlindedRegion++;
-          setPass(*bcand.vtx(),
-                  m_hypoName+"_blinded", true);
+          if ( allMuonsTight ) {
+            nInBlindedRegionAllMuonsTight++;
+            setPass(*bcand.vtx(),
+                    m_hypoName+"_blinded", true);
+          }
         }
       }
 
-      // 1b) cut on the mass range
+      // 1c) cut on the mass range
       if ( !(passedMassCut || passedMuCalcMassCut) ) {
         bcand.setPass(false); // flag as failed
         continue;
@@ -388,7 +405,8 @@ namespace DerivationFramework {
       for (int ipv=0; ipv<npVtx; ++ipv) {
         setPass(*bcand.precedingVertex(ipv),
                 m_subDecVtxHypoFlagNames[ipv], true);
-        if ( m_doBlinding && !(blindedMass && blindedMuCalcMass) ) {
+        if ( m_doBlinding && !(blindedMass && blindedMuCalcMass
+                               && allMuonsTight) ) {
           setPass(*bcand.precedingVertex(ipv),
                   m_subDecVtxHypoFlagNames[ipv]+"_blinded", false);
         }
@@ -423,6 +441,10 @@ namespace DerivationFramework {
     addToCounter("precVtxCutCandidates", nPassPrecVtxCut);
     if ( m_doBlinding ) {
       addToCounter("blindedRegionCandidates", nInBlindedRegion);
+      if ( m_blindOnlyAllMuonsTight ) {
+        addToCounter("blindedRegionCandidatesWithAllMuonsTight",
+                     nInBlindedRegionAllMuonsTight);
+      }
     }
     
     // all OK
@@ -443,6 +465,27 @@ namespace DerivationFramework {
   //---------------------------------------------------------------------------
   bool Select_Bmumu::massInBlindedRegion(float mass) const {
     return ( mass > m_blindMassMin && mass < m_blindMassMax ); 
+  }
+  //--------------------------------------------------------------------------
+  // Check whether all muons are of quality tight.
+  //--------------------------------------------------------------------------
+  bool Select_Bmumu::checkAllMuonsTight(const std::vector<const xAOD::Muon*>&
+                                        muons, int maxMuonsToCheck) const {
+
+    bool allTight(true);
+    int  ncheckMax = muons.size();
+    if ( maxMuonsToCheck > -1 ) {
+      ncheckMax = std::min((int)muons.size(), maxMuonsToCheck);
+    }
+    for (int imu=0; imu < ncheckMax; ++imu) {
+      xAOD::Muon::Quality muQuality =
+        m_muSelectionTool->getQuality(*muons[imu]);
+      if ( !(muQuality <= xAOD::Muon::Tight) ) {
+        allTight = false;
+        break;
+      }
+    }
+    return allTight;
   }
   //---------------------------------------------------------------------------
   // Helper to check whether an element is marked as passing a specific

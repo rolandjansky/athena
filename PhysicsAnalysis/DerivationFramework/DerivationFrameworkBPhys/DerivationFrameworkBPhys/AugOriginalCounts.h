@@ -56,6 +56,7 @@ namespace DerivationFramework {
     std::string m_TrackContainername;
     std::string m_PVContainername;
     bool        m_addPVCountsByType;
+    bool        m_addNTracksToPVs;
     /// @}
   };
 }

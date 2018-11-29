@@ -22,6 +22,7 @@ namespace DerivationFramework {
     recordPropertyB("isSimulation", false);
     recordPropertyS("projectTag", "__NONE__");
     recordPropertyB("isRelease21" , true);
+    recordPropertyS("mcCampaign", "__NONE__");
     
     // MC dataset number lists
     recordPropertyVI("mcBsmumu"         , {});
@@ -32,13 +33,20 @@ namespace DerivationFramework {
 
     // MC datasets without trigger information
     recordPropertyVI("mcNoTrigger"     , {});
+
+    // special data runs
+    recordPropertyVI("specDataRuns", {});
+    
+    // special MC channels
+    recordPropertyVI("specMcChannels", {});
     
     // blind search
-    recordPropertyB("doBmumuBlinding", true);
-    recordPropertyB("doCutBlinded"   , true);
-    recordPropertyS("BlindingKey"    , "");
-    recordPropertyS("BlindedVars"    , "");
-    recordPropertyS("BlindingFlag"   , "");
+    recordPropertyB("doBmumuBlinding"       , true);
+    recordPropertyB("doCutBlinded"          , true);
+    recordPropertyB("blindOnlyAllMuonsTight", true);
+    recordPropertyS("BlindingKey"           , "");
+    recordPropertyS("BlindedVars"           , "");
+    recordPropertyS("BlindingFlag"          , "");
     
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
@@ -79,6 +87,7 @@ namespace DerivationFramework {
     recordPropertyB("McstSagittaCorr"          , true);
     recordPropertyS("McstSagittaRelease"       , "_NONE_");
     recordPropertyB("McstDoSagittaMCDistortion", false);
+    recordPropertyB("McstSagittaCorrPhaseSpace", true);
     
     // muon collections
     recordPropertyS("MuonCollection"     , "Muons");

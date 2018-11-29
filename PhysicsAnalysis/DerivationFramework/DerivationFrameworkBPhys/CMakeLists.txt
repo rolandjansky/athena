@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
    PhysicsAnalysis/JpsiUpsilonTools
+   PhysicsAnalysis/MuonID/MuonSelectorTools
    Event/xAOD/xAODTracking
    Event/xAOD/xAODBPhys
    Control/AthenaKernel
@@ -33,13 +34,14 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Trigger/TrigAnalysis/TrigDecisionTool
-   InnerDetector/InDetRecAlgs/InDetV0Finder )
+   InnerDetector/InDetRecAlgs/InDetV0Finder)
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkBPhysLib
    DerivationFrameworkBPhys/*.h src/*.cxx
    PUBLIC_HEADERS DerivationFrameworkBPhys
    LINK_LIBRARIES xAODMuon DataModel AthenaBaseComps JpsiUpsilonTools
+   MuonSelectorTools
    xAODTracking xAODBPhysLib AthenaKernel RecoToolInterfaces EventPrimitives
    BPhysToolsLib
    PRIVATE_LINK_LIBRARIES xAODBase xAODMetaData TrkVertexAnalysisUtils
