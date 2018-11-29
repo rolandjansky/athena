@@ -42,7 +42,7 @@ private:
   Gaudi::Property<float>            m_roIWidth{
     this, "RoIWidth", 0.4, "Size of RoI in eta/ phi"};
   
-  //SG::ReadHandleKey<TrigRoiDescriptorCollection> m_fsRoIKey{ this, "FSRoIKey", "FSRoI", "The key of FS RoI made earlier by the L1Decoder" };
+
   Gaudi::Property<std::string> m_fsRoIKey{ this, "FSRoIKey", "FSRoI", "The key of FS RoI made earlier by the L1Decoder" };
 
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;

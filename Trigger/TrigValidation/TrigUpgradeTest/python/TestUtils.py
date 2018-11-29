@@ -75,8 +75,7 @@ class L1DecoderTest(L1Decoder) :
                                                                ) ]
 
             metUnpacker = METRoIsUnpackingTool(OutputLevel = self.OutputLevel,
-                                               Decisions = recordable("L1MET"),
-                                               OutputTrigRoI = recordable("METRoI"))
+                                               Decisions = recordable("L1MET"))
 
             self.roiUnpackers += [metUnpacker]
 
