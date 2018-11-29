@@ -43,6 +43,7 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
  private: 
   bool m_outputNoise;
+  bool m_debugJetAlg;
   bool m_dumpTowersEtaPhi;
   bool m_dumpSeedsEtaPhi;
   bool  m_makeSquareJets;

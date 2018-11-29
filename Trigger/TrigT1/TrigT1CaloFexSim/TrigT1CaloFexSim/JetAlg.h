@@ -9,6 +9,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
 #include "CaloTriggerTool/JTowerSCMap.h"
 #include "CaloTriggerTool/GTowerSCMap.h"
 #include "CaloIdentifier/TTOnlineID.h"
@@ -56,10 +58,10 @@ class JetAlg{
   };
 
   static StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, bool &m_dumpSeedsEtaPhi);
-  static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, float seed_size,float range, std::vector<float> noise);
+  static StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, float seed_size,float range, std::vector<float> noise, bool m_debug = false);
 
-  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise);
-  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise);
+  static StatusCode BuildJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise, bool m_debug = false);
+  static StatusCode BuildRoundJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet> &js, float jet_size, std::vector<float> noise, bool m_debug = false);
 
 };
 #endif

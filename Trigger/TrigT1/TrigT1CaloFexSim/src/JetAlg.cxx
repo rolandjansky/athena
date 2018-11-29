@@ -91,9 +91,12 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, JetAlg::Seed*se
 }
 
 //To find the seeds as local maxima
-StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds,  float seed_size,float range, std::vector<float> noise){
-  bool m_debug = false;
+StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds,  float seed_size,float range, std::vector<float> noise, bool m_debug){
   // get the energy of each seeds which is defined as 2x2 towers in barrel and endcap, and single tower in fcal
+  // static MsgStream staticMsg("MyStaticMsgStream"0);
+  // static MsgStream staticMsg();
+  // staticMsg << "My message" << endmsg
+  // msg() << MSG::INFO << "Retrieved tool " << endmsg;
   // ATH_MSG_DEBUG("How can I get ATH_MSG_DEBUG to compile???");
   if(m_debug)
     std::cout << "JetAlg::SeedFinding: getting seeds with " << seed_size << " and " << range << std::endl;
@@ -187,8 +190,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
 }
 
 
-StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r,std::vector<float> noise){
-  bool m_debug = false;
+StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise, bool m_debug){
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
         if(!seeds->local_max.at(eta_ind).at(phi_ind)) continue;
@@ -212,8 +214,7 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,JetAlg::Seed*see
 }
 
 
-StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise){
-  bool m_debug = false;
+StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r, std::vector<float> noise, bool m_debug){
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
         if(!seeds->local_max.at(eta_ind).at(phi_ind)) continue;

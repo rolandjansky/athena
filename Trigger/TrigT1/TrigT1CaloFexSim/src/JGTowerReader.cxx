@@ -40,6 +40,7 @@ AthAlgorithm( name, pSvcLocator ),
 histSvc("THistSvc",name){
 
   declareProperty("outputNoise",m_outputNoise=false);
+  declareProperty("debugJetAlg", m_debugJetAlg=false);
   declareProperty("dumpTowersEtaPhi",m_dumpTowersEtaPhi=false);
   declareProperty("dumpSeedsEtaPhi",m_dumpSeedsEtaPhi=false);
   declareProperty("noise_file",m_noise_file="");
@@ -219,15 +220,15 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     // the diameter of seed, and its range to be local maximum
     // Careful to ensure the range set to be no tower double counted
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jSeeds; m_jSeed_size = " << m_jSeed_size << ", m_jMax_r = " << m_jMax_r);
-    CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr));
+    CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr,m_debugJetAlg));
     ATH_MSG_DEBUG("JFexAlg: BuildJet");
-    CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr)); 
+    CHECK(JetAlg::BuildJet(jTs, jSeeds, jL1Jets, m_jJet_r, jJet_thr, m_debugJetAlg));
   }
   if(m_makeRoundJets) {
     ATH_MSG_DEBUG("JFexAlg: SeedFinding with jJetSeeds; m_jJetSeed_size = " << m_jJetSeed_size << ", m_jJet_max_r = " << m_jJet_max_r);
-    CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr));
+    CHECK(JetAlg::SeedFinding(jTs,jJetSeeds,m_jJetSeed_size,m_jJet_max_r,jJet_jet_thr,m_debugJetAlg));
     ATH_MSG_DEBUG("JFexAlg: BuildRoundJet");
-    CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr)); 
+    CHECK(JetAlg::BuildRoundJet(jTs, jJetSeeds, jJet_L1Jets, m_jJet_jet_r, jJet_jet_thr, m_debugJetAlg));
   }
   
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
