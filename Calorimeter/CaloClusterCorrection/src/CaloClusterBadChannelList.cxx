@@ -23,7 +23,7 @@ CaloClusterBadChannelList::CaloClusterBadChannelList(const std::string& type,
                                      const std::string& name,
                                      const IInterface* parent)
   : CaloClusterCorrection(type, name, parent),
-    m_badChannelTool("CaloBadChanTool")
+    m_badChannelTool("CaloBadChanTool", this)
 {
  declareProperty("badChannelTool",m_badChannelTool,"Tool handle for bad channel");
 }

@@ -28,10 +28,6 @@ theLArChanMasker.ProblemsToMask=[
 ]
 ToolSvc+=theLArChanMasker
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-ToolSvc+=theLArBadChannelTool
-
 
 LArCellMon = LArCellMonTool(
     name = "LArCellMonCosmics",
@@ -56,7 +52,6 @@ LArCellMon = LArCellMonTool(
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
     LArBadChannelMask=theLArChanMasker,
-    LArBadChannelTool=theLArBadChannelTool,
     MaskBadChannels    = False,
     MaskNoCondChannels = False,
 

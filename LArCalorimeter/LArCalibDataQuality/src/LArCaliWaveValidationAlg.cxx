@@ -98,7 +98,7 @@ StatusCode LArCaliWaveValidationAlg::preLoop() {
   return StatusCode::SUCCESS;
 }
 
-bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
+bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
 
   if (gain<0 || gain>2) {
      ATH_MSG_ERROR ( "Unexpected gain value " << gain ) ;
@@ -117,7 +117,7 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   float TMaxshift=5.;
 
 
-  const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+  const Identifier id=cabling->cnvToIdentifier(chid);
 
   const float ampTolerance=m_ampTolerance.valuesForCell(id)[gain];
   const float fwhmTolerance=m_fwhmTolerance.valuesForCell(id)[gain];
@@ -161,7 +161,7 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   if (fabs(TmaxVal-TmaxRef)> TMaxshift && m_timeShift==true) {
     retval=false;
     if (m_nFailedValidation<m_maxmessages)
-      msg() << m_myMsgLvl << "Shifted! " << channelDescription(chid,gain)  << " Tmax: " << TmaxVal << " ( " << TmaxRef << " ) " << endmsg;
+      msg() << m_myMsgLvl << "Shifted! " << channelDescription(chid,cabling,bcCont,gain)  << " Tmax: " << TmaxVal << " ( " << TmaxRef << " ) " << endmsg;
 
   }
 
@@ -171,7 +171,7 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
     if (m_nFailedValidation<m_maxmessages) {
       msg().precision(2);
       msg().setf(std::ios::fixed,std::ios::floatfield); 
-      msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Amp: " << ampVal << "( " << ampRef 
+      msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,cabling,bcCont,gain) << " Amp: " << ampVal << "( " << ampRef 
 	       << ", " << 100.*(ampVal-ampRef)/ampRef << " %)" 
 	       << " FWHM: " << fwhmVal << " ( " << fwhmRef << ", " << 100*(fwhmVal-fwhmRef)/fwhmVal << " %)" << endmsg;
       ATH_MSG_DEBUG ( "Amplitude FEB tolerance: " << ampTolerance << ", FWHM FEB tolerance: " << fwhmTolerance ) ;
@@ -184,7 +184,7 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
 }
 
 
-bool LArCaliWaveValidationAlg::febSummary() {
+bool LArCaliWaveValidationAlg::febSummary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
 
   unsigned nBadFebs=0;
 
@@ -200,13 +200,13 @@ bool LArCaliWaveValidationAlg::febSummary() {
     dataPerFeb.fwhmVal/=dataPerFeb.nEntries;
     dataPerFeb.fwhmRef/=dataPerFeb.nEntries;
 
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(dataPerFeb.chid);
+    const Identifier id=cabling->cnvToIdentifier(dataPerFeb.chid);
     const float& ampToleranceFEB=m_ampToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
     const float& fwhmToleranceFEB=m_fwhmToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
     
     if (fabs(dataPerFeb.ampVal-dataPerFeb.ampRef)/dataPerFeb.ampRef*1000>ampToleranceFEB  ||  
 	fabs(dataPerFeb.fwhmVal-dataPerFeb.fwhmRef)/dataPerFeb.fwhmRef*1000>fwhmToleranceFEB) {
-      msg() << m_myMsgLvl << "Deviating! " <<channelDescription(dataPerFeb.febid,dataPerFeb.gain,true)<< "Average Amp: " << dataPerFeb.ampVal << " (" << dataPerFeb.ampRef << ")" 
+      msg() << m_myMsgLvl << "Deviating! " <<channelDescription(dataPerFeb.febid,cabling,bcCont,dataPerFeb.gain,true)<< "Average Amp: " << dataPerFeb.ampVal << " (" << dataPerFeb.ampRef << ")" 
 	       << " FWHM: " << dataPerFeb.fwhmVal << " (" << dataPerFeb.fwhmRef << ")" << endmsg;
       ++nBadFebs;
       ATH_MSG_DEBUG ( "Amplitude FEB tolerance: " << ampToleranceFEB << ", FWHM FEB tolerance: " << fwhmToleranceFEB ) ;
@@ -222,13 +222,13 @@ bool LArCaliWaveValidationAlg::febSummary() {
     return true;
   }
 }
-StatusCode LArCaliWaveValidationAlg::summary() {
+StatusCode LArCaliWaveValidationAlg::summary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
  StatusCode sc=StatusCode::SUCCESS;
   //1nd step: Check the FEB-averages:
-  if (m_doFebAverages && !febSummary())
+  if (m_doFebAverages && !febSummary(cabling, bcCont))
     sc=StatusCode::RECOVERABLE;
   //2st step: Call the summary method from base-class (single-channel summary)
-  if (!LArCaliWaveValidationBase::summary().isSuccess())
+  if (!LArCaliWaveValidationBase::summary(cabling, bcCont).isSuccess())
     sc=StatusCode::RECOVERABLE;
   //3rd step: Check the gobal averages:
   if (m_nEntriesGlobal) {

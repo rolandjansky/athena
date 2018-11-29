@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArBadChanTool_H
-#define LArBadChanTool_H
+#ifndef LArBadChanLegacyTool_H
+#define LArBadChanLegacyTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "LArRecConditions/ILArBadChanTool.h"
@@ -27,7 +27,7 @@
 
 class StoreGateSvc;
 
-class LArBadChanTool : public AthAlgTool,
+class LArBadChanLegacyTool : public AthAlgTool,
 		       public ILArBadChanTool,
 		       public ICaloBadChanTool 
 {
@@ -37,7 +37,7 @@ public:
   typedef LArBadChanContainerHashed::BadFebEntry               BadFebEntry;
   typedef std::vector<BadFebEntry>                             BadFebVec;
 
-  LArBadChanTool(const std::string& type, const std::string& name, 
+  LArBadChanLegacyTool(const std::string& type, const std::string& name, 
 		    const IInterface* parent);
 					  
 // to allow access to the  interface

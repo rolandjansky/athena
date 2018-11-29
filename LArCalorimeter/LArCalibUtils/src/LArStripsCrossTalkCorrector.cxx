@@ -8,15 +8,13 @@
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArBadChannelTool/LArBadChanTool.h"
 #include "LArRecConditions/LArBadChannel.h"
+#include "LArBadChannelTool/LArBadChannelDBTools.h"
 #include <math.h>
 
 
 LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc("LArCablingService"),
-  m_badChannelTool("LArBadChanTool"),
   m_dontUseForCorr("LArBadChannelMasker/DontUseForXtalkCorr",this),
   m_dontCorrect("LArBadChannelMasker/NoXtalkCorr",this),
   m_onlineHelper(nullptr),
@@ -50,44 +48,41 @@ StatusCode LArStripsCrossTalkCorrector::initialize() {
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg (MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
     return StatusCode::FAILURE;
   }
   
   sc = detStore()->retrieve(m_emId, "LArEM_ID");
   if (sc.isFailure()) {
-    msg (MSG::ERROR) << "Could not get LArEM_ID helper !" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArEM_ID helper !" );
     return StatusCode::FAILURE;
   }
   
-  // Retrieve LArCablingService
-  sc = m_larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    msg (MSG::ERROR) << " Can't get LArCablingSvc " << endmsg;
-    return sc;
-  }
 
   sc=m_dontCorrect.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    msg (MSG::ERROR) << " Can't get LArBadChannelMaskingTool " << m_dontCorrect.typeAndName() << endmsg;
+    ATH_MSG_ERROR( " Can't get LArBadChannelMaskingTool " << m_dontCorrect.typeAndName() );
     return sc;
   }
   else 
-        msg (MSG::DEBUG) << "Successfully retrieved " << m_dontCorrect.typeAndName() << endmsg;
+        ATH_MSG_DEBUG( "Successfully retrieved " << m_dontCorrect.typeAndName() );
   
   sc=m_dontUseForCorr.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    msg (MSG::ERROR) << " Can't get LArBadChannelMaskingTool " << m_dontUseForCorr.typeAndName() << endmsg;
+    ATH_MSG_ERROR( " Can't get LArBadChannelMaskingTool " << m_dontUseForCorr.typeAndName() );
     return sc;
   }
   else
-    msg (MSG::DEBUG) <<  "Successfully retrieved " << m_dontUseForCorr.typeAndName() << endmsg;
+    ATH_MSG_DEBUG(  "Successfully retrieved " << m_dontUseForCorr.typeAndName() );
 
     
+  ATH_CHECK(m_BCKey.initialize());
+  ATH_CHECK(m_BFKey.initialize());
+  ATH_CHECK(m_cablingKey.initialize());
 
   sc = detStore()->regHandle(m_larPedestal,m_pedKey);
   if (sc!=StatusCode::SUCCESS) {
-    msg (MSG::ERROR) << "Could not register DataHandle for pedestal with key " << m_pedKey  << endmsg;
+    ATH_MSG_ERROR( "Could not register DataHandle for pedestal with key " << m_pedKey  );
     return sc;
   }
 
@@ -102,11 +97,11 @@ StatusCode LArStripsCrossTalkCorrector::initialize() {
 StatusCode LArStripsCrossTalkCorrector::execute()
 { 
   if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 )
-    msg(MSG::INFO) << "Processing event " << m_event_counter << endmsg;
+    ATH_MSG_INFO( "Processing event " << m_event_counter );
   ++m_event_counter;
   
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty! No containers to process!" << endmsg;
+    ATH_MSG_ERROR( "Key list is empty! No containers to process!" );
     return StatusCode::FAILURE;
   }
   
@@ -127,13 +122,20 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
   if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
     sc=evtStore()->retrieve(febErrSum);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve FebErrorSummary object!" );
       return sc;
     }
   }
   else
     if (m_event_counter==1)
-      msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endmsg;
+      ATH_MSG_WARNING( "No FebErrorSummaryObject found! Feb errors not checked!" );
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping");
+     return StatusCode::FAILURE;
+  }
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
@@ -146,7 +148,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     
     sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
     if (sc.isFailure()){ 
-      msg(MSG::WARNING) << "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it << endmsg;
+      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
       continue; // Try next container
     }
     
@@ -161,12 +163,12 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     HWIdentifier  lastFailedFEB(0);
 
     if(it == it_end) {
-      msg(MSG::DEBUG) << "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " << endmsg;
+      ATH_MSG_DEBUG( "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " );
       //return StatusCode::SUCCESS;
       continue; // Try next container
     } else {
-      msg( MSG::DEBUG) << "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
-			 << ". Size: " << larAccumulatedCalibDigitContainer->size() << endmsg;
+      ATH_MSG_DEBUG( "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
+			 << ". Size: " << larAccumulatedCalibDigitContainer->size() );
     }
     
     //Get barrel/ec for online Identifier of the first cell in the container
@@ -202,17 +204,17 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
       }
     }    
     
-    msg(MSG::DEBUG) << "Filling Strips lookup table..." << endmsg ;
+    ATH_MSG_DEBUG( "Filling Strips lookup table..." ) ;
     int nStrips=0;
     
     for (;it!=it_end;it++) {  //Loop over all cells to fill Strips lookup table
       const LArAccumulatedCalibDigit* dig=*it;
       chid=dig->hardwareID();     
       if (!(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid))) continue; //Deal only with EM calos case
-      if (!m_larCablingSvc->isOnlineConnected(chid)) continue; //ignore disconnected channels
+      if (!cabling->isOnlineConnected(chid)) continue; //ignore disconnected channels
 	  
 
-      const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+      const Identifier id=cabling->cnvToIdentifier(chid);
       if (m_emId->sampling(id)!=1) continue; //Deal only with strips
 	
       const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
@@ -221,8 +223,8 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	if (febErrs & m_fatalFebErrorPattern) {
 	  if (febid!=lastFailedFEB) {
 	    lastFailedFEB=febid;
-	    msg(MSG::ERROR) << "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
-			    << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endmsg;
+	    ATH_MSG_ERROR( "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
+			    << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." );
 	  }
 	  dig=&febErrorDummy;
 	} //end if fatal feb error
@@ -230,7 +232,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 
 
       if (m_onlineHelper->barrel_ec(chid) != have_barrel_ec) {
-	msg(MSG::FATAL) << "Found barrel and endcap cells in same event. This is not supported by the LArStripsCrossTalkCorrector!" << endmsg;
+	ATH_MSG_FATAL( "Found barrel and endcap cells in same event. This is not supported by the LArStripsCrossTalkCorrector!" );
 	return StatusCode::FAILURE;
       }
     
@@ -238,8 +240,8 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
       if (ieta==m_noIdx) continue; //Not a cell we care about
       const size_t iphi=getPhiIndex(id);
       if (iphi>=2*m_MAXphi || ieta>=m_MAXeta) {
-	msg( MSG::FATAL) << "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
-			 << ieta << "(max " << m_MAXphi << ")" << endmsg;
+	ATH_MSG_FATAL( "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
+			 << ieta << "(max " << m_MAXphi << ")" );
 	return StatusCode::FAILURE;
       }
       ++nStrips;
@@ -277,8 +279,8 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
       m_nStrips=nStrips;
     
     if (m_nStrips != nStrips) {
-      msg(MSG::WARNING) << "Number of strips changed! Have " <<  nStrips << ", had " << m_nStrips 
-			<< " before. Size of map: " << 2*m_MAXphi*(m_MAXeta-m_MINeta) << endmsg;
+      ATH_MSG_WARNING( "Number of strips changed! Have " <<  nStrips << ", had " << m_nStrips 
+			<< " before. Size of map: " << 2*m_MAXphi*(m_MAXeta-m_MINeta) );
       m_nStrips=nStrips;
     }
     else
@@ -344,9 +346,9 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 				  << " (Eta = " << ieta << ", Phi = " << iphi << ")");
 		  }
 		  else {
-		    msg(MSG::WARNING) << "Cannot find neighbour " << neighbours[i].dist << " to be added to Strip 0x" 
+		    ATH_MSG_WARNING( "Cannot find neighbour " << neighbours[i].dist << " to be added to Strip 0x" 
 				      << MSG::hex << chid.get_compact() << MSG::dec
-				      << " (Eta = " << ieta << ", Phi = " << iphi << ")" << endmsg;
+				      << " (Eta = " << ieta << ", Phi = " << iphi << ")" );
 		  }
 		}//end if msgLvl(INFO)
  		continue;
@@ -359,9 +361,9 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 
 	      //Check if neighbour is pulsed
 	      if (neighDig->isPulsed()) {
-		msg(MSG::WARNING) << "Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
+		ATH_MSG_WARNING( "Neighbour " << neighbours[i].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
 				  << " (Eta = " << ieta << ", Phi = " << iphi <<", " << printMaxSample(neighDig) 
-				  << ") is pulsed. Not used for correction." << endmsg;
+				  << ") is pulsed. Not used for correction." );
 		continue;
 	      }
 	      //Check if neighbour is on the bad-channel list
@@ -374,9 +376,9 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	      //Get Pedestal
 	      const float pedestal = m_larPedestal->pedestal(neighDig->hardwareID(),t_gain);
 	      if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
-		msg(MSG::ERROR) << "No pedestal are available for neighbour " << neighbours[i].dist << " of Strip 0x" 
+		ATH_MSG_ERROR( "No pedestal are available for neighbour " << neighbours[i].dist << " of Strip 0x" 
 				<< MSG::hex << chid.get_compact() << MSG::dec
-				<< " (Eta = " << ieta << ", Phi = " << iphi << "). Not used for correction!" << endmsg;
+				<< " (Eta = " << ieta << ", Phi = " << iphi << "). Not used for correction!" );
 		continue;
 	      }
 	      //All went ok, fill struct
@@ -424,16 +426,16 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	      } //end if have pointer to neighbor cell
 	      else { //Neighbor not usable for some reason, try mirrored neighbor
 		const int j = 3-i; //get mirrored neighbor
-		msg(MSG::INFO) << "Neighbour " << neighbours[i].dist << " of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-			       << " cannot be used. Taking mirrored neighbour " << neighbours[j].dist << " instead." << endmsg;
+		ATH_MSG_INFO( "Neighbour " << neighbours[i].dist << " of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+			       << " cannot be used. Taking mirrored neighbour " << neighbours[j].dist << " instead." );
 		if (neighbours[j].dig!=0 && neighbours[j].dig!=&inexistingDummy){
 		  correctSamples(SampleSums,neighbours[j]);
 		  ATH_MSG_VERBOSE("Mirrored neighbour " << neighbours[j].dist << " of strip 0x" << MSG::hex << chid.get_compact() << MSG::dec
 				  << " (Eta = " << ieta << ", Phi = " << iphi << ") is used for correction");
 		}//end if neighbours[j].dig
 		else {
-		  msg(MSG::WARNING) << "Mirrored Neighbour " << neighbours[j].dist << " of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-				    << " cannot be used too. No correction applied" << endmsg;
+		  ATH_MSG_WARNING( "Mirrored Neighbour " << neighbours[j].dist << " of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+				    << " cannot be used too. No correction applied" );
 		}
 	      }//end if no neighboring cell
 	    }//end loop over the four neighbors
@@ -447,9 +449,9 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	      const uint32_t& oldVal=currDig->sampleSum()[SampleIndex];
 	      if (thisSampleSum<0) {
 		unresonable=true;
-		msg(MSG::WARNING) << "Channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
+		ATH_MSG_WARNING( "Channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
 				  << " (Eta = " << ieta << ", Phi = " << iphi << ") Resulting ADC sample " << SampleIndex <<" negative! " 
-				  << thisSampleSum << " instead of " << oldVal << " Not corrected." << endmsg;
+				  << thisSampleSum << " instead of " << oldVal << " Not corrected." );
                 break;
 	      }
 
@@ -489,26 +491,30 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
   } //End loop over all containers    
 
   if (nSaturation) 
-    msg(MSG::INFO) << "Found " << nSaturation << " saturating digits in this event." << endmsg;
+    ATH_MSG_INFO( "Found " << nSaturation << " saturating digits in this event." );
   
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArStripsCrossTalkCorrector::executeWithStandardDigits() {
-  msg(MSG::FATAL) << "Xtalk correction wiht non-accumulated digits not supported any more." << endmsg;
+  ATH_MSG_FATAL( "Xtalk correction wiht non-accumulated digits not supported any more." );
   return StatusCode::FAILURE;
 }
 
 StatusCode LArStripsCrossTalkCorrector::finalize() { 
   if (msgLvl(MSG::WARNING) && m_uncorrectedIds.size()>0 ) {
     const LArBadChanBitPacking packing;
-    msg(MSG::WARNING) << "The following "<<  m_uncorrectedIds.size() << " channels are (partly) uncorrected because of unresonable high correction:" << endmsg;
-    std::set<HWIdentifier>::const_iterator it=m_uncorrectedIds.begin();
-    std::set<HWIdentifier>::const_iterator it_e=m_uncorrectedIds.end();
-    for (;it!=it_e;++it) {
-      LArBadChannel bc=m_badChannelTool->status(*it);
-      msg(MSG::WARNING) << "Not corrected: " << m_onlineHelper->channel_name(*it) << " " << packing.stringStatus(bc) << endmsg;
+    ATH_MSG_WARNING( "The following "<<  m_uncorrectedIds.size() << " channels are (partly) uncorrected because of unresonable high correction:" );
+    SG::ReadCondHandle<LArBadChannelCont> bcHdl{m_BCKey};
+    const LArBadChannelCont* bcCont{*bcHdl};
+    if(bcCont) {
+       std::set<HWIdentifier>::const_iterator it=m_uncorrectedIds.begin();
+       std::set<HWIdentifier>::const_iterator it_e=m_uncorrectedIds.end();
+       for (;it!=it_e;++it) {
+         LArBadChannel bc=bcCont->status(*it);
+         ATH_MSG_WARNING( "Not corrected: " << m_onlineHelper->channel_name(*it) << " " << packing.stringStatus(bc) );
+       }
     }
   }		    
 
@@ -534,28 +540,44 @@ StatusCode LArStripsCrossTalkCorrector::initKnownMissingFebs(const int bec) {
   m_knownMissingFebs.resize(m_MAXeta);
   
   //const std::vector<HWIdentifier> mf=m_badChannelTool->missingFEBs();
-  const LArBadChanTool::BadFebVec& mf=m_badChannelTool->fullBadFebsState();
-  
-  //msg(MSG::DEBUG) << "Got " << mf.size() << " missing FEBs" << endmsg;
-  LArBadChanTool::BadFebVec::const_iterator it=mf.begin();
-  LArBadChanTool::BadFebVec::const_iterator it_e=mf.end();
+  SG::ReadCondHandle<LArBadFebCont> bfHdl{m_BFKey};
+  const LArBadFebCont* bfCont{*bfHdl};
+  if(!bfCont) {
+     ATH_MSG_ERROR( "Do not have missing FEBs " << m_BFKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping");
+     return StatusCode::FAILURE;
+  }
+
+  LArBadChannelDBTools::BadFebVec mf;
+  for (const auto& entry : bfCont->fullCont()) {
+      const HWIdentifier hid=HWIdentifier(entry.first);
+      mf.emplace_back(LArBadChannelDBTools::BadFebEntry(hid,entry.second));
+  } 
+  //ATH_MSG_DEBUG( "Got " << mf.size() << " missing FEBs" );
+  LArBadChannelDBTools::BadFebVec::const_iterator it=mf.begin();
+  LArBadChannelDBTools::BadFebVec::const_iterator it_e=mf.end();
   for (;it!=it_e;++it) {
     const HWIdentifier& fid=it->first;
     const LArBadFeb& bf=it->second;
     if (bf.deadAll() || bf.deadReadout() || bf.deactivatedInOKS()) {
       if ((bec==0 && m_onlineHelper->isEMBchannel(fid)) ||
 	  (bec==1 && m_onlineHelper->isEMECchannel(fid))) {
-	msg(MSG::DEBUG) << "Feb  " << MSG::hex << fid.get_compact() << MSG::dec << " reported as missing" << endmsg;
+	ATH_MSG_DEBUG( "Feb  " << MSG::hex << fid.get_compact() << MSG::dec << " reported as missing" );
 	const int nChan=m_onlineHelper->channelInSlotMax(fid);
 	for (int c=0;c<nChan;++c) {
 	  const HWIdentifier chid=m_onlineHelper->channel_Id(fid,c);
-	  const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+	  const Identifier id=cabling->cnvToIdentifier(chid);
 	  const size_t ieta=getEtaIndex(id);
 	  if (ieta==m_noIdx) continue; //Not a cell we care about
 	  const size_t iphi=getPhiIndex(id);
 	  if (iphi>=2*m_MAXphi || ieta>=m_MAXeta) {
-	    msg(MSG::FATAL) << "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
-			    << ieta << "(max " << m_MAXphi << ")" << endmsg;
+	    ATH_MSG_FATAL( "Array index out of range: iphi=" << iphi << " (max " << m_MAXphi << "), ieta=" 
+			    << ieta << "(max " << m_MAXphi << ")" );
 	    return StatusCode::FAILURE;
 	  }
 	  m_knownMissingFebs[ieta].set(iphi);
@@ -564,7 +586,7 @@ StatusCode LArStripsCrossTalkCorrector::initKnownMissingFebs(const int bec) {
       }//end if is barrel/endcap & EM
     }//end if is dead
   }//end loop over problematic febs
-  msg(MSG::INFO) << "Number of known missing Strip cells: "<< nMissing << endmsg;
+  ATH_MSG_INFO( "Number of known missing Strip cells: "<< nMissing );
   return StatusCode::SUCCESS;
 }
 

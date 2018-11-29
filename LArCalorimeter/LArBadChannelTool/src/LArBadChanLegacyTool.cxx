@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArBadChannelTool/LArBadChanTool.h"
+#include "LArBadChannelTool/LArBadChanLegacyTool.h"
 
 #include "LArBadChannelTool/LArBadChannelDecoder.h"
 #include "StoreGate/StoreGate.h"
@@ -25,21 +25,21 @@
 #include <fstream>
 
 struct BadFebEntryLess {
-  bool operator()(const LArBadChanTool::BadFebEntry& a,
-		  const LArBadChanTool::BadFebEntry& b) const {
+  bool operator()(const LArBadChanLegacyTool::BadFebEntry& a,
+		  const LArBadChanLegacyTool::BadFebEntry& b) const {
     return a.first < b.first;
   }
 };
 
 struct BadFebEntryMerger {
-  LArBadChanTool::BadFebEntry operator()( const LArBadChanTool::BadFebEntry& a, 
-					  const LArBadChanTool::BadFebEntry& b) const {
-    return LArBadChanTool::BadFebEntry( a.first, 
+  LArBadChanLegacyTool::BadFebEntry operator()( const LArBadChanLegacyTool::BadFebEntry& a, 
+					  const LArBadChanLegacyTool::BadFebEntry& b) const {
+    return LArBadChanLegacyTool::BadFebEntry( a.first, 
 					LArBadFeb( a.second.packedData() | b.second.packedData()));
   }
 };
 
-LArBadChanTool::LArBadChanTool(const std::string& type, const std::string& name, 
+LArBadChanLegacyTool::LArBadChanLegacyTool(const std::string& type, const std::string& name, 
 			       const IInterface* parent) :
 	AthAlgTool( type, name, parent), 
         m_cablingService("LArCablingService"),
@@ -79,14 +79,14 @@ LArBadChanTool::LArBadChanTool(const std::string& type, const std::string& name,
 
 }
 
-const InterfaceID& LArBadChanTool::interfaceID() 
+const InterfaceID& LArBadChanLegacyTool::interfaceID() 
 { 
-  //return ILArBadChanTool::interfaceID(); 
-  static const InterfaceID id("LArBadChanTool", 1 , 0);
+  //return ILArBadChanLegacyTool::interfaceID(); 
+  static const InterfaceID id("LArBadChanLegacyTool", 1 , 0);
   return id; 
 }
 
-StatusCode LArBadChanTool::queryInterface( const InterfaceID& riid, void** ppvIf )
+StatusCode LArBadChanLegacyTool::queryInterface( const InterfaceID& riid, void** ppvIf )
 {
    if ( riid == ILArBadChanTool::interfaceID() )  {
       *ppvIf = static_cast<ILArBadChanTool*>(this);
@@ -108,7 +108,7 @@ StatusCode LArBadChanTool::queryInterface( const InterfaceID& riid, void** ppvIf
    return AthAlgTool::queryInterface( riid, ppvIf );
 }
 
-StatusCode LArBadChanTool::initialize()
+StatusCode LArBadChanLegacyTool::initialize()
 {
   ATH_MSG_DEBUG ("in initialize()" );
 	
@@ -154,7 +154,7 @@ StatusCode LArBadChanTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-std::vector<HWIdentifier> LArBadChanTool::missingFEBs() const
+std::vector<HWIdentifier> LArBadChanLegacyTool::missingFEBs() const
 {
   std::vector<HWIdentifier> result( m_BadFebs.size());
   for (unsigned int i=0; i<m_BadFebs.size(); ++i)
@@ -162,11 +162,11 @@ std::vector<HWIdentifier> LArBadChanTool::missingFEBs() const
   return result;
 }
 
-void LArBadChanTool::complain() const
+void LArBadChanLegacyTool::complain() const
 {
   if (!m_updatedFromDB) {
     // if we are here then the bad channel DB update did not take place before first use
-    ATH_MSG_WARNING ( "the LArBadChanTool is used without bad channel information from DB" );
+    ATH_MSG_WARNING ( "the LArBadChanLegacyTool is used without bad channel information from DB" );
 
     if (m_Updates.empty()) {
       ATH_MSG_WARNING ( "and it contains no bad channel information from ASCII file." );
@@ -182,7 +182,7 @@ void LArBadChanTool::complain() const
   }
   if (!m_updatedFebsFromDB) {
     // if we are here then the bad Feb DB update did not take place before first use
-    ATH_MSG_WARNING ( "the LArBadChanTool is used without missing FEB information from DB" );
+    ATH_MSG_WARNING ( "the LArBadChanLegacyTool is used without missing FEB information from DB" );
 
     if (m_BadFebUpdates.empty()) {
       ATH_MSG_WARNING ( "and it contains no missing FEB information from ASCII file." );
@@ -198,7 +198,7 @@ void LArBadChanTool::complain() const
   m_ready = true;
 }
 
-bool LArBadChanTool::readASCII() 
+bool LArBadChanLegacyTool::readASCII() 
 {
   LArBadChannelDecoder decoder(&(*m_onlineID), msg());
 
@@ -261,7 +261,7 @@ bool LArBadChanTool::readASCII()
   return true;
 }
 
-LArBadChannel LArBadChanTool::status( HWIdentifier id) const {
+LArBadChannel LArBadChanLegacyTool::status( HWIdentifier id) const {
   check();
   try {
     return m_HwBadChan.status(id);
@@ -272,7 +272,7 @@ LArBadChannel LArBadChanTool::status( HWIdentifier id) const {
   }
 }
 
-LArBadChannel LArBadChanTool::status( const HWIdentifier& FEBid, int chan) const {
+LArBadChannel LArBadChanLegacyTool::status( const HWIdentifier& FEBid, int chan) const {
   check();
   try {
     return m_HwBadChan.status( FEBid, chan);
@@ -283,13 +283,13 @@ LArBadChannel LArBadChanTool::status( const HWIdentifier& FEBid, int chan) const
   }
 }
 
-void LArBadChanTool::warnInvalidFEB( const HWIdentifier& id) const
+void LArBadChanLegacyTool::warnInvalidFEB( const HWIdentifier& id) const
 {
   ATH_MSG_WARNING ( "status requested for unknown HWIdentifier " 
                     << id.get_identifier32().get_compact() );
 }
 
-LArBadChannel LArBadChanTool::offlineStatus( Identifier id) const
+LArBadChannel LArBadChanLegacyTool::offlineStatus( Identifier id) const
 {
   check();
 
@@ -298,7 +298,7 @@ LArBadChannel LArBadChanTool::offlineStatus( Identifier id) const
   return m_OfflineBadChan.status(id);
 }
 
-CaloBadChannel LArBadChanTool::caloStatus( Identifier id) const
+CaloBadChannel LArBadChanLegacyTool::caloStatus( Identifier id) const
 {
   CaloBadChannel::BitWord res = 0;
   LArBadChannel lbc = offlineStatus( id);
@@ -318,7 +318,7 @@ CaloBadChannel LArBadChanTool::caloStatus( Identifier id) const
   return CaloBadChannel(res);
 }
 
-void LArBadChanTool::fillOfflineInfo() const
+void LArBadChanLegacyTool::fillOfflineInfo() const
 {
   m_OfflineBadChan.clear(); 
   OfflineVec vec;
@@ -349,7 +349,7 @@ void LArBadChanTool::fillOfflineInfo() const
   m_OfflineCacheInvalid = false;
 }
 
-void LArBadChanTool::updateCache()
+void LArBadChanLegacyTool::updateCache()
 {
   ATH_MSG_DEBUG ( " entering updateCache " );
 
@@ -367,7 +367,7 @@ void LArBadChanTool::updateCache()
   ATH_MSG_DEBUG ( " updateCache done " );
 }
 
-void LArBadChanTool::updateFebCache() 
+void LArBadChanLegacyTool::updateFebCache() 
 {
   // just copy current FEB list to the cache
   m_HwBadChan.setBadFEBs( m_BadFebs);
@@ -377,7 +377,7 @@ void LArBadChanTool::updateFebCache()
   
 }
 
-bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collection) 
+bool LArBadChanLegacyTool::readFromDB( const DataHandle<CondAttrListCollection> collection) 
 {
   for ( CondAttrListCollection::const_iterator i=collection->begin(); 
 	i != collection->end(); ++i) {
@@ -411,7 +411,7 @@ bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collec
   return true;
 }
 
-bool LArBadChanTool::readBadFebsFromDB() 
+bool LArBadChanLegacyTool::readBadFebsFromDB() 
 {
 
   ATH_CHECK( detStore()->retrieve( m_DBBadFebColl, m_DBBadFebFolder), false );
@@ -452,7 +452,7 @@ bool LArBadChanTool::readBadFebsFromDB()
 }
 
 
-StatusCode LArBadChanTool::updateFromDB( int&, std::list<std::string>& keylist)
+StatusCode LArBadChanLegacyTool::updateFromDB( int&, std::list<std::string>& keylist)
 {
   m_State.reset();
 
@@ -485,7 +485,7 @@ StatusCode LArBadChanTool::updateFromDB( int&, std::list<std::string>& keylist)
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArBadChanTool::updateBadFebsFromDB(IOVSVC_CALLBACK_ARGS)
+StatusCode LArBadChanLegacyTool::updateBadFebsFromDB(IOVSVC_CALLBACK_ARGS)
 {
   if (!readBadFebsFromDB()) return StatusCode::FAILURE;
   m_updatedFebsFromDB = true;
@@ -503,7 +503,7 @@ StatusCode LArBadChanTool::updateBadFebsFromDB(IOVSVC_CALLBACK_ARGS)
   return StatusCode::SUCCESS;
 }
 
-void LArBadChanTool::dumpHWCache() const 
+void LArBadChanLegacyTool::dumpHWCache() const 
 {
   LArBadChanBitPacking packing;
   ATH_MSG_INFO ( "Begin of dump of online Id cache" );
@@ -514,7 +514,7 @@ void LArBadChanTool::dumpHWCache() const
   ATH_MSG_INFO ( "End of dump of online Id cache" );
 }
 
-void LArBadChanTool::applyUpdates()
+void LArBadChanLegacyTool::applyUpdates()
 {
   typedef std::vector<State::BadChanEntry>::const_iterator   Iter;
 
@@ -531,7 +531,7 @@ void LArBadChanTool::applyUpdates()
   }
 }
 
-void LArBadChanTool::applyUpdate( State::CoolChannelData& coolChan,
+void LArBadChanLegacyTool::applyUpdate( State::CoolChannelData& coolChan,
 				  const State::BadChanEntry& entry)
 {
   typedef std::vector<State::BadChanEntry>::iterator   Iter;
@@ -548,7 +548,7 @@ void LArBadChanTool::applyUpdate( State::CoolChannelData& coolChan,
 }
 
 // should not be called if m_BadFebUpdates.empty()
-void LArBadChanTool::applyFebUpdates()
+void LArBadChanLegacyTool::applyFebUpdates()
 {
   using namespace LArBadChanImpl;
   typedef combined_ordered_container< BadFebVec, BadFebEntryLess >   CNT;
@@ -565,7 +565,7 @@ void LArBadChanTool::applyFebUpdates()
   }
 }
 
-void LArBadChanTool::dumpAscii( const std::string& fileName) const
+void LArBadChanLegacyTool::dumpAscii( const std::string& fileName) const
 {
   std::ofstream out(fileName.c_str());
   LArBadChanBitPacking packing;
@@ -581,7 +581,7 @@ void LArBadChanTool::dumpAscii( const std::string& fileName) const
   }
 }
 
-void LArBadChanTool::dumpFEBsAscii( const std::string& fileName) const
+void LArBadChanLegacyTool::dumpFEBsAscii( const std::string& fileName) const
 {
   std::ofstream out(fileName.c_str());
   LArBadFebBitPacking packing;
@@ -596,7 +596,7 @@ void LArBadChanTool::dumpFEBsAscii( const std::string& fileName) const
   }
 }
 
-bool LArBadChanTool::prepareFebHash() 
+bool LArBadChanLegacyTool::prepareFebHash() 
 {
   int firstFEB = m_onlineID->feb_begin()->get_identifier32().get_compact();
   int prevFEB = firstFEB;
