@@ -29,23 +29,23 @@ photonTriggers = TriggerLists.single_photon_Trig()
 jetTriggers = TriggerLists.jetTrig()
 
 # For first data
-jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
+jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1 || count( AntiKt10TrackCaloClusterJets.pt > 400.*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5 ) >= 1)'
 if DerivationFrameworkIsMonteCarlo:
-  jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
+  jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1 || count( AntiKt10TrackCaloClusterJets.pt > 180.*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5 ) >= 1 )'
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
 elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHLoose)) >= 1',
-                            'count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1'])
+                            '(count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1 || count(AntiKt10TrackCaloClusterJets.pt > 150*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5) >= 1)'])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
 muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
-                            'count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1'])
+                            '(count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1 || count(AntiKt10TrackCaloClusterJets.pt > 150*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5) >= 1)'])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') ) '
 gammatrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(photonTriggers)
-gammaofflinesel = '(count(Photons.pt > 150*GeV) >= 1 && count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1)'
+gammaofflinesel = '(count(Photons.pt > 150*GeV) >= 1 && (count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1 || count(AntiKt10TrackCaloClusterJets.pt > 150*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5) >= 1))'
 photonSelection = ' ( (' + gammatrigsel + ') && (' + gammaofflinesel + ') ) '
 # MET filter wanted? : MET_Reference_AntiKt4LCTopo > 20*GeV # should use a different container
 
@@ -95,6 +95,15 @@ JETM6Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( nam
                                                                         ApplyAnd                = False)
 ToolSvc += JETM6Akt10JetTPThinningTool
 thinningTools.append(JETM6Akt10JetTPThinningTool)
+
+JETM6Akt10JetTPThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetTPThinningToolTCC",
+                                                                                ThinningService         = "JETM6ThinningSvc",
+                                                                                JetKey                  = "AntiKt10TrackCaloClusterJets",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                ApplyAnd                = False)
+ToolSvc += JETM6Akt10JetTPThinningToolTCC
+thinningTools.append(JETM6Akt10JetTPThinningToolTCC)
+
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -199,6 +208,17 @@ jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM6TrigSkimK
                                                             SkimmingTools = [JETM6TrigSkimmingTool],
                                                             ThinningTools = [])
 
+#======================================= 
+# RECONSTRUCT TCC JETS
+#======================================= 
+
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(jetm6Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+
+
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
@@ -206,7 +226,8 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets",
                   "AntiKt10TruthJets",
-                  "AntiKt10LCTopoJets"]
+                  "AntiKt10LCTopoJets",
+                  "AntiKt10TrackCaloClusterJets"]
 replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -223,6 +244,7 @@ OutputJets["JETM6"] = []
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm6Seq,"JETM6")
+addTCCTrimmedJets(jetm6Seq,"JETM6")
 
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6")
 
@@ -263,6 +285,7 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
 					"BTagging_AntiKt2Track"
                                         ]
 JETM6SlimmingHelper.AllVariables = [
@@ -312,7 +335,7 @@ JETM6SlimmingHelper.IncludeEGammaTriggerContent = True
 # Add the jet containers to the stream
 # explicitely add the container we want :
 addJetOutputs(JETM6SlimmingHelper,[
-        "AntiKt10LCTopoJets",    "AntiKt10TruthJets",
+        "AntiKt10LCTopoJets",    "AntiKt10TruthJets", "AntiKt10TrackCaloClusterJets",
         "JETM6", # jets defined in this file
         ])
 # for other containers, w set the precise variable content  in ExtraVariables
