@@ -450,6 +450,7 @@ namespace ST {
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
+    bool m_jetUncertaintiesPDsmearing;
 
     bool m_useBtagging;
     bool m_debug;
@@ -575,12 +576,7 @@ namespace ST {
     double m_muCosmicz0;
     double m_muCosmicd0;
     double m_badmuQoverP;
-    //--- Config options for muon smearing tool (expert level)
-    bool m_muOverride2017SmearingDefaults;
-    bool m_muStatComb17;
-    bool m_muSagittaCorr17;
-    bool m_muSagittaMCDistortion17;
-    bool m_muSagittaCorrPhaseSpace17;
+    int    m_muCalibrationMode;
 
     double m_photonBaselinePt;
     double m_photonBaselineEta;
