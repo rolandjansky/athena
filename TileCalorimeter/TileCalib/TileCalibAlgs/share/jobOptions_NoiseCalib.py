@@ -360,6 +360,9 @@ else:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault()
+
 
 #Add Noise Calib Tool
 from TileCalibAlgs.TileCalibAlgsConf import TileDigiNoiseCalibAlg

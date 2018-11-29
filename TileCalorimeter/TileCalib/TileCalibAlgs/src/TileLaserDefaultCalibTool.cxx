@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
@@ -8,14 +8,15 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileDCSSvc.h"
 
@@ -44,7 +45,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_cabling(nullptr),
   m_tileToolEmscale("TileCondToolEmscale"),
   m_tileBadChanTool("TileBadChanTool"),
-  m_beamInfo(nullptr),
   m_stuckBitsProbs(""),
   m_tileDCSSvc("TileDCSSvc",name),
   m_toolRunNo(0),
@@ -125,6 +125,7 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   declareProperty("pisaMethod2", m_pisaMethod2=true);
   declareProperty("TileDCSSvc",m_tileDCSSvc);
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 } // TileLaserDefaultCalibTool::TileLaserDefaultCalibTool
 
 TileLaserDefaultCalibTool::~TileLaserDefaultCalibTool()
@@ -270,10 +271,12 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
   ATH_CHECK( m_tileToolEmscale.retrieve() );
   ATH_CHECK( m_tileBadChanTool.retrieve() );
-  ATH_CHECK( toolSvc()->retrieveTool("TileBeamInfoProvider",m_beamInfo) );
   
 
   ATH_CHECK( m_tileDCSSvc.retrieve() );
+
+  CHECK( m_dqStatusKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -285,6 +288,9 @@ StatusCode TileLaserDefaultCalibTool::initNtuple(int runNumber, int runType, TFi
 
 
 StatusCode TileLaserDefaultCalibTool::execute(){
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
+
   const char* text[NGAINS] = {"LG DIODE ","HG DIODE "}; 
   ++m_evtNr;   // Increment event number
   ATH_MSG_DEBUG ( "Event counter: " << m_evtNr );
@@ -303,7 +309,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   if(m_LASERII) ATH_MSG_DEBUG ( "LaserII version is " << laserObj->getVersion() << " DAQ Type = " << laserObj->getDaqType() );
   else          ATH_MSG_DEBUG ( "LaserI version is "  << laserObj->getVersion() << " DAQ Type = " << laserObj->getDaqType() );
   
-  const uint32_t *cispar = m_beamInfo->cispar();
+  const uint32_t *cispar = dqStatus->cispar();
   
   m_las_time = static_cast<double>(cispar[10])+static_cast<double>(cispar[11])/1000000;
   
@@ -332,8 +338,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
 	unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
 	for ( int channel=0; channel<NCHANNELS; ++channel ) {
-	  const TileDQstatus *theDQstatus = m_beamInfo->getDQstatus();
-	  if ( theDQstatus->isChEmpty(ros,drawer,channel) ) {  // Check whether channel is connected
+	  if ( dqStatus->isChEmpty(ros,drawer,channel) ) {  // Check whether channel is connected
 	    continue;
 	  }
 	  for ( int gain=0; gain<NGAINS; ++gain ) {
@@ -556,14 +561,13 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       
       if(ofctime!=0.0) ofctime -= avg_time[part][gain]->Mean();
       
-      const TileDQstatus *theDQstatus = m_beamInfo->getDQstatus();
-      if ( theDQstatus->isChEmpty(ros,drawer,chan) ) {  // Check whether channel is connected
+      if ( dqStatus->isChEmpty(ros,drawer,chan) ) {  // Check whether channel is connected
         m_status[part][drawer][chan][0] = -1;
         m_status[part][drawer][chan][1] = -1;
         continue; // Nothing to be seen here
       } 
             
-      if ( !theDQstatus->isAdcDQgood(ros,drawer,chan,gain) ) { // Masked on the fly
+      if ( !dqStatus->isAdcDQgood(ros,drawer,chan,gain) ) { // Masked on the fly
         m_status[part][drawer][chan][gain] |= 0x10;
 	is_good = false;
       }

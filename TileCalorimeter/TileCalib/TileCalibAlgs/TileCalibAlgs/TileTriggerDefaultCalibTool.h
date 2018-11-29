@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILETRIGGERDEFAULTCALIBTOOL_H
@@ -11,10 +11,11 @@
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h" 
 //#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <string> 
 
-class TileBeamInfoProvider;
 class TileCablingService;
 class TileCondToolEmscale;
 class CaloLVL1_ID;
@@ -34,12 +35,12 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   TileTriggerDefaultCalibTool(const std::string& type, const std::string& name,const IInterface* pParent);
   virtual ~TileTriggerDefaultCalibTool();
 
-  virtual StatusCode initialize();
-  virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile);
-  virtual StatusCode execute();
-  virtual StatusCode finalizeCalculations();
-  virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile);
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile) override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalizeCalculations() override;
+  virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile) override;
+  virtual StatusCode finalize() override;
 
  private:
 
@@ -51,12 +52,12 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   unsigned int m_nevpmt;
 
   // Tools / storegate info
-  TileBeamInfoProvider *m_beamPrv;
   const CaloLVL1_ID* m_TT_ID;
   const TileHWID* m_tileHWID;
   const TileID*   m_tileID;
   const TileCablingService* m_tileCablingService;
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
+  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
  
   // Results Tile
   float m_meanTile[5][64][48];
