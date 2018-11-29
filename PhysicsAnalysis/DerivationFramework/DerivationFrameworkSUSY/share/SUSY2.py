@@ -14,6 +14,7 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkSUSY.SUSYCommon import *
 
 
 ### Set up stream
@@ -319,19 +320,19 @@ SUSY2SlimmingHelper.SmartCollections = ["Electrons",
                                         "PrimaryVertices"]
 SUSY2SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-					"Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_jetClean_VeryLooseBadLLP",
-					"GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-					"InDetTrackParticles.truthOrigin.truthType",
-					"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-					"ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-					"TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-					"Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1",
-          "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
-          "MuonClusterCollection.eta_sampl.phi_sampl",
-          "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
+                                      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
+                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_jetClean_VeryLooseBadLLP",
+                                      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                      "InDetTrackParticles.truthOrigin.truthType",
+                                      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.seedJetWidth",
+                                      "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
+                                      "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
+                                      "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1",
+                                      "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
+                                      "MuonClusterCollection.eta_sampl.phi_sampl",
+                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
 
 # Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
