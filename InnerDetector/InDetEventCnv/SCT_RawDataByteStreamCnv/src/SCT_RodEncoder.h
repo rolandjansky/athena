@@ -10,8 +10,8 @@
  *  
  */
  
-#ifndef SCT_RAWDATABYTESTREAM_SCT_RODENCODER_H
-#define SCT_RAWDATABYTESTREAM_SCT_RODENCODER_H
+#ifndef SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
+#define SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
 
 /// base classes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -128,4 +128,4 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   std::set<Identifier> m_swapModuleID; // Set by SCTRawContByteStreamTool
 };
 
-#endif // SCT_RAWDATABYTESTREAM_SCT_RODENCODER_H
+#endif // SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
