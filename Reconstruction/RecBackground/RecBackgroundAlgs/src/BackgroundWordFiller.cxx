@@ -64,7 +64,6 @@ BackgroundWordFiller::BackgroundWordFiller(const std::string& name,
   m_MBTSBeamVeto_ThresholdCut(0),
   m_MBTSmask(TileCell::MASK_BADCH | TileCell::MASK_OVER | TileCell::MASK_TIME),
   m_MBTSpattern(TileCell::MASK_TIME), 
-  m_mbtsContainerName(""),
   m_LArEC_SideCut(0),
   m_LArECTimeDiffCol_Cut(0),
   m_LArECTimeDiffHalo_CutLo(0),
@@ -112,7 +111,6 @@ BackgroundWordFiller::BackgroundWordFiller(const std::string& name,
   declareProperty("MBTSBeamVeto_MultiplicityCut",m_MBTSBeamVeto_MultiplicityCut=0); // >0
   declareProperty("MBTSBeamVeto_TimeCut",m_MBTSBeamVeto_TimeCut=15.);
   declareProperty("MBTSBeamVeto_ThresholdCut",m_MBTSBeamVeto_ThresholdCut=40.0/222.0);
-  declareProperty("MBTSContainer",m_mbtsContainerName="MBTSContainer");
   // LAr
   declareProperty("LArEC_SideCut",m_LArEC_SideCut=1);
   declareProperty("LArECTimeDiffCol_Cut",m_LArECTimeDiffCol_Cut=10.);
@@ -141,6 +139,7 @@ StatusCode BackgroundWordFiller::initialize() {
   ATH_CHECK(m_LUCID_rawDataContainerKey.initialize());
   ATH_CHECK(m_bcmCollisionTimeKey.initialize());
   ATH_CHECK(m_rawIngoSummaryForTagKey.initialize());
+  ATH_CHECK(m_tileCellContainerKey.initialize());
   
   return StatusCode::SUCCESS;  
 }
@@ -277,36 +276,34 @@ StatusCode BackgroundWordFiller::execute() {
     }
   }
   
-   ////////////////
-   // MBTSBeamVeto
+  ////////////////
+  // MBTSBeamVeto
+  ///////////////
 
-   if( evtStore()->contains<TileCellContainer>(m_mbtsContainerName) ){
+  SG::ReadHandle<TileCellContainer> tileCellContainerReadHandle(m_tileCellContainerKey);
 
-     const TileCellContainer *tileCellCnt = 0;
-     int MBTScount(0);
-     if (evtStore()->retrieve(tileCellCnt, m_mbtsContainerName).isFailure()) {
-       msg(MSG::WARNING) << "Error retrieving " << m_mbtsContainerName << endmsg;
-     } else {
-       TileCellContainer::const_iterator itr = tileCellCnt->begin();
-       TileCellContainer::const_iterator itr_end = tileCellCnt->end();
-       for(; itr != itr_end; ++itr) {
-	 if ((*itr)->energy()<m_MBTSBeamVeto_ThresholdCut) continue;
-	 const uint8_t qbit1=(*itr)->qbit1(); 
-	 if ((qbit1 & m_MBTSmask) != m_MBTSpattern) {
-	   ATH_MSG_DEBUG("Rejected based on quality bits");
-	   continue;
-	 }
-	 if (fabs((*itr)->time())<m_MBTSBeamVeto_TimeCut) MBTScount++;
-       }
-       if (MBTScount>m_MBTSBeamVeto_MultiplicityCut){
-	 if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSBeamVeto)==false)
-	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::MBTSBeamVeto] << endmsg;
-	 else
-	   m_bitcntvec[EventInfo::MBTSBeamVeto]++;
-       }
-     } // retrieved MBTS info
-   }//MBTS SG veto
+  if (!tileCellContainerReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to TileCellContainer: " << m_tileCellContainerKey.key());
+  else{
+    int MBTScount(0);
 
+    for (auto tileCellContainer : *tileCellContainerReadHandle){
+      if (tileCellContainer->energy() < m_MBTSBeamVeto_ThresholdCut) continue;
+      const uint8_t qbit1 = tileCellContainer->qbit1();
+
+      if ((qbit1 & m_MBTSmask) != m_MBTSpattern) {
+	ATH_MSG_DEBUG("Rejected based on quality bits");
+	continue;
+      }
+      if (fabs(tileCellContainer->time())<m_MBTSBeamVeto_TimeCut) MBTScount++;
+    }//loop on MBTS containers
+
+    if (MBTScount>m_MBTSBeamVeto_MultiplicityCut){
+      if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::MBTSBeamVeto)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::MBTSBeamVeto]);
+      else  m_bitcntvec[EventInfo::MBTSBeamVeto]++;
+    }
+  }
+  
+  
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // LAr EC collision timing stuff (from Guillaume...) - for filling:      LArECTimeDiffHalo, LArECTimeDiffCol
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////

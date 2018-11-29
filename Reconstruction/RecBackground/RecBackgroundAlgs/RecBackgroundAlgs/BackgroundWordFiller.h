@@ -18,6 +18,7 @@ Updated Mark Tibbetts 6/3/2012
 #include "LUCID_RawEvent/LUCID_RawDataContainer.h"
 #include "BCM_CollisionTime/BcmCollisionTime.h"
 #include "TagEvent/RawInfoSummaryForTag.h"
+#include "TileEvent/TileContainer.h"
 
 #include <array>
 
@@ -49,6 +50,9 @@ class BackgroundWordFiller : public AthAlgorithm
 
   /** ReadHandleKey for RawInfoSummaryForTag */
   SG::ReadHandleKey<RawInfoSummaryForTag> m_rawIngoSummaryForTagKey{this,"RawInfoSummaryForTagKey","RawInfoSummaryForTag","Key for RawInfoSummaryForTag"};
+
+  /** ReadHandleKey for TileCellContainer */
+  SG::ReadHandleKey<TileCellContainer> m_tileCellContainerKey{this,"TileCellContainerKey","MBTSContainer","Key for TileCellContainer"};
   
   int m_HaloNumSegment_Cut;
   int m_HaloNumClusterShape_Cut;
