@@ -221,7 +221,7 @@ EXOT4ThinningHelper = ThinningHelper( "EXOT4ThinningHelper" )
 
 #trigger navigation content
 #EXOT4ThinningHelper.TriggerChains = 'HLT_j.*|HLT_e.*|HLT_mu.*|HLT_xe.*'
-EXOT4ThinningHelper.TriggerChains = 'HLT_e.*|HLT_mu.*|HLT_xe.*'
+EXOT4ThinningHelper.TriggerChains = 'HLT_e.*|HLT_mu.*|HLT_xe.*|HLT_ht1000_L1J100|HLT_ht850_L1J100|HLT_4j100'
 EXOT4ThinningHelper.AppendToStream( EXOT4Stream )
 
 # add MC sum of weights in the CutBookkeeper metadata information
