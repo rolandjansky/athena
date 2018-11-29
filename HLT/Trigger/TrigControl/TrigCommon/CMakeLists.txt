@@ -21,7 +21,8 @@ atlas_add_test( flake8
 # Tests:
 atlas_add_test( test_AthHLT
    SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/AthHLT.py
-   POST_EXEC_SCRIPT nopost.sh )
+   POST_EXEC_SCRIPT nopost.sh
+   PROPERTIES TIMEOUT 300 )
 
 #atlas_add_test( athenaHLT_jo_noopts
 #   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/test_athenaHLT.sh dummy.py)
