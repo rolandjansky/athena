@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -192,6 +192,7 @@ void TileHid2RESrcID::setROD2ROBmap(const std::vector<std::string> & ROD2ROB,
 }
 
 void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint32_t*> * event,
+                                     bool& of2Default,
                                      MsgStream & log)
 {
   MSG::Level logLevel = log.level();
@@ -590,10 +591,10 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
             << " instead of " << rodDecoder->m_timeMaxThresh << endmsg;
         rodDecoder->m_timeMaxThresh = cellBuilder->m_timeMaxThresh;
       }
-      if (of2 != rodDecoder->m_of2) {
+      if (of2 != of2Default) {
         log << MSG::INFO << "Setting OF2 flag in in TileROD_Decoder to " << ((of2)?"True":"False")
-            << " instead of " << ((rodDecoder->m_of2)?"True":"False") << endmsg;
-        rodDecoder->m_of2 = of2;
+            << " instead of " << ((of2Default)?"True":"False") << endmsg;
+        of2Default = of2;
       }
     }
   

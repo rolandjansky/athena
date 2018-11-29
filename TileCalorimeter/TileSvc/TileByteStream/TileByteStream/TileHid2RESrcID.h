@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TILEHID2RESRCID__
-#define __TILEHID2RESRCID__
+#ifndef TILEBYTESTREAM_TILEHID2RESRCID_H
+#define TILEBYTESTREAM_TILEHID2RESRCID_H
 
 #include "eformat/FullEventFragment.h"
 
@@ -44,6 +44,7 @@ public:
                       MsgStream & log);
 
   void setROD2ROBmap (const eformat::FullEventFragment<const uint32_t*> * event,
+                      bool& of2Default,
                       MsgStream & log);
 
   /** make a ROB SrcID for a fragment ID

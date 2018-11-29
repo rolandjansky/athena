@@ -398,14 +398,25 @@ class TileROD_Decoder: public AthAlgTool {
 
     /**/
 
-    inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+    inline void make_copy(uint32_t bsflags,
+                          TileFragHash::TYPE rChType,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileBeamElemCollection& v) const;
-    inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+    inline void make_copy(uint32_t bsflags,
+                          TileFragHash::TYPE rChType,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileDigitsCollection& v) const;
-    inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+    inline void make_copy(uint32_t bsflags,
+                          TileFragHash::TYPE rChType,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileRawChannelCollection& v) const;
 
-    uint32_t make_copyHLT(pFRwChVec & pChannel, TileCellCollection& v, const uint16_t DQuality,
+    uint32_t make_copyHLT(bool of2,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          pFRwChVec & pChannel, TileCellCollection& v, const uint16_t DQuality,
                           D0CellsHLT& d0cells);
 
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileBeamElemCollection& v) const;
@@ -485,11 +496,7 @@ class TileROD_Decoder: public AthAlgTool {
 
     TileFragHash m_hashFunc;
 
-    // RawChannels units and type (taken from BS frag type
-    TileFragHash::TYPE m_rChType;
-    TileRawChannelUnit::UNIT m_rChUnit;
-    uint32_t m_bsflags;
-    bool m_of2;
+    bool m_of2Default;
 
     // TileRawChannelContainer
     TileRawChannelContainer * m_container;
@@ -620,7 +627,10 @@ inline void TileROD_Decoder::copy_vec(std::vector<ELEMENT *> & v, COLLECTION & c
 }
 
 inline
-void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+void TileROD_Decoder::make_copy(uint32_t /*bsflags*/,
+                                TileFragHash::TYPE /*rChType*/,
+                                TileRawChannelUnit::UNIT /*rChUnit*/,
+                                const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
     TileDigitsCollection & v) const {
   copy_vec(pDigits, v); // Digits stored
 
@@ -665,18 +675,21 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
 }
 
 inline
-void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+void TileROD_Decoder::make_copy(uint32_t bsflags,
+                                TileFragHash::TYPE rChType,
+                                TileRawChannelUnit::UNIT rChUnit,
+                                const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
     TileRawChannelCollection & v) const {
   if (pChannel.size() > 0) { // take available raw channels
                              // and store in collection
     if (m_container) {
-      ATH_MSG_VERBOSE( "RawChannel unit is " << m_rChUnit
+      ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit
                       << "  - setting unit in TileRawChannelContainer " );
-      m_container->set_unit(m_rChUnit);
-      m_container->set_type(m_rChType);
-      m_container->set_bsflags(m_bsflags);
+      m_container->set_unit(rChUnit);
+      m_container->set_type(rChType);
+      m_container->set_bsflags(bsflags);
     } else {
-      ATH_MSG_ERROR( "Can't set unit=" << m_rChUnit << " in TileRawChannelContainer" );
+      ATH_MSG_ERROR( "Can't set unit=" << rChUnit << " in TileRawChannelContainer" );
     }
 
     copy_vec(pChannel, v);
@@ -709,7 +722,7 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
   v.setDetEvType(rob->rod_detev_type());
   v.setRODBCID(rob->rod_bc_id());
 
-  if (m_rChUnit < TileRawChannelUnit::OnlineOffset && m_rChType > TileFragHash::OptFilterDsp) { // set good status for BS from MC
+  if (rChUnit < TileRawChannelUnit::OnlineOffset && rChType > TileFragHash::OptFilterDsp) { // set good status for BS from MC
     m_rawchannelMetaData[0]->push_back(0);
     m_rawchannelMetaData[0]->push_back(0xDEAD);
     m_rawchannelMetaData[5]->push_back(0xFFFF);
@@ -744,7 +757,10 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
 }
 
 inline
-void TileROD_Decoder::make_copy(const ROBData * /* rob */, pDigiVec & pDigits
+void TileROD_Decoder::make_copy(uint32_t /*bsflags*/,
+                                TileFragHash::TYPE /*rChType*/,
+                                TileRawChannelUnit::UNIT /*rChUnit*/,
+                                const ROBData * /* rob */, pDigiVec & pDigits
     , pRwChVec & pChannel, TileBeamElemCollection &) const {
   // do nothing
   delete_vec(pDigits);
@@ -952,6 +968,10 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     std::vector<const uint32_t *>::const_iterator it = pFrag.begin();
     std::vector<const uint32_t *>::const_iterator itEnd = pFrag.end();
 
+    uint32_t bsflags = 0;
+    TileFragHash::TYPE rChType = TileFragHash::Digitizer;
+    TileRawChannelUnit::UNIT rChUnit = TileRawChannelUnit::ADCcounts;
+
     for (; it != itEnd; ++it) {
 
       p = (*it);
@@ -981,7 +1001,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
           break;
         case 4:
           if (m_useFrag4) {
-            m_bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
+            bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
             int unit = (idAndType & 0xC0000000) >> 30;
 
             int DataType = (idAndType & 0x30000000) >> 28;
@@ -990,23 +1010,22 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
               // only one bit for type and next 2 bits for number of iterations
               //int AlgoType = (idAndType & 0x4000000) >> 26;
-              //if (AlgoType == 0)      m_rChType = TileFragHash::OF1Filter;
-              //else                    m_rChType = TileFragHash::OF2Filter;
+              //if (AlgoType == 0)      rChType = TileFragHash::OF1Filter;
+              //else                    rChType = TileFragHash::OF2Filter;
               // always set special type, which means now that OF is done inside DSP
-              m_rChType = TileFragHash::OptFilterDsp;
-              m_of2 = ((idAndType & 0x4000000) != 0);
+              rChType = TileFragHash::OptFilterDsp;
 
               // Attention! Switching to Online Units for release 14.2.0
-              m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
-              // m_rChUnit = (TileRawChannelUnit::UNIT) ( unit );
+              rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
+              // rChUnit = (TileRawChannelUnit::UNIT) ( unit );
 
             } else { // simulated data
 
               // all 3 bits for type
               int AlgoType = (idAndType & 0x7000000) >> 24;
-              m_rChType = (TileFragHash::TYPE) AlgoType;
+              rChType = (TileFragHash::TYPE) AlgoType;
 
-              m_rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
+              rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
 
             unpack_frag4(version, unit, p, pChannel);
@@ -1015,14 +1034,13 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
         case 5:
           if (m_useFrag5Raw || m_useFrag5Reco) {
-            m_bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
+            bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
             int unit = (idAndType & 0xC0000000) >> 30;
 
             // always set special type, which means now that OF is done inside DSP
-            m_rChType = TileFragHash::OptFilterDspCompressed;
-            m_of2 = ((idAndType & 0x4000000) != 0);
+            rChType = TileFragHash::OptFilterDspCompressed;
 
-            m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
+            rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             unpack_frag5(version, unit, p, pDigits, pChannel);
           }
           break;
@@ -1043,7 +1061,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
       }
     } // end of all frags
 
-    make_copy(rob, pDigits, pChannel, v);
+    make_copy(bsflags, rChType, rChUnit, rob, pDigits, pChannel, v);
   }
 
   return;
