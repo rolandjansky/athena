@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorTool.h" 
@@ -237,7 +237,7 @@ MuonDetectorTool::create()
     // 
     // Locate the top level experiment node 
     // 
-    DataHandle<GeoModelExperiment> theExpt; 
+    GeoModelExperiment* theExpt = nullptr;
     ATH_CHECK( detStore()->retrieve( theExpt, "ATLAS" ) );
 
     if (!m_useCscIntAlines) m_controlCscIntAlines = 0;
@@ -281,12 +281,6 @@ MuonDetectorTool::create()
         }
     }
       
-    //
-    // Locate the material manager:
-    //
-    DataHandle<StoredMaterialManager> theMaterialManager;
-    ATH_CHECK( detStore()->retrieve(theMaterialManager, "MATERIALS") );
-
     if (m_dumpMemoryBreakDown)
     {
 	umem = GeoPerfUtils::getMem();
@@ -340,7 +334,6 @@ MuonDetectorTool::create()
             //
             GeoPhysVol *world=&*theExpt->getPhysVol();
             theFactory.create(world);
-            //      ATH_MSG_INFO("CREATING MuonDetectorNode; MM=" << &*theMaterialManager );
         } catch (const std::bad_alloc&) {
             ATH_MSG_FATAL("Could not create new MuonDetectorNode!" );
             return StatusCode::FAILURE; 
