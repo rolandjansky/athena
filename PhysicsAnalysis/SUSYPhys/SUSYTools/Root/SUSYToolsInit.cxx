@@ -271,9 +271,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
+    // Allowing for IsData = true (pseudo-data smearing) if AllJER or FullJER config is set in m_jetUncertaintiesConfig
+    bool JERUncPDsmearing = isData() ? isData() : m_jetUncertaintiesPDsmearing;
+    if (m_jetUncertaintiesConfig.find("SimpleJER") != std::string::npos) JERUncPDsmearing = isData();
+
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", isData()) );
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", JERUncPDsmearing) );
     //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) ); 
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
@@ -402,14 +406,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
     m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
-    //
-    if (m_muOverride2017SmearingDefaults){
-      ATH_MSG_WARNING("You have enabled overriding the 2017 muon calibration and smearing tool defaults. Note that *all* configurable parameters for 2017 will be set by SUSYTools");
-      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb17", m_muStatComb17) );
-      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("SagittaCorr17", m_muSagittaCorr17) );
-      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("doSagittaMCDistortion17", m_muSagittaMCDistortion17) );
-      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17) );
-    }
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("calibrationMode", m_muCalibrationMode) );
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
 
