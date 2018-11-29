@@ -133,12 +133,21 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
       ATH_MSG_ERROR( "Can not obtain CLID of: " << typeName );
       return StatusCode::FAILURE;
     }
+    ATH_MSG_DEBUG( "CLID " << clid );
 
     RootType classDesc = RootType::ByName( typeName );  
     size_t sz=0;
 
     const void* rawptr = auxStore->getData( auxVarID );
     ATH_CHECK( rawptr != nullptr );
+
+    if ( clid == ClassID_traits<std::vector<float>>::ID() )  {
+      const std::vector<float>* fvec = reinterpret_cast<const std::vector<float>*> (rawptr);
+      ATH_MSG_DEBUG("Aux size " << fvec->size() );
+      for ( float v : *fvec ) {
+	ATH_MSG_DEBUG("  v:  " << v );
+      }
+    }
     
     void* mem = m_serializerSvc->serialize( rawptr, classDesc, sz );
     
@@ -146,7 +155,7 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
       ATH_MSG_ERROR( "Serialisation of " << address.type <<"#" << address.key << "."<< name << " unsuccessful" );
       return StatusCode::FAILURE;
     }
-    
+
     std::vector<uint32_t> fragment;
     Address auxAddress = { typeName, clid, address.key+"."+name, false };
     ATH_CHECK( makeHeader( auxAddress, fragment ) );
@@ -158,6 +167,7 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     ATH_MSG_DEBUG("Fragment size " << fragment.size() );
     
     buffer.insert( buffer.end(), fragment.begin(), fragment.end() );        
+    
   }
   
   

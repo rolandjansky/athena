@@ -349,9 +349,10 @@ print summMaker
 serialiser = TriggerEDMSerialiserTool(name="Serialiser", OutputLevel=VERBOSE)
 
 serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
-                                      "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.*",
+                                      "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.",
                                       "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
-                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.eta.phi.rawEnergy.rawEt.rawEta.rawPhi.nCells.clusterQuality.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
+                                      "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
+                                      #"xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
