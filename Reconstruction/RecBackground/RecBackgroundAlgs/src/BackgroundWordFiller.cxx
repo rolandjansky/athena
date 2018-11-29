@@ -36,8 +36,6 @@ Mark Tibbetts 6/3/2012
 
 #include "RecBackgroundAlgs/BackgroundWordFiller.h"
 #include "TileEvent/MBTSCollisionTime.h"
-#include "LArRecEvent/LArCollisionTime.h"
-#include "TileEvent/TileContainer.h"
 
 //----------------------------------------------------------------
 
@@ -140,6 +138,7 @@ StatusCode BackgroundWordFiller::initialize() {
   ATH_CHECK(m_bcmCollisionTimeKey.initialize());
   ATH_CHECK(m_rawIngoSummaryForTagKey.initialize());
   ATH_CHECK(m_tileCellContainerKey.initialize());
+  ATH_CHECK(m_lArCollisionTimeKey.initialize());
   
   return StatusCode::SUCCESS;  
 }
@@ -209,12 +208,12 @@ StatusCode BackgroundWordFiller::execute() {
   // BCM: BCMTimeDiffHalo, BCMTimeDiffCol, BCMBeamVeto
   //////////////////////////////////////////////////
 
-  SG::ReadHandle<BcmCollisionTime> bcmCollistionTimeReadHandle(m_bcmCollisionTimeKey);
+  SG::ReadHandle<BcmCollisionTime> bcmCollisionTimeReadHandle(m_bcmCollisionTimeKey);
 
-  if (!bcmCollistionTimeReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to BcmCollisionTime with name: " << m_bcmCollisionTimeKey.key());
+  if (!bcmCollisionTimeReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to BcmCollisionTime with name: " << m_bcmCollisionTimeKey.key());
   else{
-    std::vector<float> bcmTDs = bcmCollistionTimeReadHandle->getDeltaT();
-    ATH_MSG_DEBUG( " got BCMCollisionTime object getMultiLG "<<bcmCollistionTimeReadHandle->getMultiLG()<<" getMultiHG "<<bcmCollistionTimeReadHandle->getMultiHG()<<" TDs size "<<bcmTDs.size());
+    std::vector<float> bcmTDs = bcmCollisionTimeReadHandle->getDeltaT();
+    ATH_MSG_DEBUG( " got BCMCollisionTime object getMultiLG "<<bcmCollisionTimeReadHandle->getMultiLG()<<" getMultiHG "<<bcmCollisionTimeReadHandle->getMultiHG()<<" TDs size "<<bcmTDs.size());
     float minTD=999;
     float maxTD=0;
 
@@ -235,7 +234,7 @@ StatusCode BackgroundWordFiller::execute() {
       if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMTimeDiffHalo)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMTimeDiffHalo]);
       else m_bitcntvec[EventInfo::BCMTimeDiffHalo]++;
     }
-    if (bcmCollistionTimeReadHandle->getMultiLG()>m_BCMLowGainCut || bcmCollistionTimeReadHandle->getMultiHG()>m_BCMHiGainCut){
+    if (bcmCollisionTimeReadHandle->getMultiLG()>m_BCMLowGainCut || bcmCollisionTimeReadHandle->getMultiHG()>m_BCMHiGainCut){
       if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::BCMBeamVeto)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::BCMBeamVeto]);
       else  m_bitcntvec[EventInfo::BCMBeamVeto]++;
     }  
@@ -302,37 +301,28 @@ StatusCode BackgroundWordFiller::execute() {
       else  m_bitcntvec[EventInfo::MBTSBeamVeto]++;
     }
   }
+    
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // LAr EC collision timing stuff (from Guillaume...) - for filling:      LArECTimeDiffHalo, LArECTimeDiffCol
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  SG::ReadHandle<LArCollisionTime> lArCollisionTimeReadHandle(m_lArCollisionTimeKey);
+
+  if (!lArCollisionTimeReadHandle.isValid()) ATH_MSG_WARNING("Invalid ReadHandle to LArCollisionTime: " << m_lArCollisionTimeKey.key());
+  else{
+    if (lArCollisionTimeReadHandle->ncellA() > m_LArEC_SideCut && lArCollisionTimeReadHandle->ncellC() > m_LArEC_SideCut) {
+      float LArECtimeDiff =   lArCollisionTimeReadHandle->timeA()-lArCollisionTimeReadHandle->timeC();
+      if (fabs(LArECtimeDiff)<m_LArECTimeDiffCol_Cut){
+	if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffCol)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " <<  m_bitnamevec[EventInfo::LArECTimeDiffCol]);
+	else m_bitcntvec[EventInfo::LArECTimeDiffCol]++;
+      }
+      if (fabs(LArECtimeDiff)>m_LArECTimeDiffHalo_CutLo && fabs(LArECtimeDiff)<m_LArECTimeDiffHalo_CutHi){ 
+	if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffHalo)==false) ATH_MSG_WARNING("Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::LArECTimeDiffHalo]);
+	else m_bitcntvec[EventInfo::LArECTimeDiffHalo]++;
+      }// halo timing
+    } // enough hits per side
+  }
   
-  
-   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   // LAr EC collision timing stuff (from Guillaume...) - for filling:      LArECTimeDiffHalo, LArECTimeDiffCol
-   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   
-   if( evtStore()->contains<LArCollisionTime>("LArCollisionTime") ){
-     const  LArCollisionTime* tps;
-     if(evtStore()->retrieve(tps,"LArCollisionTime").isFailure()) {
-       msg(MSG::WARNING) << "Failed to retrieve LArCollisionTime object" << endmsg;
-     }
-     else {
-       if (tps->ncellA() > m_LArEC_SideCut && tps->ncellC() > m_LArEC_SideCut) {
-	 float LArECtimeDiff =   tps->timeA()-tps->timeC();
-	 if (fabs(LArECtimeDiff)<m_LArECTimeDiffCol_Cut){
-	   if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffCol)==false)
-	     msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " <<  m_bitnamevec[EventInfo::LArECTimeDiffCol] << endmsg;
-	   else
-	     m_bitcntvec[EventInfo::LArECTimeDiffCol]++;
-	 }
-	 if (fabs(LArECtimeDiff)>m_LArECTimeDiffHalo_CutLo && fabs(LArECtimeDiff)<m_LArECTimeDiffHalo_CutHi){ 
-	   if (eventInfoReadHandle->updateEventFlagBit(EventInfo::Background,EventInfo::LArECTimeDiffHalo)==false)
-	     msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::LArECTimeDiffHalo]  << endmsg;
-	   else
-	     m_bitcntvec[EventInfo::LArECTimeDiffHalo]++;
-	 }// halo timing
-       } // enough hits per side
-     } 
-       
-   } //LAr time SG veto
-   
    ////////////////////////////////////////
    // printout the final background word
    ///////////////////////////////////////
