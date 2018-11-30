@@ -79,7 +79,7 @@ private:
   /// @returns <code>true</code> If messages at level "lvl" will be printed
   ///
   bool msgLvl( const MSG::Level lvl ) const {
-    return m_msg->msgLevel (lvl);};
+    return m_msg->level() <= lvl;};
 
   /// The standard message stream.
   ///
