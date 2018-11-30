@@ -107,8 +107,6 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
   declareProperty("EmulatedChainDefinitions",    m_emulatedChainDefinitions);
   declareProperty("AutoConfigMenu"          ,    m_autoconfiguredMenu="");
 
-  declareProperty("Verbosity",            m_verbosity=0);
-
 #if defined( XAOD_STANDALONE )
   declareProperty("TrigDecisionToolName", m_TrigDecToolName = "Trig::TrigDecisionTool/TrigDecisionTool");
   declareProperty("xAODConfigToolName"  , m_xAODConfToolName = "TrigConf::xAODConfigTool");
@@ -290,10 +288,17 @@ StatusCode TrigBtagEmulationTool::initialize() {
 //!==========================================================================
 StatusCode TrigBtagEmulationTool::execute() {
 
-  if (m_verbosity > 0) ATH_MSG_INFO( "Executing tool " << name() );
+  ATH_MSG_DEBUG( "Executing tool " << name() );
 
   // CLEAR PREVIOUS RESULTS
   clear();
+
+  // CHECK INPUT CHAINS EXISTS
+  if ( not hasGSC() ) {
+    ANA_CHECK( checkInputChainExists( std::get< jetCollections::SPLIT >( m_inputChains ) ) );
+  } else {
+    ANA_CHECK( checkInputChainExists( std::get< jetCollections::GSC >( m_inputChains ) ) );
+  }
 
   // RETRIEVE INPUT CONTAINER VECTORS
   // RETRIEVE LVL1 JETROIs
@@ -356,55 +361,49 @@ StatusCode TrigBtagEmulationTool::execute() {
   TrigBtagEmulationChain::clear();
   TrigBtagEmulationChain::evaluate();
 
-  //  for (auto & emulatedChain : m_emulatedChains) 
-    //    emulatedChain.second.evaluate();
-
-  if (m_verbosity > 0) {
-    // DUMP L1 JETS
-    ATH_MSG_INFO ("L1 jets");
-
-    std::vector< std::unique_ptr< TrigBtagEmulationJet > > l1_jets = m_manager_lvl1_8x8->getJets();  
-    std::vector< std::unique_ptr< TrigBtagEmulationJet > > l1_jets_jj = m_manager_lvl1_4x4->getJets();
-
-    for (unsigned int i=0; i<l1_jets.size(); i++) {
-      auto & l1_jet    = l1_jets.at(i);
-      auto & l1_jet_jj = l1_jets_jj.at(i);
-      ATH_MSG_INFO ("  Jet --- pt[et8x8]=" << l1_jet->pt() << " pt[et4x4]="<< l1_jet_jj->pt()  << " eta=" << l1_jet->eta() << " phi=" << l1_jet->phi() );
-    }
+  // DUMP L1 JETS
+  ATH_MSG_DEBUG ("L1 jets");
+  
+  std::vector< std::unique_ptr< TrigBtagEmulationJet > > l1_jets = m_manager_lvl1_8x8->getJets();  
+  std::vector< std::unique_ptr< TrigBtagEmulationJet > > l1_jets_jj = m_manager_lvl1_4x4->getJets();
+  
+  for (unsigned int i=0; i<l1_jets.size(); i++) {
+    auto & l1_jet    = l1_jets.at(i);
+    auto & l1_jet_jj = l1_jets_jj.at(i);
+    ATH_MSG_DEBUG ("  Jet --- pt[et8x8]=" << l1_jet->pt() << " pt[et4x4]="<< l1_jet_jj->pt()  << " eta=" << l1_jet->eta() << " phi=" << l1_jet->phi() );
+  }
     
     // DUMP EF JETS
-    ATH_MSG_INFO ("EF jets");
-    for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_ef->getJets()) {
-      ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi());
-      for (auto & weight : jet->weights()) 
-	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
-    }
+  ATH_MSG_DEBUG ("EF jets");
+  for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_ef->getJets()) {
+    ATH_MSG_DEBUG ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi());
+    for (auto & weight : jet->weights()) 
+      ATH_MSG_DEBUG ("      " << weight.first << " " << weight.second);
+  }
     
-    // DUMP SPLIT JETS
-    ATH_MSG_INFO ("SPLIT jets");
-    for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_split->getJets()) {
-      if ( jet->pt()*1e-3 < 15 ) continue;
-      ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi());
-      for (auto & weight : jet->weights())
-	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
-    }
-    
-    // DUMP GSC JETS
-    ATH_MSG_INFO ("GSC jets");
-    for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_gsc->getJets()) {
-      if ( jet->pt()*1e-3 < 15 ) continue;
-      ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta());
-      for (auto & weight : jet->weights())
-	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
-    }
+  // DUMP SPLIT JETS
+  ATH_MSG_DEBUG ("SPLIT jets");
+  for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_split->getJets()) {
+    if ( jet->pt()*1e-3 < 15 ) continue;
+    ATH_MSG_DEBUG ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi());
+    for (auto & weight : jet->weights())
+      ATH_MSG_DEBUG ("      " << weight.first << " " << weight.second);
+  }
+  
+  // DUMP GSC JETS
+  ATH_MSG_DEBUG ("GSC jets");
+  for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_gsc->getJets()) {
+    if ( jet->pt()*1e-3 < 15 ) continue;
+    ATH_MSG_DEBUG ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta());
+    for (auto & weight : jet->weights())
+      ATH_MSG_DEBUG ("      " << weight.first << " " << weight.second);
+  }
 
-    // DUMP EMULATED DECISIONS
-    ATH_MSG_INFO ("Emulated decisions");
-    for (auto& emulatedChain : m_emulatedChains) {
-      if (m_verbosity > 1) emulatedChain.second.print();
-      ATH_MSG_INFO ("  Chain --- name=" << emulatedChain.first << " result=" << (int)emulatedChain.second.isPassed());
-    }
-    
+  // DUMP EMULATED DECISIONS
+  ATH_MSG_DEBUG ("Emulated decisions");
+  for (auto& emulatedChain : m_emulatedChains) {
+    emulatedChain.second.print(); 
+    ATH_MSG_DEBUG ("  Chain --- name=" << emulatedChain.first << " result=" << (int)emulatedChain.second.isPassed());
   }
   
   return StatusCode::SUCCESS;
@@ -577,12 +576,11 @@ bool TrigBtagEmulationTool::isPassed(const std::string &chain) {
 
 //!==========================================================================
 void TrigBtagEmulationTool::clear() {
-  if (m_verbosity > 0) ATH_MSG_INFO( "Clearing tool " << name() );
+  ATH_MSG_DEBUG( "Clearing tool " << name() );
 
   // CLEANUP
-  for (auto & emulatedChain : m_emulatedChains) {
+  for (auto & emulatedChain : m_emulatedChains)
     emulatedChain.second.clear();
-  }
 }
 
 bool TrigBtagEmulationTool::hasSplit() {return m_splitTrigger;}
@@ -692,23 +690,21 @@ StatusCode TrigBtagEmulationTool::retrieve( std::unique_ptr< Trig::JetManager >&
   const unsigned int primaryVertexSize = manager->primaryVertexSize();
   const unsigned int trackParticleSize = manager->trackParticleSize();
 
-  if (m_verbosity == 0) return sc;
-
   if (!useTriggerNavigation) {
-    ATH_MSG_INFO( "Size of input containers ['" << jetContainerName <<"' , '" << 
-		  btaggingContainerName << "'] : " <<
-		  "jet=" << jetSize << " " <<
-		  "jetRoI=" << jetRoISize << " " <<
-		  "btag=" << btaggingSize << " " <<
-		  "vtx=" << primaryVertexSize << " " <<
-		  "trk=" << trackParticleSize << " " );
+    ATH_MSG_DEBUG( "Size of input containers ['" << jetContainerName <<"' , '" << 
+		   btaggingContainerName << "'] : " <<
+		   "jet=" << jetSize << " " <<
+		   "jetRoI=" << jetRoISize << " " <<
+		   "btag=" << btaggingSize << " " <<
+		   "vtx=" << primaryVertexSize << " " <<
+		   "trk=" << trackParticleSize << " " );
   } else {
-    ATH_MSG_INFO( "Size of input containers ['" << chainName << "'] : " <<
-                  "jet=" << jetSize << " " <<
-                  "jetRoI=" << jetRoISize << " " <<
-                  "btag=" << btaggingSize << " " <<
-                  "vtx=" << primaryVertexSize << " " <<
-                  "trk=" << trackParticleSize << " " );
+    ATH_MSG_DEBUG( "Size of input containers ['" << chainName << "'] : " <<
+		   "jet=" << jetSize << " " <<
+		   "jetRoI=" << jetRoISize << " " <<
+		   "btag=" << btaggingSize << " " <<
+		   "vtx=" << primaryVertexSize << " " <<
+		   "trk=" << trackParticleSize << " " );
   }
 
   return sc;
@@ -721,6 +717,18 @@ template<typename T> StatusCode TrigBtagEmulationTool::retrieveTool(T& myTool) {
     return StatusCode::FAILURE;
   } 
 
-  ATH_MSG_INFO( "Retrieved tool " << myTool );
+  ATH_MSG_DEBUG( "Retrieved tool " << myTool );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode TrigBtagEmulationTool::checkInputChainExists( const std::string &inputChain ) const {
+  const Trig::ChainGroup *chainGroup = m_trigDec->getChainGroup( inputChain );
+
+  if ( chainGroup->getListOfTriggers().size() == 0 ) {
+    ATH_MSG_ERROR( "Input Chain ('" << inputChain << "') is not in the list of available triggers" );
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }

@@ -179,11 +179,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
     m_badmuQoverP(-99.),
-    m_muOverride2017SmearingDefaults(false),
-    m_muStatComb17(false),
-    m_muSagittaCorr17(true),
-    m_muSagittaMCDistortion17(false),
-    m_muSagittaCorrPhaseSpace17(true),
+    m_muCalibrationMode(-99.),
     //
     m_photonBaselinePt(-99.),
     m_photonBaselineEta(-99.),
@@ -473,11 +469,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonRequireHighPtCuts",  m_murequirepassedHighPtCuts);
   declareProperty( "MuonForceNoId", m_force_noMuId );
   declareProperty( "MuonTTVASF", m_doTTVAsf );
-  declareProperty( "Override2017MuSmearingDefaults", m_muOverride2017SmearingDefaults);
-  declareProperty( "StatComb17", m_muStatComb17);
-  declareProperty( "SagittaCorr17", m_muSagittaCorr17);
-  declareProperty( "doSagittaMCDistortion17", m_muSagittaMCDistortion17);
-  declareProperty( "SagittaCorrPhaseSpace17", m_muSagittaCorrPhaseSpace17);
+  declareProperty( "MuonCalibrationMode", m_muCalibrationMode);
 
   //PHOTONS
   declareProperty( "PhotonBaselinePt", m_photonBaselinePt);
@@ -1163,11 +1155,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_badmuQoverP, "BadMuon.qoverp", rEnv, 0.4);
   //
-  configFromFile(m_muOverride2017SmearingDefaults, "Muon.Override2017SmearingDefaults", rEnv, false);
-  configFromFile(m_muStatComb17, "Muon.StatComb17", rEnv, false);
-  configFromFile(m_muSagittaCorr17, "Muon.SagittaCorr17", rEnv, true);
-  configFromFile(m_muSagittaMCDistortion17, "Muon.SagittaMCDistortion17", rEnv, false);
-  configFromFile(m_muSagittaCorrPhaseSpace17, "Muon.SagittaCorrPhaseSpace17", rEnv, true);
+  configFromFile(m_muCalibrationMode, "Muon.CalibrationMode", rEnv, 1); // 0: "setup1"(correctData), 1: "setup2"(additionalMCSys)
   //
   configFromFile(m_photonBaselinePt, "PhotonBaseline.Pt", rEnv, 25000.);
   configFromFile(m_photonBaselineEta, "PhotonBaseline.Eta", rEnv, 2.37);
@@ -1198,6 +1186,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_JvtPtMax, "Jet.JvtPtMax", rEnv, 120.0e3);
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Fall2018/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
+  configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified

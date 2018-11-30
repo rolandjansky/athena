@@ -56,6 +56,12 @@ namespace PMGTools {
 
     /// return the cross-section uncertainty for DSID
     double getXsectionUncertainty(const int dsid) const;
+
+    /// return the cross-section uncertainty for DSID
+    double getXsectionUncertaintyUP(const int dsid) const;
+
+    /// return the cross-section uncertainty for DSID
+    double getXsectionUncertaintyDOWN(const int dsid) const;
     
     // :: below is for future use?
     /// return the branching ratio for DSID

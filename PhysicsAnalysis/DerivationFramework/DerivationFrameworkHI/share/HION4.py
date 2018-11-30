@@ -44,6 +44,8 @@ electronPhotonSelection = '(count('+electronsRequirements+') + count('+photonsRe
 trackRequirements = '(InDetTrackParticles.pt >= 0.2*GeV) && (abs(InDetTrackParticles.eta) < 2.5)'
 trackOnlySelection = '( count('+trackRequirements+') >= 2 && 5 >= count('+trackRequirements+') )' 
 
+tightTrackRequirements = '(InDetTrackParticles.pt >= 1*GeV) && (abs(InDetTrackParticles.eta) < 2.5)'
+tightTrackOnlySelection = '( count('+tightTrackRequirements+') == 2 )'
 
 objectSelection = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+photonOnlySelection+' || '+electronPhotonSelection+' ||'+trackOnlySelection+')'
 
@@ -237,7 +239,9 @@ triggers += ['HLT_mb_sp_L1VTE50']
 triggers += ['HLT_mb_sptrk_exclusiveloose2_L12TAU1_VTE50']
 triggers += ['HLT_mu4_hi_upc_FgapAC3_L1MU4_VTE50']
 
-expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
+VMtrigger = 'HLT_mb_sptrk_exclusiveloose_vetosp1500_L1VTE20'
+
+expression = '( (' + ' || '.join(triggers) + ') && '+objectSelection+') || ( '+VMtrigger+ ' && '+tightTrackOnlySelection+')'
 print expression
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool

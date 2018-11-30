@@ -88,6 +88,7 @@ namespace Trig {
     void clear();
     StatusCode initTriggerChainsMenu();
     StatusCode initTriggerChainsMenu(const int);
+    StatusCode checkInputChainExists(const std::string&) const;
 
     StatusCode retrieve( std::unique_ptr< Trig::JetManager >&,bool );
 
@@ -139,7 +140,6 @@ namespace Trig {
     std::string m_trigger_menu;
     std::string m_autoconfiguredMenu;
 
-    int m_verbosity;
     long long int m_previousEvent;
 
     // jet Managers
