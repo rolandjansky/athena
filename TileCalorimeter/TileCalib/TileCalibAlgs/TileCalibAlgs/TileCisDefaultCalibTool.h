@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILECISDEFAULTCALIBTOOL_H
@@ -16,6 +16,8 @@
 // Tile includes
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 
 #include "TString.h"
@@ -24,7 +26,6 @@
 #include <map>
 
 // Forward declaration
-class TileBeamInfoProvider;
 class TileHWID;
 class TileCablingSvc;
 class TFile;
@@ -40,12 +41,12 @@ class TileCisDefaultCalibTool: public AthAlgTool
         const IInterface* pParent);
     virtual ~TileCisDefaultCalibTool();
 
-    virtual StatusCode initialize();
-    virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile);
-    virtual StatusCode execute();
-    virtual StatusCode finalizeCalculations();
-    virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile);
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile) override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalizeCalculations() override;
+    virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile) override;
+    virtual StatusCode finalize() override;
 
   private:
 
@@ -85,8 +86,8 @@ class TileCisDefaultCalibTool: public AthAlgTool
     const TileHWID* m_tileHWID;
     const TileCablingService* m_cabling;
     ServiceHandle<TileCablingSvc> m_cablingSvc;
-    ToolHandle<TileBeamInfoProvider> m_beamPrv;
     ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
     // jobOptions
     std::string m_rawChannelContainerName;
