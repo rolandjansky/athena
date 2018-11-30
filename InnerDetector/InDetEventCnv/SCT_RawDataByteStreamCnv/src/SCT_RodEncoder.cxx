@@ -2,21 +2,18 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/** Implementation of SCT_RodEncoder class */
 #include "SCT_RodEncoder.h" 
 
-///InDet
-#include "InDetIdentifier/SCT_ID.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
-///Athena
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "InDetRawData/SCT_RDORawData.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
-#include "SCT_Cabling/ISCT_CablingTool.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 namespace {
   //int rodLinkFromOnlineID(const uint32_t id) {

@@ -13,19 +13,14 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
 #define SCT_RAWDATABYTESTREAMCNV_SCT_RODENCODER_H
 
-/// base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
 
-///InDet
-/**needed for typedef, cannot fwd declare */
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
-///Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
-///STL
 #include <set>
 
 class ISCT_CablingTool;

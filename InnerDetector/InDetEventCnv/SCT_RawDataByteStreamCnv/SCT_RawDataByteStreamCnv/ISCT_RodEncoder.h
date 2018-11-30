@@ -13,11 +13,10 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_ISCT_RODENCODER_H
 #define SCT_RAWDATABYTESTREAMCNV_ISCT_RODENCODER_H
 
-///STL
+#include "GaudiKernel/IAlgTool.h"
+
 #include <vector>
 #include <cstdint>
-
-#include "GaudiKernel/IAlgTool.h"
 
 class SCT_RDORawData;
 
