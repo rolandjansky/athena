@@ -19,7 +19,7 @@
 class PixelConfigCondAlg : public AthAlgorithm {  
   public:
     PixelConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~PixelConfigCondAlg() = default;
+// STSTST    virtual ~PixelConfigCondAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
@@ -51,9 +51,11 @@ class PixelConfigCondAlg : public AthAlgorithm {
 
     bool m_useDeadMap;
 
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey{this, "ReadDeadMapKey", "/PIXEL/PixMapOverlay", "Input key of deadmap conditions folder"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey
+    {this, "ReadDeadMapKey", "/PIXEL/PixMapOverlay", "Input key of deadmap conditions folder"};
 
-    SG::WriteCondHandleKey<PixelModuleData> m_writeKey{this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
+    SG::WriteCondHandleKey<PixelModuleData> m_writeKey
+    {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
 
     ServiceHandle<ICondSvc> m_condSvc;
 };

@@ -134,12 +134,24 @@ StatusCode PixelConfigCondAlg::execute() {
           std::vector<std::string> moduleString;
           while (std::getline(checkModule,buffer,'"')) { moduleString.push_back(buffer); }
 
+          if (moduleString.size()<4) {
+            ATH_MSG_FATAL("Not enough moduleString data " << moduleString.size() " < 4 for " << component[i] 
+                << " channel " <<  channelNumber << " read from " << readHandle.fullKey() );
+            return StatusCode::FAILURE;
+          }
+
           int moduleHash = std::atoi(moduleString[1].c_str());
           if (moduleHash!=i) { ATH_MSG_ERROR("Mismatch hash ID in DB array."); }
 
           std::stringstream checkStatus(moduleString[3]);
           std::vector<std::string> moduleStringStatus;
           while (std::getline(checkStatus,buffer,' ')) { moduleStringStatus.push_back(buffer); }
+
+          if (moduleStringStatus.size()<2) {
+            ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() " < 2 for " << component[i] 
+                << " channel " <<  channelNumber << " read from " << readHandle.fullKey() );
+            return StatusCode::FAILURE;
+          }
 
           int moduleStatus = std::atoi(moduleStringStatus[0].c_str());
           int chipStatus   = std::atoi(moduleStringStatus[1].c_str());
@@ -158,6 +170,11 @@ StatusCode PixelConfigCondAlg::execute() {
         std::vector<std::string> moduleStringStatus;
         std::string buffer;
         while (std::getline(ss,buffer,' ')) { moduleStringStatus.push_back(buffer); }
+
+        if (moduleStringStatus.size()<2) {
+          ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() " < 2 for channel " <<  channelNumber << " read from " << readHandle.fullKey() );
+          return StatusCode::FAILURE;
+        }
 
         int moduleStatus = std::atoi(moduleStringStatus[0].c_str());
         int chipStatus   = std::atoi(moduleStringStatus[1].c_str());
