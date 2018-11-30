@@ -11,6 +11,7 @@
 #include <array>
 #include <algorithm>
 using namespace std;
+class MsgStream;
 
 class ZDCTriggerEfficiency{
   public:
@@ -95,7 +96,7 @@ public:
 
   double GetEfficiency(int side, float ADCSum);
   
-  std::pair<double, double> GetEfficiencyAndError(int side, float ADCSum);
+  std::pair<double, double> GetEfficiencyAndError(MsgStream& msg, int side, float ADCSum);
 
 };
 

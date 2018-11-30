@@ -5,6 +5,7 @@
 #ifndef _ZDCDataAnalyzer_h
 #define _ZDCDataAnalyzer_h
 
+#include <AsgTools/MessageCheck.h>
 #include <ZdcAnalysis/ZDCPulseAnalyzer.h>
 #include <TSpline.h>
 
@@ -29,7 +30,6 @@ private:
   ZDCModuleBoolArray m_moduleDisabled;
   std::array<std::array<std::unique_ptr<ZDCPulseAnalyzer>, 4>, 2> m_moduleAnalyzers;
 
-  int m_debugLevel;
   int m_eventCount;
 
   ZDCModuleFloatArray m_HGGains;
@@ -68,21 +68,50 @@ private:
   std::array<float, 2> m_averageTime;
   std::array<bool, 2> m_fail;
 
+
+  /// @name Functions providing the same interface as AthMessaging
+  /// @{
+
+  /// Test the output level of the object
+  ///
+  /// @param lvl The message level to test against
+  /// @return boolean Indicting if messages at given level will be printed
+  /// @returns <code>true</code> If messages at level "lvl" will be printed
+  ///
+  bool msgLvl( const MSG::Level lvl ) const {
+    return m_msg->msgLevel (lvl);};
+
+  /// The standard message stream.
+  ///
+  /// @param lvl The message level to set the stream to
+  /// @returns A reference to the default message stream, set to level "lvl"
+  ///
+  MsgStream& msg( const MSG::Level lvl ) const {
+    (*m_msg) << lvl;return *m_msg;};
+
+  /// The standard message stream.
+  ///
+  /// @returns A reference to the default message stream of this object.
+  ///
+  MsgStream& msg() const {
+    return *m_msg;};
+
+
+  /// the message stream we use
+  MsgStream *m_msg;
+
+  /// @}
+
 public:
 
-  ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSampleIdx, std::string fitFunction,
+  ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSample,
+                  size_t preSampleIdx, std::string fitFunction,
 		  const ZDCModuleFloatArray& peak2ndDerivMinSamples, 
 		  const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
 		  const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG, 
 		  bool forceLG = false); 
 
   ~ZDCDataAnalyzer();
-
-  void SetDebugLevel(int level = 0) {
-    m_debugLevel = level;
-    if (level < 2) ZDCPulseAnalyzer::SetQuietFits(true);
-    else ZDCPulseAnalyzer::SetQuietFits(false);
-  }
 
   void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
   void EnableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
@@ -135,9 +164,7 @@ public:
 
   void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> calibSplines) 
   {
-    if (m_debugLevel > 0) {
-      std::cout << "Loading energy calibrations" << std::endl;
-    }
+    ANA_MSG_DEBUG ("Loading energy calibrations");
 
     m_LBDepEcalibSplines = std::move (calibSplines);
     m_haveECalib = true;
@@ -146,9 +173,8 @@ public:
   void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0HGOffsetSplines, 
                           std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0LGOffsetSplines) 
   {
-    if (m_debugLevel > 0) {
-      std::cout << "Loading timing calibrations" << std::endl;
-    }
+    ANA_MSG_DEBUG ("Loading timing calibrations");
+
     m_T0HGOffsetSplines = std::move (T0HGOffsetSplines);
     m_T0LGOffsetSplines = std::move (T0LGOffsetSplines);
 

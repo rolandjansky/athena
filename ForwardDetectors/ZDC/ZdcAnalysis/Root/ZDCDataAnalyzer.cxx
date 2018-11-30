@@ -7,15 +7,15 @@
 
 #include <sstream>
 
-ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSampleIdx, std::string fitFunction,
+ZDCDataAnalyzer::ZDCDataAnalyzer(MsgStream *val_msg, int nSample, float deltaTSample, size_t preSampleIdx, std::string fitFunction,
 				 const ZDCModuleFloatArray& peak2ndDerivMinSamples, 
 				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG, 
 				 const ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
 				 bool forceLG) : 
+  m_msg (val_msg),
   m_nSample(nSample), m_deltaTSample(deltaTSample), m_preSampleIdx(preSampleIdx),
   m_fitFunction(fitFunction),
   m_forceLG(forceLG),
-  m_debugLevel(-1),
   m_eventCount(0),
   m_haveECalib(false),
   m_haveT0Calib(false),
@@ -69,7 +69,7 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
       std::ostringstream moduleTag;
       moduleTag << "_s" << side << "_m" << module;
       
-      m_moduleAnalyzers[side][module].reset (new ZDCPulseAnalyzer(moduleTag.str().c_str(), m_nSample, m_deltaTSample, m_preSampleIdx, 
+      m_moduleAnalyzers[side][module].reset (new ZDCPulseAnalyzer(&msg(), moduleTag.str().c_str(), m_nSample, m_deltaTSample, m_preSampleIdx, 
 							    m_pedestals[side][module], m_HGGains[side][module], m_fitFunction, 
 							    peak2ndDerivMinSamples[side][module], 
 							    peak2ndDerivMinThresholdsHG[side][module],
@@ -80,7 +80,10 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
 
   // By default we perform quiet pulse fits
   //
-  ZDCPulseAnalyzer::SetQuietFits(true);
+  if (msgLvl(MSG::VERBOSE))
+    ZDCPulseAnalyzer::SetQuietFits(false);
+  else
+    ZDCPulseAnalyzer::SetQuietFits(true);
 }
 
 ZDCDataAnalyzer::~ZDCDataAnalyzer() 
@@ -120,10 +123,8 @@ void ZDCDataAnalyzer::EnableDelayed(const ZDCModuleFloatArray& delayDeltaTArray,
       if (delayDeltaTArray[side][module] < 0) m_delayedOrder[side][module] = -1;
       else m_delayedOrder[side][module] = 1;
 
-      if (m_debugLevel > 0) {
-	std::cout << "Enabling use of delayed samples on side, module = " << side << ", " << module << ", delta t = " 
-		  << delayDeltaTArray[side][module] << std::endl;
-      }
+      ANA_MSG_DEBUG ("Enabling use of delayed samples on side, module = " << side << ", " << module << ", delta t = " 
+                     << delayDeltaTArray[side][module]);
 
       m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(delayDeltaTArray[side][module]), undelayedDelayedPedestalDiff[side][module]);
     }
@@ -204,21 +205,15 @@ void ZDCDataAnalyzer::SetNonlinCorrParams(const std::array<std::array<std::vecto
 
 void ZDCDataAnalyzer::StartEvent(int lumiBlock) 
 {
-  if (m_debugLevel > 0) {
-    std::cout << "Starting new event, event index = " << m_eventCount << std::endl;
-  }
+  ANA_MSG_DEBUG ("Starting new event, event index = " << m_eventCount);
 
   //  See if we have to load up new calibrations
   //
   if (lumiBlock != m_currentLB) {
-    if (m_debugLevel > 0) {
-      std::cout << "Starting new luminosity block " << lumiBlock << std::endl;
-    }
+    ANA_MSG_DEBUG ("Starting new luminosity block " << lumiBlock);
 
     if (m_haveECalib) {
-      if (m_debugLevel > 1) {
-	std::cout << "Loading energy calibrations for event " << m_eventCount << ", lumi block " << lumiBlock << std::endl;
-      }
+      ANA_MSG_DEBUG ("Loading energy calibrations for event " << m_eventCount << ", lumi block " << lumiBlock);
 
       for (size_t side : {0, 1}) {
 	for (size_t module : {0, 1, 2, 3}) {
@@ -239,9 +234,7 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
     } // end of if (_haveEcalib) {
 
     if (m_haveT0Calib) {
-      if (m_debugLevel > 1) {
-	std::cout << "Loading timing calibrations for event " << m_eventCount << ", lumi block " << lumiBlock << std::endl;
-      }
+      ANA_MSG_DEBUG ("Loading timing calibrations for event " << m_eventCount << ", lumi block " << lumiBlock);
 
       for (size_t side : {0, 1}) {
 	for (size_t module : {0, 1, 2, 3}) {
@@ -296,23 +289,17 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   // We immediately return if this module is disabled
   //
   if (m_moduleDisabled[side][module]) {
-    if (m_debugLevel > 2) {
-      std::cout << "Skipping analysis of disabled mofule for event index " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
-    }
+    ANA_MSG_VERBOSE ("Skipping analysis of disabled mofule for event index " << m_eventCount << ", side, module = " << side << ", " << module);
 
     return;
   }
 
-  if (m_debugLevel > 1) {
-    std::cout << "/n Loading data for event index " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
+  ANA_MSG_DEBUG ("/n Loading data for event index " << m_eventCount << ", side, module = " << side << ", " << module);
     
-    if (m_debugLevel > 2) {
-      std::cout << " Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size() << std::endl;
-      if (m_debugLevel > 3) {
-	for (size_t sample = 0; sample < HGSamples.size(); sample++) {
-	  std::cout << "HGSample[" << sample << "] = " << HGSamples[sample] << std::endl;
-	}
-      }
+  ANA_MSG_VERBOSE (" Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size());
+  if (msgLvl (MSG::VERBOSE)) {
+    for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+      ANA_MSG_VERBOSE ("HGSample[" << sample << "] = " << HGSamples[sample]);
     }
   }
 
@@ -352,9 +339,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   }
   else {
     if (pulseAna_p->Failed()) {
-      if (m_debugLevel >= 0) {
-	std::cout << "ZDCPulseAnalyzer::LoadData() returned fail for event " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
-      }
+      ANA_MSG_DEBUG ("ZDCPulseAnalyzer::LoadData() returned fail for event " << m_eventCount << ", side, module = " << side << ", " << module);
 
       m_fail[side] = true;
     }
@@ -369,34 +354,27 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   // We immediately return if this module is disabled
   //
   if (m_moduleDisabled[side][module]) {
-    if (m_debugLevel > 2) {
-      std::cout << "Skipping analysis of disabled mofule for event index " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
-    }
+    ANA_MSG_VERBOSE ("Skipping analysis of disabled mofule for event index " << m_eventCount << ", side, module = " << side << ", " << module);
 
     return;
   }
 
   if (m_delayedOrder[side][module] == 0) {
-    std::cout << "Handling of delayed pulses not enabled, on side, module = " <<  side << ", " << module 
-	      << ", skipping processing for event index " << m_eventCount << std::endl;
+    ANA_MSG_INFO ("Handling of delayed pulses not enabled, on side, module = " <<  side << ", " << module 
+                  << ", skipping processing for event index " << m_eventCount);
     return;
   }
 
-  if (m_debugLevel > 1) {
-    std::cout << "Loading undelayed and delayed data for event index " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
+  ANA_MSG_DEBUG ("Loading undelayed and delayed data for event index " << m_eventCount << ", side, module = " << side << ", " << module);
     
-    if (m_debugLevel > 2) {
-      std::cout << " Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size() << std::endl;
-      if (m_debugLevel > 3) {
-	for (size_t sample = 0; sample < HGSamples.size(); sample++) {
-	  std::cout << "HGSample[" << sample << "] = " << HGSamples[sample] << std::endl;
-	}
+  if (msgLvl (MSG::VERBOSE)) {
+    ANA_MSG_VERBOSE (" Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size());
+    for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+      ANA_MSG_VERBOSE ("HGSample[" << sample << "] = " << HGSamples[sample]);
+    }
 
-	for (size_t sample = 0; sample < HGSamples.size(); sample++) {
-	  std::cout << "HGSampleDelayed[" << sample << "] = " << HGSamplesDelayed[sample] << std::endl;
-	}
-      }
-
+    for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+      ANA_MSG_VERBOSE ("HGSampleDelayed[" << sample << "] = " << HGSamplesDelayed[sample]);
     }
   }
 
@@ -443,9 +421,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   }
   else {
     if (pulseAna_p->Failed()) {
-      if (m_debugLevel >= 0) {
-	std::cout << "ZDCPulseAnalyzer::LoadData() returned fail for event " << m_eventCount << ", side, module = " << side << ", " << module << std::endl;
-      }
+      ANA_MSG_DEBUG ("ZDCPulseAnalyzer::LoadData() returned fail for event " << m_eventCount << ", side, module = " << side << ", " << module);
 
       m_fail[side] = true;
     }

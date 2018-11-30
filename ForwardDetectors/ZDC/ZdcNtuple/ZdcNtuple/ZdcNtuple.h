@@ -84,7 +84,6 @@ class ZdcNtuple : public EL::AnaAlgorithm
   // that way they can be set directly from CINT and python.
 public:
   // float cutValue;
-  bool debug; // Debug output
   bool slimmed; // assume slimmed output
   bool useGRL; // use a GRL (used by default)
   std::string grlFilename;

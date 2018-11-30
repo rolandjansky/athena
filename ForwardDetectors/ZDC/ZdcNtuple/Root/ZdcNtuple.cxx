@@ -20,8 +20,6 @@
 // this is needed to distribute the algorithm to the workers
 //ClassImp(ZdcNtuple)
 
-//const bool debug=0;
-
 ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator) 
   : EL::AnaAlgorithm(name,pSvcLocator),  
     m_trigConfigTool("TrigConf::xAODConfigTool/xAODConfigTool",this),
@@ -56,7 +54,6 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   declareProperty("writeOnlyTriggers",  writeOnlyTriggers = false, "comment");
   declareProperty("useGRL",  useGRL = true, "comment");
   declareProperty("grlFilename",  grlFilename = "$ROOTCOREBIN/data/ZdcNtuple/data16_hip8TeV.periodAllYear_DetStatus-v86-pro20-19_DQDefects-00-02-04_PHYS_HeavyIonP_All_Good.xml", "comment");
-  declareProperty("debug",  debug = false, "comment");
   declareProperty("slimmed",  slimmed = false, "comment");
   declareProperty("zdcCalib",  zdcCalib = false, "comment");
   declareProperty("zdcLaser",  zdcLaser = false, "comment");
@@ -613,7 +610,7 @@ StatusCode ZdcNtuple :: initialize ()
   if (auxSuffix != "") auxSuffix = "_" + auxSuffix; // prepend "_"
 
   //xAOD::TEvent* event = wk()->xaodEvent();
-  if (debug) ANA_MSG_INFO("initialize: Initialize!");
+  ANA_MSG_DEBUG("initialize: Initialize!");
 
   // Event
   ANA_CHECK(evtStore()->retrieve( m_eventInfo, "EventInfo"));  
@@ -950,7 +947,7 @@ StatusCode ZdcNtuple :: execute ()
 	  m_zdcAnalysisTool->reprocessZdc();
 	}
       else
-	if (debug) std::cout << "No reprocessing" << std::endl;
+	ANA_MSG_DEBUG ("No reprocessing");
 
       m_zdcSums=0;
       ANA_CHECK( evtStore()->retrieve( m_zdcSums, "ZdcSums"+auxSuffix) );      
@@ -1044,12 +1041,10 @@ StatusCode ZdcNtuple :: execute ()
   if (enableTrigger && !passTrigger && !m_isMC && writeOnlyTriggers) return StatusCode::SUCCESS;
 
   // if tree is enabled, write it out
-  /*
   if (t_ZdcTrigEff[0]<0 || t_ZdcTrigEff[1]<0)
-    {
-      std::cout << "Negative trigger efficiencies for Run/LB/Event=" << t_runNumber << "/" << t_lumiBlock << "/" << t_eventNumber << std::endl;
-    }
-  */
+  {
+    ANA_MSG_VERBOSE ("Negative trigger efficiencies for Run/LB/Event=" << t_runNumber << "/" << t_lumiBlock << "/" << t_eventNumber);
+  }
 
   if (enableOutputTree)
     {
@@ -1063,16 +1058,14 @@ StatusCode ZdcNtuple :: execute ()
 void ZdcNtuple::processZdcNtupleFromModules()
 {
 
-  if (debug) ANA_MSG_INFO( "copying already processed info!" );
+  ANA_MSG_DEBUG ("copying already processed info!");
   if (m_zdcSums)
     {
       
-      if (debug) std::cout << "Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
-		<< ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy")
-		<< std::endl;
-      if (debug) std::cout << "Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
-		<< ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy")
-		<< std::endl;
+      ANA_MSG_DEBUG ("Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
+                     << ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy"));
+      ANA_MSG_DEBUG ("Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
+                     << ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy"));
       
     }
   else
@@ -1095,7 +1088,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 
   if (m_zdcSums)
     {
-      if (debug) ANA_MSG_INFO( "accessing ZdcSums" );
+      ANA_MSG_DEBUG( "accessing ZdcSums" );
       for (const auto zdcSum : *m_zdcSums)
 	{
 	  int iside = 0;
@@ -1110,7 +1103,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  t_ZdcAmp[iside] = zdcSum->auxdataConst<float>("UncalibSum");
 	  t_ZdcAmpErr[iside] = zdcSum->auxdataConst<float>("UncalibSumErr");
 	  
-	  //if (debug) ANA_MSG_INFO("processZdcNtupleFromModules","ZdcSum energy = %6.2f",t_ZdcEnergy[iside]);
+	  ANA_MSG_VERBOSE("processZdcNtupleFromModules: ZdcSum energy = " << t_ZdcEnergy[iside]);
 	  
 	  t_ZdcTime[iside] = zdcSum->auxdataConst<float>("AverageTime");
 	  t_ZdcStatus[iside] = zdcSum->auxdataConst<unsigned int>("Status");
@@ -1118,7 +1111,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	}
     }
 
-  if (debug) ANA_MSG_INFO(  "accessing ZdcModules" );
+  ANA_MSG_DEBUG(  "accessing ZdcModules" );
   if (m_zdcModules)
     {
       for (const auto zdcMod : *m_zdcModules)
@@ -1127,7 +1120,7 @@ void ZdcNtuple::processZdcNtupleFromModules()
 	  if (zdcMod->side()>0) iside=1;
 	  int imod = zdcMod->zdcModule();
 	  
-	  //if (debug) std::cout << "Module " << zdcMod->side() << " " << zdcMod->zdcModule() << " amp:" << zdcMod->auxdataConst<float>("Amplitude") << std::endl;
+	  ANA_MSG_VERBOSE ("Module " << zdcMod->side() << " " << zdcMod->zdcModule() << " amp:" << zdcMod->auxdataConst<float>("Amplitude"));
 	  
 	  if (zdcMod->type()!=0) continue;
 	  
@@ -1153,21 +1146,18 @@ void ZdcNtuple::processZdcNtupleFromModules()
       ANA_MSG_INFO("No ZdcModules" << auxSuffix << " when expected!");
     }
 
-  /*
-  if (debug)
+  if (msgLvl (MSG::VERBOSE))
+  {
+    std::ostringstream message;
+    message << "Dump zdc_ZdcModuleAmp: ";
+    for (int iside=0;iside<2;iside++)
     {
-      std::cout << "Dump zdc_ZdcModuleAmp: ";
-      for (int iside=0;iside<2;iside++)
-	{
-	  for (int imod=0;imod<4;imod++)
-	    {
-	      std::cout << t_ZdcModuleAmp[iside][imod] << " ";
-	    }
-	}      
-      std::cout << std::endl;
-    }
-  */
-
+      for (int imod=0;imod<4;imod++)
+      {
+        message << t_ZdcModuleAmp[iside][imod] << " ";
+      }
+    }      
+  }
 }
 
 /*
@@ -1178,12 +1168,10 @@ void ZdcNtuple::processZdcNtuple()
   
   if (m_zdcSums)
     {
-      if (debug) std::cout << "Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
-		<< ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy")
-		<< std::endl;
-      if (debug) std::cout << "Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
-		<< ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy")
-		<< std::endl;
+      ANA_MSG_DEBUG ("Sum 0 = " << m_zdcSums->at(0)->auxdataConst<float>("CalibEnergy") 
+		<< ", Sum 1 = " << m_zdcSums->at(1)->auxdataConst<float>("CalibEnergy"));
+      ANA_MSG_DEBUG ("Final 0 = " << m_zdcSums->at(0)->auxdataConst<float>("FinalEnergy") 
+		<< ", Final 1 = " << m_zdcSums->at(1)->auxdataConst<float>("FinalEnergy"));
     }
   else
     {
@@ -1235,18 +1223,18 @@ void ZdcNtuple::processZdcNtuple()
 	  t_ZdcTrigEff[iside] = m_zdcAnalysisTool->getTriggerEfficiency(iside);
 	  if (t_ZdcTrigEff[iside]<0) 
 	    {
-	      std::cout << "LB/event=" << t_lumiBlock << "/" << t_eventNumber << "  Trigger efficiency  " << iside << " == " << t_ZdcTrigEff[iside] << std::endl;
+	      ANA_MSG_INFO ("LB/event=" << t_lumiBlock << "/" << t_eventNumber << "  Trigger efficiency  " << iside << " == " << t_ZdcTrigEff[iside]);
 	    }
 	}
     }
 
-  if (debug) std::cout << "Tool Sum 0 = " << t_ZdcEnergy[0] << " Sum 1 = " << t_ZdcEnergy[1] << std::endl;
+  ANA_MSG_DEBUG ("Tool Sum 0 = " << t_ZdcEnergy[0] << " Sum 1 = " << t_ZdcEnergy[1]);
 }
 */
 
 bool ZdcNtuple::processTriggerDecision()
 {
-  if (debug) ANA_MSG_INFO( "Processing trigger");
+  ANA_MSG_DEBUG ("Processing trigger");
 
   bool passTrigger = false;
 
@@ -1320,7 +1308,7 @@ bool ZdcNtuple::processTriggerDecision()
 
 void ZdcNtuple::processEventInfo()
 {
-  if (debug) ANA_MSG_INFO( "processing event info");
+  ANA_MSG_DEBUG( "processing event info");
 
   t_bcid = m_eventInfo->bcid();
   t_runNumber = m_eventInfo->runNumber();
@@ -1338,7 +1326,7 @@ void ZdcNtuple::processEventInfo()
     }   
 
 
-  if ( !(m_eventCounter++%1000) || debug)
+  if ( !(m_eventCounter++%1000) || msgLvl(MSG::DEBUG))
     {
       ANA_MSG_INFO("Event# " << m_eventCounter << "Run " << m_eventInfo->runNumber() << " Event " << m_eventInfo->eventNumber() << " LB " << m_eventInfo->lumiBlock() );
     }
@@ -1347,7 +1335,7 @@ void ZdcNtuple::processEventInfo()
 
 void ZdcNtuple::processFCal()
 {
-  if (debug) ANA_MSG_INFO("processFCal: processing FCal");
+  ANA_MSG_DEBUG("processFCal: processing FCal");
 
   t_fcalEt = 0.;
   t_fcalEtA = 0.;
@@ -1360,13 +1348,13 @@ void ZdcNtuple::processFCal()
       if (name=="FCal")
 	{
 	  t_fcalEt = calosum->et();
-	  if (debug) ANA_MSG_INFO("processFCal: fcalEt = " << t_fcalEt);
+	  ANA_MSG_DEBUG("processFCal: fcalEt = " << t_fcalEt);
 	}
 
       if (name=="All")
 	{
 	  t_totalEt = calosum->et();
-	  if (debug) ANA_MSG_INFO("processFCal: totalEt = " << t_totalEt);
+	  ANA_MSG_DEBUG("processFCal: totalEt = " << t_totalEt);
 	}
     }
 
@@ -1418,7 +1406,7 @@ void ZdcNtuple::processFCal()
 
 void ZdcNtuple::processJets()
 {
-  if (debug) ANA_MSG_INFO("processJets: processing Jets");
+  ANA_MSG_DEBUG("processJets: processing Jets");
 
   for (size_t ijet =0;ijet<m_jetContainerNames.size();ijet++)
     {
@@ -1486,7 +1474,7 @@ void ZdcNtuple::processJets()
 
 int ZdcNtuple::processMuons()
 {
-  if (debug) ANA_MSG_INFO("processMuons: processing Muons");
+  ANA_MSG_DEBUG("processMuons: processing Muons");
 
   t_muroi_eta.clear();
   t_muroi_phi.clear();
@@ -1926,7 +1914,7 @@ int ZdcNtuple::processMuons()
       if (t_nmuon>1 && enableMuons)
 	{
 
-	  if (debug) ANA_MSG_INFO("processMuons(): processing dimuons from " << t_nmuon << " muons, size =" << m_muons->size());
+	  ANA_MSG_DEBUG("processMuons(): processing dimuons from " << t_nmuon << " muons, size =" << m_muons->size());
       
 	  for (int imu0=0;imu0<t_nmuon-1;imu0++)
 	    {
@@ -1942,7 +1930,7 @@ int ZdcNtuple::processMuons()
 		  t_dimuon_phi.push_back(dimu.Phi());
 		  t_dimuon_pt.push_back(dimu.Pt());
 		  std::pair<Bool_t,Bool_t> result1, result2; 
-		  if (debug) ANA_MSG_INFO("processMuons(): processing dimuon pair trigger match for " << imu0 << " " << imu1);
+		  ANA_MSG_DEBUG("processMuons(): processing dimuon pair trigger match for " << imu0 << " " << imu1);
 		  for (size_t idimutr=0;idimutr<m_dimuon_triggers.size();idimutr++)
 		    {
 		      /*
@@ -1960,7 +1948,7 @@ int ZdcNtuple::processMuons()
 		    }
 		}
 	    }
-	  if (debug) ANA_MSG_INFO("processMuons(): finished processing dimuons");
+	  ANA_MSG_DEBUG("processMuons(): finished processing dimuons");
 	}
 
 
@@ -2103,7 +2091,7 @@ void ZdcNtuple::processTruthMuons()
 
 void ZdcNtuple::processPhotons()
 {
-  if (debug) ANA_MSG_INFO("processPhotons(): Processing photons!");
+  ANA_MSG_DEBUG("processPhotons(): Processing photons!");
 
   t_ph_author.clear();
   t_ph_conv.clear();
@@ -2184,7 +2172,7 @@ void ZdcNtuple::processPhotons()
 
 void ZdcNtuple::processElectrons()
 {
-  if (debug) ANA_MSG_INFO("processElectrons(): Processing electrons!");
+  ANA_MSG_DEBUG("processElectrons(): Processing electrons!");
 
   t_el_author.clear();
   t_el_oq.clear();
@@ -2307,7 +2295,7 @@ void ZdcNtuple::processTriggerTowers()
 
   if (m_TTcontainer)
     {
-      if (debug) ANA_MSG_INFO("processTriggerTowers(): size = %zd, " << m_TTcontainer->size() << " TTsums before: %f %f" << t_fcalEtA_TTsum << " " << t_fcalEtC_TTsum);
+      ANA_MSG_DEBUG("processTriggerTowers(): size = %zd, " << m_TTcontainer->size() << " TTsums before: %f %f" << t_fcalEtA_TTsum << " " << t_fcalEtC_TTsum);
       
       for (const auto tt: *m_TTcontainer)
 	{
@@ -2329,7 +2317,7 @@ void ZdcNtuple::processTriggerTowers()
 	}
     }
   
-  if (debug) ANA_MSG_INFO("processTriggerTowers(): TTsums after: " <<  t_fcalEtA_TTsum << " " <<  t_fcalEtC_TTsum);
+  ANA_MSG_DEBUG("processTriggerTowers(): TTsums after: " <<  t_fcalEtA_TTsum << " " <<  t_fcalEtC_TTsum);
   
 }
 
@@ -2350,7 +2338,7 @@ void ZdcNtuple::processGaps()
       float sig = cl->getMomentValue(xAOD::CaloCluster::CELL_SIGNIFICANCE);
       int cl_cell_sig_samp=static_cast<int>(cl->getMomentValue(xAOD::CaloCluster::CELL_SIG_SAMPLING));
 
-      //if (debug) std::cout << "gapclus: etabin " << etabin << " sig_cut=" << sig_cut << " sig=" << sig << " samp=" << cl_cell_sig_samp << std::endl;
+      ANA_MSG_VERBOSE ("gapclus: etabin " << etabin << " sig_cut=" << sig_cut << " sig=" << sig << " samp=" << cl_cell_sig_samp);
 
       if(sig < sig_cut) continue;
 
@@ -2363,13 +2351,13 @@ void ZdcNtuple::processGaps()
 
   t_edgeGapA = 4.9 - eta_max;
   t_edgeGapC = eta_min + 4.9;
-  if (debug) ANA_MSG_INFO("processGaps(): egA " << t_edgeGapA << " , egC " << t_edgeGapC);
+  ANA_MSG_DEBUG("processGaps(): egA " << t_edgeGapA << " , egC " << t_edgeGapC);
 
 }
 
 void ZdcNtuple::processMBTS()
 {
-  if (debug) ANA_MSG_INFO("processMBTS: trying to process!");
+  ANA_MSG_DEBUG("processMBTS: trying to process!");
   t_mbts_countA = 0;
   t_mbts_countC = 0;
   t_T2mbts_countAin = 0;
@@ -2409,7 +2397,7 @@ void ZdcNtuple::processMBTS()
 	}
     }
 
-  if (debug) std::cout << "filling MBTS" << std::endl;
+  ANA_MSG_DEBUG ("filling MBTS");
 
   if (m_mbtsModules==0)
     {
@@ -2468,7 +2456,7 @@ void ZdcNtuple::processMBTS()
 	    }
 	  int iside = (side==0) ? 1 : 0; // code maps side 1 into first 16 bits and side -1 into second set
 
-	  //std::cout << "imbts=" << imbts << " isInner=" << isInner << " iside=" << iside << " index=" << index << " e=" << energies.at(imbts) << " t=" << times.at(imbts) << std::endl;
+          ANA_MSG_VERBOSE ("imbts=" << imbts << " isInner=" << isInner << " iside=" << iside << " index=" << index << " e=" << energies.at(imbts) << " t=" << times.at(imbts));
 	  if (isInner)
 	    {
 	      t_T2mbts_in_e[iside][index] = energies.at(imbts);
@@ -2492,7 +2480,7 @@ void ZdcNtuple::processMBTS()
 
 void ZdcNtuple::processInDet()
 {
-  if (debug) ANA_MSG_INFO("processInDet(): processing tracks & vertices!");
+  ANA_MSG_DEBUG("processInDet(): processing tracks & vertices!");
   t_ntrk = 0;
   t_nvx = 0;
   t_vxntrk = 0;
@@ -2530,7 +2518,7 @@ void ZdcNtuple::processInDet()
 
   if (m_primaryVertices)
     {
-      if (debug) ANA_MSG_INFO("processInDet: processing vertices");
+      ANA_MSG_DEBUG("processInDet: processing vertices");
 
       t_nvx = m_primaryVertices->size();
 
@@ -2661,7 +2649,7 @@ void ZdcNtuple::processInDet()
   
   if (m_trackParticles)
     {
-      if (debug) ANA_MSG_INFO("processInDet: processing trackss");
+      ANA_MSG_DEBUG("processInDet: processing trackss");
 
       t_trk_pt.clear();
       t_trk_eta.clear();
@@ -2941,14 +2929,14 @@ void ZdcNtuple::processClusters()
     }
   else
     {
-      if (debug) ANA_MSG_INFO("processClusters(): keeping clusters");
+      ANA_MSG_DEBUG("processClusters(): keeping clusters");
     }
   return;
 }
 
 void ZdcNtuple::processModules()
 {
-  if (debug) ANA_MSG_INFO("processModules: processing ZDC modules");
+  ANA_MSG_DEBUG("processModules: processing ZDC modules");
 
   // make shallow copy
 
@@ -3025,12 +3013,11 @@ void ZdcNtuple::processModules()
 			  t_raw7[side_index][mod_index][0][1][isamp] = (*(zdcmod->TTg0d1Link()))->adc().at(isamp);
 			  t_raw7[side_index][mod_index][1][0][isamp] = (*(zdcmod->TTg1d0Link()))->adc().at(isamp);
 			  t_raw7[side_index][mod_index][1][1][isamp] = (*(zdcmod->TTg1d1Link()))->adc().at(isamp);
-			  if (debug) std::cout << side_index << " " << mod_index << " " 
+			  ANA_MSG_DEBUG (side_index << " " << mod_index << " " 
 					       << t_raw7[side_index][mod_index][0][0][isamp] << " "
 					       << t_raw7[side_index][mod_index][0][1][isamp] << " "
 					       << t_raw7[side_index][mod_index][1][0][isamp] << " "
-					       << t_raw7[side_index][mod_index][1][1][isamp] << " "
-					       << std::endl;
+                                         << t_raw7[side_index][mod_index][1][1][isamp] << " ");
 			}
 
 		      if (nsamplesZdc==15)
@@ -3055,26 +3042,25 @@ void ZdcNtuple::processModules()
   t_sumLG_rp[0] = sum_C_LG_reproc;
   t_sumLG_rp[1] = sum_A_LG_reproc;
 
-  /*
-  // test code for reprocessing tool
-  float checkSumLG_A_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_mf");
-  float checkSumLG_C_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_mf");
-  float checkSumLG_A_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_pf");
-  float checkSumLG_C_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_pf");
-  float checkSumLG_A_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_si");
-  float checkSumLG_C_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_si");
+  // if (msgLvl (MSG::VERBOSE))
+  // {
+  //   // test code for reprocessing tool
+  //   float checkSumLG_A_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_mf");
+  //   float checkSumLG_C_mf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_mf");
+  //   float checkSumLG_A_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_pf");
+  //   float checkSumLG_C_pf = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_pf");
+  //   float checkSumLG_A_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideA,"_si");
+  //   float checkSumLG_C_si = ZDC::getAmplitudeSumG0(m_zdcModules,ZDC::sideC,"_si");
 
-  std::cout << "sum_A_LG_reproc=" << sum_A_LG_reproc 
-	    << " checkSumLG_A_mf=" << checkSumLG_A_mf 
-	    << " checkSumLG_A_pf=" << checkSumLG_A_pf 
-	    << " checkSumLG_A_si=" << checkSumLG_A_si
-	    << std::endl;
-  std::cout << "sum_C_LG_reproc=" << sum_C_LG_reproc 
-	    << " checkSumLG_C_mf=" << checkSumLG_C_mf 
-	    << " checkSumLG_C_pf=" << checkSumLG_C_pf 
-	    << " checkSumLG_C_si=" << checkSumLG_C_si
-	    << std::endl;
-  */
+  //   ANA_MSG_VERBOSE ("sum_A_LG_reproc=" << sum_A_LG_reproc 
+  //                    << " checkSumLG_A_mf=" << checkSumLG_A_mf 
+  //                    << " checkSumLG_A_pf=" << checkSumLG_A_pf 
+  //                    << " checkSumLG_A_si=" << checkSumLG_A_si);
+  //   ANA_MSG_VERBOSE ("sum_C_LG_reproc=" << sum_C_LG_reproc 
+  //                    << " checkSumLG_C_mf=" << checkSumLG_C_mf 
+  //                    << " checkSumLG_C_pf=" << checkSumLG_C_pf 
+  //                    << " checkSumLG_C_si=" << checkSumLG_C_si);
+  // }
 
   /*
   xAOD::TStore* store = wk()->xaodStore();
@@ -3089,7 +3075,7 @@ void ZdcNtuple::reprocessZdcModule(const xAOD::ZdcModule* zdcmod, bool flipdelay
 
   float newAmpG0 =  zdcmod->amplitudeG0();
   float newAmpG1 = zdcmod->amplitudeG1();
-  //std::cout << "Old  G0=" << newAmpG0 << " G1=" << newAmpG1 << std::endl;
+  ANA_MSG_VERBOSE ("Old  G0=" << newAmpG0 << " G1=" << newAmpG1);
 
   zdcmod->auxdecor<float>("amplitudeG0_reproc") = newAmpG0;
   zdcmod->auxdecor<float>("amplitudeG1_reproc") = newAmpG1;
@@ -3110,7 +3096,7 @@ void ZdcNtuple::reprocessZdcModule(const xAOD::ZdcModule* zdcmod, bool flipdelay
   
   newAmpG0 = maxv0 - v0.at(0);
   newAmpG1 = maxv1 - v1.at(0);
-  //std::cout << "Flip G0=" << newAmpG0 << " G1=" << newAmpG1 << std::endl;
+  ANA_MSG_VERBOSE ("Flip G0=" << newAmpG0 << " G1=" << newAmpG1);
 
   zdcmod->auxdecor<float>("amplitudeG0_reproc") = newAmpG0;
   zdcmod->auxdecor<float>("amplitudeG1_reproc") = newAmpG1;
@@ -3841,7 +3827,7 @@ void ZdcNtuple::setupTriggerHistos()
 
   m_setupTrigHist = true;
 
-  if (debug) ANA_MSG_INFO("setupTriggerHistos(): Finished setting up trigger");
+  ANA_MSG_DEBUG("setupTriggerHistos(): Finished setting up trigger");
 
 }
 

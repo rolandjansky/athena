@@ -79,7 +79,7 @@ namespace ZDC
       }
     
     std::string filename = PathResolverFindCalibFile( ("ZdcAnalysis/"+m_zdcTriggerEffParamsFileName) );
-    //std::cout << "Found trigger config file " << filename << std::endl;
+    ANA_MSG_VERBOSE ("Found trigger config file " << filename);
     ATH_MSG_INFO("Opening trigger efficiency file " << filename);
     
     std::unique_ptr<TFile> file (TFile::Open(filename.c_str()));
@@ -228,7 +228,7 @@ namespace ZDC
 
     //  Construct the data analyzer
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(m_numSample, m_deltaTSample, m_presample, "FermiExp", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), m_numSample, m_deltaTSample, m_presample, "FermiExp", peak2ndDerivMinSamples,
                                                                           peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
@@ -292,7 +292,7 @@ namespace ZDC
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), 7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
                                                                           peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     // Open up tolerances on the position of the peak for now
@@ -374,7 +374,7 @@ namespace ZDC
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
     //
-    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(&msg(), 7, 25, 1, "FermiExp", peak2ndDerivMinSamples,
                                                                           peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
 
     // Open up tolerances on the position of the peak for now
@@ -496,7 +496,7 @@ namespace ZDC
     moduleHGNonLinCorr[1][2] = {-7.82514e-02, -1.21218e-01};
     moduleHGNonLinCorr[1][3] = {-2.34354e-02, -2.52033e-01};
 
-    m_zdcDataAnalyzer_40MHz.reset (new ZDCDataAnalyzer(7,25,0,"FermiExp",peak2ndDerivMinSamples,
+    m_zdcDataAnalyzer_40MHz.reset (new ZDCDataAnalyzer(&msg(), 7,25,0,"FermiExp",peak2ndDerivMinSamples,
                                                        peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG,m_lowGainOnly));
 
     m_zdcDataAnalyzer_40MHz->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
@@ -589,7 +589,7 @@ namespace ZDC
     moduleHGNonLinCorr[1][2] = {-7.82514e-02, -1.21218e-01};
     moduleHGNonLinCorr[1][3] = {-2.34354e-02, -2.52033e-01};
 
-    m_zdcDataAnalyzer_80MHz.reset (new ZDCDataAnalyzer(7 , 12.5, 0, "FermiExp",m_peak2ndDerivMinSamples,
+    m_zdcDataAnalyzer_80MHz.reset (new ZDCDataAnalyzer(&msg(), 7 , 12.5, 0, "FermiExp",m_peak2ndDerivMinSamples,
                                                        m_peak2ndDerivMinThresholdsHG, m_peak2ndDerivMinThresholdsLG,m_lowGainOnly));
 
     m_zdcDataAnalyzer_80MHz->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
@@ -913,10 +913,8 @@ namespace ZDC
 	  zdcModule->auxdecor<float>("PreSampleAmp" + m_auxSuffix) = pulseAna_p->GetPreSampleAmp();
 	  //zdcModule->auxdecor<float>("Presample" + m_auxSuffix) = pulseAna_p->GetPresample();
 	}
-	/*      
-		std::cout << "side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy") 
-		<< " should be " << m_zdcDataAnalyzer->GetModuleCalibAmplitude(side,mod) << std::endl;
-	*/
+        ANA_MSG_VERBOSE ("side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy") 
+                         << " should be " << m_zdcDataAnalyzer->GetModuleCalibAmplitude(side,mod));
       }
 
     // Record sum objects  
@@ -1064,7 +1062,7 @@ namespace ZDC
 	return StatusCode::FAILURE;
       }
     m_eventReady = false;
-    //std::cout << "Trying to retrieve " << m_zdcModuleContainerName << std::endl;
+    ANA_MSG_VERBOSE ("Trying to retrieve " << m_zdcModuleContainerName);
     m_zdcModules = 0;
     ATH_CHECK(evtStore()->retrieve(m_zdcModules,m_zdcModuleContainerName));
     m_eventReady = true;
@@ -1230,7 +1228,7 @@ namespace ZDC
   
     m_zdcTriggerEfficiency->UpdatelumiBlock(m_lumiBlock);
     float adcSum = getModuleSum(side);
-    std::pair<double, double> eff_pair = m_zdcTriggerEfficiency->GetEfficiencyAndError(side, adcSum);
+    std::pair<double, double> eff_pair = m_zdcTriggerEfficiency->GetEfficiencyAndError(msg(), side, adcSum);
     return eff_pair.second;
   }
 

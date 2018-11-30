@@ -53,7 +53,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
 
     double funcVal = s_combinedFitFunc->EvalPar(&t, &par[1]);
 
-    //    std::cout << "Calculating chis^2, undelayed sample " << isample << "t = " << t << ", data = " << histValue << ", func = " << funcVal << std::endl;
+    // ANA_MSG_VERBOSE ("Calculating chis^2, undelayed sample " << isample << "t = " << t << ", data = " << histValue << ", func = " << funcVal);
     
     double pull = (histValue - funcVal)/histError;
     chiSquare += pull*pull;
@@ -69,7 +69,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
     double funcVal = s_combinedFitFunc->EvalPar(&t, &par[1]) + delayBaselineAdjust;
     double pull = (histValue - funcVal)/histError;
 
-    //    std::cout << "Calculating chis^2, delayed sample " << isample << "t = " << t << ", data = " << histValue << ", func = " << funcVal << std::endl;
+    // ANA_MSG_VERBOSE ("Calculating chis^2, delayed sample " << isample << "t = " << t << ", data = " << histValue << ", func = " << funcVal);
 
     chiSquare += pull*pull;
   }
@@ -78,9 +78,10 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
 }
 
 
-ZDCPulseAnalyzer::ZDCPulseAnalyzer(std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, 
+ZDCPulseAnalyzer::ZDCPulseAnalyzer(MsgStream *val_msg, std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, 
 				   float gainHG, std::string fitFunction, int peak2ndDerivMinSample, 
 				   float peak2ndDerivMinThreshHG, float peak2ndDerivMinThreshLG) :
+  m_msg (val_msg),
   m_tag(tag), m_Nsample(Nsample),
   m_preSampleIdx(preSampleIdx), 
   m_deltaTSample(deltaTSample),
@@ -215,11 +216,11 @@ void ZDCPulseAnalyzer::SetTauT0Values(bool fixTau1, bool fixTau2, float tau1, fl
 void ZDCPulseAnalyzer::SetFitTimeMax(float tmax)
 {
   if (tmax < m_tmin) {
-    std::cout << "ZDCPulseAnalyzer::SetFitTimeMax:: invalid FitTimeMax: " << tmax << std::endl;
+    ANA_MSG_INFO ("ZDCPulseAnalyzer::SetFitTimeMax:: invalid FitTimeMax: " << tmax);
     return;
   }
 
-  //  std::cout << "Setting FitTMax to " << tmax << std::endl; 
+  ANA_MSG_VERBOSE ("Setting FitTMax to " << tmax);
 
   m_fitTMax = tmax;
 }
@@ -272,7 +273,7 @@ void ZDCPulseAnalyzer::SetupFitFunctions()
 
 bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float>  ADCSamplesLG) 
 {
-  //  std::cout << "Use delayed = " << m_useDelayed << std::endl;
+  ANA_MSG_VERBOSE ("Use delayed = " << m_useDelayed);
 
   if (m_useDelayed) throw;
   if (!m_initializedFits) SetupFitFunctions();
@@ -324,7 +325,7 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
     m_ADCSamplesLGSub[isample] = ADCLG - m_pedestal;
   }
 
-  //  std::cout << "Loaded data" << std::endl;
+  ANA_MSG_VERBOSE ("Loaded data");
 
   //  if (m_fail) return false;
 
@@ -959,33 +960,45 @@ TFitter* ZDCPulseAnalyzer::MakeCombinedFitter(TF1* func)
 
 void ZDCPulseAnalyzer::Dump() const
 {
-  std::cout << "ZDCPulseAnalyzer dump for tag = " << m_tag << std::endl;
+  ANA_MSG_INFO ("ZDCPulseAnalyzer dump for tag = " << m_tag);
 
-  std::cout << "Presample index, value = " << m_preSampleIdx << ", " << m_preSample << std::endl;
+  ANA_MSG_INFO ("Presample index, value = " << m_preSampleIdx << ", " << m_preSample);
 
   if (m_useDelayed) {
-    std::cout << "using delayed samples with delta T = " << m_delayedDeltaT << ", and pedestalDiff == " << m_delayedPedestalDiff << std::endl;
+    ANA_MSG_INFO ("using delayed samples with delta T = " << m_delayedDeltaT << ", and pedestalDiff == " << m_delayedPedestalDiff);
   }
 
-  std::cout << "samplesSub ";
-  for (size_t sample = 0; sample < m_samplesSub.size(); sample++) {
-    std::cout << ", [" << sample << "] = " << m_samplesSub[sample];
+  if (msgLvl (MSG::INFO))
+  {
+    std::ostringstream message;
+    message << "samplesSub ";
+    for (size_t sample = 0; sample < m_samplesSub.size(); sample++) {
+      message << ", [" << sample << "] = " << m_samplesSub[sample];
+    }
+    ANA_MSG_INFO (message.str());
   }
-  std::cout << std::endl;
 
-  std::cout << "samplesDeriv ";
-  for (size_t sample = 0; sample < m_samplesDeriv.size(); sample++) {
-    std::cout << ", [" << sample << "] = " << m_samplesDeriv[sample];
+  if (msgLvl (MSG::INFO))
+  {
+    std::ostringstream message;
+    message << "samplesDeriv ";
+    for (size_t sample = 0; sample < m_samplesDeriv.size(); sample++) {
+      message << ", [" << sample << "] = " << m_samplesDeriv[sample];
+    }
+    ANA_MSG_INFO (message.str());
   }
-  std::cout << std::endl;
 
-  std::cout << "samplesDeriv2nd ";
-  for (size_t sample = 0; sample < m_samplesDeriv2nd.size(); sample++) {
-    std::cout << ", [" << sample << "] = " << m_samplesDeriv2nd[sample];
+  if (msgLvl (MSG::INFO))
+  {
+    std::ostringstream message;
+    message << "samplesDeriv2nd ";
+    for (size_t sample = 0; sample < m_samplesDeriv2nd.size(); sample++) {
+      message << ", [" << sample << "] = " << m_samplesDeriv2nd[sample];
+    }
+    ANA_MSG_INFO (message.str());
   }
-  std::cout << std::endl;
 
-  std::cout << "minimum 2nd deriv sample, value = " << m_minDeriv2ndIndex << ", " << m_minDeriv2nd << std::endl;
+  ANA_MSG_INFO ("minimum 2nd deriv sample, value = " << m_minDeriv2ndIndex << ", " << m_minDeriv2nd);
 }
 
 unsigned int ZDCPulseAnalyzer::GetStatusMask() const

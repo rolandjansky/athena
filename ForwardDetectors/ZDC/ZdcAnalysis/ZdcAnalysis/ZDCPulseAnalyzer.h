@@ -14,6 +14,7 @@
 #include <TGraph.h>
 #include <TList.h>
 
+#include <AsgTools/MessageCheck.h>
 #include "ZdcAnalysis/ZDCFitWrapper.h"
 
 class TFitter;
@@ -36,6 +37,40 @@ private:
   static TH1* s_delayedFitHist;
   static TF1* s_combinedFitFunc;
   static float s_combinedFitTMax;
+
+
+  /// @name Functions providing the same interface as AthMessaging
+  /// @{
+
+  /// Test the output level of the object
+  ///
+  /// @param lvl The message level to test against
+  /// @return boolean Indicting if messages at given level will be printed
+  /// @returns <code>true</code> If messages at level "lvl" will be printed
+  ///
+  bool msgLvl( const MSG::Level lvl ) const {
+    return m_msg->msgLevel (lvl);};
+
+  /// The standard message stream.
+  ///
+  /// @param lvl The message level to set the stream to
+  /// @returns A reference to the default message stream, set to level "lvl"
+  ///
+  MsgStream& msg( const MSG::Level lvl ) const {
+    (*m_msg) << lvl;return *m_msg;};
+
+  /// The standard message stream.
+  ///
+  /// @returns A reference to the default message stream of this object.
+  ///
+  MsgStream& msg() const {
+    return *m_msg;};
+
+
+  /// the message stream we use
+  MsgStream *m_msg;
+
+  /// @}
 
   // Quantities provided/set in the constructor
   //
@@ -215,7 +250,7 @@ private:
 
 public:
 
-  ZDCPulseAnalyzer(std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, float gainHG,
+  ZDCPulseAnalyzer(MsgStream *val_msg, std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, float gainHG,
 		   std::string fitFunction, int peak2ndDerivMinSample, float peak2DerivMinThreshHG, float peak2DerivMinThreshLG);
 
   ~ZDCPulseAnalyzer();
@@ -257,8 +292,8 @@ public:
     //
     if (params.size() != 2) throw;
 
-    std::cout << "Setting non-linear parameters for module: " << m_tag << ", vlues = " 
-	      << params[0] << ", " << params[1] << std::endl;
+    ANA_MSG_INFO ("Setting non-linear parameters for module: " << m_tag << ", vlues = " 
+                  << params[0] << ", " << params[1]);
 
     m_nonLinCorrParams = params;
     m_haveNonlinCorr = true;
