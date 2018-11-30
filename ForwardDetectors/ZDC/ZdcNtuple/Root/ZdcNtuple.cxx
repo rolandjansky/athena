@@ -32,8 +32,8 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
     m_electronLooseEMSelector ("AsgElectronIsEMSelector/ElectronLooseEMSelector",this),
     m_electronMediumEMSelector ("AsgElectronIsEMSelector/ElectronMediumEMSelector",this),
     m_electronLooseLHSelector ("AsgElectronLikelihoodTool/ElectronLooseLHSelector",this),
-    m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this)//,
-    //m_zdcAnalysisTool("ZdcAnalysisTool",this)
+    m_electronMediumLHSelector ("AsgElectronLikelihoodTool/ElectronMediumLHSelector",this),
+    m_zdcAnalysisTool("ZdcAnalysisTool",this)
     //m_photonLooseIsEMSelector ("AsgPhotonIsEMSelector/PhotonLooseEMSelector",this),
     //m_photonMediumIsEMSelector ("AsgPhotonIsEMSelector/PhotonMediumEMSelector",this)
     //m_isoTool("CP::IsolationSelectionTool/IsolationSelector",this);
@@ -87,6 +87,7 @@ ZdcNtuple :: ZdcNtuple (const std::string& name,ISvcLocator *pSvcLocator)
   declareProperty("upc2016C",  upc2016C = false, "comment");
   declareProperty("upc2018",  upc2018 = false, "comment");
   declareProperty("mboverlay2016",  mboverlay2016 = false, "comment");
+  m_zdcAnalysisTool.declarePropertyFor (this, "zdcAnalysisTool");
   
   m_jetContainerNames.clear();
   // m_jetContainerNames.push_back("AntiKt4HIJets");
@@ -141,7 +142,7 @@ StatusCode ZdcNtuple :: setupJob (EL::Job& job)
 */
 
 
-StatusCode ZdcNtuple :: histInitialize ()
+StatusCode ZdcNtuple :: initialize ()
 {
   // Here you do everything that needs to be done at the very
   // beginning on each worker node, e.g. create histograms and output
@@ -552,36 +553,7 @@ StatusCode ZdcNtuple :: histInitialize ()
 
   ANA_MSG_INFO("Anti-howdy from histInitialize!");
 
-  return StatusCode::SUCCESS;
-}
 
-
-/*
-StatusCode ZdcNtuple :: fileExecute ()
-{
-  // Here you do everything that needs to be done exactly once for every
-  // single file, e.g. collect a list of all lumi-blocks processed
-  return StatusCode::SUCCESS;
-}
-*/
-
-
-/*
-StatusCode ZdcNtuple :: changeInput (bool firstFile)
-{
-  // Here you do everything you need to do when we change input files,
-  // e.g. resetting branch addresses on trees.  If you are using
-  // D3PDReader or a similar service this method is not needed.
-  if (firstFile)
-    {
-      ANA_MSG_INFO("changeInput()","firstFile=true!");
-    }
-  return StatusCode::SUCCESS;
-}
-*/
-
-StatusCode ZdcNtuple :: initialize ()
-{
   // Here you do everything that you need to do after the first input
   // file has been connected and before the first event is processed,
   // e.g. create additional histograms based on which variables are
@@ -843,20 +815,18 @@ StatusCode ZdcNtuple :: initialize ()
   //m_zdcRecTool = new ZDC::ZdcRecTool("ZdcRecTool");
   if (reprocZdc)
     {
-      m_zdcAnalysisTool = new ZDC::ZdcAnalysisTool("ZdcAnalysisTool");
-      m_zdcAnalysisTool->setProperty("Configuration","PbPb2018");
-      m_zdcAnalysisTool->setProperty("FlipEMDelay",flipDelay);
-      m_zdcAnalysisTool->setProperty("LowGainOnly",zdcLowGainOnly);
-      m_zdcAnalysisTool->setProperty("ForceCalibRun",-1);
-      //m_zdcAnalysisTool->setProperty("T0",68);
-      m_zdcAnalysisTool->setProperty("AuxSuffix",auxSuffix);
-      m_zdcAnalysisTool->setProperty("DoCalib",false);
+      m_zdcAnalysisTool.setProperty("Configuration","PbPb2018");
+      m_zdcAnalysisTool.setProperty("FlipEMDelay",flipDelay);
+      m_zdcAnalysisTool.setProperty("LowGainOnly",zdcLowGainOnly);
+      m_zdcAnalysisTool.setProperty("ForceCalibRun",-1);
+      //m_zdcAnalysisTool.setProperty("T0",68);
+      m_zdcAnalysisTool.setProperty("AuxSuffix",auxSuffix);
+      m_zdcAnalysisTool.setProperty("DoCalib",false);
       if (flipDelay) 
 	ANA_MSG_INFO("FLIP ZDC DELAY IN EM MODULES");
       else
 	ANA_MSG_INFO("NO FLIP ZDC DELAY IN EM MODULES");
-      
-      ANA_CHECK(m_zdcAnalysisTool->initialize());
+      ANA_CHECK(m_zdcAnalysisTool.initialize());
 
       /*
       m_zdcAnalysisTool.setProperty("Configuration","PbPb2018");
@@ -888,11 +858,33 @@ StatusCode ZdcNtuple :: initialize ()
   // as a check, let's see the number of events in our xAOD
   //ANA_MSG_INFO( "Number of events = "<< evtStore()->getEntries() ); // print long long int
 
-  ANA_MSG_INFO("trying to run histInitialize!");
-  histInitialize();
-
   return StatusCode::SUCCESS;
 }
+
+
+/*
+StatusCode ZdcNtuple :: fileExecute ()
+{
+  // Here you do everything that needs to be done exactly once for every
+  // single file, e.g. collect a list of all lumi-blocks processed
+  return StatusCode::SUCCESS;
+}
+*/
+
+
+/*
+StatusCode ZdcNtuple :: changeInput (bool firstFile)
+{
+  // Here you do everything you need to do when we change input files,
+  // e.g. resetting branch addresses on trees.  If you are using
+  // D3PDReader or a similar service this method is not needed.
+  if (firstFile)
+    {
+      ANA_MSG_INFO("changeInput()","firstFile=true!");
+    }
+  return StatusCode::SUCCESS;
+}
+*/
 
 
 StatusCode ZdcNtuple :: execute ()
