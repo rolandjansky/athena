@@ -5,7 +5,7 @@
 #ifndef XAOD_STANDALONE
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ZdcAnalysis/ZdcAnalysisAlgorithm.h"
+#include "ZdcAnalysis/ZdcAnalysisAlg.h"
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
 
 DECLARE_ALGORITHM_FACTORY            (ZDC::ZdcAnalysisAlg)
