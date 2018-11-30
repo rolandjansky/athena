@@ -65,6 +65,7 @@ public:
                                    CondContBase& cc) override;
 
   virtual StatusCode printStats() const override;
+  virtual StatusCode reset() override;
 };
 
 
@@ -93,6 +94,13 @@ StatusCode ConditionsCleanerTest::printStats() const
 }
 
 
+StatusCode ConditionsCleanerTest::reset()
+{
+  std::cout << "ConditionsCleanerTest::reset\n";
+  return StatusCode::SUCCESS;
+}
+
+
 DECLARE_COMPONENT( ConditionsCleanerTest )
 
 
@@ -111,6 +119,7 @@ void testit (IService* mgr)
 
   assert( ccs->condObjAdded (EventContext(0,0), cc).isSuccess() );
   assert( ccs->printStats().isSuccess() );
+  assert( ccs->reset().isSuccess() );
 }
 
 

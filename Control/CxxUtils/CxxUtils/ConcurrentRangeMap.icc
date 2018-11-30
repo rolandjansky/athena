@@ -170,7 +170,7 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
  * no new element is inserted (and @c ptr gets deleted).
  */
 T_CONCURRENTRANGEMAP
-bool
+typename CONCURRENTRANGEMAP::EmplaceResult
 CONCURRENTRANGEMAP::emplace (const RANGE& range,
                              payload_unique_ptr ptr,
                              const typename Updater_t::Context_t& ctx
@@ -187,7 +187,7 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   // Make sure the new element is not a duplicate of the last.  Fail if so.
   if (last && !pastEnd && !m_compare (range, last->first)) {
     // Duplicate of the last entry.
-    return false;
+    return EmplaceResult::DUPLICATE;
   }
 
   // Can we add this to the end?
@@ -205,15 +205,24 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     // Now the new element is visible to other threads.
     ++m_nInserts;
     m_maxSize = std::max (m_maxSize, static_cast<size_t> (end+1 - begin));
-    return true;
+
+    // Check for overlap with the previous range.
+    if (end > begin && m_compare.overlap ((end-1)->first, range)) {
+      return EmplaceResult::OVERLAP;
+    }
+    return EmplaceResult::SUCCESS;
   }
 
   // No --- need to make a new implementation object and copy.
   // Make the new one bigger, if needed.
   int new_capacity = m_impl->capacity();
-  if (end-begin > new_capacity/2) {
-    new_capacity = (end-begin)*2;
+  int old_size = end-begin;
+  if (old_size == 0) old_size = 1;
+  if (old_size > new_capacity/2) {
+    new_capacity = old_size*2;
   }
+
+  EmplaceResult ret = EmplaceResult::SUCCESS;
 
   // Allocate the new object.
   auto new_impl = std::make_unique<Impl> (m_delete, new_capacity);
@@ -228,17 +237,31 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     new_end->first = range;
     new_end->second = ptr.release();
     ++new_end;
+
+    if (end > begin && m_compare.overlap ((end-1)->first, range)) {
+      ret = EmplaceResult::OVERLAP;
+    }
+        
   }
   else {
     // Otherwise we need to search for the proper place to insert the new entry.
     while (begin < end) {
       if (ptr && m_compare (range, begin->first)) {
         // Make sure this isn't a duplicate.
-        if (begin > m_begin && !m_compare ((begin-1)->first, range)) {
-          // Duplicate entry; fail.  Everything allocated is held by unique_ptr,
-          // so should be cleaned up properly.
-          return false;
+        if (begin > m_begin) {
+          if (!m_compare ((begin-1)->first, range)) {
+            // Duplicate entry; fail.  Everything allocated is held by unique_ptr,
+            // so should be cleaned up properly.
+            return EmplaceResult::DUPLICATE;
+          }
+          else if (m_compare.overlap ((begin-1)->first, range)) {
+            ret = EmplaceResult::OVERLAP;
+          }
         }
+        if (m_compare.overlap (range, begin->first)) {
+          ret = EmplaceResult::OVERLAP;
+        }
+
         new_end->first = range;
         new_end->second = ptr.release();
         ++new_end;
@@ -255,7 +278,7 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
 
   ++m_nInserts;
   m_maxSize = std::max (m_maxSize, static_cast<size_t> (new_end - new_begin));
-  return true;
+  return ret;
 }
 
 

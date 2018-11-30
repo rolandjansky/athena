@@ -47,62 +47,76 @@ public:
 };
 
 
+EventIDBase runlbn (int run, int lbn)
+{
+  return EventIDBase (run,
+                      EventIDBase::UNDEFEVT,  // event
+                      EventIDBase::UNDEFNUM,  // timestamp
+                      EventIDBase::UNDEFNUM,  // timestamp ns
+                      lbn);
+}
+
+
+EventIDBase timestamp (int t)
+{
+  return EventIDBase (EventIDBase::UNDEFNUM,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      t);
+}
+
+
 class CondContTest
   : public CondContBase
 {
 public:
-  CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id, int nlbn, int nts)
-    : CondContBase (rcusvc, 123, id, nullptr, nullptr, 0),
-      m_nlbn(nlbn), m_nts (nts)
-  {}
+  static void delfcn (const void*) {}
+  CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id, int n,
+                CondContBase::KeyType keyType)
+    : CondContBase (rcusvc, 123, id, nullptr, delfcn, 0),
+      m_n (n)
+  {
+    // Do a dummy insert to set the key type.
+    EventIDRange r;
+    switch (keyType) {
+    case CondContBase::KeyType::RUNLBN:
+      r = EventIDRange (runlbn (10, 2), runlbn (10, 10));
+      break;
+    case CondContBase::KeyType::TIMESTAMP:
+      r = EventIDRange (timestamp (100), timestamp (200));
+      break;
+    default:
+      std::abort();
+    }
+    assert (typelessInsert (r, nullptr));
+  }
   
   virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override
   { std::abort(); }
   
-  virtual size_t entriesRunLBN() const override
+  virtual size_t entries() const override
   {
-    return m_nlbn;
+    return m_n;
   }
 
-  virtual size_t entriesTimestamp() const override
+  virtual size_t trim (const std::vector<key_type>& keys) override
   {
-    return m_nts;
-  }
-  
-  virtual size_t trimRunLBN (const std::vector<key_type>& keys) override
-  {
-    m_keysRunLBN.push_back (keys);
+    m_keys.push_back (keys);
     return 1;
   }
   
-  virtual size_t trimTimestamp (const std::vector<key_type>& keys) override
-  {
-    m_keysTimestamp.push_back (keys);
-    return 1;
-  }
 
-
-  size_t nkeysRunLBN() const { return m_keysRunLBN.size(); }
-  size_t nkeysTimestamp() const { return m_keysTimestamp.size(); }
-  std::vector<key_type> keysRunLBN()
+  size_t nkeys() const { return m_keys.size(); }
+  std::vector<key_type> keys()
   {
-    std::vector<key_type> v = m_keysRunLBN.front();
-    m_keysRunLBN.pop_front();
-    return v;
-  }
-  std::vector<key_type> keysTimestamp()
-  {
-    std::vector<key_type> v = m_keysTimestamp.front();
-    m_keysTimestamp.pop_front();
+    std::vector<key_type> v = m_keys.front();
+    m_keys.pop_front();
     return v;
   }
 
   
 private:
-  int m_nlbn;
-  int m_nts;
-  std::list<std::vector<key_type> > m_keysRunLBN;
-  std::list<std::vector<key_type> > m_keysTimestamp;
+  int m_n;
+  std::list<std::vector<key_type> > m_keys;
 };
 
 
@@ -132,8 +146,8 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
   DataObjID id;
 
   std::cout << "test1\n";
-  CondContTest cc1 (rcu, id, 10, 0);
-  CondContTest cc2 (rcu, id, 0, 10);
+  CondContTest cc1 (rcu, id, 10, CondContBase::KeyType::RUNLBN);
+  CondContTest cc2 (rcu, id, 10, CondContBase::KeyType::TIMESTAMP);
 
   assert( svc.event (makeCtx(0), false).isSuccess() );
   assert( svc.event (makeCtx(1), false).isSuccess() );
@@ -145,31 +159,25 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
   assert( svc.event (makeCtx(4), false).isSuccess() );
   assert( svc.event (makeCtx(3), false).isSuccess() );
 
-  assert (cc1.nkeysRunLBN() == 0);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 0);
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 0);
 
   assert( svc.event (makeCtx(201), false).isSuccess() );
   // 1 1 4 3 201
-  assert (cc1.nkeysRunLBN() == 0);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 1);
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 1);
   //for (key_type k : cc2.keysTimestamp()) std::cout << k << " ";
   //std::cout << "\n";
-  assert (cc2.keysTimestamp() == (std::vector<key_type> { 0, 2001, 2003, 2004, 2201 }));
+  assert (cc2.keys() == (std::vector<key_type> { 0, 2001, 2003, 2004, 2201 }));
 
   assert( svc.event (makeCtx(301), false).isSuccess() );
   // 1 4 3 201 301
-  assert (cc1.nkeysRunLBN() == 1);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 0);
-  assert (cc1.keysRunLBN() == (std::vector<key_type> { 0, 1001, 1003, 1004, 1201, 1301 }));
+  assert (cc1.nkeys() == 1);
+  assert (cc2.nkeys() == 0);
+  assert (cc1.keys() == (std::vector<key_type> { 0, 1001, 1003, 1004, 1201, 1301 }));
 
-  CondContTest cc3 (rcu, id, 10, 0);
-  CondContTest cc4 (rcu, id, 0, 10);
+  CondContTest cc3 (rcu, id, 10, CondContBase::KeyType::RUNLBN);
+  CondContTest cc4 (rcu, id, 10, CondContBase::KeyType::TIMESTAMP);
 
   assert( svc.condObjAdded (makeCtx(300), cc1).isSuccess() );
   assert( svc.condObjAdded (makeCtx(303), cc2).isSuccess() );
@@ -178,29 +186,23 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
 
   assert( svc.event (makeCtx(401), false).isSuccess() );
   // 4 3 201 301 401
-  assert (cc1.nkeysRunLBN() == 1);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc3.nkeysRunLBN() == 1);
-  assert (cc4.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 1);
-  assert (cc3.nkeysTimestamp() == 0);
-  assert (cc4.nkeysTimestamp() == 0);
-  assert (cc1.keysRunLBN() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
-  assert (cc2.keysTimestamp() == (std::vector<key_type> { 0, 2003, 2004, 2201, 2301, 2401 }));
-  assert (cc3.keysRunLBN() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
+  assert (cc1.nkeys() == 1);
+  assert (cc2.nkeys() == 1);
+  assert (cc3.nkeys() == 1);
+  assert (cc4.nkeys() == 0);
+  assert (cc1.keys() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
+  assert (cc2.keys() == (std::vector<key_type> { 0, 2003, 2004, 2201, 2301, 2401 }));
+  assert (cc3.keys() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
 
   assert( svc.event (makeCtx(430), false).isSuccess() );
   // 3 201 301 401 430
-  assert (cc1.nkeysRunLBN() == 0);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc3.nkeysRunLBN() == 0);
-  assert (cc4.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 0);
-  assert (cc3.nkeysTimestamp() == 0);
-  assert (cc4.nkeysTimestamp() == 1);
-  assert (cc4.keysTimestamp() == (std::vector<key_type> { 0, 2003, 2201, 2301, 2401, 2430 }));
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 0);
+  assert (cc3.nkeys() == 0);
+  assert (cc4.nkeys() == 1);
+  assert (cc4.keys() == (std::vector<key_type> { 0, 2003, 2201, 2301, 2401, 2430 }));
+
+  assert (svc.reset().isSuccess());
 }
 
 
@@ -587,6 +589,7 @@ void Tester::event_loop (CCS& ccs, const std::vector<size_t>& evnums)
 void threaded_test (Athena::IConditionsCleanerSvc& cleaner,
                     Athena::IRCUSvc& rcu)
 {
+  assert (cleaner.reset().isSuccess());
   std::vector<size_t> evnums (nevt);
   for (size_t i = 0; i < nevt; i++) {
     evnums[i] = i;
