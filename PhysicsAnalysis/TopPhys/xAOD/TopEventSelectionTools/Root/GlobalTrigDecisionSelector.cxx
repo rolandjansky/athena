@@ -5,7 +5,6 @@
 #include "TopEventSelectionTools/GlobalTrigDecisionSelector.h"
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/RunNumberFaker.h"
 
 #include <vector>
 #include <iostream>
@@ -20,8 +19,6 @@ namespace top {
   }
 
   bool GlobalTrigDecisionSelector::apply(top::Event const & event) const {
-    RunNumberFaker runNumberFaker(event);
-    runNumberFaker.activate();
     auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
     std::vector<std::string> triggers;
     top::check(tool->getRelevantTriggers(triggers), "TrigGlobalEfficiencyCorrectionTool::getRelevantTriggers failed");

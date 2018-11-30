@@ -5,7 +5,6 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/RunNumberFaker.h"
 #include "TopEvent/SystematicEvent.h"
 
 #include "xAODEgamma/ElectronContainer.h"
@@ -75,9 +74,6 @@ namespace top{
   StatusCode GlobalLeptonTriggerCalculator::execute()
   {
     ATH_MSG_DEBUG("Entered GlobalLeptonTriggerCalculator::execute");
-
-    RunNumberFaker runNumberFaker(evtStore());
-    runNumberFaker.activate();
 
     auto const & nominalHash = m_config->nominalHashValue();
     if (m_config->doTightEvents()) {
