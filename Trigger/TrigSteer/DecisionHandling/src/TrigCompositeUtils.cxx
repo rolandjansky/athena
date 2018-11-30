@@ -63,7 +63,7 @@ namespace TrigCompositeUtils {
     decisionIDs( dest ).insert( decisionIDs(dest).end(), ids.begin(), ids.end() );
   }
 
-  void uniqueDecisionIDs( const Decision* dest){
+  void uniqueDecisionIDs( Decision* dest){
     DecisionIDContainer ids;
     decisionIDs( dest, ids );
     decisionIDs( dest ).clear(); 

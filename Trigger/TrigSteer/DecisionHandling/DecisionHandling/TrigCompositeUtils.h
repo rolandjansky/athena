@@ -57,11 +57,11 @@ namespace TrigCompositeUtils {
   void insertDecisionIDs( const Decision* src, Decision* dest );
 
  /**
-   * @brief Make unique list of decision IDs of 
-   * @warning Use vector->set_>vector
+   * @brief Make unique list of decision IDs of dest Decision object
+   * @warning Use vector->set->vector
    * This helps solving multiple inserts of the Decision obejcts
    **/
-  void uniqueDecisionIDs( const Decision* dest);
+  void uniqueDecisionIDs( Decision* dest);
 
       
   /**

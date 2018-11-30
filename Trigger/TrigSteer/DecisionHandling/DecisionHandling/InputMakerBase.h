@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
-using namespace TrigCompositeUtils;
+//using namespace TrigCompositeUtils;
 
 class InputMakerBase : public ::AthReentrantAlgorithm {
   /**
@@ -32,10 +32,10 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
-  const SG::ReadHandleKeyArray<DecisionContainer>& decisionInputs() const;
+  const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
 
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
-  const SG::WriteHandleKeyArray<DecisionContainer>& decisionOutputs() const;
+  const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
 
   // name of link to the RoI
   StringProperty m_roisLink { this, "RoIsLink", "initialRoI", "Name of EL to RoI object linked to the decision" };
@@ -44,11 +44,13 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /////////////////////////////////////////////////////////////////////
   
   /// provides debug printout of the output of the algorithm
-  StatusCode debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<DecisionContainer> >& outputHandles) const;
+  StatusCode debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const;
 
    /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
-  StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<DecisionContainer> > & outputHandles) const;
+  StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
 
+  /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
+  StatusCode decisionInputToMergedOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
 
   /// counts valid input decisions
   size_t countInputHandles( const EventContext& context ) const;
@@ -56,14 +58,14 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
  private:
   
   /// input decisions, will be implicit (renounced).
-  SG::ReadHandleKeyArray<DecisionContainer> m_inputs { this, "InputMakerInputDecisions", {}, "Input Decisions (implicit)" };
+  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputMakerInputDecisions", {}, "Input Decisions (implicit)" };
 
   /// output decisions
-  SG::WriteHandleKeyArray<DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
+  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
 
-  static const std::vector<std::string> m_baseLinks;
+  //  static const std::vector<std::string> m_baseLinks;
 
-  StatusCode copyBaseLinks(const Decision* src, Decision* dest) const;
+  StatusCode copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const;
 
  
   /// copies decisions ID from unput to output

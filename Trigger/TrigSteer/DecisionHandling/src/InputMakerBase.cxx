@@ -6,20 +6,18 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-
-
-const std::vector<std::string> InputMakerBase::m_baseLinks = {"initialRoI", "roi", "view", "feature"};
+const std::vector<std::string> baseLinks = {"initialRoI", "roi", "view", "feature"};
 
 InputMakerBase::InputMakerBase( const std::string& name, ISvcLocator* pSvcLocator )
   : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
 InputMakerBase::~InputMakerBase() {}
 
-const SG::ReadHandleKeyArray<DecisionContainer>& InputMakerBase::decisionInputs() const{
+const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMakerBase::decisionInputs() const{
   return m_inputs;
 }
 
-const SG::WriteHandleKeyArray<DecisionContainer>& InputMakerBase::decisionOutputs() const{
+const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMakerBase::decisionOutputs() const{
   return m_outputs;
 }
 
@@ -40,19 +38,12 @@ StatusCode InputMakerBase::sysInitialize() {
 }
 
 
-StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<DecisionContainer> > & outputHandles) const{
+StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const{
 
   outputHandles = decisionOutputs().makeHandles(context);
+  countInputHandles( context );
 
-  // check inputs
-  size_t validInput=0;
-  for ( auto inputKey: decisionInputs() ) {
-    auto inputHandle = SG::makeHandle( inputKey, context );
-    ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? " is valid": " is not valid" ) );
-    if (inputHandle.isValid()) validInput++;
-  }
-  ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() <<", "<< validInput<<" are valid" );
-  
+ 
   // Input is array of input decision containers
   // Loop over them. For each input decision container, create an output decision container
   // For each input Decision in the input container, create and output Decision in the corresponding output container and link them.
@@ -71,20 +62,20 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     }
     ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
     // create the output container
-    auto outDecisions = std::make_unique<DecisionContainer>();
-    auto outDecAux = std::make_unique<DecisionAuxContainer>();
+    auto outDecisions = std::make_unique<TrigCompositeUtils::DecisionContainer>();
+    auto outDecAux    = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
     outDecisions->setStore( outDecAux.get() );
        
     // loop over decisions retrieved from this input
     size_t input_counter =0;
     for ( auto decision : *inputHandle){
       // create new decision for each input	
-      Decision*  newDec = newDecisionIn( outDecisions.get() );
-      linkToPrevious( newDec, inputKey.key(), input_counter );
-      insertDecisionIDs( decision, newDec );
+      TrigCompositeUtils::Decision*  newDec = TrigCompositeUtils::newDecisionIn( outDecisions.get() );
+      TrigCompositeUtils::linkToPrevious( newDec, inputKey.key(), input_counter );
+      TrigCompositeUtils::insertDecisionIDs( decision, newDec );
 
-      copyBaseLinks( decision, newDec);
-      ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" "<< m_roisLink.value());      
+      //      copyBaseLinks( decision, newDec);
+      //ATH_MSG_DEBUG("New decision has "<< newDec->hasObjectLink(m_roisLink.value() ) <<" "<< m_roisLink.value());      
       input_counter++;	
     } // loop over decisions
 
@@ -97,8 +88,8 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
 }
 
 
-StatusCode InputMakerBase::copyBaseLinks(const Decision* src, Decision* dest) const  {
-  for (auto link: m_baseLinks){
+StatusCode InputMakerBase::copyBaseLinks(const TrigCompositeUtils::Decision* src, TrigCompositeUtils::Decision* dest) const  {
+  for (auto link: baseLinks){
     if ( src->hasObjectLink(link ) ) dest->copyLinkFrom(src,link);
   }
 
@@ -111,7 +102,7 @@ StatusCode InputMakerBase::copyBaseLinks(const Decision* src, Decision* dest) co
 }
 
 
-StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<DecisionContainer> >& outputHandles) const{
+StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
   size_t validInput=0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
@@ -133,10 +124,10 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
     if( not outHandle.isValid() ) continue;
     ATH_MSG_DEBUG(outHandle.key() <<" with "<< outHandle->size() <<" decisions:");
     for (auto outdecision:  *outHandle){
-      DecisionIDContainer objDecisions;      
-      decisionIDs( outdecision, objDecisions );    
+      TrigCompositeUtils::DecisionIDContainer objDecisions;      
+      TrigCompositeUtils::decisionIDs( outdecision, objDecisions );    
       ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
-      for ( DecisionID id : objDecisions ) {
+      for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
         ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
       }  
     }
@@ -159,9 +150,15 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
 
 size_t InputMakerBase::countInputHandles( const EventContext& context ) const {
   size_t validInputCount=0;
-  for ( auto inputKey: decisionInputs() ) {
+  for ( auto &inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
+    ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? " is valid": " is not valid" ) );
     if (inputHandle.isValid()) validInputCount++;
   }
+  ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() <<", "<< validInput<<" are valid" );
   return validInputCount;
 }
+
+
+
+  
