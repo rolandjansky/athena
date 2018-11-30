@@ -291,7 +291,7 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   //new recommendation from MCP
   isbad |= m_muonSelectionTool->isBadMuon(input);
 
-  //new recommendation from MCP (at HighPT
+  //new recommendation from MCP (at HighPT)
   isbadHighPt |= m_muonSelectionHighPtTool->isBadMuon(input);
 
   dec_bad(input) = isbad;

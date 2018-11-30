@@ -1161,7 +1161,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muCosmicz0, "MuonCosmic.z0", rEnv, 1.);
   configFromFile(m_muCosmicd0, "MuonCosmic.d0", rEnv, 0.2);
   //
-  configFromFile(m_badmuQoverP, "BadMuon.qoverp", rEnv, 0.2);
+  configFromFile(m_badmuQoverP, "BadMuon.qoverp", rEnv, 0.4);
   //
   configFromFile(m_muOverride2017SmearingDefaults, "Muon.Override2017SmearingDefaults", rEnv, false);
   configFromFile(m_muStatComb17, "Muon.StatComb17", rEnv, false);
