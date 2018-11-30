@@ -8,6 +8,9 @@
 
 
 #include "AthenaKernel/CondCont.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
+#include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
 
@@ -32,6 +35,9 @@ std::string CondContBase::Category::message (code_t code) const
   if (code == static_cast<code_t> (CondContStatusCode::DUPLICATE)) {
     return "DUPLICATE";
   }
+  else if (code == static_cast<code_t> (CondContStatusCode::OVERLAP)) {
+    return "OVERLAP";
+  }
   return StatusCode::Category::message (code);
 }
 
@@ -42,6 +48,7 @@ std::string CondContBase::Category::message (code_t code) const
 bool CondContBase::Category::isSuccess (code_t code) const
 {
   return code == static_cast<code_t>( CondContStatusCode::DUPLICATE ) ||
+    code == static_cast<code_t>( CondContStatusCode::OVERLAP ) ||
     code == static_cast<code_t>( CondContStatusCode::SUCCESS );
 }
 
@@ -57,6 +64,20 @@ bool CondContBase::Category::isDuplicate (code_t code)
 bool CondContBase::Category::isDuplicate (StatusCode code)
 {
   return isDuplicate (code.getCode());
+}
+
+
+/// Helper to test whether a code is OVERLAP.
+bool CondContBase::Category::isOverlap (code_t code)
+{
+  return code == static_cast<code_t> (CondContStatusCode::OVERLAP);
+}
+
+
+/// Helper to test whether a code is OVERLAP.
+bool CondContBase::Category::isOverlap (StatusCode code)
+{
+  return isOverlap (code.getCode());
 }
 
 
@@ -79,14 +100,9 @@ void CondContBase::setProxy (SG::DataProxy* proxy)
  */
 void CondContBase::list (std::ostream& ost) const
 {
-  ost << "id: " << m_id << "  proxy: " << m_proxy << std::endl;
-
-  ost << "clock: [" << m_condSet_clock.size() << "]" << std::endl;
-  for (const typename CondContSet::value_type& ent : m_condSet_clock.range()) {
-    ost << ent.first.m_range << " " << ent.second << std::endl;
-  }
-  ost << "RE: [" << m_condSet_RE.size() << "]" << std::endl;
-  for (const typename CondContSet::value_type& ent : m_condSet_RE.range()) {
+  ost << "id: " << m_id << "  proxy: " << m_proxy << " ["
+      << m_condSet.size() << "] entries" << std::endl;
+  for (const typename CondContSet::value_type& ent : m_condSet.range()) {
     ost << ent.first.m_range << " " << ent.second << std::endl;
   }
 }
@@ -106,27 +122,7 @@ void CondContBase::print() const
  */
 size_t CondContBase::entries() const
 {
-  return m_condSet_RE.size() + m_condSet_clock.size();
-}
-
-
-/**
- * @brief Return the number of run+LBN conditions objects
- *        in the container.
- */
-size_t CondContBase::entriesRunLBN() const
-{
-  return m_condSet_RE.size();
-}
-
-
-/**
- * @brief Return the number of timestamp-based conditions objects
- *        in the container.
- */
-size_t CondContBase::entriesTimestamp() const
-{
-  return m_condSet_clock.size();
+  return m_condSet.size();
 }
 
 
@@ -137,11 +133,8 @@ std::vector<EventIDRange>
 CondContBase::ranges() const
 {
   std::vector<EventIDRange> r;
-  r.reserve (m_condSet_RE.size() + m_condSet_clock.size());
-  for (const typename CondContSet::value_type& ent : m_condSet_RE.range()) {
-    r.push_back( ent.first.m_range );
-  }
-  for (const typename CondContSet::value_type& ent : m_condSet_clock.range()) {
+  r.reserve (m_condSet.size());
+  for (const typename CondContSet::value_type& ent : m_condSet.range()) {
     r.push_back( ent.first.m_range );
   }
 
@@ -161,6 +154,8 @@ CondContBase::ranges() const
  * The container will take ownership of this object.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
  * duplicates an existing one, and FAILURE otherwise
  * (ownership of the object will be taken in any case).
@@ -171,7 +166,7 @@ CondContBase::typelessInsert (const EventIDRange& r,
                               const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
   return insertBase (r,
-                     CondContSet::payload_unique_ptr (obj, m_condSet_RE.delfcn()),
+                     CondContSet::payload_unique_ptr (obj, m_condSet.delfcn()),
                      ctx);
 }
 
@@ -200,20 +195,41 @@ CondContBase::range(const EventIDBase& t, EventIDRange& r) const
  * @param IOV time of element to erase.
  * @param ctx Event context for the current thread.
  */
-void CondContBase::erase (const EventIDBase& t,
-                          const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+StatusCode CondContBase::erase (const EventIDBase& t,
+                                const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
-  if (t.isRunLumi()) {
-    m_condSet_RE.erase (CondContBase::keyFromRunLBN (t), ctx);
+  switch (m_keyType) {
+  case KeyType::RUNLBN:
+    if (!t.isRunLumi()) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::erase: "
+          << "Non-Run/LBN key used in Run/LBN container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    m_condSet.erase (CondContBase::keyFromRunLBN (t), ctx);
+    break;
+  case KeyType::TIMESTAMP:
+    if (!t.isTimeStamp()) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::erase: "
+          << "Non-Timestamp key used in timestamp container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    m_condSet.erase (CondContBase::keyFromTimestamp (t), ctx);
+    break;
+  case KeyType::SINGLE:
+    break;
+  default:
+    std::abort();
   }
-  else if (t.isTimeStamp()) {
-    m_condSet_clock.erase (CondContBase::keyFromTimestamp (t), ctx);
-  }
+  return StatusCode::SUCCESS;
 }
 
 
 /**
- * @brief Remove unused run+LBN entries from the front of the list.
+ * @brief Remove unused entries from the front of the list.
  * @param keys List of keys that may still be in use.
  *             (Must be sorted.)
  *
@@ -223,42 +239,18 @@ void CondContBase::erase (const EventIDBase& t,
  * an object with a range matching a key in @c keys or when there
  * is only one object left.
  *
- * The list @c keys should contain keys as computed by keyFromRunLBN.
- * The list must be sorted.
+ * The list @c keys should contain keys as computed by keyFromRunLBN
+ * or keyFromTimestamp, as appropriate for the container's key type
+ * (as returned from keyType()).  The list must be sorted.
  *
  * Removed objects are queued for deletion once all slots have been
  * marked as quiescent.
  *
  * Returns the number of objects that were removed.
  */
-size_t CondContBase::trimRunLBN (const std::vector<key_type>& keys)
+size_t CondContBase::trim (const std::vector<key_type>& keys)
 {
-  return m_condSet_RE.trim (keys);
-}
-
-
-/**
- * @brief Remove unused timestamp entries from the front of the list.
- * @param keys List of keys that may still be in use.
- *             (Must be sorted.)
- *
- * We examine the objects in the container, starting with the earliest one.
- * If none of the keys in @c keys match the range for this object, then
- * it is removed from the container.  We stop when we either find
- * an object with a range matching a key in @c keys or when there
- * is only one object left.
- *
- * The list @c keys should contain keys as computed by keyFromRunLBN.
- * The list must be sorted.
- *
- * Removed objects are queued for deletion once all slots have been
- * marked as quiescent.
- *
- * Returns the number of objects that were removed.
- */
-size_t CondContBase::trimTimestamp (const std::vector<key_type>& keys)
-{
-  return m_condSet_clock.trim (keys);
+  return m_condSet.trim (keys);
 }
 
 
@@ -272,8 +264,7 @@ size_t CondContBase::trimTimestamp (const std::vector<key_type>& keys)
 void
 CondContBase::quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
-  m_condSet_RE.quiescent (ctx);
-  m_condSet_clock.quiescent (ctx);
+  m_condSet.quiescent (ctx);
 }
 
 
@@ -282,7 +273,7 @@ CondContBase::quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext
  */
 size_t CondContBase::nInserts() const
 {
-  return m_condSet_clock.nInserts() + m_condSet_RE.nInserts();
+  return m_condSet.nInserts();
 }
 
 
@@ -291,7 +282,7 @@ size_t CondContBase::nInserts() const
  */
 size_t CondContBase::maxSize() const
 {
-  return m_condSet_clock.maxSize() + m_condSet_RE.maxSize();
+  return m_condSet.maxSize();
 }
 
 
@@ -309,20 +300,40 @@ StatusCode
 CondContBase::extendLastRange (const EventIDRange& newRange,
                                const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
-  typename CondContSet::const_iterator it = nullptr;
-  if (newRange.start().isRunLumi()) {
-    it = m_condSet_RE.extendLastRange
-      (RangeKey (newRange,
-                 CondContBase::keyFromRunLBN (newRange.start()),
-                 CondContBase::keyFromRunLBN (newRange.stop())), ctx);
+  key_type start;
+  key_type stop;
+  switch (m_keyType) {
+  case KeyType::RUNLBN:
+    if (!newRange.start().isRunLumi()) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::extendLastRange: "
+          << "Non-Run/LBN range used in Run/LBN container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    start = keyFromRunLBN (newRange.start());
+    stop  = keyFromRunLBN (newRange.stop());
+    break;
+  case KeyType::TIMESTAMP:
+    if (!newRange.start().isTimeStamp()) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::extendLastRange: "
+          << "Non-timestamp range used in timestamp container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+    start = keyFromTimestamp (newRange.start());
+    stop  = keyFromTimestamp (newRange.stop());
+    break;
+  case KeyType::SINGLE:
+    // Empty container.
+    return StatusCode::FAILURE;
+  default:
+    std::abort();
   }
-  else if (newRange.start().isTimeStamp()) {
-    it = m_condSet_clock.extendLastRange
-      (RangeKey (newRange,
-                 CondContBase::keyFromTimestamp (newRange.start()),
-                 CondContBase::keyFromTimestamp (newRange.stop())), ctx);
-  }
-  if (it != nullptr) {
+  
+  if (m_condSet.extendLastRange (RangeKey (newRange, start, stop), ctx) != nullptr)
+  {
     return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;
@@ -344,11 +355,11 @@ CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
                             SG::DataProxy* proxy,
                             CondContSet::delete_function* delfcn,
                             size_t capacity)
-  : m_clid (clid),
+  : m_keyType (KeyType::SINGLE),
+    m_clid (clid),
     m_id (id),
     m_proxy (proxy),
-    m_condSet_clock (Updater_t (rcusvc, delfcn), delfcn, capacity),
-    m_condSet_RE (Updater_t (rcusvc, delfcn), delfcn, capacity),
+    m_condSet (Updater_t (rcusvc, delfcn), delfcn, capacity),
     m_cleanerSvc (s_cleanerSvcName, "CondContBase")
 {
   if (!m_cleanerSvc.retrieve().isSuccess()) {
@@ -364,6 +375,8 @@ CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
  * @param ctx Event context for the current thread.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
  * duplicates an existing one, and FAILURE otherwise
  * (ownership of the object will be taken in any case).
@@ -376,33 +389,60 @@ CondContBase::insertBase (const EventIDRange& r,
   EventIDBase start = r.start();
   EventIDBase stop = r.stop();
 
-  // LBN part of ranges may be undefined for an open-ended range.
-  if (start.run_number() != EventIDBase::UNDEFNUM &&
-      stop.run_number() != EventIDBase::UNDEFNUM)
+  key_type start_key, stop_key;
+
+  if (start.isTimeStamp() && stop.isTimeStamp()) {
+    if (m_keyType == KeyType::SINGLE) {
+      m_keyType = KeyType::TIMESTAMP;
+    }
+    else if (m_keyType != KeyType::TIMESTAMP) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::insertBase: "
+          << "Timestamp key used in non-timestamp container."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    start_key = keyFromTimestamp (start);
+    stop_key  = keyFromTimestamp (stop);
+  }
+
+  else if (start.run_number() != EventIDBase::UNDEFNUM &&
+           stop.run_number() != EventIDBase::UNDEFNUM)
   {
-    if (!m_condSet_RE.emplace( RangeKey(r,
-                                        keyFromRunLBN (start),
-                                        keyFromRunLBN (stop)),
-                               std::move(t), ctx ))
-    {
-      return CondContStatusCode::DUPLICATE;
+    if (m_keyType == KeyType::SINGLE) {
+      m_keyType = KeyType::RUNLBN;
     }
-    
-  }
-  else if (start.isTimeStamp() && stop.isTimeStamp()) {
-    if (!m_condSet_clock.emplace( RangeKey(r,
-                                           keyFromTimestamp (start),
-                                           keyFromTimestamp (stop)),
-                                  std::move(t), ctx ))
-    {
-      return CondContStatusCode::DUPLICATE;
+    else if (m_keyType != KeyType::RUNLBN) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::insertBase: "
+          << "Run/LBN key used in non-Run/LBN container."
+          << endmsg;
+      return StatusCode::FAILURE;
     }
+
+    start_key = keyFromRunLBN (start);
+    stop_key  = keyFromRunLBN (stop);
   }
+
   else {
-    std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
-              << " is neither fully RunEvent nor TimeStamp" 
-              << std::endl;
+    MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+    msg << MSG::ERROR << "CondContBase::insertBase: EventIDRange " << r 
+        << " is neither fully RunEvent nor TimeStamp" 
+        << endmsg;
     return StatusCode::FAILURE;
+  }
+
+  CondContSet::EmplaceResult reslt =
+    m_condSet.emplace( RangeKey(r, start_key, stop_key),
+                       std::move(t), ctx );
+
+  if (reslt == CondContSet::EmplaceResult::DUPLICATE)
+  {
+    return CondContStatusCode::DUPLICATE;
+  }
+  else if (reslt == CondContSet::EmplaceResult::OVERLAP) {
+    return CondContStatusCode::OVERLAP;
   }
 
   return this->inserted (ctx);
@@ -423,27 +463,42 @@ const void* CondContBase::findBase (const EventIDBase& t,
                                     EventIDRange const** r) const
 {
   const void* ptr = nullptr;
-  if (t.isRunLumi()) {
-    key_type key = keyFromRunLBN (t);
-    CondContSet::const_iterator it = m_condSet_RE.find (key);
-    if (it && key < it->first.m_stop) {
-      if (r) {
-        *r = &it->first.m_range;
-      }
-      ptr = it->second;
+  key_type key;
+  switch (m_keyType) {
+  case KeyType::RUNLBN:
+    if (ATH_UNLIKELY (!t.isRunLumi())) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::findBase: "
+          << "Non-Run/LBN key used in Run/LBN container."
+          << endmsg;
+      return nullptr;
     }
-  } 
-
-  if (!ptr && t.isTimeStamp()) {
-    key_type key = keyFromTimestamp (t);
-    CondContSet::const_iterator it = m_condSet_clock.find (key);
-    if (it && key < it->first.m_stop) {
-      if (r) {
-        *r = &it->first.m_range;
-      }
-      ptr = it->second;
+    key = keyFromRunLBN (t);
+    break;
+  case KeyType::TIMESTAMP:
+    if (ATH_UNLIKELY (!t.isTimeStamp())) {
+      MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+      msg << MSG::ERROR << "CondContBase::findBase: "
+          << "Non-timestamp key used in timestamp container."
+          << endmsg;
+      return nullptr;
     }
+    key = keyFromTimestamp (t);
+    break;
+  case KeyType::SINGLE:
+    // Empty container.
+    return nullptr;
+  default:
+    std::abort();
   }
+
+  CondContSet::const_iterator it = m_condSet.find (key);
+  if (it && key < it->first.m_stop) {
+    if (r) {
+      *r = &it->first.m_range;
+    }
+    ptr = it->second;
+  } 
 
   return ptr;
 }
@@ -468,3 +523,16 @@ void CondContBase::setCleanerSvcName (const std::string& name)
   s_cleanerSvcName = name;
 }
 
+
+/**
+ * @brief Helper to report an error due to using a base class for insertion.
+ * @param usedCLID CLID of the class used for insertion.
+ */
+void CondContBase::insertError (CLID usedCLID) const
+{
+  MsgStream msg (Athena::getMessageSvc(), m_id.fullKey());
+  msg << MSG::ERROR << "CondCont<T>::insert: Not most-derived class; "
+      << "CLID used: " << usedCLID
+      << "; container CLID: " << m_clid
+      << endmsg;
+}

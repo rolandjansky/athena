@@ -24,6 +24,19 @@ CLID CondContBase::clid() const
 
 
 /**
+ * @brief Return the key type for this container.
+ */
+inline
+CondContBase::KeyType CondContBase::keyType() const
+{
+  return m_keyType;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
  * @brief Return CLID/key corresponding to this container.
  */
 inline
@@ -75,6 +88,9 @@ const void* CondContBase::cast (CLID /*clid*/, const void* /*ptr*/) const
 {
   return nullptr;
 }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
 /**
@@ -165,7 +181,8 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
  * @brief Destructor.
  */
 template <typename T>
-CondCont<T>::~CondCont<T>() {
+CondCont<T>::~CondCont<T>()
+{
 }    
 
 
@@ -183,6 +200,8 @@ CondCont<T>::~CondCont<T>() {
  * on the most-derived @c CondCont.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
  * duplicates an existing one, and FAILURE otherwise
  * (ownership of the object will be taken in any case).
@@ -193,8 +212,7 @@ StatusCode CondCont<T>::insert (const EventIDRange& r,
                                 const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
   if (this->clid() != ClassID_traits<CondCont<T> >::ID()) {
-    std::cerr << "CondCont<T>::insert error: Not most-derived class."
-              << std::endl;
+    this->insertError (ClassID_traits<CondCont<T> >::ID());
     return StatusCode::FAILURE;
   }
 

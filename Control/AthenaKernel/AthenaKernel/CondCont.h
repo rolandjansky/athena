@@ -44,7 +44,7 @@ namespace Athena {
 
 /**
  * @brief Define extended status codes used by CondCont.
- *        We add DUPLICATE.
+ *        We add DUPLICATE and OVERLAP.
  */
 enum class CondContStatusCode : StatusCode::code_t
 {
@@ -56,7 +56,12 @@ enum class CondContStatusCode : StatusCode::code_t
   // an existing one.  The original contents of the container are unchanged,
   // and the new item has been deleted.
   // This is classified as Success.
-  DUPLICATE         = 10
+  DUPLICATE         = 10,
+
+  // Attempt to insert an item in a CondCont with a range that partially
+  // overlaps with an existing one.
+  // This is classified as Success.
+  OVERLAP           = 11
 };
 STATUSCODE_ENUM_DECL (CondContStatusCode)
 
@@ -66,7 +71,7 @@ class CondContBase
 public:
   /**
    * @brief Status code category for ContCont.
-   *        This adds a new code, DUPLICATE, which is classified
+   *        This adds new codes DUPLICATE and OVERLAP, which are classified
    *        as success.
    */
   class Category : public StatusCode::Category
@@ -87,6 +92,26 @@ public:
     static bool isDuplicate (code_t code);
     /// Helper to test whether a code is DUPLICATE.
     static bool isDuplicate (StatusCode code);
+
+    /// Helper to test whether a code is OVERLAP.
+    static bool isOverlap (code_t code);
+    /// Helper to test whether a code is OVERLAP.
+    static bool isOverlap (StatusCode code);
+  };
+
+
+  /// Type of key used for this container.
+  enum class KeyType
+  {
+    /// Either TIMESTAMP or RUNLBN, but nothing's been put in the container yet,
+    /// so we don't know which one.
+    SINGLE,
+
+    /// Container uses timestamp keys.
+    TIMESTAMP,
+
+    /// Container uses run+lbn keys.
+    RUNLBN
   };
 
 
@@ -109,6 +134,12 @@ public:
    * @brief Return the CLID of the most-derived @c CondCont.
    */
   CLID clid() const;
+
+
+  /**
+   * @brief Return the key type for this container.
+   */
+  KeyType keyType() const;
 
 
   /**
@@ -147,25 +178,9 @@ public:
   /**
    * @brief Return the number of conditions objects in the container.
    */
-  size_t entries() const;
+  virtual size_t entries() const;
 
   
-  /**
-   * @brief Return the number of run+LBN conditions objects
-   *        in the container.
-   */
-  virtual
-  size_t entriesRunLBN() const;
-
-
-  /**
-   * @brief Return the number of timestamp-based conditions objects
-   *        in the container.
-   */
-  virtual
-  size_t entriesTimestamp() const;
-
-
   /**
    * @brief Return all IOV validity ranges defined in this container.
    */
@@ -185,6 +200,8 @@ public:
    * The container will take ownership of this object.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
    * duplicates an existing one, and FAILURE otherwise
    * (ownership of the object will be taken in any case).
@@ -220,12 +237,12 @@ public:
    * @param ctx Event context for the current thread.
    */
   virtual
-  void erase (const EventIDBase& t,
-              const EventContext& ctx = Gaudi::Hive::currentContext());
+  StatusCode erase (const EventIDBase& t,
+                    const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /**
-   * @brief Remove unused run+LBN entries from the front of the list.
+   * @brief Remove unused entries from the front of the list.
    * @param keys List of keys that may still be in use.
    *             (Must be sorted.)
    *
@@ -235,8 +252,9 @@ public:
    * an object with a range matching a key in @c keys or when there
    * is only one object left.
    *
-   * The list @c keys should contain keys as computed by keyFromRunLBN.
-   * The list must be sorted.
+   * The list @c keys should contain keys as computed by keyFromRunLBN
+   * or keyFromTimestamp, as appropriate for the container's key type
+   * (as returned from keyType()).  The list must be sorted.
    *
    * Removed objects are queued for deletion once all slots have been
    * marked as quiescent.
@@ -244,30 +262,7 @@ public:
    * Returns the number of objects that were removed.
    */
   virtual
-  size_t trimRunLBN (const std::vector<key_type>& keys);
-
-
-  /**
-   * @brief Remove unused timestamp entries from the front of the list.
-   * @param keys List of keys that may still be in use.
-   *             (Must be sorted.)
-   *
-   * We examine the objects in the container, starting with the earliest one.
-   * If none of the keys in @c keys match the range for this object, then
-   * it is removed from the container.  We stop when we either find
-   * an object with a range matching a key in @c keys or when there
-   * is only one object left.
-   *
-   * The list @c keys should contain keys as computed by keyFromRunLBN.
-   * The list must be sorted.
-   *
-   * Removed objects are queued for deletion once all slots have been
-   * marked as quiescent.
-   *
-   * Returns the number of objects that were removed.
-   */
-  virtual
-  size_t trimTimestamp (const std::vector<key_type>& keys);
+  size_t trim (const std::vector<key_type>& keys);
 
 
   /**
@@ -365,6 +360,17 @@ public:
     {
       return t >= r.m_start && t< r.m_stop;
     }
+    // Check whether R1 overlaps R2, given that r1.m_start < r2.m_start.
+    // We first tried checking that r1.m_stop > r2.m_start.
+    // However, it turns out that IOVDbSvc can in fact return IOV ranges
+    // that do overlap like this, at least for timestamp folders.
+    // That's because the range returned by IOVDbSvc is bounded by
+    // the range of the cache which is set from the particular query.
+    // The only sort of overlap that should really cause a problem, though,
+    // is if one range is entirely contained within another.
+    // I don't think IOVDbSvc should do _that_, so we check for that here.
+    bool overlap (const RangeKey& r1, const RangeKey& r2) const
+    { return r1.m_stop > r2.m_stop; }
     bool extendRange (RangeKey& r, const RangeKey& newRange) const
     {
       if (r.m_start != newRange.m_start) {
@@ -418,6 +424,8 @@ protected:
    * @param ctx Event context for the current thread.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
    * duplicates an existing one, and FAILURE otherwise
    * (ownership of the object will be taken in any case).
@@ -473,7 +481,18 @@ protected:
   StatusCode inserted (const EventContext& ctx);
 
 
+  /**
+   * @brief Helper to report an error due to using a base class for insertion.
+   * @param usedCLID CLID of the class used for insertion.
+   */
+  void insertError (CLID usedCLID) const;
+
+
 private:
+  /// Key type of this container.
+  KeyType m_keyType;
+
+
   /// CLID of the most-derived @c CondCont
   CLID m_clid;
 
@@ -483,8 +502,8 @@ private:
   /// Associated @c DataProxy.
   SG::DataProxy* m_proxy;
 
-  /// Sets of mapped objects, by timestamp and run+LBN.
-  CondContSet m_condSet_clock, m_condSet_RE;
+  /// Set of mapped objects.
+  CondContSet m_condSet;
 
   /// Handle to the cleaner service.
   ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
@@ -622,6 +641,8 @@ public:
    * on the most-derived @c CondCont.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
    * duplicates an existing one, and FAILURE otherwise
    * (ownership of the object will be taken in any case).

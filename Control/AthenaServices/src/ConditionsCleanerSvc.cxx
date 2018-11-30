@@ -89,4 +89,17 @@ StatusCode ConditionsCleanerSvc::printStats() const
 }
 
 
+/**
+ * @brief Clear the internal state of the service.
+ * Only for testing.  Don't call if any other thread may be touching the service.
+ */
+StatusCode ConditionsCleanerSvc::reset()
+{
+  if (!m_cleanerSvc.empty()) {
+    return m_cleanerSvc->reset();
+  }
+  return StatusCode::SUCCESS;
+}
+
+
 } // namespace Athena

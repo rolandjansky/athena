@@ -76,6 +76,9 @@ namespace CxxUtils {
  *  bool operator() (const KEY& k1,   const RANGE& r2) const;
  *  bool operator() (const RANGE& r1, const RANGE& r2) const;
  *  bool inRange (const KEY& k, const RANGE& r) const;
+ *  // Test if two ranges overlap.  You may assume that operator() (r1, r2)
+ *  // has returned true.
+ *  bool overlap (const RANGE& r1, const RANGE& r2) const;
  *  // Required only for extendLastRange --- which see.
  *  bool extendRange (Range& range, const Range& newRange) const;
  @endcode
@@ -290,6 +293,20 @@ public:
   const_iterator find (const key_query_type& key) const;
 
 
+  /// Results returned from emplace().
+  enum class EmplaceResult
+  {
+    /// All ok.
+    SUCCESS,
+
+    /// New object was added, but overlaps with an existing range.
+    OVERLAP,
+
+    /// New object duplicates an existing range, and was not added.
+    DUPLICATE
+  };
+
+
   /**
    * @brief Add a new element to the map.
    * @param range Validity range for this element.
@@ -300,10 +317,10 @@ public:
    * Returns false if the range compared equal to an existing one. In that case,
    * no new element is inserted (and @c ptr gets deleted).
    */
-  bool emplace (const RANGE& range,
-                payload_unique_ptr ptr,
-                const typename Updater_t::Context_t& ctx =
-                  Updater_t::defaultContext());
+  EmplaceResult emplace (const RANGE& range,
+                         payload_unique_ptr ptr,
+                         const typename Updater_t::Context_t& ctx =
+                           Updater_t::defaultContext());
 
 
   /**

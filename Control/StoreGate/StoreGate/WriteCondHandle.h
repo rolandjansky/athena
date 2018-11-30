@@ -124,6 +124,12 @@ namespace SG {
           << endmsg;
       return StatusCode::FAILURE;
     }
+    else if (CondContBase::Category::isOverlap (sc)) {
+      msg << MSG::ERROR 
+          << "WriteCondHandle::record() : IOV ranges overlap."
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
  
     return sc;
   }
