@@ -966,7 +966,7 @@ namespace ZDC
     /*
       sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcEnergyCalibFileName.c_str());
       ATH_MSG_INFO("Opening energy calibration file " << name);
-      std::unique_ptr<TFile> fCalib (TFile::Open(name));
+      std::unique_ptr<TFile> fCalib (TFile::Open(name, "READ"));
     */
 
     std::string filename = PathResolverFindCalibFile( ("ZdcAnalysis/"+m_zdcEnergyCalibFileName).c_str() );
@@ -1016,7 +1016,7 @@ namespace ZDC
     std::string filename = PathResolverFindCalibFile( "ZdcAnalysis/"+m_zdcTimeCalibFileName );
     //sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcTimeCalibFileName.c_str());
     ATH_MSG_INFO("Opening time calibration file " << filename);
-    std::unique_ptr<TFile> fCalib (TFile::Open(filename.c_str()));
+    std::unique_ptr<TFile> fCalib (TFile::Open(filename.c_str(), "READ"));
 
     if (fCalib && !fCalib->IsZombie())
       {
