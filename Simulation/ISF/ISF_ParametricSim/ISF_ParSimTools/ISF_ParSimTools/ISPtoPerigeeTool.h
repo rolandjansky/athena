@@ -15,8 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 
 namespace ISF {
@@ -61,9 +60,7 @@ namespace iParSim {
 
       /** Extrapolator tool */
       ToolHandle<Trk::IExtrapolator>     m_extrapolator;
-
-      /** Beam Conditions Service */
-      ServiceHandle<IBeamCondSvc>        m_beamSpotSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   };
 
