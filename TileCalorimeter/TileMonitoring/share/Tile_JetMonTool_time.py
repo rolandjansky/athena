@@ -261,7 +261,7 @@ TileJetMonTool = TileJetMonTool(name                   = 'TileJetMonTool',
                                 useJVTTool             = jvt,
                                 useJetCleaning         = cleaning,
                                 useEventCleaning       = ecTool,
-                                jet_tracking_eta_limit = 2.4
+                                jet_tracking_eta_limit = 2.4,
                                 jet_JVT_threshold      = 0.64,
                                 OutputLevel            = INFO);
 ToolSvc += TileJetMonTool;    
