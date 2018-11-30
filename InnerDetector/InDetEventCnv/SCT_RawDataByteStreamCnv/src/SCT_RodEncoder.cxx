@@ -67,7 +67,7 @@ StatusCode SCT_RodEncoder::initialize() {
   ATH_CHECK(detStore()->retrieve(sctDetManager, "SCT"));
 
   const InDetDD::SiDetectorElementCollection* sctDetElementColl{sctDetManager->getDetectorElementCollection()};
-  for (const InDetDD::SiDetectorElement* sctDetElement: *sctDetElementColl) {
+  for (auto sctDetElement: *sctDetElementColl) {
     if (sctDetElement->swapPhiReadoutDirection()) {
       m_swapModuleID.insert(sctDetElement->identify());
     }
