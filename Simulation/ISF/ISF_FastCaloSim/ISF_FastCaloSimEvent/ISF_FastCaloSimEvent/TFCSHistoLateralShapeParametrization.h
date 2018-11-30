@@ -45,10 +45,12 @@ public:
   const TFCS2DFunctionHistogram& histogram() const {return m_hist;};
   
   void Print(Option_t *option = "") const override;
-private:
+protected:
   /// Histogram to be used for the shape simulation
   TFCS2DFunctionHistogram m_hist;
   float m_nhits;
+
+private:
 
   ClassDefOverride(TFCSHistoLateralShapeParametrization,1)  //TFCSHistoLateralShapeParametrization
 };

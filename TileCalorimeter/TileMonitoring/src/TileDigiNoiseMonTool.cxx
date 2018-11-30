@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -24,10 +24,10 @@
 
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileBadChanTool.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
+#include "StoreGate/ReadHandle.h"
 
 #include <iostream>
 #include <sstream>
@@ -38,17 +38,16 @@
 /*---------------------------------------------------------*/
 TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_DQstatus(0)
   , m_nEventsProcessed(0)
+  , m_tileDCS("TileDCSTool")
   , m_histogramsNotBooked(true)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("TileBeamInfoProvider", m_beamInfo);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
 
@@ -58,6 +57,9 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   declareProperty("FillEmptyFromDB", m_fillEmtyFromDB = false);
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
   declareProperty("TriggerTypes", m_triggerTypes);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
+  declareProperty("TileDCSTool", m_tileDCS);
+  declareProperty("CheckDCS", m_checkDCS = false);
 
   m_path = "/Tile/DigiNoise"; //ROOT File relative directory
 }
@@ -75,7 +77,6 @@ StatusCode TileDigiNoiseMonTool:: initialize() {
 
   ATH_MSG_INFO( "in initialize()" );
 
-  CHECK( m_beamInfo.retrieve() );
   CHECK(m_tileBadChanTool.retrieve());
   if (m_fillEmtyFromDB || m_fillPedestalDifference) CHECK(m_tileToolNoiseSample.retrieve());
 
@@ -95,6 +96,15 @@ StatusCode TileDigiNoiseMonTool:: initialize() {
       msg(MSG::INFO) << trigger << " (0x" << std::hex << trigger << ") " << std::dec;
     }
     msg(MSG::INFO) << endmsg;
+  }
+
+  CHECK( m_DQstatusKey.initialize() );
+
+  if (m_checkDCS) {
+    CHECK( m_tileDCS.retrieve() );
+  }
+  else {
+    m_tileDCS.disable();
   }
 
   return TileFatherMonTool::initialize();
@@ -209,7 +219,7 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
 
     if (m_histogramsNotBooked) CHECK( bookNoiseHistograms() );
 
-    m_DQstatus = m_beamInfo->getDQstatus();
+    m_DQstatus = SG::makeHandle (m_DQstatusKey).get();
 
     const TileDigitsContainer* digitsContainer;
     CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
@@ -241,7 +251,7 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
         
         //        if (isDisconnected(ros, drawer, channel)) continue;
         
-        if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
+        if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && isChanDCSgood(ros, drawer, channel)) ) continue;
         if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad() ) continue;
         
         std::vector<float> digits = tile_digits->samples();
@@ -364,3 +374,19 @@ StatusCode TileDigiNoiseMonTool::procHistograms() {
   return updateSummaryHistograms();
 }
 
+
+
+bool TileDigiNoiseMonTool::isChanDCSgood (int ros, int drawer, int channel) const
+{
+  if (!m_checkDCS) return true;
+  TileDCSState::TileDCSStatus status = m_tileDCS->getDCSStatus(ros, drawer, channel);
+
+  if (status > TileDCSState::WARNING) {
+    ATH_MSG_DEBUG("Module=" << TileCalibUtils::getDrawerString(ros, drawer)
+                  << " channel=" << channel
+                  << " masking becasue of bad DCS status=" << status);
+    return false;
+  }
+
+  return true;
+}

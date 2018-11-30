@@ -46,7 +46,6 @@
 #include "IRegionSelector/IRegSelSvc.h"
 // #include "RegionSelector/RegSelSvc.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigL2SiTrackFinder/TrigL2SiTrackFinder.h"
 
@@ -293,11 +292,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
   msg() << MSG::INFO << " TrigL2SiTrackFinder : MinHits set to " << m_minHits << endmsg;
 
   if (m_useBeamSpot) {
-    StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
-    if (scBS.isFailure() || m_iBeamCondSvc == 0) {
-      m_iBeamCondSvc = 0;
-      msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
-    }
+    if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
   }
 
   if ( m_outputCollectionSuffix != "" )  {
@@ -646,16 +641,16 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
       
   // 6. Extract the beamspot shift
   double shiftx(0), shifty(0);
-  if (!m_doShift && m_useBeamSpot && m_iBeamCondSvc) {
-	
-    Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
+  if (!m_doShift && m_useBeamSpot) {
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "Beam spot position " << vertex << endmsg;
     double xVTX = vertex.x();
     double yVTX = vertex.y();
     double zVTX = vertex.z();
-    double tiltXZ = m_iBeamCondSvc->beamTilt(0);
-    double tiltYZ = m_iBeamCondSvc->beamTilt(1);
+    double tiltXZ = beamSpotHandle->beamTilt(0);
+    double tiltYZ = beamSpotHandle->beamTilt(1);
     shiftx = xVTX - tiltXZ*zVTX;//correction for tilt
     shifty = yVTX - tiltYZ*zVTX;//correction for tilt
 	

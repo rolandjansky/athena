@@ -10,8 +10,7 @@ from AthenaCommon.Constants import *
 # make the message service available
 svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
 MessageSvc = svcMgr.MessageSvc
-
-MessageSvc.OutputLevel  = OutputLevel
+MessageSvc.OutputLevel = theApp.OutputLevel
 
 # Use color for different message levels
 # --------------------------------------
@@ -38,10 +37,7 @@ MessageSvc.errorLimit   = 0
 MessageSvc.fatalLimit   = 0
 
 # set message limit to unlimited when general DEBUG is requested
-if (("OutputLevel" in dir()) and (OutputLevel<=DEBUG)) :
-    MessageSvc.defaultLimit = 0
-    MessageSvc.enableSuppression = False
-if (("HLTOutputLevel" in dir()) and (HLTOutputLevel<=DEBUG)) :
+if MessageSvc.OutputLevel<=DEBUG :
     MessageSvc.defaultLimit = 0
     MessageSvc.enableSuppression = False
 

@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from copy import deepcopy
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from Limits import Limits
 from Lvl1Flags import Lvl1Flags

@@ -75,6 +75,13 @@ public:
   virtual StatusCode printStats() const override;
 
 
+  /**
+   * @brief Clear the internal state of the service.
+   * Only for testing.  Don't call if any other thread may be touching the service.
+   */
+  virtual StatusCode reset() override;
+
+
 private:
   ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
 };

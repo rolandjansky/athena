@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ExcluderConstruction
@@ -24,7 +24,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -75,12 +74,12 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
 
   // Need to add Rohacell here!                                     <<<=============== 
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
 
   // (use Air for the moment....)                                  <<<================ 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in ExcluderConstruction, std::Air is not found.");
   }
@@ -89,10 +88,10 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
   // Rohacell foam has density: 0.11g/cm3
   std::string name;
   double density;
-  GeoElement*  C=materialManager->getElement("Carbon");
-  GeoElement*  H=materialManager->getElement("Hydrogen");
-  GeoElement*  O=materialManager->getElement("Oxygen");
-  GeoElement*  N=materialManager->getElement("Nitrogen");
+  const GeoElement*  C=materialManager->getElement("Carbon");
+  const GeoElement*  H=materialManager->getElement("Hydrogen");
+  const GeoElement*  O=materialManager->getElement("Oxygen");
+  const GeoElement*  N=materialManager->getElement("Nitrogen");
   GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.11*CLHEP::g/CLHEP::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);

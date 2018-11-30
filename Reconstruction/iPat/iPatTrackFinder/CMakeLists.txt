@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/iPat/iPatInterfaces
                           Reconstruction/iPat/iPatTrack
                           Event/EventContainers
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry

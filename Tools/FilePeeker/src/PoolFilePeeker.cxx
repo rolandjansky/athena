@@ -17,8 +17,9 @@
 #include "EventTPCnv/EventStreamInfo_p3.h"
 #include "EventTPCnv/EventStreamInfo_p2.h"
 #include "IOVDbTPCnv/IOVMetaDataContainer_p1.h"
+#ifndef SIMULATIONBASE
 #include "ByteStreamEventTPCnv/ByteStreamMetadata_p1.h"
-
+#endif // not SIMULATIONBASE
 #include "FileMetaData.h"
 
 
@@ -85,15 +86,17 @@ PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
   std::pair<bool,EventStreamInfo_p3*> esi{false,nullptr};
   std::pair<bool,EventStreamInfo_p2*> esi2{false,nullptr};
   std::pair<bool,IOVMetaDataContainer_p1*> taginfo{false,nullptr};
+#ifndef SIMULATIONBASE
   std::pair<bool,ByteStreamMetadataContainer_p1*> bmdc{false,nullptr};
-
+#endif // not SIMULATIONBASE
   TObjArray* mdBranches=md->GetListOfBranches();
   const size_t mdnBranches=mdBranches->GetEntriesFast();
   for (size_t i=0;i<mdnBranches;++i) {
     TBranch* br=(TBranch*)mdBranches->At(i);
     if (vbs) std::cout << "Branch "<< br->GetName() << " of type " << br->GetClassName() << std::endl;
-
-    if (findBranch(br,"ByteStreamMetadata","ByteStreamMetadataContainer_p1",bmdc)) continue;    
+#ifndef SIMULATIONBASE
+    if (findBranch(br,"ByteStreamMetadata","ByteStreamMetadataContainer_p1",bmdc)) continue;
+#endif // not SIMULATIONBASE
     if (findBranch(br,"_TagInfo","IOVMetaDataContainer_p1",taginfo)) continue;
     if (findBranch(br,"Stream","EventStreamInfo_p3",esi)) continue;
     if (findBranch(br,"Stream","EventStreamInfo_p2",esi2)) continue;
@@ -165,6 +168,7 @@ PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
 
 
   std::set<unsigned> bmc_runNumbers;
+#ifndef SIMULATIONBASE
   if (bmdc.first) {
     if (vbs) std::cout << " Got ByteStreamMetadataContainer" << std::endl;
     m_fmd.m_isMC=false; //The presence of a ByteStreamMetaDataContainer indicates real data
@@ -198,7 +202,7 @@ PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
     delete bmdc.second;
     bmdc.second=nullptr;
   }//end if have ByteStream Meta Data
-
+#endif // not SIMULATIONBASE
 
   //We may have gotten run-numbers twice (once form ByteStream MD and once form EventStreamInfo)
   //Cross-check:

@@ -34,6 +34,8 @@ typedef unsigned int Time;
 struct Range
 {
   Range (Time begin=0, Time end=0) : m_begin(begin), m_end(end) {}
+  bool operator== (const Range& other) const
+  { return m_begin==other.m_begin && m_end==other.m_end; }
   Time m_begin;
   Time m_end;
 };
@@ -47,6 +49,8 @@ struct RangeCompare
   { return r1.m_begin < r2.m_begin; }
   bool inRange (const Time t, const Range& r) const
   { return t >= r.m_begin && t < r.m_end; }
+  bool overlap (const Range& r1, const Range& r2) const
+  { return r1.m_end > r2.m_begin; }
 
   bool extendRange (Range& r, const Range& newRange) const
   {
@@ -74,6 +78,12 @@ struct Payload
   int m_x;
   Hist* m_hist;
 };
+
+
+void delfcn (const Payload* p)
+{
+  delete p;
+}
 
 
 template <class T>
@@ -152,7 +162,7 @@ void test1a()
   std::cout << "test1a\n";
   Payload::Hist phist;
   {
-    TestMap map (TestMap::Updater_t(), 3);
+    TestMap map (TestMap::Updater_t(), delfcn, 3);
 
     assert (map.size() == 0);
     assert (map.empty());
@@ -163,7 +173,8 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)));
+    assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // 10..20->100 - -
     assert (map.capacity() == 3);
     assert (map.size() == 1);
@@ -179,14 +190,16 @@ void test1a()
     assert (map.find (5) == nullptr);
     assert (map.find (25)->second->m_x == 100);
 
-    assert (!map.emplace (Range (10, 20), std::make_unique<Payload> (100)));
+    assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100)) ==
+            TestMap::EmplaceResult::DUPLICATE);
 
     assert (map.nInserts() == 1);
     assert (map.maxSize()  == 1);
 
     //======
 
-    assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
+    assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // 10..20->100 25..30->200 -
     assert (map.capacity() == 3);
     assert (map.size() == 2);
@@ -207,7 +220,8 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)));
+    assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // 10..20->100 25..30->200 30..40->300
     assert (map.capacity() == 3);
     assert (map.size() == 3);
@@ -230,7 +244,8 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)));
+    assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // 10..20->100 25..30->200 30..40->300 50..60->400 - -
     assert (map.capacity() == 6);
     assert (map.size() == 4);
@@ -255,7 +270,8 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)));
+    assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // 10..20->100 25..30->200 30..40->300 40..45->500 50..60->400 - - -
     assert (map.capacity() == 8);
     assert (map.size() == 5);
@@ -277,7 +293,8 @@ void test1a()
     assert (map.find (40)->second->m_x == 500);
     assert (map.find (55)->second->m_x == 400);
 
-    assert (!map.emplace (Range (30, 35), std::make_unique<Payload> (501)));
+    assert (map.emplace (Range (30, 35), std::make_unique<Payload> (501)) ==
+            TestMap::EmplaceResult::DUPLICATE);
 
     assert (map.nInserts() == 5);
     assert (map.maxSize()  == 5);
@@ -389,7 +406,8 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (70, 75), std::make_unique<Payload> (600, &phist)));
+    assert (map.emplace (Range (70, 75), std::make_unique<Payload> (600, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // - - 70..75->600 - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 1);
@@ -404,11 +422,16 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (75, 80), std::make_unique<Payload> (610, &phist)));
-    assert (map.emplace (Range (80, 85), std::make_unique<Payload> (620, &phist)));
-    assert (map.emplace (Range (85, 90), std::make_unique<Payload> (630, &phist)));
-    assert (map.emplace (Range (90, 93), std::make_unique<Payload> (640, &phist)));
-    assert (map.emplace (Range (93, 96), std::make_unique<Payload> (650, &phist)));
+    assert (map.emplace (Range (75, 80), std::make_unique<Payload> (610, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
+    assert (map.emplace (Range (80, 85), std::make_unique<Payload> (620, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
+    assert (map.emplace (Range (85, 90), std::make_unique<Payload> (630, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
+    assert (map.emplace (Range (90, 93), std::make_unique<Payload> (640, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
+    assert (map.emplace (Range (93, 96), std::make_unique<Payload> (650, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // - - 70..75->600 75..80->610 80..85->620 85..90->630 90..93->640 93..96->650
     assert (map.capacity() == 8);
     assert (map.size() == 6);
@@ -456,7 +479,8 @@ void test1a()
 
     //======
 
-    assert (map.emplace (Range (97, 99), std::make_unique<Payload> (660, &phist)));
+    assert (map.emplace (Range (97, 99), std::make_unique<Payload> (660, &phist)) ==
+            TestMap::EmplaceResult::SUCCESS);
     // 93..96->650 97..99->660 - - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 2);
@@ -555,12 +579,17 @@ void test1b()
   std::cout << "test1b\n";
 
   Payload::Hist phist;
-  TestMap map (TestMap::Updater_t(), 100);
-  assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)));
-  assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
-  assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)));
-  assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)));
-  assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)));
+  TestMap map (TestMap::Updater_t(), delfcn, 100);
+  assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
+  assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
+  assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
+  assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
+  assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
   // 10..20->100 25..30->200 30..40->300 40..45->500 50..60->400
 
   assert (map.size() == 5);
@@ -597,6 +626,53 @@ void test1b()
     map.quiescent (i);
   }
   assert (phist.size() == 1);
+}
+
+
+// Testing detection of overlaps.
+void test1c()
+{
+  std::cout << "test1c\n";
+  Payload::Hist phist;
+
+  TestMap map (TestMap::Updater_t(), delfcn, 3);
+  assert (map.emplace (Range (10, 40), std::make_unique<Payload> (100, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
+  // 10..40->100
+
+  assert (map.emplace (Range (5, 15), std::make_unique<Payload> (101, &phist)) ==
+          TestMap::EmplaceResult::OVERLAP);
+  // 5..15->101 10..40->100
+
+  assert (map.emplace (Range (35, 50), std::make_unique<Payload> (102, &phist)) ==
+          TestMap::EmplaceResult::OVERLAP);
+  // 5..15->101 10..40->100  35..50->102
+
+  map.erase (10);
+  assert (map.emplace (Range (20, 30), std::make_unique<Payload> (103, &phist)) ==
+          TestMap::EmplaceResult::SUCCESS);
+  // 5..15->101  20..30->103  35..50->102
+
+  assert (map.emplace (Range (12, 17), std::make_unique<Payload> (104, &phist)) ==
+          TestMap::EmplaceResult::OVERLAP);
+  // 5..15->101  12..17->104  20..30->103  35..50->102
+
+  assert (map.emplace (Range (19, 25), std::make_unique<Payload> (105, &phist)) ==
+          TestMap::EmplaceResult::OVERLAP);
+  // 5..15->101  12..17->104  19..25->105  20..30->103  35..50->102
+
+  assert (map.emplace (Range (28, 37), std::make_unique<Payload> (106, &phist)) ==
+          TestMap::EmplaceResult::OVERLAP);
+  // 5..15->101  12..17->104  19..25->105  20..30->103  28..37->106  35..50->102
+
+  TestMap::const_iterator_range r = map.range();
+  assert (r.size() == 6);
+  assert ((r.begin()+0)->first == Range ( 5, 15));
+  assert ((r.begin()+1)->first == Range (12, 17));
+  assert ((r.begin()+2)->first == Range (19, 25));
+  assert ((r.begin()+3)->first == Range (20, 30));
+  assert ((r.begin()+4)->first == Range (28, 37));
+  assert ((r.begin()+5)->first == Range (35, 50));
 }
 
 
@@ -670,7 +746,8 @@ void test2_Writer::operator()()
       }
     }
     Range r = makeRange(i);
-    assert (m_map.emplace (r, std::make_unique<Payload> (i), ctx()));
+    assert (m_map.emplace (r, std::make_unique<Payload> (i), ctx()) ==
+            TestMap::EmplaceResult::SUCCESS);
     m_map.quiescent (ctx());
     if (((i+1)%128) == 0) {
       usleep (1000);
@@ -785,7 +862,7 @@ void test2_Reader::operator()()
 
 void test2_iter()
 {
-  TestMap map (TestMap::Updater_t(), 20);
+  TestMap map (TestMap::Updater_t(), delfcn, 20);
 
   const int nthread = 4;
   std::thread threads[nthread];
@@ -817,6 +894,7 @@ int main()
 {
   test1a();
   test1b();
+  test1c();
   test2();
   return 0;
 }

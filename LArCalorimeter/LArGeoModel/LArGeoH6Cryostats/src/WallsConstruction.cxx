@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoH6Cryostats/WallsConstruction.h"
@@ -23,7 +23,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -99,7 +98,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
 
   std::string name;
@@ -107,16 +106,16 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   
 
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in WallsConstruction, std::Air is not found.");
 
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in WallsConstruction, std::Iron is not found.");
 
-  GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
   if (!Lead) throw std::runtime_error("Error in WallsConstruction, std::Lead is not found.");
    
-  GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
   if (!Aluminium) throw std::runtime_error("Error in WallsConstruction, std::Aluminium is not found.");
 
   // Is this ok for the Scintillator?
@@ -126,10 +125,10 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   // The old Walls testbeam code uses a composition of C9 H10 (density 1.032)
   // ... because it's easiest at the moment and not all that different from the fractional
   // composition of the old tb code, take the Tile material (polysterene)...     
-  GeoMaterial *Scint  = materialManager->getMaterial("std::Polystyrene");
+  const GeoMaterial *Scint  = materialManager->getMaterial("std::Polystyrene");
   if (!Scint) throw std::runtime_error("Error in WallsConstruction, std::Polystyrene is not found.");
   
-  GeoMaterial *Mylar  = materialManager->getMaterial("std::Mylar");
+  const GeoMaterial *Mylar  = materialManager->getMaterial("std::Mylar");
   if (!Mylar) throw std::runtime_error("Error in WallsConstruction, std::Mylar is not found.");
   
   

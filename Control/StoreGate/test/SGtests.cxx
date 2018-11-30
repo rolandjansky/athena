@@ -728,14 +728,14 @@ namespace Athena_test {
   void testBind(::StoreGateSvc& rSG) {
 
     cout << "*** StoreGateSvcClient_test bind BEGINS ***" <<endl;
-    DataHandle<Foo> chFoo;
+    const DataHandle<Foo> chFoo;
     Foo *cFoo = new Foo;
     std::string dbKey="fooKey";
 
     assert(rSG.record(cFoo,dbKey).isSuccess());
 
     assert(rSG.bind(chFoo,dbKey).isSuccess());
-    assert(chFoo.ptr() == cFoo);
+    assert(chFoo.cptr() == cFoo);
 
 //FIXME      cout << "** bind it a second time with same key" << endl;
 //      // try to bind it twice

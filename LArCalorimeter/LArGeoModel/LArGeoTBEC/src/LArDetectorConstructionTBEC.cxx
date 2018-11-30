@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArDetectorConstructionTBEC
@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -149,10 +148,10 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionTBEC::GetEnvelope()
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in LArDetectorConstructionTBEC, cannot access DetectorStore");
   }
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) {
     throw std::runtime_error("Error in LArDetectorConstructionTBEC, std::Air is not found.");
   }
@@ -229,13 +228,13 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
   
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in LArDetectorConstructionTBEC, std::Air is not found.");
  
-  GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
   if (!Lead) throw std::runtime_error("Error in LArDetectorConstructionTBEC, std::Lead is not found.");
   
   

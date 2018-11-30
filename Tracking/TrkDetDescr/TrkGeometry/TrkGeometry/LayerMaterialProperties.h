@@ -118,7 +118,8 @@ namespace Trk {
       
       /** Output Method for std::ostream, to be overloaded by child classes */
       virtual std::ostream& dump(std::ostream& sl) const = 0;
-                                            
+  
+                                          
     protected :
       friend class ::BinnedLayerMaterialCnv_p1;
       double               m_splitFactor;     //!< the split factor in favour of oppositePre

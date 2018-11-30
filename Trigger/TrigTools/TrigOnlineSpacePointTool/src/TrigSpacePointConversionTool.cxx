@@ -14,15 +14,14 @@
 
 #include "TrigOnlineSpacePointTool/SpacePointConversionUtils.h"
 #include "IRegionSelector/IRegSelSvc.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigSpacePointConversionTool.h"
 
 TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t, 
 					     const std::string& n,
 					     const IInterface*  p ) : AthAlgTool(t,n,p),
-								      m_layerNumberTool("TrigL2LayerNumberTool"), 
-								      m_beamCondSvc(0) {
+								      m_layerNumberTool("TrigL2LayerNumberTool")
+								      {
   declareInterface< ITrigSpacePointConversionTool >( this );
 
   declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
@@ -70,11 +69,7 @@ StatusCode TrigSpacePointConversionTool::initialize() {
     return sc;
   } 
  
-  sc = service("BeamCondSvc", m_beamCondSvc);
-  if (sc.isFailure() || m_beamCondSvc == 0) {
-    ATH_MSG_FATAL("Could not retrieve Beam Conditions Service. ");
-    return sc;
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   ATH_CHECK(m_pixelSpacePointsContainerKey.initialize());
   ATH_CHECK(m_sctSpacePointsContainerKey.initialize());
@@ -140,10 +135,11 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
 
 
 void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
-  
-  Amg::Vector3D vertex = m_beamCondSvc->beamPos();
-  double shift_x = vertex.x() - m_beamCondSvc->beamTilt(0)*vertex.z();
-  double shift_y = vertex.y() - m_beamCondSvc->beamTilt(1)*vertex.z();
+
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };  
+  const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
+  double shift_x = vertex.x() - beamSpotHandle->beamTilt(0)*vertex.z();
+  double shift_y = vertex.y() - beamSpotHandle->beamTilt(1)*vertex.z();
 
   std::for_each(output.begin(), output.end(), FTF::SpacePointShifter(shift_x, shift_y));
 
@@ -152,9 +148,10 @@ void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePoint
 
 void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
 
-  Amg::Vector3D origin = m_beamCondSvc->beamPos();
-  double tx = tan(m_beamCondSvc->beamTilt(0));
-  double ty = tan(m_beamCondSvc->beamTilt(1));
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  const Amg::Vector3D &origin = beamSpotHandle->beamPos();
+  double tx = tan(beamSpotHandle->beamTilt(0));
+  double ty = tan(beamSpotHandle->beamTilt(1));
 
   double phi   = atan2(ty,tx);
   double theta = acos(1.0/sqrt(1.0+tx*tx+ty*ty));

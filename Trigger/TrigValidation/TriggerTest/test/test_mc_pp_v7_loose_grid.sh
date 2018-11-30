@@ -20,6 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="mc_pp_v7_loose_grid"
 export MENU="MC_pp_v7_loose_mc_prescale"

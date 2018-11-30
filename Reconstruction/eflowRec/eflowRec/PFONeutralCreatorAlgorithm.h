@@ -38,6 +38,9 @@ private:
   /** Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
   Gaudi::Property<bool> m_LCMode{this,"LCMode",false,"Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input"};
 
+  /** Toggle usage of calibration hit truth - false by default */
+  Gaudi::Property<bool> m_useCalibHitTruth{this,"UseCalibHitTruth",false,"Toggle usage of calibration hit truth - false by default"};
+
   /** ReadHandleKey for eflowCaloObjectContainer */
   SG::ReadHandleKey<eflowCaloObjectContainer> m_eflowCaloObjectContainerReadHandleKey{this,"eflowCaloObjectContainerName","eflowCaloObjects","ReadHandleKey for eflowCaloObjectContainer"};
   

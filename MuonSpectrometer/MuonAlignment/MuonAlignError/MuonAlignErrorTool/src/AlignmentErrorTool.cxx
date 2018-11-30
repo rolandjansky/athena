@@ -79,9 +79,8 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
   SG::ReadCondHandle<MuonAlignmentErrorData> readHandle{m_readKey};
   const MuonAlignmentErrorData* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
-    std::cout<<"ckato Null pointer to the read conditions object"<<std::endl;
     return;
   }
   std::vector<deviationStr> devStrVec;

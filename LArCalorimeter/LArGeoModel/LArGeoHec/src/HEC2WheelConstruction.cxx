@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -48,7 +48,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/GenericFunctions/Variable.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -113,7 +112,7 @@ GeoFullPhysVol* LArGeo::HEC2WheelConstruction::GetEnvelope(bool fullGeo, bool po
     throw std::runtime_error("Error in HEC2WheelConstruction, cannot access DetectorStore");
   }
  
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in HEC2WheelConstruction, cannot access Material Manager");
   }
@@ -165,7 +164,7 @@ GeoFullPhysVol* LArGeo::HEC2WheelConstruction::GetEnvelope(bool fullGeo, bool po
   double wheelGap              = shrinkCold * (*hadronicEndcap)[0]->getDouble("GAPWHL")*cm;
 
   
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in HEC2WheelConstruction, std::LiquidArgon is not found.");
 
   GeoPcon*           solidHEC;     //pointer to the solid HEC

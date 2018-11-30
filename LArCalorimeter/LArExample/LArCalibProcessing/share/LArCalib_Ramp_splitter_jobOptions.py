@@ -544,10 +544,6 @@ if ( StripsXtalkCorr ) :
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent
    topSequence +=theLArStripsCrossTalkCorrector
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-ToolSvc+=theLArBadChannelTool
-
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
 theLArRCBMasker.DoMasking=True

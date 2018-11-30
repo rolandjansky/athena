@@ -67,7 +67,6 @@ LArCoverage::LArCoverage(const std::string& type,
   declareProperty("LArDigitContainerKey",m_LArDigitContainerKey = "FREE");
   declareProperty("LArRawChannelKey",m_channelKey="LArRawChannels");
   declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArBadChannelTool",m_badChannelTool);
   declareProperty("LArCaloNoiseTool",m_caloNoiseTool);
   declareProperty("Nevents",m_nevents = 50);
   declareProperty("Nsigma",m_nsigma = 3);
@@ -124,14 +123,8 @@ LArCoverage::initialize()
     return sc;
   }
 
-  // Get BadChannelTool
-  sc=m_badChannelTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve LArBadChannelTool " << m_badChannelTool );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "LArBadChannelTool" << m_badChannelTool << " retrieved" );
-  }
+  ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_BFKey.initialize() );
 
   // Get bad-channel mask
   sc=m_badChannelMask.retrieve();
@@ -826,9 +819,16 @@ StatusCode LArCoverage::procHistograms()
 /*---------------------------------------------------------*/
 int LArCoverage::DBflag(HWIdentifier onID){
 
-  int flag = 0;
-  LArBadChannel bc = m_badChannelTool->status(onID);
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
+  const LArBadChannelCont* bcCont{*bch};
+  if(!bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
+     return -1;
+  }
 
+  LArBadChannel bc = bcCont->status(onID);
+
+  int flag = 0;
   if(bc.deadCalib()) flag = 1;
   if(bc.lowNoiseHG()||bc.lowNoiseMG()||bc.lowNoiseLG()) flag = 2;
   if(bc.distorted()) flag = 3;
@@ -862,6 +862,12 @@ void LArCoverage::SetBadChannelZaxisLabels(TH2I_LW* h){
 /*---------------------------------------------------------*/
 void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr){
 
+  SG::ReadCondHandle<LArBadFebCont> bf{m_BFKey};
+  const LArBadFebCont* mfCont{*bf};
+  if(!mfCont) {
+     ATH_MSG_WARNING( "Do not have Missing FEBs container !!" );
+     return ;
+  }
   // Loop over all FEBs
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_LArOnlineIDHelper->feb_begin(); 
        allFeb != m_LArOnlineIDHelper->feb_end(); ++allFeb) {
@@ -871,9 +877,9 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
     // Known missing FEB but cells actually readout: set content to 4
     // Known FEB with error: set content to 0 (CaloCells not produced)
 
-    const LArBadFeb febStatus = m_badChannelTool->febStatus(febid);
+    const LArBadFeb febStatus = mfCont->status(febid);
 
-    if(m_badChannelTool->febMissing(febid) || febStatus.inError()){
+    if(febStatus.deadAll() || febStatus.deadReadout() || febStatus.inError()){
 
       int barrel_ec = m_LArOnlineIDHelper->barrel_ec(febid);
       int pos_neg   = m_LArOnlineIDHelper->pos_neg(febid);
@@ -883,7 +889,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
       // EMBA
       if (barrel_ec==0 and pos_neg==1){
 	int content; int replace = 0;
-	if (m_badChannelTool->febMissing(febid)){
+	if (febStatus.deadAll() || febStatus.deadReadout()){
 	  content = int(m_hCoverageHWEMBA->GetBinContent(ft*14+slot,1));
 	  if(content==0 || content==1) replace = 1;
 	  else replace = 4;
@@ -915,7 +921,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
       // EMBC
       if (barrel_ec==0 and pos_neg==0){
 	int content; int replace = 0;
-	if (m_badChannelTool->febMissing(febid)){
+	if (febStatus.deadAll() || febStatus.deadReadout()){
 	  content = int(m_hCoverageHWEMBC->GetBinContent(ft*14+slot,1));
 	  if(content==0 || content==1) replace = 1;
 	  else replace = 4;
@@ -952,7 +958,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	// EMECA
 	if( m_LArOnlineIDHelper->isEMECchannel(test_chid)){
 	  int content; int replace = 0;
-	  if (m_badChannelTool->febMissing(febid)){
+	  if (febStatus.deadAll() || febStatus.deadReadout()){
 	    content = int(m_hCoverageHWEMECA->GetBinContent(ft*15+slot,1));
 	    if(content==0 || content==1) replace = 1;
 	    else replace = 4;
@@ -984,7 +990,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	// HECA
 	if( m_LArOnlineIDHelper->isHECchannel(test_chid)){
 	  int content; int replace = 0;
-	  if (m_badChannelTool->febMissing(febid)){
+	  if (febStatus.deadAll() || febStatus.deadReadout()){
 	    content = int(m_hCoverageHWHECA->GetBinContent(ft*15+slot,1));
 	    if(content==0 || content==1) replace = 1;
 	    else replace = 4;
@@ -1016,7 +1022,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	// FCALA
 	if( m_LArOnlineIDHelper->isFCALchannel(test_chid)){
 	  int content; int replace = 0;
-	  if (m_badChannelTool->febMissing(febid)){
+	  if (febStatus.deadAll() || febStatus.deadReadout()){
 	    content = int(m_hCoverageHWFCALA->GetBinContent(ft*15+slot,1));
 	    if(content==0 || content==1) replace = 1;
 	    else replace = 4;
@@ -1050,7 +1056,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	// EMECC
 	if( m_LArOnlineIDHelper->isEMECchannel(test_chid)){
 	  int content; int replace = 0;
-	  if (m_badChannelTool->febMissing(febid)){
+	  if (febStatus.deadAll() || febStatus.deadReadout()){
 	    content = int(m_hCoverageHWEMECC->GetBinContent(ft*15+slot,1));
 	    if(content==0 || content==1) replace = 1;
 	    else replace = 4;
@@ -1082,7 +1088,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	// HECC
 	if( m_LArOnlineIDHelper->isHECchannel(test_chid)){
 	  int content; int replace = 0;
-	  if (m_badChannelTool->febMissing(febid)){
+	  if (febStatus.deadAll() || febStatus.deadReadout()){
 	    content = int(m_hCoverageHWHECC->GetBinContent(ft*15+slot,1));
 	    if(content==0 || content==1) replace = 1;
 	    else replace = 4;
@@ -1114,7 +1120,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	// FCALC
 	if( m_LArOnlineIDHelper->isFCALchannel(test_chid)){
 	  int content; int replace = 0;
-	  if (m_badChannelTool->febMissing(febid)){
+	  if (febStatus.deadAll() || febStatus.deadReadout()){
 	    content = int(m_hCoverageHWFCALC->GetBinContent(ft*15+slot,1));
 	    if(content==0 || content==1) replace = 1;
 	    else replace = 4;

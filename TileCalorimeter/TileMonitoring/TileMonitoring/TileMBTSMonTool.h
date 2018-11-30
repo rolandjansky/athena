@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,8 +15,8 @@
 #define TILEMBTSMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
-
-class TileBeamInfoProvider;
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class CTP_RDO;
 class CTP_RIO;
@@ -34,13 +34,14 @@ namespace TrigConf {
 class TileMBTSMonTool: public TileFatherMonTool {
   public:
     TileMBTSMonTool(const std::string & type, const std::string & name, const IInterface* parent);
-    ~TileMBTSMonTool();
+    virtual ~TileMBTSMonTool();
 
-    StatusCode initialize();
-    StatusCode checkHists(bool fromFinalize);
-    StatusCode bookHistograms();
-    StatusCode procHistograms();
-    StatusCode fillHistograms();
+    virtual StatusCode initialize() override;
+    virtual StatusCode checkHists(bool fromFinalize) override;
+    virtual StatusCode bookHistograms() override;
+    virtual StatusCode procHistograms() override;
+    virtual StatusCode fillHistograms() override;
+
     void setBinLabels(TH1*, int);
     void setBinLabels(TH2*, int, bool);
 
@@ -109,8 +110,6 @@ class TileMBTSMonTool: public TileFatherMonTool {
     // Readout Error histograms
     TH2S* m_h_tileRdOutErr;
 
-    // Service for DQ error retrieval
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc;
 
     // container names
@@ -158,6 +157,7 @@ class TileMBTSMonTool: public TileFatherMonTool {
 
     int32_t m_old_lumiblock;
     int m_nLumiblocks;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 
 #endif

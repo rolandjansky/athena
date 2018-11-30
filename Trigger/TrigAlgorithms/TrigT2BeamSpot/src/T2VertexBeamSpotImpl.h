@@ -45,7 +45,6 @@
 
 #include "TrigT2BeamSpot/T2VertexBeamSpot.h"  // Need this only for forwarding methods msg() and msgLvl()
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
 
@@ -72,8 +71,7 @@ class TrigVertexCollection;
 /// Timer
 class TrigTimer;
 
-/// Beam spot service
-class IBeamCondSvc;
+namespace InDet { class BeamSpotData; }
 
 /// Event statistics
 enum Statistics
@@ -144,7 +142,7 @@ namespace PESA {
 
     T2VertexBeamSpotImpl( T2VertexBeamSpot* self )
       : m_timer( numTimers, 0 )
-      , m_beamCondSvc( 0 )
+      , m_beamCondData( 0 )
       , m_primaryVertexFitter( 0 )
       , m_self( self )
     {}
@@ -203,8 +201,7 @@ namespace PESA {
     std::vector<TrigTimer*> m_timer;
     
     /* Beam conditions service */
-    IBeamCondSvc* m_beamCondSvc; //!< pointer to the beam condition service
-    std::string   m_beamCondSvcName;
+    const InDet::BeamSpotData* m_beamCondData; //!< pointer to the beam condition service
     
     /* Primary Vertex fitter tool */
     ITrigPrimaryVertexFitter* m_primaryVertexFitter;

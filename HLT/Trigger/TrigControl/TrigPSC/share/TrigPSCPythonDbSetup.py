@@ -2,7 +2,6 @@
 ## @file   TrigPSCPythonDbSetup.py
 ## @brief  Minimal Python setup for running from TrigDB
 ## @author Frank Winklmeier
-## $Id: TrigPSCPythonDbSetup.py 11 2013-05-14 15:22:39Z ricab $
 ###############################################################
 
 ## This is a very minimal Python setup. It is only included when
@@ -11,9 +10,6 @@
 ## switching the OutputLevel in case the "-l" option was used.
 
 ## !!! Do NOT import theApp. It will screw up the configuration !!!
-
-import string, os, sys
-
 
 def setTHistSvcOutput():
    """Helper to set THistSvc.Output"""
@@ -32,22 +28,7 @@ from AthenaCommon.Constants import *
 import AthenaCommon.ExitCodes as ExitCodes
 
 from TrigPSC import PscConfig
-logLevel=string.upper(PscConfig.optmap['LOGLEVEL'])
-logLevel=string.split(logLevel,",")
-if len(logLevel)==0:
-   logLevel=["INFO","ERROR"]
-
-if len(logLevel)==1:
-   logLevel.append("ERROR")
-
-## test and set log level
-try:
-   exec( 'log.setLevel( logging.%s )' % logLevel[0] )
-except:
-   sys.exit( ExitCodes.OPTIONS_UNKNOWN )
-
-if not os.environ.has_key( "POOL_OUTMSG_LEVEL" ):
-   exec 'os.environ[ "POOL_OUTMSG_LEVEL" ] = str(%s)' % logLevel[1]
+logLevel=PscConfig.optmap['LOGLEVEL'].split(',')[0]
 
 ## Minimal Python bindings
 from GaudiPython import *
@@ -55,8 +36,8 @@ from GaudiPython.Bindings import iProperty
 from TrigCommon.TrigPyHelper import trigApp
 
 ## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaMT/PT
-if logLevel[0]!="INFO":
-   outputLevel = int(locals()[logLevel[0]])
+if logLevel!="INFO":
+   outputLevel = int(locals()[logLevel])
    outputLevelProp = gbl.IntegerProperty("OutputLevel", outputLevel)
    
    ## Reset message levels

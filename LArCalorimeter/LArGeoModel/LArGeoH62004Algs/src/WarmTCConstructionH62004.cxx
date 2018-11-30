@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "WarmTCConstructionH62004.h"
@@ -33,7 +33,6 @@
 #include "CLHEP/GenericFunctions/Sin.hh"
 #include "CLHEP/GenericFunctions/Cos.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -56,10 +55,6 @@ LArGeo::WarmTCConstructionH62004::WarmTCConstructionH62004():m_WarmTCPhys(0) {
    if (svcLocator->service("DetectorStore", m_detectorStore, false )==StatusCode::FAILURE) {
       throw std::runtime_error("Error in ModulesConstruction, cannot access DetectorStore");
    }
-
-   if (StatusCode::SUCCESS != m_detectorStore->retrieve(m_materialManager, std::string("MATERIALS"))) {
-      throw std::runtime_error("Error in ModulesConstruction, cannot access Material manager");
-   }
 }
 
 LArGeo::WarmTCConstructionH62004::~WarmTCConstructionH62004() {;}
@@ -67,6 +62,11 @@ LArGeo::WarmTCConstructionH62004::~WarmTCConstructionH62004() {;}
 
 GeoVFullPhysVol* LArGeo::WarmTCConstructionH62004::GetEnvelope()
 {
+   const StoredMaterialManager* materialManager = nullptr;
+   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+      throw std::runtime_error("Error in ModulesConstruction, cannot access Material manager");
+   }
+
    if (m_WarmTCPhys) return (m_WarmTCPhys);
    ISvcLocator *svcLocator = Gaudi::svcLocator();
    IMessageSvc * msgSvc;
@@ -143,12 +143,12 @@ double z_x[3], z_y[3], z_Fe[4];
 
 // Some elements
  
-    GeoElement* elH = m_materialManager->getElement("Hydrogen");
-    GeoElement* elC = m_materialManager->getElement("Carbon");      
-    //GeoElement* elO = m_materialManager->getElement("Oxygen");  
-    //GeoElement* elN = m_materialManager->getElement("Nitrogen");     
-    GeoMaterial* Iron = m_materialManager->getMaterial("std::Iron");    
-    GeoMaterial *Air = m_materialManager->getMaterial("std::Air");
+    const GeoElement* elH = materialManager->getElement("Hydrogen");
+    const GeoElement* elC = materialManager->getElement("Carbon");      
+    //const GeoElement* elO = materialManager->getElement("Oxygen");  
+    //const GeoElement* elN = materialManager->getElement("Nitrogen");     
+    const GeoMaterial* Iron = materialManager->getMaterial("std::Iron");    
+    const GeoMaterial *Air = materialManager->getMaterial("std::Air");
  // Scintillator
     double density = 1.032*CLHEP::g/CLHEP::cm3;
     GeoMaterial* Scintillator=new GeoMaterial("Scintillator",density);

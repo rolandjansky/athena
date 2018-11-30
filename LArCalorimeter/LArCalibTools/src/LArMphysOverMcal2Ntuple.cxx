@@ -60,13 +60,20 @@ StatusCode LArMphysOverMcal2Ntuple::stop() {
    }
 
 
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
+ if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+ }
+
  unsigned cellCounter=0;
  for(long igain=CaloGain::LARHIGHGAIN; igain<CaloGain::LARNGAIN; igain++) {
    std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
    std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
-     if ( m_larCablingSvc->isOnlineConnected(hwid) && !m_onlineId->isFCALchannel(hwid)) {
+     if ( cabling->isOnlineConnected(hwid) && !m_onlineId->isFCALchannel(hwid)) {
 	 fillFromIdentifier(hwid);       
 	 cellIndex = cellCounter;
          gain=igain;     

@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/AthLinks
    Control/AthenaBaseComps
    Control/AthenaKernel
+   Control/StoreGate
    Event/EventInfo
    Event/xAOD/xAODBase
    Event/xAOD/xAODCaloEvent
@@ -32,6 +33,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
    GaudiKernel
+   InnerDetector/InDetDetDescr/InDetReadoutGeometry
    PhysicsAnalysis/CommonTools/ExpressionEvaluation
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
    Tracking/TrkTools/TrkToolInterfaces	
@@ -41,9 +43,9 @@ atlas_depends_on_subdirs(
 # Component(s) in the package:
 atlas_add_component(ThinningUtils
    src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
+   LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel StoreGateLib SGtests EventInfo xAODBase
    xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODParticleEvent xAODTau
-   xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib TrkToolInterfaces MCTruthClassifierLib ${extra_libs})
+   xAODTracking xAODTruth GaudiKernel InDetReadoutGeometry ExpressionEvaluationLib TrkToolInterfaces MCTruthClassifierLib ${extra_libs})
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

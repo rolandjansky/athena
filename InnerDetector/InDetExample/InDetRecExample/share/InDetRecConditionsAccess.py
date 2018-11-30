@@ -21,10 +21,6 @@ if not ('conddb' in dir()):
     IOVDbSvc = Service("IOVDbSvc")
     from IOVDbSvc.CondDB import conddb
 
-# Conditions sequence for Athena MT
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-
 #
 # --- Setup BeamSpot data
 #
@@ -40,9 +36,12 @@ except ImportError:
     # Protection for AthSimulationBase release which does not contain RecExConfig
     conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
 
-
-from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
-condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
 
 #

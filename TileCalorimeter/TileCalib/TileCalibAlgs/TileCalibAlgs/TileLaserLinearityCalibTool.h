@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERLINEARITYCALIBTOOL_H
@@ -14,9 +14,10 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class TileRawChannelContainer;
-class TileBeamInfoProvider;
 class TileLaserObject;
 class TileHWID;
 class TFile;
@@ -28,12 +29,12 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
   TileLaserLinearityCalibTool(const std::string& type, const std::string& name,const IInterface* pParent);
   virtual ~TileLaserLinearityCalibTool();
  
-  virtual StatusCode initialize();
-  virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile);
-  virtual StatusCode execute();
-  virtual StatusCode finalizeCalculations();
-  virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile);
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile) override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalizeCalculations() override;
+  virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile) override;
+  virtual StatusCode finalize() override;
 
  private:
 
@@ -42,11 +43,11 @@ class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalib
 
   std::string m_rawChannelContainerName;
   std::string m_laserContainerName;
+  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;
   ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
-  TileBeamInfoProvider *m_beamInfo;
 
   // Parameter which will end up in the ROOTuple
   //

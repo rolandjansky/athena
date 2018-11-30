@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_Geant4Interfaces_MCTruthUserAction_H
-#define ISF_Geant4Interfaces_MCTruthUserAction_H
+#ifndef ISF_Geant4Tools_MCTruthUserAction_H
+#define ISF_Geant4Tools_MCTruthUserAction_H
 
 
-//#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
 
 #include <string>
 
@@ -61,4 +60,4 @@ namespace G4UA{
 } // namespace G4UA
 
 
-#endif // ISF_Geant4Interfaces_MCTruthUserAction_H
+#endif // ISF_Geant4Tools_MCTruthUserAction_H

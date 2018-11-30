@@ -11,11 +11,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+
 #include <vector>
 #include <string>
 
 class ILArBadChannelMasker;
-class ILArBadChanTool;
 class LArOnlineID;
 
 class LArPhysWavePredictor : public AthAlgorithm
@@ -32,7 +34,7 @@ class LArPhysWavePredictor : public AthAlgorithm
 
  private:
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
-  ToolHandle<ILArBadChanTool> m_badChanTool;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
 
   const LArOnlineID* m_onlineHelper;
   bool m_testmode;

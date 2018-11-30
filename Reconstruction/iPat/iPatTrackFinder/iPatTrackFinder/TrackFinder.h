@@ -18,12 +18,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "iPatInterfaces/ITrackFinder.h"
 #include "iPatTrack/TrackList.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk	{ class RecVertex; }
 class IAssignedHits;
-class IBeamCondSvc;
 class ICombinationMaker;
 class ICandidateBuilder;
 class IFinderConfiguration;
@@ -69,7 +68,7 @@ private:
 
     // helpers, managers, tools
     ToolHandle<IAssignedHits>		m_assignedHits;
-    ServiceHandle<IBeamCondSvc>		m_beamCondSvc;
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     ToolHandle<ICandidateBuilder>	m_candidateBuilder;
     ToolHandle<ICombinationMaker>	m_combination;
     ToolHandle<IFinderConfiguration>	m_finderTolerances;

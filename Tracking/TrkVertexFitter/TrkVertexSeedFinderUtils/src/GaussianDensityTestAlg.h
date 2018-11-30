@@ -28,14 +28,13 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthPileupEventContainer.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkVertexFitterInterfaces/IVertexTrackDensityEstimator.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 //Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "TH1F.h"
 #include "TTree.h"
 
@@ -116,7 +115,7 @@ class GaussianDensityTestAlg
 
   // Non-property private data
   
-  ServiceHandle< IBeamCondSvc > m_iBeamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ServiceHandle< ITHistSvc > m_iTHistSvc;
 
   /// Data handle keys

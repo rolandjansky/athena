@@ -17,7 +17,6 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArCafJobs/DataStore.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
@@ -34,11 +33,14 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCafJobs/ILArShapeDumperTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+
 
 class MsgStream;
 class StoreGateSvc;
 class ILArPedestal;
-class ILArBadChanTool;
 class CaloDetDescrManager;
 class ILArBadChannelMasker;
 class ILArADC2MeVTool;
@@ -96,14 +98,14 @@ class LArShapeDumper : public AthAlgorithm
   std::vector<std::string> m_triggerNames;
 
   ToolHandle<ILArShapeDumperTool> m_dumperTool;
-  ToolHandle<LArCablingService> m_larCablingSvc;
   ToolHandle <ICaloNoiseTool> m_caloNoiseTool;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle<ILArBadChannelMasker> m_badChannelMasker;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool; 
   //  ToolHandle<LArOFPeakRecoTool> m_peakReco;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
 
   ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;  // for tests...
 

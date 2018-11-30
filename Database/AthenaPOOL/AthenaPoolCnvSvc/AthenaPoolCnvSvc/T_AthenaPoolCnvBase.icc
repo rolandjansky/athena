@@ -14,6 +14,7 @@
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
 #include "PersistentDataModel/Token.h"
+#include "PersistentDataModel/TokenAddress.h"
 
 #include "DataModelRoot/RootType.h"
 
@@ -56,13 +57,6 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPers(DataObject* pObj, const std:
 template <class T>
 StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std::string& key) {
    const std::string className = ClassName<T>::name();
-   if (pObj->clID() == 1 && pObj->registry()->address() != nullptr) {
-      ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
-      if (!PoolToDataObject(pObj, this->m_i_poolToken).isSuccess()) {
-         ATH_MSG_ERROR("Failed to read persistent DataType");
-         return(StatusCode::FAILURE);
-      }
-   }
    T* obj = nullptr;
    bool success = SG::fromStorable(pObj, obj);
    if (!success || obj == nullptr) {
@@ -70,7 +64,19 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std:
       return(StatusCode::FAILURE);
    }
    setPlacement(key);
-   this->m_o_poolToken = m_athenaPoolCnvSvc->registerForWrite(m_placement, obj, m_classDesc);
+   Token* token = m_athenaPoolCnvSvc->registerForWrite(m_placement, obj, m_classDesc);
+   // Null/empty token means ERROR
+   if (token == nullptr || token->classID() == Guid::null()) {
+      ATH_MSG_ERROR("failed to get Token for class (type/key) " << className << "/" << pObj->name());
+      return(StatusCode::FAILURE);
+   }
+   // Update IOpaqueAddress for this object.
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   if (tokAddr != nullptr) {
+      tokAddr->setToken(token); token = nullptr; // Token will be inserted into DataHeader, which takes ownership
+   } else { // No address (e.g. satellite DataHeader), delete Token
+      delete token; token = nullptr;
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

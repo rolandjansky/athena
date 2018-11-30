@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Configurable.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-import copy, types, os, weakref,sys
+import copy, types, os, weakref
 from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
@@ -92,7 +92,6 @@ class Configurable( object ):
          except (IndexError,TypeError):
             raise TypeError( 'no "name" argument while instantiating "%s"' % cls.__name__ )
 
-      argname = name
       if name == Configurable.DefaultName:
        # select either conventional name, or the type of the class
          if hasattr( cls, 'DefaultedName' ):
@@ -105,11 +104,11 @@ class Configurable( object ):
 
     # close backdoor access to otherwise private subalgs/tools
       if 0 <= name.find( '.' ):
-         raise NameError( '"%s": Gaudi name indexing with "." to private configurables not '\
+         raise NameError( '"%s": Gaudi name indexing with "." to private configurables not '
                           'allowed, as it leads to uncheckable backdoors' % name )
 
       if 0 <= name.find( '/' ):
-         raise NameError( '"%s": type separator "/" no allowed in component name, '\
+         raise NameError( '"%s": type separator "/" no allowed in component name, '
                           'typename is derived from configurable instead' % name )
 
       #Uncomment the following line for debugging:
@@ -179,7 +178,7 @@ class Configurable( object ):
       conf = object.__new__( cls )
 
     # ... python convention says to silently return, if __new__ fails ...
-      if conf == None:
+      if conf is None:
          return
 
     # ... initialize it
@@ -313,7 +312,7 @@ class Configurable( object ):
                log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored' % (joname or self.name(),ccjo) )
                break
          else:
-            if index == None:
+            if index is None:
                self.__children.append( cc )
             else:
                self.__children.insert( index, cc )
@@ -366,7 +365,7 @@ class Configurable( object ):
       if type(items) != list and type(items) != tuple:
          items = [ items ]
 
-      self.__children = [ e for e in self.__children if not e in items ]
+      self.__children = [ e for e in self.__children if e not in items ]
 
    def removeAll( self ):
       self.remove( self.__children )
@@ -492,7 +491,7 @@ class Configurable( object ):
     # allow again changes to be made
       import sys, traceback
       stack = traceback.extract_stack( sys._getframe(1), 1 )
-      log.warning( 'unlock() called on configurable "%s" in %s', self.getJobOptName(), stack[0][0] );
+      log.warning( 'unlock() called on configurable "%s" in %s', self.getJobOptName(), stack[0][0] )
       self._flags &= ~self._fIsLocked
 
     # note that unlock() does not unlock the children; do that individually
@@ -544,7 +543,7 @@ class Configurable( object ):
 
     # defaults from C++
       for k,v in cls._properties.items():
-         if not k in c.__dict__ and hasattr( v, 'default' ):
+         if k not in c.__dict__ and hasattr( v, 'default' ):
             c.__dict__[ k ] = v.default
 
       return c.__dict__
@@ -617,7 +616,7 @@ class Configurable( object ):
 
       import OldStyleConfig
       for svc in svcs:
-         handle = OldStyleConfig.Service( svc )
+         handle = OldStyleConfig.Service( svc )  # noqa: F841
        # services should be configurables as well, but aren't for now
        # handle.setup()
 
@@ -629,7 +628,7 @@ class Configurable( object ):
       dlls = self.getDlls()
       if not dlls:
          dlls = []
-      elif type(dlls) == types.StringType:
+      elif isinstance(dlls, types.StringType):
          dlls = [ dlls ]
 
       from AppMgr import theApp

@@ -3,7 +3,7 @@
 */
 
 // Build The TMT.
-// This is built one time per layer. 
+// This is built one time per layer.
 // Each layer is given slightly different mass due to differences
 // in the measured mass.
 
@@ -14,6 +14,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoNameTag.h"
 
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
@@ -32,8 +33,23 @@ GeoPixelTMT::~GeoPixelTMT(){
 }
 
 GeoVPhysVol* GeoPixelTMT::Build() {
-  const GeoShape * lastShape = 0;
-  double totVolume = 0;
+
+  // we want to use a assemby, tehrefor we need to dummy volume to trigger the mechanism
+  const GeoMaterial* ether = m_mat_mgr->getMaterial("special::Ether");
+  GeoBox* dummybox= new GeoBox(4711., 4711., 4711.);
+  GeoLogVol* dummyTMT = new GeoLogVol("TMT",dummybox,ether);
+  GeoPhysVol* theTMT = new GeoPhysVol(dummyTMT);
+
+  // get the material by dividing the total material by the volume per layer,
+  // the weight is only stored in DB for the whole TMT layer
+  // we will commonly use TMT as name for the stuff
+  std::string matName = m_gmt_mgr->getMaterialName("TMT", m_gmt_mgr->GetLD());
+
+  double volume = 12647.7; // this number seems to be wrong
+  const GeoMaterial* material = m_mat_mgr->getMaterialForVolume(matName,volume);
+  GeoNameTag* tag = new GeoNameTag("TMT");
+
+  // this part is unchanged: reading the DB, creating the shapes of the volumes and defining their position
   HepGeom::RotateX3D traprot(180.*CLHEP::deg);
 
   int halfNModule = m_gmt_mgr->PixelNModule()/2;
@@ -61,7 +77,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     double zpos = 0.5*(z1+z2);
     double xpos = 0.5*(xbase1 + xbase2 - 0.5*(w2+w1));
 
-    double theta = 0;  
+    double theta = 0;
     if (w1 != w2 || xbase1 != xbase2) {
       theta = std::atan((xbase2 - xbase1 - 0.5*(w2-w1))/length);
     }
@@ -69,58 +85,64 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     double phi = 0;
     double angleydzn = 0;
     double angleydzp = 0;
-  
+
     const GeoShape * shape = 0;
     if (w1 == w2 && theta == 0) {
       // Its a box
       shape = new GeoBox(0.5*w1, 0.5*widthy, 0.5*length);
     } else {
-      shape = new GeoTrap(0.5*length, theta, phi, 0.5*widthy, 0.5*w1, 0.5*w1, angleydzn, 
-			  0.5*widthy, 0.5*w2, 0.5*w2, angleydzp);
+      shape = new GeoTrap(0.5*length, theta, phi, 0.5*widthy, 0.5*w1, 0.5*w1, angleydzn,
+                          0.5*widthy, 0.5*w2, 0.5*w2, angleydzp);
       // Test GeoModel volume calculation. OK.
     }
     //assuming 'shape' cannot be null.
     shape->ref();
 
+    // end of the old part
+    // now we put everything into the assembly
     if (!perModule) { // For middle section and others
-      totVolume += shape->volume();
-      HepGeom::Translate3D trans(xpos,ypos,zpos);
-      lastShape = addShape(lastShape, shape, trans);
+
+      // create the colume, move it to the correct relative position and add it to the assembly
+
+      GeoLogVol* tmpLogVol= new GeoLogVol("TMT",shape,material);
+      GeoPhysVol* tmpPhysVol= new GeoPhysVol(tmpLogVol);
+      GeoTransform* trans = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos));
+
+      theTMT->add(tag);
+      theTMT->add(trans);
+      theTMT->add(tmpPhysVol);
 
     } else { // Once per module, copied in +z and -z side.
+      // we will add the same volume many times, need to create it only once
+
+      GeoLogVol* tmpLogVol= new GeoLogVol("TMT",shape,material);
+      GeoPhysVol* tmpPhysVol= new GeoPhysVol(tmpLogVol);
+
       for (int ii = 0; ii < halfNModule; ii++) {
-        totVolume += shape->volume() * 2;// added twice below
+
+        // move the dublicates to the correct relative position and add it to the assembly
         double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
 
-        HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
-        lastShape = addShape(lastShape, shape, transPos); 
+        GeoTransform* transPos = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos+zshift));
+        theTMT->add(tag);
+        theTMT->add(transPos);
+        theTMT->add(tmpPhysVol);
 
-        HepGeom::Transform3D transNeg = HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg);
-        lastShape = addShape(lastShape, shape, transNeg); 
-      }      
+        GeoTransform* transNeg = new GeoTransform(HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg));
+        theTMT->add(tag);
+        theTMT->add(transNeg);
+        theTMT->add(tmpPhysVol);
+
+      }
     }
-    shape->unref(); //this will delete shape if it was never added 
+    shape->unref(); //this will delete shape if it was never added
   }
+  // Return the assembly
+  return theTMT;
 
-  if(lastShape==0) {
-    msg(MSG::ERROR) << "There is no shape for GeoPixelTMT in "<<__FILE__<<":"<<__LINE__<<endmsg;
-    exit(EXIT_FAILURE);
-  } else {
-  const GeoShape * tmtShape = lastShape;
-    // don't trust boolean volume
-    // double totVolume = tmtShape->volume();
-    //std::cout << "TMT volume " << totVolume/CLHEP::cm3 << std::endl;
-    std::string matName = m_gmt_mgr->getMaterialName("TMT", m_gmt_mgr->GetLD());
-    const GeoMaterial* trapMat = m_mat_mgr->getMaterialForVolume(matName,totVolume);
-    GeoLogVol* theTMT = new GeoLogVol("TMT",tmtShape,trapMat);
-
-    // No need to set m_transform as default transform is OK.
-
-     return new GeoPhysVol(theTMT);
-  }
 }
 
-const GeoShape * 
+const GeoShape *
 GeoPixelTMT::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans)
 {
   const GeoShape * shiftedShape = &(*nextShape << trans);

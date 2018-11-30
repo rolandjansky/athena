@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <string> 
 #include <map>
 #include <cmath>
@@ -33,7 +35,6 @@
 
 
 class TileRawChannelContainer;
-class TileBeamInfoProvider;
 class TileLaserObject;
 class TileHWID;
 class TFile;
@@ -48,12 +49,12 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   TileLaserDefaultCalibTool(const std::string& type, const std::string& name,const IInterface* pParent);
   virtual ~TileLaserDefaultCalibTool();
  
-  virtual StatusCode initialize();
-  virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile);
-  virtual StatusCode execute();
-  virtual StatusCode finalizeCalculations();
-  virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile);
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile) override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalizeCalculations() override;
+  virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile) override;
+  virtual StatusCode finalize() override;
 
  private:
 
@@ -70,8 +71,8 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   const TileCablingService* m_cabling;
   ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
   ToolHandle<ITileBadChanTool>     m_tileBadChanTool;
-  TileBeamInfoProvider *m_beamInfo;
   ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
+  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
 
   ServiceHandle<TileDCSSvc>   m_tileDCSSvc; //!< Pointer to TileDCSSvc
 

@@ -12,6 +12,14 @@
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
 #topSeq.ContinueEventloopOnFPE = True
 from RecExConfig.RecFlags import rec as rec
 rec.doFloatingPointException.set_Value_and_Lock(True)

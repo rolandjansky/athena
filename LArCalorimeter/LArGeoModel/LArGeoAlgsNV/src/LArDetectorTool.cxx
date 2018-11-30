@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -157,7 +157,7 @@ StatusCode LArDetectorToolNV::create()
   log << MSG::INFO  << "  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF") << endmsg;
 
   // Locate the top level experiment node 
-  DataHandle<GeoModelExperiment> theExpt; 
+  GeoModelExperiment* theExpt = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) 
   { 
     log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 

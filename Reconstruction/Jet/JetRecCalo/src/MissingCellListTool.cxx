@@ -24,7 +24,6 @@
 
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileBadChanTool.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 
 
 
@@ -37,8 +36,7 @@
 MissingCellListTool::MissingCellListTool(const std::string& name) :
   asg::AsgTool  (  name   ),
   m_tileCabling("TileCablingSvc",name),
-  m_tileTool("TileBadChanTool"),
-  m_larTool("LArBadChanTool")
+  m_tileTool("TileBadChanTool")
 {
 
   //declareInterface<IMissingCellListTool>( this );  
@@ -88,7 +86,7 @@ StatusCode MissingCellListTool::initialize()
 
   if ( m_addCellFromTool) {
     CHECK( m_tileTool.retrieve() );
-    CHECK( m_larTool.retrieve() );
+    ATH_CHECK( m_BCKey.initialize() );
   }
   
   return StatusCode::SUCCESS;
@@ -171,6 +169,12 @@ int MissingCellListTool::execute() const {
   if(m_addCellFromTool){
     const CaloCell_ID*  calo_id = m_caloDDM->getCaloCell_ID();    
     const TileBadChanTool* tileTool = dynamic_cast<const TileBadChanTool*>(m_tileTool.operator->()); 
+    SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+    const LArBadChannelCont *bcCont {*readHandle};
+    if(!bcCont) {
+      ATH_MSG_ERROR( "Do not have Bad chan container !!!" );
+      return 1;
+    }
     std::vector<Identifier>::const_iterator idItr = calo_id->cell_begin();
     std::vector<Identifier>::const_iterator idItrE = calo_id->cell_end();
     for(; idItr!=idItrE; idItr++){
@@ -181,7 +185,7 @@ int MissingCellListTool::execute() const {
         CaloBadChannel bc = tileTool->caloStatus(*idItr);
         insert =  (bc.packedData() & m_tileMaskBit) != 0 ;
       } else {
-        LArBadChannel bc = m_larTool->offlineStatus(*idItr);
+        LArBadChannel bc = bcCont->offlineStatus(*idItr);
         insert = (bc.packedData() & m_larMaskBit)  != 0 ;
       } 
 

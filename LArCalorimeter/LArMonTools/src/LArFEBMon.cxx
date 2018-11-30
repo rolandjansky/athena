@@ -67,7 +67,6 @@ LArFEBMon::LArFEBMon(const std::string& type,
   declareProperty("IgnoreMissingHeaderEMB",m_ignoreMissingHeaderEMB = false);
   declareProperty("IgnoreMissingHeaderPS",m_ignoreMissingHeaderPS = false);
   declareProperty("keyDSPThresholds",m_keyDSPThresholds="LArDSPThresholds");
-  declareProperty("LArBadChannelTool",m_badChannelTool);
   /** Give the name of the streams you want to monitor, if empty, only simple profile per partition (offline case):*/
   declareProperty("Streams",m_streams);
   declareProperty("ExcludeCosmicCalo",m_excoscalo);
@@ -137,13 +136,12 @@ StatusCode LArFEBMon::initialize() {
   m_strHelper = new  LArOnlineIDStrHelper(m_onlineHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
   
-  // Get BadChannelTool
-  sc=m_badChannelTool.retrieve();
+  sc=m_BFKey.initialize();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve LArBadChannelTool " << m_badChannelTool );
+    ATH_MSG_ERROR( "Could not initialize Missing FEBs key " << m_BFKey.key() );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG( "LArBadChannelTool" << m_badChannelTool << " retrieved" );
+    ATH_MSG_DEBUG( "Missing FEBs key" << m_BFKey.key() << " initialized" );
   }
 
   ManagedMonitorToolBase::initialize().ignore(); 
@@ -1130,11 +1128,17 @@ LArFEBMon::procHistograms()
 void 
 LArFEBMon::plotMaskedFEB(){
   
+  SG::ReadCondHandle<LArBadFebCont> badFebHdl{m_BFKey};
+  const LArBadFebCont* badFebCont=(*badFebHdl);
+  if(!badFebCont) {
+     ATH_MSG_WARNING( "Do not have Misisng FEB container, no plots !!!" );
+     return;
+  }
   // Loop over all FEBs
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); 
        allFeb != m_onlineHelper->feb_end(); ++allFeb) {
     HWIdentifier febid = HWIdentifier(*allFeb);
-    const LArBadFeb febStatus = m_badChannelTool->febStatus(febid);
+    const LArBadFeb febStatus = badFebCont->status(febid);
     int binContent = 0;
     if (febStatus.inError() || febStatus.deadReadout() || febStatus.deadAll() || febStatus.deactivatedInOKS()) binContent = 2;
     if (febStatus.ignoreErrors() > 0)  binContent = 1;
