@@ -301,6 +301,11 @@ def get_Pythia8_commands(input_file, mass_spectrum=1):
         if pid<0: continue
         # Actual command takes the form PDGID:m0 = somemass
         commands += [ str(pid)+':m0 = '+str(masses[pid]) ]
+        # Extra commands for fundamental particles
+        if offset_options[pid][0]==0:
+            commands += [ str(pid)+':mWidth = 0.0' ]
+            commands += [ str(pid)+':mMax = '+str(masses[pid]+0.0001) ]
+            commands += [ str(pid)+':mMin = '+str(masses[pid]-0.0001) ]
 
     # All done!
     return commands
