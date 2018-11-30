@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -37,6 +37,17 @@ namespace CxxUtils {
  * first for which the range is not less than the key.  We also
  * support insertions, erasures, and iteration.
  *
+ * The only thing we need to do with the contained pointers is to delete them.
+ * Rather than doing that directly, we take a deletion function as an argument
+ * to the constructor; this should be a void function that takes a pointer argument
+ * and deletes it.  This allows one to instantiate this template with @c void as @c T,
+ * to reduce the amount of generated code.  The @c emplace method takes
+ * a @c unique_ptr as an argument.  We define @c payload_unique_ptr which
+ * is a @c unique_ptr to @c T that does deletion by calling an arbitrary function.
+ * @c payload_unique_ptr may be initialized from a @c unique_ptr; to construct
+ * one directly, the deletion function should be passed as a second argument
+ * to the @c payload_unique_ptr constructor.
+ *
  * There can be only one writer at a time; this is enforced with internal locks.
  * However, there can be any number of concurrent readers at any time.
  * The reads are lockless (but not necessarily waitless, though this should
@@ -65,6 +76,8 @@ namespace CxxUtils {
  *  bool operator() (const KEY& k1,   const RANGE& r2) const;
  *  bool operator() (const RANGE& r1, const RANGE& r2) const;
  *  bool inRange (const KEY& k, const RANGE& r) const;
+ *  // Required only for extendLastRange --- which see.
+ *  bool extendRange (Range& range, const Range& newRange) const;
  @endcode
  *
  * In order to implement updating concurrently with reading, we need to
@@ -114,6 +127,69 @@ public:
   typedef COMPARE key_compare;
   typedef KEY key_query_type;
 
+
+  /// Function to delete a @c T*
+  typedef void delete_function (const T*);
+
+
+  /**
+   * @brief @c unique_ptr deletion class for a payload object.
+   *
+   * We can't use the unique_ptr default because we want to allow
+   * instantiating with a @c void.
+   */
+  struct DeletePayload
+  {
+    /// Initialize with an explicit deletion function.
+    DeletePayload (delete_function* delfcn)
+      : m_delete (delfcn)
+    {
+    }
+
+    /// Allow initializing a @c payload_unique_ptr from a @c std::unique_ptr<U>.
+    template <class U>
+    static void delfcn (const T* p)
+    {
+      delete reinterpret_cast<const U*>(p);
+    }
+    template <class U>
+    DeletePayload (const std::default_delete<U>&)
+    {
+      m_delete = delfcn<U>;
+    }
+
+    /// Delete a pointer.
+    void operator() (const T* p) const
+    {
+      m_delete (p);
+    }
+
+    /// The deletion function.
+    delete_function* m_delete;
+  };
+
+
+  /**
+   * @brief @c unique_ptr holding a payload object.
+   *
+   * One may initialize an instance of this in one of two ways.
+   * First, from another @c std::unique_ptr:
+   *
+   *@code
+   *   payload_unique_ptr p = std::unique_ptr<U> (...);
+   @endcode
+   *
+   * where U* must be convertable to T*.  In this case, the pointer
+   * will be deleted as a U*.
+   * Second, one can supply an explicit deletion function:
+   *
+   *@code
+   *   T* tp = ...;
+   *   payload_unique_ptr p (tp, delfcn);
+   @endcode
+   */
+  typedef std::unique_ptr<T, DeletePayload> payload_unique_ptr;
+
   typedef const value_type* const_iterator;
   typedef boost::iterator_range<const_iterator> const_iterator_range;
 
@@ -136,9 +212,11 @@ public:
   public:
     /**
      * @brief Constructor.
+     * @param delfcn Deletion function.
      * @param capacity Size of the data vector to allocate.
      */
-    Impl (size_t capacity = 10);
+    Impl (delete_function* delfcn,
+          size_t capacity = 10);
 
 
     /**
@@ -168,6 +246,9 @@ public:
 
 
   private:
+    /// Deletion function.
+    delete_function* m_delete;
+
     /// Vector holding the map data.
     std::vector<value_type> m_data;
 
@@ -183,10 +264,12 @@ public:
    * @brief Constructor.
    * @param updater Object used to manage memory
    *                (see comments at the start of the class).
+   * @param delfcn Deletion function.
    * @param capacity Initial capacity of the map.
    * @param compare Comparison object.
    */
   ConcurrentRangeMap (Updater_t&& updater,
+                      delete_function* delfcn,
                       size_t capacity = 16,
                       const COMPARE& compare = COMPARE());
 
@@ -218,7 +301,7 @@ public:
    * no new element is inserted (and @c ptr gets deleted).
    */
   bool emplace (const RANGE& range,
-                std::unique_ptr<T> ptr,
+                payload_unique_ptr ptr,
                 const typename Updater_t::Context_t& ctx =
                   Updater_t::defaultContext());
 
@@ -231,6 +314,40 @@ public:
   void erase (const key_query_type& key,
               const typename Updater_t::Context_t& ctx =
                 Updater_t::defaultContext());
+
+
+  /**
+   * @brief Extend the range of the last entry of the map.
+   * @param newRange New range to use for the last entry.
+   * @param ctx Execution context.
+   *
+   * The range of the last entry in the map is updated to @c newRange.
+   * Does nothing if the map is empty.
+   * This will make a new version of implementation data.
+   *
+   * The semantics of what it means to extend a range are given by the
+   * @c extendRange method of the @c COMPARE object:
+   *
+   *@code
+   *  bool extendRange (Range& range, const Range& newRange) const;
+   @endif
+   *
+   * This is called with the existing range and the end range, and returns
+   * a success flag.
+   * It should generally be safe to extend a range by making the end later.
+   * Suggested semantics are:
+   *  - Return false if the start keys don't match.
+   *  - If the end value of @c newRange is later then then end value of @c range,
+   *    then update the end value of @c range to match @c newRange and
+   *    return true.
+   *  - Otherwise do nothing and return true.
+   *
+   * If the extendRange call returns true, then this function returns an iterator
+   * pointing at the last element.  Otherwise, it returns nullptr.
+   */
+  const_iterator extendLastRange (const RANGE& newRange,
+                                  const typename Updater_t::Context_t& ctx =
+                                    Updater_t::defaultContext());
 
 
   /**
@@ -298,7 +415,13 @@ public:
   void quiescent (const typename Updater_t::Context_t& ctx =
                     Updater_t::defaultContext());
 
-  
+
+  /**
+   * @brief Return the deletion function for this container.
+   */
+  delete_function* delfcn() const;
+
+
 private:
   /**
    * @brief Return the begin/last pointers.
@@ -335,12 +458,30 @@ private:
                    const std::vector<key_query_type>& keys) const;
 
 
+  /**
+   * @brief Install a new implementation instance and make it visible.
+   * @param new_impl The new instance.
+   * @param new_begin Begin pointer for the new instance.
+   * @param new_end End pointer for the new instance.
+   *                (Usual STL meaning of end.  If the instance is empty,
+   *                then new_end should match new_begin.)
+   * @param ctx Execution context.
+   */
+  void installImpl (std::unique_ptr<Impl> new_impl,
+                    value_type* new_begin,
+                    value_type* new_end,
+                    const typename Updater_t::Context_t& ctx);
+
+
   /// Updater object.  This maintains ownership of the current implementation
   /// class and the older versions.
   Updater_t m_updater;
 
   /// Comparison object.
   COMPARE m_compare;
+
+  /// Deletion function.
+  delete_function* m_delete;
 
   /// Current version of the implementation class.
   Impl* m_impl;

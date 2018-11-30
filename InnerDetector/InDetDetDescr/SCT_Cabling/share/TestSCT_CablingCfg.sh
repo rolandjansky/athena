@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm -rf newJOtest.py bootstrap.pkl bootstrap.py
+rm -rf TestSCT_CablingCfg.py bootstrap.pkl bootstrap.py
 
 # this is a hack to pre-confgure scheduler and other MT services, 
 #will be taken away once NEW system has better means to influence the bootstrap content
@@ -10,7 +10,7 @@ svcMgr.AvalancheSchedulerSvc.ShowControlFlow=True
 svcMgr.AvalancheSchedulerSvc.ShowDataDependencies=True
 EOF
 
-athena --threads=1 --config-only=bootstrap.pkl bootstrap.py
+athena --threads=2 --config-only=bootstrap.pkl bootstrap.py
 
 get_files -jo SCT_Cabling/TestSCT_CablingCfg.py
  

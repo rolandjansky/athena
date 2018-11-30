@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TypeProxy.h 783046 2016-11-08 17:17:33Z smh $
@@ -14,8 +14,8 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/ClassID_traits.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthContainers/AuxVectorBase.h"
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -400,6 +400,9 @@ class run2Config(JobProperty):
         '2016',
         '2017',
         ]
+    def _do_action(self):
+        from TriggerMenu.egamma.EgammaSliceFlags import run2ConfigAction as egammaRun2ConfigAction
+        egammaRun2ConfigAction(self.get_Value())
 
 _flags.append(run2Config)
 
@@ -779,23 +782,6 @@ class readMenuFromTriggerDb(JobProperty):
 #            TriggerFlags.readHLTconfigFromXML = True
 _flags.append(readMenuFromTriggerDb)
 
-# trigger configuration source list
-class readConfigFromTriggerDb(JobProperty):
-    """ define the TriggerDb to be the source of the LVL1 and HLT trigger menu"""
-    statusOn=False
-    allowedType=['bool']
-    StoredValue=False
-
-    def _do_action(self):
-        """ setup reading from DB requires menu readingFromXML """
-        if self.get_Value() is True:
-            # readMenuFromTriggerDb dumps only the HLTMenu to an XML file - it is of no use since HLTConfigSvc is set for the DB
-            TriggerFlags.readMenuFromTriggerDb = False
-            TriggerFlags.readLVL1configFromXML = False
-            TriggerFlags.readHLTconfigFromXML = False
-
-_flags.append(readConfigFromTriggerDb)
-
 class triggerDbKeys(JobProperty):
     """ define the keys [Configuration, LVL1Prescale, HLTPrescale, L1BunchGroupSet] in that order!"""
     statusOn=False
@@ -1018,7 +1004,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_HI_v2', 'Physics_HI_v2_no_prescale', 
         'MC_HI_v2',  'MC_HI_v2_no_prescale', 'MC_HI_v2_pPb_mc_prescale',
         #
-        'Physics_default', 'MC_loose_default', 'MC_tight_default',
+        'Physics_default', 'MC_loose_default', 'MC_tight_default', 'default_loose', 'default_tight',
         # -----------------------------------------------------------------
         # Run 2
         'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale','MC_pp_v5_special_mc_prescale', # for development and simulation
@@ -1033,14 +1019,14 @@ class triggerMenuSetup(JobProperty):
         'MC_HI_v4', 'MC_HI_v4_tight_mc_prescale',
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
-        'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
+        'MC_pp_v7','Physics_pp_v7','Physics_pp_v7_primaries','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
         # -----------------------------------------------------------------
         # Run 3 (and preparation for Run-3)
         'LS2_v1', # for development of AthenaMT
        
         ]
 
-    _default_menu='MC_pp_v7_tight_mc_prescale'
+    _default_menu='Physics_pp_v7_primaries'
     _default_cosmic_menu='Physics_pp_v5_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     

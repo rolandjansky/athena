@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 from RecExConfig.RecFlags                               import rec
 from D3PDMakerConfig.CommonD3PDMakerFlags               import CommonD3PDMakerFlags
-from QcdD3PDMaker.QcdD3PDMakerFlags                     import QcdD3PDMakerFlags
 from JetTagD3PDMaker.JetTagD3PDMakerKeys                import JetTagD3PDKeys
 from JetTagD3PDMaker.JetTagD3PDMakerFlags               import JetTagD3PDFlags
 from D3PDMakerConfig.D3PDMakerFlags                     import D3PDMakerFlags

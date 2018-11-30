@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
@@ -39,7 +39,9 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
+#include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h"
@@ -145,7 +147,9 @@
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
+#pragma link C++ class TFCSCenterPositionCalculation+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
+#pragma link C++ class TFCSHistoLateralShapeParametrizationFCal+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #pragma link C++ class TFCSHitCellMapping+;
 #pragma link C++ class TFCSHitCellMappingFCal+;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARWAVEDERIVEDQUANTITIES_H
@@ -7,9 +7,7 @@
 
 #include "Identifier/HWIdentifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
-#include "CLIDSvc/CLASS_DEF.h" 
-
-#include <vector> 
+#include "AthenaKernel/CLASS_DEF.h" 
 
 class ILArWaveDerivedQuantities {
 
@@ -31,17 +29,6 @@ class ILArWaveDerivedQuantities {
   virtual const float& rT0(const HWIdentifier& id , int gain )  const = 0 ;
   virtual const float& PosLobe(const HWIdentifier& id , int gain )  const = 0 ;
   virtual const unsigned& Flag(const HWIdentifier& CellID, int gain )  const = 0;
-  /*
-  // online ID
-  virtual const float& BaseLine(const Identifier& id , int gain )  const = 0 ;
-  virtual const float& MaxAmp(const Identifier& id , int gain )  const = 0 ;
-  virtual const float& TMaxAmp(const Identifier& id , int gain )  const = 0 ;
-  virtual const float& Width(const Identifier& id , int gain )  const = 0 ;
-  virtual const float& rT0(const Identifier& id , int gain )  const = 0 ;
-  virtual const float& PosLobe(const Identifier& id , int gain )  const = 0 ;
-  virtual const unsigned& Flag(const Identifier& CellID, int gain )  const = 0;
-  */
-
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 
 } ;

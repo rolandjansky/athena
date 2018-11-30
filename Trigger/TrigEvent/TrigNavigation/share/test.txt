@@ -1,4 +1,3 @@
-//ApplicationMgr.DLLs += { "StoreGate", "CLIDSvc", "TrigNavigation" };
 ApplicationMgr.DLLs += { "StoreGate", "TrigNavigation", "TrigSerializeCnvSvc" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
 ApplicationMgr.ExtSvc += { "TrigSerializeCnvSvc" };
@@ -8,9 +7,6 @@ ApplicationMgr.ExtSvc += { "ToolSvc" };
 AuditorSvc.Auditors  += { "AlgContextAuditor"};
 StoreGateSvc.OutputLevel = 0;
 StoreGateSvc.ActivateHistory = false;
-//CLIDSvc.OutputLevel = 1;
-//ClassIDSvc.OutputLevel = 1;
-//MessageSvc.OutputLevel = 1;
 MessageSvc.useColors        = false;
 
 //StoreGateSvc.FolderNameList = { "MyFolder", "YourFolder" };

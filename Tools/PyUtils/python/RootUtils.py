@@ -194,7 +194,10 @@ def _getLeaf (l):
     if tname in ['Float_t', 'Double_t']:
         return [l.GetValue(i) for i in range(ndat)]
     if tname in ['Char_t']:
-        return l.GetValueString()
+        try:
+            return l.GetValueString() # TLeafC for variable size string
+        except:
+            return [l.GetValue(i) for i in range(ndat)] # TLeafB for 8-bit integers
     return None
 
 class RootFileDumper(object):

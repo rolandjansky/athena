@@ -37,17 +37,17 @@ public:
                                 xAOD::Type::ObjectType metType,
                                 xAOD::MissingETContainer* metCont,
                                 const xAOD::IParticleContainer* collection,
-                                const xAOD::MissingETAssociationMap* map,
+                                xAOD::MissingETAssociationHelper* helper,
                                 MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Default method that uses standard overlap removal policy
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
-                                const xAOD::MissingETAssociationMap* map,
+                                xAOD::MissingETAssociationHelper* helper,
                                 MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Full implementation with option flags
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
-                                const xAOD::MissingETAssociationMap* map,
+                                xAOD::MissingETAssociationHelper* helper,
                                 MissingETBase::UsageHandler::Policy p,
                                 bool removeOverlap,
                                 MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
@@ -63,7 +63,7 @@ public:
                                    xAOD::MissingETContainer* metCont,
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
-                                   const xAOD::MissingETAssociationMap* map,
+                                   xAOD::MissingETAssociationHelper* helper,
                                    bool doJetJVT) = 0;
   // Version with two soft terms
   virtual StatusCode rebuildJetMET(const std::string& metJetKey,
@@ -72,12 +72,12 @@ public:
                                    xAOD::MissingETContainer* metCont,
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
-                                   const xAOD::MissingETAssociationMap* map,
+                                   xAOD::MissingETAssociationHelper* helper,
                                    bool doJetJVT) = 0;
   // Full version receiving MET pointers
   virtual StatusCode rebuildJetMET(xAOD::MissingET* metJet,
                                    const xAOD::JetContainer* jets,
-                                   const xAOD::MissingETAssociationMap* map,
+                                   xAOD::MissingETAssociationHelper* helper,
                                    xAOD::MissingET* metSoftClus,
                                    const xAOD::MissingET* coreSoftClus,
                                    xAOD::MissingET* metSoftTrk,
@@ -92,12 +92,12 @@ public:
                                    xAOD::MissingETContainer* metCont,
                                    const xAOD::JetContainer* jets,
                                    const xAOD::MissingETContainer* metCoreCont,
-                                   const xAOD::MissingETAssociationMap* map,
+                                   xAOD::MissingETAssociationHelper* helper,
                                    bool doJetJVT) = 0;
   // Full version receiving MET pointers
   virtual StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
                                    const xAOD::JetContainer* jets,
-                                   const xAOD::MissingETAssociationMap* map,
+                                   xAOD::MissingETAssociationHelper* helper,
                                    xAOD::MissingET* metSoftTrk,
                                    const xAOD::MissingET* coreSoftTrk,
                                    bool doJetJVT) = 0;
@@ -107,7 +107,7 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   virtual StatusCode markInvisible(const xAOD::IParticleContainer* collection,
-				   const xAOD::MissingETAssociationMap* map,
+				   xAOD::MissingETAssociationHelper* helper,
 				   xAOD::MissingETContainer* metCont) = 0;
 
   virtual StatusCode buildMETSum(const std::string& totalName,

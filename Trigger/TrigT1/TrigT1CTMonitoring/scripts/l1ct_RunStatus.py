@@ -1,6 +1,6 @@
 #!/bin/env python2.5
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 ##
 ## Central Trigger Crew, Johan Lundberg, 2009
 #

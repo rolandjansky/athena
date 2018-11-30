@@ -8,12 +8,13 @@ atlas_subdir( HLTUtils )
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( 
-  share/hlt_relocate.sh 
-  share/hlt_postinstall.sh 
-  share/make_hlt_env.py 
-  share/make_hlt_rep.py 
-  share/make_hlt_patch.py 
-  share/make_coralServer_rep.py 
+  share/make_hlt_rep.py
+  share/make_coralServer_rep.py
   share/asetup_wrapper 
   )
 
+# Tests:
+atlas_add_test( test_make_hlt_rep
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/make_hlt_rep.py
+   POST_EXEC_SCRIPT nopost.sh
+)

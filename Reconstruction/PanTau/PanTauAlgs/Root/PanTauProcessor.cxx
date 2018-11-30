@@ -115,11 +115,11 @@ StatusCode PanTau::PanTauProcessor::finalize() {
 
 
 StatusCode PanTau::PanTauProcessor::eventInitialize(){
-  xAOD::ParticleContainer* pi0Container = new xAOD::ParticleContainer();
-  xAOD::ParticleAuxContainer* pi0AuxContainer = new xAOD::ParticleAuxContainer();
-  pi0Container->setStore(pi0AuxContainer);
-  ATH_CHECK(evtStore()->record(pi0Container, "finalTauPi0s"));
-  ATH_CHECK(evtStore()->record(pi0AuxContainer, "finalTauPi0sAux."));
+  // xAOD::ParticleContainer* pi0Container = new xAOD::ParticleContainer();
+  // xAOD::ParticleAuxContainer* pi0AuxContainer = new xAOD::ParticleAuxContainer();
+  // pi0Container->setStore(pi0AuxContainer);
+  // ATH_CHECK(evtStore()->record(pi0Container, "finalTauPi0s"));
+  // ATH_CHECK(evtStore()->record(pi0AuxContainer, "finalTauPi0sAux."));
   
   return StatusCode::SUCCESS;
 }
@@ -127,7 +127,8 @@ StatusCode PanTau::PanTauProcessor::eventInitialize(){
 /// //////////////////////////////////////////////////////////
 /// Execute
 /// //////////////////////////////////////////////////////////
-StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
+//StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
+StatusCode      PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container) {
     
     ATH_MSG_DEBUG("===========================================================");
     ATH_MSG_DEBUG("===      PanTau::PanTauProcessor --- Seed Creation      ===");
@@ -245,7 +246,7 @@ StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
     ATH_CHECK( m_Tool_DecayModeDeterminator->execute(curPanTauSeed) );
     
     // 2. calculate the four momentum and link the details to the tauJet
-    ATH_CHECK( m_Tool_DetailsArranger->execute(curPanTauSeed) );
+    ATH_CHECK( m_Tool_DetailsArranger->execute(curPanTauSeed, pi0Container) );
     
     //that's it :)
     ATH_MSG_DEBUG("PanTau::PanTauProcessor for input alg" << m_Name_InputAlg << " was successful!");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -17,9 +17,8 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "ParticleCaloExtension/ParticleClusterAssociation.h"
 
-#include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
-
 
 namespace Trk {
   class CaloExtension;
@@ -68,9 +67,9 @@ namespace Rec {
     
     const xAOD::CaloClusterContainer* getClusterContainer() const;
 
-    ToolHandle< IParticleExtrapolationTool >  m_caloExtensionTool;
+    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     // FIXME: mutable
-    mutable ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
+    ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
     std::string m_caloClusters;
     std::string m_assCollection;
     std::string m_caloEntryMapName;

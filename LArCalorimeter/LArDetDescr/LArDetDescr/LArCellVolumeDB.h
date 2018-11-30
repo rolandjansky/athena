@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDETDESCR_LARCELLVOLUMEDB_H 
@@ -28,9 +28,7 @@ struct LArCellVolumeDB_t{
 
 typedef std::vector<LArCellVolumeDB_t> LArCellVolumeDB;
 
-#ifndef __CINT__
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(LArCellVolumeDB, 34482670 ,1)
-#endif
 
 #endif

@@ -507,6 +507,23 @@ namespace xAOD {
       myAttribute = xAOD::PFODetails::eflowRec_EM_PROBABILITY;
       return true;
     }    
+    else if (momentType == xAOD::CaloCluster::ENG_CALIB_TOT){
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_CALIB_TOT;
+      return true;
+    }
+    else if (momentType == xAOD::CaloCluster::ENG_CALIB_FRAC_EM){
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_CALIB_FRAC_EM;
+      return true;
+    }
+    else if (momentType == xAOD::CaloCluster::ENG_CALIB_FRAC_HAD){
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_CALIB_FRAC_HAD;
+      return true;
+    }
+    else if (momentType == xAOD::CaloCluster::ENG_CALIB_FRAC_REST){
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_CALIB_FRAC_REST;
+      return true;
+    }
+
     else return false;
 
   }

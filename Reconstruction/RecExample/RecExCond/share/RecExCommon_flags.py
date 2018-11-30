@@ -133,7 +133,6 @@ RecExCommonFlags = {
       'doShowSizeStatistics' : False, # if print pool object size stat of input file
       'noESDTrigger' : False, # specify that ESD has no trigger info (hack!)
       'doFileMetaData' : True, # specify that meta data should be written to file      
-      'doBackNavigation' : False, # if allow back navigation
       'doEdmMonitor' : False, # if monitor edm leak
       'doDumpTES' : False, # if dump storegate transient event store
       'doDumpTDS' : False, # if dump storegate transient detector store
@@ -480,13 +479,6 @@ else:
                logRecExCommon_flags.info ('Modified value for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
 
 
-# some special migration
-if rec.oldFlagTopSteering() and 'doBackNavigation' in varInit:
-   from RecExConfig.RecConfFlags import recConfFlags
-   recConfFlags.AllowBackNavigation=doBackNavigation
-
-
-
 # some special migration (temporary)
 if rec.doFloatingPointException() and not athenaCommonFlags.isOnline():
    from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -722,7 +714,6 @@ if rec.Production():
 #recConfFlags.AllowIgnoreExistingDataObject=True
 #recConfFlags.AllowIgnoreConfigError=True
 #recConfFlags.AllowDisable=True
-#recConfFlags.AllowBackNavigation=False
 
 
 
@@ -869,7 +860,7 @@ if not rec.doFwdRegion:
 if not rec.doInDet:
    #DR should use finer grain
    #rec.doDPD=False
-   # -ME- rec.doTagRawSummary=False
+   rec.doTagRawSummary=False
    DetFlags.ID_setOff()
    from InDetRecExample.InDetJobProperties import InDetFlags
    InDetFlags.Enabled=False
@@ -895,7 +886,7 @@ if not rec.doTile:
 if not rec.doCalo:
    #DR should use finer grain
    #rec.doDPD=False
-   # -ME- rec.doTagRawSummary=False
+   rec.doTagRawSummary=False
    DetFlags.Calo_setOff()
    try:
       from CaloRec.CaloRecFlags import jobproperties
@@ -907,7 +898,7 @@ if not rec.doCalo:
 if not rec.doMuon:
    #DR should use finer grain
    #rec.doDPD=False
-   # -ME- rec.doTagRawSummary=False
+   rec.doTagRawSummary=False
    DetFlags.Muon_setOff()
    #FIXME redundant
    recAlgs.doTrackRecordFilter=False
@@ -974,7 +965,7 @@ if not rec.doTau:
 if not rec.doTrigger:
    #DR should use finer grain
    #rec.doDPD=False
-   # -ME- rec.doTagRawSummary=False
+   rec.doTagRawSummary=False
 
    #FIXME a separate container to be used eventually
    recAlgs.doTrigger=False

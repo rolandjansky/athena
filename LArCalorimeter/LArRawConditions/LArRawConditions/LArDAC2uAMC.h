@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArDAC2uA for MC
@@ -36,8 +35,6 @@ class LArDAC2uAMC: public LArDAC2uAComplete {
   // retrieving DAC2uA using online ID
   
   virtual const float& DAC2UA(const HWIdentifier&  CellID) const ;
-  
-  virtual const float& DAC2UA(const Identifier&  CellID) const;
   
   static float dummy;
   

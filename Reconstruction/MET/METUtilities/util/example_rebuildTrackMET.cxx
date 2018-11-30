@@ -28,6 +28,7 @@ int main() {
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
@@ -178,9 +179,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       xAOD::MissingETAuxContainer* newMetAuxContainer = new xAOD::MissingETAuxContainer();
       newMetContainer->setStore(newMetAuxContainer);
 
-      // It is necessary to reset the selected objects before every MET calculation
-      metMap->resetObjSelectionFlags();
-
+      xAOD::MissingETAssociationHelper metHelper(metMap);
       //here we apply some basic cuts and rebuild the met at each step
       //Electrons
       ConstDataVector<xAOD::ElectronContainer> invisElectrons(SG::VIEW_ELEMENTS);
@@ -195,14 +194,14 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 	}
       }
       if(!invisElectrons.empty()){
-	ANA_CHECK( metMaker->markInvisible(invisElectrons.asDataVector(),metMap,newMetContainer) );
+	ANA_CHECK( metMaker->markInvisible(invisElectrons.asDataVector(),&metHelper,newMetContainer) );
       }
 
       ANA_CHECK( metMaker->rebuildMET("TrkEle",                   //name of metElectrons in metContainer
 				 xAOD::Type::Electron,       //telling the rebuilder that this is electron met
 				 newMetContainer,            //filling this met container
 				 metElectrons.asDataVector(),//using these metElectrons that accepted our cuts
-				 metMap)                     //and this association map
+				 &metHelper)                     //and this association map
 	     );
 
       //Muons
@@ -214,7 +213,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				 xAOD::Type::Muon,
 				 newMetContainer,
 				 metMuons.asDataVector(),
-				 metMap)
+				 &metHelper)
 	     );
 
       // for rebuilding track MET
@@ -223,7 +222,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       				  newMetContainer,//adding to this new met container
       				  calibJets,	  //using this jet collection to calculate jet track met
       				  coreMet,	  //core met container
-      				  metMap,	  //with this association map
+      				  &metHelper,	  //with this association map
       				  false		  //don't apply jet jvt cut
       				  )
       	 );
@@ -245,7 +244,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       // when doing track MET
       xAOD::MissingET * jetTrkMet = (*newMetContainer)["TrkJet"];
       ANA_CHECK( jetTrkMet != nullptr);
-      ANA_CHECK( metSystTool->applyCorrection(*jetTrkMet, metMap));//for jetTrkMet correction, we need the METAssociationMap
+      ANA_CHECK( metSystTool->applyCorrection(*jetTrkMet, &metHelper));//for jetTrkMet correction, we need the METAssociationMap
       if(debug) std::cout << "Jet track met: " << jetTrkMet->met();
 
       //this builds the final track or cluster met sums, using systematic varied container

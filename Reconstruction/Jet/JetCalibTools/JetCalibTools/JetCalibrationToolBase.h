@@ -30,11 +30,10 @@
 
 //Package includes
 #include "JetCalibTools/IJetCalibrationTool.h"
-#include "JetCalibTools/JetCalibUtils.h"
 
 class JetCalibrationToolBase
-  : virtual public asg::AsgTool,
-    virtual public CP::CorrectionTool< xAOD::JetContainer >,
+  : public asg::AsgTool,
+    public CP::CorrectionTool< xAOD::JetContainer >,
     virtual public ::IJetCalibrationTool,
     virtual public ::IJetModifier,
     virtual public ::ISingleJetModifier
@@ -77,6 +76,10 @@ class JetCalibrationToolBase
   virtual int modifyJet(xAOD::Jet&) const { return 0; }
 
   virtual void setUnitsGeV(bool useGeV) { if (useGeV) m_GeV=1; else m_GeV=1000; }
+
+  // Retrieve pTmax from in situ corrections
+  virtual VecD retrieveEtaIntercalPtMax(){VecD tmp;return tmp;}
+  virtual VecD retrieveAbsoluteInsituPtMax(){VecD tmp;return tmp;}
   
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 

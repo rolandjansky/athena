@@ -101,6 +101,7 @@ namespace MuonCombined {
     m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
     m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"),
     m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery")
+
   {
     declareInterface<IMuonCreatorTool>(this);
     declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
@@ -131,6 +132,8 @@ namespace MuonCombined {
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
     declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
     declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
+    declareProperty("UseCaloCells",m_useCaloCells = true);
+    declareProperty("MakeSAMuons", m_doSA=false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
@@ -147,11 +150,11 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
-    ATH_CHECK(m_caloExtTool.retrieve());
+    if(m_useCaloCells) ATH_CHECK(m_caloExtTool.retrieve());
+    else m_caloExtTool.disable();
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
-    ATH_CHECK(m_propagator.retrieve());
     ATH_CHECK(m_muonDressingTool.retrieve());
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
     ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
@@ -176,9 +179,16 @@ namespace MuonCombined {
     ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
-    ATH_CHECK(m_caloMaterialProvider.retrieve());
+    if(!m_doSA){
+      ATH_CHECK(m_caloMaterialProvider.retrieve());
+      ATH_CHECK(m_propagator.retrieve());
+    }
+    else{
+      m_caloMaterialProvider.disable();
+      m_propagator.disable();
+    }
 
-    ATH_CHECK(m_cellContainerName.initialize());
+    ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
 
     return StatusCode::SUCCESS;
   }
@@ -393,7 +403,7 @@ namespace MuonCombined {
 
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
-    collectCells(*muon,outputData.clusterContainer);
+    if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer);
 
     return muon;
   }
@@ -559,7 +569,7 @@ namespace MuonCombined {
         
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
-    collectCells(*muon,outputData.clusterContainer);
+    if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer);
 
     ATH_MSG_DEBUG("Done creating muon with "<<muon->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits");
 

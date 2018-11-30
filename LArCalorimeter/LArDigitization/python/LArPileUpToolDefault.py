@@ -6,6 +6,12 @@ from AthenaCommon.Logging import logging
 
 def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitContainer_MC',outputKey_DigiHSTruth='LArDigitContainer_DigiHSTruth',name='LArPileUpToolDefault'):
 
+    if isOverlay:
+        #For all other cases, this is already done by LArConditionsCommon_MC_jobOptions.py
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq+=LArfSamplSymAlg(ReadKey="LArfSampl",WriteKey="LArfSamplSym")
+
     try:
         from AthenaCommon import CfgGetter
         theTool = CfgGetter.getPublicTool("LArPileUpTool")
@@ -13,6 +19,8 @@ def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitCon
         theTool.DigitContainer_DigiHSTruth = outputKey_DigiHSTruth
         from Digitization.DigitizationFlags import digitizationFlags
         theTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
+
+
     except Exception as configException:
         print configException
         print "ERROR Problem with configuration"

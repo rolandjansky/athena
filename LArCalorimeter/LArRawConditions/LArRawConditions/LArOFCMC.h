@@ -10,7 +10,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 class ILArMCSymTool;
 
 /** Implementation of the interface ILArOFC for MC
@@ -42,13 +41,6 @@ class LArOFCMC: public LArOFCComplete {
                          int gain,
                          int tbin=0) const ;
 
-  virtual OFCRef_t OFC_a(const Identifier&  CellID,
-                         int gain,
-                         int tbin=0) const ;
-  virtual OFCRef_t OFC_b(const Identifier&  CellID,
-                         int gain,
-                         int tbin=0) const ;
-  
  private: 
 
   // helper for MC z-phi symmetry 

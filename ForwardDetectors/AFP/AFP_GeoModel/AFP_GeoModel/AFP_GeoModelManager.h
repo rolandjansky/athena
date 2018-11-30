@@ -39,7 +39,7 @@ class AFP_GeoModelManager : public GeoVDetectorManager  {
 // Class AFP_GeoModelManager
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(AFP_GeoModelManager, 156328970, 1)
 #endif
 

@@ -16,6 +16,7 @@ rec.doInDet=True
 rec.doMuon=True
 rec.doCalo=False
 rec.doEgamma=False
+rec.doJetMissingETTag=False
 
 # If Calo is off, this needs to be off too.
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
@@ -29,9 +30,7 @@ rec.AutoConfiguration = ['everything']
 import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
-# If Calo/tracking is off, this needs to be off too.
-from IsolationAlgs.IsoGetter import isoGetter
-isoGetter (disable=True)
+
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")

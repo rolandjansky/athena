@@ -30,7 +30,6 @@
 
 #include "TrigParticle/TrigEFBjetContainer.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
 
@@ -355,8 +354,10 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
     m_tuningLikelihoodSV = new TuningLikelihood(&m_sizeSV[0], &m_bSV[0], &m_uSV[0], m_sizeSV.size()); 
     m_trigBjetTagger->fillLikelihoodMap("SVTX", m_tuningLikelihoodSV);
 
+    if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
+
     // Retrieve TrigTrackJetFinder tool
-        StatusCode sc = m_trackJetFinderTool.retrieve();
+    StatusCode sc = m_trackJetFinderTool.retrieve();
     if(sc.isFailure()) {
       msg() << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endmsg;
       return HLT::BAD_JOB_SETUP;
@@ -903,11 +904,9 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   // Retrieve beamspot information
   // -----------------------------------
-  IBeamCondSvc* iBeamCondSvc; 
-  StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
-  if (sc.isFailure() || iBeamCondSvc == 0) {
-    iBeamCondSvc = 0;
+  if (!beamSpotHandle.isValid()) {
 
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
@@ -915,9 +914,9 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   } 
   else {
     
-    Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
+    Amg::Vector3D beamSpot = beamSpotHandle->beamPos();
     
-    int beamSpotBitMap = iBeamCondSvc->beamStatus();
+    int beamSpotBitMap = beamSpotHandle->beamStatus();
     
     // Check if beam spot is from online algorithms
     int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
@@ -927,13 +926,13 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
     
     ATH_MSG_DEBUG( "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
-		   << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
-		   << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
+		   << ", tiltXZ=" << beamSpotHandle->beamTilt(0) << ", tiltYZ=" << beamSpotHandle->beamTilt(1) 
+		   << ", sigmaX=" << beamSpotHandle->beamSigma(0) << ", sigmaY=" << beamSpotHandle->beamSigma(1) << ", sigmaZ=" << beamSpotHandle->beamSigma(2) 
 		   << ", status=" << beamSpotStatus );
     
     m_trigBjetPrmVtxInfo->setBeamSpot(beamSpot.x(), beamSpot.y(), beamSpot.z());
-    m_trigBjetPrmVtxInfo->setBeamSpotTilt(iBeamCondSvc->beamTilt(0), iBeamCondSvc->beamTilt(1));
-    m_trigBjetPrmVtxInfo->setBeamSpotWidth(iBeamCondSvc->beamSigma(0), iBeamCondSvc->beamSigma(1), iBeamCondSvc->beamSigma(2));
+    m_trigBjetPrmVtxInfo->setBeamSpotTilt(beamSpotHandle->beamTilt(0), beamSpotHandle->beamTilt(1));
+    m_trigBjetPrmVtxInfo->setBeamSpotWidth(beamSpotHandle->beamSigma(0), beamSpotHandle->beamSigma(1), beamSpotHandle->beamSigma(2));
     m_trigBjetPrmVtxInfo->setBeamSpotStatus(beamSpotStatus);
 
     ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _LARMATERIALMANAGER_H_
-#define _LARMATERIALMANAGER_H_
+#ifndef LARGEOCODE_LARMATERIALMANAGER_H
+#define LARGEOCODE_LARMATERIALMANAGER_H
 //----------------------------------------------------------//
 //                                                          //
 // class LArMaterialManager  This is a material manager     //

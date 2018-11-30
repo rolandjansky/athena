@@ -20,6 +20,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="physics_hi_v4_grid"
 export MENU="Physics_HI_v4"

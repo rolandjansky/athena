@@ -5,39 +5,26 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
 // Other stuff
 #include "GaudiKernel/IChronoStatSvc.h"
 //
 #include<iostream>
+#include<algorithm>
 
 
  namespace Trk {
- extern
-  void cfpest( long int* ntrk, double* vrt, long int* Charge,double* part, double* par0);
- extern
-  void xyztrp( long int* Charge, double* Vertex, double* Mom,
-                double* CovVrtMom, double* Perig, double* CovPerig );
- extern
-   int fiterm( long int ntrk, double* errmtx);
 
- extern
-  void cfmasserr_( long int* NTRK,  long int* List, double* parfs, double* wm, double* Deriv,
-		  double* dM, double* MassError);
- extern
-   void getWeights( long int NTRK, double* Weights);
+ extern void cfpest( int ntrk, double *vrt, long int *Charge, double (*part)[5], double (*par0)[3]);
+ extern void xyztrp( long int* Charge, double* vrt, double* Mom, double* CovVrtMom, double BMAG, double* Perig, double* CovPerig );
 
- extern vkalMagFld      myMagFld;
- extern vkalPropagator  myPropagator;
+ extern int CFit(VKalVrtControl *FitCONTROL, int ifCovV0, int NTRK, 
+	      long int *ich, double xyz0[3], double (*par0)[3],
+	      double (*inp_Trk5)[5], double (*inp_CovTrk5)[15], 
+	      double xyzfit[3], double (*parfs)[3], double ptot[4],
+              double covf[21], double & chi2, double *chi2tr);
 
- extern
-      int CFit(long int iflag, long int ifCovV0, long int NTRK, 
-	       long int *ich, double *xyz0, double *par0,
-	       double *inp_Trk5, double *inp_CovTrk5, 
-	       double *xyzfit, double *parfs, double *ptot,
-               double *covf, double *chi2, double *chi2tr);
- extern
-   void vksetUsePlaneCnst(double , double , double , double ); 
 
 //__________________________________________________________________________
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -56,19 +43,14 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
 //
 //------  extract information about selected tracks
 //
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc=CvtTrkTrack(InpTrk,ntrk);
     if(sc.isFailure())return StatusCode::FAILURE;
 
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
@@ -86,24 +68,19 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2 ) 
 {
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0;
+    int ntrk=0;
     std::vector<const TrackParameters*>   tmpInputC(0);
     StatusCode sc; sc.setChecked(); 
     double closestHitR=1.e6;   //VK needed for FirstMeasuredPointLimit if this hit itself is absent
     if(m_firstMeasuredPoint){               //First measured point strategy
        //------
        if(InpTrkC.size()){
-          if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
+          if( m_InDetExtrapolator == 0 ){
             if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given."<<
 	                                 "Can't use FirstMeasuredPoint with xAOD::TrackParticle!!!" << endmsg;
             return StatusCode::FAILURE;        
@@ -140,8 +117,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
     if(sc.isFailure())return StatusCode::FAILURE;
     if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
 //--
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2 ) ;
 //
 //-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
     m_planeCnstNDOF = 0;
@@ -162,17 +138,15 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
           double D= pp[0]*(cnstRefPoint.x()-m_refFrameX)
                    +pp[1]*(cnstRefPoint.y()-m_refFrameY)
                    +pp[2]*(cnstRefPoint.z()-m_refFrameZ);
-          vksetUsePlaneCnst( pp[0], pp[1], pp[2], D); 
+          m_vkalFitControl->setUsePlaneCnst( pp[0], pp[1], pp[2], D); 
 	  std::vector<double> saveApproxV(3,0.); m_ApproximateVertex.swap(saveApproxV); 
           m_ApproximateVertex[0]=cnstRefPoint.x();
           m_ApproximateVertex[1]=cnstRefPoint.y();
           m_ApproximateVertex[2]=cnstRefPoint.z();
-          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
-          vksetUsePlaneCnst(0.,0.,0.,0.);
-          if (ierr)  {
-	     ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge,   // refit without plane cnst
-	                  ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;        // if fit with it failed
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2 );
+          m_vkalFitControl->setUsePlaneCnst(0.,0.,0.,0.);
+          if (ierr)  {                                                                             // refit without plane cnst
+	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2); // if fit with it failed
              m_planeCnstNDOF = 0;
           }
 	  m_ApproximateVertex.swap(saveApproxV); 
@@ -195,17 +169,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2 ) 
 {
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc;
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
@@ -218,7 +187,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
     }
     if(sc.isFailure())return StatusCode::FAILURE;
 
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
@@ -236,17 +205,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2 ) 
 {
-    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
+    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
+    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc; sc.setChecked();
     if(InpTrkC.size()>0){
       sc=CvtTrackParameters(InpTrkC,ntrk);
@@ -263,8 +227,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         m_ApproximateVertex.push_back(m_globalFirstHit->position().y());
         m_ApproximateVertex.push_back(m_globalFirstHit->position().z());
     }
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;
     if (ierr) return StatusCode::FAILURE;
 //
 //-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
@@ -277,17 +240,15 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
           double D= pp[0]*(m_globalFirstHit->position().x()-m_refFrameX)
                    +pp[1]*(m_globalFirstHit->position().y()-m_refFrameY)
                    +pp[2]*(m_globalFirstHit->position().z()-m_refFrameZ);
-          vksetUsePlaneCnst( pp[0], pp[1], pp[2], D); 
+          m_vkalFitControl->setUsePlaneCnst( pp[0], pp[1], pp[2], D); 
 	  std::vector<double> saveApproxV(3,0.); m_ApproximateVertex.swap(saveApproxV); 
           m_ApproximateVertex[0]=m_globalFirstHit->position().x();
           m_ApproximateVertex[1]=m_globalFirstHit->position().y();
           m_ApproximateVertex[2]=m_globalFirstHit->position().z();
-          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
-          vksetUsePlaneCnst(0.,0.,0.,0.);
-          if (ierr)  {
-	     ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge,   // refit without plane cnst
-	                  ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;        // if fit with it failed
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+          m_vkalFitControl->setUsePlaneCnst(0.,0.,0.,0.);
+          if (ierr)  {                                                                                   // refit without plane cnst
+	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2 ) ;     // if fit with it failed
              m_planeCnstNDOF = 0;
           }
 	  m_ApproximateVertex.swap(saveApproxV); 
@@ -305,7 +266,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //--------------------------------------------------------------------------------------------------
 //  Main code
 //
-long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
+int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
         Amg::Vector3D& Vertex,
 	TLorentzVector&   Momentum,
 	long int& Charge,
@@ -320,51 +281,42 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
 //
 //------ Variables and arrays needed for fitting kernel
 //
-    long int ierr;
-    int i;
-    double xyz0[3],xyzfit[3],ptot[4],covf[21],chi2f=-10.;
-    ptot[0]=ptot[1]=ptot[2]=ptot[3]=0.;
-    xyzfit[0]=xyzfit[1]=xyzfit[2]=0.;
+    int ierr,i;
+    double xyz0[3],covf[21],chi2f=-10.;
+    double ptot[4]={0.};
+    double xyzfit[3]={0.};
 //
 //--- Set field value at (0.,0.,0.) - some safety 
 //
     double Bx,By,Bz;
     m_fitField->getMagFld(-m_refFrameX,-m_refFrameY,-m_refFrameZ,Bx,By,Bz);
-    m_fitField->setAtlasMag(Bz);
 //std::cout.precision(8);std::cout<<" Exact mag="<<Bx<<", "<<By<<", "<<Bz<<" at 0,0,0"<<'\n';
 //
 //------  Fit option setting
 //
-    VKalVrtSetOptions( ntrk );
-    initCnstList();
-    if(m_useMagFieldRotation) {                         // Set rotated magnetic field provider for VKalVrtCore
-       Trk::myMagFld.setMagHandler(m_fitRotatedField);  // Rotated mag.field value is calculated during extrapolation
-    }                                                   // This happens already in cfpest
+    VKalVrtConfigureFitterCore(ntrk);
 //
 //------  Fit itself
 //
     m_FitStatus=0;
-    if(m_ErrMtx)delete[] m_ErrMtx;              //delete previous array is exist
-    m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx; //delete previous array is exist
+    m_ErrMtx=0;                    //
+    m_vkalFitControl->renewFullCovariance(nullptr);                                               //
+    m_vkalFitControl->setVertexMass(-1.);
+    m_vkalFitControl->setVrtMassError(-1.);
     if(m_ApproximateVertex.size()==3 && fabs(m_ApproximateVertex[2])<m_IDsizeZ &&
          sqrt(m_ApproximateVertex[0]*m_ApproximateVertex[0]+m_ApproximateVertex[1]*m_ApproximateVertex[1])<m_IDsizeR)
     {
        xyz0[0]=(double)m_ApproximateVertex[0] - m_refFrameX;
        xyz0[1]=(double)m_ApproximateVertex[1] - m_refFrameY;
        xyz0[2]=(double)m_ApproximateVertex[2] - m_refFrameZ;
-       if(m_useMagFieldRotation) {                         // Rotate initial guess
-         Amg::Vector3D tmpv=m_trkControl[0].trkRotation*Amg::Vector3D(xyz0[0],xyz0[1],xyz0[2]);
-         if(tmpv.mag()<20000.){ xyz0[0]=tmpv.x(); xyz0[1]=tmpv.y(); xyz0[2]=tmpv.z();}
-         else{ xyz0[0]=0.; xyz0[1]=0.; xyz0[2]=0.; }                       //To avoid crazy initial guesses
-       }
     } else {
        xyz0[0]=xyz0[1]=xyz0[2]=0.;
     }
-    Trk::cfpest( &ntrk, xyz0, m_ich, &m_apar[0][0], &m_par0[0][0]);
+    Trk::cfpest( ntrk, xyz0, m_ich, m_apar, m_par0);
 
-    ierr=Trk::CFit( m_iflag, m_ifcovv0, ntrk,
-                    m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
-                    xyzfit, &m_parfs[0][0], ptot, covf, &chi2f, m_chi2tr); 
+    ierr=Trk::CFit( m_vkalFitControl, m_ifcovv0, ntrk, m_ich, xyz0, m_par0, m_apar, m_awgt,
+                    xyzfit, m_parfs, ptot, covf, chi2f, m_chi2tr); 
 
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "VKalVrt fit status="<<ierr<<" Chi2="<<chi2f<<endmsg;
 
@@ -377,24 +329,17 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
 //  Postfit operation. Creation of array for different error calculations and full error matrix copy
 //
     m_FitStatus=ntrk;
-    if(m_ifcovv0){      //If exists - get full fit error matrix from CORE to keep it in FITTER for safety 
-       m_ErrMtx = new double[ (3*ntrk+3)*(3*ntrk+4)/2  ];      //create new array for errors
-       int IERR = Trk::fiterm(ntrk,m_ErrMtx);                //Real error matrix after fit
-       if(IERR)  {delete[] m_ErrMtx; m_ErrMtx=0;}
+    if(m_ifcovv0 && m_vkalFitControl->getFullCovariance()){   //If full fit error matrix is returned by VKalVrtCORE 
+       int SymCovMtxSize=(3*ntrk+3)*(3*ntrk+4)/2;
+       m_ErrMtx = new double[ SymCovMtxSize  ];    //create new array for errors
+       std::copy(m_vkalFitControl->getFullCovariance(),m_vkalFitControl->getFullCovariance()+SymCovMtxSize,m_ErrMtx);
+       m_vkalFitControl->renewFullCovariance(nullptr);
        ErrorMatrix.clear(); ErrorMatrix.reserve(21); ErrorMatrix.assign(covf,covf+21);
     } else {
        ErrorMatrix.clear(); ErrorMatrix.reserve(6);  ErrorMatrix.assign(covf,covf+6);
     }
-//--------------------------------------------------------------------------- 
-// Rotate back to ATLAS frame if rotation was used in the fit
-//
-    if(m_useMagFieldRotation){
-      double vnew[3],pnew[3],cnew[21];
-      rotateBack(xyzfit, ptot, covf, vnew, pnew, cnew);
-      for(int ik=0; ik<3;  ik++) { xyzfit[ik]=vnew[ik]; ptot[ik]=pnew[ik];}
-      for(int ik=0; ik<21; ik++) { covf[ik]=cnew[ik];}
-    }
 //---------------------------------------------------------------------------
+    Momentum.SetPxPyPzE( ptot[0], ptot[1], ptot[2], ptot[3] );
     Chi2 = (double) chi2f;
 
     Vertex[0]= xyzfit[0] + m_refFrameX;
@@ -407,40 +352,26 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
 //
 // ------  Magnetic field in fitted vertex
 //
-    double fx,fy,fz,BMAG_CUR;
-    m_fitField->getMagFld(xyzfit[0] ,xyzfit[1] ,xyzfit[2] ,fx,fy,fz); 
-    BMAG_CUR=fz;
-    if(m_useMagFieldRotation) BMAG_CUR=sqrt(fx*fx+fy*fy+fz*fz);
+    double fx,fy,BMAG_CUR;
+    m_fitField->getMagFld(xyzfit[0] ,xyzfit[1] ,xyzfit[2] ,fx,fy,BMAG_CUR); 
     if(fabs(BMAG_CUR) < 0.01) BMAG_CUR=0.01;  // Safety
 
 
-    double Px,Py,Pz,Ee,Pt; double pmom[4]; pmom[0]=pmom[1]=pmom[2]=pmom[3]=0;
-    for ( i=0; i<ntrk; i++){
-      Pt = m_CNVMAG*BMAG_CUR/fabs( m_parfs[i][2]);
-      Px = Pt*cos(m_parfs[i][1]);
-      Py = Pt*sin(m_parfs[i][1]);
-      Pz = Pt/tan(m_parfs[i][0]);
-      if(m_useMagFieldRotation){
-        Amg::Vector3D po=rotateBack(Px,Py,Pz); Px=po.x(); Py=po.y(); Pz=po.z();
-        double npt=sqrt(Px*Px+Py*Py); if(m_parfs[i][2]<0)npt=-npt;
-	double npp=sqrt(Px*Px+Py*Py+Pz*Pz);
-	m_parfs[i][0]= acos( Pz/npp);
-	m_parfs[i][1]=atan2( Py, Px);
-	m_parfs[i][2]=m_CNVMAG*BMAG_CUR/npt;
-      }
-      Ee = sqrt(Px*Px+Py*Py+Pz*Pz+m_wm[i]*m_wm[i]);
-      pmom[0] += Px; pmom[1] += Py; pmom[2] += Pz; pmom[3] += Ee;
-    }
+    //double pmom[4]={0.};
+    //for ( i=0; i<ntrk; i++){
+    //  double Pt = m_CNVMAG*BMAG_CUR/fabs( m_parfs[i][2]);
+    //  double Px = Pt*cos(m_parfs[i][1]);
+    //  double Py = Pt*sin(m_parfs[i][1]);
+    //  double Pz = Pt/tan(m_parfs[i][0]);
+    //  double Ee = sqrt(Px*Px+Py*Py+Pz*Pz+m_vkalFitControl->vk_forcft.wm[i]*m_vkalFitControl->vk_forcft.wm[i]);
+    //  pmom[0] += Px; pmom[1] += Py; pmom[2] += Pz; pmom[3] += Ee;
+    //}
+    //Momentum.SetPxPyPzE( pmom[0], pmom[1], pmom[2], pmom[3] );
 
     Charge=0; for(i=0; i<ntrk; i++){Charge+=m_ich[i];};
     Charge=-Charge; //VK 30.11.2009 Change sign acoording to ATLAS 
 
-    Momentum.SetPx( pmom[0] );
-    Momentum.SetPy( pmom[1] );
-    Momentum.SetPz( pmom[2] );
-    Momentum.SetE(  pmom[3] );
 //  std::cout.precision(8);
-//  std::cout<<" M1="<<m_wm[0]<<", "<<m_wm[1]<<" Cnst="<<m_iflag<<" Prec="<<m_IterationPrecision<<'\n';
 //  std::cout<<" Pmom="<<pmom[0]<<", "<<pmom[1]<<", "<<pmom[2]<<", "<<pmom[3]<<'\n';
 //  std::cout<<" Ptot="<<ptot[0]<<", "<<ptot[1]<<", "<<ptot[2]<<", "<<ptot[3]<<'\n';
 //  std::cout<<" Vertex="<<Vertex.x()<<", "<<Vertex.y()<<", "<<Vertex.z()
@@ -488,15 +419,14 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
     }
     m_refFrameX=m_refFrameY=m_refFrameZ=0.; //VK Work in ATLAS ref frame ONLY!!!
     long int vkCharge=-Charge; //VK 30.11.2009 Change sign according to ATLAS
+//
+// ------  Magnetic field in vertex
+//
+    double fx,fy,BMAG_CUR;
+    m_fitField->getMagFld(Vrt[0], Vrt[1], Vrt[2] ,fx,fy,BMAG_CUR); 
+    if(fabs(BMAG_CUR) < 0.01) BMAG_CUR=0.01;  // Safety
 
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
-
-    Trk::xyztrp( &vkCharge, Vrt, PMom, Cov0, Per, CovPer );
+    Trk::xyztrp( &vkCharge, Vrt, PMom, Cov0, BMAG_CUR, Per, CovPer );
 
     Perigee.clear();
     CovPerigee.clear();
@@ -557,10 +487,6 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
 //    double * ErrMtx = new double[ (3*m_NTrMaxVFit+3)*(3*m_NTrMaxVFit+4)/2  ];
     double CovMtxOld[6][6];
     double CovMtx   [6][6];
-
-//    long int vkNTrk = NTrk;
-//    int IERR = Trk::fiterm(vkNTrk,m_ErrMtx); //Real error matrix after fit
-//    if(IERR)       return StatusCode::FAILURE;
 
     CovVrtTrk.clear();
 
@@ -791,23 +717,11 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
 
 
 
-  StatusCode TrkVKalVrtFitter::VKalGetMassError( std::vector<int> ListOfTracks , double& dM, double& MassError)
+  StatusCode TrkVKalVrtFitter::VKalGetMassError( double& dM, double& MassError)
   {    
     if(!m_FitStatus) return StatusCode::FAILURE;
-    if((int) ListOfTracks.size() != m_FitStatus) return StatusCode::FAILURE;
-
-    double Deriv[ 3*NTrMaxVFit+3 ] = {0.};
-    long int Tist[NTrMaxVFit+1] = {0};
- 
-    for (int i=0; i<(int)ListOfTracks.size();i++){
-       Tist[i]=0;
-       if(ListOfTracks[i] != 0 ) Tist[i]=1;
-    }
-
-    long int NTRK=ListOfTracks.size();
-        
-    Trk::cfmasserr_(&NTRK, Tist, &m_parfs[0][0], m_wm, Deriv, &dM, &MassError);
-
+    dM        = m_vkalFitControl->getVertexMass();
+    MassError = m_vkalFitControl->getVrtMassError();
     return StatusCode::SUCCESS;
   }
   
@@ -817,13 +731,10 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
     if(!m_FitStatus) return StatusCode::FAILURE;  // no fit made
     trkWeights.clear();
 
-    double *tmp = new double[m_FitStatus];
-    long int NTRK=m_FitStatus;
+    int NTRK=m_FitStatus;
 
-    Trk::getWeights( NTRK, tmp);
+    for (int i=0; i<NTRK; i++) trkWeights.push_back(m_vkalFitControl->vk_forcft.robres[i]);
 
-    for (int i=0; i<NTRK; i++) trkWeights.push_back(tmp[i]);
-    delete[] tmp;
     return StatusCode::SUCCESS;
   }
   
@@ -836,8 +747,8 @@ long int TrkVKalVrtFitter::VKalVrtFit3( long int ntrk,
     else if(m_useZPointingCnst)   { NDOF+=1; }
     if( m_usePassNear || m_usePassWithTrkErr ) { NDOF+= 2; } 
 
-    if( m_MassForConstraint>0. )  { NDOF+=1; }
-    if( m_PartMassCnst.size()>0 ) { NDOF+= m_PartMassCnst.size(); }
+    if( m_massForConstraint>0. )  { NDOF+=1; }
+    if( m_partMassCnst.size()>0 ) { NDOF+= m_partMassCnst.size(); }
     if( m_useAprioriVertex )      { NDOF+= 3; }    
     if( m_usePhiCnst )            { NDOF+=1; }  
     if( m_useThetaCnst )          { NDOF+=1; }  

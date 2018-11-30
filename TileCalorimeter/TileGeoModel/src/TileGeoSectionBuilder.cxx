@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoSectionBuilder.h"
@@ -9,6 +9,7 @@
 #include "TileDetDescr/TileCellDim.h"
 
 #include "GeoModelKernel/GeoPcon.h"
+#include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoTrap.h"
@@ -45,16 +46,18 @@
 using namespace Genfun;
 using namespace GeoXF;
   
-TileGeoSectionBuilder::TileGeoSectionBuilder(DataHandle<StoredMaterialManager> & matManager,
+TileGeoSectionBuilder::TileGeoSectionBuilder(const StoredMaterialManager* matManager,
 					     TileDddbManager * pDbManager,
                                              int ushape,
                                              int glue,
+                                             int cstube,
                                              MsgStream * log)
   : m_theMaterialManager(matManager)
   , m_dbManager(pDbManager)
   , m_log(log)
   , m_uShape(ushape)
   , m_glue(glue)
+  , m_csTube(cstube)
   , m_barrelPeriodThickness(0.)
   , m_barrelGlue(0.)
   , m_extendedPeriodThickness(0.)
@@ -1494,15 +1497,15 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   const GeoMaterial* matElBoard = m_theMaterialManager->getMaterial("tile::SiO2CondEpox");
 
   // Get required elements
-  //GeoElement* oxygen = m_theMaterialManager->getElement("Oxygen");
-  //GeoElement* hydrogen = m_theMaterialManager->getElement("Hydrogen");
-  GeoElement* copper = m_theMaterialManager->getElement("Copper");
+  //const GeoElement* oxygen = m_theMaterialManager->getElement("Oxygen");
+  //const GeoElement* hydrogen = m_theMaterialManager->getElement("Hydrogen");
+  const GeoElement* copper = m_theMaterialManager->getElement("Copper");
 
   // Get some standard materials
-  GeoMaterial *air        = m_theMaterialManager->getMaterial("std::Air");
-  GeoMaterial *iron       = m_theMaterialManager->getMaterial("std::Iron");
-  GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
-  GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
+  const GeoMaterial *air        = m_theMaterialManager->getMaterial("std::Air");
+  const GeoMaterial *iron       = m_theMaterialManager->getMaterial("std::Iron");
+  const GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
+  const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
 
   // InDetServices
   if (m_matLArServices == 0)
@@ -1804,20 +1807,20 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 {
   int j;
   int CurrentScin = 0;
-  GeoTrd* glue = 0;
+  const GeoShape* glue = 0;
   GeoLogVol* lvGlue = 0;
   GeoPhysVol* pvGlue = 0;
   GeoTransform* tfGlue = 0;
 
   double scintiWrapInZ, scintiWrapInR, scintiThickness, scintiDeltaInPhi;
   double scintiHeight, scintiRC, scintiZPos, dy1Scintillator, dy2Scintillator;
-  GeoTrd* scintillator = 0;
+  const GeoShape* scintillator = 0;
   GeoLogVol* lvScintillator = 0;
   GeoPhysVol* pvScintillator = 0;
   GeoTransform* tfScintillator = 0;
 
   double thicknessWrapper, heightWrapper, dy1Wrapper, dy2Wrapper;
-  GeoTrd* wrapper = 0;
+  const GeoShape* wrapper = 0;
   GeoLogVol* lvWrapper = 0;
   GeoPhysVol* pvWrapper = 0;
   GeoTransform* tfWrapper = 0;
@@ -1869,6 +1872,15 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   const GeoMaterial* matAir = m_theMaterialManager->getMaterial("std::Air");
   const GeoMaterial* matScin = m_theMaterialManager->getMaterial("tile::Scintillator");
 
+  //Cs hole parameters
+  double csHoleR       = 0.45 * CLHEP::cm;
+  double csTubeOuterR  = 0.4  * CLHEP::cm;
+  double csTubeInnerR  = 0.3  * CLHEP::cm;
+  double csTubeOffCorr = 1.35 * CLHEP::cm;
+
+  double thicknessMother2 = thickness/2.*CLHEP::cm;
+  double heightMother2    = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*CLHEP::cm/2.;
+
   const bool removeGlue = (m_glue == 0 || m_glue == 2);
 
   //Glue layer
@@ -1893,6 +1905,48 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 
     glue = new GeoTrd(dzglue2,dzglue2,dy1Glue,dy2Glue,heightGlue2);
 
+  //Cs tubes in mother volume and holes in glue
+  if (m_csTube) {
+    for (j = CurrentScin; j < (CurrentScin + m_dbManager->TILBnscin()); j++)
+    {
+      idTag = new GeoIdentifierTag(j-CurrentScin);
+      m_dbManager->SetCurrentScin(j);
+
+      double off0 = m_dbManager->SCNTrc()*CLHEP::cm - heightMother2;
+      double off  = m_dbManager->SCNTdr()/2.*CLHEP::cm - csTubeOffCorr;
+
+      HepGeom::Transform3D tfHole1 = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
+      HepGeom::Transform3D tfHole2 = HepGeom::Translate3D(0.,0.,(off0+off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
+
+      // air around iron rod, around Cs tube and inside Cs tube
+      GeoShape *air1 = new GeoTubs(csTubeOuterR, csHoleR, thicknessMother2, 0.,360.0 * CLHEP::deg);
+      GeoShape *air2 = new GeoTubs(csTubeOuterR, csHoleR, thicknessMother2, 0.,360.0 * CLHEP::deg);
+      GeoShape *air3 = new GeoTubs(0.,      csTubeInnerR, thicknessMother2, 0.,360.0 * CLHEP::deg);
+
+      GeoLogVol * lvAir1 = new GeoLogVol("CsTubeAir1",air1,matAir);
+      GeoLogVol * lvAir2 = new GeoLogVol("CsTubeAir2",air2,matAir);
+      GeoLogVol * lvAir3 = new GeoLogVol("CsTubeAir3",air3,matAir);
+      GeoPhysVol * pvAir1 = new GeoPhysVol(lvAir1);
+      GeoPhysVol * pvAir2 = new GeoPhysVol(lvAir2);
+      GeoPhysVol * pvAir3 = new GeoPhysVol(lvAir3);
+
+      GeoTransform* tftube1 = new GeoTransform(tfHole1);
+      GeoTransform* tftube2 = new GeoTransform(tfHole2);
+      GeoTransform* tftube3 = new GeoTransform(tfHole2);
+
+      mother->add(tftube1);
+      mother->add(pvAir1);
+      mother->add(tftube2);
+      mother->add(pvAir2);
+      mother->add(tftube3);
+      mother->add(pvAir3);
+
+      //Holes in Glue
+      if (glue) {
+        glue = makeHoles(glue, csHoleR, dzglue2, off, off0);
+      }
+    }
+  }
     lvGlue = new GeoLogVol("Glue",glue,matGlue);
     pvGlue = new GeoPhysVol(lvGlue);
   }
@@ -1964,6 +2018,9 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     dy2Wrapper,
 			     heightWrapper/2);
 
+	if (m_csTube) {
+          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+        }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
@@ -1981,6 +2038,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				  dy1Scintillator,
 				  dy2Scintillator,
 				  scintiHeight/2*CLHEP::cm);
+
+	if (m_csTube) {
+          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
@@ -2058,6 +2119,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     dy1Wrapper,
 			     dy2Wrapper,
 			     heightWrapper/2);
+
+	if (m_csTube) {
+          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+        }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
@@ -2075,6 +2140,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				  dy1Scintillator,
 				  dy2Scintillator,
 				  scintiHeight/2*CLHEP::cm);
+
+	if (m_csTube) {
+          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
@@ -2165,6 +2234,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     dy1Wrapper,
 			     dy2Wrapper,
 			     heightWrapper/2);
+
+	if (m_csTube) {
+          wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+        }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	pvWrapper = new GeoPhysVol(lvWrapper);
 
@@ -2182,6 +2255,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				  dy1Scintillator,
 				  dy2Scintillator,
 				  scintiHeight/2*CLHEP::cm);
+
+	if (m_csTube) {
+          scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	pvScintillator = new GeoPhysVol(lvScintillator);
 
@@ -2245,6 +2322,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			       dy1Wrapper,
 			       dy2Wrapper,
 			       heightWrapper/2);
+
+          if (m_csTube) {
+            wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          }
 	  lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
 	  pvWrapper = new GeoPhysVol(lvWrapper);
 
@@ -2262,6 +2343,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				    dy1Scintillator,
 				    dy2Scintillator,
 				    scintiHeight/2*CLHEP::cm);
+
+          if (m_csTube) {
+            scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * CLHEP::cm, scintiHeight/2.*CLHEP::cm - csTubeOffCorr);
+          }
 	  lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
 	  pvScintillator = new GeoPhysVol(lvScintillator);
 	  
@@ -3333,4 +3418,21 @@ void TileGeoSectionBuilder::printdouble(const char * name, double val)
 {
     (*m_log) << MSG::VERBOSE  << std::setprecision (std::numeric_limits<double>::digits10 + 1)
              << name << val << endmsg;
+}
+
+const GeoShape * TileGeoSectionBuilder::makeHolesScint(const GeoShape * mother, double R, double H2, double off, double off0) {
+    GeoShape *hole = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
+    const  GeoShapeUnion& scintUnion = hole->add( *hole << HepGeom::Translate3D((off0-off*2.0),0.,0.));
+    HepGeom::Transform3D tfHole = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(90*CLHEP::deg);
+    const GeoShape & motherWithHoles = (mother->subtract(scintUnion<<tfHole));
+    return &motherWithHoles;
+}
+
+const GeoShape * TileGeoSectionBuilder::makeHoles(const GeoShape * mother, double R, double H2, double off, double off0) {
+  GeoShape *hole1 = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
+  GeoShape *hole2 = new GeoTubs(0., R, H2, 0., 360.0 * CLHEP::deg);
+  HepGeom::Transform3D tfHole1 = HepGeom::Translate3D(0.,0.,(off0-off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
+  HepGeom::Transform3D tfHole2 = HepGeom::Translate3D(0.,0.,(off0+off)) * HepGeom::RotateY3D(-90*CLHEP::deg);
+  const GeoShape & motherWithHoles = (mother->subtract((*hole1)<<tfHole1).subtract((*hole2)<<tfHole2));
+  return &motherWithHoles;
 }

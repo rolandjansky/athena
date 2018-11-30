@@ -30,10 +30,6 @@ theLArChanMasker.ProblemsToMask=[
 ]
 ToolSvc+=theLArChanMasker
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-ToolSvc+=theLArBadChannelTool
-
 
 
 # All 2D plot occupancy are activate only for express and cosmiccalo
@@ -66,7 +62,6 @@ LArCellMon = LArCellMonTool(
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
     LArBadChannelMask=theLArChanMasker,
-    LArBadChannelTool=theLArBadChannelTool,
     MaskBadChannels    = False,
     MaskNoCondChannels = False,
     #doInverseMasking   = False,
@@ -207,8 +202,8 @@ else:
       
 
 
-ToolSvc+=LArCellMon
-ToolSvc+=TileCalCellMon
+#ToolSvc+=LArCellMon
+#ToolSvc+=TileCalCellMon
 CaloMon.AthenaMonTools += [LArCellMon,TileCalCellMon]
 
 

@@ -65,7 +65,8 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetC
 
   bool result{true};
   if (h == InDetConditions::SCT_STRIP) {
-    result = (not condData->isBadStripId(elementId));
+    result = (not condData->isBadStrip(m_pHelper->wafer_hash(m_pHelper->wafer_id(elementId)),
+                                       m_pHelper->strip(elementId)));
     // If strip itself is not bad, check if it's in a bad module
     if (result and m_checkStripsInsideModules) result = (not isStripInBadModule(elementId));
   } else if (h == InDetConditions::SCT_MODULE) {
@@ -181,7 +182,7 @@ const std::set<Identifier>* SCT_ConfigurationConditionsTool::badModules() const 
   return condData->getBadModuleIds();
 }
 
-void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId,  std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) const {
+void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules, bool ignoreBadChips) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
@@ -208,7 +209,7 @@ void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId,  std
   }
 }
        
-std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const Identifier& moduleId) const {
+std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const IdentifierHash& hash) const {
   // Bad links for a given module
   // Bad convetion is used. true is for good link and false is for bad link...
   const EventContext& ctx{Gaudi::Hive::currentContext()};
@@ -218,10 +219,10 @@ std::pair<bool, bool> SCT_ConfigurationConditionsTool::badLinks(const Identifier
     return std::pair<bool, bool>{false, false};
   }
 
-  return condData->areBadLinks(moduleId);
+  return condData->areBadLinks(hash);
 }
 
-const std::map<Identifier, std::pair<bool, bool>>* SCT_ConfigurationConditionsTool::badLinks() const {
+const std::map<IdentifierHash, std::pair<bool, bool>>* SCT_ConfigurationConditionsTool::badLinks() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_ConfigurationCondData* condData{getCondData(ctx)};
   if (condData==nullptr) {
@@ -291,11 +292,12 @@ SCT_ConfigurationConditionsTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cache.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<SCT_ConfigurationCondData> condData{m_condKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());
@@ -312,11 +314,12 @@ const InDetDD::SiDetectorElement* SCT_ConfigurationConditionsTool::getDetectorEl
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
-  std::lock_guard<std::mutex> lock{m_mutex};
   if (slot>=m_cacheElements.size()) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cacheElements[slot]!=evt) {
+    std::lock_guard<std::mutex> lock{m_mutex};
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());

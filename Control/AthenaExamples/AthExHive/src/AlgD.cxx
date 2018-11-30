@@ -81,7 +81,8 @@ StatusCode AlgD::execute() {
     ATH_MSG_ERROR("  CDO2 ptr == zero");
   }
 
-  ATH_MSG_INFO("test: " << rh1->val() << " " << **ch1 << " " << **ch2);
+  ATH_MSG_INFO("test: " << getContext().eventID().event_number() << " "
+               << rh1->val() << " " << **ch1 << " " << **ch2);
   
   return StatusCode::SUCCESS;
 

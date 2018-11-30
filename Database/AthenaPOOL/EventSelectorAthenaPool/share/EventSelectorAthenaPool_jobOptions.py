@@ -18,8 +18,6 @@ svcMgr += EventSelectorAthenaPool( "EventSelector" )
 
 EventSelector = svcMgr.EventSelector
 #
-# Switch on back navigation to find objects in input streams.
-EventSelector.BackNavigation = FALSE;
 # Switch on firing of FileIncidents which will trigger processing of metadata.
 EventSelector.ProcessMetadata = TRUE;
 # Type of the collection.

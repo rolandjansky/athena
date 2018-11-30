@@ -336,7 +336,7 @@ CondInputLoader::execute()
   // number with the conditions run number from the event context,
   // if it is defined.
   EventIDBase::number_type conditionsRun =
-    getContext().template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+    getContext().template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
   if (conditionsRun != EventIDBase::UNDEFNUM) {
     now.set_run_number (conditionsRun);
   }

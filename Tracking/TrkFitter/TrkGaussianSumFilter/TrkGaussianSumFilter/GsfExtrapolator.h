@@ -1,20 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /*********************************************************************************
-			GsfExtrapolator.h  -  description
-			------------------------------------------
+  GsfExtrapolator.h  -  description
+------------------------------------------
 begin                : Tuesday 25th January 2005
 author               : atkinson
 email                : Tom.Atkinson@cern.ch
 decription           : Extrapolation of MultiComponentState class based on
-		       Andi's single component state extrapolator. It is an
-		       AlgTool inheriting from the IMultiStateExtrapolator class
+Andi's single component state extrapolator. It is an
+AlgTool inheriting from the IMultiStateExtrapolator class
 *********************************************************************************/
 
 #ifndef TrkGsfExtrapolator_H
 #define TrkGsfExtrapolator_H
+
+#include "GaudiKernel/Counters.h"
 
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
@@ -31,10 +33,10 @@ decription           : Extrapolation of MultiComponentState class based on
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
-
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace Trk{
 
@@ -50,333 +52,337 @@ class IMaterialMixtureConvolution;
 
 
 /** @struct StateAtBoundarySurface
-    - Structure to contain information about a state at the interface between tracking volumes
-*/
+  - Structure to contain information about a state at the interface between tracking volumes
+  */
 
 struct StateAtBoundarySurface {
 
   /** Data members */
-  mutable const MultiComponentState* stateAtBoundary;
-  mutable const TrackParameters*     navigationParameters;
-  mutable const TrackingVolume*      trackingVolume;
-  
+  const MultiComponentState* stateAtBoundary;
+  const TrackParameters*     navigationParameters;
+  const TrackingVolume*      trackingVolume;
+
   /** Default constructor  */
   StateAtBoundarySurface()
     :
-    stateAtBoundary(0),
-    navigationParameters(0),
-    trackingVolume(0)
-    {}
-  
+      stateAtBoundary(0),
+      navigationParameters(0),
+      trackingVolume(0)
+  {}
+
   /** Update State at Boundary Surface Information */
   void updateBoundaryInformation( const MultiComponentState* boundaryState,
-				  const TrackParameters*     navParameters,
-				  const TrackingVolume*      nextVolume )
+                                  const TrackParameters*     navParameters,
+                                  const TrackingVolume*      nextVolume )
   {
     stateAtBoundary = boundaryState;
     navigationParameters = navParameters;
     trackingVolume = nextVolume;
   }
-
-  /** Reset boundary information by clearing cashed parameters */
-  void resetBoundaryInformation()
-  {
-    stateAtBoundary      = 0;
-    navigationParameters = 0;
-    trackingVolume       = 0;
-  }
-
 };
 
 /** @class GsfExtrapolator */
 
 class GsfExtrapolator : public AthAlgTool, virtual public IMultiStateExtrapolator {
 
- public:
+public:
 
   /** Constructor with AlgTool parameters */
   GsfExtrapolator(const std::string&, const std::string&, const IInterface*);
-  
+
   /** Destructor */
   ~GsfExtrapolator();
-  
+
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
-	
+  virtual StatusCode finalize() override;
+
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
   virtual const MultiComponentState* extrapolate ( const IPropagator&,
-						   const MultiComponentState&,
-						   const Surface&,
-						   PropDirection direction = anyDirection,
-						   BoundaryCheck boundaryCheck = true,
-						   ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+                                                   const MultiComponentState&,
+                                                   const Surface&,
+                                                   PropDirection direction = anyDirection,
+                                                   BoundaryCheck boundaryCheck = true,
+                                                   ParticleHypothesis particleHypothesis = nonInteracting ) const override;
+
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
   virtual const MultiComponentState* extrapolateDirectly ( const IPropagator&,
-							   const MultiComponentState&,
-							   const Surface&,
-							   PropDirection direction = anyDirection,
-							   BoundaryCheck boundaryCheck = true,
-							   ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+                                                           const MultiComponentState&,
+                                                           const Surface&,
+                                                           PropDirection direction = anyDirection,
+                                                           BoundaryCheck boundaryCheck = true,
+                                                           ParticleHypothesis particleHypothesis = nonInteracting ) const override;
+
   /** Configured AlgTool extrapolation method (1) */
   virtual const MultiComponentState* extrapolate ( const MultiComponentState&,
-						   const Surface&,
-						   PropDirection direction = anyDirection,
-						   BoundaryCheck boundaryCheck = true,
-						   ParticleHypothesis particleHypothesis = nonInteracting ) const;
+                                                   const Surface&,
+                                                   PropDirection direction = anyDirection,
+                                                   BoundaryCheck boundaryCheck = true,
+                                                   ParticleHypothesis particleHypothesis = nonInteracting ) const override;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
   virtual const MultiComponentState* extrapolateDirectly ( const MultiComponentState&,
-							   const Surface&,
-							   PropDirection direction = anyDirection,
-							   BoundaryCheck boundaryCheck = true,
-							   ParticleHypothesis particleHypothesis = nonInteracting ) const;
- 
- 
- 
-  virtual const std::vector<const Trk::TrackStateOnSurface*>* extrapolateM(const MultiComponentState&,
-                                                                  const Surface& sf,
-                                                                  PropDirection dir,
-                                                                  BoundaryCheck bcheck,
-                                                                  ParticleHypothesis particle) const;
-                                                                                    
-                                                                                    
- private:
-  
-  /** Two primary private extrapolation methods 
-      - extrapolateToVolumeBoundary - extrapolates to the exit of the destination tracking volume
-                                    - Exit layer surface will be hit in this method.
-      - extrapolateInsideVolume     - extrapolates to the destination surface in the final tracking volume
-  */
+                                                           const Surface&,
+                                                           PropDirection direction = anyDirection,
+                                                           BoundaryCheck boundaryCheck = true,
+                                                           ParticleHypothesis particleHypothesis = nonInteracting ) const override;
 
-  void extrapolateToVolumeBoundary ( const IPropagator&,
-				     const MultiComponentState&,
-				     const Layer*,
-				     const TrackingVolume&,
-				     PropDirection direction = anyDirection,
-				     ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
-  const MultiComponentState* extrapolateInsideVolume ( const IPropagator&,
-						       const MultiComponentState&,
-						       const Surface&,
-						       const Layer*,
-						       const TrackingVolume&,
-						       PropDirection direction = anyDirection,
-						       BoundaryCheck boundaryCheck = true,
-						       ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+
+
+  virtual const std::vector<const Trk::TrackStateOnSurface*>* extrapolateM(const MultiComponentState&,
+                                                                           const Surface& sf,
+                                                                           PropDirection dir,
+                                                                           BoundaryCheck bcheck,
+                                                                           ParticleHypothesis particle) const override; 
+
+
+private:
+  struct Cache {
+    bool                       m_recall;                           //!< Flag the recall solution
+    const Surface*             m_recallSurface;                    //!< Surface for recall
+    const Layer*               m_recallLayer;                      //!< Layer for recall
+    const TrackingVolume*      m_recallTrackingVolume;             //!< Tracking volume for recall
+    StateAtBoundarySurface     m_stateAtBoundarySurface;           //!< Instance of structure describing the state at a boundary of tracking volumes
+    std::unique_ptr< std::vector<const Trk::TrackStateOnSurface*> >  m_matstates;
+    std::vector< std::unique_ptr< const MultiComponentState> > m_mcsGarbageBin;  //!< Garbage bin for MultiComponentState objects
+    std::vector< std::unique_ptr< const TrackParameters> > m_tpGarbageBin;   //!< Garbage bin for TrackParameter objects
+
+    Cache(): m_recall(false),
+    m_recallSurface(nullptr),
+    m_recallLayer(nullptr),
+    m_recallTrackingVolume(nullptr),
+    m_stateAtBoundarySurface(),
+    m_matstates(nullptr),
+    m_mcsGarbageBin(),
+    m_tpGarbageBin(){
+    }
+  };
+
+  /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
+  const MultiComponentState* extrapolateImpl (Cache& cache, 
+                                                     const IPropagator&,
+                                                     const MultiComponentState&,
+                                                     const Surface&,
+                                                     PropDirection direction = anyDirection,
+                                                     BoundaryCheck boundaryCheck = true,
+                                                     ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
+  const MultiComponentState* extrapolateImpl ( Cache& cache,
+                                               const MultiComponentState&,
+                                               const Surface&,
+                                               PropDirection direction = anyDirection,
+                                               BoundaryCheck boundaryCheck = true,
+                                               ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
+
+
+  /** Two primary private extrapolation methods 
+    - extrapolateToVolumeBoundary - extrapolates to the exit of the destination tracking volume
+    - Exit layer surface will be hit in this method.
+    - extrapolateInsideVolume     - extrapolates to the destination surface in the final tracking volume
+    */
+
+  void extrapolateToVolumeBoundary ( Cache& cache,
+                                     const IPropagator&,
+                                     const MultiComponentState&,
+                                     const Layer*,
+                                     const TrackingVolume&,
+                                     PropDirection direction = anyDirection,
+                                     ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
+  const MultiComponentState* extrapolateInsideVolume ( Cache& cache,
+                                                       const IPropagator&,
+                                                       const MultiComponentState&,
+                                                       const Surface&,
+                                                       const Layer*,
+                                                       const TrackingVolume&,
+                                                       PropDirection direction = anyDirection,
+                                                       BoundaryCheck boundaryCheck = true,
+                                                       ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
   /** Additional private extrapolation methods */
-  
+
   /** Layer stepping, stopping at the last layer before destination */
-  const MultiComponentState* extrapolateFromLayerToLayer( const IPropagator&,
-							  const MultiComponentState&,
-							  const TrackingVolume&,
-							  const Layer* startLayer,
-							  const Layer* destinationLayer = 0,
-							  PropDirection direction = anyDirection,
-							  ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+  const MultiComponentState* extrapolateFromLayerToLayer( Cache& cache,
+                                                          const IPropagator&,
+                                                          const MultiComponentState&,
+                                                          const TrackingVolume&,
+                                                          const Layer* startLayer,
+                                                          const Layer* destinationLayer = 0,
+                                                          PropDirection direction = anyDirection,
+                                                          ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
   /** Single extrapolation step to an intermediate layer */
-  const MultiComponentState* extrapolateToIntermediateLayer ( const IPropagator&,
-							      const MultiComponentState&,
-							      const Layer&,
-							      const TrackingVolume&,
-							      PropDirection direction = anyDirection,
-							      ParticleHypothesis particleHypothesis = nonInteracting,
-							      bool perpendicularCheck = true) const;
-  
+  const MultiComponentState* extrapolateToIntermediateLayer ( Cache& cache, 
+                                                              const IPropagator&,
+                                                              const MultiComponentState&,
+                                                              const Layer&,
+                                                              const TrackingVolume&,
+                                                              PropDirection direction = anyDirection,
+                                                              ParticleHypothesis particleHypothesis = nonInteracting,
+                                                              bool perpendicularCheck = true) const;
+
   /** Final extrapolation step to a destination layer */
-  const MultiComponentState* extrapolateToDestinationLayer ( const IPropagator&,
-							     const MultiComponentState&,
-							     const Surface&,
-							     const Layer&,
-							     //const TrackingVolume&,
-							     const Layer*,
-							     PropDirection direction = anyDirection,
-							     BoundaryCheck boundaryCheck = true,
-							     ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+  const MultiComponentState* extrapolateToDestinationLayer ( Cache& cache,
+                                                             const IPropagator&,
+                                                             const MultiComponentState&,
+                                                             const Surface&,
+                                                             const Layer&,
+                                                             const Layer*,
+                                                             PropDirection direction = anyDirection,
+                                                             BoundaryCheck boundaryCheck = true,
+                                                             ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
   /** Extrapolation to consider material effects assuming all material on active sensor elements - CTB method */
   const MultiComponentState* extrapolateSurfaceBasedMaterialEffects ( const IPropagator&,
-								      const MultiComponentState&,
-								      const Surface&,
-								      PropDirection direction = anyDirection,
-								      BoundaryCheck boundaryCheck = true,
-								      ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+                                                                      const MultiComponentState&,
+                                                                      const Surface&,
+                                                                      PropDirection direction = anyDirection,
+                                                                      BoundaryCheck boundaryCheck = true,
+                                                                      ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
   /** GSF Method to propagate a number of components simultaneously */
   const MultiComponentState* multiStatePropagate ( const IPropagator&,
-						   const MultiComponentState&,
-						   const Surface&,
-						   PropDirection direction = anyDirection,
-						   BoundaryCheck boundaryCheck = true,
-						   ParticleHypothesis particleHypothesis = nonInteracting ) const;
-  
+                                                   const MultiComponentState&,
+                                                   const Surface&,
+                                                   PropDirection direction = anyDirection,
+                                                   BoundaryCheck boundaryCheck = true,
+                                                   ParticleHypothesis particleHypothesis = nonInteracting ) const;
+
   /** Method to choose propagator type */
   unsigned int propagatorType ( const TrackingVolume& trackingVolume ) const;
 
   /** Method to initialise navigation parameters including starting state, layer and volume, and destination volume */
-  void initialiseNavigation ( const IPropagator&         propagator, 
-			      const MultiComponentState& initialState,
-			      const Surface&             surface,
-			      const Layer*&              associatedLayer,
-			      const TrackingVolume*&     currentVolume,
-			      const TrackingVolume*&     destinationVolume,
-			      const TrackParameters*&    referenceParameters,
-			      PropDirection              direction ) const;
-  
-  /** Method to print details of the state at a point in extrapolation */
-  void printState( const std::string&, const TrackParameters& ) const;
+  void initialiseNavigation ( Cache& cache,
+                              const IPropagator&         propagator, 
+                              const MultiComponentState& initialState,
+                              const Surface&             surface,
+                              const Layer*&              associatedLayer,
+                              const TrackingVolume*&     currentVolume,
+                              const TrackingVolume*&     destinationVolume,
+                              const TrackParameters*&    referenceParameters,
+                              PropDirection              direction ) const;
 
   /** Method to set the recall information */
-  void setRecallInformation( const Surface&, const Layer&, const TrackingVolume& ) const;
-  
+  void setRecallInformation( Cache& cache, const Surface&, const Layer&, const TrackingVolume& ) const;
+
   /** Method to reset the recall information */
-  void resetRecallInformation() const;
-  
+  void resetRecallInformation(Cache& cache) const;
+
   /** Private method to throw a multi-component state into the garbage bin */
-  void throwIntoGarbageBin( const MultiComponentState* ) const;
+  void throwIntoGarbageBin( Cache& cache , const MultiComponentState* ) const;
 
   /** Private method to throw a set of track parameters into the garbage bin */
-  void throwIntoGarbageBin( const TrackParameters* ) const;
+  void throwIntoGarbageBin( Cache& cache, const TrackParameters* ) const;
 
   /** Private method to empty garbage bins */
-  void emptyGarbageBins() const;
-
-  /** Private method to reset the garbage bins */
-  void resetGarbageBins() const;
-  
+  void emptyGarbageBins(Cache& cache) const;
   /** Add material to vector*/
-  void addMaterialtoVector(const Trk::Layer* nextLayer,
+  void addMaterialtoVector(Cache& cache,
+                           const Trk::Layer* nextLayer,
                            const Trk::TrackParameters* nextPar,
                            PropDirection direction  = anyDirection,
                            ParticleHypothesis particleHypothesis = nonInteracting) const;
 
+  /** Method to print details of the state at a point in extrapolation */
+  void printState( const std::string&, const TrackParameters& ) const;
+
 
   std::string layerRZoutput(const Trk::Layer * lay) const;
-  
-  std::string positionOutput(const Amg::Vector3D& pos) const;
 
+  std::string positionOutput(const Amg::Vector3D& pos) const;
 
   int  radialDirection(const Trk::MultiComponentState& pars, PropDirection dir) const;
 
   bool radialDirectionCheck(const IPropagator& prop,
-                           const MultiComponentState& startParm,
-                           const MultiComponentState& parsOnLayer,
-                           const TrackingVolume& tvol,
-                           PropDirection dir,
-                           ParticleHypothesis particle) const;
+                            const MultiComponentState& startParm,
+                            const MultiComponentState& parsOnLayer,
+                            const TrackingVolume& tvol,
+                            PropDirection dir,
+                            ParticleHypothesis particle) const;
 
- private:  
-  
   ToolHandleArray< IPropagator >     m_propagators;                      //!< Propagators to be retrieved from the ToolSvc
+  ToolHandle<INavigator>                        m_navigator;                        //!< Navigator
+  ToolHandle<IMaterialMixtureConvolution>       m_materialUpdator;                  //!< (Multi-component) material effects updator
+  ToolHandle<IMultiComponentStateMerger>        m_merger;                           //!< Multi-component state reduction
+  PublicToolHandle<IMultiComponentStateCombiner>      m_stateCombiner
+  {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",""};    //!< Multi-component State combiner
+  PublicToolHandle< IMultipleScatteringUpdator >      m_msupdators
+  {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; //!<  Array of MultipleScattering Updators
+  PublicToolHandle< IEnergyLossUpdator >              m_elossupdators
+  {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};                         //!<  Array of EnergyLoss Updators
+
   bool                               m_propagatorStickyConfiguration;    //!< Switch between simple and full configured propagators
+  bool                               m_surfaceBasedMaterialEffects;      //!< Switch to turn on/off surface based material effects
+  bool                               m_fastField;
   unsigned int                       m_propagatorConfigurationLevel;     //!< Configuration level of the propagator
   unsigned int                       m_propagatorSearchLevel;            //!< Search level of the propagator
+  Trk::MagneticFieldProperties       m_fieldProperties;
 
-  ToolHandle<INavigator>                        m_navigator;                        //!< Navigator
-
-  ToolHandle<IMaterialMixtureConvolution>       m_materialUpdator;                  //!< (Multi-component) material effects updator
-  
-  ToolHandle<IMultiComponentStateMerger>        m_merger;                           //!< Multi-component state reduction
-
-  PublicToolHandle<IMultiComponentStateCombiner>      m_stateCombiner
-     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",""};                    //!< Multi-component State combiner
-  
-  PublicToolHandle< IMultipleScatteringUpdator >      m_msupdators
-     {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""};                 //!<  Array of MultipleScattering Updators
-  PublicToolHandle< IEnergyLossUpdator >              m_elossupdators
-     {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};                      //!<  Array of EnergyLoss Updators
-
-  bool                               m_surfaceBasedMaterialEffects;      //!< Switch to turn on/off surface based material effects
-
-  mutable bool                       m_recall;                           //!< Flag the recall solution
-  mutable const Surface*             m_recallSurface;                    //!< Surface for recall
-  mutable const Layer*               m_recallLayer;                      //!< Layer for recall
-  mutable const TrackingVolume*      m_recallTrackingVolume;             //!< Tracking volume for recall
-
-  mutable StateAtBoundarySurface     m_stateAtBoundarySurface;           //!< Instance of structure describing the state at a boundary of tracking volumes
-
-  mutable int                        m_extrapolateCalls;                 //!< Statistics: Number of calls to the main extrapolate method
-  mutable int                        m_extrapolateDirectlyCalls;         //!< Statistics: Number of calls to the extrapolate directly method
-  mutable int                        m_extrapolateDirectlyFallbacks;     //!< Statistics: Number of calls to the extrapolate directly fallback
-  mutable int                        m_navigationDistanceIncreaseBreaks; //!< Statistics: Number of times navigation stepping fails to go the right way
-  mutable int                        m_oscillationBreaks;                //!< Statistics: Number of times a tracking volume oscillation is detected
-  mutable int                        m_missedVolumeBoundary;             //!< Statistics: Number of times the volume boundary is missed
-
-  ServiceHandle<IChronoStatSvc>      m_chronoSvc;                  //!< Timing: The Gaudi time auditing service
-
-  mutable std::map< const MultiComponentState*, bool > m_mcsGarbageBin;  //!< Garbage bin for MultiComponentState objects
-  mutable std::map< const TrackParameters*, bool >     m_tpGarbageBin;   //!< Garbage bin for TrackParameter objects
-
-  mutable std::vector<const Trk::TrackStateOnSurface*>*  m_matstates;
+  mutable Gaudi::Accumulators::Counter<int, Gaudi::Accumulators::atomicity::full> 
+    m_extrapolateCalls;                 //!< Statistics: Number of calls to the main extrapolate method
+  mutable Gaudi::Accumulators::Counter<int, Gaudi::Accumulators::atomicity::full>                       
+    m_extrapolateDirectlyCalls;         //!< Statistics: Number of calls to the extrapolate directly method
+  mutable Gaudi::Accumulators::Counter<int, Gaudi::Accumulators::atomicity::full>                       
+    m_extrapolateDirectlyFallbacks;     //!< Statistics: Number of calls to the extrapolate directly fallback
+  mutable Gaudi::Accumulators::Counter<int, Gaudi::Accumulators::atomicity::full>                       
+    m_navigationDistanceIncreaseBreaks; //!< Statistics: Number of times navigation stepping fails to go the right way
+  mutable Gaudi::Accumulators::Counter<int, Gaudi::Accumulators::atomicity::full>                      
+    m_oscillationBreaks;                //!< Statistics: Number of times a tracking volume oscillation is detected
+  mutable Gaudi::Accumulators::Counter<int, Gaudi::Accumulators::atomicity::full>                       
+    m_missedVolumeBoundary;             //!< Statistics: Number of times the volume boundary is missed
 
 
-  bool m_fastField;
-  Trk::MagneticFieldProperties m_fieldProperties;
 };
 
 } // end namespace Trk
 
-inline void Trk::GsfExtrapolator::setRecallInformation( const Trk::Surface& recallSurface, const Trk::Layer& recallLayer, const Trk::TrackingVolume& recallTrackingVolume ) const
+inline void Trk::GsfExtrapolator::setRecallInformation( Cache& cache, 
+                                                        const Trk::Surface& recallSurface, 
+                                                        const Trk::Layer& recallLayer, 
+                                                        const Trk::TrackingVolume& recallTrackingVolume ) const
 {
-
-  m_recall               = true;
-  m_recallSurface        = &recallSurface;
-  m_recallLayer          = &recallLayer;
-  m_recallTrackingVolume = &recallTrackingVolume;
-
+  cache.m_recall               = true;
+  cache.m_recallSurface        = &recallSurface;
+  cache.m_recallLayer          = &recallLayer;
+  cache.m_recallTrackingVolume = &recallTrackingVolume;
 }
 
-inline void Trk::GsfExtrapolator::resetRecallInformation() const
+inline void Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
 {
-
-  m_recall               = false;
-  m_recallSurface        = 0;
-  m_recallLayer          = 0;
-  m_recallTrackingVolume = 0;
-
+  cache.m_recall               = false;
+  cache.m_recallSurface        = 0;
+  cache.m_recallLayer          = 0;
+  cache.m_recallTrackingVolume = 0;
 }
 
-inline void Trk::GsfExtrapolator::throwIntoGarbageBin( const Trk::MultiComponentState* garbage ) const
-{ if (garbage) m_mcsGarbageBin[garbage] = true; }
+inline void Trk::GsfExtrapolator::throwIntoGarbageBin( Cache& cache, const Trk::MultiComponentState* garbage ) const
+{ 
+  if (garbage){ 
+    std::unique_ptr<const Trk::MultiComponentState> sink(garbage);
+    cache.m_mcsGarbageBin.push_back(std::move(sink));
+  } 
+}
 
-inline void Trk::GsfExtrapolator::throwIntoGarbageBin( const Trk::TrackParameters* garbage ) const
-{ if (garbage) m_tpGarbageBin[garbage] = true; }
+inline void Trk::GsfExtrapolator::throwIntoGarbageBin(Cache& cache, const Trk::TrackParameters* garbage ) const
+{ 
+  if (garbage){ 
+    std::unique_ptr<const Trk::TrackParameters> sink(garbage);
+    cache.m_tpGarbageBin.push_back(std::move(sink));
+  } 
+}
 
-inline void Trk::GsfExtrapolator::emptyGarbageBins() const
+inline void Trk::GsfExtrapolator::emptyGarbageBins(Cache& cache) const
 {
-
   // Reset the boundary information
-  m_stateAtBoundarySurface.resetBoundaryInformation();
-
-  // Loop over both garbage collections and delete
-  std::map< const Trk::MultiComponentState*, bool >::iterator mcsGarbage = m_mcsGarbageBin.begin();
-  
-  for ( ; mcsGarbage != m_mcsGarbageBin.end() ; ++mcsGarbage )
-    delete mcsGarbage->first;
-
-  m_mcsGarbageBin.clear();
-
-  std::map< const Trk::TrackParameters*, bool >::iterator tpGarbage = m_tpGarbageBin.begin();
-
-  for ( ; tpGarbage != m_tpGarbageBin.end() ; ++tpGarbage )
-    delete tpGarbage->first;
-
-  m_tpGarbageBin.clear();
-
+  StateAtBoundarySurface freshState; 
+  cache.m_stateAtBoundarySurface=freshState;
+  cache.m_mcsGarbageBin.clear();
+  cache.m_tpGarbageBin.clear();
+  cache.m_matstates.reset(nullptr);
 }
- 
-inline void Trk::GsfExtrapolator::resetGarbageBins() const
-{
 
-  m_mcsGarbageBin.clear();
-  m_tpGarbageBin.clear();
-
-}
 
 #endif

@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkParameters
    Tracking/TrkEvent/TrkParticleBase
    Tracking/TrkEvent/VxVertex
+   InnerDetector/InDetConditions/BeamSpotConditionsData
    PRIVATE
    Event/EventPrimitives
    Event/xAOD/xAODTruth

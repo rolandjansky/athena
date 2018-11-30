@@ -22,8 +22,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result
-			  Trigger/TrigSteer/DecisionHandling
-			  Trigger/TrigTools/TrigTimeAlgs )
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigTools/TrigTimeAlgs
+                          Trigger/TrigMonitoring/TrigCostMonitorMT )
 
 find_package( CLHEP )
 
@@ -34,7 +35,7 @@ atlas_add_library( L1DecoderLib
                    PUBLIC_HEADERS L1Decoder
                    LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps AthenaMonitoringLib 
                    CxxUtils xAODTrigger TrigConfHLTData TrigConfL1Data
-		           TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib
+                   TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
                    )
                    
@@ -48,6 +49,12 @@ atlas_install_python_modules( python/*.py)
 # Install files from the package:
 atlas_install_headers( L1Decoder )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/test* )
 
-atlas_add_test( L1DecoderTest SCRIPT python -m L1Decoder.L1DecoderConfig ) 
-atlas_add_test( L1MuonTest SCRIPT python -m L1Decoder.L1MuonConfig ) 
+atlas_add_test( L1DecoderNJOTest SCRIPT python -m L1Decoder.L1DecoderConfig )
+
+atlas_add_test( L1DecoderTest
+                SCRIPT test/test_l1decoder.sh
+                PROPERTIES TIMEOUT 1000               
+              )
+

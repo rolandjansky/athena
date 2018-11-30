@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrkTrack parameters to internal VKalVrt parameters
@@ -9,6 +9,7 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
 // Other stuff
 //----
@@ -28,8 +29,7 @@ namespace Trk{
 //
 
 
- StatusCode TrkVKalVrtFitter::CvtTrkTrack(const std::vector<const Trk::Track*>& InpTrk,
-        long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtTrkTrack(const std::vector<const Trk::Track*>& InpTrk, int& ntrk) {
 
     std::vector<const Track*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0;
@@ -69,12 +69,11 @@ namespace Trk{
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
        TrkMatControl tmpMat;
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
-       tmpMat.rotateToField=false; if(m_useMagFieldRotation)tmpMat.rotateToField=true;
-       tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        tmpMat.extrapolationType=2;                   // Perigee point strategy
        tmpMat.TrkPnt=mPer;
        tmpMat.prtMass = 139.5702;
        if(counter<(int)m_MassInputParticles.size())tmpMat.prtMass = m_MassInputParticles[counter];
+       tmpMat.trkSavedLocalVertex.setZero();
        tmpMat.TrkID=counter; m_trkControl.push_back(tmpMat);
        counter++;
     }
@@ -88,6 +87,7 @@ namespace Trk{
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
+       long int TrkID=ntrk;
        mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
        VectPerig = mPer->parameters(); 
        perGlobalPos =  mPer->position();    //Global position of perigee point
@@ -116,9 +116,7 @@ namespace Trk{
 	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
 	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
           long int Charge = (long int) mPer->charge();  
-//VK 17.06/2008 Wrong!!! m_fitPropagator is defined only when InDet extrapolator is provided!!!
-          //m_fitPropagator->Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
-          myPropagator.Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
+          myPropagator.Propagate(TrkID, Charge, pari, covi, vrtini, vrtend, &m_apar[ntrk][0], &m_awgt[ntrk][0], m_vkalFitControl);
        }
 
 //

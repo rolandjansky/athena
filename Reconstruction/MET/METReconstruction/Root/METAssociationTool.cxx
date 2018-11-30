@@ -180,21 +180,6 @@ namespace met {
 
     if ( m_timedetail > 0 ) m_clock.Start(false);
 
-    // Set the topocluster signal states for the duration of this method
-    // Cluster signal states will revert upon the return.
-    CaloClusterChangeSignalStateList stateHelperList;    
-    if(m_signalstate>=0) { // can ignore this for PFlow
-      const CaloClusterContainer* clusters(0);
-      if( evtStore()->retrieve(clusters,"CaloCalTopoClusters").isFailure() ) {
-	ATH_MSG_WARNING("Failed to set topocluster signal states!");
-	return StatusCode::FAILURE;
-      } else {
-	for(const auto& clus : *clusters) {
-	  stateHelperList.add(clus,CaloCluster::State(m_signalstate));
-	}
-      }
-    }
-
     unsigned int itool=0;
     // Run the MET reconstruction tools in sequence
     for(ToolHandleArray<IMETAssocToolBase>::const_iterator iAssociator=m_metassociators.begin();

@@ -20,7 +20,7 @@ from art_header import ArtHeader
 MODULE = "art.build"
 
 
-def run_job(art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name):
+def run_job(art_directory, sequence_tag, script_directory, package, job_type, job_index, run_all_tests, test_name):
     """
     Job to be run by parallel or serial scheduler.
 
@@ -30,7 +30,7 @@ def run_job(art_directory, sequence_tag, script_directory, package, job_type, jo
     # <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
     log = logging.getLogger(MODULE)
     log.info("job started %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
-    (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
+    (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", "--run-all-tests" if run_all_tests else "", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
     log.info("job ended %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
 
     return (package, test_name, exit_code, out, err, start_time, end_time)
@@ -39,7 +39,7 @@ def run_job(art_directory, sequence_tag, script_directory, package, job_type, jo
 class ArtBuild(ArtBase):
     """Class for (local) build submits."""
 
-    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory, max_jobs=0, ci=False):
+    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory, max_jobs=0, ci=False, run_all_tests=False):
         """Keep arguments."""
         super(ArtBuild, self).__init__(art_directory)
         log = logging.getLogger(MODULE)
@@ -55,6 +55,7 @@ class ArtBuild(ArtBase):
         max_cores = max_cores if max_cores >= 4 else 1
         self.max_jobs = max_cores if max_jobs <= 0 else max_jobs
         self.ci = ci
+        self.run_all_tests = run_all_tests
 
     def task_list(self, job_type, sequence_tag):
         """Run a list of packages for given job_type with sequence_tag."""
@@ -125,7 +126,7 @@ class ArtBuild(ArtBase):
         log.debug("task %s %s %s", package, job_type, sequence_tag)
         test_directories = self.get_test_directories(self.script_directory)
         test_directory = os.path.abspath(test_directories[package])
-        test_names = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)
+        test_names = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform, self.run_all_tests)
         if not test_names:
             log.debug("No tests found for package %s and job_type %s", package, job_type)
 
@@ -149,7 +150,7 @@ class ArtBuild(ArtBase):
                 log.warning("job skipped, file not executable: %s", fname)
 
             if schedule_test:
-                future_set.append(executor.submit(run_job, self.art_directory, sequence_tag, self.script_directory, package, job_type, job_index, test_name))
+                future_set.append(executor.submit(run_job, self.art_directory, sequence_tag, self.script_directory, package, job_type, job_index, self.run_all_tests, test_name))
             job_index += 1
 
         return future_set
@@ -160,7 +161,7 @@ class ArtBuild(ArtBase):
         log.debug("ArtBuild job %s %s %s %d %s", package, job_type, sequence_tag, job_index, out)
         test_directories = self.get_test_directories(self.script_directory)
         test_directory = os.path.abspath(test_directories[package])
-        test_name = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)[int(job_index)]
+        test_name = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform, self.run_all_tests)[int(job_index)]
 
         work_directory = os.path.join(sequence_tag, package, os.path.splitext(test_name)[0])
         mkdir(work_directory)

@@ -18,6 +18,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class IThinningSvc;
 
 
@@ -46,6 +49,9 @@ public:
   
   /// Pointer to IThinningSvc
   ServiceHandle<IThinningSvc> m_thinningSvc;
+
+  // For P->T converters of ID tracks with SCT
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   /// Should the thinning run?
   bool m_doElectrons;

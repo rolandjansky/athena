@@ -75,7 +75,6 @@ jobproperties.Digitization.rndmSvc=runArgs.digiRndmSvc
 SignalInputCollections = runArgs.inputHitsFile
 
 readBS = True
-overlayFlags.doBkg=False #ACH
 
 #GlobalFlags.InputFormat.set_bytestream()
 globalflags.InputFormat.set_Value_and_Lock('bytestream')

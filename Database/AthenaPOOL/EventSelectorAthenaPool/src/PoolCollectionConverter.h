@@ -53,18 +53,15 @@ public:
    StatusCode isValid() const;
 
    /// @return ICollectionCursor over all entries
-   pool::ICollectionCursor& selectAll() const;
+   pool::ICollectionCursor& selectAll();
 
    /// Query the collection
    /// @return ICollectionCursor over the results of the query
-   pool::ICollectionCursor& executeQuery() const;
+   pool::ICollectionCursor& executeQuery();
 
    /// @param it [IN] collection iterator.
    /// @param refName [IN] attribute name.
    std::string retrieveToken(const pool::ICollectionCursor* cursor, const std::string& refName) const;
-
-   /// @return string map with all collection metadata.
-   pool::ICollectionMetadata* retrieveMetadata() const;
 
 private: // data
    std::string m_collectionType;
@@ -73,7 +70,7 @@ private: // data
    std::string m_query;
    const IPoolSvc* m_poolSvc;
    pool::ICollection* m_poolCollection;
-   mutable pool::ICollectionQuery* m_collectionQuery;
+   pool::ICollectionQuery* m_collectionQuery;
    std::string m_inputContainer;
 
 private: // hide copy and assignment

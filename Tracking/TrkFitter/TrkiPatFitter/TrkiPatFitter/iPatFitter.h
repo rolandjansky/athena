@@ -148,7 +148,6 @@ private:
     // configurables (tools and options)
     bool						m_aggregateMaterial;
     bool						m_asymmetricCaloEnergy;
-    bool						m_eigenMatrixTreatment;
     bool						m_fullCombinedFit;
     bool						m_lineFit;
     double						m_lineMomentum;

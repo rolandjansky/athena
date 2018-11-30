@@ -309,8 +309,8 @@ athenaCommonFlags.SkipEvents = 0
 # Output setup
 #--------------------------------------------------------------------------------
 #recFlags.doTruth=False
-rec.doWriteESD = False
-rec.doWriteAOD = False
+rec.doWriteESD = True
+rec.doWriteAOD = True
 
 
 ##### no more flags after this line #####

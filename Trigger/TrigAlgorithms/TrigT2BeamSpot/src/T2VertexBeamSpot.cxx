@@ -41,7 +41,6 @@
 
 // Related to TOOLS
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // Timer service
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -66,9 +65,6 @@ T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLo
   : HLT::AllTEAlgo(name, pSvcLocator)
   , m_impl( new T2VertexBeamSpotImpl( this ) )
 {
-   
-  // Beam Conditions Service usage
-  declareProperty("BeamCondSvcName", m_impl->m_beamCondSvcName = "BeamCondSvc" );
    
   // Read cuts 
   declareProperty("AcceptAll",       m_impl->m_AcceptAll    = false );
@@ -235,13 +231,6 @@ T2VertexBeamSpot::hltInitialize()
       return HLT::BAD_JOB_SETUP;
     }
 
-  // Pick up the beam conditions service
-  sc = service( m_impl->m_beamCondSvcName, m_impl->m_beamCondSvc );
-  if ( sc.isFailure() || ! m_impl->m_beamCondSvc )
-    {
-      msg() << MSG::ERROR << "Failed to retrieve BeamCondSvc: " <<  m_impl->m_beamCondSvcName << endmsg;
-      return HLT::BAD_JOB_SETUP;
-    }
 
   // Set up execution timers
   {
@@ -267,6 +256,8 @@ T2VertexBeamSpot::hltInitialize()
   // Reset per-Job monitored variables
   m_impl->m_TotalEvents = 0;
 
+  if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
+
   msg() << MSG::INFO << "Initialization of T2VertexBeamSpot successful" << endmsg;
   return HLT::OK;
 }
@@ -291,6 +282,9 @@ T2VertexBeamSpot::hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& t
   
   // Initialize booleans for event stats
   m_impl->m_eventStageFlag = std::vector<bool>( numStatistics, false );
+
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  m_impl->m_beamCondData = beamSpotHandle.retrieve();
 
   // Reset monitored vars that are not reset by the steering
   m_impl->resetMonitoredVariables();

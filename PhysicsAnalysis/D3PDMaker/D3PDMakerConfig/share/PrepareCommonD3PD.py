@@ -40,11 +40,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 
 topSequence = AlgSequence()
 
-# for QCD Preprocessing
-from QcdD3PDMaker.QcdD3PDMakerConf import QcdD3PD__QcdD3PDPreProcessing 
-QcdD3PDPreProcessingAlg = QcdD3PD__QcdD3PDPreProcessing( name = "QcdD3PDPreProcessingAlg", 
-                                                         OutputLevel = INFO ) 
-topSequence += QcdD3PDPreProcessingAlg 
 
 
 # if including track jets need to call in configuration setup file from share/
@@ -77,7 +72,6 @@ if rec.doTruth():
     
 
 
-## from QcdD3PDMakerPreSetup.common.py
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

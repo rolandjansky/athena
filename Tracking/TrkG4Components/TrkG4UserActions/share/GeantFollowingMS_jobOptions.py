@@ -338,7 +338,6 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 ## --- commit interval (test)
 #ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'THistSvc'):
@@ -356,6 +355,14 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Populate alg sequence
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
 
 #AlgSequence("Streams").StreamHITS.ItemList                  = ['EventInfo#*']
 

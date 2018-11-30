@@ -1,6 +1,6 @@
 #!/bin/env python2.5
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # L1CT crew, Johan.Lundberg@cern.ch, CERN, 2009
 

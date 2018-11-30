@@ -20,10 +20,11 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="slice_minbias_build"
 export SLICE="minbias"
-export MENU="Physics_pp_v7"
+export MENU="Physics_pp_v7_primaries"
 export EVENTS="10"
 export INPUT="minbias"
 export COST_MONITORING="False"

@@ -23,6 +23,7 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <TMath.h>
+#include "LArCabling/LArCablingService.h"
 
 typedef LArCaliWaveContainer::ConstConditionsMapIterator CaliCellIt;
 typedef LArCaliWaveContainer::LArCaliWaves::const_iterator CaliWaveIt;

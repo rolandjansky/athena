@@ -29,36 +29,18 @@
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 
-
+#include "BTagging/IBTagTool.h"
+#include "BTagging/IBTagTrackAssociation.h"
+#include "BTagging/IBTagSecVertexing.h"
 
 class MsgStream;
-//class TrigEFBjetContainer;
-//class TriggerElement;
-
-//class TrigInDetTrackCollection;
-//class TrackParticleContainer;
-//class TrigVertexCollection;
-//class VxContainer;
-//class TrigBjetTagger;
-//class TrigRoiDescriptor;
-
-//class TaggerHelper;
-//class TrigBjetTrackInfo;
-//class TrigBjetPrmVtxInfo;
-//class TrigBjetSecVtxInfo;
-//class TrigBjetJetInfo;
-
-namespace Rec {
-  //class TrackParticleContainer;
-  //class TrackParticle;
-}
-
+/*
 namespace Analysis {
   class IBTagTool;
   class IBTagTrackAssociation;
   class IBTagSecVertexing;
 }
-
+*/
 /**
  * @brief FEX class for the b-jet weight construction using offline tools
  *
@@ -198,18 +180,47 @@ class TrigBtagFex: public HLT::FexAlgo {
 
   /** @brief Run-2 monitored variables. */
 
-  float m_mon_sv_mass;
-  float m_mon_sv_evtx;
-  int   m_mon_sv_nvtx;
-
+  //SV1 variables
+  float m_mon_sv_mass; 
+  float m_mon_sv_evtx; 
+  int   m_mon_sv_nvtx; 
+  //2017 variables - Nghia
+  int     m_mon_sv_ntkv;
+  float   m_mon_sv_Lxy;
+  float   m_mon_sv_L3d;
+  float   m_mon_sv_sig3;
+  float   m_mon_sv_dR;
+ 
+  //IP2/IP3 variables
   float m_mon_tag_IP2D;
   float m_mon_tag_IP3D;
   float m_mon_tag_SV1;
   float m_mon_tag_IP3DSV1;
   float m_mon_tag_MV2c00;
   float m_mon_tag_MV2c10;
+  float m_mon_tag_MV2c10_hybrid;
   float m_mon_tag_MV2c20;
+  //2017 variables
+  float m_mon_tag_IP2_c;
+  float m_mon_tag_IP2_cu;
+  float m_mon_tag_IP3_c;
+  float m_mon_tag_IP3_cu;
 
+  //JetFitter variables
+  int   m_mon_jf_n2tv;
+  int   m_mon_jf_ntrkv; 
+  int   m_mon_jf_nvtx; 
+  int   m_mon_jf_nvtx1t; 
+  float m_mon_jf_mass; 
+  float m_mon_jf_efrc; 
+  float m_mon_jf_dR; 
+  float m_mon_jf_sig3;
+
+  //jet variables
+  float m_mon_jet_pt;
+  float m_mon_jet_eta;
+  int   m_mon_sv_bool; 
+  int   m_mon_jf_bool; 
 
   // /** @brief to monitor track selection. */
   // std::vector<float> m_listCutApplied;

@@ -1551,3 +1551,65 @@ unsigned int CaloCluster::samplingPattern() const
 {
   return m_samplingPattern;
 }
+
+
+// MomentStoreIter methods moved out-of-line to avoid a cling problem.
+// Symptom was that iteration over the moments would enter an infinte
+// loop in the ESD_18.0.0 test of CaloAthenaPool.
+
+/*! \brief Default constructor builds unusable iterator */
+CaloCluster::MomentStoreIter::MomentStoreIter() : m_iter(), m_firstStore(0), m_secndStore(0) { }
+/*! \brief Standard constructor for a useable iterator */
+CaloCluster::MomentStoreIter::MomentStoreIter(moment_iterator_i iter,
+                const moment_store* firstStore, 
+                                              const moment_store* secndStore/*=0*/) 
+  : m_iter(iter), m_firstStore(firstStore), m_secndStore(secndStore)
+{ }
+/*! Destructor */
+CaloCluster::MomentStoreIter::~MomentStoreIter() { }
+
+/*! \brief Advance iterator */
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::next()
+{
+  m_iter++;
+  if ( m_iter == m_firstStore->end() &&
+       ( m_secndStore != 0 && m_secndStore->size() > 0 ) ) 
+  {
+    m_iter = m_secndStore->begin();
+  }
+  return *this;
+}
+
+/*! Step back iterator */
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::prev() 
+{
+  if ( m_secndStore != 0 && m_iter == m_secndStore->begin() )
+  {
+    m_iter = m_firstStore->end();
+  }
+  m_iter--;
+  return *this;
+}
+     
+/*! \brief Post-advance operator */
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator++()    { return this->next(); }
+/*! \brief Pre-advance operator */
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator++(int) { return this->next(); }
+/*! \brief Post-step back operator */    
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator--()    { return this->prev(); }
+/*! \brief Pre-step back operator */ 
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator--(int) { return this->prev(); }
+
+/*! \brief Equality comparator */
+bool CaloCluster::MomentStoreIter::operator==(const MomentStoreIter& anOther)
+{ return m_iter == anOther.m_iter; }
+/*! \brief Inequality comparator */
+bool CaloCluster::MomentStoreIter::operator!=(const MomentStoreIter& anOther)
+{ return m_iter != anOther.m_iter; }
+
+/*! \brief Operator access to \a CaloClusterMoment */
+const CaloClusterMoment& CaloCluster::MomentStoreIter::operator*() const { return *m_iter; }
+/*! \brief Function access to \a CaloClusterMoment */
+const CaloClusterMoment& CaloCluster::MomentStoreIter::getMoment() const { return *m_iter; }
+/*! \brief Function access to moment type */
+CaloCluster::moment_type CaloCluster::MomentStoreIter::getMomentType() const { return m_iter.getMomentType(); }

@@ -47,6 +47,7 @@ foreach ( name GenericMonParsing_test GenericMonFilling_test )
 			LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
 			ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
 			POST_EXEC_SCRIPT "true"
+                        PROPERTIES TIMEOUT 300
 	)
 
 endforeach()

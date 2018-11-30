@@ -120,6 +120,12 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
       this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,*cluster, *thisPFO);
       this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_LAMBDA,*cluster, *thisPFO);
       this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,xAOD::PFODetails::PFOAttributes::eflowRec_EM_PROBABILITY,*cluster, *thisPFO);
+      if (m_useCalibHitTruth){
+	this->addMoment(xAOD::CaloCluster::ENG_CALIB_TOT,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_CALIB_TOT,*cluster, *thisPFO);
+	this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_CALIB_FRAC_EM,*cluster, *thisPFO);
+	this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_HAD,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_CALIB_FRAC_HAD,*cluster, *thisPFO);
+	this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_REST,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_CALIB_FRAC_REST,*cluster, *thisPFO);
+      }
     }
 
     //First set all the layer energies

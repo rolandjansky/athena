@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -21,7 +21,7 @@
 #include "TrigSteeringEvent/GenericResult.h"
 #include "AthenaKernel/IClassIDSvc.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /****************************************************************************************
  * (June 2006; comments on documentation to: Andreas.Hoecker@cern.ch)

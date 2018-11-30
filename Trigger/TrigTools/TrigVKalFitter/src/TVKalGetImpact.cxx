@@ -5,17 +5,20 @@
 // Header include
 #include "TrigVKalFitter/TrigVKalFitter.h"
 #include "TrigVKalFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
 //
 #include<iostream>
 
 namespace Trk {
+ //extern   
+ // void cfimp(long int TrkID, long int  ICH, long int IFL, double* PAR, double* ERR,
+ //             double* VRT, double* VCOV,
+ //	      double* RIMP, double* RCOV, double*  SIGN);
  extern   
-  void cfimp(long int TrkID, long int  ICH, long int IFL, double* PAR, double* ERR,
+  void cfimp(long int TrkID, long int  ICH, int IFL, double* PAR, double* ERR,
               double* VRT, double* VCOV,
-	      double* RIMP, double* RCOV, double*  SIGN);
- extern vkalMagFld      myMagFld;
- extern vkalPropagator  myPropagator;
+	      double* RIMP, double* RCOV, double*  SIGN, const VKalVrtControlBase * FitCONTROL );
 }
 //
 //__________________________________________________________________________
@@ -38,11 +41,6 @@ namespace Trk {
 //--Preparation
     Impact.clear(); ImpactError.clear(); 
 //
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }
-//
 //------  extract information about selected tracks
 //
     long int ntrk=0; 
@@ -52,7 +50,7 @@ namespace Trk {
 //
 
     long int vkCharge=Charge;
-    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF);
+    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF,m_vkalFitControl);
 
     Impact.push_back(RIMP[0]);
     Impact.push_back(RIMP[1]);

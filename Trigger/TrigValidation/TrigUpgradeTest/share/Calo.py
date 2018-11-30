@@ -31,25 +31,21 @@ if TriggerFlags.doCalo:
     
      svcMgr += TrigCaloDataAccessSvc()
      svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
-     svcMgr.TrigCaloDataAccessSvc.MonTool = mon
+     svcMgr.TrigCaloDataAccessSvc.MonTool = mon           
     
-    
-    
-     #topSequence += algo
-     #from TrigUpgradeTest.TestUtils import L1DecoderTest
-     #l1DecoderTest=L1DecoderTest()
-     #topSequence+=l1DecoderTest
-    
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
+     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
+
+     RoIMode=True
+
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+EMRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-     #algo1.roiMode=False
      algo1.OutputLevel=VERBOSE
+     algo1.roiMode = RoIMode
      topSequence += algo1
      algo2=HLTCaloCellSumMaker("testSumFastAlgo")
      algo2.OutputLevel=VERBOSE
-     #algo2.roiMode=False
      topSequence += algo2
 
 
@@ -58,8 +54,12 @@ if TriggerFlags.doCalo:
   
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
+  # temporary fix for Tile
+  algo.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale')]
   algo.OutputLevel=VERBOSE
 
   algo.RoIs="StoreGateSvc+EMRoIs"
   topSequence += algo
 
+  from AthenaCommon.AlgSequence import dumpMasterSequence
+  dumpMasterSequence()

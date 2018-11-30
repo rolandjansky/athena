@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,16 +51,16 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_useStraightLineApproximation(false),
   m_searchWithDistance(true),
   m_fastField(false),
-  m_forwardCalls{0},
-  m_forwardFirstBoundSwitch{0},
-  m_forwardSecondBoundSwitch{0},
-  m_forwardThirdBoundSwitch{0},
-  m_backwardCalls{0},
-  m_backwardFirstBoundSwitch{0},
-  m_backwardSecondBoundSwitch{0},
-  m_backwardThirdBoundSwitch{0},
-  m_outsideVolumeCase{0},
-  m_sucessfulBackPropagation{0}
+  m_forwardCalls{},
+  m_forwardFirstBoundSwitch{},
+  m_forwardSecondBoundSwitch{},
+  m_forwardThirdBoundSwitch{},
+  m_backwardCalls{},
+  m_backwardFirstBoundSwitch{},
+  m_backwardSecondBoundSwitch{},
+  m_backwardThirdBoundSwitch{},
+  m_outsideVolumeCase{},
+  m_sucessfulBackPropagation{}
   {
   declareInterface<INavigator>(this);
   // steering of algorithms
@@ -142,7 +142,7 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   }
 
   // get the surface accessor
-  const Trk::ObjectAccessor &surfAcc =
+  Trk::ObjectAccessor surfAcc =
     vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
   // initialize the currentBoundary surface
   const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = 0;
@@ -160,13 +160,13 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   ATH_MSG_VERBOSE("g  [N] Starting parameters are :" << parms);
 
   // loop over the the boundary surfaces according to the accessor type
-  for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
+  for (const Trk::ObjectAccessor::value_type &surface_id : surfAcc) {
     ++tryBoundary;
     // ----------------- output to screen if outputLevel() says so --------
-    ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surfAcc.accessor()
+    ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
                              << " of Volume: '" << vol.volumeName() << "'.");
     // get the boundary Surface according to the surfaceAccessor
-    currentBoundary = vol.boundarySurface(surfAcc);
+    currentBoundary = vol.boundarySurface(surface_id);
     const Trk::Surface &currentSurface = currentBoundary->surfaceRepresentation();
 
     const Trk::TrackParameters *trackPar = 0;
@@ -219,7 +219,7 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
   // ---------------------------------------------------
   // get the object accessor from the Volume
-  const Trk::ObjectAccessor &surfAcc =
+  Trk::ObjectAccessor surfAcc =
     vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
   // the object accessor already solved the outside question
   bool outsideVolume = surfAcc.inverseRetrieval();
@@ -244,25 +244,25 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
   int tryBoundary = 0;
 
   /* local counted to increment in the loop*/ 
-  int forwardFirstBoundSwitch{0};
-  int forwardSecondBoundSwitch{0};
-  int forwardThirdBoundSwitch{0};
-  int backwardFirstBoundSwitch{0};
-  int backwardSecondBoundSwitch{0};
-  int backwardThirdBoundSwitch{0};
+  auto forwardFirstBoundSwitch=m_forwardFirstBoundSwitch.buffer();
+  auto forwardSecondBoundSwitch=m_forwardSecondBoundSwitch.buffer();
+  auto forwardThirdBoundSwitch=m_forwardThirdBoundSwitch.buffer();
+  auto backwardFirstBoundSwitch=m_backwardFirstBoundSwitch.buffer();
+  auto backwardSecondBoundSwitch=m_backwardSecondBoundSwitch.buffer();
+  auto backwardThirdBoundSwitch=m_backwardThirdBoundSwitch.buffer();
 
-  for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
+  for (const Trk::ObjectAccessor::value_type &surface_id : surfAcc) {
     ++tryBoundary;
     // get the boundary surface associated to the surfaceAccessor
-    currentBoundary = vol.boundarySurface(surfAcc);
+    currentBoundary = vol.boundarySurface(surface_id);
 
     // ----------------- output to screen if outputLevel() says so --------
     if (!currentBoundary) {
-      ATH_MSG_WARNING("  [N] " << tryBoundary << ". try - BoundarySurface " << surfAcc.accessor()
+      ATH_MSG_WARNING("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
                                << " of Volume: '" << vol.volumeName() << "' NOT FOUND.");
       continue;
     } else {
-      ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surfAcc.accessor()
+      ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
                                << " of Volume: '" << vol.volumeName() << "'.");
     }
 
@@ -300,7 +300,7 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
       }
 
       validationFill(trackPar);
-      return Trk::NavigationCell(nextVolume, trackPar, Trk::BoundarySurfaceFace(surfAcc.accessor()));
+      return Trk::NavigationCell(nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
     }
 
     // ---------------------------------------------------
@@ -323,14 +323,6 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
     }
     // ---------------------------------------------------
   }
-  /* update the object level atomic ones*/
-  m_forwardFirstBoundSwitch+=forwardFirstBoundSwitch;
-  m_forwardSecondBoundSwitch+=forwardSecondBoundSwitch;
-  m_forwardThirdBoundSwitch+=forwardThirdBoundSwitch;
-  m_backwardFirstBoundSwitch+=backwardFirstBoundSwitch;
-  m_backwardSecondBoundSwitch+=backwardSecondBoundSwitch;
-  m_backwardThirdBoundSwitch+=backwardThirdBoundSwitch;
-
   // return what you have : no idea
   return Trk::NavigationCell(0, 0);
 }

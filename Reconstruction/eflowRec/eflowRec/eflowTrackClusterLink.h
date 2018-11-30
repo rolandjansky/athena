@@ -16,6 +16,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <mutex>  
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -41,6 +42,11 @@ public:
   static eflowTrackClusterLink* getInstance(eflowRecTrack* track, eflowRecCluster* cluster){
     std::pair<eflowRecTrack*, eflowRecCluster*> thisPair(std::make_pair(track, cluster));    
 
+    //Read and write from the map is not thread-safe - therefore we get a mutex and pass it to a lock-guard
+    //The lock is released automatically when getInstance returns
+    //The mutex is static so that all threads check the status of the *same* mutex
+    static std::mutex mutex_instance;
+    std::lock_guard<std::mutex> lock(mutex_instance);
     /* The find returns a valid iterator. If there is no existing entry it returns the end iterator */
     InstanceMap::iterator mapIterator = m_instances.find(thisPair);
     
@@ -67,6 +73,7 @@ private:
   std::vector<double> m_clusterIntegral;
 
   static InstanceMap m_instances;
+
 };
 
 #endif /* EFLOWTRACKCLUSTERLINK_H_ */

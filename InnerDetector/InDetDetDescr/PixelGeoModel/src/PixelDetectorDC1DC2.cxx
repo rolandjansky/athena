@@ -31,7 +31,6 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "Identifier/Identifier.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -60,7 +59,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
   double rmin = m_gmt_mgr->PixelBarrelRMin();
   double rmax = m_gmt_mgr->PixelBarrelRMax();
   double halflength = m_gmt_mgr->PixelBarrelHalfLength();
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* barrelTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* barrelLog = new GeoLogVol("barrelLog",barrelTube,air);
   GeoPhysVol* barrelPhys = new GeoPhysVol(barrelLog);
@@ -128,7 +127,7 @@ GeoVPhysVol* GeoPixelCable::Build() {
   double length = this->Length();
   double thickness = this->Thickness();
   double width = m_gmt_mgr->PixelCableWidth();
-  GeoMaterial* cable = m_mat_mgr->getMaterial("pix::Cable");
+  const GeoMaterial* cable = m_mat_mgr->getMaterial("pix::Cable");
   const GeoBox* cableBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logName = std::string("cableLog")+std::to_string(m_moduleNumber);;
   GeoLogVol* theCable = new GeoLogVol(logName,cableBox,cable);
@@ -195,7 +194,7 @@ GeoVPhysVol* GeoPixelChip::Build() {
   double length = m_gmt_mgr->PixelChipLength();
   double thickness = m_gmt_mgr->PixelChipThickness();
   double width = m_gmt_mgr->PixelChipWidth();
-  GeoMaterial* chipMat = m_mat_mgr->getMaterial("pix::Chip");
+  const GeoMaterial* chipMat = m_mat_mgr->getMaterial("pix::Chip");
   std::string LogName = "chipBrlLog";
   //
   // In G3 is like this...
@@ -231,7 +230,7 @@ GeoPixelDisk::GeoPixelDisk() {
   double rmin = RMin();
   double rmax = RMax();
   double halflength = Thickness()*0.5;
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* diskTube = new GeoTube(rmin,rmax,halflength);
   m_theDisk = new GeoLogVol("diskLog",diskTube,air);
   m_theDisk->ref();
@@ -395,7 +394,7 @@ GeoPixelDiskSupports::GeoPixelDiskSupports() {
 
  
 GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
-  GeoMaterial* supportMat = m_mat_mgr->getMaterial(m_material[m_nframe]);
+  const GeoMaterial* supportMat = m_mat_mgr->getMaterial(m_material[m_nframe]);
   //
   // Dimensions: (m_nframe set with teh SetCylinder method)
   //
@@ -427,7 +426,7 @@ GeoPixelECCable::GeoPixelECCable() {
   double rmin = m_gmt_mgr->PixelECCablesRMin();
   double rmax = m_gmt_mgr->PixelECCablesRMax();
   double thickness = m_gmt_mgr->PixelECCablesThickness();
-  GeoMaterial* cableMat = m_mat_mgr->getMaterial("pix::ECCables");
+  const GeoMaterial* cableMat = m_mat_mgr->getMaterial("pix::ECCables");
   const GeoTube* cableTube = new GeoTube(rmin,rmax,thickness*0.5);
   m_theECCable = new GeoLogVol("ECCableLog",cableTube,cableMat);
   m_theECCable->ref();
@@ -457,7 +456,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   double rmin = m_gmt_mgr->PixelEndcapRMin();
   double rmax = m_gmt_mgr->PixelEndcapRMax();
   double halflength = (m_gmt_mgr->PixelEndcapZMax()-m_gmt_mgr->PixelEndcapZMin())/2.;
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* ecTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* ecLog = new GeoLogVol("EndCapLog",ecTube,air);
   GeoPhysVol* ecPhys = new GeoPhysVol(ecLog);
@@ -549,7 +548,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   double rmax = m_gmt_mgr->PixelRMax();
   double halflength = m_gmt_mgr->PixelHalfLength();
   //std::cout << "Material Manager " << m_mat_mgr << std::endl;
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* envelopeTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* envelopeLog = new GeoLogVol("Pixel",envelopeTube,air);
   GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);
@@ -658,7 +657,7 @@ GeoVPhysVol* GeoPixelHybrid::Build() {
   double length = m_gmt_mgr->PixelHybridLength();
   double thickness = m_gmt_mgr->PixelHybridThickness();
   double width = m_gmt_mgr->PixelHybridWidth();
-  GeoMaterial* hybridMat = m_mat_mgr->getMaterial("pix::Hybrid");
+  const GeoMaterial* hybridMat = m_mat_mgr->getMaterial("pix::Hybrid");
   if(m_gmt_mgr->isEndcap() )hybridMat =  m_mat_mgr->getMaterial("std::Silicon");
   const GeoBox* hybridBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logName = "hybridECLog";
@@ -699,7 +698,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor) :
   // The thickness has to be calculated
   //
   double thickness = this->Thickness();
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoBox* ladderBox = new GeoBox(thickness*0.5,width*0.5,halflength);
   m_theLadder = new GeoLogVol("ladderLog",ladderBox,air);
   m_theLadder->ref();
@@ -809,7 +808,7 @@ GeoVPhysVol* GeoPixelLadderStruct::Build( ) {
   //
   // This is ladder material
   //
-  GeoMaterial* ladderMat = m_mat_mgr->getMaterial("pix::Ladder");
+  const GeoMaterial* ladderMat = m_mat_mgr->getMaterial("pix::Ladder");
   const GeoBox* ladderStructBox = new GeoBox(thickness/2.,width/2.,halflength);
   const GeoLogVol* ladderStructLog = new GeoLogVol("ladderStructLog",ladderStructBox,ladderMat);
   GeoPhysVol* ladderStructPhys = new GeoPhysVol(ladderStructLog);
@@ -836,7 +835,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // This is the maximum possible w/o going out of the mother volume!
   //
   double LayerThickness = 8.499*CLHEP::mm;
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   //
   // Layer dimensions from the geometry manager
   //
@@ -925,7 +924,7 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   double length = this->Length();
   double thickness = this->Thickness();
   double width = this->Width();
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoBox* moduleBox = new GeoBox(thickness*0.5,width*0.5,length*0.5);
   m_theModule = new GeoLogVol("moduleLog",moduleBox,air);
   m_theModule->ref();
@@ -1139,7 +1138,7 @@ void GeoPixelServices::initialize(std::string a)
 }
 
 GeoVPhysVol* GeoPixelServices::Build( ) {
-  GeoMaterial* serviceMat = m_mat_mgr->getMaterial(m_material[m_nframe]);
+  const GeoMaterial* serviceMat = m_mat_mgr->getMaterial(m_material[m_nframe]);
   //
   // Dimensions: (m_nframe set with teh SetCylinder method)
   //
@@ -1275,7 +1274,7 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
   double length = m_gmt_mgr->PixelBoardLength();
   double thickness = m_gmt_mgr->PixelBoardThickness();
   double width = m_gmt_mgr->PixelBoardWidth();
-  GeoMaterial* siMat = m_mat_mgr->getMaterial("std::Silicon");
+  const GeoMaterial* siMat = m_mat_mgr->getMaterial("std::Silicon");
   const GeoBox* siBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logname;
   if(m_isBLayer) logname = "siBLayLog";
@@ -1350,7 +1349,7 @@ m_theSensor(theSensor)
   double rmin = RMin(); 
   double rmax = RMax();
   double halflength = Thickness()/2.;
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
   m_theSubDisk = new GeoLogVol("SubDiskLog",SDTubs,air);
   m_theSubDisk->ref();
@@ -1445,7 +1444,7 @@ GeoPixelTubeCables::GeoPixelTubeCables() {
   // The thickness has to be calculated
   //
   double thickness = this->Thickness();
-  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoBox* solBox = new GeoBox(thickness*0.5,width*0.5,halflength+m_epsilon);
   m_theBox = new GeoLogVol("TubeCablesLog",solBox,air);
   m_theBox->ref();
@@ -1651,9 +1650,9 @@ OraclePixGeoManager::OraclePixGeoManager()
  //
  // Get the mat manager from the store:
  //
- DataHandle<StoredMaterialManager> materialManager;
+ const StoredMaterialManager* materialManager = nullptr;
  if (StatusCode::SUCCESS == m_pDetStore->retrieve(materialManager, std::string("MATERIALS"))) {
-   m_pMatMgr = materialManager.ptr();
+   m_pMatMgr = materialManager;
  }
  //
  // Print the version number for the barrel and endcap geometry (from NOVA)
@@ -1663,7 +1662,7 @@ OraclePixGeoManager::OraclePixGeoManager()
  //cout << "Endcap Version " << this->PixelEndcapMajorVersion() << "." << this->PixelEndcapMinorVersion() << endl;
 }
 
-StoredMaterialManager* OraclePixGeoManager::getMaterialManager()
+const StoredMaterialManager* OraclePixGeoManager::getMaterialManager()
 {
   return m_pMatMgr;
 }
@@ -1760,7 +1759,7 @@ bool OraclePixGeoManager::isEndcap() {
 //
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
-  GeoMaterial* material =  m_pMatMgr->getMaterial(mat);
+  const GeoMaterial* material =  m_pMatMgr->getMaterial(mat);
   double rl = material->getRadLength();
   material->ref();
   material->unref();

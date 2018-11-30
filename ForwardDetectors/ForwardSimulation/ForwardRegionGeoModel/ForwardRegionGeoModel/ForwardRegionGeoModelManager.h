@@ -38,7 +38,7 @@ class ForwardRegionGeoModelManager : public GeoVDetectorManager  {
 // Class ForwardRegionGeoModelManager
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ForwardRegionGeoModelManager, 157152126, 1)
 #endif
 

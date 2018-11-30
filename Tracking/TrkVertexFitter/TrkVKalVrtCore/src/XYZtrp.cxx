@@ -3,29 +3,26 @@
 */
 
 #include <math.h>
+#include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include <iostream>
 
 namespace Trk {
 
-extern VKalVrtBMag     vkalvrtbmag;
-extern vkalMagFld      myMagFld;
 extern vkalPropagator  myPropagator;
 extern void tdasatVK(double *, double *, double *, long int, long int);
 
 #define cnv_ref(a_1,a_2) cnv[(a_2)*6 + (a_1) - 7]
 
-void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double *paro, double *errt)
+void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double BMAG, double *paro, double *errt)
 {
-
-    double const__, cs, pp, sn, pt;
-    double covd[15], rho;
-    double ctg, par[5], cnv[36];	/* was [6][6] */
- 
+    double covd[15],par[5], cnv[36];	/* was [6][6] */ 
 /* ---------------------------------------------------------- */
 /*       Subroutine for convertion                            */
 /*           (X,Y,Z,PX,PY,PZ) --> (eps,z,theta,phi,1/r)       */
+/* Now it's used in VKalVrtFitter only                        */
+/*                                                            */
 /*       Input:                                               */
 /*                 ICH      -  charge of track ( +1,0,-1 )    */
 /*                 VRT0(3)  -  Vertex of particle             */
@@ -41,17 +38,15 @@ void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double *par
 /* Author: V.Kostyukhin                                       */
 /* ---------------------------------------------------------- */
 
-    double fx,fy,fz;
-    myMagFld.getMagFld( vrt0[0], vrt0[1], vrt0[2], fx, fy, fz);
-    const__ = fz * myMagFld.getCnvCst();
+    double constBF =BMAG * vkalMagCnvCst; 
 
-    pt = sqrt(pv0[0]*pv0[0] + pv0[1]*pv0[1]);
-    pp = pt*pt + pv0[2]*pv0[2];                   // p**2
-    cs  = pv0[0] / pt;
-    sn  = pv0[1] / pt;
-    ctg = pv0[2] / pt;
-    rho = (*ich) * const__ / pt;
-    if ((*ich) == 0)rho = const__ / pt;
+    double pt = sqrt(pv0[0]*pv0[0] + pv0[1]*pv0[1]);
+    double pp = pt*pt + pv0[2]*pv0[2];                   // p**2
+    double cs  = pv0[0] / pt;
+    double sn  = pv0[1] / pt;
+    double ctg = pv0[2] / pt;
+    double rho = (*ich) * constBF / pt;
+    if ((*ich) == 0)rho = constBF / pt;
 /* --  Output parameters */
     par[0] = 0.;                    /*            (-Yv*cos + Xv*sin) */
     par[1] = 0.;                    /*  Zv - cotth*(Xv*cos + Yv*sin) */
@@ -60,7 +55,7 @@ void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double *par
     if(par[2]>M_PI-1.e-5) par[2]=M_PI-1.e-5;
     par[3] = atan2(pv0[1], pv0[0]);
     par[4] = rho;
-    if ((*ich) == 0)par[4] = const__ / pt;
+    if ((*ich) == 0)par[4] = constBF / pt;
 //---
     double dTheta_dPx =  pv0[0]*pv0[2]/(pt*pp);   //dTheta/dPx
     double dTheta_dPy =  pv0[1]*pv0[2]/(pt*pp);   //dTheta/dPy
@@ -112,22 +107,22 @@ void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double *par
 
 /* -- Translation to (0,0,0) (BackPropagation) --*/
     double Ref0[3]={0.,0.,0.};
-    myPropagator.Propagate(-999, (*ich), par, covd, vrt0, Ref0, paro, errt);
+    myPropagator.Propagate(-999, (*ich), par, covd, vrt0, Ref0, paro, errt, 0);
 
 } 
 
 
-void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, double *par, double *covo)
+void  combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *par, double *covo)
 {
 
-    double const__, cs, pp, sn, pt, rho;
-    double ctg, cnv[36];	/* was [6][6] */
- /* ---------------------------------------------------------- */
-/*       Subroutine for convertion                            */
+    double cnv[36];	/* was [6][6] */
+/* ---------------------------------------------------------- */
+/*       Subroutine for convertion for VKalvrtCore            */
+/* Correct magnetic field BMAG at conversion point            */
+/*  is provided externally.                                   */
 /*           (X,Y,Z,PX,PY,PZ) --> (eps,z,theta,phi,1/r)       */
 /*       Input:                                               */
 /*                 ICH      -  charge of track ( +1,0,-1 )    */
-/*                 VRT0(3)  -  Vertex of particle             */
 /*                  PV0(3)  -  Momentum of particle           */
 /*                 COVI(21) -  simmetric covariance matrix    */
 /*       Output:                                              */
@@ -138,17 +133,15 @@ void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, doubl
 /* Author: V.Kostyukhin                                       */
 /* ---------------------------------------------------------- */
 
-    double fx,fy,fz;
-    myMagFld.getMagFld( vrt0[0], vrt0[1], vrt0[2], fx, fy, fz);
-    const__ = fz * myMagFld.getCnvCst();
+    double constBF =BMAG * vkalMagCnvCst;
 
-    pt = sqrt(pv0[0]*pv0[0] + pv0[1]*pv0[1]);
-    pp = pt*pt + pv0[2]*pv0[2];
-    cs  = pv0[0] / pt;
-    sn  = pv0[1] / pt;
-    ctg = pv0[2] / pt;
-    rho = ICH * const__ / pt;
-    if ( ICH==0 )rho = const__ / pt;
+    double pt = sqrt(pv0[0]*pv0[0] + pv0[1]*pv0[1]);
+    double pp = pt*pt + pv0[2]*pv0[2];
+    double cs  = pv0[0] / pt;
+    double sn  = pv0[1] / pt;
+    double ctg = pv0[2] / pt;
+    double rho = ICH * constBF / pt;
+    if ( ICH==0 )rho = constBF / pt;
 /* --  Output parameters */
     par[0] = 0.;                    /*            (-Yv*cos + Xv*sin) */
     par[1] = 0.;                    /*  Zv - cotth*(Xv*cos + Yv*sin) */
@@ -157,7 +150,7 @@ void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, doubl
     if(par[2]>M_PI-1.e-5) par[2]=M_PI-1.e-5;
     par[3] = atan2(pv0[1], pv0[0]);
     par[4] = rho;
-    if ( ICH==0 )par[4] = const__ / pt;
+    if ( ICH==0 )par[4] = constBF / pt;
 //
     double dTheta_dPx =  pv0[0]*pv0[2]/(pt*pp);   //dTheta/dPx
     double dTheta_dPy =  pv0[1]*pv0[2]/(pt*pp);   //dTheta/dPy

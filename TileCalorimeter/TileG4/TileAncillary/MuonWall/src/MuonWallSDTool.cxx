@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -65,6 +65,11 @@ StatusCode MuonWallSDTool::Gather() {
 
 G4VSensitiveDetector* MuonWallSDTool::makeSD() {
   ATH_MSG_DEBUG("Initializing SD");
+
+  int verboseLevel=1;
+  if (msgLvl(MSG::VERBOSE))    { verboseLevel = 10; }
+  else if (msgLvl(MSG::DEBUG)) { verboseLevel = 5;  }
+
   // Create a fresh SD
-  return new MuonWallSD(name(), m_outputCollectionNames[0]);
+  return new MuonWallSD(name(), m_outputCollectionNames[0], verboseLevel);
 }

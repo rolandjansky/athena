@@ -177,6 +177,10 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p3::createTransient(const
       log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p3 " << endmsg;
      }
     }
+    if (not m_pixId) {
+      log << MSG::FATAL << "nullptr for m_pixId in PixelClusterContainerCnv_p3::createTransient" << endmsg;
+      return nullptr;
+    }
     std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());

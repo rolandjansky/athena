@@ -11,8 +11,6 @@
 
 #include <vector>
 
-class LArCablingService ;
-
 /** This class implements the ILArMinBias interface
  * History:
  *  - 29/04/2004, S. Laplace: added ERRORCODE
@@ -24,25 +22,16 @@ class LArMinBiasComplete: public ILArMinBias ,
 {
   
  public: 
-  
   typedef LArConditionsContainer<LArMinBiasP> CONTAINER ;
-
   LArMinBiasComplete();
-  
   virtual ~LArMinBiasComplete( );
   
   // retrieving RMS of E in Minimum Bias events, using online ID
-  
   virtual const float& minBiasRMS(const HWIdentifier&  CellID) const ;
   
-  virtual const float& minBiasRMS(const Identifier&  CellID) const;
-  
-  // set method filling the data members individually (if one
+    // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float vMinBiasRMS);
-
- protected: 
-  
 
 };
 

@@ -164,10 +164,6 @@ if globalflags.InputFormat()=='pool':
     # if file not in catalog put it there
     svcMgr.PoolSvc.AttemptCatalogPatch=True
 
-    # skip missing file with a warning instead of stopping the job
-    # not to be done in production
-    # svcMgr.EventSelector.SkipBadFiles=True
-
     # G4 Pool input
     # it is possible to specify a list of files to be processed consecutively
     # If using logical file name or using back navigation the relevant input
@@ -180,12 +176,6 @@ if globalflags.InputFormat()=='pool':
     # Read the input file(s) that should be processed
     svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
-
-    from RecExConfig.RecConfFlags import recConfFlags
-    ServiceMgr.EventSelector.BackNavigation = recConfFlags.AllowBackNavigation()
-    # FIXME temporary
-    #logRecExCommon_topOptions.warning("temporary : EventSelector.OverrideRunNumber = True")
-    #ServiceMgr.EventSelector.OverrideRunNumber=True
 
     # backward compatibility (needed for RTT overwriting InputCollections)
     EventSelector=ServiceMgr.EventSelector

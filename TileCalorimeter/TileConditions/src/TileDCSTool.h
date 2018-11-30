@@ -52,7 +52,7 @@ class TileDCSTool: public extends<AthAlgTool, ITileDCSTool> {
    /**
     * @copydoc ITileDCSTool::getDCSStatus(unsigned int ros, unsigned int drawer) const
     */
-    virtual TileDCSState::TileDCSStatus getDCSStatus(unsigned int ros, unsigned int drawer) const;
+    virtual TileDCSState::TileDCSStatus getDCSStatus(unsigned int ros, unsigned int drawer) const override;
 
    /**
     * @copydoc ITileDCSTool::getDCSStatus(unsigned int ros, unsigned int drawer, unsigned int channel) const

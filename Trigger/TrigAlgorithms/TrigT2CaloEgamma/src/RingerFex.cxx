@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************
@@ -24,6 +24,7 @@
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTrigRinger/TrigRingerRingsAuxContainer.h"
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 //!=================================================================================
 const double RingerFex::ENERGY_THRESHOLD = 0.001;
@@ -196,6 +197,11 @@ void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell,
   }
 }
 //!=================================================================================
+StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& dde)
+{
+  return execute (rtrigEmCluster, roi, dde, &Gaudi::Hive::currentContext());
+}
+
 StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& , const EventContext*)
 {
   m_error = 0x0;

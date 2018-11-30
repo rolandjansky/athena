@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def TrigEgammaPhysValMonTool():
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaEmulationTool
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool, TrigEgammaNavNtuple, TrigEgammaNavTPNtuple
     from TrigEgammaAnalysisTools.TrigEgammaProbelist import default, probeListLowMidPtPhysicsTriggers # to import probelist
@@ -88,7 +88,7 @@ def TrigEgammaPhysValMonTool():
                 "TrigEgammaNavTPNtuple/NavTPNtuple"
                 ])
 
-    ToolSvc += TrigEgammaPhysValMonTool
+    #ToolSvc += TrigEgammaPhysValMonTool
 
 
 

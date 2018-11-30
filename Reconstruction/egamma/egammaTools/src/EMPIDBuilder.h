@@ -14,6 +14,7 @@
 */
 // INCLUDE HEADER FILES: 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "egammaBaseTool.h"
 
 #include <string>
@@ -40,7 +41,7 @@ public:
   /** @brief initialize method*/
   virtual StatusCode initialize() override;
   /** @brief standard execute method */
-  virtual StatusCode execute(xAOD::Egamma*) const override final ;
+  virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma*) const override final ;
   /** @brief finalize method*/
   virtual StatusCode finalize() override;
 
@@ -62,6 +63,7 @@ protected:
   ToolHandleArray<CP::ISelectionTool> m_genericIsEMselectors {this,
       "genericIsEMselectors", {},
       "The selectors that we need to apply to the generic object"};
+
   Gaudi::Property<std::vector<std::string> > m_genericIsEMselectorResultNames {this,
       "genericIsEMselectorResultNames", {}, "The selector result names"};
   

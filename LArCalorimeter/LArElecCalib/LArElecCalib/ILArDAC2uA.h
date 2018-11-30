@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARDAC2UA_H
 #define LARCONDITIONS_ILARDAC2UA_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/Identifier.h"
 #include "LArElecCalib/LArCalibErrorCode.h"
@@ -33,10 +33,7 @@ class ILArDAC2uA {
   */ 
   // online ID
   virtual const float& DAC2UA(const HWIdentifier& id )  const = 0 ;
-  
-  // offline ID 
-  virtual const float& DAC2UA(const Identifier& id )  const =0;
-  
+    
   enum {ERRORCODE = LArElecCalib::ERRORCODE};
 
 } ;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   AthenaCommon/python/ConcurrencyFlags.py
@@ -51,7 +51,7 @@ class NumThreads(JobProperty):
 
     def _do_action(self):
         try:
-            import GaudiHive
+            import GaudiHive  # noqa: F401
         except ImportError:
             from Logging import log
             log.fatal("GaudiHive not in release - can't use --threads parameter")
@@ -76,7 +76,7 @@ class NumConcurrentEvents(JobProperty):
 
     def _do_action(self):
         try:
-            import GaudiHive
+            import GaudiHive  # noqa: F401
         except ImportError:
             from Logging import log
             log.fatal("GaudiHive not in release - can't use --concurrent-events parameter")

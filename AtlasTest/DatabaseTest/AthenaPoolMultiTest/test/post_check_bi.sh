@@ -92,7 +92,7 @@ else
             diff -a -b -E -B -u $jobdiff $refdiff
 
 	    diffStatus=$?
-	    if [ $diffStatus != 0 ] 
+	    if [ $diffStatus -ne 0 ] 
 		then
 		echo "[97;101;1m post_check_bi.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1

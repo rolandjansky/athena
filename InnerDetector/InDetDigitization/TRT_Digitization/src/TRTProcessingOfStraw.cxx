@@ -365,9 +365,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 
           if ( energyDeposit<30.0 ) {
 
-	    double ArEmulationScaling_BA = 0.15;
-	    double ArEmulationScaling_ECA = 0.28;
-	    double ArEmulationScaling_ECB = 0.28;
+            // Improved Argon Emulation tuning October 2018 by Hassane Hamdaoui https://cds.cern.ch/record/2643784
+            // Previously 0.15, 0.28, 0.28
+            double ArEmulationScaling_BA  = 0.05;
+            double ArEmulationScaling_ECA = 0.20;
+            double ArEmulationScaling_ECB = 0.20;
 
 	    // ROUGH GUESSES RIGHT NOW
 	    double KrEmulationScaling_BA = 0.20;

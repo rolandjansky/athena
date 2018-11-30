@@ -22,16 +22,8 @@ def CreateEgammaRotCreator():
       from GaudiSvc.GaudiSvcConf import THistSvc
       svcMgr += THistSvc()    
 
-    # --- neutral network tools
-    import sys,os    
-    from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
-    egNeuralNetworkToHistoTool=Trk__NeuralNetworkToHistoTool(name = "egNeuralNetworkToHistoTool")
-    ToolSvc += egNeuralNetworkToHistoTool
-
     #--- new NN factor   
     # COOL binding
-    from IOVDbSvc.CondDB import conddb
-    conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")               
     # --- Select the necessary settings when running on run 1 data/MC
     # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
 
@@ -45,23 +37,22 @@ def CreateEgammaRotCreator():
     if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
       egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
                                                                   PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
-                                                                  NetworkToHistoTool   = egNeuralNetworkToHistoTool,
                                                                   doRunI = True,
                                                                   useToT = False,
                                                                   useRecenteringNNWithoutTracks = True,
                                                                   useRecenteringNNWithTracks = False,
                                                                   correctLorShiftBarrelWithoutTracks = 0,
                                                                   correctLorShiftBarrelWithTracks = 0.030,
-                                                                  LoadNoTrackNetwork   = True,
-                                                                  LoadWithTrackNetwork = True)
+                                                                  NnCollectionReadKey                = 'PixelClusterNN',
+                                                                  NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
         
     else:
       egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
                                                                   PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
-                                                                  NetworkToHistoTool   = egNeuralNetworkToHistoTool,
-                                                                  LoadNoTrackNetwork   = True,
                                                                   useToT = InDetFlags.doNNToTCalibration(),
-                                                                  LoadWithTrackNetwork = True)               
+                                                                  NnCollectionReadKey                = 'PixelClusterNN',
+                                                                  NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
+
     ToolSvc += egNnClusterizationFactory 
       
   #End of do cluster splitting       
@@ -208,7 +199,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                         MakePerigee             = True,
                                         RefitOnMeasurementBase  = True,
                                         DoHitSorting            = True,
-                                        ValidationMode          = False,
                                         ToolForROTCreation      = egRotCreator)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter

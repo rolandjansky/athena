@@ -26,11 +26,6 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         muonByteStreamFlags.RpcDataType = "atlas"#FIXME should not be setting jobproperties at this point in the configuration.
         muonByteStreamFlags.MdtDataType = "atlas"#FIXME should not be setting jobproperties at this point in the configuration.
 
-    if overlayFlags.doBkg==True:
-        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
-        job += DeepCopyObjects("BkgRdo4")
-        job.BkgRdo4.MuonObjects = True
-
     import MuonCnvExample.MuonCablingConfig
 
     digitizationFlags.doMuonNoise=False #FIXME should not be setting jobproperties at this point in the configuration.
@@ -39,49 +34,25 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         include("MuonCnvExample/MuonReadBS_jobOptions.py")
 
     if DetFlags.overlay.CSC_on():
-        if overlayFlags.isDataOverlay():
-            ToolSvc.CscRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+CSCRDO"
         job += getAlgorithm("CscOverlay")
-        #job.CscOverlay.OutputLevel=VERBOSE
-        #svcMgr.MessageSvc.defaultLimit=100000
-        #print job.CscOverlay
-        #print "ACH123: Setting DEBUG v99"
-        #job.CscOverlay.MakeRDOTool.OutputLevel=DEBUG
-        #job.CscOverlay.MakeRDOTool.cscCalibTool.OutputLevel=DEBUG
-        #job.CscOverlay.OutputLevel=DEBUG
-        #MessageSvc.debugLimit = 100000
-        #print "ACH123: NumSamples = 2 for MakeRDOTool"
-        #job.CscOverlay.MakeRDOTool.NumSamples=2
 
     if DetFlags.overlay.MDT_on():
         job += CfgGetter.getAlgorithm("MdtRdoToMdtDigitOverlayAlg")
         job += CfgGetter.getAlgorithm("MDT_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MdtOverlay")
         job += CfgGetter.getAlgorithm("OverlayMdtDigitToMdtRDO")
-        if overlayFlags.isDataOverlay():
-            ToolSvc.MdtRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+MDTCSM"
-        #job.MdtOverlay.OutputLevel = VERBOSE
-        #job.OverlayMdtDigitToMdtRDO.OutputLevel = VERBOSE
 
     if DetFlags.overlay.RPC_on():
         job += CfgGetter.getAlgorithm("RpcRdoToRpcDigitOverlayAlg")
         job += CfgGetter.getAlgorithm("RPC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("RpcOverlay")
         job += CfgGetter.getAlgorithm("OverlayRpcDigitToRpcRDO")
-        if overlayFlags.isDataOverlay():
-            ToolSvc.RpcRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+RPCPAD"
-        #job.RpcOverlay.OutputLevel = VERBOSE
-        #job.OverlayRpcDigitToRpcRDO.OutputLevel = VERBOSE
 
     if DetFlags.overlay.TGC_on():
         job += CfgGetter.getAlgorithm("TgcRdoToTgcDigitOverlayAlg")
         job += CfgGetter.getAlgorithm("TGC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("TgcOverlay")
         job += CfgGetter.getAlgorithm("OverlayTgcDigitToTgcRDO")
-        if overlayFlags.isDataOverlay():
-            ToolSvc.TgcRawDataProviderTool.RdoLocation = overlayFlags.dataStore()+"+TGCRDO"
-        #job.TgcOverlay.OutputLevel = VERBOSE
-        #job.OverlayTgcDigitToTgcRDO.OutputLevel = VERBOSE
 
     # storegate dump
     #StoreGateSvc = Service( "StoreGateSvc" )

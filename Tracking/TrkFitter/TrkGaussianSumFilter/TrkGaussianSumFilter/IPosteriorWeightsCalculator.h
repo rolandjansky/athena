@@ -34,7 +34,7 @@ class IPosteriorWeightsCalculator : virtual public IAlgTool {
   static const InterfaceID& interfaceID () { return IID_PosteriorWeightsCalculator; };
 
   /** Method to compute the state weights after measurement update */
-  virtual const MultiComponentState* weights( const MultiComponentState&, const MeasurementBase& ) = 0;
+  virtual const MultiComponentState* weights( const MultiComponentState&, const MeasurementBase& ) const = 0;
  
 };
 

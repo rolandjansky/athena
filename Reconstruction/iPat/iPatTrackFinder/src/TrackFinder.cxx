@@ -16,7 +16,6 @@
 #include <iostream>
 #include <utility>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "VxVertex/RecVertex.h"
 #include "iPatInterfaces/IAssignedHits.h"
@@ -40,7 +39,6 @@ TrackFinder::TrackFinder(const std::string&	type,
 			 const IInterface*	parent)
     :   AthAlgTool		(type, name, parent),
 	m_assignedHits		("AssignedHits/AssignedHits"),
-	m_beamCondSvc		("BeamCondSvc", name),
 	m_candidateBuilder	("CandidateBuilder/CandidateBuilder"),
 	m_combination		("CombinationMaker/CombinationMaker"),
 	m_finderTolerances	("FinderTolerances/FinderTolerances"),
@@ -79,16 +77,7 @@ TrackFinder::initialize()
 {
     ATH_MSG_INFO( "TrackFinder::initialize()" );
 
-    // check BeamCondSvc service available
-    if (m_beamCondSvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve service " << m_beamCondSvc );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved service " << m_beamCondSvc );
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
 
     // get the Tools
     if (m_assignedHits.retrieve().isFailure())
@@ -664,7 +653,8 @@ TrackFinder::vertexRegionDefinition (void)
 {
     // get beam position from conditions db
     delete m_vertex;
-    Amg::Vector3D beamPosition	= m_beamCondSvc->beamPos();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    Amg::Vector3D beamPosition	= beamSpotHandle->beamPos();
 
     // vertex for transverse vertex constraint
     // assume flat distribution for error (only x and y components will be used)
@@ -678,6 +668,6 @@ TrackFinder::vertexRegionDefinition (void)
     m_vertex		= new Trk::RecVertex(beamPosition,covariance);
     
 //     std::cout << " beam vertex " << beamPosition << std::endl;
-//     	      << "  beamSigma " << m_beamCondSvc->beamSigma(2) << std::endl;
+//     	      << "  beamSigma " << beamSpotHandle->beamSigma(2) << std::endl;
 
 }

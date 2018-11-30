@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file EventCommonTPCnv/test/P4ImplPtEtaPhiMCnv_p1_test.cxx
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2018
+ * @brief Regression tests.
+ */
+
+#undef NDEBUG
+#include "EventCommonTPCnv/P4ImplPtEtaPhiMCnv_p1.h"
+#include "TestTools/leakcheck.h"
+#include "GaudiKernel/MsgStream.h"
+#include <cassert>
+#include <iostream>
+
+
+void compare (const P4ImplPtEtaPhiM& a1,
+              const P4ImplPtEtaPhiM& a2)
+{
+  assert (a1.iPt() == a2.iPt());
+  assert (a1.eta() == a2.eta());
+  assert (a1.phi() == a2.phi());
+  assert (a1.m() == a2.m());
+}
+
+
+void testit (const P4ImplPtEtaPhiM& trans1)
+{
+  MsgStream log (0, "test");
+  P4ImplPtEtaPhiMCnv_p1 cnv;
+  P4ImplPtEtaPhiM_p1 pers;
+  cnv.transToPers (&trans1, &pers, log);
+  P4ImplPtEtaPhiM trans2;
+  cnv.persToTrans (&pers, &trans2, log);
+  compare (trans1, trans2);
+}
+
+
+void test1()
+{
+  std::cout << "test1\n";
+
+  Athena_test::Leakcheck check;
+
+  P4ImplPtEtaPhiM trans1 (1, 2.5, 1.5, 4);
+  testit (trans1);
+}
+
+
+int main()
+{
+  std::cout << "P4ImplPtEtaPhiMCnv_p1_test\n";
+  test1();
+  return 0;
+}

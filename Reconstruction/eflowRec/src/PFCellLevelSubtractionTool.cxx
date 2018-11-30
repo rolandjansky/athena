@@ -83,7 +83,7 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
 
 }
 
-void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer, xAOD::CaloClusterContainer& theCaloClusterContainer){
+void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer){
 
   ATH_MSG_VERBOSE("Executing PFCellLevelSubtractionTool");
 
@@ -97,12 +97,12 @@ void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloO
   if (msgLvl(MSG::DEBUG)) printAllClusters(*recClusterContainer);
   
   /* Check e/p mode - only perform subtraction if not in this mode */
-  if (!m_calcEOverP) {performSubtraction(theCaloClusterContainer);}
+  if (!m_calcEOverP) {performSubtraction();}
 
   ATH_MSG_DEBUG("Have executed performSubtraction");
   
   /* Check e/p mode - only perform radial profiles calculations if in this mode */
-  if (m_calcEOverP) {calculateRadialEnergyProfiles(theCaloClusterContainer);}
+  if (m_calcEOverP) {calculateRadialEnergyProfiles();}
 
   ATH_MSG_DEBUG("Have executed calculateRadialEnergyProfiles");
   
@@ -159,7 +159,7 @@ int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   return nMatches;
 }
 
-void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloClusterContainer& theCaloClusterContainer){
+void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
   ATH_MSG_DEBUG("Accessed radial energy profile function");
 
@@ -189,7 +189,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
       for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
       
       std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
+      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
 
       eflowCellList calorimeterCellList;
       Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
@@ -307,7 +307,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
   }//loop on eflowCaloObjects
 }
 
-void PFCellLevelSubtractionTool::performSubtraction(xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFCellLevelSubtractionTool::performSubtraction() {
 
   ATH_MSG_DEBUG("In performSubtraction");
   
@@ -347,60 +347,61 @@ void PFCellLevelSubtractionTool::performSubtraction(xAOD::CaloClusterContainer& 
     }
 
     ATH_MSG_DEBUG("About to perform subtraction for this eflowCaloObject");
-    
-    /* Subtract the track from all matched clusters */
-    const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
-      
-    for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
-      eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
 
-      ATH_MSG_DEBUG("Have got eflowRecTrack number " << iTrack << " for this eflowCaloObject");
-      
-      /* Can't subtract without e/p */
-      if (!efRecTrack->hasBin()) {
-	continue;
-      }
-     
-      if (efRecTrack->isInDenseEnvironment()) continue;
-
-
-      ATH_MSG_DEBUG("Have bin and am not in dense environment for this eflowCaloObject");
-      
-      std::vector<eflowRecCluster*> matchedClusters;
-      matchedClusters.clear();
-      std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-      for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
-
-      ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
-      
-      std::vector<xAOD::CaloCluster*> clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getClusterForModification(&theCaloClusterContainer));
-
-      ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
-      
-      Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
-
-      ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
-      
-      /* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
-      if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
-	Subtractor::annihilateClusters(clusterSubtractionList);
-      }
-
-      ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
-      
-    }
-    
     if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
       /* Check if we can annihilate right away */
       std::vector<xAOD::CaloCluster*> clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
       for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(&theCaloClusterContainer));
+        clusterList.push_back(thisEflowCaloObject->efRecCluster(iCluster)->getCluster());
       }
       Subtractor::annihilateClusters(clusterList);
-    } 
+    } else {
+    
+      /* Subtract the track from all matched clusters */
+      const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
+      
+      for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
+	eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+	
+	ATH_MSG_DEBUG("Have got eflowRecTrack number " << iTrack << " for this eflowCaloObject");
+	
+	/* Can't subtract without e/p */
+	if (!efRecTrack->hasBin()) {
+	  continue;
+	}
+     
+	if (efRecTrack->isInDenseEnvironment()) continue;
 
+
+	ATH_MSG_DEBUG("Have bin and am not in dense environment for this eflowCaloObject");
+      
+	std::vector<eflowRecCluster*> matchedClusters;
+	matchedClusters.clear();
+	std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
+	for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+
+	ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
+	
+	std::vector<xAOD::CaloCluster*> clusterSubtractionList;
+	for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
+
+	ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
+      
+	Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
+	
+	ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
+      
+	/* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
+	if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
+	  Subtractor::annihilateClusters(clusterSubtractionList);
+	}
+	
+	ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
+      
+      }
+    }
+    
     /* Flag tracks as subtracted */
     for (unsigned int iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
       if (!thisEflowCaloObject->efRecTrack(iTrack)->isInDenseEnvironment()) thisEflowCaloObject->efRecTrack(iTrack)->setSubtracted();

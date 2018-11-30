@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_TRIGGERSUMMARYALG_H
 #define DECISIONHANDLING_TRIGGERSUMMARYALG_H 1
@@ -11,8 +11,8 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "TrigOutputHandling/IHLTOutputTool.h"
-
+#include "DecisionHandling/IHLTOutputTool.h"
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 /**
  * @class An algorithm reading partial decisions and storing them in an HLTResult
@@ -49,7 +49,16 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   std::map<HLT::Identifier, ChainCounter_t> m_chainIdToChainCounter;
   
   ToolHandleArray<IHLTOutputTool> m_outputTools{ this, "OutputTools", {}, "Set of tools to prepare make HLT output ready for writing out" };
-  
+
+  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
+    "The trigger cost service" };
+
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "TrigCostContainer",
+    "Trig composite collections summarising the HLT execution" };
+
+  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+    "Enables end-of-event cost monitoring behavior. Only to be enabled on the very final summary alg."};
+
 }; 
 
 

@@ -80,7 +80,7 @@ hlt_hltEtBinsHigh              = [ 500., 500.]
 
 hlt_JetKeys = { "a4tcemsubjesFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesFS"}
 
-hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets"}
+hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets", "AntiKt4HIJets":"AntiKt4HIJets"}
 
 
 
@@ -824,7 +824,7 @@ def TrigJetMonitoringTool():
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)
 
   
-  ToolSvc += HLTJetMon;
+  #ToolSvc += HLTJetMon;
 
   # Set up the trigger configuration tool:
   #ToolSvc += CfgMgr.TrigConf__xAODConfigTool( "xAODConfigTool",
@@ -836,7 +836,7 @@ def TrigJetMonitoringTool():
                                           #ConfigTool = ToolSvc.xAODConfigTool,
                                           #TrigDecisionKey = "xTrigDecision" )
 
-  list = [ "HLTJetMonTool/HLTJetMon" ];
+  list = [ HLTJetMon ];
   return list
 
 

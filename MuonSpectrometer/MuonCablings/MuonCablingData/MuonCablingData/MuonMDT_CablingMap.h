@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGMAP_H
@@ -12,7 +12,7 @@
 
 #include "MuonCablingData/MdtMapBase.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**********************************************
  *
@@ -63,34 +63,37 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 		    int tdcId, int channelZero);
 
   /** Get function */
-  MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId);
+  MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId) const;
 
   /** return the ROD id of a given chamber, given station, eta, phi */
-  uint32_t getROBId(int station, int eta, int phi);
+  uint32_t getROBId(int station, int eta, int phi) const;
 
   /** return the ROD id of a given chamber, given the hash id */
-  uint32_t getROBId(const IdentifierHash stationCode);
+  uint32_t getROBId(const IdentifierHash stationCode) const;
+
+  /** get the robs corresponding to a vector of hashIds, copied from Svc before the readCdo migration */
+  std::vector<uint32_t> getROBId(const std::vector<IdentifierHash>& mdtHashVector) const;
 
  /** return a vector of HashId lists for a  given list of ROD's */
-  const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list);
+  const std::vector<IdentifierHash> getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const;
 
  /** return a HashId list for a  given ROD */
-  const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBId);
+  const std::vector<IdentifierHash>& getChamberHashVec(const uint32_t ROBId) const;
 
   /** return the ROD id of a given chamber */
-  std::vector<uint32_t> getAllROBId();
+  std::vector<uint32_t> getAllROBId() const;
 
   /** return the offline id given the online id */
   bool getOfflineId(uint8_t subdetectorId,uint8_t rodId,uint8_t csmId,
 		    uint8_t tdcId,uint8_t channelId,
 		    int& stationName, int& stationEta, int& stationPhi,
-		    int& multiLayer, int& layer, int& tube);
+		    int& multiLayer, int& layer, int& tube) const;
 
   /** return the online id given the offline id */
   bool getOnlineId(int stationName, int stationEta, int stationPhi,
 		   int multiLayer, int layer, int tube,
 		   uint8_t& subdetectorId, uint8_t& rodId, uint8_t& csmId,
-		   uint8_t& tdcId, uint8_t& channelId);
+		   uint8_t& tdcId, uint8_t& channelId) const;
 
  private:
 
@@ -113,7 +116,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   ListOfROD* m_listOfROD;
 
   /** private function to compute a station code for the chamber to ROD map */
-  bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash);
+  bool getStationCode(int station, int eta, int phi, IdentifierHash& mdtIdHash) const;
 
   /** Pointer to the MdtIdHelper */
   const MdtIdHelper* m_mdtIdHelper;
@@ -124,6 +127,9 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 
 };
 
+//#include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( MuonMDT_CablingMap , 51038731 , 1 )
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<MuonMDT_CablingMap>, 34552845, 0 )
 
 #endif

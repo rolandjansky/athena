@@ -8,11 +8,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-class LArBadChanTool;
 class EventInfo;
 class LArEM_ID;
 
@@ -28,8 +30,7 @@ public:
   StatusCode finalize();
 
 private:
-
-  ToolHandle< LArBadChanTool > m_BadChanTool;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey;
   const CaloCell_ID* m_cellID;
   const DataHandle<LArOnlineID> m_onlineID;
   const DataHandle<LArEM_ID>    m_emID;

@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigRoiDescriptor.h        
 //
@@ -6,7 +9,6 @@
 //             for enforcement of correct roi sizes       
 //  
 //   @author sutt@cern.ch
-//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigRoiDescriptor.h, v0.1   Fri 08 Jun 2013 23:52:09 CEST sutt $
 
@@ -25,7 +27,7 @@
 
 // can we leave this in for standalone running?
 // #ifndef XAOD_STANDALONE
-// #include "CLIDSvc/CLASS_DEF.h"
+// #include "AthenaKernely/CLASS_DEF.h"
 // #include "GaudiKernel/MsgStream.h"
 
 #include "xAODCore/CLASS_DEF.h"

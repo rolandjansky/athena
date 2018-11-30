@@ -132,6 +132,8 @@ StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH1* hist_ptr) {
 
 
 
+
+
 StatusCode TrigMonTHistSvc::regTree(const std::string& id) {
   return THistSvcHLT::regTree(id);
 }

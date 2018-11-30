@@ -23,15 +23,24 @@ StatusCode PFMomentCalculatorTool::initialize(){
     ATH_MSG_WARNING("Cannot find CaloClusterMomentsMaker Tool");
     return StatusCode::SUCCESS;
   }
+ 
+  /* Retrieve the cluster calib hit moments maker */
+  if (m_useCalibHitTruth){
+    if ( m_clusterCalibHitMomentsMaker2.retrieve().isFailure() ) {
+      ATH_MSG_WARNING("Cannot find CaloCalibClusterMomentsMaker2 Tool");
+      return StatusCode::SUCCESS;
+    }
+  }
+ 
   return StatusCode::SUCCESS;
 }
 
-void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer, xAOD::CaloClusterContainer& theCaloClusterContainer) {
+void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
 
   /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
   bool useNonModifiedClusters = true;
   if (true == m_LCMode) useNonModifiedClusters = false;
-  std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, useNonModifiedClusters, theCaloClusterContainer);
+  std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, useNonModifiedClusters);
 
   /* Set the layer energies */
   /* This must be set before the cluster moment calculations, which use the layer energies */
@@ -40,6 +49,11 @@ void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCal
   /* Remake the cluster moments */
   if (m_clusterMomentsMaker->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute ClusterMomentsMaker");
 
+  if (m_useCalibHitTruth){
+    if (m_clusterCalibHitMomentsMaker2->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute CaloCalibClusterMomentsMaker2");
+  }
+
+  
 }
 
 StatusCode PFMomentCalculatorTool::finalize(){ return StatusCode::SUCCESS; }

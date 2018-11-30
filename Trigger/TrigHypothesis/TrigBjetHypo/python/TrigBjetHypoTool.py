@@ -1,166 +1,132 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoTool
+import re
+re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?)?$')
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaCommon.Constants import VERBOSE,DEBUG
 
-#### Not sure how to deal with instances here, I left only "split" since these are used now, and for simplicity
-def getBjetHypoSplitNoCutInstance( instance):
-    return BjetHypoSplitNoCut( instance=instance, name=instance+"BjetHypoSplitNoCut" )
+####################################################################################################
 
-def getBjetHypoSplitInstance( instance, version, cut ):
-    return BjetHypoSplit( instance=instance, cut=cut, version=version, name=instance+"BjetHypoSplit"+"_"+cut+"_"+version )
+bTaggingWP = { 
+    # MV2c20
+    'mv2c2040' : 0.75,
+    'mv2c2050' : 0.5,
+    'mv2c2060' : -0.0224729,
+    'mv2c2070' : -0.509032,
+    'mv2c2077' : -0.764668,
+    'mv2c2085' : -0.938441,
+    # MV2c10
+    'mv2c1040' : 0.978,
+    'mv2c1050' : 0.948,
+    'mv2c1060' : 0.846,
+    'mv2c1070' : 0.580,
+    'mv2c1077' : 0.162,
+    'mv2c1085' : -0.494,
+    # MV2c00 (Hybrid MV2c10)
+    'hmv2c1040' : 0.973,
+    'hmv2c1050' : 0.939,
+    'hmv2c1060' : 0.835,
+    'hmv2c1070' : 0.588,
+    'hmv2c1077' : 0.192,
+    'hmv2c1085' : -0.402,
+    }
 
+####################################################################################################  
 
+def TrigBjetHypoToolFromName( name, conf ):
+    from AthenaCommon.Constants import DEBUG
+    """ Configure a b-jet hypo tool from chain name. """
 
+    default_conf = { 'threshold' : '0',
+                     'multiplicity' : '1',
+                     'gscThreshold' : '0',
+                     'bTag' : 'offperf',
+                     'bConfig' : 'split' }
 
-### Split instances
+    chain = conf
+    match = re_Bjet.match( chain )
+    conf_dict = match.groupdict()
 
-class BjetHypoSplitNoCut (TrigBjetHypo):
-    __slots__ = []
+    for k, v in default_conf.items():
+        if k not in conf_dict: conf_dict[k] = v
+        if conf_dict[k] == None: conf_dict[k] = v
+
+    tool = getBjetHypoConfiguration( name,conf_dict )
     
-    def __init__(self, instance, name):
-        super( BjetHypoSplitNoCut, self ).__init__( name )
-        
-        mlog = logging.getLogger('BjetHypoConfig.py')
-                
-        AllowedInstances = ["EF", "MuJetChain"]
+    print "TrigBjetHypoToolFromName: name = %s, tagger = %s "%(name,tool.MethodTag)
+    print "TrigBjetHypoToolFromName: tagger %s and threshold %s "%(tool.MethodTag,tool.BTaggingCut)
 
-##        self.JetKey = "SplitJet"
-        
-        if instance in AllowedInstances :
+    return tool
 
-## Let's leave mu-jet chains for later if needed            
-##            if instance=="MuJetChain" :
-##                self.JetKey = "FarawayJet"
-##                instance = "EF"
-                
-            if instance=="EF" :
-                self.AcceptAll             = True
-                self.Instance              = "EF"
-                self.UseBeamSpotFlag       = False
-                self.OverrideBeamSpotValid = True
-                from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
-                validation = TrigEFBjetHypoValidationMonitoring()
-                online     = TrigEFBjetHypoOnlineMonitoring()
-        
-            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-            time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
-            time.TimerHistLimits = [0,0.4]
+####################################################################################################  
 
-            self.AthenaMonTools = [ time, validation, online ]
+def decodeThreshold( threshold_btag ):
+    """ decodes the b-tagging thresholds """
+    print "TrigBjetHypoToolFromName: decoding threshold b" + threshold_btag
 
-        else :
-            mlog.error("Instance "+instance+" is not supported!")
-            return None
+    tagger = "MV2c10"
+    if "mv2c20" in threshold_btag :
+        tagger = "MV2c20"
+    elif "hmv2c10" in threshold_btag : 
+        tagger = "MV2c00"
 
+    cut = bTaggingWP.get( threshold_btag,-20 )
+    return [tagger,cut]
 
+####################################################################################################
 
-class BjetHypoSplit (TrigBjetHypo):
-    __slots__ = []
-    
-    def __init__(self, instance, version, cut, name):
-        super( BjetHypoSplit, self ).__init__( name )
-        
-        mlog = logging.getLogger('BjetHypoConfig.py')
-        
-        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight",
-                            "mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085",
-                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
-        AllowedVersions  = ["2012","2015","2017"]
-        AllowedInstances = ["EF", "MuJetChain"]
-        
-        if instance not in AllowedInstances :
-            mlog.error("Instance "+instance+" is not supported!")
-            return None
-        
-        if version not in AllowedVersions :
-            mlog.error("Version "+version+" is not supported!")
-            return None
-        
-        if cut not in AllowedCuts :
-            mlog.error("Cut "+cut+" is not supported!")
-            return None
+def getBjetHypoConfiguration( name,conf_dict ):
+    # Common for both split and non-split configurations
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoTool
 
-        self.JetKey = "SplitJet"
-        if instance=="MuJetChain" :
-            self.JetKey = "FarawayJet"
-            instance = "EF"
+    tool = TrigBjetHypoTool( name )
+    tool.OutputLevel     = DEBUG
+    tool.AcceptAll       = False
+    tool.UseBeamSpotFlag = False
 
-        if instance=="EF" :
-            self.AcceptAll       = False
-            self.Instance        = "EF"
-            self.UseBeamSpotFlag = False
-        
-        if instance=="EF" :
-            from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
-            validation = TrigEFBjetHypoValidationMonitoring()
-            online     = TrigEFBjetHypoOnlineMonitoring()
-        
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
-        time.TimerHistLimits = [0,0.4]
-        
-        self.AthenaMonTools = [ time, validation, online ]
-            
-        if instance=="EF" :
-            if version=="2012" :
-                self.MethodTag = "COMB"
-                if cut=="loose":
-                    self.CutXCOMB = 0.25
-                elif cut=="medium":
-                    self.CutXCOMB = 1.25
-                elif cut=="tight":
-                    self.CutXCOMB = 2.65
+    # b-tagging
+    [tagger,tb] = decodeThreshold( conf_dict['bTag'] )
 
-            if version=="2015" :
-                self.MethodTag = "MV2c20"
-                # These are the offline working points
-                if cut=="mv2c2040":
-                    # Actually XX% efficient
-                    self.CutMV2c20 =  0.75
-                elif cut=="mv2c2050":
-                    # Actually XX% efficient
-                    self.CutMV2c20 =  0.5
-                elif cut=="mv2c2060":
-                    # Actually 62% efficient
-                    self.CutMV2c20 = -0.0224729
-                elif cut=="mv2c2070":
-                    # Actually 72% efficient
-                    self.CutMV2c20 = -0.509032
-                elif cut=="mv2c2077":
-                    # Actually 79% efficient
-                    self.CutMV2c20 = -0.764668
-                elif cut=="mv2c2085":
-                    # Actually 87% efficient
-                    self.CutMV2c20 = -0.938441
+    if conf_dict['bTag'] == "offperf" :
+        tool.AcceptAll             = True
+        tool.OverrideBeamSpotValid = True
 
-            if version=="2017" :
-                self.MethodTag = "MV2c10"
-                # These are the offline working points
-                if cut=="mv2c1040":
-                    # Actually ~45% efficient
-                    self.CutMV2c10 =  0.978
-                elif cut=="mv2c1050":
-                    # Actually ~55% efficient
-                    self.CutMV2c10 =  0.948
-                elif cut=="mv2c1060":
-                    # Actually ~65% efficient
-                    self.CutMV2c10 =  0.847
-                elif cut=="mv2c1070":
-                    # Actually ~75% efficient
-                    self.CutMV2c10 =  0.580
-                elif cut=="mv2c1077":
-                    # Actually ~80% efficient
-                    self.CutMV2c10 =  0.162
-                elif cut=="mv2c1085":
-                    # Actually ~90% efficient
-                    self.CutMV2c10 = -0.494
+    tool.MethodTag = tagger
+    tool.BTaggingCut = tb
 
-                    
+    # Monitoring
+    tool.MonTool = ""
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
+        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+        monTool = GenericMonitoringTool("MonTool"+name)
+        monTool.Histograms = []
 
+        monTool.HistPath = 'BjetHypo/'+tool.name()
+        tool.MonTool = monTool
+        tool += monTool
 
+    return tool
 
+####################################################################################################
 
+if __name__ == "__main__":
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.enableMonitoring=['Validation']
+
+    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf_split","HLT_j35_gsc45_boffperf_split" )
+    assert t, "can't configure gsc boffperf split"
+
+    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf","HLT_j35_gsc45_boffperf" )
+    assert t, "can't configure gsc boffperf"
+
+    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf_split","HLT_j35_boffperf_split" )
+    assert t, "can't configure boffperf split"
+
+    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf","HLT_j35_boffperf" )
+    assert t, "can't configure boffperf"
+
+    print ( "\n\n TrigBjetHypoToolFromName ALL OK\n\n" )
 

@@ -13,6 +13,6 @@ theLArHVCorrTool=LArHVCorrToolDefault()
 ToolSvc+=theLArHVCorrTool
 theLArHVCorrectionMonTool.HVCorrTool = theLArHVCorrTool
 
-ToolSvc += theLArHVCorrectionMonTool
+#ToolSvc += theLArHVCorrectionMonTool
 LArMon.AthenaMonTools+=[ theLArHVCorrectionMonTool ]
 

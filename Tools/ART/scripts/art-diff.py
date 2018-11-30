@@ -45,7 +45,7 @@ import sys
 
 from ART.docopt import docopt
 
-VERSION = "0.10.16"
+VERSION = "0.11.13"
 ATHENA_STDOUT = "athena_stdout.txt"
 DEFAULT_ENTRIES = -1
 DEFAULT_MODE = "detailed"
@@ -233,7 +233,7 @@ class ArtDiff(object):
     def diff_root(self, file_name, ref_file, entries, mode):
         """TBD."""
         # diff-root
-        (code, out, err) = self.run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries) + " --mode " + mode)
+        (code, out, err) = self.run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings EVNTtoHITS_timings --entries " + str(entries) + " --mode " + mode)
         if code != 0:
             print "Error: %d" % code
             print err

@@ -37,9 +37,9 @@ class RCUTest
   : public Athena::IRCUSvc
 {
 public:
-  virtual void add (Athena::IRCUObject*) override { std::abort(); }
-  virtual StatusCode remove (Athena::IRCUObject*) override { std::abort(); }
-  virtual size_t getNumSlots() const override { std::abort(); }
+  virtual void add (Athena::IRCUObject*) override {  }
+  virtual StatusCode remove (Athena::IRCUObject*) override { return StatusCode::SUCCESS; }
+  virtual size_t getNumSlots() const override { return 1; }
   virtual unsigned long addRef()override { std::abort(); }
   virtual unsigned long release() override { std::abort(); }
   virtual StatusCode queryInterface( const InterfaceID&, void** ) override { std::abort(); }
@@ -51,32 +51,13 @@ class CondContTest
   : public CondContBase
 {
 public:
-  CondContTest (int nlbn, int nts)
-    : CondContBase (m_rcu, 123, m_id, nullptr),
+  CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id, int nlbn, int nts)
+    : CondContBase (rcusvc, 123, id, nullptr, nullptr, 0),
       m_nlbn(nlbn), m_nts (nts)
   {}
   
-  virtual const DataObjID& id() const override { std::abort(); }
-  virtual SG::DataProxy* proxy() override { std::abort(); }
-  virtual void setProxy(SG::DataProxy*) override { std::abort(); }
-  virtual void list (std::ostream&) const override { std::abort(); }
-  virtual size_t entries() const override { std::abort(); }
-  virtual std::vector<EventIDRange> ranges() const override { std::abort(); }
-  virtual StatusCode typelessInsert (const EventIDRange&,
-                                     void*,
-                                     const EventContext& = Gaudi::Hive::currentContext()) override { std::abort(); }
-  virtual bool valid( const EventIDBase&) const override { std::abort(); }
-  virtual bool range (const EventIDBase&, EventIDRange&) const override { std::abort(); }
-  virtual void erase (const EventIDBase&,
-                      const EventContext& = Gaudi::Hive::currentContext()) override { std::abort(); }
-  virtual void quiescent (const EventContext& = Gaudi::Hive::currentContext()) override { std::abort(); }
-  virtual const void* findByCLID (CLID,
-                                  const EventIDBase&,
-                                  EventIDRange const**) const override { std::abort(); }
-
-  virtual size_t nInserts() const override { return 0; }
-  virtual size_t maxSize() const override { return 0; }
-
+  virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override
+  { std::abort(); }
   
   virtual size_t entriesRunLBN() const override
   {
@@ -118,8 +99,6 @@ public:
 
   
 private:
-  RCUTest m_rcu;
-  DataObjID m_id;
   int m_nlbn;
   int m_nts;
   std::list<std::vector<key_type> > m_keysRunLBN;
@@ -149,9 +128,12 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
 {
   typedef CondContBase::key_type key_type;
 
+  RCUTest rcu;
+  DataObjID id;
+
   std::cout << "test1\n";
-  CondContTest cc1 (10, 0);
-  CondContTest cc2 (0, 10);
+  CondContTest cc1 (rcu, id, 10, 0);
+  CondContTest cc2 (rcu, id, 0, 10);
 
   assert( svc.event (makeCtx(0), false).isSuccess() );
   assert( svc.event (makeCtx(1), false).isSuccess() );
@@ -186,8 +168,8 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
   assert (cc2.nkeysTimestamp() == 0);
   assert (cc1.keysRunLBN() == (std::vector<key_type> { 0, 1001, 1003, 1004, 1201, 1301 }));
 
-  CondContTest cc3 (10, 0);
-  CondContTest cc4 (0, 10);
+  CondContTest cc3 (rcu, id, 10, 0);
+  CondContTest cc4 (rcu, id, 0, 10);
 
   assert( svc.condObjAdded (makeCtx(300), cc1).isSuccess() );
   assert( svc.condObjAdded (makeCtx(303), cc2).isSuccess() );
@@ -240,8 +222,6 @@ public:
   virtual StatusCode selectStore( size_t ) override { std::abort(); }
   virtual StatusCode clearStore( size_t ) override { std::abort(); }
   virtual StatusCode setNumberOfStores( size_t ) override { std::abort(); }
-  virtual void addNewDataObjects( DataObjIDColl& ) override { std::abort(); }
-  virtual DataObjIDColl getNewDataObjects() override { std::abort(); }
   virtual bool exists( const DataObjID& ) override { std::abort(); }
   virtual size_t allocateStore( int ) override { std::abort(); }
   virtual StatusCode freeStore( size_t ) override { std::abort(); }

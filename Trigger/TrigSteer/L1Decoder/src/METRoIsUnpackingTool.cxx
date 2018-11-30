@@ -21,7 +21,6 @@ StatusCode METRoIsUnpackingTool::initialize()
   }
 
 
-  CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_configSvc.retrieve() );
   
   return StatusCode::SUCCESS;
@@ -62,7 +61,7 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto decisionOutput = std::make_unique<DecisionContainer>();
   auto decisionAux    = std::make_unique<DecisionAuxContainer>();
   decisionOutput->setStore( decisionAux.get() );  
-  auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
+
   HLT::IDSet activeMETchains;
   // see if any chain we care of is active
   std::set_intersection(activeChains.begin(), activeChains.end(), 
@@ -72,10 +71,10 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
   for ( auto c: activeMETchains ) addDecisionID( c, decision );
   ATH_MSG_DEBUG("Unpacking MET RoI for " << activeMETchains.size() << " chains");
-  trigRoIs->push_back( new TrigRoiDescriptor(true) );
-  ATH_MSG_DEBUG("Created FS RoI descriptor");  
-  decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), 0 ) );
-	
+
+  ATH_MSG_DEBUG("Linking to FS RoI descriptor");  
+  decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
+  
   // check the MET RoI, TODO unpack anc create L1 MET object (only if turns out to be needed)
   bool foundMETRoI = false;
   const std::vector<ROIB::JetEnergyResult>& jetEnergyResult = roib.jetEnergyResult();
@@ -93,10 +92,6 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
     // inconsistency, active MET chains, yet missing MET RoI
   if ( (not activeMETchains.empty()) and not foundMETRoI) { 
     ATH_MSG_WARNING( "" << activeMETchains.size() << " active MET chains while missing  MET RoI" );
-  }
-  {
-    auto handle = SG::makeHandle( m_trigRoIsKey, ctx );
-    CHECK( handle.record ( std::move( trigRoIs ) ) );
   }
   {
     auto handle = SG::makeHandle( m_decisionsKey, ctx );

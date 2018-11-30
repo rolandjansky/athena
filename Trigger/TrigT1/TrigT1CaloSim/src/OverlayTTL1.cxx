@@ -15,11 +15,7 @@
 namespace LVL1 {
 
 OverlayTTL1::OverlayTTL1(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-
-{
-  declareProperty("EnableTileTTL1Overlay", m_enableTileTTL1Overlay=false);
-}
+  : AthAlgorithm(name, pSvcLocator) { }
 
 OverlayTTL1::~OverlayTTL1() {}
 
@@ -27,19 +23,33 @@ StatusCode OverlayTTL1::initialize()
 {
   ATH_MSG_DEBUG("Initialising");
 
-  // StoreGate keys
+  // StoreGate keys for LAr
   ATH_CHECK( m_bkgEmTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgEmTTL1Key);
   ATH_CHECK( m_bkgHadTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgHadTTL1Key);
   ATH_CHECK( m_signalEmTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalEmTTL1Key);
   ATH_CHECK( m_signalHadTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalHadTTL1Key);
   ATH_CHECK( m_outputEmTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputEmTTL1Key);
   ATH_CHECK( m_outputHadTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputHadTTL1Key);
 
-  if (m_enableTileTTL1Overlay) {
-    ATH_CHECK( m_bkgTileTTL1Key.initialize() );
-    ATH_CHECK( m_signalTileTTL1Key.initialize() );
-    ATH_CHECK( m_outputTileTTL1Key.initialize() );
-  }
+  // StoreGate keys for Tile
+  ATH_CHECK( m_bkgTileTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgTileTTL1Key);
+  ATH_CHECK( m_bkgTileMBTSTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgTileMBTSTTL1Key);
+  ATH_CHECK( m_signalTileTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalTileTTL1Key);
+  ATH_CHECK( m_signalTileMBTSTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalTileMBTSTTL1Key);
+  ATH_CHECK( m_outputTileTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputTileTTL1Key);
+  ATH_CHECK( m_outputTileMBTSTTL1Key.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_outputTileMBTSTTL1Key);
 
   return StatusCode::SUCCESS;
 }
@@ -50,9 +60,8 @@ StatusCode OverlayTTL1::execute()
   ATH_CHECK( overlayLArTTL1(m_bkgEmTTL1Key, m_signalEmTTL1Key, m_outputEmTTL1Key, "EM") );
   ATH_CHECK( overlayLArTTL1(m_bkgHadTTL1Key, m_signalHadTTL1Key, m_outputHadTTL1Key, "Hadronic") );
 
-  if (m_enableTileTTL1Overlay) {
-    ATH_CHECK( overlayTileTTL1(m_bkgTileTTL1Key, m_signalTileTTL1Key, m_outputTileTTL1Key) );
-  }
+  ATH_CHECK( overlayTileTTL1(m_bkgTileTTL1Key, m_signalTileTTL1Key, m_outputTileTTL1Key, "") );
+  ATH_CHECK( overlayTileTTL1(m_bkgTileMBTSTTL1Key, m_signalTileMBTSTTL1Key, m_outputTileMBTSTTL1Key, "MBTS") );
 
   return StatusCode::SUCCESS;
 }
@@ -174,7 +183,7 @@ StatusCode OverlayTTL1::overlayLArTTL1(const SG::ReadHandleKey<LArTTL1Container>
   return StatusCode::SUCCESS;
 }
 
-StatusCode OverlayTTL1::overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Container> &bkgKey, const SG::ReadHandleKey<TileTTL1Container> &signalKey, const SG::WriteHandleKey<TileTTL1Container> &outputKey)
+StatusCode OverlayTTL1::overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Container> &bkgKey, const SG::ReadHandleKey<TileTTL1Container> &signalKey, const SG::WriteHandleKey<TileTTL1Container> &outputKey, const std::string &label)
 {
   // setup map
   std::map<Identifier, std::vector<const TileTTL1*>> towerMap;
@@ -182,7 +191,7 @@ StatusCode OverlayTTL1::overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Containe
   // Find Tile towers in TES
   SG::ReadHandle<TileTTL1Container> bkgTowers(bkgKey);
   if (!bkgTowers.isValid()) {
-    ATH_MSG_ERROR("Could not get background TileTTL1Container container " << bkgTowers.name() << " from store " << bkgTowers.store());
+    ATH_MSG_ERROR("Could not get background " << label << " TileTTL1Container container " << bkgTowers.name() << " from store " << bkgTowers.store());
     return StatusCode::FAILURE;
   }
 
@@ -190,7 +199,7 @@ StatusCode OverlayTTL1::overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Containe
   /// So here we retrieve those, match them up and sum their amplitudes
   SG::ReadHandle<TileTTL1Container> signalTowers(signalKey);
   if (!signalTowers.isValid()) {
-    ATH_MSG_ERROR("Could not get signal TileTTL1Container container " << signalTowers.name() << " from store " << signalTowers.store());
+    ATH_MSG_ERROR("Could not get signal " << label << " TileTTL1Container container " << signalTowers.name() << " from store " << signalTowers.store());
     return StatusCode::FAILURE;
   }
 
@@ -201,7 +210,7 @@ StatusCode OverlayTTL1::overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Containe
   SG::WriteHandle<TileTTL1Container> outputContainer(outputKey);
   // Register the TTL1 container in the TES
   ATH_CHECK( outputContainer.record(std::make_unique<TileTTL1Container>()) );
-  ATH_MSG_DEBUG( "Output TileTTL1Container registered successfully (" << outputKey.key() << ")" );
+  ATH_MSG_DEBUG( "Output " << label << " TileTTL1Container registered successfully (" << outputKey.key() << ")" );
 
   // Then the process Tile TTL1 collection
   for (std::map<Identifier, std::vector<const TileTTL1*>>::iterator itMap = towerMap.begin(); itMap != towerMap.end(); ++itMap) {
@@ -213,7 +222,7 @@ StatusCode OverlayTTL1::overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Containe
       if (mergedAmps.size() == 0) mergedAmps = (*it)->fsamples();
       else {
         std::vector<float> amps = (*it)->fsamples();
-        if (amps.size() != mergedAmps.size()) ATH_MSG_WARNING("Tile vectors have different lengths: " << amps.size() << ", " << mergedAmps.size()); 
+        if (amps.size() != mergedAmps.size()) ATH_MSG_WARNING("Tile " << label << " vectors have different lengths: " << amps.size() << ", " << mergedAmps.size()); 
         else for (unsigned int i = 0; i < amps.size(); ++i) mergedAmps[i] += amps[i];     
       }
     }

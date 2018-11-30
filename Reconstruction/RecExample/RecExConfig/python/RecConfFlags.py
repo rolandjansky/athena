@@ -42,14 +42,6 @@ class AllowDisable(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-#
-class AllowBackNavigation(JobProperty):
-    """ Configures the global lock state to allow or not Back Navigation.
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 # Defines the container for the performance monitoring flags  
 class RecConfFlags(JobPropertyContainer):
     """ The global Configured flag/job property container.
@@ -65,7 +57,6 @@ list_jobproperties = [
     AllowIgnoreExistingDataObject,
     AllowIgnoreConfigError,
     AllowDisable,
-    AllowBackNavigation
     ]
 
 for i in list_jobproperties:

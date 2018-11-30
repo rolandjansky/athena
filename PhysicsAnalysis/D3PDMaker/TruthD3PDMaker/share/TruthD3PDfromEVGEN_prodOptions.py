@@ -13,10 +13,6 @@ topSequence.METAlg += METPartTruth
 from AthenaCommon.SystemOfUnits import GeV
 from D3PDMakerConfig.D3PDMakerFlags import jobproperties
 
-# compatibility with jets
-#from RecExConfig.RecConfFlags import jobproperties
-#jobproperties.RecConfFlags.AllowBackNavigation = True
-
 from JetRec.JetRecFlags import jobproperties as jobpropjet
 jobpropjet.JetRecFlags.inputFileType = "GEN"
 

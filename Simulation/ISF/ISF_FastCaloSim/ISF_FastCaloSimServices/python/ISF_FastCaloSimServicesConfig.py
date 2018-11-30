@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_FastCaloSimServices
@@ -10,64 +10,18 @@ from AthenaCommon import CfgMgr
 from FastChainPileup.FastChain_jobProperties import FastChain_Flags
 #### FastCaloSimSvc
 def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
-    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-    kwargs.setdefault("BatchProcessMcTruth"              , False                                             )
-    kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
-    kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
-    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()              )
-    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
-    kwargs.setdefault("ParticleBroker"                   , 'ISF_ParticleBrokerSvc'               )
-    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
-    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
-    kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
-                                                             'ISF_CaloCellContainerFinalizerTool',
-                                                             'ISF_FastHitConvertTool' ])
-    kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
-    # register the FastCaloSim random number streams
-    from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
-        simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
+    kwargs.setdefault("SimulatorTool",  'ISF_FastCaloTool')
+    kwargs.setdefault("Identifier",     'FastCaloSim')
     return CfgMgr.ISF__FastCaloSimSvc(name, **kwargs )
-
-def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
-    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-    kwargs.setdefault("BatchProcessMcTruth"              , False                                             )
-    kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
-    kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
-    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
-    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
-    #kwargs.setdefault("PUWeights"                        , FastChain_Flags.FastChainPUWeights()  )
-    kwargs.setdefault("PUWeights_lar_bapre"              , FastChain_Flags.FastChainPUWeights_lar_bapre()  )
-    kwargs.setdefault("PUWeights_lar_hec"                , FastChain_Flags.FastChainPUWeights_lar_hec()  )
-    kwargs.setdefault("PUWeights_lar_em"                 , FastChain_Flags.FastChainPUWeights_lar_em()  )
-    kwargs.setdefault("PUWeights_tile"                   , FastChain_Flags.FastChainPUWeights_tile()  )
-    kwargs.setdefault("ParticleBroker"                   , 'ISF_ParticleBrokerSvc'               )
-    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
-    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
-    kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
-                                                             'ISF_CaloCellContainerFinalizerTool',
-                                                             'ISF_FastHitConvertTool' ])
-    kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
-    # register the FastCaloSim random number streams
-    from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
-        simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
-    return CfgMgr.ISF__FastCaloSimSvcPU(name, **kwargs )
 
 #### Pileup FastCaloSim
 def getFastCaloSimPileupSvc(name="ISF_FastCaloSimPileupSvc", **kwargs):
-    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
-    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_PileupFastShowerCellBuilderTool' ])
+    kwargs.setdefault("SimulatorTool",  'ISF_FastCaloPileupTool')
     return getFastCaloSimSvc(name, **kwargs)
 
 #### Legacy FastCaloSim
 def getLegacyAFIIFastCaloSimSvc(name="ISF_LegacyAFIIFastCaloSimSvc", **kwargs):
-    kwargs.setdefault("BatchProcessMcTruth" , True )
-    kwargs.setdefault("ParticleBroker"                   , 'ISF_AFIIParticleBrokerSvc' )
-    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_LegacyFastShowerCellBuilderTool' ] )
+    kwargs.setdefault("SimulatorTool",  'ISF_LegacyAFIIFastCaloTool')
     return getFastCaloSimSvc(name, **kwargs)
 
 def getFastHitConvAlgFastCaloSimSvc(name="ISF_FastHitConvAlgFastCaloSimSvc",**kwargs):
@@ -87,6 +41,31 @@ def getFastHitConvAlgLegacyAFIIFastCaloSimSvc(name="ISF_FastHitConvAlgLegacyAFII
     kwargs.setdefault("BatchProcessMcTruth" , True )
     return getFastHitConvAlgFastCaloSimSvc(name, **kwargs)
 
+def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+    kwargs.setdefault("BatchProcessMcTruth"              , False                                             )
+    kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
+    kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
+    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
+    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
+    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
+    #kwargs.setdefault("PUWeights"                        , FastChain_Flags.FastChainPUWeights()  )
+    kwargs.setdefault("PUWeights_lar_bapre"              , FastChain_Flags.FastChainPUWeights_lar_bapre()  )
+    kwargs.setdefault("PUWeights_lar_hec"                , FastChain_Flags.FastChainPUWeights_lar_hec()  )
+    kwargs.setdefault("PUWeights_lar_em"                 , FastChain_Flags.FastChainPUWeights_lar_em()  )
+    kwargs.setdefault("PUWeights_tile"                   , FastChain_Flags.FastChainPUWeights_tile()  )
+    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
+    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
+    kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
+                                                             'ISF_CaloCellContainerFinalizerTool',
+                                                             'ISF_FastHitConvertTool' ])
+    kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
+    # register the FastCaloSim random number streams
+    from G4AtlasApps.SimFlags import simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
+        simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
+    return CfgMgr.ISF__FastCaloSimSvcPU(name, **kwargs )
+
 #### FastCaloSimV2
 def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
@@ -103,8 +82,8 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
         simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
-    
+
     kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
     kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvc.get_Value() )
-        
+
     return CfgMgr.ISF__FastCaloSimSvcV2(name, **kwargs )

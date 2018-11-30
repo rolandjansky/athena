@@ -15,6 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -24,9 +25,11 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
-#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
+#include "egammaInterfaces/IegammaCaloClusterSelector.h"
+#include "GaudiKernel/Counters.h"
 
-#include <atomic>
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloCluster;
 
@@ -42,11 +45,9 @@ public:
 
 private:
 
-  /** @brief whether cluster passes selection */
-  bool passSelection(const xAOD::CaloCluster *clus) const;
-
   /** @brief broad track selection */
-  bool Select(const xAOD::CaloCluster* cluster,
+  bool Select(const EventContext& ctx,
+              const xAOD::CaloCluster* cluster,
               const xAOD::TrackParticle* track,
               IEMExtrapolationTools::Cache& cache,
               bool trkTRT) const;
@@ -58,18 +59,6 @@ private:
   /** @brief Names of input output collections */
   SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey {this,
     "ClusterContainerName", "egammaTopoCluster", "Input calo cluster for seeding"};
-
-  /** @brief cluster pT requirements */
-  Gaudi::Property<float> m_ClusterEMEtCut {this,
-      "ClusterEMEtCut", 1.5*CLHEP::GeV,
-      "The minimum EM Et required of SEED clusters"};
-
-  Gaudi::Property<double>  m_ClusterEMFCut {this,
-      "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
-
-  Gaudi::Property<double>  m_ClusterLateralCut {this,
-      "ClusterLateralCut", 1.0,
-      "Cut on cluster LATERAL, i.e., the second transverse moment normalized"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackParticleContainerName", "InDetTrackParticles", 
@@ -107,21 +96,26 @@ private:
   Gaudi::Property<double> m_narrowRescaleBrem {this, "narrowDeltaPhiRescaleBrem", 0.1,
     "Value of the narrow cut for delta phi Rescale Brem"};
 
-  // tools used by passSelection (if not empty)
-  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
-      "egammaCheckEnergyDepositTool", "",
-      "Optional tool that performs basic checks of viability of cluster"};
+  /** @brief Tool to filter the calo clusters */
+  ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector {this, 
+      "egammaCaloClusterSelector", "egammaCaloClusterSelector",
+      "Tool that makes the cluster selection"};
+
+  // For P->T converters of ID tracks with SCT
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /* counters. For now use mutable atomic
    * the methods will increment a local variable
    * inside the loops.
    * At the end they will add_fetch to these ones
    */
-  mutable std::atomic_uint m_AllTracks{0};
-  mutable std::atomic_uint m_AllTRTTracks{0};
-  mutable std::atomic_uint m_AllSiTracks{0};
-  mutable std::atomic_uint m_SelectedTracks{0};
-  mutable std::atomic_uint m_SelectedTRTTracks{0};
-  mutable std::atomic_uint m_SelectedSiTracks{0};
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllClusters;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedClusters;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllSiTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedSiTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTRTTracks;
+  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedTRTTracks;
 };
 #endif 

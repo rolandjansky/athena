@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_install_headers( AthenaCommon )
 atlas_install_python_modules( python/*.py python/Utils )
 atlas_install_joboptions( share/Preparation.py share/Execution.py share/Atlas.UnixStandardJob.py test/*.py share/Atlas_Gen.UnixStandardJob.py share/MemTraceInclude.py share/runbatch.py )
-atlas_install_scripts( share/athena.py share/athena-app.py share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
+atlas_install_scripts( share/athena.py share/athena_preload.sh share/athena-app.py share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
 
 # Aliases:
 atlas_add_alias( athena-app "athena-app.py" )
@@ -32,3 +32,7 @@ atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
 atlas_add_test( CFElementsTest SCRIPT python -m unittest -v AthenaCommon.CFElements
 		POST_EXEC_SCRIPT nopost.sh ) 
 
+# Check python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=F,E101,E112,E113,E7,E9,W6 --ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )

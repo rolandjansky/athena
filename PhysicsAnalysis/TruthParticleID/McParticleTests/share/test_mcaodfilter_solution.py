@@ -88,9 +88,6 @@ import os
 outStream.OutputFile = OUTPUT
 outStream.ForceRead = True  #force read of output data objs
 
-## tweak the default commit interval
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 100
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------

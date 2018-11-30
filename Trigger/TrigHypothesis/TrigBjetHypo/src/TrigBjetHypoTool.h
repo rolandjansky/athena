@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypoTool.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
 //
-// AUTHOR:   Lidija Zivkovic
-// EMAIL:    Lidija.Zivkovic@ge.infn.it
+// AUTHOR:   Carlo Varni
+// EMAIL:    carlo.varni@cern.ch
 // 
 // ************************************************
 
@@ -29,7 +29,7 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 //Not sure if these are needed, thus commeneted
 /* class TrigEFBjetContainer; */
@@ -102,8 +102,7 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
   /** @brief DeclareProperty: list of likelihood methods to be effectively used to perform the selection. */
   Gaudi::Property< std::string > m_methodTag {this,"MethodTag","","list of likelihood methods to be effectively used to perform the selection"};
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
-  Gaudi::Property< float > m_xcutMV2c20 {this,"CutMV2c20",-20,"lower bound of the discriminant variable to be selected for MV2 tagger"};
-  Gaudi::Property< float > m_xcutMV2c10 {this,"CutMV2c10",-20,"lower bound of the discriminant variable to be selected for MV2 tagger"};
+  Gaudi::Property< float > m_bTaggingCut {this,"BTaggingCut",-20,"lower bound of the discriminant variable to be selected for b-tagging"};
 
   // Not sure if needed
   /** @brief to check the beam spot flag status. */
@@ -115,7 +114,7 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
   PublicToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "GenericMonitoringTool/MonTool", "Monitoring tool" };
-
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
 inline const InterfaceID& TrigBjetHypoTool::interfaceID()

@@ -135,12 +135,10 @@ namespace Muon {
       }
       void add( MuonHough::MuonPhiLayerHough::Maximum* max ){
         phiMaxima.push_back(max);
-        phiMaximumSet.insert(max);
       }
       MaximumVec    maxima;
       PhiMaximumVec phiMaxima;
       std::set<MuonHough::MuonLayerHough::Maximum*>    maximumSet;
-      std::set<MuonHough::MuonPhiLayerHough::Maximum*> phiMaximumSet;
 
       std::vector<MuonHough::MuonPhiLayerHough::Maximum> mergedPhiMaxima;
     };

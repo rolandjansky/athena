@@ -45,29 +45,29 @@ StatusCode egammaSwTool::initialize()
   ATH_MSG_DEBUG(" Initializing egammaSwTool");
   
 
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersEle35));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersEle37));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersEle55));
+  ATH_CHECK(m_clusterCorrectionPointersEle35.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersEle37.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersEle55.retrieve());
   //
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersGam35));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersGam37));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersGam55));
+  ATH_CHECK(m_clusterCorrectionPointersGam35.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersGam37.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersGam55.retrieve());
   //
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersEconv35));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersEconv37));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersEconv55));
+  ATH_CHECK(m_clusterCorrectionPointersEconv35.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersEconv37.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersEconv55.retrieve());
   //SuperCluster
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterEle35));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterEle37));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterEle55));
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterEle35.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterEle37.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterEle55.retrieve());
   //
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterGam35));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterGam37));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterGam55));
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterGam35.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterGam37.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterGam55.retrieve());
   //
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterEconv35));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterEconv37));
-  ATH_CHECK(populateTools(m_clusterCorrectionPointersSuperClusterEconv55));
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterEconv35.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterEconv37.retrieve());
+  ATH_CHECK(m_clusterCorrectionPointersSuperClusterEconv55.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -169,18 +169,6 @@ StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster* clu
       return StatusCode::FAILURE;
       break;
     }
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode egammaSwTool::populateTools(ToolHandleArray<CaloClusterProcessor>& tools) 
-{
-  for (const auto tool : tools){
-    if ( tool.retrieve().isFailure() ){
-      ATH_MSG_FATAL( "Could not get tool: " << tool);
-      return StatusCode::FAILURE;
-    }
-    else ATH_MSG_DEBUG("Retrieved Tool " << tool); 
   }
   return StatusCode::SUCCESS;
 }

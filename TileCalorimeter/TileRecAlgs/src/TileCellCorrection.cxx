@@ -3,11 +3,8 @@
 */
 
 
+#include "TileCellCorrection.h"
 
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
@@ -27,7 +24,6 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileRecUtils/TileCellNoiseFilter.h"
 #include "TileRecUtils/TileCellMaskingTool.h"
-#include "TileRecAlgs/TileCellCorrection.h"
 
 CaloCell_ID::SUBCALO TileCellCorrection::m_caloIndex = CaloCell_ID::TILE;
 

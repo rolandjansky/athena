@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+#include <algorithm>
 #include "GaudiKernel/Property.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
@@ -16,8 +16,7 @@ TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name,
 StatusCode TrigSignatureMoniMT::initialize() {
 
   ATH_CHECK( m_l1DecisionsKey.initialize() );
-  ATH_CHECK( m_finalDecisionsKey.initialize() );
-  renounceArray( m_finalDecisionsKey );
+  ATH_CHECK( m_finalDecisionKey.initialize() );
   ATH_CHECK( m_collectorTools.retrieve() );
   CHECK( m_histSvc.retrieve() );
       
@@ -68,7 +67,7 @@ StatusCode TrigSignatureMoniMT::finalize() {
   ATH_MSG_INFO("Chain name                   L1,      AfterPS, [... steps ...], Output"  );
   for ( int bin = 1; bin <= m_outputHistogram->GetXaxis()->GetNbins(); ++bin ) {
     const std::string chainName = m_outputHistogram->GetXaxis()->GetBinLabel(bin);
-    ATH_MSG_DEBUG( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
+    ATH_MSG_INFO( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
   }
 
   return StatusCode::SUCCESS;
@@ -76,9 +75,10 @@ StatusCode TrigSignatureMoniMT::finalize() {
 
 StatusCode TrigSignatureMoniMT::fillChains(const TrigCompositeUtils::DecisionIDContainer& dc, int row) {
   for ( auto id : dc )  {
+    ATH_MSG_DEBUG( "row " << row << " " << HLT::Identifier(id) );
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
-      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitred" );
+      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitored" );
     } else {
       m_outputHistogram->Fill( id2bin->second, double(row) );
     }
@@ -113,34 +113,18 @@ StatusCode TrigSignatureMoniMT::execute()  {
     ATH_CHECK( fillChains( stepSum, 3+step ) );    
     ++step;
   }
-  
- 
+   
   const int row = m_outputHistogram->GetYaxis()->GetNbins();
-  bool anyPassed = false;
-  for ( auto d: m_finalDecisionsKey ) {
-    auto decisions = SG::makeHandle( d );
-    if ( decisions.isValid() )  { // may be invalid and that is perfectly correct (early rejection
-      ATH_MSG_DEBUG( "Decision for " << decisions->size() << " objects available in " << d.key() );
-      // we need one entry per chain only and the "sum" is used for that
-      TrigCompositeUtils::DecisionIDContainer sum;
-      
-      for ( auto decisionObj : *decisions.get() ) {
-	TrigCompositeUtils::DecisionIDContainer ids;
-	TrigCompositeUtils::decisionIDs( decisionObj, ids );	  
-	sum.insert( ids.begin(), ids.end() ); // merge with so far passing chains
-      }
-      ATH_CHECK( fillChains( sum, row ) );
-      anyPassed = anyPassed or ( not sum.empty() );
-    } else {
-      ATH_MSG_DEBUG( "Final decision " << d.key() << " absent, possibly early rejected" );
-    }      
-  } 
-  if ( anyPassed ) {
-    ATH_MSG_DEBUG( "Event passsed, filling " << row );
+  auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey );
+  ATH_CHECK( finalDecisionsHandle.isValid() );
+  ATH_CHECK( finalDecisionsHandle->size() == 1 );
+  TrigCompositeUtils::DecisionIDContainer finalIDs;
+  TrigCompositeUtils::decisionIDs( finalDecisionsHandle->at(0), finalIDs );
+  ATH_CHECK( fillChains( finalIDs, row ) );
+  
+  if ( not finalIDs.empty() ) {
     m_outputHistogram->Fill( 1, double( row ) );
   }
-  // missing intermediate steps monitoring
-
     
   return StatusCode::SUCCESS;
 }
@@ -156,8 +140,12 @@ StatusCode TrigSignatureMoniMT::initHist() {
 
   TAxis* x = m_outputHistogram->GetXaxis();
   x->SetBinLabel(1, "All");
-  int bin = 2;
-  for ( auto chainName:  m_allChains ) {
+  int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
+
+  std::vector<std::string> sortedChainsList( m_allChains );
+  std::sort( sortedChainsList.begin(), sortedChainsList.end() );
+  
+  for ( auto chainName:  sortedChainsList ) {
     x->SetBinLabel( bin, chainName.c_str() );
     m_chainIDToBinMap[ HLT::Identifier( chainName ).numeric() ] = bin;
     bin++;

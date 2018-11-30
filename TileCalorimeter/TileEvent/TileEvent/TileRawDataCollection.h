@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -32,29 +32,29 @@
 #include <map>
 #include <inttypes.h>
                                         
-template <typename _TElement> class TileRawDataCollection
-  : public DataVector<_TElement>
+template <typename TELEMENT> class TileRawDataCollection
+  : public DataVector<TELEMENT>
 {
  public:                        
                                 
-    typedef typename TileRawDataCollection<_TElement>::const_iterator TCollection_const_iterator ; 
+    typedef typename TileRawDataCollection<TELEMENT>::const_iterator TCollection_const_iterator ; 
 
     // required for a Digit Collection
     typedef int ID;
     typedef Identifier TT_ID;
-    typedef _TElement DIGIT;
-    typedef _TElement OBJECT;
+    typedef TELEMENT DIGIT;
+    typedef TELEMENT OBJECT;
 
     // construct a container for a given super-drawer (fragment)
-    TileRawDataCollection<_TElement> ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
-      : DataVector <_TElement> (ownPolicy), 
+    TileRawDataCollection<TELEMENT> ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
+      : DataVector <TELEMENT> (ownPolicy), 
         m_id(id), m_lvl1Id(0), m_lvl1Type(0), m_detEvType(0), m_rodBCID(0) { this->reserve(48); }
-    TileRawDataCollection<_TElement> ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
-      : DataVector < _TElement > (ownPolicy),
+    TileRawDataCollection<TELEMENT> ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
+      : DataVector < TELEMENT > (ownPolicy),
         m_id(0), m_lvl1Id(0), m_lvl1Type(0), m_detEvType(0), m_rodBCID(0) { this->reserve(48); }
 
     // destructor               
-    virtual ~TileRawDataCollection<_TElement> () { }
+    virtual ~TileRawDataCollection<TELEMENT> () { }
 
     // clear everything for next event
     virtual void clear ();
@@ -71,7 +71,7 @@ template <typename _TElement> class TileRawDataCollection
     // print all the Channels
     virtual void print() const;
     virtual operator std::string () const;
-    virtual std::string whoami (void) const { _TElement elem;
+    virtual std::string whoami (void) const { TELEMENT elem;
                  return "TileRawDataCollection of "+elem.whoami(); }
     
     /** Setter for level1 id from ROD header */

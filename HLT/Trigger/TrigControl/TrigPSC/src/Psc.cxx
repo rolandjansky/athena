@@ -27,6 +27,7 @@
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IService.h"
@@ -130,11 +131,12 @@ bool psc::Psc::configure(const ptree& config)
        * of libGaudiSvc.
        */
       void* libHandle = 0;
-      if (System::loadDynamicLib(dllname, &libHandle)) {
+      auto retval = System::loadDynamicLib(dllname, &libHandle);
+      if (retval == 1) {
         ERS_DEBUG(1,"Successfully pre-loaded " << dllname << "library");
       }
       else {
-        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library");
+        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library, returned code " << retval);
       }
     }
 
@@ -267,9 +269,7 @@ bool psc::Psc::configure(const ptree& config)
     pyCmds.push_back("from AthenaCommon.Include import include");
     // have C++ bool representation be recognized in python:
     pyCmds.push_back("true, false = True, False");
-    pyCmds.push_back(std::string("include.setShowIncludes(") +
-        m_config->getOption("SHOWINCLUDE") + std::string(")"));
-    if ( !psc::Utils::execPython(pyCmds) ) {      
+    if ( !psc::Utils::execPython(pyCmds) ) {
       ERS_PSC_ERROR("Athena 'include' setup failed.");
       return false;
     }       
@@ -418,6 +418,9 @@ bool psc::Psc::configure(const ptree& config)
         <<" MuonCalBufferName = " << m_config->getOption("MUONCALBUFFERNAME")
         <<" MuonCalBufferSize = " << m_config->getOption("MUONCALBUFFERSIZE") );
   }
+
+  // Write configuration specific to athena (HltEventLoopMgr)
+  if(!setAthenaProperties()) return false;
 
   if ( !jobOptConfig ) {
     // Run post-command
@@ -647,20 +650,6 @@ bool psc::Psc::publishStatistics (const ptree& /*args*/)
   return true;
 }
 
-//--------------------------------------------------------------------------------
-// Time out is reached
-//--------------------------------------------------------------------------------
-void psc::Psc::timeOutReached (const ptree& args)
-{
-  ERS_DEBUG(1, "Time out reached for HLT processing");
-
-  // bind args to timeOutReached
-  auto tor = [&args](ITrigEventLoopMgr * mgr)
-             {return mgr->timeOutReached(args);};
-  callOnEventLoopMgr<ITrigEventLoopMgr>(tor, "timeOutReached").ignore();
-}
-
-
 
 //--------------------------------------------------------------------------------
 // User command. Can be sent via:
@@ -807,30 +796,16 @@ bool psc::Psc::hltUserCommand(const ptree& args)
   return true;
 }
 
-bool psc::Psc::process(const vector<ROBFragment<const uint32_t*> >& l1r,
-                       hltinterface::HLTResult& hltr,
-                       const hltinterface::EventId& evId)
+void psc::Psc::doEventLoop()
 {
-  // protect against empty L1 result vector
-  if ( l1r.empty() ) {
-    ERS_PSC_ERROR("psc::Psc::process: Received no L1 Result ROBs.");
-    return false;
-  }
-
-  uint32_t lvl1_id = l1r[0].rod_lvl1_id();
-  ERS_DEBUG(2,"psc::Psc::process: Start process() of event " << lvl1_id);
-
-  //
-  //--- Process Event/RoIs with the event loop manager and fill HLT Decision
-  //
-
+  ERS_LOG("psc::Psc::doEventLoop: start of doEventLoop()");
   StatusCode sc;
   try
   {
-    // bind l1r, hltr, and evId to processRoIs
-    auto proc = [&](ITrigEventLoopMgr * mgr)
-                {return mgr->processRoIs(l1r, hltr, evId);};
-    sc = callOnEventLoopMgr<ITrigEventLoopMgr>(proc, "processRoIs");
+    // bind maxevt=-1 (meaning all events) to executeRun
+    auto exec = [](IEventProcessor * mgr)
+                {return mgr->executeRun(-1);};
+    sc = callOnEventLoopMgr<IEventProcessor>(exec, "executeRun");
   }
   catch(const ers::Issue& e)
   {
@@ -847,22 +822,10 @@ bool psc::Psc::process(const vector<ROBFragment<const uint32_t*> >& l1r,
     ERS_PSC_ERROR("Caught an unknown exception");
     sc = StatusCode::FAILURE;
   }
-
-  ERS_DEBUG(2,"psc::Psc::process: Event " << lvl1_id  << " has /n" <<
-      "       # of stream tags        = " << hltr.stream_tag.size()         << " /n"  <<
-      "       # of HLT info words      = " << hltr.trigger_info.size()          << " /n"  <<
-      "       # of PSC error words = " << hltr.psc_errors.size()         << " /n"  <<
-      "       pointer to HLT result    = 0x" << std::hex << hltr.fragment_pointer << std::dec << " /n"
-  );
-
-  if( sc.isSuccess() || sc.isRecoverable() ) {
-    return true;
-  } else {
-    ERS_PSC_ERROR("psc::Psc::process: Error in processing RoIs for Level 1 ID ="
-                  << lvl1_id << " in the EventLoopMgr '"
-                  << m_nameEventLoopMgr << "'.");
-    return false;
+  if (sc.isFailure()) {
+    ERS_PSC_ERROR("psc::Psc::doEventLoop failed");
   }
+  ERS_LOG("psc::Psc::doEventLoop: end of doEventLoop()");
 }
 
 bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
@@ -957,10 +920,108 @@ bool psc::Psc::setDFProperties(std::map<std::string, std::string> name_tr_table)
   return true;
 }
 
+bool psc::Psc::setAthenaProperties() {
+  // Use the IProperty interface of the ApplicationManager to find the EventLoopMgr name
+  SmartIF<IProperty> propMgr(m_pesaAppMgr);
+  if (!propMgr.isValid()) {
+    ERS_PSC_ERROR("Error retrieving IProperty interface of ApplicationMgr");
+    return false;
+  }
+  std::string eventLoopMgrName;
+  if (propMgr->getProperty("EventLoop", eventLoopMgrName).isFailure()) {
+    ERS_PSC_ERROR("Error while retrieving the property ApplicationMgr.EventLoop");
+    return false;
+  }
+
+  // Use the JobOptionsSvc to write athena-specific options in JobOptions Catalogue of EventLoopMgr
+  ServiceHandle<IJobOptionsSvc> p_jobOptionSvc("JobOptionsSvc","psc::Psc");
+
+  std::string opt = m_config->getOption("HARDTIMEOUT");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      eventLoopMgrName,
+      FloatProperty("HardTimeout",std::stof(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
+                    << ".HardTimeout property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the HARDTIMEOUT property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  opt = m_config->getOption("SOFTTIMEOUTFRACTION");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      eventLoopMgrName,
+      FloatProperty("SoftTimeoutFraction",std::stof(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
+                    << ".SoftTimeoutFraction property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the SOFTTIMEOUTFRACTION property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  /* The names "EventDataSvc" and "AvalancheSchedulerSvc" are hard-coded below, because it is not possible
+  to retrieve them from HltEventLoopMgr properties before it is initialised. Here we need to set the properties
+  before the services are initialised." */
+
+  opt = m_config->getOption("NEVENTSLOTS");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      "EventDataSvc",
+      IntegerProperty("NSlots",std::stoi(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the EventDataSvc.NSlots property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the NEVENTSLOTS property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  opt = m_config->getOption("NTHREADS");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      "AvalancheSchedulerSvc",
+      IntegerProperty("ThreadPoolSize",std::stoi(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the AvalancheSchedulerSvc.ThreadPoolSize property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the NTHREADS property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  return true;
+}
+
 template <typename T>
 StatusCode psc::Psc::callOnEventLoopMgr(std::function<StatusCode (T*)> func,
                                         const std::string& name) const
 {
+  // FIXME static variables are dangerous when forking
   static T* processingMgr = 0;
   StatusCode sc;
   if(!processingMgr) // if we already got it, no need to find it again

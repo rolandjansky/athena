@@ -59,14 +59,6 @@ EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             )
 
 
-egammaCheckEnergyDepositTool = ToolFactory(egammaToolsConf.egammaCheckEnergyDepositTool,
-                                           UseThrFmax=True, 
-                                           ThrF0max=0.9,
-                                           ThrF1max=0.8,
-                                           ThrF2max=0.98,
-                                           ThrF3max=0.8)
-
-
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 

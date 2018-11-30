@@ -3,20 +3,21 @@
 */
 
 #include <math.h>
+#include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
-#include "TrkVKalVrtCore/CommonPars.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include <iostream>
 
 
 namespace Trk {
 
-extern VKalVrtBMag vkalvrtbmag;
 extern vkalPropagator  myPropagator;
+extern vkalMagFld      myMagFld;
 
 
 void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, double *vrtref, double *covvrtref, 
-      double *drdpar, double *dwgt, double *rv0)
+      double *drdpar, double *dwgt, double *rv0, const VKalVrtControl * FitCONTROL)
 {
     /* Initialized data */
 
@@ -27,8 +28,8 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
     /* Local variables */
     double pari[6], covd[15], dcov[3], rvec[50]; /* was [2][6*4+1] */
     double  paro[5];
-    long int jerr, j, ij, ip, ipp, id=0;
-    double dwgt0[3]={0.,0.,0.}, constB;
+    int jerr, j, ij, ip, ipp, id=0;
+    double dwgt0[3]={0.,0.,0.};
     //double deriv[6], dchi2[4*6+1];                     //VK for debugging
     double cs, pp, sn, pt, rho;
     double covdtr[15], ctg, par[5], cnv[36];	/* was [6][6] */
@@ -67,8 +68,7 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
     /* Function Body */
 /* --------------------- */
     jerr = 0;
-//VK    constB = *localbmag * .0029979246;
-    constB =vkalvrtbmag.bmag  * vkalMagCnvCst;
+    double constB =FitCONTROL->vk_forcft.localbmag * vkalMagCnvCst ;
     
     for (ip = 0; ip <= 4*6; ++ip) {    // Number of points * Number of parameters
 /* --  Input parameters */
@@ -146,8 +146,9 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
 	tdasatVK(cnv, &covi[0], covd, 5, 6);
 
 /* -- Translation to New Reference Point */
+        myPropagator.Propagate(-999, Charge, par, covd, pari, vrtref, paro, covdtr, FitCONTROL);
 
-        myPropagator.Propagate(-999, Charge, par, covd, pari, vrtref, paro, covdtr);
+
 
 /* -- Now impact significance */
 /*  X=paro(1)*sn, Y=-paro(1)*cs */

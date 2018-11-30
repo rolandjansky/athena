@@ -10,8 +10,6 @@
 CaloBadChanTool::CaloBadChanTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent) :
   AthAlgTool( type, name, parent),
-  m_larBCT("LArBadChanTool"),
-  m_tileBCT("TileBadChanTool"),
   m_caloID(nullptr)
 {
   declareInterface<ICaloBadChanTool>(this);
@@ -25,12 +23,12 @@ StatusCode CaloBadChanTool::initialize()
 {
   ATH_MSG_DEBUG ("in initialize()" );
 
-  StatusCode sc=m_larBCT.retrieve();
+  StatusCode sc=m_larBCKey.initialize();
   if (sc.isFailure()) {
-    ATH_MSG_WARNING ( "Unable to get LArBadChanTool: no LAr bad channel info will be provided " );
+    ATH_MSG_WARNING ( "Unable to initialize LAr bad channels key: no LAr bad channel info will be provided " );
   }
   else 
-    ATH_MSG_DEBUG ( "LArBadChanTool retrieved" );
+    ATH_MSG_DEBUG ( "LAr bad channels key initialized" );
 
 
   sc=m_tileBCT.retrieve();
@@ -46,12 +44,29 @@ StatusCode CaloBadChanTool::initialize()
 
 CaloBadChannel CaloBadChanTool::caloStatus(Identifier id) const{
   if (m_tileBCT && m_caloID->is_tile(id)) {
-    //(*m_log) << MSG::VERBOSE << "Calling Tile BadChannelTool ... not yet implemeted" << endmsg;
     return m_tileBCT->caloStatus(id);
   }
-  else if(m_larBCT && m_caloID->is_lar(id)) {
-   // (*m_log) << MSG::VERBOSE << "Calling LAr BadChannelTool ... not yet implemeted" << endmsg;
-    return m_larBCT->caloStatus(id);
+  else if(m_caloID->is_lar(id)) {
+     SG::ReadCondHandle<LArBadChannelCont> bch{m_larBCKey};
+     const LArBadChannelCont* bcCont{*bch};
+     if(bcCont) {
+        CaloBadChannel::BitWord res = 0;
+        LArBadChannel lbc = bcCont->offlineStatus(id);
+        
+        if ( lbc.reallyNoisy() || lbc.sporadicBurstNoise()) {
+          CaloBadChannel::setBit( CaloBadChannel::noisyBit, res);
+        }
+        if (lbc.deadReadout() || lbc.deadPhys()) {
+          CaloBadChannel::setBit( CaloBadChannel::deadBit, res);
+        }
+        else if ( ! lbc.good()) {
+          CaloBadChannel::setBit( CaloBadChannel::affectedBit, res);
+        }
+        return CaloBadChannel(res);
+     } else {
+        CaloBadChannel empty;
+        return empty;
+     }
   }
   else {
       CaloBadChannel empty;

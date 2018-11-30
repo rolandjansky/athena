@@ -49,8 +49,8 @@ for trigger in triggerList:
     metMonTool.TriggerChain = trigger
    
     #New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
 
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
@@ -61,7 +61,7 @@ for trigger in triggerList:
     #metMonTool.doJetcleaning = False
 
 
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
     # Standard Monitoring cut80
@@ -74,8 +74,8 @@ for trigger in triggerList:
 #    metMonTool.doMetCut80 = True
 #    metMonTool.metCut       = 10
 #    #New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
-    #    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-#    metMonTool.FilterTools.append(monbadlb)
+    #    metMonTool.FilterTools += [monFilledBunchFilterTool]
+#    metMonTool.FilterTools += [monbadlb]
 
 #    if trigger != "":
 #        metMonTool.TrigDecisionTool = monTrigDecTool
@@ -100,8 +100,8 @@ for trigger in triggerList:
     metMonTool.muoColKey    = ""
     metMonTool.jetColKey    = "AntiKt4LCTopoJets"
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     metMonTool.JetSelectorTool = cleaningTool
     metMonTool.badJets = True
     if trigger != "":
@@ -110,7 +110,7 @@ for trigger in triggerList:
     #metMonTool.eleColKey = "ElectronAODCollection"
     #Uncomment to avoid the jet cleaning    
     #metMonTool.doJetcleaning = False
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
     
@@ -126,11 +126,11 @@ for trigger in triggerList:
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
     
     # Tool for refined MET monitoring
@@ -145,11 +145,11 @@ for trigger in triggerList:
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
         # Tool for PFlow MET monitoring
@@ -164,11 +164,11 @@ for trigger in triggerList:
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
 
@@ -188,11 +188,11 @@ for trigger in triggerList:
     metMonTool.doJetcleaning = True
     metMonTool.JetSelectorTool = cleaningTool
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
       # Tool for calorimetric MET monitoring (TopoCluster)
@@ -209,11 +209,11 @@ for trigger in triggerList:
     metMonTool.doJetcleaning = True
     metMonTool.JetSelectorTool = cleaningTool
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
 
@@ -231,11 +231,11 @@ for trigger in triggerList:
     metMonTool.doJetcleaning = True
     metMonTool.JetSelectorTool = cleaningTool
     metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-    metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+    metMonTool.FilterTools += [monbadlb]
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
-    ToolSvc += metMonTool
+    #ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
 
@@ -254,11 +254,11 @@ metMonTool.muoColKey    = ""
 metMonTool.doMetCut80 = True
 metMonTool.metCut       = 80.0
 #    metMonTool.TriggerChain = trigger
-#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
-metMonTool.FilterTools.append(monbadlb)
+#    metMonTool.FilterTools += [monFilledBunchFilterTool]
+metMonTool.FilterTools += [monbadlb]
 if trigger != "":
     metMonTool.TrigDecisionTool = monTrigDecTool
-ToolSvc += metMonTool
+#ToolSvc += metMonTool
 monManETmiss.AthenaMonTools += [ metMonTool ]
     
 
@@ -274,11 +274,11 @@ metMonTool.muoColKey    = ""
 metMonTool.doMetCut80 = True
 metMonTool.metCut       = 80.0
 #metMonTool.TriggerChain = trigger
-metMonTool.FilterTools.append(monFilledBunchFilterTool)
-metMonTool.FilterTools.append(monbadlb)
+metMonTool.FilterTools += [monFilledBunchFilterTool]
+metMonTool.FilterTools += [monbadlb]
 if trigger != "":
     metMonTool.TrigDecisionTool = monTrigDecTool
-ToolSvc += metMonTool
+#ToolSvc += metMonTool
 monManETmiss.AthenaMonTools += [ metMonTool ]
 
     
@@ -308,7 +308,7 @@ metMonTool.FillNegativeSumEt = True
 metMonTool.TriggerChain      = trigger
 if trigger != "":
     metMonTool.TrigDecisionTool = monTrigDecTool
-ToolSvc += metMonTool
+#ToolSvc += metMonTool
 monManETmiss.AthenaMonTools += [ metMonTool ]
 
 
@@ -332,7 +332,7 @@ metMonTool.FillNegativeSumEt = True
 #metMonTool.TriggerChain      = trigger
 #if trigger != "":
 #    metMonTool.TrigDecisionTool = monTrigDecTool
-ToolSvc += metMonTool
+#ToolSvc += metMonTool
 monManETmiss.AthenaMonTools += [ metMonTool ]
 
 

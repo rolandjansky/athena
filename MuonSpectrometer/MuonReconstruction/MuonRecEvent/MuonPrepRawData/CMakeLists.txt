@@ -9,8 +9,7 @@ atlas_subdir( MuonPrepRawData )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Event/EventContainers
@@ -31,12 +30,12 @@ atlas_add_library( MuonPrepRawData
                    PUBLIC_HEADERS MuonPrepRawData
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthLinks SGTools GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData EventContainers
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthLinks AthenaKernel GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( MuonPrepRawDataDict
                       MuonPrepRawData/MuonPrepDataDict.h
                       MuonPrepRawData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers AthLinks SGTools GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData GaudiKernel MuonPrepRawData EventContainers)
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers AthLinks AthenaKernel GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData GaudiKernel MuonPrepRawData EventContainers)
 

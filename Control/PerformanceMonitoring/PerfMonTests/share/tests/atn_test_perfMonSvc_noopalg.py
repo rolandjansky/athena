@@ -25,7 +25,7 @@ bench = BenchSequence( "PerfMonTest" )
 
 bench += testPerfMon( "PerfMonTests/test_perfMonSvc_noopalg.py",
                       "perfmon.noopalg.root",
-                      evtMax = 10000 )
+                      evtMax = 5000 )
 
 print ""
 print "#"*80

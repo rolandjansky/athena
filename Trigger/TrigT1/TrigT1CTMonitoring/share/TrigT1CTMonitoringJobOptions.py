@@ -242,7 +242,7 @@ if not hasattr(topSequence,"PrimaryManager"):
 CTmonMan = topSequence.PrimaryManager
 
 from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoring as BSMon
-svcMgr.ToolSvc += BSMon()
+#svcMgr.ToolSvc += BSMon()
 BSMonJob=BSMon(ProcessMuctpiData=True,
                ProcessMuctpiDataRIO=True,
                ProcessCTPData=True,

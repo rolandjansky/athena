@@ -177,7 +177,7 @@ namespace xAOD {
     } else {
       p = std::sqrt( theE * theE - theM * theM );
       if( theE < 0 ) {
-	p = -p;
+        p = -p;
       }
     }
 
@@ -212,8 +212,6 @@ namespace xAOD {
       return 0;
     }
   }
-
-
 
   /**
    * @brief Return eta for a specific signal state.
@@ -257,11 +255,48 @@ namespace xAOD {
       return -999;
     }
   }
-
+   /**
+   * @brief Return m for a specific signal state.
+   * @param s The desired signal state.
+   */
+ double CaloCluster_v1::m(const State s) const {
+    switch (s) {
+    case CALIBRATED:
+      return calM();
+      break;
+    case UNCALIBRATED:
+      return rawM();
+      break;
+    case ALTCALIBRATED:
+      return altM();
+      break;
+    default:
+      return -999;
+      }
+   }
+ 
 
   double CaloCluster_v1::pt() const {
     return pt(m_signalState);
   }
+
+  double CaloCluster_v1::eta() const
+  {
+    return eta (m_signalState);
+  }
+  
+  double CaloCluster_v1::phi() const
+  {
+    return phi (m_signalState);
+  }
+
+  double CaloCluster_v1::m() const {
+    return m(m_signalState);
+   }
+  
+   double CaloCluster_v1::e() const {
+    return e(m_signalState);
+   }
 
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  eta0, setEta0 )			 
@@ -369,50 +404,6 @@ namespace xAOD {
     acc(*this)=sc;
   }
   
-  double CaloCluster_v1::eta() const
-  {
-    return eta (m_signalState);
-  }
-  
-  double CaloCluster_v1::phi() const
-  {
-    return phi (m_signalState);
-  }
-
-  double CaloCluster_v1::m() const {
-    //return (this->*m_getM)();
-    switch (m_signalState) {
-    case CALIBRATED:
-      return calM();
-      break;
-    case UNCALIBRATED:
-      return rawM();
-      break;
-    case ALTCALIBRATED:
-      return altM();
-      break;
-    default:
-      return -999;
-      }
-   }
-  
-   double CaloCluster_v1::e() const {
-     //return (this->*m_getE)(); //function ptr set according to signal state
-     switch (m_signalState) {
-     case CALIBRATED:
-       return calE();
-       break;
-     case UNCALIBRATED:
-       return rawE();
-       break;
-     case ALTCALIBRATED:
-       return altE();
-       break;
-     default:
-       return -999;
-     }
-   }
-
 
   void CaloCluster_v1::setE(CaloCluster_v1::flt_t theE) {
     switch (m_signalState) {
@@ -482,39 +473,12 @@ namespace xAOD {
      }
     return;
   }
-
-   
-  bool CaloCluster_v1::setSignalState( CaloCluster_v1::State s) const {
+ 
+  bool CaloCluster_v1::setSignalState( CaloCluster_v1::State s)  {
     m_signalState=s;
-    //std::cout << "Setting signal state of cluster " << this << " to " << s << std::endl;
     return true;
-    /*
-    switch(s) {
-    case CALIBRATED:
-      m_getE=&xAOD::CaloCluster_v1::calE;
-      m_getEta=&xAOD::CaloCluster_v1::calEta;
-      m_getPhi=&xAOD::CaloCluster_v1::calPhi;
-      m_getM=&xAOD::CaloCluster_v1::calM;
-      return true;
-    case UNCALIBRATED:
-      m_getE=&xAOD::CaloCluster_v1::rawE;
-      m_getEta=&xAOD::CaloCluster_v1::rawEta;
-      m_getPhi=&xAOD::CaloCluster_v1::rawPhi;
-      m_getM=&xAOD::CaloCluster_v1::rawM;
-      return true;
-    case ALTCALIBRATED:
-      m_getE=&xAOD::CaloCluster_v1::altE;
-      m_getEta=&xAOD::CaloCluster_v1::altEta;
-      m_getPhi=&xAOD::CaloCluster_v1::altPhi;
-      m_getM=&xAOD::CaloCluster_v1::altM;
-      return true;
-    default:
-      return false;
-    }//end switch
-    */
   }
   
-
   CaloCluster_v1::GenVecFourMom_t CaloCluster_v1::genvecP4(const CaloCluster_v1::State s) const {
     switch (s) {
     case CALIBRATED:

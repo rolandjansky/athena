@@ -91,7 +91,6 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
         if ( partype != MUSEG ) return -6;
       } else {
         if ( partype != IPART ) return -7;
-        ptout[icui] += ppar->pt();
       }
       Label lab = cui.label();
       // Add to constituent list or associated object list.
@@ -103,9 +102,7 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
           outms[icui].push_back(pms); 
         } else if ( partype == IPART ) {
           out[icui].push_back(ppar); 
-        } else {
-          return -8;
-        }
+        } 
       }
     } else {
       ++nbad;
@@ -113,43 +110,44 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
   }
   
   // Set ghost associated particles:
-  for ( size_t i=1; i<out.size(); ++i ) {
-    if ( pghostlabs != nullptr ) {
-      const NameList& ghostlabs = *pghostlabs;
-      if ( find(ghostlabs.begin(), ghostlabs.end(), pli->label(i)) == ghostlabs.end() ) {
-        nbad += out[i].size();
-        continue;
-      }
-    }
-    ParType& partype = partypes[i];
-    std::string cname = pli->label(i) + "Count";
-    std::string ptname = pli->label(i) + "Pt";
-    // Check if this is in the parent jet
-    int count_test; // dummy var to retrieve into -- we don't care about the value
-    const static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer> > cacc_parent("Parent");
-    if(!m_isTrigger) {
-      if(cacc_parent.isAvailable(jet) && cacc_parent(jet).isValid()) {
-        if(!(*cacc_parent(jet))->getAttribute(cname,count_test)) {
-          nbad += out[i].size(); // Skip if the parent does not have this
+  if (pli){
+    for ( size_t i=1; i<out.size(); ++i ) {
+      if ( pghostlabs) {
+        const NameList& ghostlabs = *pghostlabs;
+        if ( find(ghostlabs.begin(), ghostlabs.end(), pli->label(i)) == ghostlabs.end() ) {
+          nbad += out[i].size();
           continue;
         }
       }
-    }
-    if ( partype == MUSEG ) {
-      // Record associated muons.
-      jet.setAssociatedObjects(pli->label(i) , outms[i]);
-      jet.setAttribute<int>(cname, outms[i].size());
-    } else if ( partype == IPART ) {
-      // Record associated particles.
-      jet.setAssociatedObjects(pli->label(i), out[i]);
-      jet.setAttribute<int>(cname, out[i].size());
-      jet.setAttribute<float>(ptname, ptout[i]);
-      if ( ! outms[i].empty() ) return -9;
-    } else {
-      return -10;
+      ParType& partype = partypes[i];
+      std::string cname = pli->label(i) + "Count";
+      std::string ptname = pli->label(i) + "Pt";
+      // Check if this is in the parent jet
+      int count_test; // dummy var to retrieve into -- we don't care about the value
+      const static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer> > cacc_parent("Parent");
+      if(!m_isTrigger) {
+        if(cacc_parent.isAvailable(jet) && cacc_parent(jet).isValid()) {
+          if(!(*cacc_parent(jet))->getAttribute(cname,count_test)) {
+            nbad += out[i].size(); // Skip if the parent does not have this
+            continue;
+          }
+        }
+      }
+      if ( partype == MUSEG ) {
+        // Record associated muons.
+        jet.setAssociatedObjects(pli->label(i) , outms[i]);
+        jet.setAttribute<int>(cname, outms[i].size());
+      } else if ( partype == IPART ) {
+        // Record associated particles.
+        jet.setAssociatedObjects(pli->label(i), out[i]);
+        jet.setAttribute<int>(cname, out[i].size());
+        jet.setAttribute<float>(ptname, ptout[i]);
+        if ( ! outms[i].empty() ) return -9;
+      } else {
+        return -10;
+      }
     }
   }
-  
   return nbad;
 }
 

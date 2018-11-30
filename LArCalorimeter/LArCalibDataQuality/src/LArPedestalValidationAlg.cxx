@@ -92,7 +92,7 @@ StatusCode LArPedestalValidationAlg::preLoop() {
   return StatusCode::SUCCESS;
 }
 
-bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
+bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
 
   if (gain<0 || gain>2) {
      ATH_MSG_ERROR ( "Unexpected gain value " << gain ) ;
@@ -105,7 +105,7 @@ bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   const float& rmsVal=val.m_PedestalRMS;
   const float& rmsRef=ref.m_PedestalRMS;
 
-  const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+  const Identifier id=cabling->cnvToIdentifier(chid);
 
   const float pedTolerance=m_pedTolerance.valuesForCell(id)[gain];
   const float rmsTolerance=m_rmsTolerance.valuesForCell(id)[gain];
@@ -138,7 +138,7 @@ bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArC
     if (m_nFailedValidation<m_maxmessages) {
       msg().precision(2);
       msg().setf(std::ios::fixed,std::ios::floatfield); 
-      msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Ped: " << val.m_Pedestal 
+      msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,cabling,bcCont,gain) << " Ped: " << val.m_Pedestal 
             << " (" << ref.m_Pedestal << ", " << val.m_Pedestal-ref.m_Pedestal  << " ADC)" 
             << " RMS: " << val.m_PedestalRMS << " (" << ref.m_PedestalRMS << ", " 
             << ((val.m_PedestalRMS-ref.m_PedestalRMS)/ref.m_PedestalRMS)*100 << "%)" << endmsg;
@@ -154,7 +154,7 @@ bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArC
 }
 
 
-bool LArPedestalValidationAlg::febSummary() {
+bool LArPedestalValidationAlg::febSummary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
 
   unsigned nBadFebs=0;
 
@@ -171,14 +171,14 @@ bool LArPedestalValidationAlg::febSummary() {
     dataPerFeb.rmsRef/=dataPerFeb.nEntries;
 
 
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(dataPerFeb.chid);
+    const Identifier id=cabling->cnvToIdentifier(dataPerFeb.chid);
     const float& pedToleranceFEB=m_pedToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
     const float& rmsToleranceFEB=m_rmsToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
 
     if (fabs(dataPerFeb.pedVal-dataPerFeb.pedRef)>pedToleranceFEB ||
 	fabs(dataPerFeb.rmsVal-dataPerFeb.rmsRef)>rmsToleranceFEB) {
    
-      msg() <<  m_myMsgLvl << "Deviating!" <<channelDescription(dataPerFeb.febid, dataPerFeb.gain, true)
+      msg() <<  m_myMsgLvl << "Deviating!" <<channelDescription(dataPerFeb.febid, cabling, bcCont, dataPerFeb.gain, true)
             << "Average Ped: " << dataPerFeb.pedVal << " (" << dataPerFeb.pedRef << ")" 
             << " RMS: " << dataPerFeb.rmsVal << " (" << dataPerFeb.rmsRef << ")" << endmsg;
       ATH_MSG_DEBUG ( "Pdestal FEB Tolerance: " <<  pedToleranceFEB << " RMS FEB Tolerance:" <<  rmsToleranceFEB ) ;
@@ -195,14 +195,14 @@ bool LArPedestalValidationAlg::febSummary() {
     return true;
   }
 }
-StatusCode LArPedestalValidationAlg::summary() {
+StatusCode LArPedestalValidationAlg::summary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) {
   StatusCode sc=StatusCode::SUCCESS;
   //1nd step: Check the FEB-averages:
-  if (m_doFebAverages && !febSummary())
+  if (m_doFebAverages && !febSummary(cabling,bcCont))
     sc=StatusCode::RECOVERABLE;
 
   //2st step: Call the summary method from base-class (single-channel summary)
-  if (!LArPedestalValidationBase::summary().isSuccess())
+  if (!LArPedestalValidationBase::summary(cabling, bcCont).isSuccess())
     sc=StatusCode::RECOVERABLE;
 
   //3rd step: Check the gobal averages:

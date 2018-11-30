@@ -19,10 +19,11 @@
 
 // Include files
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+
 
 class LArOnlineID;
-class ILArBadChanTool;
 
 //-----------------------------------------------------------------------
 class LArAutoCorrExtrapolate : public AthAlgorithm
@@ -48,6 +49,7 @@ class LArAutoCorrExtrapolate : public AthAlgorithm
   
  private:
 
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey { this, "MissingFebsKey", "LArBadFeb", "SG Key of LArBadFebCont object"};
   // Container key list
   std::string m_keyoutput;
   std::string m_keyPedestal;
@@ -59,7 +61,6 @@ class LArAutoCorrExtrapolate : public AthAlgorithm
 
   const LArOnlineID*        m_onlineId;
 
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
   bool m_useBad;
 
   

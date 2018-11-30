@@ -14,32 +14,7 @@ MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name
   m_truthTool("Trk::DetailedTrackTruthBuilder")
 {  
   declareProperty("TruthTool",               m_truthTool);
-
-  // Inputs
-  declareProperty("TrackCollectionNames",     m_trackCollectionNames );
-  m_trackCollectionNames.reserve(9);
-  m_trackCollectionNames.emplace_back("MuonSpectrometerTracks");
-  m_trackCollectionNames.emplace_back("MooreTracks");
-  m_trackCollectionNames.emplace_back("ConvertedMBoyMuonSpectroOnlyTracks");
-  m_trackCollectionNames.emplace_back("ConvertedMBoyTracks");
-  m_trackCollectionNames.emplace_back("MuidExtrapolatedTracks");
-  m_trackCollectionNames.emplace_back("ExtrapolatedMuonSpectrometerTracks");
-  m_trackCollectionNames.emplace_back("Combined_Tracks");
-  m_trackCollectionNames.emplace_back("CombinedFitMuonTracks");
-  m_trackCollectionNames.emplace_back("ConvertedMuIdCBTracks");
-  m_trackCollectionNames.emplace_back("ConvertedMuIdExtrTracks");
-  m_trackCollectionNames.emplace_back("ConvertedStacoTracks");
-  m_trackCollectionNames.emplace_back("MuGirlRefittedTracks");
-
-  declareProperty("PRD_TruthNames",          m_PRD_TruthNames);
-  m_PRD_TruthNames.emplace_back("CSC_TruthMap");
-  m_PRD_TruthNames.emplace_back("RPC_TruthMap");
-  m_PRD_TruthNames.emplace_back("TGC_TruthMap");
-  m_PRD_TruthNames.emplace_back("MDT_TruthMap");
-
-
-  // Output
-  declareProperty("DetailedTrackTruthNames",  m_detailedTrackTruthNames);
+  declareProperty("doNSW",m_useNSW=false);
 }
 
 // Initialize method
@@ -56,9 +31,11 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
     ATH_MSG_DEBUG("Retrieved tool " << m_truthTool );
   }
 
+  if(m_useNSW) m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
+
   m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());
   for(unsigned int i=0;i<m_trackCollectionNames.size();i++){
-    m_detailedTrackTruthNames.emplace_back(m_trackCollectionNames.at(i).key()+"Truth");
+    m_detailedTrackTruthNames.emplace_back(m_trackCollectionNames.at(i).key()+"DetailedTruth");
     ATH_MSG_INFO("process "<<m_trackCollectionNames.at(i).key()<<" for detailed truth collection "<<m_detailedTrackTruthNames.at(i).key());
   }
 

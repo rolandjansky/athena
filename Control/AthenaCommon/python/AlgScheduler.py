@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration for the Hive Algorithm Scheduler.
 #
@@ -34,14 +34,14 @@ class AlgScheduler:
         """Setup Algorithm Scheduler"""
 
         from AppMgr import ServiceMgr as svcMgr
-        from Constants import VERBOSE, DEBUG, INFO, ERROR
+        from Constants import INFO
 
         from ConcurrencyFlags import jobproperties as jps
         from AthenaCommon.Logging import logging
 
         self.log = logging.getLogger( 'AlgScheduler' )
 
-        if (theSched == None) :
+        if (theSched is None) :
             from GaudiHive.GaudiHiveConf import AvalancheSchedulerSvc
             svcMgr += AvalancheSchedulerSvc()
             self.SchedulerSvc = svcMgr.AvalancheSchedulerSvc

@@ -64,7 +64,6 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      m_tmvaReader->AddVariable( "ibl"   , &m_ibl );
      m_tmvaReader->AddVariable( "bl"   ,  &m_bl );
      m_tmvaReader->AddVariable( "etajet", &m_etajet );
-     //m_tmvaReader->AddVariable( "vChi2", &m_vChi2 );
 //
 //-- Calibration file
 //

@@ -21,10 +21,13 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "CaloIdentifier/CaloGain.h"
 
-class LArCablingService;
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+
 class LArOnlineID;
 class CaloCell_ID;
 
@@ -64,11 +67,10 @@ private:
 
   const LArOnlineID* m_onlineId; 
   const CaloCell_ID* m_caloId;
-  /** Handle to bad-channel tool (job-Propety */
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
 
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingService> m_larCablingSvc;  
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
 
   std::string m_pedKey, m_caliWaveKey;
   std::string m_avgTypeProp;
@@ -95,9 +97,9 @@ private:
   AvgType m_avgType;
 
 
-  const std::string channelDescription(const HWIdentifier& chid, const unsigned gain=99) const;
+  const std::string channelDescription(const HWIdentifier& chid, const LArOnOffIdMapping *cabling, const unsigned gain=99) const;
 
-  unsigned getSymId(const HWIdentifier) const;
+  unsigned getSymId(const HWIdentifier, const LArOnOffIdMapping *cabling) const;
 
   class Average {
   public:

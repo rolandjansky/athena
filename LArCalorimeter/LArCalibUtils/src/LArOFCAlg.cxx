@@ -97,48 +97,48 @@ StatusCode LArOFCAlg::initialize(){
   m_nPoints = m_nDelays * ( m_nSamples-1 ) + m_nPhases * m_dPhases ;
 
   if ( m_nSamples>32 ) {
-    msg(MSG::ERROR) << "You are not allowed to compute OFC for Nsamples = " << m_nSamples << endmsg ;
+    ATH_MSG_ERROR( "You are not allowed to compute OFC for Nsamples = " << m_nSamples ) ;
     return  StatusCode::FAILURE;
   } 
 
   StatusCode sc = m_AutoCorrDecoder.retrieve();
   if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve AutoCorrDecoder " << m_AutoCorrDecoder << endmsg;
+        ATH_MSG_FATAL( "Could not retrieve AutoCorrDecoder " << m_AutoCorrDecoder );
         return StatusCode::FAILURE;
   } else {
-     msg(MSG::INFO) << "Retrieved Decoder Tool: "<< m_AutoCorrDecoder << endmsg;
+     ATH_MSG_INFO( "Retrieved Decoder Tool: "<< m_AutoCorrDecoder );
   }
 
 
   if (m_computeV2) {
     sc = m_AutoCorrDecoderV2.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve AutoCorrDecoderV2 " << m_AutoCorrDecoderV2 << endmsg;
+      ATH_MSG_FATAL( "Could not retrieve AutoCorrDecoderV2 " << m_AutoCorrDecoderV2 );
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved Decoder Tool: "<< m_AutoCorrDecoderV2 << endmsg;
+      ATH_MSG_INFO( "Retrieved Decoder Tool: "<< m_AutoCorrDecoderV2 );
     }
   }
 
 
   sc = detStore()->retrieve(m_onlineID); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "failed to retrieve LArOnlineID " << endmsg;
+    ATH_MSG_ERROR( "failed to retrieve LArOnlineID " );
     return sc;
   }
 
   sc = m_cablingService.retrieve() ;
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "failed to retrieve LArCablingService " << endmsg;
+    ATH_MSG_ERROR( "failed to retrieve LArCablingService " );
     return sc;
   }
-  msg(MSG::INFO) << " retrieved LArCablingService " << endmsg;
+  ATH_MSG_INFO( " retrieved LArCablingService " );
 
-  msg(MSG::INFO) << "Number of wave points needed : " << m_nPoints  << endmsg ;
+  ATH_MSG_INFO( "Number of wave points needed : " << m_nPoints  ) ;
   if (m_computeV2) {
-    msg(MSG::INFO) << "Will compute two flavors of OFCs" << endmsg;
-    msg(MSG::INFO) << "Version 1: useDelta= " << m_useDelta <<", output key: " <<  m_ofcKey << " AutoCorrDecoder: " << m_AutoCorrDecoder.name() << endmsg;
-    msg(MSG::INFO) << "Version 2: useDelta= " << m_useDeltaV2 <<", output key: " <<  m_ofcKeyV2 << " AutoCorrDecoder: " << m_AutoCorrDecoderV2.name() << endmsg;
+    ATH_MSG_INFO( "Will compute two flavors of OFCs" );
+    ATH_MSG_INFO( "Version 1: useDelta= " << m_useDelta <<", output key: " <<  m_ofcKey << " AutoCorrDecoder: " << m_AutoCorrDecoder.name() );
+    ATH_MSG_INFO( "Version 2: useDelta= " << m_useDeltaV2 <<", output key: " <<  m_ofcKeyV2 << " AutoCorrDecoder: " << m_AutoCorrDecoderV2.name() );
   }
   return StatusCode::SUCCESS;
 }
@@ -149,26 +149,26 @@ StatusCode LArOFCAlg::stop()
 
   ATH_MSG_DEBUG( "In LArOFCAlg finalize()");
   
-  msg(MSG::INFO) << "Number of samples            : " << m_nSamples << endmsg ;
-  msg(MSG::INFO) << "Number of delays acquired    : " << m_nDelays  << endmsg ;
-  msg(MSG::INFO) << "Number of phases in OFC      : " << m_nPhases  << endmsg ;
-  msg(MSG::INFO) << "Spacing between two phases   : " << m_dPhases  << endmsg ;
+  ATH_MSG_INFO( "Number of samples            : " << m_nSamples ) ;
+  ATH_MSG_INFO( "Number of delays acquired    : " << m_nDelays  ) ;
+  ATH_MSG_INFO( "Number of phases in OFC      : " << m_nPhases  ) ;
+  ATH_MSG_INFO( "Spacing between two phases   : " << m_dPhases  ) ;
 
 
   StatusCode sc;
   if (m_useDelta == 3 || m_useDeltaV2==3){
     sc = detStore()->retrieve(m_calo_dd_man); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "failed to CaloDetDescrManager " << endmsg;
+      ATH_MSG_ERROR( "failed to CaloDetDescrManager " );
       return sc;
     }
   }
 
   if ( m_timeShift ) {
     if( m_timeShiftByIndex == -1 ) {
-      msg(MSG::INFO) << "    Will use helper class for start time." << endmsg;
+      ATH_MSG_INFO( "    Will use helper class for start time." );
     } else {
-      msg(MSG::INFO) << "    Manually shifting pulses by time index " << m_timeShiftByIndex << endmsg;
+      ATH_MSG_INFO( "    Manually shifting pulses by time index " << m_timeShiftByIndex );
     }
   }
   
@@ -176,7 +176,7 @@ StatusCode LArOFCAlg::stop()
   if (m_larPhysWaveBinKey.size()) {
     sc=detStore()->retrieve(m_larPhysWaveBin,m_larPhysWaveBinKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve LArOFCBinComplete object with key " << m_larPhysWaveBinKey << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve LArOFCBinComplete object with key " << m_larPhysWaveBinKey );
       return sc;
     }
   }
@@ -192,13 +192,13 @@ StatusCode LArOFCAlg::stop()
      const AthenaAttributeList* attrList=0;
      sc=detStore()->retrieve(attrList, m_DSPConfigFolder);
      if (sc.isFailure()) {
-         msg(MSG::ERROR) << "Failed to retrieve AthenaAttributeList with key " << m_DSPConfigFolder << endmsg;
+         ATH_MSG_ERROR( "Failed to retrieve AthenaAttributeList with key " << m_DSPConfigFolder );
          return sc;
      }
 
      const coral::Blob& blob = (attrList->coralList())["febdata"].data<coral::Blob>();
      if (blob.size()<3) {
-        msg(MSG::INFO) << "Found empty blob, nothing to do"<<endmsg;
+        ATH_MSG_INFO( "Found empty blob, nothing to do");
      } else {
         m_DSPConfig = new LArDSPConfig(attrList);
      }
@@ -207,7 +207,7 @@ StatusCode LArOFCAlg::stop()
   if (sc.isFailure()) return sc;
 
   if (m_allChannelData.size()==0) {
-    msg(MSG::ERROR) << "No input waves found" << endmsg;
+    ATH_MSG_ERROR( "No input waves found" );
     return StatusCode::FAILURE;
   }
 
@@ -238,14 +238,14 @@ StatusCode LArOFCAlg::stop()
     //Instanciated the functor and start parallel_for
     Looper looper(&m_allChannelData,this);
     tbb::blocked_range<size_t> range(0, m_allChannelData.size());
-    msg(MSG::INFO) << "Starting parallel execution" << endmsg;
+    ATH_MSG_INFO( "Starting parallel execution" );
     tbb::parallel_for(tbb::blocked_range<size_t>(0, m_allChannelData.size()),looper);
 
-    msg(MSG::INFO) << "Done with parallel execution" << endmsg;
+    ATH_MSG_INFO( "Done with parallel execution" );
 
   }
   else {
-    msg(MSG::INFO) << "Single threaded execution" << endmsg;
+    ATH_MSG_INFO( "Single threaded execution" );
     for (perChannelData_t& chanData : m_allChannelData) {
       this->process(chanData);
     }
@@ -257,12 +257,12 @@ StatusCode LArOFCAlg::stop()
   LArOFCComplete *larOFCComplete=new LArOFCComplete();
   sc = larOFCComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArOFCComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArOFCComplete object" );
     return sc;
   }
   sc=larOFCComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArOFCComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArOFCComplete object" );
     return sc;
   }
 
@@ -270,12 +270,12 @@ StatusCode LArOFCAlg::stop()
   LArOFCComplete *larOFCCompleteV2=new LArOFCComplete();
   sc = larOFCComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArOFCComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArOFCComplete object" );
     return sc;
   }
   sc=larOFCCompleteV2->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArOFCComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArOFCComplete object" );
     return sc;
   }
 
@@ -285,12 +285,12 @@ StatusCode LArOFCAlg::stop()
     larOFCBinComplete=new LArOFCBinComplete();
     sc=larOFCBinComplete->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArOFCBinComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed to set groupingType for LArOFCBinComplete object" );
       return sc;
     }
     sc  = larOFCBinComplete->initialize(); 
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not initialize LArOFCComplete data object - exit!" << endmsg ;
+      ATH_MSG_ERROR( "Could not initialize LArOFCComplete data object - exit!" ) ;
       return sc ;
     }
   }
@@ -301,12 +301,12 @@ StatusCode LArOFCAlg::stop()
     larShapeComplete = new LArShapeComplete();
     sc=larShapeComplete->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArShapeComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed to set groupingType for LArShapeComplete object" );
       return sc;
     }
     sc=larShapeComplete->initialize(); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed initialize LArShapeComplete object" << endmsg;
+      ATH_MSG_ERROR( "Failed initialize LArShapeComplete object" );
       return sc;
     }
   }
@@ -340,52 +340,52 @@ StatusCode LArOFCAlg::stop()
     
   } // end loop over m_allChannelData
 
-  msg(MSG::INFO) << " Summary : Computed OFCs for " << nChannels << " channels * gains" << endmsg;
+  ATH_MSG_INFO( " Summary : Computed OFCs for " << nChannels << " channels * gains" );
   if (nFailed) 
-    msg(MSG::ERROR) << "Number of channels * gains with failed OFC verification: " <<  nFailed << endmsg;
+    ATH_MSG_ERROR( "Number of channels * gains with failed OFC verification: " <<  nFailed );
 
   // record and symlink LArOFCComplete object
   sc = detStore()->record(larOFCComplete,m_ofcKey);
   if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not record LArOFCComplete to DetStore with key " << m_ofcKey << endmsg;
+      ATH_MSG_ERROR( "Could not record LArOFCComplete to DetStore with key " << m_ofcKey );
       return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "LArOFCComplete object recorded with key " << m_ofcKey << endmsg ;
+  ATH_MSG_INFO( "LArOFCComplete object recorded with key " << m_ofcKey ) ;
 
   sc = detStore()->symLink(larOFCComplete,(ILArOFC*)larOFCComplete);
   if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not symlink ILArOFC with LArOFCComplete." << endmsg;
+      ATH_MSG_ERROR( "Could not symlink ILArOFC with LArOFCComplete." );
       return StatusCode::FAILURE;
   } 
-  msg(MSG::INFO) << "Symlink with ILArOFC done" << endmsg ;
+  ATH_MSG_INFO( "Symlink with ILArOFC done" ) ;
   
 
   // record and symlink second version of LArOFCComplete object
   if (m_computeV2) {
     sc = detStore()->record(larOFCCompleteV2,m_ofcKeyV2);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not record LArOFCComplete to DetStore with key " << m_ofcKeyV2 << endmsg;
+      ATH_MSG_ERROR( "Could not record LArOFCComplete to DetStore with key " << m_ofcKeyV2 );
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << "LArOFCComplete object recorded with key " << m_ofcKeyV2 << endmsg ;
+    ATH_MSG_INFO( "LArOFCComplete object recorded with key " << m_ofcKeyV2 ) ;
 
     sc = detStore()->symLink(larOFCCompleteV2,(ILArOFC*)larOFCCompleteV2);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not symlink ILArOFC with LArOFCComplete." << endmsg;
+      ATH_MSG_ERROR( "Could not symlink ILArOFC with LArOFCComplete." );
       return StatusCode::FAILURE;
     } 
-    msg(MSG::INFO) << "Symlink with ILArOFC done" << endmsg ;
+    ATH_MSG_INFO( "Symlink with ILArOFC done" ) ;
   }
 
   if ( m_dumpOFCfile.size()) {
-    msg(MSG::INFO) << "Dumping OFCs to file " << m_dumpOFCfile << endmsg ;
+    ATH_MSG_INFO( "Dumping OFCs to file " << m_dumpOFCfile ) ;
     larOFCComplete->dumpOFC(m_dumpOFCfile) ;
   }
 
   if (larOFCBinComplete) {
     sc = detStore()->record(larOFCBinComplete,m_ofcBinKey);
     if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Could not record LArOFCBinCompete object" << endmsg;
+       ATH_MSG_ERROR( "Could not record LArOFCBinCompete object" );
        return StatusCode::FAILURE;
     }
   }
@@ -395,18 +395,18 @@ StatusCode LArOFCAlg::stop()
     ATH_MSG_DEBUG( "Trying to record LArShapeComplete object to detector store, key = " << m_shapeKey);
     sc = detStore()->record(larShapeComplete,m_shapeKey);
     if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Could not record LArShapeComplete to DetStore with key " << m_shapeKey << endmsg;
+       ATH_MSG_ERROR( "Could not record LArShapeComplete to DetStore with key " << m_shapeKey );
        return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << "LArShapeComplete object recorded to DetStore successfully with key " << m_shapeKey << endmsg ;
+    ATH_MSG_INFO( "LArShapeComplete object recorded to DetStore successfully with key " << m_shapeKey ) ;
     ATH_MSG_DEBUG( "Trying to symlink ILArShape with LArShapeComplete");
     ILArShape* larShape = 0;
     sc = detStore()->symLink(larShapeComplete,larShape);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not symlink ILArShape with LArShapeComplete." << endmsg;
+      ATH_MSG_ERROR( "Could not symlink ILArShape with LArShapeComplete." );
       return StatusCode::FAILURE;
     } 
-    msg(MSG::INFO) << "ILArShape symlink with LArShapeComplete successfully" << endmsg ;
+    ATH_MSG_INFO( "ILArShape symlink with LArShapeComplete successfully" ) ;
   }  
 
 
@@ -419,7 +419,7 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
   LArWaveHelper larWaveHelper;
   const LArWaveCumul* nextWave=chanData.inputWave;
   if (!nextWave) {
-    msg(MSG::ERROR) << "input wave is 0" << endmsg;
+    ATH_MSG_ERROR( "input wave is 0" );
     return;
   }
 
@@ -432,8 +432,8 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
       
   // check constistency of settings
   if ( m_nPoints > nextWave->getSize() ) {
-    msg(MSG::ERROR) << "Channel " << m_onlineID->channel_name(ch_id) <<": Wave size (" << nextWave->getSize() 
-		    << ") is too small to fit your OFC request (" << m_nPoints << " points)" << endmsg ;
+    ATH_MSG_ERROR( "Channel " << m_onlineID->channel_name(ch_id) <<": Wave size (" << nextWave->getSize() 
+		    << ") is too small to fit your OFC request (" << m_nPoints << " points)" ) ;
     chanData.shortWave=true;
     return;
   }
@@ -456,7 +456,7 @@ void LArOFCAlg::process(perChannelData_t& chanData) const {
   if (m_normalize) {
     const double peak = aWave.getSample( larWaveHelper.getMax(aWave) );
     if ( peak == 0 ) {
-      msg(MSG::ERROR) << "Wave maximum is zero, skipping channel " << m_onlineID->channel_name(ch_id) << endmsg ;
+      ATH_MSG_ERROR( "Wave maximum is zero, skipping channel " << m_onlineID->channel_name(ch_id) ) ;
       return;
     }
 
@@ -606,12 +606,12 @@ StatusCode LArOFCAlg::initPhysWaveContainer() {
   typedef LArPhysWaveContainer::ConstConditionsMapIterator WAVEIT;
 
   for (unsigned k=0 ; k<m_keylist.size() ; k++ ) { // Loop over all containers that are to be processed (e.g. different gains)
-    msg(MSG::INFO) << "Processing WaveContainer from StoreGate! key = " << m_keylist[k] << endmsg;
+    ATH_MSG_INFO( "Processing WaveContainer from StoreGate! key = " << m_keylist[k] );
 
     const LArPhysWaveContainer* waveCnt;
     StatusCode sc=detStore()->retrieve(waveCnt,m_keylist[k]);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve a LArPhysWaveContainer with key " << m_keylist[k] << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve a LArPhysWaveContainer with key " << m_keylist[k] );
       return sc;
     }
       
@@ -640,7 +640,7 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
 
   typedef LArCaliWaveContainer::ConstConditionsMapIterator WAVEIT;
   for (unsigned k=0 ; k<m_keylist.size() ; k++ ) { // Loop over all containers that are to be processed (e.g. different gains)
-    msg(MSG::INFO) << "Processing WaveContainer from StoreGate! key = " << m_keylist[k] << endmsg;
+    ATH_MSG_INFO( "Processing WaveContainer from StoreGate! key = " << m_keylist[k] );
 
     //Input cali-wave might come from the same job. In this case we see a non-const container in SG probably w/o corrections applied.
     //Try non-const retrieve:
@@ -649,9 +649,9 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
     if (waveCnt_nc) {
       waveCnt=waveCnt_nc; //Retain const pointer
       if (!waveCnt_nc->correctionsApplied()) {
-	msg(MSG::INFO) << "LArCaliWaveContainer: Corrections not yet applied, applying them now..." << endmsg;
+	ATH_MSG_INFO( "LArCaliWaveContainer: Corrections not yet applied, applying them now..." );
 	if (waveCnt_nc->applyCorrections().isFailure()) {
-	  msg(MSG::ERROR) << "Failed to apply corrections to LArCaliWaveContainer!" << endmsg;
+	  ATH_MSG_ERROR( "Failed to apply corrections to LArCaliWaveContainer!" );
 	  return StatusCode::FAILURE;
 	}
       }
@@ -659,7 +659,7 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
     else {
       waveCnt=detStore()->tryConstRetrieve<LArCaliWaveContainer>(m_keylist[k]);
       if (!waveCnt) {
-	msg(MSG::ERROR) << "Failed to retrieve a LArCaliWaveContainer with key " << m_keylist[k] << endmsg;
+	ATH_MSG_ERROR( "Failed to retrieve a LArCaliWaveContainer with key " << m_keylist[k] );
 	return  StatusCode::FAILURE;
       }
     }   
@@ -938,14 +938,14 @@ bool LArOFCAlg::verify(const HWIdentifier chid, const std::vector<float>& OFCa, 
   // At this point the reconstructed amplitude must be = 1 by definition, whatever the initial normalisation!
   ATH_MSG_VERBOSE("recAmp=" << recAmpl << " ; recTime=" << recTime);
   if ( fabs(1.-recAmpl) > m_errAmpl ) {
-    msg(MSG::WARNING) << "Applying phase " << phase << " of " << ofcversion << " to original wave yields an Amplitude of "<< recAmpl 
-		      << " instead of 1. -> Wrong OFCs? channel " << m_onlineID->channel_name(chid) << endmsg;
+    ATH_MSG_WARNING( "Applying phase " << phase << " of " << ofcversion << " to original wave yields an Amplitude of "<< recAmpl 
+		      << " instead of 1. -> Wrong OFCs? channel " << m_onlineID->channel_name(chid) );
     this->printOFCVec(OFCa,msg());
     result=true;
   }
   if ( fabs(recTime) > m_errTime ) {
-    msg( MSG::WARNING) << "Applying  phase " << phase << " of " << ofcversion << " to original wave yields a time offset of " << recTime 
-		       << " -> Wrong OFCs? channel " << m_onlineID->channel_name(chid) << endmsg;
+    ATH_MSG_WARNING( "Applying  phase " << phase << " of " << ofcversion << " to original wave yields a time offset of " << recTime 
+		       << " -> Wrong OFCs? channel " << m_onlineID->channel_name(chid) );
     this->printOFCVec(OFCb,msg());
     result=true; 
   }

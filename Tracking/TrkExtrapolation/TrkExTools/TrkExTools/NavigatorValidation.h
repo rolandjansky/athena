@@ -38,13 +38,13 @@ namespace Trk{
       virtual ~NavigatorValidation();
       /** Validation Action:
         Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const override;
+      virtual void validationAction() const override final;
                                                             
     private:
    
-      virtual void validationInitialize() override ;
+      virtual void validationInitialize() override final;
       /* no-op here */
-      virtual void validationFill(const Trk::TrackParameters* trackPar) const override;
+      virtual void validationFill(const Trk::TrackParameters* trackPar) const override final;
     
       //------VALIDATION MODE SECTION ----------------------------------//
       std::string                               m_validationTreeName;        //!< validation tree name - to be acessed by this from root

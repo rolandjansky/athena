@@ -3,6 +3,6 @@ def LArMCSymCondAlgDefault():
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "LArMCSymCondAlg"):
         from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
-        condSeq+=LArMCSymCondAlg(ReadKey="LArOnOffIdMap")
+        condSeq+=LArMCSymCondAlg("LArMCSymCondAlg",ReadKey="LArOnOffIdMap")
     return 
 

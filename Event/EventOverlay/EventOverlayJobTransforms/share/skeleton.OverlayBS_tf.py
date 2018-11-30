@@ -82,7 +82,6 @@ if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 #if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
 readBS = overlayFlags.isDataOverlay()
-overlayFlags.doBkg=False #ACH
 
 #GlobalFlags.InputFormat.set_bytestream()
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
@@ -227,12 +226,12 @@ print "overlay_trf: final outStream = ", outStream
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
 
-if hasattr(runArgs, 'fSampltag'):
-    #conddb.addFolder("LAR","/LAR/ElecCalib/fSampl/Symmetry")
-    #conddb.addOverride( "/LAR/ElecCalib/fSampl/Symmetry", runArgs.fSampltag + digitizationFlags.physicsList.get_Value() )
-    conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl", runArgs.fSampltag + digitizationFlags.physicsList.get_Value(),force=True,forceMC=True) 
-else:
-    raise RuntimeError ("--fSampltag not specified on command-line - see --help message")
+if DetFlags.overlay.LAr_on() :
+    if hasattr(runArgs, 'fSampltag'):
+        conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl", runArgs.fSampltag + digitizationFlags.physicsList.get_Value(),force=True,forceMC=True,className="LArfSamplMC") 
+    else:
+        raise RuntimeError ("--fSampltag not specified on command-line - see --help message")
+
 #if DetFlags.overlay.Signal_on():
 #   InputDBConnection = "COOLOFL_LAR/COMP200"
 #   conddb.addFolder("","/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"+"<dbConnection>"+InputDBConnection+"</dbConnection>")

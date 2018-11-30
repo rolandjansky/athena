@@ -118,10 +118,6 @@ def _copy_file_impl(cfg, hints):
             outstream.ForceRead=True
             outstream.TakeItemsFromInput=True
 
-            ## tweak the default commit interval
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            svcMgr.AthenaPoolCnvSvc.CommitInterval = 100
-
             pass
         
         if do_write is not None:

@@ -200,8 +200,6 @@ class TileDCSCondAlg: public AthAlgorithm {
 
     std::map<int, std::pair<float,float> > m_knownBadHV;
 
-    int m_unknownValue;
-
     int m_channel2pmt[2][NUMBER_OF_HVSET_CHANNELS];
     int m_pmt2channel[2][NUMBER_OF_HVSET_CHANNELS];
     bool m_isChannelUsed[4][NUMBER_OF_CHANNELS]; // 0=LB, 1=EB, 2=EB without D4, 3=EB with special C10

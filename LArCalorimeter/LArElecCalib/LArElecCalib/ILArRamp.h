@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDITIONS_ILARRAMP_H
 #define LARCONDITIONS_ILARRAMP_H
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
 #include "LArElecCalib/LArVectorProxy.h"
 
 class ILArRamp {
@@ -34,7 +33,6 @@ class ILArRamp {
   virtual ~ILArRamp() {};
 
   virtual RampRef_t ADC2DAC(const HWIdentifier& id, int gain )  const =0;
-  virtual RampRef_t ADC2DAC(const Identifier& id, int gain )  const =0;
   
 } ;
 

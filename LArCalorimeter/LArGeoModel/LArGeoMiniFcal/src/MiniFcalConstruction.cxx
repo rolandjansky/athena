@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // MiniFcalConstruction
@@ -29,7 +29,6 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -99,26 +98,26 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
   const IRDBRecord* envParameters = (*recEnvelope)[0];
 
   //_________ Get materials from the Material Manager ___________________________
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   sc = detStore->retrieve(materialManager, std::string("MATERIALS"));
   if(sc!=StatusCode::SUCCESS) {
     log << MSG::ERROR << "Unable to retrieve the Stored Material Manager" << endmsg;
     return 0;
   }
   
-  GeoMaterial* Copper  = materialManager->getMaterial(envParameters->getString("MATERIAL"));
+  const GeoMaterial* Copper  = materialManager->getMaterial(envParameters->getString("MATERIAL"));
   if(!Copper) {
     log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find material for the envelope" << endmsg;
     return 0;
   }
 
-  GeoMaterial* Diamond  = materialManager->getMaterial("pix::Diamond");
+  const GeoMaterial* Diamond  = materialManager->getMaterial("pix::Diamond");
   if(!Diamond) {
     log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find Diamond material" << endmsg;
     return 0;
   }
 
-  GeoMaterial *Feldspar  = materialManager->getMaterial("std::Feldspar");
+  const GeoMaterial *Feldspar  = materialManager->getMaterial("std::Feldspar");
   if (!Feldspar) {
     log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find material for the Ceramic Layers" << endmsg;
     return 0;

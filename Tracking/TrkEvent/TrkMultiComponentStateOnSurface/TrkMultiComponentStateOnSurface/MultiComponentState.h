@@ -40,26 +40,26 @@ class MultiComponentState : public std::list<ComponentParameters>{
   virtual ~MultiComponentState();
 
   /** Clone method */
-  virtual const MultiComponentState* clone() const;
+  virtual MultiComponentState* clone() const;
 
   /** Clone with rescaled weight scaling factor */
-  virtual const MultiComponentState* cloneWithWeightScaling( double ) const;
+  virtual MultiComponentState* cloneWithWeightScaling( double ) const;
 
   /** Clone with covariance matricies scaled by a factor */
-  virtual const MultiComponentState* cloneWithScaledError( double ) const;
+  virtual MultiComponentState* cloneWithScaledError( double ) const;
 
   /** Clone with covariance matrix componants scaled by individual factors
       This will only work if there are 5 track parameters in each componant
   */
-  virtual const MultiComponentState* cloneWithScaledError( double, double,
-                                                           double, double, 
-                                                           double ) const;
+  virtual MultiComponentState* cloneWithScaledError( double, double,
+                                                     double, double, 
+                                                     double ) const;
 
   /** Check to see if all components in the state have measured track parameters */
   virtual bool isMeasured() const;
 
   /** Clone state performing renormalisation of total state weighting to one */
-  virtual const MultiComponentState* clonedRenormalisedState() const;
+  virtual MultiComponentState* clonedRenormalisedState() const;
 
   /** Dump methods */
   virtual MsgStream&    dump( MsgStream& ) const;

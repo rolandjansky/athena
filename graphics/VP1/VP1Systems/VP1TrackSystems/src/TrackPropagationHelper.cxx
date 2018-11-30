@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,6 @@
 #include "TrkVolumes/VolumeBounds.h"
 
 
-#include "TrkDetDescrUtils/ObjectAccessor.h"
 #include "VP1Base/VP1QtUtils.h"
 #include <limits>
 
@@ -386,7 +385,7 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
   try {
     // newpars = extrapolator->extrapolate(*trk,surf,Trk::anyDirection,false,hypo); // change this to extrapolate current param to surface.
     newpars = extrapolator->extrapolate(*prevpars,surf,Trk::alongMomentum,false,hypo); // change this to extrapolate current param to surface.
-  } catch (std::runtime_error e) {
+  } catch (const std::runtime_error& e) {
     theclass->message("Failure trying to use extrapolator for track (Exception thrown: " + QString(e.what())+")");
     return 0;
   }

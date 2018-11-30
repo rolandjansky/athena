@@ -21,7 +21,7 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-
+#include "GaudiKernel/EventContext.h"
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "xAODEgamma/PhotonFwd.h"
@@ -59,21 +59,22 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
 
   /** Accept with generic interface */
   virtual asg::AcceptData accept( const xAOD::IParticle* part ) const ;
-  
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part ) const ;
+
   /** Accept with Egamma objects */
-  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* part) const ;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Photon* part ) const ;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* part ) const ;
 
    /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   /** The basic isem */
-  virtual StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
+  virtual StatusCode execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const;
 
 private:
 

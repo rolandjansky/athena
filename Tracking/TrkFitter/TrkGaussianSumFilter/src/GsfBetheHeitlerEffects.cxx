@@ -29,8 +29,8 @@ namespace {
 }
 
 Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type, const std::string& name, const IInterface* parent)
-  : 
-  MultiStateMaterialEffects(type, name, parent),
+  :
+  AthAlgTool(type, name, parent),
   m_parameterisationFileName("GeantSim_LT01_cdf_nC6_O5.par"),
   m_numberOfComponents(0),
   m_transformationCode(0),
@@ -50,7 +50,7 @@ Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type, con
   declareProperty("UpperRange", m_upperRange = 0.20);
   declareProperty("UseHighX0",  m_useHighX0 = true );
   declareProperty("ComponentMeanCut",  m_componentMeanCut = 0.0 );
-  
+
 }
 
 StatusCode Trk::GsfBetheHeitlerEffects::initialize(){
@@ -59,7 +59,7 @@ StatusCode Trk::GsfBetheHeitlerEffects::initialize(){
     ATH_MSG_INFO( "1st moment of mixture will be corrected" );
   else if (m_correctionFlag == 2)
     ATH_MSG_INFO( "1st and 2nd moment of mixture will be corrected" );
-  else if (m_correctionFlag == 0) 
+  else if (m_correctionFlag == 0)
     ATH_MSG_INFO( "Moments of mixture will not be corrected" );
   else {
     ATH_MSG_INFO(  "Inappropriate setting for Bethe-Heitler mixture correction! ...Exiting!" );
@@ -74,7 +74,7 @@ StatusCode Trk::GsfBetheHeitlerEffects::initialize(){
     return StatusCode::SUCCESS;
 
   }
-  
+
   else {
 
     msg(MSG::ERROR) << "Parameters could NOT be successfully imported from file" << endmsg;
@@ -97,7 +97,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
 {
 
   std::string resolvedFileName = PathResolver::find_file (m_parameterisationFileName, "DATAPATH");
-  
+
   if (resolvedFileName != "")
     ATH_MSG_INFO( "Parameterisation file found: " << resolvedFileName );
   else {
@@ -132,15 +132,15 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
       msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCode << endmsg;
       return false;
     }
-  
-  
+
+
   if (!fin) {
     msg(MSG::ERROR) << "Error while reading file : " << resolvedFileName << endmsg;
     return false;
   }
 
   int componentIndex = 0;
-  
+
   for ( ; componentIndex < m_numberOfComponents; ++componentIndex ){
     m_polynomialWeights.push_back( readPolynomial(fin, orderPolynomial) );
     m_polynomialMeans.push_back( readPolynomial(fin, orderPolynomial) );
@@ -156,16 +156,16 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
       msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;
       return false;
     }
-  
+
     const char* filename = resolvedFileName.c_str();
-  
+
     std::ifstream fin(filename);
-  
+
     if ( fin.bad() ){
       msg(MSG::ERROR) << "Error opening file: " << resolvedFileName << endmsg;
       return false;
     }
-  
+
     fin >> m_numberOfComponentsHighX0;
     fin >> orderPolynomial;
     fin >> m_transformationCodeHighX0;
@@ -186,9 +186,9 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
       msg(MSG::ERROR) << "Error reading file: " << resolvedFileName << endmsg;
       return false;
     }
-  
+
     int componentIndex = 0;
-    
+
     for ( ; componentIndex < m_numberOfComponentsHighX0; ++componentIndex ){
       m_polynomialWeightsHighX0.push_back( readPolynomial(fin, orderPolynomial) );
       m_polynomialMeansHighX0.push_back( readPolynomial(fin, orderPolynomial) );
@@ -218,7 +218,8 @@ Trk::GsfBetheHeitlerEffects::readPolynomial (std::ifstream& fin, const int order
 
 }
 
-void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& componentParameters,
+void Trk::GsfBetheHeitlerEffects::compute ( Cache& cache,
+	            const Trk::ComponentParameters& componentParameters,
               const Trk::MaterialProperties& materialProperties,
               double pathLength,
               Trk::PropDirection direction,
@@ -227,25 +228,25 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 
   ATH_MSG_VERBOSE( "Computing Bethe-Heitler energy loss effects" );
 
-  
+
   // Clear cache
-  this->reset();
+  cache.reset();
 
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
-  
-  double radiationLength = materialProperties.x0();  
+
+  double radiationLength = materialProperties.x0();
   double pathlengthInX0 = pathLength / radiationLength;
   double momentum = globalMomentum.mag();
 
-  if (msgLvl(MSG::VERBOSE)){ 
-  
+  if (msgLvl(MSG::VERBOSE)){
+
     msg(MSG::VERBOSE) << "Bethe-Heitler parameters and weights calculated as a function of X/X0 = " << pathlengthInX0 << endmsg;
     msg(MSG::VERBOSE) << "Global momentum: " << momentum << endmsg;
     msg(MSG::VERBOSE) << "Component weighting: " << componentParameters.second << endmsg;
-  
+
   }
-  
+
   // Produce a multi-component State
   if ( pathlengthInX0 > m_singleGaussianRange ){
 
@@ -278,9 +279,9 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
       newCovarianceMatrix->setZero();
       (*newCovarianceMatrix)(Trk::qOverP,Trk::qOverP) = varQoverP;
 
-      m_deltaPs.push_back( deltaP );
-      m_weights.push_back(1.);
-      m_deltaCovariances.push_back(newCovarianceMatrix);
+      cache.deltaPs.push_back( deltaP );
+      cache.weights.push_back(1.);
+      cache.deltaCovariances.push_back(newCovarianceMatrix);
 
       ATH_MSG_VERBOSE( "Weight / deltaP / var (delta q/p) " << 1. << "\t" << deltaP << "\t" << varQoverP );
 
@@ -291,14 +292,14 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
     if ( pathlengthInX0 > m_upperRange ) pathlengthInX0 = m_upperRange;
 
     MixtureParameters mixture;
-    
+
     if ( m_useHighX0 && pathlengthInX0 > m_xOverRange )
       this->getMixtureParametersHighX0(pathlengthInX0, mixture);
-    else 
+    else
       this->getMixtureParameters(pathlengthInX0, mixture);
-    
+
     this->correctWeights(mixture);
-    
+
     if (m_correctionFlag == 1){
       mixture[0].mean = correctedFirstMean(pathlengthInX0, mixture);
     }
@@ -312,7 +313,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
     int componentIndex = 0;
 	  double weightToBeRemoved(0.);
 	  int componentWithHighestMean(0);
-	  
+
 	  for ( ; componentIndex < m_numberOfComponents; ++componentIndex ){
   	  if (mixture[componentIndex].mean > mixture[componentWithHighestMean].mean)
   	  	componentWithHighestMean = componentIndex;
@@ -322,51 +323,51 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 
 		componentIndex = 0;
     for ( ; componentIndex < m_numberOfComponents; ++componentIndex ){
-      
+
       double varianceInverseMomentum;
-      
+
       //This is not mathematically correct but it does stabilize the GSF
       if ( mixture[componentIndex].mean < m_componentMeanCut ) continue;
-      
-      if (componentIndex == componentWithHighestMean) 
-      	m_weights.push_back(mixture[componentIndex].weight + weightToBeRemoved);
-      else 
-  			m_weights.push_back(mixture[componentIndex].weight);
-    
+
+      if (componentIndex == componentWithHighestMean)
+      	cache.weights.push_back(mixture[componentIndex].weight + weightToBeRemoved);
+      else
+  			cache.weights.push_back(mixture[componentIndex].weight);
+
       double deltaP(0.);
 
       if (direction == alongMomentum) {
 
         // For forward propagation
         deltaP = momentum  * ( mixture[componentIndex].mean - 1.);
-      
+
         // msg(MSG::VERBOSE) << "Component mean: " << mixture[componentIndex].mean << endmsg;
         // msg(MSG::VERBOSE) << "Forwards propagation delta P: " << deltaP << endmsg;
-      
-        m_deltaPs.push_back( deltaP );
+
+        cache.deltaPs.push_back( deltaP );
         double f = 1./ (momentum * mixture[componentIndex].mean);
         varianceInverseMomentum = f * f * mixture[componentIndex].variance;
 
       } // end forward propagation if clause
-      
+
       else {
-  
+
         // For backwards propagation
         deltaP = momentum * (1. / mixture[componentIndex].mean - 1.);
-      
+
         // msg(MSG::VERBOSE) <<  "Component mean: " << mixture[componentIndex].mean << endmsg;
         // msg(MSG::VERBOSE) <<  "Backwards propagation delta P: " << deltaP << endmsg;
-      
-        m_deltaPs.push_back( deltaP );
+
+        cache.deltaPs.push_back( deltaP );
         varianceInverseMomentum = mixture[componentIndex].variance / (momentum * momentum);
-  
+
       } // end backwards propagation if clause
 
       AmgSymMatrix(5)* newCovarianceMatrix = new AmgSymMatrix(5);
       newCovarianceMatrix->setZero();
       (*newCovarianceMatrix)(Trk::qOverP,Trk::qOverP) = varianceInverseMomentum;
 
-      m_deltaCovariances.push_back(newCovarianceMatrix);
+      cache.deltaCovariances.push_back(newCovarianceMatrix);
 
       ATH_MSG_VERBOSE(  "Weight / deltaP / var (delta q/p) " << mixture[componentIndex].weight << "\t" << deltaP << "\t" << varianceInverseMomentum );
 
@@ -378,11 +379,11 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 
     ATH_MSG_DEBUG(  "Trying to apply energy loss to " << pathlengthInX0 << " x/x0. No Bethe-Heitler effects applied" );
 
-    m_weights.push_back(1.);
-    m_deltaPs.push_back(0.);
+    cache.weights.push_back(1.);
+    cache.deltaPs.push_back(0.);
     AmgSymMatrix(5)* newCovarianceMatrix = new AmgSymMatrix(5);
     newCovarianceMatrix->setZero();
-    m_deltaCovariances.push_back( newCovarianceMatrix );
+    cache.deltaCovariances.push_back( newCovarianceMatrix );
   }
 
 }
@@ -401,12 +402,12 @@ void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthIn
   {
 
     double updatedWeight = m_polynomialWeights[componentIndex](pathlengthInX0);
-    
+
     if ( m_transformationCode )
       updatedWeight = logisticFunction(updatedWeight);
 
     double updatedMean = m_polynomialMeans[componentIndex](pathlengthInX0);
-    
+
     // msg(MSG::VERBOSE) <<  "Updated mean: " << updatedMean << endmsg;
 
     if ( m_transformationCode )
@@ -446,12 +447,12 @@ void Trk::GsfBetheHeitlerEffects::getMixtureParametersHighX0(const double pathle
   {
 
     double updatedWeight = m_polynomialWeightsHighX0[componentIndex](pathlengthInX0);
-    
+
     if ( m_transformationCodeHighX0 )
       updatedWeight = logisticFunction(updatedWeight);
 
     double updatedMean = m_polynomialMeansHighX0[componentIndex](pathlengthInX0);
-    
+
     // msg(MSG::VERBOSE) <<  "Updated mean: " << updatedMean << endmsg;
 
     if ( m_transformationCodeHighX0 )
@@ -508,7 +509,7 @@ double Trk::GsfBetheHeitlerEffects::correctedFirstMean(const double pathlengthIn
 
   // Obtain the difference between the true and weighted sum
   double meanBH = betheHeitlerMean(pathlengthInX0);
-  
+
   Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component = mixture.begin() + 1;
 
   for ( ; component != mixture.end(); ++component )

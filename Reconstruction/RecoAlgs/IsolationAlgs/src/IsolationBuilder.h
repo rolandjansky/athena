@@ -24,6 +24,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/AuxElement.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
 
@@ -176,13 +177,28 @@ class IsolationBuilder
       "The extra correction types to store but not apply for forward electrons"};
 
   struct CaloIsoHelpKey {
-    std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
+    /// constructor
+    CaloIsoHelpKey(IDataHandleHolder* owningAlg);
+
+    /// only to be called after placed in the final location, to propagate dependencies
+    void declare(IDataHandleHolder* owningAlg);
+
+    /// The actual isolations
+    SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> isoDeco;
+
+    /// The corrections (one per flavor)
     std::map<xAOD::Iso::IsolationCaloCorrection, 
 	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
+
+    /// The corrections (one per flavor/type combination)
     std::map<xAOD::Iso::IsolationCaloCorrection, 
-	     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > > noncoreCorDeco;
+	     SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> > noncoreCorDeco;
+
+    /// the types of isolations to calculate
     std::vector<xAOD::Iso::IsolationType> isoTypes;
-    xAOD::CaloCorrection CorrList;
+
+    /// to keep track of the corrections
+    xAOD::CaloCorrection CorrList; 
     // xAOD::CaloCorrection CorrListExtra; // should ideally pass this, but not possible yet
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
   };
@@ -193,11 +209,24 @@ class IsolationBuilder
   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> > m_muCaloIso;
 
   struct TrackIsoHelpKey {
-    std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
-    std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDecoV;
+    /// constructor
+    TrackIsoHelpKey(IDataHandleHolder* owningAlg);
+
+    /// only to be called after placed in the final location, to propagate dependencies
+    void declare(IDataHandleHolder* owningAlg);
+
+    /// The actual isolations
+    SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> isoDeco;
+    SG::WriteDecorHandleKeyArray<xAOD::IParticleContainer> isoDecoV;
+
+    /// The corrections
     std::map<xAOD::Iso::IsolationTrackCorrection, 
 	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
+
+    /// the types of isolations to calculate
     std::vector<xAOD::Iso::IsolationType> isoTypes;
+
+    /// to keep track of the corrections
     xAOD::TrackCorrection CorrList;
     // xAOD::TrackCorrection CorrListExtra; // should ideally pass this, but not possible yet
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
@@ -252,6 +281,7 @@ class IsolationBuilder
 
   static bool isCoreCor(xAOD::Iso::IsolationCaloCorrection corr);
 
+  /// called by algorithm initialize per object (electron, photon, forward electron, muon)
   StatusCode initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
 			   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey > >* caloIsoMap, // out
 			   std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey > >* trackIsoMap, // out
@@ -261,11 +291,31 @@ class IsolationBuilder
 			   const std::vector<std::vector<int> >& corIntsExtra,
 			   const std::string& customConfig);
 
+  /// called by initializeIso
+  StatusCode addCaloIsoCorrections(size_t flavor, 
+				   xAOD::Iso::IsolationFlavour isoFlav,
+				   CaloIsoHelpKey& cisoH, // in-out
+				   const std::vector<std::vector<int> >& corInts,
+				   bool corrsAreExtra,
+				   const std::string& prefix,
+				   const std::string& customConfig);
+
+  /// called by initializeIso
+  StatusCode addTrackIsoCorrections(size_t flavor, 
+				    xAOD::Iso::IsolationFlavour isoFlav,
+				    TrackIsoHelpKey& tisoH, // in-out
+				    const std::vector<std::vector<int> >& corInts,
+				    bool corrsAreExtra,
+				    const std::string& prefix,
+				    const std::string& customConfig);
+
   StatusCode executeCaloIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >& caloIsoMap);
 
   StatusCode executeTrackIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> >& trackIsoMap);
   
-  
+  void declareIso(std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >& caloIso);
+  void declareIso(std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> >& trackIso);
+ 
 }; 
 
 

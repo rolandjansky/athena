@@ -19,7 +19,7 @@ echo $AtlasVersion
 if [ ${AtlasVersion:0:4} == "22.0" ]; then
     ValOption=""
 else
-    ValOption="--outputNTUP_PHYSVALFileName=valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.PHYSVAL.root --validationFlags noExample doMuon"
+    ValOption="--outputNTUP_PHYSVALFile valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.PHYSVAL.root --validationFlags noExample doMuon"
 fi
 echo "ValOption=", $ValOption
 

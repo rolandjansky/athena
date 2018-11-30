@@ -26,12 +26,14 @@
 
 #include "Identifier/HWIdentifier.h"
 
+#include <atomic>
 
 class EMBPresamplerHVManager::Clockwork {
 public:
   EMBPresamplerHVDescriptor      *descriptor;
   EMBPresamplerHVModuleConstLink  linkArray[2][4][32];
-  bool                  init;
+  std::atomic<bool>               init{false};
+  std::mutex                      mtx;
   std::vector<EMBPresamplerHVPayload> payloadArray;
 };
 
@@ -101,7 +103,8 @@ unsigned int EMBPresamplerHVManager::endSideIndex() const
 }
 
 void EMBPresamplerHVManager::update() const {
-  if (!m_c->init) {
+  std::lock_guard<std::mutex> lock(m_c->mtx);
+  if (!(m_c->init)) {
 
     m_c->init=true;
     m_c->payloadArray.reserve(2*4*32);

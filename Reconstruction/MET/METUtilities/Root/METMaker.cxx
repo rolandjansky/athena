@@ -17,6 +17,7 @@
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAssociationHelper.h"
 
 // Jet EDM
 #include "xAODJet/JetAttributes.h"
@@ -186,7 +187,7 @@ namespace met {
                                   xAOD::Type::ObjectType metType,
                                   xAOD::MissingETContainer* metCont,
                                   const xAOD::IParticleContainer* collection,
-                                  const xAOD::MissingETAssociationMap* map,
+                                  xAOD::MissingETAssociationHelper* helper,
 				  MissingETBase::UsageHandler::Policy objScale)
   {
     MissingETBase::Types::bitmask_t metSource;
@@ -227,12 +228,12 @@ namespace met {
       }
     }
 
-    return rebuildMET(met,collection,map,objScale);
+    return rebuildMET(met,collection,helper,objScale);
   }
 
   StatusCode METMaker::rebuildMET(xAOD::MissingET* met,
                                   const xAOD::IParticleContainer* collection,
-                                  const xAOD::MissingETAssociationMap* map,
+                                  xAOD::MissingETAssociationHelper* helper,
 				  MissingETBase::UsageHandler::Policy objScale)
   {
     MissingETBase::UsageHandler::Policy p = MissingETBase::UsageHandler::OnlyCluster;
@@ -246,20 +247,25 @@ namespace met {
     }
     if (m_doSoftTruth) p = MissingETBase::UsageHandler::TruthParticle;
     if (m_doPFlow) p = MissingETBase::UsageHandler::ParticleFlow;
-    return rebuildMET(met,collection,map,p,removeOverlap,objScale);
+    return rebuildMET(met,collection,helper,p,removeOverlap,objScale);
   }
 
   StatusCode METMaker::rebuildMET(xAOD::MissingET* met,
                                   const xAOD::IParticleContainer* collection,
-                                  const xAOD::MissingETAssociationMap* map,
+                                  xAOD::MissingETAssociationHelper* helper,
                                   MissingETBase::UsageHandler::Policy p,
                                   bool removeOverlap,
 				  MissingETBase::UsageHandler::Policy objScale) {
-    if(!met || !collection || !map) {
+    if(!met || !collection || !helper) {
       ATH_MSG_WARNING("Invalid pointer supplied for "
                       << "MET (" << met << "), "
                       << "collection (" << collection << "), "
-                      << " or map (" << map << ").");
+                      << "or helper (" << helper << ").");
+      return StatusCode::SUCCESS;
+    }
+    const xAOD::MissingETAssociationMap* map = helper->map();
+    if(!map){
+      ATH_MSG_WARNING("MET Association Helper isn't associated with a MissingETAssociationMap!");
       return StatusCode::SUCCESS;
     }
     if(map->empty()) {
@@ -298,8 +304,8 @@ namespace met {
 	}
 
 	// If the object has already been selected and processed, ignore it.
-	if(MissingETComposition::objSelected(map,orig)) continue;
-	selected = MissingETComposition::selectIfNoOverlaps(map,orig,p) || !removeOverlap;
+	if(MissingETComposition::objSelected(helper,orig)) continue;
+	selected = MissingETComposition::selectIfNoOverlaps(helper,orig,p) || !removeOverlap;
         ATH_MSG_VERBOSE(obj->type() << " (" << orig <<") with pt " << obj->pt()
                         << " is " << ( selected ? "non-" : "") << "overlapping");
 
@@ -310,7 +316,7 @@ namespace met {
 	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
 	    for (size_t indi = 0; indi < ind.size(); indi++) if (allObjects[ind[indi]]) {
 		if (allObjects[ind[indi]]->type()==xAOD::Type::Electron
-		    && assocs[i]->objSelected(ind[indi])) {
+		    && helper->objSelected(assocs[i], ind[indi])) {
 		  selected = false;
 		  break;
 		}
@@ -345,7 +351,7 @@ namespace met {
                                      xAOD::MissingETContainer* metCont,
                                      const xAOD::JetContainer* jets,
                                      const xAOD::MissingETContainer* metCoreCont,
-                                     const xAOD::MissingETAssociationMap* map,
+                                     xAOD::MissingETAssociationHelper* helper,
                                      bool doJetJVT)
   {
     ATH_MSG_VERBOSE("Rebuild jet term: " << metJetKey << " and soft term: " << softKey);
@@ -382,7 +388,7 @@ namespace met {
       }
     }
 
-    return rebuildJetMET(metJet, jets, map,
+    return rebuildJetMET(metJet, jets, helper,
                          metSoftClus, coreSoftClus,
                          metSoftTrk,  coreSoftTrk,
                          doJetJVT);
@@ -393,7 +399,7 @@ namespace met {
 				       xAOD::MissingETContainer* metCont,
 				       const xAOD::JetContainer* jets,
 				       const xAOD::MissingETContainer* metCoreCont,
-				       const xAOD::MissingETAssociationMap* map,
+				       xAOD::MissingETAssociationHelper* helper,
 				       bool doJetJVT)
   {
     ATH_MSG_VERBOSE("Rebuild jet term: " << metJetKey << " and soft term: " << softKey);
@@ -420,7 +426,7 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    return rebuildTrackMET(metJet, jets, map,
+    return rebuildTrackMET(metJet, jets, helper,
 			   metSoftTrk,  coreSoftTrk,
 			   doJetJVT);
   }
@@ -431,7 +437,7 @@ namespace met {
                                      xAOD::MissingETContainer* metCont,
                                      const xAOD::JetContainer* jets,
                                      const xAOD::MissingETContainer* metCoreCont,
-                                     const xAOD::MissingETAssociationMap* map,
+                                     xAOD::MissingETAssociationHelper* helper,
                                      bool doJetJVT)
   {
 
@@ -465,7 +471,7 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    return rebuildJetMET(metJet, jets, map,
+    return rebuildJetMET(metJet, jets, helper,
                          metSoftClus, coreSoftClus,
                          metSoftTrk, coreSoftTrk,
                          doJetJVT);
@@ -473,7 +479,7 @@ namespace met {
 
   StatusCode METMaker::rebuildJetMET(xAOD::MissingET* metJet,
                                      const xAOD::JetContainer* jets,
-                                     const xAOD::MissingETAssociationMap* map,
+                                     xAOD::MissingETAssociationHelper* helper,
                                      xAOD::MissingET* metSoftClus,
                                      const xAOD::MissingET* coreSoftClus,
                                      xAOD::MissingET* metSoftTrk,
@@ -481,11 +487,16 @@ namespace met {
                                      bool doJetJVT,
                                      bool tracksForHardJets,
                                      std::vector<const xAOD::IParticle*>* softConst) {
-    if(!metJet || !jets || !map) {
-      ATH_MSG_WARNING( "Invalid pointer supplied for "
-		       << "RefJet term (" << metJet << "), "
-		       << "jet collection (" << jets << "), "
-		       << " or map (" << map << ")." );
+    if(!metJet || !jets || !helper) {
+      ATH_MSG_WARNING("Invalid pointer supplied for "
+                      << "MET (" << metJet << "), "
+                      << "jet collection (" << jets << "), "
+                      << "or helper (" << helper << ").");
+      return StatusCode::SUCCESS;
+    }
+    const xAOD::MissingETAssociationMap* map = helper->map();
+    if(!map){
+      ATH_MSG_WARNING("MET Association Helper isn't associated with a MissingETAssociationMap!");
       return StatusCode::SUCCESS;
     }
     if(softConst && m_trkseltool.empty() && !m_doPFlow && !m_doSoftTruth) {
@@ -585,13 +596,13 @@ namespace met {
         }
         if (m_extraJetRejection && jet->auxdata<char>(m_jetRejectionDec)==0) JVT_reject = true;
         bool hardJet(false);
-        MissingETBase::Types::constvec_t calvec = assoc->overlapCalVec();
+        MissingETBase::Types::constvec_t calvec = assoc->overlapCalVec(helper);
         bool caloverlap = false;
         caloverlap = calvec.ce()>0;
         ATH_MSG_DEBUG("Jet " << jet->index() << " is " << ( caloverlap ? "" : "non-") << "overlapping");
 	if(caloverlap) {
 	  for(const auto& object : assoc->objects()) {
-	    if(assoc->objSelected(object)) {
+	    if(helper->objSelected(assoc, object)) {
 	      ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
 			   << " with pt " << object->pt() << ", phi " << object->phi() );
 	    }
@@ -653,7 +664,7 @@ namespace met {
 	    ATH_MSG_VERBOSE("Muon " << mu_test->index() << " found in jet " << jet->index());
 	    if((m_doRemoveMuonJets || m_doSetMuonJetEMScale)) {
 	      if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
-	      if(MissingETComposition::objSelected(map,mu_test)) { // 
+	      if(MissingETComposition::objSelected(helper,mu_test)) { // 
 		muons_in_jet.push_back(mu_test);		
 		ATH_MSG_VERBOSE("Muon is selected by MET.");
 	      }
@@ -662,7 +673,7 @@ namespace met {
 	    const xAOD::Electron* el_test(static_cast<const xAOD::Electron*>(obj));
 	    ATH_MSG_VERBOSE("Electron " << el_test->index() << " found in jet " << jet->index());
 	    if(acc_originalObject.isAvailable(*el_test)) el_test = static_cast<const xAOD::Electron*>(*acc_originalObject(*el_test));
-	    if(assoc->objSelected(el_test)){
+	    if(helper->objSelected(assoc,el_test)){
 	      if(el_test->pt()>90.0e3) { // only worry about high-pt electrons?
 		electrons_in_jet.push_back(el_test);
 		ATH_MSG_VERBOSE("High-pt electron is selected by MET.");
@@ -672,7 +683,7 @@ namespace met {
 	}
 	if(m_doRemoveElecTrks) {
 	  MissingETBase::Types::constvec_t initialTrkMom = assoc->jetTrkVec();
-	  float jet_ORtrk_sumpt = assoc->overlapTrkVec().sumpt();
+	  float jet_ORtrk_sumpt = assoc->overlapTrkVec(helper).sumpt();
 	  float jet_all_trk_pt =  initialTrkMom.sumpt();
 	  float jet_unique_trk_pt = jet_all_trk_pt - jet_ORtrk_sumpt;
 	  MissingETBase::Types::constvec_t el_calvec;
@@ -868,7 +879,7 @@ namespace met {
 	  if(metSoftTrk && (!hardJet || tracksForHardJets)) {
 	    // use jet tracks
 	    // remove any tracks already used by other objects
-	    MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
+	    MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec(helper);
 	    MissingETBase::Types::constvec_t jettrkvec = assoc->jetTrkVec();
 	    if(jettrkvec.ce()>1e-9) {
 	      jpx = jettrkvec.cpx();
@@ -935,7 +946,7 @@ namespace met {
       // these are recorded in the misc association
       const MissingETAssociation* assoc = map->getMiscAssociation();
       if(assoc) {
-	MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
+	MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec(helper);
 	double opx = trkvec.cpx();
 	double opy = trkvec.cpy();
 	double osumpt = trkvec.sumpt();
@@ -954,7 +965,7 @@ namespace met {
       if(assoc) {
 	float total_eloss(0.);
 	MissingETBase::Types::bitmask_t muons_selflags(0);
-	MissingETBase::Types::constvec_t calvec = assoc->overlapCalVec();
+	MissingETBase::Types::constvec_t calvec = assoc->overlapCalVec(helper);
 	double opx = calvec.cpx();
 	double opy = calvec.cpy();
 	double osumpt = calvec.sumpt();
@@ -963,7 +974,7 @@ namespace met {
 	  if(obj->type()==xAOD::Type::Muon) {
 	    const xAOD::Muon* mu_test(static_cast<const xAOD::Muon*>(obj));
 	    if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
-	    if(MissingETComposition::objSelected(map,mu_test)) { // 
+	    if(MissingETComposition::objSelected(helper,mu_test)) { // 
 	      float mu_Eloss = acc_Eloss(*mu_test);
 	      switch(mu_test->energyLossType()) {
 	      case xAOD::Muon::Parametrized:
@@ -1012,17 +1023,17 @@ namespace met {
 
   StatusCode METMaker::rebuildTrackMET(xAOD::MissingET* metJet,
 				       const xAOD::JetContainer* jets,
-				       const xAOD::MissingETAssociationMap* map,
+				       xAOD::MissingETAssociationHelper* helper,
 				       xAOD::MissingET* metSoftTrk,
 				       const xAOD::MissingET* coreSoftTrk,
 				       bool doJetJVT) {
-    return rebuildJetMET(metJet,jets,map,NULL,NULL,metSoftTrk,coreSoftTrk,doJetJVT,true);
+    return rebuildJetMET(metJet,jets,helper,NULL,NULL,metSoftTrk,coreSoftTrk,doJetJVT,true);
   }
 
   // **** Remove objects and any overlaps from MET calculation ****
 
   StatusCode METMaker::markInvisible(const xAOD::IParticleContainer* collection,
-				     const xAOD::MissingETAssociationMap* map,
+				     xAOD::MissingETAssociationHelper* helper,
 				     xAOD::MissingETContainer* metCont)
   {
 
@@ -1032,7 +1043,7 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    return rebuildMET(met,collection,map,MissingETBase::UsageHandler::PhysicsObject);
+    return rebuildMET(met,collection,helper,MissingETBase::UsageHandler::PhysicsObject);
   }
 
   // **** Sum up MET terms ****

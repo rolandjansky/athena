@@ -41,10 +41,6 @@ class TrigDecisionStream ( object) :
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.PoolSvc.WriteCatalog = catalog
 
-        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-        svcMgr += AthenaPoolCnvSvc()
-        svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
         # revert later from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
         # revert later self.stream = createOutputStream( streamName )
 
@@ -78,10 +74,6 @@ class TrigConditionStream ( object) :
         from PoolSvc.PoolSvcConf import PoolSvc
         svcMgr += PoolSvc()
         svcMgr.PoolSvc.WriteCatalog = catalog
-
-        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-        svcMgr += AthenaPoolCnvSvc()
-        svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 
         from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputConditionStream
         self.stream = AthenaPoolOutputConditionStream( streamName )
@@ -206,7 +198,6 @@ class ReadTrigDecisionFromFile ( object ) :
         import AthenaPoolCnvSvc.ReadAthenaPool
 
         svcMgr.EventSelector.InputCollections = [ fileName ]
-        svcMgr.EventSelector.BackNavigation = TRUE; # // switch on BackNavigation of AddressProvider
         svcMgr.PoolSvc.ReadCatalog = [ catalog ]
 
 

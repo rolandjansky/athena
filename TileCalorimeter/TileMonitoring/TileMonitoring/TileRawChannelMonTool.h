@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,9 +16,10 @@
 
 #include "TileMonitoring/TilePaterMonTool.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class TileRawChannel;
-class TileBeamInfoProvider;
 class TileCondToolEmscale;
 
 /** @class TileRawChannelMonTool
@@ -31,15 +32,15 @@ class TileRawChannelMonTool: public TilePaterMonTool {
 
     TileRawChannelMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileRawChannelMonTool();
+    virtual ~TileRawChannelMonTool();
 
-    StatusCode initialize();
-
+    virtual StatusCode initialize() override;
+    
     //pure virtual methods
-    StatusCode bookHists();
-    StatusCode fillHists();
-    StatusCode finalHists();
-    StatusCode checkHists(bool fromFinalize);
+    virtual StatusCode bookHists() override;
+    virtual StatusCode fillHists() override;
+    virtual StatusCode finalHists() override;
+    virtual StatusCode checkHists(bool fromFinalize) override;
 
     void bookHists(int ros, int drawer);
     void drawHists(int ros, int drawer, std::string moduleName);
@@ -78,7 +79,6 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     std::map<int, std::vector<double> > m_efitMap;
     std::map<int, std::vector<double> > m_tfitMap;
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     double m_efitThresh;
 
     /// The following three functions are implemented to filter data corruption, copied from TileDigitsMonTool.h
@@ -164,6 +164,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     bool m_doLaserSummaryVsPMT;
     bool m_drawHists;
     float m_minAmpForCorrectedTime;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 
 #endif

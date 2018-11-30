@@ -332,7 +332,7 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D  ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
     Amg::Vector3D  ldirTime;
     // the stereo angle vector stores the angles in rad. the vector indices are 0,1,2,3 which map to layers 1,2,3,4
-    if ( std::abs( (roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1) ) > 0. )
+    if ( std::abs( (roParam.stereoAngle).at(m_idHelper->gasGap(layid)-1) ) > 0. )
       ldirTime = ldir;
     else
       ldirTime = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
@@ -532,7 +532,7 @@ StatusCode MM_FastDigitizer::execute() {
       ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
     } else {
       for (int loop_direction = -1; loop_direction <=1; loop_direction+=2) {
-        Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngel.at(m_idHelper->gasGap(layid)-1) ))/abs(ldir.x());
+        Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngle.at(m_idHelper->gasGap(layid)-1) ))/abs(ldir.x());
         if (loop_direction == 1) CurrentHitInDriftGap = slpos + stepInDriftGap;
         while (std::abs(CurrentHitInDriftGap.z()) <= roParam.gasThickness) {
           Amg::MatrixX* cov = new Amg::MatrixX(1,1);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -17,7 +17,6 @@
 // Uses
 #include <string>
 
-#include "TileGeoG4SD/TileSDOptions.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
 // Members
@@ -42,8 +41,6 @@ protected:
 private:
   /// Calculator Service
   ServiceHandle<ITileCalculator> m_tileCalculator;
-  /// Options for the SD configuration
-  TileSDOptions m_options;
 
 };
 

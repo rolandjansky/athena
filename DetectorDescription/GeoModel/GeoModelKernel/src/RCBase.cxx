@@ -21,19 +21,14 @@ void RCBase::ref () const
 
 void RCBase::unref () const
 {
-  if (!m_count)
-    {
-
-    }
-  else
-    {
-      m_count--;
-      if (!m_count)
-	delete this;
-    }
+  if (m_count.load()>0) {
+    m_count--;
+    if (m_count.load()==0)
+      delete this;
+  }
 }
 
 unsigned int RCBase::refCount () const
 {
-  return m_count;
+  return m_count.load();
 }

@@ -74,7 +74,7 @@ const SourceID MetaContDataBucket<T>::getSID() const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   const IProxyDict* store = 
-    ctx.getExtension<Atlas::ExtendedEventContext>()->proxy();
+    ctx.getExtension<Atlas::ExtendedEventContext>().proxy();
   return store->sourceID();
 }
 

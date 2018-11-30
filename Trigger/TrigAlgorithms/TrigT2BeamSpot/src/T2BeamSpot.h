@@ -24,6 +24,7 @@
 
 #include <iostream>
 
+namespace InDet { class BeamSpotData; }
 
 namespace PESA
 {
@@ -58,6 +59,7 @@ namespace PESA
           }
       }
 
+    T2BeamSpot( const InDet::BeamSpotData* );
     // Accessors
     unsigned status () const { return m_status ; }
     double   posX   () const { return m_posX   ; }

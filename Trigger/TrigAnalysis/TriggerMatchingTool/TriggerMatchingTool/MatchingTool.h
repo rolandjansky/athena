@@ -52,7 +52,7 @@ public:
   //main matching method
   std::unique_ptr<IMatchResult> match_result(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, const IMatchConfig* mc = 0) override;
 
-  void setCondition(unsigned int condition=TrigDefs::Physics);
+  virtual void setCondition(unsigned int condition=TrigDefs::Physics) override;
   
 protected:
   MatchingImplementation* impl() override;

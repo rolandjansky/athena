@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
 addTool("G4AtlasTools.G4AtlasToolsConfig.getFastSimulationMasterTool","FastSimulationMasterTool")
@@ -33,8 +33,10 @@ addTool("G4AtlasTools.G4GeometryConfig.getMaterialDescriptionTool", "MaterialDes
 
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_Beampipe1", "TileTB_BeamPipe1")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_Beampipe2", "TileTB_BeamPipe2")
+addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_MYLAREQUIV", "TileTB_MYLAREQUIV")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_S1", "TileTB_S1")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_S2", "TileTB_S2")
+addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_S3", "TileTB_S3")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_CALOEnvelope", "TileTB_CALO")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getTileTB_WorldEnvelope", "TileTB_World")
 addTool("G4AtlasTools.G4TestBeamGeometryConfig.getLArTB_WorldEnvelope", "LArTB_World")

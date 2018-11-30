@@ -9,13 +9,10 @@
 - Projects/.*
 
 # Remove most HLT packages
-+ HLT/Trigger/TrigTransforms/TrigTransform
-+ HLT/Event/ByteStreamEmonSvc
-- HLT/.*
-- Trigger/TrigValidation/TrigP1Test
-- HLT/HLToks
-- Trigger/ALP
-- Event/DFStreamEventSelector
+# We currently build the HLT as part of Athena. Uncomment the following three lines to revert:
+#+ HLT/Trigger/TrigTransforms/TrigTransform
+#- HLT/.*
+#- Trigger/TrigValidation/TrigP1Test
 
 # Offload service has build problems
 - Offloading/.*
@@ -28,10 +25,7 @@
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
-- graphics/VP1/.*
-
-# Suspend building of Qat
-- graphics/Qat/.*
++ graphics/VP1/.*
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
@@ -63,3 +57,10 @@
 
 # obsolete packages to be removed in a second step
 - Tracking/TrkTools/TrkSegmentConverter
+
+# Huge D3PD librarys not really useful any more
+- PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
+- PhysicsAnalysis/D3PDMaker/CaloD3PDMaker
+
+# Don't build PerfMonVTune which has external Intel tool dependency
+- Control/PerformanceMonitoring/PerfMonVTune

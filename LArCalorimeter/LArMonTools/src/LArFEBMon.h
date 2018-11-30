@@ -10,8 +10,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -76,7 +77,7 @@ private:
   //   StoreGateSvc* m_storeGate;
   const LArOnlineID* m_onlineHelper;
   LArOnlineIDStrHelper* m_strHelper;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MissingFEBKey", "LArBadFeb", "SG key for missing FEBs"};
   // trig. decision tool
   ToolHandle<Trig::TrigDecisionTool>  m_trigDec;
   bool m_trigok;

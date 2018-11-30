@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -112,21 +112,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WritePhysicsD3PD)
 listAllKnownD3PD.append (prodFlags.WritePhysicsD3PD)
 
 
-class WriteCommonD3PD (JobProperty):
-    """Produce the common D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_COMMON'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "D3PDMakerConfig/CommonD3PD_prodJobOFragment.py"
-    TreeNames = ['physics', 'physicsTrigDec']
-    SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteCommonD3PD)
-listAllKnownD3PD.append (prodFlags.WriteCommonD3PD)
-
-
 class WriteLongLivedParticleD3PD (JobProperty):
      """Produce the Long Lived Particle D3PD."""
      statusOn = True
@@ -175,21 +160,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteBackgroundD3PD)
 listAllKnownD3PD.append (prodFlags.WriteBackgroundD3PD)
 
 
-class WriteMinBiasD3PD (JobProperty):
-    """Produce the MinBias D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_MINBIAS'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "MinBiasD3PDMaker/MinBiasD3PD_prodJobOFragment.py"
-    TreeNames = ['MinBiasTree']
-    SubSteps = ['e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteMinBiasD3PD)
-listAllKnownD3PD.append (prodFlags.WriteMinBiasD3PD)
-
-
 #######################################################
 #
 #                     Trigger D3PDs
@@ -236,9 +206,6 @@ _importFlagsFromModule ('HSG5DPDUtils.HSG5D3PDProdFlags')
 # L1Calo D3PDs
 #_importFlagsFromModule ('L1CaloD3PDMaker.L1CaloD3PDProdFlags')
 
-# Qcd D3PDs
-_importFlagsFromModule ('QcdD3PDMaker.QcdD3PDProdFlags')
-
 # Top D3PDs
 _importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)
 
@@ -251,11 +218,8 @@ _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 # SUSY D3PDs
 _importFlagsFromModule ('SUSYD3PDMaker.SUSYD3PDProdFlags', True)
 
-# Exotics D3PDs.
-_importFlagsFromModule ('ExoticsD3PDMaker.ExoticsD3PDProdFlags')
-
 # Tracking D3PDs.
-_importFlagsFromModule ('TrackD3PDMaker.VertexD3PDAnalysisProdFlags')
+_importFlagsFromModule ('InDetD3PDMaker.VertexD3PDAnalysisProdFlags', True)
 
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')

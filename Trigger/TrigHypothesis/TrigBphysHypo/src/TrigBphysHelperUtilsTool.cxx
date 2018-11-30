@@ -28,7 +28,6 @@
 
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -49,7 +48,6 @@ TrigBphysHelperUtilsTool::TrigBphysHelperUtilsTool( const std::string& type,
   // 
   //declareProperty( "Property", m_nProperty );
     declareProperty("VertexFitterTool", m_fitterSvc);
-
 }
 
 // Destructor
@@ -72,7 +70,10 @@ StatusCode TrigBphysHelperUtilsTool::initialize()
         }
         m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
     }
-
+  if(m_beamSpotKey.initialize().isFailure()){
+    msg() << MSG::ERROR << "Beamspot error" << endmsg;
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -333,11 +334,12 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         result->setFitz        (-9999);
         
     } else {
-        std::vector<int> trkIndices(particles.size(),1);
+        //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        std::vector<double> masses(particles.size(), m_massMuon);
-        m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass
-        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        //std::vector<double> masses(particles.size(), m_massMuon);
+        //m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass. Pointless after the fit
+        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
             if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
         } // if
         
@@ -424,10 +426,11 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         result->setPhi         (-9999);
     
     } else {
-        std::vector<int> trkIndices(particles.size(),1);
+        //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
-        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        //m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass. Pointless after the fit
+        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
             if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
             invariantMass = -9999.;
         } // if
@@ -500,10 +503,11 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         result->setPhi         (-9999);
 
     } else {
-        std::vector<int> trkIndices(trks.size(),1);
+        //std::vector<int> trkIndices(trks.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
-        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        //m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass. Pointless after the fit
+        //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
             if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
             invariantMass = -9999.;
         } // if
@@ -643,14 +647,14 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
         return;
     }
     
-    IBeamCondSvc* iBeamCondSvc;
     Amg::Vector3D beamSpot(0.,0.,0.);
-    if ( service("BeamCondSvc", iBeamCondSvc).isFailure() || iBeamCondSvc == 0)
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    if ( !beamSpotHandle.isValid() )
     {
         msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endmsg;
     }else {
-        beamSpot = iBeamCondSvc->beamPos();
-        int beamSpotBitMap = iBeamCondSvc->beamStatus();
+        beamSpot = beamSpotHandle->beamPos();
+        int beamSpotBitMap = beamSpotHandle->beamStatus();
         //* Check if beam spot is from online algorithms *//
         int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
         if(msg().level() <= MSG::DEBUG) msg() << MSG::DEBUG << "  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus<<endmsg;

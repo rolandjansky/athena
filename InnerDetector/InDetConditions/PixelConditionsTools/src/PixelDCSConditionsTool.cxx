@@ -8,23 +8,23 @@
 PixelDCSConditionsTool::PixelDCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
   m_pixid(nullptr),
-  m_useDB(true),
+  m_useConditions(true),
   m_isDATA(true),
   m_defaultTemperature(-7.0),
   m_defaultBiasVoltage(150.0),
-  m_defaultDepletionVoltage(40.0)
+  m_defaultDepletionVoltage(0.0)
 {
-  declareProperty("UseDB",       m_useDB); 
-  declareProperty("IsDATA",      m_isDATA); 
-  declareProperty("Temperature", m_defaultTemperature, "Default temperature in Celcius."); 
-  declareProperty("BiasVoltage", m_defaultBiasVoltage, "Default bias voltage in Volt." ); 
+  declareProperty("UseConditions", m_useConditions); 
+  declareProperty("IsDATA",        m_isDATA); 
+  declareProperty("Temperature",   m_defaultTemperature, "Default temperature in Celcius."); 
+  declareProperty("BiasVoltage",   m_defaultBiasVoltage, "Default bias voltage in Volt." ); 
   declareProperty("DepletionVoltage", m_defaultDepletionVoltage, "Default depletion voltage in Volt."); 
 }
 
 StatusCode PixelDCSConditionsTool::initialize() {
   ATH_MSG_DEBUG("PixelDCSConditionsTool::initialize()");
 
-  if (m_useDB) {
+  if (m_useConditions) {
     ATH_CHECK(m_condKeyHV.initialize());
     ATH_CHECK(m_condKeyTemp.initialize());
     if (m_isDATA) {
@@ -67,7 +67,7 @@ std::string PixelDCSConditionsTool::PixelFSMStatus(const Identifier& elementId) 
 }
 
 float PixelDCSConditionsTool::temperature(const IdentifierHash& elementHash) const {
-  if (m_useDB) {
+  if (m_useConditions) {
     const PixelDCSConditionsData* data(getCondDataTemp());
     if (data==nullptr) { return m_defaultTemperature; }
     float temperature = m_defaultTemperature;
@@ -79,7 +79,7 @@ float PixelDCSConditionsTool::temperature(const IdentifierHash& elementHash) con
 }
 
 float PixelDCSConditionsTool::biasVoltage(const IdentifierHash& elementHash) const {
-  if (m_useDB) {
+  if (m_useConditions) {
     const PixelDCSConditionsData* data(getCondDataHV());
     if (data==nullptr) { return m_defaultBiasVoltage; }
     float hv = m_defaultBiasVoltage;
@@ -97,7 +97,7 @@ float PixelDCSConditionsTool::depletionVoltage(const IdentifierHash& /*elementHa
 std::string PixelDCSConditionsTool::PixelFSMState(const IdentifierHash& elementHash) const {
   std::string defaultState = "READY";
   if (!m_isDATA) { return defaultState; }
-  if (m_useDB) {
+  if (m_useConditions) {
     const PixelDCSConditionsData* data(getCondDataState());
     if (data==nullptr) { return defaultState; }
     std::string fsmstate = defaultState;
@@ -110,7 +110,7 @@ std::string PixelDCSConditionsTool::PixelFSMState(const IdentifierHash& elementH
 std::string PixelDCSConditionsTool::PixelFSMStatus(const IdentifierHash& elementHash) const {
   std::string defaultStatus = "OK";
   if (!m_isDATA) { return defaultStatus; }
-  if (m_useDB) {
+  if (m_useConditions) {
     const PixelDCSConditionsData* data(getCondDataStatus());
     if (data==nullptr) { return defaultStatus; }
     std::string fsmstatus = defaultStatus;

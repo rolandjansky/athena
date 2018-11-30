@@ -20,7 +20,7 @@ cscRdoBSValAlg = CscRdoValAlg (name = 'cscRdoBSValAlg',
                                CSCRawDataKey = 'CSCRDO',
                                NoiseCutADC = 100
                                )
-ToolSvc += cscRdoBSValAlg
+#ToolSvc += cscRdoBSValAlg
 
 cscrdoBsRawMonMan.AthenaMonTools += [ cscRdoBSValAlg ]
 cscRdoBSValAlg.OutputLevel = INFO

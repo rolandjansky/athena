@@ -41,30 +41,10 @@ LArOFCMC::OFC_a(const HWIdentifier&  CellID,int gain,int tbin) const
 }
 
 
-  
-
 LArOFCMC::OFCRef_t
-LArOFCMC::OFC_b(const HWIdentifier&  CellID,int gain,int tbin) const
-{
-//   if(!m_larmcsym) initialize(); 
-  
+LArOFCMC::OFC_b(const HWIdentifier&  CellID,int gain,int tbin) const{
   // symmetrize CellID for MC usage
   HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
   return LArOFCComplete::OFC_b(SymCellID,gain,tbin);
-
 }
 
-
-LArOFCMC::OFCRef_t
-LArOFCMC::OFC_a(const Identifier&  CellID, int gain, int tbin) const
-{
-  return LArOFCComplete::OFC_a (CellID, gain, tbin);
-}
-
-
-LArOFCMC::OFCRef_t
-LArOFCMC::OFC_b(const Identifier&  CellID, int gain, int tbin) const 
-{
-  return LArOFCComplete::OFC_b (CellID, gain, tbin);
-}

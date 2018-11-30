@@ -6,7 +6,7 @@
 # forbidden.
 
 # The version of atlas/atlasexternals to use:
-AthSimulationExternalsVersion = 2.0.11
+AthSimulationExternalsVersion = 2.0.15
 
 # The version of atlas/Gaudi to use:
-GaudiVersion = v30r3.004
+GaudiVersion = v30r5.001

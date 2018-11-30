@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Include.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -7,7 +7,7 @@
 JOBOPTSEARCHPATH envar and globally executed. If requested, files will be
 traced. Note, however, that this option interferes with pdb and trace."""
 
-import os, sys, re, fnmatch, string
+import os, sys, re, fnmatch
 from Utils.unixtools import FindFile
 
 
@@ -17,7 +17,7 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 
 __all__ = [ 'include', 'marker', 'lineMarker', 'fidMarker',
             'callMarker', 'returnMarker', 'activeMarker', 'silentMarker',
-            'tracedMarker', 'tracePattern' ]
+            'tracedMarker' ]
 
 marker       = ' -+-'
 __marker__   = ' -+-'
@@ -225,7 +225,7 @@ class Include( object ):
       if not ( fn and self._doTrace( fn ) ):
          return self._trace_include
 
-      if not _filecache.has_key( fn ):
+      if fn not in _filecache:
        # wait until importing of the module is done to minimize pollution
          f = frame.f_back
          while f is not None:

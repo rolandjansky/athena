@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "AthLinks/ElementLink.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventKernel/IParticle.h"
 #include "NavFourMom/IParticleLink.h"
 #include "NavFourMom/IParticleContainer.h"

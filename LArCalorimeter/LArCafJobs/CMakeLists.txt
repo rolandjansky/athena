@@ -9,8 +9,7 @@ atlas_subdir( LArCafJobs )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloInterface
@@ -75,29 +74,29 @@ atlas_add_library( LArCafJobsLib
                    src/LArHECNoise.cxx
                    PUBLIC_HEADERS LArCafJobs
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps SGTools GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent TrigSteeringEvent McParticleEvent StoreGateLib SGtests LArToolsLib TrigDecisionToolLib CaloDetDescrLib
+                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent TrigSteeringEvent McParticleEvent StoreGateLib SGtests LArToolsLib TrigDecisionToolLib CaloDetDescrLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result ${HEPMC_LIBRARIES} )
 
 atlas_add_component( LArCafJobs
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
 
 atlas_add_dictionary( LArCafJobsDict
                       LArCafJobs/LArCafJobsDict.h
                       LArCafJobs/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
 
 atlas_add_executable( LArQuickHistMerge
                       src/LArQuickHistMerge.cxx
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
 
 atlas_add_executable( LArSamplesMerge
                       src/LArSamplesMerge.cxx
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArToolsLib TrigDecisionToolLib TrigSteeringEvent CaloDetDescrLib DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result LArCafJobsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

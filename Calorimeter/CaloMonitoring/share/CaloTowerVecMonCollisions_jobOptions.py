@@ -68,5 +68,5 @@ CaloTowerMonNoTA = CaloTowerVecMon(
    fill_TotalE=True,
 )
 
-ToolSvc += CaloTowerMonNoTA 
+#ToolSvc += CaloTowerMonNoTA 
 CaloMon.AthenaMonTools += [ CaloTowerMonNoTA ]

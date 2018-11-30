@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaCommon.AthOptionsParser
 # @purpose the central module to parse command line options of athena.py
@@ -168,14 +168,14 @@ def parse(chk_tcmalloc=True):
     warn_tcmalloc = False
     libname='libtcmalloc.so'
     using_minimaltcmalloc=False
-    if os.getenv('USETCMALLOCMINIMAL') == 'true':
+    if os.getenv('USETCMALLOCMINIMAL') == '1':
         libname='libtcmalloc_minimal.so'
         using_minimaltcmalloc=True
 
     if ldpreload.find(libname) == -1:
         using_tcmalloc = False
-        if (os.getenv('USETCMALLOC') == 'true' or
-            os.getenv('USETCMALLOC') == None):
+        if (os.getenv('USETCMALLOC') == '1' or
+            os.getenv('USETCMALLOC') is None):
             warn_tcmalloc = True
         for arg in sys.argv[1:]:
             if arg == '--tcmalloc':
@@ -192,13 +192,12 @@ def parse(chk_tcmalloc=True):
     
     # emulated GNU getopt for p2.2:
     # collect scripts and options (special case for '-p')
-    _p = 0
     args = sys.argv[1:]
     for arg in args:
         if (arg[-3:] == '.py' and 
             (arg[:7] != '--trace' )):
             scripts.append(arg)
-        elif arg[-4:] == '.pkl' and not '=' in arg:
+        elif arg[-4:] == '.pkl' and '=' not in arg:
             fromdb = arg
             opts.default_jobopt = ''
         elif arg == '-':     # rest are user opts, save and done
@@ -206,7 +205,6 @@ def parse(chk_tcmalloc=True):
             break
         else:
             _opts.append(arg)
-        _p = 0
 
     # process user options
     try:
@@ -246,7 +244,7 @@ def parse(chk_tcmalloc=True):
         elif opt in ("-d", "--debug"):
             if not arg:
                 arg = "init"
-            elif not arg in DbgStage.allowed_values:
+            elif arg not in DbgStage.allowed_values:
                 _help_and_exit()
             opts.dbg_stage = arg
 
@@ -281,11 +279,11 @@ def parse(chk_tcmalloc=True):
             sys.exit()
             
         elif opt in ("--leak-check", "--leak-check-execute", "--delete-check"):
-            if using_tcmalloc == False:
+            if not using_tcmalloc:
                 # early import is needed for proper offloading later
-                import Hephaestus.MemoryTracker as memtrack
+                import Hephaestus.MemoryTracker as memtrack    # noqa: F401
                 if opt == "--delete-check":
-                    import Hephaestus.DeleteChecker
+                    import Hephaestus.DeleteChecker            # noqa: F401
                     opts.memchk_mode = 'delete-check'
                 else:
                     opts.memchk_mode = 'leak-check'
@@ -326,7 +324,7 @@ def parse(chk_tcmalloc=True):
                 for a in pmon_args:
                     if a.startswith(('+','-')):
                         a = a[1:]
-                    if not a in allowed:
+                    if a not in allowed:
                         print "invalid argument to perfmon [%s]" % (a,)
                         print "allowed values are: %r" % (allowed,)
                         _help_and_exit()
@@ -448,12 +446,12 @@ def parse(chk_tcmalloc=True):
         jps.ConcurrencyFlags.NumProcs = envNProcs
     
     # for the benefit of PyROOT
-    if not opts.display and not '-b' in sys.argv:
+    if not opts.display and '-b' not in sys.argv:
         sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
 
     # user decision about TDAQ ERS signal handlers
     if opts.enable_ers_hdlr:
-        if os.environ.has_key('TDAQ_ERS_NO_SIGNAL_HANDLERS'):
+        if 'TDAQ_ERS_NO_SIGNAL_HANDLERS' in os.environ:
             del os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS']
     else:
         os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS']='1'

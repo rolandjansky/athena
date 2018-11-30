@@ -7,8 +7,7 @@ atlas_subdir( MuonSimData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Generators/GeneratorObjects )
@@ -22,11 +21,11 @@ atlas_add_library( MuonSimData
                    src/*.cxx
                    PUBLIC_HEADERS MuonSimData
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier GeneratorObjects )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GeneratorObjects )
 
 atlas_add_dictionary( MuonSimDataDict
                       MuonSimData/MuonSimDataDict.h
                       MuonSimData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier GeneratorObjects MuonSimData )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GeneratorObjects MuonSimData )
 

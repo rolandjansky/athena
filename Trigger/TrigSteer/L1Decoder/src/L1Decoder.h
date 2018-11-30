@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
@@ -11,11 +11,12 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
-
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 
 /*
   @brief an algorithm used to unpack the RoIB result and provide CTP bits, active chains and RoIs
@@ -66,6 +67,17 @@ private:
   Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
     this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
 
+  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
+    "The trigger cost service" };
+
+  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+    "Enables start-of-event cost monitoring behavior."};
+
+  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
+    "Name of the chain which should enable HLT cost montoring."};
+
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
+    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all jet chains produced by the unpacker"};
 
 
 };

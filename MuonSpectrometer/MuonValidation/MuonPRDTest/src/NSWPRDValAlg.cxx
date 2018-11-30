@@ -110,49 +110,37 @@ StatusCode NSWPRDValAlg::initialize() {
 
   if (m_doTruth){
      m_TruthVar = new TruthVariables(&(*(evtStore())), m_detManager,
-                                                m_tree, m_Truth_ContainerName);
-     CHECK( m_TruthVar->initializeVariables() );
+                                                m_tree, m_Truth_ContainerName, msgLevel());
+     ATH_CHECK( m_TruthVar->initializeVariables() );
   }
 
   if (m_doMuEntry){
      m_MuEntryVar = new MuEntryVariables(&(*(evtStore())), m_detManager,
-                                                m_tree, m_MuEntry_ContainerName);
+                                                m_tree, m_MuEntry_ContainerName, msgLevel());
      ATH_CHECK( m_MuEntryVar->initializeVariables() );
   }
 
   if (m_doSTGCHit){
      m_sTgcSimHitVar = new sTGCSimHitVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_ContainerName);
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_ContainerName, msgLevel());
      ATH_CHECK( m_sTgcSimHitVar->initializeVariables() );
   }
   
   if (m_doSTGCDigit){
      m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName);
-     ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
-  }
-
-  if (m_doSTGCRDO){
-     m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName);
-     ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
-  }
-
-  if (m_doSTGCDigit){
-     m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName);
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName, msgLevel());
      ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
 
   	  // Take SDO conainer
      m_sTgcSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_SDOContainerName);
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_SDOContainerName, msgLevel());
      ATH_CHECK( m_sTgcSdoVar->initializeVariables() );
   }
 
   if (m_doSTGCFastDigit){
   	  // Take the "fast_SDO" instead of the SDOs from full sim
      m_sTgcFastSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, "sTGCfast_SDO");
+                                                m_sTgcIdHelper, m_tree, "sTGCfast_SDO", msgLevel());
      ATH_CHECK( m_sTgcFastSdoVar->initializeVariables() );
 
      // Fast digits = PRD
@@ -161,44 +149,37 @@ StatusCode NSWPRDValAlg::initialize() {
 
   if (m_doSTGCRDO){
      m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName);
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName, msgLevel());
      ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
   }
 
   if (m_doSTGCPRD){
      m_sTgcPrdVar = new sTGCPRDVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_PRDContainerName);
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_PRDContainerName, msgLevel());
      ATH_CHECK( m_sTgcPrdVar->initializeVariables() );
   }
 
   if (m_doMMHit) {
      m_MmSimHitVar = new MMSimHitVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_ContainerName);
+                                                m_MmIdHelper, m_tree, m_NSWMM_ContainerName, msgLevel());
      ATH_CHECK( m_MmSimHitVar->initializeVariables() );
   }
 
   if (m_doMMDigit) {
      m_MmDigitVar = new MMDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_DigitContainerName);
+                                                m_MmIdHelper, m_tree, m_NSWMM_DigitContainerName, msgLevel());
      ATH_CHECK( m_MmDigitVar->initializeVariables() );
 
      // Take SDO conainer
      m_MmSdoVar = new MMSDOVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_SDOContainerName);
+                                                m_MmIdHelper, m_tree, m_NSWMM_SDOContainerName, msgLevel());
      ATH_CHECK( m_MmSdoVar->initializeVariables() );
-  }
-
-  if (m_doMMRDO) {
-
-    m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName);
-    ATH_CHECK( m_MmRdoVar->initializeVariables() );
   }
 
   if (m_doMMFastDigit){
   	  // Take the "fast_SDO" instead of the SDOs from full sim
      m_MmFastSdoVar = new MMSDOVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, "MMfast_SDO");
+                                                m_MmIdHelper, m_tree, "MMfast_SDO", msgLevel());
      ATH_CHECK( m_MmFastSdoVar->initializeVariables() );
 
      // Fast digits = PRD
@@ -208,25 +189,19 @@ StatusCode NSWPRDValAlg::initialize() {
   if (m_doMMRDO) {
 
     m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName);
+                                                m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName, msgLevel());
     ATH_CHECK( m_MmRdoVar->initializeVariables() );
   }
 
  if (m_doMMPRD){
      m_MmPrdVar = new MMPRDVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_PRDContainerName);
-     ATH_CHECK( m_MmPrdVar->initializeVariables() );
-  }
-
- if (m_doMMPRD){
-     m_MmPrdVar = new MMPRDVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_PRDContainerName);
+                                                m_MmIdHelper, m_tree, m_NSWMM_PRDContainerName, msgLevel());
      ATH_CHECK( m_MmPrdVar->initializeVariables() );
   }
 
   if (m_doCSCDigit){
      m_CscDigitVar = new CSCDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_CscIdHelper, m_tree, m_CSC_DigitContainerName);
+                                                m_CscIdHelper, m_tree, m_CSC_DigitContainerName, msgLevel());
      ATH_CHECK( m_CscDigitVar->initializeVariables() );
   }
 

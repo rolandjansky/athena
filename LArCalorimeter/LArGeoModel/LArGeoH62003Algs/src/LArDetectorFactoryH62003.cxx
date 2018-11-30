@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62003.h"
@@ -18,7 +18,6 @@
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
-#include "StoreGate/DataHandle.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -63,11 +62,6 @@ void LArGeo::LArDetectorFactoryH62003::create( GeoPhysVol* a_container )
   }
 
   // Get access to the material manager:
-  
-  DataHandle<StoredMaterialManager> materialManager;
-  if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
-    throw std::runtime_error("Error in LArDetectorFactoryH62003, cannot access Material Manager");
-  }
   
   LArDetectorConstructionH62003 BeamLineDets;
   BeamLineDets.SetFCALVisLimit(m_fcalVisLimit);

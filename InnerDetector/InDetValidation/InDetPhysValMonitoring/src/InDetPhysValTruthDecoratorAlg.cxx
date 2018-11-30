@@ -129,7 +129,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
   const xAOD::TruthVertex* ptruthVertex(0);
   try{
     ptruthVertex = particle.prodVtx();
-  } catch (std::exception e) {
+  } catch (const std::exception& e) {
     if (not errorEmitted) {
       ATH_MSG_WARNING("A non existent production vertex was requested in calculating the track parameters d0 etc");
     }

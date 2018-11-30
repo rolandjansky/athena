@@ -13,6 +13,14 @@ __version__="$Revision: 757321 $"
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
 #--- Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL) ----
 #from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.OutputLevel  = INFO
@@ -105,7 +113,6 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 # --- commit interval (test)
 ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
 MaterialStream.OutputFile   =   "MaterialStepFile.root"
 MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']

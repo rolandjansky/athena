@@ -20,6 +20,8 @@
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
+
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 //For extrapolation
@@ -376,6 +378,7 @@ StatusCode IDPerfMonZmumu::execute()
        delete muonTrks;
        delete muonTrksRefit1;
        delete muonTrksRefit2;
+       delete defaultMuonTrk1;
        return StatusCode::SUCCESS;
     } else {
       refit1MuonTrk1 = cache1.refittedTrack.release();
@@ -544,8 +547,10 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
       z0 = trkPerigee->parameters()[Trk::z0];
     }
   }
+  //TODO optimize use of BeamSpotData and eventcontext
   const Trk::AtaStraightLine*  atBL =
-       dynamic_cast<const Trk::AtaStraightLine*>(m_trackToVertexTool->trackAtBeamline( *track ));
+       dynamic_cast<const Trk::AtaStraightLine*>(m_trackToVertexTool->trackAtBeamline( *track ,
+              m_trackToVertexTool->GetBeamLine(m_trackToVertexTool->GetBeamSpotData(Gaudi::Hive::currentContext())).get() ));
   if (atBL){
     double qOverP   = atBL->parameters()[Trk::qOverP];
     if(qOverP){
@@ -594,8 +599,10 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
     if(truthParticle->pdgId() == muonId) charge = -1.;
     else if(truthParticle->pdgId() == -muonId) charge = 1.;
     Trk::TrackParameters* parameters  = new Trk::Perigee(pos,mom,charge,pos);
+    //TODO optimize use of BeamSpotData and eventcontext
     const Trk::AtaStraightLine*  atBLi =
-      dynamic_cast<const Trk::AtaStraightLine*>(m_trackToVertexTool->trackAtBeamline( *parameters ));
+      dynamic_cast<const Trk::AtaStraightLine*>(m_trackToVertexTool->trackAtBeamline( *parameters, 
+          m_trackToVertexTool->GetBeamLine(m_trackToVertexTool->GetBeamSpotData(Gaudi::Hive::currentContext())).get() ));
     if(atBLi){
       if (charge == 1) {
         double qOverP   = atBLi->parameters()[Trk::qOverP];

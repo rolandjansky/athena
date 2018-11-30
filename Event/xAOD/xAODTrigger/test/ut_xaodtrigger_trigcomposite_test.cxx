@@ -53,7 +53,12 @@ int populateObject(xAOD::TrigComposite* obj) {
    obj->setDetail( "FloatValue", 3.14f );
    obj->setDetail( "IntVecValue", std::vector< int >( { 1, 2, 3 } ) );
    obj->setDetail( "UnsignedIntVecValue", std::vector< unsigned int >( { uintTestConst, 2, 3 } ) );
+   obj->setDetail( "UnsignedShortVecValueEven", std::vector< uint16_t >( { 5, 10, 50, 100 } ) ); // Packs into two ints
+   obj->setDetail( "UnsignedShortVecValueOdd", std::vector< uint16_t >( { 1, 1, 3, 4, 7 } ) ); // Packs into three ints
    obj->setDetail( "FloatVecValue", std::vector< float >( { 1.23, 2.34 } ) );
+   obj->setDetail( "StringValue", std::string("I am a string"));
+   obj->setDetail( "StringVecValue", std::vector< std::string >( {"Hello", "I", "am", "a", "string", "vector"} ) );
+
    std::cout << "Set detail ok." << std::endl;
 
    // Now test the ElementLink functionality in a basic way:
@@ -72,8 +77,17 @@ int populateObject(xAOD::TrigComposite* obj) {
 int testDetails(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT( obj->hasDetail<int>("IntValue") );
    SIMPLE_ASSERT( obj->hasDetail<unsigned int>("UnsignedIntValue") );
-   SIMPLE_ASSERT( obj->hasDetail<std::vector<unsigned int> >("UnsignedIntVecValue") );
+   SIMPLE_ASSERT( obj->hasDetail<float>("FloatValue") );
    SIMPLE_ASSERT( obj->hasDetail<std::vector<int> >("IntVecValue") );
+   SIMPLE_ASSERT( obj->hasDetail<std::vector<unsigned int> >("UnsignedIntVecValue") );
+   // These should work.... but they do not.... still being investigated
+   // SIMPLE_ASSERT( obj->hasDetail<std::vector<uint16_t> >("UnsignedShortVecValueEven") );
+   // SIMPLE_ASSERT( obj->hasDetail<std::vector<uint16_t> >("UnsignedShortVecValueOdd") );
+   SIMPLE_ASSERT( obj->hasDetail<std::vector<float> >("FloatVecValue") );
+   // SIMPLE_ASSERT( obj->hasDetail<std::string>("StringValue") );
+   // SIMPLE_ASSERT( obj->hasDetail<std::vector<std::string> >("StringVecValue") );
+
+   std::cout << "Has detail ok." << std::endl;
 
    // Check them:
    SIMPLE_ASSERT( obj->name() == "TestObj" );
@@ -98,11 +112,32 @@ int testDetails(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT( obj->getDetail("UnsignedIntVecValue", unsignedIntVector) );
    SIMPLE_ASSERT( unsignedIntVector == std::vector<unsigned int>( { uintTestConst, 2, 3 } ) );
 
+   std::vector<uint16_t> unsignedShortVectorEven;
+   SIMPLE_ASSERT( obj->getDetail("UnsignedShortVecValueEven", unsignedShortVectorEven) );
+   std::cout << "UnsignedShortVecValueEven = ";
+   for (auto v : unsignedShortVectorEven) std::cout << v << " ";
+   std::cout << std::endl;
+   SIMPLE_ASSERT( unsignedShortVectorEven == std::vector<uint16_t>( { 5, 10, 50, 100 } ) );
+
+   std::vector<uint16_t> unsignedShortVectorOdd;
+   SIMPLE_ASSERT( obj->getDetail("UnsignedShortVecValueOdd", unsignedShortVectorOdd) );
+   std::cout << "UnsignedShortVecValueOdd = ";
+   for (auto v : unsignedShortVectorOdd) std::cout << v << " ";
+   std::cout << std::endl;
+   SIMPLE_ASSERT( unsignedShortVectorOdd == std::vector<uint16_t>( { 1, 1, 3, 4, 7 } ) );
+
    std::vector< float > floatVector;
    SIMPLE_ASSERT( obj->getDetail( "FloatVecValue", floatVector ) );
-
    // Simply just print the last one:
    std::cout << "FloatVecValue = " << floatVector << std::endl;
+
+   std::string stringValue;
+   SIMPLE_ASSERT( obj->getDetail("StringValue", stringValue) );
+   SIMPLE_ASSERT( stringValue == std::string("I am a string") );
+
+   std::vector<std::string> stringVecValue;
+   SIMPLE_ASSERT( obj->getDetail("StringVecValue", stringVecValue) );
+   SIMPLE_ASSERT( stringVecValue == std::vector< std::string >( {"Hello", "I", "am", "a", "string", "vector"} ) );
 
    int intValue2 = obj->getDetail<int>("IntValue");
    SIMPLE_ASSERT( intValue2 == 12 );

@@ -139,7 +139,7 @@ class TrackEnergyInCaloTool: public AthAlgTool,  virtual public ITrackEnergyInCa
   /** Class member version of retrieving MsgStream */
   //int                                m_outputlevel;
    
-  const CaloDetDescrManager*         m_calo_dd;       
+  const CaloDetDescrManager*         m_calo_dd{};       
 
   // Pre-configured extrapolator : will be choosen via jobOpt
   ToolHandle<Trk::IExtrapolator>                    m_extrapolator;

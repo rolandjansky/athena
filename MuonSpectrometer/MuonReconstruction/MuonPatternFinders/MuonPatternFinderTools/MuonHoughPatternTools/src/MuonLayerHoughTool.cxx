@@ -601,8 +601,6 @@ namespace Muon {
   void MuonLayerHoughTool::mergePhiMaxima( MuonLayerHoughTool::Road& road ) const {
     // input -> list of phiMaxima on road
     // returns some mergedPhiMaxima -> is this "summed" over layers?
-    road.phiMaxima.clear();
-    road.phiMaxima.insert(road.phiMaxima.end(),road.phiMaximumSet.begin(),road.phiMaximumSet.end());
     
     auto maximaSortingLambda = [road]( const MuonHough::MuonPhiLayerHough::Maximum* m1, const MuonHough::MuonPhiLayerHough::Maximum* m2 ) { 
                                    if( m1->max == m2->max ){

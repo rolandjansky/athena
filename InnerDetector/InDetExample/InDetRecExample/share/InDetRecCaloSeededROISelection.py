@@ -5,14 +5,25 @@
 # ------------------------------------------------------------
 
 #
-# --- load the tool to check the energy deposits
+# --- load the tool to check the energy deposits and select clusters
 #
-from egammaTools.egammaToolsFactories import egammaCheckEnergyDepositTool
+from egammaRec.Factories import ToolFactory
+from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
+from egammaCaloTools import egammaCaloToolsConf
+
+egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
+                                            name = 'caloClusterROISelector',
+                                            egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
+                                            EMEtRanges = [1500.,2500.],
+                                            EMFCuts = [0.85,0.8],
+                                            RetaCut = [0.7,0.65]
+                                            ) 
 #
 # --- get the builder tool
 #
 from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import InDet__CaloClusterROI_Builder
-InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder")
+InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder",
+                                                           EMEnergyOnly = True)
 
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROIBuilder
@@ -24,12 +35,10 @@ from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__C
 InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name                         = "InDetCaloClusterROISelector",
                                                               InputClusterContainerName    = InDetKeys.CaloClusterContainer(),    # "egammaCaloCluster"
                                                               OutputClusterContainerName   = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs"
-                                                              ClusterLateralCut            = 0.8,
-                                                              ClusterEMEtCut               = 1500,
-                                                              ClusterEMFCut                = 0.7,
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
-                                                              egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool()
-                                                          )
+                                                              egammaCaloClusterSelector    = egammaCaloClusterROISelector()
+                                                             )
+
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROISelector

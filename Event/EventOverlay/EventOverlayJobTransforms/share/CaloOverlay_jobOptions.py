@@ -1,20 +1,8 @@
 include.block ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-from AthenaCommon.Resilience import treatException,protectedInclude
-
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
-
-if overlayFlags.doBkg==True:
-   if DetFlags.overlay.LAr_on():
-       from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
-       job += DeepCopyObjects("BkgRdo2")
-       job.BkgRdo2.LArObjects = True
-   if DetFlags.overlay.Tile_on():
-       from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
-       job += DeepCopyObjects("BkgRdo3")
-       job.BkgRdo3.TileObjects = True
 
 
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():

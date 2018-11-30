@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVIGATION_HOLDER_H
@@ -16,7 +16,7 @@
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLinkVector.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 #include "TrigNavigation/AccessProxy.h"
 #include "TrigNavigation/TypeProxy.h"

@@ -79,7 +79,6 @@ TrigEFBMuMuHypo::TrigEFBMuMuHypo(const std::string & name, ISvcLocator* pSvcLoca
   declareMonitoredVariable("CutCounter",   m_mon_cutCounter);
   declareMonitoredVariable("MuMumass",     m_mon_MuMumass  );
 
-
 }
 
 TrigEFBMuMuHypo::~TrigEFBMuMuHypo()
@@ -99,7 +98,10 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltInitialize()
     msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endmsg;
 
   }
-
+  if(m_beamSpotKey.initialize().isFailure()){
+    msg() << MSG::ERROR << "Beamspot error" << endmsg;
+    return HLT::BAD_JOB_SETUP;
+  }
   m_lastEvent = -1;
   m_lastEventPassed = -1;
   m_countTotalEvents =0;
@@ -220,20 +222,20 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   }
 
 // Beam spot                                                                                                                            
-   IBeamCondSvc* iBeamCondSvc;   
+   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     //JW EDM   HepGeom::Point3D<double> m_beamSpot_CLHEP;
     Amg::Vector3D beamSpot(0.,0.,0.);
-    if ( service("BeamCondSvc", iBeamCondSvc).isFailure() || iBeamCondSvc == 0)                                                       
-       { msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endmsg;                                                     
-       }else {                                                                                                                              
-          beamSpot = iBeamCondSvc->beamPos();
-          int beamSpotBitMap = iBeamCondSvc->beamStatus();                                                                          
-//* Check if beam spot is from online algorithms *//                                                                                  
+    if ( !beamSpotHandle.isValid() )                                                       
+       { msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endmsg;
+       }else {
+          beamSpot = beamSpotHandle->beamPos();
+          int beamSpotBitMap = beamSpotHandle->beamStatus();
+//* Check if beam spot is from online algorithms *//
           int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);                                                                        
           if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus<<endmsg;               
 //std::cout<<" BBBBBBB:  beamSpot.x()= "<< beamSpot.x()<<" beamSpot.y()= "<<beamSpot.y()<<std::endl;               
-       }                                                                                                                                       
-                                                
+       }
+
 
   m_mon_cutCounter = 0;
   //TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);

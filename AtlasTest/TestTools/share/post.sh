@@ -193,6 +193,7 @@ PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 PP="$PP"'|DEBUG Calling destructor'
+PP="$PP"'|INFO Found MetaDataTools'
 
 PP="$PP"'|INFO TopAlg list empty.'
 

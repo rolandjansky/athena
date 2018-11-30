@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -39,9 +39,9 @@ from CaloD3PDMaker.LArCollisionTimeD3PDObject          import LArCollisionTimeD3
 from CaloD3PDMaker.CollisionDecisionD3PDObject         import CollisionDecisionD3PDObject
 from CaloD3PDMaker.ClusterD3PDObject                   import ClusterD3PDObject
 from CaloD3PDMaker.EMClusterD3PDObject                 import EMClusterD3PDObject
-from TrackD3PDMaker.TrackD3PDObject                    import TrackParticleD3PDObject
+from TrackD3PDMaker.xAODTrackD3PDObject                import xAODTrackParticleD3PDObject
 
-from TrackD3PDMaker.VertexD3PDObject                   import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject               import PrimaryxAODVertexD3PDObject
 
 from MissingETD3PDMaker.MissingETD3PDObject            import MissingETD3PDObject
 from MissingETD3PDMaker.MissingETGoodnessD3PDObject    import MissingETGoodnessD3PDObject
@@ -181,10 +181,8 @@ def physicsD3PD (alg = None,
 
     # Many of these are just being set to the defaults --- that's because
     # they're being changed in TrigEgamma...
-    alg += TrackParticleD3PDObject    (**_args (
-        3, 'TrackParticle', kw,
-        TruthParticleTarget = 'mc_',
-        storeTruthInfo = True,
+    alg += xAODTrackParticleD3PDObject    (**_args (
+        3, 'TrackParticleCandidate', kw,
         trackParametersAtGlobalPerigeeLevelOfDetails = 3,
         storeDiagonalCovarianceAsErrors = True))
     
@@ -200,12 +198,12 @@ def physicsD3PD (alg = None,
 
     # Primary vertex block - May be missing in single-beam data.
     
-    alg += PrimaryVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
-                                             allowMissing = True,
-                                             sgkey = D3PDMakerFlags.VertexSGKey(),
-                                             prefix = 'vxp_',
-                                             storeVertexTrackAssociation = True,
-                                             storeDiagonalCovarianceAsErrors = True))
+    alg += PrimaryxAODVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
+                                                 allowMissing = True,
+                                                 sgkey = D3PDMakerFlags.VertexSGKey(),
+                                                 prefix = 'vxp_',
+                                                 storeVertexTrackAssociation = True,
+                                                 storeDiagonalCovarianceAsErrors = True))
     
     # Truth
     

@@ -2,6 +2,9 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandPoisson.h"
+
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
@@ -9,7 +12,6 @@
 
 #include "TFile.h"
 #include "TMath.h"
-#include "TRandom3.h"
 #include "TH2.h"
 
 
@@ -27,9 +29,13 @@ TFCSHistoLateralShapeParametrization::~TFCSHistoLateralShapeParametrization()
 {
 }
 
-int TFCSHistoLateralShapeParametrization::get_number_of_hits(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+int TFCSHistoLateralShapeParametrization::get_number_of_hits(TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
-  return gRandom->Poisson(m_nhits);
+  if (!simulstate.randomEngine()) {
+    return -1;
+  }
+
+  return CLHEP::RandPoisson::shoot(simulstate.randomEngine(), m_nhits);
 }
 
 void TFCSHistoLateralShapeParametrization::set_number_of_hits(float nhits)
@@ -37,19 +43,25 @@ void TFCSHistoLateralShapeParametrization::set_number_of_hits(float nhits)
   m_nhits=nhits;
 }
 
-FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
+  if (!simulstate.randomEngine()) {
+    return FCSFatal;
+  }
+
   const int cs=calosample();
   const double center_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
 
+  if (TMath::IsNaN(center_r) or TMath::IsNaN(center_z) or TMath::IsNaN(center_eta) or TMath::IsNaN(center_phi)) { //Check if extrapolation fails
+    return FCSFatal;
+  }
+
   float alpha, r, rnd1, rnd2;
-  //The use of 1-gRandom->Rndm() is a fudge for TRandom3, as it gererates random numbers in (0,1], but [0,1) or (0,1) is needed. 
-  //CLHEP should generate random numbers in (0,1), so this fudge is no longer needed after migrating to CLHEP random numbers
-  rnd1=1-gRandom->Rndm(); 
-  rnd2=1-gRandom->Rndm();
+  rnd1 = CLHEP::RandFlat::shoot(simulstate.randomEngine());
+  rnd2 = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   if(is_phi_symmetric()) {
     if(rnd2>=0.5) { //Fill negative phi half of shape
       rnd2-=0.5;
@@ -81,10 +93,9 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSi
   const float delta_eta = delta_eta_mm / eta_jakobi / dist000;
   const float delta_phi = delta_phi_mm / center_r;
 
-  hit.eta() = center_eta + delta_eta;
-  hit.phi() = center_phi + delta_phi;
+  hit.setEtaPhiZE(center_eta + delta_eta,center_phi + delta_phi,center_z, hit.E());
 
-  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" r="<<r<<" alpha="<<alpha);
+  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<< " z="<<hit.z()<<" r="<<r<<" alpha="<<alpha);
 
   return FCSSuccess;
 }

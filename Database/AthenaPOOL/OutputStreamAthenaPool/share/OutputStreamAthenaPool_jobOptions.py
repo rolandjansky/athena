@@ -13,15 +13,6 @@ from AthenaServices.AthenaServices import AthenaOutputStreamTool
 
 WritingTool = AthenaOutputStreamTool( "StreamTool" )
 
-# List of additional DataHeader, which point to subset of DataObjects only
-# - "<SatelliteName>:<Type>[#<Key>],...",
-# - <SatelliteName> represents the StoreGate key of the satellite DataHeader.
-# - As a special character, a '/' is used at the end to mark this DataHeader as a satellite.
-# - <Type>[#<Key>],. determines the references that are copied from the full DataHeader to the satellite.
-# - They should always include EventInfo, as that is for any event processing.
-WritingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
-WritingTool.DataHeaderSatellites = [ ]
-
 # Prefix for DataHeader POOL container, default is "POOLContainer_".
 # Note: this needs to be "POOLContainer_" for EventData, so that EventSelector can open it.
 WritingTool.OutputCollection = "POOLContainer_";

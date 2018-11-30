@@ -24,7 +24,7 @@ rpcLV1RawDataValAlg = RpcLv1RawDataValAlg(name='rpcLV1RawDataValAlg'            
 					  OutputLevel       = OutputMessageLevel ,
                                           LastEvent         = MuonDQAFlags.EvtMax,
 					  doCoolDB          = False               )
-ToolSvc += rpcLV1RawDataValAlg
+#ToolSvc += rpcLV1RawDataValAlg
 rpcLv1RawMonMan.AthenaMonTools += [ rpcLV1RawDataValAlg ]
 topSequence += rpcLv1RawMonMan
 print rpcLv1RawMonMan
@@ -39,7 +39,7 @@ from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RpcLv1RawDataSectorLog
 rpcLV1RawDataSectorLogic = RpcLv1RawDataSectorLogic(name='rpcLV1RawDataSectorLogic',OutputLevel = OutputMessageLevel)
 if globalflags.DataSource() != 'data':
     rpcLV1RawDataSectorLogic.isMC = True
-ToolSvc += rpcLV1RawDataSectorLogic
+#ToolSvc += rpcLV1RawDataSectorLogic
 rpcLv1SLRawMonMan.AthenaMonTools += [ rpcLV1RawDataSectorLogic ]
 topSequence += rpcLv1SLRawMonMan
 print rpcLv1SLRawMonMan

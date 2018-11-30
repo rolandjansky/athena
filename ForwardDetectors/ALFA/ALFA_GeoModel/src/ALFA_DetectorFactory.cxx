@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include "GeoModelSvc/AbsMaterialManager.h"
@@ -86,7 +86,7 @@ void CONFIGURATION::clear()
 }
 
 ALFA_DetectorFactory::ALFA_DetectorFactory(StoreGateSvc *pDetStore,IRDBAccessSvc *pAccess, const PCONFIGURATION pConfig)
-  :m_pDetectorManager(NULL),m_pMaterialManager(NULL),m_pDetectorStore(pDetStore),m_pIRDBAccess(pAccess)
+  :m_pDetectorManager(NULL),m_pDetectorStore(pDetStore),m_pIRDBAccess(pAccess)
 {
 	//create geometry reader
 	m_eRequestedMetrologyType=(eMetrologyType)(pConfig->GeometryConfig.eRPMetrologyGeoType);
@@ -220,7 +220,7 @@ void ALFA_DetectorFactory::SaveGeometry()
 	}
 }
 
-void ALFA_DetectorFactory::DefineMaterials()
+void ALFA_DetectorFactory::DefineMaterials (const StoredMaterialManager* pMaterialManager)
 {
 	string MatName;
 	GeoMaterial* pMaterial;
@@ -229,25 +229,25 @@ void ALFA_DetectorFactory::DefineMaterials()
 
 	double aH,aB,aC,aN,aO,aNa,aMg,aAl,aSi,aP,aS,aK,aCa,aTi,aCr,aMn,aFe,aNi,aMo,Atot;
 
-	const GeoElement* H  = m_pMaterialManager->getElement("Hydrogen");
-	const GeoElement* B  = m_pMaterialManager->getElement("Boron");
-	const GeoElement* C  = m_pMaterialManager->getElement("Carbon");
-	const GeoElement* N  = m_pMaterialManager->getElement("Nitrogen");
-	const GeoElement* O  = m_pMaterialManager->getElement("Oxygen");
-	const GeoElement* Na = m_pMaterialManager->getElement("Sodium");
-	const GeoElement* Mg = m_pMaterialManager->getElement("Magnesium");
-	const GeoElement* Al = m_pMaterialManager->getElement("Aluminium");
-	const GeoElement* Si = m_pMaterialManager->getElement("Silicon");
-	const GeoElement* P  = m_pMaterialManager->getElement("Phosphorus");
-	const GeoElement* S  = m_pMaterialManager->getElement("Sulfur");
-	const GeoElement* K  = m_pMaterialManager->getElement("Potassium");
-	const GeoElement* Ca = m_pMaterialManager->getElement("Calcium");
-	const GeoElement* Ti = m_pMaterialManager->getElement("Titanium");
-	const GeoElement* Cr = m_pMaterialManager->getElement("Chromium");
-	const GeoElement* Mn = m_pMaterialManager->getElement("Manganese");
-	const GeoElement* Fe = m_pMaterialManager->getElement("Iron");
-	const GeoElement* Ni = m_pMaterialManager->getElement("Nickel");
-	const GeoElement* Mo = m_pMaterialManager->getElement("Molybdenum");
+	const GeoElement* H  = pMaterialManager->getElement("Hydrogen");
+	const GeoElement* B  = pMaterialManager->getElement("Boron");
+	const GeoElement* C  = pMaterialManager->getElement("Carbon");
+	const GeoElement* N  = pMaterialManager->getElement("Nitrogen");
+	const GeoElement* O  = pMaterialManager->getElement("Oxygen");
+	const GeoElement* Na = pMaterialManager->getElement("Sodium");
+	const GeoElement* Mg = pMaterialManager->getElement("Magnesium");
+	const GeoElement* Al = pMaterialManager->getElement("Aluminium");
+	const GeoElement* Si = pMaterialManager->getElement("Silicon");
+	const GeoElement* P  = pMaterialManager->getElement("Phosphorus");
+	const GeoElement* S  = pMaterialManager->getElement("Sulfur");
+	const GeoElement* K  = pMaterialManager->getElement("Potassium");
+	const GeoElement* Ca = pMaterialManager->getElement("Calcium");
+	const GeoElement* Ti = pMaterialManager->getElement("Titanium");
+	const GeoElement* Cr = pMaterialManager->getElement("Chromium");
+	const GeoElement* Mn = pMaterialManager->getElement("Manganese");
+	const GeoElement* Fe = pMaterialManager->getElement("Iron");
+	const GeoElement* Ni = pMaterialManager->getElement("Nickel");
+	const GeoElement* Mo = pMaterialManager->getElement("Molybdenum");
 	
 	// Steel Grade 316L (Roman Pot)
 	MatName="Steel";
@@ -369,11 +369,11 @@ void ALFA_DetectorFactory::DefineMaterials()
 
 	// std::AIR
 	MatName="std::Air";
-	m_MapMaterials.insert(pair<string,const GeoMaterial*>(MatName,m_pMaterialManager->getMaterial(MatName)));
+	m_MapMaterials.emplace(MatName,pMaterialManager->getMaterial(MatName));
 
 	// std::Vacuum
 	MatName="std::Vacuum";
-	m_MapMaterials.insert(pair<string,const GeoMaterial*>(MatName,m_pMaterialManager->getMaterial(MatName)));
+	m_MapMaterials.emplace(MatName,pMaterialManager->getMaterial(MatName));
 
 }
 
@@ -705,7 +705,8 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	// Create ALFA_ Detector Manager
 	m_pDetectorManager= new ALFA_DetectorManager();
 	// Retrieve material manager
-	if (m_pDetectorStore->retrieve(m_pMaterialManager, std::string("MATERIALS"))!=StatusCode::SUCCESS){
+        const StoredMaterialManager* pMaterialManager = nullptr;
+	if (m_pDetectorStore->retrieve(pMaterialManager, std::string("MATERIALS"))!=StatusCode::SUCCESS){
 		LogStream<<MSG::INFO<<"Could not load material manager"<<endmsg;
 		return;
 	}
@@ -715,7 +716,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	}
 
 	//define materials
-	DefineMaterials();
+	DefineMaterials (pMaterialManager);
 	
 	//create auxiliary axes
 	CreateAxes(pWorld);

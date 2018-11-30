@@ -63,11 +63,6 @@ namespace Muon {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthTrajectoryBuilder.retrieve());
 
-    ATH_CHECK(m_mcEventColl.initialize());
-    ATH_CHECK(m_muonSimData.initialize());
-    ATH_CHECK(m_cscSimData.initialize());
-    ATH_CHECK(m_trackRecord.initialize());
-
     // add muons 
     if( m_pdgsToBeConsidered.value().empty() ){
       m_selectedPdgs.insert(13);
@@ -155,37 +150,21 @@ namespace Muon {
     return result;
   }
 
-  const MuonTrackTruthTool::TruthTree& MuonTrackTruthTool::createTruthTree() const {
+  const MuonTrackTruthTool::TruthTree MuonTrackTruthTool::createTruthTree(const TrackRecordCollection* truthTrackCol, const McEventCollection* mcEventCollection,
+									   std::vector<const MuonSimDataCollection*> muonSimData, const CscSimDataCollection* cscSimDataMap) const {
 
     
     clear();
 
-    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
-    if(!truthTrackCol.isValid()){
-      ATH_MSG_WARNING(" failed to retrieve TrackRecordCollection ");
-      return m_truthTree;
-    }
-    if(!truthTrackCol.isPresent()){
-      ATH_MSG_WARNING("failed to retrieve TrackRecordCollection");
-      return m_truthTree;
-    }
     if( truthTrackCol->empty() ) {
       ATH_MSG_WARNING(" TrackRecordCollection is empty ");
       return m_truthTree;
     }
 
-    SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl);
     const HepMC::GenEvent*    genEvent = 0;
-    if(!mcEventCollection.isValid()){
-      ATH_MSG_WARNING("MC event collection not valid");
-    }
-    else{
-      if ( mcEventCollection.isPresent()){
-	if( !mcEventCollection->empty() ) {
-	  ATH_MSG_VERBOSE( "McEventCollection retrieved at location " << m_mcEventColl.key() << " size " << mcEventCollection->size());
-	  if( mcEventCollection->size() == 1 ) genEvent = mcEventCollection ->front();
-	}
-      }
+    if( !mcEventCollection->empty() ) {
+      ATH_MSG_VERBOSE( "McEventCollection size " << mcEventCollection->size());
+      if( mcEventCollection->size() == 1 ) genEvent = mcEventCollection ->front();
     }
     
     ATH_MSG_VERBOSE(" creating truth tree from track record " << truthTrackCol->size());
@@ -272,20 +251,11 @@ namespace Muon {
     }
     
     // add sim data collections
-    for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles()){
-      if(!simDataMap.isValid()){
-	ATH_MSG_WARNING(simDataMap.key()<<" not valid");
-	continue;
-      }
-      if(!simDataMap.isPresent()) continue;
-      addSimDataToTree(simDataMap.cptr());
+    for(const MuonSimDataCollection* simDataMap : muonSimData){
+      addSimDataToTree(simDataMap);
     }
-    SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
-    if(!cscSimDataMap.isValid()){
-      ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
-    }
-    else{
-      if(cscSimDataMap.isPresent()) addCscSimDataToTree(cscSimDataMap.cptr());
+    if(cscSimDataMap){
+      addCscSimDataToTree(cscSimDataMap);
     }
 
     unsigned int ngood(0);
@@ -585,7 +555,6 @@ namespace Muon {
     addMissedHits(trackTruth.stgcs,trackTruth.stgcs.matchedHits,trackTruth.stgcs.matchedChambers,truthEntry.stgcHits,restrictedTruth);
     addMissedHits(trackTruth.mms,trackTruth.mms.matchedHits,trackTruth.mms.matchedChambers,truthEntry.mmHits,restrictedTruth);
     
-    
     return trackTruth;
   }
 
@@ -689,6 +658,7 @@ namespace Muon {
   void MuonTrackTruthTool::addClusterTruth( MuonTechnologyTruth& truth, const Identifier& id, const Trk::MeasurementBase& meas, 
                                             const MuonSimDataCollection& simCol ) const {
     
+    Trk::RoT_Extractor rotExtractor;
     Identifier layid = m_idHelperTool->layerId(id);
     Identifier chid = m_idHelperTool->chamberId(id);
 
@@ -708,9 +678,26 @@ namespace Muon {
         }
       }
     }else{
-      // find SimData corresponding to identifier
-      it = simCol.find(id);
-      if( it != simCol.end() ) goodCluster = true;
+      // Find SimData corresponding to identifier
+      const Trk::RIO_OnTrack* rot = 0;
+      rotExtractor.extract(rot,&meas);
+      const Trk::PrepRawData* prd = rot->prepRawData();
+      if(prd) {
+      // check if an identifier from the list of RDOs is matched to that in the SDO collection
+        const std::vector<Identifier> rdoList = prd->rdoList();
+        std::vector<Identifier>::const_iterator rit = rdoList.begin();
+        std::vector<Identifier>::const_iterator rit_end = rdoList.end();
+        for( ;rit!=rit_end;++rit ){
+          it = simCol.find(*rit);
+          if( it != simCol.end() ) {
+            goodCluster = true;
+            break;
+          }
+        }
+      } else { 
+        it = simCol.find(id);
+        if( it != simCol.end() ) goodCluster = true;
+      }
     }
     
     if( !goodCluster || it == simCol.end() ){

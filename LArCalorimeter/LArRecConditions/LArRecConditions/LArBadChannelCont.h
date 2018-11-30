@@ -105,7 +105,7 @@ private:
 
 //Template instantiation for LArBadChannel
 typedef LArBadXCont<LArBadChannel> LArBadChannelCont;
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF(LArBadChannelCont,64272230,1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArBadChannelCont>,144954956 , 1 )

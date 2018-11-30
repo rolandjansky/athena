@@ -55,16 +55,12 @@ StatusCode CondWriterExtAlg::execute()
     // Set IOV in the past to trigger reload in IOVSvc
     IOVRange iov_range(IOVTime(0, 0), IOVTime(0, 0));
     ATH_CHECK( m_iovSvc->setRange(detStore()->clid(m_attrListKey), m_attrListKey, iov_range, "StoreGateSvc") );
+  }
 
     // Drop folder payload
     ATH_CHECK( m_iovDbSvc->dropObject(m_attrListKey, /*resetCache=*/true), StatusCode::FAILURE );
-    
-    // Force checking of IOVs
-    EventIncident incident(*eventInfo, name(), "CheckIOV"); 
-    m_incidentSvc->fireIncident(incident);
-  }
 
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 } // namespace DMTest

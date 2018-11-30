@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArElecCalib
+			  Calorimeter/CaloCell
                           PRIVATE
                           Calorimeter/CaloIdentifier
                           Database/AthenaPOOL/AthenaPoolUtilities

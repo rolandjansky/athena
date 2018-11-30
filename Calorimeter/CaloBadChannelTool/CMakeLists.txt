@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloConditions
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
+                          LArCalorimeter/LArRecConditions
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate )
@@ -18,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( CaloBadChannelTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloConditions CaloIdentifier AthenaBaseComps GaudiKernel StoreGateLib SGtests )
+                     LINK_LIBRARIES CaloConditions LArRecConditions CaloIdentifier AthenaBaseComps GaudiKernel StoreGateLib SGtests )
 
 # Install files from the package:
 atlas_install_headers( CaloBadChannelTool )

@@ -4,13 +4,22 @@ __doc__ = "ToolFactory to instantiate egammaSelectedTrackCopy with default confi
 __author__ = "Christos"
 
 from egammaAlgs import egammaAlgsConf
-from egammaRec.Factories import AlgFactory
+from egammaRec.Factories import ToolFactory, AlgFactory
 from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
 from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-from egammaTools.egammaToolsFactories import egammaCheckEnergyDepositTool
+from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
+from egammaCaloTools import egammaCaloToolsConf
+
+egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
+                                            name = 'caloClusterGSFSelector',
+                                            egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
+                                            EMEtRanges = [1500., 2500.],
+                                            EMFCuts = [0.8,0.0],
+                                            LateralCuts = [0.7, 1.0]
+                                          )  
 
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
                                       name = 'egammaSelectedTrackCopy' ,
@@ -26,8 +35,5 @@ egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
 				      narrowDeltaPhiBrem=0.20, #Dominated by the needs of assymetric conversions
 				      narrowDeltaPhiRescale=0.05,  
 				      narrowDeltaPhiRescaleBrem=0.1,
-                                      egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
-                                      ClusterLateralCut=1.0,
-                                      ClusterEMFCut=0.0,
-                                      ClusterEMEtCut=1500
+                                      egammaCaloClusterSelector = egammaCaloClusterGSFSelector
 				      )

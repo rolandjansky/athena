@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,19 +50,19 @@ namespace Trk {
       virtual ~MultipleScatteringUpdator();
        
       /** AlgTool initailize method.*/
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       
       /** AlgTool finalize method */
-      StatusCode finalize();
+      virtual StatusCode finalize() override;
         
       /** Calculate the sigma on theta introduced by multiple scattering,
           according to the RutherFord-Scott Formula           
       */
-      double sigmaSquare(const MaterialProperties& mat,
+      virtual double sigmaSquare(const MaterialProperties& mat,
                          double p,
                          double pathcorrection,
                          ParticleHypothesis particle=pion,
-                         double deltaE=0.) const;
+                         double deltaE=0.) const override;
     
     private:
 
@@ -76,7 +76,7 @@ namespace Trk {
       /** Random Generator service  */
       ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;
       /** Random engine  */
-      CLHEP::HepRandomEngine*                             m_randomEngine;
+      CLHEP::HepRandomEngine*                      m_randomEngine;
       std::string                                  m_randomEngineName;                   //!< Name of the random number stream
                                                       
   };

@@ -14,10 +14,19 @@
 #include "TileRecUtils/TileRawChannelMaker.h"
 #include "TileRecUtils/TileRawChannelVerify.h"
 #include "TileRecUtils/TileRawCorrelatedNoise.h"
-#include "../TileTowerBuilderTool.h"
 #include "TileRecUtils/TileCellNoiseFilter.h"
 #include "TileRecUtils/TileRawChannelNoiseFilter.h"
 #include "TileRecUtils/TileRawChannelOF1Corrector.h"
+#include "../TileTowerBuilderTool.h"
+#include "../TileDigitsDumper.h"
+#include "../TileRawChannelDumper.h"
+#include "../TileBeamElemDumper.h"
+#include "../TileL2Dumper.h"
+#include "../TileLaserObjectDumper.h"
+#include "../TileMuonReceiverDumper.h"
+#include "../TileRawChannelBuilderTest.h"
+#include "../TileDQstatusTool.h"
+#include "../TileDQstatusAlg.h"
 
 DECLARE_COMPONENT( TileRawChannelBuilderFlatFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilter )
@@ -39,4 +48,12 @@ DECLARE_COMPONENT( TileRawChannelOF1Corrector )
 DECLARE_COMPONENT( TileRawChannelMaker )
 DECLARE_COMPONENT( TileRawChannelVerify )
 DECLARE_COMPONENT( TileRawCorrelatedNoise )
-
+DECLARE_COMPONENT( TileDigitsDumper )
+DECLARE_COMPONENT( TileRawChannelDumper )
+DECLARE_COMPONENT( TileBeamElemDumper )
+DECLARE_COMPONENT( TileL2Dumper )
+DECLARE_COMPONENT( TileLaserObjectDumper )
+DECLARE_COMPONENT( TileMuonReceiverDumper )
+DECLARE_COMPONENT( TileRawChannelBuilderTest )
+DECLARE_COMPONENT( TileDQstatusTool )
+DECLARE_COMPONENT( TileDQstatusAlg )

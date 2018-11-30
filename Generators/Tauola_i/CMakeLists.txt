@@ -8,12 +8,10 @@ atlas_subdir( Tauola_i )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/CLIDSvc
-   Control/SGTools
+   Control/AthenaKernel
    GaudiKernel
    Generators/GeneratorModules
    PRIVATE
-   Control/AthenaKernel
    Generators/GeneratorFortranCommon
    Generators/GeneratorObjects
    Generators/GeneratorUtils
@@ -39,7 +37,7 @@ atlas_add_library( Tauola_iLib
    INCLUDE_DIRS ${TAUOLA_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS -DATLAS_CMAKE
-   LINK_LIBRARIES ${TAUOLA_LIBRARIES} ${HEPMC_LIBRARIES} SGTools GaudiKernel
+   LINK_LIBRARIES ${TAUOLA_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel
    GeneratorModulesLib GeneratorFortranCommonLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel GeneratorObjects
    TruthUtils )

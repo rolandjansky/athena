@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_DetectorFactory_h
@@ -80,8 +80,6 @@ class ALFA_DetectorFactory : public GeoVDetectorFactory
 	private:
 		// The managers:
 		ALFA_DetectorManager* m_pDetectorManager;   
-		//const AbsMaterialManager* m_pMaterialManager;
-		DataHandle<StoredMaterialManager> m_pMaterialManager;
 		StoreGateSvc* m_pDetectorStore;
 		IRDBAccessSvc* m_pIRDBAccess;
 
@@ -111,7 +109,7 @@ class ALFA_DetectorFactory : public GeoVDetectorFactory
   
 	private:
 		void SaveGeometry();
-		void DefineMaterials();
+		void DefineMaterials (const StoredMaterialManager* pMaterialManager);
 		void ConstructUFiberCladdings(const eRPotName eRPName, GeoFullPhysVol* pMotherVolume, const HepGeom::Transform3D& MotherTransform, GeoAlignableTransform* pDetTransform);
 		void ConstructVFiberCladdings(const eRPotName eRPName, GeoFullPhysVol* pMotherVolume, const HepGeom::Transform3D& MotherTransform, GeoAlignableTransform* pDetTransform);
 		void ConstructODFiberCladdings(const eRPotName eRPName, GeoFullPhysVol* pPhysMotherVolume, const HepGeom::Transform3D& MotherTransform, GeoAlignableTransform* pDetTransform);

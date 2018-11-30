@@ -10,8 +10,5 @@ tool1.PhotonContainerName = "Photons"
 tool1.ElectronContainerName = "Electrons"
 tool1.TauContainerName = "TauJets"
 
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += tool1
-
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]

@@ -10,6 +10,7 @@ from LArConditionsCommon.LArCondFlags import larCondFlags
 
 def LArADC2MeVToolDefault (name="LArADC2MeVToolDefault", **kw): 
     mlog = logging.getLogger( 'LArADC2MeVToolDefault::__init__ ' )
+    mlog.warning("The LArADC2MeVTool is deprecated! Use LArADC2MeVCondAlg!") 
     #Check if the tool exits already in ToolSvc
     if hasattr(ServiceMgr.ToolSvc,name):
         mlog.info("LArADC2MeV Tool with name" + name + "already known to ToolSvc")

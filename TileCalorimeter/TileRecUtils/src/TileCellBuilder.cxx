@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
 
 // Tile includes
 #include "TileRecUtils/TileCellBuilder.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
+#include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileRawChannel.h"
@@ -30,12 +31,10 @@
 // Atlas includes
 #include "AthAllocators/DataPool.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-//using xAOD::EventInfo;
 using CLHEP::MeV;
  
 // uncomment line below for debug output
@@ -186,6 +185,8 @@ StatusCode TileCellBuilder::initialize() {
       m_mbtsMgr = nullptr;
     }
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   CHECK( detStore()->retrieve(m_tileMgr) );
   CHECK( detStore()->retrieve(m_tileID) );
@@ -372,27 +373,26 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
 
       } else {
 
-        if (m_beamInfo->noiseFilterApplied()) {
-          ATH_MSG_DEBUG( " Noise filter for " << m_dspRawChannelContainerKey.key()
-                         << " was already applied, use it directly " );
-        } else if (m_noiseFilterTools.size() > 0) {
+        const TileRawChannelContainer* dspContainer = dspRawChannelContainer.cptr();
+        std::unique_ptr<TileMutableRawChannelContainer> copiedDspContainer;
+
+        if (m_noiseFilterTools.size() > 0) {
           ATH_MSG_DEBUG( " Running noise filter on " << m_dspRawChannelContainerKey.key()
                          << " (i.e. on second container only) " );
-          // apply noise filter on dsp container before merging it with offline contaier
-          for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-            /// FIXME: const_cast; tools can change the container!
-            if (noiseFilterTool->process(const_cast<TileRawChannelContainer*>(dspRawChannelContainer.cptr())).isFailure()) {
-              ATH_MSG_ERROR( " Error status returned from noise filter " );
-            } else {
-              ATH_MSG_DEBUG( "Noise filter applied to the container" );
-            }
+
+          // apply noise filter on dsp container before merging it with offline container
+          copiedDspContainer = std::make_unique<TileMutableRawChannelContainer> (*dspContainer);
+          ATH_CHECK( copiedDspContainer->status() );
+          dspContainer = copiedDspContainer.get();
+
+          for (const ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
+            ATH_CHECK( noiseFilterTool->process(*copiedDspContainer) );
           }
-          m_beamInfo->setNoiseFilterApplied(true);
         }
         
-        TileFragHash::TYPE dspType = dspRawChannelContainer->get_type();
-        TileRawChannelUnit::UNIT dspUnit = dspRawChannelContainer->get_unit();
-        unsigned int dspFlags = dspRawChannelContainer->get_bsflags();
+        TileFragHash::TYPE dspType = dspContainer->get_type();
+        TileRawChannelUnit::UNIT dspUnit = dspContainer->get_unit();
+        unsigned int dspFlags = dspContainer->get_bsflags();
         int DataType = (dspFlags & 0x30000000) >> 28;
         float dspTimeCut = m_maxTimeCorr;
         bool dspCorrectAmplitude = false, dspCorrectTime = false, dspOf2 = true;
@@ -406,7 +406,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           dspTimeCut = ((dspFlags >> 27) & 1) ? 100.0 : 75.0; // 100 or 75 ns is the limit for 9 or 7 samples
         }
 
-        SelectAllObject<TileRawChannelContainer> selAllDsp(dspRawChannelContainer.cptr());
+        SelectAllObject<TileRawChannelContainer> selAllDsp(dspContainer);
         SelectAllObject<TileRawChannelContainer>::const_iterator beginDsp = selAllDsp.begin();
         SelectAllObject<TileRawChannelContainer>::const_iterator endDsp = selAllDsp.end();
 
@@ -484,18 +484,24 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     }
 
     if (begin != end) { // no merging applied, use original raw channel container
-      
+
+      std::unique_ptr<TileMutableRawChannelContainer> copiedContainer;
+      std::unique_ptr<SelectAllObject<TileRawChannelContainer> > selCopied;
+
       if (m_noiseFilterTools.size() > 0) {
         ATH_MSG_DEBUG( " Running noise filter on " << m_rawChannelContainerKey.key() );
         // apply noise filter on input container before sending it to the build() method
-        for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-            /// FIXME: const_cast; tools can change the container!
-          if (noiseFilterTool->process(const_cast<TileRawChannelContainer*>(rawChannelContainer.cptr())).isFailure()) {
-            ATH_MSG_ERROR( " Error status returned from noise filter " );
-          } else {
-            ATH_MSG_DEBUG( "Noise filter applied to the container" );
-          }
+        copiedContainer = std::make_unique<TileMutableRawChannelContainer> (*rawChannelContainer);
+        ATH_CHECK( copiedContainer->status() );
+
+        for (const ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools)
+        {
+          ATH_CHECK( noiseFilterTool->process(*copiedContainer) );
         }
+
+        selCopied = std::make_unique<SelectAllObject<TileRawChannelContainer> > (copiedContainer.get());
+        begin = selCopied->begin();
+        end = selCopied->end();
       }
       
       ATH_MSG_DEBUG( " Calling build() method for rawChannels from " << m_rawChannelContainerKey.key() );
@@ -631,13 +637,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   ++m_eventErrorCounter[error]; // error index is 0 or 1 or 2 here
   ++m_eventErrorCounter[3]; // count separately total number of events
   
-  // retrieve EventInfo
-  const xAOD::EventInfo* eventInfo = 0;
-  if (evtStore()->retrieve(eventInfo).isFailure()) {
-    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
-  }
 
-  if (eventInfo) {
+  // retrieve EventInfo
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+
+  if (eventInfo.isValid()) {
 
     if (flag != 0) {
       ATH_MSG_DEBUG( " set eventInfo for Tile for this event to 0x" << MSG::hex << flag << MSG::dec );
@@ -653,6 +657,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       }
     }
 
+  } else {
+    ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
   }
   
   // Execution completed.

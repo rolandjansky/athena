@@ -30,6 +30,7 @@ void TFCSLateralShapeParametrizationHitChain::set_geometry(ICaloGeometry* geo)
 
 int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
+  // TODO: should we still do it?
   if(m_number_of_hits_simul) {
     int n=m_number_of_hits_simul->get_number_of_hits(simulstate,truth,extrapol);
     if(n<1) n=1;
@@ -45,7 +46,12 @@ int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationSt
 FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   // Call get_number_of_hits() only once, as it could contain a random number
-  int nhit=get_number_of_hits(simulstate,truth,extrapol);
+  int nhit = get_number_of_hits(simulstate, truth, extrapol);
+  if (nhit <= 0) {
+    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): number of hits could not be calculated");
+    return FCSFatal;
+  }
+
   float Ehit=simulstate.E(calosample())/nhit;
 
   bool debug = msgLvl(MSG::DEBUG);

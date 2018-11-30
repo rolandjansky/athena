@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // EMECModuleConstruction
@@ -82,7 +82,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in EndcapCryostatConstruction, cannot access DetectorStore");
   }
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
 
@@ -103,15 +103,15 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   double FracGten,Fracpb,Fracfe,Fracgl,Fraccu,Fracka;
   double aH,aO,aC,aN,aAr;
 
-  GeoElement* H=materialManager->getElement("Hydrogen");
-  GeoElement* C=materialManager->getElement("Carbon");
-  GeoElement* N=materialManager->getElement("Nitrogen");
-  GeoElement* O=materialManager->getElement("Oxygen");
-  GeoElement* Al=materialManager->getElement("Aluminium");
-  GeoElement* Ar=materialManager->getElement("Argon");
-  GeoElement* Fe=materialManager->getElement("Iron");
-  GeoElement* Cu=materialManager->getElement("Copper"); 
-  GeoElement* Pb=materialManager->getElement("Lead");
+  const GeoElement* H=materialManager->getElement("Hydrogen");
+  const GeoElement* C=materialManager->getElement("Carbon");
+  const GeoElement* N=materialManager->getElement("Nitrogen");
+  const GeoElement* O=materialManager->getElement("Oxygen");
+  const GeoElement* Al=materialManager->getElement("Aluminium");
+  const GeoElement* Ar=materialManager->getElement("Argon");
+  const GeoElement* Fe=materialManager->getElement("Iron");
+  const GeoElement* Cu=materialManager->getElement("Copper"); 
+  const GeoElement* Pb=materialManager->getElement("Lead");
 
   //LAr
 
