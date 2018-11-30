@@ -97,9 +97,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   const Token* registerForWrite(Placement* placement,
-	   const void* obj,
-	   const RootType& classDesc) const;
+   Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const;
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
@@ -232,9 +230,6 @@ private: // properties
    StringArrayProperty m_maxFileSizes;
    long long m_domainMaxFileSize;
    std::map<std::string, long long> m_databaseMaxFileSize;
-   /// CommitInterval, integer number of events to process with commitAndHold, before doing a full commit:
-   /// default = 0.
-   IntegerProperty m_commitInterval;
 
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
    /// default = false.

@@ -13,11 +13,11 @@
 
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "PersistentDataModel/TokenAddress.h"
 #include "PoolSvc/IPoolSvc.h"
 
 // Framework
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -122,11 +122,10 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
          }
       }
    }
-   GenericAddress* genAddr = new GenericAddress(POOL_StorageType,
-	   ClassID_traits<DataHeader>::ID(),
-	   m_headerIterator->eventRef().toString(),
-	   name());
-   if (!detectorStoreSvc->recordAddress(genAddr).isSuccess()) {
+   Token* token = new Token;
+   token->fromString(m_headerIterator->eventRef().toString());
+   TokenAddress* tokenAddr = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", name(), IPoolSvc::kInputStream, token);
+   if (!detectorStoreSvc->recordAddress(tokenAddr).isSuccess()) {
       ATH_MSG_ERROR("Cannot record DataHeader.");
       return(StatusCode::FAILURE);
    }
