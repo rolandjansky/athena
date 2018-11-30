@@ -15,6 +15,7 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkSUSY.SUSYCommon import *
 
 
 ### Set up stream
@@ -386,12 +387,15 @@ ExtraTausTruth = [
     ]
 
 #extra reco content
+
 ExtraVtx = ["PrimaryVertices."
             "x."
             "y."
             "z."
             "vertexType"
             ]
+
+ExtraTaus = [ "TauJets.seedJetWidth" ]
 
 ExtraElectrons = ["Electrons.author.charge.ptcone20"]
 
@@ -410,7 +414,7 @@ ExtraHLT = [ "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
 
 ExtraTracks= ["InDetTrackParticles.truthOrigin.truthType"]
 
-SUSY18SlimmingHelper.ExtraVariables = ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
+SUSY18SlimmingHelper.ExtraVariables = ExtraTaus + ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
 
 if DerivationFrameworkIsMonteCarlo:
     SUSY18SlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth

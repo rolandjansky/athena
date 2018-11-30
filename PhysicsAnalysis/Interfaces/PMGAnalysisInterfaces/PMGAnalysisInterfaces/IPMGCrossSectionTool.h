@@ -21,7 +21,8 @@ namespace PMGTools {
     double amiXSec;
     double filterEff;
     double kFactor;
-    double XSecUnc;
+    double XSecUncUP;
+    double XSecUncDOWN;
     double br;     
     double higherOrderXsecTotal;
     double higherOrderXsecSample;
@@ -52,6 +53,12 @@ namespace PMGTools {
 
     /// return the cross-section uncertainty for DSID       
     virtual double getXsectionUncertainty(const int dsid) const = 0;
+
+    /// return the cross-section uncertainty for DSID
+    virtual double getXsectionUncertaintyUP(const int dsid) const = 0;
+
+    /// return the cross-section uncertainty for DSID
+    virtual double getXsectionUncertaintyDOWN(const int dsid) const = 0;
     
     // :: below is for future use? 
     /// return the branching ratio for DSID

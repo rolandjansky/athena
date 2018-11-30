@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 
 augTools = []
 if DerivationFrameworkIsMonteCarlo:
@@ -52,7 +53,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT7ThinningHelper = ThinningHelper( "EXOT7ThinningHelper" )
 
 #trigger navigation content
-EXOT7ThinningHelper.TriggerChains = 'HLT_[0-9]*j.*|HLT_xe.*|HLT_ht.*'
+EXOT7ThinningHelper.TriggerChains = 'HLT_[0-4]*j.*|HLT_xe.*|HLT_ht.*'
 EXOT7ThinningHelper.AppendToStream( EXOT7Stream )
 
 #=====================
@@ -94,9 +95,22 @@ replaceAODReducedJets(reducedJetList,exot7Seq,"EXOT7")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot7Seq,"EXOT7")
 
+#Add Soft drop jets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCSSKSoftDropJets
+addCSSKSoftDropJets(exot7Seq,"EXOT7")
+
+#AddVR Jets
+addVRJets(exot7Seq)
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
 #jet calibration
 applyJetCalibration_xAODColl("AntiKt4EMTopo", exot7Seq)
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot7Seq)
+
+
+#Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'],Sequencer = exot7Seq)
 
 #====================================================================
 # OPENING ANGLE TOOL
@@ -125,7 +139,10 @@ expression3 = "(( count( AntiKt4EMTopoJets.pt > 45*GeV && abs(AntiKt4EMTopoJets.
 #VLQ all-had skimming
 expression4 = "( (count( AntiKt4EMTopoJets.pt > 250*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt4EMTopoJets.pt > 150*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt4EMTopoJets.pt > 100*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt4EMTopoJets.pt > 50*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && HLT_ht1000_L1J100)"
 
-expression = "(( " + expression1 + " || " + expression2 + " || " + expression3 + " || " + expression4 + " ))"
+#ttbar all-had skimming
+expression5 = "( count(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 250*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) >= 2)"
+
+expression = "(( " + expression1 + " || " + expression2 + " || " + expression3 + " || " + expression4 + " || " + expression5 + " ))"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT7StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT7StringSkimmingTool", expression = expression)
@@ -175,6 +192,7 @@ EXOT7ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name     
 ToolSvc += EXOT7ElectronCCThinningTool
 thinningTools.append(EXOT7ElectronCCThinningTool)
 
+# Calo cluster thinning for LCTopo jets
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT7A10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT7A10CCThinningTool",
                                                                        ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
@@ -182,8 +200,22 @@ EXOT7A10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name       
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV",
                                                                        AdditionalClustersKey = ["LCOriginTopoClusters"])
+
 ToolSvc += EXOT7A10CCThinningTool
 thinningTools.append(EXOT7A10CCThinningTool)
+
+#Calo cluster thinning for CSSK jets
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+EXOT7A10SoftDropThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT7A10SoftDropThinningTool",
+                                                                       ThinningService         = EXOT7ThinningHelper.ThinningSvc(),
+                                                                       SGKey                   = "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+                                                                       TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                       SelectionString         = "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets.pt > 150*GeV",
+                                                                       AdditionalClustersKey = ["LCOriginCSSKTopoClusters"])
+
+ToolSvc += EXOT7A10SoftDropThinningTool
+thinningTools.append(EXOT7A10SoftDropThinningTool)
+
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT7MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7MCThinningTool",
@@ -289,14 +321,23 @@ EXOT7SlimmingHelper.SmartCollections = EXOT7SmartCollections
 EXOT7SlimmingHelper.ExtraVariables = EXOT7ExtraVariables
 EXOT7SlimmingHelper.AllVariables = EXOT7AllVariables
 addMETOutputs(EXOT7SlimmingHelper, ["Track", "EXOT7"], ["AntiKt4EMTopo"])
-addJetOutputs(EXOT7SlimmingHelper, ["EXOT7"], ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
 addOriginCorrectedClusters(EXOT7SlimmingHelper, writeLC = True, writeEM = False)
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']
+
+##Adding Jet collections to dictionary
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets','AntiKtVR30Rmax4Rmin02TrackJets','AntiKt4EMPFlowJets','AntiKt4EMTopoJets','AntiKt2PV0TrackJets']
 if globalflags.DataSource()=='geant4':
-  listJets.append('AntiKt10TruthTrimmedPtFrac5SmallR20Jets')
+  listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets','AntiKt4TruthWZJets','AntiKt10TruthJets'])
 for i in listJets:
   EXOT7SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
   EXOT7SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
+
+##Adding b-tagging to dictionary
+listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track','BTagging_AntiKt4EMPFlow','BTagging_AntiKt4EMTopo','BTagging_AntiKt2Track']
+for i in listBtag:
+  EXOT7SlimmingHelper.AppendToDictionary[i] = 'xAOD::BTaggingContainer'
+  EXOT7SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::BTaggingAuxContainer'
+
+#Finishing up
 EXOT7SlimmingHelper.IncludeJetTriggerContent = True
 EXOT7SlimmingHelper.IncludeBJetTriggerContent = True
 EXOT7SlimmingHelper.IncludeEtMissTriggerContent = True

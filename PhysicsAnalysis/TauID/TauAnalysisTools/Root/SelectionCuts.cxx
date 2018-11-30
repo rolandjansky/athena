@@ -403,12 +403,7 @@ SelectionCutBDTEleScore::SelectionCutBDTEleScore(TauSelectionTool* tTST)
 {
   m_hHistCutPre = CreateControlPlot("hEleBDT_pre","EleBDT_pre;BDTEleScore; events",100,0,1);
   m_hHistCut = CreateControlPlot("hEleBDT_cut","EleBDT_cut;BDTEleScore; events",100,0,1);
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  m_sEleBDTDecorationName = "BDTEleScoreTrans_run2";
-#else
   m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
-#endif
-
 }
 
 //______________________________________________________________________________
@@ -427,6 +422,12 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   float fEleBDTScore = accEleBDT(xTau);
   unsigned int iNumEleBDTRegion = m_tTST->m_vEleBDTRegion.size()/2;
+  // apply EleBDTscore cut only to 1-prong taus
+  if (xTau.nTracks() != 1)
+  {
+      m_tTST->m_aAccept.setCutResult("EleBDTScore", true );
+      return true;
+  }
   for( unsigned int iEleBDTRegion = 0; iEleBDTRegion < iNumEleBDTRegion; iEleBDTRegion++ )
   {
     if ( fEleBDTScore >= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2) and fEleBDTScore <= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2+1))
@@ -444,11 +445,7 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST)
 {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  m_sEleBDTDecorationName = "BDTEleScoreTrans_run2";
-#else
   m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
-#endif
   m_hHistCutPre = CreateControlPlot("hEleBDTWP_pre","EleBDTWP_pre;; events",6,-.5,5.5);
   m_hHistCut = CreateControlPlot("hEleBDTWP_cut","EleBDTWP_cut;; events",6,-.5,5.5);
   // only proceed if histograms are defined
@@ -507,6 +504,9 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
     m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iEleBDTWP<<" is not available" << endmsg;
     break;
   }
+  // apply EleBDTscore cut only to 1-prong taus
+  if (xTau.nTracks() != 1) bPass = true;
+    
   if (bPass)
   {
     m_tTST->m_aAccept.setCutResult( "EleBDTWP", true );

@@ -40,7 +40,7 @@ namespace Trig {
     /// Chain evaluation 
     bool isPassed();
     // Dump
-    void print();
+    void print() const;
     /// Utilities
     bool hasFeature( const std::string& );
     // Method for accessing configuration outcome
@@ -67,6 +67,7 @@ namespace Trig {
 
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
+    bool msgLvl ( const MSG::Level lvl ) const;
 
   private:
     bool recordChain();

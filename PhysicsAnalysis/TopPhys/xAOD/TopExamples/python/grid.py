@@ -524,7 +524,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
             break
     print customTDPFile
     if customTDPFile:
-        tdpFile = ROOT.PathResolver.find_file(customTDPFile, "PATH", ROOT.PathResolver.RecursiveSearch)
+        tdpFile = ROOT.PathResolver.find_calib_file(customTDPFile)
     else:
         tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data", "CALIBPATH", ROOT.PathResolver.RecursiveSearch)
     # Load the file

@@ -5,7 +5,6 @@
 #include "TopEventSelectionTools/GlobalTrigMatchSelector.h"
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/RunNumberFaker.h"
 
 #include "xAODBase/IParticle.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -24,8 +23,6 @@ namespace top {
   }
 
   bool GlobalTrigMatchSelector::apply(top::Event const & event) const {
-    RunNumberFaker runNumberFaker(event);
-    runNumberFaker.activate();
     auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
     bool result = false;
     std::vector<xAOD::IParticle const *> particles;

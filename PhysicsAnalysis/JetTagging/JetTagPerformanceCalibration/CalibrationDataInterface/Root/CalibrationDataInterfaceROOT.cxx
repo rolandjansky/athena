@@ -1568,7 +1568,7 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
   else if (m_otherStrategy == Flag)
     if (effStatus == Analysis::kRange) const_cast<CalibrationDataInterfaceROOT*>(this)->increaseCounter(indexEff);
   // since we need to divide by this quantity, check that it is well-defined
-  if (!(fracMCnew > 0.)) {
+  if (!(fracMCnew > 0.) and m_useTopologyRescaling) {// but we only care if using topology rescaling
     cerr << "getWeightScaleFactor: error: null fracMCnew would lead to invalid operation" << endl;
     return Analysis::kError;
   }

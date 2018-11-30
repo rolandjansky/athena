@@ -97,7 +97,7 @@ StatusCode MuonCPTools::setupCalibration() {
 
   ///-- Additional tool for 2017 data/MC - Different Sagitta recommendation --///
   ///-- See: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d --///
-  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2017 data");
+  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2017+2018 data");
   const std::string mu_calib_smearing_name_2017 = "CP::MuonCalibrationAndSmearingTool2017";
   if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name_2017)) {
     m_muonCalibrationAndSmearingTool2017 = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name_2017);
@@ -117,8 +117,8 @@ StatusCode MuonCPTools::setupCalibration() {
     // Sagitta correction (apply to data)                                                                       
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaCorr", false ),
 	       "Unable to set Sagitta correction in " + mu_calib_smearing_name_2017);
-    // Sagitta MC distortion (apply to MC) - Recommendation true->false 23/3/18                                   
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "doSagittaMCDistortion", false ),
+    // Sagitta MC distortion (apply to MC)
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "doSagittaMCDistortion", true ),
 	       "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name_2017);
     // Initialise the tool                                                                                      
     top::check(muonCalibrationAndSmearingTool2017->initialize(),

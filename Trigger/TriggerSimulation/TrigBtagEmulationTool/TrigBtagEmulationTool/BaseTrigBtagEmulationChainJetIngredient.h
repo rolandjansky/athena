@@ -29,7 +29,7 @@ namespace Trig {
     virtual void initialize() = 0;
 
     bool evaluate();
-    virtual void print() const = 0;
+    virtual void print() const= 0;
     virtual bool isPassed() const; 
     virtual bool hasFeature(const std::string&) const; 
     virtual void clear(); 
@@ -52,6 +52,7 @@ namespace Trig {
 
     MsgStream& msg() const;
     MsgStream& msg( const MSG::Level lvl ) const;
+    bool msgLvl ( const MSG::Level lvl ) const;
 
   protected:
     std::string m_triggerName;

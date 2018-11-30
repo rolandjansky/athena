@@ -63,8 +63,6 @@ namespace Trig{
 	    long int m_min_eventCount;
 	    long int m_max_eventCount;
 
-	    int m_verbosity;
-
         private:
 	    std::vector< std::vector< std::string > > m_toBeEmulatedTriggers;
 
