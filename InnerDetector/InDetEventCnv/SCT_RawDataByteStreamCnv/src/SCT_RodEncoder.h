@@ -65,6 +65,8 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
   virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, vRDOs_t& vecRDOs) const;
 
+ private:
+
   /// Encode rdo into the data: called by fillROD(..) 
   void encodeData(std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const;
   
@@ -101,7 +103,6 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   /// Get the 16-bit word for a trailer, with or without ByteStream errors 
   uint16_t getTrailer(const int& errorWord) const;
 
- private:
   enum ErrorWords{TIMEOUT_ERR=(1<<11),
                   L1_ERR=(1<<10),
                   BCID_ERR=(1<<9),
