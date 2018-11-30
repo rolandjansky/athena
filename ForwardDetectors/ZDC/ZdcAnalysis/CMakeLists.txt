@@ -5,6 +5,7 @@ atlas_depends_on_subdirs(
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODForward
   Event/xAOD/xAODTrigL1Calo
+  PhysicsAnalysis/D3PDTools/AnaAlgorithm
   PRIVATE
   Tools/PathResolver
   Event/xAOD/xAODEventInfo )
@@ -15,8 +16,13 @@ atlas_add_library (ZdcAnalysisLib
 		  Root/*.cxx
 		  PUBLIC_HEADERS ZdcAnalysis
                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                  LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODForward xAODTrigL1Calo
+                  LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODForward xAODTrigL1Calo AnaAlgorithmLib
 		  PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
+
+atlas_add_dictionary (ZdcAnalysisDict
+			ZdcAnalysis/ZdcAnalysisDict.h
+			ZdcAnalysis/selection.xml
+			LINK_LIBRARIES ZdcAnalysisLib)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ZdcAnalysis
