@@ -20,7 +20,7 @@ HLTResultMTByteStreamDecoderTool::HLTResultMTByteStreamDecoderTool(const std::st
 // Implementation of AthAlgTool::initialize
 // =============================================================================
 StatusCode HLTResultMTByteStreamDecoderTool::initialize() {
-  ATH_MSG_INFO("Initialising " << name());
+  ATH_MSG_DEBUG("Initialising " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -28,7 +28,7 @@ StatusCode HLTResultMTByteStreamDecoderTool::initialize() {
 // Implementation of AthAlgTool::finalize
 // =============================================================================
 StatusCode HLTResultMTByteStreamDecoderTool::finalize() {
-  ATH_MSG_INFO("Finalising " << name());
+  ATH_MSG_DEBUG("Finalising " << name());
   return StatusCode::SUCCESS;
 }
 

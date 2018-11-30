@@ -15,7 +15,7 @@ HLTResultMTByteStreamDecoderAlg::HLTResultMTByteStreamDecoderAlg(const std::stri
 // Implementation of AthReentrantAlgorithm::initialize
 // =============================================================================
 StatusCode HLTResultMTByteStreamDecoderAlg::initialize() {
-  ATH_MSG_INFO("Initialising " << name());
+  ATH_MSG_DEBUG("Initialising " << name());
   ATH_CHECK(m_hltResultWHKey.initialize());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
 
@@ -32,7 +32,7 @@ StatusCode HLTResultMTByteStreamDecoderAlg::initialize() {
 // Implementation of AthReentrantAlgorithm::finalize
 // =============================================================================
 StatusCode HLTResultMTByteStreamDecoderAlg::finalize() {
-  ATH_MSG_INFO("Finalising " << name());
+  ATH_MSG_DEBUG("Finalising " << name());
   ATH_CHECK(m_robDataProviderSvc.release());
   return StatusCode::SUCCESS;
 }
@@ -60,7 +60,7 @@ StatusCode HLTResultMTByteStreamDecoderAlg::execute_r(const EventContext& eventC
 
   // Read the HLT result payload
   IROBDataProviderSvc::VROBFRAG vrobf; // vector of ROBFragments to be filled
-  m_robDataProviderSvc->getROBData(m_robIdsToDecode, vrobf, name());
+  m_robDataProviderSvc->getROBData(eventContext, m_robIdsToDecode, vrobf, name());
   ATH_CHECK(m_decoderTool->decodePayload(vrobf, *hltResult));
 
   // Print the result

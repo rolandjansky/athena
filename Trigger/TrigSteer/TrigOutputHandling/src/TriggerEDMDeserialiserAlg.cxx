@@ -71,7 +71,7 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
     RootType classDesc = RootType::ByName( transientType+"_v1" ); // TODO remove this dirty hack, needsdiscussion how to find the real type
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
-    ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " from available " << bsize  );
+    ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " bytes from available " << bsize  );
     // for the moment I do not know what do with the raw prt
 
     if ( obj ) {
