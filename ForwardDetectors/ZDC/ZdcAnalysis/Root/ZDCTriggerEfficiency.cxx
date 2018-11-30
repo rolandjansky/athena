@@ -6,7 +6,6 @@
 #include <AsgTools/MessageCheck.h>
 #include <vector>
 
-using namespace std;
 double ZDCTriggerEfficiency::GetEfficiency(int side, float ADCSum){
   double alpha = _currentParams[side][0];
 	double  beta = _currentParams[side][1];
