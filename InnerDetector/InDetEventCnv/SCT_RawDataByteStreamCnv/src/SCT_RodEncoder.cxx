@@ -100,11 +100,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
   const std::set<IdentifierHash>* abcdErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ABCDError)};
   const std::set<IdentifierHash>* rawErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::RawError)};
 
-  std::vector<int> vecTimeBins;
   std::vector<uint16_t> vec16Data;
-  int strip{0};
-  int timeBin{0};
-  int groupSize{0};
   
   /** loop over errors here - just add headers (w/ errors), trailers (w/errors), 
    * and raw and abcd errors */
@@ -148,6 +144,11 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
       }
     }
   }
+
+  std::vector<int> vecTimeBins;
+  int strip{0};
+  int timeBin{0};
+  int groupSize{0};
 
   uint32_t lastHeader{0};
   bool firstInROD{true};
@@ -276,11 +277,11 @@ void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<Ide
 
 void SCT_RodEncoder::encodeData(std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const {
   
+  const int encodedSide{side(rdo) << 14};
+  
   ///-------------------------------------------------------------------------------------
   /// Check if the strip has to be swapped (swap phi readout direction)
   ///-------------------------------------------------------------------------------------
-  
-  const int encodedSide{side(rdo) << 14};
   
   const Identifier idColl{offlineID(rdo)};
   int tmpStrip{strip};
@@ -291,6 +292,7 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vecTimeBins, std::vector<uint1
   
   const int chipNum{((tmpStrip/128) & 0x7) << 11};
   const int clustBaseAddr{((tmpStrip-(chipNum*128)) & 0x7F) << 4};
+
   int timeBin{0};
   int firstHitErr{0 << 2};
   int secondHitErr{0 << 3};
