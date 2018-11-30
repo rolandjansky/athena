@@ -56,15 +56,7 @@ namespace DerivationFramework {
         if(m_vtx0Daug2MassHypo < 0.) m_vtx0Daug2MassHypo = getParticleMass(PDG::mu_minus);
         if(m_vtx0Daug3MassHypo < 0.) m_vtx0Daug3MassHypo = getParticleMass(PDG::pi_plus);
         if(m_vtx1Daug1MassHypo < 0.) m_vtx1Daug1MassHypo = getParticleMass(PDG::pi_plus);
-        /*{
-           if(m_Dx_pid == 421) m_vtx1Daug1MassHypo = getParticleMass(PDG::pi_plus);
-           else m_vtx1Daug1MassHypo = getParticleMass(PDG::K_plus);
-        }*/
         if(m_vtx1Daug2MassHypo < 0.) m_vtx1Daug2MassHypo = getParticleMass(PDG::K_plus);
-        /*{
-           if(m_Dx_pid == 421) m_vtx1Daug2MassHypo = getParticleMass(PDG::K_plus);
-           else m_vtx1Daug2MassHypo = getParticleMass(PDG::pi_plus);
-        }*/
         if(m_vtx2Daug1MassHypo < 0.) m_vtx2Daug1MassHypo = getParticleMass(PDG::pi_plus);
         if(m_vtx2Daug2MassHypo < 0.) m_vtx2Daug2MassHypo = getParticleMass(PDG::pi_plus);
 
@@ -255,9 +247,10 @@ namespace DerivationFramework {
         if(!BPhysPVCascadeTools::LinkVertices(K0LinksDecor, k0VerticestoLink, k0Container, cascadeVertices[2]))
             ATH_MSG_ERROR("Error decorating with K_S0 vertices");
 
-        bool tagDpst(false);
-        if(abs(m_Dx_pid)==421 && (jpsipiVertex->trackParticle(2)->charge()==1)) tagDpst = true;
-        else tagDpst = false;
+        bool tagD0(true);
+        if (jpsipiVertex){
+          if(abs(m_Dx_pid)==421 && (jpsipiVertex->trackParticle(2)->charge()==-1)) tagD0 = false;
+        }
 
         double mass_b = m_vtx0MassHypo;
         double mass_d0 = m_vtx1MassHypo; 
@@ -267,10 +260,10 @@ namespace DerivationFramework {
         massesJpsipi.push_back(m_vtx0Daug2MassHypo);
         massesJpsipi.push_back(m_vtx0Daug3MassHypo);
         std::vector<double> massesD0;
-        if(tagDpst){
+        if(tagD0){
           massesD0.push_back(m_vtx1Daug1MassHypo);
           massesD0.push_back(m_vtx1Daug2MassHypo);
-        }else{
+        }else{ // Change the oreder of masses for D*-->D0bar pi-, D0bar->K+pi-
           massesD0.push_back(m_vtx1Daug2MassHypo);
           massesD0.push_back(m_vtx1Daug1MassHypo);
         }
@@ -322,14 +315,14 @@ namespace DerivationFramework {
         float massKpi = 0.;
         if (d0Vertex) {
           TLorentzVector  p4_ka, p4_pi;
-          if(tagDpst){
+          if(tagD0){
             p4_pi.SetPtEtaPhiM(d0Vertex->trackParticle(0)->pt(), 
                                d0Vertex->trackParticle(0)->eta(),
                                d0Vertex->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
             p4_ka.SetPtEtaPhiM(d0Vertex->trackParticle(1)->pt(), 
                                d0Vertex->trackParticle(1)->eta(),
                                d0Vertex->trackParticle(1)->phi(), m_vtx1Daug2MassHypo); 
-          }else{
+          }else{ // Change the oreder of masses for D*-->D0bar pi-, D0bar->K+pi-
             p4_pi.SetPtEtaPhiM(d0Vertex->trackParticle(1)->pt(), 
                                d0Vertex->trackParticle(1)->eta(),
                                d0Vertex->trackParticle(1)->phi(), m_vtx1Daug1MassHypo); 
@@ -627,7 +620,7 @@ namespace DerivationFramework {
         std::vector<double> massesD0;
         massesD0.push_back(m_vtx1Daug1MassHypo);
         massesD0.push_back(m_vtx1Daug2MassHypo);
-        std::vector<double> massesD0b;
+        std::vector<double> massesD0b; // Change the oreder of masses for D*-->D0bar pi-, D0bar->K+pi-
         massesD0b.push_back(m_vtx1Daug2MassHypo);
         massesD0b.push_back(m_vtx1Daug1MassHypo);
         std::vector<double> massesK0;
@@ -640,23 +633,18 @@ namespace DerivationFramework {
         Masses.push_back(m_vtx1MassHypo);
         Masses.push_back(m_vtx2MassHypo);
 
+        // Select J/psi pi+ candidates before calling cascade fit
         std::vector<const xAOD::Vertex*> selectedJpsipiCandidates;
         for(auto vxcItr=jpsipiContainer->cbegin(); vxcItr!=jpsipiContainer->cend(); ++vxcItr) {
-           // Check J/psi candidate invariant mass and skip if need be
-           /*double mass_Jpsi = m_V0Tools->invariantMass(*vxcItr, massesJpsi);
-           ATH_MSG_DEBUG("Jpsi mass " << mass_Jpsi);
-           if (mass_Jpsi < m_jpsiMassLower || mass_Jpsi > m_jpsiMassUpper) {
-             ATH_MSG_DEBUG(" Original Jpsi candidate rejected by the mass cut: mass = "
-                           << mass_Jpsi << " != (" << m_jpsiMassLower << ", " << m_jpsiMassUpper << ")" );
-             continue;
-           }*/
 
+           // Check the passed flag first
            xAOD::Vertex* vtx = *vxcItr;
            SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Jpsipi");
            if(flagAcc1.isAvailable(*vtx)){
               if(!flagAcc1(*vtx)) continue;
            }
 
+           // Check J/psi candidate invariant mass and skip if need be
            TLorentzVector p4Mup_in, p4Mum_in;
            p4Mup_in.SetPtEtaPhiM((*vxcItr)->trackParticle(0)->pt(), 
                                  (*vxcItr)->trackParticle(0)->eta(),
@@ -672,6 +660,7 @@ namespace DerivationFramework {
              continue;
            }
 
+           // Check J/psi pi+ candidate invariant mass and skip if need be
            double mass_Jpsipi = m_V0Tools->invariantMass(*vxcItr, massesJpsipi);
            ATH_MSG_DEBUG("Jpsipi mass " << mass_Jpsipi);
            if (mass_Jpsipi < m_jpsipiMassLower || mass_Jpsipi > m_jpsipiMassUpper) {
@@ -680,78 +669,76 @@ namespace DerivationFramework {
              continue;
            }
 
-           /*if (m_Dx_pid * (*vxcItr)->trackParticle(2)->charge() < 0) {
-             ATH_MSG_DEBUG(" Original Jpsipi candidate rejected by the charge requirement: " << m_Dx_pid << ", "
-                           << (*vxcItr)->trackParticle(2)->charge() );
-             continue;
-           }*/
-
            selectedJpsipiCandidates.push_back(*vxcItr);
         }
         if(selectedJpsipiCandidates.size()<1) return StatusCode::SUCCESS;
-//std::cout<<"selectedJpsipiCandidates.size() = "<<selectedJpsipiCandidates.size()<<std::endl;
 
+        // Select the D0/D0b candidates before calling cascade fit
         std::vector<const xAOD::Vertex*> selectedD0Candidates;
         for(auto vxcItr=d0Container->cbegin(); vxcItr!=d0Container->cend(); ++vxcItr) {
 
+           // Check the passed flag first
            xAOD::Vertex* vtx = *vxcItr;
            SG::AuxElement::Accessor<Char_t> flagAcc1("passed_D0");
            SG::AuxElement::Accessor<Char_t> flagAcc2("passed_D0b");
            bool isD0(true);
            bool isD0b(true);
            if(flagAcc1.isAvailable(*vtx)){
-            //if(!flagAcc1(*vtx)) continue;
               if(!flagAcc1(*vtx)) isD0 = false;
            }
            if(flagAcc2.isAvailable(*vtx)){
               if(!flagAcc2(*vtx)) isD0b = false;
            }
-         //if(!isD0) continue;
            if(!(isD0||isD0b)) continue;
 
-              if ((*vxcItr)->trackParticle(0)->charge() != 1 || (*vxcItr)->trackParticle(1)->charge() != -1) {
-                 ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the charge requirement: "
-                                 << (*vxcItr)->trackParticle(0)->charge() << ", " << (*vxcItr)->trackParticle(1)->charge() );
-                continue;
-              }
-              double mass_D0 = m_V0Tools->invariantMass(*vxcItr,massesD0);
-              double mass_D0b = m_V0Tools->invariantMass(*vxcItr,massesD0b);
-              ATH_MSG_DEBUG("D0 mass " << mass_D0 << ", D0b mass "<<mass_D0b);
-            //if (mass_D0 < m_D0MassLower || mass_D0 > m_D0MassUpper) {
-              if ((mass_D0 < m_D0MassLower || mass_D0 > m_D0MassUpper) && (mass_D0b < m_D0MassLower || mass_D0b > m_D0MassUpper)) {
-                 ATH_MSG_DEBUG(" Original D0 candidate rejected by the mass cut: mass = "
-                               << mass_D0 << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ") " 
-                               << mass_D0b << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ") " );
-                continue;
-              }
+           // Ensure the total charge is correct
+           if ((*vxcItr)->trackParticle(0)->charge() != 1 || (*vxcItr)->trackParticle(1)->charge() != -1) {
+              ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the charge requirement: "
+                              << (*vxcItr)->trackParticle(0)->charge() << ", " << (*vxcItr)->trackParticle(1)->charge() );
+             continue;
+           }
+
+           // Check D0/D0bar candidate invariant mass and skip if need be
+           double mass_D0 = m_V0Tools->invariantMass(*vxcItr,massesD0);
+           double mass_D0b = m_V0Tools->invariantMass(*vxcItr,massesD0b);
+           ATH_MSG_DEBUG("D0 mass " << mass_D0 << ", D0b mass "<<mass_D0b);
+           if ((mass_D0 < m_D0MassLower || mass_D0 > m_D0MassUpper) && (mass_D0b < m_D0MassLower || mass_D0b > m_D0MassUpper)) {
+              ATH_MSG_DEBUG(" Original D0 candidate rejected by the mass cut: mass = "
+                            << mass_D0 << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ") " 
+                            << mass_D0b << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ") " );
+             continue;
+           }
 
            selectedD0Candidates.push_back(*vxcItr);
         }
         if(selectedD0Candidates.size()<1) return StatusCode::SUCCESS;
-//std::cout<<"selectedD0Candidates.size() = "<<selectedD0Candidates.size()<<std::endl;
 
+        // Select the D0/D0b candidates before calling cascade fit
         std::vector<const xAOD::Vertex*> selectedK0Candidates;
         for(auto vxcItr=k0Container->cbegin(); vxcItr!=k0Container->cend(); ++vxcItr) {
 
+           // Check the passed flag first
            xAOD::Vertex* vtx = *vxcItr;
            SG::AuxElement::Accessor<Char_t> flagAcc1("passed_K0");
            if(flagAcc1.isAvailable(*vtx)){
               if(!flagAcc1(*vtx)) continue;
            }
 
-                 double mass_K0 = m_V0Tools->invariantMass(*vxcItr, massesK0);
-                 ATH_MSG_DEBUG("K_S0 mass " << mass_K0);
-                 if (mass_K0 < m_K0MassLower || mass_K0 > m_K0MassUpper) {
-                    ATH_MSG_DEBUG(" Original K_S0 candidate rejected by the mass cut: mass = "
-                                  << mass_K0 << " != (" << m_K0MassLower << ", " << m_K0MassUpper << ")" );
-                   continue;
-                 }
+           // Check K_S0 candidate invariant mass and skip if need be
+           double mass_K0 = m_V0Tools->invariantMass(*vxcItr, massesK0);
+           ATH_MSG_DEBUG("K_S0 mass " << mass_K0);
+           if (mass_K0 < m_K0MassLower || mass_K0 > m_K0MassUpper) {
+              ATH_MSG_DEBUG(" Original K_S0 candidate rejected by the mass cut: mass = "
+                            << mass_K0 << " != (" << m_K0MassLower << ", " << m_K0MassUpper << ")" );
+             continue;
+           }
 
            selectedK0Candidates.push_back(*vxcItr);
         }
         if(selectedK0Candidates.size()<1) return StatusCode::SUCCESS;
-//std::cout<<"selectedK0Candidates.size() = "<<selectedK0Candidates.size()<<std::endl;
-      //for(auto (*vxcItr) : *jpsipiContainer) { //Iterate over Jpsi+pi vertices
+
+        // Select J/psi D*+ candidates
+        // Iterate over Jpsi+pi vertices
         for(auto jpsipiItr=selectedJpsipiCandidates.cbegin(); jpsipiItr!=selectedJpsipiCandidates.cend(); ++jpsipiItr) {
 
            size_t jpsipiTrkNum = (*jpsipiItr)->nTrackParticles();
@@ -763,80 +750,24 @@ namespace DerivationFramework {
            if (tracksJpsipi.size() != 3 || massesJpsipi.size() != 3 ) {
              ATH_MSG_INFO("problems with Jpsi+pi input");
            }
-/*
-           double mass_Jpsipi = m_V0Tools->invariantMass((*jpsipiItr),massesJpsipi);
-           ATH_MSG_DEBUG("Jpsipi mass " << mass_Jpsipi);
-           if (mass_Jpsipi < m_jpsipiMassLower || mass_Jpsipi > m_jpsipiMassUpper) {
-             ATH_MSG_DEBUG(" Original Jpsipi candidate rejected by the mass cut: mass = "
-                           << mass_Jpsipi << " != (" << m_jpsipiMassLower << ", " << m_jpsipiMassUpper << ")" );
-             continue;
-           }
 
-           if (m_Dx_pid * (*jpsipiItr)->trackParticle(2)->charge() < 0) {
-             ATH_MSG_DEBUG(" Original Jpsipi candidate rejected by the charge requirement: "
-                           << (*jpsipiItr)->trackParticle(2)->charge() );
-             continue;
-           }
+           bool tagD0(true);
+           if(abs(m_Dx_pid)==421 && (*jpsipiItr)->trackParticle(2)->charge()==-1) tagD0 = false;
 
-           TLorentzVector p4Mup_in, p4Mum_in;
-           p4Mup_in.SetPtEtaPhiM((*jpsipiItr)->trackParticle(0)->pt(), 
-                                 (*jpsipiItr)->trackParticle(0)->eta(),
-                                 (*jpsipiItr)->trackParticle(0)->phi(), m_vtx0Daug1MassHypo); 
-           p4Mum_in.SetPtEtaPhiM((*jpsipiItr)->trackParticle(1)->pt(), 
-                                 (*jpsipiItr)->trackParticle(1)->eta(),
-                                 (*jpsipiItr)->trackParticle(1)->phi(), m_vtx0Daug2MassHypo); 
-           double mass_Jpsi = (p4Mup_in + p4Mum_in).M();
-           ATH_MSG_DEBUG("Jpsi mass " << mass_Jpsi);
-           if (mass_Jpsi < m_jpsiMassLower || mass_Jpsi > m_jpsiMassUpper) {
-             ATH_MSG_DEBUG(" Original Jpsi candidate rejected by the mass cut: mass = "
-                           << mass_Jpsi << " != (" << m_jpsiMassLower << ", " << m_jpsiMassUpper << ")" );
-             continue;
-           }
-*/
            TLorentzVector p4_pi1; // Momentum of soft pion
            p4_pi1.SetPtEtaPhiM((*jpsipiItr)->trackParticle(2)->pt(), 
                                (*jpsipiItr)->trackParticle(2)->eta(),
                                (*jpsipiItr)->trackParticle(2)->phi(), m_vtx0Daug3MassHypo); 
 
-         //for(auto d0 : *d0Container) { //Iterate over V0 vertices
+           // Iterate over D0/D0bar vertices
            for(auto d0Itr=selectedD0Candidates.cbegin(); d0Itr!=selectedD0Candidates.cend(); ++d0Itr) {
 
+              // Check identical tracks in input
               if(std::find(tracksJpsipi.cbegin(), tracksJpsipi.cend(), (*d0Itr)->trackParticle(0)) != tracksJpsipi.cend()) continue; 
               if(std::find(tracksJpsipi.cbegin(), tracksJpsipi.cend(), (*d0Itr)->trackParticle(1)) != tracksJpsipi.cend()) continue; 
 
-              size_t d0TrkNum = (*d0Itr)->nTrackParticles();
-              tracksD0.clear();
-              for( unsigned int it=0; it<d0TrkNum; it++) tracksD0.push_back((*d0Itr)->trackParticle(it));
-              if (tracksD0.size() != 2 || massesD0.size() != 2 ) {
-                ATH_MSG_INFO("problems with D0 input");
-              }
-/*
-              if ((*d0Itr)->trackParticle(0)->charge() != 1 || (*d0Itr)->trackParticle(1)->charge() != -1) {
-                 ATH_MSG_DEBUG(" Original D0/D0-bar candidate rejected by the charge requirement: "
-                                 << (*d0Itr)->trackParticle(0)->charge() << ", " << (*d0Itr)->trackParticle(1)->charge() );
-                continue;
-              }
-              double mass_D0 = m_V0Tools->invariantMass((*d0Itr),massesD0);
-              ATH_MSG_DEBUG("D0 mass " << mass_D0);
-              if (mass_D0 < m_D0MassLower || mass_D0 > m_D0MassUpper) {
-                 ATH_MSG_DEBUG(" Original D0 candidate rejected by the mass cut: mass = "
-                               << mass_D0 << " != (" << m_D0MassLower << ", " << m_D0MassUpper << ")" );
-                continue;
-              }
-*/
-             
               TLorentzVector p4_ka, p4_pi2;
-            //p4_pi2.SetPtEtaPhiM((*d0Itr)->trackParticle(0)->pt(), 
-            //                    (*d0Itr)->trackParticle(0)->eta(),
-            //                    (*d0Itr)->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
-            //p4_ka.SetPtEtaPhiM( (*d0Itr)->trackParticle(1)->pt(), 
-            //                    (*d0Itr)->trackParticle(1)->eta(),
-            //                    (*d0Itr)->trackParticle(1)->phi(), m_vtx1Daug2MassHypo); 
-              bool tagDpst(false);
-              if(abs(m_Dx_pid)==421 && (*jpsipiItr)->trackParticle(2)->charge()==1) tagDpst = true;
-              else tagDpst = false;
-
-              if(tagDpst){ // for D*+
+              if(tagD0){ // for D*+
                 p4_pi2.SetPtEtaPhiM((*d0Itr)->trackParticle(0)->pt(), 
                                     (*d0Itr)->trackParticle(0)->eta(),
                                     (*d0Itr)->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
@@ -851,6 +782,7 @@ namespace DerivationFramework {
                                     (*d0Itr)->trackParticle(0)->eta(),
                                     (*d0Itr)->trackParticle(0)->phi(), m_vtx1Daug2MassHypo); 
               }
+              // Check D*+/- candidate invariant mass and skip if need be
               double mass_Dst= (p4_pi1 + p4_ka + p4_pi2).M();
               ATH_MSG_DEBUG("D*+/- mass " << mass_Dst);
               if (mass_Dst < m_DstMassLower || mass_Dst > m_DstMassUpper) {
@@ -859,9 +791,17 @@ namespace DerivationFramework {
                 continue;
               }
 
-            //for(auto k0 : *k0Container) { //Iterate over K0 vertices
+              size_t d0TrkNum = (*d0Itr)->nTrackParticles();
+              tracksD0.clear();
+              for( unsigned int it=0; it<d0TrkNum; it++) tracksD0.push_back((*d0Itr)->trackParticle(it));
+              if (tracksD0.size() != 2 || massesD0.size() != 2 ) {
+                ATH_MSG_INFO("problems with D0 input");
+              }
+             
+              // Iterate over K0 vertices
               for(auto k0Itr=selectedK0Candidates.cbegin(); k0Itr!=selectedK0Candidates.cend(); ++k0Itr) {
               
+                 // Check identical tracks in input
                  if(std::find(tracksJpsipi.cbegin(), tracksJpsipi.cend(), (*k0Itr)->trackParticle(0)) != tracksJpsipi.cend()) continue; 
                  if(std::find(tracksJpsipi.cbegin(), tracksJpsipi.cend(), (*k0Itr)->trackParticle(1)) != tracksJpsipi.cend()) continue; 
                  if(std::find(tracksD0.cbegin(), tracksD0.cend(), (*k0Itr)->trackParticle(0)) != tracksD0.cend()) continue; 
@@ -873,13 +813,6 @@ namespace DerivationFramework {
                  if (tracksK0.size() != 2 || massesK0.size() != 2 ) {
                    ATH_MSG_INFO("problems with K0 input");
                  }
-              // double mass_K0 = m_V0Tools->invariantMass((*k0Itr),massesK0);
-              // ATH_MSG_DEBUG("K_S0 mass " << mass_K0);
-              // if (mass_K0 < m_K0MassLower || mass_K0 > m_K0MassUpper) {
-              //    ATH_MSG_DEBUG(" Original K_S0 candidate rejected by the mass cut: mass = "
-              //                  << mass_K0 << " != (" << m_K0MassLower << ", " << m_K0MassUpper << ")" );
-              //   continue;
-              // }
 
                  ATH_MSG_DEBUG("using tracks" << tracksJpsipi[0] << ", " << tracksJpsipi[1] << ", " << tracksJpsipi[2] << ", " << tracksD0[0] << ", " << tracksD0[1] << ", " << tracksK0[0] << ", " << tracksK0[1]);
 
@@ -888,18 +821,6 @@ namespace DerivationFramework {
                  for( unsigned int it=0; it<d0TrkNum; it++) tracksBc.push_back((*d0Itr)->trackParticle(it));
                  for( unsigned int it=0; it<k0TrkNum; it++) tracksBc.push_back((*k0Itr)->trackParticle(it));
                  
-              // bool isIdenticalTrk(false);
-              // for( unsigned int it=0; it<tracksBc.size()-1; it++){
-              //   for( unsigned int jt=it+1; jt<tracksBc.size(); jt++){
-              //     if(tracksBc[it]==tracksBc[jt]) isIdenticalTrk = true;
-              //   }
-              // }
-              //
-              // if( isIdenticalTrk ) {
-              //   ATH_MSG_DEBUG("identical tracks in input");
-              //   continue;
-              // }
-             
              
                  // Apply the user's settings to the fitter
                  // Reset
@@ -921,10 +842,10 @@ namespace DerivationFramework {
                  // D0 vertex
                  Trk::VertexID vD0ID;
                  if (m_constrD0) {
-                   if(tagDpst) vD0ID = m_iVertexFitter->nextVertex(tracksD0,massesD0,mass_d0);
+                   if(tagD0) vD0ID = m_iVertexFitter->nextVertex(tracksD0,massesD0,mass_d0);
                    else vD0ID = m_iVertexFitter->nextVertex(tracksD0,massesD0b,mass_d0);
                  } else {
-                   if(tagDpst) vD0ID = m_iVertexFitter->nextVertex(tracksD0,massesD0);
+                   if(tagD0) vD0ID = m_iVertexFitter->nextVertex(tracksD0,massesD0);
                    else vD0ID = m_iVertexFitter->nextVertex(tracksD0,massesD0b);
                  }
                  vrtList.push_back(vD0ID);
@@ -942,12 +863,6 @@ namespace DerivationFramework {
                  std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade());
              
                  if (result != nullptr) {
-                   // Chi2/DOF cut
-                 //double bChi2DOF = result->fitChi2()/result->nDoF();
-                 //ATH_MSG_DEBUG("Candidate chi2/DOF is " << bChi2DOF);
-                 //    
-                 //bool chi2CutPassed = (m_chi2cut <= 0.0 || bChi2DOF < m_chi2cut);
-                 //if(!chi2CutPassed) { ATH_MSG_DEBUG("Chi Cut failed!"); continue; }
 
                    // reset links to original tracks
                    BPhysPVCascadeTools::PrepareVertexLinks(result.get(), trackContainer);
@@ -982,7 +897,7 @@ namespace DerivationFramework {
 
            } //Iterate over D0 vertices
 
-        } //Iterate over Jpsi vertices
+        } //Iterate over Jpsi+pi vertices
 
         ATH_MSG_DEBUG("cascadeinfoContainer size " << cascadeinfoContainer->size());
 
@@ -990,5 +905,3 @@ namespace DerivationFramework {
     }
 
 }
-
-
