@@ -140,7 +140,8 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
         // Keep RDO with larger cluster size. If cluster sizes are the same, keep the first one.
         if (rdo1->getGroupSize()>=rdo2->getGroupSize()) {
           vec_isDuplicated.at(iRDO2) = true;
-        } else {
+        } 
+        else {
           vec_isDuplicated.at(iRDO1)  = true;
         }
         break;
@@ -308,7 +309,8 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vecTimeBins, std::vector<uint1
     if (groupSize == 1) {/** Group size = 1 */
       const uint16_t hitCondSingle{static_cast<uint16_t>(0x8000 | encodedSide | chipNum | clustBaseAddr | firstHitErr)};
       vec16Words.push_back(hitCondSingle);
-    } else if (groupSize == 2) {/** paired strip Hits on condensed Mode */
+    } 
+    else if (groupSize == 2) {/** paired strip Hits on condensed Mode */
       const uint16_t hitCondPaired{static_cast<uint16_t>(0x8001 | encodedSide | chipNum | clustBaseAddr | secondHitErr | firstHitErr)};
       vec16Words.push_back(hitCondPaired);
     }    
