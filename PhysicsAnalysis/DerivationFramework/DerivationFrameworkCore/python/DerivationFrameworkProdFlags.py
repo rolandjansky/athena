@@ -23,7 +23,7 @@ class WriteDAOD_PHYSVALStream(JobProperty):
     StreamName   = "StreamDAOD_PHYSVAL"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/PHYSVAL.py"
+    DPDMakerScript = "DerivationFrameworkPhysicsValidation/PHYSVAL.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSVALStream)
 listAODtoDPD.append(WriteDAOD_PHYSVALStream.StreamName)
