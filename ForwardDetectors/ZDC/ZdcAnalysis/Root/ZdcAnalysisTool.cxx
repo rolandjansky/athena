@@ -82,8 +82,8 @@ namespace ZDC
     ANA_MSG_VERBOSE ("Found trigger config file " << filename);
     ATH_MSG_INFO("Opening trigger efficiency file " << filename);
     
-    std::unique_ptr<TFile> file (TFile::Open(filename.c_str()));
-    if (!file->IsOpen()) 
+    std::unique_ptr<TFile> file (TFile::Open(filename.c_str(), "READ"));
+    if (file == nullptr || file->IsZombie()) 
       {
 	ATH_MSG_WARNING("No trigger efficiencies at "  << filename);
 	return;
@@ -971,7 +971,13 @@ namespace ZDC
 
     std::string filename = PathResolverFindCalibFile( ("ZdcAnalysis/"+m_zdcEnergyCalibFileName).c_str() );
     ATH_MSG_INFO("Opening energy calibration file " << filename);
-    std::unique_ptr<TFile> fCalib (TFile::Open(filename.c_str()));
+    std::unique_ptr<TFile> fCalib (TFile::Open(filename.c_str(), "READ"));
+
+    if (fCalib == nullptr || fCalib->IsZombie())
+    {
+      ANA_MSG_ERROR ("failed to open file: " << filename);
+      throw std::runtime_error ("failed to open file " + filename);
+    }
   
     std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> splines;
 
@@ -1012,7 +1018,7 @@ namespace ZDC
     ATH_MSG_INFO("Opening time calibration file " << filename);
     std::unique_ptr<TFile> fCalib (TFile::Open(filename.c_str()));
 
-    if (fCalib)
+    if (fCalib && !fCalib->IsZombie())
       {
 	std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0HGOffsetSplines;
 	std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> T0LGOffsetSplines;
