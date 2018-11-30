@@ -61,13 +61,18 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     ATH_MSG_INFO("amanda - in getConditions()");
     
     std::string match ("yes");
+    std::vector<std::string> jetVarVec ;
+    std::vector<double> EVec ;
+    std::vector<double> limitMinVec ;
+    std::vector<double> limitMaxVec ;
 
-    if(m_jetVars.size() == 0){
+    if(m_E.size() == 0){
       ATH_MSG_INFO("amanda - no defined jet moments, return false");    
       auto conditions = conditionsFactoryFalse(0.0,1.0);
       std::sort(conditions.begin(), conditions.end(),ConditionsSorter());
       return conditions;
     }
+/*
     else{
       for(unsigned int count=0; count<m_has.size(); count++){
           if(m_has[count].compare(match)==0){
@@ -89,13 +94,55 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
           }
         }
       }
+*/
 
 
+  //make vectors
+    else{
+        for(unsigned int noJets=0; noJets<m_E.size(); noJets++){
+          ATH_MSG_INFO("amanda - considering jet energies "<< m_E[noJets]);
+          for(unsigned int count=0; count<(m_has.size()/m_E.size()); count++){
+              if(m_has[count].compare(match)==0){
+                jetVarVec.push_back(m_jetVars[count%2]);
+                EVec.push_back(m_E[noJets]);
+                ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[count%2]);
+                std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[count%2]))(m_limitMins[count], m_limitMaxs[count]);
+
+                ATH_MSG_INFO("amanda - got limits " << limits);
+                limitMinVec.push_back(limits.first);
+                limitMaxVec.push_back(limits.second);
+              }
+              else{
+                ATH_MSG_INFO("amanda - m_has=false, return false");
+                jetVarVec.push_back(" "); // will return false in JetAttrsCondition
+                limitMinVec.push_back(-10.0); //placeholder values
+                limitMaxVec.push_back(-10.0);
+              }
+            }
+        }
+      }
+
+   auto conditions = conditionsFactoryJetAttrs(jetVarVec, EVec, limitMinVec, limitMaxVec);
+
+   ATH_MSG_INFO("amanda - JetAttrs getConditions() no of conditions "
+                 << conditions.size());
+   ATH_MSG_INFO("amanda - no of jets to consider " << m_E.size());
+
+   ATH_MSG_INFO("amanda - passing to conditionsFactory " << jetVarVec);
+
+   //print inputs given to condition
+   for(auto& c : conditions){ATH_MSG_INFO(c.toString());}
+
+   return conditions;
+
+
+  /*
   //Should never reach this... included for compilation
   auto conditions = conditionsFactoryFalse(0.0,1.0);
   std::sort(conditions.begin(), conditions.end(),ConditionsSorter());
   return conditions;
-    
+  */
+
 }
 
 

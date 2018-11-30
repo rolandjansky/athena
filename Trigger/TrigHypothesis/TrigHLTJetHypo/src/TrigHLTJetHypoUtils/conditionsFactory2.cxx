@@ -21,6 +21,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsWidthCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsKtDRCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FalseCondition.h"
@@ -198,6 +199,34 @@ Conditions conditionsFactoryJetAttrsKtDR(double limitMin,
                       limitMax));
 
   conditions.push_back(ConditionBridge(pCondition));
+  return conditions;
+}
+
+Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
+                      const std::vector<double>& Es,
+                      const std::vector<double>& limitMins,
+                      const std::vector<double>& limitMaxs){
+  Conditions conditions;
+
+  /*
+  for(std::size_t i = 0; i < limitMins.size(); ++i){
+      std::shared_ptr<ICondition>
+      pCondition(new JetAttrsCondition(jetVars[i],
+                                    Es[i],
+                                    limitMins[i],
+                                    limitMaxs[i]));
+
+    conditions.push_back(ConditionBridge(pCondition));
+  }
+  */
+  std::shared_ptr<ICondition> 
+    pCondition(new JetAttrsCondition(jetVars,
+                    Es,
+                    limitMins,
+                    limitMaxs));
+
+  conditions.push_back(ConditionBridge(pCondition));
+
   return conditions;
 }
 
