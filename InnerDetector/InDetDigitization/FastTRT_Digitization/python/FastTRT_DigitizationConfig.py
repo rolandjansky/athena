@@ -57,6 +57,25 @@ def BasicTRTFastDigitizationTool(name, **kwargs):
         kwargs.setdefault("FirstXing", FastTRT_FirstXing())
         kwargs.setdefault("LastXing",  FastTRT_LastXing())
 
+    from AthenaCommon.AppMgr import ServiceMgr
+    if not hasattr(ServiceMgr, "InDetTRTStrawStatusSummarySvc"):
+        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
+        InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc" )
+        ServiceMgr += InDetTRTStrawStatusSummarySvc
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "InDet_TRT_LocalOccupancy"):
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+        InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy( name = "InDet_TRT_LocalOccupancy",
+                                                             isTrigger = False )
+        ToolSvc += InDetTRT_LocalOccupancy
+    if not hasattr(ToolSvc, "InDetTRT_ElectronPidTool"):
+        from AthenaCommon.GlobalFlags import globalflags
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
+        InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2( name = "InDetTRT_ElectronPidTool",
+                                                                   TRT_LocalOccupancyTool = ToolSvc.InDet_TRT_LocalOccupancy,
+                                                                   isData = (globalflags.DataSource == 'data') )
+        ToolSvc += InDetTRT_ElectronPidTool
+
     from AthenaCommon import CfgMgr
     return CfgMgr.TRTFastDigitizationTool(name,**kwargs)
 
