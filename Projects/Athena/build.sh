@@ -4,6 +4,8 @@
 # scripts in this directory.
 #
 
+_time_() { local c="$*" ; ( time -p $c ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
+
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a]"
@@ -112,7 +114,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    _time_ cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthenaSrcDir} 2>&1 | tee cmake_config.log
 fi
@@ -125,18 +127,18 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time ${BUILDTOOL} 2>&1 | tee cmake_build.log
+    _time_ ${BUILDTOOL} 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE} \
+    DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} _time_  ${BUILDTOOL} ${INSTALLRULE} \
 	 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    time cpack 2>&1 | tee cmake_cpack.log
+    _time_ cpack 2>&1 | tee cmake_cpack.log
     cp Athena*.rpm ${BUILDDIR}/
 fi
 
