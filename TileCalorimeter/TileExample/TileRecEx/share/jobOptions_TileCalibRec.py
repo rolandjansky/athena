@@ -1186,9 +1186,9 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
-    dqstatus.TileBeamElemContainer   = getattr (TileNtuple, 'TileBeamElemContainer', '')
-    dqstatus.TileDigitsContainer     = getattr (TileNtuple, 'TileDigitsContainer', '')
-    dqstatus.TileRawChannelContainer = getattr (TileNtuple, 'TileRawChannelContainer', '')
+    dqStatus.TileBeamElemContainer   = getattr (TileNtuple, 'TileBeamElemContainer', '')
+    dqStatus.TileDigitsContainer     = getattr (TileNtuple, 'TileDigitsContainer', '')
+    dqStatus.TileRawChannelContainer = getattr (TileNtuple, 'TileRawChannelContainer', '')
 
     # FIXME: TileAANtuple does a back-door set of properties
     #        in TileBeamInfoProvider.  That doesn't really work with
