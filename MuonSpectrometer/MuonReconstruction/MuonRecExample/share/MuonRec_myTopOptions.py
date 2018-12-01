@@ -2,6 +2,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 
 ## flag to set number of events to be processed
 EvtMax = -1
@@ -23,17 +24,9 @@ from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 #--------------------------------------------------------------------------------
 # Input
 #--------------------------------------------------------------------------------
-athenaCommonFlags.FilesInput = [
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0001.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0002.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0003.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0004.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0005.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0006.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0007.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0008.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0009.rdo.pool.root"
-]
+if not 'InputRdoFile' in dir():
+    InputRdoFile="root://eosatlas//eos/atlas/atlasgroupdisk/det-muon/dq2/rucio/user/zhidong/14/a2/user.zhidong.12100112.EXT0._000001.RDO.pool.root"
+athenaCommonFlags.FilesInput = [InputRdoFile]
 
 if not hasJobPropertyBeenSet(athenaCommonFlags.FilesInput):
     athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
@@ -63,8 +56,6 @@ rec.doTruth=True
 rec.doTrigger = False
 #recFlags.doTruth.set_Value_and_Lock(False)
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
-# Read geometry alignment corrections from DB
-#muonRecFlags.useAlignmentCorrections = True
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
