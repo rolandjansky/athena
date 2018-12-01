@@ -320,8 +320,10 @@ else:
     # note that the muon triggers are OR'ed with the MET triggers
     # that is done to recover the muon trigger inefficiency in data
     # studies on this are on going in the tt resonances group
+		#list of all un pre-scaled MET triggers
     MET_triggers = 'HLT_xe70 || HLT_xe70_mht || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55 || HLT_xe110_pufit_xe70_L1XE50 || HLT_xe120_pufit_L1XE50 || HLT_xe110_pufit_xe65_L1XE55 || HLT_xe120_pufit_L1XE55 || HLT_xe100_pufit_xe75_L1XE60 || HLT_xe110_pufit_xe65_L1XE60 || HLT_xe120_pufit_L1XE60'
 
+    #adding the MET triggers in OR with both single electron and muon triggers
     expression_trige = '(HLT_e24_lhmedium_L1EM20VH || HLT_e60_lhmedium || HLT_e120_lhloose || HLT_e24_lhtight_nod0_ivarloose || HLT_e60_lhmedium_nod0 || HLT_e140_lhloose_nod0 || HLT_e60_medium || HLT_e300_etcut ||  HLT_e26_lhtight_nod0_ivarloose || '+MET_triggers+' )'
     expression_trigmu = '(HLT_mu20_iloose_L1MU15 || HLT_mu50 || HLT_mu24_ivarmedium || HLT_mu50 || HLT_mu24_iloose || HLT_mu24_ivarloose || HLT_mu40 || HLT_mu24_imedium || HLT_mu26_ivarmedium || HLT_mu26_imedium || '+MET_triggers+' )'
 # now make up the skimming selection expression
@@ -463,6 +465,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramew
 #thinningTools.append(EXOT4CA15CCThinningTool)
 
 #Thinning tool for akt4 topoEM jets
+#pT cut 7 GeV and |Eta| cut 3.0 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT4Ak4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT4Ak4CCThinningTool",
                                                                         ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
@@ -822,7 +825,9 @@ if globalflags.DataSource()=='geant4':
 #addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets", "CamKt15LCTopoJets"])#FIX #ATLJETMET-744
 #addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
 #addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4EMTopoJets","AntiKtVR30Rmax4Rmin02Track"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
-#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"
+
+#addJetOutputs add the collection as a full collection eventough they are defined under smart collection
+#So not using addJetOutputs, add the collections and variables explicitly bellow
 
 #listJets = ['CamKt15LCTopoJets', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets','AntiKtVR30Rmax4Rmin02Track','AntiKt4EMPFlowJets','AntiKt4EMTopoJets','AntiKt2PV0TrackJets']#FIX #ATLJETMET-744
@@ -857,12 +862,13 @@ for jet in listNewJets :
    
 # same procedure to add in the dictionary needs to be done for the btagging information generated on the fly
 # again: hand picked list of variables to save is given
-listBtagNoEl=['BTagging_AntiKt4EMTopoNoEl']  #BTagging_AntiKt4TrackNoEl' #removing the b-tag information of R=4 track jets
+listBtagNoEl=['BTagging_AntiKt4EMTopoNoEl']  #BTagging_AntiKt4TrackNoEl' #removing the b-tag information of R=4 track jets(obsolate)
 
 for btag in listBtagNoEl :
    EXOT4SlimmingHelper.AppendToDictionary[btag] = 'xAOD::BTaggingContainer'
    EXOT4SlimmingHelper.AppendToDictionary[btag+'Aux']= 'xAOD::AuxContainerBase' 
    #EXOT4SlimmingHelper.ExtraVariables +=[btag+".SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant.MSV_vertices.MV1c_discriminant.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant"]
+   #UPdating the list of tagger variables: JIRA AFT-368, MR 14135 
    EXOT4SlimmingHelper.ExtraVariables +=[btag+".SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant.MSV_vertices.MV1c_discriminant.SV1_badTracksIP.SV1_vertices.B    TagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.MV2r_discriminant.MV2rmu_discriminant.DL1r_pb.DL1r_pc.DL1r_pu.DL1rmu_pb.DL1rmu_pc.DL1rmu_pu"]
 
 # central JetEtMiss function to save the MET necessary information
