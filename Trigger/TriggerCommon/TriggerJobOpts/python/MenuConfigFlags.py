@@ -26,7 +26,6 @@ class MenuUtils:
         for k,v in flags._flagdict.iteritems():
             if "Trigger.menu." in k:
                 for chain in v.get():
-                    # hlt,l1 = chain.split()[:2]
                     hlt = chain[0]
                     l1 = chain[1]
                     seeding[hlt] = l1

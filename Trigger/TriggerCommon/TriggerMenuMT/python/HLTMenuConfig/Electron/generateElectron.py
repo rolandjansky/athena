@@ -14,9 +14,6 @@ def generateChains( flags,  chainDict ):
 
     acc = ComponentAccumulator()
 
-    # l2CaloHypo = TrigL2CaloHypoAlgMT('L2ElectronCaloHypo')
-    # l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
-
     l2CaloHypo = RecoFragmentsPool.retrieve(l2CaloHypoCfg,
                                             flags,
                                             name = 'L2ElectronCaloHypo',

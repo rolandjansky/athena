@@ -32,11 +32,6 @@ def generateChains(flags, chainDict):
     l2PhotonReco = RecoFragmentsPool.retrieve(l2PhotonRecoCfg, flags)
     acc.merge(l2PhotonReco)
 
-    # l2PhotonHypo = TrigL2PhotonHypoAlgMT()
-    # l2PhotonHypo.Photons = "L2Photons"
-    # l2PhotonHypo.RunInView = True
-    # l2PhotonHypo.OutputLevel = VERBOSE
-
     l2PhotonHypo = RecoFragmentsPool.retrieve(l2PhotonHypoCfg,
                                               flags,
                                               Photons='L2Photons',

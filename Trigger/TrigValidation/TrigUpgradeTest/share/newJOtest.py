@@ -61,27 +61,6 @@ acc.merge(TrigBSReadCfg(flags ))
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
-# def menu( mf ):
-    # menuAcc = ComponentAccumulator()
-    # menuAcc.addSequence( seqAND("HLTAllSteps") )
-    #
-    #
-    # from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
-    # electronAcc, electronChains = generateElectronsCfg( mf )
-    # menuAcc.merge( electronAcc )
-    #
-    # from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
-    # photonsAcc, photonChains = generatePhotonsCfg( mf )
-    # menuAcc.merge( photonsAcc )
-    #
-    # allChains =   photonChains + electronChains
-    # from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains
-    # decisionTree_From_Chains( menuAcc.getSequence("HLTAllSteps"), allChains )
-    # menuAcc.printConfig()
-    #
-    # return menuAcc
-
-
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
