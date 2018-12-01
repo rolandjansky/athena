@@ -5,7 +5,6 @@
 // Tile includes
 #include "TileCellSelector.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileDigits.h"
 #include "TileIdentifier/TileHWID.h"
@@ -54,7 +53,6 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   , m_tileHWID(0)
   , m_cabling(0)
   , m_tileBadChanTool("TileBadChanTool")
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_tileDCSSvc("TileDCSSvc",name)
   , m_runNum(0)
   , m_lumiBlock(0)
@@ -129,8 +127,7 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "MaxVerboseCnt",m_maxVerboseCnt=20); // max number of verbose output lines about drawer off
 
   declareProperty("TileBadChanTool", m_tileBadChanTool);
-  declareProperty("BeamInfo", m_beamInfo);
-
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
 
 
@@ -151,7 +148,6 @@ StatusCode TileCellSelector::initialize() {
   m_cabling = TileCablingService::getInstance();
 
   CHECK(m_tileBadChanTool.retrieve());
-  CHECK(m_beamInfo.retrieve());
 
   if (m_checkDCS) {
     CHECK(m_tileDCSSvc.retrieve());
@@ -324,6 +320,8 @@ StatusCode TileCellSelector::initialize() {
     m_drawerToSkip.resize(1+TileCalibUtils::getDrawerIdx(4,63),false);
   }
 
+  CHECK( m_dqStatusKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -331,9 +329,11 @@ StatusCode TileCellSelector::initialize() {
 StatusCode TileCellSelector::execute() {
   //ATH_MSG_DEBUG ("execute()");
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ++m_counter;
 
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
   if ( eventInfo.isValid() ) {
     m_runNum = eventInfo->runNumber();
     m_lumiBlock = eventInfo->lumiBlock();
@@ -902,7 +902,7 @@ StatusCode TileCellSelector::execute() {
       }
 
       if (rChUnit >= TileRawChannelUnit::OnlineADCcounts)
-        DQstatus = m_beamInfo->getDQstatus();
+        DQstatus = SG::makeHandle (m_dqStatusKey, ctx).get();
       else
         rawdata = 0;
 

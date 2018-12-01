@@ -10,6 +10,7 @@
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDQstatus.h"
 
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
@@ -31,7 +32,6 @@ class TileCell;
 class TileCablingService;
 class ITileBadChanTool;
 class TileDCSSvc;
-class TileBeamInfoProvider;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -41,9 +41,9 @@ class TileCellSelector: public AthAlgorithm {
     TileCellSelector(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~TileCellSelector();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
 
@@ -68,7 +68,7 @@ class TileCellSelector: public AthAlgorithm {
     const TileHWID* m_tileHWID;
     const TileCablingService* m_cabling;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
-    ToolHandle<TileBeamInfoProvider> m_beamInfo; //!< Beam Info tool to get the DQ Status object
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     ServiceHandle<TileDCSSvc> m_tileDCSSvc; //!< Pointer to TileDCSSvc
 
     unsigned int m_runNum;

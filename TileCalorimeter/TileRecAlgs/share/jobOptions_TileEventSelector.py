@@ -249,6 +249,10 @@ if not ReadESD:
 #                     (191513, 20422820),
 #                     (191920, 34336488) ]
 
+
+from TileRecUtils.TileDQstatusDefault import TileDQstatusDefault
+TileDQstatusDefault()
+
 from TileRecAlgs.TileRecAlgsConf import TileCellSelector
 tileSelector = TileCellSelector('TileSelector')
 if ReadESD:
