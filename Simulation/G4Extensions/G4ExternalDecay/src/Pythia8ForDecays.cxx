@@ -54,6 +54,7 @@ Pythia8ForDecays::Pythia8ForDecays()
   m_pythia->readString("RHadrons:allowDecay = on");
   m_pythia->readString("RHadrons:probGluinoball = 0.1");
   m_pythia->readString("PartonLevel:FSR = off");
+  m_pythia->readString("Init:showAllParticleData = on");
 
   // Process the file of commands left for us by the python layer
   std::string line;
@@ -231,10 +232,17 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
 
   // Fraction of the RHadron mass given by the sparticle
   double fracR = mRBef / mRHad;
-
-  if (fracR >= 1.){
-    G4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!  mRBef=" << mRBef << " mRHad=" << mRHad << " idRBef=" << idRBef << G4endl;
-    return;
+  int counter=0;
+  while (fracR>=1.){
+    if (counter>10){
+      G4cout << "Needed more than 10 attempts with constituent " << idRBef << " mass (" << mRBef << " above R-Hadron " << idRHad << " mass " << mRHad << G4endl;
+    } else if (counter>100){
+      G4cout << "Pythia8ForDecays::Py1ent ERROR   Failed >100 times. Constituent " << idRBef << " mass (" << mRBef << " above R-Hadron " << idRHad << " mass " << mRHad << G4endl;
+      return;
+    }
+    mRBef = pdt.mSel(idRBef);
+    fracR = mRBef / mRHad;
+    counter++;
   }
 
   // Squark case
