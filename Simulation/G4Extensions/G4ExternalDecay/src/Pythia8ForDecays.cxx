@@ -234,7 +234,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   double fracR = mRBef / mRHad;
   int counter=0;
   while (fracR>=1.){
-    if (counter>10){
+    if (counter==10){
       G4cout << "Needed more than 10 attempts with constituent " << idRBef << " mass (" << mRBef << " above R-Hadron " << idRHad << " mass " << mRHad << G4endl;
     } else if (counter>100){
       G4cout << "Pythia8ForDecays::Py1ent ERROR   Failed >100 times. Constituent " << idRBef << " mass (" << mRBef << " above R-Hadron " << idRHad << " mass " << mRHad << G4endl;
