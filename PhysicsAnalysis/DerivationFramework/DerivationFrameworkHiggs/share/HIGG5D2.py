@@ -199,7 +199,7 @@ if (beamEnergy > 6.0e+06): # 13 TeV, name should be HLT_xxx
     triglist.append("HLT_xe120_tc_em")
     triglist.append("HLT_noalg_L1J400") # added on Nov 2016
 # print 'DEBUG projectName=%s [%s;%s]' % (rec.projectName.get_Value(),type(rec.projectName),dir(rec.projectName))
-if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV']) :  # 13 TeV,   and project 2017:
+if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV','IS_SIMULATION']) :  # 13 TeV,   and project 2017:
     triglist.append("HLT_e28_lhtight_nod0_ivarloose")
     triglist.append("HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM")
     triglist.append("HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM")
@@ -216,6 +216,10 @@ if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','dat
     triglist.append("HLT_xe110_pufit_L1XE50")
     triglist.append("HLT_xe120_pufit_L1XE50")
     triglist.append("HLT_xe120_mht_xe80_L1XE50")
+    if rec.projectName.get_Value() in ['data18_13TeV','mc16_13TeV', 'mc17_13TeV', 'mc18_13TeV','IS_SIMULATION'] :  # 13 TeV,   and project 2017:
+       triglist.append("HLT_xe110_pufit_xe65_L1XE50")
+       triglist.append("HLT_xe110_pufit_xe70_L1XE50")
+       triglist.append("HLT_xe120_pufit_L1XE50")
 
     # triglist.append("L1_EM18VH")
     # triglist.append("L1_EM20VH")
