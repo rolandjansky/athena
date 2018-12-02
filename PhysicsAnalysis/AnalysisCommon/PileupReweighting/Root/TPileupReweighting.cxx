@@ -2055,7 +2055,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t, int runDep
                 if(runDependentRun && int(runNbr)!=runDependentRun) continue; //only use the given run with doing calculation run-dependently
                 //save the prescale by run and lbn 
                 //if(runNbr==215643) 
-                //if(m_debugging) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
+                if(m_debugging) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
                 if(ps1>0&&ps2>0&&ps3>0) prescaleByRunAndLbn[*it][runNbr][lbn] = ps1*ps2*ps3;
                 else if(isUnprescaled) prescaleByRunAndLbn[*it][runNbr][lbn] = 1; //special case where the trigger is an unprescaled one and user is reusing the unprescaled lumicalc
               }
