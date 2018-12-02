@@ -87,6 +87,8 @@ namespace InDet{
 
       bool backwardExtension(int);
       bool forwardExtension (bool,int);
+      bool forwardExtensionDefault (bool,int);
+      bool forwardExtensionTracklet (bool,int);
       bool forwardFilter    ();
       bool backwardSmoother (bool);
       bool isLastPixel      (); 
