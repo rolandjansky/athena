@@ -108,7 +108,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   LArG4Identifier identifier2;
 
   //  check the Step content is non trivial
-  G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit();
+  G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
   G4double thisStepLength = a_step->GetStepLength() / Units::mm;
   G4double dstep = .1*Units::mm;   // length of punctual charge for Current Option
 
@@ -197,7 +197,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   ATH_MSG_DEBUG("   nsub_step,delta " << nsub_step << " " << delta);
 #endif
 
-  G4double energy = a_step->GetTotalEnergyDeposit();
+  G4double energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
   if (m_BirksLaw) {
      const double EField = 10. ; // 10 kV/cm electric field in presampler gap
      const double wholeStepLengthCm = a_step->GetStepLength() / CLHEP::cm;
