@@ -370,7 +370,7 @@ class ConfiguredNewTrackingCuts :
     if mode == "DisplacedSoftPion":
       self.__extension             = "DisplacedSoftPion" # this runs parallel to NewTracking
       self.__maxPT                 = 1.0 * Units.TeV
-      self.__minPT                 = 100 * Units.MeV
+      self.__minPT                 = 200 * Units.MeV
       self.__maxEta                = 5
       self.__maxPrimaryImpact      = 150.0 * Units.mm
       self.__maxZImpact            = 1000.0 * Units.mm
