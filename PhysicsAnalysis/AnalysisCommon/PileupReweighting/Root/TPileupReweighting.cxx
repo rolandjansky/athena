@@ -21,6 +21,7 @@ Description: Tool to get the calculated MC pileup weight.
 
 // include math
 #include <math.h>
+#include <algorithm>
 
 // ROOT includes
 #include <TROOT.h>
@@ -2016,6 +2017,10 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t, int runDep
    for(std::vector<TString>::iterator it = t->subTriggers.begin();it!=t->subTriggers.end();++it) {
       //Info("aa","subtrigger %s Int lumi is %f", it->Data(), m_triggerPrimaryDistributions[*it][1]->Integral());
       for(auto& fileName : m_lumicalcFiles[*it]) {
+        //if the file is also in the "None" list, then we will now the prescale must be 0 
+        //it seems that in these no-trigger files used for unprescaled lumi the prescales are all set to -1 
+        bool isUnprescaled = (std::find(m_lumicalcFiles["None"].begin(),m_lumicalcFiles["None"].end(),fileName)!=m_lumicalcFiles["None"].end());
+      
         TFile* rootFile = TFile::Open( fileName, "READ" );
         if ( rootFile->IsZombie() ) {
           Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
@@ -2050,8 +2055,9 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t, int runDep
                 if(runDependentRun && int(runNbr)!=runDependentRun) continue; //only use the given run with doing calculation run-dependently
                 //save the prescale by run and lbn 
                 //if(runNbr==215643) 
-                if(m_debugging) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
+                //if(m_debugging) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
                 if(ps1>0&&ps2>0&&ps3>0) prescaleByRunAndLbn[*it][runNbr][lbn] = ps1*ps2*ps3;
+                else if(isUnprescaled) prescaleByRunAndLbn[*it][runNbr][lbn] = 1; //special case where the trigger is an unprescaled one and user is reusing the unprescaled lumicalc
               }
           }
         }
