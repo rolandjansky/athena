@@ -152,7 +152,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     fluence_layers.push_back(3.1e14);
     fluence_layers.push_back(1.3e14);
     fluence_layers.push_back(8e13);
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FLUENCE 5 BEING USED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+
   }else if(m_fluence==6){
 
     mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_400V_fl8_7e14.root", "DATAPATH") );
