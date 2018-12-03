@@ -46,6 +46,7 @@ class SUSY18Triggers(object):
             "HLT_e140_lhloose_nod0",
             "HLT_e300_etcut"
             ]
+
         # electron-tau
         self.__electron_tau_triggers_2015_2016 = [ #ETT
             "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo", #with J25
@@ -58,6 +59,16 @@ class SUSY18Triggers(object):
         self.__electron_tau_triggers_2017_B5 = [ #ETT
             "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo"
             ]
+
+        self.__electron_tau_triggers_2018 = [ #ETT
+            "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo", 
+            "HLT_e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwoEF",
+            "HLT_e24_lhmedium_nod0_ivarloose_tau35_mediumRNN_tracktwoMVA",
+            ]
+	#Notes: 
+        # For the 2018 startup, 2 versions: the 2017 one (medium1_tracktwo) and the 2018 version without MVA (medium1_tracktwoEF).
+        # For 2018 data after TS1, the mediumRNN_tracktwoMVA version was deployed
+
         #muon tau
         self.__muon_tau_triggers_2015_2016 = [ #MTT
             "HLT_mu14_tau25_medium1_tracktwo", #with J25
@@ -69,8 +80,12 @@ class SUSY18Triggers(object):
             "HLT_mu14_ivarloose_tau35_medium1_tracktwo"
             ]
         self.__muon_tau_triggers_2017_B5 = [ #MTT
-            "HLT_mu14_ivarloose_tau35_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20",
             "HLT_mu14_ivarloose_tau35_medium1_tracktwo"
+            ]
+        self.__muon_tau_triggers_2018 = [ #MTT
+            "HLT_mu14_ivarloose_tau35_medium1_tracktwo",
+            "HLT_mu14_ivarloose_tau35_medium1_tracktwoEF",
+            "HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA",
             ]
 
         #tau+electron+MET
@@ -82,6 +97,11 @@ class SUSY18Triggers(object):
             ]
         self.__electron_tau_met_triggers_2017 = [ #ETMT
             "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50"
+            ]
+        self.__electron_tau_met_triggers_2018 = [ #ETMT
+            "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50",
+            "HLT_e17_lhmedium_nod0_tau25_medium1_tracktwoEF_xe50",
+            "HLT_e17_lhmedium_nod0_tau25_mediumRNN_tracktwoMVA_xe50",
             ]
 
         #tau+muon+MET
@@ -95,26 +115,42 @@ class SUSY18Triggers(object):
             "HLT_mu14_tau25_medium1_tracktwo_xe50"
             ]
 
+        self.__muon_tau_met_triggers_2018 = [ #MTMT
+            "HLT_mu14_tau25_medium1_tracktwo_xe50",
+            "HLT_mu14_tau25_medium1_tracktwoEF_xe50",
+            "HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50",
+            ]
+
         # lepton tau triggers
         self.__muon_tau_triggers          = (self.__muon_tau_triggers_2015_2016 + \
                                                  self.__muon_tau_triggers_2017_B1B4 + \
-                                                 self.__muon_tau_triggers_2017_B5)
+                                                 self.__muon_tau_triggers_2017_B5 + \
+                                                 self.__muon_tau_triggers_2018
+                                             )
         self.__electron_tau_triggers      = (self.__electron_tau_triggers_2015_2016 + \
                                                  self.__electron_tau_triggers_2017_B1B4 + \
-                                                 self.__electron_tau_triggers_2017_B5)
+                                                 self.__electron_tau_triggers_2017_B5 + \
+                                                 self.__electron_tau_triggers_2018 
+                                             )
         self.__lepton_tau_triggers        = self.__muon_tau_triggers + self.__electron_tau_triggers #LTT
         self.__MTT_logical_or             = ' || '.join( self.__muon_tau_triggers )
         self.__ETT_logical_or             = ' || '.join( self.__electron_tau_triggers )
+
         # met lepton tau triggers
         self.__muon_tau_met_triggers      = (self.__muon_tau_met_triggers_2016_A + \
                                                  self.__muon_tau_met_triggers_2016_B_End + \
-                                                 self.__muon_tau_met_triggers_2017)
+                                                 self.__muon_tau_met_triggers_2017 + \
+                                                 self.__muon_tau_met_triggers_2018
+                                             )
         self.__electron_tau_met_triggers  = (self.__electron_tau_met_triggers_2016_A + \
                                                  self.__electron_tau_met_triggers_2016_B_End + \
-                                                 self.__electron_tau_met_triggers_2017)
+                                                 self.__electron_tau_met_triggers_2017 + \
+                                                 self.__electron_tau_met_triggers_2018
+                                             )
         self.__lepton_tau_met_triggers    = self.__muon_tau_met_triggers + self.__electron_tau_met_triggers #LTMT
         self.__MTMT_logical_or            = ' || '.join( self.__muon_tau_met_triggers )
         self.__ETMT_logical_or            = ' || '.join( self.__electron_tau_met_triggers )
+
         # single lepton triggers
         self.__SMT_logical_or_2015        = ' || '.join( self.__single_muon_triggers_2015 )
         self.__SMT_logical_or_2016_A      = ' || '.join( self.__single_muon_triggers_2016_A )
@@ -124,6 +160,7 @@ class SUSY18Triggers(object):
         self.__SET_logical_or_2015        = ' || '.join( self.__single_electron_triggers_2015 )
         self.__SET_logical_or_2016        = ' || '.join( self.__single_electron_triggers_2016 )
         self.__SET_logical_or_2017        = ' || '.join( self.__single_electron_triggers_2017 )
+
         #unique menu
         self.__lepton_triggers            = (self.__single_muon_triggers_2015 + \
                                                  self.__single_muon_triggers_2016_A + \
@@ -132,7 +169,8 @@ class SUSY18Triggers(object):
                                                  self.__single_muon_triggers_2017 + \
                                                  self.__single_electron_triggers_2015 + \
                                                  self.__single_electron_triggers_2016 + \
-                                                 self.__single_electron_triggers_2017 )
+                                                 self.__single_electron_triggers_2017 
+                                             )
 
         self.__unique_triggers            = self.trim_whitespaces( set( self.__lepton_triggers + \
                                                                             self.__lepton_tau_triggers + \

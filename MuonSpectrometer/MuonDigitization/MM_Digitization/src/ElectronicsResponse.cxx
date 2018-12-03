@@ -237,11 +237,9 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
   const int BXtime = 25; // (ns)
   int nstep = (int)(timeWindowUpperOffset-timeWindowLowerOffset)/BXtime;
   if((int)(timeWindowUpperOffset-timeWindowLowerOffset)%BXtime>0 ) nstep += 1;
-  bool tmp = false;
   for(int istep = 0; istep<nstep ; istep++){
     float timeWindowLower = (float)timeWindowLowerOffset+istep*BXtime;
     float timeWindowUpper = (float)timeWindowLowerOffset+(istep+1)*BXtime;
-    if(istep==0) tmp=false;
     std::vector<int> tmp_VMM_id; tmp_VMM_id.clear();
     for(size_t i = 0; i<ElectronicsThreshold_stripPos.size(); i++){
       

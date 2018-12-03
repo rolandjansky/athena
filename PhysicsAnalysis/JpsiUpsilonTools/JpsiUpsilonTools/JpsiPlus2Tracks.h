@@ -15,15 +15,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "DataModel/DataVector.h"
-#include "HepPDT/ParticleDataTable.hh"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
 #include <vector>
-#include <cmath>
 #include <string>
 /////////////////////////////////////////////////////////////////////////////
 
@@ -62,16 +59,17 @@ namespace Analysis {
         static bool   oppositeCharges(const xAOD::TrackParticle*, const xAOD::TrackParticle*);
 
         bool  passCuts(xAOD::BPhysHelper &bHelper, const std::vector<double> &masses, const std::string &str) const;
-
+        bool  vertexCuts(xAOD::BPhysHelper &bHelper) const;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&,
-                          bool, double, const xAOD::TrackParticleContainer*);
+                          bool, double, const xAOD::TrackParticleContainer*, const xAOD::Vertex* pv) const;
         //-------------------------------------------------------------------------------------
         
     private:
-        //const HepPDT::ParticleDataTable *m_particleDataTable;
         bool m_pipiMassHyp;
         bool m_kkMassHyp;
         bool m_kpiMassHyp;
+        bool m_kpMassHyp;
+        bool m_oppChargesOnly;
         double m_trkThresholdPt;
         double m_trkMaxEta;
         double m_BThresholdPt;
@@ -83,8 +81,7 @@ namespace Analysis {
         std::string m_TrkParticleCollection;
         std::string m_MuonsUsedInJpsi;
         bool m_excludeJpsiMuonsOnly; //Add by Matt Klein
-	bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
-        std::vector<xAOD::Vertex*> m_vxc;
+        bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
@@ -105,7 +102,12 @@ namespace Analysis {
         double m_finalDiTrackPt;          // pT of the hadronic track after fit
         double m_trkDeltaZ;               // DeltaZ between the JPsi vertex and hadronic tracks Z0
         // (to reduce the pileup contribution before vertexing)
-        
+        std::vector<double> m_manualMassHypo;
+        int m_requiredNMuons;
+        // fit with PV
+        bool m_vertexFittingWithPV;
+        std::string m_PVerticesCollection;
+
     };
 } // end of namespace
 #endif

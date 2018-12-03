@@ -193,7 +193,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   }
 
   pass = result;
-
+  
   // store TrigPassBits result
   if ( attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK ) {
     ATH_MSG_ERROR("Could not store TrigPassBits! ");

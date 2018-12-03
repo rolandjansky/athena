@@ -23,7 +23,9 @@ jetalg = None
 #   separateJetAlgs: Run JetRecTools in separate algs (experts only)
 #             debug: Debug level (0 for quiet). See below.
 def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
-                            separateJetAlgs= None, debug =None):
+                            separateJetAlgs= None,
+                            constitModTools = [],
+                            debug =None):
 
   myname = "JetAlgorithm: "
 
@@ -59,8 +61,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
     "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
-    "emcpflow" : ("EMCPFlowEventShape", jtm.emcpflowget),
-    "lcpflow"  : ("LCPFlowEventShape",  jtm.lcpflowget),
   }
 
   if jetFlags.useTracks():
@@ -102,33 +102,45 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                jtm.trackselloose_trackjets,
                ]
    
+  if jetFlags.useTracks:
+    # Call helpers to schedule the cluster origin correction
+    # This is needed not just for building fresh jet collections from topoclusters,
+    # but also in the case where the topocluster jet constituents need to be retrieved.
+    from JetRecTools.ScheduleClusterOriginCorrection import applyClusterOriginCorrection
+    applyClusterOriginCorrection('LC')
+    applyClusterOriginCorrection('EM')
+
+    # Apply the four-vector corrections (neutral origin correction and charged weights)
+    # to PFlow objects, and apply primary vertex associations
+    # For now we want to disable this, because data17 T0 AODs have corrupted PFOs,
+    # on which the CHSPFO addition breaks
+    # To be reenabled when results on these are complete and it is possible to
+    # only use reprocessed AODs with the bugfix
+    doCHSPFO = False
+    if doCHSPFO:
+      import eflowRec.ScheduleCHSPFlowMods
+
   # Add the algorithm. It runs the jetrec tools.
   from JetRec.JetRecConf import JetAlgorithm
-  ctools = []
-  if jetFlags.useTracks:
-    if not IsInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
-      ctools += [jtm.JetConstitSeq_LCOrigin]
-    if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
-      ctools += [jtm.JetConstitSeq_EMOrigin]
   from JetRec.JetRecConf import JetToolRunner
   runners = []
-  if len(ctools)>0:
+  if len(constitModTools)>0:
     jtm += JetToolRunner("jetconstit",
                          EventShapeTools=[],
-                         Tools=ctools,
+                         Tools=constitModTools,
                          Timer=jetFlags.timeJetToolRunner()
                          )
     jtm.jetconstit
     runners = [jtm.jetconstit]
 
-  if jetFlags.separateJetAlgs():
+  if separateJetAlgs:
 
     jtm += JetToolRunner("jetrun",
                          EventShapeTools=evstools,
                          Tools=rtools,
                          Timer=jetFlags.timeJetToolRunner()
                          )
-    runners += [jetrun]
+    runners += [jtm.jetrun]
 
     job += JetAlgorithm("jetalg")
     jetalg = job.jetalg

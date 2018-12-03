@@ -230,13 +230,14 @@ class SCTCalib : public AthAlgorithm {
         BooleanProperty m_writeToCool;
         //reinstated 21 May, sroe
         BooleanProperty         m_noisyUpdate;
+        BooleanProperty         m_noisyWriteAllModules;
         BooleanProperty         m_noisyUploadTest;
         FloatProperty           m_noisyModuleAverageInDB; // Average number of modules with at least 1 noisy strip in COOL
         IntegerProperty         m_noisyStripLastRunInDB;  // Number of noisy strips of the last run uploaded to COOL
-        FloatProperty			m_noisyStripAverageInDB;  // Number of noisy strips of the last run uploaded to COOL
+        FloatProperty           m_noisyStripAverageInDB;  // Number of noisy strips of the last run uploaded to COOL
         IntegerProperty         m_noisyModuleList;
         FloatProperty           m_noisyModuleDiff;
-        FloatProperty			m_noisyStripDiff;
+        FloatProperty           m_noisyStripDiff;
         double m_numOfEventsProcessed;
         int    m_numOfLBsProcessed;
 
@@ -387,6 +388,9 @@ class SCTCalib : public AthAlgorithm {
                                const std::map< Identifier, std::set<Identifier> >& moduleListRef ) const;
         std::string
         getStripList( const std::set<Identifier>& stripIdList ) const;
+
+        std::set<Identifier>
+        getOverlapStripList( const std::set<Identifier>& stripAllIdList, const std::set<Identifier>& stripRefIdList ) const;
 
         StatusCode
         noisyStripsToXml( const std::map< Identifier, std::set<Identifier> >& moduleList, const std::string& badStripsFile ) const;

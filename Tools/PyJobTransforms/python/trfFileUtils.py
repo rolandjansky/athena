@@ -270,7 +270,7 @@ def ROOTGetSize(filename):
     try:
         msg.debug('Calling TFile.Open for {0}'.format(filename))
         extraparam = '?filetype=raw'
-        if filename.startswith("https"):
+        if filename.startswith("https") or filename.startswith("davs"):
             try:
                 pos = filename.find("?")
                 if pos>=0:
@@ -305,6 +305,8 @@ def urlType(filename):
     if filename.startswith('file:'):
         return 'posix'
     if filename.startswith('https:'):
+        return 'root'
+    if filename.startswith('davs:'):
         return 'root'
     return 'posix'
 

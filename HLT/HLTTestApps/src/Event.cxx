@@ -104,28 +104,80 @@ namespace
   string to_string_list(const LIST& l)
   {
     std::ostringstream oss;
-
-    oss << '[';
+    oss << std::hex << "[";
     if(!l.empty())
     {
+      oss << "0x";
       std::copy(begin(l), --end(l),
-          std::ostream_iterator<typename LIST::value_type>(oss, ", "));
+          std::ostream_iterator<typename LIST::value_type>(oss, ", 0x"));
       oss << *--end(l); // add last one without comma
     }
-    oss << ']';
-
+    oss << std::dec << ']';
     return oss.str();
   }
 }
 
 // Static attributes
 HLTTestApps::Event::ROB2ROSMap HLTTestApps::Event::sm_rob2ros{};
+HLTTestApps::Event::ROSHitMap  HLTTestApps::Event::sm_rosHitMap{};
+HLTTestApps::Event::ROSHitMap  HLTTestApps::Event::sm_rosHitMapReject{};
+HLTTestApps::Event::ROSHitMap  HLTTestApps::Event::sm_rosHitMapAccept{};
 std::set<HLTTestApps::Event::ROBID> HLTTestApps::Event::sm_l1r_robs{};
+std::vector<int> HLTTestApps::Event::sm_eventsForROSStat{};
+int HLTTestApps::Event::sm_strategy{};
+
+enum RosHitMapIndex {
+  // total number of ROBs in ROS
+  rh_number_of_robs=0,
+  // for all events: average number of hits/evt., average fraction of ROBs retrieved/evt.
+  rh_all_hit_fra=1,
+  rh_all_rob_fra=2,
+  // normal collect (no evt. building): average number of hits/evt., average fraction of ROBs retrieved/evt.
+  rh_normal_hit_fra=3,
+  rh_normal_rob_fra=4,
+  // collect for evt. building: average number of hits/evt., average fraction of ROBs retrieved/evt.
+  rh_evbld_hit_fra=5,
+  rh_evbld_rob_fra=6,
+  // total size of rosHitMap per ROS
+  rh_total_size=7
+};
+
+enum RosHitMapIndexPerEvent {
+  // total number of ROBs in ROS
+  rh_number_ev_of_robs=0,
+  // for all events: average number of hits/evt., average fraction of ROBs retrieved/evt.
+  rh_all_ev_hit_fra=1,    // for single event 
+  rh_all_ev_rob_fra=2,    // for single event
+  // normal collect (no evt. building): average number of hits/evt., average fraction of ROBs retrieved/evt.
+  rh_normal_ev_hit_fra=3, // for single event
+  rh_normal_ev_rob_fra=4, // for single event
+  // collect for evt. building: average number of hits/evt., average fraction of ROBs retrieved/evt.
+  rh_evbld_ev_hit_fra=5, // for single event
+  rh_evbld_ev_rob_fra=6, // for single event
+  // total size of rosHitMap per ROS per event
+  rh_total_ev_size=7
+};
+
+enum EventCounterIndex {
+  // total number of rejected events
+  rh_count_reject=0,
+  // total number of accepted events
+  rh_count_accept=1,
+  // total number of accepted events
+  rh_count_size=2
+};
 
 // Static method
 void HLTTestApps::Event::set_ros2rob_map(const boost::python::dict& d)
 {
   sm_rob2ros.clear();
+  sm_rosHitMap.clear();
+  sm_rosHitMapReject.clear();
+  sm_rosHitMapAccept.clear();
+  sm_eventsForROSStat.clear();
+
+  // initialize event counter
+  sm_eventsForROSStat.assign(rh_count_size,0);
 
   // get begin and end iterators to the python dictionary's keys
   stl_input_iterator<ROSID> itros{d}, endros{};
@@ -133,13 +185,24 @@ void HLTTestApps::Event::set_ros2rob_map(const boost::python::dict& d)
   // for each ROSID in the dictionary...
   std::for_each(itros, endros,
                 [&d](ROSID rosid){
+
+    // ... initialize ROS hit map
+    sm_rosHitMap[rosid]       = std::vector<float>(rh_total_ev_size,0.0);
+    sm_rosHitMapReject[rosid] = std::vector<float>(rh_total_size,0.0);
+    sm_rosHitMapAccept[rosid] = std::vector<float>(rh_total_size,0.0);
+
     // ... get begin and end iterators to the list of corresponding ROBIDs
     stl_input_iterator<ROBID> itrob1{extract<list>(d.get(rosid))()},
                               endrob{};
 
-    // ... fill in the ROB2ROS map
+    // ... fill in the ROB2ROS map and get the number of ROBs in this ROS 
     std::for_each(itrob1, endrob,
-                  [rosid](ROBID robid){sm_rob2ros[robid] = rosid;});
+                  [rosid](ROBID robid){
+		    sm_rob2ros[robid] = rosid;
+		    (sm_rosHitMap[rosid])[rh_number_ev_of_robs]    += 1.;
+		    (sm_rosHitMapReject[rosid])[rh_number_of_robs] += 1.;
+		    (sm_rosHitMapAccept[rosid])[rh_number_of_robs] += 1.;
+		  });
   });
 
   DEBUG_PRINT_ROB_ROS_MAP;
@@ -157,10 +220,28 @@ void HLTTestApps::Event::set_l1r_robs(const boost::python::list& l)
   DEBUG_PRINT_L1R_ROBS;
 }
 
+// Static method
+void HLTTestApps::Event::set_dcm_strategy(const boost::python::list& s)
+{
+  // get begin and end iterators to the python list
+  stl_input_iterator<int> itros{s}, endstrategy{};
+
+  // ROS prefetching strategy 
+  //  0 = strategy as in Run 1,i.e. use of the prefetching list only when a ROB is needed 
+  //  1 = strategy as at begin of Run 2, i.e. immediate retrieval of all ROBs on the prefetching list
+  sm_strategy = *itros;
+  ERS_DEBUG(1, " DCM prefetching strategy set to " << sm_strategy);
+}
+
 HLTTestApps::Event::Event(const eformat::read::FullEventFragment& event)
  : hltinterface::DataCollector()
 {
   m_lvl1_id = event.lvl1_id();
+
+  // Reset the ROB prefetching map
+  m_Det_Robs_for_retrieval.clear(); 
+  m_l1r.clear();
+  m_map.clear();
 
   // Build a source_id based table-of-contents of this event
   map<uint32_t, const uint32_t*> sid_toc;
@@ -219,6 +300,9 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
   auto t0 = steady_clock::now();
   if(check_l1id(lvl1_id))
   {
+    std::vector<uint32_t> ids_for_ros_collection;
+    ids_for_ros_collection.reserve(ids.size());
+
     for(const auto& id : ids)
     {
       auto it = m_map.find(id);
@@ -226,6 +310,7 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
       {
         auto& rob = it->second;
         data.emplace_back(rob.rob, is_cached(rob), t0, steady_clock::now());
+	if (!is_cached(rob)) ids_for_ros_collection.push_back(id);
         rob.reserved = true; // it was already retrieved, so it should
                              // be marked as cached next time around
       }
@@ -236,11 +321,34 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
     // couldn't use the previous loop for caching. Otherwise, would be marking
     // as cached, robs that could still be added to the output, in a subsequent
     // iteration
-    hit_roses(ids);
+    hit_roses(ids_for_ros_collection);
 
-    ERS_DEBUG(1, "Request with LVL1 id " << lvl1_id << " had requests for "
+    int n_additional_robs(0);
+    if (sm_strategy == 0) {
+      for(auto ros : m_hit_roses) {
+	// retrieve also all ROBs in the hit ROS into the cache which are
+	// on the prefetch list and mark them as retrieved
+	auto it_prefetch_ros = m_Det_Robs_for_retrieval.find(ros);
+	if (it_prefetch_ros != m_Det_Robs_for_retrieval.end()) {
+	  // mark all prefetch ROBs on the list for this ROS as retrieved
+	  for (const auto& it_prefetch_rob_id : it_prefetch_ros->second) {
+	    auto rob_prefetched = m_map.find(it_prefetch_rob_id);
+	    if(rob_prefetched != m_map.end()) { 
+	      (rob_prefetched->second).reserved = true ;
+	      n_additional_robs++;
+	    } 
+	  }
+	  // reset the list of prefetch ROBs for this ROS
+	  (it_prefetch_ros->second).clear();
+	}
+      }
+    }
+    ERS_DEBUG(2, "Request with LVL1 id " << lvl1_id << " had requests for "
                  << ids.size() << " ROBs and got " << data.size()
                  << " fragments.");
+    ERS_DEBUG(2, "Request with LVL1 id " << lvl1_id << " had "
+	         << n_additional_robs << " additional ROBs retrieved from " << m_hit_roses.size()
+	         << " ROS(es) for prefetching strategy = " << sm_strategy);
     DEBUG_OUT_ROBINFOS(data);
     return data.size();
   }
@@ -255,6 +363,10 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
   auto t0 = steady_clock::now();
   if(check_l1id(lvl1_id))
   {
+    // find out what ROSes are still needed for retrieval
+    // (do this before all elements are set to retrieved)
+    hit_roses();
+
     for(auto& elem : m_map)
     {
       auto& rob = elem.second;
@@ -262,8 +374,6 @@ collect(std::vector<hltinterface::DCM_ROBInfo>& data,
       rob.reserved = true; // it was already retrieved, so it should
                            // be marked as cached next time around
     }
-
-    hit_roses();
 
     DEBUG_OUT_ROBINFOS(data);
     return data.size();
@@ -277,31 +387,78 @@ void HLTTestApps::Event::reserveROBData(const uint32_t lvl1_id,
 {
   if(check_l1id(lvl1_id))
   {
+    // for old strategy (sm_strategy=1) the ROBs are immediately retrieved
+    std::vector<uint32_t> ids_for_ros_collection;
+    ids_for_ros_collection.reserve(ids.size());
+
     for(auto id : ids)
     {
       auto it = m_map.find(id);
       if(it != m_map.end())
-        it->second.reserved = true;
+	if (sm_strategy == 0) {
+	  m_Det_Robs_for_retrieval[get_rosid(id)].insert(id);
+	  it->second.prefetched = true;
+	} else {
+	  // old strategy: immediately retrieve ROBs on prefetching list
+	  auto& rob = it->second;
+	  if (!is_cached(rob)) ids_for_ros_collection.push_back(id);
+	  it->second.reserved = true;
+	}
       else
         DEBUG_WARN_NO_ROB(lvl1_id, id);
+    }
+
+    // increase ROS hits for old strategy
+    if (sm_strategy == 1) {
+      hit_roses(ids_for_ros_collection);
     }
   }
 }
 
 void HLTTestApps::Event::hit_roses()
 {
+  m_hit_roses.clear();
   std::for_each(begin(m_map), end(m_map),
                 [this](std::pair<uint32_t, ROB> elem){
-                  m_hit_roses.insert(get_rosid(elem.first));
+		  if (!is_cached(elem.second)) {
+		    m_hit_roses.insert(get_rosid(elem.first));
+		    if (!sm_rob2ros.empty()) {
+		      (sm_rosHitMap[get_rosid(elem.first)])[rh_all_ev_rob_fra] += 1.;
+		      (sm_rosHitMap[get_rosid(elem.first)])[rh_evbld_ev_rob_fra] += 1.;
+		    }
+		  }
                 });
+
+  // increase the ROS hit counter
+  if (!sm_rob2ros.empty()) {
+    for(const auto& ros : m_hit_roses) {
+      (sm_rosHitMap[ros])[rh_all_ev_hit_fra] += 1.;
+      (sm_rosHitMap[ros])[rh_evbld_ev_hit_fra] += 1.;
+    }
+  }
 
   DEBUG_PRINT_HIT_ROSES;
 }
 
 void HLTTestApps::Event::hit_roses(const std::vector<ROBID>& robids)
 {
+  m_hit_roses.clear();
   std::for_each(begin(robids), end(robids),
-                [this](uint32_t id){m_hit_roses.insert(get_rosid(id));});
+                [this](uint32_t id){
+		  m_hit_roses.insert(get_rosid(id));
+		  if (!sm_rob2ros.empty()) {
+		    (sm_rosHitMap[get_rosid(id)])[rh_all_ev_rob_fra] += 1.;
+		    (sm_rosHitMap[get_rosid(id)])[rh_normal_ev_rob_fra] += 1.;
+		  }
+		});
+
+  // increase the ROS hit counter
+  if (!sm_rob2ros.empty()) {
+    for(const auto& ros : m_hit_roses) {
+      (sm_rosHitMap[ros])[rh_all_ev_hit_fra] += 1.;
+      (sm_rosHitMap[ros])[rh_normal_ev_hit_fra] += 1.;
+    }
+  }
 
   DEBUG_PRINT_HIT_ROSES;
 }
@@ -342,7 +499,7 @@ auto HLTTestApps::Event::get_fake_rosid(ROBID robid) const -> ROSID
 
 bool HLTTestApps::Event::is_cached(const ROB& rob) const
 {
-  return (rob.reserved && m_hit_roses.count(get_rosid(rob.id)));
+  return (rob.reserved);
 }
 
 bool HLTTestApps::Event::check_l1id(const uint32_t lvl1_id) const
@@ -389,8 +546,167 @@ void HLTTestApps::Event::debug_print_l1r_robs()
 
 void HLTTestApps::Event::debug_print_hit_roses() const
 {
-  if(ers::debug_level() > 1)
+  if(ers::debug_level() > 0)
   {
     ERS_DEBUG(2, "Hit ROSes: " << to_string_list(m_hit_roses));
+  }
+}
+
+void HLTTestApps::Event::debug_print_ros_hit_map(const int nevent)
+{
+  if (sm_rob2ros.empty()) {
+    ERS_DEBUG(1," No ROS-ROB mapping available");
+    return;
+  }
+  std::ostringstream oss;
+  float hit_fraction, rob_fraction ;
+  float hit_fraction_normal, rob_fraction_normal ;
+  float hit_fraction_evbuild, rob_fraction_evbuild ;
+
+  oss << "\n\tprint_ros_hit_map: DCM prefetching strategy                      = " << sm_strategy ;
+  oss << "\n\tprint_ros_hit_map: Total number of events processed              = " << nevent ;
+
+  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss << "\n\tprint_ros_hit_map: | Rejected Events | " ;
+  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss << "\n\tprint_ros_hit_map: Number of rejected events used for statistics = " << sm_eventsForROSStat[rh_count_reject] <<"\n" ;
+  if (sm_eventsForROSStat[rh_count_reject] > 0) {
+    oss << "\n" << std::setw(27) << std::left << std::setfill(' ') << " " 
+	<< std::setw(24) << std::left << std::setfill(' ') << " | total"
+	<< std::setw(24) << std::left << std::setfill(' ') << " | no evt. bld."
+	<< std::setw(24) << std::left << std::setfill(' ') << " | evt. bld." 
+	<< " | ";
+
+    oss << "\n" << std::setw(18) << std::left << std::setfill(' ') << "ROS" 
+	<< std::setw(6)  << std::left << std::setfill(' ') << " | # ROBs" 
+	<< std::setw(12) << std::left << std::setfill(' ') 
+	<< " | Hits/Evt. " << ", ROBs/Evt."
+	<< " | Hits/Evt. " << ", ROBs/Evt."
+	<< " | Hits/Evt. " << ", ROBs/Evt."
+	<< " | ";
+
+
+    for(const auto& ros : sm_rosHitMapReject) {
+      hit_fraction = (ros.second)[rh_all_hit_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+      rob_fraction = (ros.second)[rh_all_rob_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+
+      hit_fraction_normal = (ros.second)[rh_normal_hit_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+      rob_fraction_normal = (ros.second)[rh_normal_rob_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+
+      hit_fraction_evbuild = (ros.second)[rh_evbld_hit_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+      rob_fraction_evbuild = (ros.second)[rh_evbld_rob_fra]/float(sm_eventsForROSStat[rh_count_reject]);
+
+      oss << "\n" << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
+	  << " | " << std::setw(6) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
+	  << " | " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction << " , "
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction << " | " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_normal << " , " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_normal << " | " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_evbuild << " , " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_evbuild << " | " ;
+    }
+  }
+
+  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss << "\n\tprint_ros_hit_map: | Accepted Events | " ;
+  oss << "\n\tprint_ros_hit_map: +-----------------+ " ;
+  oss << "\n\tprint_ros_hit_map: Number of accepted events used for statistics = " << sm_eventsForROSStat[rh_count_accept] <<"\n" ;
+  if (sm_eventsForROSStat[rh_count_accept] > 0) {
+    // Accepted events
+    oss << "\n" << std::setw(27) << std::left << std::setfill(' ') << " " 
+	<< std::setw(24) << std::left << std::setfill(' ') << " | total"
+	<< std::setw(24) << std::left << std::setfill(' ') << " | no evt. bld."
+	<< std::setw(24) << std::left << std::setfill(' ') << " | evt. bld." 
+	<< " | ";
+
+    oss << "\n" << std::setw(18) << std::left << std::setfill(' ') << "ROS" 
+	<< std::setw(6)  << std::left << std::setfill(' ') << " | # ROBs" 
+	<< std::setw(12) << std::left << std::setfill(' ') 
+	<< " | Hits/Evt. " << ", ROBs/Evt."
+	<< " | Hits/Evt. " << ", ROBs/Evt."
+	<< " | Hits/Evt. " << ", ROBs/Evt."
+	<< " | ";
+
+    for(const auto& ros : sm_rosHitMapAccept) {
+      hit_fraction = (ros.second)[rh_all_hit_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+      rob_fraction = (ros.second)[rh_all_rob_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+
+      hit_fraction_normal = (ros.second)[rh_normal_hit_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+      rob_fraction_normal = (ros.second)[rh_normal_rob_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+
+      hit_fraction_evbuild = (ros.second)[rh_evbld_hit_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+      rob_fraction_evbuild = (ros.second)[rh_evbld_rob_fra]/float(sm_eventsForROSStat[rh_count_accept]);
+
+      oss << "\n" << std::setw(18) << std::left  << std::setfill(' ') << ros.first 
+	  << " | " << std::setw(6) << std::setfill(' ') << std::fixed << std::setprecision(0) << std::right << (ros.second)[rh_number_of_robs]
+	  << " | " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction << " , "
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction << " | " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_normal << " , " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_normal << " | " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << hit_fraction_evbuild << " , " 
+	  << std::setw(9) << std::left  << std::setfill(' ') << std::setprecision(4) << rob_fraction_evbuild << " | " ;
+    }
+  } else {
+    oss << " print_ros_hit_map: number of input events - 0 ";
+  }
+  ERS_DEBUG(1,oss.str());
+}
+
+void HLTTestApps::Event::accumulateStatistics(const int numberOfStreamTags)
+{
+  // No ROS-ROB mapping available
+  if (sm_rob2ros.empty()) {
+    return;
+  }
+
+  // Increase event conter
+  if (numberOfStreamTags == 0) {
+    // rejected events
+    sm_eventsForROSStat[rh_count_reject]++;
+  } else {
+    // accpeted events
+    sm_eventsForROSStat[rh_count_accept]++;
+  }
+
+  // Accumulate ROB/ROS statistics for accepted/rejected events
+  for (auto& ros : sm_rosHitMap) {
+    if (numberOfStreamTags == 0) {
+      // total
+      sm_rosHitMapReject[ros.first][rh_all_hit_fra] += (ros.second)[rh_all_ev_hit_fra];
+      if ((ros.second)[rh_all_ev_hit_fra] != 0.) 
+	sm_rosHitMapReject[ros.first][rh_all_rob_fra] += ( (ros.second)[rh_all_ev_rob_fra]/(ros.second)[rh_all_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      // normal collect
+      sm_rosHitMapReject[ros.first][rh_normal_hit_fra] += (ros.second)[rh_normal_ev_hit_fra];
+      if ((ros.second)[rh_normal_ev_hit_fra] != 0.) 
+	sm_rosHitMapReject[ros.first][rh_normal_rob_fra] += ( (ros.second)[rh_normal_ev_rob_fra]/(ros.second)[rh_normal_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      // eventbuilding collect
+      sm_rosHitMapReject[ros.first][rh_evbld_hit_fra] += (ros.second)[rh_evbld_ev_hit_fra];
+      if ((ros.second)[rh_evbld_ev_hit_fra] != 0.) 
+	sm_rosHitMapReject[ros.first][rh_evbld_rob_fra] += ( (ros.second)[rh_evbld_ev_rob_fra]/(ros.second)[rh_evbld_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+    } else {
+      // total
+      sm_rosHitMapAccept[ros.first][rh_all_hit_fra] += (ros.second)[rh_all_ev_hit_fra];
+      if ((ros.second)[rh_all_ev_hit_fra] != 0.) 
+	sm_rosHitMapAccept[ros.first][rh_all_rob_fra] += ( (ros.second)[rh_all_ev_rob_fra]/(ros.second)[rh_all_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      // normal collect
+      sm_rosHitMapAccept[ros.first][rh_normal_hit_fra] += (ros.second)[rh_normal_ev_hit_fra];
+      if ((ros.second)[rh_normal_ev_hit_fra] != 0.) 
+	sm_rosHitMapAccept[ros.first][rh_normal_rob_fra] += ( (ros.second)[rh_normal_ev_rob_fra]/(ros.second)[rh_normal_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+      // eventbuilding collect
+      sm_rosHitMapAccept[ros.first][rh_evbld_hit_fra] += (ros.second)[rh_evbld_ev_hit_fra];
+      if ((ros.second)[rh_evbld_ev_hit_fra] != 0.) 
+	sm_rosHitMapAccept[ros.first][rh_evbld_rob_fra] += ( (ros.second)[rh_evbld_ev_rob_fra]/(ros.second)[rh_evbld_ev_hit_fra]/(ros.second)[rh_number_of_robs] );
+    }
+    // total
+    (ros.second)[rh_all_ev_hit_fra] = 0.; 
+    (ros.second)[rh_all_ev_rob_fra] = 0.; 
+    // normal collect
+    (ros.second)[rh_normal_ev_hit_fra] = 0.; 
+    (ros.second)[rh_normal_ev_rob_fra] = 0.; 
+    // eventbuilding collect
+    (ros.second)[rh_evbld_ev_hit_fra] = 0.; 
+    (ros.second)[rh_evbld_ev_rob_fra] = 0.; 
   }
 }

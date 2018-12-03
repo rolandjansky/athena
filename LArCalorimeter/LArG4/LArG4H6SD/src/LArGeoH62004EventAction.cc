@@ -23,7 +23,7 @@ namespace G4UA
     //ATH_MSG_DEBUG ("LArGeoH62004EventAction::LArGeoH62004EventAction constructor");
   }
 
-  void LArGeoH62004EventAction::endOfEvent(const G4Event * /*theEvent*/)
+  void LArGeoH62004EventAction::EndOfEventAction(const G4Event * /*theEvent*/)
   {
 
     //ATH_MSG_DEBUG ("LArGeoH62004EventAction::EndOfEventAction");

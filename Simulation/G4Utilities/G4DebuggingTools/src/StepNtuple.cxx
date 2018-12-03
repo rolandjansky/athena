@@ -24,13 +24,13 @@ namespace G4UA{
   
   StepNtuple::StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"StepNtuple"){;
   }
-  void StepNtuple::beginOfEvent(const G4Event*){
+  void StepNtuple::BeginOfEventAction(const G4Event*){
 
     eventSteps.clear();
 
   }
   
-  void StepNtuple::endOfEvent(const G4Event*){
+  void StepNtuple::EndOfEventAction(const G4Event*){
     
     //std::cout<<"start end of event, size is  "<<eventSteps.size()<<std::endl;
     
@@ -59,7 +59,7 @@ namespace G4UA{
     
   }
   
-  void StepNtuple::processStep(const G4Step* aStep){
+  void StepNtuple::UserSteppingAction(const G4Step* aStep){
 
     
     if(eventSteps.size()<49000){
@@ -82,7 +82,7 @@ namespace G4UA{
     
   }
   
-  void StepNtuple::beginOfRun(const G4Run*){
+  void StepNtuple::BeginOfRunAction(const G4Run*){
     
     NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
     

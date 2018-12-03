@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from collections import defaultdict
-
 
 def cluster_factory(doLC):
     # no choice yet

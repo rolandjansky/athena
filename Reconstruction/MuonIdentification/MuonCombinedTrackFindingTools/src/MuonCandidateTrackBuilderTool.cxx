@@ -13,7 +13,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "Identifier/Identifier.h"
 
 namespace Muon {
@@ -23,6 +22,7 @@ namespace Muon {
     m_muonTrackBuilder("Muon::MooTrackBuilder/MooMuonTrackBuilder"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_reOrderMeasurements(true),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder")
   {
@@ -45,6 +45,7 @@ namespace Muon {
     ATH_CHECK(m_muonTrackBuilder.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
 
     return StatusCode::SUCCESS;
@@ -113,61 +114,27 @@ namespace Muon {
         }
         break;
       } 
-   
+       
       if(m_reOrderMeasurements) {
-
-// reorder measurements using R or fabs(z)
- 
-        if(isEndcap) {
-          std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
-            auto getDistance = []( const Trk::MeasurementBase* mst ) {
-              return fabs(mst->globalPosition().z());
-            };
-            return getDistance(mst1) < getDistance(mst2);
-          });
-        } else {
-          std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
-            auto getDistance = []( const Trk::MeasurementBase* mst ) {
-              return mst->globalPosition().perp();
-            };
-            return getDistance(mst1) < getDistance(mst2);
-          });
-        }
+	// reorder measurements using SortMeas (defined in header file)
+	std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),SortMeas(&*m_edmHelper,&*m_idHelper,isEndcap));
       }
-
-// insert in measurements list  
- 
+      // insert in measurements list
       measurements.insert( measurements.end(),
-                           containedMeasurements.begin(),
-                           containedMeasurements.end() );
+			   containedMeasurements.begin(),
+			   containedMeasurements.end() );
     }
 
-// reorder in case of Small Large overlaps in Barrel or Endcap ONLY   
+    // reorder in case of Small Large overlaps in Barrel or Endcap ONLY   
 
     bool reorderAllMeasurements = false;
     if(isSmall&&isLarge) reorderAllMeasurements = true;
     if(isEndcap&&isBarrel) reorderAllMeasurements = false;
 
     if(m_reOrderMeasurements&&reorderAllMeasurements) {
-
-// reorder measurements using R or fabs(z)
-        ATH_MSG_VERBOSE(" reorder all measurements before " <<  m_printer->print(measurements)) ;
- 
-        if(isEndcap) {
-          std::stable_sort(measurements.begin(),measurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
-            auto getDistance = []( const Trk::MeasurementBase* mst ) {
-              return fabs(mst->globalPosition().z());
-            };
-            return getDistance(mst1) < getDistance(mst2);
-          });
-        } else {
-          std::stable_sort(measurements.begin(),measurements.end(),[](const Trk::MeasurementBase* mst1,const Trk::MeasurementBase* mst2) {
-            auto getDistance = []( const Trk::MeasurementBase* mst ) {
-              return mst->globalPosition().perp();
-            };
-            return getDistance(mst1) < getDistance(mst2);
-          });
-        }
+      // reorder measurements using SortMeas (defined in header file)
+      ATH_MSG_VERBOSE(" reorder all measurements before " <<  m_printer->print(measurements)) ;
+      std::stable_sort(measurements.begin(),measurements.end(),SortMeas(&*m_edmHelper,&*m_idHelper,isEndcap));
     }
 
     ATH_MSG_VERBOSE( m_printer->print(measurements)) ;
@@ -176,7 +143,6 @@ namespace Muon {
     Trk::Track* refittedTrack = m_trackFitter->indetExtension(idTrack,measurements);
     if( refittedTrack ){
       ATH_MSG_DEBUG("got Track: " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack) );
-      
     }
     return refittedTrack;
   }

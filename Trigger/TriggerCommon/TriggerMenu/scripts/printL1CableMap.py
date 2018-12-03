@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import os, sys
+import sys
 import xml.etree.cElementTree as ET
 
 class ThrInfo:
@@ -55,7 +55,6 @@ def printMap(m, logic_string):
                     thrs.append(v)
             for bit in range(31):
                 thrdata = ''
-                used = ''
                 for thr in thrs:
                     if thr.includesBit(bit):
                         thrdata = str(thr)

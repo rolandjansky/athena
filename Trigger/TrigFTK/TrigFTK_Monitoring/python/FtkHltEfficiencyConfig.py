@@ -28,10 +28,10 @@ class FtkHltEfficiencyFex ( TrigFTK__FtkHltEfficiencyFex ) :
         self.DeltaRMax            = 0.05    # float
 
         # Track Filtering
-        self.MinPt              = 0.0     # float
+        self.MinPt              = 2.0     # float
         self.MaxEta             = 10.0    # float
         self.MaxZ0              = 100.0   # float
-        self.MaxD0              = 2.0     # float
+        self.MaxD0              = 1.0     # float
 
         self.MaxHLTZ0Err        = 100.0   # float
         self.MaxHLTD0Err        = 100.0   # float

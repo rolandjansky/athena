@@ -18,6 +18,8 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace Athena {
 
@@ -86,6 +88,7 @@ class RootAsciiDumperAlgHandle
   /// jetcone dR
   SG::RVar<std::vector<std::vector<float> > > m_el_jetcone_dr;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eiKey;
 }; 
 
 // I/O operators

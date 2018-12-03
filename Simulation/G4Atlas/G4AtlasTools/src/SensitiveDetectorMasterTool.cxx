@@ -8,7 +8,7 @@
 SensitiveDetectorMasterTool::SensitiveDetectorMasterTool(const std::string& type,
                                                          const std::string& name,
                                                          const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : base_class(type, name, parent)
   , m_senDetTools(this)
 {
   declareProperty( "SensitiveDetectors", m_senDetTools,
@@ -62,17 +62,3 @@ StatusCode SensitiveDetectorMasterTool::EndOfAthenaEvent()
   }
   return StatusCode::SUCCESS;
 }
-
-StatusCode SensitiveDetectorMasterTool::queryInterface(const InterfaceID& riid,
-                                                       void** ppvInterface)
-{
-  if ( ISensitiveDetectorMasterTool::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<ISensitiveDetectorMasterTool*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthAlgTool::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-

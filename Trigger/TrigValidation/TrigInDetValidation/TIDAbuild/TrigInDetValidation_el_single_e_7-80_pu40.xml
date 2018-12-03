@@ -1,7 +1,7 @@
          <athena trendId='electronTrend' userJobId='TrigInDetValidation_el_single_e_7-80_pu40'>
-            <doc>Single part electron test 7-80 GeV, pu40, run2 chains</doc>
+            <doc>Single part electron test 7-80 GeV, pu40</doc>
             <displayName>ElectronSlice single partile e 7-80 GeV, pu40</displayName>
-	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
+	    <commandLineFlags>EventMax=6000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

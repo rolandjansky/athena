@@ -38,7 +38,7 @@ spgorders = ['pdgcode: constant 13',
              'e: constant 10000']
 
 import ParticleGun as PG
-pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 pg.sampler.pid = 13
 pg.sampler.mom = PG.PtEtaMPhiSampler(pt=50000, eta=[-3,3])
 topSeq += pg
@@ -56,12 +56,14 @@ if (doFastCheck) :
     print "CALLBACK use_geometry_check"
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetGeometryCheck(1000)
-  SimFlags.InitFunctions.add_function("preInitG4", use_geometry_check)
-  SimFlags.InitFunctions.add_function("preInit", test_preInit)
-  SimFlags.InitFunctions.add_function("postInit", test_postInit)
+  simFlags.InitFunctions.add_function("preInitG4", use_geometry_check)
+  simFlags.InitFunctions.add_function("preInit", test_preInit)
+  simFlags.InitFunctions.add_function("postInit", test_postInit)
 
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 MessageSvc = Service("MessageSvc")
 MessageSvc.OutputLevel = INFO

@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -655,7 +656,10 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
       ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
       hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
       if(hltStatus!=HLT::OK) {
-  	if(muonCandidates) for(auto cand : *muonCandidates) delete cand;
+  	if(muonCandidates){
+	  delete muonCandidates;
+	  muonCandidates = nullptr;
+	}
   	ATH_MSG_ERROR("Problem building muons");
   	return hltStatus;
       }
@@ -679,20 +683,25 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
     ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
     hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
     if(hltStatus!=HLT::OK) {
-      if(muonCandidates) for(auto cand : *muonCandidates) delete cand;
+      if(muonCandidates) {
+	delete muonCandidates;
+	muonCandidates = nullptr;
+      }
       ATH_MSG_ERROR("Problem building muons");
       return hltStatus;
     }
   }
 
-  if(muonCandidates) for(auto cand : *muonCandidates) delete cand;
+  if(muonCandidates) {
+    delete muonCandidates;
+    muonCandidates = nullptr;
+  }
 
   // attach output
   if(attachOutput( TEout, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont, std::move(muonContainerOwn))!=HLT::OK) {
     ATH_MSG_WARNING("Problem attaching output");
     return HLT::MISSING_FEATURE;
   }
-
   return hltStatus;
 }// runCombinedReconstruction
 
@@ -1595,7 +1604,8 @@ const IRoiDescriptor* TrigMuSuperEF::getRoiDescriptor(const HLT::TriggerElement*
 	m_roi = 0;
 	return 0;
       } else if (trigRoI) { // Found it!
-	ATH_MSG_VERBOSE("Found RoIDescriptor \"forMS\"");
+	ATH_MSG_DEBUG("Found RoIDescriptor \"forMS\""
+		      <<trigRoI->eta() << " " << trigRoI->phi());
       } else { // did not find it
 	ATH_MSG_DEBUG("Could not find RoIDescriptor \"forMS\", trying to recover the L1 one (with \"\")");
 	hltStatus = getFeature(inputTE, trigRoI, "");

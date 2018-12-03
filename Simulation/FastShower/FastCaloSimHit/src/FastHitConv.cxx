@@ -29,8 +29,8 @@
 
 FastHitConv::FastHitConv(const std::string& name, ISvcLocator* pSvcLocator ) :
   AthAlgorithm(name, pSvcLocator),
-  fastHitCont(nullptr),
-  fastTileHits(nullptr),
+  m_fastHitCont(nullptr),
+  m_fastTileHits(nullptr),
   m_embHitContainer("LArHitEMB"),
   m_emecHitContainer("LArHitEMEC"),
   m_fcalHitContainer("LArHitFCAL"),

@@ -1,9 +1,11 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  SingleHistogramDefinition.cpp
 //  HDef
 //
 //  Created by sroe on 13/07/2015.
-//  Copyright (c) 2015 sroe. All rights reserved.
 //
 
 #include "InDetPhysValMonitoring/SingleHistogramDefinition.h"

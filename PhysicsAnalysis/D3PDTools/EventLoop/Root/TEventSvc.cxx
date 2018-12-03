@@ -31,6 +31,7 @@
 #include <xAODCore/tools/ReadStats.h>
 #include <xAODCore/tools/PerfStats.h>
 #include <xAODCore/tools/IOStats.h>
+#include <AsgTools/MessageCheck.h>
 
 //
 // method implementations
@@ -54,7 +55,6 @@ namespace EL
 
   TEventSvc ::
   TEventSvc ()
-    : m_event (0), m_store (0)
   {
     RCU_NEW_INVARIANT (this);
   }
@@ -65,9 +65,6 @@ namespace EL
   ~TEventSvc ()
   {
     RCU_DESTROY_INVARIANT (this);
-
-    delete m_store;
-    delete m_event;
   }
 
 
@@ -79,7 +76,7 @@ namespace EL
 
     if (m_event == 0)
       RCU_THROW_MSG ("TEventSvc not yet configured");
-    xAOD::TEvent *const result = m_event;
+    xAOD::TEvent *const result = m_event.get();
     RCU_PROVIDE (result != 0);
     return result;
   }
@@ -93,7 +90,7 @@ namespace EL
 
     if (m_store == 0)
       RCU_THROW_MSG ("TEventSvc not yet configured");
-    xAOD::TStore *const result = m_store;
+    xAOD::TStore *const result = m_store.get();
     RCU_PROVIDE (result != 0);
     return result;
   }
@@ -113,34 +110,9 @@ namespace EL
   fileExecute ()
   {
     RCU_READ_INVARIANT (this);
-
-    if (m_event == 0)
-    {
-      std::string modeStr = wk()->metaData()->castString
-	(Job::optXaodAccessMode);
-      if (!modeStr.empty())
-      {
-	xAOD::TEvent::EAuxMode mode = xAOD::TEvent::kClassAccess; //compiler dummy
-	if (modeStr == Job::optXaodAccessMode_class)
-	  mode = xAOD::TEvent::kClassAccess;
-	else if (modeStr == Job::optXaodAccessMode_branch)
-	  mode = xAOD::TEvent::kBranchAccess;
-	else if (modeStr == Job::optXaodAccessMode_athena)
-	  mode = xAOD::TEvent::kAthenaAccess;
-	else
-	  RCU_THROW_MSG ("unknown XAOD access mode: " + modeStr);
-	m_event = new xAOD::TEvent (mode);
-      } else
-      {
-	m_event = new xAOD::TEvent;
-      }
-      if (wk()->metaData()->castDouble (Job::optXAODSummaryReport, 1) == 0)
-        xAOD::TFileAccessTracer::enableDataSubmission (false);
-    }
-    if (!m_store)
-      m_store = new xAOD::TStore;
-    if (!m_event->readFrom (wk()->inputFile()).isSuccess())
-      RCU_THROW_MSG ("failed to read from xAOD");
+    RCU_ASSERT (m_event != nullptr);
+    RCU_ASSERT (m_store != nullptr);
+    ANA_CHECK (m_event->readFrom (wk()->inputFile()));
     return StatusCode::SUCCESS;
   }
 
@@ -149,7 +121,39 @@ namespace EL
   StatusCode TEventSvc ::
   histInitialize ()
   {
+    ANA_CHECK_SET_TYPE (EL::StatusCode);
+
     RCU_READ_INVARIANT (this);
+    RCU_ASSERT (m_event == nullptr);
+
+    std::string modeStr = wk()->metaData()->castString
+      (Job::optXaodAccessMode);
+    if (!modeStr.empty())
+    {
+      xAOD::TEvent::EAuxMode mode = xAOD::TEvent::kClassAccess; //compiler dummy
+      if (modeStr == Job::optXaodAccessMode_class)
+        mode = xAOD::TEvent::kClassAccess;
+      else if (modeStr == Job::optXaodAccessMode_branch)
+        mode = xAOD::TEvent::kBranchAccess;
+      else if (modeStr == Job::optXaodAccessMode_athena)
+        mode = xAOD::TEvent::kAthenaAccess;
+      else
+      {
+        ANA_MSG_ERROR ("unknown XAOD access mode: " << modeStr);
+        return StatusCode::FAILURE;
+      }
+      m_event.reset (new xAOD::TEvent (mode));
+    } else
+    {
+      m_event.reset (new xAOD::TEvent);
+    }
+    if (wk()->metaData()->castDouble (Job::optXAODSummaryReport, 1) == 0)
+      xAOD::TFileAccessTracer::enableDataSubmission (false);
+
+    RCU_ASSERT (m_store == nullptr);
+    m_store.reset (new xAOD::TStore);
+
+    ANA_CHECK (m_event->readFrom (wk()->inputFile()));
     return StatusCode::SUCCESS;
   }
 
@@ -164,7 +168,7 @@ namespace EL
     {
       m_useStats = wk()->metaData()->castBool (Job::optXAODPerfStats, false);
       if (m_useStats)
-	xAOD::PerfStats::instance().start();
+        xAOD::PerfStats::instance().start();
     }
 
     if (fileExecute() != StatusCode::SUCCESS)

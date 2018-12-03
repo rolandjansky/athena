@@ -1,0 +1,70 @@
+#!/bin/bash
+
+
+INPUTDAT=art-input.dat
+NFILEDAT=art-nfiles.dat
+EVENTDAT=art-events.dat
+
+[ -e $INPUTDAT ] && rm $INPUTDAT
+[ -e $NFILEDAT ] && rm $NFILEDAT
+[ -e $EVENTDAT ] && rm $EVENTDAT
+
+for JOB in ../test/test*.sh ; do 
+
+    BASE=$(basename $JOB .sh)
+
+    echo -e "\n$BASE"
+
+    dataset=$(grep 'art-input:' $JOB | sed 's|.*art-input[[:space:]]*:[[:space:]]*||g')
+#   oldnfiles=$(grep 'art-input-nfiles:' $JOB | sed 's|.*art-input-nfiles[[:space:]]*:[[:space:]]*||g')
+    events=$( grep "EventMax=" $JOB | sed 's|.*EventMax[[:space:]]*=[[:space:]]*\([0-9]*[[:space:]]*\).*|\1|g' )
+
+    [ -e dataset-$BASE.log ] || rucio list-files $dataset > dataset-$BASE.log
+
+    echo $dataset
+
+    rfile=$(  grep "Total files"  dataset-$BASE.log | sed 's|.*:[[:space:]]*\([0-9]*\)|\1|g')
+    revents=$(grep "Total events" dataset-$BASE.log | sed 's|.*:[[:space:]]*\([0-9]*\)|\1|g')
+
+#   [ -z "rfiles" ] && rm dataset-$BASE.log
+
+    evperfile=$(grep GB  dataset-$BASE.log | sed 's#.*GB[[:space:]]*|[[:space:]]*\([0-9]*\).*#\1#g' | head -1)
+ 
+#   grep valid dataset-$BASE.log | head -1 
+#   grep mc    dataset-$BASE.log | head -1 
+
+    nevperfile=$(echo "($revents.+$rfile-1)/$rfile" | bc )
+
+    nfiles=$(echo "($events.+$evperfile-1)/$evperfile." | bc )
+
+#    echo "$events./$evperfile = $nfiles" 
+
+    JEVENTS=$events
+
+    [ $JEVENTS -gt $evperfile ] &&  JEVENTS=$evperfile
+
+    NFILES=$(echo "4*(($nfiles+3)/4)" | bc) 
+	
+    [ $NFILES -gt 16 ] && NFILES=16 
+    
+    [ $NFILES -gt $rfile ] && NFILES=$rfile
+
+    [ $evperfile -gt $events ] && echo "SHIT!!!!!!! $evperfile > $events"
+
+    TEVENTS=$( echo "$NFILES*$JEVENTS" | bc )
+
+    echo "$BASE events:  $events      new total: $TEVENTS  ($revents)  ::  per file $evperfile ($JEVENTS) "
+    echo "$BASE nfiles:  $nfiles      $NFILES ($rfile)    <<<<<<<"
+    echo "$BASE Dataset: $dataset"
+
+    echo "$BASE $JEVENTS"  >> $EVENTDAT
+    echo "$BASE $NFILES"   >> $NFILEDAT
+    echo "$BASE $dataset"  >> $INPUTDAT
+
+
+done
+
+
+cat $INPUTDAT
+cat $NFILEDAT
+cat $EVENTDAT

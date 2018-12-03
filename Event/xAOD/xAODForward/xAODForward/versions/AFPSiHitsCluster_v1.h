@@ -26,8 +26,8 @@
 #include "xAODForward/AFPPixelLayerID.h"
 
 // xAOD representing hits
-#include "xAODForward/AFPSiHit.h"
-#include "xAODForward/AFPSiHitContainer.h"
+#include "xAODForward/versions/AFPSiHit_v2.h"
+#include "xAODForward/versions/AFPSiHitContainer_v2.h"
 
 namespace xAOD {
 
@@ -36,7 +36,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the hit
-    typedef ElementLink< AFPSiHitContainer > AFPHitLink_t;
+    typedef ElementLink< AFPSiHitContainer_v2 > AFPHitLink_t;
 
     /**
      * @brief Index of the station with pixels cluster

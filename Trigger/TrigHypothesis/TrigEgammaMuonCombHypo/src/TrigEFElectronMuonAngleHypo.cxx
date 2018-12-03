@@ -59,7 +59,7 @@ TrigEFElectronMuonAngleHypo::~TrigEFElectronMuonAngleHypo()
 HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltInitialize()
 {
   
-  if (msgLvl() <= MSG::VERBOSE) {
+  if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Initialization:" << endreq;
   }
 
@@ -127,8 +127,8 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
   
       m_monCut = 1;
       
-      if(msgLvl() <= MSG::VERBOSE) {
-	  msg() << MSG::VERBOSE << "Got electronMuonTopoInfoCollection of the length " <<  EgMuTopoInfoColl->size() << endreq;
+      if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Got electronMuonTopoInfoCollection of the length " <<  EgMuTopoInfoColl->size() << endreq;
 	}
       
       ElectronMuonTopoInfoContainer::const_iterator egMuTopoInfo;
@@ -151,14 +151,14 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	   
 	    if(m_oppositeCharge && !oppositeCharge)
 	  {
-			if(msgLvl() <= MSG::VERBOSE) {
-				msg() << MSG::VERBOSE << "Combination did not pass opposite charge cut" 
+			if(msgLvl() <= MSG::DEBUG) {
+				msg() << MSG::DEBUG << "Combination did not pass opposite charge cut" 
 				<<  endreq;
 			}
 			continue;	
 	  }else{
-			if(msgLvl() <= MSG::VERBOSE) {
-				msg() << MSG::VERBOSE << "Combination passed opposite charge cut" 
+			if(msgLvl() <= MSG::DEBUG) {
+				msg() << MSG::DEBUG << "Combination passed opposite charge cut" 
 				<<  endreq;
 			}
 	  
@@ -169,13 +169,13 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	   {
 		  if(VX_state==1)
 		  {
-			if(msgLvl() <= MSG::VERBOSE) {
-				msg() << MSG::VERBOSE << "Combination does not form common vertex." 
+			if(msgLvl() <= MSG::DEBUG) {
+				msg() << MSG::DEBUG << "Combination does not form common vertex." 
 				<<  endreq;
 			}
 			continue;
 		  }else{
-			if(msgLvl() <= MSG::VERBOSE) {
+			if(msgLvl() <= MSG::DEBUG) {
 				msg() << MSG::DEBUG << "Combination passed common vertex cut with state " << VX_state
 				<< endreq; 
 			}
@@ -188,13 +188,13 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	   
 	    // apply distance cut
        if(dphi > m_MaxDPhi) {
-		  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination failed dPhi cut: " 
+		  if(msgLvl() <= MSG::DEBUG) {
+	    msg() << MSG::DEBUG << "Combination failed dPhi cut: " 
 	    	<< dphi << " larger than " << m_MaxDPhi <<  endreq;
 	  }
 	    continue;
      }else{
-		if(msgLvl() <= MSG::VERBOSE) {
+		if(msgLvl() <= MSG::DEBUG) {
 		msg() << MSG::DEBUG << "Combination passed delta phi cut: " 
 			<< dphi << " less than or equal to " << m_MaxDPhi <<  endreq;
 		  }
@@ -205,13 +205,13 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
       
         if(m_MaxDR > 1e-11){ 
       if(dr > m_MaxDR || dr < m_MinDR) {
-		  if(msgLvl() <= MSG::VERBOSE) {
-	    msg() << MSG::VERBOSE << "Combination failed dR cut: " 
+		  if(msgLvl() <= MSG::DEBUG) {
+	    msg() << MSG::DEBUG << "Combination failed dR cut: " 
 	    	<< dr << " outside < " << m_MinDR << "," << m_MaxDR << ">" << endreq;
 	  }
 		continue;
      }else{
-		if(msgLvl() <= MSG::VERBOSE) {
+		if(msgLvl() <= MSG::DEBUG) {
 		msg() << MSG::DEBUG << "Combination passed delta R cut: " 
 		<< dr << " inside < " << m_MinDR << "," << m_MaxDR << ">" << endreq;		  }
 	 m_monDRAccepted=dr;
@@ -224,8 +224,8 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
        
       // apply cut on mass
       if(mass<m_lowerMassCut || mass>m_upperMassCut) {
-	if(msgLvl() <= MSG::VERBOSE) {
-	  msg() << MSG::VERBOSE << "Combination failed mass cut: " 
+	if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Combination failed mass cut: " 
 		<< mass << " not in [" << m_lowerMassCut << "," 
 		<< m_upperMassCut << "]" << endreq;
 	}
@@ -234,8 +234,8 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	pass = true;
 	m_monCut = 6;    
 	m_monMassAccepted = mass;
-	if(msgLvl() <= MSG::VERBOSE) {
-	  msg() << MSG::VERBOSE << "Combination passed mass cut: " 
+	if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Combination passed mass cut: " 
 		<< m_lowerMassCut << " < " << mass << " < " 
 		<< m_upperMassCut << endreq;	     
 	  msg() << MSG::DEBUG << "Good combination found! Memu=" 

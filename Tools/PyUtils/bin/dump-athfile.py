@@ -125,22 +125,24 @@ if __name__ == "__main__":
         print fmt % ('conditions tag', f.infos['conditions_tag'])
         _metadata = f.infos['metadata']
 
-        # ATEAM-162: determine if this is 25ns or 50ns sub-campaign
-        DigitizationParameters = _metadata['/Digitization/Parameters'] if '/Digitization/Parameters' in _metadata.keys() else {}
-        if 'bunchSpacing' in DigitizationParameters.keys() and 'BeamIntensityPattern' in DigitizationParameters.keys() :
-            bunchSlotLength = DigitizationParameters['bunchSpacing']
-            pattern = DigitizationParameters['BeamIntensityPattern']
-            firstBunch = pattern.index(1.0)
-            bunchCountInTwoFirstSlots = pattern[firstBunch:firstBunch+2].count(1.0)
-            if bunchCountInTwoFirstSlots == 1:
-                campaign = '50 ns'
-            elif bunchCountInTwoFirstSlots == 2:
-                campaign = '25 ns'
-            else:
-                campaign = None
-            print fmt % ('bunch spacing',   campaign + ' i.e. ..., ' + str(pattern[firstBunch:firstBunch+4])[1:-1] + ', ...')
+        if _metadata is not None:
+            # ATEAM-162: determine if this is 25ns or 50ns sub-campaign
+            DigitizationParameters = _metadata['/Digitization/Parameters'] if '/Digitization/Parameters' in _metadata.keys() else {}
+            if DigitizationParameters is not None and 'bunchSpacing' in DigitizationParameters.keys() and 'BeamIntensityPattern' in DigitizationParameters.keys() :
+                bunchSlotLength = DigitizationParameters['bunchSpacing']
+                pattern = DigitizationParameters['BeamIntensityPattern']
+                if pattern is not None:
+                    firstBunch = pattern.index(1.0)
+                    bunchCountInTwoFirstSlots = pattern[firstBunch:firstBunch+2].count(1.0)
+                    if bunchCountInTwoFirstSlots == 1:
+                        campaign = '50 ns'
+                    elif bunchCountInTwoFirstSlots == 2:
+                        campaign = '25 ns'
+                    else:
+                        campaign = None
+                    print fmt % ('bunch spacing',   campaign + ' i.e. ..., ' + str(pattern[firstBunch:firstBunch+4])[1:-1] + ', ...')
 
-        _metadata = _metadata.keys() if isinstance(_metadata,dict) else None
+            _metadata = _metadata.keys() if isinstance(_metadata,dict) else None
         print fmt % ('meta data',      _metadata)
 
         msg.info(':'*80)

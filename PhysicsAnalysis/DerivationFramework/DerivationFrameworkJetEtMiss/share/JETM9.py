@@ -11,18 +11,29 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-triggers = jetTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+triggers = TriggerLists.jetTrig()
 
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
-orstr =' || '
-trigger = '('+orstr.join(triggers)+')'
-expression = trigger+' || (EventInfo.eventTypeBitmask==1)'
+#orstr =' || '
+#trigger = '('+orstr.join(triggers)+')'
+expression = 'EventInfo.eventTypeBitmask==1'
+
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+JETM9TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "JETM9TrigSkimmingTool1",
+                                                                TriggerListOR          = triggers )
+ToolSvc += JETM9TrigSkimmingTool
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM9SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM9SkimmingTool1",
+JETM9OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM9OfflineSkimmingTool1",
                                                                     expression = expression)
-ToolSvc += JETM9SkimmingTool
+ToolSvc += JETM9OfflineSkimmingTool
+
+# OR of the above two selections
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+JETM9ORTool = DerivationFramework__FilterCombinationOR(name="JETM9ORTool", FilterList=[JETM9TrigSkimmingTool,JETM9OfflineSkimmingTool] )
+ToolSvc+=JETM9ORTool
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -32,18 +43,6 @@ jetm9Seq = CfgMgr.AthSequencer("JETM9Sequence")
 DerivationFrameworkJob += jetm9Seq
 #jetm9Seq = DerivationFrameworkJob
 
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_JETM9Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_JETM9Stream )
-JETM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM9Stream.AcceptAlgs(["JETM9Kernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM9ThinningSvc", outStreams=[evtStream] )
 
 # Truth particle thinning
 thinningTools = []
@@ -63,15 +62,6 @@ if DerivationFrameworkIsMonteCarlo:
     ToolSvc += JETM9TruthThinning
     thinningTools.append(JETM9TruthThinning)
 
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#=======================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm9Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM9Kernel", 
-                                                                SkimmingTools = [JETM9SkimmingTool],
-                                                                ThinningTools = thinningTools)
-
 #====================================================================
 # Special jets
 #====================================================================
@@ -86,7 +76,25 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm9Seq,"JETM9")
 
 OutputJets["JETM9"] = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets",
-                       "AntiKt4TruthJets","AntiKt4TruthWZJets"]
+                       "AntiKt4TruthJets","AntiKt4TruthWZJets","AntiKt2PV0TrackJets"]
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+jetm9Seq += CfgMgr.DerivationFramework__DerivationKernel(       name = "JETM9Kernel",
+                                                                SkimmingTools = [JETM9ORTool],
+                                                                ThinningTools = thinningTools)
+
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_JETM9Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_JETM9Stream )
+JETM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM9Stream.AcceptAlgs(["JETM9Kernel"])
+# for thinning
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="JETM9ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Jets for R-scan 
@@ -96,6 +104,8 @@ for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
         addRscanJets("AntiKt",radius,"Truth",jetm9Seq,"JETM9")
         addRscanJets("AntiKt",radius,"TruthWZ",jetm9Seq,"JETM9")
     addRscanJets("AntiKt",radius,"LCTopo",jetm9Seq,"JETM9")
+
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

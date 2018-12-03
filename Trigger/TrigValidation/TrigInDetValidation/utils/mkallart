@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+files=
+
+for job in $(grep include TIDAbuild/TrigInDetValidation_TestConfiguration_main.xml  | grep -v \! | awk '{print $3}' | sed 's|\"||g') ; do 
+
+#   echo "$job"
+
+    utils/mkart -c TIDAbuild/$job  -o test 
+
+#   sleep 1
+
+done
+
+
+# rm -rf test/*.{bak,extra} 
+
+

@@ -49,13 +49,9 @@ Identifier CSCHitsTestTool::getIdentifier(HitID cschit) {
 
 StatusCode CSCHitsTestTool::checkIdentifier(Identifier offid) {
   const MuonGM::CscReadoutElement* descriptor = m_pMuonMgr->getCscReadoutElement(offid);
-  if (descriptor != NULL) {
-    // *AS* warning not used !!! test only?
-    // Amg::Vector3D localHit((*i_hit).getHitStart().x(),(*i_hit).getHitStart().y(),(*i_hit).getHitStart().z());
-    // *AS*    Amg::Vector3D xU = descriptor->localToGlobalCoords(i_hit->getHitStart(),offid);
-  } else {
+  if (!descriptor) {
     ATH_MSG_FATAL("CSC readout element not found for Id = " << m_pCscIdHelper->show_to_string(offid));
-    // *AS*     Amg::Vector3D(0,0,0); 
+    return StatusCode::FAILURE;
   }
 
   // Testing Sim to Offline ID conversion

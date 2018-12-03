@@ -38,7 +38,8 @@ atlas_depends_on_subdirs( PUBLIC
                           LumiBlock/LumiBlockComps
                           Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver
-                          Trigger/TrigT1/TrigT1CaloCondSvc )
+                          Trigger/TrigT1/TrigT1CaloCondSvc
+                          Trigger/TrigT1/TrigT1CaloByteStream )
 
 # External dependencies:
 find_package( CLHEP )

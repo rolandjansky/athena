@@ -12,7 +12,7 @@ def addLHE3Weights(seq, pref = '', var_dict = {}):
   listTools = [] 
   mcWeight = []
   for var,index in sorted(var_dict.items(), key=operator.itemgetter(1)):
-    mcWeight.append( McEventWeight(name = pref+"LHE3Weight_"+var.replace('.','').replace(' ',''), McEventWeightIndex = index, UseTruthEvents = True))
+    mcWeight.append( McEventWeight(name = pref+"LHE3Weight_"+var.replace('.','').replace(' ','').replace('/',''), McEventWeightIndex = index, UseTruthEvents = True))
 
     ToolSvc += mcWeight[-1]
     

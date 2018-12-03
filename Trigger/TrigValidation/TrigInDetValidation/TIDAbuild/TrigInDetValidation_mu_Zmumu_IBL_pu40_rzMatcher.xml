@@ -1,7 +1,7 @@
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40_rzMatcher'>
-            <doc>Z->mumu pu40, IBL, run2 chains</doc>
-            <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=2500;runMergedChain=True;PdgId=13</commandLineFlags>
+            <doc>Z->mumu pu40, IBL</doc>
+            <displayName>MuonSlice, Z->mumu, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=2500;PdgId=13</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

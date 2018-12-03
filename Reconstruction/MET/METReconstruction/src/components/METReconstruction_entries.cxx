@@ -27,9 +27,9 @@
 #include "METReconstruction/METMuonElossTool.h"
 #include "METReconstruction/METRegionsTool.h"
 // Algs
-#include "METRecoAlg.h"
-#include "METReaderAlg.h"
-#include "METAssocTestAlg.h"
+#include "../METRecoAlg.h"
+#include "../METReaderAlg.h"
+#include "../METAssocTestAlg.h"
 
 using namespace met;
 

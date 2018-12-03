@@ -6,7 +6,8 @@ def GetInputFiles(inputPath,filePattern):
     if (inputPath[0:8]=='/castor/'):
         cmd='nsls'
     elif (inputPath[0:5]=='/eos/'):    
-        cmd='/afs/cern.ch/project/eos/installation/atlas/bin/eos.select ls'
+        #cmd='/afs/cern.ch/project/eos/installation/atlas/bin/eos.select ls'
+        cmd='/usr/bin/eos ls '
     else:
         cmd='ls -1'
 

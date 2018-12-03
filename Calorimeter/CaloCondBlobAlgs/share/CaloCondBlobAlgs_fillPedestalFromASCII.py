@@ -2,7 +2,7 @@
 # CaloCondBlobAlgs_fillPedestalFromASCII
 # Nils Gollub <nils.gollub@cern.ch>, 2008-01-11
 
-import PyCintex
+import cppyy
 from PyCool import cool
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 
@@ -31,8 +31,8 @@ comment  = "to fill pedestal shifts"
 #===
 #==================================================
 #=== set shortcut
-g = PyCintex.gbl
-PyCintex.makeClass('std::vector<float>')
+g = cppyy.gbl
+cppyy.makeClass('std::vector<float>')
 
 #=== get a logger
 log = CaloCondLogger.getLogger("CaloNoiseWriter")

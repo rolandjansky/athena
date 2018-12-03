@@ -49,7 +49,11 @@ TrigGSCFex::TrigGSCFex(const std::string& name, ISvcLocator* pSvcLocator) :
 
   // Run-2 monitoring
   
-  //declareMonitoredVariable("sv_mass", m_mon_sv_mass, AutoClear);
+  declareMonitoredVariable("gsc_ntrk",    m_mon_gsc_ntrk,    AutoClear);
+  declareMonitoredVariable("gsc_width",   m_mon_gsc_width,   AutoClear);
+  declareMonitoredVariable("gsc_ptsum",   m_mon_gsc_ptsum,   AutoClear);
+  declareMonitoredVariable("gsc_ptdiff",  m_mon_gsc_ptdiff,  AutoClear);
+  declareMonitoredVariable("gsc_ptratio", m_mon_gsc_ptratio, AutoClear);
 
 
 }
@@ -73,10 +77,7 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigGSCFex, version " << PACKAGE_VERSION << endmsg;
 
   // declareProperty overview 
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
 
   if(m_setupOfflineTools) {
 
@@ -87,7 +88,7 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
       } else 
 	msg() << MSG::INFO << "Retrieved tool " << m_jetGSCCalib_tool << endmsg;	
     } else if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No GSCCalibrationTool tool to retrieve" << endmsg;
+      ATH_MSG_DEBUG( "No GSCCalibrationTool tool to retrieve" );
 
   }
 
@@ -100,23 +101,23 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
 
 HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigGSCFex" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigGSCFex" );
 
   // RETRIEVE INPUT CONTAINERS
 
   // Get EF jet 
   const xAOD::JetContainer* jets = nullptr;
   if(getFeature(inputTE, jets, m_jetKey) == HLT::OK && jets != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() );
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endmsg;
+    ATH_MSG_DEBUG( "INPUT - No xAOD::JetContainer" );
     return HLT::MISSING_FEATURE;
   }
 
   // Get primary vertex 
   const xAOD::VertexContainer* vertexes = nullptr;
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << "nVertexes = " << vertexes->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << "nVertexes = " << vertexes->size() );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::VertexContainer" << endmsg;
     return HLT::MISSING_FEATURE;
@@ -125,7 +126,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   // Get tracks 
   const xAOD::TrackParticleContainer* tracks = nullptr;
   if(getFeature(outputTE, tracks, m_trackKey) == HLT::OK && tracks != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endmsg;
     return HLT::MISSING_FEATURE;
@@ -219,7 +220,6 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 //	    << " phi: " << calJet->p4().Phi()
 //	    << " m: "   << calJet->p4().M()
 //	    << std::endl;
-
   
   xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
   xAOD::JetContainer* jc = new xAOD::JetContainer;
@@ -252,8 +252,13 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 
 
   // Fill monitoring variables
-  //trigBTagging->variable<float>("SV1", "masssvx",  m_mon_sv_mass);
-
+  m_mon_gsc_ntrk  = nTrk;
+  m_mon_gsc_width = width;
+  m_mon_gsc_ptsum = ptsum; 
+  m_mon_gsc_ptdiff = jet.p4().Pt() - jc->back()->p4().Pt(); 
+  if( jc->back()->p4().Pt() != 0 ) m_mon_gsc_ptratio = ( m_mon_gsc_ptdiff )/( jc->back()->p4().Pt() ) ; 
+  else m_mon_gsc_ptratio = -999.;
+  
   return HLT::OK;
 }
 

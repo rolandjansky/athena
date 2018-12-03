@@ -821,7 +821,7 @@ class eventMatch(object):
         #  is applied, so the result is rounded down. i.e., 1 * 0.5 -> 0.
         simEventEff = 0.995
         self._eventCountConf = {}
-        self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_CAVERN": simEventEff, "EVNT_Stopped": simEventEff}
+        self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_CAVERN": simEventEff, "EVNT_Stopped": simEventEff, "EVNT_TR": "filter"}
         self._eventCountConf['EVNT_CAVERN'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_COSMICS'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}

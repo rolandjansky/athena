@@ -1,5 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
@@ -35,7 +37,7 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TKey.h"
 
 
@@ -88,7 +90,7 @@ protected:
 
   std::string ConvertProngToString(const int& iProngness);
 
-  typedef std::map<std::string, TH1F*> SFMAP;
+  typedef std::map<std::string, TH1*> SFMAP;
   SFMAP* m_mSF;
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;

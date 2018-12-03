@@ -18,18 +18,6 @@ from AthenaCommon.JobProperties import jobproperties
 import AthenaCommon.SystemOfUnits as Units
 
 
-# ---- Load the egammaPID and egammaParameters information
-# This is needed to always be up-to-date with the egamma
-# IsEM selections and also the author selections
-import PyUtils.RootUtils as ru
-ROOT = ru.import_root()
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
-#from ROOT import egammaPID
-#from ROOT import egammaParameters
-
-
-
 #=====================================================================
 # First define container for the PrimaryDPDMaker flags  
 #=====================================================================

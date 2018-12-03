@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_SPECTRUM
 #define INDETPHYSVALMONITORING_INDETPERFPLOT_SPECTRUM
 /**
@@ -62,6 +61,9 @@ private:
   TH2* m_recod0_vs_z0_good;
   TH2* m_recod0_vs_z0_crazy;
 
+  // pre-selection truth track plots
+  // switch to fill, as they consume a lot of CPU time
+  bool m_fillPreSelTruth;
   TH1* m_truthPt;
   TH1* m_truthEta;
   TH1* m_truthPhi;
@@ -77,9 +79,15 @@ private:
 
   TH2* m_PVR_vs_Z;
 
-  TProfile* m_nSCTHits_vs_eta;
-  TProfile* m_nPixHits_vs_eta;
-  TProfile* m_nTotHits_vs_eta;
+  TH2* m_nSCTHits_vs_eta;
+  TH2* m_nPixHits_vs_eta;
+  TH2* m_nTotHits_vs_eta;
+  TH2* m_nSCTHoles_vs_eta;
+  TH2* m_nPixHoles_vs_eta;
+  TH2* m_nTotHoles_vs_eta;
+  TH2* m_nSCTOutliers_vs_eta;
+  TH2* m_nPixOutliers_vs_eta;
+  TH2* m_nTotOutliers_vs_eta;
   TH2F* m_nSCTHits_phi_vs_eta;
   TH2F* m_nPixHits_phi_vs_eta;
   TH2F* m_nTotHits_phi_vs_eta;

@@ -71,6 +71,8 @@ def AODFix_Init():
     prevAODFix =''
     prevRelease = ''
     isMC = False
+    isHI = rec.doHeavyIon()
+    isHIP = rec.doHIP()
 
     # is it better to do this or to look at GlobalFlags?
     from RecExConfig.InputFilePeeker import inputFileSummary
@@ -147,7 +149,7 @@ def AODFix_Init():
         if (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2') and 
               (rec.doApplyAODFix.is_locked() or 
                (prevReleaseSplit[0] == '21' and (prevReleaseSplit[1] == '0' or prevReleaseSplit[1] == '2')))):
-            _aodFixInstance = AODFix_r210(prevAODFix, isMC, rec.doApplyAODFix.is_locked())
+            _aodFixInstance = AODFix_r210(prevAODFix, isMC, rec.doApplyAODFix.is_locked(), isHI, isHIP)
         else:
             logAODFix.info("No AODFix scheduled for this release.")
 

@@ -29,7 +29,7 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( ROOT COMPONENTS Core Hist RIO Matrix)
 find_package( Boost )
 
 atlas_add_library( IsolationCorrectionsLib
@@ -52,5 +52,5 @@ atlas_add_dictionary( IsolationCorrectionsDict
    LINK_LIBRARIES IsolationCorrectionsLib )
 
 # Install files from the package:
-atlas_install_data( data/*.root )
+atlas_install_data( data/*.root ) 
 

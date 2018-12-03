@@ -28,6 +28,12 @@
 #include "TileTPCnv/TileDigits_p1.h"
 #include "TileTPCnv/TileDigitsContainer_p1.h"
 
+#include "TileTPCnv/TileDigits_p2.h"
+#include "TileTPCnv/TileDigitsContainer_p2.h"
+
+#include "TileTPCnv/TileDigits_p3.h"
+#include "TileTPCnv/TileDigitsContainer_p3.h"
+
 #include "TileTPCnv/TileBeamElem_p1.h"
 #include "TileTPCnv/TileBeamElemContainer_p1.h"
 

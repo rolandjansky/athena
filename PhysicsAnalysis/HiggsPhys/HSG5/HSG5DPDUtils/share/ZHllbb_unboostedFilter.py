@@ -1,9 +1,6 @@
 
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
-
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
 sequencer = AthSequencer("HSG5ZHLLunb_Sequencer",
@@ -15,9 +12,6 @@ leptonFilter=HSG5__LeptonFilter("HSG5ZHLLunb_DileptonFilter",
                                MuonFilterNameAndTypeVec=["D2PDMuonSelector/HSG5ZHLLunb_MuidMuonSelector",
                                                          "D2PDMuonSelector/HSG5ZHLLunb_StacoMuonSelector"])
 
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
-from ROOT import egammaPID
 
 # create electron and muon selectors
 from D2PDMaker.D2PDMakerConf import D2PDElectronSelector

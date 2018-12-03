@@ -232,7 +232,7 @@ void dump_aux_vars (const SG::IConstAuxStore& store, size_t i)
 {
   if (i >= store.size()) return;
   SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
-  SG::auxid_set_t ids = store.getAuxIDs();
+  const SG::auxid_set_t& ids = store.getAuxIDs();
   std::vector<AuxVarSort> vars (ids.begin(), ids.end());
   std::sort (vars.begin(), vars.end());
   for (const AuxVarSort& v : vars) {

@@ -105,6 +105,8 @@ ServiceMgr.LArG4FCALFastSimSvc.GeneratedStartingPointsRatio=options.spratio
 ServiceMgr.LArG4FCAL2FastSimSvc.GeneratedStartingPointsFile="FCAL2."+options.output
 ServiceMgr.LArG4FCAL2FastSimSvc.GeneratedStartingPointsRatio=options.spratio
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSequence += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSequence += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)

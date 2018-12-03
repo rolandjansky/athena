@@ -27,23 +27,6 @@
       }                                                             \
    } while( 0 )
 
-/// Helper operator that is apparently missing from the base code
-bool operator== ( const SG::auxid_set_t& id1, const SG::auxid_set_t& id2 ) {
-
-   // Check that they are of the same size:
-   if( id1.size() != id2.size() ) {
-      return false;
-   }
-   // Check that all elements of the first set appear in the second set:
-   for( SG::auxid_t id : id1 ) {
-      if( ! id2.count( id ) ) {
-         return false;
-      }
-   }
-   // If all of these succeeded, then let's consider them equal:
-   return true;
-}
-
 int main() {
 
    // Access the type registry:

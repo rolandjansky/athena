@@ -1,16 +1,12 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writeIntegratorFromASCII.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-12-05
 # change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
@@ -51,10 +47,10 @@ def fillIntegrator(fileInt, tag, since,
     ngain = 6
     nperg = 8
 
-    defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+    defVec = cppyy.gbl.std.vector('std::vector<float>')()
 
     for i in xrange(ngain):
-        defaultGain = PyCintex.gbl.std.vector('float')()
+        defaultGain = cppyy.gbl.std.vector('float')()
         for v in dv[i]:
             defaultGain.push_back(v)
         defVec.push_back(defaultGain)
@@ -66,7 +62,7 @@ def fillIntegrator(fileInt, tag, since,
     writer.setComment(os.getlogin(),"Jalal's values with non-zero defaults, 2008-12-05")
     parser = TileCalibTools.TileASCIIParser(fileInt,"IntGain");
     #=== initialize all channels and write global default
-    util = PyCintex.gbl.TileCalibUtils()
+    util = cppyy.gbl.TileCalibUtils()
     for ros in xrange(util.max_ros()):
         for drawer in xrange(util.getMaxDrawer(ros)):
             flt = writer.zeroBlob(ros,drawer)

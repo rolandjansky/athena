@@ -15,7 +15,7 @@ class NSubjettinessTool :
       // Constructor and destructor
       NSubjettinessTool(std::string name);
 
-      int modifyJet(xAOD::Jet &jet) const;
+      int modifyJet(xAOD::Jet &injet) const;
 
     private:
       float m_Alpha;

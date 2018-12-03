@@ -29,7 +29,6 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
   , m_fOutFile(0)
   , m_sElectronContainerName("Electrons")
   , m_sMuonContainerName("Muons")
-  , m_tTOELLHDecorator(this->name()+"_TauOverlappingElectronLLHDecorator", this)
   , m_aAccept( "TauSelection" )
 {
   declareProperty( "CreateControlPlots", m_bCreateControlPlots = false);
@@ -53,6 +52,9 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
   declareProperty( "JetBDTRegion",  m_vJetBDTRegion  = {});
   declareProperty( "JetBDTMin",     m_dJetBDTMin     = NAN);
   declareProperty( "JetBDTMax",     m_dJetBDTMax     = NAN);
+  declareProperty( "JetBDTSigTransRegion", m_vJetBDTSigTransRegion  = {});
+  declareProperty( "JetBDTSigTransMin", m_dJetBDTSigTransMin = NAN);
+  declareProperty( "JetBDTSigTransMax", m_dJetBDTSigTransMax = NAN);
   declareProperty( "JetIDWP",       m_iJetIDWP       = 0);
   declareProperty( "EleBDTRegion",  m_vEleBDTRegion  = {});
   declareProperty( "EleBDTMin",     m_dEleBDTMin     = NAN);
@@ -100,6 +102,9 @@ StatusCode TauSelectionTool::initialize()
   if (!bConfigViaProperties and !m_vJetBDTRegion.empty())     bConfigViaProperties = true;
   if (!bConfigViaProperties and m_dJetBDTMin == m_dJetBDTMin) bConfigViaProperties = true;
   if (!bConfigViaProperties and m_dJetBDTMax == m_dJetBDTMax) bConfigViaProperties = true;
+  if (!bConfigViaProperties and !m_vJetBDTSigTransRegion.empty())         bConfigViaProperties = true;
+  if (!bConfigViaProperties and m_dJetBDTSigTransMin == m_dJetBDTSigTransMin) bConfigViaProperties = true;
+  if (!bConfigViaProperties and m_dJetBDTSigTransMax == m_dJetBDTSigTransMax) bConfigViaProperties = true;
   if (!bConfigViaProperties and m_iJetIDWP != 0)              bConfigViaProperties = true;
   if (!bConfigViaProperties and !m_vEleBDTRegion.empty())     bConfigViaProperties = true;
   if (!bConfigViaProperties and m_dEleBDTMin == m_dEleBDTMin) bConfigViaProperties = true;
@@ -114,12 +119,12 @@ StatusCode TauSelectionTool::initialize()
     ATH_MSG_WARNING("Configured tool via setProperty and configuration file, which may lead to unexpected configuration.");
     ATH_MSG_WARNING("In doubt check the configuration that is printed when the tool is initialized and the message level is set to debug");
     ATH_MSG_WARNING("For further details please refer to the documentation:");
-    ATH_MSG_WARNING("https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
+    ATH_MSG_WARNING("https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst");
   }
   if (!bConfigViaConfigFile and !bConfigViaProperties)
   {
     ATH_MSG_WARNING("No cut configuration provided, the tool will not do anything. For further details please refer to the documentation:");
-    ATH_MSG_WARNING("https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
+    ATH_MSG_WARNING("https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst");
   }
 
   if (bConfigViaConfigFile)
@@ -229,6 +234,24 @@ StatusCode TauSelectionTool::initialize()
         if (m_dJetBDTMax != m_dJetBDTMax)
           m_dJetBDTMax = rEnv.GetValue("JetBDTMax",NAN);
       }
+      else if (sCut == "JetBDTSigTransRegion")
+      {
+        iSelectionCuts = iSelectionCuts | CutJetBDTScoreSigTrans;
+        if (m_vJetBDTSigTransRegion.size() == 0)
+          TauAnalysisTools::split(rEnv,"JetBDTSigTransRegion", ';', m_vJetBDTSigTransRegion);
+      }
+      else if (sCut == "JetBDTSigTransMin")
+      {
+        iSelectionCuts = iSelectionCuts | CutJetBDTScoreSigTrans;
+        if (m_dJetBDTSigTransMin != m_dJetBDTSigTransMin)
+          m_dJetBDTSigTransMin = rEnv.GetValue("JetBDTSigTransMin",NAN);
+      }
+      else if (sCut == "JetBDTSigTransMax")
+      {
+        iSelectionCuts = iSelectionCuts | CutJetBDTScoreSigTrans;
+        if (m_dJetBDTSigTransMax != m_dJetBDTSigTransMax)
+          m_dJetBDTSigTransMax = rEnv.GetValue("JetBDTSigTransMax",NAN);
+      }
       else if (sCut == "EleBDTRegion")
       {
         iSelectionCuts = iSelectionCuts | CutEleBDTScore;
@@ -292,6 +315,7 @@ StatusCode TauSelectionTool::initialize()
     {CutAbsCharge, new TauAnalysisTools::SelectionCutAbsCharge(this)},
     {CutNTrack, new TauAnalysisTools::SelectionCutNTracks(this)},
     {CutJetBDTScore, new TauAnalysisTools::SelectionCutBDTJetScore(this)},
+    {CutJetBDTScoreSigTrans, new TauAnalysisTools::SelectionCutBDTJetScoreSigTrans(this)},
     {CutJetIDWP, new TauAnalysisTools::SelectionCutJetIDWP(this)},
     {CutEleBDTScore, new TauAnalysisTools::SelectionCutBDTEleScore(this)},
     {CutEleBDTWP, new TauAnalysisTools::SelectionCutEleBDTWP(this)},
@@ -304,6 +328,7 @@ StatusCode TauSelectionTool::initialize()
   FillRegionVector(m_vPtRegion, m_dPtMin, m_dPtMax);
   FillRegionVector(m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
   FillRegionVector(m_vJetBDTRegion, m_dJetBDTMin, m_dJetBDTMax );
+  FillRegionVector(m_vJetBDTSigTransRegion, m_dJetBDTSigTransMin, m_dJetBDTSigTransMax );
   FillRegionVector(m_vEleBDTRegion, m_dEleBDTMin, m_dEleBDTMax );
   FillValueVector(m_vAbsCharges, m_iAbsCharge );
   FillValueVector(m_vNTracks, m_iNTrack );
@@ -316,6 +341,7 @@ StatusCode TauSelectionTool::initialize()
   PrintConfigValue  ("AbsCharge",   m_vAbsCharges);
   PrintConfigValue  ("NTrack",      m_vNTracks);
   PrintConfigRegion ("BDTJetScore", m_vJetBDTRegion);
+  PrintConfigRegion ("BDTJetScoreSigTrans", m_vJetBDTSigTransRegion);
   PrintConfigRegion ("BDTEleScore", m_vEleBDTRegion);
   PrintConfigValue  ("JetIDWP",     m_sJetIDWP);
   PrintConfigValue  ("JetIDWP ENUM",m_iJetIDWP);
@@ -330,7 +356,13 @@ StatusCode TauSelectionTool::initialize()
   if (m_iSelectionCuts & CutAbsEta) sCuts+= "AbsEta ";
   if (m_iSelectionCuts & CutAbsCharge) sCuts+= "AbsCharge ";
   if (m_iSelectionCuts & CutNTrack) sCuts+= "NTrack ";
-  if (m_iSelectionCuts & CutJetBDTScore) sCuts+= "JetBDTScore ";
+  if (m_iSelectionCuts & CutJetBDTScore) {
+    sCuts+= "JetBDTScore "; 
+    ATH_MSG_WARNING("Cutting on raw JetBDT score is deprecated. Please use properties JetBDTSigTransRegion, JetBDTSigTransMin or JetBDTSigTransMax instead");
+    ATH_MSG_WARNING("For further details please refer to the documentation:");
+    ATH_MSG_WARNING("https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst");
+  }
+  if (m_iSelectionCuts & CutJetBDTScoreSigTrans) sCuts+= "JetBDTScoreSigTrans ";
   if (m_iSelectionCuts & CutJetIDWP) sCuts+= "JetIDWP ";
   if (m_iSelectionCuts & CutEleBDTScore) sCuts+= "EleBDTScore ";
   if (m_iSelectionCuts & CutEleBDTWP) sCuts+= "EleBDTWP ";
@@ -343,99 +375,6 @@ StatusCode TauSelectionTool::initialize()
   if (m_bCreateControlPlots)
     setupCutFlowHistogram();
 
-  if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
-  {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTOELLHDecorator, TauAnalysisTools::TauOverlappingElectronLLHDecorator));
-    ATH_CHECK(m_tTOELLHDecorator.setProperty( "EleOLRFilePath", m_sEleOLRFilePath ));
-    ATH_CHECK(m_tTOELLHDecorator.setProperty( "ElectronContainerName", m_sElectronContainerName ));
-    ATH_CHECK(m_tTOELLHDecorator.initialize());
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
-StatusCode TauSelectionTool::beginInputFile()
-{
-  /* 
-  Checks if electron OLR has to be re-calculated based on file's production release.
-  It is possible but not recommended to ignore this check via m_bIgnoreAODFixCheck.
-  */
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
-  {
-
-    std::string eleOlrPassName = "ele_olr_pass";
-    std::string lhScoreName = "ele_match_lhscore";
-
-    if (m_bIgnoreAODFixCheck)
-    {
-      if (not m_bRecalcEleOLR)
-      {
-        ATH_MSG_WARNING("Recommended check for AODFix is ignored. Electron OLR will not be recalculated");
-        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName);
-        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName);
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName));
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName));
-      }
-      else
-      {
-        ATH_MSG_WARNING("Recommended check for AODFix is ignored. Electron OLR will be recalculated");
-        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName+"_fix");
-        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName+"_fix");
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName+"_fix"));
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName+"_fix"));
-      }
-    }
-    else
-    {
-      // Some default value if there's no metadata:
-      std::string release = "20.7.7.3";
-
-      // Try to get the release number from the metadata:
-      const xAOD::FileMetaData* fmd = 0;
-      if( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") &&
-          inputMetaStore()->retrieve( fmd, "FileMetaData" ).isSuccess() ) 
-      {
-        if( ! fmd->value( xAOD::FileMetaData::productionRelease, release ) ) 
-        {
-          ATH_MSG_WARNING( "No production release specified in the file metadata" );
-          ATH_MSG_WARNING( "Defaulting to: " << release );
-        }
-      } 
-      else 
-      {
-        ATH_MSG_WARNING( "No xAOD::FileMetaData object found with key: FileMetaData" );
-        ATH_MSG_WARNING( "Defaulting to production release: " << release );
-      }
-
-      // check if release has tau AOD fix
-      std::vector<std::string> vAodFixReleases = {"AtlasDerivation-20.7.8.2",
-                                                  "AtlasDerivation-20.7.8.7"};
-      if ( std::find(vAodFixReleases.begin(), vAodFixReleases.end(), release) 
-               != vAodFixReleases.end() )
-      {
-        // EleOLR will not be re-calculated
-        ATH_MSG_DEBUG(release <<" is known to have AODfix");
-        ATH_MSG_DEBUG("Based on production release electron OLR will not be recalculated.");
-        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName);
-        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName);
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName));
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName));
-      }
-      else 
-      {
-        // EleOLR will be re-calculated
-        ATH_MSG_WARNING(release <<" is not known to have AODfix");
-        ATH_MSG_WARNING("Based on production release electron OLR will be recalculated.");
-        m_cMap[CutEleOLR]->setProperty("EleOlrPassDecorationName", eleOlrPassName+"_fix");
-        m_cMap[CutEleOLR]->setProperty("EleOlrLhScoreDecorationName", lhScoreName+"_fix");
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrPassDecorationName(eleOlrPassName+"_fix"));
-        ATH_CHECK(m_tTOELLHDecorator->setEleOlrLhScoreDecorationName(lhScoreName+"_fix"));
-      }
-    }
-  }
-#endif
   return StatusCode::SUCCESS;
 }
 
@@ -493,14 +432,6 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   // Reset the result:
   m_aAccept.clear();
   int iNBin = 0;
-  if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
-  {
-    if (m_tTOELLHDecorator->decorate(xTau).isFailure())
-    {
-      ATH_MSG_ERROR("Failed decorating information for CutEleOLR");
-      return m_aAccept;
-    }
-  }
 
   if (m_bCreateControlPlots)
   {

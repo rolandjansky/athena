@@ -15,16 +15,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "DataModel/DataVector.h"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
-#include "HepPDT/ParticleDataTable.hh"
 
 #include "xAODMuon/Muon.h"
 
 #include <vector>
-#include <cmath>
 #include <string>
-#include <map>
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
@@ -90,49 +86,54 @@ namespace DerivationFramework {
             }
             return indexStr;
         }
-        
+
+        const xAOD::TrackParticle* GetMuonTrack(const xAOD::Muon* mu) const{
+            auto& link = mu->inDetTrackParticleLink();
+            return link.isValid() ? *link : nullptr;
+        }
+
         std::vector<const xAOD::TrackParticle*> trackParticles(std::string specify) {
             std::vector<const xAOD::TrackParticle*> theTracks;
             bool oppCh(false);
             if (muons.at(0)->charge()*muons.at(1)->charge() < 0) oppCh=true;
             if (specify=="pair1") {
-                theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
+                theTracks.push_back(GetMuonTrack(muons.at(0)));
+                theTracks.push_back(GetMuonTrack(muons.at(1)));
             }
             if (specify=="pair2") {
-                theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                theTracks.push_back(GetMuonTrack(muons.at(2)));
+                theTracks.push_back(GetMuonTrack(muons.at(3)));
             }
             if (specify=="DC") {
                 if (oppCh) {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 } else {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 }
             }
             if (specify=="AC") {
-                theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
+                theTracks.push_back(GetMuonTrack(muons.at(0)));
+                theTracks.push_back(GetMuonTrack(muons.at(3)));
+                theTracks.push_back(GetMuonTrack(muons.at(1)));
+                theTracks.push_back(GetMuonTrack(muons.at(2)));
             }
             if (specify=="SS") {
                 if (oppCh) {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 } else {
-                    theTracks.push_back(muons.at(0)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(1)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(2)->inDetTrackParticleLink().cachedElement());
-                    theTracks.push_back(muons.at(3)->inDetTrackParticleLink().cachedElement());
+                    theTracks.push_back(GetMuonTrack(muons.at(0)));
+                    theTracks.push_back(GetMuonTrack(muons.at(1)));
+                    theTracks.push_back(GetMuonTrack(muons.at(2)));
+                    theTracks.push_back(GetMuonTrack(muons.at(3)));
                 }
             }
             return theTracks;
@@ -154,7 +155,7 @@ namespace DerivationFramework {
         //Doing Calculation and inline functions
         StatusCode performSearch(xAOD::VertexContainer*& pairVxContainer, xAOD::VertexAuxContainer*& pairVxAuxContainer,
                                  xAOD::VertexContainer*& quadVxContainer, xAOD::VertexAuxContainer*& quadVxAuxContainer, bool &acceptEvent);
-        xAOD::Vertex* fit(std::vector<const xAOD::TrackParticle*>,const xAOD::TrackParticleContainer* importedTrackCollection, Amg::Vector3D beamSpot);
+        xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>& ,const xAOD::TrackParticleContainer* importedTrackCollection, const Amg::Vector3D &beamSpot);
         std::vector<std::vector<unsigned int> > getQuadIndices(unsigned int length);
         std::vector<std::pair<unsigned int, unsigned int> > getPairIndices(unsigned int length);
         std::vector<std::vector<unsigned int> > mFromN(unsigned int m, unsigned int n);
@@ -163,15 +164,14 @@ namespace DerivationFramework {
                            std::vector<unsigned int> &combination,
                            std::vector<unsigned int> &mainList,
                            std::vector<std::vector<unsigned int> > &allCombinations);
-        void buildCombinations(std::vector<const xAOD::Muon*> muonsIn,
+        void buildCombinations(const std::vector<const xAOD::Muon*> &muonsIn,
                                std::vector<Combination> &pairs,
                                std::vector<Combination> &quadruplets,
                                unsigned int nSelectedMuons);
-        bool passesQuadSelection(std::vector<const xAOD::Muon*> muonsIn);
+        bool passesQuadSelection(const std::vector<const xAOD::Muon*> &muonsIn);
         //-------------------------------------------------------------------------------------
         
     private:
-        const HepPDT::ParticleDataTable *m_particleDataTable;
         double m_ptCut;
         double m_etaCut;
         bool m_useV0Fitter;

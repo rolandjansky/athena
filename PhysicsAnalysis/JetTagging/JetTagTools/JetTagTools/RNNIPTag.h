@@ -105,6 +105,9 @@ namespace Analysis {
     bool m_useD0SignForZ0;      // force to use transverse IP sign for
                                 // Z impact parameter for IP3D
     bool m_rejectBadTracks;     // TODO: Do we need this?
+
+    std::string m_tagNameSuffix; // appended to tagger name to indicate
+                                 // neg, flip, etc
     // bool m_SignWithSvx;
     bool m_unbiasIPEstimation;  // remove track from vertex when computing IP
 

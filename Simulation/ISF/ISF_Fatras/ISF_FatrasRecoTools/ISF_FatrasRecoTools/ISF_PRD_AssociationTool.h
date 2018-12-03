@@ -23,7 +23,7 @@ namespace InDet {
 namespace iFatras {
   /** Concrete Implementation of the IPRD_AssociationTool interface.*/
   
-  class ISF_PRD_AssociationTool : virtual public Trk::IPRD_AssociationTool, public AthAlgTool {
+  class ISF_PRD_AssociationTool : public extends<AthAlgTool, Trk::IPRD_AssociationTool> {
     
   public:
     ISF_PRD_AssociationTool(const std::string&,const std::string&,const IInterface*);

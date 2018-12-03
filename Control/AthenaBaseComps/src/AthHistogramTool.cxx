@@ -41,7 +41,7 @@ AthHistogramTool::AthHistogramTool( const std::string& type,
                   "Handle to a THistSvc instance: it will be used to write "
                   "ROOT objects to ROOT files" );
 
-  declareProperty("RootStreamName",    m_prefix  = "/", "Name of the output ROOT stream (file) that the THistSvc uses");
+  declareProperty("RootStreamName",    m_prefix  = "/ANALYSIS", "Name of the output ROOT stream (file) that the THistSvc uses");
   declareProperty("RootDirName",       m_rootDir = "",
                   "Name of the ROOT directory inside the ROOT file where the histograms will go");
 

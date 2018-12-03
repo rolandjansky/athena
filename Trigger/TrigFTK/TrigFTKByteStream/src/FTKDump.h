@@ -20,8 +20,6 @@ class MsgStream;
 *
 * @author Bartosz Mindur <bartosz.mindur@cern.ch> AGH-UST Krakow
 *
-* $Revision$
-* $Date$
 */
 class FTKDump : public AthAlgorithm {
 
@@ -36,7 +34,7 @@ public:
   virtual StatusCode execute();
 
 private:
-  MsgStream* m_log; //!< std message stream
+  //
 }; // class FTKDump
 
 #endif // FTK_DUMP_EXAMPLE_H

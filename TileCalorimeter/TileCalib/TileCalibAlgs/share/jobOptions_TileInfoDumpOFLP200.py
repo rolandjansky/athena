@@ -1,17 +1,18 @@
 # File:     TileCalibAlgs/jobOptions_TileInfoDump.py
 # Author:   Nils Gollub <nils.gollub@cern.ch>
 # Modified: Lukas Pribyl <lukas.pribyl@cern.ch>
-# Usage:    athena.py -c 'RUN=999999' jobOptions_TileInfoDump.py 
+# Modified: Andrei Artamonov <andrei.artamonov@cern.ch>
+# Usage:    athena.py -c 'RUN=999999' jobOptions_TileInfoDumpOFLP200.py
 #
 # RUN : runnumber
 
 #=== get user options or set default
 if not 'RUN' in dir():
     RUN = 999999
+RunNumber = RUN
 
 if not 'RUN2' in dir(): 
-    RUN2 = (RUN>222222)
-
+    RUN2 = (RUN>=222222)
 
 #__________________________________________________________________
 import AthenaCommon.AtlasUnixGeneratorJob
@@ -31,6 +32,8 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 if RUN2: globalflags.DatabaseInstance="CONDBR2"
 else:    globalflags.DatabaseInstance="COMP200"
 
+TileUseDCS = False
+
 #--- Geometry setup
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.ID_setOff()
@@ -39,10 +42,10 @@ DetFlags.detdescr.LAr_setOff()
 DetFlags.detdescr.Tile_setOn()
 from AthenaCommon.JobProperties import jobproperties
 
-#--- see http://atlas.web.cern.ch/Atlas/GROUPS/OPERATIONS/dataBases/DDDB/tag_hierarchy_browser.php
+#--- see https://atlas-geometry-db.web.cern.ch/atlas-geometry-db/
 #--- for the geometry updates
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
-else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
+else:    jobproperties.Global.DetDescrVersion = "ATLAS-R1-2012-03-01-00"
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
@@ -50,7 +53,7 @@ from AtlasGeoModel import GeoModelInit
 #=== set global tag
 #=============================================================
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("OFLCOND-RUN12-SDR-14")
+if RUN2: conddb.setGlobalTag("OFLCOND-MC16-SDR-21")
 else:    conddb.setGlobalTag("OFLCOND-RUN12-SDR-14")
 
 #=============================================================
@@ -93,7 +96,6 @@ from TileConditions.TileCoolMgr import tileCoolMgr
 #=== TileConditions/python/TileCoolMgr.py
 
 #=== Setup COOL
-if RUN2: TileCablingType = 4 
 include( "TileConditions/TileConditions_jobOptions.py" )
 tileInfoConfigurator.setupCOOL()
 tileInfoConfigurator.setupCOOLOFC()

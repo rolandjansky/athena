@@ -66,29 +66,29 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
 
   // Get storegate svc
   if(m_detStore.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
+    return HLT::BAD_JOB_SETUP;
   } else
     m_log << MSG::INFO << "Retrieved service " << m_detStore.typeAndName() << endreq;
 
   if(m_storeGate.retrieve().isFailure()) {
-    m_log << MSG::FATAL << "Failed to connect to " << m_storeGate.typeAndName() << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_FATAL("Failed to connect to " << m_storeGate.typeAndName());
+    return HLT::BAD_JOB_SETUP;
   } else
     m_log << MSG::INFO << "Retrieved service " << m_storeGate.typeAndName() << endreq;
 
   // Get a TRT identifier helper
   sc = m_detStore->retrieve(m_trtHelper, "TRT_ID");
   if(sc.isFailure()) {
-    m_log << MSG::ERROR << "Failed to retrieve " << m_trtHelper << endreq; // fatal?
-    return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Failed to retrieve " << m_trtHelper); // fatal?
+    return HLT::BAD_JOB_SETUP;
   } else
     m_log << MSG::INFO << "Retrieved service " << m_trtHelper << endreq;
   
   // Get TrigTRT_DriftCircleProviderTool
   if( m_rawDataTool.retrieve().isFailure() ){
-    m_log << MSG::FATAL << "Failed to retrieve " << m_rawDataTool << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_FATAL("Failed to retrieve " << m_rawDataTool);
+    return HLT::BAD_JOB_SETUP;
   } else
     m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endreq;
   

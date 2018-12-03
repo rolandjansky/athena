@@ -51,6 +51,12 @@ def getMC16EntryLayerFilter(name="ISF_MC16EntryLayerFilter", **kwargs):
 def getMC16LLPEntryLayerFilter(name="ISF_MC16LLPEntryLayerFilter", **kwargs):
     return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
 
+def getMC18EntryLayerFilter(name="ISF_MC18EntryLayerFilter", **kwargs):
+    return getMC15aPlusEntryLayerFilter(name, **kwargs)
+
+def getMC18LLPEntryLayerFilter(name="ISF_MC18LLPEntryLayerFilter", **kwargs):
+    return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
+
 def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):
     return getMC12EntryLayerFilter(name, **kwargs)
 
@@ -109,6 +115,10 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
     if simFlags.CosmicFilterPTmax.statusOn:
         kwargs.setdefault('ptMax'  , simFlags.CosmicFilterPTmax.get_Value() )
     return CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
+
+def getStoppedParticleFilter(name="ISF_StoppedParticleFilter", **kwargs):
+    kwargs.setdefault("VolumeNames", ['StoppingPositions'] )
+    return  CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
 def getInToOutSubDetOrderingTool(name="ISF_InToOutSubDetOrderingTool", **kwargs):
     # higher ordered particles will be simulated first

@@ -105,12 +105,40 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
     long int NTRK = vk->TrackList.size();
     long int IERR=0;
     long int NVar = (NTRK + 1) * 3;
-    if(vk->passNearVertex) {     /*  Fit is with "pass near" constraint and then */
+    if(vk->passNearVertex && vk->ConstraintList.size()==0) {
+                                 /*  Fit is with "pass near" constraint and then */
                                  /*     matrix is already present                */
     } else if ( vk->ConstraintList.size()>0  && useWeightScheme ) {
 /*  Full matrix inversion i */
 //
         FullMTXfill( vk, ader);
+	if ( vk->passNearVertex ) {
+          double drdpy[2][3];
+          double dpipj[3][3];
+	  for (it = 1; it <= NTRK; ++it) {
+	    drdpy[0][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[1];
+            drdpy[1][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[1] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[2];
+	    drdpy[0][1] = vk->tmpArr[it-1]->drdp[0][1] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][1] * vk->FVC.ywgt[1];
+	    drdpy[1][1] = vk->tmpArr[it-1]->drdp[0][1] * vk->FVC.ywgt[1] + vk->tmpArr[it-1]->drdp[1][1] * vk->FVC.ywgt[2];
+	    drdpy[0][2] = vk->tmpArr[it-1]->drdp[0][2] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][2] * vk->FVC.ywgt[1];
+	    drdpy[1][2] = vk->tmpArr[it-1]->drdp[0][2] * vk->FVC.ywgt[1] + vk->tmpArr[it-1]->drdp[1][2] * vk->FVC.ywgt[2];
+	    for (jt = 1; jt <= NTRK; ++jt) {   /* Matrix */
+		    for (int k = 0; k < 3; ++k) {
+			for (int l = 0; l < 3; ++l) {
+			    dpipj[k][l] = 0.;
+			    for (int j = 0; j < 2; ++j) {
+				dpipj[k][l] +=  vk->tmpArr[jt-1]->drdp[j][k] * drdpy[j][l];
+			    }
+			}
+		    }
+		    for (int k = 1; k <= 3; ++k) {
+			for (int l = 1; l <= 3; ++l) {
+			    ader_ref(it * 3 + k, jt * 3 + l) +=  dpipj[l-1][k-1];
+			}
+		    }
+	    }
+	  }
+	}
         Vect3DF th0t,tf0t;
         for(ic1=0; ic1<(int)vk->ConstraintList.size();ic1++){
           for(ic2=0; ic2<vk->ConstraintList[ic1]->NCDim; ic2++){

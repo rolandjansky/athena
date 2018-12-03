@@ -34,11 +34,11 @@ namespace Trk {
     std::vector<const TrackParameters*>::const_iterator   i_pbase;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
     Amg::Vector3D perGlobalPos,perGlobalVrt;
-    const Trk::Perigee* m_mPer=0;
-    const Trk::AtaStraightLine* m_Line=0; 
+    const Trk::Perigee* mPer=0;
+    const Trk::AtaStraightLine* Line=0; 
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
-    double fx,fy,fz,m_BMAG_FIXED;
+    double fx,fy,fz,BMAG_FIXED;
     double rxyMin=1000000.;
 
 //
@@ -49,8 +49,8 @@ namespace Trk {
      m_fitField->setAtlasMagRefFrame( 0., 0., 0.);
 
      if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
-       //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endreq;
-       if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endreq;
+       //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
+       if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
      }
 //
@@ -101,38 +101,38 @@ namespace Trk {
        if( trkparO ){
          const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( ntrk, trkparO, &m_refGVertex );
          if(trkparN == 0) return StatusCode::FAILURE;
-         m_mPer = dynamic_cast<const Trk::Perigee*>(trkparN); 
-         if( m_mPer == 0) {   delete trkparN;  return StatusCode::FAILURE; }
-         VectPerig    =  m_mPer->parameters(); 
-         perGlobalPos =  m_mPer->position();    //Global position of perigee point
-         //perGlobalVrt =  m_mPer->vertex();      //Global position of reference point
-         perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
-         if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
+         mPer = dynamic_cast<const Trk::Perigee*>(trkparN); 
+         if( mPer == 0) {   delete trkparN;  return StatusCode::FAILURE; }
+         VectPerig    =  mPer->parameters(); 
+         perGlobalPos =  mPer->position();    //Global position of perigee point
+         //perGlobalVrt =  mPer->vertex();      //Global position of reference point
+         perGlobalVrt =  mPer->associatedSurface().center();      //Global position of reference point
+         if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
          delete trkparN;
       }
 // std::cout<<" Tr="<<ntrk<<" GlobPosTrn="<<perGlobalPos.x()<<", "<<perGlobalPos.y()<<", "<<perGlobalPos.z()<<'\n';
 // std::cout<<" Common Ref. point="<<perGlobalVrt.x()<<", "<<perGlobalVrt.y()<<", "<<perGlobalVrt.z()<<'\n';
        m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame for safety
        m_fitField->getMagFld(  perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),  // Magnetic field
-                               fx, fy, m_BMAG_FIXED);                                 // at perigee point
-       if(fabs(m_BMAG_FIXED) < 0.01) m_BMAG_FIXED=0.01;
+                               fx, fy, BMAG_FIXED);                                 // at perigee point
+       if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
      }else{                   // For rotation case only!!!
        if( trkparO ){
          const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapToLine((long int)counter, trkparO, &m_refGVertex, lineTarget);
          if(trkparN == 0) return StatusCode::FAILURE;
-         m_Line = dynamic_cast<const Trk::AtaStraightLine*>(trkparN); 
-         if( m_Line == 0) {   delete trkparN;  return StatusCode::FAILURE; }
-         VectPerig    =  m_Line->parameters(); 
-         perGlobalPos =  m_Line->position();    //Global position of perigee point
-         Amg::Vector3D perMomentum(m_Line->momentum().x(),m_Line->momentum().y(),m_Line->momentum().z());
+         Line = dynamic_cast<const Trk::AtaStraightLine*>(trkparN); 
+         if( Line == 0) {   delete trkparN;  return StatusCode::FAILURE; }
+         VectPerig    =  Line->parameters(); 
+         perGlobalPos =  Line->position();    //Global position of perigee point
+         Amg::Vector3D perMomentum(Line->momentum().x(),Line->momentum().y(),Line->momentum().z());
          Amg::Vector3D rotatedMomentum=magFldRot*perMomentum;
 //         VectPerig[2] += atan2(rotatedMomentum.y(),rotatedMomentum.x());  //VK wrong 27.09.10
          VectPerig[2] = atan2(rotatedMomentum.y(),rotatedMomentum.x());
          VectPerig[3] = atan2(rotatedMomentum.perp(),rotatedMomentum.z());
-         if( !convertAmg5SymMtx(m_Line->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
+         if( !convertAmg5SymMtx(Line->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
          delete trkparN;
-         m_BMAG_FIXED=sqrt(fx*fx+fy*fy+fz*fz);
-         m_fitRotatedField->setAtlasMag(m_BMAG_FIXED);  //set fixed ROTATED field in corresponding VKal oblect
+         BMAG_FIXED=sqrt(fx*fx+fy*fy+fz*fz);
+         m_fitRotatedField->setAtlasMag(BMAG_FIXED);  //set fixed ROTATED field in corresponding VKal oblect
        }else{  return StatusCode::FAILURE;   }
        m_trkControl[counter].trkRotation=magFldRot;
        m_trkControl[counter].trkRotationVertex=   Amg::Vector3D( m_refGVertex.x(), m_refGVertex.y(), m_refGVertex.z());
@@ -140,7 +140,7 @@ namespace Trk {
      }
        counter++;
 //std::cout<<"TESTVK="<<'\n'; std::cout.precision(16); for(int ik=0; ik<15; ik++)std::cout<<CovVertTrk[ik]<<'\n';
-       VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
+       VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
        if( trkparO==0 ) {                                              //neutral track
@@ -151,7 +151,7 @@ namespace Trk {
                                 m_awgt[ntrk][12] = -m_awgt[ntrk][12];
                                 m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
        }
-       ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
+       ntrk++; if(ntrk>=NTrMaxVFit) return StatusCode::FAILURE;
     }
 //-------------- Finally setting new reference frame common for ALL tracks
     m_refFrameX=tmp_refFrameX;
@@ -170,10 +170,10 @@ namespace Trk {
     std::vector<const NeutralParameters*>::const_iterator   i_pbase;
     AmgVector(5) VectPerig;
     Amg::Vector3D perGlobalPos,perGlobalVrt;
-    const NeutralPerigee* m_mPerN=0;
+    const NeutralPerigee* mPerN=0;
     double CovVertTrk[15];
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
-    double fx,fy,fz,m_BMAG_FIXED;
+    double fx,fy,fz,BMAG_FIXED;
     double rxyMin=1000000.;
 
 //
@@ -184,8 +184,8 @@ namespace Trk {
     m_fitField->setAtlasMagRefFrame( 0., 0., 0.);
 
     if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
-       //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endreq;
-       if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endreq;
+       //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
+       if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
     }
 //
@@ -233,18 +233,18 @@ namespace Trk {
          const Trk::NeutralParameters* neuparO = (*i_pbase);
          if(neuparO == 0) return StatusCode::FAILURE;
          const Trk::NeutralParameters* neuparN = m_fitPropagator->myExtrapNeutral( neuparO, &m_refGVertex );
-         m_mPerN = dynamic_cast<const Trk::NeutralPerigee*>(neuparN); 
-         if( m_mPerN == 0) {   delete neuparN;  return StatusCode::FAILURE; }
-         VectPerig    =  m_mPerN->parameters(); 
-         perGlobalPos =  m_mPerN->position();    //Global position of perigee point
-         //perGlobalVrt =  m_mPerN->vertex();      //Global position of reference point
-         perGlobalVrt =  m_mPerN->associatedSurface().center();      //Global position of reference point
-         if( !convertAmg5SymMtx(m_mPerN->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
+         mPerN = dynamic_cast<const Trk::NeutralPerigee*>(neuparN); 
+         if( mPerN == 0) {   delete neuparN;  return StatusCode::FAILURE; }
+         VectPerig    =  mPerN->parameters(); 
+         perGlobalPos =  mPerN->position();    //Global position of perigee point
+         //perGlobalVrt =  mPerN->vertex();      //Global position of reference point
+         perGlobalVrt =  mPerN->associatedSurface().center();      //Global position of reference point
+         if( !convertAmg5SymMtx(mPerN->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
          delete neuparN;
          m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame for safety
          m_fitField->getMagFld(  perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),  // Magnetic field
-                               fx, fy, m_BMAG_FIXED);                                 // at perigee point
-         if(fabs(m_BMAG_FIXED) < 0.01) m_BMAG_FIXED=0.01;
+                               fx, fy, BMAG_FIXED);                                 // at perigee point
+         if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
        }else{                   // For rotation case only!!!
          return StatusCode::FAILURE; 
        }
@@ -252,7 +252,7 @@ namespace Trk {
 
 //std::cout<<" BaseEMtx="<<CovMtx.fast(1,1)<<", "<<CovMtx.fast(2,2)<<", "<<CovMtx.fast(3,3)<<", "
 //                       <<CovMtx.fast(4,4)<<", "<<CovMtx.fast(5,5)<<'\n';
-       VKalTransform( m_BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
+       VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
        m_ich[ntrk]=0; 
@@ -261,7 +261,7 @@ namespace Trk {
                               m_awgt[ntrk][11] = -m_awgt[ntrk][11];
                               m_awgt[ntrk][12] = -m_awgt[ntrk][12];
                               m_awgt[ntrk][13] = -m_awgt[ntrk][13]; }
-       ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
+       ntrk++; if(ntrk>=NTrMaxVFit) return StatusCode::FAILURE;
     }
 //-------------- Finally setting new reference frame common for ALL tracks
     m_refFrameX=tmp_refFrameX;

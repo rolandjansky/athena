@@ -20,9 +20,6 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
@@ -35,7 +32,7 @@ if 'doFTK' in dir() and doFTK==True:
   TriggerFlags.doFTK=True
   rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC,rID,rFTK,rBperf)
+(idtrigChainlist, tidaAnalysischains) = bjetChains(rID,rFTK,rBperf)
 
 
 def resetSigs():

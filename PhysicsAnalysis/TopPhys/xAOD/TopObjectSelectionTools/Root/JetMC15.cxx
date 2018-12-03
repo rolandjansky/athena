@@ -34,20 +34,15 @@ namespace top {
                    const double) : JetMC15::JetMC15(ptcut, etamax) {}
 
   bool JetMC15::passSelection(const xAOD::Jet& jet) {
+    if (m_applyJVTCut) {
+      jet.auxdecor<char>("passJVT") = (m_jvt_tool->passesJvtCut(jet) ? 1 : 0);
+    }
+
     if (jet.pt() < m_ptcut)
         return false;
 
     if (std::fabs(jet.eta()) > m_etamax)
         return false;
-
-    if (m_applyJVTCut) {
-      if (!m_jvt_tool->passesJvtCut(jet)) {
-        jet.auxdecor<char>("passJVT")          = 0;
-      }
-      else {
-        jet.auxdecor<char>("passJVT")          = 1;
-      }
-    }
 
     if (m_fwdJetSel == "fJVT") {
       if (!jet.getAttribute<char>("passFJVT"))

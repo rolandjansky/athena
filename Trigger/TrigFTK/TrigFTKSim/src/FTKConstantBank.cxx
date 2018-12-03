@@ -1167,6 +1167,8 @@ void FTKConstantBank::printExtrapolationConstant(int secid, vector<int> moduleid
     myfile << hex << setw(8) << word  << endl;
     word = floatToReg27(Constants[52]);
     myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[53]);
+    myfile << hex << setw(8) << word  << endl;
     word = floatToReg27(Constants[54]);
     myfile << hex << setw(8) << word  << endl;
     word = floatToReg27(Constants[55]);

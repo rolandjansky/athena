@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVectorFactory.h 797214 2017-02-14 19:51:39Z ssnyder $
 #ifndef XAODROOTACCESS_TOOLS_TAUXVECTORFACTORY_H
 #define XAODROOTACCESS_TOOLS_TAUXVECTORFACTORY_H
 
@@ -30,9 +29,6 @@ namespace xAOD {
    ///
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 797214 $
-   /// $Date: 2017-02-14 20:51:39 +0100 (Tue, 14 Feb 2017) $
    ///
    class TAuxVectorFactory : public SG::IAuxTypeVectorFactory {
 

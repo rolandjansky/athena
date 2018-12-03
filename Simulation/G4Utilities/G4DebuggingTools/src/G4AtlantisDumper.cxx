@@ -33,7 +33,7 @@ namespace G4UA{
     m_file(NULL){
   }
   
-  void G4AtlantisDumper::processStep(const G4Step* aStep){
+  void G4AtlantisDumper::UserSteppingAction(const G4Step* aStep){
     
     const G4Track *t=aStep->GetTrack();
     //if(m_nsteps>40) return;
@@ -101,7 +101,7 @@ namespace G4UA{
     
   }
 
-  void G4AtlantisDumper::endOfEvent(const G4Event* event){
+  void G4AtlantisDumper::EndOfEventAction(const G4Event* event){
     
     ATH_MSG_INFO( "Goodbye from G4AtlantisDumper, event "<<event->GetEventID());
     m_file->close();
@@ -112,7 +112,7 @@ namespace G4UA{
     
   }
   
-  void G4AtlantisDumper::beginOfEvent(const G4Event*){
+  void G4AtlantisDumper::BeginOfEventAction(const G4Event*){
     
     m_nsteps=0;
     

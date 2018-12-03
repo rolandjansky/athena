@@ -17,7 +17,7 @@ public:
   // Constructor and destructor
   JetPullTool(std::string name);
 
-  int modifyJet(xAOD::Jet &jet) const;
+  int modifyJet(xAOD::Jet &injet) const;
 
 private:
     bool m_useEtaInsteadOfY;

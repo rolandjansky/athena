@@ -28,7 +28,7 @@ size_t AuxVectorData::s_minCacheLen = 1024;
 
 
 /// Empty auxid set, used for a return value when we have no associated store.
-SG::auxid_set_t AuxVectorData::s_emptySet;
+const SG::auxid_set_t AuxVectorData::s_emptySet(0);
 
 
 /**
@@ -253,8 +253,7 @@ bool AuxVectorData::isAvailableWritableOol (auxid_t id) const
 {
   const SG::IAuxStore* store = getStore();
   if (!store) return false;
-  const SG::auxid_set_t& ids = store->getWritableAuxIDs();
-  return ( ids.find (id) != ids.end() );
+  return store->getWritableAuxIDs().test(id);
 }
 
 
@@ -543,11 +542,15 @@ void AuxVectorData::lock()
  *
  * Erase all decorations from the store, restoring the state to when
  * @c lock was called.
+ *
+ * Returns true if there were any decorations that were cleared,
+ * false if the store did not contain any decorations.
  */
-void AuxVectorData::clearDecorations() const
+bool AuxVectorData::clearDecorations() const
 {
+  bool ret = false;
   if (m_store) {
-    m_store->clearDecorations();
+    ret = m_store->clearDecorations();
     m_cache.clear();
     m_constCache.clear();
     m_decorCache.clear();
@@ -558,10 +561,11 @@ void AuxVectorData::clearDecorations() const
     // The store object is responsible for determining whether the
     // modification is really allowed or not.
     IConstAuxStore* store = const_cast<IConstAuxStore*> (getConstStore());
-    store->clearDecorations();
+    ret = store->clearDecorations();
   }
   else
     throw SG::ExcNoAuxStore ("lock");
+  return ret;
 }
 
 

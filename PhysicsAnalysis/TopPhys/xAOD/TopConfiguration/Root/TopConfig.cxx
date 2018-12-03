@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 810977 2017-10-09 16:30:28Z iconnell $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
@@ -59,6 +59,10 @@ namespace top{
     m_isMC(false),
     // Is AFII
     m_isAFII(false),
+    // Generators
+    m_generators("SetMe"),
+    // AMITag
+    m_AMITag("SetMe"),
     // Is Primary xAOD
     m_isPrimaryxAOD(false),
     // Is Truth xAOD
@@ -112,6 +116,7 @@ namespace top{
     m_KLFitterLH("SetMe"),
     m_KLFitterTopMassFixed(true),
     m_KLFitterSaveAllPermutations(false),
+    m_KLFitterFailOnLessThanXJets(false),
 
     // PseudoTop
     m_doPseudoTop(false),
@@ -158,9 +163,12 @@ namespace top{
     m_electronPtcut(25000.),
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
+    m_electronIsolationSF("SetMe"),
+    m_electronIsolationSFLoose("SetMe"),
     m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
+    m_useElectronChargeIDSelection(false),
 
     // Muon configuration
     m_muonPtcut(25000.),
@@ -169,6 +177,8 @@ namespace top{
     m_muonQualityLoose("SetMe"),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
+    m_muonIsolationSF("SetMe"),
+    m_muonIsolationSFLoose("SetMe"),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -177,6 +187,7 @@ namespace top{
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
+    m_jetUncertainties_QGHistPatterns(),
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
@@ -202,8 +213,6 @@ namespace top{
     m_tauVetoLArCrack(false),
     m_tauPtcut(20000.),
     **/
-    // Applying new tau energy calibration
-    m_applyTauMVATES(false),
 
     // [[[-----------------------------------------------
     // Particle Level / Truth Configuration
@@ -215,6 +224,7 @@ namespace top{
 
     // HL LHC studies
     m_HLLHC(false),
+    m_HLLHCFakes(false),
 
     // Selections
     m_allSelectionNames(nullptr),
@@ -240,7 +250,9 @@ namespace top{
     m_outputEvents("SetMe"),
     m_saveOnlySelectedEvents(true),
     m_outputFileSetAutoFlushZero(false),
-
+    m_outputFileNEventAutoFlush(1000), // 1000 events
+    m_outputFileBasketSizePrimitive(4096), // 4kB 
+    m_outputFileBasketSizeVector(40960),   // 40kB
     // Number of events to run on (only for testing)
     m_numberOfEventsToRun(0),
 
@@ -448,6 +460,9 @@ namespace top{
     this->setGrlDir( settings->value("GRLDir") );
     this->setGrlFile( settings->value("GRLFile") );
 
+    // Set TDP file name
+    this->setTDPPath( settings->value("TDPPath") );
+
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons( settings->value("PhotonCollectionName") );
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
@@ -547,11 +562,20 @@ namespace top{
 	  bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
 	  std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " << aodMetaDataIsAFII << std::endl;
 	  this->setIsAFII(aodMetaDataIsAFII);
+	  auto generatorsName     = m_aodMetaData->get("/TagInfo","generators");
+	  std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
+	  this->setGenerators(generatorsName);
+	  auto AMITagName     = m_aodMetaData->get("/TagInfo","AMITag");
+	  std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
+	  this->setAMITag(AMITagName);
 	}
 	catch(std::logic_error aodMetaDataError){
 	  std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
 	  std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
 	  this->ReadIsAFII(settings);
+	  std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+          this->setGenerators("unknown");
+          this->setAMITag("unknown");
 	}
       }
       else{
@@ -599,8 +623,19 @@ namespace top{
     this->outputEvents( settings->value("OutputEvents") );
     // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
     m_outputFileSetAutoFlushZero = false;
-    if (settings->value( "OutputFileSetAutoFlushZero" ) == "True")
-        m_outputFileSetAutoFlushZero = true;
+    if (settings->value( "OutputFileSetAutoFlushZero" ) != "False"){
+      std::cout << "OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options" << std::endl;
+    }
+    // Configurable TTree options (ANALYSISTO-463)
+    if (settings->value( "OutputFileNEventAutoFlush" ) != ""){
+      m_outputFileNEventAutoFlush = std::stoi( settings->value( "OutputFileNEventAutoFlush" ) );
+    }
+    if (settings->value( "OutputFileBasketSizePrimitive" ) != ""){
+      m_outputFileBasketSizePrimitive = std::stoi( settings->value( "OutputFileBasketSizePrimitive" ) );
+    }
+    if (settings->value( "OutputFileBasketSizeVector" ) != ""){
+      m_outputFileBasketSizeVector = std::stoi( settings->value( "OutputFileBasketSizeVector" ) );
+    }
 
     // The systematics want much much more configuration options.....
     this->systematics( settings->value("Systematics") );
@@ -613,16 +648,27 @@ namespace top{
     this->egammaSystematicModel( settings->value("EgammaSystematicModel") );
     this->electronID( settings->value("ElectronID") );
     this->electronIDLoose( settings->value("ElectronIDLoose") );
-    this->electronIsolation( settings->value("ElectronIsolation") );
-    this->electronIsolationLoose( settings->value("ElectronIsolationLoose") );
-    // Print out a warning for FixedCutHighPtCaloOnly
-    if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
-      std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
+    {
+      std::string const & cut_wp = settings->value("ElectronIsolation");
+      std::string const & sf_wp = settings->value("ElectronIsolationSF");
+      this->electronIsolation(cut_wp);
+      this->electronIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
     }
+    {
+      std::string const & cut_wp = settings->value("ElectronIsolationLoose");
+      std::string const & sf_wp = settings->value("ElectronIsolationSFLoose");
+      this->electronIsolationLoose(cut_wp);
+      this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    }
+    // Print out a warning for FCHighPtCaloOnly
+    if (this->electronIsolation() == "FCHighPtCaloOnly" || this->electronIsolationLoose() == "FCHighPtCaloOnly"){
+      std::cout << "TopConfig - ElectronIsolation - FCHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
+    }
+    this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
-    if( settings->value("ElectronIsoSFs") == "False" )
-      this->m_electronIsoSFs = false;
+
+    
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -642,8 +688,18 @@ namespace top{
     this->muonEtacut( std::stof(settings->value("MuonEta")) );
     this->muonQuality( settings->value("MuonQuality") );
     this->muonQualityLoose( settings->value("MuonQualityLoose") );
-    this->muonIsolation( settings->value("MuonIsolation") );
-    this->muonIsolationLoose( settings->value("MuonIsolationLoose") );
+    {
+      std::string const & cut_wp = settings->value("MuonIsolation");
+      std::string const & sf_wp = settings->value("MuonIsolationSF");
+      this->muonIsolation(cut_wp);
+      this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+    }
+    {
+      std::string const & cut_wp = settings->value("MuonIsolationLoose");
+      std::string const & sf_wp = settings->value("MuonIsolationSFLoose");
+      this->muonIsolationLoose(cut_wp);
+      this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    }
 
     if (settings->value("UseAntiMuons") == "True")
       this->m_useAntiMuons = true;
@@ -659,7 +715,8 @@ namespace top{
     this->tauEleOLRLoose((settings->value("TauEleOLRLoose") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
-    this->applyTauMVATES((settings->value("ApplyTauMVATES") == "True"));
+    if (settings->value("ApplyTauMVATES") != "True")
+      throw std::runtime_error{"TopConfig: ApplyTauMVATES must be True"};
 
     // Jet configuration
     this->jetPtcut( std::stof(settings->value("JetPt")) );
@@ -668,6 +725,7 @@ namespace top{
     this->jetUncertainties_BunchSpacing( settings->value("JetUncertainties_BunchSpacing") );
     this->jetUncertainties_NPModel( settings->value("JetUncertainties_NPModel") );
     this->jetUncertainties_QGFracFile( settings->value("JetUncertainties_QGFracFile") );
+    this->jetUncertainties_QGHistPatterns( settings->value("JetUncertainties_QGHistPatterns") );
     this->jetJERSmearingModel( settings->value("JetJERSmearingModel") );
     this->jetCalibSequence( settings->value("JetCalibSequence") );
     this->doJVTinMET( (settings->value("JVTinMETCalculation") == "True" ? true : false) );
@@ -689,7 +747,16 @@ namespace top{
     this->RCJetRadius(std::stof(settings->value("RCJetRadius")) );
     if (settings->value("UseRCJets") == "True" || settings->value("UseRCJets") == "true")
       this->m_useRCJets = true;
-
+    if (settings->value("UseRCJetSubstructure") == "True" || settings->value("UseRCJetSubstructure") == "true")
+      this->m_useRCJetSubstructure = true;
+    else
+      this->m_useRCJetSubstructure = false;
+      
+    if (settings->value("UseRCJetAdditionalSubstructure") == "True" || settings->value("UseRCJetAdditionalSubstructure") == "true")
+      this->m_useRCJetAdditionalSubstructure = true;
+    else
+      this->m_useRCJetAdditionalSubstructure = false;
+   
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
     this->VarRCJetTrimcut(std::stof(settings->value("VarRCJetTrim")) );
@@ -698,7 +765,15 @@ namespace top{
     this->VarRCJetMassScale(settings->value("VarRCJetMassScale"));
     if (settings->value("UseVarRCJets") == "True" || settings->value("UseVarRCJets") == "true")
       this->m_useVarRCJets = true;
-
+    if (settings->value("UseVarRCJetSubstructure") == "True" || settings->value("UseVarRCJetSubstructure") == "true")
+      this->m_useVarRCJetSubstructure = true;
+    else
+      this->m_useVarRCJetSubstructure = false;
+    if (settings->value("UseVarRCJetAdditionalSubstructure") == "True" || settings->value("UseVarRCJetAdditionalSubstructure") == "true")
+      this->m_useVarRCJetAdditionalSubstructure = true;
+    else
+      this->m_useVarRCJetAdditionalSubstructure = false;
+    
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));
     m_bJSF = std::stof(settings->value("bJSF"));
@@ -762,7 +837,14 @@ namespace top{
     // -----------------------------------------------]]]
 
     // Upgrade studies
-    if(settings->value("HLLHC")=="True") this->HLLHC( true );
+    if(settings->value("HLLHC")=="True"){
+       this->HLLHC( true );
+       if(settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data")==0){
+          std::cout<<"TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default "<<settings->value("TDPPath")<<". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data"<<std::endl;
+          this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
+       }
+    }
+    if(settings->value("HLLHCFakes")=="True") this->HLLHCFakes( true );
 
     // LHAPDF Reweighting configuration
     std::istringstream lha_pdf_ss(settings->value( "LHAPDFSets" ));
@@ -864,6 +946,18 @@ namespace top{
 	       std::istream_iterator<std::string>(),
 	       std::back_inserter(m_pileup_reweighting.lumi_calc_files) );
 
+    std::istringstream pileup_config_FS_ss(settings->value( "PRWConfigFiles_FS" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_FS_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_FS) );
+
+    std::istringstream pileup_config_AF_ss(settings->value( "PRWConfigFiles_AF" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_AF_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_AF) );
+
+    m_pileup_reweighting.unrepresented_data_tol = std::stof(settings->value("PRWUnrepresentedDataTolerance"));
+
     m_pileup_reweighting.mu_dependent = (settings->value("PRWMuDependent") == "True");
 
     // now even if the user don't provide a PRWConfigFiles, PRW is done on MC, using the default calibration file
@@ -950,10 +1044,37 @@ namespace top{
         m_KLFitterSaveAllPermutations = true;
     if (settings->value( "KLFitterSaveAllPermutations" ) == "False")
         m_KLFitterSaveAllPermutations = false;
+    if (settings->value( "KLFitterFailOnLessThanXJets" ) == "True")
+        m_KLFitterFailOnLessThanXJets = true;
+    if (settings->value( "KLFitterFailOnLessThanXJets" ) == "False")
+        m_KLFitterFailOnLessThanXJets = false;
 
+    //--- Check for configuration on the global lepton triggers ---//
+    if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
+      auto parseTriggerString = [settings](std::unordered_map<std::string, std::vector<std::string>> & result, std::string const & key) {
+          /* parse a string of the form "2015@triggerfoo,triggerbar,... 2016@triggerfoo,triggerbaz,... ..." */
+          std::vector<std::string> pairs;
+          boost::split(pairs, settings->value(key), boost::is_any_of(" "));
+          for (std::string const & pair : pairs) {
+            if (pair.empty())
+              continue;
+            auto i = pair.find('@');
+            if (!(i != std::string::npos && pair.find('@', i + 1) == std::string::npos))
+              throw std::invalid_argument(std::string() + "Malformed trigger list in configuration item `" + key + "'");
+            auto&& period = pair.substr(0, i), triggerstr = pair.substr(i + 1);
+            auto&& triggers = result[period];
+            if (!triggers.empty())
+              throw std::invalid_argument(std::string() + "Period `" + period + "' appears multiple times in configuration item `" + key + "'");
+            boost::split(triggers, triggerstr, boost::is_any_of(","));
+          }
+        };
+      m_trigGlobalConfiguration.isActivated = true;
+      parseTriggerString(m_trigGlobalConfiguration.electron_trigger, "ElectronTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.electron_trigger_loose, "ElectronTriggersLoose");
+      parseTriggerString(m_trigGlobalConfiguration.muon_trigger, "MuonTriggers");
+      parseTriggerString(m_trigGlobalConfiguration.muon_trigger_loose, "MuonTriggersLoose");
+    }
     
-
-
   }
 
   void TopConfig::setGrlDir( const std::string& s )
@@ -979,6 +1100,12 @@ namespace top{
     }
   }
 
+  void TopConfig::setTDPPath( const std::string& s){
+    if (!m_configFixed) {
+      m_topDataPreparationPath = s;
+    }
+  }
+
   void TopConfig::jetUncertainties_NPModel( const std::string& s )
   {
     if (!m_configFixed) {
@@ -994,6 +1121,26 @@ namespace top{
   {
     if (!m_configFixed) {
       m_jetUncertainties_QGFracFile = s;
+    }
+  }
+ 
+  void TopConfig::jetUncertainties_QGHistPatterns( const std::string& s )
+  {
+    if (!m_configFixed) {
+        std::vector<std::string> outVector;
+        if( s.find(" ") != std::string::npos ){
+            throw std::runtime_error{"TopConfig: jetUncertainties_QGHistPatterns string can't contain white spaces"};
+        }
+        if (s != "None") {
+            tokenize(s,outVector,","); // list of DSIDs separated by commas
+            if (outVector.size()!=1) // if size is !=1, we need to check if these are DSIDs
+                for (auto s : outVector) {
+                    int i = std::atoi(s.c_str());
+                    if (i<300000 || i>=1000000)
+                        throw std::runtime_error{"TopConfig: jetUncertainties_QGHistPatterns string doesn't look like a list of DISDs! You can either specify a single string pattern or a list of DSIDs separated by commas."};
+                }
+        }
+        m_jetUncertainties_QGHistPatterns = outVector;
     }
   }
 
@@ -1214,7 +1361,7 @@ namespace top{
     else if (raw_WP=="85%") return "FixedCutBEff_85";
     else return raw_WP;
   }
-  
+
   void TopConfig::setBTagWP_available( std::string btagging_WP ) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
@@ -2258,6 +2405,7 @@ namespace top{
     out->m_electronIDLoose = m_electronIDLoose;
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
+    out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
 
     out->m_muon_trigger_SF = m_muon_trigger_SF;
     out->m_muonQuality = m_muonQuality;
@@ -2387,6 +2535,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIDLoose = settings->m_electronIDLoose;
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
+    m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
 
     m_muon_trigger_SF = settings->m_muon_trigger_SF;
     m_muonQuality = settings->m_muonQuality;
@@ -2542,6 +2691,23 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     return;
   }
 
+  void TopConfig::setAmiTag(std::string const & amiTag) {
+    assert(!m_configFixed);
+    if (m_amiTagSet == 0) {
+      m_amiTag = amiTag;
+      m_amiTagSet = 1;
+    }
+    else if (m_amiTagSet > 0 && m_amiTag != amiTag) {
+      m_amiTag.clear();
+      m_amiTagSet = -1;
+    }
+  }
+
+  std::string const & TopConfig::getAmiTag() const {
+    assert(m_configFixed);
+    return m_amiTag;
+  }
+
   // Function to return the year of data taking based on either run number (data) or random run number (MC)
   const std::string TopConfig::getYear(unsigned int runnumber){    
 
@@ -2557,7 +2723,15 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     return "ERROR";
   }
 
-
+  void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics, std::vector<std::string> muon_trigger_systematics, std::vector<std::string> electron_tool_names, std::vector<std::string> muon_tool_names){
+    m_trigGlobalConfiguration.electron_trigger_systematics = electron_trigger_systematics;
+    m_trigGlobalConfiguration.muon_trigger_systematics     = muon_trigger_systematics;
+    m_trigGlobalConfiguration.electron_trigger_tool_names  = electron_tool_names;
+    m_trigGlobalConfiguration.muon_trigger_tool_names      = muon_tool_names;
+    m_trigGlobalConfiguration.isConfigured                 = true;
+    return;
+  }
+  
 }
 
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)

@@ -4,9 +4,17 @@
   <typedef name="xAOD::TruthParticle" />
   <typedef name="xAOD::TruthVertex" />
   <typedef name="xAOD::TruthEvent" />
+
   <typedef name="xAOD::TruthParticleContainer" />
   <typedef name="xAOD::TruthVertexContainer" />
   <typedef name="xAOD::TruthEventContainer" />
+
+  <typedef name="xAOD::TruthParticleAuxContainer" />
+  <typedef name="xAOD::TruthVertexAuxContainer" />
+  <typedef name="xAOD::TruthEventAuxContainer" />
+
+  <typedef name="xAOD::TruthMetaData" />
+  <typedef name="xAOD::TruthMetaDataContainer" />
 
 
   <!-- The TruthParticle_v1 class(es): -->

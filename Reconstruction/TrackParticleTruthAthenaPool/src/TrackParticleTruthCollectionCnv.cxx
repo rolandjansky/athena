@@ -6,7 +6,9 @@
 
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p0.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p2.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -19,6 +21,8 @@
 pool::Guid TrackParticleTruthCollectionCnv::s_p0_guid("B35041E8-D980-458E-AC06-79028CF79D5D");
 
 pool::Guid TrackParticleTruthCollectionCnv::s_p1_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFA");
+
+pool::Guid TrackParticleTruthCollectionCnv::s_p2_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFB");
 
 
 //================================================================
@@ -40,7 +44,13 @@ TrackParticleTruthCollection* TrackParticleTruthCollectionCnv::createTransient()
   MsgStream log(messageService(), "TrackParticleTruthCollectionCnv" );
   std::auto_ptr<TrackParticleTruthCollection> trans(new TrackParticleTruthCollection());
   
-  if (compareClassGuid(s_p1_guid)) {
+  if (compareClassGuid(s_p2_guid)) {
+    log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
+    Rec::TrackParticleTruthCollection_p2* pers=poolReadObject<Rec::TrackParticleTruthCollection_p2>();
+    m_converter_p2.persToTrans(pers, trans.get(), log);
+    delete pers;
+  }
+  else if (compareClassGuid(s_p1_guid)) {
     log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
     Rec::TrackParticleTruthCollection_p1* pers=poolReadObject<Rec::TrackParticleTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);

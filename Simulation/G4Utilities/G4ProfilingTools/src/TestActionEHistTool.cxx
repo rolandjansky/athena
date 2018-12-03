@@ -29,28 +29,18 @@ namespace G4UA{
 
   StatusCode TestActionEHistTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IPreTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPreTrackingActionTool*) this;
+    if(riid == IG4TrackingActionTool::interfaceID()) {
+      *ppvIf = (IG4TrackingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IPostTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPostTrackingActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndRunActionTool::interfaceID()) {
-      *ppvIf = (IEndRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }

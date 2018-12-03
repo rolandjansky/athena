@@ -4,36 +4,45 @@
 #You would use this joboption by copying it and substituting the TestAlg for your own algorithm
 #and subtituting your own input files
 
-
 import AthenaPoolCnvSvc.ReadAthenaPool #read xAOD files
-
 
 theApp.EvtMax = 400 #set to -1 to run on all events
 
-inputFile = os.environ['ASG_TEST_FILE_MC'] #test input file
-svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
+### This JO uses MC16a by default, but if you specify MCCampaign (with -c "MCCampaign= ...) you can
+### swap the MC campaign this is run for (used in ART tests)
+try:
+    MCCampaign
+except:
+    MCCampaign = 'MC16a'
 
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-AST99TruthClassifier = MCTruthClassifier(name = "AST99TruthClassifier")
-ToolSvc += AST99TruthClassifier
-AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
-                                        name = "AST99TauTruthMatchingTool",
-                              WriteTruthTaus = True,
-                                 OutputLevel = INFO,
-                       MCTruthClassifierTool = AST99TruthClassifier )
-ToolSvc += AST99tauTruthTool
+if MCCampaign == 'MC16d':
+    inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.FS.46.mc16d.PHYSVAL.pool.root'
+elif MCCampaign == 'MC16e':
+    inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.artDAODmc16e.PHYSVAL.pool.root'
+else: # MC16a by default
+    inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.FS.46.mc16a.PHYSVAL.pool.root'
+
+svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
+svcMgr.MessageSvc.OutputLevel = INFO 
 
 ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")
 
-ToolSvc.SUSYTools.ConfigFile = "SUSYTools/SUSYTools_Default.conf" #look in the data directory of SUSYTools for other config files
-ToolSvc.SUSYTools.PRWConfigFiles = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root", 
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
-    ]
+ToolSvc.SUSYTools.ConfigFile = "SUSYTools/SUSYTools_Default.conf" # Grab the default config file
+
+ToolSvc.SUSYTools.AutoconfigurePRWTool = True
 ToolSvc.SUSYTools.PRWLumiCalcFiles = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root",
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160803/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"
+    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
+    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"
     ]
+
+if MCCampaign == 'MC16d':
+    ToolSvc.SUSYTools.PRWLumiCalcFiles = [
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root"
+        ]
+elif MCCampaign == 'MC16e':
+    ToolSvc.SUSYTools.PRWLumiCalcFiles = [
+        "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"
+        ]
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq") #The main alg sequence
 
@@ -44,7 +53,7 @@ try:
 except ImportError:
     myPath="."
 
-algseq += CfgMgr.SUSYToolsAlg("MCAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,TauTruthMatchingTool=AST99tauTruthTool,CheckTruthJets=True) #Substitute your alg here
+algseq += CfgMgr.SUSYToolsAlg("MCAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,CheckTruthJets=True) #Substitute your alg here
 
 #You algorithm can use the SUSYTools through a ToolHandle:
 #
@@ -59,6 +68,7 @@ algseq.MCAlg.SUSYTools = ToolSvc.SUSYTools
 
 #That completes the minimum configuration. The rest is extra....
 algseq.MCAlg.DoSyst = True
+algseq.MCAlg.OutputLevel = INFO 
 
 
 svcMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" #Creates more space for displaying tool names
@@ -66,5 +76,4 @@ svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=100) #message every 10
 
 #this is for the output of histograms
 svcMgr+=CfgMgr.THistSvc()
-svcMgr.THistSvc.Output += ["MYSTREAM DATAFILE='monitoring.mc.root' OPT='RECREATE'"]
-
+svcMgr.THistSvc.Output += [ "MYSTREAM DATAFILE='monitoring.%s.root' OPT='RECREATE'" % MCCampaign ]

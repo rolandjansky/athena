@@ -66,6 +66,13 @@ StatusCode egammaTopoClusterCopier::contExecute() {
 }
 
 // =========================================================================
+StatusCode egammaTopoClusterCopier::hltExecute(std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > &inputShallowcopy, ConstDataVector<xAOD::CaloClusterContainer>* viewCopy) const {
+  return copyCaloTopo_impl(inputShallowcopy, viewCopy);
+}
+
+
+
+// =========================================================================
 StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
 
   ATH_MSG_DEBUG("Create " << m_outputTopoCollection << " from " << m_inputTopoCollection);
@@ -90,7 +97,10 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
   //own its elements
   ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
   CHECK(evtStore()->record(viewCopy, m_outputTopoCollection));
+  return copyCaloTopo_impl(inputShallowcopy, viewCopy);
+}
 
+StatusCode egammaTopoClusterCopier::copyCaloTopo_impl(std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > &inputShallowcopy, ConstDataVector<xAOD::CaloClusterContainer>* viewCopy) const {
   //Loop over the shallow copy
   xAOD::CaloClusterContainer::iterator cciter = inputShallowcopy.first->begin();
   xAOD::CaloClusterContainer::iterator ccend  = inputShallowcopy.first->end();
@@ -123,7 +133,7 @@ StatusCode egammaTopoClusterCopier::copyCaloTopo() const{
   }
   //sort in descenting em energy
   std::sort(viewCopy->begin(),viewCopy->end(), greater());
-  ATH_MSG_DEBUG("Cloned container has size: " << viewCopy->size()<<  " selected out of : " <<input_topoclusters->size());
+  ATH_MSG_DEBUG("Cloned container has size: " << viewCopy->size()<<  " selected out of : " <<inputShallowcopy.first->size());
   return StatusCode::SUCCESS;
 }
 

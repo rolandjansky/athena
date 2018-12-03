@@ -278,6 +278,10 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       if "_IDTrig" in name and (type=="muon" or type=="electron"):
         self.doIBLresidual = True
 
+      #for FTK commissioning
+      if "_FTK" in name:
+        self.doIBLresidual = True
+
       #monitoring
       self.MonSliceSpecific = True
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings

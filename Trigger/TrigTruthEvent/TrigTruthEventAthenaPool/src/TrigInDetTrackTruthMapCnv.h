@@ -23,6 +23,8 @@
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp2.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp2.h"
+#include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp3.h"
+#include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp3.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
@@ -51,6 +53,7 @@ class TrigInDetTrackTruthMapCnv : public TrigInDetTrackTruthMapCnvBase
  private:
 
   TrigInDetTrackTruthMapCnv_tlp2 m_trigInDetTrackTruthMapCnv_tlp2;
+  TrigInDetTrackTruthMapCnv_tlp3 m_trigInDetTrackTruthMapCnv_tlp3;
 
 
 };

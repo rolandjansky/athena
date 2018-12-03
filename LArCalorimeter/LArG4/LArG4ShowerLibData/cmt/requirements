@@ -1,7 +1,0 @@
-package LArG4ShowerLibData
-
-author W. Ehrenfeld (wolfgang.ehrenfeld@desy.de)
-
-use	AtlasPolicy      AtlasPolicy-*
-
-apply_pattern declare_runtime files="-s=../data *.root"

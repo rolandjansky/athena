@@ -1,7 +1,7 @@
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40_offline'>
-           <doc>Zee, pu40, IBL, run2 chains</doc>
-           <displayName>Zee pu40, IBL, run2 chains</displayName>
-           <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
+           <doc>Zee, pu40, IBL</doc>
+           <displayName>Zee pu40, IBL</displayName>
+           <commandLineFlags>EventMax=2500;doIDNewTracking=True;PdgId=11</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>

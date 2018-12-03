@@ -29,12 +29,10 @@
 iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
- : AthAlgTool(t,n,p),
+ : base_class(t,n,p),
    m_thistSvc("THistSvc",n),
    m_validationStream("ISFFatras")
 {
-  declareInterface<IPhysicsValidationTool>(this);
-  
   // validation output section
   declareProperty("ValidationStreamName",
                   m_validationStream = "ISFFatras",
@@ -49,7 +47,10 @@ iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::PhysicsValidationTool::~PhysicsValidationTool()
-{}
+{
+  m_interactions = 0;
+  delete(m_interactions);
+}
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
@@ -137,7 +138,7 @@ StatusCode iFatras::PhysicsValidationTool::finalize()
 /** new transport tool */
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
-							 Trk::ExtrapolationCode ecode) {
+							 Trk::ExtrapolationCode ecode) const {
 
   m_p     = isp.momentum().mag();
   m_ionloss = ec.eLoss ? ec.eLoss->meanIoni() : 0.;
@@ -175,7 +176,7 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 /** new transport tool */
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
-							 Trk::ExtrapolationCode ecode) {
+							 Trk::ExtrapolationCode ecode) const {
 
   m_p     = isp.momentum().mag();
   m_ionloss = 0.;
@@ -214,7 +215,7 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 int endProcess,
 							 const Trk::TrackParameters* ePar,
-							 double time, double dX0 ) {
+							 double time, double dX0 ) const {
 
   m_pdg = isp.pdgCode();
   m_scIn = isp.getUserInformation()? isp.getUserInformation()->process() : 0;      // assume primary track
@@ -254,7 +255,7 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 
 }
 
-void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) { 
+void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) const { 
 
   // ISF particle info ( common )
 
@@ -273,7 +274,7 @@ void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) {
 }
 
 void iFatras::PhysicsValidationTool::saveISFVertexInfo(int process,Amg::Vector3D vertex,const ISF::ISFParticle& parent,Amg::Vector3D primIn,
-						       Amg::Vector3D* primOut, const ISF::ISFParticleVector children) {
+						       Amg::Vector3D* primOut, const ISF::ISFParticleVector children) const {
 
   m_process = process;
   unsigned int nSec = children.size();

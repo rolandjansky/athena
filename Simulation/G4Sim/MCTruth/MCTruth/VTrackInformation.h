@@ -30,11 +30,11 @@ public:
 	virtual void SetBaseISFParticle(const ISF::ISFParticle*);
 	virtual void SetReturnedToISF(bool) ;
 	virtual void Print() const {}
-	void SetClassification(TrackClassification tc) {classify=tc;}
-	TrackClassification GetClassification() {return classify;}
+	void SetClassification(TrackClassification tc) {m_classify=tc;}
+	TrackClassification GetClassification() {return m_classify;}
 private:
-	TrackClassification classify;
-	const HepMC::GenParticle *thePrimaryParticle;
+	TrackClassification m_classify;
+	const HepMC::GenParticle *m_thePrimaryParticle;
 };
 
 #endif

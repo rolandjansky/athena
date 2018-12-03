@@ -30,6 +30,7 @@ int main() {
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -37,6 +38,7 @@ int main() {
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODBase/IParticleHelpers.h"
+#include "JetInterface/IJetModifier.h"
 
 #include <memory>
 #undef NDEBUG
@@ -70,6 +72,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   std::string jetType = "AntiKt4EMTopo";
   TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
   size_t evtmax = 100;
+  std::string jetAux = "";
   bool debug(false);
   for (int i=0; i<argc; ++i) {
     if (std::string(argv[i]) == "-filen" && i+1<argc) {
@@ -78,19 +81,40 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       jetType = argv[i+1];
     } else if (std::string(argv[i]) == "-evtmax" && i+1<argc) {
       evtmax = atoi(argv[i+1]);
+    }else if (std::string(argv[i]) == "-jetaux" && i+1<argc) {
+      jetAux = argv[i+1];
     } else if (std::string(argv[i]) == "-debug") {
       debug = true;
     }
+  }
+
+  std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+  std::string calibSeq = "JetArea_Residual_EtaJES_GSC";
+  std::string calibArea = "00-04-81";
+  if(jetType=="AntiKt4EMPFlow"){
+    config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+    calibSeq = "JetArea_Residual_EtaJES_GSC";
+    calibArea = "00-04-81";	    
   }
 
   asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
-  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", config) );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", calibSeq) );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibArea", calibArea) );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
+
+  asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
+  m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/JetForwardJvtTool");
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
+  // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", true) ); // Tight
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", 2.5) );   //Eta dividing central from forward jets
+  ANA_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", 120.0e3) ); //Max Pt to define fwdJets for JVT
+  ANA_CHECK( m_jetFwdJvtTool.retrieve() );
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
   std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
@@ -115,12 +139,17 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
+  ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
+  ANA_CHECK( metSignif.setProperty("JetCollection", jetType) );
+  if(jetAux!="")
+    ANA_CHECK( metSignif.setProperty("JetResoAux", jetAux) );
+  if(debug) ANA_CHECK( metSignif.setProperty("OutputLevel", MSG::VERBOSE) );
   ANA_CHECK( metSignif.retrieve() );
   
   // reconstruct the MET
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
-  ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
+  ANA_CHECK( metMaker.setProperty("DoMuonEloss", false) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
   ANA_CHECK( metMaker.setProperty("DoSetMuonJetEMScale", true) );
   ANA_CHECK( metMaker.retrieve() );
@@ -128,6 +157,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   for(size_t ievent = 0;  ievent < std::min(size_t(event->getEntries()), evtmax); ++ievent){
     if(ievent % 10 == 0) std::cout << "event number: " << ievent << std::endl;
     ANA_CHECK( event->getEntry(ievent) >= 0 );
+
+    const xAOD::EventInfo* eventinfo = 0;
+    ANA_CHECK( event->retrieve( eventinfo, "EventInfo" ) );    
 
     //retrieve the original containers
     const xAOD::MissingETContainer* coreMet  = nullptr;
@@ -157,11 +189,20 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     //this is a non-const copy of the jet collection that you can calibrate.
     xAOD::JetContainer* calibJets = jets_shallowCopy.first;
     xAOD::setOriginalObjectLink(*jets,*calibJets);
+    unsigned ij=0;
     for ( const auto& jet : *calibJets ) {
       //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
+      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration	
 	return 1;
+      // setting 100% jet resolution for testing
+      if(jetAux!="") jet->auxdata<float>(jetAux) = 1.0;
+      //double pt_reso_dbl=0.0;
+      //jetCalibrationTool->getNominalResolutionData(*jet, pt_reso_dbl);                                                              
+      //std::cout << "pt_reso_dbl: " << pt_reso_dbl << std::endl;
+      if(debug) std::cout << " jet: " << ij << " pt: " << jet->pt() << " eta: "<< jet->eta() << std::endl;
+      ++ij;
     }
+    m_jetFwdJvtTool->modify(*calibJets); //compute FwdJVT for all jets
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;
@@ -241,7 +282,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    calibJets,       //using this jet collection to calculate jet met
 				    coreMet,         //core met container
 				    metMap,          //with this association map
-				    false            //don't apply jet jvt cut
+				    true             //apply jet jvt cut
 				    )
 	     );
 
@@ -250,7 +291,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
     // Run MET significance    
-    ANA_CHECK( metSignif->varianceMET(newMetContainer, "RefJet", "PVSoftTrk","FinalTrk"));
+    ANA_CHECK( metSignif->varianceMET(newMetContainer, eventinfo->averageInteractionsPerCrossing(), "RefJet", "PVSoftTrk","FinalTrk"));
 
     if(debug){
       if(newMetContainer->find("Muons")!=newMetContainer->end())
@@ -282,10 +323,30 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 	std::cout << "Soft term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->met() 
 		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->phi() 
 		  << std::endl;
+
+      // Print the METSignificance terms (e.g. jet, muon, ele, pho, etc)
+      // NOTE::: these are not currently rotated if the MET is rotated
+      std::cout << "  jet   VarL: " << metSignif->GetTermVarL(met::ResoJet) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoJet) << " GeV" << std::endl;
+      std::cout << "  muon   VarL: " << metSignif->GetTermVarL(met::ResoMuo) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoMuo) << " GeV" << std::endl;
+      std::cout << "  electron   VarL: " << metSignif->GetTermVarL(met::ResoEle) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoEle) << " GeV" << std::endl;
+      std::cout << "  photon   VarL: " << metSignif->GetTermVarL(met::ResoPho) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoPho) << " GeV" << std::endl;
+      std::cout << "  tau   VarL: " << metSignif->GetTermVarL(met::ResoTau) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoTau) << " GeV" << std::endl;
+      std::cout << "  Soft term   VarL: " << metSignif->GetTermVarL(met::ResoSoft) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoSoft) << " GeV" << std::endl;
+      std::cout << "  other/bug   VarL: " << metSignif->GetTermVarL(met::ResoNone) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoNone) << " GeV" << std::endl;
+
     }
       
     // extracting the MET significance
     std::cout << "MET significance: " << metSignif->GetSignificance() << std::endl;
+
+    if(debug){
+      // Try a rotation to a new lambda parameter
+      std::cout << " Lambda Test Before: " << metSignif->GetSignificance() << " VarL: " << metSignif->GetVarL() << " VarT: " << metSignif->GetVarT() << std::endl;
+      metSignif->SetLambda(0.0, 0.0);
+      std::cout << " Lambda Test 0: " << metSignif->GetSignificance() << " VarL: " << metSignif->GetVarL() << " VarT: " << metSignif->GetVarT() << std::endl;
+      metSignif->SetLambda(10.0, 10.0);
+      std::cout << " Lambda Test 10: " << metSignif->GetSignificance() << " VarL: " << metSignif->GetVarL() << " VarT: " << metSignif->GetVarT() << std::endl;
+    }
 
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));

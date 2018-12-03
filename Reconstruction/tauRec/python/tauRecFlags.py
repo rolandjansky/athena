@@ -206,5 +206,6 @@ del _list_tau
 
 
 tauFlags=jobproperties.tauRecFlags
+tauAODFlags=jobproperties.tauRecAODFlags
 #=======================================================================
     

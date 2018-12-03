@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3e/Trigger/TrigEvent/TrigNavigation/share/../share/test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/work/s/smh/MR_5043/athena/Trigger/TrigEvent/TrigNavigation/share/../share/test.txt
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "TrigNavigation", "TrigSerializeCnvSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.ExtSvc += ["ClassIDSvc"]
 JobOptionsSvc        INFO # (4,1): ApplicationMgr.ExtSvc += ["TrigSerializeCnvSvc"]
@@ -12,27 +12,27 @@ JobOptionsSvc        INFO # (8,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (9,1): StoreGateSvc.OutputLevel = 0
 JobOptionsSvc        INFO # (10,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (14,1): MessageSvc.useColors = 0
-JobOptionsSvc        INFO # (30,1): ToolSvc.Navigation.ReferenceAllClasses = 1
-JobOptionsSvc        INFO # (31,1): ToolSvc.Navigation.ClassesToPreregister = ["TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#", "TestBContainer#BContainer1", "TestBContainer#BContainer2", "TestDContainer#DContainer1"]
-JobOptionsSvc        INFO # (34,1): ToolSvc.Navigation.OutputLevel = 1
-JobOptionsSvc        INFO # (35,1): Holder_test.OutputLevel = 1
-JobOptionsSvc        INFO # (36,1): RoICache_test.OutputLevel = 3
+JobOptionsSvc        INFO # (15,1): MessageSvc.setDebug = ["NavigationCore"]
+JobOptionsSvc        INFO # (31,1): ToolSvc.Navigation.ReferenceAllClasses = 1
+JobOptionsSvc        INFO # (32,1): ToolSvc.Navigation.ClassesToPreregister = ["TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#", "TestBContainer#BContainer1", "TestBContainer#BContainer2", "TestDContainer#DContainer1"]
+JobOptionsSvc        INFO # (35,1): ToolSvc.Navigation.OutputLevel = 1
+JobOptionsSvc        INFO # (36,1): Holder_test.OutputLevel = 1
+JobOptionsSvc        INFO # (37,1): RoICache_test.OutputLevel = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus051.cern.ch on Tue Jul 19 19:41:21 2016
+                                          running on pc-tbed-pub-01.cern.ch on Sat Oct  7 17:04:22 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
-ClassIDSvc           INFO  getRegistryEntries: read 1319 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1369 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-07-04
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -40,7 +40,7 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc.Navigation  DEBUG Property update for OutputLevel : new value = 1
 ToolSvc.Navigation  DEBUG Navigation::initialize() got TrigSerializeCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 343 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 357 CLIDRegistry entries for module ALL
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: EverEmptyButPresent
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: AgainPresentButEmpty
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: 
@@ -53,429 +53,385 @@ ToolSvc.NavigationVERBOSE type: TestBContainer(96422) container: TestBContainer(
 ToolSvc.NavigationVERBOSE type: TestBContainerView(96423) container: TestBContainerView(96423)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG  successfully initialized Navigation 
-ToolSvc.Navigation  DEBUG Navigation reset done
-HLTNavigation_test   INFO LINE:356 Start of the test: Construction
-HLTNavigation_test   INFO LINE:383 Test progress fine:  after adding inital nodes
-HLTNavigation_test   INFO LINE:396 Test progress fine:  RoIs made
-HLTNavigation_test   INFO LINE:430 Test progress fine:  RoIs Common/Distinct check made
-HLTNavigation_test   INFO LINE:475 End of the test: Construction
-HLTNavigation_test   INFO LINE:480 Start of the test: counting
-HLTNavigation_test   INFO LINE:502 Test progress fine:  SUCCESS TEST of getAllOfType method
-HLTNavigation_test   INFO LINE:512 End of the test: counting
-HLTNavigation_test   INFO LINE:541 Start of the test: topo
-HLTNavigation_test   INFO LINE:558 Test progress fine:  SUCCESS tests of isTopological method
-HLTNavigation_test   INFO LINE:577 Test progress fine:   of haveCommonSeed method
-HLTNavigation_test   INFO LINE:582 End of the test: topo
-HLTNavigation_test   INFO LINE:588 Start of the test: single feature operations test
+NavigationCore      DEBUG Navigation reset done
+HLTNavigation_test   INFO LINE:360 Start of the test: Construction
+HLTNavigation_test   INFO LINE:387 Test progress fine:  after adding inital nodes
+HLTNavigation_test   INFO LINE:400 Test progress fine:  RoIs made
+HLTNavigation_test   INFO LINE:434 Test progress fine:  RoIs Common/Distinct check made
+HLTNavigation_test   INFO LINE:479 End of the test: Construction
+HLTNavigation_test   INFO LINE:484 Start of the test: counting
+HLTNavigation_test   INFO LINE:506 Test progress fine:  SUCCESS TEST of getAllOfType method
+HLTNavigation_test   INFO LINE:516 End of the test: counting
+HLTNavigation_test   INFO LINE:545 Start of the test: topo
+HLTNavigation_test   INFO LINE:562 Test progress fine:  SUCCESS tests of isTopological method
+HLTNavigation_test   INFO LINE:581 Test progress fine:   of haveCommonSeed method
+HLTNavigation_test   INFO LINE:586 End of the test: topo
+HLTNavigation_test   INFO LINE:592 Start of the test: single feature operations test
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 111 label: "Single" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: Single
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: Single
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: Single and index: 0
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "Single" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xde2650
-StoreGateSvc        DEBUG Recorded object @0xde2ea0 with key HLT_DataVector<TestA>_SingleAux. of type TestAuxA(CLID 642300)
- in DataObject @0xde28d0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde2d90 with key HLT_DataVector<TestA>_Single of type DataVector<TestA>(CLID 64210)
- in DataObject @0xde3bc0
- object modifiable when retrieved
+NavigationCore      DEBUG Getting holder for type: 6421 label: Single
+NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: Single and index: 0
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "Single" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f54910
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 111 label: "Single" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: Single
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: Single
-ToolSvc.NavigationVERBOSE got Holder: 0xde2650
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1111 label: ""
+NavigationCore      DEBUG Getting holder for type: 6421 label: Single
+ToolSvc.NavigationVERBOSE got Holder: 0x1f54910
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1111 label: ""
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 111 label: "ToolTestA" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ToolTestA
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: ToolTestA
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: ToolTestA and index: 1
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "ToolTestA" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xde4910
-StoreGateSvc        DEBUG Recorded object @0xde4e10 with key HLT_DataVector<TestA>_ToolTestAAux. of type TestAuxA(CLID 642300)
- in DataObject @0xde50b0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde4d00 with key HLT_DataVector<TestA>_ToolTestA of type DataVector<TestA>(CLID 64210)
- in DataObject @0xde5730
- object modifiable when retrieved
+NavigationCore      DEBUG Getting holder for type: 6421 label: ToolTestA
+NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: ToolTestA and index: 1
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "ToolTestA" subTypeIndex: 1 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f56630
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 111 label: "ToolB" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ToolB
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: ToolB
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: ToolB and index: 2
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "ToolB" subTypeIndex: 2 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xde5bf0
-StoreGateSvc        DEBUG Recorded object @0xde6180 with key HLT_DataVector<TestA>_ToolBAux. of type TestAuxA(CLID 642300)
- in DataObject @0xde6450
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde6070 with key HLT_DataVector<TestA>_ToolB of type DataVector<TestA>(CLID 64210)
- in DataObject @0xde6a20
- object modifiable when retrieved
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: "ToolTestA"
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421 label: ToolB
+NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: ToolB and index: 2
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "ToolB" subTypeIndex: 2 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f57e30
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: "ToolTestA"
+NavigationCore      DEBUG Getting holder for type: 6421
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 1111 label: "ToolB" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ToolB
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: ToolB
-ToolSvc.NavigationVERBOSE got Holder: 0xde5bf0
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 11 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 12 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 13 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 14 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 11111 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33301 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33311 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33321 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33323 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33324 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5000 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5001 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5002 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5003 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5004 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5005 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5006 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5007 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5008 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5009 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5010 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5011 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5012 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5013 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5014 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5015 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5016 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5017 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5018 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5019 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5020 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5021 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5022 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5023 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 5024 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
-ToolSvc.Navigation  DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
-ToolSvc.Navigation  DEBUG getRecentFeatures: looking for CLID: 6421(TestA) in TE: 11111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-ToolSvc.Navigation  DEBUG getRecentFeatures: looking for CLID: 6421(TestA) in TE: 11111 label: "ToolTestA"
-ToolSvc.Navigation  DEBUG Getting holder for type: 6421
-HLTNavigation_test   INFO LINE:655 Test progress fine:  Get features worked fine
-HLTNavigation_test   INFO LINE:657 End of the test: single feature operations test
-HLTNavigation_test   INFO LINE:673 Start of the test: container feature operations test
+NavigationCore      DEBUG Getting holder for type: 6421 label: ToolB
+ToolSvc.NavigationVERBOSE got Holder: 0x1f57e30
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 11 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 12 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 13 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 14 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 111 label: ""
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1111 label: ""
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 11111 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33301 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33311 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33321 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33323 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33324 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 33399 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5000 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5001 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5002 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5003 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5004 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5005 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5006 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5007 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5008 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5009 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5010 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5011 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5012 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5013 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5014 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5015 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5016 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5017 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5018 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5019 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5020 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5021 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5022 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5023 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 5024 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 50 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 60 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 150 label: ""
+NavigationCore      DEBUG getFeatures: of clid: 6421(TestA) to TE: 1050 label: ""
+NavigationCore      DEBUG getRecentFeatures: looking for CLID: 6421(TestA) in TE: 11111 label: ""
+NavigationCore      DEBUG Getting holder for type: 6421
+NavigationCore      DEBUG getRecentFeatures: looking for CLID: 6421(TestA) in TE: 11111 label: "ToolTestA"
+NavigationCore      DEBUG Getting holder for type: 6421
+HLTNavigation_test   INFO LINE:659 Test progress fine:  Get features worked fine
+HLTNavigation_test   INFO LINE:661 End of the test: single feature operations test
+HLTNavigation_test   INFO LINE:677 Start of the test: container feature operations test
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 111 label: "Test1" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: Test1
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: Test1
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: Test1 and index: 0
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "Test1" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xde6e50
-StoreGateSvc        DEBUG Recorded object @0xde7dd0 with key HLT_TestBContainer_Test1Aux. of type TestAuxB(CLID 642311)
- in DataObject @0xde80a0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde7cc0 with key HLT_TestBContainer_Test1 of type TestBContainer(CLID 96422)
- in DataObject @0xde8880
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde7330 with key HLTAutoKey_Test1_96422_0_to_0 of type TestBContainer(CLID 96422)
- in DataObject @0xcd8530
- object not modifiable when retrieved
+NavigationCore      DEBUG Getting holder for type: 96422 label: Test1
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: Test1 and index: 0
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "Test1" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f59d00
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 111 label: "BContainer2" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: BContainer2
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: BContainer2
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xde9a90
-StoreGateSvc        DEBUG Recorded object @0xde9e90 with key HLT_TestBContainer_BContainer2Aux. of type TestAuxB(CLID 642311)
- in DataObject @0xdea160
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde9d80 with key HLT_TestBContainer_BContainer2 of type TestBContainer(CLID 96422)
- in DataObject @0xdea3b0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xde9230 with key HLTAutoKey_BContainer2_96422_1_to_0 of type TestBContainer(CLID 96422)
- in DataObject @0xdeaa10
- object not modifiable when retrieved
-ToolSvc.Navigation  DEBUG getRecentFeature: looking for CLID: 96422(TestBContainer) in TE: 11111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422
-ToolSvc.Navigation  DEBUG getRecentFeature: looking for CLID: 96422(TestBContainer) in TE: 11111 label: "Test1"
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422
-HLTNavigation_test   INFO LINE:703 End of the test: container feature operations test
-HLTNavigation_test   INFO LINE:729 Start of the test: const attach test
+NavigationCore      DEBUG Getting holder for type: 96422 label: BContainer2
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f5c7e0
+NavigationCore      DEBUG getRecentFeature: looking for CLID: 96422(TestBContainer) in TE: 11111 label: ""
+NavigationCore      DEBUG Getting holder for type: 96422
+NavigationCore      DEBUG getRecentFeature: looking for CLID: 96422(TestBContainer) in TE: 11111 label: "Test1"
+NavigationCore      DEBUG Getting holder for type: 96422
+HLTNavigation_test   INFO LINE:707 End of the test: container feature operations test
+HLTNavigation_test   INFO LINE:733 Start of the test: const attach test
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 11111 label: "ConstBContainer" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ConstBContainer
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: ConstBContainer
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: ConstBContainer and index: 2
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "ConstBContainer" subTypeIndex: 2 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xdeb380
-StoreGateSvc        DEBUG Recorded object @0xdeb7c0 with key HLT_TestBContainer_ConstBContainerAux. of type TestAuxB(CLID 642311)
- in DataObject @0xdeb450
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xdeb6b0 with key HLT_TestBContainer_ConstBContainer of type TestBContainer(CLID 96422)
- in DataObject @0xdeb4e0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xdeb180 with key HLTAutoKey_ConstBContainer_96422_2_to_0 of type TestBContainer(CLID 96422)
- in DataObject @0xdec2d0
- object not modifiable when retrieved
-ToolSvc.Navigation  DEBUG getFeature: of clid: 96422(TestBContainer) to TE: 11111 label: ""
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422
-ToolSvc.Navigation  DEBUG getFeature: of clid: 96422(TestBContainer) to TE: 111 label: "BContainer2"
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422
-HLTNavigation_test   INFO LINE:759 Test progress fine:  Got the already attached container 2
-HLTNavigation_test   INFO LINE:768 Test progress fine:  Prepared ConstTestBContainer wiht contnt already present in another non-cont container
+NavigationCore      DEBUG Getting holder for type: 96422 label: ConstBContainer
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: ConstBContainer and index: 2
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "ConstBContainer" subTypeIndex: 2 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f5e590
+NavigationCore      DEBUG getFeature: of clid: 96422(TestBContainer) to TE: 11111 label: ""
+NavigationCore      DEBUG Getting holder for type: 96422
+NavigationCore      DEBUG getFeature: of clid: 96422(TestBContainer) to TE: 111 label: "BContainer2"
+NavigationCore      DEBUG Getting holder for type: 96422
+HLTNavigation_test   INFO LINE:763 Test progress fine:  Got the already attached container 2
+HLTNavigation_test   INFO LINE:772 Test progress fine:  Prepared ConstTestBContainer wiht contnt already present in another non-cont container
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 11111 label: "ConstBContainer2" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: ConstBContainer2
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: ConstBContainer2
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: ConstBContainer2 and index: 3
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "ConstBContainer2" subTypeIndex: 3 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0xdecae0
-StoreGateSvc        DEBUG Recorded object @0xdecf70 with key HLT_TestBContainer_ConstBContainer2Aux. of type TestAuxB(CLID 642311)
- in DataObject @0xdecc00
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xdece60 with key HLT_TestBContainer_ConstBContainer2 of type TestBContainer(CLID 96422)
- in DataObject @0xdecc90
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0xdec940 with key HLTAutoKey_ConstBContainer2_96422_3_to_0 of type TestBContainer(CLID 96422)
- in DataObject @0xdedbe0
- object not modifiable when retrieved
-HLTNavigation_test   INFO LINE:774 End of the test: const attach test
-HLTNavigation_test   INFO LINE:779 Start of the test: external_collection test
-StoreGateSvc        DEBUG Recorded object @0xdee180 with key HLT_external of type TestBContainer(CLID 96422)
- in DataObject @0xdee0c0
- object modifiable when retrieved
+NavigationCore      DEBUG Getting holder for type: 96422 label: ConstBContainer2
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: ConstBContainer2 and index: 3
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "ConstBContainer2" subTypeIndex: 3 container not allocated yet
+ToolSvc.NavigationVERBOSE got Holder: 0x1f60150
+HLTNavigation_test   INFO LINE:778 End of the test: const attach test
+HLTNavigation_test   INFO LINE:783 Start of the test: external_collection test
 ToolSvc.Navigation  DEBUG associateExternalCollection: of clid: 96422(TestBContainer) label: "external"
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: external
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: external and index: 4
-ToolSvc.Navigation  DEBUG getHolder: predefined holder got
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "external" subTypeIndex: 4 container not allocated yet
+NavigationCore      DEBUG Getting holder for type: 96422 label: external
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: external and index: 4
+NavigationCore      DEBUG getHolder: predefined holder got
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "external" subTypeIndex: 4 container not allocated yet
 ToolSvc.Navigation  DEBUG associateExternalCollection: of clid: 96422(TestBContainer) label: "external"
-ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: external
-HLTNavigation_test   INFO LINE:790 End of the test: external_collection test
-HLTNavigation_test   INFO LINE:878 Test progress fine:  OK navigation tool retrieved
-HLTNavigation_test   INFO LINE:711 Start of the test: serialize test
-ToolSvc.Navigation  DEBUG serialization of feature: 6421 label: Single size of payload: 0
-ToolSvc.Navigation  DEBUG serialization of feature: 6421 label: ToolTestA size of payload: 7
-ToolSvc.Navigation  DEBUG serialization of feature: 6421 label: ToolB size of payload: 15
-ToolSvc.Navigation  DEBUG serialization of feature: 96422 label: Test1 size of payload: 22
-ToolSvc.Navigation  DEBUG serialization of feature: 96422 label: BContainer2 size of payload: 29
-ToolSvc.Navigation  DEBUG serialization of feature: 96422 label: ConstBContainer size of payload: 37
-ToolSvc.Navigation  DEBUG serialization of feature: 96422 label: ConstBContainer2 size of payload: 46
-ToolSvc.Navigation  DEBUG serialization of feature: 96422 label: external size of payload: 56
-ToolSvc.Navigation  DEBUG NavigationCore::serialize: serializing with version 4
-ToolSvc.Navigation  DEBUG serializes: TE serialization status: 1 size: 795
-ToolSvc.Navigation  DEBUG serialization done
-ToolSvc.Navigation  DEBUG total size of serialized navigation: 859
-HLTNavigation_test   INFO LINE:718 Test progress fine:  serialize/deserialze sequence worked
-HLTNavigation_test   INFO LINE:725 End of the test: serialize test
-HLTNavigation_test   INFO LINE:887 Test progress fine:  SUCCESS test passed OK 
+NavigationCore      DEBUG Getting holder for type: 96422 label: external
+HLTNavigation_test   INFO LINE:794 End of the test: external_collection test
+HLTNavigation_test   INFO LINE:882 Test progress fine:  OK navigation tool retrieved
+HLTNavigation_test   INFO LINE:715 Start of the test: serialize test
+NavigationCore      DEBUG serialization of feature: 6421 label: Single size of payload: 0
+NavigationCore      DEBUG serialization of feature: 6421 label: ToolTestA size of payload: 7
+NavigationCore      DEBUG serialization of feature: 6421 label: ToolB size of payload: 15
+NavigationCore      DEBUG serialization of feature: 96422 label: Test1 size of payload: 22
+NavigationCore      DEBUG serialization of feature: 96422 label: BContainer2 size of payload: 29
+NavigationCore      DEBUG serialization of feature: 96422 label: ConstBContainer size of payload: 37
+NavigationCore      DEBUG serialization of feature: 96422 label: ConstBContainer2 size of payload: 46
+NavigationCore      DEBUG serialization of feature: 96422 label: external size of payload: 56
+NavigationCore      DEBUG NavigationCore::serialize: serializing with version 4
+NavigationCore      DEBUG serializes: TE serialization status: 1 size: 795
+NavigationCore      DEBUG serialization done
+NavigationCore      DEBUG total size of serialized navigation: 859
+NavigationCore      DEBUG deserialize: deserializing input of size:  859
+NavigationCore      DEBUG deserialize: the serialized input has versions 4
+NavigationCore      DEBUG deserialize: deserialization of Navigation version: 4
+NavigationCore      DEBUG deserialize: TEs structure unpacked, status: 1
+NavigationCore      DEBUG do we have holder payload? 1
+NavigationCore      DEBUG deserializing holder blob of size: 6
+NavigationCore      DEBUG deserializing holder blob of size: 7
+NavigationCore      DEBUG deserializing holder blob of size: 6
+NavigationCore      DEBUG deserializing holder blob of size: 6
+NavigationCore      DEBUG deserializing holder blob of size: 7
+NavigationCore      DEBUG deserializing holder blob of size: 8
+NavigationCore      DEBUG deserializing holder blob of size: 9
+NavigationCore      DEBUG deserializing holder blob of size: 7
+HLTNavigation_test   INFO LINE:722 Test progress fine:  serialize/deserialze sequence worked
+HLTNavigation_test   INFO LINE:729 End of the test: serialize test
+HLTNavigation_test   INFO LINE:891 Test progress fine:  SUCCESS test passed OK 

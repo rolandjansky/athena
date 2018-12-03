@@ -46,15 +46,18 @@ class JetRecCalibrationFinder:
     
   # Dictionary for calibration configurations.
   configDict = {
-    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
     "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
+    # Note that these are not available in the most recent calibration area
+    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
-  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix):
+  # Default the calibration area tag to that used for T0 reconstruction for consistency
+  # This is based on the initial R21 production in 2016
+  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix, calibareatag="00-04-77"):
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
@@ -117,7 +120,8 @@ class JetRecCalibrationFinder:
       evskey = evsprefix + evssuf
       jetlog.info( myname + "  Event shape key: " + evskey )
       # ...create the tool.
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey)
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey,
+                                CalibArea=calibareatag)
 
     return jtm.tools[tname]
 

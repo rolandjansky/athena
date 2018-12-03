@@ -7,18 +7,16 @@
 #include <fstream>
 
 
-TRTOutputFile* TRTOutputFile::pOutputFile = NULL;
+TRTOutputFile* TRTOutputFile::m_pOutputFile = NULL;
 
 
   // Called by GetPointer
 
-TRTOutputFile::TRTOutputFile() : output("TRTOutput", std::ios::out), m_msg("TRTOutputFile")
+TRTOutputFile::TRTOutputFile() : m_output("TRTOutput", std::ios::out), m_msg("TRTOutputFile")
 {
-  printMessages = ReadParameter("PrintMessages");
-
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTOutputFile" << endreq;
 
-  output << std::endl << "                    TRT output file" << std::endl
+  m_output << std::endl << "                    TRT output file" << std::endl
          << std::endl;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTOutputFile done" << endreq;
@@ -31,9 +29,9 @@ TRTOutputFile::~TRTOutputFile()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile" << endreq;
 
-  output.close();
+  m_output.close();
 
-  pOutputFile = NULL;
+  m_pOutputFile = NULL;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile done" << endreq;
 }

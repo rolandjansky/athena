@@ -235,7 +235,7 @@ from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__T
 DESDM_EGAMMAL1CaloThinning = DerivationFramework__TriggerTowerThinningAlg( name = "DESDM_EGAMMAL1CaloThinning",
                                                                            ThinService = "DESDM_EGAMMAThinningSvc",
                                                                            TriggerTowerLocation = "xAODTriggerTowers",
-                                                                           MinCaloCellEnergy = 0.8,
+                                                                           MinCaloCellET = 0.8,
                                                                            MinADC = 36,
                                                                            UseRandom = True,
                                                                            MinRandom = 0.01)

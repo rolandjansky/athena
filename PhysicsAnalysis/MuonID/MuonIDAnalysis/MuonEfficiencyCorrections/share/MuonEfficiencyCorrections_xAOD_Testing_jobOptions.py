@@ -1,38 +1,45 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 import sys
-include("MuonEfficiencyCorrections/CommonToolSetup.py")
+from MuonEfficiencyCorrections.CommonToolSetup import *
+
 
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
-# Usage: athena -c "FNAME='<input file>'" MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
-
+# Usage: athena --filesInput <InputFile> MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 
 # Access the algorithm sequence:
 AssembleIO("MUONEFFTESTER")
 from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
 
-
-
-
-
-#athena -c "inputFile='/ptmp/mpp/zenon/DirectStau/mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.deriv.DAOD_SUSY3.e3601_s3126_r9364_r9315_p3179/DAOD_SUSY3.11544886._000178.pool.root.1'" MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
-
-
 # Add the test algorithm:
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
+alg.DefaultRelease="cMoriond2018"
+alg.ValidationRelease="cSummer2018"
 
 WPs = [
-        "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
-        "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso",
-        #"TightIso",
-        "GradientIso","GradientLooseIso",
-        "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso" ]
-for WP in WPs: alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+         # reconstruction WPs
+         "LowPt",
+         "Loose", 
+         "Medium", 
+         "Tight", 
+         "HighPt",
+         # track-to-vertex-association WPs
+         "TTVA",
+         # BadMuon veto SFs
+        # "BadMuonVeto_HighPt",
+         # isolation WPs
+        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+        ]
+
+for WP in WPs: 
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180516_HighEtaUpdate")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Summer_2018", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Summer_2018/")]
 theJob += alg
 
 # Do some additional tweaking:

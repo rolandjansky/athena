@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from sys import settrace
-
-from l1topo.TopoAlgos import TopoAlgo
 from l1topo.L1TopoMenu import L1TopoMenu
 from l1topo.L1TopoFlags import L1TopoFlags
 
@@ -18,7 +15,6 @@ class TriggerConfigL1Topo:
         outputFile: if no input file is specified the topo menu will be generated and written to outputFile
         menuName: ignored now
         """
-        current = self
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
         self.menuName = TriggerConfigL1Topo.getMenuBaseName(TriggerFlags.triggerMenuSetup())
@@ -51,7 +47,7 @@ class TriggerConfigL1Topo:
     @staticmethod
     def getMenuBaseName(menuName):
         import re 
-        pattern = re.compile('_v\d+|DC14')
+        pattern = re.compile('_v\d+|DC14+|_PhaseII')
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
@@ -128,7 +124,6 @@ class TriggerConfigL1Topo:
         """
 
         menuName = TriggerConfigL1Topo.getMenuBaseName(menuName)
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
         menumodule = __import__('l1topomenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos." % ( menuName, len(L1TopoFlags.algos()) )) 
@@ -152,11 +147,7 @@ class TriggerConfigL1Topo:
         Always to be called after defineMenu()
         """
         
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger('L1Topo.generateMenu')
-
         # add the algos to the menu
-        undefined_alg = False 
         for topooutput in L1TopoFlags.algos():
             topooutput.algo = self.getRegisteredAlgo(topooutput.algoname)
             if topooutput.algo is None:

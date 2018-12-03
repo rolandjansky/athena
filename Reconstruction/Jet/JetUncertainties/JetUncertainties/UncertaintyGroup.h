@@ -54,6 +54,9 @@ class UncertaintyGroup : public asg::AsgMessaging
         // Access to information on the constituent components
         virtual std::set<CompScaleVar::TypeEnum> getScaleVars() const;
 
+        // Specialty access methods
+        virtual JetTopology::TypeEnum getTopology(const CompScaleVar::TypeEnum scaleVar = CompScaleVar::UNKNOWN) const;
+
         // Methods to check for special situations
         virtual bool isAlwaysZero()  const;
 

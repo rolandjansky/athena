@@ -33,10 +33,7 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
 
-namespace CP {
-  class IWeightPFOTool;
-  class IRetrievePFOTool;
-}
+#include "TRandom3.h"
 
 namespace InDet {
   class IInDetTrackSelectionTool;
@@ -85,8 +82,10 @@ namespace met {
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
+    std::string m_pfcoll;
 
     bool m_pflow;
+    bool m_recoil;
     bool m_useTracks;
     bool m_useRapidity;
     bool m_useIsolationTools;
@@ -94,8 +93,6 @@ namespace met {
     bool m_weight_charged_pfo;
     bool m_cleanChargedPFO;
 
-    ToolHandle<CP::IRetrievePFOTool> m_pfotool;
-    ToolHandle<CP::IWeightPFOTool> m_pfoweighttool;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
@@ -112,7 +109,6 @@ namespace met {
     StatusCode retrieveConstituents(met::METAssociator::ConstitHolder& constits) const;
 
     bool acceptTrack (const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
-    bool acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk) const;
 
     virtual StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
@@ -121,12 +117,30 @@ namespace met {
 				  std::vector<const xAOD::IParticle*>& pfolist,
 				  const met::METAssociator::ConstitHolder& constits,
 				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
+
+    virtual StatusCode extractPFOHR(const xAOD::IParticle* obj,
+                                    std::vector<const xAOD::IParticle*> hardObjs,
+                                    std::vector<const xAOD::IParticle*>& pfolist,
+                                    const met::METAssociator::ConstitHolder& constits,
+                                    std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+                                    float& UEcorr) const
+    {return StatusCode::FAILURE;}
+
+    StatusCode GetUEcorr(const met::METAssociator::ConstitHolder& constits,  
+                         std::vector<TLorentzVector>& v_clus,
+                         TLorentzVector& clus, 
+                         TLorentzVector& HR,
+                         const float Drcone,
+                         const float MinDistCone,
+                         float& UEcorr) const;
+
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,
 				     const met::METAssociator::ConstitHolder& constits) const = 0;
     virtual StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& tclist,
 					   const met::METAssociator::ConstitHolder& constits) const = 0;
+    
     static inline bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
       return part1->pt()>part2->pt();
     }

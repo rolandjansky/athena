@@ -10,6 +10,7 @@
 #include "DerivationFrameworkMCTruth/TruthIsolationTool.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "HepPID/ParticleIDMethods.hh"
+#include "TruthUtils/PIDHelpers.h"
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -39,6 +40,8 @@ DerivationFramework::TruthIsolationTool::TruthIsolationTool(const std::string& t
         "List of the pdgIDs of particles to exclude from the cone when calculating isolation");
     declareProperty ("IsolationVarNamePrefix", m_isoVarNamePrefix,
             "Prefix of name of the variable to add to output xAOD");
+    declareProperty ("IncludeNonInteracting", m_includeNonInteracting=false,
+            "Include non-interacting particles in the isolation definition");
 
     m_coneSizes2 = new std::vector<float>();
     m_coneSizesSort = new std::vector<float>();
@@ -135,6 +138,10 @@ void DerivationFramework::TruthIsolationTool::calcIsos(const xAOD::TruthParticle
     for (const auto& cand_part : candidateParticlesList) {
       if (find(m_excludeFromCone.begin(), m_excludeFromCone.end(), cand_part->pdgId()) != m_excludeFromCone.end()) {
         //skip if we find a particle in the exclude list
+        continue;
+      }
+      if (!m_includeNonInteracting && MC::isNonInteracting(cand_part->pdgId())){
+        // Do not include non-interacting particles, and this particle is non-interacting
         continue;
       }
       if (cand_part->barcode() != particle->barcode()) {

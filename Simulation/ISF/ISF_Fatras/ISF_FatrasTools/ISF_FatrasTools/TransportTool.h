@@ -53,8 +53,7 @@ namespace iFatras
       @author Andreas.Salzburger -at- cern.ch
   */  
   
-  class TransportTool : virtual public ISF::IParticleProcessor,
-                        public AthAlgTool
+  class TransportTool : public extends<AthAlgTool, ISF::IParticleProcessor>
   {
   public:
     /** Constructor */
@@ -90,8 +89,8 @@ namespace iFatras
 
      /** Random Generator service  */
      ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;
-     CLHEP::HepRandomEngine*                             m_randomEngine;
-     std::string                                  m_randomEngineName;         //!< Name of the random number stream
+     CLHEP::HepRandomEngine*                      m_randomEngine;     //!< This pointer is owned by the IRndmGenSvc instance
+     std::string                                  m_randomEngineName; //!< Name of the random number stream
 
 
     /** Validation output with histogram service */

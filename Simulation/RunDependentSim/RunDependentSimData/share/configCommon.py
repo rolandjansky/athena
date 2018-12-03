@@ -33,9 +33,15 @@ digilog.info('There are %d events in this run.' % runMaxEvents)
 jobsPerRun=int(math.ceil(float(runMaxEvents)/corrMaxEvents))
 digilog.info('Assuming there are usually %d events per job. (Based on %d events in this job.)', corrMaxEvents, trfMaxEvents)
 digilog.info('There must be %d jobs per run.' % jobsPerRun)
+
+# Override event numbers with sequential ones if requested
+sequentialEventNumbers = True if 'SequentialEventNumbers' in dir() and SequentialEventNumbers else False
+if sequentialEventNumbers:
+    digilog.info('All event numbers will be sequential.')
+
 #Load needed tools 
 from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
-fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents)
+fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,sequentialEventNumbers=sequentialEventNumbers)
 
 from RunDependentSimComps.RunLumiConfigTools import condenseRunLumiInfoFragment
 digilog.info( 'Writing RunDMC trigger configuration fragment to file.  listOfRunsEvents = %s' %

@@ -66,7 +66,7 @@ namespace top {
 
     for (auto currentSystematic : *allSystematics) {
       // Make a top::Event
-      top::Event topEvent = m_evtMaker->makeTopEvent(*currentSystematic);
+      top::Event topEvent = m_evtMaker->makeTopEvent(currentSystematic);
       topEvent.m_saveEvent = false;
 
       // Reset the ttree indicies (probably should be done somewhere else)

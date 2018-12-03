@@ -436,8 +436,8 @@ class ElectronFilter(PyAthena.Alg):
         # get the C++ enum...
         # we have to explicitly load the dictionary holding the enum b/c
         # of a gccxml/reflex bug
-        import PyCintex
-        egdict = PyCintex.loadDict("egammaEventDict")
+        import cppyy
+        egdict = cppyy.loadDict("egammaEventDict")
         self.elePidCut = getattr(PyAthena.egammaPID, self.elePidCut)
 
         # get some C++ utils

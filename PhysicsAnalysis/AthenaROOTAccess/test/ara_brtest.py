@@ -13,7 +13,6 @@
 
 
 import ROOT
-import PyCintex
 import AthenaROOTAccess.transientTree
 
 import sys

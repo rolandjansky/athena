@@ -49,15 +49,13 @@ namespace EL
 		const SH::MetaObject *meta)
     : Worker (meta, output), m_sample (sample), m_location (location)
   {
+    setJobConfig (JobConfig (job.jobConfig()));
+
     for (Job::outputIter out = job.outputBegin(),
 	   end = job.outputEnd(); out != end; ++ out)
     {
       addOutputWriter (out->label(), out->output()->makeWriter (sample->name(), "", -1, ".root"));
     }
-
-    for (Job::algsIter alg = job.algsBegin(),
-	   end = job.algsEnd(); alg != end; ++ alg)
-      addAlg (dynamic_cast<Algorithm*>((*alg)->Clone ()));
 
     RCU_NEW_INVARIANT (this);
   }

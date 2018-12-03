@@ -61,7 +61,7 @@ StatusCode GlobalEventTagBuilder::initialize() {
         addAttribute( (*bMap).first, (*bMap).second );
       } else {
         mLog << MSG::ERROR << "Attribute " << (*bMap).first 
-                           << " already exists, unresolved ambiguity likely" << endreq;
+                           << " already exists, unresolved ambiguity likely" << endmsg;
       }
 */
     }

@@ -43,7 +43,7 @@ namespace met {
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data17_13TeV/prerec_Aug2");
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data17_13TeV/prerec_Jan16");
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
@@ -593,7 +593,6 @@ namespace met {
       switch( m_appliedSystEnum ) {
       case MET_JETTRK_SCALEUP :
 	{
-	  uncert  = uncert;
 	  break;
 	}
       case MET_JETTRK_SCALEDOWN :

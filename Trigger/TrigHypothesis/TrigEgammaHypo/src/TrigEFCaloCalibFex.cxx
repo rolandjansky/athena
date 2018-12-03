@@ -212,6 +212,9 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     
     for(const auto *clus : *clusContainer){
         
+	// To avoid clusters formed from cosmics or noise bursts
+        if ( (clus->eta() < -998.0) && (clus->phi() < -998.0) ) continue;
+
         if (!clus->inBarrel() && !clus->inEndcap() )
         {
             ATH_MSG_ERROR("Cluster neither in barrel nor in endcap, Skipping cluster");

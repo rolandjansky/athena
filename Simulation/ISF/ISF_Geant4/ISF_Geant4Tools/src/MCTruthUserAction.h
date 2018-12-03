@@ -16,9 +16,6 @@
 
 #include "ISF_Interfaces/ITruthSvc.h"
 
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
-
 
 /*
   Comments:
@@ -33,12 +30,11 @@
   Thus it is defined as a AlgTool, to get these assigned easily via python.
 */
 
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
+#include "G4UserTrackingAction.hh"
 
 namespace G4UA{
   namespace iGeant4 {
-    class MCTruthUserAction: public IPreTrackingAction,  public IPostTrackingAction
+    class MCTruthUserAction: public G4UserTrackingAction
     {
 
     public:
@@ -51,12 +47,11 @@ namespace G4UA{
       };
 
       MCTruthUserAction(const Config& config);
-      virtual void preTracking(const G4Track*) override;
-      virtual void postTracking(const G4Track*) override;
+      virtual void PreUserTrackingAction(const G4Track*) override;
+      virtual void PostUserTrackingAction(const G4Track*) override;
     private:
       Config m_config;
       ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
-      SecondaryTracksHelper m_sHelper;
     }; // class MCTruthUserAction
 
   } // namespace iGeant4

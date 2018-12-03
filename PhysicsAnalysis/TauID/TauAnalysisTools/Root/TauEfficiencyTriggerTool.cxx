@@ -44,7 +44,7 @@ StatusCode TauEfficiencyTriggerTool::initialize()
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
       return StatusCode::FAILURE;
     }
-    ReadInputs(fSF);
+    ReadInputs(*fSF);
     fSF->Close();
   }
 
@@ -62,7 +62,7 @@ StatusCode TauEfficiencyTriggerTool::initialize()
 
 //______________________________________________________________________________
 CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactor)
+    double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   // check which true state is requestet
   if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)

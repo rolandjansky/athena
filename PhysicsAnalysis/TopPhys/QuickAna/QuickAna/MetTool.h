@@ -32,6 +32,7 @@
 class IMETMaker;
 class IMETSystematicsTool;
 class IJetModifier;
+class IMETSignificance;
 
 namespace ana
 {
@@ -102,6 +103,7 @@ namespace ana
 
     /// Configurations -- tool properties
 
+    bool m_doPFlow;
     bool m_includeTauTerm;
     bool m_doTST;
     bool m_doJVTCut;
@@ -112,12 +114,14 @@ namespace ana
     double m_uniqueFrac;
     double m_jetCut;
     bool m_doFJVT;
+    bool m_doPUmetsig;
 
   private:
 
     /// description: the MET tool
     asg::AnaToolHandle<IMETMaker> m_metutil;
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
+    asg::AnaToolHandle<IMETSignificance> m_metSigni;
     /// description: the fJVT tool
     asg::AnaToolHandle<IJetModifier> m_fjvtTool;
 

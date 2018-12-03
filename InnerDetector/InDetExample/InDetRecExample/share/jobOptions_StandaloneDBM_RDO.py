@@ -119,6 +119,8 @@ InDetFlags.doSlimming = False
 
 InDetFlags.doIBL = True
 InDetFlags.doTrackSegmentsPixelPrdAssociation = False 
+InDetFlags.doTrackSegmentsPixelFourLayer = False 
+InDetFlags.doTrackSegmentsPixelThreeLayer = False 
 
 # --- activate monitorings
 InDetFlags.doMonitoringGlobal    = False

@@ -24,7 +24,7 @@
 ISF::GenParticleGenericFilter::GenParticleGenericFilter( const std::string& t,
                                                          const std::string& n,
                                                          const IInterface* p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_minEta(std::numeric_limits<decltype(m_minEta)>::lowest()),
     m_maxEta(std::numeric_limits<decltype(m_maxEta)>::max()),
     m_minPhi(-M_PI),
@@ -34,8 +34,6 @@ ISF::GenParticleGenericFilter::GenParticleGenericFilter( const std::string& t,
     m_pdgs(),
     m_maxApplicableRadius(std::numeric_limits<decltype(m_maxApplicableRadius)>::max())
 {
-    declareInterface<ISF::IGenParticleFilter>(this);
-
     // different cut parameters
     declareProperty("MinEta",
                     m_minEta,

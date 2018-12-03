@@ -55,7 +55,7 @@ TileRawChannelCnv_p1::persToTrans(const TileRawChannel_p1* persObj, TileRawChann
 
   if (it != persObj->m_data.end()) {
     log << MSG::ERROR << "TileRawChannelCnv_p1::persToTrans wrong size of data vector: "
-        << persObj->m_data.size() << MSG::hex << "0x" << persObj->m_length << MSG::dec << endreq;
+        << persObj->m_data.size() << MSG::hex << "0x" << persObj->m_length << MSG::dec << endmsg;
   }
 
   *transObj = TileRawChannel (HWIdentifier(Identifier32(persObj->m_channelID)),

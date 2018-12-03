@@ -4,10 +4,7 @@
 
 import sys
 import os
-import commands
-import time
 import xml.etree.cElementTree as ET
-
 
 #-----------------------------------------------------------------------------
 # Create and configure option parser
@@ -283,22 +280,22 @@ def Calculate_BW_Prescale(PS, chain, lumiP):
         
                     target_rate = float(read_bw_prescale[EF_chain])
 
-                    rate = read_rates[chain][0]
+                    #rate = read_rates[chain][0]
                     cor_rate = corrected_rate[chain][0]
-                    PT_contribution = rate - cor_rate
+                    #PT_contribution = rate - cor_rate
         
                     EF_Chain = EF_chain
                     EF_Prescale = read_rates[EF_Chain][1]
-                    EF_Rate = read_rates[EF_Chain][0]
+                    #EF_Rate = read_rates[EF_Chain][0]
                     
                     L2_Chain = read_rates[EF_Chain][2]
                     L2_Prescale = read_rates[L2_Chain][1]
-                    L2_Rate = read_rates[L2_Chain][0]
-                    L2_Corrected_Rate = corrected_rate[L2_Chain][0]
+                    #L2_Rate = read_rates[L2_Chain][0]
+                    #L2_Corrected_Rate = corrected_rate[L2_Chain][0]
                     
                     L1_Chain = read_rates[L2_Chain][2]
                     L1_Prescale = read_rates[L1_Chain][1]
-                    L1_Rate = read_rates[L1_Chain][0]
+                    #L1_Rate = read_rates[L1_Chain][0]
                                         
                     total_rate =  L1_Prescale* L2_Prescale* EF_Prescale* cor_rate
                     
@@ -331,19 +328,19 @@ def Calculate_L2_PT_Prescale(chain, PS):
             PT_prescale=1
             return PT_prescale
 
-        rate = read_rates[chain][0]
-        cor_rate = corrected_rate[chain][0]
-        PT_contribution = rate - cor_rate
+        #rate = read_rates[chain][0]
+        #cor_rate = corrected_rate[chain][0]
+        #PT_contribution = rate - cor_rate
         
         target_rate = float(read_l2_pt_bw[chain])
         
         L2_Chain = chain
-        L2_Prescale = read_rates[L2_Chain][1]
-        L2_Rate = read_rates[L2_Chain][0]
-        L2_Corrected_Rate = corrected_rate[L2_Chain][0]
+        #L2_Prescale = read_rates[L2_Chain][1]
+        #L2_Rate = read_rates[L2_Chain][0]
+        #L2_Corrected_Rate = corrected_rate[L2_Chain][0]
         
         L1_Chain = read_rates[L2_Chain][2]
-        L1_Prescale = read_rates[L1_Chain][1]
+        #L1_Prescale = read_rates[L1_Chain][1]
         L1_Rate = read_rates[L1_Chain][0]
 
         total_rate_scale = options.lumi * L1_Rate / (lumi_xml_ref * PS[L1_Chain])
@@ -370,24 +367,24 @@ def Calculate_EF_PT_Prescale(chain, PS):
             PT_prescale=1
             return PT_prescale
 
-        rate = read_rates[chain][0]
-        cor_rate = corrected_rate[chain][0]
-        PT_contribution = rate - cor_rate
+        #rate = read_rates[chain][0]
+        #cor_rate = corrected_rate[chain][0]
+        #PT_contribution = rate - cor_rate
         
         target_rate = float(read_ef_pt_bw[chain])
         
         EF_Chain = chain
-        EF_Prescale = read_rates[EF_Chain][1]
-        EF_Rate = read_rates[EF_Chain][0]
+        #EF_Prescale = read_rates[EF_Chain][1]
+        #EF_Rate = read_rates[EF_Chain][0]
         
         L2_Chain = read_rates[EF_Chain][2]
         L2_Prescale = read_rates[L2_Chain][1]
-        L2_Rate = read_rates[L2_Chain][0]
+        #L2_Rate = read_rates[L2_Chain][0]
         L2_Corrected_Rate = corrected_rate[L2_Chain][0]
         
         L1_Chain = read_rates[L2_Chain][2]
         L1_Prescale = read_rates[L1_Chain][1]
-        L1_Rate = read_rates[L1_Chain][0]
+        #L1_Rate = read_rates[L1_Chain][0]
         
 
         total_rate_noPT_L2 =  L1_Prescale* L2_Prescale* L2_Corrected_Rate
@@ -417,15 +414,15 @@ def Calculate_ES_Prescale(chain, PS, PT):
 
     if chain in read_es_bw.keys() :
     
-        rate = read_rates[chain][0]
+        #rate = read_rates[chain][0]
         cor_rate = corrected_rate[chain][0]
-        PT_contribution = rate - cor_rate
+        #PT_contribution = rate - cor_rate
         
         target_rate = float(read_es_bw[chain])
         
         EF_Chain = chain
         EF_Prescale = read_rates[EF_Chain][1]
-        EF_Rate = read_rates[EF_Chain][0]
+        #EF_Rate = read_rates[EF_Chain][0]
         
         L2_Chain = read_rates[EF_Chain][2]
         L2_Prescale = read_rates[L2_Chain][1]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """
 ART  - ATLAS Release Tester - Share.
 
@@ -170,7 +170,7 @@ if __name__ == '__main__':
     from art import __version__
 
     logging.basicConfig()
-    log = logging.getLogger(MODULE)
+    log = logging.getLogger('art')
 
     arguments = docopt(__doc__, version=os.path.splitext(os.path.basename(__file__))[0] + ' ' + __version__)
     level = logging.DEBUG if arguments['--verbose'] else logging.WARN if arguments['--quiet'] else logging.INFO

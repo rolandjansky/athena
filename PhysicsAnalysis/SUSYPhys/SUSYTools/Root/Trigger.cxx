@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -11,6 +11,7 @@
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Conditions.h"
 
@@ -28,17 +29,17 @@ namespace ST {
 
 bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) const {
 
-  //Returns MET trigger decision for recommended lowest unprescaled evolution described in 
-  //https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled#Jets_MET_Jet_MET_HT
-  //Note: _mht triggers are taken as default, as have shown better turn-on performance (a combined mht+cell trigger is planned for the next transition ~1.5E34)
+  // Returns MET trigger decision for recommended lowest unprescaled evolution described in 
+  // https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LowestUnprescaled
+  // For period vs run number, see https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_Period_Report.php
 
-  //if no runNumber specified, just read it from the current event
+  // if no runNumber specified, just read it from the current event
   unsigned int rn;
   if(runnumber>0){
     rn = runnumber;
   }
   else{
-    rn = GetRunNumber(); //it takes care of dealing with data and MC
+    rn = GetRunNumber(); // it takes care of dealing with data and MC
   }
   
   int year = treatAsYear(rn);
@@ -46,9 +47,11 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) cons
   if (year == 2015)                                      return IsMETTrigPassed("HLT_xe70_mht",j400_OR); //2015
   else if(year == 2016 && rn >= 296939 && rn <= 302872 ) return IsMETTrigPassed("HLT_xe90_mht_L1XE50",j400_OR); //2016 A-D3
   else if(year == 2016 && rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
-  else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) . Fallback to previous chain for simulation, as xe110 is not in the menu
-  else if(year == 2017)                                  return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // no need for j400_OR things
-
+  else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) 
+  else if(year == 2017 && rn >= 325713 && rn <= 331975 ) return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // 2017 B1-D5
+  else if(year == 2017 && rn >= 332304 )                 return IsMETTrigPassed("HLT_xe110_pufit_L1XE50", false); // 2017 D6-(open)
+  else if(year == 2018 && rn >= 348885 && rn <= 350013 ) return IsMETTrigPassed("HLT_xe110_pufit_xe70_L1XE50", false); // 2018 B-C5
+  else if(year == 2018 && rn >= 350067 )                 return IsMETTrigPassed("HLT_xe110_pufit_xe65_L1XE50", false); // 2018 C5-(open)
   return false; 
 }
 
@@ -308,35 +311,38 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
 
     static std::string delOR = "_OR_";
     std::vector<std::string> trigchains = {};
-    
+    std::string newtrigExpr = TString(trigExpr).Copy().ReplaceAll("||",delOR).Data();
+    newtrigExpr = TString(trigExpr).Copy().ReplaceAll(" ","").Data();
+ 
     size_t pos = 0;
-    while ((pos = trigExpr.find(delOR)) != std::string::npos) {
-      trigchains.push_back( "HLT_"+trigExpr.substr(0, pos) );
-      trigExpr.erase(0, pos + delOR.length());
+    while ((pos = newtrigExpr.find(delOR)) != std::string::npos) {
+      trigchains.push_back( "HLT_"+newtrigExpr.substr(0, pos) );
+      newtrigExpr.erase(0, pos + delOR.length());
     }
     if(pos==std::string::npos)
-      trigchains.push_back("HLT_"+trigExpr);
+      trigchains.push_back("HLT_"+newtrigExpr);
     
     return trigchains;
   }
 
-  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache) const {
+  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache, std::vector<std::string>& v_trigs17_cache) const {
 
     static std::string del15 = "_2015_";
     static std::string del16 = "_2016_";
-    static std::string delOR = "_OR_";
+    static std::string del17 = "_2017_";
 
     size_t pos = 0;
-    std::string token15, token16;
+    std::string token15, token16, token17;
 
-    //get trigger tokens for 2015 and 2016 
+    //get trigger tokens for 2015, 2016 and 2017 
     if ( (pos = trigExpr.find(del15)) != std::string::npos) {
-      trigExpr.erase(0, pos + del15.length());
+      trigExpr.erase(0, pos + del15.length()); 
 
       pos = 0;
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
         token15 = trigExpr.substr(0, pos);
-        token16 = trigExpr.erase(0, pos + del16.length());
+        token16 = trigExpr.erase(0, pos + del16.length() + del17.length());
+        token17 = token16; // 2017 and 2016 use exact same trigger in string
       }
     }
 
@@ -347,9 +353,13 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     if(token16.empty())
       token16 = trigExpr;
 
+    if(token17.empty())
+      token17 = trigExpr;
+
     //get trigger chains for matching in 2015 and 2016                                  
     v_trigs15_cache = GetTriggerOR(token15);
     v_trigs16_cache = GetTriggerOR(token16);
+    v_trigs17_cache = GetTriggerOR(token17);
   }
 
   Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const
@@ -357,5 +367,125 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     return m_trigDecTool->features(chainName,condition);
   }
 
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
+
+  double trig_sf(1.);
+
+  if (trigExpr!="multiLepton" && trigExpr!="diLepton") {
+    ATH_MSG_ERROR( "Failed to retrieve signal electron trigger SF");
+    return trig_sf;
+  }
+
+  std::vector<const xAOD::Electron*> elec_trig;
+  elec_trig.clear();
+  for (const auto& electron : electrons) {
+    if (!acc_passOR(*electron)) continue;
+    if (!acc_signal(*electron)) continue;
+    elec_trig.push_back(electron);
+  }
+
+  std::vector<const xAOD::Muon*> muon_trig;
+  muon_trig.clear();
+  for (const auto& muon : muons) {
+    if (!acc_passOR(*muon)) continue;
+    if (!acc_signal(*muon)) continue;
+    muon_trig.push_back(muon);
+  }
+
+  bool matched = false;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") {
+    if ( m_trigGlobalEffCorrTool_diLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  } else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") {
+    if ( m_trigGlobalEffCorrTool_multiLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  }
+
+  CP::CorrectionCode result;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
+  }
+  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( elec_trig, muon_trig, trig_sf);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal lepton trigger efficiency");
+    return 1.;
+  default:
+    break;
+  }
+
+  return trig_sf;
 
 }
+
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
+
+  double trig_eff(1.);
+  double trig_eff_data(1.);
+
+  if (trigExpr!="multiLepton" && trigExpr!="diLepton") {
+    ATH_MSG_ERROR( "Failed to retrieve signal electron trigger SF");
+    return trig_eff;
+  }
+
+  std::vector<const xAOD::Electron*> elec_trig;
+  elec_trig.clear();
+  for (const auto& electron : electrons) {
+    if (!acc_passOR(*electron)) continue;
+    if (!acc_signal(*electron)) continue;
+    elec_trig.push_back(electron);
+  }
+
+  std::vector<const xAOD::Muon*> muon_trig;
+  muon_trig.clear();
+  for (const auto& muon : muons) {
+    if (!acc_passOR(*muon)) continue;
+    if (!acc_signal(*muon)) continue;
+    muon_trig.push_back(muon);
+  }
+
+  bool matched = false;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") {
+    if ( m_trigGlobalEffCorrTool_diLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  } else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") {
+    if ( m_trigGlobalEffCorrTool_multiLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  }
+
+  CP::CorrectionCode result;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
+  }
+  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( elec_trig, muon_trig, trig_eff_data, trig_eff);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal lepton trigger efficiency");
+    return 1.;
+  default:
+    break;
+  }
+
+  if (isData()) return trig_eff_data;
+  else return trig_eff;
+
+}
+
+}
+

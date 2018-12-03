@@ -14,30 +14,19 @@
 #include "G4FastTrack.hh"
 #include "LArG4Code/EnergySpot.h"
 
-// Forward declarations
-class IIncidentListener;
-class Incident;
-
-// Declaration of the interface ID ( interface id, major version, minor version)
-static const InterfaceID IID_ILArG4ShowerLibSvc("ILArG4ShowerLibSvc", 0 , 0);
-
-
 class ILArG4ShowerLibSvc : virtual public IInterface {
 public:
 
-	virtual ~ILArG4ShowerLibSvc() {}
+  virtual ~ILArG4ShowerLibSvc() {}
 
-    /// Retrieve interface ID
-    static const InterfaceID& interfaceID() { return IID_ILArG4ShowerLibSvc; }
+  DeclareInterfaceID(ILArG4ShowerLibSvc,1,0);
 
-    virtual bool                    checkLibrary( G4int, int ) = 0;
+  virtual bool                    checkLibrary( G4int, int ) = 0;
 
-    virtual std::vector<EnergySpot> getShower(const G4FastTrack&, int ) = 0;
+  virtual std::vector<EnergySpot> getShower(const G4FastTrack&, int ) = 0;
 
-    virtual double                  getContainmentZ(const G4FastTrack&, int ) = 0;
-    virtual double                  getContainmentR(const G4FastTrack&, int ) = 0;
+  virtual double                  getContainmentZ(const G4FastTrack&, int ) = 0;
+  virtual double                  getContainmentR(const G4FastTrack&, int ) = 0;
 };
 
-#endif 
-
-
+#endif

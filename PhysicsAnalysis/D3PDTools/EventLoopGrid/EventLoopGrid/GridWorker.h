@@ -26,7 +26,7 @@ namespace EL
     GridWorker(const SH::MetaObject *sample, 
 	       TList *output,
 	       const TList& bigOutputs,
-	       const TList& algs, 
+               JobConfig&& jobConfig, 
 	       const std::string& location,
 	       PandaRootTools& pandaTools);
 

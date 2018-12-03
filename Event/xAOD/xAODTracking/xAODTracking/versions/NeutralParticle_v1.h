@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: NeutralParticle_v1.h 573493 2013-12-03 13:05:51Z emoyse $
 #ifndef XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
 #define XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
 
@@ -23,6 +22,11 @@
 #ifndef XAOD_ANALYSIS
 #include "TrkNeutralParameters/NeutralParameters.h"
 #endif // XAOD_ANALYSIS
+
+//Already include the DataVector specialization for this type
+#include "xAODTracking/NeutralParticleContainerFwd.h"
+//Complete the Datavector Fwd Declaration
+template struct DataVector_detail::DVLEltBaseInit< xAOD::NeutralParticle_v1>;
 
 namespace xAOD {
   /// Class describing a NeutralParticle.

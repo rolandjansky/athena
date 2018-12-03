@@ -2,8 +2,8 @@
 TauAnalysisTools: Package hosting tools for tau analysis
 ========================================================
 
-:authors: Dirk Duschinger
-:contact: dirk.duschinger@cern.ch
+:authors: Dirk Duschinger, David Kirchmeier
+:contact: david.kirchmeier@cern.ch
 
 .. meta::
    :description: TauAnalysisTools: Package hosting tools for tau analysis
@@ -29,14 +29,16 @@ analysis. Currently following tools are available:
     tracks to truth charged particles
 * **TauOverlappingElectronLLHDecorator:** decorating reconstructed taus with a
     likelihood score of matched reconstructed electrons
+* **DiTauEfficiencyCorrectionsTool:** provides identification scale factors and the
+    associated uncertainties for boosted di-taus
+* **DiTauTruthMatchingTool:** performs matching of boosted di-taus to the visible truth tau
+    4-momenta
     
-All relevant information about the actual measurement of uncertainties for run 1
-can be found here: `TauRecommendationsWinterConf2013
-<https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauRecommendationsWinterConf2013>`_.
-These numbers are mostly valid for 2012 data analysis using reprocessed data,
-i.e. p1443 (p1344/p1345).
-Information on 2015 tau recommendations can be found here:
-`TauPreRecommendations2015 <https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015>`_.
+The latest documentation about tau performance measurements in run 2
+can be found here: `ATL-PHYS-PUB-2015-045
+<https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PUBNOTES/ATL-PHYS-PUB-2015-045/>`_.
+Information on latest tau recommendations can be found here:
+`TauRecommendationsR21 <https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TauRecommendationsR21>`_.
 
 In case of any problems, issues or suggestions don't hesitate to contact the
 authors.
@@ -45,64 +47,17 @@ authors.
 Setup
 -----
 
-AthAnalysisBase
----------------
-
-First start with a clean shell and setup ATHENA, for example via::
-
-  setupATLAS
-
-  #use 2.4.19 or higher
-  asetup AthAnalysisBase,2.4.19,here
-
-Where X stands for a release number. Get the package and setup environment::
-  
-  cmt co PhysicsAnalysis/TauID/TauAnalysisTools
-  
-  cd PhysicsAnalysis/TauID/TauAnalysisTools/cmt/
-  source setup.sh
-
-Finally compile::
-  
-  cmt make
-
-AnalysisBase
-------------
-
-First start with a clean shell and setup RootCore via::
-
-  setupATLAS
-
-  #use 2.4.19 or higher
-  rcSetup Base,2.4.19
-  rc find_packages
-
-and compile with::
-
-  rc compile
-
-or directly with::
-
-  rc compile_pkg TauAnalysisTools
-
----------------
-General Remarks
----------------
-
-For each tool the message level can be adjusted like::
-
-  TauSelTool.msg().setLevel( MSG::VERBOSE );
+Please have a look into this `tutorial <https://atlassoftwaredocs.web.cern.ch/ABtutorial/>`_ 
+to get general information on how to setup an analysis release. In particular the section about initializing CP tools via `AnaToolHandles <https://atlassoftwaredocs.web.cern.ch/ABtutorial/basic_ana_tool_handle/>`_ might be worth to read.
 
 --------
 Examples
 --------
 
 An example implementation of all tools can be found for stand-alone mode in
-``TauAnalysisTools/util/TauAnalysisToolsExample.cxx``. The binary file should be
-found after compilation in
-``RootCoreBin/bin/x86_64-slc6-gcc47-opt/TauAnalysisToolsExample``.
+``TauAnalysisTools/util/TauAnalysisToolsExample.cxx``.
 
-The example can be executed via::
+After setting up an ``AnalysisBase`` release the example can be executed via::
 
   TauAnalysisToolsExample FILENAME [NUMEVENTS]
 

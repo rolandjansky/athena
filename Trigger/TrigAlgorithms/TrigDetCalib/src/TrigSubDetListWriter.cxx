@@ -79,47 +79,41 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
 
   for(std::vector<std::string>::iterator detit = m_detId.begin(); detit != m_detId.end(); ++detit){
      //if (m_detSpec.find("HLTResult") != std::string::npos) {
-     if (*detit=="HLTResult") {
+     if (*detit=="RPC") { 
+        m_sourceid.push_back(eformat::MUON_RPC_BARREL_A_SIDE);
+        m_sourceid.push_back(eformat::MUON_RPC_BARREL_C_SIDE);
+     } else if (*detit=="HLTResult") {
         m_sourceid.push_back(eformat::TDAQ_HLT);
         m_sourceid.push_back(eformat::TDAQ_CTP);
-     }
-     if (*detit=="L2EFResult") {
+     } else if (*detit=="TDAQ_HLT") {
+        m_sourceid.push_back(eformat::TDAQ_HLT);
+     } else if (*detit=="L2EFResult") {
         m_sourceid.push_back(eformat::TDAQ_LVL2);
         m_sourceid.push_back(eformat::TDAQ_EVENT_FILTER);
         m_sourceid.push_back(eformat::TDAQ_CTP);
-     }
-     if (*detit=="TDAQ_LVL2") {
+     } else if (*detit=="TDAQ_LVL2") {
         m_sourceid.push_back(eformat::TDAQ_LVL2);
-     }
-     if (*detit=="TDAQ_EVENT_FILTER") {
+     } else if (*detit=="TDAQ_EVENT_FILTER") {
         m_sourceid.push_back(eformat::TDAQ_EVENT_FILTER);
-     }
-     if (*detit=="TDAQ_CTP") {
+     } else if (*detit=="TDAQ_CTP") {
         m_sourceid.push_back(eformat::TDAQ_CTP);
-     }
-     if (*detit=="TDAQ_SFI") {
+     } else if (*detit=="TDAQ_SFI") {
         m_sourceid.push_back(eformat::TDAQ_SFI);
-     }
-     if (*detit=="TDAQ_SFO") {
+     } else if (*detit=="TDAQ_SFO") {
         m_sourceid.push_back(eformat::TDAQ_SFO);
-     }
-     if (*detit=="TDAQ_CALO") {
+     } else if (*detit=="TDAQ_CALO" || *detit=="TDAQ_L1CALO") {
         m_sourceid.push_back(eformat::TDAQ_CALO_PREPROC);
         m_sourceid.push_back(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ);
         m_sourceid.push_back(eformat::TDAQ_CALO_CLUSTER_PROC_ROI);
         m_sourceid.push_back(eformat::TDAQ_CALO_JET_PROC_DAQ);
         m_sourceid.push_back(eformat::TDAQ_CALO_JET_PROC_ROI);
-     }
-     if (*detit=="TDAQ_MUON") {     
+     } else if (*detit=="TDAQ_MUON") {     
          m_sourceid.push_back(eformat::TDAQ_MUON_CTP_INTERFACE);
-     }
-     if (*detit=="TDAQ_BEAM_CRATE") {     
+     } else if (*detit=="TDAQ_BEAM_CRATE") {     
          m_sourceid.push_back(eformat::TDAQ_BEAM_CRATE);
-     }
-      if (*detit=="TDAQ_L2SV") {     
+     } else if (*detit=="TDAQ_L2SV") {     
          m_sourceid.push_back(eformat::TDAQ_L2SV);
-     }
-     if (*detit=="InnerDetector") {
+     } else if (*detit=="InnerDetector") {
         m_sourceid.push_back(eformat::PIXEL_IBL);
         m_sourceid.push_back(eformat::PIXEL_BARREL);
         m_sourceid.push_back(eformat::PIXEL_DISK);
@@ -133,8 +127,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::TRT_BARREL_C_SIDE);
         m_sourceid.push_back(eformat::TRT_ENDCAP_A_SIDE);
         m_sourceid.push_back(eformat::TRT_ENDCAP_C_SIDE);
-     }
-     if (*detit=="SiOnly") {
+     } else if (*detit=="SiOnly") {
         m_sourceid.push_back(eformat::PIXEL_IBL);
         m_sourceid.push_back(eformat::PIXEL_BARREL);
         m_sourceid.push_back(eformat::PIXEL_DISK);
@@ -143,20 +136,16 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::SCT_BARREL_C_SIDE);
         m_sourceid.push_back(eformat::SCT_ENDCAP_A_SIDE);
         m_sourceid.push_back(eformat::SCT_ENDCAP_C_SIDE);
-     }
-     if (*detit=="DBM") {
+     } else if (*detit=="DBM") {
         m_sourceid.push_back(eformat::PIXEL_DBM);
-		 }
-     if (*detit=="IBL") {
+		 } else if (*detit=="IBL") {
         m_sourceid.push_back(eformat::PIXEL_IBL);
-		 }
-     if (*detit=="Pixel") {
+		 } else if (*detit=="Pixel") {
         m_sourceid.push_back(eformat::PIXEL_IBL);
         m_sourceid.push_back(eformat::PIXEL_BARREL);
         m_sourceid.push_back(eformat::PIXEL_DISK);
         m_sourceid.push_back(eformat::PIXEL_B_LAYER);
-     }
-     if (*detit=="Muons") {
+     } else if (*detit=="Muons") {
         m_sourceid.push_back(eformat::MUON_ANCILLARY_CRATE);
         m_sourceid.push_back(eformat::MUON_MDT_BARREL_A_SIDE);
         m_sourceid.push_back(eformat::MUON_MDT_BARREL_C_SIDE);
@@ -169,19 +158,16 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::MUON_CSC_ENDCAP_A_SIDE);
         m_sourceid.push_back(eformat::MUON_CSC_ENDCAP_C_SIDE);
         m_sourceid.push_back(eformat::TDAQ_MUON_CTP_INTERFACE);
-     }
-     if (*detit=="CSC") {
+     } else if (*detit=="CSC") {
        m_sourceid.push_back(eformat::MUON_CSC_ENDCAP_A_SIDE);
        m_sourceid.push_back(eformat::MUON_CSC_ENDCAP_C_SIDE);
-     }                            
-     if (*detit=="Tile") {
+     } else if (*detit=="Tile") {
         m_sourceid.push_back(eformat::TILECAL_LASER_CRATE);
         m_sourceid.push_back(eformat::TILECAL_BARREL_A_SIDE);
         m_sourceid.push_back(eformat::TILECAL_BARREL_C_SIDE);
         m_sourceid.push_back(eformat::TILECAL_EXT_A_SIDE);
         m_sourceid.push_back(eformat::TILECAL_EXT_C_SIDE);
-     }
-     if (*detit=="LAr") {
+     } else if (*detit=="LAr") {
         m_sourceid.push_back(eformat::LAR_EM_BARREL_A_SIDE);
         m_sourceid.push_back(eformat::LAR_EM_BARREL_C_SIDE);
         m_sourceid.push_back(eformat::LAR_EM_ENDCAP_A_SIDE);
@@ -190,22 +176,20 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::LAR_FCAL_C_SIDE);
         m_sourceid.push_back(eformat::LAR_HAD_ENDCAP_A_SIDE);
         m_sourceid.push_back(eformat::LAR_HAD_ENDCAP_C_SIDE);
-     }
-     if (*detit=="FORWARD_BCM") {     
+     } else if (*detit=="FORWARD_BCM") {     
          m_sourceid.push_back(eformat::FORWARD_BCM);
-     }
-     if (*detit=="FORWARD_LUCID") {     
+     } else if (*detit=="FORWARD_LUCID") {     
          m_sourceid.push_back(eformat::FORWARD_LUCID);
-     }
-     if (*detit=="FORWARD_ZDC") {     
+     } else if (*detit=="FORWARD_ZDC") {     
          m_sourceid.push_back(eformat::FORWARD_ZDC);
-     }
-     if (*detit=="FORWARD_ALPHA") {     
+     } else if (*detit=="FORWARD_ALPHA") {     
          m_sourceid.push_back(eformat::FORWARD_ALPHA);
-     }
-     if (*detit=="FORWARD_AFP") {     
+     } else if (*detit=="FORWARD_AFP") {     
          m_sourceid.push_back(eformat::FORWARD_AFP);
+     } else {
+         ATH_MSG_ERROR("Unknown detector ID for partial event building:" << *detit << ". Please update TrigSubSetListWriter.");
      }
+
   }
 
   if (m_detSpec.find("ID") != std::string::npos) {

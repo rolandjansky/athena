@@ -12,8 +12,7 @@ EXOT21SmartContent = [
 
 EXOT21AllVariablesContent = [
     "METAssoc_AntiKt4EMTopo",
-    "MET_Core_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4EMTopo"
+    "MET_Core_AntiKt4EMTopo"
 ]
 
 EXOT21ExtraVariables = [

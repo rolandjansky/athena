@@ -116,7 +116,7 @@ private:
 	std::vector<int> m_trackCutflow;
 	std::vector<unsigned int> m_truthCutCounters;
 	std::string m_pileupSwitch; // All, PileUp, or HardScatter
-	
+	bool m_pileupPlots;
 	///Jet Things
 	std::string m_jetContainerName;
 	float m_maxTrkJetDR;

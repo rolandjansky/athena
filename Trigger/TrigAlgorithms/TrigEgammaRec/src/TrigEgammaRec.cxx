@@ -100,7 +100,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     HLT::FexAlgo(name, pSvcLocator),
     m_electronContainerName("egamma_Electrons"),
     m_photonContainerName("egamma_Photons"),
-    m_lumiTool("LuminosityTool")
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
 
     // The following default properties are configured in TrigEgammaRecConfig using Factories
@@ -137,7 +137,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("doCaloTopoIsolation",           m_doTopoIsolation = false,    "Handle of the calo topo IsolationTool");
 
     /** Luminosity tool */
-    declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+    declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
 
     /** @brief Track to track assoc after brem, set to false. If true and no GSF original track in cone */
     declareProperty("useBremAssoc",                    m_useBremAssoc          = false, "use track to track assoc after brem"); 
@@ -396,9 +396,9 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     }
 
     // For now, we don't try to retrieve the lumi tool
-    if (m_lumiTool.retrieve().isFailure()) {                                     
-        ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool"); 
-        // 244            return HLT::ERROR;                                                         
+    if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
+        ATH_MSG_FATAL("Unable to retrieve Luminosity Tool"); 
+        return HLT::ERROR;                                                         
     } else {                                                                     
         ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }      
@@ -520,7 +520,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     ATH_MSG_INFO("REGTEST: ElectronPID tool: "  <<      m_electronPIDBuilder); 
     ATH_MSG_INFO("REGTEST: ElectronCaloPID tool: " <<   m_electronCaloPIDBuilder); 
     ATH_MSG_INFO("REGTEST: PhotonPID tool: "    <<      m_photonPIDBuilder);
-    ATH_MSG_INFO("REGTEST: LumiTool "           <<      m_lumiTool);
+    ATH_MSG_INFO("REGTEST: LumiTool "           <<      m_lumiBlockMuTool);
 
 
     ATH_MSG_DEBUG("REGTEST: Check properties");

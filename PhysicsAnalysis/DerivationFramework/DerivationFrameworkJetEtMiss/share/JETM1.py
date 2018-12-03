@@ -5,24 +5,42 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+    addCSSKSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-triggers = jetTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+triggers = TriggerLists.jetTrig()
 
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
-orstr =' || '
-trigger = '('+orstr.join(triggers)+')'
-expression = trigger+' || (EventInfo.eventTypeBitmask==1)'
+expression = ' (EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "JETM1TrigSkimmingTool1",
+                                                                TriggerListOR          = triggers )
+ToolSvc += JETM1TrigSkimmingTool
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-JETM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1SkimmingTool1",
+JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1OfflineSkimmingTool1",
                                                                     expression = expression)
-ToolSvc += JETM1SkimmingTool
+ToolSvc += JETM1OfflineSkimmingTool
+
+# OR of the above two selections
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
+ToolSvc+=JETM1ORTool
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+
+jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
+DerivationFrameworkJob += jetm1Seq
 
 #====================================================================
 # SET UP STREAM
@@ -32,12 +50,14 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_JETM1Stream )
 JETM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM1Stream.AcceptAlgs(["JETM1Kernel"])
 
+
 #=======================================
 # ESTABLISH THE THINNING HELPER
 #=======================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM1ThinningHelper = ThinningHelper( "JETM1ThinningHelper" )
 JETM1ThinningHelper.AppendToStream( JETM1Stream )
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -60,6 +80,17 @@ JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM1ElectronTPThinningTool
 thinningTools.append(JETM1ElectronTPThinningTool)
+
+
+
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM
+#=======================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
+                                                         SkimmingTools = [JETM1ORTool],
+                                                         ThinningTools = thinningTools)
 
 # Truth particle thinning
 doTruthThinning = True
@@ -86,25 +117,16 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     ToolSvc += JETM1TruthThinningTool
     thinningTools.append(JETM1TruthThinningTool)
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-
-jetm1Seq = CfgMgr.AthSequencer("JETM1Sequence")
-DerivationFrameworkJob += jetm1Seq
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
-                                                         SkimmingTools = [JETM1SkimmingTool],
-                                                         ThinningTools = thinningTools)
-
 #====================================================================
 # Special jets
 #====================================================================
+
+# Create TCC objects
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
 
 OutputJets["JETM1"] = []
 
@@ -118,47 +140,87 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
+addTCCTrimmedJets(jetm1Seq,"JETM1")
+addCSSKSoftDropJets(jetm1Seq, "JETM1")
+
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.5, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm1Seq, "JETM1", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+
+
+# Add jets with constituent-level pileup suppression
+addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
+                ptmin=2000,ptminFilter=2000)
+addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
+                ptmin=2000,ptminFilter=2000)
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
 
 if DerivationFrameworkIsMonteCarlo:
-    addAntiKt4LowPtJets(jetm1Seq,"JETM1")
+    addAntiKt4NoPtCutJets(jetm1Seq,"JETM1")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-
-if jetFlags.useTruth:
-    # CamKt R=1.2 jets
-    #addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
-    #addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
-    pass
-
-# CamKt R=1.2 jets
-#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
-#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
+    addJetPtAssociation(jetalg="AntiKt4LCTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlowNoPtCut", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoCSSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
+JETM1SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta0Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10TruthSoftDropBeta0Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta0Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10TruthSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+
+}
+
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt2Track",
                                         ]
+
+# Add all variabless for VR track-jets
+JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"]
+JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"]
+JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+if DerivationFrameworkIsMonteCarlo:
+
+  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta0Zcut10Jets"]
+  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta50Zcut10Jets"]
+  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
+
 JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
                                      "TruthParticles", "TruthEvents", "TruthVertices",
                                      "MuonSegments",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      ]
-#JETM1SlimmingHelper.ExtraVariables = []
 
 # Trigger content
 JETM1SlimmingHelper.IncludeJetTriggerContent = True

@@ -380,12 +380,12 @@ void NavigationCore::prepare() {
 bool NavigationCore::registerHolder(IHolder* holder) {
   auto shared_holder = std::shared_ptr<HLT::BaseHolder>(holder);
   m_holderstorage.registerHolder(shared_holder);
-  *m_log << MSG::DEBUG <<  "registerHolder for OK " << *holder << endreq;
+  MLOG(DEBUG) <<  "registerHolder for OK " << *holder << endreq;
   return true;
 }
 
 bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) {
-  *m_log << MSG::DEBUG << "createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index << endreq;
+  MLOG(DEBUG) << "createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index << endreq;
   //reset holder
   holder = 0;
   auto baseholder = m_holderfactory->createHolder(clid,label, index);

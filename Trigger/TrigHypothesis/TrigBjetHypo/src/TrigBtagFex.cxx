@@ -22,7 +22,7 @@
 #include "xAODBase/IParticle.h"
 
 #include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
+ #include "xAODJet/JetContainer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -68,9 +68,15 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
 
   // Run-2 monitoring
 
-  declareMonitoredVariable("sv_mass", m_mon_sv_mass, AutoClear);
-  declareMonitoredVariable("sv_evtx", m_mon_sv_evtx, AutoClear);
-  declareMonitoredVariable("sv_nvtx", m_mon_sv_nvtx, AutoClear);
+  declareMonitoredVariable("sv1_mass", m_mon_sv_mass, AutoClear);
+  declareMonitoredVariable("sv1_evtx", m_mon_sv_evtx, AutoClear);
+  declareMonitoredVariable("sv1_nvtx", m_mon_sv_nvtx, AutoClear);
+  declareMonitoredVariable("sv1_ntkv", m_mon_sv_ntkv, AutoClear);
+  declareMonitoredVariable("sv1_sig3", m_mon_sv_sig3, AutoClear);
+  declareMonitoredVariable("sv1_Lxy",  m_mon_sv_Lxy,  AutoClear);
+  declareMonitoredVariable("sv1_L3d",  m_mon_sv_L3d,  AutoClear);
+  declareMonitoredVariable("sv1_dR",   m_mon_sv_dR,   AutoClear);
+
 
   declareMonitoredVariable("tag_IP2D",    m_mon_tag_IP2D,    AutoClear);
   declareMonitoredVariable("tag_IP3D",    m_mon_tag_IP3D,    AutoClear);
@@ -78,7 +84,27 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareMonitoredVariable("tag_IP3DSV1", m_mon_tag_IP3DSV1, AutoClear);
   declareMonitoredVariable("tag_MV2c00",  m_mon_tag_MV2c00,  AutoClear);
   declareMonitoredVariable("tag_MV2c10",  m_mon_tag_MV2c10,  AutoClear);
+  declareMonitoredVariable("tag_MV2c10_hybrid",  m_mon_tag_MV2c10_hybrid,  AutoClear);
   declareMonitoredVariable("tag_MV2c20",  m_mon_tag_MV2c20,  AutoClear);
+  declareMonitoredVariable("tag_IP2_c",   m_mon_tag_IP2_c,   AutoClear);
+  declareMonitoredVariable("tag_IP2_cu",  m_mon_tag_IP2_cu,  AutoClear);
+  declareMonitoredVariable("tag_IP3_c",   m_mon_tag_IP3_c,   AutoClear);
+  declareMonitoredVariable("tag_IP3_cu",  m_mon_tag_IP3_cu,  AutoClear);
+
+  //MV2 taggers variables
+  declareMonitoredVariable("jf_n2tv",   m_mon_jf_n2tv,   AutoClear);
+  declareMonitoredVariable("jf_ntrkv",  m_mon_jf_ntrkv,  AutoClear);
+  declareMonitoredVariable("jf_nvtx",   m_mon_jf_nvtx,   AutoClear);
+  declareMonitoredVariable("jf_nvtx1t", m_mon_jf_nvtx1t, AutoClear);
+  declareMonitoredVariable("jf_mass",   m_mon_jf_mass,   AutoClear);
+  declareMonitoredVariable("jf_efrc",   m_mon_jf_efrc,   AutoClear);
+  declareMonitoredVariable("jf_dR",     m_mon_jf_dR,     AutoClear);
+  declareMonitoredVariable("jf_sig3",   m_mon_jf_sig3,   AutoClear);
+
+  declareMonitoredVariable("jet_pt",    m_mon_jet_pt,    AutoClear);
+  declareMonitoredVariable("jet_eta",   m_mon_jet_eta,   AutoClear);
+  declareMonitoredVariable("sv_bool",   m_mon_sv_bool,   AutoClear);
+  declareMonitoredVariable("jf_bool",   m_mon_jf_bool,   AutoClear);
 
 }
 
@@ -101,78 +127,13 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigBtagFex, version " << PACKAGE_VERSION << endmsg;
 
   // declareProperty overview 
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    // msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg;
-    // msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
-
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg;
-    // msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endmsg;
-
-    // msg() << MSG::DEBUG << " UseParamFromData = "    << m_useParamFromData << endmsg;
-
-    // msg() << MSG::DEBUG << " Using Offline Tools = " << m_setupOfflineTools << endmsg;
-    // msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endmsg;
-    msg() << MSG::DEBUG << " Offline Taggers = "     << m_TaggerBaseNames << endmsg;
-    // msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endmsg;
-    // msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endmsg;
-    // msg() << MSG::DEBUG << " RetrieveHLTJets = "     << m_retrieveHLTJets << endmsg;
-    // msg() << MSG::DEBUG << " TagHLTJets = "          << m_tagHLTJets << endmsg;
-    // msg() << MSG::DEBUG << " HistoPrmVtxAtEF = "        << m_histoPrmVtxAtEF << endmsg;
-    // msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endmsg;
-
-    // msg() << MSG::DEBUG << " JetProb 0 MC = "      << m_par_0_MC << endmsg;
-    // msg() << MSG::DEBUG << " JetProb 1 MC = "      << m_par_1_MC << endmsg;
-    // msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endmsg;
-    // msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endmsg;
-
-    // msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endmsg;
-    // msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endmsg;
-    // msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endmsg;
-    // msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endmsg;
-    // msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endmsg;
-    // msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endmsg;
-    // msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endmsg;
-    // msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endmsg;
-    // msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endmsg;
-
-    // msg() << MSG::DEBUG << " SizeIP1D_lowSiHits = "          << m_sizeIP1D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " bIP1D_lowSiHits = "             << m_bIP1D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " uIP1D_lowSiHits = "             << m_uIP1D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " SizeIP2D_lowSiHits = "          << m_sizeIP2D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " bIP2D_lowSiHits = "             << m_bIP2D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " uIP2D_lowSiHits = "             << m_uIP2D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " SizeIP3D_lowSiHits = "          << m_sizeIP3D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " bIP3D_lowSiHits = "             << m_bIP3D_lowSiHits << endmsg;
-    // msg() << MSG::DEBUG << " uIP3D_lowSiHits = "             << m_uIP3D_lowSiHits << endmsg;
-
-    // msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endmsg;
-    // msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endmsg;
-    // msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endmsg;
-
-    // msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endmsg;
-    // msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endmsg;
-    // msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endmsg;
-    // msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endmsg;
-    // msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endmsg;
-    // msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endmsg;
-
-    // msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endmsg;
-    // msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endmsg;
-    // msg() << MSG::DEBUG << " uMVtx = "          << m_uMVtx << endmsg;
-    // msg() << MSG::DEBUG << " SizeEVtx = "       << m_sizeEVtx << endmsg;
-    // msg() << MSG::DEBUG << " bEVtx = "          << m_bEVtx << endmsg;
-    // msg() << MSG::DEBUG << " uEVtx = "          << m_uEVtx << endmsg;
-    // msg() << MSG::DEBUG << " SizeNVtx = "       << m_sizeNVtx << endmsg;
-    // msg() << MSG::DEBUG << " bNVtx = "          << m_bNVtx << endmsg;
-    // msg() << MSG::DEBUG << " uNVtx = "          << m_uNVtx << endmsg;
-    // msg() << MSG::DEBUG << " SizeSV = "         << m_sizeSV << endmsg;
-    // msg() << MSG::DEBUG << " bSV = "            << m_bSV << endmsg;
-    // msg() << MSG::DEBUG << " uSV = "            << m_uSV << endmsg;
-  }
-
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
+  ATH_MSG_DEBUG( " Offline Taggers = "     << m_TaggerBaseNames );
+  
+  
   if(m_setupOfflineTools) {
-
+  
     // Retrieve the offline track association tool
     if(!m_bTagTrackAssocTool.empty()) {
       if(m_bTagTrackAssocTool.retrieve().isFailure()) {
@@ -181,7 +142,7 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
       } else
 	msg() << MSG::INFO << "Retrieved tool " << m_bTagTrackAssocTool << endmsg;
     } else if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No track association tool to retrieve" << endmsg;
+      ATH_MSG_DEBUG( "No track association tool to retrieve" );
 
     // Retrieve the bTagSecVtxTool
     if(m_bTagSecVtxTool.retrieve().isFailure()) {
@@ -208,16 +169,16 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
 
 HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBtagFex" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigBtagFex" );
 
   // RETRIEVE INPUT CONTAINERS
 
   // Get EF jet 
   const xAOD::JetContainer* jets = nullptr;
   if(getFeature(inputTE, jets, m_jetKey) == HLT::OK && jets != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() );
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endmsg;
+    ATH_MSG_DEBUG( "INPUT - No xAOD::JetContainer" );
     return HLT::MISSING_FEATURE;
   }
 
@@ -226,38 +187,38 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   const xAOD::Vertex* primaryVertex     = nullptr;
   bool usePVBackup=true;
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() );
     primaryVertex = getPrimaryVertex(vertexes);
     if (primaryVertex){
       usePVBackup=false;
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey << endmsg;
+      ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey );
     }
   }
 
   if(m_usePriVtxKeyBackup && usePVBackup) {
     vertexes = nullptr;
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" );
     if (getFeature(outputTE, vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() << endmsg;
+      ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() );
       primaryVertex = getPrimaryVertex(vertexes);	
       if (primaryVertex){
 	usePVBackup=false;
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup << endmsg;
+	ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup );
       }
     }
   }
   
   if(usePVBackup) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." );
     return HLT::MISSING_FEATURE;
   }
 
   // Get tracks 
   const xAOD::TrackParticleContainer* tracks = nullptr;
   if(getFeature(outputTE, tracks, m_trackKey) == HLT::OK && tracks != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() );
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endmsg;
+    if(msgLvl() <= MSG::ERROR) ATH_MSG_ERROR( "INPUT - No xAOD::TrackParticleContainer" );
     return HLT::MISSING_FEATURE;
   }
 
@@ -304,13 +265,17 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(&jet);
-      if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "#BTAG# Track association tool is not empty" << endmsg;
+      ATH_MSG_VERBOSE( "#BTAG# Track association tool is not empty" );
+
+      ATH_MSG_WARNING( "#BTAG# YOU ARE RUNNING THE BJET TRIGGER WHICH HAS A BROKEN TRACK ASSOCIATION!!!!" );
+      ATH_MSG_WARNING( "#BTAG# THIS WILL NOT WORK!!!!" );
+
       // We must pass the tracks explicitly to the track associator
-      jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, tracks);
+      jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList);
 
       if ( jetIsAssociated.isFailure() ) {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "#BTAG# Failed to associate tracks to jet" << endmsg;
-	return StatusCode::FAILURE;
+	ATH_MSG_DEBUG( "#BTAG# Failed to associate tracks to jet" );
+	return HLT::MISSING_FEATURE;
       }
     }
     else {
@@ -331,26 +296,124 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   }
 
   // Fill monitoring variables
-  trigBTagging->variable<float>("SV1", "masssvx",  m_mon_sv_mass);
-  trigBTagging->variable<float>("SV1", "efracsvx", m_mon_sv_evtx);
-  trigBTagging->variable<int>  ("SV1", "N2Tpair",  m_mon_sv_nvtx);
+  float sv_check;
+  float sv_mass_check;
+  
+  sv_mass_check = 0.0 ; 
+  
+  trigBTagging->variable<float>("SV1", "masssvx",  sv_mass_check);
 
+  if(sv_mass_check == -1 )     { m_mon_sv_bool = 0;}
+  else if(sv_mass_check == 0 ) { m_mon_sv_bool = 1;}
+  else{m_mon_sv_bool = 2; }  
+
+  sv_check = trigBTagging->auxdata<float>("SV1_Lxy");
+
+  if( sv_check != -100.0 ) 
+    {  
+      trigBTagging->variable<float>("SV1", "masssvx",  m_mon_sv_mass);
+      trigBTagging->variable<float>("SV1", "efracsvx", m_mon_sv_evtx);
+      trigBTagging->variable<int>  ("SV1", "N2Tpair",  m_mon_sv_nvtx);
+      trigBTagging->variable<int>  ("SV1", "NGTinSvx", m_mon_sv_ntkv);
+      trigBTagging->variable<float>("SV1", "normdist", m_mon_sv_sig3);
+      if(m_mon_sv_sig3 > 200) m_mon_sv_sig3 = 200;
+      m_mon_sv_Lxy = trigBTagging->auxdata<float>("SV1_Lxy");
+      if(m_mon_sv_Lxy > 100) m_mon_sv_Lxy = 100;
+      m_mon_sv_L3d = trigBTagging->auxdata<float>("SV1_L3d");
+      if(m_mon_sv_L3d > 100) m_mon_sv_L3d = 100;
+      m_mon_sv_dR  = trigBTagging->auxdata<float>("SV1_deltaR");
+      if(m_mon_sv_dR > 1) m_mon_sv_dR = 1;
+      m_mon_tag_SV1     = trigBTagging->SV1_loglikelihoodratio();
+    }
+  else
+    {
+      m_mon_sv_mass= -999; 
+      m_mon_sv_evtx= -999; 
+      m_mon_sv_nvtx= -999; 
+      m_mon_sv_ntkv= -999;
+      m_mon_sv_Lxy= -999;
+      m_mon_sv_L3d= -999;
+      m_mon_sv_sig3= -999;
+      m_mon_sv_dR= -999; 
+      m_mon_tag_SV1= -999;
+    } //set default values for jets that SV is not found
+
+  /// @brief JetFitter : Delta eta between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
+  float m_mon_jf_deta; 
+  /// @brief JetFitter : Delta phi between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
+  float m_mon_jf_dphi;
+  float jf_check;
+  
+  //Check JetFitter algorithm
+  m_mon_jf_deta = -10.;
+  m_mon_jf_dphi = -10.;
+  trigBTagging->variable<float>  ("JetFitter", "deltaeta",  m_mon_jf_deta);
+  trigBTagging->variable<float>  ("JetFitter", "deltaphi",  m_mon_jf_dphi); 
+  jf_check = std::hypot( m_mon_jf_deta,m_mon_jf_dphi);
+  if( jf_check > 14 ){ jf_check = -1. ; }
+
+
+  if(jf_check == -1 ) { m_mon_jf_bool = 0;}
+  else{ m_mon_jf_bool = 1;}
+
+  if( jf_check != -1 )
+    {
+      trigBTagging->variable<int>  ("JetFitter", "N2Tpair",  m_mon_jf_n2tv);
+      if(m_mon_jf_n2tv > 20) m_mon_jf_n2tv = 20;
+      trigBTagging->variable<int>  ("JetFitter", "nTracksAtVtx",  m_mon_jf_ntrkv);
+      trigBTagging->variable<int>  ("JetFitter", "nVTX",  m_mon_jf_nvtx);
+      trigBTagging->variable<int>  ("JetFitter", "nSingleTracks",  m_mon_jf_nvtx1t);
+      trigBTagging->variable<float>  ("JetFitter", "mass",  m_mon_jf_mass);
+      if(m_mon_jf_mass > 9000) m_mon_jf_mass = 9000;
+      trigBTagging->variable<float>  ("JetFitter", "energyFraction",  m_mon_jf_efrc);
+   
+      m_mon_jf_dR = std::hypot( m_mon_jf_deta,m_mon_jf_dphi);
+      if( m_mon_jf_dR > 14 ){ m_mon_jf_dR = -1. ; }
+      trigBTagging->variable<float>  ("JetFitter", "significance3d",  m_mon_jf_sig3); 
+    }
+  else
+    {
+      m_mon_jf_n2tv= -999;
+      m_mon_jf_ntrkv= -999; 
+      m_mon_jf_nvtx= -999; 
+      m_mon_jf_nvtx1t= -999; 
+      m_mon_jf_mass= -999; 
+      m_mon_jf_efrc= -999; 
+      m_mon_jf_dR= -999; 
+      m_mon_jf_sig3= -999; 
+    } 
+
+  //Check IPxD/MV2 variables
   m_mon_tag_IP2D    = trigBTagging->IP2D_loglikelihoodratio();
   m_mon_tag_IP3D    = trigBTagging->IP3D_loglikelihoodratio();
-  m_mon_tag_SV1     = trigBTagging->SV1_loglikelihoodratio();
   m_mon_tag_IP3DSV1 = trigBTagging->SV1plusIP3D_discriminant();
+  m_mon_tag_MV2c00  = trigBTagging->auxdata<double>("MV2c00_discriminant");
+  m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_discriminant");
+  // Temporary use mv2c00 for hybrid tuning
+  //  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant");
+  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c00_discriminant");
+  m_mon_tag_MV2c20  = trigBTagging->auxdata<double>("MV2c20_discriminant");
+  if( trigBTagging->IP2D_pc() != 0 && trigBTagging->IP2D_pb() != 0 ) m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
+  else m_mon_tag_IP2_c   = -999.;
+  if( trigBTagging->IP2D_pu() != 0 && trigBTagging->IP2D_pc() != 0 ) m_mon_tag_IP2_cu  = log(( trigBTagging->IP2D_pc() )/( trigBTagging->IP2D_pu() ));
+  else m_mon_tag_IP2_cu  = -999.;
+  if( trigBTagging->IP3D_pc() != 0 && trigBTagging->IP3D_pb() != 0 ) m_mon_tag_IP3_c   = log(( trigBTagging->IP3D_pb() )/( trigBTagging->IP3D_pc() ));
+  else m_mon_tag_IP3_c   = -999.;
+  if( trigBTagging->IP3D_pu() != 0 && trigBTagging->IP3D_pc() != 0 ) m_mon_tag_IP3_cu  = log(( trigBTagging->IP3D_pc() )/( trigBTagging->IP3D_pu() ));
+  else m_mon_tag_IP3_cu  = -999.;
 
-  m_mon_tag_MV2c00 = trigBTagging->auxdata<double>("MV2c00_discriminant");
-  m_mon_tag_MV2c10 = trigBTagging->auxdata<double>("MV2c10_discriminant");
-  m_mon_tag_MV2c20 = trigBTagging->auxdata<double>("MV2c20_discriminant");
+  m_mon_jet_pt  =  jet.pt()  ;
+  m_mon_jet_eta =  jet.eta() ;
+
 
   // Dump results 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
-          << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
-          << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
-          << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
-          << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant") << endmsg;
+  ATH_MSG_DEBUG( "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
+		 << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
+		 << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
+		 << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
+		 << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant")
+       // Temporary use mv2c00 for hybrid tuning
+       << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c00_discriminant"));
 
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 
@@ -365,19 +428,19 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
   // Attach BTagContainer as feature 
   if(attachFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTaggingContainer" << endmsg;
+    ATH_MSG_DEBUG( "OUTPUT - Attached xAOD::BTaggingContainer" );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTaggingContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(attachFeature(outputTE, trigVertexContainer, "HLT_BjetSecondaryVertexFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::VertexContainer" << endmsg;
+    ATH_MSG_DEBUG( "OUTPUT - Attached xAOD::VertexContainer" );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::VertexContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(attachFeature(outputTE, trigBTagVertexContainer, "HLT_BjetVertexFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTagVertexContainer" << endmsg;
+    ATH_MSG_DEBUG( "OUTPUT - Attached xAOD::BTagVertexContainer" );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endmsg;
     return HLT::NAV_ERROR;

@@ -3,6 +3,7 @@
 */
 
 #include "TrigFTKSim/FTKDetectorTool.h"
+#include "TrigFTKSim/FTKSetup.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -43,7 +44,8 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   m_sram_path_pix("sram_lookup_pixel.txt"),
   m_sram_path_sct("sram_lookup_sct.txt"),
   m_rmap_path(""),
-  m_rmap(0x0)
+    m_rmap(0x0),
+    m_dumpAllModules(false)
 {
   declareInterface<FTKDetectorToolI>(this);
 
@@ -60,6 +62,7 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   declareProperty("SRAMPathPixel",m_sram_path_pix);
   declareProperty("SRAMPathSCT",m_sram_path_sct);
   declareProperty("rmap_path",m_rmap_path);
+  declareProperty("dumpAllModules",m_dumpAllModules);
 }
 
 FTKDetectorTool::~FTKDetectorTool()
@@ -148,7 +151,8 @@ void FTKDetectorTool::makeBadModuleMap(){
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    if(m_dumpAllModules) is_bad =true;
     if(is_bad){
       FTKRawHit tmpmodraw;
 
@@ -172,7 +176,8 @@ void FTKDetectorTool::makeBadModuleMap(){
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    if(m_dumpAllModules) is_bad =true;
     if(is_bad){
       FTKRawHit tmpmodraw;
 
@@ -224,7 +229,8 @@ void FTKDetectorTool::dumpDeadModuleSummary()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    if(m_dumpAllModules) is_bad =true;
     if(is_bad){
 
       mapfile_ATLAS_BadModuleMap << "B\t"
@@ -233,7 +239,7 @@ void FTKDetectorTool::dumpDeadModuleSummary()
 				 << m_pixelId->layer_disk(id) << '\t'
 				 << m_pixelId->phi_module(id) << '\t'
 				 << m_pixelId->eta_module(id) << '\t'
-				 << 0 //it means m_pixelId don't have side(id)
+				 << 0 << '\t' //it means m_pixelId don't have side(id)
 				 << idhash << '\t'
 				 << std::endl;
     }
@@ -242,7 +248,8 @@ void FTKDetectorTool::dumpDeadModuleSummary()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    if(m_dumpAllModules) is_bad =true;
     if(is_bad){
       mapfile_ATLAS_BadModuleMap  << "B\t"
 				 << 0  << '\t'  // 1  pixel 0 sct
@@ -401,7 +408,7 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
   ofstream fout(m_global2local_path.c_str());
   for (int ireg=0;ireg!=nregions;++ireg) { // loop over the regions
       for (int ip=0;ip!=nplanes;++ip) { // loop over the regions
-          m_log << MSG::INFO << "Region " << ireg << ", layer" << ip << " has " << grouped_modules[ireg][ip].size() << " modules" << endmsg;
+         //m_log << MSG::INFO << "Region " << ireg << ", layer" << ip << " has " << grouped_modules[ireg][ip].size() << " modules" << endmsg;
           unsigned int modnumber(0);
           for (auto curhash: grouped_modules[ireg][ip]) {
               fout << ireg << '\t' << ip << '\t' << curhash << '\t' << modnumber++ << endl;
@@ -480,34 +487,135 @@ void FTKDetectorTool::dumpModulePositions() {
    m_log << MSG::INFO << "dumpModulePositions"<< endmsg; 
    TFile *output=new TFile("FTKmodulePositions.root","recreate");
    TTree *t=new TTree("modulePositions","modulePositions");
-   int idhash;
+   Int_t idhash;
+   Int_t isbad,isBLayer,isPixel,barrel_endcap,layer_disk,phi_module,eta_module;
+   Int_t side,strip,phi_index,eta_index,hitSector,section,swapPhi,swapEta;
    Float_t phi[2],r[2],z[2];
+   Float_t center[3],phiAxis[3],etaAxis[3],width,length,phiPitch,etaPitch;
+   Float_t sinTilt;
    t->Branch("id",&idhash,"id/I");
+   t->Branch("isPixel",&isPixel,"isPixel/I");
+   t->Branch("isBLayer",&isBLayer,"isBLayer/I");
+   t->Branch("barrel_endcap",&barrel_endcap,"barrel_endcap/I");
+   t->Branch("layer_disk",&layer_disk,"layer_disk/I");
+   t->Branch("phi_module",&phi_module,"phi_module/I");
+   t->Branch("eta_module",&eta_module,"eta_module/I");
+   t->Branch("side",&side,"side/I");
+   t->Branch("section",&section,"section/I");
+   t->Branch("phi_index",&phi_index,"phi_index/I");
+   t->Branch("eta_index",&eta_index,"eta_index/I");
+   t->Branch("strip",&strip,"strip/I");
+   t->Branch("width",&width,"width/F");
+   t->Branch("length",&length,"length/F");
+   t->Branch("phiPitch",&phiPitch,"phiPitch/F");
+   t->Branch("etaPitch",&etaPitch,"etaPitch/F");
+   t->Branch("phiAxis",phiAxis,"phiAxis[3]/F");
+   t->Branch("etaAxis",etaAxis,"etaAxis[3]/F");
+   t->Branch("swapPhi",&swapPhi,"swapPhi/I");
+   t->Branch("swapEta",&swapEta,"swapEta/I");
+   t->Branch("sinTilt",&sinTilt,"sinTilt/F");
+   t->Branch("center",center,"center[3]/F");
    t->Branch("phi",phi,"phi[2]/F");
    t->Branch("r",r,"r[2]/F");
    t->Branch("z",z,"z[2]/F");
-   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
-      const InDetDD::SiDetectorElement* sielement( *i );
-      idhash=sielement->identifyHash();
-      r[0]=sielement->rMin();
-      r[1]=sielement->rMax();
-      z[0]=sielement->zMin();
-      z[1]=sielement->zMax();
-      phi[0]=sielement->phiMin();
-      phi[1]=sielement->phiMax();
-      t->Fill();
+   t->Branch("isbad",&isbad,"isbad/I");
+   t->Branch("hitSector",&hitSector,"hitSector/I");
+   InDetDD::SiDetectorElementCollection::const_iterator iStart[2],iEnd[2];
+   iStart[0]=m_SCT_mgr->getDetectorElementBegin();
+   iEnd[0]=m_SCT_mgr->getDetectorElementEnd();
+   iStart[1]=m_PIX_mgr->getDetectorElementBegin();
+   iEnd[1]=m_PIX_mgr->getDetectorElementEnd();
+   for(isPixel=0;isPixel<2;isPixel++) {
+      //m_log << MSG::INFO <<"dumpModulePositions() isPixel="<<isPixel<<endmsg;
+     for( InDetDD::SiDetectorElementCollection::const_iterator
+              i=iStart[isPixel];i!=iEnd[isPixel];i++) {
+         const InDetDD::SiDetectorElement* sielement( *i );
+         idhash=sielement->identifyHash();
+         Identifier id = sielement->identify();
+         isBLayer=sielement->isBlayer();
+         if(isPixel) {
+            barrel_endcap=m_pixelId->barrel_ec(id);
+            layer_disk=m_pixelId->layer_disk(id);
+            phi_module=m_pixelId->phi_module(id);
+            eta_module=m_pixelId->eta_module(id);
+            side=-1;
+            strip=-1;
+            phi_index=m_pixelId->phi_index(id);
+            eta_index=m_pixelId->eta_index(id);
+            section=m_pmap->getMap(ftk::PIXEL,!(barrel_endcap==0),
+                                   layer_disk).getSection();
+            // see FTKRawHit
+            if ((FTKSetup::getFTKSetup().getIBLMode()==1) &&
+                (layer_disk==0) &&
+                (barrel_endcap==0)) {
+               // IBL module, without 3d sensors
+               hitSector = phi_module*1000+eta_module+8;
+            } else if ((FTKSetup::getFTKSetup().getIBLMode()==2) &&
+                       (layer_disk==0) && (barrel_endcap==0)) {
+               // IBL module with 3d sensors, 20 modules in total
+               hitSector = phi_module*1000+eta_module+10;
+            }  else if(barrel_endcap) {
+               hitSector=
+                  phi_module*1000+
+                  (eta_module+1)*20 + (barrel_endcap == ftk::NEGEC)*10
+                  + section;
+            } else {
+               // is a generic module of the barrel region
+               hitSector = phi_module*1000+eta_module+6;
+            }
+         } else {
+            barrel_endcap=m_sctId->barrel_ec(id);
+            layer_disk=m_sctId->layer_disk(id);
+            phi_module=m_sctId->phi_module(id);
+            eta_module=m_sctId->eta_module(id);
+            side=m_sctId->side(id);
+            strip=m_sctId->strip(id);
+            phi_index=-1;
+            eta_index=-1;
+            section=m_pmap->getMap(ftk::SCT,!(barrel_endcap==0),
+                                   layer_disk).getSection();
+            // see FTKRawHit
+            if(barrel_endcap) {
+               hitSector=
+                  phi_module*1000+
+                  (eta_module+1)*20 + (barrel_endcap == ftk::NEGEC)*10
+                  + section;
+            } else {
+               // is a generic module of the barrel region
+               hitSector = phi_module*1000+eta_module+6;
+            }
+         }
+         if(FTKSetup::getFTKSetup().getITkMode() ) {
+            // see FTKRawHit
+            hitSector = (phi_module*100000) + ((eta_module+60)*100) +
+               ((barrel_endcap+2) *10) + section;
+         }
+         width=sielement->width();
+         length=sielement->length();
+         phiPitch=sielement->phiPitch();
+         etaPitch=sielement->etaPitch();
+         //phiDir=sielement->hitPhiDirection();
+         //etaDir=sielement->hitEtaDirection();
+         swapPhi=sielement->swapPhiReadoutDirection() ? 1 : 0;
+         swapEta=sielement->swapEtaReadoutDirection() ? 1 : 0;
+         sinTilt=sielement->sinTilt();
+         for(int k=0;k<3;k++) {
+            center[k]= sielement->center()[k];
+            phiAxis[k]= sielement->phiAxis()[k];
+            etaAxis[k]= sielement->etaAxis()[k];
+         }
+         r[0]=sielement->rMin();
+         r[1]=sielement->rMax();
+         z[0]=sielement->zMin();
+         z[1]=sielement->zMax();
+         phi[0]=sielement->phiMin();
+         phi[1]=sielement->phiMax();
+         isbad=m_sctCondSummarySvc->isGood( idhash ) ? 0 : 1;
+         t->Fill();
+      }
    }
-   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
-      const InDetDD::SiDetectorElement* sielement( *i );
-      idhash=sielement->identifyHash();
-      r[0]=sielement->rMin();
-      r[1]=sielement->rMax();
-      z[0]=sielement->zMin();
-      z[1]=sielement->zMax();
-      phi[0]=sielement->phiMin();
-      phi[1]=sielement->phiMax();
-      t->Fill();
-   }
+   //m_log << MSG::INFO <<"dumpModulePositions() done"<<endmsg;
    t->Write();
+   output->Close();
    delete output;
 }

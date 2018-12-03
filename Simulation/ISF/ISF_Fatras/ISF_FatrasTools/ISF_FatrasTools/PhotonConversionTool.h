@@ -54,8 +54,7 @@ namespace iFatras {
      @author Sarka.Todorova@cern.ch
   */
    
-  class PhotonConversionTool : public AthAlgTool,
-                               virtual public iFatras::IPhotonConversionTool {
+  class PhotonConversionTool : public extends<AthAlgTool, iFatras::IPhotonConversionTool> {
   public:      
       /**AlgTool constructor for PhotonConversionTool*/
       PhotonConversionTool(const std::string&,const std::string&,const IInterface*);

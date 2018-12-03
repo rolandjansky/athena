@@ -62,7 +62,6 @@ namespace xAOD {
 
       // Remember that we are now handling this variable:
       m_auxids.insert( auxid );
-      ++m_tick;
 
       return;
    }

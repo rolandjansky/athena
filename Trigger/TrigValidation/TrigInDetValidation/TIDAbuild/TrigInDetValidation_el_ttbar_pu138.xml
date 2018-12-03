@@ -1,9 +1,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu138'>
-           <doc>ttbar, pu138, run2 chains</doc>
-           <displayName>ttbar pu138, run2 chains</displayName>
-           <commandLineFlags>EventMax=400;runMergedChain=True</commandLineFlags>
+           <doc>ttbar, pu138</doc>
+           <displayName>ttbar pu138</displayName>
+           <commandLineFlags>EventMax=400</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>

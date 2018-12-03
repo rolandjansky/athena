@@ -605,7 +605,7 @@ class AthAppMgr( AppMgr ):
 
    def reinitialize( self ):
     # since we're going to run python again, may have to re-enable to profiler
-      if self._opts.profile_python:
+      if self._opts and self._opts.profile_python:
          import cProfile
          cProfile._athena_python_profiler.enable()
 
@@ -787,7 +787,7 @@ class AthAppMgr( AppMgr ):
              shutil.copy2("MP_PoolFileCatalog.xml", "PoolFileCatalog.xml")
 
    def __report_python_profile( self ):
-      if self._opts.profile_python:
+      if self._opts and self._opts.profile_python:
          import cProfile, pstats
          cProfile._athena_python_profiler.disable()
          stats = pstats.Stats(cProfile._athena_python_profiler,

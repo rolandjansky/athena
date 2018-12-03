@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEventProxyDict.cxx 788447 2016-12-07 15:16:39Z krasznaa $
 //
 // File holding the implementation of the xAOD::TEvent functions that implement
-// the IProxyDictWithPool interface. Just to make TEvent.cxx a little smaller.
+// the IProxyDict interface. Just to make TEvent.cxx a little smaller.
 //
 
 // System include(s):
@@ -203,6 +202,45 @@ namespace xAOD {
       // Access its data proxy:
       SG::DataProxy* proxy = bi->m_proxy.get();
 
+      // Helper variable(s).
+      static const bool SILENT = true;
+      static const bool METADATA = false;
+
+      // If we don't know the type of the proxy just yet, figure it out now.
+      if( ! bi->m_class ) {
+         // The name of the requested object.
+         const std::string& name = getName( sgkey );
+         // This is a bit perverse... In order to let the "base class" figure
+         // out the exact type of this object, we ask for it with a TEvent
+         // pointer. I use that type because I need something that has a
+         // dictionary, and which should always be available when this code
+         // runs. In the end it doesn't matter that the object can't be
+         // retrieved as that type (of course...), it only matters that it gets
+         // "set up" following these calls.
+         TEvent* nc_this = const_cast< TEvent* >( this );
+         static const std::type_info& dummy = typeid( TEvent );
+         nc_this->getInputObject( name, dummy, SILENT, METADATA );
+         auto itr = m_outputObjects.find( name );
+         if( itr == m_outputObjects.end() ) {
+            itr = m_inputObjects.find( name );
+            if( itr == m_inputObjects.end() ) {
+               // We didn't find this object in the store...
+               return proxy;
+            }
+         }
+         const TObjectManager* mgr =
+            dynamic_cast< const TObjectManager* >( itr->second );
+         if( ! mgr ) {
+            ::Error( "xAOD::TEvent::proxy_exact",
+                     XAOD_MESSAGE( "Internal logic error found" ) );
+            return proxy;
+         }
+         bi->m_class = mgr->holder()->getClass();
+         // There's no need to check whether this is a "proper" dictionary
+         // at this point, since if TEvent is holding on to it, the type
+         // must have a proper compiled dictionary.
+      }
+
 #ifndef XAOD_STANDALONE
       // If the proxy doesn't have data available yet:
       if( ! proxy->accessData() ) {
@@ -210,8 +248,6 @@ namespace xAOD {
          const std::type_info* ti = bi->m_class->GetTypeInfo();
          TEvent* nc_this = const_cast< TEvent* >( this );
          const std::string& name = getName( sgkey );
-         static const bool SILENT = true;
-         static const bool METADATA = false;
          // Try to find the object amongst the output objects first:
          if( getOutputObject( name, *ti, METADATA ) ) {
             proxy->setObject( new xAODPrivate::THolderBucket( name, *ti,
@@ -246,28 +282,15 @@ namespace xAOD {
          return 0;
       }
 
-      // Get the dictionary for the type:
-      const std::string& className = efe->className();
-      bi.m_class = TClass::GetClass( className.c_str() );
-      if( ! bi.m_class ) {
-         ::Warning( "xAOD::TEvent::getBranchInfo",
-                    "Can't find TClass for `%s'",
-                    className.c_str() );
-         return 0;
-      }
-      if( ! bi.m_class->GetTypeInfo() ) {
-         ::Warning( "xAOD::TEvent::getBranchInfo",
-                    "No type_info available for `%s'",
-                    className.c_str() );
-         return 0;
-      }
+      // Don't set the dictionary just yet.
+      bi.m_class = nullptr;
 
 #ifndef XAOD_STANDALONE
       // Create a proper proxy for the input branch:
       SG::TransientAddress* taddr =
          new SG::TransientAddress( CLID_NULL, efe->branchName() );
       taddr->setSGKey( sgkey );
-      bi.m_proxy.reset( new SG::DataProxy( taddr, 0 ) );
+      bi.m_proxy.reset( new SG::DataProxy( taddr, nullptr ) );
 #endif // not XAOD_STANDALONE
 
       // Add the branch info to our list:

@@ -22,12 +22,20 @@
 #include "make_idhelper_common.cxx"
 
 
-class LArMiniFCAL_ID_Test
-  : public LArMiniFCAL_ID
+class ILArMiniFCAL_ID_Test
 {
 public:
-  using LArMiniFCAL_ID::lar_field_value;
-  using LArMiniFCAL_ID::lar_fcal_field_value;
+  virtual int get_lar_field_value() const = 0;
+  virtual int get_lar_fcal_field_value() const = 0;
+};
+
+
+class LArMiniFCAL_ID_Test
+  : public LArMiniFCAL_ID, public ILArMiniFCAL_ID_Test
+{
+public:
+  virtual int get_lar_field_value() const override { return lar_field_value(); }
+  virtual int get_lar_fcal_field_value() const override { return lar_fcal_field_value(); }
 };
 
 
@@ -131,9 +139,9 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
     counts.count (depth);
 
     ExpandedIdentifier exp_id;
-    LArMiniFCAL_ID_Test* idhelper_test = (LArMiniFCAL_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_fcal_field_value()
+    const ILArMiniFCAL_ID_Test& idhelper_test = dynamic_cast<const ILArMiniFCAL_ID_Test&>(idhelper);
+    exp_id << idhelper_test.get_lar_field_value()
+      	   << idhelper_test.get_lar_fcal_field_value()
 	   << idhelper.pos_neg(id)
 	   << idhelper.module(id)
 	   << idhelper.depth(id)
@@ -161,9 +169,9 @@ void test_connected (const LArMiniFCAL_ID& idhelper)
     assert (id == idhelper.module_id (side, mod));
 
     ExpandedIdentifier exp_id;
-    LArMiniFCAL_ID_Test* idhelper_test = (LArMiniFCAL_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_fcal_field_value()
+    const ILArMiniFCAL_ID_Test& idhelper_test = dynamic_cast<const ILArMiniFCAL_ID_Test&>(idhelper);
+    exp_id << idhelper_test.get_lar_field_value()
+      	   << idhelper_test.get_lar_fcal_field_value()
 	   << idhelper.pos_neg(id)
 	   << idhelper.module(id)
 	   << idhelper.depth(id);
@@ -239,8 +247,8 @@ int main()
   idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
 
-  std::unique_ptr<LArMiniFCAL_ID> idhelper = make_helper<LArMiniFCAL_ID>();
-  std::unique_ptr<LArMiniFCAL_ID> idhelper_n = make_helper<LArMiniFCAL_ID>(true);
+  std::unique_ptr<LArMiniFCAL_ID> idhelper = make_helper<LArMiniFCAL_ID_Test>();
+  std::unique_ptr<LArMiniFCAL_ID> idhelper_n = make_helper<LArMiniFCAL_ID_Test>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper);

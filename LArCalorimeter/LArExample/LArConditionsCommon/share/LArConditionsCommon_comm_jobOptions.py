@@ -50,6 +50,12 @@ rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC)
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF)
+# and the same for Known Noisy and MNB FEBs
+if (rec.doESD() or rec.doRDOTrigger()) and ('COMP200' not in conddb.GetInstance()):
+   rekeyBADF="<key>/LAR/BadChannels/KnownBADFEBs</key>"
+   rekeyMNBF="<key>/LAR/BadChannels/KnownMNBFEBs</key>"
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownBADFEBs","/LAR/BadChannelsOfl/KnownBADFEBs"+forceRN+rekeyBADF)
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownMNBFEBs","/LAR/BadChannelsOfl/KnownMNBFEBs"+forceRN+rekeyMNBF)
 
 
 if not larCondFlags.LoadElecCalib.is_locked():
@@ -136,8 +142,12 @@ if larCondFlags.LoadElecCalib():
           theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
       else:
           #Load from offline DB
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
+          if 'RekeyOFC' in dir():    
+             conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN+"<key>"+RekeyOFC+"</key>")
+          else:   
+             conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
           pass
+      pass       
       #8.Shape
       if larCondFlags.useShape():
           if larCondFlags.OFCShapeFolder()=="":
@@ -145,7 +155,10 @@ if larCondFlags.LoadElecCalib():
               theLArCondSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
           else:
               #Load from offline database
-              conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
+              if 'RekeyShape' in dir():
+                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN+"<key>"+RekeyShape+"</key>")
+              else:   
+                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
               pass
           pass
       pass

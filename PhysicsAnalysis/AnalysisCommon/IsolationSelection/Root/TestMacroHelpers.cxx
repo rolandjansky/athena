@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <IsolationSelection/IsolationWP.h>
@@ -9,6 +9,10 @@
 #include <xAODPrimitives/IsolationHelpers.h>
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
 #include <xAODPrimitives/tools/getIsolationCorrectionAccessor.h>
+
+#include <xAODEgamma/EgammaxAODHelpers.h>
+#include <xAODMuon/Muon.h>
+#include <xAODEgamma/Electron.h>
 
 namespace CP {
 
@@ -21,22 +25,19 @@ namespace CP {
     //############################################################################
     //                      IsoCorrectionTestHelper
     //############################################################################
-    IsoCorrectionTestHelper::IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WPs) :
+    IsoCorrectionTestHelper::IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WPs, int part_type) :
                 m_tree(outTree),
                 m_init(true),
                 m_pt(),
                 m_eta(),
                 m_phi(),
                 m_e(),
-                m_Q(),
-                m_orig_TrackIsol(),
-                m_corr_TrackIsol(),
-                m_orig_CaloIsol(),
-                m_corr_CaloIsol(),
+                m_Q(),                
                 m_orig_passIso(),
                 m_corr_passIso(),
-                m_TrackAcc(),
-                m_CaloAcc(),
+                m_assoc_track_pt(),
+                m_assoc_cluster_et(), 
+                m_iso_branches(),
                 m_acc_used_for_corr(SelectionAccessor(new CharAccessor("considerInCorrection"))),
                 m_acc_passDefault(SelectionAccessor(new CharAccessor("defaultIso"))),
                 m_acc_passCorrected(SelectionAccessor(new CharAccessor("correctedIsol"))) {
@@ -46,30 +47,31 @@ namespace CP {
         if (!AddBranch(ContainerName + "_phi", m_phi)) m_init = false;
         if (!AddBranch(ContainerName + "_e", m_e)) m_init = false;
         if (!AddBranch(ContainerName + "_Q", m_Q)) m_init = false;
-
+        if (part_type == xAOD::Type::ObjectType::Electron ||  part_type == xAOD::Type::ObjectType::Muon){
+            if(!AddBranch(ContainerName+"_trackPt", m_assoc_track_pt)) m_init = false;
+            if(!AddBranch(ContainerName+"_clusterEt", m_assoc_cluster_et)) m_init = false;
+            
+        }        
         //Retrieve the isolaiton accessors directly from the WP
         for (const auto& W : WPs) {
-            for (auto& C : W->conditions()) {
-                // The 'Default' has been fixed in the Athena JO and util macro
-                if (xAOD::Iso::IsolationFlavour::ptcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
-                } else if (xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
-                } else if (xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
+            for (auto& C : W->conditions()) {                
+                for (unsigned int t = 0 ; t< C->num_types(); ++t){
+                    bool add = true;
+                    for (const auto& known : m_iso_branches){
+                        if (known.Accessor->isotype() == C->type(t)) add = false;
+                        if (!add) break;
+                    }
+                    if (add) m_iso_branches.push_back(IsolationBranches(C->type(t),"default"));                
                 }
             }
             //Assume only 1 WP
             break;
         }
-        if (m_TrackAcc) {
-            if (!AddBranch(ContainerName + "_Orig_" + m_TrackAcc->name(), m_orig_TrackIsol)) m_init = false;
-            if (!AddBranch(ContainerName + "_Corr_" + m_TrackAcc->name(), m_corr_TrackIsol)) m_init = false;
-        }
-        if (m_CaloAcc) {
-            if (!AddBranch(ContainerName + "_Orig_" + m_CaloAcc->name(), m_orig_CaloIsol)) m_init = false;
-            if (!AddBranch(ContainerName + "_Corr_" + m_CaloAcc->name(), m_corr_CaloIsol)) m_init = false;
-        }
+        for (auto& branch : m_iso_branches) {
+            if (!AddBranch(ContainerName + "_Orig_" + branch.Accessor->name(), branch.original_cones)) m_init = false;
+            if (!AddBranch(ContainerName + "_Corr_" + branch.Accessor->name(), branch.corrected_cones)) m_init = false;
+        }        
+        
         if (!AddBranch(ContainerName + "_OrigPassIso", m_orig_passIso)) m_init = false;
         if (!AddBranch(ContainerName + "_CorrPassIso", m_corr_passIso)) m_init = false;
     }
@@ -88,31 +90,30 @@ namespace CP {
         m_phi.clear();
         m_e.clear();
         m_Q.clear();
-
-        m_orig_TrackIsol.clear();
-        m_corr_TrackIsol.clear();
-
-        m_orig_CaloIsol.clear();
-        m_corr_CaloIsol.clear();
+        m_assoc_track_pt.clear();
+        m_assoc_cluster_et.clear();
+        for (auto& branch: m_iso_branches){
+            branch.original_cones.clear();
+            branch.corrected_cones.clear();            
+        }
+      
 
         m_orig_passIso.clear();
         m_corr_passIso.clear();
 
-        for (const auto object : *Particles) {
+        for (const xAOD::IParticle* object : *Particles) {
             if (!m_acc_used_for_corr->isAvailable(*object) || !m_acc_used_for_corr->operator()(*object)) continue;
             m_pt.push_back(object->pt());
             m_eta.push_back(object->eta());
             m_phi.push_back(object->phi());
             m_e.push_back(object->e());
             m_Q.push_back(Charge(object));
-            if (!FillIsolationBranches(object, m_TrackAcc, m_orig_TrackIsol, m_corr_TrackIsol).isSuccess()) {
-               Error("IsoCorrectionTestHelper()", "Failed to fill track isolation");
-               return StatusCode::FAILURE;
-            }
-            if (!FillIsolationBranches(object, m_CaloAcc, m_orig_CaloIsol, m_corr_CaloIsol).isSuccess()) {
-                Error("IsoCorrectionTestHelper()", "Failed to fill calorimeter isolation");
-                return StatusCode::FAILURE;
-            }
+            for (auto& branch : m_iso_branches) {
+                if (!FillIsolationBranches(object, branch.Accessor, branch.original_cones, branch.corrected_cones).isSuccess()) {
+                   Error("IsoCorrectionTestHelper()", "Failed to fill isolation");
+                   return StatusCode::FAILURE;
+                }
+            }                    
             if (!m_acc_passDefault->isAvailable(*object)) {
                 Error("IsoCorrectionTestHelper()", "It has not been stored whether the particle passes the default isolation");
                 return StatusCode::FAILURE;
@@ -122,6 +123,28 @@ namespace CP {
                 Error("IsoCorrectionTestHelper()", "It has not been stored whether the particle passes the corrected isolation.");
                 return StatusCode::FAILURE;
             } else m_corr_passIso.push_back(m_acc_passCorrected->operator()(*object));
+            // Fill the associated momenta of the associated tracks and clusters
+            
+            if (object->type() != xAOD::Type::ObjectType::Electron && object->type() != xAOD::Type::ObjectType::Muon) continue;
+            const xAOD::TrackParticle* assoc_track = nullptr;
+            const xAOD::CaloCluster* assoc_cluster = nullptr;
+            if (object->type() == xAOD::Type::ObjectType::Muon){
+                const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*> (object);
+                assoc_track = mu->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
+       //         assoc_cluster = mu->cluster();
+            } else {
+                const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(object);
+                assoc_track = xAOD::EgammaHelpers::getOriginalTrackParticle(el);  
+                assoc_cluster = el->caloCluster(0);
+            }
+            m_assoc_track_pt.push_back ( assoc_track ? assoc_track->pt() : FLT_MAX);
+            try{            
+                m_assoc_cluster_et.push_back( assoc_cluster ? assoc_cluster->p4(xAOD::CaloCluster::State::UNCALIBRATED).Et() - 
+                                                         assoc_cluster->eSample(xAOD::CaloCluster::CaloSample::TileGap3) / 
+                                                         TMath::CosH(assoc_cluster->p4(xAOD::CaloCluster::State::UNCALIBRATED).Eta()) : FLT_MAX);
+            } catch (...){
+                m_assoc_cluster_et.push_back( assoc_cluster ? assoc_cluster->pt() : FLT_MAX);
+            }
         }
         return StatusCode::SUCCESS;
     }
@@ -158,9 +181,10 @@ namespace CP {
     void IsoCorrectionTestHelper::CorrectedIsolation(const std::string &DecorName){
        m_acc_passCorrected = SelectionAccessor(new CharAccessor(DecorName));
     }
-    void IsoCorrectionTestHelper::BackupPreFix(const std::string &PreFix){
-        if (m_TrackAcc.get() != nullptr) m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(m_TrackAcc->isotype(), PreFix));
-        if (m_CaloAcc.get() != nullptr) m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(m_CaloAcc->isotype(), PreFix));
+    void IsoCorrectionTestHelper::BackupPreFix(const std::string &PreFix) {
+        for (auto& branch : m_iso_branches){
+            branch.Accessor = std::make_unique<IsoVariableHelper>(branch.Accessor->isotype(), PreFix);
+        }
     }
             
          

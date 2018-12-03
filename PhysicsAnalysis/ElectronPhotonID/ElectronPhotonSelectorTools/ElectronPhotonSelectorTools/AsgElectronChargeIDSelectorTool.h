@@ -3,9 +3,9 @@
 */
 
 // Dear emacs, this is -*-c++-*-
+#ifndef ELECTRONPHOTONSELECTORTOOLS_ASGELECTRONCHARGEIDSELECTORTOOL_H
+#define ELECTRONPHOTONSELECTORTOOLS_ASGELECTRONCHARGEIDSELECTORTOOL_H
 
-#ifndef __ASGELECTRONCHARGEIDSELECTORTOOL__
-#define __ASGELECTRONCHARGEIDSELECTORTOOL__
 // Atlas includes
 #include "AsgTools/AsgTool.h"
 #include "MVAUtils/BDT.h"
@@ -99,8 +99,6 @@ private:
   unsigned int getNPrimVertices() const;
 
   //BDT instances for different ID operating points (Tight, Medium, Loose) and the vector corresponds to n-fold
-  const unsigned m_nfold  =1;
-  const unsigned m_bdt_index=0;
   std::vector<MVAUtils::BDT*> m_v_bdts;
 
   TString m_pid_name;
@@ -108,7 +106,7 @@ private:
 
   int m_cutPosition_bdt;
   int m_resultPosition_bdt;
-
+ 
   /** Working Point */
   std::string m_WorkingPoint;
 

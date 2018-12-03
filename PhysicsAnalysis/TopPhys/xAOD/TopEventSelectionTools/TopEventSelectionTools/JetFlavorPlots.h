@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPEVENTSELECTIONTOOLS_JETFLAVORPLOTS_H_
@@ -9,6 +9,7 @@
 
 #include "TopEventSelectionTools/EventSelectorBase.h"
 #include "TopEventSelectionTools/PlotManager.h"
+#include "PMGTools/PMGTruthWeightTool.h"
 
 class TFile;
 
@@ -60,14 +61,23 @@ class JetFlavorPlots : public EventSelectorBase {
   static const double toGeV;
 
   // Easy access to histograms.
-  std::shared_ptr<PlotManager> m_hists = nullptr;
-  std::shared_ptr<PlotManager> m_hists_Loose = nullptr;
+  std::shared_ptr<PlotManager> m_hists               = nullptr;
+  std::shared_ptr<PlotManager> m_hists_Loose         = nullptr;
+  std::shared_ptr<PlotManager> m_hists_RadHigh       = nullptr;
+  std::shared_ptr<PlotManager> m_hists_RadHigh_Loose = nullptr;
+  std::shared_ptr<PlotManager> m_hists_RadLow        = nullptr;
+  std::shared_ptr<PlotManager> m_hists_RadLow_Loose  = nullptr;
 
   // Nominal hash value
   std::size_t m_nominalHashValue;
 
   // for detailed plots (e.g. vs. Njets)
   bool m_detailed;
+  
+  // to choose between radiation varied and nominal plots 
+  bool m_doNominal;
+  bool m_doRadHigh;
+  bool m_doRadLow;
 
   // pT and eta bin edges, separated by colons
   std::string m_ptBins;
@@ -82,8 +92,19 @@ class JetFlavorPlots : public EventSelectorBase {
   // shared pointed to instance of TopConfig
   std::shared_ptr<top::TopConfig> m_config;
 
+  //PMGTruthWeights
+  PMGTools::PMGTruthWeightTool* m_PMGTruthWeights;
+
   // function to translate the binnings into vector of bin edges
   void formatBinning(const std::string& str, std::vector<double>& binEdges );
+  //helper function to book histograms
+  void BookHistograms(std::shared_ptr<PlotManager> h_ptr, std::vector<double> ptBins, std::vector<double> etaBins);
+  //helper function to fill histograms
+  void FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w_event, const top::Event& event) const;
+  //This is to suppress excessive printout
+  mutable std::atomic<bool> m_throwwarningPMG;
+  
+
 };
 
 }  // namespace top

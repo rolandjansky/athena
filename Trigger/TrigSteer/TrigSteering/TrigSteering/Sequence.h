@@ -26,6 +26,7 @@
 #include "GaudiKernel/SmartIF.h"
 #include "AthenaBaseComps/AthService.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc_RTT.h" //used for ROS data access test
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 class TrigTimer;
 
@@ -134,8 +135,8 @@ namespace HLT {
 
       TrigTimer *m_timer;
 
-      SmartIF <ITrigROBDataProviderSvc_RTT> m_trigROBDataProvider;  
-
+      ServiceHandle<IROBDataProviderSvc>      m_robDataProvider;        //!< ROB data provider (for ROB pre-fetching)
+      SmartIF <ITrigROBDataProviderSvc_RTT>   m_trigROBDataProviderRTT; //!< ROB data provider with extensions for RTT tests
    };
 }
 

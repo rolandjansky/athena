@@ -69,13 +69,13 @@ namespace top {
     
     /** @brief calculates the trigger-matching variable of an electron
      *  FIXME convention could be updated with new trigger recommendations
-     *  @param runNumber allows to distinguish 2015 and 2016 data for triggers - default is 2015
+     *  @param runNumber allows to distinguish between years for triggers - default is 2015
      **/
     void GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, const unsigned int runNumber=276262);
     
     /** @brief calculates the trigger-matching variable of a muon
      *  FIXME convention could be updated with new trigger recommendations
-     *  @param runNumber allows to distinguish 2015 and 2016 data for triggers - default is 2015
+     *  @param runNumber allows to distinguish between years for triggers - default is 2015
      **/
     void GetTrigMatchVariable(const xAOD::Muon& mu, int& trigmatch, const unsigned int runNumber=276262);
     

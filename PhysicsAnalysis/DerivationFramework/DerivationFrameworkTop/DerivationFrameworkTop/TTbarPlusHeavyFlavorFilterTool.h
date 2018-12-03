@@ -29,7 +29,7 @@ public:
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  int filterFlag() const;
+  bool filterDecision() const;
 
   static const InterfaceID& interfaceID() { return IID_TTbarPlusHeavyFlavorFilterTool; }
 
@@ -43,6 +43,9 @@ private:
 
   bool m_usePileUp;
   bool m_useFinalStateHadrons;
+  bool m_selectB;
+  bool m_selectC;
+  bool m_selectL;
 
   double m_bPtMinCut;
   double m_bEtaMaxCut;

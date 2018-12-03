@@ -256,6 +256,10 @@ void ExpatCoreParser::do_comment (const XML_Char* s)
     {
       std::cout << "ExpatCoreParser::do_comment> s=" << s << " top=" << m_top << " last=" << m_last << " node=" << node << std::endl; 
     }
+
+  // Node is owned by m_last.
+  // cppcheck-suppress memleak
+  node = nullptr;
 }
 
 int ExpatCoreParser::generic_parse (XML_Parser p, const std::string& file_name)

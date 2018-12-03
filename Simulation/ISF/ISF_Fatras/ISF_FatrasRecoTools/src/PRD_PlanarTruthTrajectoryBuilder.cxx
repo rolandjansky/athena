@@ -24,13 +24,12 @@
 
 /** Constructor **/
 iFatras::PRD_PlanarTruthTrajectoryBuilder::PRD_PlanarTruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_idHelper(0),
   m_idPrdPlanarClusterProvider(""),
   m_minPt(400.),
   m_geantinos(false)
 {
-    declareInterface<Trk::IPRD_TruthTrajectoryBuilder>(this);
     // the PRD multi truth collections this builder works on
     declareProperty("PRD_PlanarMultiTruthCollections", m_prdPlanarMultiTruthCollectionNames);
     // the PRD providers that turn Identifier -> IdentiferHash and get the PRD

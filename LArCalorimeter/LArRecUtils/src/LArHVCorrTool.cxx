@@ -449,6 +449,12 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
       if (mycorr>1e-2) mycorr = mynorm/mycorr;
       else mycorr=1.;
 
+// Add protection against correction factor > 10
+      if (mycorr>10.) {
+          ATH_MSG_DEBUG("Correction factor > 10, ignore it... for cell " <<  m_larem_id->show_to_string(offid) << " " << mycorr);
+          mycorr=1.;
+      }   
+
       for (unsigned int ii=0;ii<m_HVfix.size();ii++) {
 	if (subdet == m_HVfix[ii].subdet && layer >= m_HVfix[ii].layer_min && layer <= m_HVfix[ii].layer_max &&
 	    eta_raw >= m_HVfix[ii].eta_min && eta_raw < m_HVfix[ii].eta_max &&

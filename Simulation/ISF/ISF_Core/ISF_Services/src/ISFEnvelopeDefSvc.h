@@ -21,7 +21,7 @@
 
 namespace ISF {
 
-  class ISFEnvelopeDefSvc : public IEnvelopeDefSvc, virtual public AthService {
+  class ISFEnvelopeDefSvc : public extends<AthService, IEnvelopeDefSvc> {
 
     public:
       /** public AthService constructor */
@@ -29,9 +29,6 @@ namespace ISF {
 
       /** Destructor */
       ~ISFEnvelopeDefSvc();
-
-      /** Query the interfaces. */
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
       /** AthService initialize method.*/
       StatusCode initialize();

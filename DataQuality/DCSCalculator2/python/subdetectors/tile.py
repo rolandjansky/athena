@@ -316,10 +316,17 @@ class Tile(DCSC_DefectTranslate_Subdetector):
 #        TIEBA: dead_fraction_caution,
 #        TIEBC: dead_fraction_caution
 #    }
-# status at 2016-10-24 - LBA52 and LBC05 are switched off.
+# status at 2017-06-01 - EBA03 and LBC63 are dead
+#    dead_fraction_map = {
+#        TILBA: dead_fraction_caution,
+#        TILBC: 0.017
+#        TIEBA: 0.017,
+#        TIEBC: dead_fraction_caution
+#    }
+# status at 2018-04-12 - all modules are fixed and turned on.
     dead_fraction_map = {
-        TILBA: 0.017,
-        TILBC: 0.017,
+        TILBA: dead_fraction_caution,
+        TILBC: dead_fraction_caution,
         TIEBA: dead_fraction_caution,
         TIEBC: dead_fraction_caution
     }

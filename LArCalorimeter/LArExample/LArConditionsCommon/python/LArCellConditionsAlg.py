@@ -56,45 +56,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         ## and that the PyAthena.Alg base class has already initialized
         ## it for us
 
-        # -----------------------------------------------------------
-        # Store gate  service
-        self.msg.info('initializing [%s]...',self.name())
-        self.msg.debug('retrieve StoreGateSvc pointer...')
-        self.sg = PyAthena.py_svc('StoreGateSvc')
-        if self.sg is None:
-            self.msg.error('Problem retrieving StoreGateSvc pointer !')
-            return StatusCode.Failure
-        else:
-            self.msg.info('retrieved [%s]', self.sg.name())
-
-        # -----------------------------------------------------------
-        # Detector store service
-        self.msg.debug('retrieve DetectorStoreSvc pointer...')
-        self.det = PyAthena.py_svc('DetDescrCnvSvc')
-        if self.det is None:
-            self.msg.error('Problem retrieving DetectorStoreSvc pointer !')
-            return StatusCode.Failure
-        else:
-            self.msg.info('retrieved [%s]', self.det.name())
-
-        # -----------------------------------------------------------
-        # Message  service
-        self.msg.info('initializing [%s]...',self.name())
-        self.msg.debug('retrieve MessageSvc pointer...')
-        self.msgSvc = PyAthena.py_svc('MessageSvc')
-        if self.msgSvc is None:
-            self.msg.error('Problem retrieving MessageSvc pointer !')
-            return StatusCode.Failure
-        else:
-            self.msg.info('retrieved [%s]', self.msgSvc.name())
-
-
-#        f=open("pycintex.txt","w")
-#        f.write(str(PyCintex.getAllClasses()))
-#        f.close()
-#        print PyCintex.getAllClasses()
-
-
+ 
         # Get DetectorStore...
         from StoreGateBindings.Bindings import StoreGate
         self._detStore = StoreGate.pointer("DetectorStore")

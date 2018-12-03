@@ -1,7 +1,7 @@
 #!/bin/sh
 
 get_files -jo TrigInDetValidation_RTT_topOptions_MuonSlice.py
-athena.py  -c 'XMLDataSet="TrigInDetValidation_mu_Zmumu_IBL_pu40";EventMax=2500;runMergedChain=True' TrigInDetValidation_RTT_topOptions_MuonSlice.py 
+athena.py  -c 'XMLDataSet="TrigInDetValidation_mu_Zmumu_IBL_pu40";EventMax=100;runMergedChain=True' TrigInDetValidation_RTT_topOptions_MuonSlice.py 
 
 
 get_files -data TIDAdata11-rtt.dat

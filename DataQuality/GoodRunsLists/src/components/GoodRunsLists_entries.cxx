@@ -2,6 +2,7 @@
 #include "GoodRunsLists/TriggerRegistryTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
+#include "GoodRunsLists/GRLSelectorAlg.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_TOOL_FACTORY( GoodRunsListSelectorTool )
@@ -11,7 +12,6 @@ DECLARE_TOOL_FACTORY( GoodRunsListSelectionTool )
 DECLARE_TOOL_FACTORY( TriggerRegistryTool )
 
 
-#include "../GRLSelectorAlg.h"
 DECLARE_ALGORITHM_FACTORY( GRLSelectorAlg )
 
 DECLARE_FACTORY_ENTRIES( GoodRunsLists ) {

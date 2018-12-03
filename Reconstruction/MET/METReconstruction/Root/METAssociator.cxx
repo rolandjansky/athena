@@ -30,8 +30,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 // Tool interface headers
-#include "PFlowUtils/IRetrievePFOTool.h"
-#include "PFlowUtils/IWeightPFOTool.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
@@ -39,10 +37,17 @@
 // For DeltaR
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+using CLHEP::GeV;
+
 namespace met {
 
   using namespace xAOD;
 
+  // UE correction for each lepton
+  const static SG::AuxElement::Decorator<float> dec_UEcorr("UEcorr_Pt");
+
+  
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
@@ -60,18 +65,17 @@ namespace met {
     declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
     declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
     declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
-    declareProperty( "UseModifiedClus",    m_useModifiedClus = false             );
+    declareProperty( "PFlowColl",          m_pfcoll      = "CHSParticleFlowObjects" );
+    declareProperty( "UseModifiedClus",    m_useModifiedClus = false            );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
-    declareProperty( "WeightCPFO",         m_weight_charged_pfo = true           );
+    declareProperty( "HRecoil",            m_recoil      = false                 );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
-    declareProperty( "PFOTool",            m_pfotool                             );
-    declareProperty( "PFOWeightTool",      m_pfoweighttool                       );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                   );
     declareProperty( "IgnoreJetConst",     m_skipconst = false                   );
-    declareProperty( "ForwardColl",        m_forcoll   = ""                      );
+    declareProperty( "ForwardColl",        m_forcoll   = ""                       );
     declareProperty( "ForwardDef",         m_foreta    = 2.5                     );
     declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 30e+3               );
     declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 30e+3               );
@@ -92,10 +96,6 @@ namespace met {
     ATH_CHECK( m_trkseltool.retrieve() );
     ATH_CHECK(m_trkIsolationTool.retrieve());
     ATH_CHECK(m_caloIsolationTool.retrieve());
-    if(m_pflow) {
-      ATH_CHECK( m_pfotool.retrieve() );
-      ATH_CHECK( m_pfoweighttool.retrieve() );
-    }
 
     if(m_clcoll == "CaloCalTopoClusters") {
       if(m_useModifiedClus) {
@@ -108,9 +108,17 @@ namespace met {
       if(m_useModifiedClus) {
 	ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcoll << "\".");
       } else {
-	ATH_MSG_INFO("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
+	ATH_MSG_ERROR("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
 	return StatusCode::FAILURE;
       }
+    }
+
+    if(m_pfcoll == "JetETMissParticleFlowObjects") {      
+      ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcoll << "\".");
+      ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcoll << "\".");
     }
 
     return StatusCode::SUCCESS;
@@ -128,9 +136,7 @@ namespace met {
       ATH_MSG_WARNING("Invalid pointer to MissingETAssociationMap supplied! Abort.");
       return StatusCode::FAILURE;
     }
-    if(m_pflow &&
-       !m_useTracks
-       ){
+    if(m_pflow && !m_useTracks ){
       ATH_MSG_WARNING("Attempting to build PFlow without a track collection.");
       return StatusCode::FAILURE;
     }
@@ -174,19 +180,21 @@ namespace met {
       }
     }
 
-    const VertexContainer *vxCont = 0;
     if( !m_useTracks){
       //if you want to skip tracks, set the track collection empty manually
       ATH_MSG_DEBUG("Skipping tracks");
     }else{
+      const VertexContainer *vxCont = 0;
       if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
 	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
 	//this is actually really bad.  If it's empty that's okay
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
       for(const auto& vx : *vxCont) {
+	ATH_MSG_VERBOSE( "Testing vertex " << vx->index() );
 	if(vx->vertexType()==VxType::PriVtx)
 	  {constits.pv = vx; break;}
       }
@@ -197,20 +205,13 @@ namespace met {
       }
 
       constits.trkCont=0;
+      ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
       ATH_CHECK( evtStore()->retrieve(constits.trkCont, m_trkcoll) );
 
       if(m_pflow) {
+	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcoll);
 	constits.pfoCont = 0;
-	if( evtStore()->contains<xAOD::PFOContainer>("EtmissParticleFlowObjects") ) {
-	  ATH_CHECK(evtStore()->retrieve(constits.pfoCont,"EtmissParticleFlowObjects"));
-	} else {
-	  constits.pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-	  ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(constits.pfoCont),"EtmissParticleFlowObjects"));
-	}
-	if(!constits.pfoCont) {
-	  ATH_MSG_WARNING("Unable to retrieve input pfo container");
-	  return StatusCode::FAILURE;
-	}//pfoCont check
+	ATH_CHECK( evtStore()->retrieve(constits.pfoCont, m_pfcoll ) );
       }//pflow
     }//retrieve track/pfo containers
 
@@ -245,32 +246,42 @@ namespace met {
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
+    // Loop over leptons in the event
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
       if (m_pflow) {
-	if(!m_useTracks){
-	  ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
-	  return StatusCode::FAILURE;
-	}else{
-	  std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-	  ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
-	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
-	}
-      } else {
-	std::vector<const IParticle*> tclist;
-	tclist.reserve(20);
+        if(!m_useTracks){
+          ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
+          return StatusCode::FAILURE;
+        }else{
+          std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;          
+          if(m_recoil){ // HR part:
+            float UEcorr_Pt = 0.; // Underlying event correction for HR
+            ATH_CHECK( this->extractPFOHR(obj,hardObjs_tmp,constlist,constits,momentumOverride, UEcorr_Pt) );
+            dec_UEcorr(*obj) = UEcorr_Pt;
+          } 
+          else{ // MET part: 
+            ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
+          }
+          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);          
+        }
+      } 
+      else {
+        std::vector<const IParticle*> tclist;
+        tclist.reserve(20);
         ATH_CHECK( this->extractTopoClusters(obj,tclist,constits) );
-	if(m_useModifiedClus) {
-	  for(const auto& cl : tclist) {
-	    // use index-parallelism to identify shallow copied constituents
-	    constlist.push_back((*constits.tcCont)[cl->index()]);
-	  }
-	} else {
-	  constlist = tclist;
-	}
-	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
+        if(m_useModifiedClus) {
+          for(const auto& cl : tclist) {
+          // use index-parallelism to identify shallow copied constituents
+            constlist.push_back((*constits.tcCont)[cl->index()]);
+          }
+        } 
+        else {
+          constlist = tclist;
+        }
+        if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }
@@ -285,14 +296,6 @@ namespace met {
     if (!vx) return false;//in events with no pv, we will just reject all tracks, and therefore build only the calo MET
     const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
     return accept;
-  }
-
-
-  bool METAssociator::acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const
-  {
-    if(!pv) return false; /*reject pfo for events with no pv*/
-    if(fabs((trk->z0() - pv->z()+trk->vz())*sin(trk->theta())) > 2) return false;
-    return true;
   }
 
 
@@ -357,5 +360,85 @@ namespace met {
     }
     return true;
   }
+
+
+  StatusCode METAssociator::GetUEcorr(const met::METAssociator::ConstitHolder& constits,  // all PFOs
+                                      std::vector<TLorentzVector>& v_clus, // TLV vector of all clusters of hard objects
+                                      TLorentzVector& clus,                // TLV of current cluster 
+                                      TLorentzVector& HR,                  // uncorrected HR
+                                      const float Drcone,                       // Cone size for el-pfo association
+                                      const float MinDistCone,                  // Cone size for getting random Phi
+                                      float& UEcorr) const                 // UE correction (result)
+  {
+      // 1. Get random phi
+      unsigned int seed = 0;
+      TRandom3 hole;
+      if( !v_clus.empty() ){
+        seed = floor( v_clus.back().Pt() * GeV );     
+        hole.SetSeed(seed);
+      }
+
+      bool isNextToPart(true);
+      bool isNextToHR(true);
+      double phiRnd(0.);
+
+      int NumOfRndTrials = 0; // Counter for trials to find random cone without overlaps
+      const int MaxNumOfRndTrials = 100; // Max. number of trials to find random cone without overlaps
+
+      while(isNextToPart || isNextToHR ){
+        isNextToPart = false; 
+        isNextToHR = true;
+
+        phiRnd = hole.Uniform( -TMath::Pi(), TMath::Pi() );
+        double dR = P4Helpers::deltaR( HR.Eta(), HR.Phi(), clus.Eta(), phiRnd );    
+        if(dR > MinDistCone){
+          isNextToHR = false;
+        }
+
+        for(const auto& clus_j : v_clus) { // loop over leptons 
+          dR = P4Helpers::deltaR( clus.Eta(), phiRnd, clus_j.Eta(), clus_j.Phi() );
+          if(dR < MinDistCone){
+             isNextToPart = true;
+          }
+        } // swclus_j
+
+        NumOfRndTrials++;
+        if(NumOfRndTrials == MaxNumOfRndTrials){ // check number of trials
+          UEcorr = 0.; 
+          return StatusCode::SUCCESS;
+        }
+      } // while isNextToPart, isNextToHR
+
+      // 2. Calculete UE correction
+      TLorentzVector tv_UEcorr; // TLV of UE correction (initialized with 0,0,0,0 automatically)     
+      std::pair <double, double> eta_rndphi; // pair of current cluser eta and random phi
+      eta_rndphi.first  = clus.Eta();
+      eta_rndphi.second = phiRnd;
+
+      for(const auto& pfo_itr : *constits.pfoCont){ // loop over PFOs
+        if( pfo_itr->e() < 0){
+          continue;
+        }
+        double dR = P4Helpers::deltaR( pfo_itr->eta(), pfo_itr->phi(), eta_rndphi.first,  eta_rndphi.second );
+        if( dR < Drcone ){
+          // Calculate delta phi
+          float dphi_angle = std::fabs( clus.Phi() - pfo_itr->phi() );
+          if( dphi_angle > TMath::Pi() ){ 
+            dphi_angle = 2*TMath::Pi() - dphi_angle;
+          }
+          if( clus.Phi() <  pfo_itr->phi() ) {
+            dphi_angle = -1. * dphi_angle;
+          }
+          // Rotate on dphi_angle
+          TLorentzVector tv_pfo = pfo_itr->p4();
+          tv_pfo.RotateZ(dphi_angle);
+          tv_UEcorr += tv_pfo;  // summing PFOs of UE for correction
+        } // cone requirement        
+      } // loop over PFOs
+      UEcorr = tv_UEcorr.Pt();  // Pt of UE correction
+  
+      return StatusCode::SUCCESS;
+  } 
+  
 
 }

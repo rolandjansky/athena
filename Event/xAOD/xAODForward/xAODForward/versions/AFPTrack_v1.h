@@ -28,8 +28,7 @@
 namespace xAOD {
   // forward declaration
   class AFPSiHit_v1;
-  typedef AFPSiHit_v1 AFPSiHit;
-  typedef DataVector< AFPSiHit > AFPSiHitContainer;
+  typedef DataVector< AFPSiHit_v1 > AFPSiHitContainer_v1;
 
   /**
    * @brief Class representing a track reconstructed in AFP.
@@ -41,7 +40,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the hit
-    typedef ElementLink< AFPSiHitContainer > AFPHitLink_t;
+    typedef ElementLink< AFPSiHitContainer_v1 > AFPHitLink_t;
 
     /** 
      * @brief Index of the station where track was reconstructed.

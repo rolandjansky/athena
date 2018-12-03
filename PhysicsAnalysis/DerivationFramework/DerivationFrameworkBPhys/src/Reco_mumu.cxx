@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@ namespace DerivationFramework {
     declareProperty("DoVertexType"          , m_DoVertexType           = 1);
     // minimum number of tracks for PV to be considered for PV association
     declareProperty("MinNTracksInPV"        , m_PV_minNTracks          = 0);
+    declareProperty("Do3d"                  , m_do3d                   = false);
+    declareProperty("CheckCollections"      , m_checkCollections       = false);
+    declareProperty("CheckVertexContainers" , m_CollectionsToCheck);
   }
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -83,10 +86,27 @@ namespace DerivationFramework {
   
   StatusCode Reco_mumu::addBranches() const
   {
+    bool callJpsiFinder = true;
+    if(m_checkCollections) {
+      for(const auto &str : m_CollectionsToCheck){
+         const xAOD::VertexContainer*    vertContainer = nullptr;
+         ATH_CHECK( evtStore()->retrieve(vertContainer, str) );
+         if(vertContainer->size() == 0) {
+            callJpsiFinder = false;
+            ATH_MSG_DEBUG("Container VertexContainer (" << str << ") is empty");
+            break;//No point checking other containers
+         }/*else{
+            callJpsiFinder = true;
+            ATH_MSG_DEBUG("Container VertexContainer (" << str << ") has events N= " << vertContainer->size());
+         }*/
+      }
+    }
+
     // Jpsi container and its auxilliary store
     xAOD::VertexContainer*    vtxContainer = NULL;
     xAOD::VertexAuxContainer* vtxAuxContainer = NULL;
     
+    if(callJpsiFinder) {
     //----------------------------------------------------
     // call Jpsi finder
     //----------------------------------------------------
@@ -124,6 +144,7 @@ namespace DerivationFramework {
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
     BPhysPVTools helper(&(*m_v0Tools), &m_beamSpotSvc);
     helper.SetMinNTracksInPV(m_PV_minNTracks);
+    helper.SetSave3d(m_do3d);
 
     if(m_refitPV){ 
        if(vtxContainer->size() >0){
@@ -134,10 +155,8 @@ namespace DerivationFramework {
         }
         }
     }else{
-        refPvContainer = const_cast<xAOD::VertexContainer*>(pvContainer);
-        if(vtxContainer->size() >0)CHECK(helper.FillCandExistingVertices(vtxContainer, refPvContainer, m_DoVertexType));
+        if(vtxContainer->size() >0)CHECK(helper.FillCandExistingVertices(vtxContainer, pvContainer, m_DoVertexType));
     }
-    
     
     //----------------------------------------------------
     // save in the StoreGate
@@ -151,6 +170,18 @@ namespace DerivationFramework {
     if(!refPvExists && m_refitPV) {
       CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
       CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
+    }
+    }    
+
+    if (!callJpsiFinder) { //Fill with empty containers
+      vtxContainer = new xAOD::VertexContainer;
+      vtxAuxContainer = new xAOD::VertexAuxContainer;
+      vtxContainer->setStore(vtxAuxContainer);
+      if (!evtStore()->contains<xAOD::VertexContainer>(m_outputVtxContainerName))       
+        CHECK(evtStore()->record(vtxContainer, m_outputVtxContainerName));
+      
+      if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_outputVtxContainerName+"Aux.")) 
+        CHECK(evtStore()->record(vtxAuxContainer, m_outputVtxContainerName+"Aux."));
     }
     
     return StatusCode::SUCCESS;

@@ -5,12 +5,9 @@
 #ifndef G4USERACTIONS__G4UA_G4TRACKCOUNTERTOOL_H
 #define G4USERACTIONS__G4UA_G4TRACKCOUNTERTOOL_H
 
-// STL includes
-#include <string>
-
 // Infrastructure includes
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -27,8 +24,8 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
   class G4TrackCounterTool : public ActionToolBaseReport<G4TrackCounter>,
-                             public IBeginEventActionTool,
-                             public IPreTrackingActionTool
+                             public IG4EventActionTool,
+                             public IG4TrackingActionTool
   {
 
     public:
@@ -37,22 +34,19 @@ namespace G4UA
       G4TrackCounterTool(const std::string& type, const std::string& name,
                          const IInterface* parent);
 
-      /// Initialize tool - temporarily just for debugging
-      virtual StatusCode initialize() override;
+      /// Initialize tool
+      virtual StatusCode initialize() override final;
 
       /// Finalize and merge results from all threads
-      virtual StatusCode finalize() override;
+      virtual StatusCode finalize() override final;
 
-      /// Retrieve the begin-event action interface
-      virtual IBeginEventAction* getBeginEventAction() override final
-      { return static_cast<IBeginEventAction*>( getAction() ); }
+      /// Retrieve the event action interface
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
-      /// Retrieve the pre-tracking action interface
-      virtual IPreTrackingAction* getPreTrackingAction() override final
-      { return static_cast<IPreTrackingAction*>( getAction() ); }
-
-      /// Query interface for gaudi
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+      /// Retrieve the tracking action interface
+      virtual G4UserTrackingAction* getTrackingAction() override final
+      { return static_cast<G4UserTrackingAction*>( getAction() ); }
 
     protected:
 

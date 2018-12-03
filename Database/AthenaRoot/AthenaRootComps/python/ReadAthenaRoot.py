@@ -45,6 +45,9 @@ def _configure():
     #this is so that the eventselector picks up input files in grid jobs
     svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
+    #discovered major inefficiency in THistSvc where it checks output file size on every event, which slows down processing
+    #we will disable this by default, to keep basic tree looping performance optimal
+    svcMgr.THistSvc.MaxFileSize = -1
     
     # suppress the event loop heartbeat as it is somewhat I/O hungry for
     # no real gain in n-tuple reading/writing scenarii

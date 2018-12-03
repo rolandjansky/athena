@@ -5,7 +5,6 @@
 /***************************************************************************
  Collect CSC readout elements - granularity is same as for EDM (hash ids)
  -------------------------------------------------------
- Copyright (C) 2009 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef MUONGEOMODEL_CSCDETECTORELEMENT_H

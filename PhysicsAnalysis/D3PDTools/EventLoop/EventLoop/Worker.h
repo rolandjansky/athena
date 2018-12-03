@@ -25,6 +25,7 @@
 #include <SampleHandler/Global.h>
 #include <AnaAlgorithm/IFilterWorker.h>
 #include <AnaAlgorithm/IHistogramWorker.h>
+#include <AnaAlgorithm/ITreeWorker.h>
 
 class TFile;
 class TH1;
@@ -40,7 +41,8 @@ namespace xAOD
 
 namespace EL
 {
-  class Worker : public IFilterWorker, public IHistogramWorker
+  class Worker : public IFilterWorker, public IHistogramWorker,
+                 public ITreeWorker
   {
     //
     // public interface
@@ -127,6 +129,21 @@ namespace EL
     ///   it, otherwise it ignores it.
   public:
     TFile *getOutputFileNull (const std::string& label) const;
+
+
+    /// effects: adds a tree to an output file specified by the stream/label
+    /// failures: Incorrect stream/label specified, called at the wrong time
+    /// note: See getOutputFile for failure types...
+  public:
+    ::StatusCode addTree( const TTree& tree,
+                          const std::string& stream ) final override;
+
+
+    /// effects: get the tree that was added to an output file earlier
+    /// failures: Tree doesn't exist
+  public:
+    TTree* getOutputTree( const std::string& name,
+                          const std::string& stream ) const final override;
 
 
     /// description: the sample meta-data we are working on
@@ -230,6 +247,25 @@ namespace EL
     Worker (const SH::MetaObject *val_metaData, TList *output);
 
 
+    /// \brief set the \ref JobConfig
+    ///
+    /// This takes care of adding the algorithms, etc. (only
+    /// algorithms for now, 03 Feb 17).
+    ///
+    /// Note the rvalue calling convention here: Algorithms are
+    /// objects that get modified, so if you use them more than once
+    /// you need to copy/clone them.  However, in practice no driver
+    /// should need that (though many do for now, 03 Feb 17), as
+    /// drivers generally stream the JobConfig in for one-time use.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   job configuration/streaming errors
+  protected:
+    void setJobConfig (JobConfig&& jobConfig);
+
+
     /// effects: add another output file
     /// guarantee: strong
     /// failures: low level errors II
@@ -239,14 +275,6 @@ namespace EL
     void addOutputFile (const std::string& label, TFile *file_swallow);
     void addOutputWriter (const std::string& label,
 			  SH::DiskWriter *writer_swallow);
-
-
-    /// effects: add another algorithm
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// requires: alg_swallow != 0
-  protected:
-    void addAlg (EL::Algorithm *alg_swallow);
 
 
     /// effects: tell all algorithms that we started a new file, so
@@ -367,6 +395,13 @@ namespace EL
   private:
     typedef std::map<std::string,TH1*>::const_iterator OutputHistMapIter;
     std::map<std::string,TH1*> m_outputHistMap;
+
+
+    /// description: the list of output trees
+  private:
+    typedef std::map<std::pair<std::string,std::string>,TTree*>::const_iterator
+       OutputTreeMapIter;
+    std::map<std::pair<std::string,std::string>,TTree*> m_outputTreeMap;
 
 
     /// description: the list of output files

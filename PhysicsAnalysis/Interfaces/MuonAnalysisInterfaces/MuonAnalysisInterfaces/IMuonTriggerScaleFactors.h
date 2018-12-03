@@ -59,12 +59,19 @@ namespace CP {
 
             virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont,
                             Double_t& triggersf,
-                            const std::string& trigger) = 0;
+                            const std::string& trigger) const = 0;
+
+            virtual CorrectionCode getTriggerScaleFactor(const xAOD::Muon& muon,
+                            Double_t& triggersf,
+                            const std::string& trigger) const = 0;
 
             virtual CorrectionCode getTriggerEfficiency(const xAOD::Muon& mu,
                             Double_t& efficiency,
                             const std::string& trigger,
-                            Bool_t dataType) = 0;
+                            Bool_t dataType) const = 0;
+      
+            virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const = 0;
+
           
     };
 // class IMuonEfficiencyTool

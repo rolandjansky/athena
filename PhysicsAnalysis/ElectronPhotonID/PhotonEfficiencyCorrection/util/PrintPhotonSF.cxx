@@ -1,8 +1,5 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //PrintPhotonSF.cxx  - print SF for a given input
+//michael.pitt@cern.ch
 
 // System include(s):
 #include <stdio.h>
@@ -13,6 +10,8 @@
 // ROOT include(s):
 #include "TFile.h"
 #include "TString.h"
+#include "TList.h"
+#include "TKey.h"
 
 // Local include(s):
 #include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
@@ -37,11 +36,33 @@ int main (int argc, const char * argv[]) {
 	}
 
 	TString file(argv[1]);	
-	if(!TFile::Open(file)->GetListOfKeys()->Contains("0_99999999999")){
-	  printf("Error: no TDirectory 0_99999999999, check your input file\n");
+	// Check which directories (run numbers) exists
+	//Let user to deside which one to use in case of multiple
+	TList * listDirectories = TFile::Open(file)->GetListOfKeys();
+	const int ndirs = listDirectories->GetSize();
+	if(0==ndirs){
+	  printf("Error: file %s does not contains any keys\n",argv[1]);
 	  return 0;
+	}	
+	TString dirName = listDirectories->First()->GetName();
+	if(ndirs>1) {
+	  printf("Reads: %s, found %d folders:\n",argv[1],ndirs);
+	  TIter next(listDirectories);
+	  TKey *key;
+	  while ((key = (TKey*)next())) printf("%s\n",key->GetName());
+	  printf("which directory to use? (type the number from 1 to %d): ",ndirs);
+	  int ndir_input=0; cin >> ndir_input;
+	  if(ndir_input>ndirs || ndir_input<1)
+	    printf("\nWarning... entered wrong key number, will print SF for directory: %s\n",dirName.Data());
+	  else{
+	    dirName = listDirectories->At(ndir_input-1)->GetName();
+	    printf("\nprint SF for directory: %s\n",dirName.Data());
+	  }
 	}
+	else printf("Reads: %s\nDirectory: %s\n",argv[1],dirName.Data());
 	
+	// read first run number from the directory name:
+	int run_number = atoi(dirName.Tokenize("_")->First()->GetName());
 	if(getenv("ROOTCOREDIR")==NULL){
         cout << "Please setup RootCore before running the PrintPhotonSF [file]"<<endl;
         return 0.;
@@ -60,7 +81,7 @@ PATCore::ParticleDataType::DataType datatype=PATCore::ParticleDataType::Full;
 if(file.Contains("AFII")) datatype=PATCore::ParticleDataType::Fast;
 
 // Access the file to get the histogram binning:
-TH2F * h = file.Contains("AFII") ? (TH2F*)TFile::Open(file)->Get("0_99999999999/AltFast2_sf") : (TH2F*)TFile::Open(file)->Get("0_99999999999/FullSim_sf");
+TH2F * h = file.Contains("AFII") ? (TH2F*)TFile::Open(file)->Get(Form("%s/AltFast2_sf",dirName.Data())) : (TH2F*)TFile::Open(file)->Get(Form("%s/FullSim_sf",dirName.Data()));
 
 
 const Double_t * pTbounds = h->GetXaxis()->GetXbins()->GetArray();
@@ -85,7 +106,7 @@ else if(pt<TEV) printf("|%2.0f - %2.0f\t\t|",pTbounds[i-1]/GEV,pTbounds[i]/GEV);
 else printf("|%2.0f-%2.0f\t\t|",pTbounds[i-1]/GEV,pTbounds[i]/GEV);
 for(int j=1;j<=nEtabins;j++){
 eta=0.5*(Etabounds[j-1]+Etabounds[j]);
-printf("%2.2f+/-%2.4f\t|",tool_SF.calculate(datatype,1,eta,pt).getScaleFactor(),tool_SF.calculate(datatype,1,eta,pt).getTotalUncertainty());
+printf("%2.2f+/-%2.4f\t|",tool_SF.calculate(datatype,run_number,eta,pt).getScaleFactor(),tool_SF.calculate(datatype,run_number,eta,pt).getTotalUncertainty());
 } cout << endl;
 }
 cout << dash_line.Data() <<endl;

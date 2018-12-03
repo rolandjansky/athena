@@ -14,7 +14,6 @@
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/PrimaryParticleInformation.h"
-#include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
 #include "GaudiKernel/PhysicalConstants.h"
@@ -48,8 +47,6 @@
   Existing code:
   Simulation/G4Sim/SimHelpers/src/StepHelper.cxx
   - provids convenient information of a G4Step
-  Simulation/G4Sim/SimHelpers/src/SecondaryTracksHelper.cxx
-  - provids convenient information about secondaries produced in (last) G4Step
   Simulation/G4Utilities/G4TruthStrategies/src/BremsstrahlungStrategy.cxx
   - retrives information from a G4Step (via StepHelper)
   Simulation/G4Sim/MCTruth/MCTruth/TruthStrategy.h
@@ -59,24 +56,18 @@
   Simulation/G4Sim/MCTruth/src/TrackInformation.cxx
   Simulation/G4Sim/MCTruth/src/TrackHelper.cxx
   - store/manage barcode
-
-  Simulation/G4Sim/MCTruth/src/AtlasTrajectory.cxx
-  - setup SecondaryTrackHelper to provide secondaries to truth
 */
 
 
 iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
                                                const ISF::ISFParticle& baseISP,
                                                AtlasDetDescr::AtlasRegion geoID,
-                                               int numChildren,
-                                               SecondaryTracksHelper &sHelper,
                                                EventInformation *eventInfo) :
-  ITruthIncident(geoID, numChildren),
+  ITruthIncident(geoID, step->GetSecondaryInCurrentStep()->size()), // switch to G4Step::GetNumberOfSecondariesInCurrentStep() once we're using G4 10.2 or later
   m_positionSet(false),
   m_position(),
   m_step(step),
   m_baseISP(baseISP),
-  m_sHelper( sHelper),
   m_eventInfo(eventInfo),
   m_childrenPrepared(false),
   m_children(),
@@ -233,7 +224,7 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
   prepareChildren();
 
   // the G4Track instance for the current child particle
-  G4Track* thisChildTrack = m_children[i];
+  const G4Track* thisChildTrack = m_children[i];
 
   // NB: NOT checking if secondary is actually alive. Even with zero momentum,
   //     secondary could decay right away and create further particles which pass the
@@ -255,6 +246,48 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
   trackInfo->SetRegenerationNr(0);
 
   return hepParticle;
+}
+
+
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::updateChildParticle(unsigned short index,
+                                                                      HepMC::GenParticle *existingChild) const {
+  prepareChildren();
+
+  // the G4Track instance for the current child particle
+  const G4Track* thisChildTrack = m_children[index];
+
+  // NB: NOT checking if secondary is actually alive. Even with zero momentum,
+  //     secondary could decay right away and create further particles which pass the
+  //     truth strategies.
+
+  const G4ThreeVector & mom =  thisChildTrack->GetMomentum();
+  const double energy =  thisChildTrack->GetTotalEnergy();
+  const int pdgCode = thisChildTrack->GetDefinition()->GetPDGEncoding();
+  const HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
+
+  // This is the case for quasi-stable particle simulation
+  if(existingChild->pdg_id()!=pdgCode) {
+    G4ExceptionDescription description;
+    description << G4String("updateChildParticle: ") + "Wrong PDG ID mismatch between G4Track and GenParticle";
+    G4Exception("iGeant4::Geant4TruthIncident", "PDGIDMisMatch", FatalException, description);
+  }
+  existingChild->set_momentum(fourMomentum);
+
+  TrackHelper tHelper(thisChildTrack);
+  TrackInformation *trackInfo = tHelper.GetTrackInformation();
+
+  // needed to make AtlasG4 work with ISF TruthService
+  if(trackInfo==nullptr) {
+    trackInfo = new TrackInformation( existingChild );
+    thisChildTrack->SetUserInformation( trackInfo );
+  }
+
+  trackInfo->SetParticle(existingChild);
+  trackInfo->SetClassification(RegisteredSecondary);
+  trackInfo->SetRegenerationNr(0);
+
+  //FIXME!!
+  return existingChild;
 }
 
 
@@ -281,10 +314,10 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, 
 
   const G4ThreeVector & mom =  track->GetMomentum();
   const double energy =  track->GetTotalEnergy();
-  int pdgCode = track->GetDefinition()->GetPDGEncoding();
-  HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
+  const int pdgCode = track->GetDefinition()->GetPDGEncoding();
+  const HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
 
-  int status = 1; // stable particle not decayed by EventGenerator
+  const int status = 1; // stable particle not decayed by EventGenerator
   HepMC::GenParticle* newParticle = new HepMC::GenParticle(fourMomentum, pdgCode, status);
 
   // This should be a *secondary* track.  If it has a primary, it was a decay and 
@@ -309,12 +342,43 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, 
 void iGeant4::Geant4TruthIncident::prepareChildren() const {
 
   if (!m_childrenPrepared) {
-    // NB: m_children is *not* a pointer, therefore this calls
-    //     the assignment operator of std::vector<T> (C++11 should
-    //     be using fast move semantics here)
     unsigned short numChildren = numberOfChildren();
-    m_children = m_sHelper.GetSecondaries( numChildren );
-
+    const auto &tracks = m_step->GetSecondaryInCurrentStep();
+    const int iSize=tracks->size();
+    const int iLast=iSize-numChildren-1; //NB can be -1.
+    for(int i=iSize-1;i>iLast;i--) {
+      m_children.push_back((*tracks)[i]);
+    }
     m_childrenPrepared  = true;
   }
+}
+
+/**  The interaction classifications are described as follows:
+     STD_VTX: interaction of a particle without a pre-defined decay;
+     QS_SURV_VTX: a particle with a pre-defined decay under-going a
+     non-destructive interaction;
+     QS_DEST_VTX: a particle with a pre-defined decay under-going a
+     destructive interaction other than its pre-defined decay;
+     QS_PREDEF_VTX: a particle under-going its pre-defined decay */
+ISF::InteractionClass_t iGeant4::Geant4TruthIncident::interactionClassification() const {
+  G4Track* track=m_step->GetTrack();
+  const G4DynamicParticle* dynPart = track->GetDynamicParticle();
+  bool parentIsQuasiStable = (nullptr!=(dynPart->GetPreAssignedDecayProducts()));
+  const G4VProcess *process = m_step->GetPostStepPoint()->GetProcessDefinedStep();
+  const int processType = process->GetProcessType();
+  const int processSubType = process->GetProcessSubType();
+  ISF::InteractionClass_t classification(ISF::STD_VTX);
+  if(parentIsQuasiStable) {
+    if(this->parentSurvivesIncident()) {
+      classification = ISF::QS_SURV_VTX;
+    }
+    else if(processType==6 && processSubType==201) {
+      classification = ISF::QS_PREDEF_VTX;
+    }
+    else {
+      classification = ISF::QS_DEST_VTX;
+    }
+  }
+  return classification;
+  // end of code to determine interaction type
 }

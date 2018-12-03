@@ -57,7 +57,7 @@ StatusCode LArWFParams2Ntuple::stop() {
     ATH_MSG_DEBUG("Retrieving LArCaliPulseParamsComplete from detector store...");
     StatusCode sc = detStore()->retrieve(completeCaliPulseParams,m_caliPulseParamsKey) ;
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not retrieve LArCaliPulseParamsComplete from detector store!" << endreq ;
+      ATH_MSG_ERROR( "Could not retrieve LArCaliPulseParamsComplete from detector store!" ) ;
       m_dumpCaliPulseParams = false ;
     }
   }
@@ -66,7 +66,7 @@ StatusCode LArWFParams2Ntuple::stop() {
     ATH_MSG_DEBUG("Retrieving LArDetCellParamsComplete from detector store...");
     StatusCode sc = detStore()->retrieve(completeDetCellParams,m_detCellParamsKey);
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not retrieve LArDetCellParamsComplete from detector store!" << endreq ;
+      ATH_MSG_ERROR( "Could not retrieve LArDetCellParamsComplete from detector store!" ) ;
       m_dumpDetCellParams = false;
     }
   } 
@@ -76,7 +76,7 @@ StatusCode LArWFParams2Ntuple::stop() {
     ATH_MSG_DEBUG("Retrieving LArPhysCaliTdiffComplete from detector store...");
     StatusCode sc = detStore()->retrieve(completePhysCaliTdiff,m_physCaliTDiffKey);
     if ( sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve LArPhysCaliTdiffComplete from detector store!" << endreq ;
+      ATH_MSG_ERROR( "Could not retrieve LArPhysCaliTdiffComplete from detector store!" ) ;
       m_dumpPhysCaliTdiff = false ;
     }
   }
@@ -86,7 +86,7 @@ StatusCode LArWFParams2Ntuple::stop() {
     ATH_MSG_DEBUG("Retrieving LArTdriftComplete from detector store...");
     StatusCode sc = detStore()->retrieve(completeTdrift,m_tdriftKey) ;
     if ( sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve LArTdriftComplete from detector store!" << endreq;
+      ATH_MSG_ERROR( "Could not retrieve LArTdriftComplete from detector store!" );
       m_dumpTdrift = false ;
     }
   }
@@ -95,7 +95,7 @@ StatusCode LArWFParams2Ntuple::stop() {
     ATH_MSG_DEBUG("Retrieving LArOFCBinComplete from detector store...");
     StatusCode sc = detStore()->retrieve(completeOFCBin,m_ofcBinKey) ;
     if ( sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve LArOFCBinComplete from detector store!" << endreq;
+      ATH_MSG_ERROR( "Could not retrieve LArOFCBinComplete from detector store!" );
       m_dumpOFCBin= false ;
     }
   }
@@ -107,7 +107,7 @@ StatusCode LArWFParams2Ntuple::stop() {
 
   StatusCode sc=m_nt->addItem("gain",gain,-1,2);
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'Gain' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'Gain' failed" );
     return StatusCode::FAILURE;
   }
 
@@ -115,56 +115,56 @@ StatusCode LArWFParams2Ntuple::stop() {
   if ( m_dumpCaliPulseParams ) {
     sc=m_nt->addItem("Tcal",Tcal);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tcal' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Tcal' failed" );
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("Fstep",Fstep);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Fstep' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Fstep' failed" );
       return StatusCode::FAILURE;
     }
   }
   if ( m_dumpTdrift ) {
     sc=m_nt->addItem("Tdrift",Tdrift);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tdrift' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Tdrift' failed" );
       return StatusCode::FAILURE;
     }
   }
   if ( m_dumpPhysCaliTdiff ) {
     sc=m_nt->addItem("Tdiff",Tdiff);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Tdiff' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Tdiff' failed" );
       return StatusCode::FAILURE;
     }
   }
   if ( m_dumpDetCellParams ) {
     sc=m_nt->addItem("Omega0",Omega0);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Omega0' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Omega0' failed" );
       return StatusCode::FAILURE;
     }
     sc=m_nt->addItem("Taur",Taur);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Taur' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Taur' failed" );
       return StatusCode::FAILURE;
     }
   }
   if (m_dumpOFCBin) {
     sc=m_nt->addItem("Bin",ofcbin);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addIdetm 'Bin' failed!" << endreq;
+      ATH_MSG_ERROR( "addIdetm 'Bin' failed!" );
     }
   }
 
 //   sc=m_nt->addItem("Tshaper",m_Tshaper);
 //   if (sc!=StatusCode::SUCCESS) {
-//     msg(MSG::ERROR) << "addItem 'Tshaper' failed" << endreq;
+//     ATH_MSG_ERROR( "addItem 'Tshaper' failed" );
 //     return StatusCode::FAILURE;
 //   }
 //   sc=m_nt->addItem("Amplitude",m_Amplitude);
 //   if (sc!=StatusCode::SUCCESS) {
-//     msg(MSG::ERROR) << "addItem 'Amplitude' failed" << endreq;
+//     ATH_MSG_ERROR( "addItem 'Amplitude' failed" );
 //     return StatusCode::FAILURE;
 //   }
 
@@ -259,7 +259,7 @@ StatusCode LArWFParams2Ntuple::stop() {
 
        sc=ntupleSvc()->writeRecord(m_nt);
        if (sc!=StatusCode::SUCCESS) {
-	 msg(MSG::ERROR) << "writeRecord failed" << endreq;
+	 ATH_MSG_ERROR( "writeRecord failed" );
 	 return StatusCode::FAILURE;
        }
      }//end if have data

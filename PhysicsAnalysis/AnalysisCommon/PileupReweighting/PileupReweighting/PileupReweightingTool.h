@@ -157,6 +157,9 @@ namespace CP {
       bool m_noWeightsMode;
       
       bool m_varyRunNumber;
+      bool m_useRunDependentPrescaleWeight;
+      
+      std::vector<int> m_customPeriods;
 
       ///< Default weight tool in standalone mode
       std::unique_ptr< IWeightTool > m_defaultWeightTool;

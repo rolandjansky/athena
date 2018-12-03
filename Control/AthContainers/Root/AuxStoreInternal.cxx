@@ -31,7 +31,6 @@ namespace SG {
  */
 AuxStoreInternal::AuxStoreInternal (bool standalone /*= false*/)
   : m_standalone (standalone),
-    m_tick (0),
     m_locked (false)
 {
 }
@@ -56,7 +55,6 @@ AuxStoreInternal::AuxStoreInternal (const AuxStoreInternal& other)
   : m_standalone (other.m_standalone),
     m_isDecoration (other.m_isDecoration),
     m_auxids (other.m_auxids),
-    m_tick (1),
     m_locked (other.m_locked)
 {
   size_t size = other.m_vecs.size();
@@ -343,8 +341,7 @@ bool AuxStoreInternal::insertMove (size_t pos,
 
   // Add any new variables not present in the original container.
   for (SG::auxid_t id : other.getAuxIDs()) {
-    if (m_auxids.find(id) == m_auxids.end() &&
-        ignore.find(id) == ignore.end())
+    if (!m_auxids.test(id) && !ignore.test(id))
     {
       if (other.getData (id)) {
         void* src_ptr = other.getData (id, other_size, other_size);
@@ -374,15 +371,7 @@ bool AuxStoreInternal::insertMove (size_t pos,
 const SG::auxid_set_t&
 AuxStoreInternal::getAuxIDs() const
 {
-  guard_t guard (m_mutex);
-  if (m_tsAuxids.get() == 0) {
-    m_tsAuxids.reset (new TSAuxidSet (m_tick, m_auxids));
-  }
-  else if (m_tsAuxids->m_tick != m_tick) {
-    m_tsAuxids->m_set = m_auxids;  // May need to optimize this!
-    m_tsAuxids->m_tick = m_tick;
-  }
-  return m_tsAuxids->m_set;
+  return m_auxids;
 }
 
 
@@ -499,19 +488,24 @@ void AuxStoreInternal::lock()
  * Erase all decorations from the store, restoring the state to when
  * @c lock was called.  Be sure to clear the cache of the referencing
  * container!
+ *
+ * Returns true if there were any decorations that were cleared,
+ * false if the store did not contain any decorations.
  */
-void AuxStoreInternal::clearDecorations()
+bool AuxStoreInternal::clearDecorations()
 {
   guard_t guard (m_mutex);
+  bool anycleared = false;
   for (auxid_t id = 0; id < m_vecs.size(); id++) {
     if (m_isDecoration[id]) {
       m_isDecoration[id] = false;
       delete m_vecs[id];
       m_vecs[id] = 0;
       m_auxids.erase (id);
-      ++m_tick;
+      anycleared = true;
     }
   }
+  return anycleared;
 }
 
 
@@ -595,7 +589,6 @@ bool AuxStoreInternal::setOption (auxid_t id, const AuxDataOption& option)
 void AuxStoreInternal::addAuxID (auxid_t auxid)
 {
   m_auxids.insert (auxid);
-  ++m_tick;
 }
 
 

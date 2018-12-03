@@ -124,10 +124,10 @@ doMuonMon = doAllMon
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
 
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
-globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
-globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
+#from AthenaCommon.GlobalFlags import globalflags
+#globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
+#globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
+#globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
 
 
 from AthenaCommon.BFieldFlags import jobproperties

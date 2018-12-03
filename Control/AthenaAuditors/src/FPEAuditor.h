@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.h 
@@ -27,6 +27,7 @@
 
 // Forward declaration
 class INamedInterface;
+
 
 class FPEAuditor : virtual public Auditor, public AthMessaging
 { 
@@ -102,6 +103,8 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
+
+  std::string m_evtInfoKey;
 
   /** report fpes which happened during step 'step' on behalf of 'caller'
    */

@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_IBEAMLUMINOSITY_H
@@ -20,9 +20,7 @@ public:
   ///run and lumiblock number
   virtual float scaleFactor(unsigned int run, unsigned int lumi, bool & updated) = 0;
 
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID( "IBeamLuminosity", 1, 0 );
-    return IID;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IBeamLuminosity, 1, 0 );
 };
-#endif
+#endif // PILEUPTOOLS_IBEAMLUMINOSITY_H

@@ -11,7 +11,7 @@ import ast
 import json
 import os
 import traceback
-from simplejson import dumps
+from json import dumps
 
 import logging
 msg = logging.getLogger(__name__)

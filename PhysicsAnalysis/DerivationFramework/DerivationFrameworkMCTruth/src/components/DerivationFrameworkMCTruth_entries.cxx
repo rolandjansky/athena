@@ -14,10 +14,12 @@
 #include "DerivationFrameworkMCTruth/HadronOriginDecorator.h"
 #include "DerivationFrameworkMCTruth/HadronOriginClassifier.h"
 #include "DerivationFrameworkMCTruth/TruthQGDecorationTool.h"
+#include "DerivationFrameworkMCTruth/TruthD2Decorator.h"
 #include "../GenFilterTool.h"
 #include "../HardScatterCollectionMaker.h"
 #include "../TruthNavigationDecorator.h"
 #include "../TruthBornLeptonCollectionMaker.h"
+#include "../TruthLinkRepointTool.h"
 
 using namespace DerivationFramework;
 
@@ -40,6 +42,8 @@ DECLARE_TOOL_FACTORY( GenFilterTool )
 DECLARE_TOOL_FACTORY( HardScatterCollectionMaker )
 DECLARE_TOOL_FACTORY( TruthNavigationDecorator )
 DECLARE_TOOL_FACTORY( TruthBornLeptonCollectionMaker )
+DECLARE_TOOL_FACTORY( TruthD2Decorator )
+DECLARE_TOOL_FACTORY( TruthLinkRepointTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( TruthDressingTool )
@@ -61,4 +65,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( HardScatterCollectionMaker )
    DECLARE_TOOL( TruthNavigationDecorator )
    DECLARE_TOOL( TruthBornLeptonCollectionMaker )
+   DECLARE_TOOL( TruthD2Decorator )
+   DECLARE_TOOL( TruthLinkRepointTool )
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -10,6 +10,7 @@
 
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
@@ -22,7 +23,8 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
+
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
 #include "PATCore/TResult.h"
 
@@ -49,6 +51,9 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
+
+  const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
+  const static SG::AuxElement::ConstAccessor<char> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
 
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
@@ -77,30 +82,9 @@ StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::S
     electrons=copy;
   }
 
-  bool cached_doIsoSig = m_doElIsoSignal;
   for (const auto& electron : *copy) {
     ATH_CHECK( this->FillElectron(*electron, m_eleBaselinePt, m_eleBaselineEta) );
-    if(m_doIsoCloseByOR) //switch off isolation for now if close-by OR corrections were requested
-      m_doElIsoSignal = false;
     this->IsSignalElectron(*electron, m_elePt, m_eled0sig, m_elez0, m_eleEta);
-  }
-
-  //apply close-by corrections to isolation if requested
-  if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
-    std::vector<const xAOD::IParticle*> pVec;
-    for(auto pobj: *copy) {
-      pVec.push_back((const xAOD::IParticle*) pobj);
-    }
-
-    //restore isSignal settings
-    m_doElIsoSignal = cached_doIsoSig;
-
-    //correct isolation and propagate to signal deco
-    for (const auto& electron : *copy) {
-      dec_isol(*electron) = m_isoCloseByTool->acceptCorrected(*electron, pVec);
-      if(m_doElIsoSignal) dec_signal(*electron) &= acc_isol(*electron); //add isolation to signal deco if requested
-    }
   }
 
   if (recordSG) {
@@ -121,6 +105,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
+  dec_isolHighPt(input) = false;
   dec_passSignalID(input) = false;
   dec_passChID(input) = false;
   dec_ecisBDT(input) = -999.;
@@ -170,10 +155,19 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     return StatusCode::FAILURE;
   }
 
-  if ( !m_elecSelLikelihoodBaseline->accept(&input) )
-    if( !m_force_noElId )
-      return StatusCode::SUCCESS;
-  
+  bool passBaseID = false;
+  if (m_eleIdExpert) {
+    passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
+  } else {
+    if (m_acc_eleIdBaseline.isAvailable(input)) {
+      passBaseID = m_acc_eleIdBaseline(input);
+    } else {
+      ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
+      passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
+    }
+  }
+  if ( !passBaseID && !m_force_noElId ) return StatusCode::SUCCESS;
+
   //baseline ID decoration for TauEl OR
   //dec_passBaseID(input) = true;
 
@@ -190,8 +184,9 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
 
-  if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
-    ATH_MSG_ERROR("FillElectron: IsolationCorrectionTool applyCorrection failed");
+  // no longer needed for electrons since the correcion is applied in AOD
+  //if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
+  //  ATH_MSG_ERROR("FillElectron: IsolationCorrectionTool applyCorrection failed");
 
   ATH_MSG_VERBOSE( "FillElectron: post-calibration pt=" << input.pt() );
 
@@ -200,15 +195,27 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   if (m_elebaselinez0>0. && fabs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
   if (m_elebaselined0sig>0. && fabs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
 
+  //--- Do baseline isolation check
+  if ( !( m_eleBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
+
   dec_baseline(input) = true;
   dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);
+  if (m_eleIsoHighPt_WP == "FixedCutHighPtCaloOnly" && acc_topoetcone20.isAvailable(input)) {
+    dec_isolHighPt(input) = acc_topoetcone20(input)/input.pt() < 0.015 || m_isoHighPtTool->accept(input);
+  } else {
+    dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
+  }
 
   //ChargeIDSelector
   if( m_runECIS ){
-    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
-    double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
-    dec_ecisBDT(input) = bdt;
+    if (acc_passECIDS.isAvailable(input)) {
+      dec_passChID(input) = acc_passECIDS(input); // Loose 97% WP!
+    } else {
+      dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
+      double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
+      dec_ecisBDT(input) = bdt;
+    }
 
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
     if( !isData() ) {
@@ -228,16 +235,26 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
 bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut, float d0sigcut, float z0cut, float etacut) const
 {
+  if (!acc_baseline(input)) return false;
+
   dec_passSignalID(input) = false;
   
-  if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+  if (m_eleIdExpert) {
+    if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+  } else {
+    if (m_acc_eleId.isAvailable(input)) {
+      dec_passSignalID(input) = m_acc_eleId(input);
+    } else {
+      ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
+      if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true; 
+    }
+  }
 
   //overwrite ID selection if forced by user
   if(m_force_noElId) dec_passSignalID(input) = true;
 
   if (!acc_passSignalID(input)) return false;
 
-  if (!acc_baseline(input)) return false;
   if (input.p4().Perp2() <= etcut * etcut || input.p4().Perp2() == 0) return false; // eT cut (might be necessary for leading electron to pass trigger)
   if ( etacut==DUMMYDEF ){
     if(fabs(input.eta()) > m_eleEta ) return false;
@@ -246,7 +263,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   if (m_eleCrackVeto){
     if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
-      return StatusCode::SUCCESS; 
+      return false;
     }
   }
 
@@ -260,7 +277,9 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
   if (acc_isol(input) || !m_doElIsoSignal) {
-    ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
+    if (acc_isolHighPt(input) || input.pt()<200e3) { // patch for removing the high-pt electron fakes /KY
+      ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
+    } else return false;
   } else return false; //isolation selection with IsoTool
 
 
@@ -286,10 +305,12 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
+  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
+
   //shortcut keys for trigger SF config
-  static std::string singleLepStr = "singleLepton";
-  static std::string diLepStr     = "diLepton";
-  static std::string mixedLepStr  = "mixedLepton";
+  std::string singleLepStr = "singleLepton";
+  std::string diLepStr     = "diLepton";
+  std::string multiLepStr  = "multiLepton";
 
   float sf(1.);
 
@@ -333,18 +354,16 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
   if (triggerSF) {
 
-    //
     std::vector<std::string> trigMChains={};
-    std::string theExpr = trigExpr;
-    if(trigExpr==singleLepStr)    { trigMChains = (this->treatAsYear()==2015 ? v_trigs15_cache_single  : v_trigs16_cache_single); theExpr=m_electronTriggerSFStringSingle;}
-    else if(trigExpr==diLepStr)   { trigMChains = (this->treatAsYear()==2015 ? v_trigs15_cache_dilep   : v_trigs16_cache_dilep);  theExpr=m_electronTriggerSFStringDiLepton;}
-    else if(trigExpr==mixedLepStr){ trigMChains = (this->treatAsYear()==2015 ? v_trigs15_cache_mixlep  : v_trigs16_cache_mixlep); theExpr=m_electronTriggerSFStringMixedLepton;}
-    else if(trigExpr==m_electronTriggerSFStringSingle)      { trigMChains = (this->treatAsYear()==2015 ? v_trigs15_cache_single  : v_trigs16_cache_single); } 
-    else if(trigExpr==m_electronTriggerSFStringDiLepton)    { trigMChains = (this->treatAsYear()==2015 ? v_trigs15_cache_dilep   : v_trigs16_cache_dilep);  }
-    else if(trigExpr==m_electronTriggerSFStringMixedLepton) { trigMChains = (this->treatAsYear()==2015 ? v_trigs15_cache_mixlep  : v_trigs16_cache_mixlep); } 
+    std::string theExpr ("");
+    if(trigExpr==singleLepStr) { 
+      if (this->treatAsYear()==2015) trigMChains = v_trigs15_cache_singleEle;
+      else if (this->treatAsYear()==2016) trigMChains = v_trigs16_cache_singleEle; 
+      else trigMChains = v_trigs17_cache_singleEle;
+      theExpr=m_electronTriggerSFStringSingle;
+    } 
     else{
-      //get chains for custom configuration
-      trigMChains = GetTriggerOR(theExpr);
+      ATH_MSG_WARNING( "Only single lepton trigger SFs are supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF() for dilepton or multilepton triggers!");
     }
 
     //check matching
@@ -354,14 +373,24 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
       ATH_MSG_DEBUG( "Electron was not matched to trigger " << theExpr << " - scale factor does not apply (year " << this->treatAsYear() << ")  Returning 1." );
     }
     else{ //is trig-matched electron, go for it!
-      double trig_sf = GetEleTriggerEfficiencySF( el , theExpr );
-      sf *= trig_sf;
+      if (trigExpr==multiLepStr || trigExpr==diLepStr) {
+        ATH_MSG_WARNING( "The dilepton or multilepton trigger SFs are not supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF()!");
+      }
+      else {
+        double trig_sf = GetEleTriggerEfficiencySF( el , theExpr );
+        sf *= trig_sf;
+      }
     }
   }
 
   if (isoSF) {
     double iso_sf(1.);
-    CP::CorrectionCode result = m_elecEfficiencySFTool_iso->getEfficiencyScaleFactor(el, iso_sf);
+    CP::CorrectionCode result;
+    if (acc_isolHighPt(el) && el.pt()>200e3)
+      result = m_elecEfficiencySFTool_isoHighPt->getEfficiencyScaleFactor(el, iso_sf);
+    else 
+      result = m_elecEfficiencySFTool_iso->getEfficiencyScaleFactor(el, iso_sf);
+      
     switch (result) {
     case CP::CorrectionCode::Ok:
       sf *= iso_sf;
@@ -379,6 +408,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
   // new : charge flip SF 
   if (chfSF){
+    ATH_MSG_WARNING ("Be aware that charge mis-ID SF is not provided in R21 yet. Use at your own risk!");
     double chf_sf(1.);
 
     //ECIS SF 
@@ -414,7 +444,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }   
 
   }
-
   
   dec_effscalefact(el) = sf;
   return sf;
@@ -425,13 +454,17 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
 
   double trig_sf(1.);
 
+  std::string single_str = "SINGLE_E";
+  std::string dilep_str = "DI_E";
+  std::string multi_str = "MULTI_L";
+
   CP::CorrectionCode result;
-  if ( m_electronTriggerSFStringSingle.find(trigExpr) != std::string::npos ) 
+  if ( trigExpr.find(single_str) != std::string::npos ) 
     result = m_elecEfficiencySFTool_trig_singleLep->getEfficiencyScaleFactor(el, trig_sf);
-  else if ( m_electronTriggerSFStringDiLepton.find(trigExpr) != std::string::npos && m_electronTriggerSFStringMixedLepton.find(trigExpr) == std::string::npos) 
-    result = m_elecEfficiencySFTool_trig_diLep->getEfficiencyScaleFactor(el, trig_sf);
-  else if ( m_electronTriggerSFStringMixedLepton.find(trigExpr) != std::string::npos )
-    result = m_elecEfficiencySFTool_trig_mixLep->getEfficiencyScaleFactor(el, trig_sf);
+  else if ( trigExpr.find(dilep_str) != std::string::npos )
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
+  else if ( trigExpr.find(multi_str) != std::string::npos ) 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
   else 
     ATH_MSG_ERROR( "The trigger expression (" << trigExpr << ") is not supported by the electron trigger SF!");
   
@@ -449,18 +482,21 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
   return trig_sf;
 }
 
-
 double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr) const {
+
+  std::string single_str = "SINGLE_E";
+  std::string dilep_str = "DI_E";
+  std::string multi_str = "MULTI_L";
 
   double trig_eff(1.);
 
   CP::CorrectionCode result;
-  if ( m_electronTriggerSFStringSingle.find(trigExpr) != std::string::npos ) 
+  if ( m_electronTriggerSFStringSingle.find(single_str) != std::string::npos ) 
     result = m_elecEfficiencySFTool_trigEff_singleLep->getEfficiencyScaleFactor(el, trig_eff);
-  else if ( m_electronTriggerSFStringDiLepton.find(trigExpr) != std::string::npos && m_electronTriggerSFStringMixedLepton.find(trigExpr) == std::string::npos) 
-    result = m_elecEfficiencySFTool_trigEff_diLep->getEfficiencyScaleFactor(el, trig_eff);
-  else if ( m_electronTriggerSFStringMixedLepton.find(trigExpr) != std::string::npos )
-    result = m_elecEfficiencySFTool_trigEff_mixLep->getEfficiencyScaleFactor(el, trig_eff);
+  else if ( trigExpr.find(dilep_str) != std::string::npos ) 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
+  else if ( trigExpr.find(multi_str) != std::string::npos ) 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
   else 
     ATH_MSG_ERROR( "The trigger expression (" << trigExpr << ") is not supported by the electron trigger efficiency!");
   
@@ -511,14 +547,14 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
-  ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(systConfig);
+  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
-  ret = m_elecEfficiencySFTool_trig_mixLep->applySystematicVariation(systConfig);
+  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
@@ -526,19 +562,14 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
-  ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-  }
-
-  ret = m_elecEfficiencySFTool_trigEff_mixLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-  }
-
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_elecEfficiencySFTool_isoHighPt->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso high-pt) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_chf->applySystematicVariation(systConfig);
@@ -571,14 +602,14 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
-  ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(m_currentSyst);
+  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
   }
 
-  ret = m_elecEfficiencySFTool_trig_mixLep->applySystematicVariation(m_currentSyst);
+  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(m_currentSyst);
@@ -586,19 +617,14 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
-  ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
-  }
-
-  ret = m_elecEfficiencySFTool_trigEff_mixLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
-  }
-
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) back to default.");
+  }
+
+  ret = m_elecEfficiencySFTool_isoHighPt->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso high-pt) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_chf->applySystematicVariation(m_currentSyst);

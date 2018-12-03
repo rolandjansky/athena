@@ -58,7 +58,7 @@ namespace LArG4
         using SDList_t = std::vector< std::unique_ptr<SDType> >;
 
         /// Construct the wrapper from the output collection name
-        SDWrapper(const std::string& name, const std::string& hitCollectionName);
+        SDWrapper(const std::string& name, const std::string& hitCollectionName, std::string deadHitCollectionName="");
 
         /// Add an SD to this wrapper
         void addSD(std::unique_ptr<SDType> sd);
@@ -83,6 +83,12 @@ namespace LArG4
         /// The hit container handle
         SG::WriteHandle<HitContainerType> m_hitColl;
 
+        /// The hit container name
+        std::string m_deadHitCollName;
+
+        /// The hit container handle
+        SG::WriteHandle<HitContainerType> m_deadHitColl;
+
         /// The list of sensitive detectors that I own and manage
         SDList_t m_sdList;
 
@@ -91,6 +97,9 @@ namespace LArG4
         std::string m_fastSimSDName;
 
     }; // class SDWrapper
+
+    template<>
+    void SDWrapper<LArG4CalibSD, CaloCalibrationHitContainer>::EndOfAthenaEvent();
 
   } // namespace detail
 

@@ -15,16 +15,15 @@ TreeManager::TreeManager() :
       m_tree(nullptr) {
 }
 
-TreeManager::TreeManager(const std::string& name, TFile* outputFile,const bool setAutoFlushZero) :
+TreeManager::TreeManager(const std::string& name, TFile* outputFile, const int nEventAutoFlush, const int basketSizePrimitive, const int basketSizeVector) :
     m_name(name),
-    m_tree(nullptr) {
+    m_tree(nullptr){
     outputFile->cd();
     m_tree = new TTree(name.c_str(), "tree");
-    if (setAutoFlushZero) {
-      // Fix for ANALYSISTO-44
-      m_tree->SetAutoFlush(0);
-      m_tree->SetAutoSave(0);
-    }
+    m_tree->SetAutoFlush( nEventAutoFlush );
+    m_tree->SetAutoSave(0);
+    m_basketSizePrimitive = basketSizePrimitive;
+    m_basketSizeVector    = basketSizeVector;
 }
 
 TreeManager::TreeManager(const TreeManager&& rhs) :
@@ -33,19 +32,18 @@ TreeManager::TreeManager(const TreeManager&& rhs) :
     m_outputVarPointers(std::move(rhs.m_outputVarPointers)) {
 }
 
-void TreeManager::initialize(const std::string& name, TFile* outputFile,const bool setAutoFlushZero) {
+void TreeManager::initialize(const std::string& name, TFile* outputFile, const int nEventAutoFlush, const int basketSizePrimitive, const int basketSizeVector){
     if (m_tree) {
         std::cerr << "Tried to call initialize, but tree is already created. Doing nothing." << std::endl;
         return;
     }
 
     outputFile->cd();
-    m_tree = new TTree(name.c_str(), "tree");
-    if (setAutoFlushZero) {
-      // Fix for ANALYSISTO-44
-      m_tree->SetAutoFlush(0);
-      m_tree->SetAutoSave(0); 
-    }
+    m_tree = new TTree(name.c_str(), "tree");    
+    m_tree->SetAutoFlush( nEventAutoFlush );
+    m_tree->SetAutoSave(0);
+    m_basketSizePrimitive = basketSizePrimitive;
+    m_basketSizeVector    = basketSizeVector;
 }
 
 void TreeManager::fill() {

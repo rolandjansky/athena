@@ -23,8 +23,7 @@ hlt_JetKeys = { "a10tcemsubFS" : "HLT_xAOD__JetContainer_a10tcemsubFS",
                 "a4tcemsubjesFS" : "HLT_xAOD__JetContainer_a4tcemsubjesFS"}
 
 hlt_offlineJetKeys = { "AntiKt4LCTopoJets" : "AntiKt4LCTopoJets", 
-                       "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets", 
-                       "AntiKt10LCTopoJets" : "AntiKt10LCTopoJets"}
+                       "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets"}
 
 ## Monitoring triggers
 ## Modify to the default naming scheme for menu-aware montioring.  

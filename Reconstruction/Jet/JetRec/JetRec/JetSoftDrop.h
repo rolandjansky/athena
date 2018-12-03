@@ -53,7 +53,8 @@ private:  // data
   // z = min(pT1, pT2)/(pT1+pT2)
   // R0 = characteristic jet radius
   float m_zcut;                        // pT fraction for retaining subjets
-  float m_beta;                        // 
+  float m_beta;                        // How much to consider angular dependence
+  float m_R0;	                         // Normalization of angular distance, usually the characteristic jet radius (default R0 = 1)
   ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
 
 };

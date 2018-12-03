@@ -18,9 +18,6 @@
 // forward declarations
 class G4Step;
 
-/** Declaration of the interface ID ( interface id, major version, minor version) */
-static const InterfaceID IID_ITruthSvc("ITruthSvc", 1 , 0);
-
 namespace ISF {
 
   class ITruthIncident;
@@ -35,14 +32,14 @@ namespace ISF {
     class ITruthSvc : virtual public IInterface { 
 
       public: 
-        /** Retrieve interface ID */
-        static const InterfaceID& interfaceID() { return IID_ITruthSvc; }
+        /// Creates the InterfaceID and interfaceID() method
+        DeclareInterfaceID(ITruthSvc, 1, 0);
       
         /** virtual desctructor */
         virtual ~ITruthSvc() { }
 
         /** Register a truth incident */
-        virtual void registerTruthIncident( ITruthIncident& truthincident) = 0;
+        virtual void registerTruthIncident( ITruthIncident& truthincident) const = 0;
         
         /** Initialize the Truth Svc at the beginning of each event */
         virtual StatusCode initializeTruthCollection() = 0;

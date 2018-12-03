@@ -61,12 +61,13 @@ using namespace asg::msgUserCode;
 int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
   // Initialize the application
 #ifdef XAOD_STANDALONE
-  xAOD::Init() ;
+  
   //enable status code failures
   CP::CorrectionCode::enableFailure();
   CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
   xAOD::TReturnCode::enableFailure();
+  xAOD::Init() ;
 #else
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 #endif
@@ -111,7 +112,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
@@ -123,7 +124,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
-  ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
+  ANA_CHECK( metMaker.setProperty("DoMuonEloss", false) ); // currently under investigation. recommend false unless you see too many jets being removed
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
   ANA_CHECK( metMaker.setProperty("DoSetMuonJetEMScale", true) );
   ANA_CHECK( metMaker.retrieve() );
@@ -256,7 +257,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 				     calibJets,       //using this jet collection to calculate jet met
 				     coreMet,         //core met container
 				     metMap,          //with this association map
-				      false            //don't apply jet jvt cut
+				      true            //apply jet jvt cut
 				     )
 	     );
 

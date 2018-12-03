@@ -6,6 +6,7 @@
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IIoComponentMgr.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -48,6 +49,13 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
                                                  // to be after MetaDataSvc.
   incSvc->addListener(this, "MetaDataStop", 50); // pri has to be > 20 to be 
                                                   // before MetaDataSvc and AthenaOutputStream.
+
+  ServiceHandle<IIoComponentMgr> ioMgr("IoComponentMgr", this->name());
+  ATH_CHECK( ioMgr.retrieve() );
+  if (!ioMgr->io_register(this).isSuccess()) {
+    ATH_MSG_FATAL("Could not register myself with the IoComponentMgr");
+    return(StatusCode::FAILURE);
+  }
 
   m_LumiBlockInfo.clear();
 
@@ -313,4 +321,12 @@ StatusCode CreateLumiBlockCollectionFromFile::updateCache(IOVSVC_CALLBACK_ARGS) 
   ATH_MSG_INFO( "database returns NEventRec=" << nev );
 
  return StatusCode::SUCCESS;
+}
+
+
+StatusCode CreateLumiBlockCollectionFromFile::io_reinit() {
+  ATH_MSG_INFO("I/O reinitialization...");
+  m_LumiBlockInfo.clear();
+
+  return StatusCode::SUCCESS;
 }

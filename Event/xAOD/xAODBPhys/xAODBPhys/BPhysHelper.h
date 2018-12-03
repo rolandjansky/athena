@@ -549,7 +549,12 @@ namespace xAOD {
       
       bool setLxy   (const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< decay distance
       bool setLxyErr(const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< its error
-      
+
+      float lxyz   (const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< decay distance
+      float lxyzErr(const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< its error
+      bool setLxyz   (const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< decay distance
+      bool setLxyzErr(const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< its error
+
       /** @} */
       
       /************************************************************************/

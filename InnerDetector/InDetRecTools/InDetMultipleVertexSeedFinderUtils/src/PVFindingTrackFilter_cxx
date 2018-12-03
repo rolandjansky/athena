@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "InDetMultipleVertexSeedFinderUtils/PVFindingTrackFilter.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/MeasuredPerigee.h"

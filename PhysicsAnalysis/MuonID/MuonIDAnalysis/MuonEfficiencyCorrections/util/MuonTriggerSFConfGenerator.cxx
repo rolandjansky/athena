@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
-    std::string quality = "Medium"; // HighPt, Tight, Loose may also be used here 
+    std::string quality = "Medium"; // HighPt, Tight, Loose, LowPt may also be used here 
     TDirectory* qualityDirectory = file->GetDirectory(quality.c_str());
     if (!qualityDirectory) {
         Error("MuonTriggerSFConfGenerator", " Directory for quality %s is missing", quality.c_str());

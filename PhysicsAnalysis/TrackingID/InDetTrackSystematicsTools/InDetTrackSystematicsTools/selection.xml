@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="InDet::IInDetTrackSmearingTool" />
+  <class name="InDet::InDetTrackSmearingTool" />
+
+  <class name="InDet::IInDetTrackBiasingTool" />
+  <class name="InDet::InDetTrackBiasingTool" />
+
+  <class name="InDet::IJetTrackFilterTool" />
+  <class name="InDet::JetTrackFilterTool" />
+
+  <class name="InDet::IInDetTrackTruthFilterTool" />
+  <class name="InDet::InDetTrackTruthFilterTool" />
+
+  <class name="InDet::IInDetTrackTruthOriginTool" />
+  <class name="InDet::InDetTrackTruthOriginTool" />
+
+</lcgdict>

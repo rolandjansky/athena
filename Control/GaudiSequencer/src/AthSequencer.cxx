@@ -63,6 +63,9 @@ AthSequencer::AthSequencer( const std::string& name,
   declareProperty( "StopOverride", m_stopOverride=false,
                    "Stop on filter failure Override flag" );
   
+  declareProperty( "StopOnSuccess", m_stopOnSuccess=false,
+                   "Stop on filter success flag, i.e. will stop executing algorithms as soon as one passes. Should use with StopOverride otherwise will only ever run the first algorithm in the sequence" );
+  
   declareProperty( "TimeOut",      m_timeout=0,
                    "Abort job after one algorithm or sequence reaches the time out. Timeout given in Nanoseconds (official ATLAS units), despite its millisecond resolution" );
   
@@ -177,6 +180,11 @@ AthSequencer::execute()
           if ( ! m_stopOverride ) {
             if ( ! passed ) break;
           }
+          
+          //Default action is to keep processing algorithms 
+          //But StopOnSuccess can be used to exit the sequence as soon as one algorithm succeeds
+          if( m_stopOnSuccess && passed ) break;
+          
         } else {
           ATH_MSG_INFO ("execute of [" << theAlgorithm->name() << "] did NOT succeed");
           break;

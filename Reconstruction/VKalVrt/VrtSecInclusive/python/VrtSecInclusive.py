@@ -26,5 +26,5 @@ class VrtSecInclusive ( VKalVrtAthena__VrtSecInclusive )  :
         ToolSvc += AtlasTrackSummaryTool
 
 
-        VKalVrtAthena__VrtSecInclusive.__init__( self,name="VrtSecInclusive")
+        VKalVrtAthena__VrtSecInclusive.__init__( self, name )
 

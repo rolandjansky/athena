@@ -4,8 +4,7 @@
 
 #include "AthenaMonitoring/DQFilledBunchFilterTool.h"
 #include "AthenaKernel/errorcheck.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 DQFilledBunchFilterTool::DQFilledBunchFilterTool(const std::string& type,const std::string& name,const IInterface* parent)
 : AthAlgTool( type, name, parent )
@@ -35,10 +34,10 @@ bool DQFilledBunchFilterTool::accept() const {
   if (m_alwaysReturnTrue) {
     return true;
   } else {
-    const EventInfo* eventInfo(0);
+    const xAOD::EventInfo* eventInfo(0);
     CHECK( evtStore()->retrieve( eventInfo ) );
     
-    EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();  
+    auto bcid = eventInfo->bcid();  
     bool value = m_bunchtool->isFilled(bcid) ^ m_invert;
     ATH_MSG_VERBOSE("Filled bunch DQ tool accept called, value " << value);
     return value;

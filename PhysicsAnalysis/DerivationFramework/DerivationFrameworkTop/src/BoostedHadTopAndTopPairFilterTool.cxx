@@ -168,7 +168,9 @@ bool BoostedHadTopAndTopPairFilterTool::isFromTop(const xAOD::TruthParticle* par
   for(unsigned int i=0; i<part->nParents(); ++i){
     const xAOD::TruthParticle* parent = part->parent(i);
     if( part->barcode() < parent->barcode() ) continue; /// protection for sherpa
-    if( abs( parent->pdgId() ) == 6 ) return true;
+    // check also parent of the W
+    if( abs( parent->pdgId() ) == 6 ) { return true; }
+    else { if(isFromTop(parent)) return true; }
   }
 
   return false;

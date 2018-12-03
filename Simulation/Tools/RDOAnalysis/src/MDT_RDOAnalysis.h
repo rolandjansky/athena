@@ -68,25 +68,25 @@ private:
   std::vector< std::vector<float> >* m_localZ_vec;
 
   // HISTOGRAMS
-  TH1* h_mdtID;
-  TH1* h_subID;
-  TH1* h_mrodID;
-  TH1* h_csmID;
-  TH1* h_tdcID;
-  TH1* h_chanID;
-  TH1* h_coarse;
-  TH1* h_fine;
-  TH1* h_width;
+  TH1* m_h_mdtID;
+  TH1* m_h_subID;
+  TH1* m_h_mrodID;
+  TH1* m_h_csmID;
+  TH1* m_h_tdcID;
+  TH1* m_h_chanID;
+  TH1* m_h_coarse;
+  TH1* m_h_fine;
+  TH1* m_h_width;
 
-  TH1* h_sdoID;
-  TH1* h_sdoWord;
-  TH1* h_xPos;
-  TH1* h_yPos;
-  TH1* h_zPos;
-  TH1* h_barcode;
-  TH1* h_eventIndex;
-  TH1* h_radius;
-  TH1* h_localZ;
+  TH1* m_h_sdoID;
+  TH1* m_h_sdoWord;
+  TH1* m_h_xPos;
+  TH1* m_h_yPos;
+  TH1* m_h_zPos;
+  TH1* m_h_barcode;
+  TH1* m_h_eventIndex;
+  TH1* m_h_radius;
+  TH1* m_h_localZ;
 
   TTree* m_tree;
   std::string m_ntupleFileName;

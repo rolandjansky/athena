@@ -58,7 +58,10 @@ class METTriggerDerivationContentManager(object):
     hltJets = []
     streamName = self.streamName
     self.slimmingHelper = SlimmingHelper(streamName + "SlimmingHelper")
-    self.slimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["BTagging_{0}".format(a) for a in jetAlgorithms] + ["MET_Reference_{0}".format(a) for a in jetAlgorithms]
+    smartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["MET_Reference_{0}".format(a) for a in jetAlgorithms]
+    if "AntiKt4EMTopo" in jetAlgorithms:
+      smartCollections.append("BTagging_AntiKt4EMTopo")
+    self.slimmingHelper.SmartCollections = smartCollections
     self.slimmingHelper.ExtraVariables = ["{0}Jets.Timing".format(a) for a in jetAlgorithms]
     self.slimmingHelper.AllVariables = [
       # "CaloCalTopoClusters",

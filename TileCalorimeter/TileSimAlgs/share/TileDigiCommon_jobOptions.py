@@ -51,6 +51,8 @@ if doTileHitToDigit:
     theTileDigitsMaker.UseCoolPulseShapes=True
     theTileDigitsMaker.MaskBadChannels=False
     theTileDigitsMaker.RndmEvtOverlay=False
+    from Digitization.DigitizationFlags import digitizationFlags
+    theTileDigitsMaker.DoHSTruthReconstruction = digitizationFlags.doDigiTruth()
     
 if doTileDigitsFromPulse:
     
@@ -127,6 +129,13 @@ if doTileDigitToRawChannel:
     theTileRawChannelGetter=TileRawChannelGetter()
     
     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelCnt"
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doDigiTruth():
+      from TileRecUtils.TileRawChannelGetter_DigiHSTruth import *
+      theTileRawChannelGetter_DigiHSTruth=TileRawChannelGetter_DigiHSTruth()
+      theTileRawChannelGetter_DigiHSTruth.TileDigitsContainer = "TileDigitsCnt_DigiHSTruth"
+      theTileRawChannelGetter_DigiHSTruth.TileRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
+
     # make sure that only one output container has default name "TileRawChannelCnt"
     if jobproperties.Beam.beamType == 'collisions': 
         if OF2asDefault:

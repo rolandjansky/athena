@@ -26,7 +26,7 @@
 
 namespace MagField {
 
-  class ForwardRegionFieldSvc : public IMagFieldSvc, virtual public IIncidentListener, virtual public AthService {
+  class ForwardRegionFieldSvc : public extends<AthService, IMagFieldSvc, IIncidentListener>  {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@ namespace MagField {
 
     /** AthService interface methods */
     StatusCode initialize() override final;
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
 
     /** IIncidentListener interface methods **/
     void handle(const Incident& runIncident) override final;

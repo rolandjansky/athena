@@ -74,7 +74,7 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   ///@}
 
   /// Virtual Destructor
-  virtual ~IAsgElectronLikelihoodTool() {};
+  virtual ~IAsgElectronLikelihoodTool() {}
 
 }; // End: class definition
 

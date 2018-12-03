@@ -56,6 +56,7 @@ public:
                                   std::map<std::string,TSeqCollection*>* outputMap, TSeqCollection *outputList );
   
   virtual TObject* GetReference( std::string& groupName, std::string& name );
+  //static std::string SplitReference( std::string );
   virtual const HanConfigAssessor* GetAssessor( std::string& groupName, std::string& name ) const;
 
   virtual void GetRegexList( std::set<std::string>& regexlist );

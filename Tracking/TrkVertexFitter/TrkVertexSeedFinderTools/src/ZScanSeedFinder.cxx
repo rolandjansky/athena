@@ -62,27 +62,27 @@ namespace Trk
   StatusCode ZScanSeedFinder::initialize() 
   { 
     if ( m_mode1dfinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_mode1dfinder << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_mode1dfinder);
       return StatusCode::FAILURE;
     } else if ( m_IPEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_IPEstimator << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_IPEstimator);
     } else {
-      msg(MSG::INFO)<< "Retrieved tools " << m_mode1dfinder << " and " << m_IPEstimator << endreq;
+      ATH_MSG_INFO("Retrieved tools " << m_mode1dfinder << " and " << m_IPEstimator);
     }
 
     if ( m_usePt && m_useLogPt )
     {
-      msg(MSG::FATAL) << "At most one of Pt and LogPt weighting may be selected" << endreq;
+      ATH_MSG_FATAL("At most one of Pt and LogPt weighting may be selected");
       return StatusCode::FAILURE;
     }
 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    ATH_MSG_INFO("Initialize successful");
     return StatusCode::SUCCESS;
   }
 
   StatusCode ZScanSeedFinder::finalize() 
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    ATH_MSG_INFO("Finalize successful");
     return StatusCode::SUCCESS;
   }
 
@@ -127,7 +127,7 @@ namespace Trk
       const xAOD::EventInfo* myEventInfo = 0;
       if (evtStore()->retrieve(myEventInfo).isFailure())
       {
-	  msg(MSG::ERROR) << "Failed to retrieve event information; clearing cached weights" << endreq;
+	  ATH_MSG_ERROR("Failed to retrieve event information; clearing cached weights");
 	  m_weightMap.clear();
 	  m_cachedRunNumber = 0;
 	  m_cachedEventNumber = 0;
@@ -151,7 +151,7 @@ namespace Trk
 	      ( (constraint != 0) && (constraint->position().x() != m_cachedConstraintX) ) ||
 	      ( (constraint != 0) && (constraint->position().y() != m_cachedConstraintY) ))
 	  {
-	    msg(MSG::DEBUG) << "Clearing cached weights due to new event and/or constraint" << endreq;
+	    ATH_MSG_DEBUG("Clearing cached weights due to new event and/or constraint");
 	    m_weightMap.clear();
 	    m_cachedRunNumber = ei_RunNumber;
 	    m_cachedEventNumber = ei_EventNumber;
@@ -179,7 +179,7 @@ namespace Trk
       const Perigee* iTrk = dynamic_cast<const Trk::Perigee*>(i);
       if (iTrk == 0)
       {
-	  msg(MSG::WARNING) << "Neutrals not supported for seeding. Rejecting track..." << endreq;
+	  ATH_MSG_WARNING("Neutrals not supported for seeding. Rejecting track...");
 	  continue;
       }
 
@@ -196,7 +196,7 @@ namespace Trk
 	{
 	  z0AndWeight.first = ipas->IPz0 + constraint->position().z();
 	    double chi2IP = std::pow(ipas->IPd0/ipas->sigmad0, 2);
-	    msg(MSG::VERBOSE) << "d0 from tool: " << ipas->IPd0 << " error: " << ipas->sigmad0 << " chi2: " << chi2IP << endreq;
+	    ATH_MSG_VERBOSE("d0 from tool: " << ipas->IPd0 << " error: " << ipas->sigmad0 << " chi2: " << chi2IP);
 	    if ( !m_disableAllWeights )
 	    {
 	      z0AndWeight.second = 1./(1.+exp(std::min((chi2IP-m_constraintcutoff)/m_constrainttemp, maxExpArg)));
@@ -208,7 +208,7 @@ namespace Trk
 	}
 	else
 	{
-	  if (constraint != 0) msg(MSG::WARNING) << "Unable to compute impact parameter significance; setting IPWeight = 1" << endreq;
+	  if (constraint != 0) ATH_MSG_WARNING("Unable to compute impact parameter significance; setting IPWeight = 1");
 	  z0AndWeight.first = iTrk->position()[Trk::z];
 	  z0AndWeight.second = 1.;
 	}
@@ -229,7 +229,7 @@ namespace Trk
 	// cache the result
 	m_weightMap[*iTrk] = z0AndWeight;
       }  // end of lookup/compute z0AndWeight
-      msg(MSG::DEBUG) << "Found position z: " << z0AndWeight.first << " with weight " << z0AndWeight.second << endreq;
+      ATH_MSG_DEBUG("Found position z: " << z0AndWeight.first << " with weight " << z0AndWeight.second);
 
       if (z0AndWeight.second >= 0.01)
       {
@@ -241,11 +241,11 @@ namespace Trk
     if ( ZPositions.size()>0 ) 
     {
 	ZResult=m_mode1dfinder->getMode(ZPositions);
-        msg(MSG::DEBUG)<< "Resulting mean Z position found: " << ZResult << endreq;
+        ATH_MSG_DEBUG("Resulting mean Z position found: " << ZResult);
     }
     else
     {
-      msg(MSG::DEBUG) << "No tracks with sufficient weight; return z position = 0" << endreq;
+      ATH_MSG_DEBUG("No tracks with sufficient weight; return z position = 0");
     }
 
     if (constraint)
@@ -259,7 +259,7 @@ namespace Trk
   std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
-    msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endreq;
+    ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
     return std::vector<Amg::Vector3D>(0);
 
   }
@@ -267,7 +267,7 @@ namespace Trk
   std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
-    msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endreq;
+    ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
     return std::vector<Amg::Vector3D>(0);
 
   }

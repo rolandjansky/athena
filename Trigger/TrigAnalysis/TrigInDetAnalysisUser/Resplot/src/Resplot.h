@@ -174,9 +174,9 @@ public:
     // get the major bin edges
     std::vector<double> a1;
 
-    TAxis* cock = h->GetXaxis();
+    TAxis* axe = h->GetXaxis();
 
-    for ( int i=1 ; i<=cock->GetNbins()+1 ; i++ ) a1.push_back(cock->GetBinLowEdge(i));
+    for ( int i=1 ; i<=axe->GetNbins()+1 ; i++ ) a1.push_back(axe->GetBinLowEdge(i));
   
     // get the y bin limits
     TH1D* s = h->ProjectionY("_duff", 1, 1, "e");

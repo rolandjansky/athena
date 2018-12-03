@@ -1213,6 +1213,25 @@ ParticleOrigin MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleCon
 
   if( MC::PID::isBSM(m_MotherPDG) )            return OtherBSM;
 
+  // A few final catches here.  These are a bit more finicky, but should still be correct
+  if(m_NumOfParents==2&&NumOfEl==1&&NumOfPos==1&&(m_NumOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==2) {
+    return ZBoson; // Was a Z boson with an FSR photon, or prompt Zgamma production
+  }
+
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==2&&(NumOfEl==1||NumOfPos==1)&&NumOfElNeut==1) {
+    return WBoson; // Was a W boson with FSR photon, or prompt Wgamma production
+  }
+
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==4&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==4) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
+    // Was a diboson event with FSR photon, or prompt VVgamma production
+  }
+
+
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart )
       && m_MothOriVert!=0&&isHardScatVrtx(m_MothOriVert))  m_isPrompt=true;
@@ -1535,6 +1554,25 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
 
   if( MC::PID::isSUSY(m_MotherPDG) )           return SUSY;
   if( MC::PID::isBSM(m_MotherPDG) )            return OtherBSM;
+
+  // A few final catches here.  These are a bit more finicky, but should still be correct
+  if(m_NumOfParents==2&&NumOfMuPl==1&&NumOfMuMin==1&&(m_NumOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==2) {
+    return ZBoson; // Was a Z boson with an FSR photon, or prompt Zgamma production
+  }
+
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==2&&(NumOfMuPl==1||NumOfMuMin==1)&&NumOfMuNeut==1) {
+    return WBoson; // Was a W boson with FSR photon, or prompt Wgamma production
+  }
+
+  if(m_NumOfParents==2&&(m_NumOfDaug-NumOfquark-NumOfgluon)==4&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==4) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
+    // Was a diboson event with FSR photon, or prompt VVgamma production
+  }
+
 
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart )

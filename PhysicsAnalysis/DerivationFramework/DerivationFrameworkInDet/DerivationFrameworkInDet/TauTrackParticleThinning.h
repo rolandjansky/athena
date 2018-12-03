@@ -1,45 +1,86 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TauTrackParticleThinning.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+#ifndef DERIVATIONFRAMEWORKINDET_TAUTRACKPARTICLETHINNING_H
+#define DERIVATIONFRAMEWORKINDET_TAUTRACKPARTICLETHINNING_H
 
-#ifndef DERIVATIONFRAMEWORK_TAUTRACKPARTICLETHINNING_H
-#define DERIVATIONFRAMEWORK_TAUTRACKPARTICLETHINNING_H
-
+// System include(s):
 #include <string>
+#include <memory>
 
+// Framework include(s):
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+// DF include(s):
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "DerivationFrameworkInDet/TracksInCone.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-class IThinningSvc;
+#include "DerivationFrameworkInterfaces/ExpressionParserHelper.h"
 
 namespace DerivationFramework {
 
-  class TauTrackParticleThinning : public AthAlgTool, public IThinningTool {
-    public: 
-      TauTrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~TauTrackParticleThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+   /// Tool selecting track particles from tau objects to keep
+   ///
+   /// This tool is used in derivation jobs to set up the thinning such that
+   /// track particles associated with tau objects would be kept for a given
+   /// output stream.
+   ///
+   /// @author James Catmore (James.Catmore@cern.ch)
+   ///
+   class TauTrackParticleThinning : public AthAlgTool, public IThinningTool {
+
+   public:
+      /// AlgTool constructor
+      TauTrackParticleThinning( const std::string& type,
+                                const std::string& name,
+                                const IInterface* parent );
+
+      /// @name Function(s) implementing the @c IAlgTool interface
+      /// @{
+
+      /// Function initialising the tool
+      StatusCode initialize() override;
+      /// Function finalising the tool
+      StatusCode finalize() override;
+
+      /// @}
+
+      /// @name Function(s) implementing the
+      ///       @c DerivationFramework::IThinningTool interface
+      /// @{
+
+      /// Function performing the configured thinning operation
+      StatusCode doThinning() const override;
+
+      /// @}
 
     private:
-      ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_npass;
-      std::string m_tauSGKey, m_inDetSGKey, m_selectionString;
-      float m_coneSize;
-      bool m_and;
-      ExpressionParsing::ExpressionParser *m_parser;
-  }; 
-}
+      /// @name Tool properties
+      /// @{
 
-#endif // DERIVATIONFRAMEWORK_TAUTRACKPARTICLETHINNING_H
+      /// SG key of the tau container to use
+      std::string m_tauSGKey;
+      /// SG key of the track particle container to use
+      std::string m_inDetSGKey = "InDetTrackParticles";
+      /// Selection string to use with the expression evaluation
+      std::string m_selectionString;
+      /// Cone around tau objects to keep track particles in
+      float m_coneSize = -1.0;
+      /// Flag for using @c IThinningSvc::Operator::And (instead of "or")
+      bool m_and = false;
+
+      /// @}
+
+      /// Handle for accessing the thinning service
+      ServiceHandle< IThinningSvc > m_thinningSvc;
+      /// Variables keeping statistics information about the job
+      mutable unsigned int m_ntot = 0, m_npass = 0;
+      /// The expression evaluation helper object
+      std::unique_ptr< ExpressionParserHelper > m_parser;
+
+   }; // class TauTrackParticleThinning
+
+} // namespace DerivationFramework
+
+#endif // DERIVATIONFRAMEWORKINDET_TAUTRACKPARTICLETHINNING_H

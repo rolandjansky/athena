@@ -21,14 +21,14 @@ LArBadChannelDecoder::readASCII( const std::string& fname,
   LArBadChannelParser parser(fname, &m_log, 6, -1);
   if (!parser.fileStatusGood()) {
     m_log << MSG::ERROR << "Failed to open file " << fname
-	<< " for COOL channel " << State::coolChannelName( coolChan) << endreq;
+	<< " for COOL channel " << State::coolChannelName( coolChan) << endmsg;
     return result;
   }
 
   typedef std::string ParseType;
   typedef std::pair<std::vector<int>, std::vector<ParseType> > ParsedLine;
   std::vector<ParsedLine> parsed = parser.parseFile<ParseType>();
-  m_log << MSG::INFO << "Parsed " << parsed.size() << " lines from file " << fname << endreq;
+  m_log << MSG::INFO << "Parsed " << parsed.size() << " lines from file " << fname << endmsg;
 
   for (std::vector<ParsedLine>::const_iterator i=parsed.begin();
        i != parsed.end(); i++) {
@@ -56,7 +56,7 @@ LArBadChannelDecoder::readFebASCII( const std::string& fname) const
  // set up a parser to read 4 ints (the 4th of which can be a wildcard) and >=1 strings
   LArBadChannelParser parser(fname, &m_log, 4, -1, 4);
   if (!parser.fileStatusGood()) {
-    m_log << MSG::ERROR << "Failed to open missing FEBs file " << fname << endreq;
+    m_log << MSG::ERROR << "Failed to open missing FEBs file " << fname << endmsg;
     return result;
   }
   
@@ -89,7 +89,7 @@ HWIdentifier LArBadChannelDecoder::constructChannelId( const std::vector<int>& i
   if (intVec.size() < 5) { //  redundant error check
     log << MSG::WARNING << "Failed to produce a channel HWIdentifier for ";
     for (unsigned int i=0; i<intVec.size(); i++) log << intVec[i] << " ";
-    log << "not enough identifiers" << endreq;
+    log << "not enough identifiers" << endmsg;
     return invalid;
   }
   try {
@@ -98,16 +98,15 @@ HWIdentifier LArBadChannelDecoder::constructChannelId( const std::vector<int>& i
     if (!checkId( hwid, intVec[barrel_ec], intVec[pos_neg], coolChan)) {
       log << MSG::WARNING << "Channel "; insertExpandedID( intVec, log);
       log << " does not belong to COOL channel " << State::coolChannelName( coolChan) 
-	  << ". Skipped" <<  endreq;
+	  << ". Skipped" <<  endmsg;
       return invalid;
     }
     log << MSG::DEBUG << "Translating id ";  insertExpandedID( intVec, log);
-    log << " to 0x" << MSG::hex << hwid << MSG::dec << endreq;   
+    log << " to 0x" << MSG::hex << hwid << MSG::dec << endmsg;   
     return hwid;
   } 
   catch( LArOnlID_Exception& idException) {
-    log << MSG::ERROR << "Failed to produce a HWIdentifier for ";  insertExpandedID( intVec, log);
-    log << endreq;
+    log << MSG::ERROR << "Failed to produce a HWIdentifier for ";  insertExpandedID( intVec, log) << endmsg;
   }
   return invalid;
 }
@@ -121,7 +120,7 @@ std::vector<HWIdentifier> LArBadChannelDecoder::constructFebId( const std::vecto
   if (intVec.size() != 4) { // redundant error check
     log << MSG::WARNING << "Failed to produce a FEB HWIdentifier for ";
     for (unsigned int i=0; i<intVec.size(); i++) log << intVec[i] << " ";
-    log << "not enough identifiers" << endreq;
+    log << "not enough identifiers" << endmsg;
     return result;
   }
   
@@ -151,12 +150,12 @@ HWIdentifier LArBadChannelDecoder::constructSingleFebId( const std::vector<int>&
   try {
     HWIdentifier hwid( m_onlineID->feb_Id( v[barrel_ec], v[pos_neg], v[feedthrough], v[slot]));
     log << MSG::DEBUG << "Translating FEB id ";  insertExpandedID( v, log);
-    log << " to 0x" << MSG::hex << hwid << MSG::dec << endreq;   
+    log << " to 0x" << MSG::hex << hwid << MSG::dec << endmsg;   
     return hwid;
   } 
   catch( LArOnlID_Exception& idException) {
     log << MSG::ERROR << "Failed to produce a FEB HWIdentifier for ";  insertExpandedID( v, log);
-    log << endreq;
+    log << endmsg;
   }
   return invalid;
 }
@@ -169,7 +168,7 @@ LArBadChannelDecoder::constructStatus( const std::vector<std::string>& vec, MsgS
     bool ok = m_packing.setBit( *it, result);
     if (!ok) { 
       log << MSG::WARNING << "LArBadChannelDecoder REJECTED line with " 
-	  << ":\t unrecognized problem status: " << *it << endreq;
+	  << ":\t unrecognized problem status: " << *it << endmsg;
        return std::pair<bool,LArBadChannel>(false,result); // exit on error
     }
   }
@@ -185,7 +184,7 @@ LArBadChannelDecoder::constructFebStatus( const std::vector<std::string>& vec,
     bool ok = m_febPacking.setBit( *it, result);
     if (!ok) { 
       log << MSG::WARNING << "LArBadChannelDecoder REJECTED line with " 
-	  << ":\t unrecognized problem status: " << *it << endreq;
+	  << ":\t unrecognized problem status: " << *it << endmsg;
        return std::pair<bool,LArBadFeb>(false,result); // exit on error
     }
   }
@@ -199,7 +198,7 @@ MsgStream& LArBadChannelDecoder::insertExpandedID( const std::vector<int>& intVe
       << " p/n " << intVec[pos_neg] 
       << " ft " <<  intVec[feedthrough] 
       << " slot " << intVec[slot];
-  if (intVec.size() >= 5) log << " ch " <<  intVec[channel]; // no endreq, 
+  if (intVec.size() >= 5) log << " ch " <<  intVec[channel]; // no endmsg, 
   return log;
 }
 

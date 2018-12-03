@@ -18,8 +18,8 @@ namespace G4UA{
   }
   StatusCode DebugSteppingActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }

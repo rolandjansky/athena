@@ -25,6 +25,7 @@
   <class name="dqm_algorithms::BinPrint"/>
   <class name="dqm_algorithms::BinThresh"/>
   <class name="dqm_algorithms::BinThreshold"/>
+  <class name="dqm_algorithms::BinHeightThreshold"/>
   <class name="dqm_algorithms::BinsDiffByStrips"/>
   <class name="dqm_algorithms::BinsDiffFromStripMedian"/>
   <class name="dqm_algorithms::BinsDiffFromStripMedianOnline"/>

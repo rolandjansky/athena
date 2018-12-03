@@ -28,7 +28,7 @@ namespace EL
     using namespace asg::msgProperty;
     RCU_CHANGE_INVARIANT (this);
     std::string valueString;
-    ANA_CHECK (asg::detail::GetStringHelper<T>::get (value, valueString));
+    ANA_CHECK (asg::detail::GetCastStringHelper<T>::get (value, valueString));
     m_propertyValues[name] = std::move (valueString);
     return ::StatusCode::SUCCESS;
   }

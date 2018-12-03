@@ -85,6 +85,9 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
 #ifdef DEBUG_LARWHEELSOLID
   const char *venv = getenv("LARWHEELSOLID_VERBOSE");
   if(venv) Verbose = atoi(venv);
+  std::cout << "The LArWheelSolid build " << __DATE__ << " " << __TIME__
+            << std::endl;
+  std::cout << "LArWheelSolid verbosity level is " << Verbose << std::endl;
 #endif
 
   // Initialize code that depends on wheel type:
@@ -156,6 +159,7 @@ void LArWheelSolid::inner_solid_init(const G4String &bs_name)
 	m_Rmin = rInner[0]; m_Rmax = rOuter[1];
 	m_Ymin = m_Rmin * 0.9;
 	m_Zmid = zPlane[1];
+	m_Ymid = (rInner[0] + rOuter[1]) * 0.5;
 
 	m_BoundingPolycone = new G4Polycone(bs_name + "Polycone", m_MinPhi, m_MaxPhi - m_MinPhi,
                                             2, zPlane, rInner, rOuter);
@@ -211,6 +215,7 @@ void LArWheelSolid::outer_solid_init(const G4String &bs_name)
   m_Rmin = rInner[0]; m_Rmax = rOuter[2];
   m_Ymin = m_Rmin * 0.9;
   m_Zmid = zPlane[1];
+  m_Ymid = (rInner[0] + rOuter[2]) * 0.5;
 
   m_BoundingPolycone = new G4Polycone(bs_name + "Polycone", m_MinPhi, m_MaxPhi - m_MinPhi,
                                       3, zPlane, rInner, rOuter);

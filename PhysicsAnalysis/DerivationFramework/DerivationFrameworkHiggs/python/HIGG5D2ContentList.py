@@ -26,6 +26,8 @@ HIGG5D2Content = [
 # "xAOD::JetAuxContainer_v1#AntiKt4TruthJetsAux.",
 # "xAOD::JetContainer_v1#AntiKt4TruthWZJets",
 # "xAOD::JetAuxContainer_v1#AntiKt4TruthWZJetsAux.",
+"xAOD::JetAuxContainer_v1#AntiKt10TrackCaloClusterJets",
+"xAOD::JetAuxContainer_v1#AntiKt10TrackCaloClusterJetsAux.",
 "xAOD::JetAuxContainer_v1#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
 "xAOD::JetAuxContainer_v1#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.",
 "xAOD::JetContainer_v1#AntiKt10TruthJets",

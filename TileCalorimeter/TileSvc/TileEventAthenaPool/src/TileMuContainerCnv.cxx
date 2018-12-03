@@ -28,7 +28,7 @@ TileMuContainerCnv::createPersistent( TileMuContainer* transCont )
   TileMuContainer_PERS *persObj = cnv.createPersistent( transCont, msg );
 
   if (msg.level()<=MSG::DEBUG)
-    msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+    msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

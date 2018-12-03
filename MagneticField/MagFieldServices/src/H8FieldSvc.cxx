@@ -28,8 +28,7 @@
 
 /** Constructor **/
 MagField::H8FieldSvc::H8FieldSvc( const std::string& name,ISvcLocator* svc ) :
-    AthService(name,svc),
-    IMagFieldSvc(),
+    base_class(name,svc),
     m_H8MapFilename("MagneticFieldMaps/mbps1-all-id-800-mbps2-muons-800x4.data"),
     m_dx1(0),
     m_dy1(0),
@@ -157,17 +156,3 @@ void MagField::H8FieldSvc::getFieldZR( const double *xyz, double *B, double *der
     getField( xyz, B, deriv );
     return;
 }
-
-/** Query the interfaces. */
-StatusCode MagField::H8FieldSvc::queryInterface( const InterfaceID& riid, void** ppvInterface )
-{
-    if ( IID_IMagFieldSvc == riid ) {
-        *ppvInterface = (MagField::IMagFieldSvc*)this;
-    } else {
-        // Interface is not directly available: try out a base class
-        return Service::queryInterface(riid, ppvInterface);
-    }
-    addRef();
-    return StatusCode::SUCCESS;
-}
-

@@ -5,28 +5,28 @@ EXOT13SmartContent = [
     "Electrons",
     "Muons",
     "PrimaryVertices",
-    "AntiKt4EMTopoJets"
+    "MET_Reference_AntiKt4EMTopo",
+    "AntiKt4EMTopoJets",
+    "AntiKt4TruthJets"
 ]
 
 EXOT13AllVariablesContent = [
-    "ExtrapolatedMuonTrackParticles",
     "MuonSpectrometerTrackParticles",
+    "ExtrapolatedMuonTrackParticles",
     "METAssoc_AntiKt4EMTopo",
     "MET_Core_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4EMTopo",
     "MET_Truth",
     "TruthEvents",
     "TruthVertices",
-    "TruthParticles",
-    "LVL1MuonRoIs",
-    "AntiKt4TruthJets",
-    "AntiKt4TruthWZJets"
+    "TruthParticles"
 ]
 
 EXOT13ExtraVariables = [
     "AntiKt4EMTopoJets.EMfrac.Width.Timing",
     "Muons.allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ",
-    "MuonSegments.x.y.z.px.py.pz.t0.chamberIndex"
+    "MuonSegments.x.y.z.px.py.pz"
+    #"CaloCalTopoClusters.e_sampl.calM.calE.calEta.calPhi"
 ]
 
 EXOT13UnslimmedContent = []
+

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   DerivationFrameworkEGamma/python/egammaDFFlags.py
@@ -28,13 +28,22 @@ class egammaDFFlagsJobProperty(JobProperty):
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.egammaDFFlags.Enabled()
 
-#Different egamma seeding styles    
+# enable or disable cell-level reweighting
 class doEGammaCellReweighting (egammaDFFlagsJobProperty):
     """ switch for enabling cell-level reweighting of e/gamma clusters
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
+
+
+class doEGammaDAODTrackThinning (egammaDFFlagsJobProperty):
+    """ switch for enabling track-thinning in egamma DAODs
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 
 # class calibMVAVersion (JobProperty):
 #     """Version of calo cluster corrections used for calibration.
@@ -51,7 +60,7 @@ class egammaDFFlags(JobPropertyContainer):
 jobproperties.add_Container(egammaDFFlags)
 
 # I want always the following flags in the container  
-_list_Egamma=[Enabled,doEGammaCellReweighting]
+_list_Egamma=[Enabled,doEGammaCellReweighting,doEGammaDAODTrackThinning]
 
 for j in _list_Egamma: 
     jobproperties.egammaDFFlags.add_JobProperty(j)

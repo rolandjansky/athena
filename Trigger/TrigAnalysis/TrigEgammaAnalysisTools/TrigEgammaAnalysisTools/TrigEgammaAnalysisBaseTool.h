@@ -32,16 +32,11 @@
 #include "xAODTrigger/TrigPassBits.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
 
-/*
- Ringer offline to be include for future
-/////////////////////////////////////////////////////////
-#include "xAODCaloRings/RingSet.h"                     //
-#include "xAODCaloRings/RingSetContainer.h"            //
-#include "xAODCaloRings/CaloRings.h"                   //
-#include "xAODCaloRings/CaloRingsContainer.h"          //
-#include "xAODCaloRings/tools/getCaloRingsDecorator.h" //
-/////////////////////////////////////////////////////////
-*/
+#include "xAODCaloRings/RingSet.h"                     
+#include "xAODCaloRings/RingSetContainer.h"            
+#include "xAODCaloRings/CaloRings.h"                   
+#include "xAODCaloRings/CaloRingsContainer.h"          
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h" 
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -143,6 +138,8 @@ protected:
   void bookAnalysisHistos(const std::string);
 
   void setTrigInfo(const std::string);
+  void setTrigEmulation(){m_forceTrigEmulation=true;};
+  
   TrigInfo getTrigInfo(const std::string);
   std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
  
@@ -169,6 +166,7 @@ protected:
   void setAvgOnlineMu();
   float getAvgOfflineMu(){return m_offmu;}
   void setAvgOfflineMu();
+
 
   /* calculate the number of primary vertex for each event*/
   void calculatePileupPrimaryVertex();
@@ -200,6 +198,7 @@ protected:
   bool getTP(){return m_tp;}
   bool getEmulation(){return m_doEmulation;}
 
+
   // TAccept
   Root::TAccept getAccept(){return m_accept;}
   void setAccept(Root::TAccept accept){m_accept=accept;}
@@ -224,6 +223,11 @@ protected:
   bool m_tp;
   /*! Emulation Analysis */
   bool m_doEmulation;
+  /*! force emulation trigger */
+  bool m_forceTrigEmulation;
+  /* force trigger attachment into the list */
+  bool m_forceTrigAttachment;
+
   // Infra-structure members
   std::string m_file;
   /*! String for offline container key */

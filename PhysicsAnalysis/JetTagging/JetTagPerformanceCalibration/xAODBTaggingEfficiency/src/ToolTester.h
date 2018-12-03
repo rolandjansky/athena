@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 
   class BTagToolTester : public AthAlgorithm {
   public:

@@ -380,17 +380,6 @@ namespace xAOD {
      return val;
    }
    
-   double BTagging_v1::calcDL1LLR(const std::string& taggername) const {
-     double dl1 = -1.;
-     double fc = 0.07;
-     double dl1pb, dl1pc, dl1pu;
-     pu(taggername,dl1pu);
-     pb(taggername,dl1pb);
-     pc(taggername,dl1pc);
-     if (!std::isnan(dl1pu) && dl1pb>0 && dl1pc>0 && dl1pu>0 ) dl1 = log(dl1pb/(fc*dl1pc+(1.-fc)*dl1pu));
-     return dl1;
-   }
-
 
    bool BTagging_v1::pu(const std::string& taggername, double &value) const {
      return variable<double>(taggername, "pu", value);

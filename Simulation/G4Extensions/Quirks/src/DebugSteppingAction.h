@@ -6,23 +6,13 @@
 #define DEBUGSTEPPINGACTION_H
 
 #include "G4LorentzVector.hh"
-
-#ifdef QUIRKS_STANDALONE
 #include "G4UserSteppingAction.hh"
-#else
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#endif
 
 #ifndef QUIRKS_STANDALONE
 namespace G4UA{
 #endif
 
-class DebugSteppingAction :
-#ifdef QUIRKS_STANDALONE
-    public G4UserSteppingAction
-#else
-    public ISteppingAction
-#endif
+class DebugSteppingAction : public G4UserSteppingAction
 {
 public:
 #ifdef QUIRKS_STANDALONE
@@ -39,8 +29,7 @@ public:
 
     virtual ~DebugSteppingAction();
 
-    virtual void processStep(const G4Step* step) override;
-    virtual void UserSteppingAction(const G4Step* step) {processStep(step);}
+    virtual void UserSteppingAction(const G4Step* step) override;
 
 private:
 #ifndef QUIRKS_STANDALONE

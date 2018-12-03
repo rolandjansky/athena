@@ -9,14 +9,13 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 mlog = logging.getLogger("TriggerMenu.calibcosmic.generateStreamingChainDefs")
 
-from TriggerMenu.calibcosmicmon.StreamingDef import *
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.calibcosmicmon.StreamingDef import L2EFChain_SeededStreamerTemplate
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 ##########################################################################################
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []

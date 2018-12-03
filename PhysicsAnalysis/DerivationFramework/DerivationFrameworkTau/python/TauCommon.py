@@ -10,8 +10,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 #====================================================================
 # MAKE TAU ENUMS AVAILABLE
 #====================================================================
-#import PyCintex
-#PyCintex.loadDictionary('xAODTauDict')
 #from ROOT import xAOD__TauJetParameters__IsTauFlag
 
 #====================================================================

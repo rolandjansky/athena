@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODJet
    Generators/GeneratorObjects
    Generators/GenInterfaces
+   Generators/TruthUtils
    PhysicsAnalysis/CommonTools/ExpressionEvaluation
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PhysicsAnalysis/MCTruthClassifier
@@ -38,7 +39,7 @@ atlas_add_component( DerivationFrameworkMCTruth
    ${FASTJET_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES}
    ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel
-   AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects
+   AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects TruthUtils
    ExpressionEvaluationLib MCTruthClassifierLib tauRecTools GenInterfacesLib )
 
 # Install files from the package:

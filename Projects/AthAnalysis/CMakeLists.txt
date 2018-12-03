@@ -21,10 +21,12 @@ find_package( AtlasCMake QUIET )
 find_package( AthAnalysisExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
-# additional externals
+# Additional externals needed for the build/runtime:
 find_package( Xrootd )
 find_package( GSL )
 find_package( Davix )
+find_package( PNG )
+find_package( BLAS )
 
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
@@ -52,9 +54,6 @@ foreach( _external ${_externals} )
 endforeach()
 unset( _external )
 unset( _externals )
-
-# Disable the usage of the --no-undefined linker flag:
-atlas_disable_no_undefined()
 
 # Set up CTest:
 atlas_ctest_setup()

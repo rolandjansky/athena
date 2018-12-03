@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 809688 2017-08-23 16:14:15Z iconnell $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -11,10 +10,6 @@
  *
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
- *
- * $Revision: 809688 $
- * $Date: 2017-08-23 17:14:15 +0100 (Wed, 23 Aug 2017) $
- *
  *
  **/
 
@@ -68,6 +63,11 @@ class TopConfig final {
   void setGrlFile( const std::string& s );
   inline const std::vector<std::string> grlFile() const {return m_grlFile;}
 
+  // TDP path
+  void setTDPPath( const std::string& s);
+  inline const std::string& getTDPPath() const { return m_topDataPreparationPath; }
+
+
   // What objects are we using
   inline bool usePhotons()    const {return m_usePhotons;   }
   inline bool useElectrons()  const {return m_useElectrons; }
@@ -102,6 +102,14 @@ class TopConfig final {
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
 
+  // Generators name
+  inline std::string getGenerators() const {return m_generators;}
+  inline void setGenerators(const std::string value) {if(!m_configFixed){m_generators = value;}}
+
+  // AMITag
+  inline std::string getAMITag() const {return m_AMITag;}
+  inline void setAMITag(const std::string value) {if(!m_configFixed){m_AMITag = value;}}
+
   // Is this a Primary xAOD?
   inline bool isPrimaryxAOD() const {return m_isPrimaryxAOD;}
   inline void setIsPrimaryxAOD(const bool value) {if(!m_configFixed){m_isPrimaryxAOD = value;}}
@@ -113,6 +121,10 @@ class TopConfig final {
   // What derivation type is it?
   inline std::string getDerivationStream() const { return m_derivationStream;}
   inline void setDerivationStream(const std::string value) {if(!m_configFixed){m_derivationStream = value;}}
+
+  // AMI tag from metadata
+  std::string const & getAmiTag() const;
+  void setAmiTag(std::string const & amiTag);
 
   inline unsigned int getDSID() const {return m_DSID;}
   inline void setDSID(unsigned int value) {
@@ -258,6 +270,7 @@ class TopConfig final {
   inline bool KLFitterTopMassFixed() const {return m_KLFitterTopMassFixed;}
   inline bool KLFitterSaveAllPermutations() const {return m_KLFitterSaveAllPermutations;}
 
+  inline bool KLFitterFailOnLessThanXJets() const {return m_KLFitterFailOnLessThanXJets;}
   // PseudoTop
   inline bool doPseudoTop() const {return m_doPseudoTop;}
   inline void setPseudoTop(){if(!m_configFixed){m_doPseudoTop = true;}}
@@ -418,7 +431,9 @@ class TopConfig final {
   inline virtual void electronPtcut(const float pt)       {if(!m_configFixed){m_electronPtcut = pt;}}
   inline virtual void electronIsolation(const std::string& iso) {if(!m_configFixed){m_electronIsolation = iso;}}
   inline virtual void electronIsolationLoose(const std::string& iso) {if(!m_configFixed){m_electronIsolationLoose = iso;}}
-  inline virtual void electronIsoSFs(const bool b){if(!m_configFixed){m_electronIsoSFs = b;}}
+  void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
+  void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
+  inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
@@ -427,9 +442,12 @@ class TopConfig final {
   inline virtual float electronPtcut()       const {return m_electronPtcut;}
   inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
   inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
+  std::string const & electronIsolationSF() const {return m_electronIsolationSF;}
+  std::string const & electronIsolationSFLoose() const {return m_electronIsolationSFLoose;}
   inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
+  inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
 
   // Photon configuration
   inline virtual void photonPtcut(const float pt)             {if(!m_configFixed){m_photon_configuration.pt = pt;}}
@@ -447,6 +465,8 @@ class TopConfig final {
   inline virtual void muonQualityLoose(const std::string& quality)  {if(!m_configFixed){m_muonQualityLoose = quality;}}
   inline virtual void muonIsolation(const std::string& iso) {if(!m_configFixed){m_muonIsolation = iso;}}
   inline virtual void muonIsolationLoose(const std::string& iso) {if(!m_configFixed){m_muonIsolationLoose = iso;}}
+  void muonIsolationSF(std::string const & iso) {if(!m_configFixed){m_muonIsolationSF = iso;}}
+  void muonIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_muonIsolationSFLoose = iso;}}
 
   inline virtual float muonPtcut() const {return m_muonPtcut;}
   inline virtual float muonEtacut() const {return m_muonEtacut;}
@@ -454,6 +474,8 @@ class TopConfig final {
   inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
   inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
   inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
+  std::string const & muonIsolationSF() const {return m_muonIsolationSF;}
+  std::string const & muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
 
   // Jet configuration
   inline virtual void jetPtcut(const float pt)       {if(!m_configFixed){m_jetPtcut = pt;}}
@@ -484,18 +506,24 @@ class TopConfig final {
   inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
-
+  inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+  inline virtual bool  useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
+ 
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
-
+  inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  inline virtual void useRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useRCJetAdditionalSubstructure = use;}}
+  
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
   inline virtual float VarRCJetTrimcut() const {return m_VarRCJetTrimcut;}
   inline virtual float VarRCJetMaxRadius() const {return m_VarRCJetMaxRadius;}
   inline virtual const std::string& VarRCJetRho() const {return m_VarRCJetRho;}
   inline virtual const std::string& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
+  inline virtual bool  useVarRCJetSubstructure() const {return m_useVarRCJetSubstructure;}
+  inline virtual bool  useVarRCJetAdditionalSubstructure() const {return m_useVarRCJetAdditionalSubstructure;}
 
   inline virtual void VarRCJetPtcut(const float pt)      {if(!m_configFixed){m_VarRCJetPtcut = pt;}}
   inline virtual void VarRCJetEtacut(const float eta)    {if(!m_configFixed){m_VarRCJetEtacut = eta;}}
@@ -503,16 +531,20 @@ class TopConfig final {
   inline virtual void VarRCJetMaxRadius(const float radius) {if(!m_configFixed){m_VarRCJetMaxRadius = radius;}}
   inline virtual void VarRCJetRho(const std::string& rho) {if(!m_configFixed){m_VarRCJetRho = rho;}}
   inline virtual void VarRCJetMassScale(const std::string& mass_scale) {if(!m_configFixed){m_VarRCJetMassScale = mass_scale;}}
+  inline virtual void useVarRCJetSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetSubstructure = use;}}
+  inline virtual void useVarRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetAdditionalSubstructure = use;}}
 
   inline virtual void jetUncertainties_BunchSpacing( const std::string& s ){if(!m_configFixed){m_jetUncertainties_BunchSpacing = s;}}
   inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
 
   virtual void jetUncertainties_NPModel( const std::string& s );
   virtual void jetUncertainties_QGFracFile( const std::string& s );
+  virtual void jetUncertainties_QGHistPatterns( const std::string& s );
   inline bool doMultipleJES() const {return m_doMultipleJES;}
   inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
   inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
   inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
+  inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
   inline virtual void jetJERSmearingModel( const std::string& s ){if(!m_configFixed){m_jetJERSmearingModel = s;}}
   inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
@@ -565,10 +597,6 @@ class TopConfig final {
     if(!m_configFixed)
       m_tau_configuration_loose.fileName = s;
   }
-  // Applying new tau energy calibration
-  inline virtual void applyTauMVATES(bool apply) {
-    m_applyTauMVATES = apply;
-  }
 
   // Tau configuration getters
   inline virtual float tauPtcut() const {
@@ -600,7 +628,7 @@ class TopConfig final {
   }
   // Applying new tau energy calibration
   inline bool applyTauMVATES() {
-    return m_applyTauMVATES;
+    return true;
   }
 
   // photon getters
@@ -683,6 +711,8 @@ class TopConfig final {
   /// HL LHC studies
   inline  virtual void HLLHC(const bool s) { if(!m_configFixed){m_HLLHC=s;} }
   inline  virtual bool HLLHC() const {return m_HLLHC;}
+  inline  virtual void HLLHCFakes(const bool s) { if(!m_configFixed){m_HLLHCFakes=s;} }
+  inline  virtual bool HLLHCFakes() const {return m_HLLHCFakes;}
 
   void setBTaggingSFSysts( std::string WP, const std::set<std::string>& btagging_SFs, bool isTrackJet=false );
 
@@ -744,6 +774,11 @@ class TopConfig final {
   const std::vector<std::string>& PileupLumiCalc(){ return m_pileup_reweighting.lumi_calc_files; };
 
   bool PileupMuDependent(){return m_pileup_reweighting.mu_dependent;};
+
+  // Update for R21
+  const std::vector<std::string>& PileupConfig_FS(){ return m_pileup_reweighting.config_files_FS; };
+  const std::vector<std::string>& PileupConfig_AF(){ return m_pileup_reweighting.config_files_AF; };
+  inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
   
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
 
@@ -766,6 +801,10 @@ class TopConfig final {
 
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   inline bool outputFileSetAutoFlushZero() const {return m_outputFileSetAutoFlushZero;}
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  inline int outputFileNEventAutoFlush() const {return m_outputFileNEventAutoFlush;}
+  inline int outputFileBasketSizePrimitive() const {return m_outputFileBasketSizePrimitive;}
+  inline int outputFileBasketSizeVector() const {return m_outputFileBasketSizeVector;}
 
   // Number of events to run on (only for testing)
   inline virtual unsigned int numberOfEventsToRun() const { return m_numberOfEventsToRun;}
@@ -853,6 +892,26 @@ class TopConfig final {
   // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
   const std::string getYear(unsigned int runnumber);
 
+  // Setter and getter functions for recording whether we have configured the nominal objects
+  inline virtual void setNominalAvailable(const bool s){m_isNominalAvailable = s;}
+  inline bool isNominalAvailable() const { return m_isNominalAvailable;}
+
+  // Function to set the options for global trigger tool
+  void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
+  inline bool useGlobalTrigger() const { return m_trigGlobalConfiguration.isActivated; } // Was this requested by the user
+  inline auto const & getGlobalTriggerElectronTriggers() const { return m_trigGlobalConfiguration.electron_trigger; }
+  inline auto const & getGlobalTriggerElectronTriggersLoose() const { return m_trigGlobalConfiguration.electron_trigger_loose; }
+  inline auto const & getGlobalTriggerMuonTriggers() const { return m_trigGlobalConfiguration.muon_trigger; }
+  inline auto const & getGlobalTriggerMuonTriggersLoose() const { return m_trigGlobalConfiguration.muon_trigger_loose; }
+  inline bool useGlobalTriggerConfiguration() const { return m_trigGlobalConfiguration.isConfigured; } // Was this subsequently configured
+  inline std::vector<std::string> getGlobalTriggerElectronSystematics() const { return m_trigGlobalConfiguration.electron_trigger_systematics; }
+  inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const { return m_trigGlobalConfiguration.muon_trigger_systematics; }
+  inline std::vector<std::string> getGlobalTriggerElectronTools()       const { return m_trigGlobalConfiguration.electron_trigger_tool_names; }
+  inline std::vector<std::string> getGlobalTriggerMuonTools()           const { return m_trigGlobalConfiguration.muon_trigger_tool_names; }
+
+
+
+
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -863,6 +922,9 @@ class TopConfig final {
   // GRL file
   std::string m_grlDir;
   std::vector<std::string> m_grlFile = {};
+
+  // TDP
+  std::string m_topDataPreparationPath;
 
   // Use which objects
   bool m_usePhotons;
@@ -899,6 +961,9 @@ class TopConfig final {
 
   std::string m_jetSubstructureName;
 
+  // Store in config a boolean which lets us know if we called the nominal object setup
+  bool m_isNominalAvailable;
+    
   // Do systematics? - this needs many more configuration options
   std::string m_systematics;
   std::string m_nominalSystName;
@@ -910,9 +975,13 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::string m_generators;
+  std::string m_AMITag;
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
+  std::string m_amiTag;
+  int m_amiTagSet = 0;
 
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeights;
@@ -982,6 +1051,7 @@ class TopConfig final {
   std::string m_KLFitterLH;
   bool m_KLFitterTopMassFixed;
   bool m_KLFitterSaveAllPermutations;
+  bool m_KLFitterFailOnLessThanXJets;
 
   // PseudoTop
   bool m_doPseudoTop;
@@ -1031,12 +1101,15 @@ class TopConfig final {
   float m_electronPtcut;
   std::string m_electronIsolation;
   std::string m_electronIsolationLoose;
-  bool m_electronIsoSFs;
+  std::string m_electronIsolationSF;
+  std::string m_electronIsolationSFLoose;
+  bool const m_electronIsoSFs; // no longer supported, always true (use m_electronIsolationSF instead)
   int m_electron_d0SigCut;
   float m_electron_delta_z0;
 
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
+  bool m_useElectronChargeIDSelection;
 
   // Muon configuration
   float m_muonPtcut; // muon object selection pT cut
@@ -1045,6 +1118,8 @@ class TopConfig final {
   std::string m_muonQualityLoose; // loose muon quality used in object selection
   std::string m_muonIsolation;
   std::string m_muonIsolationLoose;
+  std::string m_muonIsolationSF;
+  std::string m_muonIsolationSFLoose;
   int   m_muon_d0SigCut;
   float m_muon_delta_z0;
 
@@ -1056,6 +1131,7 @@ class TopConfig final {
   std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
   std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
   std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
+  std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with more flexibility
   bool m_doMultipleJES;
   bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
   std::string m_jetJERSmearingModel; // Full or Simple
@@ -1079,6 +1155,8 @@ class TopConfig final {
   float m_RCJetEtacut;
   float m_RCJetTrimcut;
   float m_RCJetRadius;
+  bool  m_useRCJetSubstructure;
+  bool  m_useRCJetAdditionalSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
@@ -1087,6 +1165,8 @@ class TopConfig final {
   float m_VarRCJetMaxRadius;
   std::string m_VarRCJetRho;
   std::string m_VarRCJetMassScale;
+  bool  m_useVarRCJetSubstructure;
+  bool  m_useVarRCJetAdditionalSubstructure;
 
   // these are needed for the top mass analysis, per default should be 1.0
   float m_JSF;
@@ -1108,9 +1188,6 @@ class TopConfig final {
     // pT cut on taus
     float pt = 20000;
   } m_tau_configuration, m_tau_configuration_loose;
-
-  // Applying new tau energy calibration
-  bool m_applyTauMVATES = false;
 
   // photon configuration
   struct {
@@ -1178,6 +1255,7 @@ class TopConfig final {
 
   // Options for upgrade studies
   bool m_HLLHC;
+  bool m_HLLHCFakes;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
@@ -1239,6 +1317,11 @@ class TopConfig final {
 
     std::vector<std::string> config_files = {};
 
+    // R21 - Need to allow configuration for FS and AF2
+    std::vector<std::string> config_files_FS = {};
+    std::vector<std::string> config_files_AF = {};
+    float unrepresented_data_tol = 0.05;
+
     bool apply = false;
 
     bool use_grl_tool = false;
@@ -1252,6 +1335,33 @@ class TopConfig final {
     std::vector<double> custom_SF = {};
 
   } m_pileup_reweighting;
+
+  // Struct for holding TrigGlobalEfficiencyCorrectionTool settings in order to 
+  // manage systematic variations through this tool
+
+  struct{
+    typedef std::unordered_map<std::string, std::vector<std::string>> triggermap_t;
+    // -- Set from cutfile --//
+    // Boolean to be set to true if the user activates a flag
+    bool isActivated  = false;
+    // Maps of periods -> list of triggers
+    triggermap_t electron_trigger;
+    triggermap_t electron_trigger_loose;
+    triggermap_t muon_trigger;
+    triggermap_t muon_trigger_loose;
+
+    // -- Set from TopCPTools  --//
+    // Boolean to be set to true if we set this information
+    bool isConfigured = false;
+    // Names of CP::SystematicSet from electron trigger tools
+    std::vector<std::string> electron_trigger_systematics;
+    // Names of CP::SystematicSet from muon trigger tools
+    std::vector<std::string> muon_trigger_systematics;
+    // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
+    std::vector<std::string> electron_trigger_tool_names;
+    // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet  
+    std::vector<std::string> muon_trigger_tool_names;
+  } m_trigGlobalConfiguration;
 
   // Muon Trigger SF configuration
   std::string m_muon_trigger_SF;
@@ -1284,7 +1394,10 @@ class TopConfig final {
   bool m_saveOnlySelectedEvents;
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   bool m_outputFileSetAutoFlushZero;
-
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  int m_outputFileNEventAutoFlush;
+  int m_outputFileBasketSizePrimitive;
+  int m_outputFileBasketSizeVector;
   // Number of events to run on (for testing)
   unsigned int m_numberOfEventsToRun;
 

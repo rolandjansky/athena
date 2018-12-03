@@ -42,7 +42,7 @@ public:
   ///@}
 
   ///Virtual Destructor*/
-  virtual ~IAsgElectronMultiLeptonSelector() {};
+  virtual ~IAsgElectronMultiLeptonSelector() {}
 
 }; // End: class definition
 

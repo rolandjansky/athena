@@ -5,7 +5,6 @@
 /***************************************************************************
  Muon DetDescrCnv package
  -----------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
 ***************************************************************************/
 
 #ifndef INDETMGRDETDESCRCNV_STGC_IDDETDESCRCNV_H

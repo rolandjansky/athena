@@ -96,17 +96,29 @@ ExtraContainersElectrons=["Electrons",
 # for trigger studies
 ExtraContainersTrigger=[
         "HLT_xAOD__ElectronContainer_egamma_Electrons",
-        "HLT_xAOD__PhotonContainer_egamma_Photons",    
+        "HLT_xAOD__ElectronContainer_egamma_ElectronsAux.",
+        "HLT_xAOD__PhotonContainer_egamma_Photons",
+        "HLT_xAOD__PhotonContainer_egamma_PhotonsAux.",
         "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
-        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",  
+        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgammaAux.",
+        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",
+        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgammaAux.",
         "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
+        "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFexAux.",
         "HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex",
+        "HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFexAux.",
         "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
+        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrigAux.",
         "HLT_xAOD__TrigPassBitsContainer_passbits",
+        "HLT_xAOD__TrigPassBitsContainer_passbitsAux.",
         "LVL1EmTauRoIs",
+        "LVL1EmTauRoIsAux.",
         "HLT_TrigRoiDescriptorCollection_initialRoI",
+        "HLT_TrigRoiDescriptorCollection_initialRoIAux.",
         "HLT_xAOD__RoiDescriptorStore_initialRoI",
-        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
+        "HLT_xAOD__RoiDescriptorStore_initialRoIAux.",
+        "HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+        "HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."
         ]
 
 ExtraContainersTriggerDataOnly=[ 

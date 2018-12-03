@@ -68,6 +68,8 @@ class HLTTrackPreSelHypo : public HLT::HypoAlgo
   bool m_relax_highpt;
   double m_highpt_threshold;
 
+  bool m_mva_tracking;
+
   int  m_cutCounter;
   //Monitoring: number of tracks in core region
   int m_nTracksInCore;

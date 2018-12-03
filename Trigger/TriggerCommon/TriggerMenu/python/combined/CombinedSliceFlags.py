@@ -2,8 +2,8 @@
 
 """ Combined slices specific flags  """
 
-from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'T. Bold, B. Demirkoz'
 __version__="$Revision: 1.53 $"

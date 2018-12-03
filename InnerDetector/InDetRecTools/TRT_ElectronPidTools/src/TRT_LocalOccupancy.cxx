@@ -318,6 +318,72 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
 }
 
 
+std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const
+{
+  
+  std::map<int,int> hitCounter;
+  std::map<int,double> occResults;
+
+  TRT_RDO_Container::const_iterator RDO_collection_iter = p_trtRDOContainer->begin();
+  TRT_RDO_Container::const_iterator RDO_collection_end  = p_trtRDOContainer->end();
+  for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
+    const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
+    if (!RDO_Collection) continue;
+    if (RDO_Collection->size() != 0){
+      DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
+      
+      for(r=rb; r!=re; ++r) {
+        if (!*r)
+          continue;
+
+        Identifier  rdo_id  = (*r)->identify    ()                          ;
+        
+        //Check if straw is OK
+        if((m_TRTStrawStatusSummarySvc->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
+            || (m_TRTStrawStatusSummarySvc->getStatusPermanent(rdo_id))) {
+          continue;
+        }
+
+        int det      = m_TRTHelper->barrel_ec(rdo_id)     ;
+
+        unsigned int m_word = (*r)->getWord();
+
+        double t0 = 0.;
+        if (m_T0Shift) {
+           unsigned  mask = 0x02000000; 
+          bool SawZero = false; 
+          int tdcvalue; 
+          for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
+          { 
+            if      (  (m_word & mask) && SawZero) break; 
+            else if ( !(m_word & mask) ) SawZero = true; 
+            mask>>=1; 
+            if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
+          } 
+          if(!(tdcvalue==0 || tdcvalue==24)) {
+            double dummy_rawrad=0. ; bool dummy_isOK=true;
+            m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
+          }
+        }
+
+        if (!passValidityGate(m_word, t0)) continue;
+
+        hitCounter[det] +=1;
+      }
+    }
+  }
+
+  int*  straws = m_TRTStrawStatusSummarySvc->getStwTotal();
+    
+            
+  occResults[-1] = (double)hitCounter[-1]/(double)straws[1];
+  occResults[-2] = (double)hitCounter[-2]/(double)(straws[2] + straws[3]);
+  occResults[1]  = (double)hitCounter[1] /(double)straws[4];
+  occResults[2]  = (double)hitCounter[2] /(double)(straws[5] + straws[6]);
+   
+  return occResults;
+}
+
 void  TRT_LocalOccupancy::countHitsNearTrack(){
     const TRT_RDO_Container* p_trtRDOContainer;
     StatusCode sc = evtStore()->retrieve(p_trtRDOContainer, m_trt_rdo_location);
@@ -445,7 +511,7 @@ void  TRT_LocalOccupancy::countHitsNearTrack(){
 
 
 // ========================================================================
-bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) {
+bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) const {
   // check that there is at least one hit in middle 25 ns
   unsigned mask = 0x00010000;
   int i=0;
@@ -456,7 +522,7 @@ bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) {
 return false;
 }
 
-bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) {
+bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) const {
   bool foundInterval = false;
   unsigned  mask = 0x02000000;
   int i = 0;

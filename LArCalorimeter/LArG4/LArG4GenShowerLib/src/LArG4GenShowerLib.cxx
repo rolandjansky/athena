@@ -26,7 +26,7 @@
 #include "GeneratorObjects/McEventCollection.h"// For MC Truth information:
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "LArG4Code/EnergySpot.h"
+#include "LArG4ShowerLib/ShowerEnergySpot.h"
 #include "LArG4ShowerLib/Shower.h"
 #include "LArG4ShowerLib/ShowerLibList.h"
 
@@ -255,7 +255,7 @@ StatusCode LArG4GenShowerLib::execute()
 
   for (ShowerLib::StepInfoList::iterator i(eventSteps->begin());i != eventSteps->end(); ++i) {
 
-    shower->push_back(new EnergySpot(G4ThreeVector((*i)->x(), (*i)->y(), (*i)->z()),(*i)->dep(),(*i)->time()));
+      shower->push_back(new ShowerLib::ShowerEnergySpot(G4ThreeVector((*i)->x(), (*i)->y(), (*i)->z()),(*i)->dep(),(*i)->time()));
 
     delete (*i);
   }

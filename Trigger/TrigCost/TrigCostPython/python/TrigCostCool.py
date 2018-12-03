@@ -38,14 +38,15 @@ import os
 import math
 import traceback
 import logging
-#	logging.basicConfig(level=logging.INFO)
+import collections
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('TrigCostCool')
-#print '\tLoaded standard packages'
 
 from PyCool import cool                                 ;# print '\tLoaded special PyCool.cool package'
 from PyCool import coral                                ;# print '\tLoaded special PyCool.coral package'
 from CoolConvUtilities.AtlCoolLib import indirectOpen   ;# print '\tLoaded special CoolConvUtilitie.AtlCoolLib import indirectOpen package'
 from CoolConvUtilities import AtlCoolTool               ;# print '\tLoaded special CoolConvUtilities.AtlCoolTool package'
+#from TrigHLTRatesFromCool import TrigHltRates           ; log.info("Loaded special TrigHLTRatesFromCool tool")
 
 # for decoding blob
 from collections import namedtuple                      ;# print '\tLoaded special collections package'
@@ -63,7 +64,7 @@ from TrigCostAnalysis import *                          ;# print '\tLoaded speci
 #------------------------------------------------------------
 bgcontent_foldername    = '/TRIGGER/LVL1/BunchGroupContent'     # Idx by run-LB
 bgdesc_foldername       = '/TRIGGER/LVL1/BunchGroupDescription' # Idx by run-LB
-lumi_foldername         = '/TDAQ/OLC/LUMINOSITY'                # Idx by timestamp
+lumi_foldername         = '/TRIGGER/LUMI/OnlPrefLumi'                # Idx by timestamp
 lblb_foldername         = '/TRIGGER/LUMI/LBLB'                  # Idx by run-LB
 lbtime_foldername       = '/TRIGGER/LUMI/LBTIME'                # Idx by timestamp, same as lblb
 lvl1lbdata_foldername   = '/TRIGGER/LVL1/CTPCORELBDATA'         # Idx by run-LB
@@ -78,6 +79,7 @@ l1pskey_foldername      = '/TRIGGER/LVL1/Lvl1ConfigKey'         # Idx by run-LB
 #hltpskey_foldername      = '/TRIGGER/HLT/HltConfigKey'         # Idx by run-LB
 hltpskey_foldername     = '/TRIGGER/HLT/PrescaleKey'            # Idx by run-LB
 
+
 #------------------------------------------------------------
 # Verbosity
 #------------------------------------------------------------
@@ -86,10 +88,10 @@ def SetLogging(options=[]):
         logging.basicConfig(level=logging.ERROR)
     elif "quiet"  in options:
         logging.basicConfig(level=logging.WARNING)
-    elif "debug"  in options:
+    elif "info"  in options:
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.DEBUG)
 
     return
 
@@ -129,79 +131,52 @@ def CloseDB(foldertype='ALL'):
     if (foldertype=="TRIGGER" or procAll) and dbTrig: dbTrig.closeDatabase()
     return
 
-def InitDB(foldertype='TRIGGER'):
-
-    # "PROD" option added -- for bunch groups
-    if foldertype=="PROD":
-        global dbProd
-        if dbProd:
-            return #already initialized
-
-        try:
-            #dbProd = indirectOpen('COOLONL_TRIGGER/COMP200', oracle=True)
-            dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
-            log.info("Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
-        except Exception.e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-
-    # "LHC" option added
-    if foldertype=="LHC":
-        global dbLhc
-        if dbLhc:
-            return #already initialized
-
-        try:
-            dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
-            log.info("Connected to database: "+'COOLOFL_DCS/CONDBR2')
-        except Exception.e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-    # "MONP" option added ("TDAQ" --> "COMP")
-    if foldertype=="MONP":
-        global dbMonp
-        if dbMonp:
-            return #already initialized
-
-        try:
-            dbMonpString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=MONP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-            dbMonp = indirectOpen('COOLONL_TDAQ/MONP200', oracle=True) # last two = oracle, debug
-            log.info("Connected to database: "+dbMonpString)
-        except Exception,e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-    # "COMP" option added
-    if foldertype=="COMP":
-        global dbComp
-        if dbComp:
-            return #already initialized
-
-        try:
-            dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-            dbComp = indirectOpen('COOLONL_TDAQ/CONDBR2', oracle=True)
-            log.info("Connected to database: "+dbCompString)
-        except Exception,e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-    # Default is TRIGGER
+def InitAllDB():
+    global dbProd
+    global dbLhc
+    global dbMonp
+    global dbComp
     global dbTrig
-    if dbTrig:
-        return #already initialized
 
-    dbSvc=cool.DatabaseSvcFactory.databaseService()
-    dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-
+    if not dbTrig == None:
+        log.info("Databases already initialized!")
+        return
+    log.info("Now trying to Init PROD")
     try:
+        dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
+        log.info("SUCCESS!!! Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
+    except Exception.e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init LHC")
+    try:
+        dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
+        log.info("SUCCESS!!! Connected to database: "+'COOLOFL_DCS/CONDBR2')
+    except Exception.e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init MONP")
+    try:
+        dbMonpString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=MONP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+        dbMonp = indirectOpen('COOLONL_TDAQ/MONP200', oracle=True) # last two = oracle, info
+        log.info("SUCCESS!!! Connected to database: "+dbMonpString)
+    except Exception,e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init COMP")
+    try:
+        dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+        dbComp = indirectOpen('COOLONL_TDAQ/COMP200', True, False, False)
+        log.info("SUCCESS!!! Connected to database: "+dbCompString)
+    except Exception,e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init TRIGGER")
+    try:
+        dbSvc=cool.DatabaseSvcFactory.databaseService()
+        dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
         dbTrig=dbSvc.openDatabase(dbTrigString, False)
-        log.info("OpenRed database: "+dbTrigString)
+        log.info("SUCCESS!!! Connected to database: "+dbTrigString)
     except Exception,e:
         log.error('Error connecting to database:'+str(e))
         sys.exit(-1)
@@ -251,22 +226,19 @@ def CheckFolder(foldername,foldertype="TRIGGER"):
 #------------------------------------------------------------
 def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, run_end_time=-1, channel=0):
 
-    logging.debug('foldername:'+foldername)
-    logging.debug('foldertype:'+foldertype)
-    
-    print "Getting DB for ",foldername,foldertype
+    InitAllDB()
+    log.info("Getting DB for %s%s and run times from %lf to %lf" % (foldername,foldertype, run_beg_time, run_end_time))
 
     # "PROD" option added -- for bunch groups
     if foldertype=="PROD":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbProd.getFolder(foldername)
         log.info('Opening folder: %s' % foldername)
+        objIter = folder.browseObjects(run << 32,(run+1) << 32,cool.ChannelSelection.all())
         return folder.browseObjects(run << 32,(run+1) << 32,cool.ChannelSelection.all())
 
     # "LHC" option added
     if foldertype=="LHC":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbLhc.getFolder(foldername)
         log.info('Opening folder: %s' % foldername)
@@ -276,45 +248,27 @@ def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, r
     # NB. Channel 102 is LUCID_ZERO_AND -- used for "MONP" here
     # NB. Channel 0 is ATLAS_PREFERRED -- used for "COMP" below
     if foldertype=="MONP":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbMonp.getFolder(foldername)
-        log.info('Folder %s opening' % foldername)
+        log.info('Opening folder %s' % foldername)
         return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(102))
 
-    # "COMP" option added
-    #
-    # https://twiki.cern.ch/twiki/bin/viewauth/Atlas/CoolOnlineData#Folder_TDAQ_OLC_BUNCHLUMIS
-    #
-    # ---- See this email from Eric ----
-    # From: torrence@uoregon.edu on Sun, Sep 25, 2011 at 14:04
-    # Hi Tae, During the technical stop, it (BUNCHLUMIS) was moved
-    # from MONP200 to CONDBR2.  A few channels were also backfilled in
-    # CONDBR2 back to the start of 2011, so that you can run over the
-    # entire year.  The channel 0 designation is the channel chosen as
-    # the 'preferred' channel.  This is actually the best thing to
-    # use.  The hardcoded 201 in my script is a bit historical, and I
-    # should probably change it.  In practice, the preferred channel
-    # has been 201 all year, so it hasn't made a difference.
-    #
-    log.debug('Folder %s opening' % foldername)
     if foldertype=="COMP":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbComp.getFolder(foldername)
-        return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(channel))
+        log.info('Opening folder %s' % foldername)
+        objIter = folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(0))
+        return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection.all())
 
-    InitDB(foldertype)
-    logging.info('Initialized DB %s' % foldertype)
     CheckFolder(foldername)
-    logging.info('Checked folder %s' % foldername)
+    log.info('Opening folder %s' % foldername)
     folder=dbTrig.getFolder(foldername)
     if foldertype=="LBTIME":
         return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection.all())
 
     # Default is TRIGGER
     if foldertype != "TRIGGER":
-        print 'ERROR - default foldertype should be TRIGGER'
+        info.error('ERROR - default foldertype should be TRIGGER')
         return None
 
     return folder.browseObjects(run << 32,((run+1) << 32),cool.ChannelSelection.all())
@@ -331,6 +285,7 @@ def UnpackBCIDData(StartTime, EndTime, payload):
     b1BCID  = bSet(blob, nb1)   # beam1 bunches data
     b2BCID  = bSet(blob, nb2)   # beam2 bunches data
 
+    log.info("Unpacking BCIDData, ncol = %d, nb1 = %d, nb2 = %d" % (ncol, nb1, nb2))
     bcidData = dict()
     bcidData['StartTime']   = StartTime
     bcidData['EndTime']     = EndTime
@@ -392,11 +347,7 @@ LumiblockSetCacheLbRange=[-1,-1]
 def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     SetLogging(options)
 
-    log.info(" #")
-    log.info(" #")
-    log.info(" # Start GetLumiblocks()")
-    log.info(" #")
-    log.info(" #")
+    log.info("Start GetLumiblocks()")
     log.info("Getting luminosity info for run=%d, %d <= LB <= %d" % (runnumber, lb_beg, lb_end))
 
     # check cache
@@ -404,20 +355,22 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     if LumiblockSetCacheRun==runnumber and \
        LumiblockSetCacheLbRange[0] == lb_beg and \
        LumiblockSetCacheLbRange[1] == lb_end:
-        return LumiblockSetCache
+         log.info("LumiBlock is cached, returning now!")
+         return LumiblockSetCache
 
     # puts the data here
     lbset = LumiBlockSet()
-
+    log.info("Created LumiBlockSet")
     #
     # Get time info
     #
     run_beg_time = -1
     run_end_time = -1
-    log.debug('#')
-    log.debug('# %s = %s loading'%('lblb_foldername', lblb_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# Note that %s = %s loading' % ('lblb_foldername', lblb_foldername))
+    log.info('# -------------------------------------------------------------------------------')
     try:
+        log.info("Getting DB folder")
         itr = GetFolderItrForRun(lblb_foldername,runnumber) # Indexed by run-LB
         while itr.goToNext() :
             obj     = itr.currentRef()
@@ -433,7 +386,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
                     lbset.lbbeg=lb
             else:
                 print "%d LB? Why isn't it already there?" % lb
-            #lbset.lbs[lb] = LumiBlock() # Looks redundant TMH
+            # lbset.lbs[lb] = LumiBlock() # Looks redundant TMH
 
             lbData          = lbset.lbs[lb]
             lbData.beg_time = payload['StartTime']
@@ -454,16 +407,16 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
 
     # These should be set
     if run_beg_time==-1 or run_end_time==-1:
-        log.error('Call GetLumiblocks() to set start & end times, exiting()')
+        log.error('Failed to get Start and End times, exiting')
         exit(-1)
 
 
     #
     # Get Global Counter Info
     #
-    log.debug('#')
-    log.debug('# %s = %s loading' %('lvl1lbdata_foldername', lvl1lbdata_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('lvl1lbdata_foldername', lvl1lbdata_foldername))
+    log.info('# -------------------------------------------------------------------------------')
     try:
         itr = GetFolderItrForRun(lvl1lbdata_foldername,runnumber)
         while itr.goToNext() :
@@ -506,9 +459,9 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     # in AtlDataSumLumiBCID.py
     #
     maskList = []
-    log.debug('#')
-    log.debug('# %s = %s loading' %('fillparams_foldername', fillparams_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('fillparams_foldername', fillparams_foldername))
+    log.info('# -------------------------------------------------------------------------------')
     try:
         idx = -1
         itr = GetFolderItrForRun(fillparams_foldername,runnumber,'COMP',run_beg_time,run_end_time)
@@ -527,8 +480,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             blob = payload['BCIDmasks']         # masked data
             beg_ = AtlCoolTool.time.ctime(StartTime/1.0E9)
             end_ = AtlCoolTool.time.ctime(EndTime/1.0E9)
-            log.debug('%s APPEND=%d (%s)--(%s) ncol=%d nb1=%d nb2=%d' %
-                      (fillparams_foldername,idx,beg_,end_,ncol,nb1,nb2))
+            log.info('%s APPEND=%d (%s)--(%s) ncol=%d nb1=%d nb2=%d' % (fillparams_foldername,idx,beg_,end_,ncol,nb1,nb2))
 
             maskList.append( UnpackBCIDData(StartTime, EndTime, payload) )
 
@@ -540,9 +492,9 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     # Read LHC fill number -- timestamped, so save later
     #
     fillList = []
-    log.debug('#')
-    log.debug('# %s = %s loading' %('lhcdb_foldername', lhcdb_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('lhcdb_foldername', lhcdb_foldername))
+    log.info('# -------------------------------------------------------------------------------')
     try:
         itr = GetFolderItrForRun(lhcdb_foldername, runnumber, 'LHC', run_beg_time, run_end_time)
         while itr.goToNext() :
@@ -573,8 +525,13 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             except:
                 pass
 
-            log.debug('time=%s,%s fill=%d stable=%s lhc=%s beam=%s ebeam=%f' %
+            ncol = payload['NumBunchColl']   # length
+            nb1  = payload['NumBunchBeam1']      # length
+            nb2  = payload['NumBunchBeam2']      # length
+
+            log.info('time=%s,%s fill=%d stable=%s lhc=%s beam=%s ebeam=%f' %
                       (beg_,end_,fill,stable,lhc,beam,ebeam))
+            log.info('%s APPEND=%d (%s)--(%s) ncol=%d nb1=%d nb2=%d' % (fillparams_foldername,idx,beg_,end_,ncol,nb1,nb2))
 
             # Protection against bogus values
             iserr = False
@@ -599,9 +556,10 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     #
     # Load bunch luminosity information
     #
-    log.debug('#')
-    log.debug('# %s = %s loading' %('bunchlumis_foldername', bunchlumis_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('bunchlumis_foldername', bunchlumis_foldername))
+    log.info('# -------------------------------------------------------------------------------')
+    log.info("NOW TRYING TO GET BUNCHLUMI INFO")
     try:
         itr = None
         if runnumber < 188902:
@@ -609,8 +567,10 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             itr = GetFolderItrForRun(bunchlumis_foldername, runnumber, 'MONP', run_beg_time, run_end_time)
         else:
             # Before the technical stop ending Sept 7, 2011
-            itr = GetFolderItrForRun(bunchlumis_foldername, runnumber, 'COMP', run_beg_time, run_end_time, 201)
+            log.info("Runnumber is > 188902, using COMP DB")
+            itr = GetFolderItrForRun(bunchlumis_foldername, runnumber, 'MONP', run_beg_time, run_end_time)
 
+        log.info("Doing a while loop over itr, if you don't see something then somthing went terribly wrong and I'm sorry, you'll likely have no bunchlumi information")
         while itr.goToNext():
             obj       = itr.currentRef()
             StartTime = obj.since()
@@ -628,7 +588,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             idx = -1
             for bcidIdx, bcidData in enumerate(maskList):
                 if bcidData == None:
-                    log.debug('%s SKIPPING %d'%(bunchlumis_foldername,bcidIdx))
+                    log.info('%s SKIPPING %d'%(bunchlumis_foldername,bcidIdx))
                     continue
 
                 bcidStart = bcidData['StartTime']
@@ -642,9 +602,12 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             if idx > -1:
                 thisData = maskList[idx]
                 lbData          = lbset.lbs[lb]
-                lbData.ncol     = thisData['ncol']
-                lbData.nb1      = thisData['nb1']
-                lbData.nb2      = thisData['nb2']
+                lbData.ncol     = ncol
+                lbData.nb1      = nb1
+                lbData.nb2      = nb2
+#                lbData.ncol     = thisData['ncol']
+#                lbData.nb1      = thisData['nb1']
+#                lbData.nb2      = thisData['nb2']
                 lbData.colBCID  = thisData['colBCID']
                 lbData.b1BCID   = thisData['b1BCID']
                 lbData.b2BCID   = thisData['b2BCID']
@@ -658,7 +621,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             except:
                 pass
 
-            log.debug('%s idx=%d lb=%d (%s)--(%s) ncol=%d'%
+            log.info('%s idx=%d lb=%d (%s)--(%s) ncol=%d'%
                       (bunchlumis_foldername,idx,lb,beg_,end_,lbData.ncol))
 
             if idx==-1:
@@ -688,7 +651,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
                 lbData.beam     = thisData['beam']
                 lbData.ebeam    = thisData['ebeam']
 
-            log.debug('%s idx=%d lb=%d (%s)--(%s) fill=%d'%
+            log.info('%s idx=%d lb=%d (%s)--(%s) fill=%d'%
                       (bunchlumis_foldername,idx,lb,beg_,end_,lbData.fill))
 
             if idx==-1:
@@ -703,31 +666,31 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     # Read luminosity information
     #
     # db needs time before first block starts
-    log.debug('#')
-    log.debug('# %s = %s loading' %('lumi_foldername', lumi_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('lumi_foldername', lumi_foldername))
+    log.info('# -------------------------------------------------------------------------------')
+    log.info("Now I'm trying (my hardest) to get Luminosity info.  Again, if you don't see a while loop musing, then sorry, you'll not have any lumiosity information")
     try:
-        itr = GetFolderItrForRun(lumi_foldername, runnumber, 'COMP', run_beg_time, run_end_time)
+        itr = GetFolderItrForRun(lumi_foldername, runnumber, 'TRIGGER', run_beg_time, run_end_time )
         while itr.goToNext():
             obj     = itr.currentRef()
             payload = obj.payload()
+            lb      = (obj.since() & 0xffff)
 
-            run = payload['RunLB'] >> 32
-            lb  = payload['RunLB'] & 0xffff
-
-            if not IncludeLB(lb,lb_beg,lb_end): continue
-            if run != runnumber:
-                log.warning('Skipping run mismatch in lumi: '+str(run)+'!='+str(runnumber))
+            if not IncludeLB(lb,lb_beg,lb_end):
                 continue
 
             if lb not in lbset.lbs:
-                log.warning('Found lumi for out of range lumiblock:'+str(lb))
                 lbset.lbs[lb] = LumiBlock()
+                if lbset.lbbeg==-1:
+                    lbset.lbbeg=lb
+            else:
+                print "%d LB? Why isn't it already there?" % lb
 
-            lbset.lbs[lb].avr_lumi = payload['LBAvInstLumPhys']
-            lbset.lbs[lb].avr_evts = payload['LBAvEvtsPerBXPhys']
+            lbset.lbs[lb].avr_lumi = payload['LBAvInstLumi']
+            lbset.lbs[lb].avr_evts = payload['LBAvEvtsPerBX']
 
-            log.debug('New lumi block: %d'%lb+lbset.lbs[lb].AsString())
+            log.info('New lumi block: %d'%lb+lbset.lbs[lb].AsString())
 
         itr.close()
     except Exception,e:
@@ -743,9 +706,9 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     # Read bunch group names for 1--8
     #
     bgNamesCollection = []
-    log.debug('#')
-    log.debug('# %s = %s loading' %('bgdesc_foldername', bgdesc_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('bgdesc_foldername', bgdesc_foldername))
+    log.info('# -------------------------------------------------------------------------------')
     try:
         itr = GetFolderItrForRun(bgdesc_foldername, runnumber, 'PROD')
         while itr.goToNext() :
@@ -780,9 +743,9 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     bgListCollection = []
     bgLengthCollection = []
     bgStartLBCollection = []
-    log.debug('#')
-    log.debug('# %s = %s loading' %('bgcontent_foldername', bgcontent_foldername))
-    log.debug('#')
+    log.info('# -------------------------------------------------------------------------------')
+    log.info('# %s = %s loading' %('bgcontent_foldername', bgcontent_foldername))
+    log.info('# -------------------------------------------------------------------------------')
     try:
         idx = 0
         itr = GetFolderItrForRun(bgcontent_foldername, runnumber, 'PROD')
@@ -932,7 +895,7 @@ ConfigCacheRun=None
 def GetConfig(runnumber,options=[]):
     SetLogging(options)
 
-    log.debug("Getting configuration info")
+    log.info("Getting configuration info")
 
     # check cache
     global ConfigCache,ConfigCacheRun
@@ -992,7 +955,7 @@ def GetConfig(runnumber,options=[]):
             if chain.TriggerLevel=='HLT':
                 config.HLTCounter2ChainName[chain.ChainCounter]  = chain.ChainName
                 config.HLTChainName2Counter[chain.ChainName] = chain.ChainCounter
-                print "Read HLT ", chain.ChainName, " from DB, counter=", chain.ChainCounter
+                log.info("Read HLT %s from DB, counter = %d" % (chain.ChainName,chain.ChainCounter))
 
     except Exception,e:
         log.error('Reading data from '+hltmenu_foldername+' failed: '+str(e))
@@ -1052,7 +1015,7 @@ def GetConfig(runnumber,options=[]):
         if lastrange:
             lastrange.lbend = psrange.lbbeg-1
 
-        log.debug("New psset: "+str(psrange.lbbeg)+" "+str(psrange.l1key)+" "+str(psrange.hltkey))
+        log.info("New psset: "+str(psrange.lbbeg)+" "+str(psrange.l1key)+" "+str(psrange.hltkey))
 
         config.PrescaleRanges.append(psrange)
         lastrange=psrange
@@ -1421,7 +1384,6 @@ def GetRates(runnumber,lb_beg,lb_end,options=[]):
                 collection.lbbeg=lb
             collection.lbbeg=min(lb,collection.lbbeg)
             collection.lbend=max(lb,collection.lbend)
-            log.debug("Getting rates data for run=%d lb=%d" % (runnumber,lb))
 
             # find name from ctpid
             chain          = CostChain()
@@ -1494,12 +1456,59 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
     collection = CostResultCollection()
     collection.SetName('Get%sRates' % lvl)
 
+
+    chaintag = "TriggerHltChains-Physics-01"
+    ratetag  = "TriggerHltRates-Physics-01"
+    hltrates = TrigHltRates.TrigHltRates(ratetag=ratetag, chaintag=chaintag)
+    iov = hltrates.getIOV(runno=args.runNumber, timestamp=args.timestamp)
+
+
+    return collection
+
+
+'''
+
     #
     # Read Counters
     #
-    hltcounters_foldername = '/TRIGGER/LUMI/HLTCOUNTERS'
-    itr = GetFolderItrForRun(hltcounters_foldername, runnumber)
+    hltchains_foldername = '/TRIGGER/HLT/Chains'
+    hltcounters_foldername = '/TRIGGER/HLT/Rates'
+    chaintag = "TriggerHltChains-Physics-01"
+
+    dbSvc=cool.DatabaseSvcFactory.databaseService()
+    dbconnect = "COOLONL_TDAQ/CONDBR2"
+    readonly = True
+    lb=2
+    runlb = (runnumber << 32) + lb
+    log.info("runlb = %d" % runlb)
+
     try:
+        log.info("Trying to open special HLT database")
+        db=dbSvc.openDatabase(dbconnect,readonly)
+        chainfolder=db.getFolder(hltchains_foldername)
+        log.info("SUCCESS!!!! Opened %s @%s" % (hltchains_foldername, dbconnect))
+    except Exception,e:
+        print "Reading data from",hltchains_foldername,"failed:",e
+        traceback.print_exc(file=sys.stdout)
+        sys.exit(-1)
+
+    try:
+        chainobj = chainfolder.findObject(runlb, coolchannel, self.chaintag);
+    except Exception,e:
+        print("Can't get chains object from chain folder!")
+        print("Exception: {0}".format(e))
+        sys.exit(0)
+
+    since = chainobj.since()
+    runnumber = since >> 32
+    until = chainobj.until()
+    channel = chainobj.channelId() # In chain folder, channel should be always 0
+    payload = chainobj.payload()
+    chains = payload["chains"].split(",")
+    print(" runnumber: {0} / Chain Names(first 3, last 3): {1} ... {2} ".format(runnumber,chains[0:3],chains[-3:]))
+
+    try:
+        itr = GetFolderItrForRun(hltcounters_foldername, runnumber)
         while itr.goToNext():
             obj = itr.currentRef()
             lb  = (obj.since() & 0xffff)
@@ -1509,7 +1518,11 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
                 continue
 
             # Blob encodes data
-            blob = obj.payload()['Data'].read()
+            blob = obj.payload()['rates'].read()
+            floatarr = array.array("f", blob).tolist()
+
+
+
             if len(blob)==0:
                 continue
 
@@ -1539,13 +1552,13 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
                 collection.SetCostChain(lb, chain.name, chain)
 
 #		    itr.close() # Iterator already closed, so cannot close
-        log.debug("GetHLTRates() -- Read counters")
+        log.info("GetHLTRates() -- Read counters")
     except Exception,e:
         print "Reading data from",hltcounters_foldername,"failed:",e
         traceback.print_exc(file=sys.stdout)
         sys.exit(-1)
+'''
 
-    return collection
 
 
 #------------------------------------------------------------
@@ -1716,5 +1729,89 @@ def bSet(blob, nbunch):
 
     return bset
 
+
+def InitDB(foldertype='TRIGGER'):
+
+    # "PROD" option added -- for bunch groups
+    if foldertype=="PROD":
+        log.info("Now trying to Init PROD")
+        global dbProd
+        if dbProd:
+            log.info("Skipping Init DB PROD (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
+            log.info("SUCCESS!!! Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
+        except Exception.e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+
+    # "LHC" option added
+    if foldertype=="LHC":
+        log.info("Now trying to Init LHC")
+        global dbLhc
+        if dbLhc:
+            log.info("Skipping Init DB LHC (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
+            log.info("SUCCESS!!! Connected to database: "+'COOLOFL_DCS/CONDBR2')
+        except Exception.e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+    # "MONP" option added ("TDAQ" --> "COMP")
+    if foldertype=="MONP":
+        log.info("Now trying to Init MONP")
+        global dbMonp
+        if dbMonp:
+            log.info("Skipping Init DB MONP (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbMonpString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=MONP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+            dbMonp = indirectOpen('COOLONL_TDAQ/MONP200', oracle=True) # last two = oracle, info
+            log.info("SUCCESS!!! Connected to database: "+dbMonpString)
+        except Exception,e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+    # "COMP" option added
+    if foldertype=="COMP":
+        log.info("Now trying to Init COMP")
+        global dbComp
+        if dbComp:
+            log.info("Skipping Init DB COMP (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+            dbComp = indirectOpen('COOLONL_TDAQ/COMP200', True, False, False)
+            log.info("SUCCESS!!! Connected to database: "+dbCompString)
+        except Exception,e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+    # Default is TRIGGER
+    global dbTrig
+    if dbTrig:
+        return #already initialized
+
+    dbSvc=cool.DatabaseSvcFactory.databaseService()
+    dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+
+    try:
+        dbTrig=dbSvc.openDatabase(dbTrigString, False)
+        log.info("SUCCESS!!!??? OpenRed database: "+dbTrigString)
+    except Exception,e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
 
 

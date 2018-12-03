@@ -21,8 +21,6 @@ namespace ISF {
 
   class ISFParticle;
  
-  static const InterfaceID IID_IParticleOrderingTool("IParticleOrderingTool", 1, 0);
-   
   /**
    @class IParticleOrderingTool
        
@@ -40,8 +38,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IParticleOrderingTool(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IParticleOrderingTool; };
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IParticleOrderingTool, 1, 0);
        
        /** set the order for the given particle */
        inline void setOrder( ISFParticle& p );

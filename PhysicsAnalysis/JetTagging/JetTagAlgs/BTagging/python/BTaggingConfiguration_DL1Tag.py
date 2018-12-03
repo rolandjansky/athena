@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for DL1Tag
 # Author: Marie Lanfermann (September 2015)
@@ -6,14 +6,16 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 
 
-def buildDL1(basename):
+def buildDL1(basename, calibrationName=''):
+  if not calibrationName:
+    calibrationName = basename
 
   metaInstance = { 'IsATagger'          : False,
                   'xAODBaseName'       : basename,
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : [basename],
+                  'CalibrationFolders' : [calibrationName],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : basename+'Tag'}
 
@@ -38,7 +40,7 @@ def buildDL1(basename):
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'forceDL1CalibrationAlias'         : BTaggingFlags.ForceDL1CalibrationAlias,
                      'DL1CalibAlias'                    : BTaggingFlags.DL1CalibAlias,
-                     'calibration_directory'            : basename,
+                     'calibration_directory'            : calibrationName,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -49,6 +51,7 @@ def buildDL1(basename):
 
   return DL1Instance, metaInstance
 
-toolDL1muTag, metaDL1muTag = buildDL1("DL1mu")
+toolDL1rTag, metaDL1rTag = buildDL1("DL1r")
 toolDL1Tag, metaDL1Tag = buildDL1("DL1")
-toolDL1rnnTag, metaDL1rnnTag = buildDL1("DL1rnn")
+toolDL1rmuTag, metaDL1rmuTag = buildDL1("DL1rmu")
+toolDL1muTag, metaDL1muTag = buildDL1("DL1mu")

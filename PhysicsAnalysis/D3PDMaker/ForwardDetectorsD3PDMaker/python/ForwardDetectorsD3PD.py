@@ -14,7 +14,7 @@ print 'globalflags'
 print globalflags
 
 def ForwardDetectorsD3PD( alg = None,
-                          file = "ForwardDetectordD3PD.root"
+                          file = "ForwardDetectordD3PD.root",
                           tuplename = 'ForwardDetectorsD3PD',
                           **kw ):
 

@@ -40,14 +40,14 @@ namespace TCS {
    const uint32_t InputWidth1stStageSelectMU                = 16;
 		
    const uint32_t OutputWidthSortEM           = 6;
-   const uint32_t OutputWidthSelectEM         = 8;
+   const uint32_t OutputWidthSelectEM         = 10;
    const uint32_t OutputWidthSortTAU          = 6;
-   const uint32_t OutputWidthSelectTAU        = 8;
+   const uint32_t OutputWidthSelectTAU        = 10;
    const uint32_t OutputWidthSortJET          = 6;
    const uint32_t OutputWidthSelectJET        = 8;
    const uint32_t OutputWidthSortMU           = 6;
    const uint32_t NumberOfDelayedMuons        = 1;
-   const uint32_t OutputWidthSelectMU         = 8;
+   const uint32_t OutputWidthSelectMU         = 10;
 	
    const uint32_t NumberOfAlgorithms          = 30;
    const uint32_t NumberOfSortAlgorithms      = 35;

@@ -111,7 +111,7 @@ namespace met {
       if (m_pflow && !mismatchedPFlow) {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
           const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
-	  ATH_MSG_VERBOSE("Jet constituent PFO, pt " << pfo->pt());
+	  ATH_MSG_VERBOSE("Jet constituent PFO, pt :" << pfo->pt() << ", charge: " << pfo->charge());
           if (fabs(pfo->charge())>1e-9 && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
 	    ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
 	    selectedTracks.push_back(pfo);
@@ -157,15 +157,20 @@ namespace met {
     jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
     for(const auto& pfo : *constits.pfoCont) {
-      const TrackParticle* pfotrk = pfo->track(0);
       if (fabs(pfo->charge())>1e-9) {
-	for(const auto& trk : jettracks) if (trk==pfotrk) consts.push_back(pfo);
+	const TrackParticle* pfotrk = pfo->track(0);
+	for(const auto& trk : jettracks) {
+	  if (trk==pfotrk) {
+	    consts.push_back(pfo);
+	    break;
+	  }
+	}
       } else {
         bool marked = false;
-        for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4EM().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
+        for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
         if (marked) {
           consts.push_back(pfo);
-          TLorentzVector momentum = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
+          TLorentzVector momentum = pfo->p4();
           momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 							  momentum.E(),momentum.Pt());
         }

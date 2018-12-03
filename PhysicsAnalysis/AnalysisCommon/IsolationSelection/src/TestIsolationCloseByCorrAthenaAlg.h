@@ -68,6 +68,13 @@ namespace CP {
             bool m_consider_muo;
             bool m_consider_pho;
 
+            float m_mu_min_pt;
+            float m_mu_max_eta;
+            float m_el_min_pt;
+            float m_el_max_eta;
+            float m_ph_min_pt;
+            float m_ph_max_eta;
+            
     };
 
 }

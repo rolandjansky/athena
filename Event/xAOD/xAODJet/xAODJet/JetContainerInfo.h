@@ -17,6 +17,7 @@
 /// ///////////////////////////////
 
 #include <string>
+#include <unordered_set>
 
 namespace xAOD {
 
@@ -67,9 +68,36 @@ namespace xAOD {
       EMTopoOrigin,
       TrackCaloCluster,
       TruthDressedWZ, // Truth jets without prompt e/mu (or dressed photons) or prompt gammas
+      EMTopoOriginSK,
+      EMTopoOriginCS,
+      EMTopoOriginVor,
+      EMTopoOriginCSSK,
+      EMTopoOriginVorSK,
+      LCTopoOriginSK,
+      LCTopoOriginCS,
+      LCTopoOriginVor,
+      LCTopoOriginCSSK,
+      LCTopoOriginVorSK,
+      EMPFlowSK,
+      EMPFlowCS,
+      EMPFlowVor,
+      EMPFlowCSSK,
+      EMPFlowVorSK,
+      HI,
+      TruthCharged, // Truth jets with only charged particles
+      EMTopoOriginTime,
+      EMTopoOriginSKTime,
+      EMTopoOriginCSSKTime,
+      EMTopoOriginVorSKTime,
+      EMPFlowTime,
+      EMPFlowSKTime,
+      EMPFlowCSSKTime,
+      EMPFlowVorSKTime,
       Other = 100,
       Uncategorized= 1000
     };
+
+    bool isValidConstitType(Type t);
     
     const std::string& typeName(Type t);
 
@@ -91,7 +119,7 @@ namespace xAOD {
     /// Convert jet transformation enum to string.
     std::string name(Type t);
     /// Convert string to jet transformation enum.
-    Type type(std::string name);
+    Type type(const std::string& name);
   }
 
 }

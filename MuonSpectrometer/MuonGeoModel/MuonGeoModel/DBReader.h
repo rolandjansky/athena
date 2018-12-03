@@ -5,7 +5,6 @@
 /***************************************************************************
  Dummy AmdbReader - selecting the appropriate version depending on Layout
  ------------------------------------------------------------------------
- Copyright (C) 2004 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: DBReader.h,v 1.62 2009-02-24 17:47:42 dwright Exp $

@@ -7,14 +7,22 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+#===========================================================================================\
+# AUGMENTATION  TOOL                                                                         
+#===========================================================================================\
+from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__PFlowAugmentationTool
+STDM6_PFlowAugmentationTool = DerivationFramework__PFlowAugmentationTool(name = "STDM6_PFlowAugmentationTool")
+ToolSvc += STDM6_PFlowAugmentationTool
 
 #====================================================================                                               
 # SET UP STREAM 
@@ -38,20 +46,30 @@ STDM6Sequence = CfgMgr.AthSequencer("STDM6Sequence")
 # ADD KERNEL 
 STDM6Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM6Kernel",
                                                                  SkimmingTools = [],
-                                                                 ThinningTools = [])
+                                                                 ThinningTools = [],
+                                                                 AugmentationTools=[STDM6_PFlowAugmentationTool])
 
 # JET REBUILDING
-reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, STDM6Sequence, "STDM6Jets")
 
 # ADD MBTS Container
 from xAODForwardCnv.xAODMBTSModuleCreator import xAODMaker__MBTSModuleCnvAlg
 STDM6Sequence +=  xAODMaker__MBTSModuleCnvAlg()
 
+# # FAKE LEPTON TAGGER
+# import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+# STDM6Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM6Sequence
 
+
+# PFlow augmentation
+applyPFOAugmentation(STDM6Sequence)
+
+# add map with modified association method and make MET:
+addHadRecoilMETMap(STDM6Sequence, STDM6Stream, "STDM6")
 
 #====================================================================
 # SET UP STREAM
@@ -67,13 +85,24 @@ DerivationFrameworkJob += STDM6Sequence
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="STDM6ThinningSvc", outStreams=[evtStream] )
 
+<<<<<<< HEAD
 # QGTaggerTool ### 
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=STDM6Sequence, algname="QGTaggerToolAlg")
+=======
+
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM6Sequence)
+
+>>>>>>> upstream/21.2
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
-"""
+
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSM.STDMExtraContent import *
 
@@ -84,6 +113,9 @@ STDM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4LCTopoJets",
+                                        "AntiKt4EMTopoJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"  ]
 
@@ -96,7 +128,13 @@ STDM6SlimmingHelper.IncludeMinBiasTriggerContent = True
 
 
 STDM6SlimmingHelper.ExtraVariables = ExtraContentAll
-STDM6SlimmingHelper.ExtraVariables += ["InDetTrackParticles.pixeldEdx.numberOfUsedHitsdEdx.numberOfIBLOverflowsdEdx"]
+STDM6SlimmingHelper.ExtraVariables += [
+    "InDetTrackParticles.pixeldEdx.numberOfUsedHitsdEdx.numberOfIBLOverflowsdEdx",
+    "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt",
+    "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
+    "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE"   
+]
+# STDM6SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM6SlimmingHelper.AllVariables += ExtraContainersAll
 if globalflags.DataSource()=='geant4':
     STDM6SlimmingHelper.ExtraVariables += ExtraContentAllTruth
@@ -105,43 +143,6 @@ if globalflags.DataSource()=='geant4':
 
 addJetOutputs(STDM6SlimmingHelper,["STDM6","STDM6Jets"])
 
-STDM6SlimmingHelper.AppendContentToStream(STDM6Stream)
-"""
-
-from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkSM.STDM9ContentList import *
-
-STDM6SlimmingHelper = SlimmingHelper("STDM6SlimmingHelper")
-
-# Containers to be smart slimmed, see https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis
-# /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
-STDM6SlimmingHelper.SmartCollections = STDM9SmartContent
-STDM6SlimmingHelper.ExtraVariables = STDM9ExtraVariables
-if isMC:
-  STDM6SlimmingHelper.ExtraVariables = STDM9ExtraVariablesTruth
-
-# Keep all variables for containers which we don't want to smart slim and were
-# not created in the derivation
-STDM6SlimmingHelper.AllVariables = STDM9AllVariablesContent
-
-# Add jet collections created by derivation job
-STDM6SlimmingHelper.StaticContent = STDM9StaticContent
-
-STDM6SlimmingHelper.AppendToDictionary = {}
-
-addJetOutputs(STDM6SlimmingHelper, ["STDM6","STDM6Jets"])
-
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']
-if globalflags.DataSource()=='geant4':
-  listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
-for i in listJets:
-  STDM6SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
-
-# (Dont) Add jet triger content
-#STDM9SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-STDM6SlimmingHelper.IncludeJetTriggerContent = True
-STDM6SlimmingHelper.IncludeEGammaTriggerContent = True
-
-addOriginCorrectedClusters(STDM6SlimmingHelper, writeLC=True, writeEM=True)
+addMETOutputs(STDM6SlimmingHelper,["AntiKt4EMPFlow"])
 
 STDM6SlimmingHelper.AppendContentToStream(STDM6Stream)

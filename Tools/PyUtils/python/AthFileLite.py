@@ -58,6 +58,8 @@ def _urlType(filename):
         return 'rfio'
     if filename.startswith('file:'):
         return 'posix'
+    if filename.startswith('davs:'):
+        return 'root'
     return 'posix'
 
 

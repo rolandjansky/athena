@@ -86,6 +86,7 @@ namespace ana
     virtual xAOD::PhotonContainer* photons () const = 0;
     virtual xAOD::TauJetContainer* taus () const = 0;
     virtual xAOD::JetContainer* jets () const = 0;
+    virtual xAOD::JetContainer* pflow_jets () const = 0;
     virtual xAOD::JetContainer* fat_jets () const = 0;
     virtual xAOD::MissingET* met () const = 0;
     virtual xAOD::MissingET* met2 () const = 0;

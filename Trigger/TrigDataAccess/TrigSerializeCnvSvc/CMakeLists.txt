@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
-                          Control/AthenaKernel
                           Control/DataModelRoot
                           Database/APR/CollectionBase
                           Database/APR/CollectionUtilities
@@ -33,10 +32,10 @@ atlas_add_library( TrigSerializeCnvSvcLib
                    PUBLIC_HEADERS TrigSerializeCnvSvc
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthContainers AthenaBaseComps SGTools GaudiKernel StoreGateLib SGtests TrigSerializeResultLib TrigSerializeTPLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel DataModelRoot CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc PersistentDataModel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelRoot CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc PersistentDataModel )
 
 atlas_add_component( TrigSerializeCnvSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel AthenaKernel DataModelRoot CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc PersistentDataModel TrigSerializeResultLib TrigSerializeTPLib TrigSerializeCnvSvcLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel DataModelRoot CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc PersistentDataModel TrigSerializeResultLib TrigSerializeTPLib TrigSerializeCnvSvcLib )
 

@@ -30,6 +30,7 @@ const unsigned int kNumModulesIBL3D{8};
 const unsigned int kNumModulesBarrel{13};
 const unsigned int kNumModulesDisk{48};
 const unsigned int kNumModulesDBM{4};
+const unsigned int kNumPP0sEC{24};
 
 extern const std::array<std::string, kNumStavesIBL> StavesIBL;
 extern const std::array<std::string, kNumStavesL0> StavesL0;
@@ -45,6 +46,7 @@ extern const std::array<std::string, kNumLayersDBM> LayersDBM;
 extern const std::array<std::string, kNumModulesDisk> ModulesECA;
 extern const std::array<std::string, kNumModulesDisk> ModulesECC;
 extern const std::array<std::string, kNumModulesDBM> ModulesDBM;
+extern const std::array<std::string, kNumPP0sEC> PP0sEC;
 
 /**
  * Enum class to set configuration of histogram containers

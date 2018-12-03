@@ -11,11 +11,11 @@ set( ATHENA_PROJECT_VERSION ${_version}
 unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
-set( TDAQ-COMMON_VERSION "02-02-00" )
+set( TDAQ-COMMON_VERSION "02-03-00" )
 set( TDAQ-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
-set( DQM-COMMON_VERSION "01-02-00" )
+set( DQM-COMMON_VERSION "01-03-00" )
 set( DQM-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
 

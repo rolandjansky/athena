@@ -7,15 +7,18 @@
 #include "../AuxStoreWrapper.h"
 #include "../ElementLinkResetAlg.h"
 #include "../DynVarFixerAlg.h"
+#include "../DynVarToDecorationAlg.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, AuxStoreWrapper )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, ElementLinkResetAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, DynVarFixerAlg )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, DynVarToDecorationAlg )
 
 DECLARE_FACTORY_ENTRIES( xAODCoreCnv ) {
 
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, AuxStoreWrapper )
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, ElementLinkResetAlg )
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, DynVarFixerAlg )
+   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, DynVarToDecorationAlg )
 
 }

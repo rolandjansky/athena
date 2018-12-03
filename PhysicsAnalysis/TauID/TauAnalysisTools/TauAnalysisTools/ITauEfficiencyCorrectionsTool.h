@@ -41,10 +41,11 @@ class ITauEfficiencyCorrectionsTool
 public:
   /// Get the "tau efficiency" as a return value
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
-      double& eff ) = 0;
+      double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0 ) = 0;
 
   /// Decorate the tau with its efficiency
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau ) = 0;
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau,
+      unsigned int iRunNumber = 0, unsigned int iMu = 0 ) = 0;
 
   virtual bool isSupportedRunNumber(int iRunNumber) = 0;
 

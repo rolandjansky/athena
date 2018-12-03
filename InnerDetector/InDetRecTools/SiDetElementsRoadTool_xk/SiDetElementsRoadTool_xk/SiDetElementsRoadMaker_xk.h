@@ -74,15 +74,15 @@ namespace InDet{
       
       virtual void detElementsRoad
 	(const std::list<const Trk::SpacePoint*>&,
-	 std::list<const InDetDD::SiDetectorElement*>&);
+	 std::vector<const InDetDD::SiDetectorElement*>&);
   
       virtual void detElementsRoad
 	(std::list<Amg::Vector3D>&, 
-	 std::list<const InDetDD::SiDetectorElement*>&);
+	 std::vector<const InDetDD::SiDetectorElement*>&);
 
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection,
-	 std::list<const InDetDD::SiDetectorElement*>&);
+	 std::vector<const InDetDD::SiDetectorElement*>&);
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

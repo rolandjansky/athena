@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: THolder.h 725531 2016-02-22 16:14:25Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_THOLDER_H
 #define XAODROOTACCESS_TOOLS_THOLDER_H
 
@@ -34,9 +33,6 @@ namespace xAOD {
    /// that it can be cast to, or not.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 725531 $
-   /// $Date: 2016-02-22 17:14:25 +0100 (Mon, 22 Feb 2016) $
    ///
    class THolder {
 
@@ -100,16 +96,6 @@ namespace xAOD {
       const std::type_info* m_typeInfo;
       /// A flag for whether the object owns what it points to
       ::Bool_t m_owner;
-
-      /// Type for the internal cache
-      typedef std::map< const std::type_info*, TClass* > TypeCache_t;
-      /// Cache for the requested class types
-      static TypeCache_t s_typeMap;
-
-      /// Type implementing the instance counting
-      typedef std::map< void*, int > SharedCount_t;
-      /// Variable counting the different object instances
-      static SharedCount_t s_sharedCount;
 
    }; // class THolder
 

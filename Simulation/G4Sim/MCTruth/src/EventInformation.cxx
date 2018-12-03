@@ -6,33 +6,33 @@
 
 HepMC::GenEvent* EventInformation::GetHepMCEvent()
 {
-	return theEvent;
+	return m_theEvent;
 }
 void EventInformation::SetHepMCEvent(HepMC::GenEvent* ev)
 {
-	theEvent=ev;
+	m_theEvent=ev;
 }
 int EventInformation::GetNrOfPrimaryParticles() const
 {
-	return nrOfPrimaryParticles;
+	return m_nrOfPrimaryParticles;
 }
 void EventInformation::SetNrOfPrimaryParticles(int nr)
 {
-	nrOfPrimaryParticles=nr;
+	m_nrOfPrimaryParticles=nr;
 }
 int EventInformation::GetNrOfPrimaryVertices() const
 {
-	return nrOfPrimaryVertices;
+	return m_nrOfPrimaryVertices;
 }
 void EventInformation::SetNrOfPrimaryVertices(int nr)
 {
-	nrOfPrimaryVertices=nr;
+	m_nrOfPrimaryVertices=nr;
 }
 void EventInformation::SetVertexPosition(const G4ThreeVector vtx)
 {
-	vertexPosition=vtx;
+	m_vertexPosition=vtx;
 }
 const G4ThreeVector EventInformation::GetVertexPosition() const
 {
-	return vertexPosition;
+	return m_vertexPosition;
 }

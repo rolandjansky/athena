@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef ELECTRONTAGTOOL_H 
 #define ELECTRONTAGTOOL_H 
 
@@ -23,16 +22,13 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 #include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 
 #include <map>
 
 class ElectronTagCollection;
-
-namespace CP {
-  class IIsolationSelectionTool;
-}
 
 /** Interface ID for ElectronTagTool*/  
 static const InterfaceID IID_ElectronTagTool("ElectronTagTool", 1, 0);
@@ -56,16 +52,20 @@ public:
 
 protected:
 
-   /** Standard destructor */
-   virtual ~ElectronTagTool( );
+  /** Standard destructor */
+  virtual ~ElectronTagTool( );
 
 private:
 
+  /** private function to get impact parameter */
+  void getElectronImpactParameter (const xAOD::Electron*,double& d0_significance, double& z0_sintheta);
+
   /** Properties */
   std::vector<std::string> m_containerNames;
-  double m_cut_Et;
-  std::vector<float> m_etconeisocutvalues;
-  std::vector<float> m_ptconeisocutvalues;
+  double                   m_cut_Et;
+  std::string              m_electron_met_container_name;
+  std::vector<float>       m_etconeisocutvalues;
+  std::vector<float>       m_ptconeisocutvalues;
 
   /** the attribute names */
   std::vector<std::string> m_ptStr;
@@ -86,15 +86,24 @@ private:
   ToolHandle<IAsgElectronLikelihoodTool> m_medium_likelihood;
   ToolHandle<IAsgElectronLikelihoodTool> m_tight_likelihood;
 
+  /** isolation correction tool */
+  ToolHandle<CP::IIsolationCorrectionTool> m_isolation_correction_tool; 
+
   /** electron isolation tool */
   ToolHandle<CP::IIsolationSelectionTool> m_loose_trackonly_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_loose_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_tight_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_loose_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_tight_trackonly_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_loose_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_tight_isolation;
+
+  /** PV StoreGate key */
+  std::string m_vxCandidate;
 
   /** calib tool */
-  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
+  // ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
   
 };
 

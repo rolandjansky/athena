@@ -11,10 +11,6 @@
 // Geant4 includes
 #include "G4UserRunAction.hh"
 
-// Local includes
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-
 
 namespace G4UA
 {
@@ -24,6 +20,8 @@ namespace G4UA
   ///
   /// Maintains a list of custom actions for the beginning and end of an run
   /// and when invoked by Geant4 will forward the call to each of them in turn.
+  ///
+  /// @todo TODO lifetime management of wrapper actions.
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
@@ -46,18 +44,12 @@ namespace G4UA
       void EndOfRunAction(const G4Run* run) override final;
 
       /// Add one action to the list
-      void addBeginRunAction(IBeginRunAction* action);
-
-      /// Add one action to the list
-      void addEndRunAction(IEndRunAction* action);
+      void addRunAction(G4UserRunAction* action);
 
     private:
 
-      /// List of ATLAS begin-run actions
-      std::vector<IBeginRunAction*> m_beginRunActions;
-
-      /// List of ATLAS end-run actions
-      std::vector<IEndRunAction*> m_endRunActions;
+      /// List of ATLAS run actions
+      std::vector<G4UserRunAction*> m_runActions;
 
   }; // class G4AtlasRunAction
 

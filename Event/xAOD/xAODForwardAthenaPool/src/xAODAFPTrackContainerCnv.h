@@ -13,7 +13,6 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "xAODForward/AFPTrackContainer.h"
-#include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPTrack.h"
 
 typedef T_AthenaPoolCustomCnv<xAOD::AFPTrackContainer, xAOD::AFPTrackContainer> xAODAFPTrackContainerCnvBase;

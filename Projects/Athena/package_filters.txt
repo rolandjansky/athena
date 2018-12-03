@@ -22,6 +22,7 @@
 - PhysicsAnalysis/D3PDTools/EventLoop
 - PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
+- PhysicsAnalysis/AnalysisCommon/HDF5Utils
 - PhysicsAnalysis/D3PDTools/EventLoop
 - PhysicsAnalysis/D3PDTools/EventLoopAlgs
 - PhysicsAnalysis/D3PDTools/EventLoopGrid
@@ -42,3 +43,7 @@
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Trigger/TrigAnalysis/TrigMuonEfficiency
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
+
+# Data quality packages not needed in Athena
+- DataQuality/DataQualityConfigurations
+- DataQuality/DCSCalculator2

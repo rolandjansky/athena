@@ -18,8 +18,8 @@ msg.info('logging set in %s' % sys.argv[0])
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
-from PyJobTransforms.trfArgs import addAthenaArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
+from PyJobTransforms.trfArgs import addDetectorArguments
 
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
@@ -150,12 +150,14 @@ def getTransform():
                                 'subregions merge and final merge.'.format(
                                     ntowers, subregions))
 
-    #addAthenaArguments(trf.parser)
+    addTrigFTKAthenaOptions(trf.parser)
+    addDetectorArguments(trf.parser)
     addTrigFTKSimOptions(trf.parser, nsubregions=subregions)
     addTrigFTKSimMergeOptions(trf.parser);
     addTrigFTKSimTFOptions(trf.parser)
     addTrigFTKSimRFOptions(trf.parser)
     addFTKSimulationArgs(trf.parser)
+    
     return trf
 
 

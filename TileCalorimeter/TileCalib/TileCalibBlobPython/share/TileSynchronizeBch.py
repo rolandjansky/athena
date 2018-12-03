@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileSynchronizeBch.py <TAG1> <TAG2> <MASKONLY> <RUN1> <RUN2>
 # sanya.solodkov@cern.ch July 2016
 # copy bad status from one tag to another (e.g. from UPD4 to UPD1)

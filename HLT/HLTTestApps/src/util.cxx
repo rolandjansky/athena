@@ -484,6 +484,9 @@ eformat::helper::u32list ProcessProxy::operator()()
       ers::warning(HLTTESTAPPS_UNCLASSIFIED("HLT framework has not returned OK "
                                             "for process() call"));
     m_watchdog.reset();
+
+    // accumulate ROS statistics      
+    proxy.accumulateStatistics(m_hltr.stream_tag.size());
   }
   catch (ers::Issue& e) 
   {

@@ -44,7 +44,10 @@ def buildListOfModifiers():
             raise RuntimeError( 'You cannot configure the EvtIdModifierSvc with an unlocked JobProperty.' )
         pDicts = digitizationFlags.RunAndLumiOverrideList.get_Value()
         for el in pDicts:
-            Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
+            if 'evt_nbr' in el:
+                Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'], evt_nbr=el['evt_nbr'])
+            else:
+                Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
     elif digitizationFlags.dataRunNumber.get_Value():
         if digitizationFlags.dataRunNumber.get_Value() < 0:
             raise SystemExit("Given a negative Run Number - please use a real run number from data.")

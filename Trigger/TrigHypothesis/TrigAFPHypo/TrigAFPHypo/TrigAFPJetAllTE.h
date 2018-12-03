@@ -166,6 +166,9 @@ private:
   double m_sideC_diffX;
   ///Minimum distnace in y between measurements and prediction in ATLAS C side
   double m_sideC_diffY;
+
+  ///Bolean to change the decision to accept single or double AFP proton tags
+   bool m_requireDoubleTag;
 };
 
 #endif

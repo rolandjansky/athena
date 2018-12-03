@@ -25,6 +25,8 @@ PURPOSE:  A base class for RAW FTK tracks.
 //#define NPIXLAYERS 4
 //#define NSCTLAYERS 8 //0,2,4,6 = Axial, 1,3,5,7 = Stero
 
+#define FTK_RAWTRACK_VERSION 0x1
+
 class FTK_RawTrack {
 
  public:
@@ -97,8 +99,16 @@ class FTK_RawTrack {
   void setSCTClusters(   std::vector<FTK_RawSCT_Cluster>&  );
   void setBarcode(signed long barcode) { m_barcode = barcode; }
 
+
   
  private:
+
+  inline unsigned int trackVersion() const  
+  {
+    return (m_word_th3>>24);
+  }
+
+
   uint32_t m_word_th1;
   uint32_t m_word_th2;
   uint32_t m_word_th3;
@@ -122,6 +132,7 @@ class FTK_RawTrack {
   static const float chi2_multiplier;
   //  static const float quality_multiplier;
   static const float invpt_multiplier;
+
 
 
 };

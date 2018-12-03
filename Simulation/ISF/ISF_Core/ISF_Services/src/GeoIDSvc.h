@@ -44,16 +44,13 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GeoIDSvc : public AthService, public ISF::IGeoIDSvc { 
+  class GeoIDSvc : public extends<AthService, ISF::IGeoIDSvc> {
     public: 
      /** Constructor with parameters */
      GeoIDSvc(const std::string& name,ISvcLocator* svc);
 
      /** Destructor */
      ~GeoIDSvc();
-
-     /** Query the interfaces. */
-     StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
      // Athena algtool's Hooks
      StatusCode  initialize();

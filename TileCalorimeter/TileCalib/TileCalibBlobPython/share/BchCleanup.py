@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # File:    BchCleanup.py
 # Package: TileCalibBlobPython
 # Purpose: Clean up BCH folders from an input bch-input-sqlite.db file.  Output saved to output sqlite.db file.
@@ -94,7 +97,7 @@ if __name__ == "__main__":
   keywords = ["help","tag=","folder=","outtag=","instance="]
   try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-  except getopt.GetOptError, err:
+  except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
@@ -291,7 +294,7 @@ if __name__ == "__main__":
             sizelo = calibDrawerPrev.getObjSizeByte()/4
             sizehi = calibDrawer.getObjSizeByte()/4
             if (sizelo <> sizehi):
-              log.info("ERROR!!! object sizes are different for ROS %s (%s %s) drawer %s" % (ros, sizelo, sizehi, modName))
+              log.error("Object sizes are different for ROS %s (%s %s) drawer %s" % (ros, sizelo, sizehi, modName))
 
             typelo = calibDrawerPrev.getObjType()
             typehi = calibDrawer.getObjType()
@@ -301,7 +304,7 @@ if __name__ == "__main__":
             #ng = flt.getNGains()
 
             if (typelo <> typehi):
-              log.info("ERROR!!! object types %s %s are different" % (typelo, typehi))
+              log.error("Object types %s %s are different" % (typelo, typehi))
               sys.exit()
 
             #=== get all problems of this module

@@ -92,14 +92,19 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   StatusCode AddHit(const Identifier & cellId, float energy, float time, bool iSignal, unsigned int offset, unsigned int ical);
 
+
   StatusCode MakeDigit(const Identifier & cellId,
                    HWIdentifier & ch_id,
                    const std::vector<std::pair<float,float> >  *TimeE,
-                   const LArDigit * rndm_digit);
+                   //const LArDigit * rndm_digit);
+                   const LArDigit * rndm_digit, const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
+
 
   StatusCode ConvertHits2Samples(const Identifier & cellId,
                    CaloGain::CaloGain igain,
-                   const std::vector<std::pair<float,float> >  *TimeE);
+                   //const std::vector<std::pair<float,float> >  *TimeE);
+                   const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
+
 
   float  get_strip_xtalk(int eta);
   float  get_middleback_xtalk(int eta);
@@ -126,6 +131,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 //
   PileUpMergeSvc* m_mergeSvc;
   LArHitEMap* m_hitmap;   // map of hits in cell
+  LArHitEMap* m_hitmap_DigiHSTruth;   // map of hits in cell 
   std::vector <std::string> m_HitContainer; // hit container name list
   std::vector<int> m_CaloType;
 
@@ -134,7 +140,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 //
   std::string m_SubDetectors;      // subdetectors
   std::string m_DigitContainerName;    // output digit container name list
+  std::string m_DigitContainerName_DigiHSTruth;    // output digit container name list
   LArDigitContainer* m_DigitContainer;
+  LArDigitContainer* m_DigitContainer_DigiHSTruth;
   std::vector<std::string> m_EmBarrelHitContainerName;
   std::vector<std::string> m_EmEndCapHitContainerName;
   std::vector<std::string> m_HecHitContainerName;
@@ -172,7 +180,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   bool m_rndmEvtRun;               // use run,event number for random number seeding
   bool m_useTriggerTime;
   bool m_RndmEvtOverlay;         // Pileup and noise added by overlaying random events
-  bool m_isMcOverlay;             // true if input RDO for overlay are from MC, false if from data 
+  bool m_isMcOverlay;             // true if input RDO for overlay are from MC, false if from data
   bool m_useBad;
   std::string m_RandomDigitContainer; // random digit container name list
 
@@ -210,11 +218,15 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   IAtRndmGenSvc* m_AtRndmGenSvc;
   CLHEP::HepRandomEngine* m_engine;
 
+  bool m_doDigiTruth;
+
   std::vector<double> m_Samples;
+  std::vector<double> m_Samples_DigiHSTruth;
   std::vector<double> m_Noise;
   double m_Rndm[32];
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
+  std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot;
   float m_trigtime;
   unsigned int m_n_cells;

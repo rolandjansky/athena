@@ -40,14 +40,13 @@
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::SimHitCreatorID::SimHitCreatorID(const std::string& t, const std::string& n, const IInterface* p)
-        : AthAlgTool(t,n,p),
+        : base_class(t,n,p),
           m_pixelHitCreator(""),
           m_sctHitCreator(""),
           m_trtHitCreator(""),
           m_idHelperName("AtlasID"),
           m_idHelper(0)
 {
-  declareInterface<ISimHitCreator>(this);  
   // retrieve the Extrapolator  ------------------------------------------------
   declareProperty("PixelHitCreator"              , m_pixelHitCreator);
   declareProperty("SctHitCreator"                , m_sctHitCreator);

@@ -29,6 +29,15 @@ class TrigMultiTrkFexPy (TrigMultiTrkFex):
         while len(self.ptTrkMin) < self.nTrk  :
             self.ptTrkMin.append(900.)
             
+    def setNumberAndTrackThresholds(self, nTrk, thresholds) :
+        self.ptTrkMin = []  # reset, use thresholds from trigger name
+        self.nTrk = nTrk
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptTrkMin) < self.nTrk :
+                self.ptTrkMin.append( thr )
+        while len(self.ptTrkMin) < self.nTrk  :
+            self.ptTrkMin.append(900.)
+
     def setEFMuonThresholds(self, thresholds) :
         self.ptMuonMin = []  # reset, use thresholds from trigger name
         for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
@@ -36,6 +45,14 @@ class TrigMultiTrkFexPy (TrigMultiTrkFex):
                 self.ptMuonMin.append( thr )
         while len(self.ptMuonMin) < self.nEfMuon  :
             self.ptMuonMin.append(2000.)  # lower pt cut makes no sense at trigger
+
+    def setElectronTrackThresholds(self, thresholds) :
+        self.ptTrkMin = []  # reset, use thresholds from trigger name
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptTrkMin) < self.nTrk :
+                self.ptTrkMin.append( thr )
+        while len(self.ptTrkMin) < self.nTrk  :
+            self.ptTrkMin.append(4500.)
 
     def setL2CombMuonThresholds(self, thresholds) :
         self.ptMuonMin = []  # reset, use thresholds from trigger name
@@ -69,7 +86,7 @@ class TrigMultiTrkFex_trkPhi (TrigMultiTrkFexPy):
         self.nTrkCharge = 0
         self.nTrkMassMin = [840.]  
         self.nTrkMassMax = [1240.] 
-        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -98,7 +115,7 @@ class TrigMultiTrkFex_trkPhiX (TrigMultiTrkFexPy):
         self.nTrk = 3
         self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 1
-        self.ptTrkMin = [3750., 3750., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
         self.diTrkMassMax = [1240.]
         self.diTrkCharge = 0
@@ -130,7 +147,7 @@ class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
         self.nTrkCharge = 1
         self.nTrkMassMin = [1500.]
         self.nTrkMassMax = [2500.] 
-        self.ptTrkMin = [3750., 3750., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
         self.diTrkMassMax = [1240.]
         self.diTrkCharge = 0
@@ -159,12 +176,13 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.AcceptAll = False
 
         #self.trackCollectionKey = "'
-        self.trkMass = 105.6583745  # looking for di-muon resonances       
+        self.maxNOutputObject = -1
+        self.trkMass = 105.6583745  # looking for di-muon         
         self.nTrk = 2
         self.nTrkMassMin = [0.]
         self.nTrkMassMax = [2900.] # cut away J/psi
         self.nTrkCharge = -1
-        self.ptTrkMin = [3750., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = []   # no sub-resonances
         self.diTrkMassMax = []
         # muons are not matched to tracks, but still require to be present in TE
@@ -313,7 +331,7 @@ class TrigMultiTrkFex_DiMu (TrigMultiTrkFexPy):
         self.nTrkCharge = 0
         self.nTrkMassMin = [100.]
         self.nTrkMassMax = [15000.] 
-        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -369,7 +387,7 @@ class TrigMultiTrkFex_Vtx2 (TrigMultiTrkFexPy):
         self.nTrkCharge = -1
         self.nTrkMassMin = [0.]  
         self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 
-        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -392,7 +410,7 @@ class TrigMultiTrkFex_Vtx3 (TrigMultiTrkFexPy):
     def __init__(self, name = "TrigMultiTrkFex_Vtx3"):
         super( TrigMultiTrkFex_Vtx3, self ).__init__( name )
         self.nTrk = 3
-        self.ptTrkMin = [3750., 3750., 3750. ] # set minimal pt of tracks for 3mu passing L1
+        self.ptTrkMin = [3600., 3600., 3600. ] # set minimal pt of tracks for 3mu passing L1
 
 #############################################################################
 class TrigMultiTrkFex_Jpsi (TrigMultiTrkFexPy):
@@ -409,6 +427,35 @@ class TrigMultiTrkFex_Jpsi (TrigMultiTrkFexPy):
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
+
+        # muons are not matched to tracks, but still require to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+
+
+class TrigMultiTrkFex_EMu (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_EMu"):
+        super( TrigMultiTrkFex_EMu, self ).__init__( name )
+        self.nTrk = 2
+        self.trkMass = 0.5  # looking for electron-muon resonances ; ignore muon mass      
+        self.nTrkVertexChi2 = 20
+        self.nTrkCharge = 0
+        self.nTrkMassMin = [100.]
+        self.nTrkMassMax = [7000.] 
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1
+        self.diTrkMassMin = []   # phi window
+        self.diTrkMassMax = []
+        self.diTrkCharge = 0
 
         # muons are not matched to tracks, but still require to be present in TE
         self.nEfMuon = 0

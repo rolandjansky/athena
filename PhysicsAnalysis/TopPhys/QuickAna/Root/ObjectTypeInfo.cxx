@@ -34,6 +34,7 @@ namespace ana
     "eventinfo",
     "eventSelect",
     "jets",
+    "pfJets",
     "fatJets",
     "electrons",
     "photons",
@@ -41,6 +42,7 @@ namespace ana
     "taus",
     "met",
     "met2",
+    "eventCleaning",
     "overlapRemoval",
     "trigger",
     "none",
@@ -52,6 +54,7 @@ namespace ana
     switch (type)
     {
     case OBJECT_JET:
+    case OBJECT_PFLOW_JET:
     case OBJECT_FAT_JET:
     case OBJECT_ELECTRON:
     case OBJECT_PHOTON:
@@ -62,6 +65,7 @@ namespace ana
     case OBJECT_EVENT_SELECT:
     case OBJECT_MET:
     case OBJECT_MET2:
+    case OBJECT_CLEANING:
     case OBJECT_OVERLAP_REMOVAL:
     case OBJECT_TRIGGER:
     case OBJECT_NONE:

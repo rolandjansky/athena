@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -22,6 +22,7 @@ namespace DerivationFramework {
     recordPropertyB("isSimulation", false);
     recordPropertyS("projectTag", "__NONE__");
     recordPropertyB("isRelease21" , true);
+    recordPropertyS("mcCampaign", "__NONE__");
     
     // MC dataset number lists
     recordPropertyVI("mcBsmumu"         , {});
@@ -32,12 +33,27 @@ namespace DerivationFramework {
 
     // MC datasets without trigger information
     recordPropertyVI("mcNoTrigger"     , {});
+
+    // special data runs
+    recordPropertyVI("specDataRuns", {});
+    
+    // special MC channels
+    recordPropertyVI("specMcChannels", {});
     
     // blind search
-    recordPropertyB("doBmumuBlinding", true);
-
+    recordPropertyB("doBmumuBlinding"       , true);
+    recordPropertyB("doCutBlinded"          , true);
+    recordPropertyB("blindOnlyAllMuonsTight", true);
+    recordPropertyS("BlindingKey"           , "");
+    recordPropertyS("BlindedVars"           , "");
+    recordPropertyS("BlindingFlag"          , "");
+    
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
+
+    // trigger navigation thinning
+    recordPropertyB("doTrigNavThinning", true);
+    recordPropertyVS("TrigNavThinList" , {});
 
     // wide mumu mass range
     recordPropertyB("doUseWideMuMuMassRange", false);
@@ -71,6 +87,7 @@ namespace DerivationFramework {
     recordPropertyB("McstSagittaCorr"          , true);
     recordPropertyS("McstSagittaRelease"       , "_NONE_");
     recordPropertyB("McstDoSagittaMCDistortion", false);
+    recordPropertyB("McstSagittaCorrPhaseSpace", true);
     
     // muon collections
     recordPropertyS("MuonCollection"     , "Muons");
@@ -96,6 +113,8 @@ namespace DerivationFramework {
     recordPropertyD("GlobalJpsiMassLowerCut"  , 2000.);
     recordPropertyD("GlobalBlindUpperCut"     , 5166.);
     recordPropertyD("GlobalBlindLowerCut"     , 5526.);
+    recordPropertyD("GlobalTrksMassUpperCut"  , 7500.);
+    recordPropertyD("GlobalTrksMassLowerCut"  , 3000.);
     
     // Global chi2 cut for vertexing
     recordPropertyD("GlobalChi2CutBase", 15.0);
@@ -131,6 +150,9 @@ namespace DerivationFramework {
 
     // mode of minLogChi2ToAnyPV calculation
     recordPropertyI("AddMinChi2ToAnyPVMode", 0);
+
+    // record 3-dimensional proper time in addition
+    recordPropertyB("do3dProperTime", false);
     
     // thinning level
     recordPropertyI("thinLevel", 0);

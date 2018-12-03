@@ -16,6 +16,20 @@
 #include <cassert>
 #include <iostream>
 
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
+
+void compare (const HepMcParticleLink& p1,
+              const HepMcParticleLink& p2)
+{
+  assert ( p1.isValid() == p2.isValid() );
+  assert ( p1.barcode() == p2.barcode() );
+  assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.cptr() == p2.cptr() );
+  assert ( p1 == p2 );
+}
 
 void compare (const GenericMuonSimHit& p1,
               const GenericMuonSimHit& p2)
@@ -32,6 +46,7 @@ void compare (const GenericMuonSimHit& p1,
   assert (p1.globalDirection() == p2.globalDirection());
   assert (p1.depositEnergy() == p2.depositEnergy());
   assert (p1.StepLength() == p2.StepLength());
+  compare(p1.particleLink(), p2.particleLink());
   assert (p1.particleLink() == p2.particleLink());
 }
 
@@ -59,29 +74,37 @@ void testit (const GenericMuonSimHitCollection& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*> genPartVector)
 {
   std::cout << "test1\n";
 
   GenericMuonSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
+    const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
     trans1.Emplace (123, 10.5, 11.5,
                     Amg::Vector3D (12.5, 13.5, 14.5),
                     Amg::Vector3D (15.5, 16.5, 17.5),
                     Amg::Vector3D (18.5, 19.5, 20.5),
                     Amg::Vector3D (21.5, 22.5, 23.5),
-                    24, 25.5,
+                    pGenParticle->pdg_id(), 25.5,
                     Amg::Vector3D (26.5, 27.5, 28.5),
-                    29.5, 30.5, 31
+                    29.5, 30.5, pGenParticle->barcode()
                     );
   }
-    
+
   testit (trans1);
 }
 
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

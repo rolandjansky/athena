@@ -11,6 +11,8 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/CoWTools
+   Control/StoreGate
+   Event/xAOD/EventInfo
    GaudiKernel )
 
 # External dependencies:
@@ -28,4 +30,4 @@ atlas_add_component( AthenaAuditors
    ${LIBUNWIND_INCLUDE_DIRS} ${GPERFTOOLS_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${GDB_LIBRARIES}
    ${LIBUNWIND_LIBRARIES} ${ZLIB_LIBRARIES}
-   AthenaBaseComps CoWTools GaudiKernel )
+   AthenaBaseComps CoWTools GaudiKernel xAODEventInfo)

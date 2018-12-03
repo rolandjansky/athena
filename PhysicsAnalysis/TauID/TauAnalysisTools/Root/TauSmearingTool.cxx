@@ -18,10 +18,10 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   , m_tCommonSmearingTool(sName+"_CommonSmearingTool", this)
   , m_sInputFilePath("")
 {
-  declareProperty( "RecommendationTag",   m_sRecommendationTag = "mc16-prerec" );
+  declareProperty( "RecommendationTag",   m_sRecommendationTag = "2018-summer" );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty( "ApplyFading",         m_bApplyFading = true);
-  declareProperty( "ApplyMVATES",         m_bApplyMVATES = false);
+  declareProperty( "ApplyMVATES",         m_bApplyMVATES = true);
   declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
 
@@ -50,7 +50,9 @@ StatusCode TauSmearingTool::initialize()
 
   std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Smearing/";
 
-  if (m_sRecommendationTag == "mc16-prerec")
+  // recommendations tags "mc16-prerec" and "2018-summer" have same recommendations in tau smearing
+  // only adding "2018-summer" to be consistent with tags in efficiency corrections 
+  if (m_sRecommendationTag == "mc16-prerec" || m_sRecommendationTag == "2018-summer" )
   {
     if (m_sInputFilePath.empty())
       m_sInputFilePath = sDirectory+"TES_TrueHadTau_mc16-prerec.root";

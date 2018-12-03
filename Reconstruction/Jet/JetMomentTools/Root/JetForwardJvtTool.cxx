@@ -32,20 +32,22 @@
     AsgTool(name),
     m_fjvtThresh(15e3)
   {
-    declareProperty("OverlapDec",          m_orLabel            = ""                );
-    declareProperty("OutputDec",           m_outLabel           = "passFJVT"        );
-    declareProperty("EtaThresh",        m_etaThresh          = 2.5              );
-    declareProperty("ForwardMinPt",        m_forwardMinPt          = 20e3              );
-    declareProperty("ForwardMaxPt",        m_forwardMaxPt          = 50e3              );
-    declareProperty("CentralMinPt",        m_centerMinPt          = 20e3              );
-    declareProperty("CentralMaxPt",        m_centerMaxPt          = -1              );
-    declareProperty("CentralJvtThresh",        m_centerJvtThresh          = 0.14              );
-    declareProperty("JvtMomentName",   m_jvtMomentName   = "Jvt"               );
-    declareProperty("CentralDrptThresh",       m_centerDrptThresh          = 0.2              );
-    declareProperty("CentralMaxStochPt",          m_maxStochPt         = 35e3              );
-    declareProperty("JetScaleFactor",          m_jetScaleFactor         = 0.4              );
-    //declareProperty("FJVTThreshold",          m_fjvtThresh         = 15e3              );//15GeV->92%,11GeV->85%
-    declareProperty("UseTightOP",          m_tightOP         = false              );//Tight or Loose
+    declareProperty("OverlapDec",         m_orLabel          = ""               );
+    declareProperty("OutputDec",          m_outLabel         = "passFJVT"       );
+    declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"   );
+    declareProperty("OutputDecTiming",    m_outLabelTiming   = "passOnlyTiming" );
+    declareProperty("EtaThresh",          m_etaThresh        = 2.5              );
+    declareProperty("TimingCut",          m_timingCut        = 10.              );
+    declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3             );
+    declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3             );
+    declareProperty("CentralMinPt",       m_centerMinPt      = 20e3             );
+    declareProperty("CentralMaxPt",       m_centerMaxPt      = -1               );
+    declareProperty("CentralJvtThresh",   m_centerJvtThresh  = 0.11             );
+    declareProperty("JvtMomentName",      m_jvtMomentName    = "Jvt"            );
+    declareProperty("CentralDrptThresh",  m_centerDrptThresh = 0.2              );
+    declareProperty("CentralMaxStochPt",  m_maxStochPt       = 35e3             );
+    declareProperty("JetScaleFactor",     m_jetScaleFactor   = 0.4              );
+    declareProperty("UseTightOP",         m_tightOP          = false            );//Tight or Loose
   }
 
   // Destructor
@@ -60,8 +62,10 @@
     ATH_MSG_INFO ("Initializing " << name() << "...");
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;
-    if (m_orLabel!="")  Dec_OR = new SG::AuxElement::Decorator<char>(m_orLabel);
-    Dec_out = new SG::AuxElement::Decorator<char>(m_outLabel);
+    if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
+    Dec_out = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabel);
+    Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
+    Dec_outTiming = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelTiming);
     return StatusCode::SUCCESS;
   }
 
@@ -76,11 +80,15 @@
     m_pileupMomenta.clear();
     for(const auto& jetF : jetCont) {
       (*Dec_out)(*jetF) = 1;
+      (*Dec_outFjvt)(*jetF) = 1;
+      (*Dec_outTiming)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
       if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
-      if (fjvt>m_fjvtThresh) (*Dec_out)(*jetF) = 0;
+      if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
+      if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
+      if (fjvt>m_fjvtThresh || fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_out)(*jetF) = 0;
       fjvt_dec(*jetF) = fjvt;
     }
     return 0;

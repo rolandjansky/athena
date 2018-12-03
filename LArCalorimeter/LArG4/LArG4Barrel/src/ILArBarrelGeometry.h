@@ -50,12 +50,10 @@ class ILArBarrelGeometry: virtual public IService {
 public:
 
   ILArBarrelGeometry() {};
-  static const InterfaceID& interfaceID() {
-     static const InterfaceID  IID_ILArBarrelGeometry("ILArBarrelGeometry",1,0);
-     return IID_ILArBarrelGeometry;
-  }
 
   virtual ~ILArBarrelGeometry() {};
+
+  DeclareInterfaceID(ILArBarrelGeometry,1,0);
 
   // Full identifier computation from a G4 step
   virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const = 0;

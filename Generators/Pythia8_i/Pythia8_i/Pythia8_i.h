@@ -12,12 +12,14 @@
 
 #include <stdexcept>
 
+using std::string;
 
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  *  Author: James Monk (jmonk@cern.ch)
 */
-
-using std::string;
 
 class IAtRndmGenSvc;
 
@@ -53,14 +55,14 @@ private:
 class Pythia8_i: public GenModule{
 
 public:
-  Pythia8_i(const string &name, ISvcLocator *pSvcLocator);
+  Pythia8_i(const std::string &name, ISvcLocator *pSvcLocator);
   
   ~Pythia8_i();
 
   class CommandException : public std::runtime_error{
   public:
     
-  CommandException(const string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
+  CommandException(const std::string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
     }
   };
     
@@ -70,9 +72,12 @@ public:
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
-  
+
   static std::string    pythia_stream;
-    
+
+  // Function for getting xmldoc path
+  static std::string xmlpath();
+
 protected:
   
   // make these protected so that Pythia8B can access them
@@ -80,8 +85,6 @@ protected:
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
-  
-  static std::string xmlpath();
   
   // Add the pythia.process, which is the LHE record for external ME events, to the
   // HepMC record
@@ -92,10 +95,8 @@ private:
   double m_version;
   
   std::vector<std::string> m_commands;
-  std::vector<std::string> m_userParams;
-  std::vector<std::string> m_userModes;
   
-  enum PDGID {PROTON=2212, ANTIPROTON=-2212, ELECTRON=11, POSITRON=-11, INVALID=0};
+  enum PDGID {PROTON=2212, ANTIPROTON=-2212, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
   
   double m_collisionEnergy;
   bool m_useRndmGenSvc;
@@ -106,7 +107,8 @@ private:
   std::string m_beam2;
 
   std::string m_lheFile;
-  
+
+  bool m_storeLHE;
   bool m_doCKKWLAcceptance;
   bool m_doFxFxXS;
   double m_nAccepted;
@@ -127,7 +129,7 @@ private:
   
   std::vector<std::string> m_userHooks;
   
-  Pythia8::UserHooks *m_userHookPtr;
+  std::vector<Pythia8::UserHooks*> m_userHooksPtrs;
   
   std::string m_userResonances;
   
@@ -138,8 +140,10 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
-  std::vector<string> m_weightIDs;
+  std::vector<std::string> m_weightIDs;
   bool m_doLHE3Weights;
+  std::vector<std::string> m_weightCommands;
+  std::vector<std::string> m_showerWeightNames;
   
 };
 

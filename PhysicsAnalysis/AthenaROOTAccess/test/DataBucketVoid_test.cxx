@@ -18,9 +18,6 @@
 #include "AthenaROOTAccess/TestTypes.h"
 #include "TInterpreter.h"
 #include "TClass.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#include "Cintex/Cintex.h"
-#endif
 #include <iostream>
 #include <cassert>
 
@@ -77,9 +74,6 @@ void test1()
 
 int main()
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  ROOT::Cintex::Cintex::Enable();
-#endif
   gInterpreter->EnableAutoLoading();
   test1();
   return 0;

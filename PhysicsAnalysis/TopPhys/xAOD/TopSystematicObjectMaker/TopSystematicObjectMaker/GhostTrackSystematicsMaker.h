@@ -90,7 +90,7 @@ namespace top {
         GhostTrackSystematicsMaker & operator=(const GhostTrackSystematicsMaker & rhs) = delete;
 
         StatusCode initialize();
-        StatusCode execute();
+        StatusCode execute(bool);
 
         /*
          * @brief Retrieve the specified (requested) systematics list.*

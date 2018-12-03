@@ -9,6 +9,7 @@
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
 
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p1.h"
+#include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
 typedef  Muon::GenericMuonSimHitCollection_p1  GenericMuonSimHitCollection_PERS;
@@ -33,6 +34,7 @@ public:
         
 private:
     GenericMuonSimHitCollectionCnv_p1    m_TPConverter_p1;
+    GenericMuonSimHitCollectionCnv_p2    m_TPConverter_p2;
 };
 
 #endif

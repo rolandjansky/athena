@@ -28,7 +28,7 @@ namespace iFatras {
       @author Noemi.Calace@cern.ch
   */
   
-  class InputLayerMaterialProvider :  public AthAlgTool, virtual public IInputLayerMaterialProvider {
+  class InputLayerMaterialProvider :  public extends<AthAlgTool, IInputLayerMaterialProvider> {
     
   public:
     /** Constructor */

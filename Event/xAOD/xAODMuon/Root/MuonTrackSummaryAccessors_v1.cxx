@@ -105,23 +105,49 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHoles );
 
-	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
+        // New Small Wheel
+        // STGC
+        DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHits );
 
-	DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHits );
+        
+        DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHoles );
+        
+        DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHoles );
+
+        // MM
+        DEFINE_ACCESSOR( uint8_t, mmHits );
+        DEFINE_ACCESSOR( uint8_t, mmHoles );
+        // Note: there is currently no MuonStationIndex for the two MM layers
+        // In the future it might be needed to add them in order to have 
+        // separate counters as follows
+        // DEFINE_ACCESSOR( uint8_t, Layer1mmHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer2mmHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer1mmHoles );
+        // DEFINE_ACCESSOR( uint8_t, Layer2mmHoles );
+
+
+        DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
+
+        DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, middleOutBoundsPrecisionHits );
-	DEFINE_ACCESSOR( uint8_t, outerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, outerOutBoundsPrecisionHits );
         DEFINE_ACCESSOR( uint8_t, extendedOutBoundsPrecisionHits );
 
-	DEFINE_ACCESSOR( uint8_t, combinedTrackOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, combinedTrackOutBoundsPrecisionHits );
 
-	DEFINE_ACCESSOR( uint8_t, isEndcapGoodLayers );
-	DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
+        DEFINE_ACCESSOR( uint8_t, isEndcapGoodLayers );
+        DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
 
-	DEFINE_ACCESSOR( uint8_t, cscEtaHits );
-	DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
+        DEFINE_ACCESSOR( uint8_t, cscEtaHits );
+        DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
 
       default:                  
          std::cerr << "xAOD::MuonTrackParticle_v1 ERROR Unknown MuonSummaryType ("

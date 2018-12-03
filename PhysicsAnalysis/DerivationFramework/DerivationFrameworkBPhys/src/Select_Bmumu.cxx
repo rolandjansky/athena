@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -30,9 +30,12 @@
 //  - Chi2Max                -- maximum chi2 cut
 //  - DoVertexType           -- bits defining vertex association types
 //                              to be used
+//  - Do3d                   -- add 3d proper time
 //  - BlindMassMin           -- minimum of blinded mass range
 //  - BlindMassMax           -- maximum blinded mass range
 //  - DoBlinding             -- switch to enable blinding (default: false)
+//  - DoCutBlinded           -- cut blinded vertices (default: false)
+//  - BlindOnlyAllMuonsTight -- only blind candidates with all tight muons
 //  - UseMuCalcMass          -- use MUCALC mass in mass cuts (default: false)
 //  - SubDecVtxContNames     -- names of containers with sub-decay candidates
 //                              (in order of sub decays)
@@ -70,12 +73,14 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     CfAthAlgTool(t,n,p),
-    m_v0Tools("Trk::V0Tools") {
+    m_v0Tools("Trk::V0Tools"),
+    m_muSelectionTool("CP::MuonSelectionTool/MuonSelectionTool") {
     
     declareInterface<DerivationFramework::IAugmentationTool>(this);
 
     // Declare tools    
     declareProperty("V0Tools", m_v0Tools);
+    declareProperty("MuonSelectionTool", m_muSelectionTool);
 
     // Declare user-defined properties
     
@@ -87,9 +92,12 @@ namespace DerivationFramework {
     declareProperty("MassMin"               , m_massMin                = 2000);
     declareProperty("Chi2Max"               , m_chi2Max                = 200);
     declareProperty("DoVertexType"          , m_DoVertexType           = 7);
+    declareProperty("Do3d"                  , m_do3d                   = false);
     declareProperty("BlindMassMin"          , m_blindMassMin           = 0.);
     declareProperty("BlindMassMax"          , m_blindMassMax           = 0.);
     declareProperty("DoBlinding"            , m_doBlinding             = false);
+    declareProperty("DoCutBlinded"          , m_doCutBlinded           = false);
+    declareProperty("BlindOnlyAllMuonsTight", m_blindOnlyAllMuonsTight = false);
     declareProperty("UseMuCalcMass"         , m_useMuCalcMass          = false);
     declareProperty("SubDecVtxContNames"    , m_subDecVtxContNames     = {});
     declareProperty("SubDecVtxHypoCondNames", m_subDecVtxHypoCondNames = {});
@@ -103,6 +111,11 @@ namespace DerivationFramework {
     // retrieve V0 tools
     CHECK( m_v0Tools.retrieve() );
 
+    // retrieve MuonSelectionTool
+    if ( m_blindOnlyAllMuonsTight ) {
+      CHECK( m_muSelectionTool.retrieve() );
+    }
+    
     // check length of sub-decay vertex container and required hypo name
     // vectors
     if ( m_subDecVtxContNames.size() != m_subDecVtxHypoCondNames.size() ) {
@@ -115,24 +128,24 @@ namespace DerivationFramework {
     // to the later if necessary
     if ( m_subDecVtxHypoCondNames.size() > m_subDecVtxHypoFlagNames.size() ) {
       ATH_MSG_INFO("initialize(): SubDecVtxHypoFlagNames ("
-		   << m_subDecVtxHypoFlagNames.size()
-		   << ") < SubDecVtxHypoCondNames ("
-		   << m_subDecVtxHypoCondNames.size()
-		   << ") ... appending to the first.");
+                   << m_subDecVtxHypoFlagNames.size()
+                   << ") < SubDecVtxHypoCondNames ("
+                   << m_subDecVtxHypoCondNames.size()
+                   << ") ... appending to the first.");
       for ( unsigned int i = m_subDecVtxHypoFlagNames.size();
-	    i < m_subDecVtxHypoCondNames.size(); ++i) {
-	std::string flagname = m_hypoName+"_"+m_subDecVtxHypoCondNames[i];
-	ATH_MSG_INFO("initialize(): SubDecVtxHypoFlagNames[" << i << "] = "
-		     << flagname);
-	m_subDecVtxHypoFlagNames.push_back(flagname);
+            i < m_subDecVtxHypoCondNames.size(); ++i) {
+        std::string flagname = m_hypoName+"_"+m_subDecVtxHypoCondNames[i];
+        ATH_MSG_INFO("initialize(): SubDecVtxHypoFlagNames[" << i << "] = "
+                     << flagname);
+        m_subDecVtxHypoFlagNames.push_back(flagname);
       }
     } else if ( m_subDecVtxHypoCondNames.size()
-		< m_subDecVtxHypoFlagNames.size() ) {
+                < m_subDecVtxHypoFlagNames.size() ) {
       ATH_MSG_ERROR("initialize(): SubDecVtxHypoFlagNames ("
-		    << m_subDecVtxHypoFlagNames.size()
-		    << ") > SubDecVtxHypoCondNames ("
-		    << m_subDecVtxHypoCondNames.size()
-		    << ") ! Configuration error!");
+                    << m_subDecVtxHypoFlagNames.size()
+                    << ") > SubDecVtxHypoCondNames ("
+                    << m_subDecVtxHypoCondNames.size()
+                    << ") ! Configuration error!");
     }
     return StatusCode::SUCCESS;
   }
@@ -144,48 +157,78 @@ namespace DerivationFramework {
   }
   //---------------------------------------------------------------------------
   void Select_Bmumu::ProcessVertex(xAOD::BPhysHypoHelper &bcand,
-				   xAOD::BPhysHelper::pv_type pv_t) const {
+                                   xAOD::BPhysHelper::pv_type pv_t) const {
 
+      constexpr float errConst = -9999999;
       const xAOD::Vertex* pv = bcand.pv(pv_t); 
       if (pv) {
         // decorate the vertex. 
         // Proper decay time assuming constant mass hypothesis m_massHypo
         BPHYS_CHECK( bcand.setTau(m_v0Tools->tau(bcand.vtx(), pv, m_massHypo), 
-				  pv_t,
-				  xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+                                  pv_t,
+                                  xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
         // Proper decay time assuming error constant mass hypothesis m_massHypo
         BPHYS_CHECK( bcand.setTauErr( m_v0Tools->tauError(bcand.vtx(), pv,
-							 m_massHypo), 
-                                     pv_t,
-                                     xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+                                                          m_massHypo), 
+                                      pv_t,
+                                      xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
         
         BPHYS_CHECK( bcand.setTau(m_v0Tools->tau(bcand.vtx(),pv, m_trkMasses), 
                                   pv_t,
                                   xAOD::BPhysHypoHelper::TAU_INV_MASS) );
-
+        
         BPHYS_CHECK( bcand.setTauErr(m_v0Tools->tauError(bcand.vtx(), pv,
-							 m_trkMasses), 
-				     pv_t,
-				     xAOD::BPhysHypoHelper::TAU_INV_MASS) );
-	//enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
+                                                         m_trkMasses), 
+                                     pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+        //enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
       } else {
-      
-        const float errConst = -9999999;
+        
         BPHYS_CHECK( bcand.setTau(errConst, pv_t,
                                   xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
         // Proper decay time assuming error constant mass hypothesis m_massHypo
         BPHYS_CHECK( bcand.setTauErr( errConst, 
-				      pv_t,
-				      xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+                                      pv_t,
+                                      xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
         
         BPHYS_CHECK( bcand.setTau( errConst, 
-				   pv_t,
-				   xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+                                   pv_t,
+                                   xAOD::BPhysHypoHelper::TAU_INV_MASS) );
 	
         BPHYS_CHECK( bcand.setTauErr( errConst, 
-				      pv_t,
-				      xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+                                      pv_t,
+                                      xAOD::BPhysHypoHelper::TAU_INV_MASS) );
       }
+
+      if(m_do3d){
+
+        BPHYS_CHECK( bcand.setTau3d( pv ?
+                                     m_v0Tools->tau3D(bcand.vtx(), pv,
+                                                      m_massHypo)
+                                     : errConst, pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+        // Proper decay time assuming error constant mass hypothesis m_massHypo
+        BPHYS_CHECK( bcand.setTau3dErr( pv ?
+                                        m_v0Tools->tau3DError(bcand.vtx(), pv,
+                                                              m_massHypo)
+                                        : errConst, pv_t,
+                                        xAOD::BPhysHypoHelper::TAU_CONST_MASS)
+                     );
+
+        BPHYS_CHECK( bcand.setTau3d( pv ?
+                                     m_v0Tools->tau3D(bcand.vtx(), pv,
+                                                      m_trkMasses)
+                                     : errConst, pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+        
+        BPHYS_CHECK( bcand.setTau3dErr( pv ?
+                                        m_v0Tools->tau3DError(bcand.vtx(), pv,
+                                                              m_trkMasses)
+                                        : errConst, pv_t,
+                                        xAOD::BPhysHypoHelper::TAU_INV_MASS)
+                     );
+      }
+
   } 
   //---------------------------------------------------------------------------
   StatusCode Select_Bmumu::addBranches() const {
@@ -217,16 +260,23 @@ namespace DerivationFramework {
     for (unsigned int isub=0; isub < subCandConts.size(); ++isub) {
       xAOD::VertexContainer* subCandCont = subCandConts[isub];
       if ( subCandCont != NULL ) {
-	for (xAOD::VertexContainer::iterator it = subCandCont->begin();
-	     it != subCandCont->end(); ++it) {
-	  if ( *it != NULL ) {
-	    // only set subdecay passed flag to false if not yet set at all
-	    setPassIfNotAvailable(**it, m_subDecVtxHypoFlagNames[isub], false);
-	  } else {
-	    ATH_MSG_WARNING("addBranches(): NULL pointer elements in "
-			    "xAOD::VertexContainer !!");
-	  }
-	} // for subCandCont
+        for (xAOD::VertexContainer::iterator it = subCandCont->begin();
+             it != subCandCont->end(); ++it) {
+          if ( *it != NULL ) {
+            // only set subdecay passed flag to false if not yet set at all
+            setPassIfNotAvailable(**it, m_subDecVtxHypoFlagNames[isub], false);
+            // set subdecay blinding flag to true if not yet set at all
+            // and blinding is requested
+            if ( m_doBlinding ) {
+              setPassIfNotAvailable(**it,
+                                    m_subDecVtxHypoFlagNames[isub]+"_blinded",
+                                    true);
+            }
+          } else {
+            ATH_MSG_WARNING("addBranches(): NULL pointer elements in "
+                            "xAOD::VertexContainer !!");
+          }
+        } // for subCandCont
       } // if subCandCont != NULL
     } // for subCandConts
 
@@ -237,9 +287,11 @@ namespace DerivationFramework {
 
     // loop over B candidates and perform selection and augmentation
     // counters
-    int nPassMassCuts   = 0;
-    int nPassChi2Cut    = 0;
-    int nPassPrecVtxCut = 0;
+    int nPassMassCuts                 = 0;
+    int nPassChi2Cut                  = 0;
+    int nPassPrecVtxCut               = 0;
+    int nInBlindedRegion              = 0;
+    int nInBlindedRegionAllMuonsTight = 0;
     xAOD::VertexContainer::iterator bcandItr = bcandContainer->begin();
     for (; bcandItr!=bcandContainer->end(); ++bcandItr) {
       // create BPhysHypoHelper
@@ -250,11 +302,11 @@ namespace DerivationFramework {
       //----------------------------------------------------
       // a) invariant mass and error
       if ( !bcand.setMass(m_trkMasses) )
-	ATH_MSG_WARNING("Decoration bcand.setMass failed");
+        ATH_MSG_WARNING("Decoration bcand.setMass failed");
       
       double massErr = m_v0Tools->invariantMassError(bcand.vtx(), m_trkMasses);
       if ( !bcand.setMassErr(massErr) )
-	ATH_MSG_WARNING("Decoration bcand.setMassErr failed");
+        ATH_MSG_WARNING("Decoration bcand.setMassErr failed");
       
       // b) proper decay time and error: 
       // retrieve the refitted PV (or the original one,
@@ -272,29 +324,55 @@ namespace DerivationFramework {
       //----------------------------------------------------
       // flag the vertex indicating that it is selected by this selector
       bcand.setPass(true);
+      if ( m_doBlinding ) {
+        setPass(*bcand.vtx(),
+                m_hypoName+"_blinded", false);
+      }
       
       // now we check other cuts. if one of them didn't pass, set the flag to 0
       // and continue to the next candidate:
       
       // 1) invariant mass cuts
       bool passedMuCalcMassCut(m_useMuCalcMass);
+      bool blindedMuCalcMass(true);
       if ( m_useMuCalcMass ) {
-	std::string bname = m_hypoName+"_MUCALC_mass";
-	static SG::AuxElement::Accessor<float> mucalcAcc(bname);
-	if ( mucalcAcc.isAvailable(**bcandItr) ) {
-	  passedMuCalcMassCut = massCuts(mucalcAcc(**bcandItr));
-	} else {
-	  passedMuCalcMassCut = false;
-	  ATH_MSG_INFO("MUCALC mass not available: " << bname << " !");
-	}
+        std::string bname = m_hypoName+"_MUCALC_mass";
+        static SG::AuxElement::Accessor<float> mucalcAcc(bname);
+        if ( mucalcAcc.isAvailable(**bcandItr) ) {
+          passedMuCalcMassCut = massCuts(mucalcAcc(**bcandItr));
+          blindedMuCalcMass = massInBlindedRegion(mucalcAcc(**bcandItr));
+        } else {
+          passedMuCalcMassCut = false;
+          blindedMuCalcMass   = false;
+          ATH_MSG_INFO("MUCALC mass not available: " << bname << " !");
+        }
       }
       bool passedMassCut = massCuts(bcand.mass());
+      bool blindedMass   = massInBlindedRegion(bcand.mass());
+
+      // 1a) muon quality cuts
+      bool allMuonsTight =
+        !m_blindOnlyAllMuonsTight || checkAllMuonsTight(bcand.muons()); 
+
+      // 1b) mark candidates in blinded region
+      if ( blindedMass && blindedMuCalcMass ) {
+        if ( m_doBlinding ) {
+          nInBlindedRegion++;
+          if ( allMuonsTight ) {
+            nInBlindedRegionAllMuonsTight++;
+            setPass(*bcand.vtx(),
+                    m_hypoName+"_blinded", true);
+          }
+        }
+      }
+
+      // 1c) cut on the mass range
       if ( !(passedMassCut || passedMuCalcMassCut) ) {
         bcand.setPass(false); // flag as failed
         continue;
       }
       nPassMassCuts++;
-      
+
       // 2) chi2 cut
       if ( bcand.vtx()->chiSquared() > m_chi2Max) {
         bcand.setPass(false);; // flag as failed
@@ -305,19 +383,19 @@ namespace DerivationFramework {
       // 3) preceeding vertices: within their mass ranges?
       int npVtx = bcand.nPrecedingVertices();
       if ( npVtx > (int)m_subDecVtxContNames.size() ) {
-	ATH_MSG_WARNING("addBranches(): npVtx > m_subDecVtxContNames.size() !"
-			" (" << npVtx << " > " << m_subDecVtxContNames.size()
-			<< ")");
+        ATH_MSG_WARNING("addBranches(): npVtx > m_subDecVtxContNames.size() !"
+                        " (" << npVtx << " > " << m_subDecVtxContNames.size()
+                        << ")");
       }
       npVtx = std::min(npVtx, (int)m_subDecVtxContNames.size());
       // check preceeding vertices
       bool pVtxOk = true;
       for (int ipv=0; ipv<npVtx; ++ipv) {
-	const xAOD::Vertex* pVtx = bcand.precedingVertex(ipv);
-	if ( !pass(*pVtx, m_subDecVtxHypoCondNames[ipv]) ) {
-	  pVtxOk = false;
-	  continue;
-	}
+        const xAOD::Vertex* pVtx = bcand.precedingVertex(ipv);
+        if ( !pass(*pVtx, m_subDecVtxHypoCondNames[ipv]) ) {
+          pVtxOk = false;
+          continue;
+        }
       }
       if ( !pVtxOk ) {
         bcand.setPass(false);; // flag as failed
@@ -325,9 +403,13 @@ namespace DerivationFramework {
       }
       // mark preceeding vertices
       for (int ipv=0; ipv<npVtx; ++ipv) {
-	setPass(*const_cast<xAOD::Vertex*>(bcand.precedingVertex(ipv)),
-		m_subDecVtxHypoFlagNames[ipv], true);
-
+        setPass(*bcand.precedingVertex(ipv),
+                m_subDecVtxHypoFlagNames[ipv], true);
+        if ( m_doBlinding && !(blindedMass && blindedMuCalcMass
+                               && allMuonsTight) ) {
+          setPass(*bcand.precedingVertex(ipv),
+                  m_subDecVtxHypoFlagNames[ipv]+"_blinded", false);
+        }
       }
       nPassPrecVtxCut++;
 
@@ -348,14 +430,22 @@ namespace DerivationFramework {
     // event level
     addEvent("allEvents");
     if ( bcandContainer->size() > 0 ) addEvent("eventsWithCands");
-    if ( nPassMassCuts   > 0 )        addEvent("massCutEvents");
-    if ( nPassChi2Cut    > 0 )        addEvent("chi2CutEvents");
-    if ( nPassPrecVtxCut > 0 )        addEvent("precVtxCutEvents");
+    if ( nPassMassCuts    > 0 )       addEvent("massCutEvents");
+    if ( nPassChi2Cut     > 0 )       addEvent("chi2CutEvents");
+    if ( nPassPrecVtxCut  > 0 )       addEvent("precVtxCutEvents");
+    if ( m_doBlinding && nInBlindedRegion > 0 ) addEvent("blindedRegionEvents");
     // candidate level
     addToCounter("allCandidates"       , bcandContainer->size());
     addToCounter("massCutCandidates"   , nPassMassCuts);
     addToCounter("chi2CutCandidates"   , nPassChi2Cut);
     addToCounter("precVtxCutCandidates", nPassPrecVtxCut);
+    if ( m_doBlinding ) {
+      addToCounter("blindedRegionCandidates", nInBlindedRegion);
+      if ( m_blindOnlyAllMuonsTight ) {
+        addToCounter("blindedRegionCandidatesWithAllMuonsTight",
+                     nInBlindedRegionAllMuonsTight);
+      }
+    }
     
     // all OK
     return StatusCode::SUCCESS;
@@ -367,7 +457,35 @@ namespace DerivationFramework {
   bool Select_Bmumu::massCuts(float mass) const {
  
     return (mass > m_massMin && mass < m_massMax)
-      && !(m_doBlinding && mass > m_blindMassMin && mass < m_blindMassMax ); 
+      && !(m_doBlinding && m_doCutBlinded && massInBlindedRegion(mass) );
+  }
+  //---------------------------------------------------------------------------
+  // Check whether mass cuts (including a possibly blinding region cut)
+  // are passed.
+  //---------------------------------------------------------------------------
+  bool Select_Bmumu::massInBlindedRegion(float mass) const {
+    return ( mass > m_blindMassMin && mass < m_blindMassMax ); 
+  }
+  //--------------------------------------------------------------------------
+  // Check whether all muons are of quality tight.
+  //--------------------------------------------------------------------------
+  bool Select_Bmumu::checkAllMuonsTight(const std::vector<const xAOD::Muon*>&
+                                        muons, int maxMuonsToCheck) const {
+
+    bool allTight(true);
+    int  ncheckMax = muons.size();
+    if ( maxMuonsToCheck > -1 ) {
+      ncheckMax = std::min((int)muons.size(), maxMuonsToCheck);
+    }
+    for (int imu=0; imu < ncheckMax; ++imu) {
+      xAOD::Muon::Quality muQuality =
+        m_muSelectionTool->getQuality(*muons[imu]);
+      if ( !(muQuality <= xAOD::Muon::Tight) ) {
+        allTight = false;
+        break;
+      }
+    }
+    return allTight;
   }
   //---------------------------------------------------------------------------
   // Helper to check whether an element is marked as passing a specific
@@ -381,8 +499,8 @@ namespace DerivationFramework {
   //---------------------------------------------------------------------------
   // Helper to set an element marked as passing a specific hypothesis.
   //---------------------------------------------------------------------------
-  bool Select_Bmumu::setPass(SG::AuxElement& em, std::string hypo,
-			     bool passVal) const {
+  bool Select_Bmumu::setPass(const SG::AuxElement& em, std::string hypo,
+                             bool passVal) const {
 
     SG::AuxElement::Decorator<Char_t> flagDec("passed_"+hypo);
     flagDec(em) = passVal;
@@ -394,7 +512,7 @@ namespace DerivationFramework {
   // Returns true if action had to be taken.
   //---------------------------------------------------------------------------
   bool Select_Bmumu::setPassIfNotAvailable(SG::AuxElement& em, std::string hypo,
-					   bool passVal) const {
+                                           bool passVal) const {
     
     SG::AuxElement::Accessor<Char_t> flagAcc("passed_"+hypo);
     bool exists = flagAcc.isAvailable(em);

@@ -9,9 +9,7 @@ EXOT10SmartContent = [
 	"BTagging_AntiKt4EMTopo",
 	"TauJets",
 	"AntiKt4EMTopoJets",
-	"AntiKt4LCTopoJets",
-    "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo"
+    "MET_Reference_AntiKt4EMTopo"
 ]
 
 EXOT10AllVariablesContent = [
@@ -29,9 +27,6 @@ EXOT10AllVariablesContent = [
  	"METAssoc_AntiKt4EMTopo",
  	"MET_Core_AntiKt4EMTopo",
  	"MET_Reference_AntiKt4EMTopo",
- 	"METAssoc_AntiKt4LCTopo",
- 	"MET_Core_AntiKt4LCTopo",
- 	"MET_Reference_AntiKt4LCTopo",
     "AntiKt4PV0TrackJets"
 ]
 

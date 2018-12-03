@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #   get_files [options] [files] [options] [files] ... 
 #
@@ -77,7 +77,10 @@ get_one_file() {
       path_opt=${DATAPATH//:/ }
     elif [ "$opt" == "scripts" ]; then
       # Only keep PATH entries located in the installation areas to find scripts.
-      path_opt=$(echo -e ${PATH//:/'\n'} | fgrep /InstallArea/)
+      path_opt=""
+      for binpath in $(echo -e ${CMAKE_PREFIX_PATH//:/ }); do
+        path_opt="${path_opt}$binpath/bin $binpath/share "
+      done
     elif [ "$opt" == "xmls" ]; then
       path_opt=${XMLPATH//:/ }
     fi

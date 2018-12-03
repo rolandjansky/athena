@@ -44,7 +44,7 @@ tag=None
 sv=True
 geo=False
 dspth=False
-detdescrtag="ATLAS-GEO-20-00-00"
+detdescrtag="ATLAS-R2-2016-01-00-01"
 detdescrset=False
 sqlite=""
 

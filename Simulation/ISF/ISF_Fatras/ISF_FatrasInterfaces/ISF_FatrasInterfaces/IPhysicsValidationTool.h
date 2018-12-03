@@ -25,8 +25,6 @@
 
 namespace iFatras {
   
-  static const InterfaceID IID_IPhysicsValidationTool("IPhysicsValidationTool", 1, 0);
-  
   /** 
       @class IPhysicsValidationTool
       
@@ -42,23 +40,23 @@ namespace iFatras {
     /** Virtual destructor */
     virtual ~IPhysicsValidationTool(){}
     
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_IPhysicsValidationTool; }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(IPhysicsValidationTool, 1, 0);
     
     /** ISFParticle info: old transport tool */
-    virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 )=0;
+    virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 ) const = 0;
 
     /** ISFParticle info: new transport tool */
     virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
-				     Trk::ExtrapolationCode ecode )=0;
+				     Trk::ExtrapolationCode ecode ) const = 0;
 
     /** ISFParticle info: new transport tool */
     virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
-				     Trk::ExtrapolationCode ecode )=0;
+				     Trk::ExtrapolationCode ecode ) const = 0;
 
     /** Interaction vertex info */
     virtual void saveISFVertexInfo(int process, Amg::Vector3D vertex,const ISF::ISFParticle& isp, Amg::Vector3D primIn,
-				   Amg::Vector3D* primOut, const ISF::ISFParticleVector children)=0;
+				   Amg::Vector3D* primOut, const ISF::ISFParticleVector children) const = 0;
   };
   
 } // end of namespace

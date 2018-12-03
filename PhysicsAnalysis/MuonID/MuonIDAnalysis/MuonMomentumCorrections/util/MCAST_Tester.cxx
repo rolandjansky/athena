@@ -125,14 +125,7 @@ int main( int argc, char* argv[] ) {
 
   //::: Decide how many events to run over:
   Long64_t entries = event.getEntries();
-
-  //if( argc > 2 ) {
-  // const Long64_t e = atoll( argv[ 2 ] );
-  //if( e < entries ) {
-  //  entries = e;
-  //}
-  //}
-
+ 
   ////////////////////////////////////////////////////
   //::: MuonCalibrationAndSmearingTool
   // setup the tool handle as per the
@@ -141,34 +134,32 @@ int main( int argc, char* argv[] ) {
   //::: create the tool handle
   asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
   corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
-
-  //::: set the properties
-  corrTool.setProperty("Year",                  "Data16" );
-//   corrTool.setProperty("Algo",                  "muons" );
-//   corrTool.setProperty("SmearingType",          "q_pT" );
-//   corrTool.setProperty("Release",               "Recs2016_15_07" );
-//   corrTool.setProperty("ToroidOff",             false );
-//   corrTool.setProperty("FilesPath",             "" );
-  corrTool.setProperty("StatComb",              true);
-//   corrTool.setProperty("MinCombPt",             300.0);
-  corrTool.setProperty("SagittaCorr",           true);
-  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_25_07_17");
-  corrTool.setProperty("doSagittaMCDistortion", false);
-//   corrTool.setProperty("SagittaCorrPhaseSpace", false);
-//   corrTool.setProperty("sgItersCB",             11);
-//   corrTool.setProperty("sgItersID",             11);
-//   corrTool.setProperty("sgItersME",             11);
-//   corrTool.setProperty("sgIetrsMamual",         false);
-//   corrTool.setProperty("fixedRho",              1.0);
-//   corrTool.setProperty("useFixedRho",           false);
+    //::: set the properties
+  corrTool.setProperty("Year",                  "Data17" );
+  //   corrTool.setProperty("Algo",                  "muons" );
+  //   corrTool.setProperty("SmearingType",          "q_pT" );
+  //corrTool.setProperty("Release",               "Recs2017_08_02" );
+  corrTool.setProperty("Release",               "Recs2018_05_20" );     
+  //   corrTool.setProperty("ToroidOff",             false );
+  //   corrTool.setProperty("FilesPath",             "" );
+  corrTool.setProperty("StatComb",              false);
+  //   corrTool.setProperty("MinCombPt",             300.0);
+  corrTool.setProperty("SagittaCorr",           false);
+  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
+  corrTool.setProperty("doSagittaMCDistortion", true);
+  corrTool.setProperty("SagittaCorrPhaseSpace", true);
+  //   corrTool.setProperty("sgItersCB",             11);
+  //   corrTool.setProperty("sgItersID",             11);
+  //   corrTool.setProperty("sgItersME",             11);
+  //   corrTool.setProperty("sgIetrsMamual",         false);
+  corrTool.setProperty("fixedRho",              0.0);
+  corrTool.setProperty("useFixedRho",           true);
   corrTool.setProperty("noEigenDecor" ,         false);
-//   corrTool.setProperty("useExternalSeed" ,      false);
-//   corrTool.setProperty("externalSeed" ,         0);
-
+  //   corrTool.setProperty("useExternalSeed" ,      false);
+  //   corrTool.setProperty("externalSeed" ,         0);
+  
   //::: retrieve the tool
   corrTool.retrieve();
-
-
 
   ////////////////////////////////////////////////////
   //::: MuonSelectionTool
@@ -200,7 +191,7 @@ int main( int argc, char* argv[] ) {
   //::: Systematics initialization
   ////////////////////////////////////////////////////
   std::vector< CP::SystematicSet > sysList;
-  //sysList.push_back( CP::SystematicSet() );
+  sysList.push_back( CP::SystematicSet() );
 
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
@@ -229,7 +220,7 @@ int main( int argc, char* argv[] ) {
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
 
     // create new tree for the systematic in question
-    std::string treeName = "test_tree_" + sysListItr->name();
+    std::string treeName = "test_tree_" + (sysListItr->name().size()==0 ? "NOMINAL":sysListItr->name());
     TTree* sysTree = new TTree( treeName.c_str(), "test tree for MCAST" );
 
     // add branches
@@ -286,7 +277,7 @@ int main( int argc, char* argv[] ) {
     //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
 
-      //Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+      Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
 
       //::: Check if systematic is applicable to the correction tool
       if( corrTool->applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) {

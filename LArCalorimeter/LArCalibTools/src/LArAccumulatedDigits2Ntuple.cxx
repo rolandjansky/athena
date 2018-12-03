@@ -27,11 +27,11 @@ LArAccumulatedDigits2Ntuple::~LArAccumulatedDigits2Ntuple()
 
 StatusCode LArAccumulatedDigits2Ntuple::initialize()
 {
-   msg(MSG::INFO) << "in initialize" << endreq; 
+   ATH_MSG_INFO( "in initialize" ); 
 
    StatusCode sc=LArCond2NtupleBase::initialize();
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "Base init failed" << endreq;
+     ATH_MSG_ERROR( "Base init failed" );
      return StatusCode::FAILURE;
    }
 
@@ -39,49 +39,49 @@ StatusCode LArAccumulatedDigits2Ntuple::initialize()
 
   sc=m_nt->addItem("IEvent",m_IEvent,0,3000);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'IEvent' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'IEvent' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("Ntrigger",m_Ntrigger,0,500); 
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Ntrigger' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Ntrigger' failed" );
       return sc;
     }
   
   sc=m_nt->addItem("Nsamples",m_ntNsamples,0,32);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Nsamples' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Nsamples' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("sum",m_Nsamples,m_sum);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'sum' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'sum' failed" );
       return sc;
     }
   
   sc=m_nt->addItem("sumsq",m_Nsamples,m_sumsq);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'sumsq' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'sumsq' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("mean",m_mean);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'mean' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'mean' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("rms",m_rms);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'rms' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'rms' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("covr",m_Nsamples-1,m_covr);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'covr' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'covr' failed" );
       return sc;
     }
 
@@ -99,17 +99,17 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
 
   StatusCode sc;
   
-  msg(MSG::DEBUG) << "in execute" << endreq; 
+  ATH_MSG_DEBUG( "in execute" ); 
 
   m_event++;
   
   const LArAccumulatedDigitContainer* accuDigitContainer = NULL;
   sc=detStore()->retrieve(accuDigitContainer,m_contKey);  
   if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::WARNING) << "Unable to retrieve LArAccumulatedDigitContainer with key " << m_contKey << " from DetectorStore. " << endreq;
+     ATH_MSG_WARNING( "Unable to retrieve LArAccumulatedDigitContainer with key " << m_contKey << " from DetectorStore. " );
     } 
   else
-     msg(MSG::DEBUG) << "Got LArAccumulatedDigitContainer with key " << m_contKey << endreq;
+     ATH_MSG_DEBUG( "Got LArAccumulatedDigitContainer with key " << m_contKey );
   
  
  if (accuDigitContainer) { 
@@ -118,10 +118,10 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
    LArAccumulatedDigitContainer::const_iterator it_e=accuDigitContainer->end();
 
     if(it == it_e) {
-      msg(MSG::DEBUG) << "LArAccumulatedDigitContainer with key=" << m_contKey << " is empty " << endreq;
+      ATH_MSG_DEBUG( "LArAccumulatedDigitContainer with key=" << m_contKey << " is empty " );
       return StatusCode::SUCCESS;
     }else{
-      msg(MSG::DEBUG) << "LArAccumulatedDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" <<endreq;
+      ATH_MSG_DEBUG( "LArAccumulatedDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
     }
 
    unsigned cellCounter=0;
@@ -136,7 +136,7 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
 
      if(trueMaxSample>m_Nsamples){
        if(!m_ipass){
-	 msg(MSG::WARNING) << "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " << endreq;
+	 ATH_MSG_WARNING( "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
 	 m_ipass=1;
        }
        trueMaxSample = m_Nsamples;
@@ -159,12 +159,12 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
      fillFromIdentifier((*it)->hardwareID());      
      sc=ntupleSvc()->writeRecord(m_nt);
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "writeRecord failed" << endreq;
+       ATH_MSG_ERROR( "writeRecord failed" );
        return sc;
      }
      cellCounter++;
    } 
  } 
- msg(MSG::DEBUG) << "LArAccumulatedDigits2Ntuple has finished." << endreq;
+ ATH_MSG_DEBUG( "LArAccumulatedDigits2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.

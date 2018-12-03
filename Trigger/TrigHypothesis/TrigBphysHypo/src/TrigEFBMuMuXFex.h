@@ -83,6 +83,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
     
     // container inputs names
+    std::string m_bphysCollectionKey;
     std::string m_input_trackCollectionKey;
     
     // Cuts and properties

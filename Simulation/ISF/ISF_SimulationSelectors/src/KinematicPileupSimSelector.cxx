@@ -14,10 +14,9 @@
 
 /** Constructor **/
 ISF::KinematicPileupSimSelector::KinematicPileupSimSelector(const std::string& t, const std::string& n, const IInterface* p)
-  : ISimulationSelector(t,n,p)
+  : BaseSimulationSelector(t,n,p)
   , KinematicParticleCuts()
 {
-  declareInterface<ISF::ISimulationSelector>(this);
   declareProperty("MinPosEta",            m_cut_minPosEta  , "Minimum Position Pseudorapidity"    );
   declareProperty("MaxPosEta",            m_cut_maxPosEta  , "Maximum Position Pseudorapidity"    );
   declareProperty("MinMomEta",            m_cut_minMomEta  , "Minimum Momentum Pseudorapidity"    );
@@ -62,7 +61,7 @@ bool  ISF::KinematicPileupSimSelector::passSelectorCuts(const ISFParticle& parti
 
   // test to see if BCID is in list to accept
   bool isPileup = std::find(begin(m_pileupbcid), end(m_pileupbcid), bcid) != end(m_pileupbcid);
-  
+
   if (isPileup)
       return ISF::KinematicParticleCuts::pass(particle);
 

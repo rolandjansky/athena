@@ -26,10 +26,8 @@ class IG4FieldSvc : virtual public IService
   IG4FieldSvc() {;}
   virtual ~IG4FieldSvc() {;}
 
-  static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID_IG4FieldSvc( "IG4FieldSvc", 1, 0 );
-    return IID_IG4FieldSvc;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IG4FieldSvc, 1, 0);
 
   virtual G4MagneticField* getField( ) = 0;
 

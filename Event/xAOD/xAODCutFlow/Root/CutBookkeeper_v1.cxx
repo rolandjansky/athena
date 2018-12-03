@@ -18,6 +18,7 @@
 // STL includes
 #include <stdexcept>
 #include <sstream>
+#include <limits>
 
 
 
@@ -346,6 +347,47 @@ namespace xAOD {
     return;
   }
 
+  double CutBookkeeper_v1::sumOfTruncatedEventWeights() const {
+    if (not this->isAvailable<double>("sumOfTruncatedEventWeights")) {
+      return std::numeric_limits<double>::quiet_NaN();
+    }
+    return this->auxdata<double>("sumOfTruncatedEventWeights");
+  }
+
+  void CutBookkeeper_v1::setSumOfTruncatedEventWeights( double sumOfTruncatedEventWeights ) {
+    this->auxdata<double>("sumOfTruncatedEventWeights") = sumOfTruncatedEventWeights;
+    return;
+  }
+
+  void CutBookkeeper_v1::addSumOfTruncatedEventWeights( double sumOfTruncatedEventWeights ) {
+    if (not this->isAvailable<double>("sumOfTruncatedEventWeights")) {
+      this->auxdata<double>("sumOfTruncatedEventWeights") = sumOfTruncatedEventWeights;
+      return;
+    }
+    this->auxdata<double>("sumOfTruncatedEventWeights") += sumOfTruncatedEventWeights;
+    return;
+  }
+
+  double CutBookkeeper_v1::sumOfTruncatedEventWeightsSquared() const {
+    if (not this->isAvailable<double>("sumOfTruncatedEventWeightsSquared")) {
+      return std::numeric_limits<double>::quiet_NaN();
+    }
+    return this->auxdata<double>("sumOfTruncatedEventWeightsSquared");
+  }
+
+  void CutBookkeeper_v1::setSumOfTruncatedEventWeightsSquared( double sumOfTruncatedEventWeightsSquared ) {
+    this->auxdata<double>("sumOfTruncatedEventWeightsSquared") = sumOfTruncatedEventWeightsSquared;
+    return;
+  }
+
+  void CutBookkeeper_v1::addSumOfTruncatedEventWeightsSquared( double sumOfTruncatedEventWeightsSquared ) {
+    if (not this->isAvailable<double>("sumOfTruncatedEventWeightsSquared")) {
+      this->auxdata<double>("sumOfTruncatedEventWeightsSquared") = sumOfTruncatedEventWeightsSquared;
+      return;
+    }
+    this->auxdata<double>("sumOfTruncatedEventWeightsSquared") += sumOfTruncatedEventWeightsSquared;
+    return;
+  }
 
 
   // ======================================================================

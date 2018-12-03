@@ -8,7 +8,6 @@
 
 import xml.etree.cElementTree as ET
 import sys
-import string
 
 class Ddict(dict):
     def __init__(self, default=None):
@@ -190,7 +189,10 @@ def chain_input_comparisons(chain_input_info):
             if len(mismatch) > 0:
                 diff_input_info[j] = [chain_input_info[i][j] , chain_input_info[k][j], "Differences in TE elements with index: %s" % mismatch]
                 found_input_diff = True
-            
+
+    if found_input_diff:
+        print "Found a diff in the inputs"
+    
     for i in diff_input_info.keys():
         print "*** Chain: %s %s" % (i, diff_input_info[i][2])
         print "***  from ==>"

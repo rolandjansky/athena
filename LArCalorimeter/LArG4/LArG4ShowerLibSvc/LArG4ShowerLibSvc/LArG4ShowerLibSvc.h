@@ -29,8 +29,6 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-template <class TYPE> class SvcFactory;
-
   /**
    *
    *   @short Class for shower library service
@@ -45,22 +43,16 @@ template <class TYPE> class SvcFactory;
    *
    */
 
-class LArG4ShowerLibSvc : public AthService, virtual public ILArG4ShowerLibSvc {
+class LArG4ShowerLibSvc: public extends<AthService, ILArG4ShowerLibSvc> {
 
 public:
 
-    /// Retrieve interface ID
-    static const InterfaceID& interfaceID() { return IID_ILArG4ShowerLibSvc; }
+    LArG4ShowerLibSvc(const std::string& name, ISvcLocator* svc);
+
+    virtual ~LArG4ShowerLibSvc();
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
-
-    // Query the interfaces.
-    //   Input: riid, Requested interface ID
-    //          ppvInterface, Pointer to requested interface
-    //   Return: StatusCode indicating SUCCESS or FAILURE.
-    // N.B. Don't forget to release the interface after use!!!
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
     virtual bool                    checkLibrary(G4int particleCode, int detectorTag);
 
@@ -70,14 +62,6 @@ public:
     virtual double                  getContainmentZ(const G4FastTrack& track, int detectorTag);
     virtual double                  getContainmentR(const G4FastTrack& track, int detectorTag);
 
-protected:
-
-    friend class SvcFactory<LArG4ShowerLibSvc>;
-
-    LArG4ShowerLibSvc(const std::string& name, ISvcLocator* svc);
-
-    virtual ~LArG4ShowerLibSvc();
-	
 private:
 
     //! get shower library from StoreGate by track (using current volume name)

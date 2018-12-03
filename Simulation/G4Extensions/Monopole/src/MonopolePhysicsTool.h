@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date  14-05-2015
  */
-class MonopolePhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
+class MonopolePhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
 public:
   /// Standard constructor
   MonopolePhysicsTool( const std::string& type , const std::string& name,

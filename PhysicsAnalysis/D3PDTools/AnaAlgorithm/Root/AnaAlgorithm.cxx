@@ -17,10 +17,19 @@
 #include <AsgTools/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
+#include <stdexcept>
 
 #ifdef ROOTCORE
 #include <AnaAlgorithm/IFilterWorker.h>
 #include <AnaAlgorithm/IHistogramWorker.h>
+#include <AnaAlgorithm/ITreeWorker.h>
+#endif
+
+#ifndef ROOTCORE
+#include <GaudiKernel/IIncidentSvc.h>
+#include <GaudiKernel/ServiceHandle.h>
 #endif
 
 //
@@ -44,6 +53,12 @@ namespace EL
     : AthHistogramAlgorithm (name, pSvcLocator)
 #endif
   {
+#ifdef ROOTCORE
+    msg().declarePropertyFor (*this);
+    declareProperty ("RootStreamName", m_treeStreamName = "ANALYSIS",
+                     "Name of the stream to put trees into");
+#endif
+
     ANA_MSG_DEBUG ("AnaAlgorithm: " << name);
   }
 
@@ -83,12 +98,63 @@ namespace EL
 
 
 
+  TH2 *AnaAlgorithm ::
+  hist2d (const std::string& name) const
+  {
+    TH2 *hist = dynamic_cast<TH2*>(histogramWorker()->getOutputHist (name));
+    if (hist == nullptr)
+      throw std::runtime_error ("histogram not a 2d-histogram: " + name);
+    return hist;
+  }
+
+
+
+  TH3 *AnaAlgorithm ::
+  hist3d (const std::string& name) const
+  {
+    TH3 *hist = dynamic_cast<TH3*>(histogramWorker()->getOutputHist (name));
+    if (hist == nullptr)
+      throw std::runtime_error ("histogram not a 3d-histogram: " + name);
+    return hist;
+  }
+
+
+
   IHistogramWorker *AnaAlgorithm ::
   histogramWorker () const
   {
     if (!m_histogramWorker)
       throw std::logic_error ("no histogram worker set on algorithm " + name());
     return m_histogramWorker;
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  book (const TTree& tree)
+  {
+     ANA_CHECK_SET_TYPE( ::StatusCode );
+     ANA_CHECK( treeWorker()->addTree( tree, m_treeStreamName ) );
+     return ::StatusCode::SUCCESS;
+  }
+
+
+
+  TTree *AnaAlgorithm ::
+  tree (const std::string& name) const
+  {
+     return treeWorker()->getOutputTree( name, m_treeStreamName );
+  }
+
+
+
+  ITreeWorker *AnaAlgorithm ::
+  treeWorker () const
+  {
+     if( ! m_treeWorker ) {
+        throw std::logic_error( "no tree worker set on algorithm " + name() );
+     }
+     return m_treeWorker;
   }
 
 
@@ -130,6 +196,40 @@ namespace EL
 
 
 
+  StatusCode AnaAlgorithm ::
+  requestFileExecute ()
+  {
+#ifdef ROOTCORE
+    m_hasFileExecute = true;
+    return StatusCode::SUCCESS;
+#else
+    ANA_MSG_ERROR ("fileExecute not supported in Athena");
+    return StatusCode::FAILURE;
+#endif
+  }
+
+
+
+  StatusCode AnaAlgorithm ::
+  requestBeginInputFile ()
+  {
+#ifdef ROOTCORE
+    m_hasBeginInputFile = true;
+#else
+    // Connect to the IncidentSvc:
+    ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+    ATH_CHECK( incSvc.retrieve() );
+
+    // Set up the right callback, but ensure we don't double-register
+    // if we are called twice
+    incSvc->removeListener( this, IncidentType::BeginInputFile );
+    incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+#endif
+    return StatusCode::SUCCESS;
+  }
+
+
+
   ::StatusCode AnaAlgorithm ::
   initialize ()
   {
@@ -157,6 +257,22 @@ namespace EL
   void AnaAlgorithm ::
   print () const
   {}
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  fileExecute ()
+  {
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  beginInputFile ()
+  {
+    return StatusCode::SUCCESS;
+  }
 
 
 
@@ -193,6 +309,32 @@ namespace EL
 
 
 
+  ::StatusCode AnaAlgorithm ::
+  sysFileExecute ()
+  {
+    if (m_hasFileExecute == false)
+    {
+      ANA_MSG_FATAL ("called fileExecute(), though it was not registered");
+      return StatusCode::FAILURE;
+    }
+    return fileExecute ();
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  sysBeginInputFile ()
+  {
+    if (m_hasBeginInputFile == false)
+    {
+      ANA_MSG_FATAL ("called beginInputFile(), though it was not registered");
+      return StatusCode::FAILURE;
+    }
+    return beginInputFile ();
+  }
+
+
+
   void AnaAlgorithm ::
   setEvtStore (asg::SgTEvent *val_evtStore)
   {
@@ -209,6 +351,18 @@ namespace EL
     if (m_histogramWorker)
       throw std::logic_error ("set histogram worker twice on algorithm " + name());
     m_histogramWorker = val_histogramWorker;
+  }
+
+
+
+  void AnaAlgorithm ::
+  setTreeWorker (ITreeWorker *val_treeWorker)
+  {
+     if( m_treeWorker ) {
+        throw std::logic_error( "set tree worker twice on algorithm " +
+                                name() );
+     }
+     m_treeWorker = val_treeWorker;
   }
 
 
@@ -233,10 +387,50 @@ namespace EL
 
 
 
+  void AnaAlgorithm ::
+  addCleanup (const std::shared_ptr<void>& cleanup)
+  {
+    m_cleanup.push_back (cleanup);
+  }
+
+
+
+  bool AnaAlgorithm ::
+  hasFileExecute () const noexcept
+  {
+    return m_hasFileExecute;
+  }
+
+
+
+  bool AnaAlgorithm ::
+  hasBeginInputFile () const noexcept
+  {
+    return m_hasBeginInputFile;
+  }
+
+
+
   const std::string& AnaAlgorithm ::
   name () const
   {
     return m_name;
+  }
+#endif
+
+
+
+#ifndef ROOTCORE
+  void AnaAlgorithm ::
+  handle (const Incident& inc)
+  {
+    if (inc.type() == IncidentType::BeginInputFile)
+    {
+      ANA_CHECK_THROW (beginInputFile ());
+    } else
+    {
+      ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
+    }
   }
 #endif
 }

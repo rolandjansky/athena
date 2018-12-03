@@ -39,7 +39,8 @@ namespace WPType{
    enum {
       _HZZ4l,
       _SMZZ4l,
-      _ZHinv
+      _ZHinv,
+      _Hmumu
    };
 }
 

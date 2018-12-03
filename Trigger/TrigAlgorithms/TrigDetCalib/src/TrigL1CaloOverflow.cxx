@@ -20,6 +20,7 @@ TrigL1CaloOverflow::TrigL1CaloOverflow(const std::string& name, ISvcLocator* pSv
   declareProperty("ignoreAbortGap", m_ignoreAbortGap = true, "Ignore overflows in abort gap");
   declareProperty("acceptCMXOverflows", m_acceptCMXOverflows = true, "Accept CMX overflows");
   declareProperty("acceptCaloRoIBOverflows", m_acceptCaloRoIBOverflows = true, "Accept Calo RoIB overflows");
+  declareProperty("acceptLvl1ConsistencyProblems", m_acceptLvl1Consist = true, "Accept events with problems in the Lvl1 consistency checker");
 }
 
 HLT::ErrorCode TrigL1CaloOverflow::hltInitialize()
@@ -64,6 +65,16 @@ HLT::ErrorCode TrigL1CaloOverflow::hltExecute(std::vector<std::vector<HLT::Trigg
     }
   }
   
+  // Events with issues in the consistency checker (not strictly overflows, see ATR-14607)
+  if (m_acceptLvl1Consist) {
+    HLT::ErrorCode ec = config()->getLvlConverterStatus();
+    if ( ec.reason()==HLT::Reason::MISSING_FEATURE &&
+         ec.steeringInternalReason()==HLT::SteeringInternalReason::MISSING_CALO_ROI ) {   // see Lvl1ConsistencyChecker.cxx
+      addRoI(output)->setActiveState(true);
+      ATH_MSG_DEBUG("Event has Lvl1 consistency checker problems");
+    }
+  }
+
   afterExecMonitors().ignore();
   return HLT::OK;
 }

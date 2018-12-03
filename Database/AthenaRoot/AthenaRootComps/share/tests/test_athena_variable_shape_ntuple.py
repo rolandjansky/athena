@@ -28,6 +28,7 @@ if not isinstance(FNAMES, (list,tuple)):
 import AthenaRootComps.ReadAthenaRoot
 svcMgr.EventSelector.InputCollections = FNAMES
 svcMgr.EventSelector.TupleName = "egamma"
+svcMgr.EventSelector.CreateEventInfo=True
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

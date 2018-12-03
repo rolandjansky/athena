@@ -508,7 +508,7 @@ StatusCode PixelMainMon::fillPixelDCSMon(void) {
   msg(MSG::DEBUG) << "[FillPixelDCSMon]" << endmsg;
 
   // loop over DCS directories
-  const CondAttrListCollection* atrlistcol;
+  const CondAttrListCollection* atrlistcol = nullptr;
   const CondAttrListCollection* atrlistcol_temperature;
   const CondAttrListCollection* atrlistcol_hv;
   const CondAttrListCollection* atrlistcol_hvcurrent;
@@ -543,7 +543,7 @@ StatusCode PixelMainMon::fillPixelDCSMon(void) {
       sc = detStore()->retrieve(atrlistcol_fsmstatus, *itr);
       atrlistcol = atrlistcol_fsmstatus;
     }
-    if (sc == StatusCode::SUCCESS) {
+    if (sc == StatusCode::SUCCESS && atrlistcol != nullptr) {
       for (CondAttrListCollection::const_iterator citr = atrlistcol->begin(); citr != atrlistcol->end(); ++citr) {
         // the following code dumps the attribute list into a string for printing
         // to access individual elements by name, use e.g.

@@ -107,6 +107,7 @@ private:
 
   /// Input Streams
   PileUpStream m_origStream;
+  PileUpStream m_signalStream;
 
   /// output store
   ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
@@ -116,8 +117,10 @@ private:
 
   /// @name Properties
   //@{
-  /// Original (Physics) Event selector.
+  /// Original (Physics) Event selector (background for overlay).
   ServiceHandle<IEvtSelector> m_origSel;
+  /// Signal Event selector (for overlay).
+  ServiceHandle<IEvtSelector> m_signalSel;
   /// BkgStreamsCaches managing background events
   ToolHandleArray<IBkgStreamsCache> m_caches;
   /// (max) minBias interactions per Xing, for setting MC luminosity
@@ -144,9 +147,6 @@ private:
 
   /// property: is this job running MC RDO+RDO overlay.
   BooleanProperty m_isEventOverlayJobMC;
-
-  /// property: the run number from an EVNT file, used to set the mc_channel_number, for overlay
-  IntegerProperty m_mcRunNumber;
 
   /// property: control behaviour of event loop on algorithm failure
   IntegerProperty m_failureMode;

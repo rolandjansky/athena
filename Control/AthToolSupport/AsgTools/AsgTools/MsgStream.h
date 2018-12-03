@@ -76,8 +76,10 @@ public:
 
    /// Get the current minimum output level of the stream
    MSG::Level level() const;
-   /// Get the current minimum output level of the stream
-   MSG::Level& mutable_level();
+
+   /// declare the message level as property on the parent
+   template<typename T> void
+   declarePropertyFor (T& parent);
 
    /// Retrieve current stream output level
    MSG::Level currentLevel() const;
@@ -94,8 +96,9 @@ private:
    const asg::IAsgTool* m_tool;
    /// Message source name
    std::string m_name;
-   /// Minimum level for the printed messages
-   MSG::Level m_lvl;
+   /// Minimum level for the printed messages (this is an integer, so
+   /// it can serve as a property)
+   int m_lvl;
    /// The level of the message currently being assembled
    MSG::Level m_reqlvl;
 
@@ -104,6 +107,12 @@ private:
 /// MsgStream Modifier: endmsg. Calls the output method of the MsgStream
 inline MsgStream& endmsg( MsgStream& s ) {
    return s.doOutput();
+}
+
+template<typename T> void MsgStream ::
+declarePropertyFor (T& parent)
+{
+  parent.declareProperty ("OutputLevel", m_lvl, "output message level");
 }
 /// Backwards compatibility definition
 #define endreq endmsg

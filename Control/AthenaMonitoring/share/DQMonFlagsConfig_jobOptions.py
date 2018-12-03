@@ -110,6 +110,7 @@ else:
 #      DQMonFlags.doJetMon=False
       # ??
       DQMonFlags.doCTPMon=False
+      DQMonFlags.doPixelMon=False
       DQMonFlags.doSCTMon=False
       DQMonFlags.doTRTMon=False
       DQMonFlags.doTRTElectronMon=False
@@ -127,6 +128,7 @@ else:
    elif DQMonFlags.monManEnvironment == 'tier0ESD':
       DQMonFlags.histogramFile='MonitorESD.root'
       DQMonFlags.doCTPMon=False
+      DQMonFlags.doPixelMon=False
       DQMonFlags.doSCTMon=False
       DQMonFlags.doTRTMon=False
       DQMonFlags.doTRTElectronMon=False
@@ -290,6 +292,7 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArDigitMon=False
+      LArMonFlags.doLArCollisionTimeMon=True
       doCaloCellVecMon=True
       HLTMonFlags.doBjet=False
       HLTMonFlags.doEgamma=False

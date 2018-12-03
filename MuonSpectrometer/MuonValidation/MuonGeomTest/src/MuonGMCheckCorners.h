@@ -5,7 +5,6 @@
 /***************************************************************************
  test MuonGMCheckCorners from digits to pos. in space
  ----------------------------------------------
- Copyright (C) 2006 by ATLAS Collaboration
 ***************************************************************************/
 
 #ifndef MUONGEOMODEL_MUONGMCHECKCORNERS_H

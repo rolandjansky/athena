@@ -17,7 +17,7 @@ genSeq.Sherpa_i.RunCard="""
 }(selector)
 """
 
-genSeq.Sherpa_i.Parameters = []
+genSeq.Sherpa_i.Parameters += []
 genSeq.Sherpa_i.OpenLoopsLibs = []
 genSeq.Sherpa_i.ExtraFiles = []
 genSeq.Sherpa_i.NCores = 1

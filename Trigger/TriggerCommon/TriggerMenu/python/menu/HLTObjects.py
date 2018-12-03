@@ -1,10 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import os
-import time
-import re
-import string
-from sys import settrace
 import xml.etree.cElementTree as etree
 
 from AthenaCommon.Logging import logging  # loads logger
@@ -46,7 +41,8 @@ class HLTChain:
                 for te in self.tes:
                     if type(te) != type(''): # check if this is a string
                         raise Exception("The trigger element: " + str(te) + " in the signature: " + self.sigcounter + "is not a plain string" )
-                    xTriggerElement = etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
+                    #xTriggerElement = etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
+                    etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
                     
     # construction
     def __init__(self, chain_name, chain_counter,
@@ -124,7 +120,7 @@ class HLTChain:
         last_counter = 1
         if len(self.siglist) != 0:
             last_counter = self.siglist[-1].sigcounter
-            logger().debug( "The chain: " + self.chain_name + " contains already signatures. Will align sinatures to it." )
+            logger().debug( "The chain: " + self.chain_name + " with counter " + last_counter + " already contains signatures. Will align sinatures to it." )
 
 
         total_counter = 0
@@ -171,7 +167,7 @@ class HLTChain:
         last_counter = 1
         if len(self.siglist) != 0:
             last_counter = self.siglist[-1].sigcounter
-            logger().debug( "The chain: " + self.chain_name + " contains already signatures. Will align sinatures to it." )
+            logger().debug( "The chain: " + self.chain_name + " with counter " + last_counter + "already contains signatures. Will align sinatures to it." )
 
 
         max_counter = 0;
@@ -292,11 +288,13 @@ class HLTChain:
 
         xTriggerTypeList = etree.SubElement(xChain, 'TRIGGERTYPE_LIST')
         for bit in self.trigger_type_bits:
-            xTriggerType = etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
+            #xTriggerType = etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
+            etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
 
         xStreamTagList = etree.SubElement(xChain, 'STREAMTAG_LIST')
         for stream in self.stream_tag:
-            xStreamTag = etree.SubElement(xStreamTagList, 'STREAMTAG',
+            #xStreamTag = etree.SubElement(xStreamTagList, 'STREAMTAG',
+            etree.SubElement(xStreamTagList, 'STREAMTAG',
                                           stream = stream[0],
                                           type = stream[1],
                                           obeyLB = stream[2],
@@ -310,7 +308,8 @@ class HLTChain:
 
         xGroupList = etree.SubElement(xChain, 'GROUP_LIST')
         for g in self.groups:
-            xGroup = etree.SubElement(xGroupList, 'GROUP', name = g)
+            #xGroup = etree.SubElement(xGroupList, 'GROUP', name = g)
+            etree.SubElement(xGroupList, 'GROUP', name = g)
             
         xSignatureList = etree.SubElement(xChain, 'SIGNATURE_LIST')
         for sig in self.siglist:

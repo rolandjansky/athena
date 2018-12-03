@@ -26,13 +26,14 @@ class InDetTrigSliceSettingsDB:
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
     _slices = ['electron','photon',
-               'muon','muonCore','muonIso',
+               'muon','muonCore','muonIso', 'muonBtrk',
                'tau','bjet','bphysics','fullScan','minBias','beamgas',
                'cosmicsN', 'lowPt',   #these are not real slices, rather different setups of tools
                'hadCalib', 'fullScan500',       #hadCalib instances
                'minBias2',            #two pass (low-pt tracking)
                'heavyIon', 'heavyIonFS',   #RoI and FS instances for the heavy ion
                'minBias400',          #another minBias with 400MeV threshold
+               'fullScan2',           #2GeV threshold for MET
                'tauCore', 'tauIso',
                'beamSpot', 'cosmics',
                'bjetVtx',
@@ -54,7 +55,6 @@ class InDetTrigSliceSettingsDB:
     seedradbinwidth = {}
     d0seedmax = {}
     d0seedppsmax = {}
-    d0trackinitialmax = {}
     checkseedredundancy = {}
     dospphifiltering = {}
     dozfinder = {}
@@ -75,7 +75,9 @@ class InDetTrigSliceSettingsDB:
     ptmin['heavyIonFS'] = 0.4 * GeV
     ptmin['hadCalib'] = 0.5 * GeV
     ptmin['fullScan500'] = 0.5 * GeV
+    ptmin['fullScan2'] = 2. * GeV
     ptmin['minBias400'] = 0.39 * GeV
+    ptmin['muonBtrk'] = 1.5 * GeV
     ptmin['bphysHighPt'] = 2. * GeV
     ptmin['bjetVtx'] = 5. * GeV
 
@@ -84,19 +86,18 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       d0seedmax[i] = 4.0
       d0seedppsmax[i] = 1.7
-      d0trackinitialmax[i] = 20.0
+
     d0seedmax['bphysics'] = 10.0
     d0seedmax['bphysHighPt'] = 10.0
     d0seedmax['muon'] = 10.0
+    d0seedmax['muonBtrk'] = 10.0
     d0seedmax['muonCore'] = 10.0
 
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
-    d0trackinitialmax['cosmics'] = 1000.0
 
     self.db['d0SeedMax']=d0seedmax
     self.db['d0SeedPPSMax']=d0seedppsmax
-    self.db['d0TrackInitialMax']=d0trackinitialmax
 
     for i in _slices:
       dozfinder[i] = False 
@@ -115,6 +116,7 @@ class InDetTrigSliceSettingsDB:
       dospphifiltering[i] = True
     # Turn off spacepoint phi filtering for muons
     dospphifiltering['muon'] = False
+    dospphifiltering['muonBtrk'] = False
     dospphifiltering['muonCore'] = False
     dospphifiltering['bphysics'] = False
     dospphifiltering['bphysHighPt'] = False
@@ -131,6 +133,7 @@ class InDetTrigSliceSettingsDB:
       checkseedredundancy[i] = False
     checkseedredundancy['electron'] = True
     checkseedredundancy['muon'] = True
+    checkseedredundancy['muonBtrk'] = True
     checkseedredundancy['muonCore'] = True
     checkseedredundancy['bphysics'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
@@ -149,6 +152,7 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonBtrk'  : 0.2,
       'muonCore'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
@@ -158,6 +162,7 @@ class InDetTrigSliceSettingsDB:
       'hadCalib'  : 0.4,
       'fullScan'  : 3.0,
       'fullScan500': 3.0,
+      'fullScan2' : 3.0,
       'minBias'   : 3.0,
       'minBias2'  : 3.0,
       'beamgas'   : 3.0,
@@ -179,6 +184,7 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonBtrk'  : 0.2,
       'muonCore'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
@@ -188,6 +194,7 @@ class InDetTrigSliceSettingsDB:
       'hadCalib'  : 0.4,
       'fullScan'  : 3.14159,
       'fullScan500' : 3.14159,
+      'fullScan2' : 3.14159,
       'minBias'   : 3.14159,
       'minBias2'  : 3.14159,
       'beamgas'   : 3.14159,
@@ -208,6 +215,7 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       fullscan[i] = False
     fullscan['fullScan'] = True
+    fullscan['fullScan2']= True
     fullscan['fullScan500'] = True
     fullscan['minBias']  = True
     fullscan['minBias2'] = True

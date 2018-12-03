@@ -6,19 +6,35 @@ import DerivationTags
 import Data_rel21
 import MC16_TOPQ1
 
+## fancy function to shorten the physics part of the name of a sample
+#def MyFancyShortener(superLongInDSName):
+    #splitted = superLongInDSName.split('.')
+    #runNumber = splitted[1]
+    #physicsName = splitted[2]
+    #if splitted[0] == "user" or splitted[0] == "group": #this is in case we run on private derivations, either produced with user or group role
+        #runNumber = splitted[2]
+        #physicsName = splitted[3]
+    #tags = splitted[-1].replace('/','')
+    #physicsName = physicsName.split('_')[0]
+    #outDSName = runNumber + '.' + physicsName + '.someFunnyTags'
+    #return outDSName
+
 config = TopExamples.grid.Config()
 config.code          = 'top-xaod'
 config.settingsFile  = 'validation-cuts.txt'
+#config.settingsFile  = 'validation-cuts_Topo.txt,validation-cuts_PFlow.txt'
+#config.combine_outputFile = 'out.root'
+#config.combine_prefixes = 'Topo,PFlow'
 
-config.gridUsername  = 'iconnell'
+config.gridUsername  = 'iconnell' # use e.g. phys-top or phys-higgs for group production
 config.suffix        = '17-10-03'
 config.excludedSites = ''
 config.noSubmit      = False
 config.mergeType     = 'Default' #'None', 'Default' or 'xAOD'
 config.destSE        = '' #This is the default (anywhere), or try e.g. 'UKI-SOUTHGRID-BHAM-HEP_LOCALGROUPDISK'
-config.CMake         = True
 # by default the requested memory is set to 2GB, if you need to increase this, please disable the line below!!!
 # config.memory = '4000' 
+#config.nameShortener = MyFancyShortener # to use your own physics part shortening function - uncomment here and in the function definition above
 
 ###############################################################################
 

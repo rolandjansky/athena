@@ -25,7 +25,6 @@
 #include <list>
 #include <vector>
 
-
 class JSSWTopTaggerBDT : public JSSTaggerBase {
   ASG_TOOL_CLASS0(JSSWTopTaggerBDT)
 
@@ -62,6 +61,9 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     std::string m_name;
     std::string m_APP_NAME;
 
+    // for the tagging type
+    enum TAGCLASS{Unknown, WBoson, TopQuark};
+
     // TMVA tools
     std::unique_ptr<TMVA::Reader> m_bdtTagger;
     std::map<std::string,std::string> m_bdt_weights;
@@ -73,6 +75,9 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     std::string m_tagType;
     std::string m_tmvaConfigFileName;
     std::string m_tmvaConfigFilePath;
+
+    // for internal usage
+    mutable TAGCLASS m_TagClass;
 
     // variables for TMVA
     mutable float m_mass; // combinedmass
@@ -102,6 +107,9 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     mutable float m_ThrustMaj;
     mutable float m_FoxWolfram20;
 
+    // bool to check whether variables are undefined
+    mutable  bool m_undefInput;
+
     // parameters to store specific cut values
     std::string m_strMassCutLow;
     std::string m_strMassCutHigh;
@@ -120,6 +128,7 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     SG::AuxElement::Decorator<float> m_dec_mcutH;
     SG::AuxElement::Decorator<float> m_dec_scoreCut;
     SG::AuxElement::Decorator<float> m_dec_scoreValue;
+
 };
 
 #endif

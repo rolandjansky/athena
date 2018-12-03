@@ -28,6 +28,9 @@
 
 namespace SG {
 
+#ifdef XAOD_STANDALONE
+using AthContainers::IProxyDict;
+#endif // XAOD_STANDALONE
 
 /**
  * @brief Helper for @c dataVectorViewAsELV.  Don't call this directly.

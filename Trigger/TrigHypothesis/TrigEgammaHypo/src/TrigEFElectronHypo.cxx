@@ -520,8 +520,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             if ( m_egammaElectronCutIDTool->execute(egIt).isFailure() ) 
                 ATH_MSG_DEBUG("problem with egammaElectronCutIDTool, egamma object not stored");
             isEMTrig = m_egammaElectronCutIDTool->IsemValue();
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                <<" isEMTrig = "
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " el pT = " << egIt->pt()
+                <<" isEMTrig = 0x"
                     << std::hex << isEMTrig
                     << endmsg;
             unsigned int isEMbit=0;

@@ -61,6 +61,20 @@ InDetDummyPlots::initializePlots() {
   book(m_minimum_delta_R_2_not_found, "minimum_delta_R_2_not_found");
   book(m_minimum_delta_R_3_not_found, "minimum_delta_R_3_not_found");
   book(m_delta_inverse_pt, "delta_inverse_pt");
+  //
+  book(m_SiSPSeededFinder_eff_vs_radius, "SiSPSeededFinder_eff_vs_radius");
+  book(m_TRTSeeded_eff_vs_radius, "TRTSeeded_eff_vs_radius");
+  book(m_TRTStandalone_eff_vs_radius, "TRTStandalone_eff_vs_radius");
+  book(m_combo_eff_vs_radius, "combo_eff_vs_radius");
+  book(m_exclotherAlgo_eff_vs_radius, "exclotherAlgo_eff_vs_radius");
+  book(m_otherAlgo_eff_vs_radius, "otherAlgo_eff_vs_radius");
+  book(m_track_author_use, "track_author_use");
+  m_track_author_use->GetXaxis()->SetBinLabel(1, "SiSP");
+  m_track_author_use->GetXaxis()->SetBinLabel(4, "IDEP");
+  m_track_author_use->GetXaxis()->SetBinLabel(5, "TRTSeeded");
+  m_track_author_use->GetXaxis()->SetBinLabel(20, "IDATSTool");
+  m_track_author_use->GetXaxis()->SetBinLabel(21, "TRTStdalone");
+  m_track_author_use->GetXaxis()->SetBinLabel(42, "TICaloROI");
 }
 
 void
@@ -229,6 +243,38 @@ InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BID
   fillHisto(m_delta_inverse_pt, BIDPt);
 
 }
+
+void
+InDetDummyPlots::algoEfficiency(double radius, int SiSPweight, int TRTSeededweight, int TRTStandaloneweight, int other_weight){
+
+  int combo_weight(0);
+  int exclusive_others_weight = other_weight;
+  //unused int neither_weight(0);
+
+  if((SiSPweight == 1) || (TRTSeededweight == 1) || (TRTStandaloneweight == 1)) combo_weight = 1;
+  if(TRTSeededweight == 1) SiSPweight = 0;
+  if(SiSPweight == 1) TRTSeededweight = 0;
+  if((SiSPweight == 1) || (TRTSeededweight == 1) || (TRTStandaloneweight == 1)) exclusive_others_weight = 0;
+
+  fillHisto(m_SiSPSeededFinder_eff_vs_radius, radius, SiSPweight);
+  fillHisto(m_TRTSeeded_eff_vs_radius, radius, TRTSeededweight);
+  fillHisto(m_TRTStandalone_eff_vs_radius, radius, TRTStandaloneweight);
+  fillHisto(m_combo_eff_vs_radius, radius, combo_weight);
+  fillHisto(m_exclotherAlgo_eff_vs_radius, radius, exclusive_others_weight);
+  fillHisto(m_otherAlgo_eff_vs_radius, radius, other_weight);
+}
+
+void
+InDetDummyPlots::track_author(std::bitset<52> authorset){
+
+  for(unsigned int i=0; i<authorset.size(); i++){
+    int author = authorset.test(i);
+    if(author == 1){
+      fillHisto(m_track_author_use, i);
+    }
+  }
+}
+
 
 void
 InDetDummyPlots::finalizePlots() {

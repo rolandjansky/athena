@@ -180,8 +180,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
 
   // get detector store
   if(m_detStore.retrieve().isFailure()) {
-    if (msgLvl() <= MSG::FATAL) m_log << MSG::FATAL << "Failed to connect to " << m_detStore.typeAndName() << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
+    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    //    return StatusCode::FAILURE;
   } 
   else {
     if (msgLvl() <= MSG::INFO) m_log << MSG::INFO << "Successfully initialised DetectorStore !" << endreq;
@@ -191,8 +192,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   if(m_doPixelSp) { 
     StatusCode sc_pixH = m_detStore->retrieve(m_pixHelper, "PixelID");
     if( sc_pixH.isFailure() ){
-      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain pix helper!" << endreq;
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Could not obtain pix helper!");
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      //return StatusCode::FAILURE;
     }
   }
 
@@ -200,8 +202,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   if(m_doSctSp) {
     StatusCode sc_sctH = m_detStore->retrieve(m_sctHelper, "SCT_ID");
     if( sc_sctH.isFailure() ){
-      if (msgLvl() <= MSG::WARNING) m_log << MSG::WARNING << "Could not obtain sct helper!" << endreq;
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Could not obtain sct helper!");
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      //return StatusCode::FAILURE;
     }
   }
   

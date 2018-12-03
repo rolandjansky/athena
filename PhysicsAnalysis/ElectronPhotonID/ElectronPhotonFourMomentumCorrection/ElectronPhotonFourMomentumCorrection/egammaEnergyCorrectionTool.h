@@ -1,8 +1,9 @@
+// Dear emacs, this is -*-c++-*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Dear emacs, this is -*-c++-*-
 //////////////////////////////////////////////////////////////
 //
 // REWRITE - February 2013, Karsten Koeneke
@@ -33,8 +34,8 @@
 #include "TList.h"
 #include "TFile.h"
 #include "TGraphErrors.h"
-#include "TH1D.h"
-#include "TH2F.h"
+#include "TH1.h"
+#include "TH2.h"
 #include "TSystem.h"
 #include "TF1.h"
 
@@ -144,6 +145,12 @@ namespace egEnergyCorr {
       // ... Layer scale variations : data driven, uncorrelated vs eta
       PSUp, PSDown, S12Up, S12Down,
 
+      //PS correlated contribution
+      PSb12Up, PSb12Down,
+
+      // topo cluster threshold
+      topoClusterThresUp,topoClusterThresDown,
+
       // extra E12 for es2017 run2
       S12ExtraLastEtaBinRun2Up, S12ExtraLastEtaBinRun2Down,
 
@@ -161,6 +168,9 @@ namespace egEnergyCorr {
 
       // PP0
       MatPP0Up, MatPP0Down,
+
+      // AF2 systematics
+      af2Up, af2Down,
 
       // The following apply to photons only
 
@@ -211,20 +221,30 @@ namespace egEnergyCorr {
     es2017,                 // Moriond 2017
     es2017_summer,          // Summer 2017
     es2017_summer_improved, // Recommendations for Higgs mass paper
+    es2017_summer_final,    // Final 20.7 recommendations
+
+    es2015_5TeV,            // For 2015 low mu 5 TeV runs
+
     es2017_R21_PRE,         // Pre-recommendations for release 21
+
+    es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
+    es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
     
     UNDEFINED
 
   };
 
-  // Geometry dostortions
+  // Geometry distortions
 
   enum Geometry {
     ConfigA=0,     // 5% ID material scaling
     ConfigCD,      // 10% services scaling
     ConfigEL,      // +7.5%X0 in SCT/TRT endcap; 10%X0, radial, in cryostat
     ConfigFMX,     // +7.5%X0 on ID endplate; 5%X0, radial, between PS and Strips
-    ConfigGp       // all together
+    ConfigGp,      // all together
+    ConfigN,       // material between PS and calo in EndCap (only used for release 21)
+    ConfigIBL,     // IBL systematics in run 2 geometry
+    ConfigPP0      // PP0 systematics in run 2 geometry
   };
 
   // Measured material categories
@@ -356,7 +376,7 @@ namespace AtlasRoot {
     /// MC calibration corrections
 
 
-    double applyAFtoG4(double eta, PATCore::ParticleType::Type ptype) const;
+    double applyAFtoG4(double eta, double ptGeV, PATCore::ParticleType::Type ptype) const;
     double applyFStoG4(double eta) const;
 
     // functions for resolution uncertainty evaluation
@@ -400,6 +420,8 @@ namespace AtlasRoot {
     double getAlphaMaterial( double cl_eta, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 			     egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
+    double getMaterialEffect(egEnergyCorr::Geometry geo,PATCore::ParticleType::Type ptype,double cl_eta,double ET) const;
+
     double getMaterialNonLinearity( double cl_eta, double energy, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 				    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
@@ -430,7 +452,7 @@ namespace AtlasRoot {
     void getResolution_systematics(int particle_type, double energy, double eta, double etaCalo, int syst_mask, double& resolution, double& resolution_error,double& resolution_error_up, double & resolution_error_down, int resol_type=0) const;
 
     // approximate pileup noise contribution to the resolution
-    double pileUpTerm(double eta, int particle_type) const;
+    double pileUpTerm(double energy, double eta, int particle_type) const;
 
   private:
 
@@ -443,38 +465,42 @@ namespace AtlasRoot {
     unsigned int  m_begRunNumber;
     unsigned int  m_endRunNumber;
 
-    TH1D*         m_trkSyst;
+    TH1*         m_trkSyst;
 
-    TH1D*         m_aPSNom;
-    TH1D*         m_daPSCor;
-    TH1D*         m_aS12Nom;
-    TH1D*         m_daS12Cor;
+    TH1*         m_aPSNom;
+    TH1*         m_daPSCor;
+    TH1*         m_daPSb12;
+    TH1*         m_aS12Nom;
+    TH1*         m_daS12Cor;
 
-    TH1D*         m_zeeNom;
-    TH1D*         m_zeeNom_data2015;
+    TH1*         m_zeeNom;
+    TH1*         m_zeeNom_data2015;
+    TH1*         m_zeeNom_data2016;
+    TH1*         m_zeeFwdk;
+    TH1*         m_zeeFwdb;
 
-    TH1D*         m_zeeSyst;
-    TH1D*         m_zeePhys;
-    TH1*          m_uA2MeV_2015_first2weeks_correction;
+    TH1*         m_zeeSyst;
+    TH1*         m_zeePhys;
+    TH1*         m_uA2MeV_2015_first2weeks_correction;
 
-    TH1D*         m_resNom;
-    TH1D*         m_resSyst;
-    TH1D*         m_peakResData;
-    TH1D*         m_peakResMC;
+    TH1*         m_resNom;
+    TH1*         m_resSyst;
+    TH1*         m_peakResData;
+    TH1*         m_peakResMC;
 
-    TH1D*         m_dX_ID_Nom;
+    TH1*         m_dX_ID_Nom;
 
-    TH1D*         m_dX_IPPS_Nom;
-    TH1D*         m_dX_IPPS_LAr;
+    TH1*         m_dX_IPPS_Nom;
+    TH1*         m_dX_IPPS_LAr;
 
-    TH1D*         m_dX_IPAcc_Nom;
-    TH1D*         m_dX_IPAcc_G4;
-    TH1D*         m_dX_IPAcc_LAr;
-    TH1D*         m_dX_IPAcc_GL1;
+    TH1*         m_dX_IPAcc_Nom;
+    TH1*         m_dX_IPAcc_G4;
+    TH1*         m_dX_IPAcc_LAr;
+    TH1*         m_dX_IPAcc_GL1;
 
-    TH1D*         m_dX_PSAcc_Nom;
-    TH1D*         m_dX_PSAcc_G4;
-    TH1D*         m_dX_PSAcc_LAr;
+    TH1*         m_dX_PSAcc_Nom;
+    TH1*         m_dX_PSAcc_G4;
+    TH1*         m_dX_PSAcc_LAr;
 
     TAxis*        m_psElectronEtaBins;
     TList*        m_psElectronGraphs;
@@ -497,66 +523,73 @@ namespace AtlasRoot {
     TAxis*        m_s12ConvertedEtaBins;
     TList*        m_s12ConvertedGraphs;
 
-    TH1D*         m_pedestalL0;
-    TH1D*         m_pedestalL1;
-    TH1D*         m_pedestalL2;
-    TH1D*         m_pedestalL3;
+    TH1*         m_pedestalL0;
+    TH1*         m_pedestalL1;
+    TH1*         m_pedestalL2;
+    TH1*         m_pedestalL3;
 
-    TH1F*         m_pedestals_es2017;
+    TH1*         m_pedestals_es2017;
 
-    TH1D*         m_convRadius;
-    TH1D*         m_convFakeRate;
-    TH1D*         m_convRecoEfficiency;
+    TH1*         m_convRadius;
+    TH1*         m_convFakeRate;
+    TH1*         m_convRecoEfficiency;
 
-    TH1D*         m_leakageConverted;
-    TH1D*         m_leakageUnconverted;
+    TH1*         m_leakageConverted;
+    TH1*         m_leakageUnconverted;
 
-    TH1D*         m_zeeES2Profile;
+    TH1*         m_zeeES2Profile;
 
-    TH2D*         m_pp0_elec;
-    TH2D*         m_pp0_unconv;
-    TH2D*         m_pp0_conv;
+    TH2*         m_pp0_elec;
+    TH2*         m_pp0_unconv;
+    TH2*         m_pp0_conv;
 
-    TH1D*         m_wstot_slope_A_data;
-    TH1D*         m_wstot_slope_B_MC;
-    TH1D*         m_wstot_40GeV_data;
-    TH1D*         m_wstot_40GeV_MC;
-    TH1D*         m_wstot_pT_data_p0_electrons;
-    TH1D*         m_wstot_pT_data_p1_electrons;
-    TH1D*         m_wstot_pT_data_p0_unconverted_photons;
-    TH1D*         m_wstot_pT_data_p1_unconverted_photons;
-    TH1D*         m_wstot_pT_data_p0_converted_photons;
-    TH1D*         m_wstot_pT_data_p1_converted_photons;
-    TH1D*         m_wstot_pT_MC_p0_electrons;
-    TH1D*         m_wstot_pT_MC_p1_electrons;
-    TH1D*         m_wstot_pT_MC_p0_unconverted_photons;
-    TH1D*         m_wstot_pT_MC_p1_unconverted_photons;
-    TH1D*         m_wstot_pT_MC_p0_converted_photons;
-    TH1D*         m_wstot_pT_MC_p1_converted_photons;
+    TH1*         m_wstot_slope_A_data;
+    TH1*         m_wstot_slope_B_MC;
+    TH1*         m_wstot_40GeV_data;
+    TH1*         m_wstot_40GeV_MC;
+    TH1*         m_wstot_pT_data_p0_electrons;
+    TH1*         m_wstot_pT_data_p1_electrons;
+    TH1*         m_wstot_pT_data_p0_unconverted_photons;
+    TH1*         m_wstot_pT_data_p1_unconverted_photons;
+    TH1*         m_wstot_pT_data_p0_converted_photons;
+    TH1*         m_wstot_pT_data_p1_converted_photons;
+    TH1*         m_wstot_pT_MC_p0_electrons;
+    TH1*         m_wstot_pT_MC_p1_electrons;
+    TH1*         m_wstot_pT_MC_p0_unconverted_photons;
+    TH1*         m_wstot_pT_MC_p1_unconverted_photons;
+    TH1*         m_wstot_pT_MC_p0_converted_photons;
+    TH1*         m_wstot_pT_MC_p1_converted_photons;
     
     // Geometry distortion vectors (to be ordered as in the the Geometry enum!)
 
-    std::vector<TH1D*> m_matElectronScale;
-    std::vector<TH1D*> m_matUnconvertedScale;
-    std::vector<TH1D*> m_matConvertedScale;
-    std::vector<TH1D*> m_matElectronCstTerm;
-    std::vector<TH1D*> m_matX0Additions;
+    std::vector<TH1*> m_matElectronScale;
+    std::vector<TH1*> m_matUnconvertedScale;
+    std::vector<TH1*> m_matConvertedScale;
+    std::vector<TH1*> m_matElectronCstTerm;
+    std::vector<TH1*> m_matX0Additions;
 
     // Non-linearity graphs
 
     TAxis*              m_matElectronEtaBins;
     std::vector<TList*> m_matElectronGraphs;
 
+    // 2D histograms for release 21 material systematics sensitivity parameterization
+    TH2D* m_h2dmat[3][6];
+
+
     // Fastsim -> Fullsim corrections
 
-    TH1D*         m_G4OverAFII_electron;
-    TH1D*         m_G4OverAFII_converted;
-    TH1D*         m_G4OverAFII_unconverted;
-    TH1D*         m_G4OverFrSh;
+    TH1*         m_G4OverAFII_electron;
+    TH1*         m_G4OverAFII_converted;
+    TH1*         m_G4OverAFII_unconverted;
+    TH2*         m_G4OverAFII_electron_2D;
+    TH2*         m_G4OverAFII_converted_2D;
+    TH2*         m_G4OverAFII_unconverted_2D;
+    TH1*         m_G4OverFrSh;
 
-    TH2F* m_G4OverAFII_resolution_electron;
-    TH2F* m_G4OverAFII_resolution_unconverted;
-    TH2F* m_G4OverAFII_resolution_converted;
+    TH2* m_G4OverAFII_resolution_electron;
+    TH2* m_G4OverAFII_resolution_unconverted;
+    TH2* m_G4OverAFII_resolution_converted;
 
     // Main ES model switch
 

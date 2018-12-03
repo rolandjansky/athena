@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                   
-import sys, glob
+import sys, os, glob
 import ROOT
 
 ROOT.gStyle.SetOptStat(0)
@@ -12,6 +12,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--out', type=str, help='output ROOT file')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
+                    default='plots')
 parser.add_argument('--debug', action='store_true', help='Be verbose in output')
 
 args = parser.parse_args()
@@ -19,19 +21,19 @@ args = parser.parse_args()
 infilename = args.infile
 infile = ROOT.TFile.Open(infilename, 'READ')
 
-rundir = None
+runname = None
 for k in infile.GetListOfKeys():
     if k.GetName().startswith('run_'):
-        rundir = k.GetName()
+        runname = k.GetName()
         break
-if not rundir:
+if not runname:
     print 'Cannot find run directory in input file'
     sys.exit(1)
 else:
-    print 'Found rundir', rundir
+    print 'Found runname', runname
 
 lbdirs = []
-for k in infile.Get(rundir).GetListOfKeys():
+for k in infile.Get(runname).GetListOfKeys():
     if k.GetName().startswith('lb_'):
         lbdirs.append(k.GetName())
 
@@ -48,7 +50,7 @@ effcydir = ROOT.TH1F('effcydir', 'Direct acc x efficiency', lbnums[-1]-lbnums[0]
                lbnums[-1]+0.5)
 
 from array import array
-fout = ROOT.TFile(args.out if args.out else '%s_all.root' % rundir[4:], 'RECREATE')
+fout = ROOT.TFile(args.out if args.out else '%s_all.root' % runname[4:], 'RECREATE')
 o_run = array('I', [0])
 o_lb = array('I', [0])
 o_lbwhen = array('d', [0., 0.])
@@ -81,13 +83,13 @@ tl.Branch('aestat', o_aestat, 'aestat/F')
 from DQUtils import fetch_iovs
 #rset=set(_[0] for _ in rlb)
 #print rset
-lblb = fetch_iovs("LBLB", runs=int(rundir[4:])).by_run
+lblb = fetch_iovs("LBLB", runs=int(runname[4:])).by_run
 for lb in sorted(lbdirs):
-    h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_mutrigtp_matches' % (rundir, lb))
-    hmo = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_os' % (rundir, lb))
-    hms = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_ss' % (rundir, lb))
-    hno = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_os' % (rundir, lb))
-    hns = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_ss' % (rundir, lb))
+    h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_mutrigtp_matches' % (runname, lb))
+    hmo = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_os' % (runname, lb))
+    hms = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_ss' % (runname, lb))
+    hno = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_os' % (runname, lb))
+    hns = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_ss' % (runname, lb))
     lbnum = int(lb[3:])
     yld = (h[2], h[3])
     ylderr = (h.GetBinError(2), h.GetBinError(3))
@@ -99,9 +101,9 @@ for lb in sorted(lbdirs):
     inverrsq = ((1/2./B)*ylderr[0])**2+((A/2./B**2)*ylderr[1])**2
     o_trigeff[0] = eff
     o_trigeffstat[0] = (inverrsq**.5)*(eff**2)
-    o_run[0], o_lb[0] = int(rundir[4:]), lbnum
+    o_run[0], o_lb[0] = int(runname[4:]), lbnum
     try:
-        iov = lblb[int(rundir[4:])][lbnum-1]
+        iov = lblb[int(runname[4:])][lbnum-1]
         o_lbwhen[0], o_lbwhen[1] = iov.StartTime/1e9, iov.EndTime/1e9
     except Exception, e:
         o_lbwhen[0], o_lbwhen[1] = 0, 0
@@ -155,26 +157,26 @@ effcya.SetMarkerStyle(21)
 effcya.SetMarkerColor(ROOT.kBlue)
 effcya.GetYaxis().SetRangeUser(0.25,0.31)
 effcya.Draw('PE')
-c1.Print('%s_combined_efficiency.eps' % rundir)
+c1.Print(os.path.join(args.plotdir, '%s_combined_efficiency.eps' % runname[4:]))
 fout.WriteTObject(effcya)
 c1.Clear()
 effcyt.SetMarkerStyle(21)
 effcyt.SetMarkerColor(ROOT.kBlue)
 effcyt.GetYaxis().SetRangeUser(0.66,0.86)
 effcyt.Draw('PE')
-c1.Print('%s_trigger_efficiency.eps' % rundir)
+c1.Print(os.path.join(args.plotdir, '%s_trigger_efficiency.eps' % runname[4:]))
 fout.WriteTObject(effcyt)
 c1.Clear()
 effcyr.SetMarkerStyle(21)
 effcyr.SetMarkerColor(ROOT.kBlue)
 effcyr.GetYaxis().SetRangeUser(0.9,1.0)
 effcyr.Draw('PE')
-c1.Print('%s_reco_efficiency.eps' % rundir)
+c1.Print(os.path.join(args.plotdir, '%s_reco_efficiency.eps' % runname[4:]))
 fout.WriteTObject(effcyr)
 fout.Close()
 
-sumweights = infile.Get('%s/GLOBAL/DQTDataFlow/m_sumweights' % rundir)
-ctr = infile.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % rundir)
+sumweights = infile.Get('%s/GLOBAL/DQTDataFlow/m_sumweights' % runname)
+ctr = infile.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
 if sumweights:
     for ibin in xrange(1,sumweights.GetNbinsX()+1):
         o_lb[0] = int(sumweights.GetBinCenter(ibin))
@@ -199,7 +201,7 @@ if sumweights:
     leg.AddEntry(effcya, 'Predicted A#epsilon', 'PE')
     leg.AddEntry(effcydir, 'Actual A#epsilon', 'PE')
     leg.Draw()
-    c1.Print('%s_tp_comparison.eps' % rundir)
+    c1.Print(os.path.join(args.plotdir, '%s_tp_comparison.eps' % runname[4:]))
 
     effcyrat=effcydir.Clone()
     effcyrat.Divide(effcya)
@@ -207,4 +209,4 @@ if sumweights:
     effcyrat.SetXTitle('<#mu>')
     effcyrat.Draw('PE')
     effcyrat.Fit('pol1')
-    c1.Print('%s_tp_correction.eps' % rundir)
+    c1.Print(os.path.join(args.plotdir, '%s_tp_correction.eps' % runname[4:]))

@@ -15,7 +15,6 @@ namespace TrigL2MuonSA {
   {
     unsigned int name;
     int isEndcap;
-    int Station;
     int StationEta;
     int StationPhi;
     int Multilayer;

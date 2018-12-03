@@ -2,113 +2,38 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AFP_SIDLOCRECO_h
-#define AFP_SIDLOCRECO_h
-
-#include <iostream>
-#include <string>
-#include <list>
-#include <map>
-#include <vector>
-#include <fstream>
-
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectVector.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "AFP_Geometry/AFP_constants.h"
-#include "AFP_Geometry/AFP_Geometry.h"
-#include "AFP_Geometry/AFP_ConfigParams.h"
-#include "CLHEP/Geometry/Point3D.h"
-
-#include "AFP_DigiEv/AFP_SiDigiCollection.h"
-#include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
-
-#include "AFP_LocReco/AFP_UserObjects.h"
+#ifndef AFP_SIDLOCRECO_H
+#define AFP_SIDLOCRECO_H
 
 #include "AFP_LocRecoInterfaces/IAFPSiDLocRecoTool.h"
 
-#include "TROOT.h"
+#include "AFP_LocReco/AFP_SIDLocRecoTool.h"
 
-//for truth particles
-#include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
-
-// xAOD 
-#include "xAODForward/AFPTrackContainer.h"
-
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" 
 
+#include <string>
 
-#define SIDSTATIONID 4
-
-class StoreGateSvc;
-class ActiveStoreSvc;
-
+/// Algorithm reconstructing tracks from hits clusters
 class AFP_SIDLocReco : public AthAlgorithm
 {
-	public:
-		AFP_SIDLocReco(const string& name, ISvcLocator* pSvcLocator);
-		~AFP_SIDLocReco();
+public:
+  AFP_SIDLocReco(const std::string& name, ISvcLocator* pSvcLocator);
 
-	private:
-		AFP_CONFIGURATION m_Config;
-		AFP_Geometry* m_pGeometry;
-		
-		// a handle on Store Gate
-		StoreGateSvc* m_storeGate;
+  /// Does nothing
+  ~AFP_SIDLocReco() override {}
 
-		AFP_SIDLocRecoEvCollection*	m_pSIDLocRecoEvCollection;
-		AFP_SIDLocRecoEvent*			m_pSIDLocRecoEvent;
+  StatusCode initialize() override;
 
-  ToolHandle<IAFPSiDLocRecoTool> m_recoToolHandle;
+  /// Run pixel clustering tool and next run track reconstruction tools
+  StatusCode execute() override;
 
-	private:
+  /// Does nothing
+  StatusCode finalize() override;
 
-		UInt_t m_eventNum;			//real event number
-		Int_t m_iRunNum;
-		Int_t m_iDataType;			//data type (simulation or real data) using in the local reconstruction
-		Int_t m_iEvent;				//event number from zero value
-		Float_t m_AmpThresh;			// TD signal amplitude threshold
-		
-		//slope and X,Y,Z-pos for SID plates [4][6]
-		Float_t m_fsSID[SIDSTATIONID][SIDCNT];
-		Float_t m_fxSID[SIDSTATIONID][SIDCNT];
-		Float_t m_fySID[SIDSTATIONID][SIDCNT];
-		Float_t m_fzSID[SIDSTATIONID][SIDCNT];
-
-
-		string m_strKeyGeometryForReco;
-		vector<string> m_vecListAlgoSID;
-		string m_strAlgoSID;
-	
-	public:
-		StatusCode initialize();
-		StatusCode execute();
-		StatusCode finalize();
-		
-	private:
-		bool ReadGeometryDetCS();
-		bool StoreReconstructionGeometry(/*const char* szDataDestination*/);
-		void SaveGeometry();
-		void ClearGeometry();
+private:
+  /// Tool that does the track reconstruction
+  ToolHandle<IAFPSiDLocRecoTool> m_recoToolHandle; 
 };
 
 #endif	//AFP_TDLOCRECO_h

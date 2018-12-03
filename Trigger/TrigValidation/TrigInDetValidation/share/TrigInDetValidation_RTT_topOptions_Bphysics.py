@@ -34,14 +34,11 @@ if athenaCommonFlags.FilesInput()==[]:
     ]
   
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-(idtrigChainlist, tidaAnalysischains) = muonChains(rMC,rID)
+(idtrigChainlist, tidaAnalysischains) = muonChains(rID)
 
 
 def resetSigs():

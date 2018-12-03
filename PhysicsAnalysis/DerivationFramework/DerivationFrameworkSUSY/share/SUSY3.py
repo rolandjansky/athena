@@ -1,6 +1,6 @@
 #********************************************************************
 # SUSY3.py
-# reductionConf flag SUSY3 in Reco_tf.py   
+# reductionConf flag SUSY3 in Reco_tf.py
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -15,7 +15,7 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-
+from DerivationFrameworkSUSY.SUSYCommon import *
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY3Stream.StreamName
@@ -41,7 +41,7 @@ from DerivationFrameworkSUSY.SUSY3TriggerList import triggerRegEx, triggerRegExT
 SUSY3ThinningHelper.TriggerChains = '|'.join(triggerRegExThinning)
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-SUSY3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( 
+SUSY3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
     name          = "SUSY3TriggerSkimmingTool",
     TriggerListOR = triggerRegEx )
 ToolSvc += SUSY3TriggerSkimmingTool
@@ -50,18 +50,8 @@ SUSY3ThinningHelper.AppendToStream( SUSY3Stream ) # needs to go after SUSY3Thinn
 
 
 #====================================================================
-# THINNING TOOLS 
+# THINNING TOOLS
 #====================================================================
-
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# TrackParticles directly
-#SUSY3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY3TPThinningTool",
-#                                                                 ThinningService         = SUSY3ThinningHelper.ThinningSvc(),
-#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY3TPThinningTool
-#thinningTools.append(SUSY3TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -129,7 +119,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 
   # Decorate Electron with bkg electron type/origin
-  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
   from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification
   BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool", MCTruthClassifierTool = BkgElectronMCTruthClassifier)
   ToolSvc += BkgElectronClassificationTool
@@ -140,10 +130,47 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
-TauRequirements = '(abs(TauJets.eta) < 2.6) && (TauJets.nTracks == 1 || TauJets.nTracks == 3) && (TauJets.DFCommonTausLoose) && (TauJets.ptFinalCalib >= 15.*GeV)'
+TauRequirements = '(abs(TauJets.eta) < 2.6) && (TauJets.ptFinalCalib >= 15.*GeV)'
+TauBDT = '(TauJets.nTracks == 1 || TauJets.nTracks == 3) && (TauJets.DFCommonTausLoose)'
+# prepare for RNN Tau ID, JetRNNSigLoose not available yet in DFTau, need to cut on the flattened score
+TauRNN = '(TauJets.nTracks == 1 && TauJets.RNNJetScoreSigTrans>0.15) || (TauJets.nTracks == 3 && TauJets.RNNJetScoreSigTrans>0.25)'
+
+import sys
+import PyUtils.AthFile
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon import Logging
+susy3log = Logging.logging.getLogger('SUSY3')
+useRNN = False
+# RNN ID present in offline reconstruction for Athena-21.0.63 or higher
+try:
+  fileinfo = PyUtils.AthFile.fopen(athenaCommonFlags.FilesInput()[0])
+  release = fileinfo.infos['metadata']['/TagInfo']['AtlasRelease']
+  rel_split = release.split('.')
+  if not '21.0.' in release or len(rel_split) < 3:
+    susy3log.info("Incorrect AtlasRelease retrieved from metadata: {}. Expected 21.0.X".format(release))
+  elif int(rel_split[2]) >= 63:
+    susy3log.info("RNN tau ID present in {}. Allow JetRNNSigLoose taus in the skimming!".format(release))
+    useRNN = True
+except:
+  susy3log.info("Could not retrieve AtlasRelease from metadata: {}".format(sys.exc_info()[0]))
+
+# the autodetection must be extended if RNN is deployed via an AODFix
+if not useRNN:
+  from AODFix import AODFix
+  if AODFix_willDoAODFix() and "tauid" in AODFix._aodFixInstance.latestAODFixVersion():
+    susy3log.info("Tau ID AODFix is scheduled. Allow JetRNNSigLoose taus in the skimming!")
+    useRNN = True
+
+if useRNN:
+  TauRequirements += ' && ( (' + TauBDT + ') || (' + TauRNN + ') )'
+else:
+  TauRequirements += ' && ( (' + TauBDT + ') )'
+
+susy3log.info("Applying the following skimming to offline taus (if not in passthrough mode):")
+susy3log.info(TauRequirements)
 
 objectSelection = 'count('+TauRequirements+') >= 1'
 
@@ -155,7 +182,7 @@ ToolSvc += SUSY3SkimmingTool
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -168,12 +195,12 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
+
    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
    SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel("SUSY3KernelSigAug",
                                                             AugmentationTools = DecorateSUSYProcess("SUSY3")
                                                             )
-   
+
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -223,36 +250,34 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 
 
 #====================================================================
-# CONTENT LIST  
+# CONTENT LIST
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY3SlimmingHelper = SlimmingHelper("SUSY3SlimmingHelper")
-SUSY3SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-"TauJets","AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
- "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
- "InDetTrackParticles", "PrimaryVertices"]
+SUSY3SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","MET_Reference_AntiKt4EMTopo", "MET_Reference_AntiKt4EMPFlow", "TauJets","AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets", "BTagging_AntiKt4EMTopo","BTagging_AntiKt4EMPFlow", "InDetTrackParticles", "PrimaryVertices",
+                                        "AntiKt4TruthJets"]
 SUSY3SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Electrons.author.charge.ptcone20.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                       "Photons.author.Loose.Tight",
-                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width",
+                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "InDetTrackParticles.truthOrigin.truthType",
                                       "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                      "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
+                                      "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose.seedJetWidth",
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-                                      "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant",
-                                      "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
+                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant"
+                                      ]
+
+#"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
+
 SUSY3SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY3SlimmingHelper.IncludeEGammaTriggerContent = True
-#SUSY3SlimmingHelper.IncludeBPhysTriggerContent = True 
+#SUSY3SlimmingHelper.IncludeBPhysTriggerContent = True
 #SUSY3SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 SUSY3SlimmingHelper.IncludeJetTriggerContent = True
 SUSY3SlimmingHelper.IncludeTauTriggerContent = True
@@ -264,11 +289,10 @@ SUSY3SlimmingHelper.IncludeBJetTriggerContent = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY3SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY3SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY3SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
- 
+
+  SUSY3SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+
 SUSY3SlimmingHelper.AppendContentToStream(SUSY3Stream)

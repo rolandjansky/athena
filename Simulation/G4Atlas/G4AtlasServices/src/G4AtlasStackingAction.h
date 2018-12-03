@@ -15,15 +15,13 @@
 namespace G4UA
 {
 
-  // Forward declarations
-  class IStackingAction;
-
-
   /// @class G4AtlasStackingAction
   /// @brief Atlas subclass of the G4 stacking action.
   ///
   /// This object maintains a list of custom actions and when invoked by
   /// Geant4 will forward the call to each of them in turn.
+  ///
+  /// @todo TODO lifetime management of wrapper actions.
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
@@ -50,12 +48,12 @@ namespace G4UA
       void PrepareNewEvent() override final;
 
       /// @brief Add one action to the list
-      void addAction(IStackingAction* action);
+      void addAction(G4UserStackingAction* action);
 
     private:
 
       /// List of ATLAS stacking actions
-      std::vector<IStackingAction*> m_actions;
+      std::vector<G4UserStackingAction*> m_actions;
 
   }; // class G4AtlasStackingAction
 

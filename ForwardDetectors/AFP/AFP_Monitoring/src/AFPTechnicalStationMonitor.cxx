@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <sstream>
-
-#include <LWHists/TH1F_LW.h>
-#include <LWHists/TH2F_LW.h>
 
 #include "../AFP_Monitoring/AFPTechnicalMonitorTool.h"
 #include "../AFP_Monitoring/AFPTechnicalLayerMonitor.h"
@@ -13,6 +9,10 @@
 
 #include "AFP_RawEv/AFP_SiRawData.h"
 
+#include <LWHists/TH1F_LW.h>
+#include <LWHists/TH2F_LW.h>
+
+#include <sstream>
 
 const int AFPTechnicalStationMonitor::s_firstLayerIndex = 0;
 const int AFPTechnicalStationMonitor::s_secondLayerIndex = 1;

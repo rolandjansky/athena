@@ -8,24 +8,25 @@
 
 #include <string>
 
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserTrackingAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 namespace G4UA{ 
-  class EnergyConservationTest: 
-  public AthMessaging, public IPreTrackingAction,  public IPostTrackingAction,  public IEndEventAction,  public ISteppingAction
+  class EnergyConservationTest : public AthMessaging,
+                                 public G4UserTrackingAction,
+                                 public G4UserEventAction,
+                                 public G4UserSteppingAction
   {
   public:
     EnergyConservationTest();
-    virtual void preTracking(const G4Track*) override;
-    virtual void postTracking(const G4Track*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void PreUserTrackingAction(const G4Track*) override;
+    virtual void PostUserTrackingAction(const G4Track*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
   private:
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

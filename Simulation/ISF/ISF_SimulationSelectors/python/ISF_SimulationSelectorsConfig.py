@@ -9,8 +9,6 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 
-from FastChainPileup.FastChain_jobProperties import FastChain_Flags
-
 ### DefaultSimSelector configurations
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
@@ -93,11 +91,13 @@ def getFatrasPileupSelector_noHits(name="ISF_FatrasPileupSelector_noHits", **kwa
     return getPileupSimSelector(name, **kwargs )
 
 def getFastCaloSimPileupSelector(name="ISF_FastCaloSimPileupSelector", **kwargs):
+    from FastChainPileup.FastChain_jobProperties import FastChain_Flags
     kwargs.setdefault("PileupBCID"  , FastChain_Flags.FastChainBCID() )
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupSvc')
     return getPileupSimSelector(name, **kwargs )
 
 def getFastCaloSimPileupOTSelector(name="ISF_FastCaloSimPileupOTSelector", **kwargs):
+    from FastChainPileup.FastChain_jobProperties import FastChain_Flags
     kwargs.setdefault("PileupBCID"   , FastChain_Flags.FastChainBCID() )
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupOTSvc')
     return getPileupSimSelector(name, **kwargs )

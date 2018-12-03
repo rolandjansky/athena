@@ -14,9 +14,8 @@
 #include <string>
 #include "TF1.h"
 
-class AFP_Raw2DigiTool
-  : virtual public ::IAFP_Raw2DigiTool,
-    public ::AthAlgTool {
+class AFP_Raw2DigiTool : public extends<AthAlgTool, IAFP_Raw2DigiTool>
+{
 public:
   AFP_Raw2DigiTool(const std::string &type, const std::string &name, const IInterface *parent);
 
@@ -51,6 +50,11 @@ protected:
   ///
   /// The value of the factor is 25/1024 nanoseconds
   static constexpr double s_timeConversionFactor = 25./1024.;
+
+  /// @brief Factor converting pulse length to time
+  ///
+  /// The value of the factor is 0.521 nanoseconds
+  static constexpr double s_pulseLengthFactor = 0.521;
 
   /// @brief Function that transforms time-over-threshold to charge
   ///

@@ -1,4 +1,5 @@
-"""Pythonic command-line interface parser that will make you smile.
+"""
+Pythonic command-line interface parser that will make you smile.
 
  * http://docopt.org
  * Repository and issue-tracker: https://github.com/docopt/docopt
@@ -10,17 +11,15 @@ import sys
 import re
 
 
-__all__ = ['docopt']
+__all__ = ('docopt')
 __version__ = '0.6.2'
 
 
 class DocoptLanguageError(Exception):
-
     """Error in construction of usage-message by developer."""
 
 
 class DocoptExit(SystemExit):
-
     """Exit in case user invoked program with incorrect arguments."""
 
     usage = ''
@@ -97,7 +96,6 @@ def transform(pattern):
 
 
 class LeafPattern(Pattern):
-
     """Leaf/terminal node of a pattern tree."""
 
     def __init__(self, name, value=None):
@@ -131,7 +129,6 @@ class LeafPattern(Pattern):
 
 
 class BranchPattern(Pattern):
-
     """Branch/inner node of a pattern tree."""
 
     def __init__(self, *children):
@@ -239,7 +236,6 @@ class Optional(BranchPattern):
 
 
 class OptionsShortcut(Optional):
-
     """Marker/placeholder for [options] shortcut."""
 
 
@@ -299,7 +295,10 @@ class Tokens(list):
 
 
 def parse_long(tokens, options):
-    """long ::= '--' chars [ ( ' ' | '=' ) chars ] ;"""
+    """Parse long according to definition.
+
+    long ::= '--' chars [ ( ' ' | '=' ) chars ] ;
+    """
     long, eq, value = tokens.move().partition('=')
     assert long.startswith('--')
     value = None if eq == value == '' else value
@@ -332,7 +331,10 @@ def parse_long(tokens, options):
 
 
 def parse_shorts(tokens, options):
-    """shorts ::= '-' ( chars )* [ [ ' ' ] chars ] ;"""
+    """Parse shorts according to definition.
+
+    shorts ::= '-' ( chars )* [ [ ' ' ] chars ] ;
+    """
     token = tokens.move()
     assert token.startswith('-') and not token.startswith('--')
     left = token.lstrip('-')
@@ -375,7 +377,10 @@ def parse_pattern(source, options):
 
 
 def parse_expr(tokens, options):
-    """expr ::= seq ( '|' seq )* ;"""
+    """Parse expr according to definition.
+
+    expr ::= seq ( '|' seq )* ;
+    """
     seq = parse_seq(tokens, options)
     if tokens.current() != '|':
         return seq
@@ -388,7 +393,10 @@ def parse_expr(tokens, options):
 
 
 def parse_seq(tokens, options):
-    """seq ::= ( atom [ '...' ] )* ;"""
+    """Parse seq according to definition.
+
+    seq ::= ( atom [ '...' ] )* ;
+    """
     result = []
     while tokens.current() not in [None, ']', ')', '|']:
         atom = parse_atom(tokens, options)
@@ -400,8 +408,10 @@ def parse_seq(tokens, options):
 
 
 def parse_atom(tokens, options):
-    """atom ::= '(' expr ')' | '[' expr ']' | 'options'
-             | long | shorts | argument | command ;
+    """Parse atom according to definition.
+
+    atom ::= '(' expr ')' | '[' expr ']' | 'options'
+            | long | shorts | argument | command ;
     """
     token = tokens.current()
     result = []
@@ -426,13 +436,12 @@ def parse_atom(tokens, options):
 
 
 def parse_argv(tokens, options, options_first=False):
-    """Parse command-line argument vector.
+    """Parse argv argument vector.
 
     If options_first:
         argv ::= [ long | shorts ]* [ argument ]* [ '--' [ argument ]* ] ;
     else:
         argv ::= [ long | shorts | argument ]* [ '--' [ argument ]* ] ;
-
     """
     parsed = []
     while tokens.current() is not None:
@@ -456,7 +465,7 @@ def parse_defaults(doc):
         _, _, s = s.partition(':')  # get rid of "options:"
         split = re.split('\n[ \t]*(-\S+?)', '\n' + s)[1:]
         split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
-        options = [Option.parse(s) for s in split if s.startswith('-')]
+        options = [Option.parse(t) for t in split if t.startswith('-')]
         defaults += options
     return defaults
 
@@ -562,7 +571,7 @@ def docopt(doc, argv=None, help=True, version=None, options_first=False):
     options = parse_defaults(doc)
     pattern = parse_pattern(formal_usage(DocoptExit.usage), options)
     # [default] syntax for argument is disabled
-    #for a in pattern.flat(Argument):
+    # for a in pattern.flat(Argument):
     #    same_name = [d for d in arguments if d.name == a.name]
     #    if same_name:
     #        a.value = same_name[0].value
@@ -571,7 +580,7 @@ def docopt(doc, argv=None, help=True, version=None, options_first=False):
     for options_shortcut in pattern.flat(OptionsShortcut):
         doc_options = parse_defaults(doc)
         options_shortcut.children = list(set(doc_options) - pattern_options)
-        #if any_options:
+        # if any_options:
         #    options_shortcut.children += [Option(o.short, o.long, o.argcount)
         #                    for o in argv if type(o) is Option]
     extras(help, version, argv, doc)

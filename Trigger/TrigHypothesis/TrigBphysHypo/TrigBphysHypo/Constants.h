@@ -31,5 +31,6 @@ const int bS_to_Phi = 3; 		// to recognize type of decay Bs   ->Phi(K+K-) mu+ mu
 const int lB_to_L = 4; 		    // to recognize type of decay Lb   ->L(PPi-)   mu+ mu-
 const int bC_to_PiPi = 5; 	// to recognize type of decay Bc   ->D+(K-pi+pi+) mu+ mu-
 //const int bP_to_Kstar = 5;      // to recognize type of decay B+   ->K*+       mu+ mu-
+const int di_to_electrons = 6;      
 
 #endif

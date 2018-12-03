@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
@@ -184,6 +184,27 @@ StatusCode JSSWTopTaggerDNN::initialize(){
               (new lwt::LightweightNeuralNetwork(cfg.inputs, cfg.layers, cfg.outputs) );
 
 
+  // set internal tagger type
+  size_t pos1;
+  size_t pos2;
+
+  pos1 = m_tagType.find("Top");
+  pos2 = m_tagType.find("W");
+
+  if(pos1!=std::string::npos){
+    ATH_MSG_DEBUG( "This is a top quark tagger" );
+    m_TagClass = TAGCLASS::TopQuark;
+  }
+  else if(pos2!=std::string::npos){
+    ATH_MSG_DEBUG( "This is a W boson tagger" );
+    m_TagClass = TAGCLASS::WBoson;
+  }
+  else{
+    ATH_MSG_ERROR( "Your configuration is invalid because from it, I can't tell if it is for W tagging or top quark tagging." );
+    return StatusCode::FAILURE;
+  }
+
+
   //setting the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
   m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
   m_accept.addCut( "ValidPtRangeLow"     , "True if the jet is not too low pT"   );
@@ -289,32 +310,96 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
 double JSSWTopTaggerDNN::getScore(const xAOD::Jet& jet) const{
 
-    // create input dictionary map<string,double> for argument to lwtnn
-    std::map<std::string,double> DNN_inputValues = getJetProperties(jet);
+  // create input dictionary map<string,double> for argument to lwtnn
+  std::map<std::string,double> DNN_inputValues = getJetProperties(jet);
 
-    // evaluate the network
-    lwt::ValueMap discriminant = m_lwnn->compute(DNN_inputValues);
+  // evaluate the network
+  lwt::ValueMap discriminant = m_lwnn->compute(DNN_inputValues);
 
-    // obtain the output associated with the single output node
-    double DNNscore(-666.);
-    DNNscore = discriminant[m_kerasConfigOutputName];
+  // obtain the output associated with the single output node
+  double DNNscore(-666.);
 
+  if(m_undefInput){
+    ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");
     return DNNscore;
+  }
+
+  DNNscore = discriminant[m_kerasConfigOutputName];
+
+  return DNNscore;
 }
 
 void JSSWTopTaggerDNN::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
-    /* decorate jet with attributes */
+  /* decorate jet with attributes */
 
-    m_dec_mcutH(jet)      = mcutH;
-    m_dec_mcutL(jet)      = mcutL;
-    m_dec_scoreCut(jet)   = scoreCut;
-    m_dec_scoreValue(jet) = scoreValue;
-
+  m_dec_mcutH(jet)      = mcutH;
+  m_dec_mcutL(jet)      = mcutL;
+  m_dec_scoreCut(jet)   = scoreCut;
+  m_dec_scoreValue(jet) = scoreValue;
 }
 
 std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet& jet) const{
-    // Update the jet substructure variables for this jet
-    std::map<std::string,double> DNN_inputValues;
+
+  // flag for if the input is nonsense
+  m_undefInput = false;
+
+  // Update the jet substructure variables for this jet
+  std::map<std::string,double> DNN_inputValues;
+
+
+  if(m_TagClass == TAGCLASS::WBoson){
+    ATH_MSG_DEBUG("Loading variables for W boson tagger");
+
+    //mass and pT
+    //it is assumed that these are the combined and calibrated mass and pT
+    DNN_inputValues["CaloTACombinedMassUncorrelated"] = jet.m();
+    DNN_inputValues["JetpTCorrByCombinedMass"] = jet.pt();
+
+    // Splitting Scales
+    DNN_inputValues["Split12"] = jet.getAttribute<float>("Split12");
+
+    // Energy Correlation Functions
+    float ecf1(0.0);
+    float ecf2(0.0);
+    float ecf3(0.0);
+    jet.getAttribute("ECF1", ecf1);
+    jet.getAttribute("ECF2", ecf2);
+    jet.getAttribute("ECF3", ecf3);
+    if (!jet.isAvailable<float>("C2"))
+        DNN_inputValues["C2"] = ecf3 * ecf1 / pow(ecf2, 2.0);
+    else
+        DNN_inputValues["C2"] = jet.getAttribute<float>("C2");
+    if (!jet.isAvailable<float>("D2"))
+        DNN_inputValues["D2"] = ecf3 * pow(ecf1, 3.0) / pow(ecf2, 3.0);
+    else
+        DNN_inputValues["D2"] = jet.getAttribute<float>("D2");
+
+    // N-subjettiness
+    float tau1wta = jet.getAttribute<float>("Tau1_wta");
+    float tau2wta = jet.getAttribute<float>("Tau2_wta");
+
+    if(!jet.isAvailable<float>("Tau21_wta")){
+      double tau21wta = tau2wta / tau1wta;
+      if(std::isnan(tau21wta)){
+        m_undefInput = true;
+      }
+      DNN_inputValues["Tau21_wta"] = tau21wta;
+    }
+    else{
+      DNN_inputValues["Tau21_wta"] = jet.getAttribute<float>("Tau21_wta");
+    }
+
+    // Qw observable for top tagging
+    DNN_inputValues["FoxWolfram20"] = jet.getAttribute<float>("FoxWolfram2") / jet.getAttribute<float>("FoxWolfram0");
+    DNN_inputValues["PlanarFlow"] = jet.getAttribute<float>("PlanarFlow");
+    DNN_inputValues["Angularity"] = jet.getAttribute<float>("Angularity");
+    DNN_inputValues["Aplanarity"] = jet.getAttribute<float>("Aplanarity");
+    DNN_inputValues["ZCut12"] = jet.getAttribute<float>("ZCut12");
+    DNN_inputValues["KtDR"] = jet.getAttribute<float>("KtDR");
+
+  }
+  else if(m_TagClass == TAGCLASS::TopQuark){
+    ATH_MSG_DEBUG("Loading variables for top quark tagger");
 
     //mass and pT
     //it is assumed that these are the combined and calibrated mass and pT
@@ -353,28 +438,42 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
     DNN_inputValues["Tau1_wta"] = tau1wta;
     DNN_inputValues["Tau2_wta"] = tau2wta;
     DNN_inputValues["Tau3_wta"] = tau3wta;
-    if (!jet.isAvailable<float>("Tau21_wta"))
-        DNN_inputValues["Tau21_wta"] = tau2wta / tau1wta;
-    else
-        DNN_inputValues["Tau21_wta"] = jet.getAttribute<float>("Tau21_wta");
-    if (!jet.isAvailable<float>("Tau32_wta"))
-        DNN_inputValues["Tau32_wta"] = tau3wta/ tau2wta;
-    else
-        DNN_inputValues["Tau32_wta"] = jet.getAttribute<float>("Tau32_wta");
+
+    m_undefInput = false;
+
+    if(!jet.isAvailable<float>("Tau21_wta")){
+      double tau21wta = tau2wta / tau1wta;
+      if(std::isnan(tau21wta)){
+        m_undefInput = true;
+      }
+      DNN_inputValues["Tau21_wta"] = tau21wta;
+    }
+    else{
+      DNN_inputValues["Tau21_wta"] = jet.getAttribute<float>("Tau21_wta");
+    }
+
+    if(!jet.isAvailable<float>("Tau32_wta")){
+      double tau32wta = tau3wta / tau2wta;
+      if(std::isnan(tau32wta)){
+        m_undefInput = true;
+      }
+      DNN_inputValues["Tau32_wta"] = tau32wta;
+    }
+    else{
+      DNN_inputValues["Tau32_wta"] = jet.getAttribute<float>("Tau32_wta");
+    }
 
     // Qw observable for top tagging
     DNN_inputValues["Qw"] = jet.getAttribute<float>("Qw");
-    DNN_inputValues["FoxWolfram20"] = jet.getAttribute<float>("FoxWolfram2") / jet.getAttribute<float>("FoxWolfram0");
-    DNN_inputValues["PlanarFlow"] = jet.getAttribute<float>("PlanarFlow");
-    DNN_inputValues["Angularity"] = jet.getAttribute<float>("Angularity");
-    DNN_inputValues["Aplanarity"] = jet.getAttribute<float>("Aplanarity");
-    DNN_inputValues["ZCut12"] = jet.getAttribute<float>("ZCut12");
-    DNN_inputValues["KtDR"] = jet.getAttribute<float>("KtDR");
+  }
+  else{
+    ATH_MSG_ERROR( "Loading variables failed because the tagger you are using is not clear to me");
+  }
 
-    return DNN_inputValues;
+  return DNN_inputValues;
 }
 
 StatusCode JSSWTopTaggerDNN::finalize(){
-    // Delete or clear anything
-    return StatusCode::SUCCESS;
+  // Delete or clear anything
+  return StatusCode::SUCCESS;
 }

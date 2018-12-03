@@ -25,11 +25,8 @@ public:
   // Ctor.
   QwTool(const std::string& t);
 
-  // // Initialization.
-  // StatusCode initialize();
-
   // Add moment to a jet.
-  int modifyJet(xAOD::Jet&) const;
+  int modifyJet(xAOD::Jet& injet) const;
 
 
 };

@@ -29,6 +29,7 @@
 # Just for AthAnalysis, also include xAODTruthCnv
 # This is for EVNT support (allows otf conversion to xAOD-format)
 + Event/xAOD/xAODTruthCnv
++ Event/xAOD/xAODEventInfoCnv
 
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
@@ -45,6 +46,8 @@
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonIdHelpers
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
++ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/EventUtils
@@ -56,7 +59,10 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/SampleHandler
@@ -69,6 +75,7 @@
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
@@ -97,9 +104,11 @@
 + Reconstruction/tauRecTools
 + Tools/PathResolver
 + Tools/ART
++ Tools/DirectIOART
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 + Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
@@ -107,6 +116,9 @@
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TrigCost/EnhancedBiasWeighter
++ Trigger/TrigCost/RatesAnalysis
++ Trigger/TrigCost/RatesAnalysisExamplesXAOD
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
 + Trigger/TrigEvent/TrigRoiConversion
@@ -164,6 +176,7 @@
 + Database/PersistentDataModel.*
 + Database/TPTools
 + Database/CoraCool
++ Database/AtlasSTLAddReflex
 + Control/DataModelAthenaPool
 
 

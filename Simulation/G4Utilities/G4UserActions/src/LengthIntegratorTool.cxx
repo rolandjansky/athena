@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/LengthIntegratorTool.h"
 
 namespace G4UA
@@ -17,6 +16,8 @@ namespace G4UA
     : ActionToolBase<LengthIntegrator>(type, name, parent),
       m_hSvc("THistSvc", name)
   {
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
   }
 
@@ -39,32 +40,7 @@ namespace G4UA
   LengthIntegratorTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<LengthIntegrator>( m_hSvc.name() );
-    return std::move(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode LengthIntegratorTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    return ActionToolBase<LengthIntegrator>::queryInterface(riid, ppvIf);
+    return std::make_unique<LengthIntegrator>( m_hSvc.name() );
   }
 
 }

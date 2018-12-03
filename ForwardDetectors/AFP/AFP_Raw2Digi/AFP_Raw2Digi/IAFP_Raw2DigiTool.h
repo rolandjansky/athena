@@ -11,25 +11,16 @@
 /// 
 /// @brief  Header file for interface IAFP_Raw2DigiTool 
 
-
-
 #include "GaudiKernel/IAlgTool.h"
 
-// Forward declarations
-
-static const InterfaceID IID_IAFP_Raw2DigiTool ("IAFP_Raw2DigiTool", 1, 0);
-
-
 /// Interface for AFP tool that translates RawData to xAOD::AFPSiHits.
-class IAFP_Raw2DigiTool : virtual public ::IAlgTool {
+class IAFP_Raw2DigiTool : virtual public IAlgTool {
 public:
-  static const InterfaceID &interfaceID();
-
+  // Declaration of the interface ID (interface id, major version, minor version)
+  DeclareInterfaceID(IAFP_Raw2DigiTool, 1, 0);
+  
   /// Empty destructor
   virtual ~IAFP_Raw2DigiTool() {}
-
-  /// Tool initialisation
-  virtual StatusCode initialize() = 0;
 
   /// @brief Translates RawData to xAOD::AFPSiHit and saves it to StoreGate
   ///
@@ -46,13 +37,7 @@ public:
 
   /// Call all reconstruction steps
   virtual StatusCode recoAll() = 0;
-
-  virtual StatusCode finalize() = 0;
 };
 
-inline const InterfaceID& IAFP_Raw2DigiTool::interfaceID() 
-{ 
-  return IID_IAFP_Raw2DigiTool;
-}
 
 #endif 

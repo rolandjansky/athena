@@ -29,51 +29,49 @@ private:
   void DefineParameters();
   void PrintParameters(double*, double*) const;
   
-  int printMessages;
+  double m_baseOfShellTrd1A;
+  double m_heightOfShellTrd1A;
   
-  double baseOfShellTrd1A;
-  double heightOfShellTrd1A;
-  
-  double baseOfShellTrd2A;
-  double heightOfShellTrd2A;
+  double m_baseOfShellTrd2A;
+  double m_heightOfShellTrd2A;
 
-  double xOfShellTrd2A;
-  double zOfShellTrd2A;
-  double phiOfShellTrd2A;
+  double m_xOfShellTrd2A;
+  double m_zOfShellTrd2A;
+  double m_phiOfShellTrd2A;
   
-  double x0OfShellA;
-  double y0OfShellA;
-  double phi0OfShellA;
+  double m_x0OfShellA;
+  double m_y0OfShellA;
+  double m_phi0OfShellA;
   
-  int numberOfModulesA;
-  double lengthOfModuleA;
+  int m_numberOfModulesA;
+  double m_lengthOfModuleA;
   
-  double baseOfRadiatorTrd1A;
-  double heightOfRadiatorTrd1A;
+  double m_baseOfRadiatorTrd1A;
+  double m_heightOfRadiatorTrd1A;
   
-  double baseOfRadiatorTrd2A;
-  double heightOfRadiatorTrd2A;
+  double m_baseOfRadiatorTrd2A;
+  double m_heightOfRadiatorTrd2A;
   
-  double xOfRadiatorTrd2A;
-  double zOfRadiatorTrd2A;
-  double phiOfRadiatorTrd2A;
+  double m_xOfRadiatorTrd2A;
+  double m_zOfRadiatorTrd2A;
+  double m_phiOfRadiatorTrd2A;
   
-  double xOfRadiatorA;
-  double zOfRadiatorA;
+  double m_xOfRadiatorA;
+  double m_zOfRadiatorA;
   
-  int numberOfHolesA;
+  int m_numberOfHolesA;
 
-  double* xLocalOfHolesA;
-  double* zLocalOfHolesA;
+  double* m_xLocalOfHolesA;
+  double* m_zLocalOfHolesA;
   
-  int numberOfCoolingTubesA;
+  int m_numberOfCoolingTubesA;
   
-  double* xOfCoolingTubesA;
-  double* zOfCoolingTubesA;
+  double* m_xOfCoolingTubesA;
+  double* m_zOfCoolingTubesA;
 
-  int numberOfShortStrawsA;
+  int m_numberOfShortStrawsA;
   
-  TRTParameters* pParameters;
+  TRTParameters* m_pParameters;
   
   mutable Athena::MsgStreamMember m_msg;
 

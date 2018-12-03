@@ -20,9 +20,9 @@ class TRTVisualization
 
     static TRTVisualization* GetPointer()
     {
-      if (!pVisualization)
-        pVisualization = new TRTVisualization;
-      return pVisualization;
+      if (!s_pVisualization)
+        s_pVisualization = new TRTVisualization;
+      return s_pVisualization;
     }
 
     void Visualize(G4LogicalVolume*, int);
@@ -35,17 +35,15 @@ class TRTVisualization
 
     void Initialize();
 
-    int printMessages;
+    G4VisAttributes* m_pVisAttributeRed;
+    G4VisAttributes* m_pVisAttributeGreen;
+    G4VisAttributes* m_pVisAttributeBlue;
+    G4VisAttributes* m_pVisAttributeYellow;
+    G4VisAttributes* m_pVisAttributeMagenta;
+    G4VisAttributes* m_pVisAttributeCyan;
+    G4VisAttributes* m_pVisAttributeBlack;
 
-    G4VisAttributes* pVisAttributeRed;
-    G4VisAttributes* pVisAttributeGreen;
-    G4VisAttributes* pVisAttributeBlue;
-    G4VisAttributes* pVisAttributeYellow;
-    G4VisAttributes* pVisAttributeMagenta;
-    G4VisAttributes* pVisAttributeCyan;
-    G4VisAttributes* pVisAttributeBlack;
-
-    static TRTVisualization* pVisualization;
+    static TRTVisualization* s_pVisualization;
 
     mutable Athena::MsgStreamMember m_msg;
 

@@ -107,7 +107,7 @@ namespace xAOD {
       /// Lock the container.
       virtual void lock();
       /// Clear all decorations.
-      virtual void clearDecorations();
+      virtual bool clearDecorations();
       /// Get the size of the container.
       virtual size_t size() const;
       /// @}
@@ -166,6 +166,8 @@ namespace xAOD {
       /// @}
 
    private:
+      void remakeAuxIDs() const;
+
       /// Dynamic attributes selection implementation
       AuxSelection m_selection;
 
@@ -185,25 +187,12 @@ namespace xAOD {
       /// Flag for whether to do "shallow IO" or not
       bool m_shallowIO;
 
-      /// Count changes to @c m_auxids.
-      mutable size_t m_tick;
-
       /// Mutex for multithread synchronization.
       typedef AthContainers_detail::mutex mutex_t;
       typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
       mutable mutex_t m_mutex;
 
-      /// Thread-local versions of the auxid set.
-      struct TSAuxidSet
-      {
-        size_t m_tick;
-        auxid_set_t m_set;
-        TSAuxidSet (size_t tick, const auxid_set_t& set)
-          : m_tick (tick), m_set (set) {}
-        TSAuxidSet ()
-          : m_tick (0) {}
-      };
-      mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
+      mutable auxid_set_t m_auxids;
 
       /// Name of the container in memory. Set externally.
       std::string m_name;

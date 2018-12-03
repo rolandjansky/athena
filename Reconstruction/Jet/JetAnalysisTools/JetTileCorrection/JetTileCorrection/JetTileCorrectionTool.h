@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <set>
 #include <vector>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 //--- config ---
 #define PIXWIDTH  0.1
@@ -154,7 +154,7 @@ namespace CP {
     float m_RJET;
 
     /// Systematics filter map
-    boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+    std::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
     
     /// Currently applied systematics
     CP::SystematicSet* m_appliedSystematics = 0;

@@ -1,0 +1,108 @@
+[example0] ###################################################################
+   Simple example: single electron or single muon trigger, using different 
+configurations for 2015 and 2016.
+
+[example1] ###################################################################
+   Another example: combination of single-lepton, dielectron and dimuon
+triggers, using different configurations for 2015 and 2016, and illustrating
+how to fill the property 'ListOfLegsPerTool'.
+
+[example2] ###################################################################
+   Similar to example 1 (combination of single-lepton, dielectron and dimuon
+triggers), but showing how to use different triggers in different data-taking
+periods, and how to modify some of the trigger pT thresholds.
+
+[example3com] ################################################################
+   The set of examples 3a - 3e illustrates the use of lepton selection tags
+for various scenarios:
+
+- Example 3a: trigger = 2e12_lhloose_L12EM10VH, selecting events containing
+              >=2 loose electrons, the leading-pT electron always satisfying
+              in addition tight PID+isolation requirements.
+
+- Example 3b: trigger = e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose
+                        || 2e12_lhloose_L12EM10VH
+              selecting events with >=2 loose electrons where the leading-pT
+              electron also satisfies medium PID requirements.
+              Only the latter is allowed to fire the single-electron trigger.
+
+- Example 3c: trigger = e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose
+                        || 2e12_lhloose_L12EM10VH
+              selecting events with >=2 loose electrons. Any electron also
+              satisfying medium PID requirements is allowed to fire the
+              single-electron trigger.
+
+- Example 3d: trigger = 2e17_lhvloose_nod0 || e7_lhmedium_nod0_mu24
+      || e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
+              same type of selection as example 3c but with 3 PID working
+              points, using two distinct decorations.
+
+- Example 3e: same scenario as example 3d, but using an alternative
+              implementation that requires only one decoration.
+
+[example3a] ##################################################################
+   For this example (3a), one needs to set up two versions of the electron
+trigger tools: one configured for offline tight PID+isolation, to be used for
+the leading electron, and another configured for offline loose PID, to be
+used for subleading electrons.
+
+   The configuration of the TrigGlobalEfficiencyCorrectionTool then involves 
+filling two additional properties, 'ListOfTagsPerTool' and
+'LeptonTagDecorations'. We also fill a third one, 'ElectronLegsPerTag';
+it isn't required but still advised as the tool can then perform further
+consistency checks of its configuration.",  
+
+   The leading electron will always be tagged with a 'Signal' decoration
+(decorated value set to 1), while subleading electrons are never tagged 
+(-> decorated value set to 0).
+   Since efficiencies provided by CP tools are inclusive, one should NEVER
+ tag the subleading leptons as 'Signal', even if they satisfy the tight PID
++ isolation requirements; doing so would bias the results.
+   See example 3c that deals with a more complicate situation requiring
+handling multiple PID levels for all leptons.
+
+[example3b] ##################################################################
+   For this example (3b), one needs to set up three versions of the electron
+trigger tools: two configured for offline tight PID+isolation, to be used for
+the leading electron (one for the trigger leg e24_xxx, another for the leg
+e12_xxx), and another configured for offline loose PID (for the leg e12_xxx)
+to be used for subleading electrons.
+
+   The configuration of the TrigGlobalEfficiencyCorrectionTool is very similar
+to the example 3a (e.g. the decoration of electrons is identical), please
+refer to that example for more details.
+   Here, in addition, one needs to let the tool know, via the property
+'ListOfLegsPerTag', that only 'Signal'-tagged electrons are allowed to fire
+the e24_xxx leg.
+
+[example3c] ##################################################################
+   For this example (3c), any electron might be tagged as 'Signal' if it
+passes MediumLH selection (here emulated with a random number). Electron tools
+providing the efficiency/SF for the e24_xxx leg are configured with the
+MediumLH working point. For the tools providing efficiency/SF for the e12_xxx
+leg however, one SHOULD NOT set up one version for 'Medium'-tagged electrons
+and another version for untagged electrons. This is because for the latter
+one would need to configure the tools for a LooseLH-but-not-MediumLH working
+point, which is not provided by egamma. Instead, we use a single version,
+configured with the LooseLH working point, and instruct the TrigGlob tool to
+use that version for both 'Medium'-tagged and untagged electrons. In this way,
+no bias is introduced. ",
+   The configuration of the TrigGlobalEfficiencyCorrectionTool is otherwise
+essentially the same as for the example 3b, please refer to that example for
+more details.
+    
+[example3d] ##################################################################
+   We use two decorations, 'MyMedium' and 'MyTight'
+Note that the TrigGlob tool considers only one single tag per electron. When
+an electron has >=2 non-zero decorations (e.g. 'MyMedium' + 'MyTight'),
+the tag associated to the electron by the tool is chosen as the first one
+appearing in the list of decorations provided in the 'LeptonTagDecorations'
+property.
+    
+[example3e] ##################################################################
+   We use a single decoration named 'PID', and rely on the decorated value to
+indicate whether the electron passes TightLH PID + isolation (=> value = 2)
+or only MediumLH PID (=> value = 1). The TrigGlob tool then forms tags
+by suffixing the decorated value to the decoration name, i.e. 'PID1' and
+'PID2'. One must then use the latter tags in the properties 'ListOfLegsPerTag'
+and 'ListOfTagsPerTool'.

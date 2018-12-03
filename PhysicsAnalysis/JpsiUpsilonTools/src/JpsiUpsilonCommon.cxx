@@ -4,6 +4,8 @@
 
 #include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
 #include "TLorentzVector.h"
+#include "xAODBPhys/BPhysHelper.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace Analysis {   
     // *********************************************************************************
@@ -53,18 +55,15 @@ namespace Analysis {
     // -------------------------------------------------------------------------------------------------
     
     bool JpsiUpsilonCommon::isContainedIn(const xAOD::TrackParticle* theTrack, const std::vector<const xAOD::TrackParticle*> &theColl) {
-        bool isContained(false);
-        for (auto trkItr=theColl.cbegin(); trkItr!=theColl.cend(); ++trkItr) {
-            if ( (*trkItr) == theTrack ) {isContained=true; break;}
-        }
-        return isContained;
+        return std::find(theColl.cbegin(), theColl.cend(), theTrack) != theColl.cend();
     }
     
     bool JpsiUpsilonCommon::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::MuonContainer* theColl) {
         bool isContained(false);
         xAOD::MuonContainer::const_iterator muItr;
         for (muItr=theColl->begin(); muItr!=theColl->end(); ++muItr) {
-            if ( (*muItr)->inDetTrackParticleLink().cachedElement() == theTrack ) {isContained=true; break;}
+            auto& link = ( *muItr )->inDetTrackParticleLink();
+            if ( link.isValid() && ( *link == theTrack ) ) {isContained=true; break;}
         }
         return isContained;
     }
@@ -89,6 +88,25 @@ namespace Analysis {
            if(min <=0.0 || m >= min) return true;
         }
         return false;
+    }
+
+    const xAOD::Vertex* JpsiUpsilonCommon::ClosestPV(xAOD::BPhysHelper& bHelper, const xAOD::VertexContainer* importedPVerticesCollection){
+       const xAOD::Vertex* vtx_closest = nullptr; // vertex closest to bVertex track
+       double dc = 1e10;
+       for (const xAOD::Vertex* vtx : *importedPVerticesCollection) {
+          TVector3 posPV(vtx->position().x(),vtx->position().y(),vtx->position().z());
+          auto &helperpos = bHelper.vtx()->position();
+          TVector3 posV(helperpos.x(), helperpos.y(), helperpos.z());
+          TVector3 nV = bHelper.totalP().Unit();
+          TVector3 dposV = posPV-posV;
+          double dposVnV = dposV*nV;
+          double d = std::sqrt(std::abs(dposV.Mag2()-dposVnV*dposVnV));
+          if (d<dc) {
+             dc = d;
+             vtx_closest = vtx;
+          }
+       }
+       return vtx_closest;
     }
 }
 

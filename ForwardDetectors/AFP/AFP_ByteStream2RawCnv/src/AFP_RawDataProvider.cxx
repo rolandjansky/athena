@@ -9,7 +9,7 @@
 
 #include "AFP_RawEv/AFP_RawContainer.h"
 
-const std::vector<unsigned int> AFP_RawDataProvider::s_robIDs = {AFP_ROBID::sideA, AFP_ROBID::sideC};
+const std::vector<unsigned int> AFP_RawDataProvider::s_robIDs = {AFP_ROBID::sideA, AFP_ROBID::sideC, AFP_ROBID::sideC_2016};
 
 AFP_RawDataProvider::AFP_RawDataProvider(const std::string &name,
                                          ISvcLocator *pSvcLocator)
@@ -63,7 +63,7 @@ StatusCode AFP_RawDataProvider::execute() {
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> listOfRobf;
 
   m_robDataProvider->getROBData(s_robIDs, listOfRobf);
-  ATH_MSG_DEBUG("  ROB ID " << std::hex << s_robIDs<<std::dec);
+  ATH_MSG_DEBUG(" ROB ID " << std::hex << s_robIDs<<std::dec);
   ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
 
   if (m_rawDataTool->convert(listOfRobf, container).isFailure()) {

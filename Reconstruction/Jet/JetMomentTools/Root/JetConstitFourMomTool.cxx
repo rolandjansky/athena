@@ -72,8 +72,7 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
   for(size_t iScale=0; iScale<nScales; ++iScale) {
     if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
-      if(leadjet.getInputType()==xAOD::JetInput::LCTopo || leadjet.getInputType()==xAOD::JetInput::EMTopo
-	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin) {
+      if(isValidConstitType(leadjet.getInputType())) {
 	const xAOD::CaloClusterContainer* altclusters(0);
 	ATH_CHECK( evtStore()->retrieve(altclusters,m_altColls[iScale]) );
 	if(!altclusters) {
@@ -131,10 +130,13 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
       if(m_isDetectorEtaPhi[iScale]) {
 	const static SG::AuxElement::Accessor<float> acc_modEta("DetectorEta");
 	const static SG::AuxElement::Accessor<float> acc_modPhi("DetectorPhi");
+	const static SG::AuxElement::Accessor<float> acc_modY("DetectorY");
 	acc_modEta(*jet) = constitFourVecs[iScale].Eta();
 	acc_modPhi(*jet) = constitFourVecs[iScale].Phi();
+	acc_modY(*jet) = constitFourVecs[iScale].Rapidity();
       ATH_MSG_VERBOSE("Detector eta: " << constitFourVecs[iScale].Eta()
-		   << ", phi: " << constitFourVecs[iScale].Phi());
+		   << ", phi: " << constitFourVecs[iScale].Phi()
+		   << ", rapidity: " << constitFourVecs[iScale].Rapidity());
       } else {
 	jet->setJetP4(m_jetScaleNames[iScale], constitFourVecs[iScale]);
       }

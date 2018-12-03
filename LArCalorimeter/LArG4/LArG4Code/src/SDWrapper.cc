@@ -29,10 +29,12 @@ namespace LArG4
     //-------------------------------------------------------------------------
     template<class SDType, class HitContainerType>
     SDWrapper<SDType, HitContainerType>::
-    SDWrapper(const std::string& name, const std::string& hitCollectionName)
+    SDWrapper(const std::string& name, const std::string& hitCollectionName, std::string deadHitCollectionName)
       : G4VSensitiveDetector(name),
         m_hitCollName(hitCollectionName),
-        m_hitColl(hitCollectionName)
+        m_hitColl(hitCollectionName),
+        m_deadHitCollName(deadHitCollectionName),
+        m_deadHitColl(deadHitCollectionName)
     {}
 
     //-------------------------------------------------------------------------
@@ -75,6 +77,13 @@ namespace LArG4
         }
         m_hitColl = CxxUtils::make_unique<HitContainerType>(m_hitCollName);
       }
+      if(!m_deadHitCollName.empty() && !m_deadHitColl.isValid()) {
+        if(verboseLevel >= 5) {
+          G4cout << GetName() << " \tDEBUG\t" << "Initializing hit container: "
+                 << m_deadHitCollName << G4endl;
+        }
+        m_deadHitColl = CxxUtils::make_unique<HitContainerType>(m_deadHitCollName);
+      }
     }
 
     //-------------------------------------------------------------------------
@@ -113,6 +122,45 @@ namespace LArG4
           ( G4SDManager::GetSDMpointer()->FindSensitiveDetector(m_fastSimSDName) );
         if(fastSD) {
           fastSD->EndOfAthenaEvent( &*m_hitColl );
+        }
+        else {
+          G4cerr << GetName() << " \tERROR\t" << "Failed to retrieve/cast "
+                 << m_fastSimSDName << G4endl;
+          throw std::runtime_error("Failed to retrieve/cast " + m_fastSimSDName);
+        }
+      }
+    }
+
+    template<>
+    void SDWrapper<LArG4CalibSD, CaloCalibrationHitContainer>::
+    EndOfAthenaEvent()
+    {
+      if(!m_hitColl.isValid()) {
+        G4cerr << GetName() << " \tERROR\t" << "Hit collection WriteHandle is "
+               << "invalid!" << G4endl;
+        throw std::runtime_error("Invalid hit container WriteHandle: " +
+                                 m_hitColl.name());
+      }
+      CaloCalibrationHitContainer* deadHitCollPtr(nullptr);
+      if(!m_deadHitCollName.empty()) {
+        if(!m_deadHitColl.isValid()) {
+          G4cerr << GetName() << " \tERROR\t" << "Dead Hit collection WriteHandle is "
+               << "invalid!" << G4endl;
+          throw std::runtime_error("Invalid hit container WriteHandle: " +
+                                   m_deadHitColl.name());
+        }
+        deadHitCollPtr = &*m_deadHitColl;
+      }
+      // Loop over each SD and fill the container
+      for(auto& sd : m_sdList) {
+        sd->EndOfAthenaEvent( &*m_hitColl, deadHitCollPtr );
+      }
+      // Gather frozen shower hits
+      if(!m_fastSimSDName.empty()) {
+        auto fastSD = dynamic_cast<LArG4CalibSD*>
+          ( G4SDManager::GetSDMpointer()->FindSensitiveDetector(m_fastSimSDName) );
+        if(fastSD) {
+          fastSD->EndOfAthenaEvent( &*m_hitColl, deadHitCollPtr );
         }
         else {
           G4cerr << GetName() << " \tERROR\t" << "Failed to retrieve/cast "

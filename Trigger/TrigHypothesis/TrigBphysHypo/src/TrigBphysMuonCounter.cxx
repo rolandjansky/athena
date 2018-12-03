@@ -33,7 +33,8 @@ TrigBphysMuonCounter::TrigBphysMuonCounter(const std::string & name, ISvcLocator
   , m_nEfMuon(0)
   , m_ptMuonMin()
   , m_mindR(0.005)
-				  //counters
+  , m_muonCollectionKey()
+  //counters
   , m_countTotalEvents(0)
   , m_countPassedEvents(0)
 
@@ -44,6 +45,7 @@ TrigBphysMuonCounter::TrigBphysMuonCounter(const std::string & name, ISvcLocator
   declareProperty("nEfMuon"        , m_nEfMuon    = 0 );
   declareProperty("ptMuonMin"     , m_ptMuonMin      );
   declareProperty("overlapdR"     , m_mindR    = 0.01  );  
+  declareProperty("muonCollectionKey", m_muonCollectionKey  = "" );
 
   declareMonitoredStdContainer("Acceptance" , m_mon_Acceptance   , AutoClear);
   declareMonitoredVariable(    "nEFMuons",  m_mon_nEFMuons);
@@ -64,7 +66,7 @@ HLT::ErrorCode TrigBphysMuonCounter::hltInitialize()
     
    if (msgLvl() <= MSG::INFO) {
 
-      msg() << MSG::INFO << "require at least "<< m_nEfMuon <<" EF Muons" << endmsg;
+     msg() << MSG::INFO << "require at least "<< m_nEfMuon <<" EF Muons from with collectionKey  m_muonCollectionKey \"" <<   m_muonCollectionKey << "\" "<< endmsg;
       msg() << MSG::INFO << " Muons should have  pts ";	
       for(float pt :  m_ptMuonMin)  msg() << MSG::INFO << pt <<", ";
       msg() << MSG::INFO << endmsg;
@@ -110,7 +112,7 @@ HLT::ErrorCode TrigBphysMuonCounter::hltExecute(std::vector<std::vector<HLT::Tri
   std::vector<ElementLink<xAOD::MuonContainer> > efmuons; // just a collection of pointers, not copies
   bool passMuon = passNObjects<xAOD::MuonContainer, 
 			  std::vector<ElementLink<xAOD::MuonContainer> > >( m_nEfMuon, m_ptMuonMin, 
-									      inputTE, efmuons, "", m_mindR);
+									      inputTE, efmuons,  m_muonCollectionKey, m_mindR);
   if( !passMuon ){
     if ( timerSvc() )  m_BmmHypTot->stop();
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efmuons.size() <<" EF muons - fail (either number or pts are insufficient)"<<  endmsg; 

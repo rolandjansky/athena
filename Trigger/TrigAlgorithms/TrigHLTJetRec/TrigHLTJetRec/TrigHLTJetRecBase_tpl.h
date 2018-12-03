@@ -33,6 +33,7 @@ HLT::FexAlgo( name, pSvcLocator ) {
   declareProperty( "pseudojet_labelindex_arg", m_pseudoJetLabelIndexArg);
   declareProperty( "iPseudoJetSelector", m_IPseudoJetSelector);
   declareProperty( "secondary_label", m_secondarylabel);
+  declareProperty( "secondarypseudoJetGetter", m_secondarypseudoJetGetter = NULL);
 }
 
 
@@ -73,6 +74,18 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
     ATH_MSG_ERROR("Unable to retrieve shared PseudoJetGetter");
     return HLT::ERROR;
   }
+
+   ATH_MSG_DEBUG("checking secondary label for secondary pseudojet getter...");
+   if ( !secondaryLabelisEmpty() ){
+	ATH_MSG_DEBUG("Retrieving secondary pseudojet getter...");
+	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
+      		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
+                   <<  m_secondarypseudoJetGetter->name());
+  	} else {
+    		ATH_MSG_ERROR("Unable to retrieve secondary PseudoJetGetter");
+    		return HLT::ERROR;
+  	}
+   }
 
   ATH_MSG_INFO("Tool retrieval completed.");
 
@@ -304,7 +317,7 @@ TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
                                                  const HLT::TriggerElement* outputTE, 
                                                  LabelIndex* indexMap,
                                                  PseudoJetVector& pjv_secondary){
-  ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
+  ATH_MSG_DEBUG("No actions for loading of secondary pseudojets as input not of type calo cluster.");
   return HLT::OK;
 }
 

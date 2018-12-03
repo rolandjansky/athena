@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ILArCalibCalculatorSvc.h 
+// ILArCalibCalculatorSvc.h
 // Prepared in 2016 based on VCalibrationCalculator from Bill Seligman
 
 #ifndef __ILARCALIBCALCULATORSVC_H__
@@ -24,10 +24,8 @@ class ILArCalibCalculatorSvc: virtual public IService {
 public:
 
   ILArCalibCalculatorSvc(){};
-  static const InterfaceID& interfaceID() { 
-     static const InterfaceID  IID_ILArCalibCalculatorSvc("ILArCalibCalculatorSvc",1,0);
-     return IID_ILArCalibCalculatorSvc; 
-  }
+
+  DeclareInterfaceID(ILArCalibCalculatorSvc,1,0);
 
   virtual ~ILArCalibCalculatorSvc() {};
 
@@ -37,7 +35,7 @@ public:
                             const LArG4::eCalculatorProcessing process = LArG4::kEnergyAndID) const = 0;
 
 
-  
+
 };
 
 #endif

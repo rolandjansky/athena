@@ -11,5 +11,6 @@
 
 // Includes for the dictionary generation:
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #endif // JETANALYSISINTERFACES_JETANALYSISINTERFACESDICT_H

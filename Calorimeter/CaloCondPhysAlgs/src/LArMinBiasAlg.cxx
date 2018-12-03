@@ -55,6 +55,8 @@
     m_tree->Branch("ncell",&m_nsymcell,"ncell/I");
     m_tree->Branch("nevt_total",&m_nevt_total,"nevt_total/I");
     m_tree->Branch("identifier",m_identifier,"identifier[ncell]/I");
+    m_tree->Branch("region",m_region,"region[ncell]/I");
+    m_tree->Branch("ieta",m_ieta,"ieta[ncell]/I");
     m_tree->Branch("layer",m_layer,"layer[ncell]/I");
     m_tree->Branch("eta",m_eta,"eta[ncell]/F");
     m_tree->Branch("phi",m_phi,"phi[ncell]/F");
@@ -121,7 +123,7 @@
 
       m_eCell.resize(m_ncell,0.);
 
-      m_CellList.reserve(2000);
+      m_CellList.reserve(MAX_SYM_CELLS);
       int nsym=0; 
       // loop over cells
       // and find symmetry cells
@@ -133,6 +135,9 @@
         HWIdentifier hwid2=m_larmcsym->symOnline(id);
         Identifier id2 = m_cablingService->cnvToIdentifier(hwid2);
         int i2 = (int) (m_calo_id->calo_cell_hash(id2));
+        if(i2>=m_ncell) {
+           ATH_MSG_WARNING("problem: i2: "<<i2<<" for id: "<<m_calo_id->print_to_string(id)<<" symmetrized: "<<m_calo_id->print_to_string(id2));
+        }
         // we have already processed this hash => just need to associate cell i to the same symetric cell
         if (doneCell[i2]>=0) {
            m_symCellIndex[i]=doneCell[i2];
@@ -145,6 +150,8 @@
            const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
            cell.eta =  calodde->eta();
            cell.phi = calodde->phi();
+           cell.region = m_calo_id->region(id);
+           cell.ieta = m_calo_id->eta(id);
            cell.layer = m_calo_id->calo_sample(id);
            //cell.identifier = id2.get_identifier32().get_compact();
            cell.identifier = id2;
@@ -157,7 +164,7 @@
         }
       }
       std::cout << " --- number of symmetric cells found " << nsym << " " << m_CellList.size() << std::endl;
-      if (nsym>=2000) ATH_MSG_ERROR(" More than 2000 symmetric cells... Fix array size for ntuple writing !!!! ");
+      if (nsym>=MAX_SYM_CELLS) ATH_MSG_ERROR(" More than 2000 symmetric cells... Fix array size for ntuple writing !!!! ");
       m_nsymcell=nsym;
       m_first=false;
     }
@@ -262,6 +269,8 @@
    for (int i=0;i<m_nsymcell;i++) {
      m_identifier[i] = m_CellList[i].identifier.get_identifier32().get_compact();
      m_layer[i] = m_CellList[i].layer;
+     m_region[i] = m_CellList[i].region;
+     m_ieta[i] = m_CellList[i].ieta;
      m_eta[i] = m_CellList[i].eta;
      m_phi[i] = m_CellList[i].phi;
      m_nevt[i] = m_CellList[i].nevt;

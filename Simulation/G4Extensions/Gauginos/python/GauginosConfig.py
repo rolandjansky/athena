@@ -4,8 +4,8 @@ from AthenaCommon import CfgMgr
 def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
     from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
     from G4AtlasApps.SimFlags import simFlags
-    GMSBNeutralino = eval(simFlags.specialConfiguration.get_Value().get("GMSBNeutralino", None))
-    GMSBTime = eval(simFlags.specialConfiguration.get_Value().get("GMSBLifeTime", None))
+    GMSBNeutralino = eval(simFlags.specialConfiguration.get_Value().get("GMSBNeutralino", "0*GeV"))
+    GMSBTime = eval(simFlags.specialConfiguration.get_Value().get("GMSBLifeTime", "0*GeV"))
     kwargs.setdefault("NeutralinoMass",        GMSBNeutralino)
     ##kwargs.setdefault("NeutralinoWidth",       0.0*GeV);
     ##kwargs.setdefault("NeutralinoCharge",      0);
@@ -15,7 +15,7 @@ def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
     ##kwargs.setdefault("NeutralinoShortlived",  False);
 
     if simFlags.specialConfiguration.get_Value().has_key("GMSBGravitino"):
-        GMSBGravitino = eval(simFlags.specialConfiguration.get_Value().get("GMSBGravitino", None))
+        GMSBGravitino = eval(simFlags.specialConfiguration.get_Value().get("GMSBGravitino", "0*GeV"))
         kwargs.setdefault("GravitinoMass",       GMSBGravitino);
         ##kwargs.setdefault("GravitinoWidth",       0.0*GeV);
         ##kwargs.setdefault("GravitinoCharge",      0);

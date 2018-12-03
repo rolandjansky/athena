@@ -9,10 +9,8 @@
 #include "ISF_FatrasEvent/PlanarCluster.h"
 
 iFatras::ISF_PRDGeneralTruthTrajectorySorterID::ISF_PRDGeneralTruthTrajectorySorterID(const std::string& t, const std::string& n, const IInterface* p) :
-AthAlgTool(t,n,p)
+base_class(t,n,p)
 {
-declareInterface<Trk::IPRD_TruthTrajectoryManipulator>(this);
-
 }
 
 StatusCode iFatras::ISF_PRDGeneralTruthTrajectorySorterID::initialize() {

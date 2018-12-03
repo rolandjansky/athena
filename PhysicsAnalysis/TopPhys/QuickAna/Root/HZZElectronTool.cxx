@@ -114,9 +114,41 @@ namespace ana
 
     cut_Eta.setPassedIf (std::fabs(electron.caloCluster()->etaBE(2)) < 2.47);
 
-    cut_Pt.setPassedIf (electron.pt() > 7.e3);
+    if(m_wp == WPType::_Hmumu){
+      cut_Pt.setPassedIf (electron.pt() > 15.e3);
+    }else 
+      cut_Pt.setPassedIf (electron.pt() > 7.e3);
 
-    cut_selectionTool.setPassedIf (m_selectionTool->accept(&electron));
+    if(m_selection == "VLooseLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHVeryLoose") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHVeryLoose")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "LooseLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHLoose") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHLoose")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "LooseAndBLayerLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHLooseBL") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHLooseBL")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "MediumLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHMedium") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHMedium")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
+    else if(m_selection == "TightLLH") {
+      bool passID = electron.isAvailable<char>("DFCommonElectronsLHTight") ?
+                    static_cast<bool>(electron.auxdata<char>("DFCommonElectronsLHTight")) :
+                    static_cast<bool>(m_selectionTool->accept(&electron));
+      cut_selectionTool.setPassedIf ( passID );
+    }
 
     cut_OQ.setPassedIf( (bool) electron.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON) );
 
@@ -136,10 +168,17 @@ namespace ana
     ATH_CHECK( evtStore()->retrieve( evt, "EventInfo" ) );
     double d0sig = -999.;
     if(electron.trackParticle() && evt) {
-      d0sig = xAOD::TrackingHelpers::d0significance( electron.trackParticle(),
-                                                     evt->beamPosSigmaX(),
-                                                     evt->beamPosSigmaY(),
-                                                     evt->beamPosSigmaXY() );
+      try
+      {
+        d0sig = xAOD::TrackingHelpers::d0significance( electron.trackParticle(),
+                                                       evt->beamPosSigmaX(),
+                                                       evt->beamPosSigmaY(),
+                                                       evt->beamPosSigmaXY() );
+      } catch (std::exception& e)
+      {
+        d0sig = -999.0;
+        ATH_MSG_INFO ("WARNING of d0sig and assign a default value -999.0 : " << e.what());
+      }
     }
     electron.auxdata<double>("d0Sig") = d0sig;
     electron.auxdata<double>("d0value") = d0;
@@ -163,7 +202,7 @@ namespace ana
     using namespace msgObjectDefinition;
 
     std::string my_idStr = "LooseAndBLayerLLH";
-    if (WP == WPType::_ZHinv) my_idStr = "MediumLLH";
+    if (WP == WPType::_ZHinv || WP == WPType::_Hmumu) my_idStr = "MediumLLH";
 
     std::string my_isoStr = input_isoStr;
 //    std::string my_isoStr = "FixedCutLoose";
@@ -219,4 +258,5 @@ namespace ana
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("smzz4l_veryloose", makeHZZElectronTool (args, "VLooseLLH", WPType::_SMZZ4l))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_loose", makeHZZElectronTool (args, "LooseLLH", WPType::_ZHinv, "Loose"))
   QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hzhinv_medium", makeHZZElectronTool (args, "MediumLLH", WPType::_ZHinv, "Loose"))
+  QUICK_ANA_ELECTRON_DEFINITION_MAKER ("hmumu", makeHZZElectronTool (args, "MediumLLH", WPType::_Hmumu, "Loose"))
 }

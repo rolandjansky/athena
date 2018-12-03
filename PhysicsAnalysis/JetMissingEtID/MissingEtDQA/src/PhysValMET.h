@@ -20,7 +20,7 @@
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -105,7 +105,7 @@ class PhysValMET
   bool Accept(const xAOD::Photon* ph);
   bool Accept(const xAOD::TauJet* tau);
   bool Accept(const xAOD::Muon* muon);
-  bool Accept(const xAOD::Jet* jet);
+  bool Accept(const xAOD::Jet* jet, double JvtCut);
 
   // vector of collections
   std::vector <std::string> types;

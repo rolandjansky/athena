@@ -93,7 +93,9 @@ class MenuAwareMonitoring:
     def __get_athena_version__(self):
         "Get the current Athena version."
 
-        self.ms.current_athena_version = self.get_release_setup().replace(",","-")
+        release = self.get_release_setup()
+        self.ms.current_athena_version = release[0].replace(",","-")
+        self.ms.current_nightly_version = release[1].replace(",","-")
 
 
     def get_release_setup(self):
@@ -142,13 +144,26 @@ class MenuAwareMonitoring:
                 release = os.environ['AtlasBuildBranch']
                 setup="%s,%s,%s"%(project,release,current_nightly)
             elif 'AtlasBuildStamp' in os.environ:
-                release = os.environ['AtlasBuildBranch']
-                current_nightly = os.environ['AtlasBuildStamp'] # denotes a cmakegit nightly
-                setup="%s,%s,%s"%(project,release,current_nightly)
+                current_nightly = os.environ['AtlasBuildStamp']
+                if current_nightly in os.environ['ATLAS_RELEASE_BASE']:
+                    # this is a nightly
+                    release = os.environ['AtlasBuildBranch']
+                    setup = "%s,%s,%s"%(project,release,current_nightly)
+                else:
+                    # this is not a nightly
+                    setup = "%s,%s"%(project,release)
+                    # also save the nightly it was built from
+                    release = os.environ['AtlasBuildBranch']
+                    base_nightly = "%s,%s,%s"%(project,release,current_nightly)
             else:
                 setup="%s,%s"%(project,release)
 
-        return setup
+        try:
+            # this is a full release, save the base nightly
+            return setup,base_nightly
+        except:
+            # this is not a git/cmake release with a base nightly
+            return setup,setup
 
 
     def __get_tag__(self,package=""):
@@ -832,7 +847,7 @@ class MenuAwareMonitoring:
         mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
         mck_athena_version = mck_info['MCK_ATHENA_VERSION']
 
-        return self.ms.check_compatibility_of_two_release_versions(mck_athena_version,self.ms.current_athena_version)
+        return self.ms.check_compatibility_of_two_release_versions(mck_athena_version,[self.ms.current_athena_version,self.ms.current_nightly_version])
 
 
     def does_smck_athena_version_match_current_athena_version(self, smck_id):
@@ -841,7 +856,7 @@ class MenuAwareMonitoring:
         smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
         smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
 
-        return self.ms.check_compatibility_of_two_release_versions(smck_athena_version,self.ms.current_athena_version)
+        return self.ms.check_compatibility_of_two_release_versions(smck_athena_version,[self.ms.current_athena_version,self.ms.current_nightly_version])
 
 
     def apply_mck(self,input1="",print_output_here=""):
@@ -1206,7 +1221,7 @@ class MenuAwareMonitoring:
             comment = self.ms.__ask_for_comment__()
 
         # need to get release accurately and in a form the command can run - use get_release_setup
-        release = self.get_release_setup()
+        release = self.get_release_setup()[0]
 
         # this is not a default, so we need to get the default and perform the diff before dumping
         print "Will get default in clean directory for release",release #release

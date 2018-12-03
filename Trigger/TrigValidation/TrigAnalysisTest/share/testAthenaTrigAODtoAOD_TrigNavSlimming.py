@@ -19,11 +19,14 @@ rec.doWriteAOD.set_Value_and_Lock(True)
 if not acf.EvtMax.is_locked():
     acf.EvtMax = 10
 
-
 if not ('PoolAODInput' in dir()):
-  acf.PoolAODInput = ['AOD.pool.root']
+    acf.PoolAODInput = ['AOD.pool.root']
+else:
+    acf.PoolAODInput = PoolAODInput
 if not ('PoolAODOutput' in dir()):
-  acf.PoolAODOutput='AODSlim.pool.root'
+    acf.PoolAODOutput = 'AODSlim.pool.root'
+else:
+    acf.PoolAODOutput = PoolAODOutput
 
 acf.FilesInput=acf.PoolAODInput()
 

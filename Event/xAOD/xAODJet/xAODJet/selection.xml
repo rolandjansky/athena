@@ -1,8 +1,9 @@
-<!-- $Id: selection.xml 796773 2017-02-12 19:01:20Z sschramm $ -->
 <lcgdict>
 
+  <!-- Versionless typedefs: -->
   <typedef name="xAOD::Jet" />
   <typedef name="xAOD::JetContainer" />
+  <typedef name="xAOD::JetAuxContainer" />
 
 
   <!-- Jet_v1 dictionaries: -->
@@ -43,12 +44,12 @@
 
   <class name="ElementLinkVector<xAOD::JetContainer_v1>" />
   <class name="std::vector<ElementLinkVector<xAOD::JetContainer_v1> >" />
-  
+
   <class name="std::pair<std::string,std::vector<const xAOD::IParticle*> >" />
   <class name="std::pair<std::string,std::vector<float> >" />
   <class name="std::pair<std::string,std::vector<std::vector<int> > >" />
   <class name="std::pair<std::string,std::vector<std::vector<float> > >" />
-  
+
 
   <class name="xAOD::JetAttribute" />
 

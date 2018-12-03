@@ -17,12 +17,10 @@
 
 /** Constructor **/
 ISF::EntryLayerFilter::EntryLayerFilter(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_ekinCharged(-1),
   m_ekinNeutral(-1)
 {
-  declareInterface<ISF::IParticleFilter>(this);
-
   declareProperty( "MinEkinCharged",
                    m_ekinCharged=-1.,
                    "Minimum kinetic energy cut for charged particles (set -1 to filter out all)");

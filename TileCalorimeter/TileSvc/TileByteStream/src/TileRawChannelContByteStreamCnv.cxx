@@ -71,6 +71,8 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
 
   CHECK( m_tool.retrieve() );
 
+  CHECK( m_tool.retrieve() );
+
   CHECK( m_robSvc.retrieve() );
 
   TileFragHash::TYPE type;

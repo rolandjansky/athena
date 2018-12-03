@@ -1,0 +1,12 @@
+#
+# File taking care of pointing the downstream projects at the right
+# version of LCG.
+#
+
+# Find LCG:
+set( LCG_VERSION_POSTFIX @LCG_VERSION_POSTFIX@ )
+if( AthDataQuality_FIND_QUIETLY )
+   find_package( LCG @LCG_VERSION_NUMBER@ REQUIRED EXACT QUIET )
+else()
+   find_package( LCG @LCG_VERSION_NUMBER@ REQUIRED EXACT )
+endif()

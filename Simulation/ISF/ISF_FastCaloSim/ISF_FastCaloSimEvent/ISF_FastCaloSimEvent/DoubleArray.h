@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_DoubleArray_h
@@ -16,9 +16,12 @@ public:
    ~DoubleArray();
 
 private:
-//   TArrayD* m_array;
 
    ClassDef( DoubleArray, 1 )
 };
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class DoubleArray+;
+#endif
 
 #endif

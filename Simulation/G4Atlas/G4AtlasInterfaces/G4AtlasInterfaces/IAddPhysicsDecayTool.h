@@ -22,11 +22,8 @@ class IAddPhysicsDecayTool : virtual public IAlgTool
 public:
   IAddPhysicsDecayTool() {}
   virtual ~IAddPhysicsDecayTool() {}
-  static const InterfaceID& interfaceID()
-  {
-    static const InterfaceID IID_IAddPhysicsDecayTool( "IAddPhysicsDecayTool" , 1 , 0 ) ;
-    return IID_IAddPhysicsDecayTool ;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IAddPhysicsDecayTool, 1, 0);
 
 
   virtual void AddPhysicsDecay() = 0;

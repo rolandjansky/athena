@@ -6,7 +6,7 @@
 //execute with: root debugExample.C
 
 void debugExample() {
-  AAH::AAH(); //start macros with this line to ensure Gaudi features like ToolHandles can be used - AAH = AthAnalysisHelper
+  AAH(); //start macros with this line to ensure Gaudi features like ToolHandles can be used - AAH = AthAnalysisHelper
   
   POOL::TEvent evt(POOL::TEvent::kClassAccess);
 

@@ -73,6 +73,9 @@ StatusCode MuonCPTools::setupCalibration() {
   else {
     IMuCalibSmearTool* muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name);
    
+    // 2015+2016
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "Year", "Data16"),
+	       "Unable to change Year property in  " + mu_calib_smearing_name);
     // StatComb recommended to be false in R21
     top::check(asg::setProperty(muonCalibrationAndSmearingTool, "StatComb", false),
 	       "Unable to change StatComb property in " + mu_calib_smearing_name);    
@@ -94,7 +97,7 @@ StatusCode MuonCPTools::setupCalibration() {
 
   ///-- Additional tool for 2017 data/MC - Different Sagitta recommendation --///
   ///-- See: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d --///
-  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2017 data");
+  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2017+2018 data");
   const std::string mu_calib_smearing_name_2017 = "CP::MuonCalibrationAndSmearingTool2017";
   if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name_2017)) {
     m_muonCalibrationAndSmearingTool2017 = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name_2017);
@@ -102,16 +105,19 @@ StatusCode MuonCPTools::setupCalibration() {
   else {
     IMuCalibSmearTool* muonCalibrationAndSmearingTool2017 = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name_2017);
 
+    // 2017
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "Year", "Data17"),
+	       "Unable to change Year property in  " + mu_calib_smearing_name_2017);
     // StatComb recommended to be false in R21                                                                  
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "StatComb", false),
 	       "Unable to change StatComb property in " + mu_calib_smearing_name_2017);
     // Sagitta bias file                                                                                        
-    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaRelease", "sagittaBiasDataAll_25_07_17"),
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaRelease", "sagittaBiasDataAll_30_07_18"),
 	       "Unable to set SagittaBiasFile in " +  mu_calib_smearing_name_2017);
     // Sagitta correction (apply to data)                                                                       
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaCorr", false ),
 	       "Unable to set Sagitta correction in " + mu_calib_smearing_name_2017);
-    // Sagitta MC distortion (apply to MC)                                                                      
+    // Sagitta MC distortion (apply to MC)
     top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "doSagittaMCDistortion", true ),
 	       "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name_2017);
     // Initialise the tool                                                                                      
@@ -215,9 +221,9 @@ StatusCode MuonCPTools::setupScaleFactors() {
     *    Note: if isolation WP is None, then don't setup the tool
     ************************************************************/
   // If we don't want isolation then we don't need the tool
-  if (m_config->muonIsolation() != "None") {
+  if (m_config->muonIsolationSF() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
-    std::string muon_isolation = m_config->muonIsolation();
+    std::string muon_isolation = m_config->muonIsolationSF();
     muon_isolation += "Iso";
     m_muonEfficiencyCorrectionsToolIso = 
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
@@ -225,10 +231,10 @@ StatusCode MuonCPTools::setupScaleFactors() {
   }
 
   // Do we have isolation on our loose muons? If not no need for the tool...
-  if (m_config->muonIsolationLoose() != "None") {
+  if (m_config->muonIsolationSFLoose() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
     // Note: now loose isolation
-    std::string muon_isolation = m_config->muonIsolationLoose();
+    std::string muon_isolation = m_config->muonIsolationSFLoose();
     muon_isolation += "Iso";
     m_muonEfficiencyCorrectionsToolLooseIso =
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
@@ -247,8 +253,8 @@ StatusCode MuonCPTools::setupScaleFactors() {
 
   // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
   //         - Hence we need to fail if this has occured
-  if( (m_config->muonQuality() != "Loose" && m_config->muonIsolation() == "PromptLepton")
-      || (m_config->muonQualityLoose() !="Loose" && m_config->muonIsolationLoose() == "PromptLepton") ){
+  if( (m_config->muonQuality() != "Loose" && m_config->muonIsolationSF() == "PromptLepton")
+      || (m_config->muonQualityLoose() !="Loose" && m_config->muonIsolationSFLoose() == "PromptLepton") ){
     ATH_MSG_ERROR("Cannot use PromptLeptonIsolation on muons without using Loose quality - Scale factors are not available");
     return StatusCode::FAILURE;
   }
@@ -259,7 +265,7 @@ StatusCode MuonCPTools::setupScaleFactors() {
 CP::IMuonSelectionTool*
 MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta) {
   std::map<std::string, int> muon_quality_map = {
-    {"Tight" , 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}};
+    {"Tight" , 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}, {"HighPt", 4}, {"LowPtEfficiency", 5}};
   int qual_int;
   try {
     qual_int = muon_quality_map.at(quality);
@@ -270,7 +276,9 @@ MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& 
                   " \n\t- Tight"
                   " \n\t- Medium"
                   " \n\t- Loose"
-                  " \n\t- VeryLoose");
+                  " \n\t- VeryLoose"
+		  " \n\t- HighPt"
+		  " \n\t- LowPtEfficiency");
     throw;  // Re-throw
   }
 

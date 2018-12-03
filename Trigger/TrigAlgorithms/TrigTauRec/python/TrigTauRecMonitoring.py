@@ -71,11 +71,39 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('EF_calo_errors', type='TH1F', title=" EF Calo Errors ;  ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5 , labels=errorcalolabels) ]
         self.Histograms += [ defineHistogram('EF_track_errors', type='TH1F', title=" EF Track Errors ;  ; nRoIs", xbins=2, xmin=-0.5, xmax=2.5 , labels=errortracklabels) ]
+
+        # these don't seem to be used anymore
         self.Histograms += [ defineHistogram('EF_author', type='TH1F', title=" EF author ;  ; nRoIs", xbins=5, xmin=0.5, xmax=5.5 , labels=authorlabels) ]
         self.Histograms += [ defineHistogram('EF_deltaZ0coreTrks', type='TH1F', title=" EF delta Z0 coreTrks wrt leadTrk ; #Delta Z0 [mm]; nRoIs x nTracks", xbins=160, xmin=-20, xmax=20) ]
         self.Histograms += [ defineHistogram('EF_deltaZ0wideTrks', type='TH1F', title=" EF delta Z0 wideTrks wrt leadTrk ; #Delta Z0 [mm]; nRoIs x nTracks", xbins=160, xmin=-20, xmax=20) ]  
-
         
+
+        # RNN ID
+        # scalar inputs
+        self.Histograms += [ defineHistogram('EF_RNN_scalar_ptRatioEflowApprox', type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_scalar_mEflowApprox', type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_scalar_pt_jetseed_log', type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.) ]
+        # cluster inputs
+        self.Histograms += [ defineHistogram('EF_RNN_Nclusters', type='TH1F', title=" EF RNN Nclusters; Number of clusters", xbins=10, xmin=0., xmax=10.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_cluster_et_log', type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_cluster_dEta', type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5) ]
+        self.Histograms += [ defineHistogram('EF_RNN_cluster_dPhi', type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5) ]
+        # track inputs
+        self.Histograms += [ defineHistogram('EF_RNN_Ntracks', type='TH1F', title=" EF RNN Ntracks; Number of tracks", xbins=12, xmin=0., xmax=12.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_pt_log', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_dEta', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_dPhi', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_d0_abs_log', type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_z0sinThetaTJVA_abs_log', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_nInnermostPixelHits', type='TH1F', title=" EF RNN track nInnermostPixelHits; nInnermostPixelHits", xbins=4, xmin=0., xmax=4.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_nPixelHits', type='TH1F', title=" EF RNN track nPixelHits; nPixelHits", xbins=11, xmin=0., xmax=11.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_track_nSCTHits', type='TH1F', title=" EF RNN track nSCTHits; nSCTHits", xbins=20, xmin=0., xmax=20.) ]
+        # output
+        self.Histograms += [ defineHistogram('EF_RNNJetScore', type='TH1F', title=" EF RNNJetScore; RNNJetScore", xbins=50, xmin=0., xmax=1.) ]
+        self.Histograms += [ defineHistogram('EF_RNNJetScoreSigTrans', type='TH1F', title=" EF RNNJetScoreSigTrans; RNNJetScoreSigTrans", xbins=50, xmin=0., xmax=1.) ]
+
+
+
 ########## add validation specific histograms 
 class TrigTauRecValidationMonitoring(TrigTauRecOnlineMonitoring):
     def __init__ (self, name="TrigTauRecValidationMonitoring"):

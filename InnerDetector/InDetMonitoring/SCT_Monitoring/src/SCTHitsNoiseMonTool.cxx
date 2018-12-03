@@ -3158,7 +3158,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
 
   sc = evtStore()->retrieve(m_tracks, m_tracksName);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "No tracks for you!" << endmsg;
+    msg(MSG::WARNING) << "No tracks for you! Leaving SCTHitsNoiseMonTool" << endmsg;
     return sc;
   }
   // Only do for events with less than some number of tracks

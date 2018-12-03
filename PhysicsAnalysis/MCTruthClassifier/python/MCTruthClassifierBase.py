@@ -54,8 +54,10 @@ ClassifierParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(name="Classi
                                                                     Extrapolator = theAtlasExtrapolator)
 ToolSvc+=ClassifierParticleCaloExtensionTool
 
+from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 MCTruthClassifier = MCTruthClassifier(name = 'MCTruthClassifier',
+                                      barcodeG4Shift = firstSimCreatedBarcode(),
                                       ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
   
 ToolSvc += MCTruthClassifier

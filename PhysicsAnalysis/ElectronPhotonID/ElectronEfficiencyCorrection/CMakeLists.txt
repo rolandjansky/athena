@@ -32,13 +32,12 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTracking
-   Event/xAOD/xAODMetaData
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
+   Event/xAOD/xAODMetaData	
    ${extra_deps} )
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core MathCore Hist RIO MathMore )
+find_package( ROOT COMPONENTS Core Hist MathCore)
 
 # Component(s) in the package:
 atlas_add_library( ElectronEfficiencyCorrectionLib
@@ -53,8 +52,7 @@ atlas_add_library( ElectronEfficiencyCorrectionLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronEfficiencyCorrection
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES xAODEgamma PATInterfaces AthenaBaseComps xAODCore
-      xAODEventInfo GaudiKernel ElectronEfficiencyCorrectionLib )
+      LINK_LIBRARIES  AthenaBaseComps GaudiKernel ElectronEfficiencyCorrectionLib )
 endif()
 
 atlas_add_dictionary( ElectronEfficiencyCorrectionDict
@@ -67,17 +65,27 @@ atlas_add_executable( EgEfficiencyCorr_mem_check
    util/EgEfficiencyCorr_mem_check.cxx
    LINK_LIBRARIES AsgTools ElectronEfficiencyCorrectionLib )
 
+#Test
+atlas_add_test(ut_SimpleInitTest
+	       SCRIPT EgEfficiencyCorr_mem_check)
 # AnalysisBase-only utilities:
 if( XAOD_STANDALONE )
 
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorr
-      util/testEgEfficiencyCorr.cxx
+      util/testEgEfficiencyCorr.cxx util/SFHelpers.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronEfficiencyCorrectionLib )
 
+   atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrFwd
+      util/testEgEfficiencyCorrFwd.cxx util/SFHelpers.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore ElectronEfficiencyCorrectionLib )
+    
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile
-	   util/testEgEfficiencyCorrWithoutFile.cxx util/CreateDummyEl.cxx
+      util/testEgEfficiencyCorrWithoutFile.cxx 
+      util/CreateDummyEl.cxx util/SFHelpers.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
@@ -88,9 +96,16 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
-
+   
+   atlas_install_python_modules(util/*.py)
+   #Tests
+   atlas_add_test(ut_RunOnASGAOD
+	          SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC 40)
+ 
 endif()
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.py)
 atlas_install_data( data/*.root data/*.txt )
+
+

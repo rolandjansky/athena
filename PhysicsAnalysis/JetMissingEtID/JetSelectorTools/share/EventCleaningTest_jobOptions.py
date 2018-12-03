@@ -17,8 +17,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
 
 # Configure the tools using the helper module
-from JetSelectorTools.ConfiguredJetCleaningTools import recommended_tools
-ecTool = recommended_tools()
+from JetSelectorTools.ConfiguredJetCleaningTools import recEventCleaningTool
+ecTool = recEventCleaningTool()
 
 # Override properties as desired
 ecTool.JvtDecorator = "passJvt"

@@ -44,7 +44,9 @@ if not SkipTriggerRequirement:
     if jobproperties.Beam.energy()==6500000.0:
         # 13 TeV MC
         # TriggerTP               = ["HLT_e28_tight_iloose", "HLT_e60_medium", "HLT_mu26_imedium", "HLT_mu50"]
-        TriggerExp               = ["HLT_g35_loose_g25_loose","HLT_g35_medium_g25_medium","HLT_2g50_loose","HLT_2g20_tight","HLT_2g22_tight","HLT_2g20_tight_icalovloose_L12EM15VHI","HLT_2g20_tight_icalotight_L12EM15VHI","HLT_2g22_tight_L12EM15VHI","HLT_2g22_tight_icalovloose_L12EM15VHI","HLT_2g22_tight_icalotight_L12EM15VHI","HLT_2g22_tight_icalovloose","HLT_2g25_tight_L12EM20VH","HLT_2g20_loose","HLT_2g20_loose_L12EM15","HLT_g35_medium_g25_medium","HLT_g35_medium_g25_medium_L12EM15VH","HLT_g35_loose_g25_loose","HLT_g35_loose_g25_loose_L12EM15VH"]
+        TriggerExp               = ["HLT_2g50_loose_L12EM20VH","HLT_2g25_loose_g15_loose","HLT_g35_medium_g25_medium_L12EM20VH","HLT_2g25_tight_L12EM20VH","HLT_2g22_tight_L12EM15VHI","HLT_g35_loose_g25_loose","HLT_g35_medium_g25_medium","HLT_2g50_loose","HLT_2g20_tight","HLT_2g22_tight","HLT_2g20_tight_icalovloose_L12EM15VHI","HLT_2g20_tight_icalotight_L12EM15VHI","HLT_2g22_tight_L12EM15VHI","HLT_2g22_tight_icalovloose_L12EM15VHI","HLT_2g22_tight_icalotight_L12EM15VHI","HLT_2g22_tight_icalovloose","HLT_2g25_tight_L12EM20VH","HLT_2g20_loose","HLT_2g20_loose_L12EM15","HLT_g35_medium_g25_medium","HLT_g35_medium_g25_medium_L12EM15VH","HLT_g35_loose_g25_loose","HLT_g35_loose_g25_loose_L12EM15VH", "HLT_2g20_loose_g15_loose", "HLT_3g20_loose", "HLT_3g15_loose", "HLT_2g6_tight_icalotight_L1J100", "HLT_2g6_loose_L1J100", "HLT_2g6_tight_icalotight_L1J50", "HLT_2g6_loose_L1J50"]
+
+
 print "HIGG1D1.py TriggerExp", TriggerExp
 
 KeepTrigger=not SkipTriggerRequirement
@@ -284,6 +286,7 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
+					  "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo",
@@ -291,13 +294,16 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
+HIGG1D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
+                                            'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
+
+HIGG1D1SlimmingHelper.AllVariables = ["HLT_xAOD__PhotonContainer_egamma_Iso_Photons","Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
 
 HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
-                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale.Hgg_JetOriginConstitScaleMomentum_pt.Hgg_JetOriginConstitScaleMomentum_eta.Hgg_JetOriginConstitScaleMomentum_m.Hgg_JetOriginConstitScaleMomentum_phi.Hgg_JetOriginConstitScaleMomentum_OriginVertex",
-                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_m.JetLCScaleMomentum_phi.JetLCScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.Jvt.JVFCorr.JvtRpt.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex_.OriginVertex_m_persIndex.OriginVertex_m_persKey.PartonTruthLabelID.PileupCorrected.SumPtTrkPt500.Timing.Width.AverageLArQF.btaggingLink_.btaggingLink_m_persIndex.btaggingLink_m_persKey.CentroidR.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.DetectorEta.ECPSFraction.EMFrac.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTrack.GhostTruth.GhostWBosons.GhostZBosons.HadronConeExclTruthLabelID.HECFrac.HECQuality.HighestJVFVtx_.HighestJVFVtx_m_persIndex.HighestJVFVtx_m_persKey.ConstituentScale",
+                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale.Hgg_JetOriginConstitScaleMomentum_pt.Hgg_JetOriginConstitScaleMomentum_eta.Hgg_JetOriginConstitScaleMomentum_m.Hgg_JetOriginConstitScaleMomentum_phi.Hgg_JetOriginConstitScaleMomentum_OriginVertex.TrackWidthPt500",
+                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_m.JetLCScaleMomentum_phi.JetLCScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.Jvt.JVFCorr.JvtRpt.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex_.OriginVertex_m_persIndex.OriginVertex_m_persKey.PartonTruthLabelID.PileupCorrected.SumPtTrkPt500.Timing.Width.AverageLArQF.btaggingLink_.btaggingLink_m_persIndex.btaggingLink_m_persKey.CentroidR.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.DetectorEta.ECPSFraction.EMFrac.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTrack.GhostTruth.GhostWBosons.GhostZBosons.HadronConeExclTruthLabelID.HECFrac.HECQuality.HighestJVFVtx_.HighestJVFVtx_m_persIndex.HighestJVFVtx_m_persKey.ConstituentScale.TrackWidthPt500",
                                         "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched",
                                         "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix", 
@@ -314,6 +320,9 @@ HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType
                                         "TruthIsoCentralEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoForwardEventShape.DensitySigma.Density.DensityArea",
                                         "BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
+
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+HIGG1D1SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 HIGG1D1SlimmingHelper.ExtraVariables.extend( getGainDecorations(HIGG1D1_GainDecoratorTool) )
 for tool in HIGG1D1_ClusterEnergyPerLayerDecorators:

@@ -107,11 +107,10 @@ void TTBarElectronJetOverlap::FindAssocEls() {
 
 void TTBarElectronJetOverlap::SubtractEls() {
     size_t nJets = m_jets->size();
-    size_t nEls = m_electrons->size();
     int ElIdx;
 
     fSubJets.resize(nJets);    
-    for (int k=0; k<nJets; ++k) {
+    for (unsigned int k=0; k<nJets; ++k) {
       fSubJets[k] = 0;
     }
     

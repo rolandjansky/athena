@@ -21,7 +21,6 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 int main(){
   using namespace asg::msgUserCode;
   ANA_CHECK_SET_TYPE (int);
-
   asg::AnaToolHandle<IAsgElectronLikelihoodTool> MediumLH("AsgElectronLikelihoodTool/MediumLH");
   ANA_CHECK(MediumLH.setProperty("WorkingPoint", "MediumLHElectron"));
   ANA_CHECK(MediumLH.initialize());

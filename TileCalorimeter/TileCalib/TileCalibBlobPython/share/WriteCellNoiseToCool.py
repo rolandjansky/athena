@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # File:    WriteCellNoiseToCool.py
 # Purpose: Manual update of cell noise constants from ascii file
 #
 # 2014-07-14 - Sasha, based on update_noise_bulk.py from Carlos,Gui,Blake,Yuri
-# 2024-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
+# 2016-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
 
 import getopt,sys,os,string,math,re
 os.environ['TERM'] = 'linux'
@@ -156,19 +158,16 @@ else:
   # COOLOFL_TILE/OFLP200 COOLOFL_TILE/COMP200 COOLOFL_TILE/CONDBR2
 
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from CaloCondBlobAlgs import CaloCondTools
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
-hashMgr=TileCellTools.TileCellHashMgr()
+hashMgr=None
+hashMgrDef=TileCellTools.TileCellHashMgr()
+hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
+hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
+hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
 
 #=== Get list of IOVs by tricking TileCalibTools to read a Calo blob
 idb = TileCalibTools.openDbConn(ischema,'READONLY')
@@ -217,7 +216,8 @@ from math import sqrt
 cellData = {}
 ival=0
 igain=0
-icell=0
+icell=[0,0,0,0,0,0,0]
+gain=-1
 useNames=None
 useModuleNames=None
 useGain=None
@@ -299,7 +299,7 @@ if len(txtFile):
                       dictKey  = (cellN,gain)
                       if not dictKey in cellData:
                           cellData[dictKey] = noise
-          icell+=1
+          icell[gain]+=1
       else:
           if useNames is not None and useNames:
               raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
@@ -324,7 +324,7 @@ else:
 
 nval=ival
 ngain=igain
-ncell=icell
+ncell=max(icell)
 
 print "IOV list in input DB:", iovList
 
@@ -386,7 +386,7 @@ for iov in iovList:
   mgain=blobR.getNGains()
   mval=blobR.getObjSizeUint32()
 
-  print "input file: ncell: %d ngain %d nval %d" % (icell, igain, ival)
+  print "input file: ncell: %d ngain %d nval %d" % (max(icell), igain, ival)
   print "input db:   ncell: %d ngain %d nval %d" % (mcell, mgain, mval)
   if mcell>ncell: ncell=mcell
   if mgain>ngain: ngain=mgain
@@ -394,10 +394,20 @@ for iov in iovList:
 
   print "output db:  ncell: %d ngain %d nval %d" % (ncell, ngain, nval)
 
-  GainDefVec = PyCintex.gbl.std.vector('float')()
+  if ncell>hashMgrA.getHashMax():
+    hashMgr=hashMgrABC
+  elif ncell>hashMgrBC.getHashMax():
+    hashMgr=hashMgrA
+  elif ncell>hashMgrDef.getHashMax():
+    hashMgr=hashMgrBC
+  else:
+    hashMgr=hashMgrDef
+  print "Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax())
+
+  GainDefVec = cppyy.gbl.std.vector('float')()
   for val in xrange(nval):
     GainDefVec.push_back(0.0)
-  defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+  defVec = cppyy.gbl.std.vector('std::vector<float>')()
   for gain in xrange(ngain):
     defVec.push_back(GainDefVec)
   blobW = writer.getCells(chan)
@@ -489,6 +499,7 @@ for iov in iovList:
       print "IOV in output DB [%d,%d]-[%d,%d)" % (sinceRun, sinceLum, untilRun, untilLum)
       writer.register((sinceRun,sinceLum), (untilRun,untilLum), outTag)
 
+print "Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax())
 #=== Cleanup
 dbw.closeDatabase()
 dbr.closeDatabase()

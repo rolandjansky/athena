@@ -90,10 +90,10 @@ namespace ana
     ATH_CHECK( m_tool.setProperty("ConfigFiles", muMcFiles) );
     ATH_CHECK( m_tool.setProperty("LumiCalcFiles", muDataFiles) );
 
-    // This is now the official recommendation
-    ATH_CHECK( m_tool.setProperty("DataScaleFactor", 1./1.09) );
-    ATH_CHECK( m_tool.setProperty("DataScaleFactorUP", 1.) );
-    ATH_CHECK( m_tool.setProperty("DataScaleFactorDOWN", 1./1.18) );
+    /// To use the default SF for rel21; still keep placeholder
+    //ATH_CHECK( m_tool.setProperty("DataScaleFactor", 1./1.09) );
+    //ATH_CHECK( m_tool.setProperty("DataScaleFactorUP", 1.) );
+    //ATH_CHECK( m_tool.setProperty("DataScaleFactorDOWN", 1./1.18) );
 
     ATH_CHECK( m_tool.initialize() );
 

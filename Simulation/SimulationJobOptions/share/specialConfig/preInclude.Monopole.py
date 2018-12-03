@@ -47,6 +47,8 @@ try:
         doG4SimConfig = False
     else:
         from G4AtlasApps.SimFlags import simFlags
+        if not "InteractingPDGCodes" in simFlags.specialConfiguration.get_Value():
+            simFlags.specialConfiguration.get_Value()['InteractingPDGCodes'] = [4110000,-4110000]
         simdict = simFlags.specialConfiguration.get_Value()
 except:
     from G4AtlasApps.SimFlags import simFlags

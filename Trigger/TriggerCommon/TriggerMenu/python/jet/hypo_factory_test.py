@@ -1,10 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import copy
 import unittest
 from mock import MagicMock
 from hypo_factory import (hypo_factory,
-                          HypoAlg,
                           JetStandardHypo,
                           JetSingleEtaRegionHypo,
                           JetMaximumBipartiteHypo,
@@ -45,27 +43,30 @@ class Test_hypo_factory(unittest.TestCase):
     def test_0(self):
         """test factory function"""
 
-        hypo = hypo_factory('run1hypo', self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
+        hypo = hypo_factory('HLThypo2_etaet', self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_etaet')
 
-        hypo = hypo_factory('HLTSRhypo', self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'JetSingleEtaRegionHypo')
+        hypo = hypo_factory('HLThypo2_singlemass', self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_singlemass')
 
-        hypo = hypo_factory('HLThypo', self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'JetMaximumBipartiteHypo')
+        hypo = hypo_factory('HLThypo2_ht', self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_ht')
 
-        hypo = hypo_factory('ht', self.ht_hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'HTHypo')
+        hypo = hypo_factory('HLThypo2_tla', self.ht_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_tla')
 
-        hypo = hypo_factory('tla', self.tla_hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'TLAHypo')
+        hypo = hypo_factory('HLThypo2_dimass_deta', self.tla_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_dimass_deta')
+
+        hypo = hypo_factory('HLThypo2_dimass_deta_dphi', self.tla_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_dimass_deta_dphi')
 
     def test_1(self):
         """test HypoAlg construction"""
 
-        hypo = hypo_factory('run1hypo', self.hypo_args)
+        hypo = hypo_factory('HLThypo2_etaet', self.hypo_args)
 
-        self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
+        self.assertTrue(hypo.__class__.__name__ == 'HLThypo2_etaet')
         str(hypo)  # exercise string method
         self.assertTrue(hypo.eta_range() == '0eta320')
         

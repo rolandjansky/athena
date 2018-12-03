@@ -24,11 +24,9 @@
 //=============================================================================
 G4AtlasDetectorConstructionTool::G4AtlasDetectorConstructionTool( const std::string& type,
                                                                   const std::string& nam,const IInterface* parent )
-  : AthAlgTool( type, nam , parent )
+  : base_class( type, nam , parent )
   , m_world(nullptr)
 {
-  ATH_MSG_INFO("G4AtlasDetectorConstructionTool "<<type<<" "<<nam);
-  declareInterface< IDetectorConstructionTool >( this ) ;
 }
 
 //=============================================================================
@@ -56,13 +54,3 @@ G4VPhysicalVolume* G4AtlasDetectorConstructionTool::Construct()
 {
   return m_world;
 }
-
-StatusCode G4AtlasDetectorConstructionTool::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IDetectorConstructionTool::interfaceID() ) {
-    *ppvIf = (IDetectorConstructionTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-

@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileAccessTracer.cxx 781356 2016-10-31 14:03:28Z krasznaa $
-
 // System include(s):
+#include <atomic>
 #include <memory>
 #include <cstdlib>
 
@@ -28,7 +27,7 @@
 namespace xAOD {
 
    // Initialise the static variable(s):
-   ::Bool_t TFileAccessTracer::m_enableDataSumbission = kTRUE;
+   static std::atomic_bool s_enableDataSumbission( true );
 
    TFileAccessTracer::TFileAccessTracer()
    : m_accessedFiles(),
@@ -52,7 +51,7 @@ namespace xAOD {
    TFileAccessTracer::~TFileAccessTracer() {
 
       // If the user turned off the data submission, then stop already here...
-      if( ! m_enableDataSumbission ) {
+      if( ! s_enableDataSumbission ) {
          return;
       }
 
@@ -226,6 +225,9 @@ namespace xAOD {
    ///
    void TFileAccessTracer::add( const ::TFile& file ) {
 
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
       // Remember this file:
       m_accessedFiles.insert(
          AccessedFile{ gSystem->DirName( file.GetName() ),
@@ -237,10 +239,16 @@ namespace xAOD {
 
    const std::string& TFileAccessTracer::serverAddress() const {
 
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
       return m_serverAddress;
    }
 
    void TFileAccessTracer::setServerAddress( const std::string& addr ) {
+
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
 
       // Set the address itself:
       m_serverAddress = addr;
@@ -253,10 +261,16 @@ namespace xAOD {
 
    ::Double_t TFileAccessTracer::monitoredFraction() const {
 
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
       return m_monitoredFraction;
    }
 
    void TFileAccessTracer::setMonitoredFraction( ::Double_t value ) {
+
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
 
       m_monitoredFraction = value;
       return;
@@ -269,7 +283,7 @@ namespace xAOD {
    ///
    void TFileAccessTracer::enableDataSubmission( ::Bool_t value ) {
 
-      m_enableDataSumbission = value;
+      s_enableDataSumbission = value;
       return;
    }
 

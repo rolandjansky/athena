@@ -8,21 +8,28 @@ You can also use it to output a single PRW config file containing just your data
 Example: checkPRW.py --outPRWFile=my.prw.root --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
 
 """
-
+import os
+import argparse
 
 def main():
-    import argparse
     from argparse import RawTextHelpFormatter
     
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=RawTextHelpFormatter)
     parser.add_argument('--outPRWFile',action="store",help="OPTIONAL Name of the output prw file containing valid configs",required=False)
+    parser.add_argument('--outputSuspect',action="store_true",help="allow for suspect channels to be included in the output prw file",default=False)
     parser.add_argument('--inDsTxt',action="store",help="text file containing datasets to make PRW for (one per line)",required=True)
     parser.add_argument('prwFiles',nargs="+",help="PRW Config files to scan")
     
     args = parser.parse_args()
 
-    import pyAMI.atlas.api as atlasAPI
-    import pyAMI.client
+    
+    try:
+      import pyAMI.atlas.api as atlasAPI
+      import pyAMI.client
+    except ImportError:
+      print "Could not import pyAMI ... please do: lsetup pyAMI"
+      print "Also ensure you have a valid certificate (voms-proxy-init -voms atlas)"
+      return 1
 
     client = pyAMI.client.Client('atlas')
     atlasAPI.init()
@@ -90,7 +97,8 @@ def main():
         out.RemoveChannel(int(dsid))
       elif total>nevents:
         print "channel %s is suspect! (config files have additional %d events)" % (dsid,total-nevents)
-        out.RemoveChannel(int(dsid))
+        if not args.outputSuspect:
+          out.RemoveChannel(int(dsid))
       
       
     
@@ -103,10 +111,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-    try:
-      sys.exit(main())
-    except:
-      print "There was an error ... please ensure you have done the following before running the script:"
-      print "lsetup pyAMI"
-      print "voms-proxy-init -voms atlas"
+    os._exit(main())

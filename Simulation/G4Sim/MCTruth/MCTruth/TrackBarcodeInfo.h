@@ -21,9 +21,9 @@ public:
 	bool GetReturnedToISF() const;
 
 private:
-	const ISF::ISFParticle *theBaseISFParticle;
-	int barcode;
-	bool returnedToISF;
+	const ISF::ISFParticle *m_theBaseISFParticle;
+	int m_barcode;
+	bool m_returnedToISF;
 };
 
 

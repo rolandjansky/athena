@@ -14,7 +14,7 @@ if DetFlags.overlay.LAr_on():
 
    from LArDigitization.LArDigitizationConf import LArDigitMaker
    theLArDigits = LArDigitMaker("digitmaker2")
-   theLArDigits.EventStore = "BkgEvent_0_SG"
+   theLArDigits.EvtStore = "BkgEvent_0_SG"
    #theLArDigits.DigitContainer = job.digitmaker1.DigitContainer
    #theLArDigits.RandomDigitContainer = job.digitmaker1.RandomDigitContainer
    #theLArDigits.RndmEvtOverlay = False
@@ -32,7 +32,7 @@ if DetFlags.overlay.LAr_on():
 
    from LArDigitization.LArDigitizationConf import LArPileUpTool
    theLArPileUpTool = LArPileUpTool("LArPileUpTool2")
-   theLArPileUpTool.EventStore = "BkgEvent_0_SG"
+   theLArPileUpTool.EvtStore = "BkgEvent_0_SG"
    theLArPileUpTool.DigitContainer = job.digitmaker1.LArPileUpTool.DigitContainer
    theLArPileUpTool.RndmEvtOverlay = False
    theLArPileUpTool.NoiseOnOff = False
@@ -59,6 +59,7 @@ if DetFlags.overlay.LAr_on():
       newLArRawChannelBuilder.UseOFCTool= False
       newLArRawChannelBuilder.PhaseInversion=True
       newLArRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels"
+      newLArRawChannelBuilder.PedestalKey='Pedestal'
    else :
       from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
       theOFCTool = LArOFCToolDefault()
@@ -66,11 +67,11 @@ if DetFlags.overlay.LAr_on():
       newLArRawChannelBuilder.OFCTool =  theOFCTool
       newLArRawChannelBuilder.LArRawChannelContainerName = job.LArRawChannelBuilder.LArRawChannelContainerName
       newLArRawChannelBuilder.UseOFCTool= True
-   newLArRawChannelBuilder.EventStore = "BkgEvent_0_SG"
+   newLArRawChannelBuilder.EvtStore = "BkgEvent_0_SG"
    newLArRawChannelBuilder.OutputLevel = DEBUG
    job += newLArRawChannelBuilder
 
    from LArROD.LArDigits import DefaultLArDigitThinner
    newLArDigitThinner = DefaultLArDigitThinner('newLArDigitThinner') # automatically added to topSequence
-   job.newLArDigitThinner.EventStore = "BkgEvent_0_SG"
+   job.newLArDigitThinner.EvtStore = "BkgEvent_0_SG"
 

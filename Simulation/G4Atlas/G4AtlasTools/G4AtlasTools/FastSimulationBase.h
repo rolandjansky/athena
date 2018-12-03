@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASINTERFACES_FASTSIMULATIONBASE_H
-#define G4ATLASINTERFACES_FASTSIMULATIONBASE_H
+#ifndef G4ATLASTOOLS_FASTSIMULATIONBASE_H
+#define G4ATLASTOOLS_FASTSIMULATIONBASE_H
 
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -21,31 +21,35 @@
 #include <vector>
 #include <thread>
 
-class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
+/// @class FastSimulationBase
+/// @todo TODO needs class documentation
+class FastSimulationBase : public extends<AthAlgTool, IFastSimulation> {
  public:
-  FastSimulationBase(const std::string& type, const std::string& name, const IInterface *parent);
+  FastSimulationBase(const std::string& type, const std::string& name,
+                     const IInterface *parent);
   virtual ~FastSimulationBase() {}
 
-  /** Athena method, used to get out the G4 geometry and set up the fast simulations
-    This is horrible, but the G4 method called Initialize is called at the beginning
-    of every event.  This method is the one that is called ONLY by athena at the
-    beginning of the job */
+  /// @brief Construct and setup the fast simulation model.
+  ///
+  /// This method invokes the makeFastSimModel of the derived concrete tool type
+  /// and assigns the configured regions. Errors are reported if regions are
+  /// missing. In multi-threading jobs, this method is called once per worker
+  /// thread.
   StatusCode initializeFastSim() override;
 
   /** End of an athena event - do any tidying up required at the end of each *athena* event. */
   virtual StatusCode EndOfAthenaEvent() override { return StatusCode::SUCCESS; }
 
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
  protected:
-  /// Retrieve the current Fast Simulation Model. In hive, this means the
+  /// Retrieve the current Fast Simulation Model. In MT, this means the
   /// thread-local Fast Simulation Model. Otherwise, it is simply the single
-  // Fast Simulation Model.
+  /// Fast Simulation Model.
   G4VFastSimulationModel* getFastSimModel();
 
-  std::vector<std::string> m_regionNames; //!< All the regions to which this fast sim is assigned
-  bool m_noRegions; //!< This Fast Simulation has no regions associated with it.
+  /// All the regions to which this fast sim is assigned
+  std::vector<std::string> m_regionNames;
+  /// This Fast Simulation has no regions associated with it.
+  bool m_noRegions;
 
  private:
 
@@ -60,7 +64,8 @@ class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
   /// Concurrent map of Fast Sim Models, one for each thread
   FastSimModelThreadMap_t m_fastsimmodelThreadMap;
 #else
-  G4VFastSimulationModel* m_FastSimModel;             ///!< The Fast Simulation Model to which this thing corresponds
+  /// The Fast Simulation Model to which this thing corresponds
+  G4VFastSimulationModel* m_FastSimModel;
 #endif
 };
 

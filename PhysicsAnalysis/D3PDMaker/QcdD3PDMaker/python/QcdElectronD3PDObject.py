@@ -20,8 +20,6 @@ import TrackD3PDMaker
 import CaloD3PDMaker
 import D3PDMakerCoreComps
 
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaParameters
 from ROOT import egammaPID
 

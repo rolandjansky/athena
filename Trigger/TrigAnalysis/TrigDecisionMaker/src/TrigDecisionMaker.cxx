@@ -262,7 +262,6 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
     return OK;
   }
 
-
   if (!evtStore()->contains<ROIB::RoIBResult>(m_l1ResultKey)) {
     ATH_MSG_WARNING ( "Trying to do L1, but RoIBResult not found" ) ;
     return NotFound;
@@ -278,17 +277,21 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
     return SGError;
   }
 
+  ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1ResultKey ) ;
+
   sc = m_lvl1Tool->updateItemsConfigOnly();
   if (sc.isFailure()) return ProcError;
 
-  m_lvl1Tool->createL1Items(*roIBResult, true);
-  result = m_lvl1Tool->getLvl1Result();
-
-  ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1ResultKey ) ;
+  if ((roIBResult->cTPResult()).isComplete()) {  
+    m_lvl1Tool->createL1Items(*roIBResult,true);
+    result = m_lvl1Tool->getLvl1Result();
+    ATH_MSG_DEBUG ( "Build LVL1CTP::Lvl1Result from valid CTPResult.") ;
+  } else {
+    ATH_MSG_DEBUG ( "No LVL1CTP::Lvl1Result build since no valid CTPResult is available.") ;
+  }
 
   return OK;
 }
-
 
 
 TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTResult*& result,

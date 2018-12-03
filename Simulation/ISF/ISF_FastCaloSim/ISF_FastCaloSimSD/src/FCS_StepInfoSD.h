@@ -26,6 +26,7 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
+class TileID;
 class CaloDetDescrManager;
 
 class ILArCalculatorSvc;
@@ -42,9 +43,11 @@ namespace FCS_Param {
     int verboseLevel=0;
     bool shift_lar_subhit=true;
     bool shorten_lar_step=false;
+    double            substpsize = 0.2*CLHEP::mm;    //size of splitting into substeps before calling the calculators.
 
     // Merging properties
     double            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+    double            m_maxRadiusFine=1.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
     double            m_maxRadiusLAr=25.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
     double            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
     double            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
@@ -105,24 +108,27 @@ public:
   void setupHelpers( const LArEM_ID* EM ,
                      const LArFCAL_ID* FCAL ,
                      const LArHEC_ID* HEC ,
-                     const LArMiniFCAL_ID* mini ) {
+                     const LArMiniFCAL_ID* mini,
+                     const TileID* tile) {
     m_larEmID = EM;
     m_larFcalID = FCAL;
     m_larHecID = HEC;
     m_larMiniFcalID = mini;
+    m_tileID = tile;
   }
 
 protected:
   /// Keep a map instead of trying to keep the full vector.
   /// At the end of the event we'll push the map back into the
   /// FCS_StepInfoCollection in StoreGate.
-  virtual void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
+  virtual void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_identifier, double l_energy, double l_time, bool l_valid, int l_detector, double timeWindow, double distanceWindow);
   FCS_Param::Config m_config;
   /// Pointers to the identifier helpers
   const LArEM_ID*       m_larEmID;
   const LArFCAL_ID*     m_larFcalID;
   const LArHEC_ID*      m_larHecID;
   const LArMiniFCAL_ID* m_larMiniFcalID;
+  const TileID*         m_tileID;
   const CaloDetDescrManager *m_calo_dd_man;
   std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 

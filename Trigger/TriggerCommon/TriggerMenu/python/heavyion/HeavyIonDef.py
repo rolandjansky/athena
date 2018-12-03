@@ -316,7 +316,6 @@ class L2EFChain_HI(L2EFChainDef):
 
     def setup_hi_ultraperipheral_gap(self):
         from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker
-        from TrigCaloRec.TrigCaloRecConfig import TrigL1BSTowerHypoConfig
         from TrigCaloRec.TrigCaloRecConf import TrigL1FCALTTSumFex
         theL1BS = TrigL1BSTowerMaker()
         theL1BSFex = TrigL1FCALTTSumFex('TrigL1FCALTTSumFex')
@@ -326,7 +325,6 @@ class L2EFChain_HI(L2EFChainDef):
         
         # L2 sel (TT) is used when The chain is sither L2Fgap* or Fgap*, and not used when EFGap, similarily for EF (cells) part
         gap  = self.chainPart['gap']
-        useEF = not ('L2Fgap' in self.chainPart['gap'])
 
         #        theSptrkMaker = 
         #        theSptrkHypo = 

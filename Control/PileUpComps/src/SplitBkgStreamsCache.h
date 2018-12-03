@@ -39,9 +39,8 @@ namespace CLHEP {
 /** @class SplitBkgStreamsCache
  * @brief In-memory cache for pileup events
  */
-class SplitBkgStreamsCache : 
-  virtual public IBkgStreamsCache, 
-  virtual public AthAlgTool 
+class SplitBkgStreamsCache :
+  public extends<AthAlgTool, IBkgStreamsCache>
 {
 public:
   SplitBkgStreamsCache( const std::string&, const std::string&, const IInterface*);
@@ -83,8 +82,6 @@ public:
 				int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/);
   /// how many stores in this cache
   virtual unsigned int nStores() const { return (m_nStores1 + m_nStores2); }
-
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
 
   /// meant to be used (mainly) via f_collDistr
   long collXing() { return m_meanCollisionsPerBunchCrossing; }

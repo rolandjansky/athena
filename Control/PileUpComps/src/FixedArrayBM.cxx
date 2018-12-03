@@ -10,7 +10,7 @@
 #include "FixedArrayBM.h"
 
 FixedArrayBM::FixedArrayBM(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_maxBunchCrossingPerOrbit(3564)
   , m_t0Offset(0)
   , m_allowEmptyT0BunchCrossing(false)
@@ -121,15 +121,3 @@ float FixedArrayBM::normFactor(int iXing) const
                     << ") is = " <<  m_largestElementInPattern*m_intensityPattern[ index ]);
     return m_largestElementInPattern*m_intensityPattern[ index ];
   }
-
-StatusCode FixedArrayBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IBeamIntensity::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = (IBeamIntensity*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out the base class
-  return AthService::queryInterface(riid, ppvInterface);
-}

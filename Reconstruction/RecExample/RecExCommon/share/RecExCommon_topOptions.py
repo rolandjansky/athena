@@ -90,6 +90,7 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/PanTauAnalysis/Class_FeatureHandler.py")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
+excludeTracePattern.append("*AthFile/impl.py")
 #####################
 # Flags (separated) #
 #####################
@@ -129,7 +130,7 @@ from AODFix.AODFix import *
 AODFix_Init()
 AODFix_preInclude()
 
-from RecoFix.RecoFix import *
+from RecoFix.RecoFix import RecoFix_Init, RecoFix_addMetaData
 RecoFix_Init()
 
 
@@ -1442,6 +1443,9 @@ if rec.doWriteAOD():
         if AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
+        if AODFlags.ThinInDetForwardTrackParticles():
+            from ThinningUtils.ThinInDetForwardTrackParticles import ThinInDetForwardTrackParticles
+            ThinInDetForwardTrackParticles()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
         if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 

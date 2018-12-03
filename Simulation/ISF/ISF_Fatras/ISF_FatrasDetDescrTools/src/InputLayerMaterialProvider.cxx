@@ -18,7 +18,7 @@
 
 // constructor
 iFatras::InputLayerMaterialProvider::InputLayerMaterialProvider(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_layerLengthX(16.4),
     m_layerLengthY(60.8),
     m_NbinsX(5),
@@ -33,8 +33,6 @@ iFatras::InputLayerMaterialProvider::InputLayerMaterialProvider(const std::strin
     m_materialZ(28.0855),
     m_materialRho(0.00233)
 {
-  declareInterface<iFatras::IInputLayerMaterialProvider>(this);
-    
   // Name specification from outside
   declareProperty("LayerLengthX", m_layerLengthX);	
   declareProperty("LayerLengthY", m_layerLengthY);	

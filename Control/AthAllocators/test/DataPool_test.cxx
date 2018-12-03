@@ -8,6 +8,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/ubsan_suppress.h"
+#include "boost/format.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -45,6 +47,8 @@ class Fluff
 
 int main ()
 {
+        CxxUtils::ubsan_suppress ([]() { boost::format("%1%") % "asd"; });
+
 
 	ISvcLocator* pSvcLoc;
 	if (!Athena_test::initGaudi("DataPool_test.txt", pSvcLoc))

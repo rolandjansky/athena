@@ -7,10 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ForwardRegionGeoModel/IForwardRegionProperties.h"
-//#include "IForwardRegionProperties/IForwardRegionProperties.h"
 #include "CLHEP/Geometry/Point3D.h"
 
-class ForwardRegionProperties : public AthAlgTool, public IForwardRegionProperties
+class ForwardRegionProperties : public extends<AthAlgTool, IForwardRegionProperties>
 {
 public:
     ForwardRegionProperties( const std::string& type, const std::string& name, const IInterface* parent );
@@ -18,14 +17,10 @@ public:
     // Standard Destructor
     virtual ~ForwardRegionProperties();
 
-    virtual PFWDMg_CONFIGURATION getConf();
+    virtual PFWDMg_CONFIGURATION getConf() override final;
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-
-    void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false);
-    void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, bool twiss = false);
+    void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false) override final;
+    void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, bool twiss = false) override final;
 
 private:
     // property configuration

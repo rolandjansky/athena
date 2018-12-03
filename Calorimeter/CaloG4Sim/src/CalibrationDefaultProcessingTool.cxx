@@ -25,13 +25,13 @@ namespace G4UA{
     
     StatusCode CalibrationDefaultProcessingTool::queryInterface(const InterfaceID& riid, void** ppvIf){
       
-      if(riid == IBeginEventActionTool::interfaceID()) {
-	*ppvIf = (IBeginEventActionTool*) this;
+      if(riid == IG4EventActionTool::interfaceID()) {
+	*ppvIf = (IG4EventActionTool*) this;
 	addRef();
 	return StatusCode::SUCCESS;
       }
-      if(riid == ISteppingActionTool::interfaceID()) {
-	*ppvIf = (ISteppingActionTool*) this;
+      if(riid == IG4SteppingActionTool::interfaceID()) {
+	*ppvIf = (IG4SteppingActionTool*) this;
 	addRef();
 	return StatusCode::SUCCESS;
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerBDT.h"
@@ -169,7 +169,27 @@ StatusCode JSSWTopTaggerBDT::initialize(){
   TMVA::Tools::Instance();
   m_bdtTagger = std::unique_ptr<TMVA::Reader> ( new TMVA::Reader( "!Color:!Silent" ) );
 
-  std::string taggerType("");
+  // set internal tagger type
+  size_t pos1;
+  size_t pos2;
+
+  pos1 = m_tagType.find("Top");
+  pos2 = m_tagType.find("W");
+
+  if(pos1!=std::string::npos){
+    ATH_MSG_DEBUG( "This is a top quark tagger" );
+    m_TagClass = TAGCLASS::TopQuark;
+  }
+  else if(pos2!=std::string::npos){
+    ATH_MSG_DEBUG( "This is a W boson tagger" );
+    m_TagClass = TAGCLASS::WBoson;
+  }
+  else{
+    ATH_MSG_ERROR( "Your configuration is invalid because from it, I can't tell if it is for W tagging or top quark tagging." );
+    return StatusCode::FAILURE;
+  }
+
+  // parse the tagger type
   if (m_tagType.compare("WBoson")==0){
     ATH_MSG_DEBUG( "W Boson BDT Tagger Selected" );
 
@@ -200,6 +220,9 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt);
     m_bdtTagger->AddVariable( "fjet_Tau21_wta", &m_Tau21_wta  );
 
+  }
+  else{
+    ATH_MSG_DEBUG( "Using custom configuration - if you are doing this, you may need to do some hardcoding because the tool is not flexible enough to change inputs ..." );
   }
 
   // configure the bdt
@@ -313,93 +336,169 @@ Root::TAccept JSSWTopTaggerBDT::tag(const xAOD::Jet& jet) const {
 
 float JSSWTopTaggerBDT::getScore(const xAOD::Jet& jet) const{
 
-    // load the new values of the variables for this jet
-    getJetProperties(jet);
+  // load the new values of the variables for this jet
+  getJetProperties(jet);
 
-    // evaluate bdt
-    float bdt_score(-666.);
-    bdt_score = m_bdtTagger->EvaluateMVA( m_BDTmethod.c_str() );
-
+  // evaluate bdt
+  float bdt_score(-666.);
+  if(m_undefInput){
+    ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");
     return bdt_score;
+  }
+  bdt_score = m_bdtTagger->EvaluateMVA( m_BDTmethod.c_str() );
+
+  return bdt_score;
 }
 
 
 void JSSWTopTaggerBDT::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
-    /* decorate jet with attributes */
-
-    m_dec_mcutH(jet)      = mcutH;
-    m_dec_mcutL(jet)      = mcutL;
-    m_dec_scoreCut(jet)   = scoreCut;
-    m_dec_scoreValue(jet) = scoreValue;
-
+  /* decorate jet with attributes */
+  m_dec_mcutH(jet)      = mcutH;
+  m_dec_mcutL(jet)      = mcutL;
+  m_dec_scoreCut(jet)   = scoreCut;
+  m_dec_scoreValue(jet) = scoreValue;
 }
 
 
 void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
-    /* Update the jet substructure variables for this jet */
+  /* Update the jet substructure variables for this jet */
 
-    //mass and pT
-    //it is assumed that these are the combined and calibrated mass and pT
-    m_mass = jet.m();
+  // flag for if the input is nonsense
+  m_undefInput = false;
+
+  if(m_TagClass == TAGCLASS::WBoson){
+    ATH_MSG_DEBUG("Loading variables for W boson tagger");
+    // mass and pT
+    // it is assumed that these are the combined mass and calibrated mass and pT
     m_pt   = jet.pt();
+    m_mass = jet.m();
 
-    // Splitting Scales
-    m_Split12 = jet.getAttribute<float>("Split12");
-    m_Split23 = jet.getAttribute<float>("Split23");
-
-    // Energy Correlation Functions
-    jet.getAttribute("ECF1", m_ECF1);
-    jet.getAttribute("ECF2", m_ECF2);
-    jet.getAttribute("ECF3", m_ECF3);
-
-    if (!jet.isAvailable<float>("C2"))
-        m_C2 = m_ECF3 * m_ECF1 / pow(m_ECF2, 2.0);
-    else
-        m_C2 = jet.getAttribute<float>("C2");
-    if (!jet.isAvailable<float>("D2"))
-        m_D2 = m_ECF3 * pow(m_ECF1, 3.0) / pow(m_ECF2, 3.0);
-    else
-        m_D2 = jet.getAttribute<float>("D2");
-
-    // e3 := normalized ECF3/ECF1**3
-    m_e3 = m_ECF3/pow(m_ECF1,3.0);
+    // splitting scale
+    m_KtDR         = jet.getAttribute<float>("KtDR");
 
     // N-subjettiness
     m_Tau1_wta = jet.getAttribute<float>("Tau1_wta");
     m_Tau2_wta = jet.getAttribute<float>("Tau2_wta");
     m_Tau3_wta = jet.getAttribute<float>("Tau3_wta");
 
-    if (!jet.isAvailable<float>("Tau21_wta"))
-        m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
-    else
+    if(!jet.isAvailable<float>("Tau21_wta")){
+      m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
+      if(std::isnan(m_Tau21_wta)){
+        m_undefInput = true;
+      }
+    }
+    else{
         m_Tau21_wta = jet.getAttribute<float>("Tau21_wta");
+    }
 
-    if (!jet.isAvailable<float>("Tau32_wta"))
-        m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-    else
+    if(!jet.isAvailable<float>("Tau32_wta")){
+      m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
+      if(std::isnan(m_Tau32_wta)){
+        m_undefInput = true;
+      }
+    }
+    else{
         m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
+    }
 
+    // Energy Correlation Functions
+    jet.getAttribute("ECF1", m_ECF1);
+    jet.getAttribute("ECF2", m_ECF2);
+    jet.getAttribute("ECF3", m_ECF3);
 
-    // Other Substructure Variables
-    m_Qw           = jet.getAttribute<float>("Qw");
-    m_KtDR         = jet.getAttribute<float>("KtDR");
-    m_Dip12        = jet.getAttribute<float>("Dip12");
-    m_ZCut12       = jet.getAttribute<float>("ZCut12");
-    m_ThrustMin    = jet.getAttribute<float>("ThrustMin");
-    m_ThrustMaj    = jet.getAttribute<float>("ThrustMaj");
+    if(!jet.isAvailable<float>("C2"))
+      m_C2 = m_ECF3 * m_ECF1 / pow(m_ECF2, 2.0);
+    else
+      m_C2 = jet.getAttribute<float>("C2");
+    if(!jet.isAvailable<float>("D2"))
+      m_D2 = m_ECF3 * pow(m_ECF1, 3.0) / pow(m_ECF2, 3.0);
+    else
+      m_D2 = jet.getAttribute<float>("D2");
+
+    // e3 := normalized ECF3/ECF1**3
+    m_e3 = m_ECF3/pow(m_ECF1,3.0);
+
+    // angularity
     m_Angularity   = jet.getAttribute<float>("Angularity");
-    m_Aplanarity   = jet.getAttribute<float>("Aplanarity");
-    m_Sphericity   = jet.getAttribute<float>("Sphericity");
+
+    // planar flow
     m_PlanarFlow   = jet.getAttribute<float>("PlanarFlow");
+
+    // fox wolfram ratio
     m_FoxWolfram20 = jet.getAttribute<float>("FoxWolfram2") / jet.getAttribute<float>("FoxWolfram0");
 
-    return;
+    // aplanarity
+    m_Aplanarity   = jet.getAttribute<float>("Aplanarity");
+
+  }
+  else if(m_TagClass == TAGCLASS::TopQuark){
+    ATH_MSG_DEBUG("Loading variables for top quark tagger");
+
+    // mass and pT
+    // it is assumed that these are the combined mass and calibrated mass and pT
+    m_pt   = jet.pt();
+    m_mass = jet.m();
+
+    // Splitting Scales
+    m_Split12 = jet.getAttribute<float>("Split12");
+    m_Split23 = jet.getAttribute<float>("Split23");
+
+    // N-subjettiness
+    m_Tau1_wta = jet.getAttribute<float>("Tau1_wta");
+    m_Tau2_wta = jet.getAttribute<float>("Tau2_wta");
+    m_Tau3_wta = jet.getAttribute<float>("Tau3_wta");
+
+    if(!jet.isAvailable<float>("Tau21_wta")){
+      m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
+      if(std::isnan(m_Tau21_wta)){
+        m_undefInput = true;
+      }
+    }
+    else{
+        m_Tau21_wta = jet.getAttribute<float>("Tau21_wta");
+    }
+
+    if(!jet.isAvailable<float>("Tau32_wta")){
+      m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
+      if(std::isnan(m_Tau21_wta)){
+        m_undefInput = true;
+      }
+    }
+    else{
+        m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
+    }
+
+    // Energy Correlation Functions
+    jet.getAttribute("ECF1", m_ECF1);
+    jet.getAttribute("ECF2", m_ECF2);
+    jet.getAttribute("ECF3", m_ECF3);
+
+    if(!jet.isAvailable<float>("C2"))
+      m_C2 = m_ECF3 * m_ECF1 / pow(m_ECF2, 2.0);
+    else
+      m_C2 = jet.getAttribute<float>("C2");
+    if(!jet.isAvailable<float>("D2"))
+      m_D2 = m_ECF3 * pow(m_ECF1, 3.0) / pow(m_ECF2, 3.0);
+    else
+      m_D2 = jet.getAttribute<float>("D2");
+
+    // e3 := normalized ECF3/ECF1**3
+    m_e3 = m_ECF3/pow(m_ECF1,3.0);
+
+    // basically like a pari-wise subjet mass variable
+    m_Qw           = jet.getAttribute<float>("Qw");
+  }
+  else{
+    ATH_MSG_ERROR( "Loading variables failed because the tagger you are using is not clear to me");
+  }
+
+  return;
 }
 
 
 StatusCode JSSWTopTaggerBDT::finalize(){
-    /* Delete or clear anything */
-    return StatusCode::SUCCESS;
+  /* Delete or clear anything */
+  return StatusCode::SUCCESS;
 }
 
 

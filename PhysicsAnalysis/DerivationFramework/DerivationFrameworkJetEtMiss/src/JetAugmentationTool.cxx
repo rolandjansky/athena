@@ -10,7 +10,7 @@
 
 #include "JetAugmentationTool.h"
 #include "xAODCore/ShallowCopy.h"
-#include "JetJvtEfficiency/JetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 
@@ -29,7 +29,7 @@ namespace DerivationFramework {
     dec_jvt(0),
     dec_passJvt(0),
     m_jvtTool(""),
-    m_jetJvtEfficiencyTool("CP::JetJvtEfficiency/JetJvtEfficiencyTool"),
+    m_jetJvtEfficiencyTool(""),
     m_dojvt(false),
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
@@ -55,6 +55,7 @@ namespace DerivationFramework {
     declareProperty("JetCalibTool",   m_jetCalibTool);
     declareProperty("JvtMomentKey",   m_jvtMomentKey = "Jvt");
     declareProperty("JetJvtTool",     m_jvtTool);
+    declareProperty("JetJvtEffTool",  m_jetJvtEfficiencyTool);
     declareProperty("JetBtagTools",   m_btagSelTools);
     declareProperty("JetBtagWPs",     m_btagWP);
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);

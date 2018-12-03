@@ -4,6 +4,7 @@
 
 # Testing package(s):
 + AtlasTest/TestTools
++ AsgExternal/Asg_Test
 
 # Common geometry package(s):
 + AtlasGeometryCommon/BeamPipeGeoModel
@@ -44,7 +45,7 @@
 - Control/DataModelTest/.*
 - Control/PileUp.*
 - Control/StoreGateTests
-- Control/Valkyrie
++ Control/Valkyrie
 + Control/.*
 
 # Database package(s):
@@ -61,6 +62,7 @@
 + Database/RegistrationServices
 + Database/TPTools
 + Database/AthenaRoot/.*
++ Database/AtlasSTLAddReflex
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
@@ -94,6 +96,7 @@
 + Event/NavFourMom
 - Event/xAOD/xAODMissingETCnv
 + Event/xAOD/.*
++ Event/PyDumper
 
 # External package(s):
 + External/AtlasDataArea
@@ -118,6 +121,7 @@
 + Generators/TruthConverters
 + Generators/TruthRivetTools
 + Generators/TruthUtils
++ Generators/McEventSelector
 
 # Inner detector package(s):
 + InnerDetector/InDetConditions/InDetBeamSpotService
@@ -137,6 +141,7 @@
 + InnerDetector/InDetDetDescrCnv/.*
 + InnerDetector/InDetExample/InDetRecExample
 + InnerDetector/InDetRawEvent/.*
++ InnerDetector/InDetRecAlgs/InDetV0Finder
 + InnerDetector/InDetRecEvent/.*
 + InnerDetector/InDetRecTools/InDetVKalVxInJetTool
 - InnerDetector/InDetRecTools/SiClusterOnTrackTool
@@ -205,19 +210,23 @@
 + PhysicsAnalysis/AnalysisCommon/PAT.*
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/ThinningUtils
++ PhysicsAnalysis/AnalysisCommon/LeptonTaggers
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
 + PhysicsAnalysis/AraTool
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/CommonTools/ExpressionEvaluation
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 + PhysicsAnalysis/DerivationFramework/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/EventTag/TagEvent
 + PhysicsAnalysis/EventTag/EventTagTPCnv
 + PhysicsAnalysis/EventTag/EventTagAthenaPOOL
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetTagging/JetTagAlgs/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibUtils/.*
@@ -227,6 +236,7 @@
 + PhysicsAnalysis/JetTagging/JetTagNonPromptLepton
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/.*
 + PhysicsAnalysis/JetTagging/JetTagTools
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JpsiUpsilonTools
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
@@ -259,6 +269,7 @@
 + Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
++ Reconstruction/HeavyIonRec/HIRecExample  
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MET/METRecoInterface
@@ -302,6 +313,8 @@
 + Reconstruction/RecTPCnv
 + Reconstruction/RecAthenaPool
 + Reconstruction/MissingETEvent
++ Reconstruction/VKalVrt/SoftBVrtClusterTool
++ Reconstruction/VKalVrt/VrtSecInclusive
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
@@ -319,9 +332,11 @@
 - TileCalorimeter/TileSvc/TileByteStream
 + TileCalorimeter/TileSvc/.*
 + TileCalorimeter/TileTrackingGeometry
++ TileCalorimeter/TileRecUtils
 
 # Tool package(s):
 + Tools/ART
++ Tools/DirectIOART
 + Tools/LWHists
 + Tools/PathResolver
 + Tools/Py.*
@@ -364,6 +379,7 @@
 + Trigger/TriggerCommon/TriggerJobOpts
 + Trigger/TriggerCommon/TrigTier0
 + Trigger/TriggerCommon/TriggerMenu
++ Trigger/TrigCost/EnhancedBiasWeighter
 + Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv
@@ -381,6 +397,7 @@
 + Trigger/TrigFTK/TrigFTK_RawDataTPCnv
 + Trigger/TrigMonitoring/TrigMonitorBase
 + Trigger/TrigSteer/TrigInterfaces
++ Trigger/TrigT1/L1Common
 + Trigger/TrigT1/L1Topo/L1TopoCommon
 + Trigger/TrigT1/L1Topo/L1TopoConfig
 + Trigger/TrigT1/TrigT1CaloCalibConditions

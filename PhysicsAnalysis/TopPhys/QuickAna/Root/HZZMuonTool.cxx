@@ -51,7 +51,8 @@ namespace ana
   {
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_selection, CP::MuonSelectionTool));
     ATH_CHECK (m_selection.setProperty ("MuQuality", int (m_quality)));
-    if(m_wp == WPType::_ZHinv || m_wp == WPType::_Hmumu) ATH_CHECK (m_selection.setProperty ("MaxEta", 2.5));
+    if(m_wp == WPType::_ZHinv) ATH_CHECK (m_selection.setProperty ("MaxEta", 2.5));
+    else if(m_wp == WPType::_Hmumu) ATH_CHECK (m_selection.setProperty ("MaxEta", 2.7));
     ATH_CHECK (m_selection.initialize());
 
     if(m_wp != WPType::_HZZ4l) {
@@ -112,7 +113,14 @@ namespace ana
     if (muon.muonType() != xAOD::Muon::MuonStandAlone) {
       const xAOD::EventInfo* evt = 0;
       ATH_CHECK( evtStore()->retrieve( evt, "EventInfo" ) );
-      d0sig = (muon.primaryTrackParticle() && evt) ? xAOD::TrackingHelpers::d0significance( muon.primaryTrackParticle() , evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY() ) : -999.0;
+      try
+      {
+        d0sig = (muon.primaryTrackParticle() && evt) ? xAOD::TrackingHelpers::d0significance( muon.primaryTrackParticle() , evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY() ) : -999.0;
+      } catch (std::exception& e)
+      {
+        d0sig = -999.0;
+        ATH_MSG_INFO ("WARNING of d0sig and assign a default value -999.0 : " << e.what());
+      }
     }
     muon.auxdata<double>("d0Sig") = d0sig;
 
@@ -157,8 +165,8 @@ namespace ana
 
       if(m_wp == WPType::_Hmumu) {
         cut_Iso.setPassedIf (m_isolationTool->accept(muon));
-        cut_CB.setPassedIf (type==0);
-        cut_Eta.setPassedIf (fabs(eta)<2.5);
+        cut_CB.setPassedIf (true);
+        cut_Eta.setPassedIf (fabs(eta)<2.7);
         cut_Pt.setPassedIf (pt>15.e3);
       }
 
@@ -252,5 +260,5 @@ namespace ana
   QUICK_ANA_MUON_DEFINITION_MAKER ("smzz4l", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_SMZZ4l))
   QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_loose", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "Loose"))
   QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium", makeHZZMuonTool (args, xAOD::Muon::Medium, WPType::_ZHinv, "Loose"))
-  QUICK_ANA_MUON_DEFINITION_MAKER ("hmumu", makeHZZMuonTool (args, xAOD::Muon::Medium, WPType::_Hmumu, "LooseTrackOnly"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hmumu", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_Hmumu, "LooseTrackOnly"))
 }

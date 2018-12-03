@@ -27,15 +27,21 @@
 
 #include "TopEvent/Event.h"
 #include "TopEvent/SystematicEvent.h"
+#include "TopEvent/RCJetMC15.h"
+
+
+class RCJetMC15;
 
 namespace top {
 
   class TopConfig;
+  
 
   class TopEventMaker final : public asg::AsgTool {
     public:
       explicit TopEventMaker( const std::string& name );
       virtual ~TopEventMaker(){}
+      StatusCode initialize();
       
       // Delete Standard constructors
       TopEventMaker(const TopEventMaker& rhs) = delete;
@@ -58,7 +64,7 @@ namespace top {
        * objects, which you can then perform selection based on event-level info
        * with.  Such as object multiplicity. Fun times are ahead.
        */
-      top::Event makeTopEvent(const xAOD::SystematicEvent& currentSystematic);
+      top::Event makeTopEvent(const xAOD::SystematicEvent* currentSystematic);
       
       /// As top-xaod isn't an asg::AsgTool, it doesn't have access to all the information
       /// Very annoying
@@ -66,6 +72,10 @@ namespace top {
 
     private:
       std::shared_ptr<top::TopConfig> m_config;
+      std::unique_ptr<RCJetMC15> m_rc;
+      std::map<std::string,std::unique_ptr<RCJetMC15> > m_VarRC;
+      std::vector<std::string> m_VarRCJetRho;
+      std::vector<std::string> m_VarRCJetMassScale;
   };
 }
 #endif

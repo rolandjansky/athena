@@ -17,9 +17,6 @@
 // Amg classes
 #include "GeoPrimitives/GeoPrimitives.h"
 
-/** Declaration of the interface ID ( interface id, major version, minor version) */
-static const InterfaceID IID_IMagFieldSvc("IMagFieldSvc", 1, 0);
-
 namespace MagField {
 
 /** @ class IMagFieldSvc
@@ -32,13 +29,12 @@ namespace MagField {
     // Public methods:
     ///////////////////////////////////////////////////////////////////
     public:
+
+        /** Creates the InterfaceID and interfaceID() method */
+        DeclareInterfaceID(IMagFieldSvc, 1, 0);
+
         /** constructor */
         IMagFieldSvc() : m_solenoidCurrent(0.0), m_toroidCurrent(0.0) {;}
-
-        /** Retrieve interface ID */
-        static const InterfaceID& interfaceID() {
-            return IID_IMagFieldSvc;
-        }
 
         /** get B field value at given position */
         /** xyz[3] is in mm, bxyz[3] is in kT */

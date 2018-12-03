@@ -13,6 +13,12 @@ namespace G4UA{
   TestActionTimerTool::TestActionTimerTool(const std::string& type, const std::string& name,const IInterface* parent):
     ActionToolBaseReport<TestActionTimer>(type, name, parent),m_histSvc("THistSvc",name){
   }
+
+  StatusCode TestActionTimerTool::initialize(){
+    ATH_CHECK(m_histSvc.retrieve());
+    return StatusCode::SUCCESS;
+  }
+
   std::unique_ptr<TestActionTimer>  TestActionTimerTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<TestActionTimer>();
@@ -20,28 +26,18 @@ namespace G4UA{
   }
   StatusCode TestActionTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndRunActionTool::interfaceID()) {
-      *ppvIf = (IEndRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }

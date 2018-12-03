@@ -1,6 +1,11 @@
 <lcgdict>
   <!-- VERTEX DICTIONARIES -->
-  
+
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::Vertex" />
+  <typedef name="xAOD::VertexContainer" />
+  <typedef name="xAOD::VertexAuxContainer" />
+
   <!-- Vertex_v1 dictionaries: -->
   <class name="xAOD::Vertex_v1" >
     <field name="m_position" transient="true" />
@@ -26,9 +31,18 @@
   <class name="ElementLink<xAOD::VertexContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::VertexContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::VertexContainer_v1> > >" />
-  
+
   <!-- TRACK PARTICLE DICTIONARIES -->
-  
+
+  <!-- Versionless typedefs: -->
+  <typedef name="xAOD::TrackParticle" />
+  <typedef name="xAOD::TrackParticleContainer" />
+  <typedef name="xAOD::TrackParticleAuxContainer" />
+
+  <typedef name="xAOD::NeutralParticle" />
+  <typedef name="xAOD::NeutralParticleContainer" />
+  <typedef name="xAOD::NeutralParticleAuxContainer" />
+
   <!-- TrackParticle_v1 dictionaries: -->
   <class name="xAOD::TrackParticle_v1">
          <field name="m_p4" transient="true"/>
@@ -84,7 +98,7 @@
          <field name="m_p4Cached" transient="true"/>
          <field name="m_perigeeCached" transient="true"/>
   </class>
-  
+
   <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
         targetClass="xAOD::NeutralParticle_v1"
         source="" target="m_p4Cached">
@@ -99,20 +113,20 @@
       m_perigeeCached = false;
      ]]>
   </read>
-  
+
   <class name="xAOD::NeutralParticleAuxContainer_v1"
          id="006862BC-5CEB-11E3-9FB4-02163E00A92F"/>
   <class name="xAOD::NeutralParticleContainer_v1"
-         id="12869D6A-5CEB-11E3-B64A-02163E00A92F"/>  
+         id="12869D6A-5CEB-11E3-B64A-02163E00A92F"/>
 
   <!-- All smart pointer dictionaries for xAOD::IParticle -->
   <class name="DataLink<xAOD::TrackParticleContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::TrackParticleContainer_v1> >" />
-  
+
   <class name="ElementLink<xAOD::TrackParticleContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::TrackParticleContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::TrackParticleContainer_v1> > >" />
-    
+
   <!-- All smart pointer dictionaries for xAOD::IParticle -->
   <class name="DataLink<xAOD::NeutralParticleContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::NeutralParticleContainer_v1> >" />
@@ -186,6 +200,6 @@
   </exclusion>
 
   <!--Add Helper Functions -->
-  <function pattern="xAOD::TrackParticleHelpers::*" />  
+  <function pattern="xAOD::TrackParticleHelpers::*" />
 
 </lcgdict>

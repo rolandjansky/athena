@@ -69,15 +69,18 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-if "folderTag" in dir():
-   conddb.addOverride("/LAR/NoiseOfl/CellNoise",folderTag)
-
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 theCaloNoiseTool.RescaleForHV=False
 ToolSvc += theCaloNoiseTool
+
+if "dbNoise" in dir():
+   conddb.addMarkup("/LAR/NoiseOfl/CellNoise","<db>"+dbNoise+"</db>")
+
+if "folderTag" in dir():
+   conddb.addOverride("/LAR/NoiseOfl/CellNoise",folderTag)
 
 #--------------------------------------------------------------
 # Private Application Configuration options

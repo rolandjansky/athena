@@ -4,16 +4,16 @@
 
 #ifndef G4DEBUGGINGTOOLS_G4UA__CHECKACTIVATION_H 
 #define G4DEBUGGINGTOOLS_G4UA__CHECKACTIVATION_H 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4UserEventAction.hh"
 namespace G4UA{ 
 
 class CheckActivation: 
-  public IBeginEventAction
+  public G4UserEventAction
   {
     
   public:
     CheckActivation();
-    virtual void beginOfEvent(const G4Event*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
   private:
   }; // class CheckActivation
 

@@ -7,7 +7,7 @@
 # expter to figure out how to make taggers independant.
 from BTagging.BTaggingFlags import BTaggingFlags
 
-def buildRNNIP(basename, is_flipped=False, calibration=None):
+def buildRNNIP(basename, special_config=False, calibration=None):
     cal_dir = calibration or basename
     meta = {'IsATagger'         : True,
             'xAODBaseName'      : basename,
@@ -58,12 +58,24 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
                 'calibration_directory'     : cal_dir,
                 'writeInputsToBtagObject': BTaggingFlags.WriteRNNInputs
             }
-            if is_flipped:
+            if special_config == 'neg':
                 defaults.update({
                     'flipIPSign' : True,
+                    'flipZIPSign' : True,
                     'usePosIP'   : True,
                     'useNegIP'   : False,
+                    'tagNameSuffix': 'neg',
                 })
+            elif special_config == 'flip':
+                defaults.update({
+                    'flipIPSign' : True,
+                    'flipZIPSign' : True,
+                    'usePosIP'   : True,
+                    'useNegIP'   : True,
+                    'tagNameSuffix': 'flip',
+                })
+            elif special_config:
+                raise Exception("invalid IPRNN config" + special_config)
             for option in defaults:
                 options.setdefault(option, defaults[option])
         options['name'] = name
@@ -75,4 +87,6 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
 
 toolRNNIPTag, metaRNNIPTag = buildRNNIP('RNNIP')
 toolRNNIPNegTag, metaRNNIPNegTag = buildRNNIP(
-    'RNNIPNegTag', is_flipped=True, calibration='RNNIP')
+    'RNNIPNegTag', special_config="neg", calibration='RNNIP')
+toolRNNIPFlipTag, metaRNNIPFlipTag = buildRNNIP(
+    'RNNIPFlipTag', special_config="flip", calibration='RNNIP')

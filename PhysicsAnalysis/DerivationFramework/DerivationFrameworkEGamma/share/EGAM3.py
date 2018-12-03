@@ -11,14 +11,15 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.EGAM3ExtraContent import *
 
 # read common DFEGamma settings from egammaDFFlags
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
 # this could also go in egammaDFFlags
-RecomputeElectronSelectors = True
-#RecomputeElectronSelectors = False
+RecomputeEGammaSelectors = True
+#RecomputeEGammaSelectors = False
 
 DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
 #override if needed (do at your own risk..)
@@ -33,27 +34,35 @@ if globalflags.DataSource()!='geant4':
 
 
 #====================================================================
-# SKIMMING TOOLS
+# SET UP STREAM (to be done early in the game to set up thinning Svc
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM3Stream )
+EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+
+#====================================================================
+# SET UP SKIMMING
 #====================================================================
 
 
 #====================================================================
-# eegamma selection for photon studies, di-electron triggers
+# eegamma and eee selection for photon efficiency studies, di-electron triggers
 # two opposite-sign medium el, pT>10 GeV, |eta|<2.5, mee>40 GeV
-# gamma: reco, ET>10 GeV< |eta|<2.5
+# eegamma: one reco photon, ET>10 GeV< |eta|<2.5
+# eee: 3 electrons, pT>10 GeV, mee>40 GeV
 #====================================================================
 
 # if skim size too large either require tight electrons (at least one) or raise electron pT threshold (at least one)
-#requirement = 'DFCommonElectronsLHMedium && (DFCommonElectrons_pt > 9.5*GeV)'
-if RecomputeElectronSelectors :
-    requirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
+if RecomputeEGammaSelectors :
+    requirementElectrons = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
 else :
-    requirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
+    requirementElectrons = '(Electrons.LHMedium) && (Electrons.pt > 9.5*GeV)'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM3_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool",
-                                                             Object1Requirements = requirement,
-                                                             Object2Requirements = requirement,
+                                                             Object1Requirements = requirementElectrons,
+                                                             Object2Requirements = requirementElectrons,
                                                              StoreGateEntryName = "EGAM3_DiElectronMass",
                                                              Mass1Hypothesis = 0.511*MeV,
                                                              Mass2Hypothesis = 0.511*MeV,
@@ -64,25 +73,30 @@ EGAM3_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMas
                                                              MinDeltaR = 0.0)
 ToolSvc += EGAM3_EEMassTool
 print EGAM3_EEMassTool
-
+skimmingExpression1a = '(count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1)'
+skimmingExpression1b = '(count(Electrons.pt>9.5*GeV)>=3 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1)'
 
 #====================================================================
 # eegamma selection for low-pT electron studies with T&P
 # tag e: tight, |eta|<2.5, pT>25 GeV
-# probe e: reco, ET>7 GeV, no eta cut 
+# probe e: reco, ET>7 GeV, central electron
 # gamma: tight, ET>10 GeV
 #====================================================================
 # asymmetric electron cuts/single e trigger, low pT cut for subleading e (for e calibration studies at low pT)
-#requirement1 = 'DFCommonElectronsLHTight && (DFCommonElectrons_pt > 24.5*GeV)'
-if RecomputeElectronSelectors :
-    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+if RecomputeEGammaSelectors :
+    requirementElectron1 = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
-requirement2 = '(Electrons.pt > 6.5*GeV)'
+    requirementElectron1 = '(Electrons.LHTight) && (Electrons.pt > 24.5*GeV)'
+requirementElectron2 = '(Electrons.pt > 6.5*GeV)'
+if RecomputeEGammaSelectors :
+    requirementPhoton = 'Photons.DFCommonPhotonsIsEMTight'
+else :
+    requirementPhoton = 'Photons.Tight'
+
 
 EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool2",
-                                                              Object1Requirements = requirement1,
-                                                              Object2Requirements = requirement2,
+                                                              Object1Requirements = requirementElectron1,
+                                                              Object2Requirements = requirementElectron2,
                                                               StoreGateEntryName = "EGAM3_DiElectronMass2",
                                                               Mass1Hypothesis = 0.511*MeV,
                                                               Mass2Hypothesis = 0.511*MeV,
@@ -95,17 +109,25 @@ EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
 
 ToolSvc += EGAM3_EEMassTool2
 print EGAM3_EEMassTool2
+skimmingExpression2 = '(count(DFCommonPhotons_et>9.5*GeV && '+ requirementPhoton + ')>=1 && count(EGAM3_DiElectronMass2 > 40.0*GeV)>=1)'
 
-if RecomputeElectronSelectors :
-    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+
+#====================================================================
+# eegamma selection for low-pT electron studies with T&P
+# tag e: tight, |eta|<2.5, pT>25 GeV
+# probe e: reco, ET>7 GeV, forward electron
+# gamma: tight, ET>10 GeV
+#====================================================================
+
+if RecomputeEGammaSelectors :
+    requirementElectron1 = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
-requirement2 = '(ForwardElectrons.pt > 6.5*GeV)'
-#requirement2 = '(ForwardElectrons.pt > 9.5*GeV)'
+    requirementElectron1 = '(Electrons.LHTight) && (Electrons.pt > 24.5*GeV)'
+requirementElectron2 = '(ForwardElectrons.pt > 6.5*GeV)'
 
 EGAM3_EEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool3",
-                                                              Object1Requirements = requirement1,
-                                                              Object2Requirements = requirement2,
+                                                              Object1Requirements = requirementElectron1,
+                                                              Object2Requirements = requirementElectron2,
                                                               StoreGateEntryName = "EGAM3_DiElectronMass3",
                                                               Mass1Hypothesis = 0.511*MeV,
                                                               Mass2Hypothesis = 0.511*MeV,
@@ -117,29 +139,27 @@ EGAM3_EEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
                                                               MinDeltaR = 0.0)
 ToolSvc += EGAM3_EEMassTool3
 print EGAM3_EEMassTool3
-
+skimmingExpression3 = '(count(DFCommonPhotons_et>9.5*GeV && '+ requirementPhoton + ')>=1 && count(EGAM3_DiElectronMass3 > 40.0*GeV)>=1)'
 
 
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
 
-if RecomputeElectronSelectors :
-    photon_quality = 'Photons.DFCommonPhotonsIsEMTight'
-else :
-    photon_quality = 'Photons.Tight'
+skimmingExpression = skimmingExpression1a + ' || ' + skimmingExpression1b + ' || ' + skimmingExpression2 + ' || ' + skimmingExpression3
+print "EGAM3 skimming expression: ", skimmingExpression
 
-expression = '(count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1) || (count(DFCommonPhotons_et>9.5*GeV && '+ photon_quality + ')>=1 && (count(EGAM3_DiElectronMass2 > 40.0*GeV)>=1 || count(EGAM3_DiElectronMass3 > 40.0*GeV)>=1))'
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM3_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM3_SkimmingTool",
-                                                                 expression = expression)
+                                                                 expression = skimmingExpression)
 ToolSvc += EGAM3_SkimmingTool
-print "EGAM3 skimming tool:", EGAM3_SkimmingTool
+print "EGAM3 skimming tool: ", EGAM3_SkimmingTool
 
 
 
 #====================================================================
-# DECORATION TOOLS
+# SET UP AUGMENTATIONS
 #====================================================================
 
 
@@ -200,11 +220,126 @@ if DoCellReweighting:
     ToolSvc += EGAM3_EGammaReweightTool
 
 
-#================
-# THINNING TOOLS
-#================
+#====================================================================
+# SET UP THINNING
+#====================================================================
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EGAM3ThinningHelper = ThinningHelper( "EGAM3ThinningHelper" )
+EGAM3ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
+if globalflags.DataSource()!='geant4':
+    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
+EGAM3ThinningHelper.AppendToStream( EGAM3Stream, ExtraContainersTrigger )
+
 thinningTools=[]
-# TO BE ADDED
+
+# Track thinning
+if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
+
+    TrackThinningKeepElectronTracks = True
+    TrackThinningKeepPhotonTracks = True
+    TrackThinningKeepAllPhotonTracks = True
+    TrackThinningKeepJetTracks = False
+    TrackThinningKeepMuonTracks = False
+    TrackThinningKeepTauTracks = False
+    TrackThinningKeepPVTracks = False
+
+    # Tracks associated with Jets
+    if (TrackThinningKeepJetTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+        EGAM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM3JetTPThinningTool",
+                                                                                ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                                JetKey                  = "AntiKt4EMTopoJets",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                ApplyAnd                = True)
+        ToolSvc += EGAM3JetTPThinningTool
+        print EGAM3JetTPThinningTool
+        thinningTools.append(EGAM3JetTPThinningTool)
+    
+    # Tracks associated with Muons
+    if (TrackThinningKeepMuonTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+        EGAM3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM3MuonTPThinningTool",
+                                                                                  ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                                  MuonKey                 = "Muons",
+                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM3MuonTPThinningTool
+        print EGAM3MuonTPThinningTool
+        thinningTools.append(EGAM3MuonTPThinningTool)
+    
+    # Tracks associated with Electrons
+    if (TrackThinningKeepElectronTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+        EGAM3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM3ElectronTPThinningTool",
+                                                                                        ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                                        SGKey                   = "Electrons",
+                                                                                        GSFTrackParticlesKey    = "GSFTrackParticles",        
+                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                        SelectionString         = "Electrons.pt > 0*GeV",
+                                                                                        BestMatchOnly = True,
+                                                                                        ConeSize = 0.3,
+                                                                                        ApplyAnd = False)
+        ToolSvc += EGAM3ElectronTPThinningTool
+        print EGAM3ElectronTPThinningTool
+        thinningTools.append(EGAM3ElectronTPThinningTool)
+
+    # Tracks associated with Photons
+    if (TrackThinningKeepPhotonTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+        EGAM3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM3PhotonTPThinningTool",
+                                                                                      ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                                      SGKey                   = "Photons",
+                                                                                      GSFTrackParticlesKey    = "GSFTrackParticles",        
+                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                      SelectionString         = "Photons.pt > 0*GeV",
+                                                                                      BestMatchOnly = True,
+                                                                                      ConeSize = 0.3,
+                                                                                      ApplyAnd = False)
+        
+        ToolSvc += EGAM3PhotonTPThinningTool
+        print EGAM3PhotonTPThinningTool
+        thinningTools.append(EGAM3PhotonTPThinningTool)
+
+    # Tracks associated with Photons (all tracks, large cone, for track isolation studies of the selected photon)
+    if (TrackThinningKeepAllPhotonTracks) : 
+        EGAM3PhotonTPThinningTool2 = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM3PhotonTPThinningTool2",
+                                                                                       ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                                       SGKey                   = "Photons",
+                                                                                       GSFTrackParticlesKey    = "GSFTrackParticles",        
+                                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                       SelectionString         = "Photons.pt > 9.5*GeV",
+                                                                                       BestMatchOnly = False,
+                                                                                       ConeSize = 0.6,
+                                                                                       ApplyAnd = False)
+        
+        ToolSvc += EGAM3PhotonTPThinningTool2
+        print EGAM3PhotonTPThinningTool2
+        thinningTools.append(EGAM3PhotonTPThinningTool2)
+
+    # Tracks associated with Taus
+    if (TrackThinningKeepTauTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+        EGAM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM3TauTPThinningTool",
+                                                                                ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                                TauKey                  = "TauJets",
+                                                                                ConeSize                = 0.6,
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM3TauTPThinningTool
+        print EGAM3TauTPThinningTool
+        thinningTools.append(EGAM3TauTPThinningTool)
+
+    # Tracks from primary vertex
+    if (TrackThinningKeepPVTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+        EGAM3TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM3TPThinningTool",
+                                                                          ThinningService         = EGAM3ThinningHelper.ThinningSvc(),
+                                                                          SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM3TPThinningTool
+        print EGAM3TPThinningTool
+        thinningTools.append(EGAM3TPThinningTool)
+
+
+print "EGAM3 thinningTools: ", thinningTools
 
 
 #=======================================
@@ -238,30 +373,19 @@ replaceAODReducedJets(reducedJetList,egam3Seq,"EGAM3")
 
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM SELECTION
 #====================================================================
-streamName = derivationFlags.WriteDAOD_EGAM3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM3Stream )
-EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Only events that pass the filters listed below are written out.
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
 EGAM3Stream.AcceptAlgs(["EGAM3Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM3ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
-# CONTENT LIST  
+# SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkEGamma.EGAM3ExtraContent import *
 
 EGAM3SlimmingHelper = SlimmingHelper("EGAM3SlimmingHelper")
 EGAM3SlimmingHelper.SmartCollections = ["Electrons",
@@ -286,15 +410,23 @@ if DoCellReweighting:
 EGAM3SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM3SlimmingHelper.AllVariables = ExtraContainersPhotons
 EGAM3SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM3SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM3SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM3SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM3_ClusterEnergyPerLayerDecorators:
     EGAM3SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+
+# Add detailed shower shape variables
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+EGAM3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+EGAM3SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+EGAM3SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)

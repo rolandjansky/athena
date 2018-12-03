@@ -176,6 +176,20 @@ namespace xAOD {
     /// Add more sum-of-(event-weights-squared) that this CutBookkeeper has seen
     void addSumOfEventWeightsSquared( double nWeightedEventsSquared );
 
+    /// Get the sum-of-truncated-event-weights that this CutBookkeeper has seen
+    double sumOfTruncatedEventWeights() const;
+    /// Set the sum-of-truncated-event-weights that this CutBookkeeper has seen
+    void setSumOfTruncatedEventWeights( double nTruncatedWeightedEvents );
+    /// Add more sum-of-truncated-event-weights that this CutBookkeeper has seen
+    void addSumOfTruncatedEventWeights( double nTruncatedWeightedEvents );
+
+    /// Get the sum-of-(truncated-event-weights-squared) that this CutBookkeeper has seen
+    double sumOfTruncatedEventWeightsSquared() const;
+    /// Set the sum-of-(truncated-event-weights-squared) that this CutBookkeeper has seen
+    void setSumOfTruncatedEventWeightsSquared( double nTruncatedWeightedEventsSquared );
+    /// Add more sum-of-(truncated-event-weights-squared) that this CutBookkeeper has seen
+    void addSumOfTruncatedEventWeightsSquared( double nTruncatedWeightedEventsSquared );
+
     /// @}
 
 

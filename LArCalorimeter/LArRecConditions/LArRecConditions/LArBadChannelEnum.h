@@ -34,7 +34,8 @@ class LArBadChannelEnum {
     problematicForUnknownReasonBit = 18,
     sporadicBurstNoiseBit = 19,
     deadSCACellBit = 20,
-    badFirstSampleBit = 21
+    badFirstSampleBit = 21,
+    unflaggedByLADIeSBit = 22
   };
 
   ///  const static BitWord HighGainMask;

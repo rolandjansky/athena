@@ -28,7 +28,7 @@ class CondAttrListCollection;
 
 namespace MagField {
 
-  class H8FieldSvc : public IMagFieldSvc, virtual public AthService {
+  class H8FieldSvc : public extends<AthService, IMagFieldSvc> {
     public:
      
       //** Constructor with parameters */
@@ -42,9 +42,6 @@ namespace MagField {
       StatusCode  start();
       StatusCode  finalize();
 
-      /** Query the interfaces **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-     
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
       /** if deriv[9] is given, field derivatives are returned in kT/mm */

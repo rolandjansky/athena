@@ -63,8 +63,11 @@ namespace EL
     RCU_READ_INVARIANT (this);
     ANA_CHECK (m_config.makeAlgorithm (m_algorithm));
     m_algorithm->setHistogramWorker (wk ());
+    m_algorithm->setTreeWorker (wk ());
     m_algorithm->setFilterWorker (wk ());
     m_algorithm->setWk (wk ());
+    if (m_config.useXAODs())
+      m_algorithm->setEvtStore (evtStore ());
     ANA_CHECK (m_algorithm->sysInitialize());
     return StatusCode::SUCCESS;
   }
@@ -74,10 +77,31 @@ namespace EL
   StatusCode AnaAlgorithmWrapper ::
   initialize ()
   {
+    RCU_READ_INVARIANT (this);
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AnaAlgorithmWrapper ::
+  fileExecute ()
+  {
     ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_READ_INVARIANT (this);
-    if (m_config.useXAODs())
-      m_algorithm->setEvtStore (evtStore ());
+    if (m_algorithm->hasFileExecute())
+      ANA_CHECK (m_algorithm->sysFileExecute());
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AnaAlgorithmWrapper ::
+  changeInput (bool)
+  {
+    ANA_CHECK_SET_TYPE (EL::StatusCode);
+    RCU_READ_INVARIANT (this);
+    if (m_algorithm->hasBeginInputFile())
+      ANA_CHECK (m_algorithm->sysBeginInputFile());
     return StatusCode::SUCCESS;
   }
 

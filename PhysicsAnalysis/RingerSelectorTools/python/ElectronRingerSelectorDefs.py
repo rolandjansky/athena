@@ -6,10 +6,7 @@ mlog = logging.getLogger( 'ElectronRingerSelectorDefs.py' )
 from AthenaCommon.Configurable import Configurable
 
 # Import from Ringer utilities:
-try:
-  import cppyy
-except ImportError:
-  import PyCintex as cppyy
+import cppyy
 
 try :
   cppyy.loadDictionary('RingerSelectorToolsDict')

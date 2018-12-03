@@ -9,7 +9,7 @@
 // Separate for Electron and Photon
 // GETTER for Shower Shape monitoring
 
-#define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Photon* eg) \
+#define GETTER(_name_) inline float getShowerShape_##_name_(const xAOD::Photon* eg) \
 { float val{-99}; \
     eg->showerShapeValue(val,xAOD::EgammaParameters::_name_); \
     return val; } 
@@ -38,7 +38,7 @@ GETTER(DeltaE)
 #undef GETTER
 
 // GETTER for Isolation monitoring
-#define GETTER(_name_) float getIsolation_##_name_(const xAOD::Photon* eg) \
+#define GETTER(_name_) inline float getIsolation_##_name_(const xAOD::Photon* eg) \
 { float val{-99}; \
     eg->isolationValue(val,xAOD::Iso::_name_); \
     return val; } 
@@ -54,7 +54,7 @@ GETTER(ptcone40)
 #undef GETTER    
 
 // GETTERs for CaloCluster monitoring   
-#define GETTER(_name_) float getCluster_##_name_(const xAOD::Photon* eg) \
+#define GETTER(_name_) inline float getCluster_##_name_(const xAOD::Photon* eg) \
 {    if(eg && eg->caloCluster()) \
         return eg->caloCluster()->_name_(); \
     else return -99.;}
@@ -65,14 +65,14 @@ GETTER(eta)
 
 
 // Additional monitoring function   
-float getEta2(const xAOD::Photon* eg){
+inline float getEta2(const xAOD::Photon* eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return fabs(cluster->etaBE(2)); 
     }
     else return -99.;
 }
-float getEtCluster37(const xAOD::Photon* eg){
+inline float getEtCluster37(const xAOD::Photon* eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         float eta2   = fabs(cluster->etaBE(2)); 
@@ -80,7 +80,7 @@ float getEtCluster37(const xAOD::Photon* eg){
     }
     else return -99.;
 }
-float getDEmaxs1(const xAOD::Photon *eg){
+inline float getDEmaxs1(const xAOD::Photon *eg){
     if(eg){
         float emax2=0.;
         eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
@@ -92,7 +92,7 @@ float getDEmaxs1(const xAOD::Photon *eg){
     else return -99.;
 }
 
-float getEnergyBE0(const xAOD::Photon *eg){
+inline float getEnergyBE0(const xAOD::Photon *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(0); 
@@ -100,7 +100,7 @@ float getEnergyBE0(const xAOD::Photon *eg){
     else return 0;
 }
 
-float getEnergyBE1(const xAOD::Photon *eg){
+inline float getEnergyBE1(const xAOD::Photon *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(1); 
@@ -108,7 +108,7 @@ float getEnergyBE1(const xAOD::Photon *eg){
     else return 0.;
 }
 
-float getEnergyBE2(const xAOD::Photon *eg){
+inline float getEnergyBE2(const xAOD::Photon *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(2); 
@@ -116,7 +116,7 @@ float getEnergyBE2(const xAOD::Photon *eg){
     else return 0.;
 }
 
-float getEnergyBE3(const xAOD::Photon *eg){
+inline float getEnergyBE3(const xAOD::Photon *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(3); 
@@ -124,7 +124,7 @@ float getEnergyBE3(const xAOD::Photon *eg){
     else return 0.;
 }
 
-float getEaccordion(const xAOD::Photon *eg){
+inline float getEaccordion(const xAOD::Photon *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         float ebe1 = cluster->energyBE(1); 
@@ -135,7 +135,7 @@ float getEaccordion(const xAOD::Photon *eg){
     else return 0.;
 }
 
-float getE0Eaccordion(const xAOD::Photon *eg){
+inline float getE0Eaccordion(const xAOD::Photon *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster();
         float ebe0 = cluster->energyBE(0); 

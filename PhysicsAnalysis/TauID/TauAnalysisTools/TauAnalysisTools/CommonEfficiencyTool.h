@@ -1,5 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
@@ -32,7 +34,7 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TF1.h"
 #include "TKey.h"
 
@@ -60,8 +62,10 @@ public:
   // CommonEfficiencyTool pure virtual public functionality
   //__________________________________________________________________________
 
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0 );
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau, 
+    unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
@@ -86,6 +90,8 @@ public:
 protected:
 
   std::string ConvertProngToString(const int& iProngness);
+  std::string ConvertMuToString(const int& iMu);
+  std::string GetMcCampaignString(const int& iMu);
 
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
@@ -103,24 +109,20 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(std::unique_ptr<TFile> &fFile);
+  void ReadInputs(TFile& fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
 
-  static CP::CorrectionCode getValueTH2F(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dVars[]
+  static CP::CorrectionCode getValueTH2(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dVars[]
                                         );
-  static CP::CorrectionCode getValueTH2D(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dVars[]
-                                        );
-  static CP::CorrectionCode getValueTH3D(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dVars[]
+  static CP::CorrectionCode getValueTH3(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dVars[]
                                         );
   static CP::CorrectionCode getValueTF1(const TObject* oObject,
                                         double& dEfficiencyScaleFactor,
@@ -155,6 +157,9 @@ protected:
   bool m_bSFIsAvailableChecked;
   bool m_bPtTauEtaCalibIsAvailable;
   bool m_bPtTauEtaCalibIsAvailableIsChecked;
+  bool m_bSplitMu;
+  bool m_bSplitMCCampaign;
+  std::string m_sMCCampaign;
 };
 } // namespace TauAnalysisTools
 

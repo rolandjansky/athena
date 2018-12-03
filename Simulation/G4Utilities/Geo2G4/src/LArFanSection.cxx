@@ -60,13 +60,24 @@ G4bool LArWheelSolid::check_D(
 			} else {
 				if(t2 < t1) t1 = t2;
 			}
-		} else {
+		} else if(t2 < 0.){
 			if(out) return false;
+		} else { // answer is t1
 		}
-	} else {
+	} else if(t1 < 0.){
 		if(t2 > 0.){
 			if(out) return false;
 			t1 = t2;
+		} else if(t2 < 0.){
+			return false;
+		} else {
+			return false;
+		}
+	} else {
+		if(t2 > 0.){
+			t1 = t2;
+		} else if(t2 < 0.){
+			return false;
 		} else {
 			return false;
 		}
@@ -89,7 +100,7 @@ bool LArWheelSolid::fs_cross_lower(
                      - 2.*m_fs->ABmin*p.z() - m_fs->Bmin2;
 	G4double t1(0.0);
 	const G4double out_dist = m_fs->Amin*p.z() + m_fs->Bmin - p.perp();
-	LWSDBG(8, std::cout << "fcl out_dist(p)=" << out_dist << " Tolerance=" << Tolerance << std::endl);
+	LWSDBG(8, std::cout << "fcl out_dist(p)=" << out_dist << " Tolerance=" << s_Tolerance << std::endl);
 	const G4bool out = out_dist >= 0.0;
 	if(check_D(t1, A, B, C, out)){
 		const G4double zz1 = p.z() + v.z() * t1;
@@ -101,6 +112,28 @@ bool LArWheelSolid::fs_cross_lower(
 		if(xx1 < m_fs->xmin || xx1 > m_fs->xmax){
 			LWSDBG(8, std::cout << "fcl out on X " << xx1 << std::endl);
 			return false;
+		}
+		if(out_dist == 0.){ // entry point is exactly on the cone
+		// here we got t1 > 0 from check_D, founded point seems to be in x and z ranges
+		// if the track leaves the surface, then the entry is the intersection,
+		// and the distance is 0
+		// if the track is on the surface, then there is no lower cone intersection
+
+		// estimate deviation of the track from the surface
+		// (exact calculations are too complicated)
+			const G4double xx2 = p.x() + v.x() * t1 * 0.5;
+			const G4double yy2 = p.y() + v.y() * t1 * 0.5;
+			const G4double dev = fabs(sqrt(xx2 *xx2 + yy2*yy2)
+		                       - m_fs->Amin*(p.z() + zz1)*0.5
+		                       - m_fs->Bmin);
+			if(dev < s_Tolerance){
+				LWSDBG(8, std::cout << "fcl on the surface" << std::endl);
+				return false;
+			} else {
+				LWSDBG(8, std::cout << "fcl out = in" << std::endl);
+				q = p;
+				return true;
+			}
 		}
 		q.setX(xx1);
 		q.setY(p.y() + v.y() * t1);
@@ -151,8 +184,10 @@ bool LArWheelSolid::fs_cross_upper(
 	const G4bool out = m_fs->Amax*p.z() + m_fs->Bmax <= p.perp();
 	if(check_D(t1, A, B, C, out)){
 		const G4double zz1 = p.z() + v.z() * t1;
+		LWSDBG(8, std::cout << "fcu z = " << zz1 << ", lim: (" << m_Zsect.front() << ", " << m_Zmid << ")" << std::endl);
 		if(zz1 < m_Zsect.front() || zz1 > m_Zmid) return false;
 		const G4double xx1 = p.x() + v.x() * t1;
+		LWSDBG(8, std::cout << "fcu x = " << xx1 << ", lim: (" << m_fs->xmin << ", " << m_fs->xmax << ")" << std::endl);
 		if(xx1 < m_fs->xmin || xx1 > m_fs->xmax) return false;
 		q.setX(xx1);
 		q.setY(p.y() + v.y() * t1);
@@ -204,7 +239,7 @@ LArWheelSolid::FanBoundExit_t LArWheelSolid::find_exit_point(
 	q = p + v * d;
 	LWSDBG(7, std::cout << "fep side " << d << " " << result << " q" << MSG_VECTOR(q) << std::endl);
 	const G4double out_distlower = m_fs->Amin*q.z() + m_fs->Bmin - q.perp(); // > 0 - below lower cone
-	LWSDBG(7, std::cout << "fep out_distlower(q)=" << out_distlower << " Tolerance=" << Tolerance << std::endl);
+	LWSDBG(7, std::cout << "fep out_distlower(q)=" << out_distlower << " Tolerance=" << s_Tolerance << std::endl);
 	if (out_distlower >= 0.0) {
 		// side intersection point is below lower cone
 		// initial point p was at exit boundary
@@ -218,7 +253,7 @@ LArWheelSolid::FanBoundExit_t LArWheelSolid::find_exit_point(
 		return NoCross;
 	}
 	const G4double out_distupper = m_fs->Amax*q.z() + m_fs->Bmax - q.perp(); // < 0 - above upper cone
-	LWSDBG(7, std::cout << "fep out_distupper(q)=" << out_distupper << " s_Tolerance=" << s_Tolerance << std::endl);
+	LWSDBG(7, std::cout << "fep out_distupper(q)=" << out_distupper << " Tolerance=" << s_Tolerance << std::endl);
 	if (out_distupper <= 0.0) {
 		// side intersection point is above upper cone
 		// initial point p was at exit boundary

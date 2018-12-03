@@ -36,8 +36,7 @@ namespace iParSim {
    @author Miha.Muskinja -at- cern.ch 
    */
       
-  class DefaultSmearer : public AthAlgTool, 
-        virtual public iParSim::IChargedSmearer
+  class DefaultSmearer : public extends<AthAlgTool, iParSim::IChargedSmearer>
   {
     public:
 

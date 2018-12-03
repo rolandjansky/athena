@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -23,7 +23,8 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
+
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -72,34 +73,12 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
     muons=copy;
   }
 
-  bool cached_doIsoSig = m_doMuIsoSignal;
   for (const auto& muon : *copy) {
     ATH_CHECK( this->FillMuon(*muon, m_muBaselinePt, m_muBaselineEta) );
-    if(m_doIsoCloseByOR) //switch off isolation for now if close-by OR corrections were requested
-      m_doMuIsoSignal = false;
     this->IsSignalMuon(*muon, m_muPt, m_mud0sig, m_muz0, m_muEta);
     this->IsCosmicMuon(*muon, m_muCosmicz0, m_muCosmicd0);
     this->IsBadMuon(*muon, m_badmuQoverP);
   }
-
-  //apply close-by corrections to isolation if requested
-  if(m_doIsoCloseByOR){
-    // stores the electrons in a vector
-    std::vector<const xAOD::IParticle*> pVec;
-    for(auto pobj: *copy) {
-      pVec.push_back((const xAOD::IParticle*) pobj);
-    }
-
-    //restore isSignal settings
-    m_doMuIsoSignal = cached_doIsoSig;
-
-    //correct isolation and propagate to signal deco
-    for (const auto& muon : *copy) {
-      dec_isol(*muon) = m_isoCloseByTool->acceptCorrected(*muon, pVec);
-      if(m_doMuIsoSignal) dec_signal(*muon) &= acc_isol(*muon); //add isolation to signal deco if requested
-    }
-  }
-
   if (recordSG) {
     ATH_CHECK( evtStore()->record(copy, "STCalib" + muonkey + m_currentSyst.name()) );
     ATH_CHECK( evtStore()->record(copyaux, "STCalib" + muonkey + m_currentSyst.name() + "Aux.") );
@@ -119,8 +98,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_passSignalID(input) = false;
        
   // don't bother calibrating or computing WP
-  if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
-  
+  if ( input.pt() < 3e3 ) return StatusCode::SUCCESS;
+
   ATH_MSG_VERBOSE( "MUON pt before calibration " << input.pt() );
 
   ATH_MSG_VERBOSE( "MUON eta  = " << input.eta() );
@@ -212,6 +191,9 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   if (m_mubaselinez0>0. && fabs(acc_z0sinTheta(input))>m_mubaselinez0) return StatusCode::SUCCESS;
   if (m_mubaselined0sig>0. && fabs(acc_d0sig(input))>m_mubaselined0sig) return StatusCode::SUCCESS;
 
+  //--- Do baseline isolation check
+  if ( !( m_muBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
+
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
@@ -270,8 +252,8 @@ bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input) const
 //     https://indico.cern.ch/event/397325/contribution/19/material/slides/0.pdf and 
 //     https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
 {
-  if (input.pt() < 4e3){
-    ATH_MSG_DEBUG("No HighPt check supported for muons below 4GeV! False.");
+  if (input.pt() < 3e3){
+    ATH_MSG_DEBUG("No HighPt check supported for muons below 3GeV! False.");
     dec_passedHighPtCuts(input) = false;
     return false;
   }
@@ -385,6 +367,10 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 
   if (isoSF) {
     float sf_iso(1.);
+    if ( mu.pt() < 4e3 ) {
+      ATH_MSG_WARNING( "Muon pt: " << mu.pt()/1000. << "! Isolation SF is not available for Muon pt < 4GeV. Falling back to SF = 1." );
+      return 1;
+    } 
     if (m_muonIsolationSFTool.empty()) {
       ATH_MSG_WARNING(" GetSignalMuonSF: Attempt to retrieve isolation SF for unsupported working point " << m_muIso_WP);
     } else {
@@ -404,6 +390,11 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 double SUSYObjDef_xAOD::GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata) {
 
   double eff(1.);
+
+  if ( mu.pt() < 4e3 ) {
+    ATH_MSG_WARNING( "Muon pt: " << mu.pt()/1000. << "! Trigger Eff is not available for Muon pt < 4GeV. Falling back to Eff = 1." );
+    return 1;
+  } 
   if (m_muonTriggerSFTool->getTriggerEfficiency(mu, eff, trigExpr, isdata) != CP::CorrectionCode::Ok) {
     ATH_MSG_WARNING("Problem retrieving signal muon trigger efficiency for " << trigExpr );
   }
@@ -518,6 +509,16 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors for systematic var. " << systConfig.name() );
   }
 
+  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+  }
+
   sf = GetTotalMuonSF(muons, recoSF, isoSF, trigExpr, bmhptSF);
 
   //Roll back to default
@@ -544,6 +545,16 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   ret  = m_muonTriggerSFTool->applySystematicVariation(m_currentSyst);
   if ( ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors back to default.");
+  }
+
+  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
+  }
+
+  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   return sf;

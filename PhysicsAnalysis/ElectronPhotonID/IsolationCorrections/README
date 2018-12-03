@@ -1,0 +1,49 @@
+solationCorrections! This document gives basic instructions on how to perform local development on the tool using acm. The steps are as follows: 
+
+Make a personal fork of the relevant atlas/athena branch on gitlab.cern.ch (you can do this on the website directly). You probably want to fork the branch of the current release set (i.e. 21.2). Do not use the master branch! 
+
+You now need to set up acm and AthAnalysis. There are instructions for doing this on twiki here: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysis#Setting_things_up. 
+I've attempted to summarize the important steps below. 
+
+Set up acm locally using the following commands: 
+setupATLAS
+mkdir ~/acmDev cd ~/acmDev git clone https://:@gitlab.cern.ch:8443/will/atlasexternals.git cd atlasexternals git checkout -b vpdev origin/vpdev
+
+Add the following to your .bashrc file: 
+export ACMHOME=~/acmDev alias acmSetup='source ${ACMHOME}/atlasexternals/Build/AtlasACM/acmSetup.sh'
+
+(Note: you only need to do the above steps once!)
+ 
+
+Next, you'll need to set up your local working area. Start with: 
+mkdir source build run 
+cd build 
+acmSetup --sourcedir=../source AthAnalysis,21.2.{#} 
+
+Now, checkout your branch of Athena and checkout this package: 
+cd ../source 
+acm sparse_clone_project athena <gitlabusername>/athena
+git checkout origin/{my_branch}
+acm add_pkg athena/PhysicsAnalysis/ElectronPhotonID/IsolationCorrections 
+
+Now, build the package: 
+cd ../build 
+acm compile 
+
+You should now be able to run an Athena analysis! Note that every time you make a change to your local code, you'll need to recompile. You'll also need to perform the acmSetup step and recompile whenever you log into a new terminal session. 
+
+You might want to make a test script to make sure you didn't break anything in this package. I recommend doing this by creating a new package: 
+acm new_skeleton MyPackage
+In the IsolationCorrections/utils/ folder, there are a few files with the prefix "TestCode_" which can be copied into the new package in order to test the IsolationCorrections package. Copy the "MyPackageAlg.cxx" and "MyPackageAlg.h" files into source/MyPackage/src/ , "CMakeLists.txt" into source/MyPackage/ , and "MyPackageAlgJobOptions.py" into source/MyPackage/share/ . Remove the "TestCode_" prefix when copying. You'll need to go back into ../build/ and recompile with "acm compile". Lastly, go to the ../run/ directory and do: 
+athena MyPackage/MyPackageAlgJobOptions.py 
+
+You should see some debugging numbers. If so, the code is not catastrophically broken. Gold star for you! 
+
+The last point is how to push local changes to the main Athena branch you are altering. Once you've made and tested your changes, go to source/ and: 
+git status 
+git add [my_changed_files] 
+git commit -m "[my_message]"
+git push [my_branch]
+
+You can then make a merge request on gitlab.cern.ch . Make sure you choose the correct branches! 
+

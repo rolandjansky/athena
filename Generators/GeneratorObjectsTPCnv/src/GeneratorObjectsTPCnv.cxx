@@ -6,6 +6,7 @@
 #include "AthenaKernel/TPCnvFactory.h"
 
 #include "GeneratorObjectsTPCnv/HepMcParticleLink_p1.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLink_p2.h"
 
 #include "GeneratorObjectsTPCnv/GenParticle_p1.h"
 #include "GeneratorObjectsTPCnv/GenVertex_p1.h"

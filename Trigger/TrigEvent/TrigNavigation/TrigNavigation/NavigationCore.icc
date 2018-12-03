@@ -18,6 +18,7 @@
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
 #include "TrigNavigation/RoICacheHistory.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 
 /*****************************************************************************
  *
@@ -64,7 +65,7 @@ bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
 /////////////////////////////////////////////////////////////////////////////
 template<class T> 
 __attribute__((__used__))
-bool HLT::NavigationCore::getFeature( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) {
+bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) {
 
   feature = 0;
 
@@ -428,7 +429,7 @@ bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const
 /////////////////////////////////////////////////////////////////////////////
 template<class T>
 __attribute__((__used__))
-HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder(const std::string& label, uint16_t suggestedIndex) {
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (const std::string& label, uint16_t suggestedIndex) {
 
   // find object
   CLID clid = ClassID_traits<T>::ID();
@@ -459,7 +460,7 @@ HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder(const std::string& labe
 /////////////////////////////////////////////////////////////////////////////
 template<class T>
 __attribute__((__used__))
-HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder(uint16_t subTypeIndex ) {
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (uint16_t subTypeIndex ) {
   // find object
   CLID clid = ClassID_traits<T>::ID();
   MLOG(DEBUG) << "Getting holder for type: " << clid << endreq;

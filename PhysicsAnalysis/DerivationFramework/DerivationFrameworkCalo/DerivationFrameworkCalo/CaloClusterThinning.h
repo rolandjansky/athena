@@ -1,53 +1,104 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// CaloClusterThinning.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+#ifndef DERIVATIONFRAMEWORKCALO_CALOCLUSTERPARTICLETHINNING_H
+#define DERIVATIONFRAMEWORKCALO_CALOCLUSTERPARTICLETHINNING_H
 
-#ifndef DERIVATIONFRAMEWORK_CALO_CALOCLUSTERPARTICLETHINNING_H
-#define DERIVATIONFRAMEWORK_CALO_CALOCLUSTERPARTICLETHINNING_H
-
+// System include(s):
 #include <string>
+#include <memory>
+#include <vector>
 
+// Framework include(s):
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+// DF include(s):
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
+#include "DerivationFrameworkInterfaces/ExpressionParserHelper.h"
 
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-class IThinningSvc;
+// EDM include(s):
+#include "xAODCaloEvent/CaloClusterContainerFwd.h"
 
 namespace DerivationFramework {
 
-  class CaloClusterThinning : public AthAlgTool, public IThinningTool {
-    public:
-      CaloClusterThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~CaloClusterThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+   /// Tool selecting calo clusters from leptons to keep
+   ///
+   /// This tool is used in derivation jobs to set up the thinning such that
+   /// calo clusters associated with lepton objects would be kept for a given
+   /// output stream.
+   ///
+   /// @author Simone Mazza (simone.mazza@mi.infn.it)
+   ///
+   class CaloClusterThinning : public AthAlgTool, public IThinningTool {
 
-    private:
-      ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_ntotTopo, m_npass, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
-      mutable bool m_is_muons, m_is_egamma, m_is_tau, m_run_calo, m_run_topo;
+   public:
+      /// AlgTool constructor
+      CaloClusterThinning( const std::string& type, const std::string& name,
+                           const IInterface* parent );
+
+      /// @name Function(s) implementing the @c IAlgTool interface
+      /// @{
+
+      /// Function initialising the tool
+      StatusCode initialize() override;
+      /// Function finalising the tool
+      StatusCode finalize() override;
+
+      /// @}
+
+      /// @name Function(s) implementing the
+      ///       @c DerivationFramework::IThinningTool interface
+      /// @{
+
+      /// Function performing the configured thinning operation
+      StatusCode doThinning() const override;
+
+      /// @}
+
+   private:
+      /// @name Function(s) implementing much of the logic
+      /// @{
+
+      StatusCode setClustersMask( std::vector< bool >& mask,
+                                  const xAOD::IParticle* particle,
+                                  const xAOD::CaloClusterContainer* cps ) const;
+      StatusCode particleCluster( std::vector< bool >& mask,
+                                  const xAOD::IParticle* particle,
+                                  const xAOD::CaloClusterContainer* cps ) const;
+
+      /// @}
+
+      /// @name Tool properties
+      /// @{
+
+      /// SG key for the lepton container to use
       std::string m_sgKey;
+      /// SG key of the calo cluster container to use
       std::string m_CaloClSGKey;
+      /// SG key of the topo cluster container to use
       std::string m_TopoClSGKey;
-      //std::string m_FrwdClSGKey;
+      /// Selection string to use with the expression evaluation
       std::string m_selectionString;
-      float m_coneSize;
-      bool m_and;
-      ExpressionParsing::ExpressionParser *m_parser;
+      /// Cone around lepton objects to keep clusters in
+      float m_coneSize = -1.0;
+      /// Flag for using @c IThinningSvc::Operator::And (instead of "or")
+      bool m_and = false;
 
-      StatusCode setClustersMask(std::vector<bool>& mask, const xAOD::IParticle* particle, const xAOD::CaloClusterContainer* cps) const;
-      StatusCode particleCluster(std::vector<bool>& mask, const xAOD::IParticle* particle,const xAOD::CaloClusterContainer* cps) const;
-  };
-}
+      /// @}
+
+      /// Handle for accessing the thinning service
+      ServiceHandle< IThinningSvc > m_thinningSvc;
+      /// Variables keeping statistics information about the job
+      mutable unsigned int m_ntot = 0, m_ntotTopo = 0, m_npass = 0,
+                           m_npassTopo = 0;
+      /// The expression evaluation helper object
+      std::unique_ptr< ExpressionParserHelper > m_parser;
+
+   }; // class CaloClusterThinning
+
+} // namespace DerivationFramework
 
 #endif // DERIVATIONFRAMEWORK_EGAMMACALOCLUSTERPARTIGLETHINNING_H

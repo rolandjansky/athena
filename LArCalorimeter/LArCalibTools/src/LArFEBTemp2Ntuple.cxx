@@ -27,39 +27,36 @@ StatusCode LArFEBTemp2Ntuple::stop() {
  
    sc=m_nt->addItem("temp1",temp1,-1000.,5000.);
    if (sc!=StatusCode::SUCCESS)
-     {(*m_log) << MSG::ERROR << "addItem 'temp1' failed" << endreq;
+     {ATH_MSG_ERROR( "addItem 'temp1' failed" );
 	return StatusCode::FAILURE;
      }
    
    sc=m_nt->addItem("temp2",temp2,-1000.,5000.);
    if (sc!=StatusCode::SUCCESS)
-     {(*m_log) << MSG::ERROR << "addItem 'temp2' failed" << endreq;
+     {ATH_MSG_ERROR( "addItem 'temp2' failed" );
 	return StatusCode::FAILURE;
      }
    
    IToolSvc* toolSvc=0;
    sc = service( "ToolSvc",toolSvc);
-   if (sc!=StatusCode::SUCCESS) 
-     {
-	(*m_log)  << MSG::ERROR << "Unable to retrieve IToolSvc"
-	  << endreq;
-     }   
+   if (sc!=StatusCode::SUCCESS) {
+	ATH_MSG_ERROR( "Unable to retrieve IToolSvc");
+   }   
 
    ILArFEBTempTool *larFEBTempTool;
    sc = toolSvc->retrieveTool("LArFEBTempTool", larFEBTempTool);
    if (sc!=StatusCode::SUCCESS) {
-      (*m_log)  << MSG::ERROR << "Unable to retrieve LArFEBTempTool from ToolSvc" << endreq;
+      ATH_MSG_ERROR( "Unable to retrieve LArFEBTempTool from ToolSvc" );
       return StatusCode::FAILURE;
    } 
 
    std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
    std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
 
-   for(; itOnId!=itOnIdEnd;++itOnId)
-     {
+   for(; itOnId!=itOnIdEnd;++itOnId) {
 	const HWIdentifier hwid = *itOnId;
 	FEBTemp tv = larFEBTempTool->getFebTemp(hwid);
-        (*m_log)  << MSG::DEBUG << hwid << " " << tv.size()<<endreq;
+        ATH_MSG_DEBUG( hwid << " " << tv.size() );
 	
 	if( !tv.empty() )
 	  {	     	 
@@ -77,14 +74,14 @@ StatusCode LArFEBTemp2Ntuple::stop() {
 	      
 		  if (sc!=StatusCode::SUCCESS) 
 		    {
-		       (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+		       ATH_MSG_ERROR( "writeRecord failed" );
 		       return StatusCode::FAILURE;
 		    }
 	       }	     
 	  }	
      }
    
-   (*m_log) << MSG::INFO << "LArFEBTemp2Ntuple has finished." << endreq;
+   ATH_MSG_INFO( "LArFEBTemp2Ntuple has finished." );
    
    return StatusCode::SUCCESS;
    

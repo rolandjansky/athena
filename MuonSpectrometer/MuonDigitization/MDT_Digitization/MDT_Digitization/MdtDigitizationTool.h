@@ -243,6 +243,10 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   //pile-up
   TimedHitCollection<MDTSimHit>* m_thpcMDT; // the hits
 
+  //pileup truth veto
+  bool m_includePileUpTruth;
+  IntegerProperty m_vetoThisBarcode;
+
   bool m_BMGpresent;
   int m_BMGid;
 
@@ -279,4 +283,3 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 };
 
 #endif
-

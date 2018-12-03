@@ -21,8 +21,8 @@ namespace G4UA
   void G4AtlasTrackingAction::PreUserTrackingAction(const G4Track* trk)
   {
     // Loop over my pre-actions and apply each one in turn
-    for(IPreTrackingAction* action : m_preTrackActions){
-      action->preTracking(trk);
+    for(auto action : m_trackActions){
+      action->PreUserTrackingAction(trk);
     }
   }
 
@@ -32,25 +32,17 @@ namespace G4UA
   void G4AtlasTrackingAction::PostUserTrackingAction(const G4Track* trk)
   {
     // Loop over my post-actions and apply each one in turn
-    for(IPostTrackingAction* action : m_postTrackActions){
-      action->postTracking(trk);
+    for(auto action : m_trackActions){
+      action->PostUserTrackingAction(trk);
     }
   }
 
   //---------------------------------------------------------------------------
   // Add one action to the list
   //---------------------------------------------------------------------------
-  void G4AtlasTrackingAction::addPreTrackAction(IPreTrackingAction* action)
+  void G4AtlasTrackingAction::addTrackAction(G4UserTrackingAction* action)
   {
-    m_preTrackActions.push_back(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Add one action to the list
-  //---------------------------------------------------------------------------
-  void G4AtlasTrackingAction::addPostTrackAction(IPostTrackingAction* action)
-  {
-    m_postTrackActions.push_back(action);
+    m_trackActions.push_back(action);
   }
 
 } // namespace G4UA

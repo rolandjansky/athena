@@ -50,8 +50,7 @@ namespace LArG4 {
   namespace BarrelPresampler {
 
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
-      : AthService(name, pSvcLocator)
-      , m_detectorName("LArMgr")
+      : base_class(name, pSvcLocator)
     {
       declareProperty("DetectorName",m_detectorName);
     }
@@ -64,14 +63,9 @@ namespace LArG4 {
         this should at some stage be taken from a database... */
     StatusCode Geometry::initialize()
     {
-#include "PresParameterDef.icc"
-
-      // position of mother volume inside nominal Atlas frame
-      m_zpres=1549.*Units::mm;
       // compute positions of end of modules and of first cathode in a module in
       // nominal Atlas coordinates
-      double eps=0.007*Units::mm;
-      m_zminPS=3.00*Units::mm;   // FIXME this should come from database
+      const double eps=0.007*Units::mm;
       m_end_module[0]=(m_mod[0][0]*m_cmm+2*eps)+m_zminPS+eps;
       for (int i=1;i<8;i++) m_end_module[i]=m_end_module[i-1]+(m_mod[i][0]*m_cmm+2*eps)+eps;
 #ifdef DEBUGHITS
@@ -106,23 +100,7 @@ namespace LArG4 {
       // pitch in z of gaps
       for (int i=0;i<8;i++) m_pitch[i]=m_mod[i][4]*m_cmm;
 
-      // LAr total gap
-      m_halfThickLAr = 0.5*13.*Units::mm;
-
       return StatusCode::SUCCESS;
-    }
-
-    // ====================================================================================
-
-    StatusCode Geometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( ILArBarrelPresamplerGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<ILArBarrelPresamplerGeometry*>(this);
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      /** Interface is not directly available : try out a base class */
-      return AthService::queryInterface(riid, ppvInterface);
     }
 
     //======================================================================================

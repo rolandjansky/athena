@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IZDCRECTOOL_H__
-#define __IZDCRECTOOL_H__
+#ifndef __IZDCANALYSISTOOL_H__
+#define __IZDCANALYSISTOOL_H__
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODForward/ZdcModuleContainer.h"

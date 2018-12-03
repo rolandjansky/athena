@@ -127,7 +127,7 @@ print      BPHY2BsJpsiKK
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk
 BPHY2BsKKSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name                 = "BPHY2BsKKSelectAndWrite",
                                                            Jpsi2PlusTrackName       = BPHY2BsJpsiKK,
-                                                           OutputVtxContainerName   = "BsJpsiKKCandidates",
+                                                           OutputVtxContainerName   = "BPHY2BsJpsiKKCandidates",
                                                            PVContainerName          = "PrimaryVertices",
                                                            RefPVContainerName       = "BPHY2RefittedPrimaryVertices",
                                                            RefitPV                  = True,
@@ -169,7 +169,7 @@ print BPHY2_Select_Jpsi2mumu
 BPHY2_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY2_Select_Bs2JpsiKK",
   HypothesisName             = "Bs",
-  InputVtxContainerName      = "BsJpsiKKCandidates",
+  InputVtxContainerName      = "BPHY2BsJpsiKKCandidates",
   TrkMasses                  = [105.658, 105.658, 493.677, 493.677],
   VtxMassHypo                = 5366.3,
   MassMin                    = 5000.0,
@@ -185,7 +185,7 @@ BPHY2_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY2_thinningTool_Tracks",
   ThinningService            = "BPHY2ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BsJpsiKKCandidates", "BPHY2JpsiCandidates"],
+  VertexContainerNames       = ["BPHY2BsJpsiKKCandidates", "BPHY2JpsiCandidates"],
   PassFlags                  = ["passed_Bs", "passed_Psi", "passed_Jpsi"] )
 
 ToolSvc += BPHY2_thinningTool_Tracks
@@ -194,7 +194,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY2_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "BPHY2_thinningTool_PV",
   ThinningService            = "BPHY2ThinningSvc",
-  CandidateCollections       = ["BsJpsiKKCandidates"],
+  CandidateCollections       = ["BPHY2BsJpsiKKCandidates"],
   KeepPVTracks  =True)
 
 ToolSvc += BPHY2_thinningTool_PV
@@ -204,7 +204,7 @@ if not isSimulation: #Only Skim Data
 
    BPHY2_SelectBsJpsiKKEvent = DerivationFramework__xAODStringSkimmingTool(
    name = "BPHY2_SelectBsJpsiKKEvent",
-   expression = "count(BsJpsiKKCandidates.passed_Bs > 0) > 0")
+   expression = "count(BPHY2BsJpsiKKCandidates.passed_Bs > 0) > 0")
    ToolSvc += BPHY2_SelectBsJpsiKKEvent
    print BPHY2_SelectBsJpsiKKEvent
 
@@ -294,7 +294,7 @@ StaticContent += ["xAOD::VertexAuxContainer#BPHY2RefittedPrimaryVerticesAux."]
 
 
 ## ID track particles
-SmartVar += ["InDetTrackParticles"]
+AllVariables += ["InDetTrackParticles"]
 
 ## combined / extrapolated muon track particles
 ## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks

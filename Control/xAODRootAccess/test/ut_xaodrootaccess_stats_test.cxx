@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_stats_test.cxx 646132 2015-02-11 15:17:44Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -37,11 +35,8 @@ int main() {
    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
 
    // Connect an input file to the event:
-   static const char* FNAME =
-      "/afs/cern.ch/atlas/project/PAT/xAODs/r5597/"
-      "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
-      "AOD.01495682._003054.pool.root.1";
-   std::auto_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
+   static const char* FNAME = "${ASG_TEST_FILE_DATA}";
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, "File %s couldn't be opened...", FNAME );
       return 1;

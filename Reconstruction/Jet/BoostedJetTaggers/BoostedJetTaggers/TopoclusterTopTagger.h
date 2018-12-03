@@ -97,6 +97,9 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
 
+    // bool to check whether variables are corrupt
+    mutable bool m_undefInput;
+
     // parameters to store specific cut values
     std::string m_strMassCutLow;
     std::string m_strMassCutHigh;

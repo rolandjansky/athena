@@ -21,6 +21,8 @@
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/JetRecTool.h"
 #include "JetRec/JetSoftDrop.h"
+#include "JetRec/JetBottomUpSoftDrop.h"
+#include "JetRec/JetRecursiveSoftDrop.h"
 #include "JetRec/JetSorter.h"
 #include "JetRec/JetSplitter.h"
 #include "JetRec/JetToolRunner.h"
@@ -29,5 +31,6 @@
 #include "JetRec/PseudoJetGetter.h"
 #include "JetRec/PseudoJetGetterRegistry.h"
 
+#include "JetRec/JetAlgorithm.h"
 
 #endif

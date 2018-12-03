@@ -15,11 +15,9 @@
 
 /** Constructor **/
 ISF::ValidationTruthStrategy::ValidationTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_minParentP2(0.)
 {
-    declareInterface<ISF::ITruthStrategy>(this);
-
     // parent particle minimum momentum
     declareProperty("ParentMinP"        , m_minParentP2     );
 }

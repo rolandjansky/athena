@@ -125,7 +125,7 @@ namespace InDet{
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      bool set(int,
+      void set(int,
 	       const InDet::SiDetElementBoundaryLink_xk*&       ,
 	       const InDet::SiClusterCollection::const_iterator&, 
 	       const InDet::SiClusterCollection::const_iterator&,
@@ -501,21 +501,22 @@ namespace InDet{
     {
       if(!m_useassoTool) {
 	if(!m_stereo) {
-	  if(m_ndf == 2) return searchClustersWithoutStereoPIX(Tp,L);
-	                 return searchClustersWithoutStereoSCT(Tp,L);
+	  if(m_ndf == 2) { return searchClustersWithoutStereoPIX(Tp,L); }
+          else           { return searchClustersWithoutStereoSCT(Tp,L); }
 	}
-	else             return searchClustersWithStereo      (Tp,L);
+        else             { return searchClustersWithStereo      (Tp,L); }
       }
       if(!m_stereo) {
-	  if(m_ndf == 2) return searchClustersWithoutStereoAssPIX(Tp,L);
-	                 return searchClustersWithoutStereoAssSCT(Tp,L);
-      } 
-      else               return searchClustersWithStereoAss      (Tp,L);
-    } 
+        if(m_ndf == 2) { return searchClustersWithoutStereoAssPIX(Tp,L); }
+	else           { return searchClustersWithoutStereoAssSCT(Tp,L); }
+      }
+      else             { return searchClustersWithStereoAss      (Tp,L); }
+    }
 
   inline bool SiTrajectoryElement_xk::difference() const
     {
-      if( m_cluster == m_clusterOld && m_status == 3)  return false; return true;
+      if( m_cluster == m_clusterOld && m_status == 3)  { return false; }
+      else                                             { return true;  }
     }
 
   /////////////////////////////////////////////////////////////////////////////////

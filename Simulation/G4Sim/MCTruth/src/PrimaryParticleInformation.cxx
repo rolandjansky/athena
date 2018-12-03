@@ -5,28 +5,28 @@
 #include "MCTruth/PrimaryParticleInformation.h"
 
 PrimaryParticleInformation::PrimaryParticleInformation() 
-  : theParticle(0),theISFParticle(0),regenerationNr(0),barcode(-1)
+  : m_theParticle(0),m_theISFParticle(0),m_regenerationNr(0),m_barcode(-1)
 {
 }
 
-PrimaryParticleInformation::PrimaryParticleInformation(const HepMC::GenParticle *p, const ISF::ISFParticle* isp):theParticle(p),theISFParticle(isp),regenerationNr(0),barcode(-1)
+PrimaryParticleInformation::PrimaryParticleInformation(const HepMC::GenParticle *p, const ISF::ISFParticle* isp):m_theParticle(p),m_theISFParticle(isp),m_regenerationNr(0),m_barcode(-1)
 {
 }
 
 const HepMC::GenParticle* PrimaryParticleInformation::GetHepMCParticle() const
 {
-	return theParticle;
+	return m_theParticle;
 }
 
 const ISF::ISFParticle* PrimaryParticleInformation::GetISFParticle() const
 {
-	return theISFParticle;
+	return m_theISFParticle;
 }
 
 void PrimaryParticleInformation::SuggestBarcode(int bc)
 {
-  barcode=bc;
-  if (theParticle) {
+  m_barcode=bc;
+  if (m_theParticle) {
     std::cout<<"ERROR: PrimaryParticleInformation::SuggestBarcode() should be only called if no HepMC::Particle is available"<<std::endl;
     //theParticle->suggest_barcode(bc);
   }
@@ -34,15 +34,15 @@ void PrimaryParticleInformation::SuggestBarcode(int bc)
 
 int PrimaryParticleInformation::GetParticleBarcode() const
 {
-	return theParticle?theParticle->barcode():barcode;
+	return m_theParticle?m_theParticle->barcode():m_barcode;
 }
 
 void PrimaryParticleInformation::SetParticle(const HepMC::GenParticle* p)
 {
-	theParticle=p;
+	m_theParticle=p;
 }
 
 void PrimaryParticleInformation::SetISFParticle(const ISF::ISFParticle* p)
 {
-	theISFParticle=p;
+	m_theISFParticle=p;
 }

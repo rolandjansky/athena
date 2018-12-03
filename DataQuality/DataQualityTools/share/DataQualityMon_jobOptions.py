@@ -285,22 +285,39 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
+    #from TrigBunchCrossingTool.TrigBunchCrossingToolConf import Trig__TrigConfBunchCrossingTool
+    #ToolSvc += Trig__TrigConfBunchCrossingTool("DQTBunchCrossingTool")
+    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+    #ToolSvc += BunchCrossingTool("DQTBunchCrossingTool")
+    DontUseBunchCrossingTool = False
+    if (rec.triggerStream() == 'CosmicCalo'
+        or globalflags.DataSource.get_Value() == 'geant4'
+        or 'collisions' not in DQMonFlags.monManDataType.get_Value()):
+        DontUseBunchCrossingTool = True
+
+
     from DataQualityTools.DataQualityToolsConf import DQTLumiMonTool
     DQTLumiMonToolAnyTrigger = DQTLumiMonTool(
         name = 'DQTLumiMonToolAnyTrigger',
         histoPath  = '/GLOBAL/Luminosity/AnyTrigger',
+        bunchCrossingTool=BunchCrossingTool(),
+        TurnOffBunchTool = DontUseBunchCrossingTool
     )
     DQTLumiMonToolMu = DQTLumiMonTool(
         name = 'DQTLumiMonToolMu',
         histoPath = '/GLOBAL/Luminosity/EF_muX',
         TriggerChain = 'CATEGORY_monitoring_muonIso',
+        bunchCrossingTool=BunchCrossingTool(),
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
+        TurnOffBunchTool= DontUseBunchCrossingTool
     )
     DQTLumiMonToolEl = DQTLumiMonTool(
         name = 'DQTLumiMonToolEl',
         histoPath = '/GLOBAL/Luminosity/EF_eX',
         TriggerChain = 'CATEGORY_primary_single_ele',
+        bunchCrossingTool=BunchCrossingTool(),
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
+        TurnOffBunchTool= DontUseBunchCrossingTool
     )
     ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]

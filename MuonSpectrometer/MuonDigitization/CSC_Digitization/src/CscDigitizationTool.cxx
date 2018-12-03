@@ -26,9 +26,14 @@
 
 #include "EventInfo/EventInfo.h"
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
+
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool"), m_container(0)
-  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0), m_run(0), m_evt(0), m_mergeSvc(0)
+  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0)
+  , m_vetoThisBarcode(crazyParticleBarcode), m_run(0), m_evt(0), m_mergeSvc(0)
   , m_inputObjectName("CSC_Hits"), m_outputObjectName("csc_digits"), m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0), m_rndmEngineName("MuonDigitization") {
 
@@ -52,6 +57,8 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("DriftVelocity",    m_driftVelocity = 60); // 60 / (1e-6 * 1e9); // 6 cm/microsecond -> mm/ns // 0.06
   declareProperty("ElectronEnergy",   m_electronEnergy   = 66); // eV
   declareProperty("NInterFixed",      m_NInterFixed   = false);
+  declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
+  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 CscDigitizationTool::~CscDigitizationTool()  {
@@ -71,6 +78,8 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_INFO ( "  Use NewDigitEDM?          " << m_newDigitEDM );
   ATH_MSG_INFO ( "  Drift Velocity Set?       " << m_driftVelocity );
   ATH_MSG_INFO ( "  NInteraction per layer from poisson not from energyLoss?  " << m_NInterFixed );
+  ATH_MSG_INFO ( "  IncludePileUpTruth        " << m_includePileUpTruth );
+  ATH_MSG_INFO ( "  ParticleBarcodeVeto       " << m_vetoThisBarcode );
 
   ATH_MSG_INFO ( "  RndmSvc                   " << m_rndmSvc.typeAndName() );
   ATH_MSG_INFO ( "  cscCalibTool              " << m_pcalib.typeAndName() );
@@ -323,6 +332,13 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
         ypos = yi + f*dy;
         zpos = zi + f*dz;
       }
+
+      if (!m_includePileUpTruth &&
+          ((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+        hashVec.clear();
+        continue;
+      }
+
       for (; vecBeg != vecEnd; vecBeg++) {
         CscSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit); 
@@ -424,8 +440,11 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     
     int sector = zsec*(2*phisec-istation+1);
     
-    (myDeposits[hashId])[0].second.setCharge(stripCharge);
-    sdoContainer->insert ( std::make_pair(digitId, CscSimData(myDeposits[hashId],0)) );
+    auto depositsForHash = myDeposits.find(hashId);
+    if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
+      depositsForHash->second[0].second.setCharge(stripCharge);
+      sdoContainer->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
+    }
     
     // fill the digit collections in StoreGate
     //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
@@ -549,8 +568,11 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     
     int sector = zsec*(2*phisec-istation+1);
     
-    (myDeposits[hashId])[0].second.setCharge(stripCharge);
-    sdoContainer->insert ( std::make_pair(digitId, CscSimData(myDeposits[hashId],0)) );
+    auto depositsForHash = myDeposits.find(hashId);
+    if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
+      depositsForHash->second[0].second.setCharge(stripCharge);
+      sdoContainer->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
+    }
     
     // fill the digit collections in StoreGate
     //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
@@ -734,4 +756,3 @@ StatusCode CscDigitizationTool::mergeEvent() {
   
   return StatusCode::SUCCESS;
 }
-

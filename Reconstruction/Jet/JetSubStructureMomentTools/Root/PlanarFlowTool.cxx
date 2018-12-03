@@ -14,12 +14,21 @@ PlanarFlowTool::PlanarFlowTool(std::string name) :
   ATH_MSG_DEBUG("Initializing PlanarFlow tool.");
 }
 
-int PlanarFlowTool::modifyJet(xAOD::Jet &jet) const {
-  if(checkForConstituents(jet) == false) return 1;
+int PlanarFlowTool::modifyJet(xAOD::Jet &injet) const {
+  
+  fastjet::PseudoJet jet;
+  bool decorate = SetupDecoration(jet,injet);
+  double pf_value = -999;
+  
 
-  JetSubStructureUtils::PlanarFlow pf;
-  double val = pf.result(jet);
-  ATH_MSG_VERBOSE("Adding jet PlanarFlow: " << val);
-  jet.setAttribute("PlanarFlow", val);
+  
+  if (decorate) {
+    JetSubStructureUtils::PlanarFlow pf;
+    pf_value = pf.result(jet);
+    ATH_MSG_VERBOSE("Adding jet PlanarFlow: " << pf_value);
+  }
+
+  injet.setAttribute(m_prefix+"PlanarFlow", pf_value);
+  
   return 0;
 }

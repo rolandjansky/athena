@@ -5,7 +5,6 @@
 /***************************************************************************
  Collect RPC readout elements belonging to the same DoubletR - granularity is same as for EDM (hash ids)
  -------------------------------------------------------
- Copyright (C) 2005 by ATLAS Collaboration
 ***************************************************************************/
 
 #ifndef MUONGEOMODEL_RPCDETECTORELEMENT_H

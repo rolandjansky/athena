@@ -85,11 +85,6 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCore xAODEventInfo
       xAODTau AsgTools tauRecToolsLib TauAnalysisToolsLib )
-   atlas_add_executable( TauAnalysisToolsValidation
-      util/TauAnalysisToolsValidation.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCore xAODEventInfo
-      xAODTau AsgTools tauRecToolsLib TauAnalysisToolsLib )
 endif()
 
 # Test(s) in the package:

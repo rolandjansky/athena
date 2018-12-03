@@ -1,10 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventCleaningSelection.h 809763 2017-08-25 11:04:10Z grancagn $
 #ifndef ANALYSISTOP_TOPOBJECTSELECTIONTOOLS_EVENTCLEANINGSELECTION_H
 #define ANALYSISTOP_TOPOBJECTSELECTIONTOOLS_EVENTCLEANINGSELECTION_H
+
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -18,6 +21,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigTauMatching/ITrigTauMatching.h"
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
 // Top include(s):
 #include "TopConfiguration/SelectionConfigurationData.h"
@@ -48,6 +52,10 @@ namespace top{
       EventCleaningSelection(const EventCleaningSelection& rhs) = delete;
       EventCleaningSelection(EventCleaningSelection&& rhs) = delete;
       EventCleaningSelection& operator=(const EventCleaningSelection& rhs) = delete;
+
+      bool isElectronTrigger(std::string const & trigger) const;
+      bool isMuonTrigger(std::string const & trigger) const;
+      static std::vector<std::string> getIndividualFromGlobalTriggers(std::vector<std::string> const & triggers);
       
     private:
       
@@ -78,6 +86,10 @@ namespace top{
       //Tau trigger matching
       ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
       
+      //Global trigger efficiency tool
+      ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
+      ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
+
       ///List of triggers to 'or' together for each event. If any one passes, the event passes
       std::vector<std::string> m_allTriggers_Tight;
       std::vector<std::string> m_electronTriggers_Tight;

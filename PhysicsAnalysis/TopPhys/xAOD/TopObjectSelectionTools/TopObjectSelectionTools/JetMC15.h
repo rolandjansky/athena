@@ -6,7 +6,7 @@
 #define JETMC15_H_
 
 #include "TopObjectSelectionTools/JetSelectionBase.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "AsgTools/ToolHandle.h"
 
@@ -75,11 +75,11 @@ class JetMC15 : public JetSelectionBase {
   // The upper eta cut.
   double m_etamax;
 
-  // Scenario for treating forward jets
-  std::string m_fwdJetSel;
-
   // To do JVT cut - should be false for large-R jets
   bool m_applyJVTCut;
+
+  // Scenario for treating forward jets
+  std::string m_fwdJetSel;
 
   ToolHandle<CP::IJetJvtEfficiency> m_jvt_tool;
 };

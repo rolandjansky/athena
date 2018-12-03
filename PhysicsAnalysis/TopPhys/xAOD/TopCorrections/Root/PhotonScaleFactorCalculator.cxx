@@ -83,6 +83,7 @@ StatusCode PhotonScaleFactorCalculator::execute() {
   // Loop over all photon collections
   for (auto currentSystematic : *m_config->systSgKeyMapPhotons()) {
     const xAOD::PhotonContainer* photons(nullptr);
+
     top::check(evtStore()->retrieve(photons, currentSystematic.second),
                "Failed to retrieve photons");
 

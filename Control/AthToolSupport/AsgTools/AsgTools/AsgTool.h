@@ -7,6 +7,7 @@
 #include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/IAsgTool.h"
 #include "AsgTools/MsgLevel.h"
+#include "AsgTools/MessageCheck.h"
 
 // Environment specific include(s):
 #ifdef ASGTOOL_STANDALONE

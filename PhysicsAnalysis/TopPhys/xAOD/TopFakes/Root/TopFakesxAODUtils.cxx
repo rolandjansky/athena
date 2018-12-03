@@ -11,6 +11,7 @@
 //
 // Updated  : 
 //           2016-02-12 : fixes for muon trigger splitting
+//           2018-02-21 : included trigger recommendations for 2017 + bug fixes
 //
 //////////////////////////////////////////////////////////////////////
 #include "TopFakes/TopFakesxAODUtils.h"
@@ -190,12 +191,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
     }
     else if (runNumber>=297730) {
       try {
-        trig_lowpTIso = el.auxdataConst<char>("TRIGMATCH_HLT_HLT_e24_lhtight_nod0_ivarloose");
+        trig_lowpTIso = el.auxdataConst<char>("TRIGMATCH_HLT_e24_lhtight_nod0_ivarloose");
       } catch (std::exception& e) {
         trig_lowpTIso = false;
       }
       try {
-        trig_hightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_HLT_e60_lhmedium_nod0");
+        trig_hightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e60_lhmedium_nod0");
       } catch (std::exception& e) {
         trig_hightpTNoIso = false;
       }
@@ -206,6 +207,78 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
       }
       try {
         trig_lowpTNoIso = ( el.auxdataConst<char>("TRIGMATCH_HLT_e24_lhmedium_L1EM20VH") );
+      } catch (std::exception& e) {
+        trig_lowpTNoIso = false;
+      }
+    }
+    else {
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..." << std::endl;
+      exit(1);
+    }
+  }
+  else if (release_series == "25") {// for 21.2 samples
+    if (runNumber>=276262 && runNumber<=284484) {
+      try {//not really used - trig_lowpTIso is overriden below
+        trig_lowpTIso = el.auxdataConst<char>("TRIGMATCH_HLT_e24_lhmedium_iloose_L1EM20VH");
+      } catch (std::exception& e) {
+        trig_lowpTIso = false;
+      }
+      try {
+        trig_hightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e60_lhmedium");
+      } catch (std::exception& e) {
+        trig_hightpTNoIso = false;
+      }
+      try {
+        trig_veryhightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e120_lhloose");
+      } catch (std::exception& e) {
+        trig_veryhightpTNoIso = false;
+      }
+      try {
+        trig_lowpTNoIso = trig_lowpTIso = el.auxdataConst<char>("TRIGMATCH_HLT_e24_lhmedium_L1EM20VH");
+      } catch (std::exception& e) {
+        trig_lowpTNoIso = false;
+      }
+    }
+    else if (runNumber>=297730  && runNumber<=311481) {
+      try {
+        trig_lowpTIso = el.auxdataConst<char>("TRIGMATCH_HLT_e24_lhtight_nod0_ivarloose");
+      } catch (std::exception& e) {
+        trig_lowpTIso = false;
+      }
+      try {
+        trig_hightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e60_lhmedium_nod0");
+      } catch (std::exception& e) {
+        trig_hightpTNoIso = false;
+      }
+      try {
+        trig_veryhightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e140_lhloose_nod0");
+      } catch (std::exception& e) {
+        trig_veryhightpTNoIso = false;
+      }
+      try {
+        trig_lowpTNoIso = ( el.auxdataConst<char>("TRIGMATCH_HLT_e24_lhmedium_L1EM20VH") );
+      } catch (std::exception& e) {
+        trig_lowpTNoIso = false;
+      }
+    }
+    else if (runNumber>=325713) {
+      try {
+        trig_lowpTIso = el.auxdataConst<char>("TRIGMATCH_HLT_e26_lhtight_nod0_ivarloose");
+      } catch (std::exception& e) {
+        trig_lowpTIso = false;
+      }
+      try {
+        trig_hightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e60_lhmedium_nod0");
+      } catch (std::exception& e) {
+        trig_hightpTNoIso = false;
+      }
+      try {
+        trig_veryhightpTNoIso = el.auxdataConst<char>("TRIGMATCH_HLT_e140_lhloose_nod0");
+      } catch (std::exception& e) {
+        trig_veryhightpTNoIso = false;
+      }
+      try {
+        trig_lowpTNoIso = ( el.auxdataConst<char>("TRIGMATCH_HLT_e26_lhmedium_nod0_L1EM20VH") );
       } catch (std::exception& e) {
         trig_lowpTNoIso = false;
       }
@@ -301,6 +374,63 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Muon& mu, int& trigmatch, cons
       exit(1);
     }
   }
+  if (release_series == "25") {// for 21.2 samples
+    if (runNumber>=276262 && runNumber<=284484) {
+      try {
+        trig_lowpTIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu20_iloose_L1MU15");
+      } catch (std::exception& e) {
+        trig_lowpTIso = false;
+      }
+      try {
+        trig_hightpTNoIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu50");
+      } catch (std::exception& e) {
+        trig_hightpTNoIso = false;
+      }
+      try {
+        trig_lowpTNoIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu20_L1MU15");
+      } catch (std::exception& e) {
+        trig_lowpTNoIso = false;
+      }
+    }
+    else if (runNumber>=297730  && runNumber<=311481) {
+      try {
+        trig_lowpTIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu24_ivarmedium");
+      } catch (std::exception& e) {
+        trig_lowpTIso = false;
+      }
+      try {
+        trig_hightpTNoIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu50");
+      } catch (std::exception& e) {
+        trig_hightpTNoIso = false;
+      }
+      try {
+        trig_lowpTNoIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu24");
+      } catch (std::exception& e) {
+        trig_lowpTNoIso = false;
+      }
+    }
+    else if (runNumber>=325713) {   
+      try {
+        trig_lowpTIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu26_ivarmedium");
+      } catch (std::exception& e) {
+        trig_lowpTIso = false;
+      }
+      try {
+        trig_hightpTNoIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu50");
+      } catch (std::exception& e) {
+        trig_hightpTNoIso = false;
+      }
+      try {
+        trig_lowpTNoIso = mu.auxdataConst<char>("TRIGMATCH_HLT_mu24");
+      } catch (std::exception& e) {
+        trig_lowpTNoIso = false;
+      }
+    }
+    else {
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::endl;
+      exit(1);
+    }
+  }
   else {
     std::cerr<<"Unknown release series - exiting..."<<std::endl;
     exit(1);
@@ -360,3 +490,4 @@ int top::fakes::GetChannel(const xAOD::ElectronContainer& els,
   else if (iels==1 && imus==1) return FakesWeights::EMU;
   else return -1;
 }
+

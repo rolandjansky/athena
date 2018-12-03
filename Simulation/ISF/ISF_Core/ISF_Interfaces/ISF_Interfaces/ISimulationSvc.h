@@ -20,10 +20,6 @@
 #include "ISF_Event/ISFParticleVector.h"
 #include "ISF_Event/SimSvcID.h"
 
-/** Declaration of the interface ID ( interface id, major version, minor version) */
-static const InterfaceID IID_ISimulationSvc("ISimulationSvc", 1 , 0);
-
-
 namespace ISF {
 
   class ISFParticle;
@@ -45,8 +41,8 @@ namespace ISF {
     public: 
       ISimulationSvc() : m_ssvcID( ISF::fUndefinedSimID) { };
 
-      /** Retrieve interface ID */
-      static const InterfaceID& interfaceID() { return IID_ISimulationSvc; }
+      /// Creates the InterfaceID and interfaceID() method
+      DeclareInterfaceID(ISimulationSvc, 1, 0);
       
       /** Inform the SimulationSvc about the ParticleBroker */
       virtual StatusCode setParticleBroker( IParticleBroker *broker) = 0;

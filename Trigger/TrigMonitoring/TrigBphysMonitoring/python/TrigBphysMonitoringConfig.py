@@ -23,7 +23,7 @@ DetailedChains = {
                   "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)',
                   "BMuMuX" : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]',
                   "MultiMu": 'HLT_(3mu[0-9]+)_(b.*)',
-                  "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trkloose',
+                  "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trk(.*)',
                   "Tau3mu" : 'HLT_([2-3]?mu[0-9]+).*_bTau.*'
                  }
 DetailedL1TopoChains = {
@@ -35,7 +35,7 @@ EfficiencyChains = {
                     "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)",
                     "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]",
                     "MultiMu": "HLT_(3mu[0-9]+)_(b.*)",
-                    "MuTrack": "HLT_(mu[0-9]+)_(b.*)_Trkloose"
+                    "MuTrack": "HLT_(mu[0-9]+)_(b.*)_Trk(.*)"
                    }
 EffTrigDenom_noVtxOS = "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bDimu_novtx_noos"
 

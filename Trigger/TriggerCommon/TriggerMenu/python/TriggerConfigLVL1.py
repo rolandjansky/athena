@@ -268,7 +268,9 @@ class TriggerConfigLVL1:
                 item.setTriggerType( item.trigger_type | TT.phys )
             # assign ctp IDs to items that don't have one
             if item.ctpid == -1:
-                item.setCtpid( available_ctpids.pop() )
+                the_id = available_ctpids.pop()
+                log.warning('LVL1 item %s is being assigned ctpid=%d' % (item.name,  the_id ))
+                item.setCtpid( the_id )
             # add the items into the menu
             self.menu.addItem( item )
 

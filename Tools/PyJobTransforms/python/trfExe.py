@@ -658,7 +658,6 @@ class scriptExecutor(transformExecutor):
 
         try:
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-            
             if self._memMonitor:
                 try:
                     self._memSummaryFile = 'mem.summary.' + self._name + '.json'
@@ -1250,7 +1249,17 @@ class athenaExecutor(scriptExecutor):
                         AtlasSetupDirectory = os.environ['AtlasSetup'],
                         asetupStatus        = asetup
                     )
-                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi'
+                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi '
+                    #check for TestArea if it exists then source setup.sh, used for local patches areas
+                    print >>wrapper, '#Need to check and source for  TestArea/build/cfgdir/setup.sh  '
+                    print >>wrapper, 'if [ ${TestArea} ]; then '
+                    print >>wrapper, '    cfgdir=`/bin/ls ${TestArea}/build/ | grep gcc` '
+                    print >>wrapper, '    if [ ${?} == "0" ]; then ' 
+                    print >>wrapper, '        echo "${TestArea}/build/${cfgdir} exist , will source setup.sh " '
+                    print >>wrapper, '        source ${TestArea}/build/${cfgdir}/setup.sh '
+                    print >>wrapper, '    fi '
+                    print >>wrapper, 'fi '
+
                 if dbsetup:
                     dbroot = path.dirname(dbsetup)
                     dbversion = path.basename(dbroot)
@@ -1305,22 +1314,7 @@ class athenaExecutor(scriptExecutor):
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
-                        for port in range(7770,7790):
-                            if bind_port("127.0.0.1",port)==0:
-                                break
-                        msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper,'dmtcp_launch -p %s'%port, ' '.join(self._cmd)
-                    elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
-                        restartTarball = self.conf._argdict['restart'].value
-                        print >>wrapper, 'tar -xf %s -C .' % restartTarball
-                        for port in range(7770,7790):
-                            if bind_port("127.0.0.1",port)==0:
-                                break
-                        msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper, './dmtcp_restart_script.sh -p %s -h 127.0.0.1'%port
-                    else:
-                        print >>wrapper, ' '.join(self._cmd)
+                    print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(
@@ -1822,8 +1816,7 @@ class bsMergeExecutor(scriptExecutor):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
                                                                 'Exception raised when renaming {0} to {1}: {2}'.format(self._outputFilename, self.conf.dataDictionary[self._outputBS].value[0], e))
         super(bsMergeExecutor, self).postExecute()
-        
-                
+
 
 class tagMergeExecutor(scriptExecutor):
     
@@ -1869,36 +1862,88 @@ class tagMergeExecutor(scriptExecutor):
         msg.debug('valStop time is {0}'.format(self._valStop))
 
 
-## @brief Archive transform - use tar
+## @brief Archive transform
 class archiveExecutor(scriptExecutor):
-
-    def __init__(self, name = 'Archiver', exe = 'zip', inData = set(), outData = set()):
-        super(archiveExecutor, self).__init__(name=name, exe=exe, memMonitor=False, inData=inData, outData=outData)
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
         self._memMonitor = False
 
-        if 'exe' in self.conf.argdict:
-            self._exe = self.conf.argdict['exe']
+        #archiving
+        if self._exe == 'zip':
+            if 'outputArchFile' not in self.conf.argdict:
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_ARG_MISSING'), 'Missing output file name')
 
-        if self._exe == 'tar':
-            self._cmd = [self._exe, '-c', '-v',]
-            self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
-            if 'compressionType' in self.conf.argdict:
-                if self.conf.argdict['compressionType'] == 'gzip':
-                    self._cmd.append('-z')
-                elif self.conf.argdict['compressionType'] == 'bzip2':
-                    self._cmd.append('-j')
-                elif self.conf.argdict['compressionType'] == 'none':
-                    pass
-        elif self._exe == 'zip':
-            self._cmd = [self._exe]
-            if 'compressionLevel' in self.conf.argdict:
-                self._cmd.append(self.conf.argdict['compressionLevel'])
-            self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
-            if '.' not in self.conf.argdict['outputArchFile'].value[0]:
-                errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), errmsg)
-        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
+            self._cmd = ['python']
+            try:
+                with open('zip_wrapper.py', 'w') as zip_wrapper:
+                    print >> zip_wrapper, "import zipfile, os, shutil"
+                    if os.path.exists(self.conf.argdict['outputArchFile'].value[0]):
+                        #appending input file(s) to existing archive
+                        print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='a', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                    else:
+                        #creating new archive
+                        print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                    print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
+                    print >> zip_wrapper, "    if zipfile.is_zipfile(f):"
+                    print >> zip_wrapper, "        archive = zipfile.ZipFile(f, mode='r')"
+                    print >> zip_wrapper, "        print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')"
+                    print >> zip_wrapper, "        archive.extractall('tmp')"
+                    print >> zip_wrapper, "        archive.close()"
+                    # remove stuff as soon as it is saved to output in order to save disk space at worker node
+                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
+                    print >> zip_wrapper, "            print 'Removing input zip file {}'.format(f)"
+                    print >> zip_wrapper, "            os.unlink(f)"
+                    print >> zip_wrapper, "        if os.path.isdir('tmp'):"
+                    print >> zip_wrapper, "            for root, dirs, files in os.walk('tmp'):"
+                    print >> zip_wrapper, "                for name in files:"
+                    print >> zip_wrapper, "                    print 'Zipping {}'.format(name)"
+                    print >> zip_wrapper, "                    zf.write(os.path.join(root, name), name, compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "            shutil.rmtree('tmp')"
+                    print >> zip_wrapper, "    else:"
+                    print >> zip_wrapper, "        print 'Zipping {}'.format(os.path.basename(f))"
+                    print >> zip_wrapper, "        zf.write(f, arcname=os.path.basename(f), compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
+                    print >> zip_wrapper, "            print 'Removing input file {}'.format(f)"
+                    print >> zip_wrapper, "            os.unlink(f)"
+                    print >> zip_wrapper, "zf.close()"
+                os.chmod('zip_wrapper.py', 0755)
+            except (IOError, OSError) as e:
+                errMsg = 'error writing zip wrapper {fileName}: {error}'.format(fileName = 'zip_wrapper.py',
+                    error = e
+                )
+                msg.error(errMsg)
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
+                    errMsg
+                )
+            self._cmd.append('zip_wrapper.py')
+
+        #unarchiving
+        elif self._exe == 'unarchive':
+            import zipfile
+            for infile in self.conf.argdict['inputArchFile'].value:
+                 if not zipfile.is_zipfile(infile):
+                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
+                                                                     'An input file is not a zip archive - aborting unpacking')
+            self._cmd = ['python']
+            try:
+                with open('unarchive_wrapper.py', 'w') as unarchive_wrapper:
+                    print >> unarchive_wrapper, "import zipfile"
+                    print >> unarchive_wrapper, "for f in {}:".format(self.conf.argdict['inputArchFile'].value)
+                    print >> unarchive_wrapper, "     archive = zipfile.ZipFile(f, mode='r')"
+                    print >> unarchive_wrapper, "     path = '{}'".format(self.conf.argdict['path'])
+                    print >> unarchive_wrapper, "     print 'Extracting archive {0} to {1}'.format(f,path)"
+                    print >> unarchive_wrapper, "     archive.extractall(path)"
+                    print >> unarchive_wrapper, "     archive.close()"
+                os.chmod('unarchive_wrapper.py', 0755)
+            except (IOError, OSError) as e:
+                errMsg = 'error writing unarchive wrapper {fileName}: {error}'.format(fileName = 'unarchive_wrapper.py',
+                    error = e
+                )
+                msg.error(errMsg)
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
+                    errMsg
+                )
+            self._cmd.append('unarchive_wrapper.py')
         super(archiveExecutor, self).preExecute(input=input, output=output)
+

@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Particle_v1.h 637086 2014-12-19 16:02:19Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_PARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_PARTICLE_V1_H
 
@@ -17,6 +16,10 @@
 #include "xAODBase/IParticleContainer.h"
 #include "AthLinks/ElementLink.h"
 
+//Already include the DataVector specialization for this type
+#include "xAODParticleEvent/ParticleContainerFwd.h"
+//Complete the Datavector Fwd Declaration
+template struct DataVector_detail::DVLEltBaseInit< xAOD::Particle_v1>;
 
 namespace xAOD {
 

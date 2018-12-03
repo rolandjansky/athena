@@ -21,7 +21,7 @@ class BSFilter : public AthAlgorithm
   virtual StatusCode  finalize();
 
  protected:
-  int All, pass, EventCounter;
+  int m_All, m_pass, m_EventCounter;
   int m_trigbit;
   std::string m_filterfile;
   class filterinfo{ 
@@ -30,9 +30,9 @@ class BSFilter : public AthAlgorithm
     int magic;
     filterinfo(): trig(0),nvtx(0), dt(0.0),magic(99999) {}
   };
-  std::map< int, std::map < uint64_t, filterinfo > > filtermap;
+  std::map< int, std::map < uint64_t, filterinfo > > m_filtermap;
 
-  FILE *efile;
+  FILE *m_efile;
   std::string m_EventIdFile;
 
   ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConf;

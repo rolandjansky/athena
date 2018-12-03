@@ -121,7 +121,7 @@ SCT_CalibEventInfo::handle(const Incident &inc){
       EventInfo* eventInfo = const_cast<EventInfo*>( m_evt );
       eventInfo->event_ID()->set_run_number( m_runNumber );
       eventInfo->event_ID()->set_time_stamp( m_timeStampBegin );
-      msg( MSG::DEBUG ) << SCT_CalibAlgs::eventInfoAsString(m_evt)<<endreq;
+      msg( MSG::INFO ) << SCT_CalibAlgs::eventInfoAsString(m_evt)<<endreq;
   } else msg( MSG::FATAL ) << "SCT_CalibEventInfo: Unknown source!" << endreq;
 }
 

@@ -18,7 +18,7 @@
 
 // set this to use BoundingShape's methods for DisToOut
 // instead of local calculations
-//#define LARWHEELSOLID_USE_BS_DTO
+#define LARWHEELSOLID_USE_BS_DTO
 
 // change this to have more z sections
 #define LARWHEELSOLID_ZSECT_MULT 1
@@ -30,10 +30,10 @@
 //#define CHECK_DIRTONORM_ANGLE_ON_SURFACE
 
 #ifdef DEBUG_LARWHEELSOLID
-#define LWSDBG(a, b) if(Verbose > a) b
+#define LWSDBG(a, b) if(Verbose >= a) b
 #define MSG_VECTOR(v) "(" << v.x() << ", " << v.y() << ", " << v.z() << ")"
-#define LWS_HARD_TEST_DTI
-#define LWS_HARD_TEST_DTO
+//#define LWS_HARD_TEST_DTI
+//#define LWS_HARD_TEST_DTO
 #else
 #define LWSDBG(a, b)
 #endif
@@ -144,6 +144,8 @@ private:
   G4double m_Ymin;
   // limits for use in service functions
   G4double m_Zmin, m_Zmax, m_Rmin, m_Rmax;
+  //artificial level to distinguish between inner and outer cones
+  G4double m_Ymid;
 
   void inner_solid_init(const G4String &);
   void outer_solid_init(const G4String &);
@@ -162,20 +164,29 @@ private:
   G4double out_iteration_process(const G4ThreeVector &,
                                  G4ThreeVector &, const int) const;
 
-  G4bool fs_cross_lower(const G4ThreeVector &p, const G4ThreeVector &v,
-                        G4ThreeVector &q) const;
-  G4bool fs_cross_upper(const G4ThreeVector &p, const G4ThreeVector &v,
-                        G4ThreeVector &q) const;
   typedef enum {
 	  NoCross, ExitAtInner, ExitAtOuter,
 	  ExitAtFront, ExitAtBack, ExitAtSide
   } FanBoundExit_t;
+
   FanBoundExit_t find_exit_point(const G4ThreeVector &p,
                                  const G4ThreeVector &v,
                                  G4ThreeVector &q) const;
+  G4bool fs_cross_lower(const G4ThreeVector &p, const G4ThreeVector &v,
+                        G4ThreeVector &q) const;
+  G4bool fs_cross_upper(const G4ThreeVector &p, const G4ThreeVector &v,
+                        G4ThreeVector &q) const;
   G4bool check_D(G4double &b,
                  G4double A, G4double B, G4double C, G4bool) const;
 
+/*
+  FanBoundExit_t find_exit_point(const G4ThreeVector &p,
+                                 const G4ThreeVector &v,
+                                 EInside inside_bs,
+                                 G4ThreeVector &q) const;
+  G4bool fs_check_inner(const G4ThreeVector &p, const G4ThreeVector &v,
+                        G4bool surface, G4ThreeVector &q) const;
+*/
   G4int select_section(const G4double &Z) const;
 
   EInside Inside_accordion(const G4ThreeVector&) const;

@@ -120,7 +120,9 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster *cluster,
   //
 
   ATH_MSG_DEBUG(" egammaMiddleShape: execute");
-
+  // initialisation of variables
+  InitVariables();
+ 
   // check if cluster is available
   if(!cluster) { 
     ATH_MSG_DEBUG(" egammaMiddleShape: Invalid pointer to cluster");
@@ -138,13 +140,10 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster *cluster,
     ATH_MSG_DEBUG(" egammaMiddleShape: Cluster is neither in Barrel nor in Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
-  
   m_cluster = cluster;
   m_cellContainer = cell_container;
 
-  // initialisation of variables
-  InitVariables();
-  // retrieve energy in all samplings
+   // retrieve energy in all samplings
   StatusCode sc = m_egammaEnergyPositionAllSamples->execute(m_cluster);
   if (sc) {};
   m_eallsamples = m_egammaEnergyPositionAllSamples->e();

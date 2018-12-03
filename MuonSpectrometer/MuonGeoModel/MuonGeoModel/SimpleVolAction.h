@@ -5,7 +5,6 @@
 /***************************************************************************
  My GeoVolumeAction: crosses a PhysVol to see the shape and materials
  --------------------------------------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: SimpleVolAction.h,v 1.3 2006-04-10 17:12:17 stefspa Exp $

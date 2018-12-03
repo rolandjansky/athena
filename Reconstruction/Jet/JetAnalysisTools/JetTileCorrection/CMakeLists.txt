@@ -28,7 +28,6 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
-find_package( Boost )
 
 # Libraries in the package:
 atlas_add_root_dictionary( JetTileCorrectionLib JetTileCorrectionDictSource
@@ -38,8 +37,8 @@ atlas_add_root_dictionary( JetTileCorrectionLib JetTileCorrectionDictSource
 atlas_add_library( JetTileCorrectionLib
    JetTileCorrection/*.h Root/*.cxx ${JetTileCorrectionDictSource}
    PUBLIC_HEADERS JetTileCorrection
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools JetCPInterfaces
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools JetCPInterfaces
    xAODJet
    PRIVATE_LINK_LIBRARIES PATInterfaces PathResolver xAODEventInfo )
 

@@ -14,7 +14,7 @@ set -o pipefail
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build_atlasexternals.sh <-s source dir> <-b build dir> " \
-        "<-i install dir> [-p project] [-r RPM dir] [-t build type]"
+        "<-i install dir> [-p project] [-r RPM dir] [-t build type] [-l LCG version number]"
 }
 
 # Parse the command line arguments:
@@ -25,7 +25,8 @@ PROJECT="AthenaExternals"
 RPMDIR=""
 BUILDTYPE="Release"
 PROJECTVERSION=""
-while getopts ":s:b:i:p:r:t:v:h" opt; do
+LCGVERSION=""
+while getopts ":s:b:i:p:r:t:v:l:h" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -47,6 +48,9 @@ while getopts ":s:b:i:p:r:t:v:h" opt; do
             ;;
         v)
             PROJECTVERSION=$OPTARG
+            ;;
+        l)
+            LCGVERSION=$OPTARG
             ;;
         :)
             echo "Argument -$OPTARG requires a parameter!"
@@ -73,10 +77,15 @@ mkdir -p ${BUILDDIR} || ((ERROR_COUNT++))
 cd ${BUILDDIR} || ((ERROR_COUNT++))
 
 # Extra settings for providing a project version for the build if necessary:
-EXTRACONF=
+EXTRACONF1=
 if [ "$PROJECTVERSION" != "" ]; then
     PNAME=$(echo ${PROJECT} | awk '{print toupper($0)}')
-    EXTRACONF=-D${PNAME}_PROJECT_VERSION:STRING=${PROJECTVERSION}
+    EXTRACONF1=-D${PNAME}_PROJECT_VERSION:STRING=${PROJECTVERSION}
+fi
+# ...and also an LCG version if necessary:
+EXTRACONF2=
+if [ "$LCGVERSION" != "" ]; then
+    EXTRACONF2=-DLCG_VERSION_NUMBER:STRING=${LCGVERSION}
 fi
 
 #FIXME: simplify error counting:
@@ -87,7 +96,7 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  rm -f CMakeCache.txt
  cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-    ${EXTRACONF} \
+    ${EXTRACONF1} ${EXTRACONF2} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
 test -f $error_stamp && ((ERROR_COUNT++)) 

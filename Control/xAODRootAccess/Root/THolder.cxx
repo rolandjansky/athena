@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: THolder.cxx 725531 2016-02-22 16:14:25Z krasznaa $
 
 // ROOT include(s):
 #include <TClass.h>
@@ -15,12 +13,9 @@
 #include "xAODRootAccess/tools/THolder.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/TDestructorRegistry.h"
+#include "THolderCache.h"
 
 namespace xAOD {
-
-   // Initialise the static member(s):
-   THolder::TypeCache_t THolder::s_typeMap = THolder::TypeCache_t();
-   THolder::SharedCount_t THolder::s_sharedCount = THolder::SharedCount_t();
 
    THolder::THolder()
       : m_object( 0 ), m_type( 0 ), m_typeInfo( 0 ), m_owner( kFALSE ) {
@@ -39,7 +34,7 @@ namespace xAOD {
 
       // Increase the object count:
       if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]++;
+         Internal::THolderCache::instance().incRef( m_object );
       }
    }
 
@@ -48,7 +43,7 @@ namespace xAOD {
 
       // Increase the object count:
       if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]++;
+         Internal::THolderCache::instance().incRef( m_object );
       }
    }
 
@@ -60,11 +55,12 @@ namespace xAOD {
    ///
    THolder::THolder( const THolder& parent )
       : m_object( parent.m_object ), m_type( parent.m_type ),
+        m_typeInfo( parent.m_typeInfo ),
         m_owner( parent.m_owner ) {
 
       // Increase the object count:
       if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]++;
+         Internal::THolderCache::instance().incRef( m_object );
       }
    }
 
@@ -80,6 +76,7 @@ namespace xAOD {
    ///
    THolder::THolder( THolder&& parent )
       : m_object( parent.m_object ), m_type( parent.m_type ),
+        m_typeInfo( parent.m_typeInfo ),
         m_owner( parent.m_owner ) {
 
       // Tell the parent that it no longer owns the object:
@@ -89,12 +86,9 @@ namespace xAOD {
    THolder::~THolder() {
 
       // Delete the object using its dictionary:
-      if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]--;
-         if( s_sharedCount[ m_object ] <= 0 ) {
-            s_sharedCount.erase( m_object );
-            deleteObject();
-         }
+      if( m_object && m_owner &&
+          ( ! Internal::THolderCache::instance().decRef( m_object ) ) ) {
+         deleteObject();
       }
    }
 
@@ -110,12 +104,9 @@ namespace xAOD {
       if( &rhs == this ) return *this;
 
       // Clean up the previously managed object:
-      if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]--;
-         if( s_sharedCount[ m_object ] <= 0 ) {
-            s_sharedCount.erase( m_object );
-            deleteObject();
-         }
+      if( m_object && m_owner &&
+          ( ! Internal::THolderCache::instance().decRef( m_object ) ) ) {
+         deleteObject();
       }
 
       // Do the copy:
@@ -126,7 +117,7 @@ namespace xAOD {
 
       // Increase the object count:
       if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]++;
+         Internal::THolderCache::instance().incRef( m_object );
       }
 
       // Return this same object:
@@ -148,12 +139,9 @@ namespace xAOD {
       if( &rhs == this ) return *this;
 
       // Clean up the previously managed object:
-      if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]--;
-         if( s_sharedCount[ m_object ] <= 0 ) {
-            s_sharedCount.erase( m_object );
-            deleteObject();
-         }
+      if( m_object && m_owner &&
+          ( ! Internal::THolderCache::instance().decRef( m_object ) ) ) {
+         deleteObject();
       }
 
       // Do the copy:
@@ -187,12 +175,9 @@ namespace xAOD {
       if( m_object == obj ) return;
 
       // Delete the previous object:
-      if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]--;
-         if( s_sharedCount[ m_object ] <= 0 ) {
-            s_sharedCount.erase( m_object );
-            deleteObject();
-         }
+      if( m_object && m_owner &&
+          ( ! Internal::THolderCache::instance().decRef( m_object ) ) ) {
+         deleteObject();
       }
 
       // Hold on to the new object from now on:
@@ -200,7 +185,7 @@ namespace xAOD {
 
       // Increase the object count:
       if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]++;
+         Internal::THolderCache::instance().incRef( m_object );
       }
 
       return;
@@ -216,21 +201,18 @@ namespace xAOD {
       // Check if anything needs to be done:
       if( state == m_owner ) return;
 
-      if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]--;
-         if( s_sharedCount[ m_object ] <= 0 ) {
-            ::Warning( "xAOD::THolder::setOwner",
-                       "Deleting object %p no longer held by any owner",
-                       m_object );
-            s_sharedCount.erase( m_object );
-            deleteObject();
-         }
+      if( m_object && m_owner &&
+          ( ! Internal::THolderCache::instance().decRef( m_object ) ) ) {
+         ::Warning( "xAOD::THolder::setOwner",
+                    "Deleting object %p no longer held by any owner",
+                    m_object );
+         deleteObject();
       }
 
       m_owner = state;
 
       if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]++;
+         Internal::THolderCache::instance().incRef( m_object );
       }
 
       return;
@@ -269,20 +251,16 @@ namespace xAOD {
          return m_object;
       }
 
-      // Description of the class the user is asking for:
-      ::TClass* userClass = 0;
-
       // Check if we already know about this type:
-      TypeCache_t::const_iterator type_itr = s_typeMap.find( &tid );
-      if( type_itr == s_typeMap.end() ) {
-         // Try to access the dictionary for the requested type:
-         userClass = ::TClass::GetClass( tid );
-         s_typeMap[ &tid ] = userClass;
-      } else {
-         // Get the dictionary from the internal cache:
-         userClass = type_itr->second;
+      auto userClass = Internal::THolderCache::instance().getClass( tid );
+      // If not, look for it now:
+      if( ! userClass.first ) {
+         userClass.second = ::TClass::GetClass( tid );
+         Internal::THolderCache::instance().addClass( tid, userClass.second );
       }
-      if( ! userClass ) {
+
+      // If we still don't have a dictionary, that's an issue:
+      if( ! userClass.second ) {
          if( ! silent ) {
             ::Error( "xAOD::THolder::getAs",
                      XAOD_MESSAGE( "Couldn't access the dictionary for user "
@@ -293,7 +271,7 @@ namespace xAOD {
       }
 
       // Check if the user requested a valid base class for the held type:
-      const Int_t offset = m_type->GetBaseClassOffset( userClass );
+      const Int_t offset = m_type->GetBaseClassOffset( userClass.second );
       if( offset < 0 ) {
          if( ! silent ) {
             ::Warning( "xAOD::THolder::getAs",
@@ -343,18 +321,15 @@ namespace xAOD {
    void THolder::renew() {
 
       // Delete the object using its dictionary:
-      if( m_object && m_owner ) {
-         s_sharedCount[ m_object ]--;
-         if( s_sharedCount[ m_object ] <= 0 ) {
-            s_sharedCount.erase( m_object );
-            deleteObject();
-         }
+      if( m_object && m_owner &&
+          ( ! Internal::THolderCache::instance().decRef( m_object ) ) ) {
+         deleteObject();
       }
 
       // Create a new object:
       m_owner = kTRUE;
       m_object = m_type->New();
-      s_sharedCount[ m_object ]++;
+      Internal::THolderCache::instance().incRef( m_object );
 
       // Return gracefuly:
       return;

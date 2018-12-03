@@ -318,6 +318,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
       }
 
+      float PVx_low(-1.5), PVx_high(+1.5), PVy_low(-1.5), PVy_high(+1.5);
 
       // Shifter Folders
 
@@ -329,8 +330,8 @@ StatusCode HLTBjetMonTool::book(){
       ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/Offline, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
       // PV
       addHistogram(new TH1F("nPV","Number of offline PV per event", 100, 0., 100.));
-      addHistogram(new TH1F("PVx","offline xPV", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVy","offline yPV", 200, -1.0, 1.0));
+      addHistogram(new TH1F("PVx","offline xPV", 200, PVx_low, PVx_high));
+      addHistogram(new TH1F("PVy","offline yPV", 200, PVy_low, PVy_high));
       addHistogram(new TH1F("PVz","offline zPV", 200, -200., 200.));
 
       //    On-line SplitChains
@@ -342,12 +343,12 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_jSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	// PV
 	addHistogram(new TH1F(("nPV_tr_"+m_Shifter_jSplit.at(i)).c_str(),"Number of online PV per event for xPrimVtx", 101, -1., 100.));
-	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, -1.0, 1.0));
-	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, PVx_low, PVx_high));
+	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, PVy_low, PVy_high));
 	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 200, -200., 200.));
 	addHistogram(new TH1F(("nPV_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
-	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, -1.0, 1.0));
-	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, PVx_low, PVx_high));
+	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, PVy_low, PVy_high));
 	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
@@ -371,15 +372,12 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
 	addHistogram(new TH1F(("xEVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
 	addHistogram(new TH1F(("xNVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
-	addHistogram(new TH1F(("xMVtx_trv_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
-	addHistogram(new TH1F(("xEVtx_trv_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
-	addHistogram(new TH1F(("xNVtx_trv_"+m_Shifter_jSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
       }
 
       //    On-line UnSplitChains
@@ -391,8 +389,8 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter/" << m_Shifter_jUnSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	// PV
 	addHistogram(new TH1F(("nPV_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of online PV per event", 101, -1., 100.));
-	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, -1.0, 1.0));
-	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, PVx_low, PVx_high));
+	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, PVy_low, PVy_high));
 	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
@@ -416,15 +414,12 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
 	addHistogram(new TH1F(("xEVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
 	addHistogram(new TH1F(("xNVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
-	addHistogram(new TH1F(("xMVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
-	addHistogram(new TH1F(("xEVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
-	addHistogram(new TH1F(("xNVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
       }
       //    On-line MuChains
       for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
@@ -456,12 +451,12 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_jSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	// PV
 	addHistogram(new TH1F(("nPV_tr_"+m_Expert_jSplit.at(i)).c_str(),"Number of online PV per event for xPrimVtx", 101, -1., 100.));
-	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, -1.0, 1.0));
-	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, PVx_low, PVx_high));
+	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, PVy_low, PVy_high));
 	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 200, -200., 200.));
 	addHistogram(new TH1F(("nPV_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
-	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, -1.0, 1.0));
-	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, PVx_low, PVx_high));
+	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, PVy_low, PVy_high));
 	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
@@ -485,15 +480,12 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
 	addHistogram(new TH1F(("xEVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
 	addHistogram(new TH1F(("xNVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
-	addHistogram(new TH1F(("xMVtx_trv_"+m_Expert_jSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
-	addHistogram(new TH1F(("xEVtx_trv_"+m_Expert_jSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
-	addHistogram(new TH1F(("xNVtx_trv_"+m_Expert_jSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
       }
 
       //    On-line UnSplitChains
@@ -503,8 +495,8 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Expert/" << m_Expert_jUnSplit.at(i) << " run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 	// PV
 	addHistogram(new TH1F(("nPV_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of online PV per event", 101, -1., 100.));
-	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, -1.0, 1.0));
-	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, -1.0, 1.0));
+	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, PVx_low, PVx_high));
+	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, PVy_low, PVy_high));
 	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
@@ -528,15 +520,12 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
 	addHistogram(new TH1F(("xEVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 E-fraction - all SV1", 50, 0., 1.));
 	addHistogram(new TH1F(("xNVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - all SV1", 40, 0., 40.));
-	addHistogram(new TH1F(("xMVtx_trv_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
-	addHistogram(new TH1F(("xEVtx_trv_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
-	addHistogram(new TH1F(("xNVtx_trv_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
       }
 
       //    On-line MuChains
@@ -769,6 +758,7 @@ StatusCode HLTBjetMonTool::book(){
       // Temporary work-around to retrieve online PV for FTK chains suggested by John Baines 2017/09/12
       // Dummy vertices not treated here for the moment
 
+      /*
       if (FTKchain) {
         const xAOD::VertexContainer * onlinepvFTK = 0;
         if ( evtStore()->contains<xAOD::VertexContainer>("HLT_xAOD__VertexContainer_PrimVertexFTK") ) {
@@ -788,7 +778,8 @@ StatusCode HLTBjetMonTool::book(){
           } // not onlinepvFTK->empty()
 	} // if contains
       } // FTK chain
-  
+      */  
+
       Trig::FeatureContainer fc = m_trigDec->features(trigItem);
       const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
       ATH_MSG_DEBUG("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
@@ -800,58 +791,58 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
 	m_zPrmVtx = 0.; // used for muon-jets
 
-	if (!FTKchain) {
+	//	if (!FTKchain) {
 
 	  // Get online PV
-	  bool DummyVtx = false;
-	  const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(m_priVtxKey);
-	  ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
-	  if ( not onlinepvs.empty() ) {
-	    const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
-	    ATH_MSG_DEBUG("   for VertexContainer: " << m_priVtxKey << " nVert: " << onlinepv->size());
+	bool DummyVtx = false;
+	const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(m_priVtxKey);
+	ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
+	if ( not onlinepvs.empty() ) {
+	  const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
+	  ATH_MSG_DEBUG("   for VertexContainer: " << m_priVtxKey << " nVert: " << onlinepv->size());
+	  if( not onlinepv->empty()) {
+	    if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
+	      if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
+	      if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
+	      if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
+	      m_zPrmVtx = (*(onlinepv))[0]->z();
+	      if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);
+	      ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
+	    } // if PV not dummy
+	    else {
+	      DummyVtx = true;
+	      ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << m_jetKey << " HistExt = " << HistExt << " m_priVtxKey " << m_priVtxKey );
+	      ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
+			   << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
+	      int dummyflag = -1;
+	      if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dummyflag);
+	      //	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
+	    } // else
+	    if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
+	  }  // if onlinepv not empty
+	} // if onlinepvs not empty
+	if ( SplitKey && DummyVtx ) {
+	  // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
+	  const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
+	  ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
+	  if ( not onlinepvsd.empty() ) {
+	    const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
+	    ATH_MSG_DEBUG(" for VertexContainer EFHistoPrmVtx  - nVert: " << onlinepv->size());
 	    if( not onlinepv->empty()) {
 	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
-		if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
-		if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
-		if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
-		m_zPrmVtx = (*(onlinepv))[0]->z();
-		if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);
-		ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
-	      } // if PV not dummy
-	      else {
-		DummyVtx = true;
-		ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << m_jetKey << " HistExt = " << HistExt << " m_priVtxKey " << m_priVtxKey );
-		ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
+		if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
+		if(HistPV) hist("PVy_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
+		if(HistPV) hist("PVz_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
+		if(HistPV) hist("nPV_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
+		ATH_MSG_DEBUG(" Dummy PV using Histogram algorithm - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
 			     << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
-		int dummyflag = -1;
-		if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dummyflag);
-		//	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
-	      } // else
-	      if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
-	    }  // if onlinepv not empty
-	  } // if onlinepvs not empty
-	  if ( SplitKey && DummyVtx ) {
-	    // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
-	    const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
-	    ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
-	    if ( not onlinepvsd.empty() ) {
-	      const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
-	      ATH_MSG_DEBUG(" for VertexContainer EFHistoPrmVtx  - nVert: " << onlinepv->size());
-	      if( not onlinepv->empty()) {
-		if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
-		  if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
-		  if(HistPV) hist("PVy_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
-		  if(HistPV) hist("PVz_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
-		  if(HistPV) hist("nPV_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
-		  ATH_MSG_DEBUG(" Dummy PV using Histogram algorithm - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
-			       << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
-		} // if VertexType
-	      } // if not onlinepv
-	    } // if not onlinepvs
-	    continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
-	  } // if DummyVtx
+	      } // if VertexType
+	    } // if not onlinepv
+	  } // if not onlinepvs
+	  continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
+	} // if DummyVtx
 	  
-	} // if (!FTKchain)
+	  //	} // if (!FTKchain)
 
 	ATH_MSG_DEBUG(" ======== End of retrival of PV histograms  ==============  ");
 
@@ -1011,10 +1002,7 @@ StatusCode HLTBjetMonTool::book(){
 	      bjet->variable<float>(m_sv1_infosource, "efracsvx", svp_efrc);
 	      bjet->variable<int>(m_sv1_infosource, "N2Tpair", svp_n2t);
 	      ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
-	      if (HistBjet) hist("xNVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
 	      if ( svp_n2t > 0 ) {
-		if (HistBjet) hist("xMVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass );
-		if (HistBjet) hist("xEVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
 	      } // if svp_n2t
 	    } else {
 	      ATH_MSG_DEBUG("  No valid SV1 vertex found --  SV1 vertex size: " << myVertices.size() );

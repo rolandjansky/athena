@@ -15,7 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class G4AtlasSvc : public AthService , public virtual IG4AtlasSvc {
+class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
  public:
   // Standard constructor and destructor
   G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator );
@@ -24,15 +24,13 @@ class G4AtlasSvc : public AthService , public virtual IG4AtlasSvc {
   // Gaudi methods
   StatusCode initialize() override final;
   StatusCode finalize() override final;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
-  static const InterfaceID& interfaceID() { return IG4AtlasSvc::interfaceID(); }
 
  private:
 
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
   ToolHandle<IPhysicsListTool> m_physicsListTool;
-
+  bool m_isMT;
   bool m_activateParallelGeometries;
 };
 

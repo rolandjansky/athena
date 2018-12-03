@@ -18,8 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/MCTruth
-                          Simulation/G4Sim/TrackRecord 
-                          DetectorDescription/AtlasDetDescr 
+                          Simulation/G4Sim/TrackRecord
+                          DetectorDescription/AtlasDetDescr
                           Simulation/ISF/ISF_Geant4/ISF_Geant4Event )
 
 # External dependencies:
@@ -54,4 +54,3 @@ atlas_add_component( MCTruthBase
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-

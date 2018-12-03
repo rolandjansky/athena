@@ -34,7 +34,12 @@ InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string& 
   m_trackinjeteff_vs_dr{},
   m_trackinjeteff_vs_dr_lt_j50{},
   m_trackinjeteff_vs_dr_gr_j100{},
-  m_trackinjeteff_vs_jetet{} {
+  m_trackinjeteff_vs_jetet{},
+  m_eff_vs_mu{},
+  m_eff_vs_mu2{},
+  m_eff_vs_mu3{},
+  m_eff_vs_muTotal{} 
+{
   // nop
 }
 
@@ -66,6 +71,11 @@ InDetPerfPlot_Eff::initializePlots() {
   book(m_trackinjeteff_vs_dr_lt_j50, "trackinjeteff_vs_dr_lt_j50");
   book(m_trackinjeteff_vs_dr_gr_j100, "trackinjeteff_vs_dr_gr_j100");
   book(m_trackinjeteff_vs_jetet, "trackinjeteff_vs_jetet");
+  
+  book(m_eff_vs_mu,"eff_vs_mu");
+  book(m_eff_vs_mu2,"eff_vs_mu2");
+  book(m_eff_vs_mu3,"eff_vs_mu3");
+  book(m_eff_vs_muTotal,"eff_vs_muTotal");
 }
 
 void
@@ -136,6 +146,18 @@ InDetPerfPlot_Eff::jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& j
   }
 
   fillHisto(m_trackinjeteff_vs_jetet, jetet, weight);
+}
+
+void
+InDetPerfPlot_Eff::mu_fill(const xAOD::TruthParticle& truth, const bool isGood, const unsigned int nMuEvents) {
+  float absTruthEta  = std::abs(safelyGetEta(truth));
+  fillHisto(m_eff_vs_muTotal, nMuEvents, isGood);
+  if(absTruthEta < 2.7) 
+    fillHisto(m_eff_vs_mu, nMuEvents, isGood);
+  else if (2.7 <= absTruthEta && 3.5 > absTruthEta )
+    fillHisto(m_eff_vs_mu2, nMuEvents, isGood);
+  else
+    fillHisto(m_eff_vs_mu3, nMuEvents, isGood);  
 }
 
 void

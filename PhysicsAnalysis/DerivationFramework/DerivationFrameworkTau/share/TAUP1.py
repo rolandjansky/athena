@@ -35,7 +35,7 @@ TAUP1Stream.AcceptAlgs(["TAUP1Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 TAUP1ThinningHelper                              = ThinningHelper( "TAUP1ThinningHelper" )
-TAUP1ThinningHelper.TriggerChains                = 'HLT_e.*'
+TAUP1ThinningHelper.TriggerChains                = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
 TAUP1ThinningHelper.AppendToStream( TAUP1Stream )
 
 thinningTools = []
@@ -122,7 +122,7 @@ thinningTools += TAUP1TruthThinningTools
 # Skimming tool
 # =============================================
 
-elRequirement = "( count( (Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose) && (Electrons.pt > 20.0*GeV) && (abs(Electrons.eta) < 2.6) ) >= 1 )"
+elRequirement = "( count( Electrons.DFCommonElectronsLHLoose && (Electrons.pt > 20.0*GeV) && (abs(Electrons.eta) < 2.6) ) >= 1 )"
 muRequirement = "( count( (Muons.pt > 10.0*GeV) && (abs(Muons.eta) < 2.0) && Muons.DFCommonGoodMuon ) < 1 )"
 tauRequirement = "( count( (TauJets.pt > 12.0*GeV) && (abs(TauJets.eta) < 2.6) && (abs(TauJets.charge) == 1.0) ) >= 1 )"
 

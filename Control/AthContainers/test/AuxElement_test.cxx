@@ -23,9 +23,6 @@
 #include <map>
 
 
-#include "auxid_set_equal.icc"
-
-
 namespace SG {
 
 class AuxVectorBase
@@ -79,7 +76,7 @@ public:
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_set; }
   virtual void* getDecoration (SG::auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { std::abort(); }
   virtual void lock() { std::abort(); }
-  virtual void clearDecorations() { std::abort(); }
+  virtual bool clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
 
   void add (SG::auxid_t auxid, std::unique_ptr<std::vector<float> > vec);
@@ -599,7 +596,7 @@ void test_decoration()
 
 #if 0
   assert (ityp3.isAvailable(cb));
-  cb.clearDecorations();
+  assert (cb.clearDecorations());
   assert (ityp1.isAvailable(cb));
   assert (!ityp3.isAvailable(cb));
 #endif
@@ -626,7 +623,11 @@ void test_decoration()
   assert (ityp3(cb2) == 15);
   assert (ityp3.isAvailable(b2));
 
-  cb2.clearDecorations();
+  assert (cb2.clearDecorations() == true);
+  assert (ityp1.isAvailable(b2));
+  assert (!ityp3.isAvailable(b2));
+
+  assert (cb2.clearDecorations() == false);
   assert (ityp1.isAvailable(b2));
   assert (!ityp3.isAvailable(b2));
 }

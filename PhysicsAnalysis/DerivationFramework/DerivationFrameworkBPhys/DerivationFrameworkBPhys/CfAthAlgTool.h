@@ -43,25 +43,25 @@ namespace DerivationFramework {
     ServiceHandle<ICutFlowSvc>& cutFlowSvc() const;
     
     // Initialization method invoked by the framework.
-    virtual StatusCode sysInitialize();
+    virtual StatusCode sysInitialize() override;
 
     // add event to a named counter -- returns counts after adding
-    virtual bool addEvent(std::string name, double weight=1.) const;
+    virtual bool addEvent(const std::string &name, double weight=1.) const;
 
     // add to a named counter -- returns counts after adding
     // if counts > 1 : same weight is added multiple times
-    virtual bool addToCounter(std::string name, uint64_t counts=1,
+    virtual bool addToCounter(const std::string &name, uint64_t counts=1,
 			      double weight=1.) const;
 
   protected:
     // add a counter by name -- returns id if it already exists
-    virtual CutIdentifier getCounter(std::string name) const;
+    virtual CutIdentifier getCounter(const std::string &name) const;
 
     // returns counter name by id
     virtual std::string getCounterNameById(CutIdentifier id) const;
 
     // returns counter id by name
-    virtual CutIdentifier getCounterIdByName(std::string name) const;
+    virtual CutIdentifier getCounterIdByName(const std::string &name) const;
     
   private:
     // typedef for ServiceHandle<ICutFlowSvc>

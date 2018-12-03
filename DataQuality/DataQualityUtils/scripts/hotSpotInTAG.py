@@ -112,7 +112,9 @@ objectType = args.objectType
 minInLB = args.minInLB
 tagDirectory = args.fileDirectory
 
-gROOT.Reset()
+# Line below commented to work with release 21. 
+# Not sure what was its purpose...
+#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
 
@@ -280,3 +282,5 @@ if (not args.noplot):
     
 if ("Tau" in objectType):     
   print 'WARNING : in recent TAGs, the TauJet were not filled - A double check is welcome: tree.Draw(\"TauJetEta1\")'
+
+raw_input("I am done...")

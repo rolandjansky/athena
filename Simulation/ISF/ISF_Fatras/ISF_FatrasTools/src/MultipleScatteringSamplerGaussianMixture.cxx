@@ -39,14 +39,13 @@ double iFatras::MultipleScatteringSamplerGaussianMixture::s_projectionFactor  = 
 
 // constructor
 iFatras::MultipleScatteringSamplerGaussianMixture::MultipleScatteringSamplerGaussianMixture(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_log_include(true),
   m_optGaussianMixtureG4(true),
   m_rndGenSvc("AtRndmGenSvc", n),
   m_randomEngine(0),
   m_randomEngineName("TrkExRnd")
 {
-  declareInterface<IMultipleScatteringSampler>(this);
   // multiple scattering parameters
   declareProperty("MultipleScatteringLogarithmicTermOn", m_log_include);
   declareProperty("G4OptimisedGaussianMixtureModel",     m_optGaussianMixtureG4);

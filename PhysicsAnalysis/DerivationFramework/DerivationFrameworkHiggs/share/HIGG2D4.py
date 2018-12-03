@@ -10,26 +10,23 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import (
+  addRecommendedXbbTaggers, xbbTaggerExtraVariables
+)
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
 import AthenaCommon.SystemOfUnits as Units
-
-# Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
-
-#==================================================================== 
 # SET UP STREAM 
 #==================================================================== 
 streamName = derivationFlags.WriteDAOD_HIGG2D4Stream.StreamName 
 fileName = buildFileName(derivationFlags.WriteDAOD_HIGG2D4Stream) 
 HIGG2D4Stream = MSMgr.NewPoolRootStream( streamName, fileName) 
 HIGG2D4Stream.AcceptAlgs(["HIGG2D4Kernel"]) 
+
+import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 
 #================
 # THINNING
@@ -43,107 +40,37 @@ HIGG2D4ThinningHelper = ThinningHelper("HIGG2D4ThinningHelper")
 HIGG2D4ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*|HLT_xe.*|HLT_j.*|HLT_b.*' 
 HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream) 
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG2D4JetTPThinningTool2 = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D4JetTPThinningTool2",
-                                                                          ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                          JetKey                 = "AntiKt4EMTopoJets",
-                                                                          InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D4JetTPThinningTool2
-thinningTools.append(HIGG2D4JetTPThinningTool2)
 
-# Tracks associated with Muons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-HIGG2D4MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "HIGG2D4MuonTPThinningTool",
-                                                                           ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                           MuonKey                = "Muons",
-                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D4MuonTPThinningTool
-thinningTools.append(HIGG2D4MuonTPThinningTool)
+import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
+#TrackParticles thinning
+# thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG2D4',HIGG2D4ThinningHelper) )
+thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG2D4',HIGG2D4ThinningHelper) )
+thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG2D4',HIGG2D4ThinningHelper,   BestMatchOnly=False) )
+# thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG2D4',HIGG2D4ThinningHelper) )
+# thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG2D4',HIGG2D4ThinningHelper) )
+thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG2D4',HIGG2D4ThinningHelper) )
 
-# Tracks associated with Electrons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG2D4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "HIGG2D4ElectronTPThinningTool",
-                                                                                 ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                                 SGKey                  = "Electrons",
-                                                                                 InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                                 BestMatchOnly          = False)
-ToolSvc += HIGG2D4ElectronTPThinningTool
-thinningTools.append(HIGG2D4ElectronTPThinningTool)
+#Track Particles + CaloCluster thinning
+thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
 
-# Tracks associated with Photons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG2D4PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(       name                    = "HIGG2D4PhotonTPThinningTool",
-                                                                                      ThinningService         = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                                      SGKey                   = "Photons",
-                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                      BestMatchOnly           = True)
-ToolSvc += HIGG2D4PhotonTPThinningTool
-thinningTools.append(HIGG2D4PhotonTPThinningTool)
+#calocluster thinning
+thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG2D4',HIGG2D4ThinningHelper) )
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG2D4',HIGG2D4ThinningHelper) )
 
-# Tracks associated with taus
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-HIGG2D4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "HIGG2D4TauTPThinningTool",
-                                                                         ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                         TauKey                 = "TauJets",
-                                                                         ConeSize               = 0.6,
-                                                                         InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += HIGG2D4TauTPThinningTool
-thinningTools.append(HIGG2D4TauTPThinningTool)
-
-
-# calo cluster thinning
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG2D4TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D4TauCCThinningTool",
-                                                                    ThinningService       = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                    SGKey                 = "TauJets",
-                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
-ToolSvc += HIGG2D4TauCCThinningTool
-thinningTools.append(HIGG2D4TauCCThinningTool)
-
+#generic object thinning
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
+if DerivationFrameworkIsMonteCarlo :
+  thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG2D4',HIGG2D4ThinningHelper) )
+  thinningTools.append( HIGG5Common.getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
+  thinningTools.append( HIGG5Common.getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
 
 # Truth particles
-useGenericTruthThinning = True
-if useGenericTruthThinning:
-    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  6) || (abs(TruthParticles.pdgId) ==  5))" # Top or Bottom quark
-    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
+# if DerivationFrameworkIsMonteCarlo:
+#     thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG2D4', HIGG2D4ThinningHelper))
+#     from DerivationFrameworkMCTruth.MCTruthCommon import *
+#     addStandardTruthContents()
 
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
-
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    HIGG2D4TruthThinningTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG2D4TruthThinningTool", 
-                                                                         ThinningService              = HIGG2D4ThinningHelper.ThinningSvc(),
-                                                                         ParticleSelectionString      = truth_expression,
-                                                                         PreserveDescendants          = False,
-                                                                         PreserveGeneratorDescendants = True,
-                                                                         PreserveAncestors            = True)
-else:
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-    HIGG2D4TruthThinningTool = DerivationFramework__MenuTruthThinning(name                         = "HIGG2D4TruthThinningTool",
-                                                                      ThinningService              = "HIGG2D4ThinningSvc",
-                                                                      WritePartons                 = False,
-                                                                      WriteHadrons                 = False,
-                                                                      WriteBHadrons                = True,
-                                                                      WriteGeant                   = False,
-                                                                      GeantPhotonPtThresh          = -1.0,
-                                                                      WriteTauHad                  = True,
-                                                                      PartonPtThresh               = -1.0,
-                                                                      WriteBSM                     = True,
-                                                                      WriteBosons                  = True,
-                                                                      WriteBSMProducts             = True,
-                                                                      WriteBosonProducts           = True,
-                                                                      WriteTopAndDecays            = True,
-                                                                      WriteEverything              = False,
-                                                                      WriteAllLeptons              = True,
-                                                                      WriteStatus3                 = False,
-                                                                      PreserveGeneratorDescendants = True,
-                                                                      WriteFirstN                  = -1)
-
-if DerivationFrameworkIsMonteCarlo:
-    ToolSvc += HIGG2D4TruthThinningTool
-    thinningTools.append(HIGG2D4TruthThinningTool)
-print "HIGG2D4.py thinningTools", thinningTools
+# print "HIGG2D4.py thinningTools", thinningTools
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -251,29 +178,32 @@ muonQualityRequirement='('+combinedMuonQualityRequirement+'||'+standaloneMuonQua
 muonPtRequirement='(Muons.pt>6.*GeV)'
 muonRequirement='('+muonQualityRequirement+'&&'+muonPtRequirement+')'
 leptonRequirement='(count('+electronRequirement+')+count('+muonRequirement+')>= 2)'
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SkimmingToolHIGG2D4_preLep = DerivationFramework__xAODStringSkimmingTool(name = "SkimmingToolHIGG2D4_preLep",
                                                                          expression = leptonRequirement)
 ToolSvc += SkimmingToolHIGG2D4_preLep
 
+# @TODO take TCC jets into account for skimming
+# jetSel = '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 150.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
-SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name                    = "SkimmingToolHIGG2D4",
-                                                             FilterType              = "2L2Q", 
+SkimmingToolHIGG2D4EMTopo = DerivationFramework__SkimmingToolHIGG2(name              = "SkimmingToolHIGG2D4EMTopo",
+                                                             FilterType              = "2L2Q",
                                                              NumberOfLeptons         = 2,
                                                              NumberOfElectrons       = 0,
                                                              NumberOfMuons           = 0,
                                                              JetContainerKey         = "AntiKt4EMTopoJets",
                                                              NumberOfJets            = 1,
                                                              JetPtCut                = 15.*Units.GeV,
-                                                             JetEtaCut               = 2.6, 
+                                                             JetEtaCut               = 2.6,
                                                              MergedJetContainerKey0  = "AntiKt4EMTopoJets",
                                                              NumberOfMergedJets0     = 1,
                                                              MergedJetPtCut0         = 100.*Units.GeV,
-                                                             MergedJetEtaCut0        = 2.6, 
+                                                             MergedJetEtaCut0        = 2.6,
                                                              MergedJetContainerKey1  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                              NumberOfMergedJets1     = 1,
-                                                             MergedJetPtCut1         = 100.*Units.GeV,
-                                                             MergedJetEtaCut1        = 2.6, 
+                                                             MergedJetPtCut1         = 150.*Units.GeV,
+                                                             MergedJetEtaCut1        = 2.6,
                                                              NumberOfPhotons         = 0,
                                                              ElectronQuality         = "DFCommonElectronsLHVeryLoose",
                                                              ElectronEtCut           = 6.*Units.GeV,
@@ -283,9 +213,42 @@ SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              InvariantMassCut        = 5.*Units.GeV,
                                                              DRElectronJetCut        = -1.,
                                                              Trigger2L2Q             = triggerRequirement)
-ToolSvc += SkimmingToolHIGG2D4
-print SkimmingToolHIGG2D4
+ToolSvc += SkimmingToolHIGG2D4EMTopo
 
+SkimmingToolHIGG2D4PFlow = DerivationFramework__SkimmingToolHIGG2(name                  = "SkimmingToolHIGG2D4PFlow",
+                                                             FilterType                 = "2L2Q",
+                                                             NumberOfLeptons            = 2,
+                                                             NumberOfElectrons          = 0,
+                                                             NumberOfMuons              = 0,
+                                                             JetContainerKey            = "AntiKt4EMPFlowJets",
+                                                             NumberOfJets               = 1,
+                                                             JetPtCut                   = 15.*Units.GeV,
+                                                             JetEtaCut                  = 2.6,
+                                                             MergedJetContainerKey0     = "AntiKt4EMPFlowJets",
+                                                             UseDFCommonJetFourMomentum = False,
+                                                             NumberOfMergedJets0        = 0,
+                                                             MergedJetPtCut0            = 100.*Units.GeV,
+                                                             MergedJetEtaCut0           = 2.6,
+                                                             NumberOfMergedJets1        = 0,
+                                                             MergedJetPtCut1            = 150.*Units.GeV,
+                                                             MergedJetEtaCut1           = 2.6,
+                                                             NumberOfPhotons            = 0,
+                                                             ElectronQuality            = "DFCommonElectronsLHVeryLoose",
+                                                             ElectronEtCut              = 6.*Units.GeV,
+                                                             MuonQuality                = "DFCommonMuonsPreselection",
+                                                             MuonPtCut                  = 6.*Units.GeV,
+                                                             RequireTightLeptons        = False,
+                                                             InvariantMassCut           = 5.*Units.GeV,
+                                                             DRElectronJetCut           = -1.,
+                                                             Trigger2L2Q                = triggerRequirement)
+ToolSvc += SkimmingToolHIGG2D4PFlow
+
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+SkimmingToolHIGG2D4Combined = DerivationFramework__FilterCombinationOR(
+                                           name       = 'SkimmingToolHIGG2D4Combined',
+                                           FilterList = [SkimmingToolHIGG2D4EMTopo,SkimmingToolHIGG2D4PFlow])
+ToolSvc += SkimmingToolHIGG2D4Combined
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -310,26 +273,37 @@ higg2d4Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG2D4Jets" in OutputJets:
     OutputJets["HIGG2D4Jets"] = []
 
-    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
+    # have to run tcc reconstruction prior to jet finding
+    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    # Set up geometry and BField
+    import AthenaCommon.AtlasUnixStandardJob
+
+    include("RecExCond/AllDet_detDescr.py")
+    runTCCReconstruction(higg2d4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
+    if jetFlags.useTruth:
+        reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
     replaceAODReducedJets(reducedJetList, higg2d4Seq, "HIGG2D4Jets")
 
-#====================================================================
-# Special jets
-#====================================================================
-
+    addDefaultTrimmedJets(higg2d4Seq,"HIGG2D4Jets");
     if jetFlags.useTruth:
-        addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, mods="groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
+      HIGG5Common.addTrimmedTruthWZJets(higg2d4Seq,'HIGG2D4Jets')
 
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, mods="lctopo_groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
+    # also add TCC trimed jets
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+    addTCCTrimmedJets(higg2d4Seq, "HIGG2D4Jets")
+
+HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg2d4Seq)
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 #====================================================================
 
-addVRJets(higg2d4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", 
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", 
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, 
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+addVRJets(higg2d4Seq)
+# Also add Hbb Tagger
+addRecommendedXbbTaggers(higg2d4Seq, ToolSvc)
 
 #===================================================================
 # Run b-tagging
@@ -339,8 +313,11 @@ from BTagging.BTaggingFlags import BTaggingFlags
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg2d4Seq)
+
 # Jet calibration should come after fat jets
-applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq)
+# applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq)
 
 #====================================================================
 # Add non-prompt lepton tagging
@@ -349,10 +326,16 @@ applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq)
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg2d4Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
+#====================================================================
+# SET UP CUSTOM TRUTH3 INFORMATION
+#====================================================================
+if DerivationFrameworkIsMonteCarlo :
+  HIGG5Common.getTruth3Collections(higg2d4Seq)
+
 # Main selection
 higg2d4Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG2D4Kernel",
-    SkimmingTools = [SkimmingToolHIGG2D4],
+    SkimmingTools = [SkimmingToolHIGG2D4Combined],
     ThinningTools = thinningTools
     )
 
@@ -365,33 +348,15 @@ from DerivationFrameworkHiggs.HIGG2D4ExtraContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG2D4SlimmingHelper = SlimmingHelper("HIGG2D4SlimmingHelper")
 
-HIGG2D4SlimmingHelper.AppendToDictionary = {
-  "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
-  }
+HIGG2D4SlimmingHelper.AppendToDictionary = HIGG5Common.getHIGG5CommonDictionExtionson()
+HIGG2D4SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollections()
 
-HIGG2D4SlimmingHelper.SmartCollections = ["Electrons",
-                                          "Photons",
-                                          "Muons",
-                                          "TauJets",
-                                          "MET_Reference_AntiKt4EMTopo",
-                                          "AntiKt4EMTopoJets",
-                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                          "AntiKt4TruthJets",
-                                          "BTagging_AntiKt4EMTopo",
-                                          "BTagging_AntiKt2Track",
-#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                          "InDetTrackParticles",
-                                          "PrimaryVertices"]
-
-HIGG2D4SlimmingHelper.ExtraVariables = HIGG2D4ExtraContent
-HIGG2D4SlimmingHelper.AllVariables = HIGG2D4ExtraContainers
+HIGG2D4SlimmingHelper.ExtraVariables = ExtraContent
+HIGG2D4SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
+HIGG2D4SlimmingHelper.AllVariables = ExtraContainers
 if DerivationFrameworkIsMonteCarlo:
-    HIGG2D4SlimmingHelper.ExtraVariables += HIGG2D4ExtraContentTruth
-    HIGG2D4SlimmingHelper.AllVariables += HIGG2D4ExtraContainersTruth
+    HIGG2D4SlimmingHelper.ExtraVariables += ExtraContentTruth
+    HIGG2D4SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
@@ -401,15 +366,17 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthJets",
              "AntiKt4TruthWZJets"
              ]
-addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content)
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D4SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
 
-HIGG2D4SlimmingHelper.IncludeMuonTriggerContent = True
+# AntiKt4PV0TrackJets are needed in conjunction with AntiKt10LCTopoJets, but the can be removed from the
+# output
+HIGG5Common.addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content, ['AntiKt4PV0TrackJets'])
+addOriginCorrectedClusters(HIGG2D4SlimmingHelper, writeLC=True, writeEM=False)
+
+HIGG2D4SlimmingHelper.IncludeMuonTriggerContent   = True
 HIGG2D4SlimmingHelper.IncludeEGammaTriggerContent = True
 HIGG2D4SlimmingHelper.IncludeEtMissTriggerContent = True
-HIGG2D4SlimmingHelper.IncludeJetTriggerContent = True
-HIGG2D4SlimmingHelper.IncludeBJetTriggerContent = True
+HIGG2D4SlimmingHelper.IncludeJetTriggerContent    = True
+HIGG2D4SlimmingHelper.IncludeBJetTriggerContent   = True
 
 HIGG2D4SlimmingHelper.AppendContentToStream(HIGG2D4Stream)
 

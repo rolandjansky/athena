@@ -51,7 +51,7 @@ namespace top{
       MissingETObjectCollectionMaker& operator=(const MissingETObjectCollectionMaker& rhs ) = delete;
 
       StatusCode initialize();
-      StatusCode recalculateMET();
+      StatusCode recalculateMET(bool);
       
       // return specific Systematic
       inline virtual const std::list<CP::SystematicSet>& specifiedSystematics() const {return m_specifiedSystematics;}

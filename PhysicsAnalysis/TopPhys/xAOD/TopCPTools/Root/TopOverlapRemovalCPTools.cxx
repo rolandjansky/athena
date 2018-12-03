@@ -84,6 +84,10 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
 
   top::check(ORUtils::recommendedTools(OR_flags, m_ORtoolBox),
               "Failed to setup OR Tool box");
+  for (auto&& tool : m_ORtoolBox.getOverlapTools()) {
+    top::check(tool->setProperty("EnableUserPriority", true),
+                "Failed to set EnableUserPriority");
+  }
   if (OR_procedure == "harmonized") {
     if (m_config->useMuons() && m_config->useElectrons())
       top::check(m_ORtoolBox.eleMuORT.setProperty("RemoveCaloMuons", false),
@@ -135,6 +139,10 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
 
   top::check(ORUtils::recommendedTools(OR_flags, m_ORtoolBox_Loose),
               "Failed to setup OR Tool box");
+  for (auto&& tool : m_ORtoolBox_Loose.getOverlapTools()) {
+    top::check(tool->setProperty("EnableUserPriority", true),
+                "Failed to set EnableUserPriority");
+  }
   if (OR_procedure == "harmonized") {
     if (m_config->useMuons() && m_config->useElectrons())
       top::check(m_ORtoolBox_Loose.eleMuORT.setProperty("RemoveCaloMuons",

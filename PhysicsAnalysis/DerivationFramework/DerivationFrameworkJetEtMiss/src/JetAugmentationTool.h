@@ -19,7 +19,7 @@
 
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
 

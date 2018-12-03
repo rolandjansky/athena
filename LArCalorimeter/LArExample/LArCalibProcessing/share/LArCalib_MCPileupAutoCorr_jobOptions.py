@@ -272,11 +272,12 @@ if not SuperCells:
   conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/Shape",forceMC=True)
   conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/MinBias",forceMC=True)
   conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/fSampl",forceMC=True)
-  #conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK")
-  conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G4101-20371-FTFP_BERT_BIRK_v2")
+  # for OFC old numbers !!!
+  conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK")
+  #conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G4101-20371-FTFP_BERT_BIRK_v2")
   conddb.addOverride("/LAR/ElecCalibMC/Shape","LARElecCalibMCShape-Apr2010")
-  #conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc15-s2081")
-  conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc16-ofc25mc15mu20-25ns-A3MinBias_1")
+  conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc15-s2081")
+  #conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc16-ofc25mc15mu20-25ns-A3MinBias_1")
 if SuperCells:
   # Will for now use a local db for SC coefficients
   InputDBLocalCalib = "sqlite://;schema=localCalibConstants.db;dbname=CONDBR2"

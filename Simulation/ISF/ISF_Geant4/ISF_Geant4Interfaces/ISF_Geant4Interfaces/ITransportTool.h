@@ -22,8 +22,6 @@ namespace ISF {
 
 namespace iGeant4 {
   
-  static const InterfaceID IID_ITransportTool("ITransportTool", 1, 0);
-    
   /** 
    @class ITransportTool
 
@@ -43,8 +41,8 @@ namespace iGeant4 {
        /** Virtual destructor */
        virtual ~ITransportTool(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_ITransportTool; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(ITransportTool, 1, 0);
 
        /** Processes ISF particle */
        virtual StatusCode process(const ISF::ISFParticle& isp) = 0;

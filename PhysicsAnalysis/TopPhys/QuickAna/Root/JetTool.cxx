@@ -46,19 +46,22 @@ namespace
     "xAODBTaggingEfficiency/13TeV/2016-Winter-13TeV-MC15-CDI-March10_v1.root";
   const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
   const std::string uncertConfigFile = "JES_2015/Moriond2016/JES2015_SR_Scenario1.config";
+  const char *mcType = "MC15";
 #elif ROOTCORE_RELEASE_SERIES == 24
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
   const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
   const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
+  const char *mcType = "MC15";
 #else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
-//  const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
-  const char *jesFile = "JES_MC16Recommendation_28Nov2017.config";
-  const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
+    "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root";
+  const char *jesFile = "JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config";
+  const char *jesFile_AFII = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config";
+  const std::string uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config";
+  const char *mcType = "MC16";
 #endif
 }
 
@@ -122,19 +125,18 @@ namespace ana
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calibration_tool, JetCalibrationTool));
     const auto jetCollection = m_jetContainer.substr(0, m_jetContainer.size()-4);
+#if ROOTCORE_RELEASE_SERIES == 24
     const std::string configFile = m_isAFII ? "JES_MC15Prerecommendation_AFII_June2015.config"
                                             : jesFile;
-#if ROOTCORE_RELEASE_SERIES == 24
     const std::string calibSeq = m_isData ? "JetArea_Residual_Origin_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_Origin_EtaJES_GSC";
 #else
-    //const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
-    //                                      : "JetArea_Residual_EtaJES_GSC";
-    const std::string calibSeq = "JetArea_Residual_EtaJES_GSC";
-    //std::string rhoKey = jetCollection.find("LCTopo")!=std::string::npos ? "Kt4LCTopoOriginEventShape"
-    //                                                                     : "Kt4EMTopoOriginEventShape";
-    //ATH_CHECK( m_calibration_tool.setProperty("RhoKey", rhoKey) );
-    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-81") );
+    const std::string configFile = m_isAFII ? jesFile_AFII : jesFile;
+
+    const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
+                                          : "JetArea_Residual_EtaJES_GSC_Smear";
+
+    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-82") );
 #endif
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
@@ -154,8 +156,11 @@ namespace ana
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_uncertainties_tool, JetUncertaintiesTool) );
     ATH_CHECK( m_uncertainties_tool.setProperty("JetDefinition", jetCollection) );
-    ATH_CHECK( m_uncertainties_tool.setProperty("MCType", m_isAFII ? "AFII" : "MC15") );
+    ATH_CHECK( m_uncertainties_tool.setProperty("MCType", m_isAFII ? "AFII" : mcType) );
     ATH_CHECK( m_uncertainties_tool.setProperty("ConfigFile", uncertConfigFile) );
+#if ROOTCORE_RELEASE_SERIES == 25
+    ATH_CHECK( m_uncertainties_tool.setProperty("CalibArea", "CalibArea-03") );
+#endif
     ATH_CHECK( m_uncertainties_tool.initialize() );
     registerTool( &*m_uncertainties_tool);
 
@@ -189,10 +194,10 @@ namespace ana
 
     // JVT efficiency SF
     //  From https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JVTCalibration
-    // @TODO update tool creation mechanism
+    const std::string jvtEffFile = "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root";
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvtEffTool, CP::JetJvtEfficiency) );
     // The default working point is the recommended one
-    //ATH_CHECK( m_jvtEffTool.setProperty("WorkingPoint","Default") );
+    ATH_CHECK( m_jvtEffTool.setProperty("SFFile", jvtEffFile) );
     ATH_CHECK( m_jvtEffTool.initialize() );
     registerTool (&*m_jvtEffTool);
 
@@ -282,8 +287,10 @@ namespace ana
 
     // We only clean, by default, jets that might've passed our JVT selection.
     // This is too hard-coded, ugly.
-    bool is_clean = ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
-                      m_cleaning_tool->keep(jet) );
+    bool is_clean = jet.isAvailable<char>("DFCommonJets_jetClean_LooseBad") ?
+                    static_cast<bool>(jet.auxdata<char>("DFCommonJets_jetClean_LooseBad")) :
+                    ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
+                   m_cleaning_tool->keep(jet) );
     cut_cleaning_tool.setPassedIf ( is_clean );
 
     // Also decorate the jet with the information, so that
@@ -513,7 +520,7 @@ namespace ana
                  "FixedCutBEff_77"))
 
   QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_HZZ",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
+    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MANUAL,
                  "FixedCutBEff_85"))
 
   QUICK_ANA_JET_DEFINITION_MAKER( "AntiKt4EMTopo_SUSY",
@@ -522,5 +529,5 @@ namespace ana
 
   QUICK_ANA_JET_DEFINITION_MAKER( "antikt04_DiMu",
     makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MET,
-                 "FixedCutBEff_50"))
+                 "FixedCutBEff_60"))
 }

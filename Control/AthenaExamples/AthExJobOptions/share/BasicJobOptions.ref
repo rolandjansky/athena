@@ -4,7 +4,6 @@ Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [AtlasTrigger-20.99.0] [x86_64-slc6-gcc49-opt] [20.99.Y-VAL/rel_4] -- built on [2016-04-27 23:34]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libRootCnvDict.so  is already in StorageSvcDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"

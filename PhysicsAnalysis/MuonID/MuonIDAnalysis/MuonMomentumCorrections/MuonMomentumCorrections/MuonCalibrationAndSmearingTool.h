@@ -17,7 +17,7 @@
 #include "TVectorD.h"
 
 // C++ include(s)
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -35,9 +35,9 @@ namespace CP {
 
 namespace MCAST {
 
-  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5}; }
+  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5, Data17=6}; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07}; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15}; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
@@ -66,9 +66,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Interface - Use specific systematic
     virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
     // Interface - get the expected resolution of the muon
-    virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
     // Interface - get the expected resolution of the muon
-    virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const;
 
   public:
     // InfoHelper is intended to be used to ease the passing of information between internal
@@ -108,8 +108,11 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual StatusCode initialize();
 
-    double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
-    double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc ) const;
+    double ExpectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
+    double ExpectedResolution( const int DetType, const xAOD::Muon& mu, const bool mc ) const;
+
+    // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
+    virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType ) const;
 
     virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
                                                  const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
@@ -119,7 +122,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
                                                  double& chi2) const;
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const;
-    virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const;
+    virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
     virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
 
 
@@ -132,8 +135,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
     std::string  GetRegionName( const int r_i ) const;
     std::string  GetRegionName( const double eta, const double phi ) const;
-    double GetSmearing( int DetType, xAOD::Muon&, InfoHelper& muonInfo ) const;
+    double GetSmearing( int DetType, InfoHelper& muonInfo ) const;
     double GetSystVariation( int DetType, double var, InfoHelper& muonInfo ) const;
+    StatusCode SetInfoHelperCorConsts(InfoHelper& inMuonInfo) const;
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
     double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar, InfoHelper& muonInfo ) const;
     StatusCode FillValues();
@@ -155,7 +159,6 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
-
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     //private:
     // fake assignment operator missing actual implementation
@@ -208,7 +211,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector< std::string > m_MacroRegionName;
     std::vector< double > m_MacroRegionInnerEta;
 
-    boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
+    std::unordered_map< SystematicSet, ParameterSet > m_Parameters;
     ParameterSet *m_currentParameters;
 
     double m_StatCombPtThreshold;

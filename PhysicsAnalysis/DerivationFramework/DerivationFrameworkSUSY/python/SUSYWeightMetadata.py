@@ -4,8 +4,8 @@
 def addSUSYWeights(seq, pref = ""):
 
   from AthenaCommon.AppMgr import ToolSvc
-  from ReweightUtils.ReweightUtilsConf import * 
-  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import *
+  from ReweightUtils.ReweightUtilsConf import SumOfWeightsAlg,McEventWeight
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import SUSYIDWeight
 
   #Load standard generator event weight
   #mcEventWeightNom = McEventWeight(name = pref+"mcWNom")
@@ -33,10 +33,9 @@ def addSUSYWeights(seq, pref = ""):
   seq += sumOfWeightsAlg
 
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 # skip this in data
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource() == 'geant4':
     addSUSYWeights(DerivationFrameworkJob, "")
-

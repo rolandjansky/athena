@@ -6,15 +6,16 @@
 #define G4UserActions_FastIDKiller_H
 
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class FastIDKiller : public IBeginRunAction, public ISteppingAction,
+  class FastIDKiller : public G4UserRunAction,
+                       public G4UserSteppingAction,
                        public AthMessaging
   {
 
@@ -43,8 +44,8 @@ namespace G4UA
     const Report& getReport() const
     { return m_report; }
 
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
   private:
 

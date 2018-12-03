@@ -33,16 +33,13 @@ namespace LArG4 {
 
   namespace HEC {
 
-    class LocalGeometry: public AthService, virtual public ILocalGeometry {
+    class LocalGeometry: public extends<AthService, ILocalGeometry> {
 
     public:
 
       LocalGeometry(const std::string& name, ISvcLocator * pSvcLocator);
       StatusCode initialize() override final;
       virtual ~LocalGeometry(){;}
-
-      /** Query interface method to make athena happy */
-      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
       LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eLocalGeometryType type = kLocActive,
                                            int depthadd = 0, double deadzone = 4.*CLHEP::mm, double locyadd = 0.*CLHEP::mm) const override final;

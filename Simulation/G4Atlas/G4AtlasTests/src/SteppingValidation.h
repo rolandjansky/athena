@@ -17,15 +17,14 @@ class G4Track;
 // User action to do some basic step-based validation of G4
 
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserRunAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 namespace G4UA{
   
   
   class SteppingValidation:
-  public IBeginRunAction,  public IEndEventAction,  public IBeginEventAction,  public ISteppingAction, public SimTestHisto 
+  public G4UserRunAction, public G4UserEventAction, public G4UserSteppingAction, public SimTestHisto
   {
 
   public:
@@ -37,10 +36,10 @@ namespace G4UA{
       m_primH(0),m_primF(0),m_dh(0),m_dh2(0),m_dp(0),m_dp2(0),m_nsec(0)
       {};
     
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
     TH1 *m_stepL, *m_stepProc, *m_mscAngle, *m_stepELoss, *m_secE, *m_latPhi, *m_latEta;
     TH2 *m_EvsR;

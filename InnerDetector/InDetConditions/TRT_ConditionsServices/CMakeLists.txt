@@ -5,6 +5,12 @@
 # Declare the package name:
 atlas_subdir( TRT_ConditionsServices )
 
+# Possible extra dependencies:
+set( extra_dep )
+if( NOT SIMULATIONBASE )
+   set( extra_dep InnerDetector/InDetConditions/InDetByteStreamErrors )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
@@ -24,12 +30,12 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/Identifier
                           Event/EventInfo
-                          InnerDetector/InDetConditions/InDetByteStreamErrors
                           InnerDetector/InDetConditions/InDetCoolCoralClientUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Tools/PathResolver )
+                          Tools/PathResolver
+                          ${extra_dep} )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

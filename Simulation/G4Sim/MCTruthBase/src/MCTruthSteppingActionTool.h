@@ -10,8 +10,8 @@
 
 // Infrastructure includes
 #include "G4AtlasTools/ActionToolBase.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 
 // STL includes
 #include <string>
@@ -26,8 +26,8 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
   class MCTruthSteppingActionTool : public ActionToolBase<MCTruthSteppingAction>,
-                                    public IBeginEventActionTool,
-                                    public ISteppingActionTool
+                                    public IG4EventActionTool,
+                                    public IG4SteppingActionTool
   {
 
     public:
@@ -36,16 +36,16 @@ namespace G4UA
       MCTruthSteppingActionTool(const std::string& type, const std::string& name,
                                 const IInterface* parent);
 
-      /// Initialize the tool - just for debug printing
-      virtual StatusCode initialize() override;
+      /// Initialize the tool
+      virtual StatusCode initialize() override final;
 
       /// Retrieve the begin-event action
-      virtual IBeginEventAction* getBeginEventAction() override final
-      { return static_cast<IBeginEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
       /// Retrieve the stepping action
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     private:
 

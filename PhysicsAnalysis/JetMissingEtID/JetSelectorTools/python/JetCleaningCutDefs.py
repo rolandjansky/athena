@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        JetCleaningCutDefs
@@ -10,22 +10,9 @@
 ##
 ##=============================================================================
 
-# import the needed Reflex and ROOT stuff
-import PyCintex
-PyCintex.Cintex.Enable()
-import ROOT
-
 # Import a needed helper
 from PATCore.HelperUtils import GetTool
 
-
-#def JetCleaningToolConfig_VeryLoose(theTool) :
-#    """
-#    This defines the jet cleaning cut values for the very Loose (Looser) operating point
-#    """
-#    theTool = GetTool(theTool)
-#    theTool.CutLevel = 'VeryLooseBad'
-#    pass
 
 def JetCleaningToolConfig_Loose(theTool) :
     """
@@ -34,14 +21,6 @@ def JetCleaningToolConfig_Loose(theTool) :
     theTool = GetTool(theTool)
     theTool.CutLevel = 'LooseBad'
     pass
-
-#def JetCleaningToolConfig_Medium(theTool) :
-#    """
-#    This defines the jet cleaning cut values for the Medium operating point.
-#    """
-#    theTool = GetTool(theTool)
-#    theTool.CutLevel = 'MediumBad'
-#    pass
 
 def JetCleaningToolConfig_Tight(theTool) :
     """

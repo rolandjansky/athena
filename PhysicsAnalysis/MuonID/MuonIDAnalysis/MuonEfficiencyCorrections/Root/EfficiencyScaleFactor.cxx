@@ -13,6 +13,7 @@
 #include <TRandom3.h>
 #include <TClass.h>
 namespace CP {
+    unsigned int EfficiencyScaleFactor::m_warningLimit = 10;
     EfficiencyScaleFactor::EfficiencyScaleFactor() :
                 m_toolname(),
                 m_sf(nullptr),
@@ -33,7 +34,23 @@ namespace CP {
                 m_default_eff_ttva(1.),
                 m_Type(CP::MuonEfficiencyType::Undefined),
                 m_NominalFallBack(nullptr),
-                m_SystematicBin(-1) {
+                m_SystematicBin(-1),
+                m_warnsPrinted(0),
+                m_firstRun(0),
+                m_lastRun(999999) {
+    }
+    unsigned int EfficiencyScaleFactor::firstRun() const{
+        return m_firstRun;
+    }
+    unsigned int EfficiencyScaleFactor::lastRun() const{
+        return m_lastRun;
+    }
+    bool EfficiencyScaleFactor::coversRunNumber(unsigned int run) const{
+        return m_firstRun <= run && run <= m_lastRun;
+    }
+    void EfficiencyScaleFactor::setFirstLastRun(unsigned int first, unsigned int last){
+        m_firstRun = first;
+        m_lastRun = last;
     }
     std::string EfficiencyScaleFactor::toolname() const {
         return m_toolname;
@@ -77,6 +94,8 @@ namespace CP {
         m_is_lowpt = other.m_is_lowpt;
         m_respond_to_kineDepSyst = other.m_respond_to_kineDepSyst;
         m_Type = other.m_Type;
+        m_firstRun = other.m_firstRun;
+        m_lastRun = other.m_lastRun;
         CopyHistHandler(m_sf, other.m_sf);
         CopyHistHandler(m_eff, other.m_eff);
         CopyHistHandler(m_mc_eff, other.m_mc_eff);
@@ -116,26 +135,26 @@ namespace CP {
     }
     bool EfficiencyScaleFactor::ReadFromFile(const std::string& file, const std::string& time_unit) {
         // open the file
-        TFile* f = TFile::Open(file.c_str(), "READ");
-        if (!f) {
+        std::unique_ptr<TFile> f (TFile::Open(file.c_str(), "READ"));
+        if (!f || !f->IsOpen()) {
             Error("EfficiencyScaleFactor", "Unable to open file %s", file.c_str());
             return false;
         }
         // now we can read our six Histos
-        m_eff = ReadHistFromFile("Eff", f, time_unit);
-        m_eff_sys = ReadHistFromFile("Eff_sys", f, time_unit);
+        m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
+        m_eff_sys = ReadHistFromFile("Eff_sys", f.get(), time_unit);
 
-        m_mc_eff = ReadHistFromFile("MC_Eff", f, time_unit);
-        m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f, time_unit);
+        m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
+        m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f.get(), time_unit);
 
-        m_sf = ReadHistFromFile("SF", f, time_unit);
-        m_sf_sys = ReadHistFromFile("SF_sys", f, time_unit);
+        m_sf = ReadHistFromFile("SF", f.get() ,time_unit);
+        m_sf_sys = ReadHistFromFile("SF_sys", f.get(), time_unit);
 
         // for high pt eff, we also load the pt dependent part
         if (m_respond_to_kineDepSyst) {
             if (m_Type != CP::MuonEfficiencyType::BadMuonVeto) {
-                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f, time_unit)));
-                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f, time_unit)));
+                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit)));
+                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f.get(), time_unit)));
             } else {
                 TDirectory* SystDir = nullptr;
                 f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
@@ -144,9 +163,6 @@ namespace CP {
             }
 
         }
-        // and don't forget to close the file again!
-        f->Close();
-        delete f;
         return true;
     }
     bool EfficiencyScaleFactor::CheckConsistency() const {
@@ -263,13 +279,17 @@ namespace CP {
     CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
         Eff = m_default_eff;
         if (!Hist) {
-            Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
+            if (m_warnsPrinted < m_warningLimit){
+                Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
+                ++m_warnsPrinted;
+            }
             return CorrectionCode::OutOfValidityRange;
         }
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
-            static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
-            Warned = true;
+            if (m_warnsPrinted < m_warningLimit){
+                Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
+                ++m_warnsPrinted;
+            }
             Eff = m_default_eff_ttva;
             return CorrectionCode::Ok;
         }
@@ -295,9 +315,10 @@ namespace CP {
         if (replicas.size() != SF.size()) GenerateReplicas(SF.size(), 1000. * mu.phi() + mu.eta());
         if (replicas.empty()) return CorrectionCode::OutOfValidityRange;
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
-            static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
-            Warned = true;
+            if (m_warnsPrinted < m_warningLimit){
+                Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
+                ++m_warnsPrinted;
+            }
             for (auto& r : SF)
                 r = m_default_eff_ttva;
             return CorrectionCode::Ok;
@@ -360,14 +381,15 @@ namespace CP {
     }
     void EfficiencyScaleFactor::ApplySysVariation() {
         if (m_sysType == MuonEfficiencySystType::Nominal) return;
-        else if (m_sysType == MuonEfficiencySystType::Sys1Down) AddSysErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::Sys1Up) AddSysErrors(1.);
-        else if (m_sysType == MuonEfficiencySystType::Stat1Down) AddStatErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::Stat1Up) AddStatErrors(1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtSys1Down) AddSysErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtSys1Up) AddSysErrors(1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtStat1Down) AddStatErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtStat1Up) AddStatErrors(1.);
+        //For reconstruction effiecency scale-factors disentangle the low-pt from the high pt systematics
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Sys1Down) AddSysErrors(-1.);
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Sys1Up) AddSysErrors(1.);
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Stat1Down) AddStatErrors(-1.);
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Stat1Up) AddStatErrors(1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtSys1Down) AddSysErrors(-1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtSys1Up) AddSysErrors(1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtStat1Down) AddStatErrors(-1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtStat1Up) AddStatErrors(1.);
     }
     void EfficiencyScaleFactor::AddStatErrors(float weight) {
         AddStatErrors_histo(m_sf, weight);
@@ -415,7 +437,7 @@ namespace CP {
         }
     }
 
-    void EfficiencyScaleFactor::DebugPrint(void) {
+    void EfficiencyScaleFactor::DebugPrint() const {
         m_sf->GetHist()->Print();
         m_sf_sys->GetHist()->Print();
 

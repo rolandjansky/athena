@@ -12,7 +12,6 @@
 
 #define MAXTOWER 64
 #define MAXL 8
-
 ///#define HIST_MAXBINS 35
 
 #define HIST_MAXBINS 100
@@ -67,9 +66,12 @@ std::vector<std::string> files;
 TChain *ch;
 std::vector<std::pair<size_t,std::vector<bool> > > towersPerFile;
 
+// The switch to turn on/off stat uncertainties
+bool uncertainty;
+
 
 void Init();
 void Process(unsigned int ientry);
 void Terminate();
-void printinfo(float towers[MAXTOWER], TString text);
+void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, float HW_limit);
 void AddBreak(int n = 1);

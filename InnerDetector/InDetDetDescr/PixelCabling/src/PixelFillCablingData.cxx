@@ -84,7 +84,6 @@ StatusCode PixelFillCablingData::initialize()
 ////////////////////////
 bool PixelFillCablingData::fillMapFromFile(const std::string infilename, PixelCablingData* cabling)
 {
-// STSTST    std::string filename = PathResolver::find_file(infilename, "DATAPATH");
     std::string filename = PathResolverFindCalibFile(infilename);
     if (filename.size() == 0) {
       ATH_MSG_FATAL("Mapping File: " << infilename << " not found!");

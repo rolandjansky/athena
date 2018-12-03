@@ -26,10 +26,9 @@ namespace Trk {
 
 #include "AthenaBaseComps/AthMessaging.h"
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 
 #include "TrkGeometry/MaterialStepCollection.h"
 #include "TrkGeometry/ElementTable.h"
@@ -38,15 +37,15 @@ namespace Trk {
 namespace G4UA{
 
 
-  class MaterialStepRecorder: public AthMessaging, public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public ISteppingAction
+  class MaterialStepRecorder: public AthMessaging, public G4UserEventAction,  public G4UserRunAction,  public G4UserSteppingAction
   {
 
   public:
     MaterialStepRecorder();
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
 
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

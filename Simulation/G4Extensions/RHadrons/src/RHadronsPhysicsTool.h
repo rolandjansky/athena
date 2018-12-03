@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date  2015-05-14
  */
-class RHadronsPhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool
+class RHadronsPhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>
 {
 public:
   /// Standard constructor
@@ -37,6 +37,9 @@ public:
   virtual RHadronsPhysicsTool* GetPhysicsOption();
 
 protected:
+
+  // Using Pythia8 or Pythia6 for the decays
+  bool m_usePythia8;
 
 };
 

@@ -11,7 +11,7 @@
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4UserRunAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA{
@@ -33,7 +33,7 @@ namespace G4UA{
   static std::once_flag VolumeDebugger_DumpGeometryOnce;
 
   class VolumeDebugger:
-  public AthMessaging, public IBeginRunAction
+  public AthMessaging, public G4UserRunAction
   {
     
   public:
@@ -53,7 +53,7 @@ namespace G4UA{
     
     VolumeDebugger(const Config& config);
     /// hook for G4 UA functionality
-    virtual void beginOfRun(const G4Run*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
     
   private:
     /// configuration data

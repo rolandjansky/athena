@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // SUSYToolsAlg.cxx
@@ -38,36 +38,44 @@
 #include "TEnv.h"
 
 const unsigned int nSel=5;
-enum Cut {
+namespace Cut {
+enum {
   all=0,
   baseline,
   passOR,
   signal,
   trigmatch
 };
+}
 static const TString SCut[] = {"All","Baseline","passOR","Signal","TrigM"};
 
 //**********************************************************************
 
 SUSYToolsAlg::SUSYToolsAlg(const std::string& name,
                            ISvcLocator* pSvcLocator )
-  : ::AthAnalysisAlgorithm( name, pSvcLocator )
+  : EL::AnaAlgorithm (name, pSvcLocator)
   , m_SUSYTools("")
   , m_Nevts(0)
   , m_configFile("SUSYTools/SUSYTools_Default.conf")
   , m_tauTruthTool("")
   , m_CheckTruthJets(true)
 {
+
   declareProperty( "DataSource",  m_dataSource = 1 ); //default is fullsim = 1
   declareProperty( "DoSyst",      m_doSyst = false );
 
   declareProperty( "RateMonitoringPath", m_rateMonitoringPath=".", "will try to add rate to file found in given path");
   declareProperty( "STConfigFile", m_configFile );
   declareProperty( "CheckTruthJets", m_CheckTruthJets );
+  //
+  declareProperty( "PRWConfigs", m_PRWConfigs );
+  declareProperty( "PRWLumiCalc", m_PRWLumiCalcFiles );
+  declareProperty( "UsePRWAutoconfig", m_usePRWAutoconfig = false );
 
   // asg Tool Handles must be dealt with differently
   m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
   m_SUSYTools.declarePropertyFor( this, "SUSYTools", "The SUSYTools instance" );
+
 }
 
 //**********************************************************************
@@ -76,15 +84,27 @@ SUSYToolsAlg::~SUSYToolsAlg() { }
 //**********************************************************************
 
 StatusCode SUSYToolsAlg::initialize() {
+
   ATH_MSG_INFO("Initializing " << name() << "...");
 
+  //--- ST config and retrieval
+  ATH_CHECK( m_SUSYTools.setProperty("DataSource",m_dataSource) );
+  ATH_CHECK(m_SUSYTools.setProperty("PRWLumiCalcFiles", m_PRWLumiCalcFiles) );
+  if (m_usePRWAutoconfig){
+    ATH_CHECK(m_SUSYTools.setProperty("AutoconfigurePRWTool", true) );
+    ATH_CHECK(m_SUSYTools.setProperty("mcCampaign", "mc16a") );
+  }else{
+    ATH_CHECK(m_SUSYTools.setProperty("PRWConfigFiles", m_PRWConfigs) );
+  }
+  //
   m_SUSYTools.setTypeAndName("ST::SUSYObjDef_xAOD/SUSYTools");
   ATH_CHECK(m_SUSYTools.retrieve());
   ATH_MSG_INFO("Retrieved tool: " << m_SUSYTools->name() );
 
   // Need truth matching for tau CP tools
   if( !m_SUSYTools->isData() ){
-    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
+    ATH_CHECK( m_tauTruthTool.setProperty("WriteTruthTaus", true) );
     ATH_CHECK( m_tauTruthTool.retrieve() );
     ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );  
   }
@@ -141,53 +161,55 @@ StatusCode SUSYToolsAlg::initialize() {
   count_mu_signal=0;
 
   /// SETUP TRIGGERS TO BE CHECKED
-  const int n_el_trig = 3;
-  el_triggers.push_back("HLT_e24_lhmedium_L1EM18VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
+  const int n_el_trig = 6;
+  el_triggers.push_back("HLT_e24_lhmedium_L1EM20VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
   el_triggers.push_back("HLT_e60_lhmedium");
   el_triggers.push_back("HLT_e120_lhloose");
+  el_triggers.push_back("HLT_e26_lhtight_nod0_ivarloose");
+  el_triggers.push_back("HLT_e60_lhmedium_nod0");
+  el_triggers.push_back("HLT_e140_lhloose_nod0");
 
   const int n_ph_trig = 2;
   ph_triggers.push_back("HLT_g120_loose");
   ph_triggers.push_back("HLT_g140_loose");
 
-  const int n_mu_trig = 5;
+  const int n_mu_trig = 3;
   mu_triggers.push_back("HLT_mu20_iloose_L1MU15");
   mu_triggers.push_back("HLT_mu50");
-  mu_triggers.push_back("HLT_mu18");
-  mu_triggers.push_back("HLT_mu8noL1");
-  mu_triggers.push_back("HLT_mu18_mu8noL1");
+  mu_triggers.push_back("HLT_mu26_ivarmedium");
+
 
   //-- Book histograms
-  CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal)", nSel, 0, nSel) ) );
-  CHECK( book(TH1D("el_trigmatch_eff_nominal", "Electron Trigger Matching Efficiency (Nominal)", n_el_trig, 0, n_el_trig) ) );
-  CHECK( book(TH1D("el_pt_nominal", "Electron Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal)", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("el_trigmatch_eff_nominal", "Electron Trigger Matching Efficiency (Nominal)", n_el_trig, 0, n_el_trig) ) );
+  ATH_CHECK( book(TH1D("el_pt_nominal", "Electron Pt (Nominal)", 100, 0, 100) ) );
 
-  CHECK( book(TH1D("ph_n_flow_nominal", "Photon Cutflow (Nominal)", nSel, 0, nSel) ) );
-  CHECK( book(TH1D("ph_trigmatch_eff_nominal", "Photon Trigger Matching Efficiency (Nominal)", n_ph_trig, 0, n_ph_trig) ) );
-  CHECK( book(TH1D("ph_pt_nominal", "Photon Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("ph_n_flow_nominal", "Photon Cutflow (Nominal)", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("ph_trigmatch_eff_nominal", "Photon Trigger Matching Efficiency (Nominal)", n_ph_trig, 0, n_ph_trig) ) );
+  ATH_CHECK( book(TH1D("ph_pt_nominal", "Photon Pt (Nominal)", 100, 0, 100) ) );
 
-  CHECK( book(TH1D("mu_n_flow_nominal", "Muon Cutflow (Nominal)", nSel, 0, nSel) ) );
-  CHECK( book(TH1D("mu_trigmatch_eff_nominal", "Muon Trigger Matching Efficiency (Nominal)", n_mu_trig, 0, n_mu_trig) ) );
-  CHECK( book(TH1D("mu_pt_nominal", "Muon Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("mu_n_flow_nominal", "Muon Cutflow (Nominal)", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("mu_trigmatch_eff_nominal", "Muon Trigger Matching Efficiency (Nominal)", n_mu_trig, 0, n_mu_trig) ) );
+  ATH_CHECK( book(TH1D("mu_pt_nominal", "Muon Pt (Nominal)", 100, 0, 100) ) );
 
-  CHECK( book(TH1D("jet_n_flow_nominal", "Jet Cutflow (Nominal)", nSel, 0, nSel) ) );
-  CHECK( book(TH1D("jet_pt_nominal", "Jet Pt (Nominal)", 100, 0, 500) ) );
+  ATH_CHECK( book(TH1D("jet_n_flow_nominal", "Jet Cutflow (Nominal)", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("jet_pt_nominal", "Jet Pt (Nominal)", 100, 0, 500) ) );
 
-  CHECK( book(TH1D("fatjet_n_flow_nominal", "Large R. Jet Cutflow (Nominal)", nSel, 0, nSel) ) );
-  CHECK( book(TH1D("fatjet_pt_nominal", "Large R. Jet Pt (Nominal)", 100, 0, 500) ) );
+  ATH_CHECK( book(TH1D("fatjet_n_flow_nominal", "Large R. Jet Cutflow (Nominal)", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("fatjet_pt_nominal", "Large R. Jet Pt (Nominal)", 100, 0, 500) ) );
 
-  CHECK( book(TH1D("tau_n_flow_nominal", "Tau Cutflow (Nominal)", nSel, 0, nSel) ) );
-  CHECK( book(TH1D("tau_pt_nominal", "Tau Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("tau_n_flow_nominal", "Tau Cutflow (Nominal)", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("tau_pt_nominal", "Tau Pt (Nominal)", 100, 0, 100) ) );
 
-  CHECK( book(TH1D("met_et", "MET (Nominal)", 50, 0, 500) ) ); //MET (+Components) 
-  CHECK( book(TH1D("met_phi", "MET_phi (Nominal)", 50, -5, 5) ) ); 
-  CHECK( book(TH1D("met_sumet", "MET_sumet (Nominal)", 50, 0, 500) ) ); 
-  CHECK( book(TH1D("met_et_tst", "MET [PVSoftTrk] (Nominal)", 50, 0, 500) ) ); 
-  CHECK( book(TH1D("met_et_el", "MET [RefEle] (Nominal)", 50, 0, 500) ) ); 
-  CHECK( book(TH1D("met_et_ph", "MET [RefGamma] (Nominal)", 50, 0, 500) ) ); 
-  CHECK( book(TH1D("met_et_mu", "MET [Muons] (Nominal)", 50, 0, 500) ) ); 
-  CHECK( book(TH1D("met_et_jet", "MET [RefJet] (Nominal)", 50, 0, 500) ) ); 
-  CHECK( book(TH1D("met_et_tau", "MET [RefTau] (Nominal)", 50, 0, 500) ) ); 
+  ATH_CHECK( book(TH1D("met_et", "MET (Nominal)", 50, 0, 500) ) ); //MET (+Components)
+  ATH_CHECK( book(TH1D("met_phi", "MET_phi (Nominal)", 50, -5, 5) ) );
+  ATH_CHECK( book(TH1D("met_sumet", "MET_sumet (Nominal)", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_tst", "MET [PVSoftTrk] (Nominal)", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_el", "MET [RefEle] (Nominal)", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_ph", "MET [RefGamma] (Nominal)", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_mu", "MET [Muons] (Nominal)", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_jet", "MET [RefJet] (Nominal)", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_tau", "MET [RefTau] (Nominal)", 50, 0, 500) ) );
   
   const int n_event_weights = (const int)(syst_event_weights.size());
   const int n_el_weights = (const int)(syst_el_weights.size());
@@ -198,14 +220,14 @@ StatusCode SUSYToolsAlg::initialize() {
   const int n_fatjet_weights = (const int)(syst_fatjet_weights.size());
   const int n_btag_weights = (const int)(syst_btag_weights.size());
 
-  CHECK( book(TH1D("weight_event", "Event weights (Nom+Systematics) [MC*PRW]", n_event_weights,0,n_event_weights))); //weights
-  CHECK( book(TH1D("weight_electrons", "Electron total weights (Nom+Systematics)",  n_el_weights,0, n_el_weights) ) );  //weights
-  CHECK( book(TH1D("weight_muons", "Muon total weights (Nom+Systematics)",  n_mu_weights,0, n_mu_weights) ) );  //weights
-  CHECK( book(TH1D("weight_photons", "Photon total weights (Nom+Systematics)",  n_ph_weights,0, n_ph_weights) ) );  //weights
-  CHECK( book(TH1D("weight_taus", "Tau total weights (Nom+Systematics)",  n_tau_weights,0, n_tau_weights) ) );  //weights
-  CHECK( book(TH1D("weight_jets", "Jet total weights (Nom+Systematics)",  n_jet_weights,0, n_jet_weights) ) );  //weights
-  CHECK( book(TH1D("weight_fatjets", "Large R. jet total weights (Nom+Systematics)",  n_fatjet_weights,0, n_fatjet_weights) ) );  //weights
-  CHECK( book(TH1D("weight_btags", "Btagging total weights (Nom+Systematics)",  n_btag_weights,0, n_btag_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_event", "Event weights (Nom+Systematics) [MC*PRW]", n_event_weights,0,n_event_weights))); //weights
+  ATH_CHECK( book(TH1D("weight_electrons", "Electron total weights (Nom+Systematics)",  n_el_weights,0, n_el_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_muons", "Muon total weights (Nom+Systematics)",  n_mu_weights,0, n_mu_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_photons", "Photon total weights (Nom+Systematics)",  n_ph_weights,0, n_ph_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_taus", "Tau total weights (Nom+Systematics)",  n_tau_weights,0, n_tau_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_jets", "Jet total weights (Nom+Systematics)",  n_jet_weights,0, n_jet_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_fatjets", "Large R. jet total weights (Nom+Systematics)",  n_fatjet_weights,0, n_fatjet_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_btags", "Btagging total weights (Nom+Systematics)",  n_btag_weights,0, n_btag_weights) ) );  //weights
 
   // retrieve SUSYTools config file
   TEnv rEnv;
@@ -234,6 +256,10 @@ StatusCode SUSYToolsAlg::finalize() {
   ATH_MSG_INFO("  First event           - " << m_clock1.CpuTime() * 1e3 << " / " << m_clock1.RealTime() * 1e3 << " ms");
   ATH_MSG_INFO("  Excluding first event - " << m_clock2.CpuTime() * 1e3 / (m_Nevts - 1) << " / " << m_clock2.RealTime() * 1e3 / (m_Nevts - 1) << " ms");
 
+
+  // --- HAZ: Disable for now, we don't have acccess to previous nightlies
+  // --- we probably need to do this locally now if we want it
+  /*
   TH1F* rateHist = 0;
   if(!m_rateMonitoringPath.empty()) {
     TFile* f = 0;
@@ -269,7 +295,7 @@ StatusCode SUSYToolsAlg::finalize() {
   rateHist->SetDirectory(&fOut);
   rateHist->Write();
   fOut.Close();
-
+  */
 
   //label cutflow histograms
   TH1* el_n_flow_nominal = hist("el_n_flow_nominal");
@@ -300,17 +326,17 @@ StatusCode SUSYToolsAlg::finalize() {
   TH1* el_trigmatch_eff_nominal = hist("el_trigmatch_eff_nominal");
   for (unsigned int i=1; i < el_triggers.size()+1; i++){ el_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, el_triggers[i-1].substr(4,std::string::npos).c_str()); }
   el_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
-  el_trigmatch_eff_nominal->Scale(1/(float)count_el_signal);
+  if (count_el_signal>0) el_trigmatch_eff_nominal->Scale(1/(float)count_el_signal);
 
   TH1* ph_trigmatch_eff_nominal = hist("ph_trigmatch_eff_nominal");
   for (unsigned int i=1; i < ph_triggers.size()+1; i++){ ph_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, ph_triggers[i-1].substr(4,std::string::npos).c_str()); }
   ph_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
-  ph_trigmatch_eff_nominal->Scale(1/(float)count_ph_signal);
+  if (count_ph_signal) ph_trigmatch_eff_nominal->Scale(1/(float)count_ph_signal);
 
   TH1* mu_trigmatch_eff_nominal = hist("mu_trigmatch_eff_nominal");
   for (unsigned int i=1; i < mu_triggers.size()+1; i++){ mu_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, mu_triggers[i-1].substr(4,std::string::npos).c_str()); }
   mu_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
-  mu_trigmatch_eff_nominal->Scale(1/(float)count_mu_signal);
+  if (count_mu_signal) mu_trigmatch_eff_nominal->Scale(1/(float)count_mu_signal);
 
   //label weights histograms
   TH1* weight_event     = hist("weight_event");
@@ -354,6 +380,7 @@ StatusCode SUSYToolsAlg::finalize() {
 //**********************************************************************
 
 StatusCode SUSYToolsAlg::execute() {
+
   ATH_MSG_VERBOSE("Executing " << name() << "...");
   m_clock0.Start(false);
   if (m_Nevts == 0) {
@@ -374,11 +401,11 @@ StatusCode SUSYToolsAlg::execute() {
   }
 
   // call PRW tool to apply all relevant decorations
-  CHECK( m_SUSYTools->ApplyPRWTool());
+  ATH_CHECK( m_SUSYTools->ApplyPRWTool());
 
   const xAOD::EventInfo* evtInfo(0);
-  ATH_CHECK( evtStore()->retrieve(evtInfo) );
-  bool isSim = evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  ATH_CHECK( evtStore()->retrieve(evtInfo, "EventInfo") );
+  bool isSim = ( m_dataSource > 0 );
 
   // SZ - check if truth jets are there; if not, fail miserably since they're actually needed...
   // this hopefully will be automatically solved once new R21 test samples will become available  
@@ -393,22 +420,22 @@ StatusCode SUSYToolsAlg::execute() {
 
   xAOD::ElectronContainer* electrons_nominal(0);
   xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
-  CHECK( m_SUSYTools->GetElectrons(electrons_nominal, electrons_nominal_aux) );
+  ATH_CHECK( m_SUSYTools->GetElectrons(electrons_nominal, electrons_nominal_aux) );
   ATH_MSG_DEBUG( "Number of electrons: " << electrons_nominal->size() );
 
   xAOD::PhotonContainer* photons_nominal(0);
   xAOD::ShallowAuxContainer* photons_nominal_aux(0);
-  CHECK( m_SUSYTools->GetPhotons(photons_nominal, photons_nominal_aux) );
+  ATH_CHECK( m_SUSYTools->GetPhotons(photons_nominal, photons_nominal_aux) );
   ATH_MSG_DEBUG( "Number of photons: " << photons_nominal->size() );
 
   xAOD::MuonContainer* muons_nominal(0);
   xAOD::ShallowAuxContainer* muons_nominal_aux(0);
-  CHECK( m_SUSYTools->GetMuons(muons_nominal, muons_nominal_aux) );
+  ATH_CHECK( m_SUSYTools->GetMuons(muons_nominal, muons_nominal_aux) );
   ATH_MSG_DEBUG( "Number of muons: " << muons_nominal->size() );
 
   xAOD::JetContainer* jets_nominal(0);
   xAOD::ShallowAuxContainer* jets_nominal_aux(0);
-  CHECK( m_SUSYTools->GetJets(jets_nominal, jets_nominal_aux) );
+  ATH_CHECK( m_SUSYTools->GetJets(jets_nominal, jets_nominal_aux) );
   ATH_MSG_DEBUG( "Number of jets: " << jets_nominal->size() );
 
   static bool doFatJets=true;
@@ -421,16 +448,16 @@ StatusCode SUSYToolsAlg::execute() {
       return StatusCode::FAILURE;
     } else {
       //std::string fatjetcoll = m_FatJetCollection.substr(0, m_FatJetCollection.size()-4);
-      CHECK( m_SUSYTools->GetFatJets(fatjets_nominal,fatjets_nominal_aux) ); //,true,fatjetcoll,true) );
-      ATH_MSG_INFO( "Number of Large Radius jets: " << fatjets_nominal->size() );   
+      ATH_CHECK( m_SUSYTools->GetFatJets(fatjets_nominal,fatjets_nominal_aux) ); //,true,fatjetcoll,true) );
+      ATH_MSG_DEBUG( "Number of Large Radius jets: " << fatjets_nominal->size() );   
     }
   } else if(doFatJets) {
     ATH_MSG_DEBUG("FatJets xAOD::JetContainer with name " << m_FatJetCollection <<" not found");
     doFatJets=false;
   }
 
-  // FIXME: Make empty TruthTaus if taus_nominal is empty and not data 
-  // Tau code fails in this case!  
+//  // FIXME: Make empty TruthTaus if taus_nominal is empty and not data 
+//  // Tau code fails in this case!  
   if( isSim ) {
     const xAOD::TauJetContainer* p_TauJets = 0;
     ATH_CHECK( evtStore()->retrieve(p_TauJets, "TauJets") );
@@ -461,7 +488,7 @@ StatusCode SUSYToolsAlg::execute() {
 
   xAOD::TauJetContainer* taus_nominal(0);
   xAOD::ShallowAuxContainer* taus_nominal_aux(0);
-  CHECK( m_SUSYTools->GetTaus(taus_nominal, taus_nominal_aux) );
+  ATH_CHECK( m_SUSYTools->GetTaus(taus_nominal, taus_nominal_aux) );
   ATH_MSG_DEBUG( "Number of taus: " << taus_nominal->size() );
 
   xAOD::MissingETContainer* metcst_nominal = new xAOD::MissingETContainer;
@@ -469,7 +496,7 @@ StatusCode SUSYToolsAlg::execute() {
   metcst_nominal->setStore(metcst_nominal_aux);
   metcst_nominal->reserve(10);
 
-  CHECK( m_SUSYTools->GetMET(*metcst_nominal,
+  ATH_CHECK( m_SUSYTools->GetMET(*metcst_nominal,
                              jets_nominal,
                              electrons_nominal,
                              muons_nominal,
@@ -480,12 +507,20 @@ StatusCode SUSYToolsAlg::execute() {
                 << ", et=" << (*metcst_nominal)["Final"]->met()
                 << ", sumet=" << (*metcst_nominal)["Final"]->sumet());
 
+  double metsig_cst(0.);
+
+  ATH_CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
+				    metsig_cst,
+				    false, false) );
+
+  ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
+
   xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
   xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
   mettst_nominal->setStore(mettst_nominal_aux);
   mettst_nominal->reserve(10);
   
-  CHECK( m_SUSYTools->GetMET(*mettst_nominal,
+  ATH_CHECK( m_SUSYTools->GetMET(*mettst_nominal,
                              jets_nominal,
                              electrons_nominal,
                              muons_nominal,
@@ -496,6 +531,13 @@ StatusCode SUSYToolsAlg::execute() {
                 << ", et=" << (*mettst_nominal)["Final"]->met()
                 << ", sumet=" << (*mettst_nominal)["Final"]->sumet());
   
+  double metsig_tst(0.);
+
+  ATH_CHECK( m_SUSYTools->GetMETSig(*mettst_nominal,
+        			metsig_tst,
+                             	true, true) );
+
+  ATH_MSG_DEBUG("METSignificance = " << metsig_tst);
 
   TH1* met_et    = hist("met_et");
   TH1* met_sumet = hist("met_sumet");
@@ -701,7 +743,7 @@ StatusCode SUSYToolsAlg::execute() {
     base_event_weight *= evtInfo->mcEventWeight();
 
     const xAOD::MissingETContainer* met_truth(0);
-    CHECK( evtStore()->retrieve(met_truth, "MET_Truth") );
+    ATH_CHECK( evtStore()->retrieve(met_truth, "MET_Truth") );
 
     ATH_MSG_DEBUG("Truth MET etx=" << (*met_truth)["NonInt"]->mpx()
                   << ", ety=" << (*met_truth)["NonInt"]->mpy()
@@ -756,7 +798,7 @@ StatusCode SUSYToolsAlg::execute() {
     }
     else {
       if(isSim){
-        CHECK(m_SUSYTools->ApplyPRWTool());
+        ATH_CHECK(m_SUSYTools->ApplyPRWTool());
         prw_weight = m_SUSYTools->GetPileupWeight();
       }
       event_weight *= prw_weight;
@@ -767,17 +809,11 @@ StatusCode SUSYToolsAlg::execute() {
 
     // Define the generic collection pointers
     xAOD::ElectronContainer* electrons(electrons_nominal);
-    xAOD::ShallowAuxContainer* electrons_aux(electrons_nominal_aux);
     xAOD::PhotonContainer* photons(photons_nominal);
-    xAOD::ShallowAuxContainer* photons_aux(photons_nominal_aux);
     xAOD::MuonContainer* muons(muons_nominal);
-    xAOD::ShallowAuxContainer* muons_aux(muons_nominal_aux);
     xAOD::JetContainer* jets(jets_nominal);
-    xAOD::ShallowAuxContainer* jets_aux(jets_nominal_aux);
     xAOD::JetContainer* fatjets(fatjets_nominal);
-    xAOD::ShallowAuxContainer* fatjets_aux(fatjets_nominal_aux);
     xAOD::TauJetContainer* taus(taus_nominal);
-    xAOD::ShallowAuxContainer* taus_aux(taus_nominal_aux);
     xAOD::MissingETContainer *mettst(mettst_nominal), *metcst(metcst_nominal);
     xAOD::MissingETAuxContainer *mettst_aux(mettst_nominal_aux), *metcst_aux(metcst_nominal_aux);
 
@@ -787,61 +823,48 @@ StatusCode SUSYToolsAlg::execute() {
     bool syst_affectsTaus      = ST::testAffectsObject(xAOD::Type::Tau, sysInfo.affectsType);
     bool syst_affectsJets      = ST::testAffectsObject(xAOD::Type::Jet, sysInfo.affectsType);
     bool syst_affectsBTag      = ST::testAffectsObject(xAOD::Type::BTag, sysInfo.affectsType);
+
+    // If necessary (kinematics affected), make a shallow copy with the variation applied
+    // otherwise set the collection pointers to the nominal
     if (sysInfo.affectsKinematics) {
-      // If necessary (kinematics affected), make a shallow copy with the variation applied
-      // otherwise set the collection pointers to the nominal
       if (syst_affectsElectrons) {
         ATH_MSG_DEBUG("Get systematics-varied electrons");
         xAOD::ElectronContainer* electrons_syst(0);
         xAOD::ShallowAuxContainer* electrons_syst_aux(0);
-        CHECK( m_SUSYTools->GetElectrons(electrons_syst, electrons_syst_aux) );
+        ATH_CHECK( m_SUSYTools->GetElectrons(electrons_syst, electrons_syst_aux) );
         electrons = electrons_syst;
-        electrons_aux = electrons_syst_aux;
       }
 
       if (syst_affectsPhotons) {
         ATH_MSG_DEBUG("Get systematics-varied photons");
         xAOD::PhotonContainer* photons_syst(0);
         xAOD::ShallowAuxContainer* photons_syst_aux(0);
-        CHECK( m_SUSYTools->GetPhotons(photons_syst, photons_syst_aux) );
+        ATH_CHECK( m_SUSYTools->GetPhotons(photons_syst, photons_syst_aux) );
         photons = photons_syst;
-        photons_aux = photons_syst_aux;
       }
 
       if (syst_affectsMuons) {
         ATH_MSG_DEBUG("Get systematics-varied muons");
         xAOD::MuonContainer* muons_syst(0);
         xAOD::ShallowAuxContainer* muons_syst_aux(0);
-        CHECK( m_SUSYTools->GetMuons(muons_syst, muons_syst_aux) );
+        ATH_CHECK( m_SUSYTools->GetMuons(muons_syst, muons_syst_aux) );
         muons = muons_syst;
-        muons_aux = muons_syst_aux;
       }
 
       if (syst_affectsJets) {
         ATH_MSG_DEBUG("Get systematics-varied jets");
         xAOD::JetContainer* jets_syst(0);
         xAOD::ShallowAuxContainer* jets_syst_aux(0);
-        CHECK( m_SUSYTools->GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux) );
+        ATH_CHECK( m_SUSYTools->GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux) );
         jets = jets_syst;
-        jets_aux = jets_syst_aux;
-      }
-
-      if (syst_affectsJets && doFatJets) {
-        ATH_MSG_DEBUG("Get systematics-varied large radius jets");
-        xAOD::JetContainer* fatjets_syst(0);
-        xAOD::ShallowAuxContainer* fatjets_syst_aux(0);
-        CHECK( m_SUSYTools->GetJetsSyst(*fatjets_nominal, fatjets_syst, fatjets_syst_aux, false, m_FatJetCollection) );
-        fatjets = fatjets_syst;
-        fatjets_aux = fatjets_syst_aux;
       }
 
       if (syst_affectsTaus) {
         ATH_MSG_DEBUG("Get systematics-varied taus");
         xAOD::TauJetContainer* taus_syst(0);
         xAOD::ShallowAuxContainer* taus_syst_aux(0);
-        CHECK( m_SUSYTools->GetTaus(taus_syst, taus_syst_aux) );
+        ATH_CHECK( m_SUSYTools->GetTaus(taus_syst, taus_syst_aux) );
         taus = taus_syst;
-        taus_aux = taus_syst_aux;
       }
 
       ATH_MSG_DEBUG("Get systematics-varied MET");
@@ -854,12 +877,12 @@ StatusCode SUSYToolsAlg::execute() {
       mettst_syst->reserve(10);
       metcst_syst->reserve(10);
       //
-      CHECK( m_SUSYTools->GetMET(*metcst_syst,
+      ATH_CHECK( m_SUSYTools->GetMET(*metcst_syst,
                                  jets,
                                  electrons,
                                  muons) );
       //
-      CHECK( m_SUSYTools->GetMET(*mettst_syst,
+      ATH_CHECK( m_SUSYTools->GetMET(*mettst_syst,
                                  jets,
                                  electrons,
                                  muons,
@@ -1096,50 +1119,9 @@ StatusCode SUSYToolsAlg::execute() {
       delete mettst;
       delete metcst_aux;
       delete mettst_aux;
-      if (syst_affectsElectrons) {
-        delete electrons;
-        delete electrons_aux;
-      }
-      if (syst_affectsPhotons) {
-        delete photons;
-        delete photons_aux;
-      }
-      if (syst_affectsMuons) {
-        delete muons;
-        delete muons_aux;
-      }
-      if (syst_affectsJets) {
-        delete jets;
-        delete jets_aux;
-      }
-      if (syst_affectsJets && doFatJets) {
-        delete fatjets;
-        delete fatjets_aux;
-      }
-      if (syst_affectsTaus) {
-        delete taus;
-        delete taus_aux;
-      }
     }
     isNominal = false;
   }
-
-  delete taus_nominal;
-  delete taus_nominal_aux;
-  delete jets_nominal;
-  delete jets_nominal_aux;
-  delete fatjets_nominal;
-  delete fatjets_nominal_aux;
-  delete electrons_nominal;
-  delete electrons_nominal_aux;
-  delete photons_nominal;
-  delete photons_nominal_aux;
-  delete muons_nominal;
-  delete muons_nominal_aux;
-  delete mettst_nominal;
-  delete mettst_nominal_aux;
-  delete metcst_nominal;
-  delete metcst_nominal_aux;
 
   m_clock0.Stop();
   if (m_Nevts == 0) {

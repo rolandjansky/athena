@@ -31,11 +31,8 @@
 //=============================================================================
 G4ScoringProcessTool::G4ScoringProcessTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
-  : AthAlgTool ( type, nam , parent )
+  : base_class ( type, nam , parent )
 {
-  ATH_MSG_DEBUG("G4ScoringProcessTool "<<type<<" "<<nam);
-  declareInterface< IPhysicsOptionTool >( this ) ;
-
 }
 
 //=============================================================================

@@ -13,14 +13,9 @@
 #include "ISF_Interfaces/IParticleHelper.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
-//#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
-
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
 
 #ifndef MAXCHILDREN
 #define MAXCHILDREN 40
@@ -36,16 +31,15 @@ namespace ISF {
   class IParticleBroker;
 }
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
+#include "G4UserTrackingAction.hh"
 #include "AthenaKernel/MsgStreamMember.h"
 
 namespace G4UA{
   namespace iGeant4 {
-    class PhysicsValidationUserAction: public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public ISteppingAction,  public IPreTrackingAction
+    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction
     {
 
     public:
@@ -77,16 +71,14 @@ namespace G4UA{
       };
 
       PhysicsValidationUserAction(const Config& config);
-      virtual void beginOfEvent(const G4Event*) override final;
-      virtual void endOfEvent(const G4Event*) override final;
-      virtual void beginOfRun(const G4Run*) override final;
-      virtual void processStep(const G4Step*) override final;
-      virtual void preTracking(const G4Track*) override final;
+      virtual void BeginOfEventAction(const G4Event*) override final;
+      virtual void EndOfEventAction(const G4Event*) override final;
+      virtual void BeginOfRunAction(const G4Run*) override final;
+      virtual void UserSteppingAction(const G4Step*) override final;
+      virtual void PreUserTrackingAction(const G4Track*) override final;
     private:
 
       Config m_config;
-
-      SecondaryTracksHelper m_sHelper;
 
       /** access to the central ISF GeoID serice*/
       ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead

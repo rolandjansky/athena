@@ -37,7 +37,7 @@
 
 /** Constructor **/
 ISF::G4PolyconeGeoIDSvc::G4PolyconeGeoIDSvc(const std::string& name,ISvcLocator* svc) :
-  AthService(name,svc),
+  base_class(name,svc),
   m_envDefSvc("AtlasGeometry_EnvelopeDefSvc", name),
   m_volume(),
   m_typeConverter()
@@ -49,20 +49,6 @@ ISF::G4PolyconeGeoIDSvc::G4PolyconeGeoIDSvc(const std::string& name,ISvcLocator*
 /** Destructor **/
 ISF::G4PolyconeGeoIDSvc::~G4PolyconeGeoIDSvc()
 {
-}
-
-
-/** Query the interfaces. */
-StatusCode ISF::G4PolyconeGeoIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( ISF::IID_IGeoIDSvc == riid )
-    {
-      *ppvInterface = (IGeoIDSvc*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out a base class
-  return AthService::queryInterface(riid, ppvInterface);
 }
 
 

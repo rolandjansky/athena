@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="CP::TrackVertexAssociationTool" />
   <class name="CP::TightTrackVertexAssociationTool" />
   <class name="CP::LooseTrackVertexAssociationTool" />
   <class name="CP::BaseTrackVertexAssociationTool" />

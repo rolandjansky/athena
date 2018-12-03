@@ -9,14 +9,14 @@
 ################################################################ 
 
 #get all common menu items from the common list
-from SUSYCommonTriggerList import *
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import *
 
-SUSY10LeptonTriggers = SingleLepton_2015+SingleLepton_2016+SingleLepton_2017+DiLepton_2015+DiLepton_2016+DiLepton_2017
-SUSY10PhotonTriggers = SinglePhoton_2015+SinglePhoton_2016+SinglePhoton_2017
-SUSY10XETriggers = MET_2015+MET_2016+MET_2017
+SUSY10LeptonTriggers = SingleLepton_2015+SingleLepton_2016+SingleLepton_2017+SingleLepton_2018+DiLepton_2015+DiLepton_2016+DiLepton_2017+DiLepton_2018
+SUSY10PhotonTriggers = SinglePhoton_2015+SinglePhoton_2016+SinglePhoton_2017+SinglePhoton_2018
+SUSY10XETriggers = MET_2015+MET_2016+MET_2017+MET_2018
 
 #all triggers
-SUSY10AllTriggers = SUSY10LeptonTriggers + SUSY10PhotonTriggers + SUSY10XETriggers + JetTrigger_2016# + SUSY10CombinedXETriggers + SUSY10BjetTriggers + SUSY10RazorTriggers + SUSY10JetTriggers
+SUSY10AllTriggers = SUSY10LeptonTriggers + SUSY10PhotonTriggers + SUSY10XETriggers + JetTrigger_2016 + MultiBJet_2017 + MultiBJet_2018 + MultiBJet_2016 + MultiBJet_2015 + BJetMET_2018 + BJetMET_2017# + SUSY10CombinedXETriggers + SUSY10BjetTriggers + SUSY10RazorTriggers + SUSY10JetTriggers
 
 #just those we need the navigation thinning for
 SUSY10ThinTriggers = SUSY10LeptonTriggers + SUSY10PhotonTriggers

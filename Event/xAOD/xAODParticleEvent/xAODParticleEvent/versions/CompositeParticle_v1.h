@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.h 696023 2015-09-21 17:09:08Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 
@@ -29,7 +28,10 @@
 #include "xAODParticleEvent/IParticleLink.h"
 #include "xAODParticleEvent/IParticleLinkContainer.h"
 
-
+//Already include the DataVector specialization for this type
+#include "xAODParticleEvent/CompositeParticleContainerFwd.h"
+//Complete the Datavector Fwd Declaration
+template struct DataVector_detail::DVLEltBaseInit< xAOD::CompositeParticle_v1>;
 
 namespace xAOD {
 

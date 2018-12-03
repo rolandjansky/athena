@@ -31,8 +31,8 @@ StatusCode LArfSampl2Ntuple::stop() {
   StatusCode sc;
   sc=m_detStore->retrieve(larfSampl,m_contKey);
   if (sc!=StatusCode::SUCCESS) {
-     (*m_log)  << MSG::ERROR << "Unable to retrieve ILArNoise with key " 
-               << m_contKey << " from DetectorStore" << endreq;
+     ATH_MSG_ERROR( "Unable to retrieve ILArNoise with key " 
+               << m_contKey << " from DetectorStore" );
      return StatusCode::FAILURE;
   }
 
@@ -41,13 +41,13 @@ StatusCode LArfSampl2Ntuple::stop() {
 
  sc=m_nt->addItem("icell",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endreq;
+   {ATH_MSG_ERROR( "addItem 'Cell Index' failed" );
     return StatusCode::FAILURE;
    }
 
  sc=m_nt->addItem("fsampl",fsampl);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'fsampl' failed" << endreq;
+   {ATH_MSG_ERROR( "addItem 'fsampl' failed" );
     return StatusCode::FAILURE;
    }
 
@@ -63,14 +63,14 @@ StatusCode LArfSampl2Ntuple::stop() {
        fsampl = larfSampl->FSAMPL(hwid);
        sc=ntupleSvc()->writeRecord(m_nt);
        if (sc!=StatusCode::SUCCESS) {
-         (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;
+         ATH_MSG_ERROR( "writeRecord failed" );
          return StatusCode::FAILURE;
        }
    }//end if isConnected
    cellCounter++;
  }//end loop over online ID
 
- (*m_log)  << MSG::INFO << "LArfSampl2Ntuple has finished." << endreq;
+ ATH_MSG_INFO( "LArfSampl2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

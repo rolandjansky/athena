@@ -67,7 +67,7 @@ G4VParticleChange* QuirkWatcher::PostStepDoIt(
         string.TrackKilled();
     }
 
-    fParticleChange.Initialize(track);
-    fParticleChange.ProposeTrackStatus(stat);
-    return &fParticleChange;
+    m_particleChange.Initialize(track);
+    m_particleChange.ProposeTrackStatus(stat);
+    return &m_particleChange;
 }

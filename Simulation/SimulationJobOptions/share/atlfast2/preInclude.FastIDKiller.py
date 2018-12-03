@@ -11,4 +11,4 @@
 #########################################################
 
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::FastIDKillerTool', ['BeginOfRun','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::FastIDKillerTool', ['Run','Step'])

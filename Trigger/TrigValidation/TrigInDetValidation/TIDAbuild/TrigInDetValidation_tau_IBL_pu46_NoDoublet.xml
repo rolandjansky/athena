@@ -1,0 +1,80 @@
+	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46_NoDoublet' >
+           <doc>TauSlice, H->tautau IBL sample, pu46</doc>
+           <displayName>TauSlice, H->tautau IBL sample, pu46</displayName>
+
+           <commandLineFlags>EventMax=4000;PdgId=15;TauDoubletFilter=False</commandLineFlags>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <package>Trigger/TrigValidation/TrigInDetValidation</package>
+           <group>TrigInDetValidation</group>
+           <queue>long</queue>
+
+#          include "samples/TrigInDetValidation_tau_sample3.xml"
+           
+
+
+           <action position="01">
+             <modulename>RttLibraryTools</modulename>
+             <testname>ExeRunner</testname>
+             <arg>
+               <argname>exeName</argname>
+               <argvalue>TIDArdict.exe</argvalue>
+             </arg>
+             <arg>
+               <argname>exeParamString</argname>
+               <argvalue>TIDAdata11-rtt.dat -f data-tau-IBL.root -b Test_bin.dat </argvalue>
+             </arg>
+           </action>
+
+
+
+         	   
+           <action position="02">
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDArun.sh</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-tau-IBL.root data-tau_IBL_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3  -d HLTEF-plots </argvalue>
+             </arg>
+           </action> 
+
+
+	   
+         	   
+           <action position="03">
+             <modulename>RttLibraryTools</modulename> 
+             <testname>ExeRunner</testname> 
+             <arg> 
+               <argname>exeName</argname>
+               <argvalue>TIDArun.sh</argvalue> 
+             </arg>
+             <arg> 
+               <argname>exeParamString</argname>
+               <argvalue>data-tau-IBL.root data-tau_IBL_pu46-reference.root  HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots </argvalue>
+             </arg>
+           </action> 
+
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+           <testToRemove>
+             <jobGroupName>RTT:Top</jobGroupName>
+             <testidentifier>CheckFileRunner0</testidentifier>
+           </testToRemove>
+	   
+
+#           include "TrigInDetValidation_aux.xml"
+
+
+           <athenaCommonFlags /><alwaysRunPostProc /> 
+         </athena>
+	 
+

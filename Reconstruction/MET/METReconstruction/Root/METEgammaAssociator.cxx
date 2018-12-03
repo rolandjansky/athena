@@ -23,10 +23,11 @@
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
-#include "PFlowUtils/IWeightPFOTool.h"
-
 // DeltaR calculation
 #include "FourMomUtils/xAODP4Helpers.h"
+
+#include "TRandom3.h"
+#include <TLorentzVector.h>
 
 namespace met {
 
@@ -154,7 +155,7 @@ namespace met {
   StatusCode METEgammaAssociator::extractPFO(const xAOD::IParticle* obj,
 					     std::vector<const xAOD::IParticle*>& pfolist,
 					     const met::METAssociator::ConstitHolder& constits,
-					     std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta) const
+					     std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
     // safe to assume a single SW cluster?
@@ -166,12 +167,15 @@ namespace met {
     nearbyPFO.reserve(20);
     for(const auto& pfo : *constits.pfoCont) {
       if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
-	if(fabs(pfo->charge())<FLT_MIN
-	   || (acceptChargedPFO(pfo->track(0),constits.pv)
-	       && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) )
-	       )) {
+	// We set a small -ve pt for cPFOs that were rejected
+	// by the ChargedHadronSubtractionTool
+	const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
+	if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
+	    ( fabs(pfo->charge())>FLT_MIN && PVMatchedAcc(*pfo)
+	      && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) )
+	    ) {
 	  nearbyPFO.push_back(pfo);
-	} // retain neutral PFOs and charged PFOs passing PV association
+	} // retain +ve E neutral PFOs and charged PFOs passing PV association
       } // DeltaR check
     } // PFO loop
     ATH_MSG_VERBOSE("Found " << nearbyPFO.size() << " nearby pfos");
@@ -182,11 +186,6 @@ namespace met {
       for(const auto& pfo : nearbyPFO) {
 	if(fabs(pfo->charge())>FLT_MIN && pfo->track(0) == track) {
 	  pfolist.push_back(pfo);
-	  if(m_weight_charged_pfo) {
-	    float weight = 0.0;
-	    ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
-	    momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
-	  }
 	} // PFO/track match
       } // PFO loop
     } // Track loop
@@ -200,9 +199,9 @@ namespace met {
     double sumE_pfo = 0.;
     const IParticle* bestbadmatch = 0;
     std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
-    TLorentzVector momentum;
     for(const auto& pfo : nearbyPFO) {
-      if(fabs(pfo->charge())>FLT_MIN || pfo->e()<-1*FLT_MIN || !P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, m_useRapidity)) {continue;} // Skip charged PFOs, as we already matched them
+      // Skip charged PFOs, as we already matched them
+      if(fabs(pfo->charge())>FLT_MIN || !P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, m_useRapidity)) {continue;}
       // Handle neutral PFOs like topoclusters
       double pfo_e = pfo->eEM();
       // skip cluster if it's above our bad match threshold or outside the matching radius
@@ -217,20 +216,108 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
     	ATH_MSG_VERBOSE("Accept pfo with pt " << pfo->pt() << ", e " << pfo->e() << " in sum.");
+    	ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << pfo_e / eg_cl_e);
     	ATH_MSG_VERBOSE("E match with new PFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
-    	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << pfo_e / eg_cl_e);
-
-        momentum = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
-	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
-						   momentum.E(),momentum.Pt());
       } // if we will retain the topocluster
       else {break;}
     } // loop over nearby clusters
-    if(sumE_pfo<1e-9 && bestbadmatch) {
+    if(sumE_pfo<FLT_MIN && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
     		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       pfolist.push_back(bestbadmatch);
     }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  // extractPFO for W precision-type measurements
+  StatusCode METEgammaAssociator::extractPFOHR(const xAOD::IParticle* obj,
+                                              std::vector<const xAOD::IParticle*> hardObjs,
+                                              std::vector<const xAOD::IParticle*>& pfolist,
+                                              const met::METAssociator::ConstitHolder& constits,
+                                              std::map<const IParticle*,MissingETBase::Types::constvec_t> & /*momenta*/,
+                                              float& UEcorr) const
+  {
+    // Constructing association electron-PFO map
+    const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
+
+    std::vector<const xAOD::PFO*> nearbyPFO;
+    nearbyPFO.reserve(20);
+
+    // Preselect charged and neutral PFOs, based on proximity: dR < m_Drcone
+    for(const auto& pfo : *constits.pfoCont) { 
+      if(P4Helpers::isInDeltaR(*pfo, *eg, 0.2, m_useRapidity)) {
+        const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+        if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
+        ( fabs(pfo->charge())>FLT_MIN && PVMatchedAcc(*pfo)  && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) ) {
+          nearbyPFO.push_back(pfo); 
+        } // quality cuts        
+      } // DeltaR check
+    } // PFO loop
+
+    // Fill charged PFOs from nearbyPFO to pfolist
+    for(const auto& pfo : nearbyPFO) {
+      if( fabs(pfo->charge()) > FLT_MIN ) {
+        pfolist.push_back(pfo);
+      }
+    }
+
+    // Sort elements in nearbyPFO
+    std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
+
+    // Fill neutral PFOs from nearbyPFO to pfolist
+    for(const auto& pfo : nearbyPFO) {
+      if( fabs(pfo->charge()) > FLT_MIN ){
+        continue;
+      }
+      pfolist.push_back(pfo);
+    }
+
+    // Step 2. Calculating Uncorrected HR and UE energy correction
+    if(eg){
+      // Vectoral sum of all PFOs 
+      TLorentzVector HR;  // uncorrected HR (initialized with 0,0,0,0 automatically)
+      for(const auto& pfo_itr : *constits.pfoCont) {
+        if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) { // sanity check
+          continue;
+        }
+        HR += pfo_itr->p4();
+      }
+
+      // Create a vector of egamma form hardObjs (all electrons)
+      std::vector<const xAOD::Egamma*> v_eg;
+
+      for(const auto& obj_i : hardObjs){
+        const xAOD::Egamma* eg_curr = static_cast<const xAOD::Egamma*>(obj_i); // current egamma object
+          v_eg.push_back( eg_curr );
+      }
+  
+      // Subtruct PFOs which are in the cone around egamma (gives uncorrected HR)
+      for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
+        if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) { // sanity check
+          continue;
+        }  
+        for(const auto& eg_i : v_eg) { // loop over v_eg
+          double dR = P4Helpers::deltaR( pfo_i->eta(), pfo_i->phi(), eg_i->eta(), eg_i->phi() );
+          if( dR < m_Drcone ) {
+            HR -= pfo_i->p4();
+          }
+        } // over v_eg
+      } // over PFOs
+
+      // Save v_eg as a vector TLV (as commonn type for electrons and muons)
+      std::vector<TLorentzVector> v_egTLV;  
+      for(const auto& eg_i : v_eg) { // loop over v_eg
+        v_egTLV.push_back( eg_i->p4() );
+      }
+
+      // Save current eg as TLV
+      TLorentzVector egTLV = eg->p4();
+
+      // Get UE correction
+      ATH_CHECK( GetUEcorr(constits, v_egTLV, egTLV, HR, m_Drcone, m_MinDistCone, UEcorr) );
+    } // eg existance requirement
 
     return StatusCode::SUCCESS;
   }
@@ -260,13 +347,13 @@ namespace met {
       ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
       if( (doSum = (fabs(sumE_tc+tcl_e - eg_cl_e) < fabs(sumE_tc - eg_cl_e))) ) {
     	ATH_MSG_VERBOSE("Accept topocluster with pt " << cl->pt() << ", e " << cl->e() << " in sum.");
+    	ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << tcl_e / eg_cl_e);
     	ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
-    	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << tcl_e / eg_cl_e);
     	tclist.push_back(cl);
     	sumE_tc += tcl_e;
       } // if we will retain the topocluster
     } // loop over nearby clusters
-    if(sumE_tc<1e-9 && bestbadmatch) {
+    if(sumE_tc<FLT_MIN && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
     		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       tclist.push_back(bestbadmatch);

@@ -78,13 +78,6 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     return HLT::OK;
   }
 
-  // TODO: Maybe this will expanded for future...
-  // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
-  if(rnnOutput->rnnDecision().size() != 3){
-    ATH_MSG_DEBUG( "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" );
-    return HLT::OK;
-  }
-
   // Start to retrieve all information that I need...
   const xAOD::TrigEMCluster *emCluster = 0;
   const xAOD::TrigRingerRings *ringerShape = rnnOutput->ringer();
@@ -101,8 +94,6 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   float eta     = std::fabs(emCluster->eta());
   float et      = emCluster->et()*1e-3;//GeV
-  float avgmu   = rnnOutput->rnnDecision().at(0);
-
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
   ///Et threshold
@@ -111,42 +102,58 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     return HLT::OK;
   }
 
+ 
   if(m_cutDefs.size() > 0){
+    // TODO: Maybe this will expanded for future...
+    // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
+    if(rnnOutput->rnnDecision().size() != 3){
+      ATH_MSG_INFO( "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" );
+      return HLT::OK;
+    }
+
+    // get pileup average value
+    float avgmu   = rnnOutput->rnnDecision().at(0);
+    
     ///Select the correct threshold for each eta/Et region
     for(unsigned i=0; i<m_cutDefs.size();++i){
-      if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
-        if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){
-          
-          float threshold=0.0;
-          float output=0.0;
+      if((avgmu > m_cutDefs[i]->mumin()) && (avgmu <= m_cutDefs[i]->mumax())){
+        if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
+          if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){    
 
-          // Retrieve the correct threshold
-          if(m_doPileupCorrection){
-            // Limited Pileup
-            if(avgmu>m_lumiCut)
-              avgmu=m_lumiCut;
-            threshold =  m_cutDefs[i]->threshold(avgmu);
-          }else{
-            threshold = m_cutDefs[i]->threshold();
-          }
+      
+            float threshold=0.0;
+            float output=0.0;
 
-          if(m_useNoActivationFunctionInTheLastLayer)
-            output=rnnOutput->rnnDecision().at(2);
-          else
-            output=rnnOutput->rnnDecision().at(1);
+            // Retrieve the correct threshold
+            if(m_doPileupCorrection){
+              // Limited Pileup
+              if(avgmu>m_lumiCut)
+                avgmu=m_lumiCut;
+              threshold =  m_cutDefs[i]->threshold(avgmu);
+            }else{
+              threshold = m_cutDefs[i]->threshold();
+            }
 
-          if(output >= threshold){
-            ATH_MSG_DEBUG( "Event information:" );
-            ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() );
-            ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() );
-            ATH_MSG_DEBUG( "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() );
-            pass=true;
-          }else{
-            ATH_MSG_DEBUG( "Event reproved by discriminator threshold" );
-          }///Threshold condition
-          break;
-        }///Loop over eta
-      }///Loop over et
+            if(m_useNoActivationFunctionInTheLastLayer)
+              output=rnnOutput->rnnDecision().at(2);
+            else
+              output=rnnOutput->rnnDecision().at(1);
+
+            if(output >= threshold){
+              ATH_MSG_DEBUG( "Event information:" );
+              ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() );
+              ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() );
+              ATH_MSG_DEBUG( "   " << m_cutDefs[i]->mumin() << "< Mu ("<<avgmu<<") " << " <=" << m_cutDefs[i]->mumax() );
+              ATH_MSG_DEBUG( "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() );
+              pass=true;
+            }else{
+              ATH_MSG_DEBUG( "Event reproved by discriminator threshold" );
+            }///Threshold condition
+            
+            break;
+          }///Loop ove eta
+        }///Loop over et
+      }///Loop over mu
     }///Loop over cutDefs
   }else{
     ATH_MSG_DEBUG( "There is no discriminator. Event approved by Et threshold." );

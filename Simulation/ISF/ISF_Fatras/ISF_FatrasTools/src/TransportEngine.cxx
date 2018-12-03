@@ -47,7 +47,7 @@
 iFatras::TransportEngine::TransportEngine( const std::string& t,
 				       const std::string& n,
 				       const IInterface*  p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_rndGenSvc("AtDSFMTGenSvc", n), 
     m_randomEngine(0),
     m_randomEngineName("FatrasRnd"),
@@ -61,8 +61,6 @@ iFatras::TransportEngine::TransportEngine( const std::string& t,
     m_validationMode(false),
     m_validationTool("")
 {
-  declareInterface<ISF::IParticleProcessor>(this);
-
   // validation output section
   declareProperty( "ValidationMode",  m_validationMode );
   declareProperty( "PhysicsValidationTool",     m_validationTool  );

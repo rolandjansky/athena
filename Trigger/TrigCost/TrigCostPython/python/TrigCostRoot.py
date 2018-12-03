@@ -29,6 +29,7 @@ import sys
 import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger('TrigCostRoot')
+log.info("Hello")
 #print '\tLoaded standard packages'
 
 from array import array                 ; #print '\tLoaded special array package'
@@ -305,6 +306,8 @@ class CostRoot:
 
         bunchlumi = lbset.GetAvgInstantaneousBunchLumiE30(lb)
         mu = 71.5 * bunchlumi / 11.24558
+        lbset.Print()
+ 
 
         # Set branch value
         tvar = self.tvars[chname]
@@ -444,7 +447,7 @@ class CostRoot:
         self.tfile.Write()
 
         # Verbose
-        if 'debug' in self.options:
+        if True: # in self.options:
             chlist = ratecoll.GetChainNames()
             newlist = chlist[:5] # first 5
             newlist.extend(chlist[-5:]) # last 5

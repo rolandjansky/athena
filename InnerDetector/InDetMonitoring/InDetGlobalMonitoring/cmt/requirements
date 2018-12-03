@@ -33,6 +33,7 @@ use TrkExInterfaces		TrkExInterfaces-*                 Tracking/TrkExtrapolation
 use TrkMeasurementBase		TrkMeasurementBase-*              Tracking/TrkEvent
 use TrkParameters		TrkParameters-*	                  Tracking/TrkEvent
 use TrkParticleBase             TrkParticleBase-*                 Tracking/TrkEvent
+use TrkSpacePoint               TrkSpacePoint-*                   Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*			  Tracking/TrkDetDescr
 use TrkToolInterfaces		TrkToolInterfaces-*               Tracking/TrkTools
 use TrkTrack			TrkTrack-*                        Tracking/TrkEvent

@@ -18,6 +18,7 @@
 #include "xAODBase/IParticleContainer.h"
 //#include "xAODVertex/VertexContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace xAOD {
 
@@ -75,6 +76,7 @@ namespace xAOD {
      std::vector<double> MV2c10_discriminant;
      std::vector<double> MV2c20_discriminant;
 
+
      std::vector< std::vector< float > > IP2D_valD0wrtPVofTracks;
      std::vector< std::vector< float > > IP2D_sigD0wrtPVofTracks;
      std::vector< std::vector< float > > IP2D_weightBofTracks;
@@ -92,6 +94,7 @@ namespace xAOD {
      std::vector< std::vector< float > > IP3D_weightCofTracks;
      std::vector< std::vector< bool  > > IP3D_flagFromV0ofTracks;
      std::vector< std::vector< int   > > IP3D_gradeOfTracks;
+
 
      std::vector< float >   SV0_normdist;
      std::vector< double >  SV0_pb;
@@ -145,7 +148,60 @@ namespace xAOD {
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > IP3D_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > BTagTrackToJetAssociator;
      //std::vector< std::vector< ElementLink< JetContainer           > > > BTagBtagToJetAssociator; 
-     std::vector< std::vector< ElementLink< IParticleContainer     > > > BTagBtagToJetAssociator; 
+     std::vector< std::vector< ElementLink< IParticleContainer     > > > BTagBtagToJetAssociator;
+
+
+
+     std::vector< double > rnnip_pb;
+     std::vector< double > rnnip_pu;
+     std::vector< double > rnnip_pc;
+     std::vector< std::vector< ElementLink< TrackParticleContainer > > > rnnip_TrackParticleLinks; 
+
+     std::vector< std::vector< float > > rnnip_d0;
+     std::vector< std::vector< float > > rnnip_d0sig;
+     std::vector< std::vector< float > > rnnip_z0;
+     std::vector< std::vector< float > > rnnip_z0sig;
+     std::vector< std::vector< float > > rnnip_fromV0;
+     std::vector< std::vector< float > > rnnip_grade;
+
+
+     std::vector< double > SMT_discriminant;
+     std::vector< ElementLink< xAOD::MuonContainer > > SMT_mu_link;
+
+     std::vector<float> SMT_mombalsignif;
+     std::vector<float> SMT_scatneighsignif;
+     std::vector<float> SMT_ID_qOverP;
+
+
+     std::vector<double> MV2c10rnn_discriminant;
+     std::vector<double> MV2c10mu_discriminant;
+
+     
+     std::vector< double >  DL1_pu;
+     std::vector< double >  DL1_pb;
+     std::vector< double >  DL1_pc;
+
+     std::vector< double >  DL1rnn_pu;
+     std::vector< double >  DL1rnn_pb;
+     std::vector< double >  DL1rnn_pc;
+
+     std::vector< double >  DL1mu_pu;
+     std::vector< double >  DL1mu_pb;
+     std::vector< double >  DL1mu_pc;
+
+
+     std::vector< int > nTrk_vtx1; 
+     std::vector< float > mass_first_vtx;
+     std::vector< float > e_first_vtx;
+     std::vector< float > e_frac_vtx1;
+     std::vector< float > closestVtx_L3D;
+     std::vector< float > JF_Lxy1;
+     std::vector< float > vtx1_MaxTrkRapidity_jf_path;
+     std::vector< float > vtx1_AvgTrkRapidity_jf_path;
+     std::vector< float > vtx1_MinTrkRapidity_jf_path;
+     std::vector< float > MaxTrkRapidity_jf_path;
+     std::vector< float > MinTrkRapidity_jf_path;
+     std::vector< float > AvgTrkRapidity_jf_path;
      
    }; // class BTaggingTrigAuxContainer_v1
 

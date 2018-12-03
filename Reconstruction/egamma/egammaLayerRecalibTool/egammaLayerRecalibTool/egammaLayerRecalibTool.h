@@ -21,6 +21,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
+// TODO: rewrite with 1 modifier <-> 1 class (not 1 modifier <-> 2 classes amount + modifier)
+// TODO: remove all not used cases
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -37,12 +40,15 @@
 #include <TFormula.h>
 
 #include "egammaLayerRecalibTool/corr_HV_EMBPS.h"
+#include "egammaLayerRecalibTool/corr_HV_EMECPS.h" 
+#include "egammaLayerRecalibTool/corr_pileupShift.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 
 struct StdCalibrationInputs
 {
+  float averageInteractionsPerCrossing;  // only for pileup correction
   unsigned int RunNumber;   // only for HV presampler correction
   double eta;
   double phi;               // only for HV presampler correction
@@ -71,6 +77,51 @@ private:
   corr_HV_EMBPS m_tool;
 };
 
+struct GetAmountHVEMECPS207 :  public GetAmountBase
+{
+    virtual float operator()(const StdCalibrationInputs & input) const;
+private:
+  virtual GetAmountHVEMECPS207* clone() const { return 0;};
+  corr_HV_EMECPS m_toolEMECPS;
+};
+
+struct GetAmountPileupE0 : public GetAmountBase
+{
+  GetAmountPileupE0(corr_pileupShift* tool) : m_tool(tool) { };
+  virtual float operator()(const StdCalibrationInputs & inputs) const;
+private:
+  virtual GetAmountPileupE0* clone() const { return 0; };
+  corr_pileupShift* m_tool;
+};
+
+struct GetAmountPileupE1 : public GetAmountBase
+{
+  GetAmountPileupE1(corr_pileupShift* tool) : m_tool(tool) { };
+  virtual float operator()(const StdCalibrationInputs & inputs) const;
+private:
+  virtual GetAmountPileupE1* clone() const { return 0; };
+  corr_pileupShift* m_tool;
+};
+
+struct GetAmountPileupE2 : public GetAmountBase
+{
+  GetAmountPileupE2(corr_pileupShift* tool) : m_tool(tool) { };
+  virtual float operator()(const StdCalibrationInputs & inputs) const;
+private:
+  virtual GetAmountPileupE2* clone() const { return 0; };
+  corr_pileupShift* m_tool;
+};
+
+struct GetAmountPileupE3 : public GetAmountBase
+{
+  GetAmountPileupE3(corr_pileupShift* tool) : m_tool(tool) { };
+  virtual float operator()(const StdCalibrationInputs & inputs) const;
+private:
+  virtual GetAmountPileupE3* clone() const { return 0; };
+  corr_pileupShift* m_tool;
+};
+  
+  
 
 struct GetAmountFormula : public GetAmountBase
 {
@@ -169,7 +220,7 @@ private:
 
 struct InputModifier
 {
-  enum NullPoint {ZEROBASED, ONEBASED, ZEROBASED_ALPHA, ONEBASED_ALPHA, SHIFT};
+  enum NullPoint {ZEROBASED, ONEBASED, ZEROBASED_ALPHA, ONEBASED_ALPHA, SHIFT, SCALE, SUBTRACT};
 
   InputModifier(NullPoint base) : m_base(base) { };
   CP::CorrectionCode operator()(StdCalibrationInputs&, float amount) const;
@@ -179,6 +230,7 @@ private:
   InputModifier() { }; // privatize default constructor
   // here we are one based (amount == 1 <=> null scale)
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const=0;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const=0;
   NullPoint m_base;
 };
 
@@ -189,6 +241,7 @@ struct ScaleE0 : public InputModifier
   ScaleE0* clone() const { return new ScaleE0(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -198,6 +251,7 @@ struct ScaleE1 : public InputModifier
   ScaleE1* clone() const { return new ScaleE1(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -207,6 +261,7 @@ struct ScaleE2 : public InputModifier
   ScaleE2* clone() const { return new ScaleE2(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -216,6 +271,7 @@ struct ScaleE3 : public InputModifier
   ScaleE3* clone() const { return new ScaleE3(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -225,6 +281,7 @@ struct ScaleE1overE2 : public InputModifier
   ScaleE1overE2* clone() const { return new ScaleE1overE2(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -234,6 +291,7 @@ struct ScaleEaccordion : public InputModifier
   ScaleEaccordion* clone() const { return new ScaleEaccordion(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -243,6 +301,7 @@ struct ScaleEcalorimeter : public InputModifier
   ScaleEcalorimeter* clone() const { return new ScaleEcalorimeter(*this); };
 private:
   virtual void scale_inputs(StdCalibrationInputs&, float amount) const;
+  virtual void shift_inputs(StdCalibrationInputs&, float amount) const; 
 };
 
 
@@ -258,7 +317,7 @@ public:
   **/
   egammaLayerRecalibTool(const std::string& name, const std::string& tune);
   egammaLayerRecalibTool(const std::string& tune);
-  ~egammaLayerRecalibTool() { clear_corrections(); }
+  ~egammaLayerRecalibTool() { clear_corrections(); delete m_pileup_tool; }
 
   CP::CorrectionCode applyCorrection(xAOD::Egamma &, const xAOD::EventInfo& event_info) const;
 
@@ -290,6 +349,8 @@ private:
   const std::string resolve_path(std::string filename) const;
   const std::string& resolve_alias(const std::string& tune) const;
   ModifiersList m_modifiers;
+
+  corr_pileupShift* m_pileup_tool = nullptr;
 };
 
 #endif // EGAMMA_LAYER_RECALIB_TOOL

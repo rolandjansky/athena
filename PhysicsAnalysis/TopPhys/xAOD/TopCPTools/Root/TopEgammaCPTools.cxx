@@ -19,7 +19,6 @@
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
-#include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
 #include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
@@ -37,7 +36,8 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
     m_electronEffSFIDLooseFile("SetMe"),
     m_electronEffSFIsoFile("SetMe"),
     m_electronEffSFIsoLooseFile("SetMe"),
-    m_electronEffSFChargeIDFile("SetMe") {
+    m_electronEffSFChargeIDFile("SetMe"),
+    m_electronEffSFChargeMisIDFile("SetMe") {
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
@@ -77,6 +77,11 @@ StatusCode EgammaCPTools::initialize() {
   else {
     ATH_MSG_INFO("top::EgammaCPTools: no need to initialise anything since using neither electrons nor photons");
   }
+
+  // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
+  if(m_config->photonUseRadiativeZ()){
+    ATH_MSG_INFO("top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -95,7 +100,7 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-				"ESModel", "es2017_R21_PRE"),
+				"ESModel", "es2017_R21_v1"),
 	       "Failed to set ESModel for " + egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                 "decorrelationModel",
@@ -112,18 +117,6 @@ StatusCode EgammaCPTools::setupCalibration() {
     m_egammaCalibrationAndSmearingTool = egammaCalibrationAndSmearingTool;
   }
 
-  // - Electron Charge ID Selector Tool
-  // The only supported working point is Medium with 97% integrated efficiency
-  // Note: this working point is to be applied on top of MediumLLH + d0z0 cuts + isolFixedCutTight
-  // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronChargeFlipTaggerTool
-  std::string toolName="ECIDS_medium";
-  AsgElectronChargeIDSelectorTool* electronChargeIDSelectorTool = new AsgElectronChargeIDSelectorTool(toolName);
-  std::string trainingfile="ElectronPhotonSelectorTools/ChargeID/ECIDS_20161125for2017Moriond.root";
-  float BDT_OP=-0.28087; //Set your operating point with the table above.
-  top::check( electronChargeIDSelectorTool->setProperty("TrainingFile",trainingfile) , "Failed to setProperty" );
-  top::check( electronChargeIDSelectorTool->setProperty("CutOnBDT",BDT_OP) , "Failed to setProperty" );
-  top::check( electronChargeIDSelectorTool->initialize() , "Failed to initialize" );
-
   // The terribly named ElectronPhotonShowerShapeFudgeTool...
   // We apply this only to photons to correct the shower shape
   // This should only be applied on MC
@@ -133,11 +126,11 @@ StatusCode EgammaCPTools::setupCalibration() {
     m_photonFudgeTool = asg::ToolStore::get<IFudgeTool>(fudgeName);
   } else {
     IFudgeTool* fudge_tool = new ElectronPhotonShowerShapeFudgeTool(fudgeName);
-    // Set Preselection to 21 (was 16) according to http://cern.ch/go/trk9
+    // Set Preselection to 22
     // for MC15 samples, which are based on a geometry derived from GEO-21 from 2015+2016 data
-    top::check(asg::setProperty(fudge_tool, "Preselection", 21),
+    top::check(asg::setProperty(fudge_tool, "Preselection", 22),
                 "Failed to set " + fudgeName + " property: Preselection");
-    top::check(asg::setProperty(fudge_tool,"FFCalibFile","ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root"),
+    top::check(asg::setProperty(fudge_tool,"FFCalibFile","ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root"),
                 "Failed to set ElectronPhotonShowerShapeFudgeTool");
     top::check(fudge_tool->initialize(),
                 "Failed to initialize PhotonFudgeTool");
@@ -148,27 +141,15 @@ StatusCode EgammaCPTools::setupCalibration() {
   bool af2 = m_config->isAFII();
   int data_type = 0; // Data
   if (m_config->isMC()) {
-    data_type = 1; // Full sim
     if (af2) {
-      data_type = 3; // AF2
+      ATH_MSG_WARNING("PhotonEfficiencies - Currently there are no recommendations for FastSimulation photons");
+      ATH_MSG_WARNING("PhotonEfficiencies - Therefore we are advised to treat FastSim as FullSim for configuration");
+      //data_type = 3; // AF2
+      data_type = 1; // AF2 masquerading as full sim
     }
-  }
-
-  // The file to make the tool with.
-  std::string file_base = "PhotonEfficiencyCorrection/";
-  std::string file_map = file_base + "2015_2016/rel20.7/Moriond2017_v1/map0.txt";
-  file_map = PathResolverFindCalibFile(file_map);
-  std::string file_con = "";
-  std::string file_unc = "";
-  if (af2) {
-    // for AFII we keep using the previous recommendations
-    file_base += "v1/efficiencySF.offline.Tight.2015.13TeV.rel20.AFII.";
-    file_con = file_base; // Conv file
-    file_unc = file_base; // Unconv file
-    file_con += "con.v01.root";
-    file_con = PathResolverFindCalibFile(file_con);
-    file_unc += "unc.v01.root";
-    file_unc = PathResolverFindCalibFile(file_unc);
+    else{
+      data_type = 1; // Full sim
+    }
   }
 
   using IPhotonEffTool = IAsgPhotonEfficiencyCorrectionTool;
@@ -178,21 +159,6 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     if (m_config->isMC()) {  // Seem to only be able to setup the tool for MC
       IPhotonEffTool* photonEffSF = new AsgPhotonEfficiencyCorrectionTool(photonSFName);
-      if (!af2) {
-        top::check(asg::setProperty(photonEffSF,
-                                    "MapFilePath",
-                                    file_map),
-                    "Failed to set MapFilePath for " + photonSFName);
-      } else {
-        top::check(asg::setProperty(photonEffSF,
-                                    "CorrectionFileNameConv",
-                                    file_con),
-                    "Failed to set CorrectionFileNameConv for " + photonSFName);
-        top::check(asg::setProperty(photonEffSF,
-                                    "CorrectionFileNameUnconv",
-                                    file_unc),
-                    "Failed to set CorrectionFileNameUnconv for " + photonSFName);
-      }
       top::check(asg::setProperty(photonEffSF, "ForceDataType", data_type),
                   "Failed to set ForceDataType for " + photonSFName);
       top::check(photonEffSF->initialize(),
@@ -205,24 +171,18 @@ StatusCode EgammaCPTools::setupCalibration() {
   // To retrieve Isolation Eff scale factors
   // N.B. Naming for isolation working points for AsgPhotonEfficiencyCorrectionTool isolation scale factors
   // are different than those for the IsolationCorrectionTool (preceded by FixedCut)
-  std::set<std::string> photon_isolations = {"TightCaloOnly",
-					     "Tight",
-					     "Loose",};
+  std::set<std::string> photon_isolations = {"Tight",
+					     "Loose",
+					     "TightCaloOnly"};
   for (const std::string& isoWP : photon_isolations) {
     std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
     if (!asg::ToolStore::contains<IPhotonEffTool>(photonIsoSFName)) {
       if (m_config->isMC() && !af2) { // only available for full simulation
         IPhotonEffTool* photonIsoSFTool = new AsgPhotonEfficiencyCorrectionTool(photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool,
-                                    "MapFilePath",
-                                    file_map),
-                    "Failed to set MapFilePath for " + photonIsoSFName);
         top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                     "Failed to set ForceDataType for " + photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool, "UseRadiativeZSF_mediumPT", m_config->photonUseRadiativeZ()),
-                    "Failed to set useRadiativeZSF_mediumPT for " + photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool, "IsoWP", isoWP),
-                    "Failed to set IsoWP for " + photonIsoSFName);
+        top::check(asg::setProperty(photonIsoSFTool, "IsoKey", isoWP),
+                    "Failed to set IsoKey for " + photonIsoSFName);
         top::check(photonIsoSFTool->initialize(),
                     "Failed to initialize " + photonIsoSFName);
         m_photonIsoSFTools.push_back(photonIsoSFTool);
@@ -243,8 +203,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   electronID.replace(electronID.find("LH"), 2, "LLH");  // that way people do not have to change their cuts file
   std::string electronIDLoose = m_config->electronIDLoose();
   electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
-  std::string electronIsolation = m_config->electronIsolation();
-  std::string electronIsolationLoose = m_config->electronIsolationLoose();
+  std::string electronIsolation = m_config->electronIsolationSF();
+  std::string electronIsolationLoose = m_config->electronIsolationSFLoose();
 
   // Retrieve full path to maps for different types of tool
   m_electronEffSFRecoFile         = electronSFMapFilePath("reco");
@@ -259,25 +219,11 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffTriggerLooseFile   = electronSFMapFilePath("trigger");
   m_electronEffSFIsoLooseFile     = electronSFMapFilePath("isolation");
 
-  // Perform check on the isolation WP and identify if there are cases where the SF is not available
-  if( (electronIsolation != "None" && m_electronEffSFIsoFile == "") || (electronIsolationLoose != "None" && m_electronEffSFIsoLooseFile == "") ){
-    ATH_MSG_WARNING("Electron isolation configuration not found");
-    if (m_config->electronIsoSFs()) {
-      ATH_MSG_WARNING("If you really want to run with this electron "
-                      "ID/Isolation setup then you can add:"
-                      "\tElectronIsoSFs False\tto your config file");
-      return StatusCode::FAILURE;
-    }
-    else{
-      ATH_MSG_INFO("Isolation SFs will be set to 1.0");
-    }
-  }
-
   // Define the trigger string for scale factors
   const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
                                      "OR_e60_lhmedium_"
                                      "OR_e120_lhloose_"
-                                     "2016_e26_lhtight_nod0_ivarloose_"
+                                     "2016_2018_e26_lhtight_nod0_ivarloose_"
                                      "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
 
   // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
@@ -305,12 +251,13 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffSFIso          = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile,  "", electronID, electronIsolation, "", dataType);
   m_electronEffSFIsoLoose     = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "", electronID, electronIsolationLoose, "", dataType);
 
-  // Charge ID cannot use maps at the moment so we defualt to the old method
+  // Charge ID cannot use maps at the moment so we default to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
-  if ( ( electronIDLoose == "MediumLLH" && electronIsolationLoose == "FixedCutTight" ) || ( electronID == "MediumLLH" && electronIsolation == "FixedCutTight" ) ) {
+  // Scale factors are still from 20.7!
+  if(m_config->useElectronChargeIDSelection()){ // We need to update the implementation according to new recommendations
     // Charge ID file (no maps)
-    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH", "FixedCutTight");
+    m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH", "");
     // The tools want the files in vectors: remove this with function
     std::vector<std::string> inChargeID {m_electronEffSFChargeIDFile};
     // Charge Id efficiency scale factor
@@ -318,7 +265,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
     // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
     CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
     //top::check( ChargeMisIDCorrections->setProperty("OutputLevel",  MSG::VERBOSE ) , "Failed to setProperty" );
-    top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeIDFile) , "Failed to setProperty" );
+    m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
+    top::check( ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile) , "Failed to setProperty" );
     top::check( ChargeMisIDCorrections->initialize() , "Failed to setProperty" );
   }
   return StatusCode::SUCCESS;
@@ -360,10 +308,6 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
       top::check(asg::setProperty(tool, "ForceDataType", data_type), "Failed to set ForceDataType to " + name);
       // Set the correlation model for all tools
       top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"), "Failed to set CorrelationModel to " + name);
-      // Before settings the keys, we need to take into account FixedCutHighPtCaloOnly does not have any trigger isolation scale factors
-      if(trigger_key != "" && trigger_key != "None" && iso_key == "FixedCutHighPtCaloOnly"){
-	iso_key = ""; // Remove isolation from trigger key configuration (only valid with triggers which are not isolation dependent)
-      }
       // Set the keys which configure the tool options (empty string means we do not include this key)
       if(reco_key != "" && reco_key != "None"){
 	ATH_MSG_INFO(" Adding RecoKey    : " + reco_key);
@@ -388,7 +332,7 @@ EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, std::string m
   return tool;
 }
 
-std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& isolation) {
+  std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO) {
 
   const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/";
 
@@ -398,8 +342,6 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ID") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
-  } else if (type == "isolation") {
-    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "triggerSF") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "triggerEff") {
@@ -407,33 +349,37 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
   } else if (type == "ChargeID") {
     if (ID != "MediumLLH") ATH_MSG_WARNING("Only Medium WP available at the moment " + ID);
     file_path = "charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolFixedCutTight_MediumCFT.root";
+    file_path = el_calib_path + file_path;
+  } else if (type == "ChargeMisID") {
+    file_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/";
+    file_path += "chargeEfficiencySF.";
+    file_path += ID;
+    file_path += "_d0z0_v13_";
+    file_path += ISO;
+    file_path += ".root";
   } else {
     ATH_MSG_ERROR("Unknown electron SF type");
   }
-  return PathResolverFindCalibFile(el_calib_path + file_path);
+  return PathResolverFindCalibFile(file_path);
 }
 
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    // Temporary: Take away constness of path since we have a mixture for rel20 and 21 at the moment.
-    std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map0.txt";
+      file_path = "map1.txt";
     }
     else if(type == "ID"){
-      file_path = "map0.txt";
+      file_path = "map1.txt";
     }
     else if(type == "isolation"){
-      file_path = "map0.txt";
+      file_path = "map1.txt";
     }
     else if(type == "trigger"){
-      // Need to still use old path for triggers
-      el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/";
       file_path = "map1.txt";
-      ATH_MSG_WARNING("Still using rel20 trigger maps.");
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

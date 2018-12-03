@@ -8,7 +8,6 @@
 #include "TopAnalysis/EventSaverBase.h"
 #include "TopCorrections/ScaleFactorRetriever.h"
 #include "TopEventSelectionTools/TreeManager.h"
-#include "TopObjectSelectionTools/RCJetMC15.h"
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -16,8 +15,6 @@
 #include "AthContainers/DataVector.h"
 #include <unordered_map>
 
-// fwd declare particle-level class
-class ParticleLevelRCJetObjectLoader;
 
 namespace top {
 
@@ -150,13 +147,21 @@ protected:
      */
     std::shared_ptr<top::TreeManager> particleLevelTreeManager();
 
+    /*!
+     * @brief Return a shared pointer to the top::TreeManager object that is
+     * used for the upgrade level output tree.
+     * @returns A shared pointer to the top::TreeManager object that is used to
+     * write out the upgrade level event data.
+     */
+    std::shared_ptr<top::TreeManager> upgradeTreeManager();
 
    /**
     * @brief Return a shared pointer to the top::ScaleFactorRetriever object
     * which allows us to easily access the SF decorations
     * @returns A shared pointer to the top::ScaleFactorRetriever object
     */
-    std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    //std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    top::ScaleFactorRetriever* scaleFactorRetriever();
 
     /*!
      * @brief Function to access the branch filters - cf ANALYSISTO-61
@@ -220,7 +225,8 @@ private:
     std::shared_ptr<top::TopConfig> m_config;
 
     ///Scale factors
-    std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    //std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    top::ScaleFactorRetriever* m_sfRetriever;
 
     ///The file where everything goes
     TFile* m_outputFile;
@@ -236,6 +242,7 @@ private:
     ///    .first  --- The name of the selection
     ///    .second --- The variable used for storing into the TTree
     std::vector< std::pair<std::string,int> > m_particleLevel_SelectionDecisions;
+    std::vector< std::pair<std::string,int> > m_upgrade_SelectionDecisions;
 
     /// TreeManager for upgrade analysis data output
     std::shared_ptr<top::TreeManager> m_upgradeTreeManager;
@@ -306,11 +313,24 @@ private:
     float m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_UP;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;
+    // Additional global event calculated trigger SF + systematics
+    float m_weight_globalLeptonTriggerSF;
+    float m_weight_globalLeptonTriggerSF_EL_Trigger_UP;
+    float m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN;
+    // Old trigger SFs
+    float m_weight_oldTriggerSF;
+    float m_weight_oldTriggerSF_EL_Trigger_UP;
+    float m_weight_oldTriggerSF_EL_Trigger_DOWN;
+    float m_weight_oldTriggerSF_MU_Trigger_STAT_UP;
+    float m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN;
+    float m_weight_oldTriggerSF_MU_Trigger_SYST_UP;
+    float m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN;
 
     ///-- individual components for lepton SF --///
-    float m_weight_indiv_SF_EL_Trigger;
-    float m_weight_indiv_SF_EL_Trigger_UP;
-    float m_weight_indiv_SF_EL_Trigger_DOWN;
     float m_weight_indiv_SF_EL_Reco;
     float m_weight_indiv_SF_EL_Reco_UP;
     float m_weight_indiv_SF_EL_Reco_DOWN;
@@ -328,11 +348,6 @@ private:
     float m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;
     float m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;
     float m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;
-    float m_weight_indiv_SF_MU_Trigger;
-    float m_weight_indiv_SF_MU_Trigger_STAT_UP;
-    float m_weight_indiv_SF_MU_Trigger_STAT_DOWN;
-    float m_weight_indiv_SF_MU_Trigger_SYST_UP;
-    float m_weight_indiv_SF_MU_Trigger_SYST_DOWN;
     float m_weight_indiv_SF_MU_ID;
     // Muon ID SF systematics (regular)
     float m_weight_indiv_SF_MU_ID_STAT_UP;
@@ -445,8 +460,11 @@ private:
     std::vector<float> m_el_phi;
     std::vector<float> m_el_e;
     std::vector<float> m_el_charge;
+    std::vector<float> m_el_faketype;
     std::vector<float> m_el_topoetcone20;
     std::vector<float> m_el_ptvarcone20;
+    std::vector<float> m_el_etcone20;
+    std::vector<float> m_el_ptcone30;
     std::vector<char>  m_el_isTight;
     std::vector<char>  m_el_CF; // pass charge ID selector (has no charge flip)
     std::unordered_map<std::string, std::vector<char> > m_el_trigMatched;
@@ -454,8 +472,13 @@ private:
     std::vector<float> m_el_delta_z0_sintheta;
     std::vector<int>   m_el_true_type;
     std::vector<int>   m_el_true_origin;
-    std::vector<int>   m_el_true_typebkg;
-    std::vector<int>   m_el_true_originbkg;
+    std::vector<int>   m_el_true_firstEgMotherTruthType;
+    std::vector<int>   m_el_true_firstEgMotherTruthOrigin;
+    std::vector<int>   m_el_true_firstEgMotherPdgId;
+    std::vector<char>  m_el_true_isPrompt;
+    std::vector<char>  m_el_true_isChargeFl;
+    std::vector<char>  m_el_ECIDS;
+    std::vector<double>  m_el_ECIDSResult;
 
     //muons
     std::vector<float> m_mu_pt;
@@ -465,17 +488,26 @@ private:
     std::vector<float> m_mu_charge;
     std::vector<float> m_mu_topoetcone20;
     std::vector<float> m_mu_ptvarcone30;
+    std::vector<float> m_mu_etcone20;
+    std::vector<float> m_mu_ptcone30;
     std::vector<char>  m_mu_isTight;
     std::unordered_map<std::string, std::vector<char> > m_mu_trigMatched;
     std::vector<float> m_mu_d0sig;
     std::vector<float> m_mu_delta_z0_sintheta;
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
+    std::vector<char>  m_mu_true_isPrompt;
+    std::vector<float>  m_mu_prodVtx_z;
+    std::vector<float>  m_mu_prodVtx_perp;
+    std::vector<float>  m_mu_prodVtx_phi;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
     std::vector<float> m_ph_phi;
     std::vector<float> m_ph_e;
+    std::vector<float> m_ph_true_type;
+    std::vector<float> m_ph_true_origin;
+    std::vector<float> m_ph_faketype;
     std::vector<float> m_ph_iso;
 
     //taus
@@ -498,25 +530,26 @@ private:
     std::vector<int>   m_jet_truthflav;
     std::vector<int>   m_jet_truthPartonLabel;
     std::vector<char>  m_jet_isTrueHS;
+    std::vector<int>   m_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_jet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
     // R21 b-tagging
-    std::vector<float> m_jet_MV2c10mu;
-    std::vector<float> m_jet_MV2c10rnn;
+    std::vector<float> m_jet_MV2r;
+    std::vector<float> m_jet_MV2rmu;
     std::vector<float> m_jet_DL1;
-    std::vector<float> m_jet_DL1mu;
-    std::vector<float> m_jet_DL1rnn;
+    std::vector<float> m_jet_DL1r;
+    std::vector<float> m_jet_DL1rmu;
     std::vector<float> m_jet_MV2cl100;
     std::vector<float> m_jet_MV2c100;
     std::vector<float> m_jet_DL1_pu;
     std::vector<float> m_jet_DL1_pc;
     std::vector<float> m_jet_DL1_pb;
-    std::vector<float> m_jet_DL1mu_pu;
-    std::vector<float> m_jet_DL1mu_pc;
-    std::vector<float> m_jet_DL1mu_pb;
-    std::vector<float> m_jet_DL1rnn_pu;
-    std::vector<float> m_jet_DL1rnn_pc;
-    std::vector<float> m_jet_DL1rnn_pb;
+    std::vector<float> m_jet_DL1r_pu;
+    std::vector<float> m_jet_DL1r_pc;
+    std::vector<float> m_jet_DL1r_pb;
+    std::vector<float> m_jet_DL1rmu_pu;
+    std::vector<float> m_jet_DL1rmu_pc;
+    std::vector<float> m_jet_DL1rmu_pb;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -546,23 +579,27 @@ private:
     std::vector<float> m_tjet_mv2c10;
     std::vector<float> m_tjet_mv2c20;
     std::unordered_map<std::string, std::vector<char>>  m_tjet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_tjet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case Continuous WP is used
 
     //re-clustered jets
     //  -> need unordered map for systematics
     bool m_makeRCJets; // making re-clustered jets
     bool m_makeVarRCJets; // making VarRC jets
+    bool m_useRCJSS; // write RCJSS variables
+    bool m_useRCAdditionalJSS; // write RCJSS additional variables
+    bool m_useVarRCJSS; // write Variable-R RCJSS variables
+    bool m_useVarRCAdditionalJSS; // write Variable-R RCJSS additional variables
+    bool m_useElectronChargeIDSelection; // write ECID tool output variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
-    std::unique_ptr<RCJetMC15> m_rc;
-    std::map<std::string,std::unique_ptr<RCJetMC15> > m_VarRC;
     std::string m_egamma;      // egamma systematic naming scheme
     std::string m_muonsyst;    // muon systematic naming scheme
     std::string m_jetsyst;     // jet systematic naming scheme
-    std::unordered_map<std::size_t, JetReclusteringTool*> m_jetReclusteringTool;
     std::map<std::string,std::vector<float>> m_VarRCjetBranches;
     std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranches;
+    std::map<std::string,std::vector<float>> m_VarRCjetBranchesParticle;
+    std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranchesParticle;
     std::vector<int> m_rcjet_nsub;
     std::vector<float> m_rcjet_pt;
     std::vector<float> m_rcjet_eta;
@@ -576,12 +613,50 @@ private:
     std::vector<std::vector<float> > m_rcjetsub_e;
     std::vector<std::vector<float> > m_rcjetsub_mv2c10;
 
+    std::vector<float> m_rrcjet_pt;
+    std::vector<float> m_rrcjet_eta;
+    std::vector<float> m_rrcjet_phi;
+    std::vector<float> m_rrcjet_e;
+    
+    std::vector<float> m_rcjet_tau32_clstr;
+    std::vector<float> m_rcjet_tau21_clstr;
+    std::vector<float> m_rcjet_tau3_clstr;
+    std::vector<float> m_rcjet_tau2_clstr;
+    std::vector<float> m_rcjet_tau1_clstr;
+     
+    std::vector<float> m_rcjet_D2_clstr;
+    std::vector<float> m_rcjet_ECF1_clstr;
+    std::vector<float> m_rcjet_ECF2_clstr;
+    std::vector<float> m_rcjet_ECF3_clstr;
+
+    std::vector<float> m_rcjet_d12_clstr;
+    std::vector<float> m_rcjet_d23_clstr;
+    std::vector<float> m_rcjet_Qw_clstr;
+
+    std::vector<float> m_rcjet_gECF332_clstr;
+    std::vector<float> m_rcjet_gECF461_clstr;
+    std::vector<float> m_rcjet_gECF322_clstr;
+    std::vector<float> m_rcjet_gECF331_clstr;
+    std::vector<float> m_rcjet_gECF422_clstr;
+    std::vector<float> m_rcjet_gECF441_clstr;
+    std::vector<float> m_rcjet_gECF212_clstr;
+    std::vector<float> m_rcjet_gECF321_clstr;
+    std::vector<float> m_rcjet_gECF311_clstr;
+    std::vector<float> m_rcjet_L1_clstr;
+    std::vector<float> m_rcjet_L2_clstr;
+    std::vector<float> m_rcjet_L3_clstr;
+    std::vector<float> m_rcjet_L4_clstr;
+    std::vector<float> m_rcjet_L5_clstr;
+
+    
     //met
     float m_met_met;
     float m_met_phi;
 
     //KLFitter
     short m_klfitter_selected;
+    /// Selection
+    std::vector<std::string> m_klfitter_selection;
     /// Error flags
     std::vector<short> m_klfitter_minuitDidNotConverge;
     std::vector<short> m_klfitter_fitAbortedDueToNaN;
@@ -592,6 +667,7 @@ private:
     std::vector<unsigned int> m_klfitter_bestPermutation;
     std::vector<float> m_klfitter_logLikelihood;
     std::vector<float> m_klfitter_eventProbability;
+    std::vector<unsigned int> m_klfitter_parameters_size;
     std::vector<std::vector<double>> m_klfitter_parameters;
     std::vector<std::vector<double>> m_klfitter_parameterErrors;
 
@@ -743,7 +819,10 @@ private:
     std::vector<float> m_mc_eta;
     std::vector<float> m_mc_phi;
     std::vector<float> m_mc_e;
+    std::vector<double> m_mc_charge;
     std::vector<int> m_mc_pdgId;
+    std::vector<int> m_mc_status;
+    std::vector<int> m_mc_barcode;
 
     //PDFInfo
     std::vector<float> m_PDFinfo_X1;
@@ -776,11 +855,6 @@ private:
     std::vector<int> m_ljet_Ghosts_CHadron_Final_Count;
     std::vector<std::vector<int>> m_rcjetsub_Ghosts_BHadron_Final_Count;
     std::vector<std::vector<int>> m_rcjetsub_Ghosts_CHadron_Final_Count;
-
-    // for rc jets at particle level
-    std::unique_ptr<ParticleLevelRCJetObjectLoader> m_rcjet_particle;
-    std::string m_RCJetContainerParticle;       // name for RC jets container
-
 
     // Truth tree inserted variables
     // This can be expanded as required
@@ -850,11 +924,27 @@ protected:
   const float& weight_leptonSF_MU_SF_TTVA_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;}
   const float& weight_leptonSF_MU_SF_TTVA_SYST_UP() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_UP;}
   const float& weight_leptonSF_MU_SF_TTVA_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;}
-
+  // Special global lepton trigger SF + systematics
+  const float& weight_globalLeptonTriggerSF() const { return m_weight_globalLeptonTriggerSF; }
+  const float& weight_globalLeptonTriggerSF_EL_Trigger_UP() const { return m_weight_globalLeptonTriggerSF_EL_Trigger_UP; }
+  const float& weight_globalLeptonTriggerSF_EL_Trigger_DOWN() const { return m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN; }
+  // Old trigger SFs
+  const float& weight_oldTriggerSF() const { return m_weight_oldTriggerSF; }
+  const float& weight_oldTriggerSF_EL_Trigger_UP() const { return m_weight_oldTriggerSF_EL_Trigger_UP; }
+  const float& weight_oldTriggerSF_EL_Trigger_DOWN() const { return m_weight_oldTriggerSF_EL_Trigger_DOWN; }
+  const float& weight_oldTriggerSF_MU_Trigger_STAT_UP() const { return m_weight_oldTriggerSF_MU_Trigger_STAT_UP; }
+  const float& weight_oldTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN; }
+  const float& weight_oldTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_oldTriggerSF_MU_Trigger_SYST_UP; }
+  const float& weight_oldTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN; }
+  
   ///-- individual components for lepton SF --///
-  const float& weight_indiv_SF_EL_Trigger() const { return m_weight_indiv_SF_EL_Trigger;}
-  const float& weight_indiv_SF_EL_Trigger_UP() const { return m_weight_indiv_SF_EL_Trigger_UP;}
-  const float& weight_indiv_SF_EL_Trigger_DOWN() const { return m_weight_indiv_SF_EL_Trigger_DOWN;}
+  const float& weight_indiv_SF_EL_Trigger() const { return weight_oldTriggerSF(); }
+  const float& weight_indiv_SF_EL_Trigger_UP() const { return weight_oldTriggerSF_EL_Trigger_UP(); }
+  const float& weight_indiv_SF_EL_Trigger_DOWN() const { return weight_oldTriggerSF_EL_Trigger_DOWN(); }
   const float& weight_indiv_SF_EL_Reco() const { return m_weight_indiv_SF_EL_Reco;}
   const float& weight_indiv_SF_EL_Reco_UP() const { return m_weight_indiv_SF_EL_Reco_UP;}
   const float& weight_indiv_SF_EL_Reco_DOWN() const { return m_weight_indiv_SF_EL_Reco_DOWN;}
@@ -872,11 +962,11 @@ protected:
   const float& weight_indiv_SF_EL_ChargeMisID_STAT_DOWN() const { return m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;}
   const float& weight_indiv_SF_EL_ChargeMisID_SYST_UP() const { return m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;}
   const float& weight_indiv_SF_EL_ChargeMisID_SYST_DOWN() const { return m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;}
-  const float& weight_indiv_SF_MU_Trigger() const { return m_weight_indiv_SF_MU_Trigger;}
-  const float& weight_indiv_SF_MU_Trigger_STAT_UP() const { return m_weight_indiv_SF_MU_Trigger_STAT_UP;}
-  const float& weight_indiv_SF_MU_Trigger_STAT_DOWN() const { return m_weight_indiv_SF_MU_Trigger_STAT_DOWN;}
-  const float& weight_indiv_SF_MU_Trigger_SYST_UP() const { return m_weight_indiv_SF_MU_Trigger_SYST_UP;}
-  const float& weight_indiv_SF_MU_Trigger_SYST_DOWN() const { return m_weight_indiv_SF_MU_Trigger_SYST_DOWN;}
+  const float& weight_indiv_SF_MU_Trigger() const { return weight_oldTriggerSF(); }
+  const float& weight_indiv_SF_MU_Trigger_STAT_UP() const { return weight_oldTriggerSF_MU_Trigger_STAT_UP(); }
+  const float& weight_indiv_SF_MU_Trigger_STAT_DOWN() const { return weight_oldTriggerSF_MU_Trigger_STAT_DOWN(); }
+  const float& weight_indiv_SF_MU_Trigger_SYST_UP() const { return weight_oldTriggerSF_MU_Trigger_SYST_UP(); }
+  const float& weight_indiv_SF_MU_Trigger_SYST_DOWN() const { return weight_oldTriggerSF_MU_Trigger_SYST_DOWN(); }
   const float& weight_indiv_SF_MU_ID() const { return m_weight_indiv_SF_MU_ID;}
   // Muon ID SF systematics (regular)
   const float& weight_indiv_SF_MU_ID_STAT_UP() const { return m_weight_indiv_SF_MU_ID_STAT_UP;}
@@ -987,6 +1077,7 @@ protected:
   const std::vector<float>& el_cl_eta() const { return m_el_cl_eta;}
   const std::vector<float>& el_phi() const { return m_el_phi;}
   const std::vector<float>& el_e() const { return m_el_e;}
+  const std::vector<float>& el_faketype() const { return m_el_faketype;}
   const std::vector<float>& el_charge() const { return m_el_charge;}
   const std::vector<float>& el_topoetcone20() const { return m_el_topoetcone20;}
   const std::vector<float>& el_ptvarcone20() const { return m_el_ptvarcone20;}
@@ -997,8 +1088,11 @@ protected:
   const std::vector<float>& el_delta_z0_sintheta() const { return m_el_delta_z0_sintheta;}
   const std::vector<int>& el_true_type() const { return m_el_true_type;}
   const std::vector<int>& el_true_origin() const { return m_el_true_origin;}
-  const std::vector<int>& el_true_typebkg() const { return m_el_true_typebkg;}
-  const std::vector<int>& el_true_originbkg() const { return m_el_true_originbkg;}
+  const std::vector<int>& el_true_firstEgMotherTruthType() const { return m_el_true_firstEgMotherTruthType;}
+  const std::vector<int>& el_true_firstEgMotherTruthOrigin() const { return m_el_true_firstEgMotherTruthOrigin;}
+  const std::vector<int>& el_true_firstEgMotherPdgId() const { return m_el_true_firstEgMotherPdgId;}
+  const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
+  const std::vector<char>& el_true_isChargeFl() const { return m_el_true_isChargeFl;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}
@@ -1014,12 +1108,16 @@ protected:
   const std::vector<float>& mu_delta_z0_sintheta() const { return m_mu_delta_z0_sintheta;}
   const std::vector<int>& mu_true_type() const { return m_mu_true_type;}
   const std::vector<int>& mu_true_origin() const { return m_mu_true_origin;}
+  const std::vector<char>& mu_true_isPrompt() const { return m_mu_true_isPrompt;}
 
   //photons
   const std::vector<float>& ph_pt() const { return m_ph_pt;}
   const std::vector<float>& ph_eta() const { return m_ph_eta;}
   const std::vector<float>& ph_phi() const { return m_ph_phi;}
   const std::vector<float>& ph_e() const { return m_ph_e;}
+  const std::vector<float>& ph_true_type() const { return m_ph_true_type;}
+  const std::vector<float>& ph_true_origin() const { return m_ph_true_origin;}
+  const std::vector<float>& ph_faketype() const { return m_ph_faketype;}
   const std::vector<float>& ph_iso() const { return m_ph_iso;}
 
   //taus
@@ -1038,12 +1136,12 @@ protected:
   const std::vector<float>& jet_mv2c20() const { return m_jet_mv2c20;}
   const std::vector<float>& jet_jvt() const { return m_jet_jvt;}
   const std::vector<char>& jet_passfjvt() const { return m_jet_passfjvt;}
-  const std::vector<float>& jet_ip3dsv1() const { return m_jet_ip3dsv1;}
   const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
+  const std::vector<int>& jet_truthflavExtended() const { return m_jet_HadronConeExclExtendedTruthLabelID;}
   const std::unordered_map<std::string, std::vector<char>>& jet_isbtagged() const { return m_jet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& jet_tagWeightBin() const { return m_jet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>> & jet_tagWeightBin() const { return m_jet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
   const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
   const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
@@ -1071,7 +1169,7 @@ protected:
   const std::vector<float>& tjet_mv2c10() const { return m_tjet_mv2c10;}
   const std::vector<float>& tjet_mv2c20() const { return m_tjet_mv2c20;}
   const std::unordered_map<std::string, std::vector<char>>& tjet_isbtagged() const { return m_tjet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>>&  tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
 
   //re-clustered jets
   // -> need unordered map for systematics
@@ -1080,12 +1178,9 @@ protected:
   const std::string& RCJetContainer() const { return m_RCJetContainer;} // name for RC jets container in TStore
   const std::vector<std::string>& VarRCJetRho() const { return m_VarRCJetRho;}
   const std::vector<std::string>& VarRCJetMassScale() const { return m_VarRCJetMassScale;}
-  const std::unique_ptr<RCJetMC15>& rc() const { return m_rc;}
-  const std::map<std::string,std::unique_ptr<RCJetMC15> >& VarRC() const { return m_VarRC;}
   const std::string& egamma() const { return m_egamma;} // egamma systematic naming scheme
   const std::string& muonsyst() const { return m_muonsyst;} // muon systematic naming scheme
   const std::string& jetsyst() const { return m_jetsyst;} // jet systematic naming scheme
-  const std::unordered_map<std::size_t, JetReclusteringTool*>& jetReclusteringTool() const { return m_jetReclusteringTool;}
   const std::map<std::string,std::vector<float>>& VarRCjetBranches() const { return m_VarRCjetBranches;}
   const std::map<std::string,std::vector<std::vector<float>>>& VarRCjetsubBranches() const { return m_VarRCjetsubBranches;}
   const std::vector<int>& rcjet_nsub() const { return m_rcjet_nsub;}
@@ -1100,6 +1195,33 @@ protected:
   const std::vector<std::vector<float> >& rcjetsub_phi() const { return m_rcjetsub_phi;}
   const std::vector<std::vector<float> >& rcjetsub_e() const { return m_rcjetsub_e;}
   const std::vector<std::vector<float> >& rcjetsub_mv2c10() const { return m_rcjetsub_mv2c10;}
+  const std::vector<float>& rcjet_tau32_clstr() const { return m_rcjet_tau32_clstr;}
+  const std::vector<float>& rcjet_tau21_clstr() const { return m_rcjet_tau21_clstr;}
+  const std::vector<float>& rcjet_tau3_clstr() const { return m_rcjet_tau3_clstr;}
+  const std::vector<float>& rcjet_tau2_clstr() const { return m_rcjet_tau2_clstr;}
+  const std::vector<float>& rcjet_tau1_clstr() const { return m_rcjet_tau1_clstr;}
+  const std::vector<float>& rcjet_D2_clstr() const { return m_rcjet_D2_clstr;}
+  const std::vector<float>& rcjet_ECF1_clstr() const { return m_rcjet_ECF1_clstr;}
+  const std::vector<float>& rcjet_ECF2_clstr() const { return m_rcjet_ECF2_clstr;}
+  const std::vector<float>& rcjet_ECF3_clstr() const { return m_rcjet_ECF3_clstr;}
+  const std::vector<float>& rcjet_d12_clstr() const { return m_rcjet_d12_clstr;}
+  const std::vector<float>& rcjet_d23_clstr() const { return m_rcjet_d23_clstr;}
+  const std::vector<float>& rcjet_Qw_clstr() const { return m_rcjet_Qw_clstr;}
+  const std::vector<float>& rcjet_gECF332_clstr() const { return m_rcjet_gECF332_clstr;}
+  const std::vector<float>& rcjet_gECF461_clstr() const { return m_rcjet_gECF461_clstr;}
+  const std::vector<float>& rcjet_gECF322_clstr() const { return m_rcjet_gECF322_clstr;}
+  const std::vector<float>& rcjet_gECF331_clstr() const { return m_rcjet_gECF331_clstr;}
+  const std::vector<float>& rcjet_gECF422_clstr() const { return m_rcjet_gECF422_clstr;}
+  const std::vector<float>& rcjet_gECF441_clstr() const { return m_rcjet_gECF441_clstr;}
+  const std::vector<float>& rcjet_gECF212_clstr() const { return m_rcjet_gECF212_clstr;}
+  const std::vector<float>& rcjet_gECF321_clstr() const { return m_rcjet_gECF321_clstr;}
+  const std::vector<float>& rcjet_gECF311_clstr() const { return m_rcjet_gECF311_clstr;}
+   
+  const std::vector<float>& rcjet_L1_clstr() const { return m_rcjet_L1_clstr;}
+  const std::vector<float>& rcjet_L2_clstr() const { return m_rcjet_L2_clstr;}
+  const std::vector<float>& rcjet_L3_clstr() const { return m_rcjet_L3_clstr;}
+  const std::vector<float>& rcjet_L4_clstr() const { return m_rcjet_L4_clstr;}
+  const std::vector<float>& rcjet_L5_clstr() const { return m_rcjet_L5_clstr;}
 
   //met
   const float& met_met() const { return m_met_met;}
@@ -1107,6 +1229,8 @@ protected:
 
   ///KLFitter
   const short& klfitter_selected() const { return m_klfitter_selected;}
+  /// Selection
+  const std::vector<std::string> klfitter_selection() const { return m_klfitter_selection;}
   /// Error flags
   const std::vector<short>& klfitter_minuitDidNotConverge() const { return m_klfitter_minuitDidNotConverge;}
   const std::vector<short>& klfitter_fitAbortedDueToNaN() const { return m_klfitter_fitAbortedDueToNaN;}
@@ -1116,6 +1240,7 @@ protected:
   const std::vector<unsigned int>& klfitter_bestPermutation() const { return m_klfitter_bestPermutation;}
   const std::vector<float>& klfitter_logLikelihood() const { return m_klfitter_logLikelihood;}
   const std::vector<float>& klfitter_eventProbability() const { return m_klfitter_eventProbability;}
+  const std::vector<unsigned int>& klfitter_parameters_size() const { return m_klfitter_parameters_size;}
   const std::vector<std::vector<double>>& klfitter_parameters() const { return m_klfitter_parameters;}
   const std::vector<std::vector<double>>& klfitter_parameterErrors() const { return m_klfitter_parameterErrors;}
   /// Model
@@ -1235,7 +1360,10 @@ protected:
   const std::vector<float>& mc_eta() const { return m_mc_eta;}
   const std::vector<float>& mc_phi() const { return m_mc_phi;}
   const std::vector<float>& mc_e() const { return m_mc_e;}
+  const std::vector<double>& mc_charge() const { return m_mc_charge;}
   const std::vector<int>& mc_pdgId() const { return m_mc_pdgId;}
+  const std::vector<int>& mc_status() const { return m_mc_status;}
+  const std::vector<int>& mc_barcode() const { return m_mc_barcode;}
 
   //PDFInfo
   const std::vector<float>& PDFinfo_X1() const { return m_PDFinfo_X1;}
@@ -1267,14 +1395,14 @@ protected:
   const std::vector<std::vector<int>>& rcjetsub_Ghosts_BHadron_Final_Count() const { return m_rcjetsub_Ghosts_BHadron_Final_Count;}
   const std::vector<std::vector<int>>& rcjetsub_Ghosts_CHadron_Final_Count() const { return m_rcjetsub_Ghosts_CHadron_Final_Count;}
 
-  // for rc jets at particle level
-  const std::unique_ptr<ParticleLevelRCJetObjectLoader>& rcjet_particle() const { return m_rcjet_particle;}
-  const std::string& RCJetContainerParticle() const { return m_RCJetContainerParticle;} // name for RC jets container
-
   // Truth tree inserted variables
   // This can be expanded as required
   // This is just a first pass at doing this sort of thing
   const std::unordered_map<std::string,int*>& extraTruthVars_int() const { return m_extraTruthVars_int;}
+
+  // Prompt lepton definition for event saver
+  std::pair<bool, bool> isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge);
+  bool isPromptMuon(int type, int origin);
 
   ClassDef(top::EventSaverFlatNtuple, 0);
 };

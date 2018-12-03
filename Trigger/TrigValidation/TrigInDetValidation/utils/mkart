@@ -1,0 +1,364 @@
+#!/bin/bash 
+
+
+
+function usage { 
+    echo "Usage: $(basename $0) [args] package0 package1 ..."
+    echo "     -o,           DIRECTORY  write output to DIRECTORY"
+    echo "     -n, --noglob             do not overwrite existing files"
+    echo "     -d, --dataset FILE       run on FILE"
+    echo "     -c, --cleanup            clean up afterwards"
+    echo "     -h, --help               this help"
+    if [ $# -lt 1 ]; then exit 0; fi ; exit $1 
+}
+
+
+function timestamp { 
+    echo -e "\n\necho \"TIMESTAMP: \$(date)\"\n\n"
+}
+
+DIR=$PWD
+
+if [ -x /usr/local/bin/sed ]; then 
+  SED=/usr/local/bin/sed
+else
+  SED=$(which sed)
+fi
+
+[ $# -gt 0 ] && DIR=$1
+
+
+
+args=$(getopt -ql "searchpath:" -o "ntco:d:" -- "$@")
+
+FILES=
+OUTDIR=$PWD
+NOGLOB=0
+DATASET=
+DELETE=0
+
+while [ $# -ge 1 ]; do
+    case "$1" in
+        --) shift ; break ;;
+        -o )             if [ $# -lt 2 ]; then usage 1; fi ; OUTDIR=$2  ; shift ;;
+        -d | --dataset ) if [ $# -lt 2 ]; then usage 1; fi ; DATASET=$2 ; shift ;;
+        -n | --noglob )  NOGLOB=1 ;;
+        -c | --cleanup ) DELETE=1 ;;
+        -h | --help )   usage 0;;
+        *)   
+          DIR=$1
+          BASE=$(basename $DIR .xml)
+          BASETAIL=$(basename $DIR)
+          if [ "$BASE" != "$BASETAIL" ]; then 
+              FILES="$FILES $1"
+          else
+              FILES="$FILES $DIR/*.xml"
+          fi
+          ;;
+    esac
+    shift
+done
+
+
+# echo "FILES:  $FILES"
+# echo "OUTDIR: $OUTDIR"
+
+COUNTER=0
+
+for xmlfile in $FILES; do  
+
+    basedir=$(dirname $xmlfile)
+
+    [ -z "$basedir" ] && basedir=./
+
+    _file=$(basename $xmlfile .xml)
+
+    file=test_$(echo $_file | tr '[:upper:]' '[:lower:]' )
+      
+    outfile="$OUTDIR/$file.sh"
+
+    if [ -z $DATASET ]; then 
+	SAMPLE=$(grep include $xmlfile | grep sample | grep -v "<\!-" | head -1 | sed 's|.* \"||g' | sed 's|\".*||g')
+	DATASET=$(grep dataset $basedir/$SAMPLE | grep -v "<\!-" | head -1 | sed 's|.*<dataset>||g' | sed 's|</dataset>.*||g' )
+    fi 
+
+    echo "file:            $outfile"
+
+    if [ -e $outfile ]; then 
+      if [ $NOGLOB -eq 0 ]; then 
+#        echo "file exists:  $outfile already exists, moving to " $outfile.bak
+         echo "file exists:  mv $outfile -> " $outfile.bak
+         mv $outfile{,.bak}
+      else      
+         echo "file $outfile already exists, move along, there's nothing to see here"
+         continue
+      fi
+    fi
+
+    gpath=$(dirname $xmlfile)
+
+    # preprocess the file to get the full set of stages
+
+    cpp -traditional-cpp -I$gpath $xmlfile  | $SED 's|STAR|\*|g' | grep -v "\# " | grep -v "emacs:" > /tmp/$_file.xml
+
+    duff=$(grep dataset /tmp/$_file.xml)
+
+    [ "x$duff" != "x" ] || continue
+ 
+    file=$(echo $_file | $SED 's/\.xml//g')
+
+    echo "#!/bin/bash" > $outfile
+    
+    echo "# art-description: art job for $(echo $_file | sed 's|TrigInDetValidation_||g')" >> $outfile 
+    echo "# art-type: grid"       >>  $outfile 
+    echo "# art-input:  $(basename $(dirname $DATASET))" >>  $outfile 
+    echo "# art-output: *.dat "   >>  $outfile 
+    echo "# art-output: *.root"   >>  $outfile 
+    echo "# art-output: *.log"    >>  $outfile 
+
+    echo "# art-input-nfiles: 10" >> $outfile 
+    echo ""                       >> $outfile 
+    echo ""                       >> $outfile 
+
+
+    echo "" >>  $outfile 
+    echo "export RTTJOBNAME=$(basename $_file .sh)" >> $outfile
+
+
+    echo "" >>  $outfile 
+    echo "" >>  $outfile 
+
+#   echo "if [ ! -z \"\$ArtInFile\" ]; then " >>  $outfile 
+    
+
+
+
+    echo "if [ \$# -gt 0 -a \"x\$1\" == \"x--local\" ]; then" >> $outfile
+    echo "       ARGS=\"XMLDataSet='\$RTTJOBNAME'\""    >> $outfile
+    echo "else"                                         >> $outfile 
+    echo "      fileList=\"['\${ArtInFile//,/', '}']\"" >> $outfile 
+    echo "      echo \"List of files = \$fileList\""    >> $outfile 
+    echo "      ARGS=\"ARTConfig=\$fileList\""          >> $outfile
+    echo "fi" >> $outfile 
+
+#   echo "else"                       >> $outfile
+#   echo "  fileList=[\"$DATASET\"]"  >> $outfile
+#   echo "fi"                         >> $outfile
+
+    chmod u+x $outfile
+
+
+    # get all the exerunner stages
+
+    grep "<argvalue>" /tmp/$_file.xml |  $SED 's|<argvalue>||g' | $SED 's|</argvalue>||g' | grep -v check_log.pl > /tmp/_args
+
+    cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s/'/"\""/g")
+
+    joboptions=$(grep "<options>" /tmp/$_file.xml |  sed 's|<options>||g' | sed 's|</options>||g')
+
+    jobid=$(basename $xmlfile .xml)
+
+#   echo "joboption $joboptions    cmdlineflags $cmdlineflags"
+
+    
+
+    if [ "x$joboptions" != "x" ]; then
+
+#        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py" >> $_file.sh
+#        echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py" >> $outfile
+
+#        echo  "athena.py  -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
+
+#	 DATASET=$(dirname $DATASET)
+
+#	 echo "CMD: " $cmdlineflags
+
+	 if ( echo $cmdlineflags | grep -q EventMax ); then 
+
+	     events=$(echo $cmdlineflags | sed 's|.*EventMax[[:space:]]*=[[:space:]]*\([0-9]*[[:space:]]*\);.*|\1|g' | sed 's|EventMax[[:space:]]*=[[:space:]]*\([0-9]*\)[[:space:]]*.*|\1|g' )
+	     newevents=$( echo "2*$events" | bc )
+	     cmdlineflags=$(echo $cmdlineflags | sed "s|EventMax[[:space:]]*=[[:space:]]*$events|EventMax=$newevents|g")
+
+	 fi
+
+#	 cmdlineflags=$(echo $cmdlineflags | sed 's|EventMax[[:space:]]*=[[:space:]]*[0-9]*[[:space:]]*;||g' | sed 's|EventMax[[:space:]]*=[[:space:]]*[0-9]*[[:space:]]*||g' )
+ 
+# 	 echo "CMD: " $cmdlineflags 
+ 
+#        echo  "athena.py  -c 'import glob;from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=glob.glob(\"$DATASET/*\");$cmdlineflags' $joboptions.py" >> $outfile
+#        echo  "athena.py  -c 'ARTConfig=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
+
+         echo "ARGS=\"\$ARGS;$cmdlineflags\"" >> $outfile 
+
+         echo "echo \"\$ARGS\"" >> $outfile
+
+	 echo >> $outfile
+
+         echo -e "get_files -jo $joboptions.py\n" >> $outfile
+
+	 timestamp >> $outfile
+
+#        echo  "athena.py  -c \"ARTConfig=\$fileList;$cmdlineflags\" $joboptions.py 2>&1 | tee athena-local.log" >> $outfile
+         echo  "athena.py  -c \"\$ARGS\" $joboptions.py 2>&1 | tee &> athena-local.log" >> $outfile
+
+	 echo  "echo \"art-result: \$? athena_$COUNTER\"" >> $outfile
+	 echo  "" >> $outfile
+
+	 timestamp >> $outfile
+
+	 echo -e "\nls -l\n" >> $outfile
+
+	 ((COUNTER++))
+
+
+    fi
+  
+#   cat $outfile
+
+#   continue
+
+    N=$(cat /tmp/_args | wc -l)
+
+#   echo "file: $outfile"
+
+    [ $N -gt  0 ] || continue
+
+    command=
+    runcommand=
+    oldcommand=
+
+    while [ $N -gt 0 ]; do
+
+  
+           arg=$(tail -$N /tmp/_args | head -1 | sed 's|^[[:space:]]*||' | sed 's|[[:space:]]*$||g')
+
+#	   echo "arg:$arg:"
+
+           # NB: the TIDArun.sh exeRunners do not need to get_files the reference
+           #     files, since the TIDArun.sh script copies them itself
+
+	   runcommand=$arg
+
+   	   if [ "$arg" == "TIDArdict.exe"       -o \
+    	        "$arg" == "TIDArdict"           -o \
+                "$arg" == "TIDAcomparitor.exe"  -o \
+                "$arg" == "TIDAcomparitor"      -o \
+                "$arg" == "TIDAcpucost.exe"     -o \
+                "$arg" == "TIDAcpucost"         -o \
+                "$arg" == "TIDArun.sh"          -o \
+                "$arg" == "TIDArun-art.sh"      -o \
+                "$arg" == "RunTrigCostD3PD.exe" -o \
+	        "$arg" == "RunTrigCostD3PDe" ]; then 
+
+               if [ "$command" != "" ]; then 
+#	          echo    "$command"
+#                 echo    "$command"               >> $outfile
+		  echo -e "\n$command  2>&1 | tee ${oldcommand}_$COUNTER.log" >> $outfile
+		  echo    "echo \"art-result: \$? ${oldcommand}_$COUNTER\"" >> $outfile
+                  echo    ""                       >> $outfile
+       	          timestamp >> $outfile
+
+		  ((COUNTER++))
+	       fi	  
+              
+	       oldcommand=$(echo $runcommand | sed 's|\..*||g')
+              
+               command="$arg"
+
+#              echo "COMMAND: $command"
+
+           else 
+
+  	       if [ "$command" == "TIDAcpucost.exe" -o \
+                    "$command" == "TIDAcpucost" ]; then
+
+		   runcommand=$command
+		   
+                   auxfile=$(grep auxFile /tmp/$_file.xml | grep expert | $SED 's|.*<auxFilePattern>||g' | $SED 's|</auxFilePattern>||g')
+		   
+                   arg=$(echo "$arg" | $SED "s| \S*\*\S* | $auxfile |g")
+		   
+               fi
+
+	       for ffile in $arg; do 
+                   
+#                 echo "FFILE $ffile"
+
+                  ext=$(echo $ffile | cut -d . -f2) 
+                  ref=$(echo $ffile | grep ".*ref.*.root")
+#                 echo "ffile: $ffile" 
+#		  echo "ref: $ref     : ext: $ext"
+                  if [ "$ext" == "dat" -o "$ref" != "" ];  then 
+#                    echo "   getting file $ffile"
+                     if [ "$command" != "TIDArun.sh" -a "$command" != "TIDArun" -a "$command" != "TIDArun-art.sh" ]; then
+                        $(echo $ffile | grep -q "\*") || echo "get_files -data $ffile" >> $outfile
+                        if [ "$ext" == "dat" ]; then 
+			    [ -e $ffile ] || get_files -data $ffile
+                            for DATFILE in $(grep "^# *include" $ffile | sed 's|.*include ||g' | sed 's|\"||g' ); do 
+                                echo "get_files -data $DATFILE" >> $outfile
+   			        [ -e $DATFILE ] || get_files -data $DATFILE
+                                for EXTRAFILE in $(grep "^# *include" $DATFILE | sed 's|.*include ||g' | sed 's|\"||g' ); do 
+                                   echo "get_files -data $EXTRAFILE" >> $outfile
+                                done
+                            done
+			fi
+                     fi
+		     [ "$command" == "TIDArun.sh" -o "$command" == "TIDArun" ] && command=TIDArun-art.sh && runcommand=$command
+                  fi
+               done
+               command="$command $arg"
+           fi
+
+           (( N-- ))
+ 
+    done
+
+    if [ "$command" != "" ]; then
+
+	  command=$(echo $command | sed 's|\.exe | |g')
+ 
+#         echo    "$command"
+          echo -e "\n$command  2>&1 | tee ${oldcommand}_$COUNTER.log"  >> $outfile
+	  echo -e "echo \"art-result: \$? ${oldcommand}_$COUNTER\"\n" >> $outfile
+	  oldcommand=$(echo $runcommand | sed 's|\..*||g')
+#	  echo -e "JOBSTATUS_$COUNTER=\$?\n" >> $outfile
+          echo    ""                         >> $outfile
+
+ 	  timestamp >> $outfile
+
+	  ((COUNTER++))
+
+
+    fi
+
+    if [ -e  $outfile ]; then 
+
+      USENEXTFILE=0
+      [ -e $outfile.extra ] && rm $outfile.extra
+
+      for TOUTDIR in $(cat $outfile | grep -v cpu ); do 
+	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 &&  continue 
+	[ "x$TOUTDIR" == "x-d" -o "x$TOUTDIR" == "x-o" ] && USENEXTFILE=1 
+      done
+
+      for TOUTDIR in $(cat $outfile | grep cpu ); do 
+	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 &&  continue 
+	[ "x$TOUTDIR" == "x-o" ] && USENEXTFILE=1  
+      done
+    
+      [ -e $outfile.extra ] &&  sed "/art-type/ r $outfile.extra" $outfile > $outfile.tmp && mv $outfile{.tmp,}
+     
+      if [ $DELETE -eq 1 ]; then 
+         [ -e $outfile.extra  ] && rm $outfile.extra
+         [ -e $outfile.bak  ]   && rm $outfile.bak
+      fi
+
+      chmod 755 $outfile
+
+    fi
+
+done
+
+
+
+

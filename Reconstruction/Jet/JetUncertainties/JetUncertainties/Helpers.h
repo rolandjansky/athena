@@ -84,10 +84,10 @@ namespace utils
     bool fileExists(const TString& fileName);
 
     // Find a valid file path
-    TString findFilePath(const TString& fileName, const TString& path = "");
+    TString findFilePath(const TString& fileName, const TString& path = "", const TString& calibArea = "");
     
     // Open a root file
-    TFile* readRootFile(const TString& fileName, const TString& path = "");
+    TFile* readRootFile(const TString& fileName, const TString& path = "", const TString& calibArea = "");
 
     // Make bins easily
     std::vector<double> getLogBins(const size_t numBins, const double minVal, const double maxVal);

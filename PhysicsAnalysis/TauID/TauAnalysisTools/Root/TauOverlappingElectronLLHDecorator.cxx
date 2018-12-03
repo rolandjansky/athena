@@ -28,7 +28,7 @@ TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const st
   , m_bElectonsAvailable(true)
   , m_hCutValues(0)
   , m_bEleOLRMatchAvailable(false)
-  , m_bNewEvent(false)
+  , m_bNewEvent(true)
   // , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronLikelihoodLooseOfflineConfig2015.conf")
   , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf")
   , m_sEleOlrPassDecorationName("ele_olr_pass_fix")
@@ -105,7 +105,6 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   {
     ATH_CHECK(retrieveElectrons());
     m_bNewEvent = false;
-
     m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>(m_sEleOlrLhScoreDecorationName));
     if (m_bEleOLRMatchAvailable)
       ATH_MSG_DEBUG("ele_olr_pass decoration is available in this event.");
@@ -115,9 +114,13 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   if (m_bEleOLRMatchAvailable)
     return StatusCode::SUCCESS;
 
-
   const xAOD::Electron * xEleMatch = 0;
   float fLHScore = -4.; // default if no match was found
+
+  if(!m_xElectronContainer){
+    ATH_MSG_ERROR("Electron container could not be loaded inside the tau decorator");
+    return StatusCode::FAILURE;
+  }
 
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt

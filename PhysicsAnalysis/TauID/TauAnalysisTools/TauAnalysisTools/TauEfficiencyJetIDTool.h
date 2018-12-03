@@ -35,7 +35,7 @@ public:
   virtual ~TauEfficiencyJetIDTool();
 
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
-      double& efficiencyScaleFactor);
+      double& efficiencyScaleFactor, unsigned int iRunNumber = 0, unsigned int iMu = 0);
 };
 } // namespace TauAnalysisTools
 

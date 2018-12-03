@@ -196,6 +196,7 @@ class MuFastSteering : public HLT::FexAlgo,
   float m_address;
   float m_absolute_pt;
   float m_track_pt;
+  int m_invalid_rpc_roi_number;
   std::vector<float> m_track_eta;
   std::vector<float> m_track_phi;
   std::vector<float> m_failed_eta;

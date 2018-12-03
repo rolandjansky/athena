@@ -32,12 +32,14 @@ class AODFix_base(object):
         """
         return []
 
-    def __init__(self, prevVersion = "", isMC = False, force = False):
+    def __init__(self, prevVersion = "", isMC = False, force = False, isHI = False, isHIP = False):
         """ The default constructor. It implements the default behavior of setting
         up the latest AODFix to run. Only needs to be overriden if doing something
         more complicated.
         """
         self.isMC = isMC
+        self.isHI = isHI
+        self.isHIP = isHIP
         self.prevAODFix = prevVersion if not force else 'none' # if forcing, ignore old AODFix
         self.newAODFix = "-".join(self.latestAODFixVersion())
         logAODFix.debug( "latestAODFixVersion() = " +  self.newAODFix)

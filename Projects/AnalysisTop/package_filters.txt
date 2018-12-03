@@ -22,10 +22,12 @@
 + Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
++ External/AtlasPyFwdBwdPorts
 + Generators/TruthUtils
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonIdHelpers
++ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
@@ -36,6 +38,7 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
@@ -47,6 +50,7 @@
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
@@ -76,10 +80,12 @@
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/tauRecTools
 + Tools/ART
++ Tools/DirectIOART
 + Tools/PathResolver
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 + Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
@@ -96,7 +102,6 @@
 # Packages to build as part of AnalysisTop:
 #
 + PhysicsAnalysis/UpgradePhys/SmearingFunctions/UpgradePerformanceFunctions
-+ PhysicsAnalysis/TopPhys/KLFitter
 + PhysicsAnalysis/TopPhys/TopPhysUtils/TopDataPreparation
 + PhysicsAnalysis/TopPhys/xAOD/TopAnalysis
 + PhysicsAnalysis/TopPhys/xAOD/TopCPTools

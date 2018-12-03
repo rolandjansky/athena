@@ -466,6 +466,13 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
   eb->addNAcceptedEvents(1);
   eb->addSumOfEventWeights(weight);
   eb->addSumOfEventWeightsSquared(weight*weight);
+
+  double truncatedWeight = weight;
+  if (truncatedWeight>100.) truncatedWeight = 1.;
+  else if (truncatedWeight<-100.) truncatedWeight = -1.;
+  eb->addSumOfTruncatedEventWeights(truncatedWeight);
+  eb->addSumOfTruncatedEventWeightsSquared(truncatedWeight*truncatedWeight);
+
   return;
 }
 

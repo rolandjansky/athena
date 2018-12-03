@@ -1,6 +1,6 @@
 #====================================================================
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #   
 # @file   BPHY8.py
 #
@@ -64,8 +64,24 @@ BPHY8cf.projectTag = rec.projectName()
 from PyJobTransforms.trfUtils import releaseIsOlderThan
 BPHY8cf.isRelease21 = not releaseIsOlderThan(21,0)
 
+# MC campaigns by MC run number
+BPHY8MCcampaigns = {284500 : 'mc16a',
+                    300000 : 'mc16d',
+                    310000 : 'mc16e'}
+
+# run number and MC campaign by MC run number
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+import PyUtils.AthFile as BPHY8_af
+BPHY8_f = BPHY8_af.fopen(athenaCommonFlags.PoolAODInput()[0])
+BPHY8cf.mcCampaign = 'unknown'
+if len(BPHY8_f.run_numbers) > 0:
+    BPHY8cf.runNumber = int(BPHY8_f.run_numbers[0])
+    if BPHY8cf.isSimulation and BPHY8cf.runNumber in BPHY8MCcampaigns:
+        BPHY8cf.mcCampaign = BPHY8MCcampaigns[BPHY8cf.runNumber]
+
 print "BPHY8: isSimulation = %s" % BPHY8cf.isSimulation
 print "BPHY8: project tag  = %s" % BPHY8cf.projectTag
+print "BPHY8: MC campaign  = %s" % BPHY8cf.mcCampaign
 print "BPHY8: DerivationFrameworkIsMonteCarlo = %s" % \
     DerivationFrameworkIsMonteCarlo
 print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
@@ -73,31 +89,83 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 #====================================================================
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
-BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300432,300433,300434,300446,300447]
+BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300446,300447]
 BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300997,300999,300404,300405,300406,300437]
 BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300401,300438,300448,300449]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
-BPHY8cf.mcBhh             = [300431]
+BPHY8cf.mcBhh             = [300431,300432,300433,300434]
 BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 
 #====================================================================
+# Data datasets to receive special treatment
+#====================================================================
+BPHY8cf.specDataRuns = [339849,358096]
+#
+# for testing only
+## BPHY8cf.specDataRuns += [337491]
+
+#====================================================================
+# MC datasets to receive special treatment
+#====================================================================
+BPHY8cf.specMcChannels = [300307]
+#
+#====================================================================
 # Defaults for BPHY8 configuration
 #====================================================================
-# Blind search?
+# 
+# Blind search setup
+#
+# Enable?
 BPHY8cf.doBmumuBlinding = True
+# Cut blinded values/vertices?
+BPHY8cf.doCutBlinded    = False
+## BPHY8cf.doCutBlinded = True
+# Blind only candidates where all muons are of quality tight
+BPHY8cf.blindOnlyAllMuonsTight = True
+# Variables to blind (of vertices)
+BPHY8cf.BlindedVars     = "Bsmumu_mass.Bsmumu_MUCALC_mass"
+# Pass flag indicating blinded candidates
+BPHY8cf.BlindingFlag    = "Bsmumu_blinded"
+# Blinding key for testing
+## BPHY8cf.BlindingKey     = "0b0408d1f5c4760e7d4b50e97095"
+# Blinding key for production
+# key for Run 2 - 2015/16 only analysis
+## BPHY8cf.BlindingKey     = "0b04087bdac4564252fd778ac351"
+# keys for full Run 2 analysis
+BPHY8_data15BlindingKey = "0b040820229968c09fec401ace33"
+BPHY8_data16BlindingKey = "0b04083901ad3d2bb3881ffca6a7"
+BPHY8_data17BlindingKey = "0b040831a13a9c83f9936cf5b703"
+BPHY8_data18BlindingKey = "0b040893fc715e9b346759bf4f3b"
+# default is data15
+BPHY8cf.BlindingKey = BPHY8_data15BlindingKey
 #
 # Thinning level
 # 0 - simple vertex thinning using Thin_vtxTrk.
 # 1 - thinning subdecay vertex candidates using Thin_vtxTrk.
 # 2 - thinning subdecay vertex candidates using BmumuThinningTool.
+# 3 - thinning subdecay vertex candidates using BmumuThinningTool,
+#     but keeping all PVs and refittedPVs
+# 4 - thinning subdecay vertex candidates using BmumuThinningTool,
+#     but keeping all PVs and refittedPVs and all ID tracks
+# 5 - thinning subdecay vertex candidates using BmumuThinningTool,
+#     but keeping all PVs, all refittedPVs, all ID tracks and all muons
 #
-BPHY8cf.thinLevel = 2
+BPHY8cf.thinLevel = 3
 #
 # Track particle collection
 BPHY8cf.TrkPartContName = "InDetTrackParticles"
 #
 # Primary vertex collection
 BPHY8cf.PVContName = "PrimaryVertices"
+#
+# Trigger navigation object thinning
+#
+# Apply thinning?
+BPHY8cf.doTrigNavThinning = True
+#
+# Keep muon based HLT items for now
+BPHY8cf.TrigNavThinList = [ "HLT_[0-9]*mu[0-9]+.*" ]
+
 #
 # Muon collection
 BPHY8cf.MuonCollection = "Muons"
@@ -135,45 +203,105 @@ BPHY8cf.useCalibratedMuons = 3
 # MuonMomentumCorrections-01-00-60.
 # For now these options will be disabled further below.
 #
+# Note: (2018-05-05 -> 2018-11-29)
+# Formerly used the rel. 21 pre-recommendations from
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16
+#
+# Note: (2018-11-29)
+# Now updated to new rel. 21 pre-recommendations
+# Page revision r18 (as of 2018-11-27)
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisConsolidationMC16
+#
 # MC
 if BPHY8cf.isSimulation:
-    BPHY8cf.McstYear                  = "Data16";
-    BPHY8cf.McstRelease               = "_READ_"
-    BPHY8cf.McstStatComb              = True
-    BPHY8cf.McstSagittaCorr           = True
-    BPHY8cf.McstSagittaRelease        = "_READ_"
-    BPHY8cf.McstDoSagittaMCDistortion = False
+#
+# for MC16a
+    if BPHY8cf.mcCampaign == "mc16a":
+        BPHY8cf.McstYear                  = "Data16"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
+#
+# for MC16d
+    elif BPHY8cf.mcCampaign == "mc16d":
+        BPHY8cf.McstYear                  = "Data17"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
+#
+# for MC16e
+    elif BPHY8cf.mcCampaign == "mc16e":
+        BPHY8cf.McstYear                  = "Data17"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = False
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
+        BPHY8cf.McstDoSagittaMCDistortion = True
+        BPHY8cf.McstSagittaCorrPhaseSpace = False
+#
+# default (like for mc16a)
+    else:
+        BPHY8cf.McstYear                  = "Data16"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 15
 else:
+    # Note: The recommendation page sets McstYear to 'Data16'
     if BPHY8cf.projectTag.startswith("data15"):
-        BPHY8cf.McstYear                  = "Data15";
-        BPHY8cf.McstRelease               = "_READ_"
-        BPHY8cf.McstStatComb              = True
-        BPHY8cf.McstSagittaCorr           = False
-        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstYear                  = "Data16"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
-        BPHY8cf.McstYear                  = "Data16";
-        BPHY8cf.McstRelease               = "_READ_"
-        BPHY8cf.McstStatComb              = True
+        BPHY8cf.McstYear                  = "Data16"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 17
-# w.w., 2017-10-07 for now the Data16 tag as there  is no Data17
-# tag for McstYear in the MuonCalibrationAndSmearingTool yet.
-# TODO: Revise once Data17 tag becomes available.
     if BPHY8cf.projectTag.startswith("data17"):
-        BPHY8cf.McstYear                  = "Data16";
-        BPHY8cf.McstRelease               = "_READ_"
-        BPHY8cf.McstStatComb              = True
+        BPHY8cf.McstYear                  = "Data17"
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
         BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
+
+#
+# data 18
+#
+# w.w., 2018-11-23
+# These are the data18 pre-recommendations from the TWiki.
+# Note that the McstYear is explicitely set to 'Data17'.
+#
+    if BPHY8cf.projectTag.startswith("data18"):
+        BPHY8cf.McstYear                  = "Data17";
+        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = False
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
+        BPHY8cf.McstDoSagittaMCDistortion = True
+        BPHY8cf.McstSagittaCorrPhaseSpace = False
 
 # wide mumu mass range?
 BPHY8cf.doUseWideMuMuMassRange = False
@@ -201,6 +329,9 @@ BPHY8cf.doVertexType   = 8  # only Z0_BA
 
 # minimum number of tracks in PV considered for PV association
 BPHY8cf.minNTracksInPV = 3
+
+# add 3-dimensional proper time information?
+BPHY8cf.do3dProperTime = True
 
 # use invariant mass based on combined muon track information in mass cuts?
 BPHY8cf.useMuCalcMass = True
@@ -339,17 +470,9 @@ BPHY8cf.NCloseTrackMaxLogChi2   = 1.
 # maximum number of events to dump track-to-vertex assoc. maps for
 # (Set to -1 for no limit, to 0 to disable.)
 BPHY8cf.DebugTrkToVtxMaxEvents = 0
-
 #====================================================================
 # General job setup
 #====================================================================
-# run number
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-import PyUtils.AthFile as BPHY8_af
-BPHY8_f = BPHY8_af.fopen(athenaCommonFlags.PoolAODInput()[0])
-if len(BPHY8_f.run_numbers) > 0:
-    BPHY8cf.runNumber = int(BPHY8_f.run_numbers[0])
-
 # for MC run specific channel(s) only,
 # for data run 2-, 3- and 4-prong algorithms in parallel
 if BPHY8cf.isSimulation:
@@ -369,12 +492,27 @@ if BPHY8cf.isSimulation:
         # use trigger?
         if (BPHY8cf.mcChNumber in BPHY8cf.mcNoTrigger):
             BPHY8cf.doTriggerInfo = False
+    # for special MC channels keep all ID tracks and all muons
+    if BPHY8cf.mcChNumber in BPHY8cf.specMcChannels: 
+        BPHY8cf.thinLevel = 5
     # no blind search for MC
     BPHY8cf.doBmumuBlinding = False
 else:
     # for data
     BPHY8cf.doChannels += ["Bsmumu", "BJpsiK", "BsJpsiPhi"]
-
+    # for special data runs keep all ID tracks and all muons
+    if BPHY8cf.runNumber in BPHY8cf.specDataRuns: 
+        BPHY8cf.thinLevel = 5
+    # blinding key by year
+    if BPHY8cf.projectTag.startswith("data15"):
+        BPHY8cf.BlindingKey = BPHY8_data15BlindingKey
+    elif BPHY8cf.projectTag.startswith("data16"):
+        BPHY8cf.BlindingKey = BPHY8_data16BlindingKey
+    elif BPHY8cf.projectTag.startswith("data17"):
+        BPHY8cf.BlindingKey = BPHY8_data17BlindingKey
+    elif BPHY8cf.projectTag.startswith("data18"):
+        BPHY8cf.BlindingKey = BPHY8_data18BlindingKey
+        
 print "BPHY8 job setup: run               : %d" % BPHY8cf.runNumber
 print "BPHY8 job setup: MC channel number : %d" % BPHY8cf.mcChNumber
 print "BPHY8 job setup: isSimulation      : %s" % BPHY8cf.isSimulation
@@ -382,6 +520,7 @@ print "BPHY8 job setup: doChannels        :",
 for BPHY8_channel in BPHY8cf.doChannels:
     print "%s" % (BPHY8_channel),
 print
+print "BPHY8 job setup: thin level        : %d" % BPHY8cf.thinLevel
 
 # abort if no channels are to be run on
 assert len(BPHY8cf.doChannels) > 0
@@ -391,6 +530,8 @@ assert len(BPHY8cf.doChannels) > 0
 #====================================================================
 BPHY8cf.GlobalBMassUpperCut      = 7000.
 BPHY8cf.GlobalBMassLowerCut      = 3500.
+BPHY8cf.GlobalTrksMassUpperCut   = 7500.
+BPHY8cf.GlobalTrksMassLowerCut   = 3000.
 BPHY8cf.GlobalDiMuonMassUpperCut = 7000.
 BPHY8cf.GlobalDiMuonMassLowerCut = 2000.
 BPHY8cf.GlobalJpsiMassUpperCut   = 7000.
@@ -401,6 +542,8 @@ BPHY8cf.GlobalBlindUpperCut      = 5526.
 if BPHY8cf.doUseWideMuMuMassRange:
     BPHY8cf.GlobalBMassUpperCut      = 10000.
     BPHY8cf.GlobalBMassLowerCut      =  3250.
+    BPHY8cf.GlobalTrksMassUpperCut   = 10500.
+    BPHY8cf.GlobalTrksMassLowerCut   =  2750.
     BPHY8cf.GlobalDiMuonMassUpperCut = 10000.
     BPHY8cf.GlobalDiMuonMassLowerCut =  2000.
     BPHY8cf.GlobalJpsiMassUpperCut   = 10000.
@@ -479,11 +622,12 @@ if BPHY8cf.useCalibratedMuons > 0:
     BPHY8_MuonCalTool.StatComb              = BPHY8cf.McstStatComb
     BPHY8_MuonCalTool.SagittaCorr           = BPHY8cf.McstSagittaCorr
     BPHY8_MuonCalTool.doSagittaMCDistortion = BPHY8cf.McstDoSagittaMCDistortion
+    BPHY8_MuonCalTool.SagittaCorrPhaseSpace = BPHY8cf.McstSagittaCorrPhaseSpace
     if BPHY8cf.McstSagittaRelease != "_READ_":
         BPHY8_MuonCalTool.SagittaRelease = BPHY8cf.McstSagittaRelease
     # read back string value
     BPHY8cf.McstSagittaRelease = getPropertyValue(BPHY8_MuonCalTool,
-                                                      "SagittaRelease")
+                                                  "SagittaRelease")
     ToolSvc +=  BPHY8_MuonCalTool
     print BPHY8_MuonCalTool
     pprint(BPHY8_MuonCalTool.properties())
@@ -500,6 +644,24 @@ if BPHY8cf.useCalibratedMuons > 0:
 for BPHY8_name in BPHY8_CalibrationAlgs.keys():
     print BPHY8_CalibrationAlgs[BPHY8_name] 
     pprint(BPHY8_CalibrationAlgs[BPHY8_name].properties())
+
+#====================================================================
+# Muon extrapolation for trigger scaling
+#====================================================================
+# Introduced by BPhys trigger group, see merge request 7857
+# (https://gitlab.cern.ch/atlas/athena/merge_requests/7857)
+#
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
+    import DerivationFramework__MuonExtrapolationTool
+
+BPHY8_MuonExtrapTool = DerivationFramework__MuonExtrapolationTool(
+    name           = "BPHY8_MuonExtrapolationTool",
+    MuonCollection = BPHY8cf.UsedMuonCollection,
+    OutputLevel    = INFO )
+
+ToolSvc += BPHY8_MuonExtrapTool
+print BPHY8_MuonExtrapTool
+pprint(BPHY8_MuonExtrapTool.properties())
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -546,6 +708,7 @@ for BPHY8_reco in BPHY8_recoList:
             trackThresholdPt            = BPHY8cf.JfTrackThresholdPt,
             invMassUpper                = BPHY8cf.GlobalDiMuonMassUpperCut,
             invMassLower                = BPHY8cf.GlobalDiMuonMassLowerCut,
+            # For JpsiFinder the cut is really on chi2 and not on chi2/ndf
             Chi2Cut                     = BPHY8cf.Chi2Cut2Prong,
             oppChargesOnly	        = True,
             sameChargesOnly             = False,
@@ -575,6 +738,8 @@ for BPHY8_reco in BPHY8_recoList:
             trkThresholdPt              = BPHY8cf.GlobalKaonPtCut,
             trkMaxEta                   = BPHY8cf.GlobalKaonEtaCut,
             BThresholdPt                = 1000.,
+            TrkTrippletMassUpper        = BPHY8cf.GlobalTrksMassUpperCut,
+            TrkTrippletMassLower        = BPHY8cf.GlobalTrksMassLowerCut,
             BMassUpper                  = BPHY8cf.GlobalBMassUpperCut,
             BMassLower                  = BPHY8cf.GlobalBMassLowerCut,
             JpsiContainerKey            = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -584,7 +749,11 @@ for BPHY8_reco in BPHY8_recoList:
             TrackParticleCollection     = BPHY8cf.TrkPartContName,
             TrkVertexFitterTool         = BPHY8_VertexTools[BPHY8_reco].TrkVKalVrtFitter,        # VKalVrt vertex fitter
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
-            UseMassConstraint           = True)
+            # This JO should rather be named Chi2byNdfCut
+            Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
+            UseMassConstraint           = True,
+            ExcludeJpsiMuonsOnly        = True,
+            ExcludeCrossJpsiTracks      = False)
     
 # c) for BsJpsiPhi
     if BPHY8_reco == "BsJpsiPhi":
@@ -597,6 +766,8 @@ for BPHY8_reco in BPHY8_recoList:
             trkThresholdPt              = BPHY8cf.GlobalKaonPtCut,
             trkMaxEta                   = BPHY8cf.GlobalKaonEtaCut,
             BThresholdPt                = 1000.,
+            TrkQuadrupletMassUpper      = BPHY8cf.GlobalTrksMassUpperCut,
+            TrkQuadrupletMassLower      = BPHY8cf.GlobalTrksMassLowerCut,
             BMassUpper                  = BPHY8cf.GlobalBMassUpperCut,
             BMassLower                  = BPHY8cf.GlobalBMassLowerCut,
             JpsiContainerKey            = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -606,7 +777,11 @@ for BPHY8_reco in BPHY8_recoList:
             TrackParticleCollection     = BPHY8cf.TrkPartContName,
             TrkVertexFitterTool         = BPHY8_VertexTools[BPHY8_reco].TrkVKalVrtFitter,        # VKalVrt vertex fitter
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
-            UseMassConstraint           = True)
+            # This JO should rather be named Chi2byNdfCut
+            Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
+            UseMassConstraint           = True,
+            ExcludeJpsiMuonsOnly        = True,
+            ExcludeCrossJpsiTracks      = False)
         
 ToolSvc += BPHY8_FinderTools.values()
 for BPHY8_name in BPHY8_FinderTools.keys():
@@ -642,6 +817,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+"DiMuonRefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -654,6 +830,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+BPHY8_reco+"RefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -666,6 +843,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+BPHY8_reco+"RefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -1123,7 +1301,8 @@ BPHY8_AugOriginalCounts = DerivationFramework__AugOriginalCounts(
     name = "BPHY8_AugOriginalCounts",
     VertexContainer   = BPHY8cf.PVContName,
     TrackContainer    = BPHY8cf.TrkPartContName,
-    AddPVCountsByType = True)
+    AddPVCountsByType = True,
+    AddNTracksToPVs   = True)
     
 ToolSvc += BPHY8_AugOriginalCounts
 pprint(BPHY8_AugOriginalCounts.properties())
@@ -1157,9 +1336,12 @@ if "Bsmumu" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         BlindMassMin           = BPHY8cf.GlobalBlindLowerCut,
         BlindMassMax           = BPHY8cf.GlobalBlindUpperCut,
         DoBlinding             = BPHY8cf.doBmumuBlinding,
+        DoCutBlinded           = BPHY8cf.doCutBlinded,
+        BlindOnlyAllMuonsTight = BPHY8cf.blindOnlyAllMuonsTight,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
 # b) for BJpsiK and BsJpsiPhi retain the Jpsi
@@ -1174,6 +1356,7 @@ if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi"]]:
         MassMax                = BPHY8cf.GlobalJpsiMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
 # c) for BJpsiK
@@ -1189,6 +1372,7 @@ if "BJpsiK" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut3Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1207,6 +1391,7 @@ if "BsJpsiPhi" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut4Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1225,6 +1410,7 @@ if "BJpsiPi" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut3Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1243,6 +1429,7 @@ if "Bhh" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
   
@@ -1251,6 +1438,51 @@ for BPHY8_name in BPHY8_SelectTools.keys():
     print BPHY8_SelectTools[BPHY8_name] 
     pprint(BPHY8_SelectTools[BPHY8_name].properties())
 
+#--------------------------------------------------------------------
+# Setup the vertex variable blinding tools.
+# These tools are only used by the Bsmumu channel in case
+# blinding is enabled.
+
+BPHY8_BlindingTools = OrderedDict()
+BPHY8_BlinderTools  = OrderedDict()
+
+if BPHY8cf.doBmumuBlinding and not BPHY8cf.doCutBlinded:
+    # BlindingTools
+    from BPhysTools.BPhysToolsConf import xAOD__BPhysBlindingTool
+    # 1) for Bsmumu
+    if "Bsmumu" in BPHY8cf.doChannels :
+        # setup blinding tool
+        BPHY8_BlindingTools["Bsmumu"] = xAOD__BPhysBlindingTool(
+            name                = "BPHY8_BlindingTool_Bsmumu",
+            VertexContainerName = BPHY8cf.DerivationName+"DiMuonCandidates",
+            VarToBlindNames     = BPHY8cf.BlindedVars,
+            BlindingFlag        = BPHY8cf.BlindingFlag,
+            NegativeSigns       = [True, True],
+            BlindingKey         = BPHY8cf.BlindingKey,
+            OutputLevel         = INFO)
+
+    ToolSvc += BPHY8_BlindingTools.values()
+    for BPHY8_name in BPHY8_BlindingTools.keys():
+        print BPHY8_BlindingTools[BPHY8_name] 
+        pprint(BPHY8_BlindingTools[BPHY8_name].properties())
+
+    # Blinders    
+    from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
+        import DerivationFramework__BPhysVarBlinder
+    # a2) for Bsmumu
+    if "Bsmumu" in BPHY8cf.doChannels :
+        # blind mass values for B(s)->mumu candidates
+        BPHY8_BlinderTools["Bsmumu"] = DerivationFramework__BPhysVarBlinder(
+            name           = "BPHY8_Blinder_Bsmumu",
+            BlindingTool   = BPHY8_BlindingTools["Bsmumu"],
+            EnableBlinding = True,
+            OutputLevel    = INFO)
+
+    ToolSvc += BPHY8_BlinderTools.values()
+    for BPHY8_name in BPHY8_BlinderTools.keys():
+        print BPHY8_BlinderTools[BPHY8_name] 
+        pprint(BPHY8_BlinderTools[BPHY8_name].properties())
+    
 #====================================================================
 # Skimming tool to select only events with the correct vertices
 #====================================================================
@@ -1329,7 +1561,10 @@ BPHY8Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
 #
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 BPHY8ThinningHelper = ThinningHelper( BPHY8cf.DerivationName+"ThinningHelper" )
-## BPHY8ThinningHelper.TriggerChains = 'HLT_.*mu.*' #triggerList	# . = any character; * = 0 or more times; + = 1 or more times; ? 0 or 1 times  "Regular_Expression"
+
+if BPHY8cf.doTrigNavThinning and BPHY8cf.doTriggerInfo:
+    BPHY8ThinningHelper.TriggerChains = '|'.join(BPHY8cf.TrigNavThinList)
+
 BPHY8ThinningHelper.AppendToStream( BPHY8Stream )
 
 #--------------------------------------------------------------------
@@ -1444,12 +1679,12 @@ if BPHY8cf.thinLevel > 1:
         KeepMuonsForTracks         = True,
         KeepCalMuonsForTracks      = True,
         KeepCloseTracks            = True,
-        ThinMuons                  = True,
+        ThinMuons                  = (BPHY8cf.thinLevel < 5),
         CloseTrackBranchPrefixes   = BPHY8cf.BranchPrefixes,
         CloseTrackBranchBaseName   = BPHY8_IsoTools["TrackVtxCt"].BranchBaseName,
-        ThinPVs                    = True,
-        ThinRefittedPVs            = True,
-        ThinTracks                 = True,
+        ThinPVs                    = (BPHY8cf.thinLevel == 2),
+        ThinRefittedPVs            = (BPHY8cf.thinLevel == 2),
+        ThinTracks                 = (BPHY8cf.thinLevel < 4),
         KeepTracksForSelectedPVs   = False,
         OutputLevel                = INFO)
     ToolSvc += BPHY8BmumuThinningTool
@@ -1473,10 +1708,12 @@ BPHY8_seq += BPHY8_CalibrationAlgs.values()
 BPHY8_seq += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY8Kernel",
     OutputLevel = INFO,
-    AugmentationTools = [ BPHY8_MetaDataTool, BPHY8_AugOriginalCounts ] \
+    AugmentationTools = [ BPHY8_MetaDataTool, BPHY8_AugOriginalCounts,
+                          BPHY8_MuonExtrapTool] \
     + BPHY8_RecoTools.values() + BPHY8_MuMassTools.values() \
     + BPHY8_IsoTools.values() \
-    + BPHY8_SelectTools.values(),
+    + BPHY8_SelectTools.values() \
+    + BPHY8_BlinderTools.values(),
     SkimmingTools     = [BPHY8_SkimmingTool],
     ThinningTools     = BPHY8ThinningTools
    )
@@ -1496,7 +1733,18 @@ BPHY8SlimmingHelper.IncludeMuonTriggerContent  = BPHY8cf.doTriggerInfo
 BPHY8SlimmingHelper.IncludeBPhysTriggerContent = BPHY8cf.doTriggerInfo
 
 # primary vertices
-BPHY8_AllVariables += [BPHY8cf.PVContName]
+BPHY8_SmartCollections += [BPHY8cf.PVContName]
+#
+# 2018-03-12: These extra variables are not used by NtupleMaker
+#             which are removed by using SmartCollection instead of
+#             AllVariables.
+## BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName
+##                            + ".chiSquared.numberDoF.sumPt2"
+##                         + ".trackParticleLinks.trackWeights.neutralWeights"]
+#
+# 2018-05-04: The covariance matrix is occasionally used by the NtupleMaker
+BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName ]
+
 for BPHY8_reco in BPHY8_recoList:
     BPHY8_StaticContent \
         += ["xAOD::VertexContainer#BPHY8"+BPHY8_reco+"RefittedPrimaryVertices"]
@@ -1507,6 +1755,7 @@ for BPHY8_reco in BPHY8_recoList:
 # (note: for tagged muons there is no extra TrackParticle collection since
 # the ID tracks are stored in InDetTrackParticles collection)
 BPHY8_AllVariables += ["CombinedMuonTrackParticles"]
+
 BPHY8_AllVariables += ["ExtrapolatedMuonTrackParticles"]
 # TODO: copy smart slimming for calibrated muons.
 if BPHY8cf.useCalibratedMuons > 1:

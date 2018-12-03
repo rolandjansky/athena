@@ -14,6 +14,9 @@ DFisMC = (globalflags.DataSource()=='geant4')
 ## add LHE3 weights metadata
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+## jet tag nonprompt lepton
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
 def setup(HIGG4DxName, ToolSvc):
 
     augmentationTools=[]
@@ -49,6 +52,12 @@ def setup(HIGG4DxName, ToolSvc):
     ToolSvc += HIGG4DxJetBDTSigLooseSelectionWrapper
     augmentationTools.append(HIGG4DxJetBDTSigLooseSelectionWrapper)
 
+    HIGG4DxJetRNNSigLooseSelectionWrapper = DerivationFramework__TauSelectionWrapper( name                   = "HIGG4DxJetRNNSigLooseSelectionWrapper",
+                                                                                     IsTauFlag               = 29,
+                                                                                     CollectionName          = "TauJets",
+                                                                                     StoreGateEntryName      = "HIGG4DxJetRNNSigLoose")
+    ToolSvc += HIGG4DxJetRNNSigLooseSelectionWrapper
+    augmentationTools.append(HIGG4DxJetRNNSigLooseSelectionWrapper)
 
 
     # Tau primary vertex refit
@@ -110,18 +119,7 @@ def addVRJetsAndBTagging(HIGG4DxName, sequence):
     from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
     
     # removed for now. Does not work in rel 21 anymore
-    addVRJets(sequence, 
-              "AntiKtVR30Rmax4Rmin02Track", 
-              "GhostVR30Rmax4Rmin02TrackJet", 
-              VRJetAlg="AntiKt", 
-              VRJetRadius=0.4, 
-              VRJetInputs="pv0track", 
-              ghostArea = 0 , 
-              ptmin = 2000, 
-              ptminFilter = 7000, 
-              variableRMinRadius = 0.02, 
-              variableRMassScale = 30000, 
-              calibOpt = "none")
+    addVRJets(sequence)
     
     # Run b-tagging
     from BTagging.BTaggingFlags import BTaggingFlags
@@ -129,9 +127,14 @@ def addVRJetsAndBTagging(HIGG4DxName, sequence):
     # alias for VR
     BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     
-    from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-    # must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
-    # also, re-tag R=0.2 track jets
-    #New in rel 21: AntiKt2PV0TrackJets should now be tagged automatically. Must not be re-tagged
+#====================================================================
+# JetTagNonPromptLepton decorations. Called from HIGG4D1.py
+#====================================================================
+def addJetTagNonPromptLepton(HIGG4DxName, sequence):
     
-    FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = sequence )
+    # Build AntiKt4PV0TrackJets and run b-tagging
+    JetTagConfig.ConfigureAntiKt4PV0TrackJets(sequence, HIGG4DxName)
+    
+    # Add BDT decoration algs
+    sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+    sequence += JetTagConfig.GetDecoratePromptTauAlgs()

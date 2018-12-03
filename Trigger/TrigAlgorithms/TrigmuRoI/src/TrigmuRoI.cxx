@@ -223,12 +223,22 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
 
        if ((*it).second >= m_minValueForOutOfTimeBC &&
            (*it).second <= m_maxValueForOutOfTimeBC    ) {
+
+           // generic TrigRoiDescriptor
            HLT::TriggerElement* te;
 	   TrigRoiDescriptor* roiDescriptor = 
 	     new TrigRoiDescriptor( ((*it).first).roIWord(), 0, roi_id, eta, etamin, etamax, phi, phimin, phimax,0,-255,255);
 
            te = addRoI(type_out, roiDescriptor);
            te->setActiveState(true);
+
+           // MuFaststeering also requires a RecMuonRoI
+           std::vector< TrigConf::TriggerThreshold* > dummy_thresholds;
+	   LVL1::RecMuonRoI* muonroi =
+	     new LVL1::RecMuonRoI( ((*it).first).roIWord(), &( *m_recRPCRoiSvc ), &( *m_recTGCRoiSvc ), &dummy_thresholds );
+
+	   if( attachFeature( te, muonroi, "L1MuRoI" ) != HLT::OK ) return HLT::ERROR;
+
 	   if(m_log.level() <= MSG::DEBUG) {
 	       m_log << MSG::DEBUG << "New RoI descriptor for "
 	             << region << " created from word 0x"

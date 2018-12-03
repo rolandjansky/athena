@@ -49,12 +49,15 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
    declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
-   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
+   declareProperty("UseRunDependentPrescaleWeight",m_useRunDependentPrescaleWeight=false,"If true, prescale weights in the getCombinedWeight method with Trigger string are determined with the specific random run number");
+   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.03);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
-   declareProperty("DataScaleFactorUP",m_upVariation=1./1.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
-   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.18,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorUP",m_upVariation=1./0.99,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.07,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
    declareProperty("VaryRandomRunNumber",m_varyRunNumber=false,"If true, then when doing systematic variations, RandomRunNumber will fluctuate as well. Off by default as believed to lead to overestimated uncertainties");
+   
+   declareProperty("PeriodAssignments", m_customPeriods={284500,222222,324300,300000,324300,344495,310000,344496,999999}, "Specify period number assignments to run numbers ranges - this is usually an expert option");
    
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
    declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT will be used to check decisions before prescale. Alternatively do expert()->SetTriggerBit('trigger',0) to flag which triggers are not fired before prescale (assumed triggers are fired if not specified)");
@@ -163,21 +166,39 @@ StatusCode PileupReweightingTool::initialize() {
    //set debugging if debugging is on:
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 
+   //convert custom periods vector to a vector of vectors (length 3) ...
+   std::vector<std::vector<int>> customPeriods;
+   for(auto& num : m_customPeriods) {
+    if(customPeriods.size()==0 || customPeriods.back().size()==3) customPeriods.resize(customPeriods.size()+1);
+    customPeriods.back().push_back(num);
+   }
+
+   for(auto& period : customPeriods) {
+    if(period.size()!=3) {
+      ATH_MSG_FATAL("Recevied period with " << period.size() << " numbers. Period configuration requires 3 numbers: periodNumber, startNumber, endNumber");
+      return StatusCode::FAILURE;
+    }
+    AddPeriod(period[0],period[1],period[2]);
+   }
+
    //see if we need variations 
    if(m_upVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
       m_upTool.reset( new TPileupReweighting((name()+"_upVariation").c_str()) );
       m_upTool->SetParentTool(this);
       m_upTool->CopyProperties(this);
       m_upTool->SetDataScaleFactors(m_upVariation);
+      for(auto& period : customPeriods) m_upTool->AddPeriod(period[0],period[1],period[2]); //already checked sizes above
    }
    if(m_downVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
       m_downTool.reset( new TPileupReweighting((name()+"_downVariation").c_str()) );
       m_downTool->SetParentTool(this);
       m_downTool->CopyProperties(this);
       m_downTool->SetDataScaleFactors(m_downVariation);
+      for(auto& period : customPeriods) m_downTool->AddPeriod(period[0],period[1],period[2]); //already checked sizes above
    }
 
    SetDefaultChannel(m_defaultChannel); //handled in GetDefaultChannel method now! if(m_upTool) m_upTool->SetDefaultChannel(m_defaultChannel); if(m_downTool) m_downTool->SetDefaultChannel(m_defaultChannel);
+
 
    //should we set the period config (file maker mode)
    if(m_prwFiles.size()+m_lumicalcFiles.size()==0) {
@@ -229,7 +250,6 @@ StatusCode PileupReweightingTool::initialize() {
             m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
             if(m_upTool) m_upTool->UsePeriodConfig("MC16");
             if(m_downTool) m_downTool->UsePeriodConfig("MC16");
-            return StatusCode::SUCCESS;
          }
       }
    
@@ -475,7 +495,7 @@ float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
    unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
    if(!mu_dependent) out *= m_activeTool->GetPrescaleWeight(randomRunNum, trigger);
-   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/, m_useRunDependentPrescaleWeight /*run-dependent*/ );
    return out;
 }
 

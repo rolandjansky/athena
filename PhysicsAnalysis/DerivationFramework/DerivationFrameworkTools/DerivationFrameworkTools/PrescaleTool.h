@@ -25,7 +25,7 @@ namespace DerivationFramework {
       virtual bool eventPassesFilter() const;
 
     private:
-      mutable int m_prescale, m_eventCounter;	
+      unsigned int m_prescale;	
   }; 
 }
 

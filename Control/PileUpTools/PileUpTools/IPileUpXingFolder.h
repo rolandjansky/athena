@@ -1,23 +1,23 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_IPILEUPXINGFOLDER_H
 #define PILEUPTOOLS_IPILEUPXINGFOLDER_H 1
 /** @file IPileUpXingFolder.h
-  * @brief an interface to SG::Folder with an attached bunch crossing interval 
-  * @author pcalafiura@lbl.gov - ATLAS Collaboration
-  * $Id: IPileUpXingFolder.h,v 1.1 2007-06-22 23:01:46 calaf Exp $
-  **/
+ * @brief an interface to SG::Folder with an attached bunch crossing interval
+ * @author pcalafiura@lbl.gov - ATLAS Collaboration
+ * $Id: IPileUpXingFolder.h,v 1.1 2007-06-22 23:01:46 calaf Exp $
+ **/
 
 #include "GaudiKernel/IAlgTool.h"
 #include "SGTools/SGIFolder.h" //iterator tdef
 
 /** @class IPileUpXingFolder
-  * @brief an interface to SG::Folder with an attached bunch crossing interval 
-  **/
+ * @brief an interface to SG::Folder with an attached bunch crossing interval
+ **/
 class IPileUpXingFolder : virtual public IAlgTool {
 public:
   /// @name No data should be returned for xings outside this range of xings
@@ -35,10 +35,8 @@ public:
   virtual const_iterator end() const=0;
   //@}
 
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID( "IPileUpXingFolder", 1, 0 );
-    return IID;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IPileUpXingFolder, 1, 0 );
 };
 
-#endif
+#endif // PILEUPTOOLS_IPILEUPXINGFOLDER_H

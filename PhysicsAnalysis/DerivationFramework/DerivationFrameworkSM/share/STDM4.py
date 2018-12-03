@@ -1,32 +1,35 @@
 #********************************************************************
-# STDM4.py 
-# reductionConf flag STDM4 in Reco_tf.py   
+# STDM4.py
+# reductionConf flag STDM4 in Reco_tf.py
 #********************************************************************
-
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.PFlowCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+scheduleTauTruthTools()
 from DerivationFrameworkSM import STDMTriggers
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #===========================================================================================\
-# AUGMENTATION  TOOL                                                                         
+# AUGMENTATION  TOOL
 #===========================================================================================\
 from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__PFlowAugmentationTool
 STDM4_PFlowAugmentationTool = DerivationFramework__PFlowAugmentationTool(name = "STDM4_PFlowAugmentationTool")
 ToolSvc += STDM4_PFlowAugmentationTool
 
 
-#====================================================================                                               
-# SET UP STREAM 
-#====================================================================                                               
+#====================================================================
+# SET UP STREAM
+#====================================================================
 
 streamName = derivationFlags.WriteDAOD_STDM4Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_STDM4Stream )
@@ -35,9 +38,9 @@ STDM4Stream.AcceptAlgs(["STDM4Kernel"])
 
 isMC = globalflags.DataSource()=='geant4'
 
-#====================================================================                                               
+#====================================================================
 # THINNING TOOLS
-#====================================================================                                               
+#====================================================================
 
 thinningTools=[]
 
@@ -45,7 +48,7 @@ thinningTools=[]
 # TRIGGER NAV THINNING
 #=====================
 
-# Establish the thinning helper 
+# Establish the thinning helper
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 STDM4ThinningHelper = ThinningHelper( "STDM4ThinningHelper" )
 
@@ -97,14 +100,14 @@ thinningTools.append(STDM4PhotonTPThinningTool)
 
 # Truth leptons and their ancestors and descendants
 truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24))"
-truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 14) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
+truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 
 
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkSM.STDMCommonTruthTools import *
-    
+
     STDM4TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM4TruthLepTool",
                                                                   ThinningService              = STDM4ThinningHelper.ThinningSvc(),
                                                                   ParticleSelectionString      = truth_cond_lepton,
@@ -139,7 +142,7 @@ if globalflags.DataSource()=='geant4':
                                                                 WriteEverything            = False,
                                                                 WriteAllLeptons            = True,
                                                                 WriteStatus3               = True,
-                                                                PreserveDescendants        = False, 
+                                                                PreserveDescendants        = False,
                                                                 PreserveGeneratorDescendants = False,
                                                                 PreserveAncestors          = True,
                                                                 WriteFirstN                = 10)
@@ -148,7 +151,7 @@ if globalflags.DataSource()=='geant4':
                                                                     ThinningService         = STDM4ThinningHelper.ThinningSvc(),
                                                                     ParticlesKey            = "STDMTruthPhotons",
                                                                     ParticleSelectionString = STDMphotonthinningexpr)
-    
+
 
     ToolSvc += STDM4TruthLepTool
     ToolSvc += STDM4TruthBosTool
@@ -161,7 +164,7 @@ if globalflags.DataSource()=='geant4':
 
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
 muonsRequirements = '(Muons.pt >= 15*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection)'
@@ -187,7 +190,7 @@ ToolSvc += STDM4SkimmingTool
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================                    
+#=======================================
 # Trigger_match_List=["HLT_e24_medium_iloose_L1EM18VH",
 #              "HLT_e24_medium_iloose_L1EM20VH","HLT_e24_tight_iloose_L1EM20VH",
 #              "HLT_e24_tight_iloose","HLT_e26_tight_iloose",
@@ -207,7 +210,7 @@ Trigger_di_mu_list=["HLT_2mu10","HLT_2mu14","HLT_mu24_mu8noL1","HLT_mu22_mu8noL1
 
 # temporarily remove trigger augmentation to work in rel21
 #from DerivationFrameworkSM.DerivationFrameworkSMConf import DerivationFramework__TriggerMatchingAugmentation
-#STDM4_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+#STDM4_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation(
 """
                                                              name = "STDM4_TriggerMatchingAugmentation",
                                                              DecorationPrefix = "STDM4_",
@@ -229,10 +232,10 @@ for contain in ["Electrons","Photons","Muons"]:
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
-# CREATE THE PRIVATE SEQUENCE 
+# CREATE THE PRIVATE SEQUENCE
 STDM4Sequence = CfgMgr.AthSequencer("STDM4Sequence")
 
-# ADD KERNEL 
+# ADD KERNEL
 STDM4Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM4Kernel",
                                                               SkimmingTools = [STDM4SkimmingTool],
                                                               ThinningTools = thinningTools,
@@ -249,9 +252,20 @@ replaceAODReducedJets(reducedJetList, STDM4Sequence, "STDM4Jets")
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 STDM4Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-# ADD SEQUENCE TO JOB  
+# ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM4Sequence
 
+
+##############
+# PFlow augmentation
+applyPFOAugmentation(STDM4Sequence)
+
+#=======================================
+# SCHEDULE MET RECONSTRUCTION
+#=======================================
+# add map with modified association method and make MET:
+addHadRecoilMETMap(STDM4Sequence, STDM4Stream, "STDM4")
+##############
 
 
 
@@ -270,6 +284,15 @@ DerivationFrameworkJob += STDM4Sequence
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="STDM4ThinningSvc", outStreams=[evtStream] )
 
+
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM4Sequence)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -284,6 +307,9 @@ STDM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -292,11 +318,15 @@ STDM4SlimmingHelper.IncludeMuonTriggerContent = True
 
 # removed end of line ot build in rel21
 STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
-  "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
-  "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM",
   "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
   "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
+  "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt",
+  "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
+  "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE"
 ]
+
+
+
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
 
@@ -305,20 +335,23 @@ from  DerivationFrameworkFlavourTag.BTaggingContent import *
 
 STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
 STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets")
 
-ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
-ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
-ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
-ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopo"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"]  = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]      = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]   = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt4EMPFlow"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMPFlowAux"] = "xAOD::BTaggingAuxContainer"
 
 if globalflags.DataSource()=='geant4':
+
     STDM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM4SlimmingHelper.AllVariables += ExtraContainersTruth
     STDM4SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM4SlimmingHelper,["STDM4","STDM4Jets"])
 
+addMETOutputs(STDM4SlimmingHelper,["AntiKt4EMPFlow"])
+
 STDM4SlimmingHelper.AppendContentToStream(STDM4Stream)
-
-
-    

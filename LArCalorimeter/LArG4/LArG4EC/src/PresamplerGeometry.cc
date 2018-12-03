@@ -49,7 +49,7 @@ namespace LArG4 {
     };
 
     PresamplerGeometry::PresamplerGeometry(const std::string& name, ISvcLocator * pSvcLocator)
-      : AthService(name, pSvcLocator)
+      : base_class(name, pSvcLocator)
       , m_c(new Clockwork())
     {
 
@@ -97,18 +97,6 @@ namespace LArG4 {
     PresamplerGeometry::~PresamplerGeometry()
     {
       delete m_c;
-    }
-
-    StatusCode PresamplerGeometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( IECPresamplerGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<IECPresamplerGeometry*>(this);
-      } else {
-        // Interface is not directly available : try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-      }
-      addRef();
-      return StatusCode::SUCCESS;
     }
 
     double PresamplerGeometry::GetValue(const kValue a_valueType) const

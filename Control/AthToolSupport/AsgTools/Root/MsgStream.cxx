@@ -93,12 +93,7 @@ bool MsgStream::msgLevel( MSG::Level lvl ) const {
 
 MSG::Level MsgStream::level() const {
 
-   return m_lvl;
-}
-
-MSG::Level& MsgStream::mutable_level() {
-
-   return m_lvl;
+   return MSG::Level (m_lvl);
 }
 
 MSG::Level MsgStream::currentLevel() const {

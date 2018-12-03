@@ -15,7 +15,8 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/AFP/AFP_DigiEv
                           ForwardDetectors/AFP/AFP_Geometry
                           ForwardDetectors/AFP/AFP_RecoEv/AFP_LocRecoEv
-                          ForwardDetectors/AFP/AFP_LocRecoInterfaces
+                          ForwardDetectors/AFP/AFP_Reconstruction/AFP_LocRecoInterfaces
+                          ForwardDetectors/AFP/AFP_SiClusterTools
                           GaudiKernel
                           Generators/GeneratorObjects
 			  Event/xAOD/xAODForward
@@ -36,7 +37,7 @@ atlas_add_component( AFP_LocReco
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo AFP_DigiEv AFP_Geometry AFP_LocRecoEv GaudiKernel GeneratorObjects xAODForward AthLinks)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo AFP_DigiEv AFP_Geometry AFP_LocRecoEv AFP_SiClusterTools GaudiKernel GeneratorObjects xAODForward AthLinks)
 
 # Install files from the package:
 atlas_install_headers( AFP_LocReco )

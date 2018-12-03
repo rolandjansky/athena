@@ -115,6 +115,19 @@ StatusCode electronSuperClusterBuilder::execute(){
   }
   ATH_MSG_DEBUG("Retrieved "<< m_inputEgammaRecContainerName);
 
+  return executeImpl(egammaRecs, newEgammaRecs, outputClusterContainer);
+}
+
+StatusCode electronSuperClusterBuilder::hltExecute(const EgammaRecContainer *egammaRecs,
+                                                   EgammaRecContainer *newEgammaRecs,
+                                                   xAOD::CaloClusterContainer *outputClusterContainer) {
+
+  return executeImpl(egammaRecs, newEgammaRecs, outputClusterContainer);
+}
+
+StatusCode electronSuperClusterBuilder::executeImpl(const EgammaRecContainer *egammaRecs,
+                                                    EgammaRecContainer *newEgammaRecs,
+                                                    xAOD::CaloClusterContainer *outputClusterContainer) {
   //Reserve a vector to keep track of what is used
   std::vector<bool> isUsed (egammaRecs->size(),0);
   //Loop over input egammaRec objects, build superclusters.

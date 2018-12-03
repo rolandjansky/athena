@@ -29,54 +29,52 @@ private:
   void DefineParameters();
   void PrintParameters(double*, double*) const;
   
-  int printMessages;
+  double m_baseOfShellTrd1C;
+  double m_heightOfShellTrd1C;
   
-  double baseOfShellTrd1C;
-  double heightOfShellTrd1C;
+  double m_baseOfShellTrd2C;
+  double m_heightOfShellTrd2C;
   
-  double baseOfShellTrd2C;
-  double heightOfShellTrd2C;
+  double m_xOfShellTrd2C;
+  double m_zOfShellTrd2C;
+  double m_phiOfShellTrd2C;
   
-  double xOfShellTrd2C;
-  double zOfShellTrd2C;
-  double phiOfShellTrd2C;
+  double m_x0OfShellC;
+  double m_y0OfShellC;
+  double m_phi0OfShellC;
   
-  double x0OfShellC;
-  double y0OfShellC;
-  double phi0OfShellC;
+  int m_numberOfModulesC;
+  double m_lengthOfModuleC;
   
-  int numberOfModulesC;
-  double lengthOfModuleC;
+  double m_baseOfRadiatorTrd1C;
+  double m_heightOfRadiatorTrd1C;
   
-  double baseOfRadiatorTrd1C;
-  double heightOfRadiatorTrd1C;
+  double m_baseOfRadiatorTrd2C;
+  double m_heightOfRadiatorTrd2C;
   
-  double baseOfRadiatorTrd2C;
-  double heightOfRadiatorTrd2C;
+  double m_xOfRadiatorTrd2C;
+  double m_zOfRadiatorTrd2C;
+  double m_phiOfRadiatorTrd2C;
   
-  double xOfRadiatorTrd2C;
-  double zOfRadiatorTrd2C;
-  double phiOfRadiatorTrd2C;
+  double m_xOfRadiatorC;
+  double m_zOfRadiatorC;
   
-  double xOfRadiatorC;
-  double zOfRadiatorC;
+  int m_numberOfHolesC;
   
-  int numberOfHolesC;
+  double* m_xLocalOfHolesC;
+  double* m_zLocalOfHolesC;
   
-  double* xLocalOfHolesC;
-  double* zLocalOfHolesC;
+  int m_numberOfCoolingTubesC;
   
-  int numberOfCoolingTubesC;
+  double* m_xOfCoolingTubesC;
+  double* m_zOfCoolingTubesC;
   
-  double* xOfCoolingTubesC;
-  double* zOfCoolingTubesC;
-  
-  double radiusOfHoleForCoolingTubeC;
+  double m_radiusOfHoleForCoolingTubeC;
 
-  double* xOfHolesForCoolingTubesC;
-  double* zOfHolesForCoolingTubesC;
+  double* m_xOfHolesForCoolingTubesC;
+  double* m_zOfHolesForCoolingTubesC;
   
-  TRTParameters* pParameters;
+  TRTParameters* m_pParameters;
 
   mutable Athena::MsgStreamMember m_msg;
 
