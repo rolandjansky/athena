@@ -148,7 +148,3 @@ if [ -n "$EXE_CPACK" ]; then
     { _time_ cpack; } 2>&1 | tee cmake_cpack.log
     cp AthSimulation*.rpm ${BUILDDIR}/
 fi
-_time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shift; done; ( eval "$c" ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
-_time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shift; done; ( eval "$c" ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
-_time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shift; done; ( eval "$c" ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
-_time_() { local c="time -p " ; while test "X$1" != "X" ; do c+=" \"$1\"" ; shift; done; ( eval "$c" ) 2>&1 | sed "s,^real[[:space:]],time::${c}:: real ," ; }
