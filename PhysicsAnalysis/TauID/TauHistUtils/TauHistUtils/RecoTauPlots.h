@@ -43,6 +43,7 @@ class RecoTauPlots: public PlotBase {
     TH1* m_pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts;
     TH1* m_pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt;
     TH1* m_pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts;
+    TH1* m_pantau_CellBasedInput_BDTVar_Charged_HLV_SumM;
     TH1* m_pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM;
     TH1* m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1;
     TH1* m_pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2;

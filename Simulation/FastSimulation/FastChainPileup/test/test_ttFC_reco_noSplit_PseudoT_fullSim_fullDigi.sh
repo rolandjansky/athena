@@ -3,8 +3,8 @@
 # art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_noSplit_PseudoT_fullSim_fullDigi
 
 # specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
+
+# art-output: config.txt
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \

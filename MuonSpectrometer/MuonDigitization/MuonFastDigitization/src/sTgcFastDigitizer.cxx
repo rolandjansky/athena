@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
 
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -34,13 +34,13 @@ using namespace Muon;
 
 sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator) , m_detManager(NULL) ,  m_idHelper(NULL) ,  m_channelTypes(0)
-  , m_file(NULL) , m_ntuple(NULL) , m_slx(0.) , m_sly(0.) , m_slz(0.) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
-  , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.) , m_resx(0.) , m_resy(0.) , m_resz(0.)
+  , m_file(NULL) , m_ntuple(NULL) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
+  , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.)
   , m_suresx(0.) , m_suresy(0.) , m_errx(0.) , m_erry(0.) , m_res(0.) , m_pull(0.) , m_is(0) , m_seta(0) , m_sphi(0)
   , m_sml(0) , m_sl(0) , m_ss(0) , m_stype(0) , m_ieta(0) , m_iphi(0) , m_iml(0) , m_il(0) , m_ich(0) , m_istr(0) , m_itype(0)
   , m_ipadeta(0) , m_ipadphi(0) , m_exitcode(0) , m_mode(0) , m_pdg(0) , m_trkid(0) , m_bct(0) , m_tb(0.) , m_tj(0.)
   , m_tg4(0.) , m_ttof(0.) , m_gpx(0.) , m_gpy(0.) , m_gpz(0.) , m_gpr(0.) , m_gpp(0.) , m_dgpx(0.) , m_dgpy(0.) , m_dgpz(0.)
-  , m_dgpr(0.) , m_dgpp(0.) , m_edep(0.) , m_e(0.) , m_as(0.) , m_at(0.) , m_surfcentx(0.) , m_surfcenty(0.) , m_surfcentz(0.)
+  , m_dgpr(0.) , m_dgpp(0.) , m_edep(0.) , m_as(0.) , m_at(0.) , m_surfcentx(0.) , m_surfcenty(0.) , m_surfcentz(0.)
   , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool" )
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
@@ -87,9 +87,6 @@ StatusCode sTgcFastDigitizer::initialize() {
   m_file = new TFile("sTgcplots.root","RECREATE");
 
   m_ntuple = new TTree("a","a");
-  m_ntuple->Branch("slx",&m_slx);
-  m_ntuple->Branch("sly",&m_sly);
-  m_ntuple->Branch("slz",&m_slz);
   m_ntuple->Branch("dlx",&m_dlx);
   m_ntuple->Branch("dly",&m_dly);
   m_ntuple->Branch("dlz",&m_dlz);
@@ -98,11 +95,8 @@ StatusCode sTgcFastDigitizer::initialize() {
   m_ntuple->Branch("tsulx",&m_tsulx);
   m_ntuple->Branch("tsuly",&m_tsuly);
   m_ntuple->Branch("tsulz",&m_tsulz);
-  m_ntuple->Branch("resx",&m_resx);
-  m_ntuple->Branch("resy",&m_resy);
   m_ntuple->Branch("suresx",&m_suresx);
   m_ntuple->Branch("suresy",&m_suresy);
-  m_ntuple->Branch("resz",&m_resz);
   m_ntuple->Branch("errx",&m_errx);
   m_ntuple->Branch("erry",&m_erry);
   m_ntuple->Branch("res",&m_res);
@@ -143,7 +137,6 @@ StatusCode sTgcFastDigitizer::initialize() {
   m_ntuple->Branch("dgpr",&m_dgpr);
   m_ntuple->Branch("dgpp",&m_dgpp);
   m_ntuple->Branch("edep",&m_edep);
-  m_ntuple->Branch("e",&m_e);
   m_ntuple->Branch("at",&m_at);
   m_ntuple->Branch("as",&m_as);
   m_ntuple->Branch("surfcentx",&m_surfcentx);
@@ -167,7 +160,7 @@ StatusCode sTgcFastDigitizer::execute() {
   std::vector<sTgcPrepData*> sTgcprds;
   std::vector<int> sTgcflag;
 
-  const DataHandle< GenericMuonSimHitCollection > collGMSH;
+  const DataHandle< sTGCSimHitCollection > collGMSH;
   if ( evtStore()->retrieve( collGMSH,"sTGCSensitiveDetector").isFailure()) {
     ATH_MSG_WARNING("No sTgc hits found in SG");
     return StatusCode::FAILURE;
@@ -177,24 +170,23 @@ StatusCode sTgcFastDigitizer::execute() {
   sTgcHitIdHelper* hitHelper=sTgcHitIdHelper::GetHelper();
   sTgcSimIdToOfflineId simToOffline(*m_idHelper);
 
-  const GenericMuonSimHit* previousHit = 0;
 
   std::map<Identifier,int> hitsPerChannel;
   int nhits = 0;
   IdentifierHash hashLast = 0;
 
-  GenericMuonSimHitCollection::const_iterator itersTgc;
+  sTGCSimHitCollection::const_iterator itersTgc;
   for (itersTgc=collGMSH->begin();itersTgc!=collGMSH->end();++itersTgc) {
     std::vector<sTgcPrepData*> sTgc_prdeta;
-    const GenericMuonSimHit& hit = *itersTgc;
+    const sTGCSimHit& hit = *itersTgc;
 
-    float globalHitTime = hit.globalpreTime();
+    float globalHitTime = hit.globalTime();
     float tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
   
     // bunch time
     float bunchTime = globalHitTime - tofCorrection;
   
-    int simId = hit.GenericId();
+    int simId = hit.sTGCId();
     Identifier layid = simToOffline.convert(simId);
     ATH_MSG_VERBOSE("sTgc hit: r " << hit.globalPosition().perp() << " z " << hit.globalPosition().z() << " mclink " << hit.particleLink() 
 		    << " -- " << m_idHelperTool->toString(layid));
@@ -342,15 +334,6 @@ StatusCode sTgcFastDigitizer::execute() {
     // if(hit.depositEnergy()==0.) continue;
 
 
-    if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
-      Amg::Vector3D diff = previousHit->localPosition() - hit.localPrePosition();
-      if( diff.mag() < 0.1 ) {
-	ATH_MSG_VERBOSE("second hit from a muon: prev " <<  previousHit->localPosition() << " current " << hit.localPrePosition() 
-			<< " diff " << diff );
-	continue;
-      }
-    }
-
     // select whether to produce only strips or strips + wires or strips + wires + pads
     int ftype = m_channelTypes == 3 ? 0 : 1;
     int ltype = m_channelTypes == 1 ? 1 : 2;
@@ -424,9 +407,6 @@ StatusCode sTgcFastDigitizer::execute() {
       /// now fill most of the ntuple
       Amg::Vector3D repos = detEl->globalPosition();
 
-      m_slx = hit.localPosition().x();
-      m_sly = hit.localPosition().y();
-      m_slz = hit.localPosition().z();
       // Local position wrt Det element (NOT to surface)
       m_dlx = lpos.x();
       m_dly = lpos.y();
@@ -436,9 +416,6 @@ StatusCode sTgcFastDigitizer::execute() {
       m_tsulx = hitOnSurface.x();
       m_tsuly = hitOnSurface.y();
       m_tsulz = hitOnSurface.z();
-      m_resx = hit.localPosition().x() - lpos.x();
-      m_resy = hit.localPosition().y() - lpos.y();
-      m_resz = hit.localPosition().z() - lpos.z();
       m_suresx = posOnSurf.x()-hitOnSurface.x();
       m_suresy = posOnSurf.y()-hitOnSurface.y();
       m_errx = -99999.;
@@ -481,19 +458,12 @@ StatusCode sTgcFastDigitizer::execute() {
       m_dgpr  = repos.perp();
       m_dgpp  = repos.phi();
       m_edep  = hit.depositEnergy();
-      m_e     = hit.kineticEnergy();
       m_at    = inAngle_time;
       m_as    = inAngle_space;
       m_surfcentx = surf.center().x();
       m_surfcenty = surf.center().y();
       m_surfcentz = surf.center().z();
 
-       // cut on the kineticEnergy = 50MeV  
-      if(hit.kineticEnergy()< m_energyThreshold ) {
-	m_exitcode = 5;
-	m_ntuple->Fill();      
-	continue; 
-      }
 
       // cut on depositEnergy(0.52KeV) to simulation the detector efficiency(95% for strips)
       if( type ==1 && hit.depositEnergy()<m_energyDepositThreshold)  {
@@ -666,7 +636,6 @@ StatusCode sTgcFastDigitizer::execute() {
       ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
       ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
 
-      ATH_MSG_VERBOSE("Local hit in Det Element frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
       ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
 
       ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << m_errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/m_errx);
@@ -689,7 +658,6 @@ StatusCode sTgcFastDigitizer::execute() {
       simData.setTime(globalHitTime);
       h_sdoContainer->insert ( std::make_pair ( id, simData ) );
 
-      previousHit = &hit;
 
     } // end of loop channelType
   } // end of loop SimHits

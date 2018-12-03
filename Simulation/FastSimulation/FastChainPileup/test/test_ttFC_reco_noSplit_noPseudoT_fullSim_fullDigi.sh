@@ -6,6 +6,8 @@
 
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
+# art-output: config.txt
+# art-output: RDOtoAOD_config.txt
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \
@@ -33,6 +35,7 @@ FastChain_tf.py --maxEvents 500 \
     --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root \
     --outputAODFile AOD_noSplit_noPseudoT_fullSim_fullDigi.pool.root \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+--postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RDOtoAOD_config.txt")' \
     --imf False
 
 echo "art-result: $? RDOtoAOD step"
@@ -43,7 +46,7 @@ art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
 #add an additional payload from the job (corollary file).
 # art-output: InDetStandardPlots.root
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_fullSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_fullSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
 
 
 

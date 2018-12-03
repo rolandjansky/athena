@@ -791,6 +791,10 @@ def setupMenu():
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
 
+        # ATR-17677
+        ['xe90_pufittrack_lcw_nojcalib_xe50_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe90_pufittrack_lcw_nojcalib','xe50_L1XE50'] ]],
+        ['xe90_pufittrack_em_nojcalib_xe50_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe90_pufittrack_em_nojcalib','xe50_L1XE50'] ]],
+
 # ATR-17483 - pufit+ cell
 # L1XE50
         ['xe110_pufit_xe60_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE50'] ]],
@@ -3041,12 +3045,14 @@ ps_rerun_list = [
     'xe0noL1_l2fsperf_pufit',
     'xe0noL1_l2fsperf_tc_em',
     'xe0noL1_l2fsperf_tc_lcw',
+    'xe0noL1_pufittrack_lcw_nojcalib_xe100_pufit_xe65',
 
     ]
 
 if TriggerFlags.doFTK():
     ps_rerun_list = [
         'xe0noL1_l2fsperf_trkmht_FTK',
+        'xe0noL1_l2fsperf_trktc_lcw_FTK',
         ]
 
 ps_larnoiseburst_rerun_list = [

@@ -5,6 +5,8 @@
 # specify branches of athena that are being targeted:
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
+# art-output: config.txt
+# art-output: config_reco.txt
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -30,8 +32,9 @@ echo "art-result: $? EVNTtoRDO step"
 Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
  --outputAODFile=AOD_fastSim_fullDigi.pool.root \
     --autoConfiguration=everything \
-    --maxEvents=500 \
+    --maxEvents 100 \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config_reco.txt")' \
     --imf False
 
 echo "art-result: $? RDOtoAOD step"
@@ -44,11 +47,11 @@ echo "art-result: $? RDOtoAOD step"
 ArtPackage=$1
 ArtJobName=$2
 
-art.py compare grid --imf=False ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 
 echo  "art-result: $? regression"
 
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_stdReco_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_stdReco_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
 
 
 # art-output: dcube/dcube.xml

@@ -728,6 +728,7 @@ namespace Muon {
   void MuonTrackTruthTool::addClusterTruth( MuonTechnologyTruth& truth, const Identifier& id, const Trk::MeasurementBase& meas, 
                                             const MuonSimDataCollection& simCol ) const {
     
+    Trk::RoT_Extractor rotExtractor;
     Identifier layid = m_idHelperTool->layerId(id);
     Identifier chid = m_idHelperTool->chamberId(id);
 
@@ -747,9 +748,26 @@ namespace Muon {
         }
       }
     }else{
-      // find SimData corresponding to identifier
-      it = simCol.find(id);
-      if( it != simCol.end() ) goodCluster = true;
+      // Find SimData corresponding to identifier
+      const Trk::RIO_OnTrack* rot = 0;
+      rotExtractor.extract(rot,&meas);
+      const Trk::PrepRawData* prd = rot->prepRawData();
+      if(prd) {
+      // check if an identifier from the list of RDOs is matched to that in the SDO collection
+        const std::vector<Identifier> rdoList = prd->rdoList();
+        std::vector<Identifier>::const_iterator rit = rdoList.begin();
+        std::vector<Identifier>::const_iterator rit_end = rdoList.end();
+        for( ;rit!=rit_end;++rit ){
+          it = simCol.find(*rit);
+          if( it != simCol.end() ) {
+            goodCluster = true;
+            break;
+          }
+        }
+      } else { 
+        it = simCol.find(id);
+        if( it != simCol.end() ) goodCluster = true;
+      }
     }
     
     if( !goodCluster || it == simCol.end() ){
