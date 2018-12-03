@@ -106,8 +106,8 @@ namespace CP {
         }  else if (m_calib_mode == MuonCalibrationPeriodTool::additionalMCsys){
             ATH_MSG_INFO("Data will be untouched. Instead an additional systematic will be added (recommended setup 2)");
             statComb1516 = false;
-            sagittaCorr1516 = true;
-            sagittaMCDistortion1516 = false;
+            sagittaCorr1516 = false;
+            sagittaMCDistortion1516 = true;
             sagittaCorrPhaseSpace1516 = false;
             
             statComb17 = false;
