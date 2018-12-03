@@ -80,7 +80,7 @@ namespace TowerObject{
     //Block: Object(){};
   Block(float pt, float eta, float phi, float m): Object(pt, eta, phi, m){};
     
-    float pt_cal() const {return 2700 + (1./0.8189)*this->Object::pt();};
+    float pt_cal() const {return 2700 + (1./0.8189)*this->Object::pt();}; //values have been previously derived for gFEX calibrations
     //    float pt(bool calib = false) const {return (calibration)?pt_cal():this->Object::pt();}
     int seedIndex() const {return m_seedIndex;};
     void seedIndex(int index) {m_seedIndex = index;};
@@ -192,7 +192,7 @@ namespace TowerObject{
     const int grid_eta = 24;
     const int grid_phi = 32;
     std::vector<int> grid;
-    std::vector<float> eta_bins = {
+    const std::vector<float> eta_bins = {
       -2.4000,
       -2.2000,
       -2.0000,
@@ -220,7 +220,7 @@ namespace TowerObject{
       2.4000
     };
     
-    std::vector<float> phi_bins = {
+    const std::vector<float> phi_bins = {
       -3.1416,
       -2.9452,
       -2.7489,

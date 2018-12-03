@@ -158,37 +158,37 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* m
   float b;
   float c;
   
-  if(Et_values[0] <= 500){
+  if(Et_values[0] <= 500*Gaudi::Units::GeV){
     a = 0.6;
     b = 0.6;
     c = 20.;
   }
-  else if(Et_values[0] <= 700){
+  else if(Et_values[0] <= 700*Gaudi::Units::GeV){
     a = 0.55;
     b = 0.7;
     c = 15.;
   }
-  else if(Et_values[0] <= 900){
+  else if(Et_values[0] <= 900*Gaudi::Units::GeV){
     a = 0.65;
     b = 0.6;
     c = 13.;
   }
-  else if(Et_values[0] <= 1100){
+  else if(Et_values[0] <= 1100*Gaudi::Units::GeV){
     a = 0.75;
     b = 0.55;
     c = 10.;
   }
-  else if(Et_values[0] <= 1300){
+  else if(Et_values[0] <= 1300*Gaudi::Units::GeV){
     a = 0.75;
     b = 0.45;
     c = 5.;
   }
-  else if(Et_values[0] <= 1500){
+  else if(Et_values[0] <= 1500*Gaudi::Units::GeV){
     a = 0.8;
     b = 0.35;
     c = 0.;
   }
-  else if(Et_values[0] <= 1700){
+  else if(Et_values[0] <= 1700*Gaudi::Units::GeV){
     a = 0.75;
     b = 0.4;
     c = -5.;
@@ -200,7 +200,7 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* m
   }
   
   float EtMiss = a*Et_values[1] + b*Et_values[2] + c;
-  met->et = EtMiss*Gaudi::Units::GeV;
+  met->et = EtMiss;
   
   return StatusCode::SUCCESS;
 }

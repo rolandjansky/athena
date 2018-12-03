@@ -1,6 +1,10 @@
 /*
  *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef TRIGT1CALOFEXSIM_PUFIT_H
+#define TRIGT1CALOFEXSIM_PUFIT_H
+
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigL1Calo/JGTower.h"
@@ -35,30 +39,29 @@ struct Patch{
   };
 };
 
-float m_targetTowerWidth = 0.7;
-float m_maxEta = 5.;
-float m_caloResSqrtTerm = 15.81;
-float m_caloResFloor = 50;
-float m_nSigma = 3.0;
-float m_constraintWeight = 1.;
-float m_trimFactor = 0.9;
-
-unsigned int m_nPhiBins = TMath::TwoPi()/m_targetTowerWidth;
-unsigned int m_nEtaBins = 2*m_maxEta/m_targetTowerWidth;
-unsigned int m_nTowers = m_nPhiBins*m_nEtaBins;
-
-float m_towerEtaWidth = 2*m_maxEta/m_nEtaBins;
-float m_towerPhiWidth = TMath::TwoPi()/m_nPhiBins;
-
-
-float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bool useNegTowers=false){
+namespace PUfitVar{
+  float m_targetTowerWidth = 0.7;
+  float m_maxEta = 5.;
+  float m_caloResSqrtTerm = 15.81;
+  float m_caloResFloor = 50;
+  float m_nSigma = 3.0;
+  float m_constraintWeight = 1.;
+  float m_trimFactor = 0.9;
   
-  m_nSigma = input_sigma;
+  unsigned int m_nPhiBins = TMath::TwoPi()/m_targetTowerWidth;
+  unsigned int m_nEtaBins = 2*m_maxEta/m_targetTowerWidth;
+  unsigned int m_nTowers = m_nPhiBins*m_nEtaBins;
+  
+  float m_towerEtaWidth = 2*m_maxEta/m_nEtaBins;
+  float m_towerPhiWidth = TMath::TwoPi()/m_nPhiBins;
+}
+
+float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = PUfitVar::m_nSigma, bool useNegTowers=false){
   
   std::vector<Patch> towerConfig;
-  towerConfig.resize(m_nTowers);
+  towerConfig.resize(PUfitVar::m_nTowers);
   
-  TH2F* pufitGrid = new TH2F("h_pufitGrid", "",  m_nEtaBins, -m_maxEta, m_maxEta, m_nPhiBins, -TMath::Pi(), TMath::Pi());
+  TH2F* pufitGrid = new TH2F("h_pufitGrid", "",  PUfitVar::m_nEtaBins, -PUfitVar::m_maxEta, PUfitVar::m_maxEta, PUfitVar::m_nPhiBins, -TMath::Pi(), TMath::Pi());
   
   float sumEtEta = 0; //Eta restricted sum
   for(unsigned int i = 0; i < towers->size(); i++){
@@ -70,7 +73,7 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
     float eta = tower->eta();
     float phi = tower->phi();
     
-    if(fabs(eta) > m_maxEta) continue;
+    if(fabs(eta) > PUfitVar::m_maxEta) continue;
     
     sumEtEta += Et_;
     
@@ -80,12 +83,12 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
     ieta -= 1;  // to deal with the conversion from root histogram indicies to c++ vector indicies
     iphi -= 1;  // histograms start with 1, vectors with 0
     
-    int index = ieta*m_nPhiBins + iphi;
+    int index = ieta*PUfitVar::m_nPhiBins + iphi;
     
     towerConfig.at(index).add(Et_, phi);
     
-    float temp = pufitGrid->GetBinContent(ieta, iphi);
-    pufitGrid->SetBinContent(ieta, iphi, temp + Et_);
+    float temp = pufitGrid->GetBinContent(ieta+1, iphi+1);
+    pufitGrid->SetBinContent(ieta+1, iphi+1, temp + Et_);
   }
   
   //int maxConfig;
@@ -98,22 +101,22 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
   std::sort(tower_array.begin(), tower_array.end(), [](const Patch& lhs, const Patch& rhs) { return lhs.sumEt < rhs.sumEt;});
   
   //Number of towers trimmed from each end
-  unsigned int nTrimmed = m_nTowers*(1 - m_trimFactor)/2;
-  for(unsigned int ii = 0; ii < m_nTowers - nTrimmed; ii++){
+  unsigned int nTrimmed = PUfitVar::m_nTowers*(1 - PUfitVar::m_trimFactor)/2;
+  for(unsigned int ii = 0; ii < PUfitVar::m_nTowers - nTrimmed; ii++){
     EtTowerTrimMean += tower_array.at(ii).sumEt;
   }
-  EtTowerTrimMean /= (m_nTowers - 2*nTrimmed);
+  EtTowerTrimMean /= (PUfitVar::m_nTowers - 2*nTrimmed);
   
-  for(unsigned int ii = 0; ii < m_nTowers - nTrimmed; ii++){
+  for(unsigned int ii = 0; ii < PUfitVar::m_nTowers - nTrimmed; ii++){
     double term = (EtTowerTrimMean - tower_array.at(ii).sumEt)*(EtTowerTrimMean - tower_array.at(ii).sumEt);
     
     //Double lower terms to make up for the exclusion of higher terms
     if(ii < nTrimmed) term *= 2;
     VarEtTower += term;
   }
-  VarEtTower /= m_nTowers;
+  VarEtTower /= PUfitVar::m_nTowers;
   //set minimum value to avoid FPEs
-  ptCut = EtTowerTrimMean + m_nSigma*sqrt(VarEtTower);
+  ptCut = EtTowerTrimMean + input_sigma*sqrt(VarEtTower);
   std::vector<Patch> hsTowers;
   unsigned int nHardScatter = 0;
   
@@ -138,7 +141,7 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
       hsTowers.push_back(patch);
     }else{
       ptPileup += TVector2(patch.px, patch.py);
-      float sigma2 = m_caloResSqrtTerm*m_caloResSqrtTerm*patch.pt() + (m_caloResFloor*m_caloResFloor);
+      float sigma2 = PUfitVar::m_caloResSqrtTerm*PUfitVar::m_caloResSqrtTerm*patch.pt() + (PUfitVar::m_caloResFloor*PUfitVar::m_caloResFloor);
       sumEtPileup += patch.pt();
       varSumEtPileup += sigma2;
       
@@ -165,13 +168,13 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
   TMatrixD Cj(nHardScatter, 1);
   
   for(unsigned int ii = 0; ii < nHardScatter; ii++){
-    Cj[ii][0] = -m_constraintWeight*ptPileup.Mod()/sigma_det*(
+    Cj[ii][0] = -PUfitVar::m_constraintWeight*ptPileup.Mod()/sigma_det*(
 							      sigma_yy*hsTowers.at(ii).cosPhi()*cosPhiPileup
 							      + sigma_xx*hsTowers.at(ii).sinPhi()*sinPhiPileup
 							      - sigma_xy*(hsTowers.at(ii).cosPhi()*sinPhiPileup + hsTowers.at(ii).sinPhi()*cosPhiPileup))
       + EtTowerTrimMean/Vk;
     for(unsigned int jj = ii; jj <nHardScatter; jj++){
-      Xij[ii][jj] = m_constraintWeight/sigma_det*(
+      Xij[ii][jj] = PUfitVar::m_constraintWeight/sigma_det*(
 						  sigma_yy*hsTowers.at(ii).cosPhi()*hsTowers.at(jj).cosPhi()
 						  + sigma_xx*hsTowers.at(ii).sinPhi()*hsTowers.at(jj).sinPhi()
 						  - sigma_xy*(hsTowers.at(ii).cosPhi()*hsTowers.at(jj).sinPhi() + hsTowers.at(ii).sinPhi()*hsTowers.at(jj).cosPhi()));
@@ -203,3 +206,6 @@ float Run_PUfit(const xAOD::JGTowerContainer* towers, float input_sigma = 3., bo
   return TMath::Sqrt(pxMiss*pxMiss + pyMiss*pyMiss);
 
 }
+
+
+#endif

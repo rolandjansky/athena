@@ -19,6 +19,9 @@ FlattenHistogram: converts the output of ConstructGrid into the input of Et_medi
 
  */
 
+#ifndef TRIGT1CALOFEXSIM_SOFTKILLER_H
+#define TRIGT1CALOFEXSIM_SOFTKILLER_H
+
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigL1Calo/JGTower.h"
@@ -130,3 +133,5 @@ std::vector<float> FlattenHistogram(TH2F* h_grid){
   }
   return EtMaxPerPatch;
 }
+
+#endif

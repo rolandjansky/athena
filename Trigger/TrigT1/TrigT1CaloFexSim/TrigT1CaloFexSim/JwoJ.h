@@ -17,12 +17,15 @@ BuildBlocksFromTowers: Takes JGTowers from a JGTowerContainer and combines them 
 
  */
 
+#ifndef TRIGT1CALOFEXSIM_JWOJ_H
+#define TRIGT1CALOFEXSIM_JWOJ_H
+
 #include <algorithm>
 #include "TMath.h"
 #include "Objects.h"
 #include "GaudiKernel/SystemOfUnits.h"
 //--------------------------------------------------------------------
-void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, bool useNegTowers){
+void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers){
   
   blocks.clear();
   TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
@@ -100,22 +103,22 @@ std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, float pTcone_c
 	Ety += block_ety;
       }
     }
-      scalar_Et += seed_Et;
-      Etx_tot += block_etx;
-      Ety_tot += block_ety;
+    scalar_Et += seed_Et;
+    Etx_tot += block_etx;
+    Ety_tot += block_ety;
   }
   float MHT = TMath::Sqrt(Htx*Htx + Hty*Hty);
   float MET = TMath::Sqrt(Etx*Etx + Ety*Ety);
   Et_tot = TMath::Sqrt(Etx_tot*Etx_tot + Ety_tot*Ety_tot);
 
   //convert to GeV for fitting process  
-  Et_vals.push_back(scalar_Et*0.001);
-  Et_vals.push_back(MHT*0.001);
-  Et_vals.push_back(MET*0.001);
-  Et_vals.push_back(Et_tot*0.001);
+  Et_vals.push_back(scalar_Et);
+  Et_vals.push_back(MHT);
+  Et_vals.push_back(MET);
+  Et_vals.push_back(Et_tot);
   
   return Et_vals;
 }
 
-
+#endif
 

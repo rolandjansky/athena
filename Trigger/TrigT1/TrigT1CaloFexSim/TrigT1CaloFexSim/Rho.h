@@ -11,6 +11,9 @@ Rho_med(): Calculates rho as the median tower energy density in the barrel, agai
 
  */
 
+#ifndef TRIGT1CALOFEXSIM_RHO_H
+#define TRIGT1CALOFEXSIM_RHO_H
+
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigL1Calo/JGTower.h"
@@ -54,7 +57,7 @@ float Rho_bar(const xAOD::JGTowerContainer* towers, bool useNegTowers){
 float Rho_med(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   float rho = 0;
   const unsigned int size = towers->size();
-  std::vector<float> *Et_in;
+  std::vector<float> Et_in;
 
   for(unsigned int i = 0; i < size; i++){
     const xAOD::JGTower* tower = towers->at(i);
@@ -63,13 +66,15 @@ float Rho_med(const xAOD::JGTowerContainer* towers, bool useNegTowers){
    
     if(!useNegTowers) Et = TMath::Abs(Et);
 
-    if(eta < 2.4) Et_in->push_back(Et);
+    if(eta < 2.4) Et_in.push_back(Et);
   }
-  std::sort(Et_in->begin(), Et_in->end());
+  std::sort(Et_in.begin(), Et_in.end());
 
-  if(Et_in->size() == 1) rho = Et_in->at(0);
-  if(Et_in->size() % 2 == 0) rho = (Et_in->at(size/2) + Et_in->at(size/2 - 1))/2;
-  else rho = Et_in->at(Et_in->size()/2);
+  if(Et_in.size() == 1) rho = Et_in.at(0);
+  if(Et_in.size() % 2 == 0) rho = (Et_in.at(size/2) + Et_in.at(size/2 - 1))/2;
+  else rho = Et_in.at(Et_in.size()/2);
 
   return rho;
 }
+
+#endif
