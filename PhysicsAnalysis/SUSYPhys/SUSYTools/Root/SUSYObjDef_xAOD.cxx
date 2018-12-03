@@ -116,7 +116,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metGreedyPhotons(false),
     m_metVeryGreedyPhotons(false),
     m_metsysConfigPrefix(""),
-    m_softTermParam(met::Random),
+    m_trkMETsyst(true),
+    m_caloMETsyst(false),
+    m_softTermParam(-99),
     m_treatPUJets(true),
     m_doPhiReso(true),
     m_autoconfigPRW(false),
@@ -1110,7 +1112,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elePt, "Ele.Et", rEnv, 25000.);
   configFromFile(m_eleEta, "Ele.Eta", rEnv, 2.47);
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
-  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "GradientLoose");
+  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Gradient");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
@@ -1121,8 +1123,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, 0.5);
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
-  configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map0.txt");
+  configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map1.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
@@ -1141,7 +1143,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
-  configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "GradientLoose");
+  configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "FCLoose");
   configFromFile(m_mud0sig, "Muon.d0sig", rEnv, 3.);
   configFromFile(m_muz0, "Muon.z0", rEnv, 0.5);
   configFromFile(m_mubaselined0sig, "MuonBaseline.d0sig", rEnv, -99.);
@@ -1151,7 +1153,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muCosmicz0, "MuonCosmic.z0", rEnv, 1.);
   configFromFile(m_muCosmicd0, "MuonCosmic.d0", rEnv, 0.2);
   //
-  configFromFile(m_badmuQoverP, "BadMuon.qoverp", rEnv, 0.2);
+  configFromFile(m_badmuQoverP, "BadMuon.qoverp", rEnv, 0.4);
   //
   configFromFile(m_muCalibrationMode, "Muon.CalibrationMode", rEnv, 1); // 0: "setup1"(correctData), 1: "setup2"(additionalMCSys)
   //
@@ -1509,8 +1511,8 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
   //Btagging //OR-wp looser than signal-wp?
   if( m_BtagWP.compare(0, m_BtagWP.size()-3, m_orBtagWP, 0, m_BtagWP.size()-3) == 0 ){ //same tagger WP (FixedCutBEff_XX or HybBEff_XX)
-    if( atoi(m_BtagWP.substr(m_BtagWP.size()-2, m_BtagWP.size()).c_str()) < atoi(m_orBtagWP.substr(m_orBtagWP.size()-2, m_orBtagWP.size()).c_str()) ){
-      ATH_MSG_WARNING("Your btagging configuration is inconsistent!  Signal : " << m_BtagWP << " is tighter than OR-Baseline : " << m_orBtagWP);
+    if( atoi(m_BtagWP.substr(m_BtagWP.size()-2, m_BtagWP.size()).c_str()) > atoi(m_orBtagWP.substr(m_orBtagWP.size()-2, m_orBtagWP.size()).c_str()) ){
+      ATH_MSG_WARNING("Your btagging configuration is inconsistent!  Signal : " << m_BtagWP << " is looser than OR-Baseline : " << m_orBtagWP);
     }
   }
 

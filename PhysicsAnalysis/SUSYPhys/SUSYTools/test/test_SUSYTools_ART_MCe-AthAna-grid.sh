@@ -9,8 +9,8 @@
 # Create empty pool file
 art.py createpoolfile
 
-echo "Running SUSYTools test: 'share/minimalExampleJobOptions_mc.py -c \'MCCampaign=\"MC16e\"\' '"
-athena SUSYTools/minimalExampleJobOptions_mc.py --evtMax=-1 -c 'MCCampaign="MC16e"'
+echo "Running SUSYTools test: 'share/minimalExampleJobOptions_mc.py -c \'MCCampaign=\"MCe\"\' '"
+athena SUSYTools/minimalExampleJobOptions_mc.py --evtMax=-1 -c 'MCCampaign="MCe"'
 echo  "art-result: $? TEST"
 
 echo "Running DCube post-processing"

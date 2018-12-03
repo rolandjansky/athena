@@ -200,11 +200,13 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
-  dec_isol(input) = m_isoTool->accept(input);
-  if (m_eleIsoHighPt_WP == "FixedCutHighPtCaloOnly" && acc_topoetcone20.isAvailable(input)) {
-    dec_isolHighPt(input) = acc_topoetcone20(input)/input.pt() < 0.015 || m_isoHighPtTool->accept(input);
-  } else {
-    dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
+  if (m_doElIsoSignal){
+    dec_isol(input) = m_isoTool->accept(input);
+    if (m_eleIsoHighPt_WP == "FixedCutHighPtCaloOnly" && acc_topoetcone20.isAvailable(input)) {
+      dec_isolHighPt(input) = acc_topoetcone20(input)/input.pt() < 0.015 || m_isoHighPtTool->accept(input);
+    } else {
+      dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
+    }
   }
 
   //ChargeIDSelector
@@ -276,7 +278,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
-  if (acc_isol(input) || !m_doElIsoSignal) {
+  if ( (!m_doElIsoSignal) || acc_isol(input) ) {
     if (acc_isolHighPt(input) || input.pt()<200e3) { // patch for removing the high-pt electron fakes /KY
       ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
     } else return false;

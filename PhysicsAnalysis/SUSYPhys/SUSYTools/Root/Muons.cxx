@@ -197,7 +197,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
-  dec_isol(input) = m_isoTool->accept(input);
+  if (m_doMuIsoSignal) dec_isol(input) = m_isoTool->accept(input);
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);
   
   ATH_MSG_VERBOSE("FillMuon: passed baseline selection");
@@ -222,7 +222,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
     if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
-  if (acc_isol(input) || !m_doMuIsoSignal) {
+  if ( (!m_doMuIsoSignal) || acc_isol(input)) {
     ATH_MSG_VERBOSE( "IsSignalMuon: passed isolation");
   } else return false; //isolation selection with IsoTool
 
@@ -291,7 +291,7 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   //new recommendation from MCP
   isbad |= m_muonSelectionTool->isBadMuon(input);
 
-  //new recommendation from MCP (at HighPT
+  //new recommendation from MCP (at HighPT)
   isbadHighPt |= m_muonSelectionHighPtTool->isBadMuon(input);
 
   dec_bad(input) = isbad;

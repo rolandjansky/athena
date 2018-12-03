@@ -13,11 +13,11 @@ theApp.EvtMax = 400 #set to -1 to run on all events
 try:
     MCCampaign
 except:
-    MCCampaign = 'MC16a'
+    MCCampaign = 'MCa'
 
-if MCCampaign == 'MC16d':
+if MCCampaign == 'MCd':
     inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.FS.46.mc16d.PHYSVAL.pool.root'
-elif MCCampaign == 'MC16e':
+elif MCCampaign == 'MCe':
     inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.artDAODmc16e.PHYSVAL.pool.root'
 else: # MC16a by default
     inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.FS.46.mc16a.PHYSVAL.pool.root'
@@ -35,11 +35,11 @@ ToolSvc.SUSYTools.PRWLumiCalcFiles = [
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"
     ]
 
-if MCCampaign == 'MC16d':
+if MCCampaign == 'MCd':
     ToolSvc.SUSYTools.PRWLumiCalcFiles = [
         "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root"
         ]
-elif MCCampaign == 'MC16e':
+elif MCCampaign == 'MCe':
     ToolSvc.SUSYTools.PRWLumiCalcFiles = [
         "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"
         ]
