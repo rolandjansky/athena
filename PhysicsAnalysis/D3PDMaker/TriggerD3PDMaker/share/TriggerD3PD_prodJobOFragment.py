@@ -243,10 +243,11 @@ TrackD3PDFlags.storeVertexTrackIndexAssociation = False
 TrackD3PDFlags.storeVertexFitQuality = True
 TrackD3PDFlags.storeVertexKinematics = True
 
-from TrackD3PDMaker.VertexD3PDObject import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject import PrimaryxAODVertexD3PDObject
 if cfgKeyStore.isInInput( "VxContainer",
-                          "VxPrimaryCandidate" ):
-    d3pdalg += PrimaryVertexD3PDObject( 0, prefix = "vxp_" )
+                          "VxPrimaryCandidate",
+                          "PrimaryVertices"):
+    d3pdalg += PrimaryxAODVertexD3PDObject( 0, prefix = "vxp_" )
 else:
     TriggerD3PDStream_msg.warning( "Offline primary vertices not found in input" )
     pass
