@@ -67,9 +67,13 @@ DerivationFrameworkJob += STDM6Sequence
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="STDM6ThinningSvc", outStreams=[evtStream] )
 
+# QGTaggerTool ### 
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=STDM6Sequence, algname="QGTaggerToolAlg")
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
+"""
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSM.STDMExtraContent import *
 
@@ -102,5 +106,42 @@ if globalflags.DataSource()=='geant4':
 addJetOutputs(STDM6SlimmingHelper,["STDM6","STDM6Jets"])
 
 STDM6SlimmingHelper.AppendContentToStream(STDM6Stream)
+"""
 
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+from DerivationFrameworkSM.STDM9ContentList import *
 
+STDM6SlimmingHelper = SlimmingHelper("STDM6SlimmingHelper")
+
+# Containers to be smart slimmed, see https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis
+# /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
+STDM6SlimmingHelper.SmartCollections = STDM9SmartContent
+STDM6SlimmingHelper.ExtraVariables = STDM9ExtraVariables
+if isMC:
+  STDM6SlimmingHelper.ExtraVariables = STDM9ExtraVariablesTruth
+
+# Keep all variables for containers which we don't want to smart slim and were
+# not created in the derivation
+STDM6SlimmingHelper.AllVariables = STDM9AllVariablesContent
+
+# Add jet collections created by derivation job
+STDM6SlimmingHelper.StaticContent = STDM9StaticContent
+
+STDM6SlimmingHelper.AppendToDictionary = {}
+
+addJetOutputs(STDM6SlimmingHelper, ["STDM6","STDM6Jets"])
+
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']
+if globalflags.DataSource()=='geant4':
+  listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
+for i in listJets:
+  STDM6SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
+
+# (Dont) Add jet triger content
+#STDM9SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+STDM6SlimmingHelper.IncludeJetTriggerContent = True
+STDM6SlimmingHelper.IncludeEGammaTriggerContent = True
+
+addOriginCorrectedClusters(STDM6SlimmingHelper, writeLC=True, writeEM=True)
+
+STDM6SlimmingHelper.AppendContentToStream(STDM6Stream)
