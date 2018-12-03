@@ -323,6 +323,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "recommended"
                      );
 
+    registerParameter("OverlapRemovalSlidingInnerDRel", "Overlap removal inner radius to be used for electron SlidingDR ,", "0.2");
+    registerParameter("OverlapRemovalSlidingInnerDRmu", "Overlap removal inner radius to be used for muon SlidingDR ,", "0.2");
+
     registerParameter("LargeJetOverlapRemoval", "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
     registerParameter("HLLHC",

@@ -191,6 +191,12 @@ class TopConfig final {
   inline std::string overlapRemovalProcedure() const
   {return m_overlap_removal_procedure;}
 
+  inline float overlapRemovalSlidingInnerDRel() const 
+  {return m_overlapRemovalSlidingInnerDRel;} 
+
+  inline float overlapRemovalSlidingInnerDRmu() const 
+  {return m_overlapRemovalSlidingInnerDRmu;}
+
   // do overlap removal also with large-R jets
   // (using whatever procedure is used in the official tools)
   inline void setLargeJetOverlapRemoval()
@@ -1002,7 +1008,10 @@ class TopConfig final {
   // procedure, or the one developed by the harmonization
   // task force and use throughout 2015 (harmonized)
   std::string m_overlap_removal_procedure = "recommended";
-  
+
+  float m_overlapRemovalSlidingInnerDRel = 0.2;
+  float m_overlapRemovalSlidingInnerDRmu = 0.2;
+
   // do overlap removal also with large-R jets
   // (using whatever procedure is used in the official tools)
   bool m_doLargeJetOverlapRemoval;

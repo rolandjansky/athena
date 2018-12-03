@@ -49,6 +49,9 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
                                                  "Boosted", "BoostedSlidingDREl", "BoostedSlidingDRMu", "BoostedSlidingDRElMu", "noTauJetOLR"};
   std::string OR_procedure = m_config->overlapRemovalProcedure();
 
+  float overlapRemovalSlidingInnerDRel = m_config->overlapRemovalSlidingInnerDRel();
+  float overlapRemovalSlidingInnerDRmu = m_config->overlapRemovalSlidingInnerDRmu();
+
   // If the requested OR procedure is unknown then fail.
   // This is mostly to avoid me writing 'harmonised' by mistake ;)
   if (allowed_OR_procedures.find(OR_procedure)
@@ -111,18 +114,33 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
             OR_procedure == "BoostedSlidingDRMu" ||
             OR_procedure == "BoostedSlidingDRElMu") {
     if ( m_config->useElectrons() && m_config->useJets() &&
-         (OR_procedure == "BoostedSlidingDREl" || OR_procedure == "BoostedSlidingDRElMu") ) {
+         OR_procedure == "BoostedSlidingDREl" ) {
       top::check(m_ORtoolBox.eleJetORT.setProperty("UseSlidingDR", true),
-                "Failed to setSliding DR in ElJetORT");
-      top::check(m_ORtoolBox.eleJetORT.setProperty("InnerDR", 0.0),
-                "Failed to setting inner radius equal to 0.0 in EleJetORT");
+		 "Failed to setSliding DR in ElJetORT");
+      top::check(m_ORtoolBox.eleJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRel),
+		 "Failed to setting inner radius equal to SlidingInnerDRel in EleJetORT");
+      top::check(m_ORtoolBox.muJetORT.setProperty("UseSlidingDR", false),
+		 "Failed to setSliding DR in MuJetORT");
     }
     if ( m_config->useMuons() && m_config->useJets() &&
-         (OR_procedure == "BoostedSlidingDRMu" || OR_procedure == "BoostedSlidingDRElMu") ) {
+         OR_procedure == "BoostedSlidingDRMu" ) {
+      top::check(m_ORtoolBox.eleJetORT.setProperty("UseSlidingDR", false),
+		 "Failed to setSliding DR in ElJetORT");
       top::check(m_ORtoolBox.muJetORT.setProperty("UseSlidingDR", true),
-                "Failed to setSliding DR in MuJetORT");
-      top::check(m_ORtoolBox.muJetORT.setProperty("InnerDR", 0.0),
-                "Failed to setting inner radius equal to 0.0 in MuJetORT");
+		 "Failed to setSliding DR in MuJetORT");
+      top::check(m_ORtoolBox.muJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRmu),
+		 "Failed to setting inner radius equal to SlidingInnerDRmu in MuJetORT");
+    }
+    if ( m_config->useElectrons() && m_config->useMuons() && m_config->useJets() &&
+         OR_procedure == "BoostedSlidingDRElMu" ) {
+      top::check(m_ORtoolBox.eleJetORT.setProperty("UseSlidingDR", true),
+		 "Failed to setSliding DR in ElJetORT");
+      top::check(m_ORtoolBox.eleJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRel),
+		 "Failed to setting inner radius equal to SlidingInnerDRel in EleJetORT");
+      top::check(m_ORtoolBox.muJetORT.setProperty("UseSlidingDR", true),
+		 "Failed to setSliding DR in MuJetORT");
+      top::check(m_ORtoolBox.muJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRmu),
+		 "Failed to setting inner radius equal to SlidingInnerDRmu in MuJetORT");
     }
   }
   else if( OR_procedure == "noTauJetOLR"){
@@ -167,18 +185,33 @@ StatusCode OverlapRemovalCPTools::setupOverlapRemoval() {
             OR_procedure == "BoostedSlidingDRMu" ||
             OR_procedure == "BoostedSlidingDRElMu") {
     if ( m_config->useElectrons() && m_config->useJets() &&
-         (OR_procedure == "BoostedSlidingDREl" || OR_procedure == "BoostedSlidingDRElMu") ) {
+         OR_procedure == "BoostedSlidingDREl" ) {
       top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("UseSlidingDR", true),
-                "Failed to setSliding DR in ElJetORT");
-      top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("InnerDR", 0.0),
-                "Failed to setting inner radius equal to 0.0 in EleJetORT");
+		 "Failed to setSliding DR in ElJetORT");
+      top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRel),
+		 "Failed to setting inner radius equal to SlidingInnerDRel in EleJetORT");
+      top::check(m_ORtoolBox_Loose.muJetORT.setProperty("UseSlidingDR", false),
+		 "Failed to setSliding DR in MuJetORT");
     }
     if ( m_config->useMuons() && m_config->useJets() &&
-         (OR_procedure == "BoostedSlidingDRMu" || OR_procedure == "BoostedSlidingDRElMu") ) {
+         OR_procedure == "BoostedSlidingDRMu" ) {
+      top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("UseSlidingDR", false),
+		 "Failed to setSliding DR in ElJetORT");
       top::check(m_ORtoolBox_Loose.muJetORT.setProperty("UseSlidingDR", true),
-                "Failed to setSliding DR in MuJetORT");
-      top::check(m_ORtoolBox_Loose.muJetORT.setProperty("InnerDR", 0.0),
-                "Failed to setting inner radius equal to 0.0 in MuJetORT");
+		 "Failed to setSliding DR in MuJetORT");
+      top::check(m_ORtoolBox_Loose.muJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRmu),
+		 "Failed to setting inner radius equal to SlidingInnerDRmu in MuJetORT");
+    }
+    if ( m_config->useElectrons() && m_config->useMuons() && m_config->useJets() &&
+         OR_procedure == "BoostedSlidingDRElMu" ) {
+      top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("UseSlidingDR", true),
+		 "Failed to setSliding DR in ElJetORT");
+      top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRel),
+		 "Failed to setting inner radius equal to SlidingInnerDRel in EleJetORT");
+      top::check(m_ORtoolBox_Loose.muJetORT.setProperty("UseSlidingDR", true),
+		 "Failed to setSliding DR in MuJetORT");
+      top::check(m_ORtoolBox_Loose.muJetORT.setProperty("InnerDR", overlapRemovalSlidingInnerDRmu),
+		 "Failed to setting inner radius equal to SlidingInnerDRmu in MuJetORT");
     }
   }
   else if( OR_procedure == "noTauJetOLR"){
