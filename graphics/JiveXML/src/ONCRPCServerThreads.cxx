@@ -199,8 +199,8 @@ namespace JiveXML {
       pthread_attr_t attr; retVal = pthread_attr_init (&attr);
       if ( ! checkResult(retVal,"request handler initializing thread attributes",ServerSvc)) return ;
 
-      //Set the stack size to 2*minumum
-      retVal = pthread_attr_setstacksize(&attr,2*PTHREAD_STACK_MIN);
+      //Removing the limit on the thread memory usage as a test. Suspect that some threads do not have enough memory to finish and therefore eat up all the memory.
+      //retVal = pthread_attr_setstacksize(&attr,10*PTHREAD_STACK_MIN);
       if ( ! checkResult(retVal,"request handler setting thread stacksize",ServerSvc)) return ;
       
       //NOTE: All threads are first created joinable, so we can wait for the to

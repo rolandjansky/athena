@@ -26,4 +26,3 @@ typedef T_AthenaPoolAuxContainerCnv< xAOD::AFPProtonAuxContainer >
    xAODAFPProtonAuxContainerCnv;
 
 #endif // XAODFORWARDATHENAPOOL_AFPPROTONAUXCONTAINERCNV_H
-

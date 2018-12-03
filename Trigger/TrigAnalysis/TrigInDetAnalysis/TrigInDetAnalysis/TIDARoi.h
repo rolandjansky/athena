@@ -62,6 +62,7 @@ public:
   const std::vector<TrackTrigObject>& objects() const { return m_objects; }
   std::vector<TrackTrigObject>&       objects()       { return m_objects; }
   void addObject( const TrackTrigObject& o) {  m_objects.push_back(o); }
+  void addObjects( const std::vector<TrackTrigObject>& ob) {  m_objects.insert( m_objects.end(), ob.begin(), ob.end() ); }
 
   /// access the user data
   const std::vector<double>& user() const { return m_user; }

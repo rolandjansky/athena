@@ -139,6 +139,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupAFPALFACalibrationChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
+      elif 'rpcpebsecondaryreadout' in self.chainPart['purpose']:
+        self.setupRPCSecondaryReadoutChains()
       elif 'rpcpeb' in self.chainPart['purpose']:
         self.setupRPCCalibrationChains()
       elif 'idpsl1' in self.chainPart['purpose']:
@@ -320,6 +322,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      
      l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
      l2_RPCSubDetListWriter.SubdetId = ['TDAQ_MUON', 'TDAQ_CTP', 'TDAQ_HLT', 'RPC']
+     l2_RPCSubDetListWriter.extraROBs += [0x610080, 0x620080]
 
      l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
      
@@ -329,6 +332,23 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2signatureList += [[['L2_']]]
      self.TErenamingDict = {
        'L2_':     'L2_l1RPCcalib',
+       }
+
+   def setupRPCSecondaryReadoutChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSecondaryListWriter")
+     l2_RPCSubDetListWriter.extraROBs = [0x610080, 0x620080]
+
+     l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_RPCSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1RPCsecondarycalib',
        }
   
    ###########################################################################

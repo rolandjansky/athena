@@ -4,6 +4,40 @@
 from glob import glob
 from fnmatch import fnmatch
 from subprocess import Popen, PIPE, STDOUT, check_call
+from CoolConvUtilities.AtlCoolLib import indirectOpen
+from PyCool import cool
+
+class CoolDB:
+   """Cache for COOL db conneciton objects"""
+   cooldbs = {}
+   
+   @classmethod
+   def get(cls, dbname):
+      if not dbname in cls.cooldbs: 
+         cls.cooldbs[dbname] = indirectOpen(dbname,readOnly=True,oracle=True)
+
+      return cls.cooldbs[dbname]
+
+# Helpers to convert validity key
+def toRun(validity):
+   return (validity >> 32)
+
+def getLastPhysicsRuns(N=1):
+   """Return the last N runs with ReadyForPhysics"""
+
+   db = CoolDB.get("COOLONL_TDAQ/CONDBR2")
+   f = db.getFolder("/TDAQ/RunCtrl/DataTakingMode")
+   objs = f.browseObjects(cool.ValidityKeyMin, cool.ValidityKeyMax, cool.ChannelSelection(0))
+   lastrun = []
+   while objs.goToNext():
+      obj= objs.currentRef()
+      if obj.payload()['ReadyForPhysics']==0: continue
+      lastrun.append(toRun(obj.since()))
+
+   return lastrun[len(lastrun)-N:]
+
+
+
  
 #EOS walking Code courtesy of James Robinson
 def get_file_list( DATAPATH ) :
@@ -55,16 +89,32 @@ def main():
   (opts, args) = parser.parse_args()
   
   runs = get_file_list(opts.dir)
-  last_run_files = get_file_list(runs[-1] + "/*/")
-  subset = []
-  for i in range(0,opts.nfiles):
-    subset.append('root://eosatlas/' + last_run_files[i])
-  print subset 
+  physics_runs = getLastPhysicsRuns(100)
+  physics_runs = [str(x) for x in physics_runs]
+  good_runs = []
+  for r in runs:
+     good=False
+     for p in physics_runs:
+        if p in r:
+          good=True
+     if(good):
+        good_runs += [r]
+  runs = good_runs
 
-  trigCmd = "athenaHLT.py -n " + str(opts.nevents) + " -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"
-  trigCmdEsc = trigCmd.replace("\\","\\\\").replace("\"","\\\"")#For output to echo
-  check_call("echo \"" + trigCmdEsc + "\"", shell=True)#Call echo rather than print so that it completes first
-  check_call(trigCmd, shell=True)
+  if(len(runs)==0):
+     print " FATAL : no run found"
+    
+  else:
+     last_run_files = get_file_list(runs[-1] + "/*/")
+     subset = []
+     for i in range(0,opts.nfiles):
+        subset.append('root://eosatlas/' + last_run_files[i])
+     print subset 
+
+     trigCmd = "athenaHLT.py -n " + str(opts.nevents) + " -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"
+     trigCmdEsc = trigCmd.replace("\\","\\\\").replace("\"","\\\"")#For output to echo
+     check_call("echo \"" + trigCmdEsc + "\"", shell=True)#Call echo rather than print so that it completes first
+     check_call(trigCmd, shell=True)
 
 if __name__ == "__main__":
   main()
