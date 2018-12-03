@@ -72,26 +72,28 @@
 #====================================================================
 
 #================================
-# SMART SLIMMING COLLECTIONS
+# SMART SLIMMING COLLECTIONS 
 #================================
 # list of existing containers with a smart list is available here :
 # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/FullListOfSmartContainers.py
-TOPQSmartSlimmingCollections = ["AntiKt4EMPFlowJets",
+TOPQSmartSlimmingCollections = ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
+                                "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                                "PrimaryVertices",
+                                "InDetTrackParticles",
+                                "Electrons",
+                                "Photons",
+                                "Muons",
+                                "TauJets",
+                                "MET_Reference_AntiKt4EMTopo",
+                                "MET_Reference_AntiKt4EMPFlow",
+                                "AntiKt4EMPFlowJets",
                                 "AntiKt4EMTopoJets",
                                 "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                                 "BTagging_AntiKt2Track",
                                 "BTagging_AntiKt4EMTopo",
                                 "BTagging_AntiKt4EMPFlow",
-                                "Electrons",
-                                "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
-                                "HLT_xAOD__JetContainer_a4tcemsubjesFS",
-                                "InDetTrackParticles",
-                                "MET_Reference_AntiKt4EMTopo",
-                                "MET_Reference_AntiKt4EMPFlow",
-                                "Muons",
-                                "Photons",
-                                "PrimaryVertices",
-                                "TauJets",
+                                "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                 "AntiKt4TruthJets",
                                 "AntiKt4TruthWZJets"]
 
@@ -484,6 +486,31 @@ TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "WidthPhi."
                                          + "btaggingLink"]
 
+
+# additional variables for jets (TOPQDERIV70)
+# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30Rmax4Rmin02Track."
+                                                           + "DL1_pb."
+                                                           + "DL1_pu."
+                                                           + "DL1_pc."
+                                                           + "DL1rmu_pb."
+                                                           + "DL1rmu_pu."
+                                                           + "DL1rmu_pc."
+                                                           + "DL1r_pb."
+                                                           + "DL1r_pu."
+                                                           + "DL1r_pc."
+                                                           + "SV1_pb."
+                                                           + "SV1_pu."
+                                                           + "IP3D_pb."
+                                                           + "IP3D_pu."
+                                                           + "MV2c10_discriminant."
+                                                           + "MV2c100_discriminant"]
+                                                           #+ "SV1_badTracksIP."
+                                                           #+ "SV1_vertices"]
+                                                           #+ "BTagTrackToJetAssociator.MSV_vertices",
+                                                           #+ "BTagTrackToJetAssociatorBB.JetFitter_JFvertices."
+                                                           #+ "JetFitter_tracksAtPVlinks.MSV_badTracksIP"
+                                                           #]
 
 # heavy flavour tagging
 # default variables are in : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkFlavourTag/python/BTaggingContent.py

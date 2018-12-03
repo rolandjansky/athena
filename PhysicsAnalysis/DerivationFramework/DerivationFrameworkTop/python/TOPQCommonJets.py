@@ -69,6 +69,20 @@ def addSoftDropJetsForTop(algseq, outputGroup):
   addCSSKSoftDropJets(algseq, outputGroup)
 
 #================
+# TTC jets
+#================
+def addTCCTrimmedJetsForTop(algseq, outputGroup):
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+  addTCCTrimmedJets(algseq, outputGroup)
+
+#================
+# VR jets
+#================
+def addVRJetsForTop(algseq, outputGroup):
+  from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+  addVRJets(algseq, outputGroup)
+
+#================
 # JET CALIBRATION
 #================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/trunk/python/ExtendedJetCommon.py
@@ -101,21 +115,27 @@ def TOPQupdateJVT(jetcollection, algseq=None):
     updateJVT_xAODColl(jetcollection,algseq)
 # end TOPQupdateJVT(jetcollection, algseq=None)
 
-## MSV variables
+#=======================
+# MSV variables
+#=======================
 def addMSVVariables(jetcollection, algseq, ToolSvc):
-   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__JetMSVAugmentation
-   TopQJetMSVAugmentation = DerivationFramework__JetMSVAugmentation("TopQJetMSVAugmentation")
-   TopQJetMSVAugmentation.JetCollectionName=jetcollection
-   ToolSvc+=TopQJetMSVAugmentation
-   augmentationTools = [TopQJetMSVAugmentation]
-   TOPQJetMSVKernel = CfgMgr.DerivationFramework__CommonAugmentation("TOPQJetMSVKernel", AugmentationTools = augmentationTools)
-   algseq+=TOPQJetMSVKernel
+  from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__JetMSVAugmentation
+  TopQJetMSVAugmentation = DerivationFramework__JetMSVAugmentation("TopQJetMSVAugmentation")
+  TopQJetMSVAugmentation.JetCollectionName=jetcollection
+  ToolSvc+=TopQJetMSVAugmentation
+  augmentationTools = [TopQJetMSVAugmentation]
+  TOPQJetMSVKernel = CfgMgr.DerivationFramework__CommonAugmentation("TOPQJetMSVKernel", AugmentationTools = augmentationTools)
+  algseq+=TOPQJetMSVKernel
 
-## added for TOPQDERIV-62
+#=======================
+# ExKtDoubleTagVariables
+# added for TOPQDERIV-62
+#=======================
 def addExKtDoubleTagVariables(algseq, ToolSvc):
-   from DerivationFrameworkFlavourTag.HbbCommon import *
-   jetToolName = "DFReclustertingTool"
-   algoName = "DFJetReclusteringAlgo" 
+  from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
+  from DerivationFrameworkFlavourTag.HbbCommon import addExKtCoM
+  jetToolName = "DFReclustertingTool"
+  algoName = "DFJetReclusteringAlgo" 
   # ToolSvc += CfgMgr.JetReclusteringTool("TOPQReclusteringTool",InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
   # ToolSvc.TOPQReclusteringTool.ReclusterRadius = 0.8
   # ToolSvc.TOPQReclusteringTool.InputJetPtMin = 0
@@ -127,8 +147,8 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
   # ToolSvc.TOPQReclusteringTool.GhostTruthInputBContainer = "BHadronsFinal"
   # ToolSvc.TOPQReclusteringTool.GhostTruthInputCContainer = "CHadronsFinal"
   # algseq += CfgMgr.AthJetReclusteringAlgo("TOPQJetRecAlgo", JetReclusteringTool = ToolSvc.TOPQReclusteringTool)
-   #addRscanJets("AntiKt",0.8,"LCTopo",algseq,"TOPQ1")
-   if jetToolName not in DFJetAlgs:
+  #addRscanJets("AntiKt",0.8,"LCTopo",algseq,"TOPQ1")
+  if jetToolName not in DFJetAlgs:
      ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
      getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
      getattr(ToolSvc,jetToolName).InputJetPtMin = 0
@@ -144,15 +164,15 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
 
      algseq += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
      DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
-   ExKtTopJetCollection__FatJetConfigs = {
+  ExKtTopJetCollection__FatJetConfigs = {
                                           "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
                                           }
  
-   # build subjets
-   ExKtTopJetCollection__FatJet = ExKtTopJetCollection__FatJetConfigs.keys()
-   ExKtTopJetCollection__SubJet = []
+  # build subjets
+  ExKtTopJetCollection__FatJet = ExKtTopJetCollection__FatJetConfigs.keys()
+  ExKtTopJetCollection__SubJet = []
  
-   for key, config in ExKtTopJetCollection__FatJetConfigs.items():
+  for key, config in ExKtTopJetCollection__FatJetConfigs.items():
     # N=2 subjets
     ExKtTopJetCollection__SubJet += addExKtCoM(algseq, ToolSvc, key, nSubjets=2, **config)
 
@@ -160,24 +180,25 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
     if "RNNCone" not in key:
       ExKtTopJetCollection__SubJet += addExKtCoM(algseq, ToolSvc, key, nSubjets=3, **config)
 
-   algseq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
-   from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-   #BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-   #BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20->AntiKt4EMTopo"]  # enforced by ExKt tagger
-   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__FatJet ]
-   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__SubJet ]
+  algseq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
+  #from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+  from BTagging.BTaggingFlags import BTaggingFlags
+  #BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+  #BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20->AntiKt4EMTopo"]  # enforced by ExKt tagger
+  BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__FatJet ]
+  BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__SubJet ]
 
-   #FlavorTagInit(
-   #           myTaggers      = defaultTaggers,
-   #           JetCollections = ExKtTopJetCollection__SubJet,
-   #           Sequencer      = algseq,
-   #          )
-   #FlavorTagInit(
-   #           myTaggers      = defaultTaggers,
-   #           JetCollections = ExKtTopJetCollection__FatJet,
-   #           Sequencer      = algseq,
-   #          )
-   #algseq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
-   from DerivationFrameworkTop.TOPQAugTools import *
-   algseq += TOPQExKtCommonTruthKernel
+  #FlavorTagInit(
+  #           myTaggers      = defaultTaggers,
+  #           JetCollections = ExKtTopJetCollection__SubJet,
+  #           Sequencer      = algseq,
+  #          )
+  #FlavorTagInit(
+  #           myTaggers      = defaultTaggers,
+  #           JetCollections = ExKtTopJetCollection__FatJet,
+  #           Sequencer      = algseq,
+  #          )
+  #algseq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
+  from DerivationFrameworkTop.TOPQAugTools import TOPQExKtCommonTruthKernel
+  algseq += TOPQExKtCommonTruthKernel
 

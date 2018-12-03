@@ -29,7 +29,14 @@ def setup(TOPQname, stream):
   #=====================================================
   # ADD BTagging_AntiKt4EMPFlow COLLECTION TO DICTIONARY
   #=====================================================
-  TOPQSlimmingHelper.AppendToDictionary = {"BTagging_AntiKt4EMPFlow" : "xAOD::BTaggingContainer", "BTagging_AntiKt4EMPFlowAux" : "xAOD::BTaggingAuxContainer"}
+  TOPQSlimmingHelper.AppendToDictionary = {
+    "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer", 
+    "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
+    "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
+    "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
+    }
 
   #================================
   # SMART SLIMMING
@@ -56,6 +63,9 @@ def setup(TOPQname, stream):
   # trimmed jets
   if TOPQname == 'TOPQ1':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets
+  # see TOPQDERIV70
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+
   # additional variables for electrons/photons objects
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ForwardElectrons
@@ -164,8 +174,6 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.IncludeJetTriggerContent    = True
   if TOPQname == 'TOPQ4':
     TOPQSlimmingHelper.IncludeBJetTriggerContent   = True
-  #TOPQSlimmingHelper.IncludeBPhysTriggerContent        = True
-  #TOPQSlimmingHelper.IncludeMinBiasTriggerContent      = True
 
   #====================================
   # ADD AntiKT4EMPFlowJets MET OUTPUT
@@ -184,6 +192,7 @@ def setup(TOPQname, stream):
                  "AntiKt4EMPFlowJets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+                 "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                  ],
                 ["AntiKt3PV0TrackJets",
                  "AntiKt4PV0TrackJets",
