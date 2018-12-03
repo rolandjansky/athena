@@ -1,3 +1,4 @@
+#2018/11/24
 #====================================================================
 # BPHY15.py
 # Bc+>J/psiD_s+, Bc+>J/psiD+, Bc+>J/psiD*+, Bc+>J/psiD_s1+
@@ -46,9 +47,9 @@ BPHY15JpsiFinder = Analysis__JpsiFinder(
     TrackAndTrack              = False,
     assumeDiMuons              = True, 
     muonThresholdPt            = 2700,
-    invMassUpper               = 3600.0,
-    invMassLower               = 2600.0,
-    Chi2Cut                    = 30.,
+    invMassUpper               = 3400.0,
+    invMassLower               = 2800.0,
+    Chi2Cut                    = 10.,
     oppChargesOnly	       = True,
     combOnly		       = True,
     atLeastOneComb             = False,
@@ -94,7 +95,8 @@ BPHY15_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
     VtxMassHypo           = 3096.900,
     MassMin               = 2600.0,
     MassMax               = 3600.0,
-    Chi2Max               = 20,
+    Chi2Max               = 200,
+    LxyMin                = 0.1,
     DoVertexType          = 1)
   
 ToolSvc += BPHY15_Select_Jpsi2mumu
@@ -156,7 +158,7 @@ ToolSvc += BPHY15BcJpsipiSelectAndWrite
 print      BPHY15BcJpsipiSelectAndWrite
 
 #--------------------------------------------------------------------
-## c/ augment and select B_c+>Jpsi pi+ candidates
+## d/ augment and select B_c+>Jpsi pi+ candidates
 BPHY15_Select_Bc2Jpsipi = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Bc2Jpsipi",
     HypothesisName        = "Bc",
@@ -181,9 +183,11 @@ BPHY15JpsipiFinder = Analysis__JpsiPlus1Track(
     kaonHypothesis	    = False,#True,
     trkThresholdPt	    = 350.0,
     trkMaxEta               = 2.7,
-    BThresholdPt            = 100.0,
+    BThresholdPt            = 5000.0,
     BMassUpper	            = 3600.0,
     BMassLower	            = 3200.0,
+    TrkDeltaZ               = 20.,
+    TrkQuadrupletPt         = 5000,
     JpsiContainerKey        = "BPHY15JpsiCandidates",
     TrackParticleCollection = "InDetTrackParticles",
     MuonsUsedInJpsi         = "Muons",
@@ -205,88 +209,31 @@ BPHY15JpsipiSelectAndWrite = DerivationFramework__Reco_dimuTrk(
     OutputVtxContainerName = "BPHY15JpsipiCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
-    RefitPV                = True,
+   #RefitPV                = True,
     MaxPVrefit		   = 1000)
 
 ToolSvc += BPHY15JpsipiSelectAndWrite 
 print      BPHY15JpsipiSelectAndWrite
 
-
 #--------------------------------------------------------------------
-# 5/ select D0>pi+K- 
-#--------------------------------------------------------------------
-BPHY15D0Finder = Analysis__JpsiFinder(
-    name                       = "BPHY15D0Finder",
-    OutputLevel                = INFO,
-    muAndMu                    = False,
-    muAndTrack                 = False,
-    TrackAndTrack              = True,
-    assumeDiMuons              = False,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-    trackThresholdPt           = 700,
-    invMassUpper               = 2200.0,
-    invMassLower               = 1500.0,
-    Chi2Cut                    = 30.,
-    oppChargesOnly	       = True,
-    atLeastOneComb             = False,
-    useCombinedMeasurement     = False, # Only takes effect if combOnly=True	
-    muonCollectionKey          = "Muons",
-    TrackParticleCollection    = "InDetTrackParticles",
-    V0VertexFitterTool         = BPHY15_VertexTools.TrkV0Fitter,             # V0 vertex fitter
-    useV0Fitter                = False,                   # if False a TrkVertexFitterTool will be used
-    TrkVertexFitterTool        = BPHY15_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
-    TrackSelectorTool          = BPHY15_VertexTools.InDetTrackSelectorTool,
-    ConversionFinderHelperTool = BPHY15_VertexTools.InDetConversionHelper,
-    VertexPointEstimator       = BPHY15_VertexTools.VtxPointEstimator,
-    useMCPCuts                 = False,
-    track1Mass                 = 139.571, # Not very important, only used to calculate inv. mass cut, leave it loose here
-    track2Mass                 = 493.677)
+## c/ augment and select Jpsi pi+ candidates for the J/psi D*+ and J/psi D_s1+ modes
+BPHY15_Select_Jpsipi = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_Jpsipi",
+    HypothesisName        = "Jpsipi",
+    TrkMasses             = [105.658, 105.658, 139.571],
+    InputVtxContainerName = "BPHY15JpsipiCandidates",
+    VtxMassHypo           = 3396.900,
+    MassMin               = 3200.0,
+    MassMax               = 3600.0,
+    Chi2Max               = 200,
+    LxyMin                = 0.1,
+    DoVertexType          = 1)
   
-ToolSvc += BPHY15D0Finder
-print      BPHY15D0Finder
+ToolSvc += BPHY15_Select_Jpsipi
+print      BPHY15_Select_Jpsipi
 
 #--------------------------------------------------------------------
-BPHY15D0SelectAndWrite = DerivationFramework__Reco_mumu(
-    name                   = "BPHY15D0SelectAndWrite",
-    JpsiFinder             = BPHY15D0Finder,
-    OutputVtxContainerName = "BPHY15D0Candidates",
-    PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "SHOULDNOTBEUSED",
-    CheckCollections       = True,
-    CheckVertexContainers  = ['BPHY15JpsipiCandidates'],
-    DoVertexType           = 1)
-  
-ToolSvc += BPHY15D0SelectAndWrite
-print      BPHY15D0SelectAndWrite
-
-#--------------------------------------------------------------------
-# 6/ select K_S0>pi+pi- 
-#--------------------------------------------------------------------
-doSimpleV0Finder = False
-if doSimpleV0Finder:
-  include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
-else:
-  include("DerivationFrameworkBPhys/configureV0Finder.py")
-
-BPHY15_V0FinderTools = BPHYV0FinderTools("BPHY15")
-print BPHY15_V0FinderTools
-
-from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_V0Finder
-BPHY15_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
-    name                   = "BPHY15_Reco_V0Finder",
-    V0FinderTool           = BPHY15_V0FinderTools.V0FinderTool,
-    #OutputLevel            = DEBUG,
-    V0ContainerName        = "BPHY15RecoV0Candidates",
-    KshortContainerName    = "BPHY15RecoKshortCandidates",
-    LambdaContainerName    = "BPHY15RecoLambdaCandidates",
-    LambdabarContainerName = "BPHY15RecoLambdabarCandidates",
-    CheckVertexContainers  = ['BPHY15D0Candidates'])
-
-ToolSvc += BPHY15_Reco_V0Finder
-print BPHY15_Reco_V0Finder
-
-
-#--------------------------------------------------------------------
-# 7/ Select K+K- and K+pi-
+# 5/ Select K+K-, pi+K- and K+pi-
 #--------------------------------------------------------------------
 ## a/ Setup the vertex fitter tools
 BPHY15DiTrkFinder = Analysis__JpsiFinder(
@@ -296,10 +243,10 @@ BPHY15DiTrkFinder = Analysis__JpsiFinder(
     muAndTrack                 = False,
     TrackAndTrack              = True,
     assumeDiMuons              = False,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-    trackThresholdPt           = 700,
+    trackThresholdPt           = 900,
     invMassUpper               = 1900.0,
     invMassLower               = 280.0,
-    Chi2Cut                    = 30.,
+    Chi2Cut                    = 10.,
     oppChargesOnly	       = True,
     atLeastOneComb             = False,
     useCombinedMeasurement     = False, # Only takes effect if combOnly=True	
@@ -333,10 +280,40 @@ BPHY15DiTrkSelectAndWrite = DerivationFramework__Reco_mumu(
 ToolSvc += BPHY15DiTrkSelectAndWrite
 print      BPHY15DiTrkSelectAndWrite
 
+#--------------------------------------------------------------------
+## c/ augment and select D0 candidates
+BPHY15_Select_D0 = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_D0",
+    HypothesisName        = "D0",
+    InputVtxContainerName = "BPHY15DiTrkCandidates",
+    TrkMasses             = [139.571, 493.677],
+    VtxMassHypo           = 1864.83,
+    MassMin               = 1864.83-170,
+    MassMax               = 1864.83+170,
+    LxyMin                = 0.15,
+    Chi2Max               = 200)
 
+ToolSvc += BPHY15_Select_D0
+print      BPHY15_Select_D0
 
 #--------------------------------------------------------------------
-# 8/ select D_s+>K+K-pi+ and D+>K+pi-pi- candidates
+## d/ augment and select D0bar candidates
+BPHY15_Select_D0b = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_D0b",
+    HypothesisName        = "D0b",
+    InputVtxContainerName = "BPHY15DiTrkCandidates",
+    TrkMasses             = [493.677, 139.571],
+    VtxMassHypo           = 1864.83,
+    MassMin               = 1864.83-170,
+    MassMax               = 1864.83+170,
+    LxyMin                = 0.15,
+    Chi2Max               = 200)
+
+ToolSvc += BPHY15_Select_D0b
+print      BPHY15_Select_D0b
+
+#--------------------------------------------------------------------
+# 6/ select D_s+>K+K-pi+ and D+>K+pi-pi- candidates
 #--------------------------------------------------------------------
 ## a/ setup a new vertexing tool (necessary due to use of mass constraint) 
 Dh3VertexFit = Trk__TrkVKalVrtFitter(
@@ -355,13 +332,17 @@ BPHY15Dh3Finder = Analysis__JpsiPlus1Track(
     OutputLevel             = INFO,
     pionHypothesis          = True,
     kaonHypothesis          = False,
-    trkThresholdPt	    = 700.0,
+    trkThresholdPt	    = 900.0,
     trkMaxEta	            = 2.7, # is this value fine?? default would be 102.5
-    BThresholdPt            = 100.0,
+    BThresholdPt            = 2000.0,
+   #BThresholdPt            = 3000.0,
     BMassUpper              = 1800.0, # What is this??
     BMassLower       	    = 500.0,
+    TrkDeltaZ               = 20.,
     TrkTrippletMassUpper    = 1800,
     TrkTrippletMassLower    = 500,
+    TrkQuadrupletPt         = 2000,
+   #TrkQuadrupletPt         = 3000,
     JpsiContainerKey        = "BPHY15DiTrkCandidates",
     TrackParticleCollection = "InDetTrackParticles",
     MuonsUsedInJpsi         = "NONE", # ?
@@ -369,7 +350,7 @@ BPHY15Dh3Finder = Analysis__JpsiPlus1Track(
     TrkVertexFitterTool     = Dh3VertexFit,
     TrackSelectorTool       = BPHY15_VertexTools.InDetTrackSelectorTool,
     UseMassConstraint       = False, 
-    Chi2Cut                 = 30) #Cut on chi2/Ndeg_of_freedom, so is very loose
+    Chi2Cut                 = 5) #Cut on chi2/Ndeg_of_freedom
  
 ToolSvc += BPHY15Dh3Finder
 print      BPHY15Dh3Finder
@@ -390,7 +371,59 @@ print      BPHY15Dh3SelectAndWrite
 
 
 #--------------------------------------------------------------------
-# 9/ select Bc+>J/psi D_(s)+/-
+## d/ augment and select D_s+/- candidates
+BPHY15_Select_Ds = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_Ds",
+    HypothesisName        = "Ds",
+    TrkMasses             = [493.677, 493.677, 139.571],
+    InputVtxContainerName = "BPHY15Dh3Candidates",
+    VtxMassHypo           = 1968.28,
+    MassMin               = 1968.28-200,
+    MassMax               = 1968.28+200,
+    Chi2Max               = 200,
+    LxyMin                = 0.1,
+    DoVertexType          = 1)
+  
+ToolSvc += BPHY15_Select_Ds
+print      BPHY15_Select_Ds
+
+#--------------------------------------------------------------------
+## e/ augment and select D+ candidates
+BPHY15_Select_Dp = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_Dp",
+    HypothesisName        = "Dp",
+    TrkMasses             = [139.571, 493.677, 139.571],
+    InputVtxContainerName = "BPHY15Dh3Candidates",
+    VtxMassHypo           = 1869.59,
+    MassMin               = 1869.59-200,
+    MassMax               = 1869.59+200,
+    Chi2Max               = 200,
+    LxyMin                = 0.1,
+    DoVertexType          = 1)
+  
+ToolSvc += BPHY15_Select_Dp
+print      BPHY15_Select_Dp
+
+#--------------------------------------------------------------------
+## c/ augment and select D- candidates
+BPHY15_Select_Dm = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_Dm",
+    HypothesisName        = "Dm",
+    TrkMasses             = [493.677, 139.571, 139.571],
+    InputVtxContainerName = "BPHY15Dh3Candidates",
+    VtxMassHypo           = 1869.59,
+    MassMin               = 1869.59-200,
+    MassMax               = 1869.59+200,
+    Chi2Max               = 200,
+    LxyMin                = 0.1,
+    DoVertexType          = 1)
+  
+ToolSvc += BPHY15_Select_Dm
+print      BPHY15_Select_Dm
+
+
+#--------------------------------------------------------------------
+# 7/ select Bc+>J/psi D_(s)+/-
 #--------------------------------------------------------------------
 ## a/ setup the cascade vertexing tool
 BcJpsiDxVertexFit = Trk__TrkVKalVrtFitter(
@@ -414,12 +447,13 @@ BPHY15JpsiDs = DerivationFramework__JpsiPlusDsCascade(
     DxHypothesis             = 431,
     ApplyDxMassConstraint    = True,
     ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    DxMassLowerCut           = 1968.28 - 300.,
-    DxMassUpperCut           = 1968.28 + 300.,
+    JpsiMassLowerCut         = 2600.,
+    JpsiMassUpperCut         = 3600.,
+    DxMassLowerCut           = 1968.28 - 200.,
+    DxMassUpperCut           = 1968.28 + 200.,
     MassLowerCut             = 6274.90 - 600.,
     MassUpperCut             = 6274.90 + 600.,
+    Chi2Cut 	             = 10,
     RefitPV                  = True,
     RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
     JpsiVertices             = "BPHY15JpsiCandidates",
@@ -438,12 +472,13 @@ BPHY15JpsiDp = DerivationFramework__JpsiPlusDsCascade(
     DxHypothesis             = 411,
     ApplyDxMassConstraint    = True,
     ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    DxMassLowerCut           = 1869.59 - 300.,
-    DxMassUpperCut           = 1869.59 + 300.,
+    JpsiMassLowerCut         = 2600.,
+    JpsiMassUpperCut         = 3600.,
+    DxMassLowerCut           = 1869.59 - 180.,
+    DxMassUpperCut           = 1869.59 + 180.,
     MassLowerCut             = 6274.90 - 600.,
     MassUpperCut             = 6274.90 + 600.,
+    Chi2Cut 	             = 10,
     RefitPV                  = True,
     RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
     JpsiVertices             = "BPHY15JpsiCandidates",
@@ -454,31 +489,7 @@ ToolSvc += BPHY15JpsiDp
 print      BPHY15JpsiDp
 
 #--------------------------------------------------------------------
-## d/ setup the Jpsi D- finder
-BPHY15JpsiDm = DerivationFramework__JpsiPlusDsCascade(
-    name                     = "BPHY15JpsiDm",
-    HypothesisName           = "Bc",
-    TrkVertexFitterTool      = BcJpsiDxVertexFit,
-    DxHypothesis             = -411,
-    ApplyDxMassConstraint    = True,
-    ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    DxMassLowerCut           = 1869.59 - 300.,
-    DxMassUpperCut           = 1869.59 + 300.,
-    MassLowerCut             = 6274.90 - 600.,
-    MassUpperCut             = 6274.90 + 600.,
-    RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
-    JpsiVertices             = "BPHY15JpsiCandidates",
-    CascadeVertexCollections = ["BcJpsiDmCascadeSV2", "BcJpsiDmCascadeSV1"],
-    DxVertices               = "BPHY15Dh3Candidates")
-
-ToolSvc += BPHY15JpsiDm
-print      BPHY15JpsiDm
-
-#--------------------------------------------------------------------
-# 10/ select Bc+>J/psi D*+/-
+# 8/ select Bc+>J/psi D*+/-
 #--------------------------------------------------------------------
 ## a/ setup the cascade vertexing tool
 BcJpsiDstVertexFit = Trk__TrkVKalVrtFitter(
@@ -502,61 +513,108 @@ BPHY15JpsiDpst = DerivationFramework__JpsiPlusDpstCascade(
     DxHypothesis             = 421,
     ApplyD0MassConstraint    = True,
     ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    JpsipiMassLowerCut       = 2400.,
+    JpsiMassLowerCut         = 2600.,
+    JpsiMassUpperCut         = 3600.,
+    JpsipiMassLowerCut       = 2600.,
     JpsipiMassUpperCut       = 6800.,
-    D0MassLowerCut           = 1864.83 - 300.,
-    D0MassUpperCut           = 1864.83 + 300.,
+    D0MassLowerCut           = 1864.83 - 200.,
+    D0MassUpperCut           = 1864.83 + 200.,
     DstMassLowerCut          = 2010.26 - 300.,
     DstMassUpperCut          = 2010.26 + 300.,
-    MassLowerCut             = 6274.90 - 600,
+    MassLowerCut             = 5400,
     MassUpperCut             = 6274.90 + 600.,
+    Chi2Cut 	             = 10,
     RefitPV                  = True,
     RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
     JpsipiVertices           = "BPHY15JpsipiCandidates",
     CascadeVertexCollections = ["BcJpsiDpstCascadeSV2", "BcJpsiDpstCascadeSV1"],
-    D0Vertices               = "BPHY15D0Candidates")
+    D0Vertices               = "BPHY15DiTrkCandidates")
 
 ToolSvc += BPHY15JpsiDpst
 print      BPHY15JpsiDpst
 
-#--------------------------------------------------------------------
-## c/ setup Jpsi D*- finder
-BPHY15JpsiDmst = DerivationFramework__JpsiPlusDpstCascade(
-    name                     = "BPHY15JpsiDmst",
-    HypothesisName           = "Bc",
-    TrkVertexFitterTool      = BcJpsiDstVertexFit,
-    DxHypothesis             = -421,
-    ApplyD0MassConstraint    = True,
-    ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    JpsipiMassLowerCut       = 2400.,
-    JpsipiMassUpperCut       = 6800.,
-    D0MassLowerCut           = 1864.83 - 300.,
-    D0MassUpperCut           = 1864.83 + 300.,
-    DstMassLowerCut          = 2010.26 - 300.,
-    DstMassUpperCut          = 2010.26 + 300.,
-    MassLowerCut             = 6274.90 - 600,
-    MassUpperCut             = 6274.90 + 600.,
-    RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
-    JpsipiVertices           = "BPHY15JpsipiCandidates",
-    CascadeVertexCollections = ["BcJpsiDmstCascadeSV2", "BcJpsiDmstCascadeSV1"],
-    D0Vertices               = "BPHY15D0Candidates")
-
-ToolSvc += BPHY15JpsiDmst
-print      BPHY15JpsiDmst
 
 
 #--------------------------------------------------------------------
-# 11/ select Bc+>J/psi D_s1+/-
+# 9/ select K_S0>pi+pi- 
+#--------------------------------------------------------------------
+
+include("DerivationFrameworkBPhys/configureV0Finder.py")
+BPHY15_K0FinderTools = BPHYV0FinderTools("BPHY15")
+print BPHY15_K0FinderTools
+
+## a/ Setup the vertex fitter tools
+BPHY15K0Finder = Analysis__JpsiFinder(
+    name                       = "BPHY15K0Finder",
+    OutputLevel                = INFO,
+    muAndMu                    = False,
+    muAndTrack                 = False,
+    TrackAndTrack              = True,
+    assumeDiMuons              = False,    # If true, will assume dimu hypothesis and use PDG value for mu mass
+    trackThresholdPt           = 400,
+   #trackThresholdPt           = 500,
+    invMassUpper               = 600.0,
+    invMassLower               = 400.0,
+    Chi2Cut                    = 20,
+   #Chi2Cut                    = 5.,
+    oppChargesOnly	       = True,
+    atLeastOneComb             = False,
+    useCombinedMeasurement     = False, # Only takes effect if combOnly=True	
+    muonCollectionKey          = "Muons",
+    TrackParticleCollection    = "InDetTrackParticles",
+    V0VertexFitterTool         = BPHY15_VertexTools.TrkV0Fitter,             # V0 vertex fitter
+    useV0Fitter                = True,                   # if False a TrkVertexFitterTool will be used
+   #useV0Fitter                = False,                   # if False a TrkVertexFitterTool will be used
+    TrkVertexFitterTool        = BPHY15_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
+   #TrackSelectorTool          = BPHY15_VertexTools.InDetTrackSelectorTool,
+    TrackSelectorTool          = BPHY15_K0FinderTools.InDetV0VxTrackSelector,
+    VertexPointEstimator       = BPHY15_K0FinderTools.V0VtxPointEstimator,
+   #VertexPointEstimator       = BPHY15_VertexTools.VtxPointEstimator,
+    ConversionFinderHelperTool = BPHY15_VertexTools.InDetConversionHelper,
+    useMCPCuts                 = False,
+    track1Mass                 = 139.571, # Not very important, only used to calculate inv. mass cut, leave it loose here
+    track2Mass                 = 139.571)
+  
+ToolSvc += BPHY15K0Finder
+print      BPHY15K0Finder
+
+#--------------------------------------------------------------------
+## b/ setup the vertex reconstruction "call" tool(s).
+BPHY15K0SelectAndWrite = DerivationFramework__Reco_mumu(
+    name                   = "BPHY15K0SelectAndWrite",
+    JpsiFinder             = BPHY15K0Finder,
+    OutputVtxContainerName = "BPHY15K0Candidates",
+    PVContainerName        = "PrimaryVertices",
+    RefPVContainerName     = "SHOULDNOTBEUSED",
+    CheckCollections       = True,
+    CheckVertexContainers  = ['BPHY15JpsipiCandidates','BPHY15DiTrkCandidates','BcJpsiDpstCascadeSV1'],
+    DoVertexType           = 1)
+  
+ToolSvc += BPHY15K0SelectAndWrite
+print      BPHY15K0SelectAndWrite
+
+#--------------------------------------------------------------------
+## c/ augment and select K_S0 candidates
+BPHY15_Select_K0 = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY15_Select_K0",
+    HypothesisName        = "K0",
+    InputVtxContainerName = "BPHY15K0Candidates",
+    TrkMasses             = [139.571, 139.571],
+    VtxMassHypo           = 497.672,
+    MassMin               = 400,
+    MassMax               = 600,
+    LxyMin                = 0.2,
+    Chi2Max               = 200)
+
+ToolSvc += BPHY15_Select_K0
+print      BPHY15_Select_K0
+
+#--------------------------------------------------------------------
+# 10/ select Bc+>J/psi D_s1+/-
 #--------------------------------------------------------------------
 ## a/ setup the cascade vertexing tool
 BcJpsiDs1VertexFit = Trk__TrkVKalVrtFitter(
     name                 = "BcJpsiDs1VertexFit",
-   #OutputLevel          = DEBUG,
     Extrapolator         = BPHY15_VertexTools.InDetExtrapolator,
    #FirstMeasuredPoint   = True,
     FirstMeasuredPoint   = False,
@@ -577,71 +635,38 @@ BPHY15JpsiDps1 = DerivationFramework__JpsiPlusDs1Cascade(
     ApplyD0MassConstraint    = True,
     ApplyK0MassConstraint    = True,
     ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    JpsipiMassLowerCut       = 2400.,
+    JpsiMassLowerCut         = 2600.,
+    JpsiMassUpperCut         = 3600.,
+    JpsipiMassLowerCut       = 2600.,
     JpsipiMassUpperCut       = 6800.,
-    D0MassLowerCut           = 1864.83 - 300.,
-    D0MassUpperCut           = 1864.83 + 300.,
-    K0MassLowerCut           = 300.,
-    K0MassUpperCut           = 700.,
+    D0MassLowerCut           = 1864.83 - 180.,
+    D0MassUpperCut           = 1864.83 + 180.,
+    K0MassLowerCut           = 400.,
+    K0MassUpperCut           = 600.,
     DstMassLowerCut          = 2010.26 - 300.,
     DstMassUpperCut          = 2010.26 + 300.,
     MassLowerCut             = 6274.90 - 600,
     MassUpperCut             = 6274.90 + 600.,
+    Chi2Cut 	             = 10,
     RefitPV                  = True,
     RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
     JpsipiVertices           = "BPHY15JpsipiCandidates",
     CascadeVertexCollections = ["BcJpsiDps1CascadeSV3", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV1"],
-    K0Vertices               = "BPHY15RecoV0Candidates",
-    D0Vertices               = "BPHY15D0Candidates")
+    K0Vertices               = "BPHY15K0Candidates",
+    D0Vertices               = "BPHY15DiTrkCandidates")
 
 ToolSvc += BPHY15JpsiDps1
 print      BPHY15JpsiDps1
 
-#--------------------------------------------------------------------
-## c/ setup Jpsi D_s1- finder
-BPHY15JpsiDms1 = DerivationFramework__JpsiPlusDs1Cascade(
-    name                     = "BPHY15JpsiDms1",
-    HypothesisName           = "Bc",
-    TrkVertexFitterTool      = BcJpsiDs1VertexFit,
-    DxHypothesis             = -421,
-    ApplyD0MassConstraint    = True,
-    ApplyK0MassConstraint    = True,
-    ApplyJpsiMassConstraint  = True,
-    JpsiMassLowerCut         = 2400.,
-    JpsiMassUpperCut         = 3800.,
-    JpsipiMassLowerCut       = 2400.,
-    JpsipiMassUpperCut       = 6800.,
-    D0MassLowerCut           = 1864.83 - 300.,
-    D0MassUpperCut           = 1864.83 + 300.,
-    K0MassLowerCut           = 300.,
-    K0MassUpperCut           = 700.,
-    DstMassLowerCut          = 2010.26 - 300.,
-    DstMassUpperCut          = 2010.26 + 300.,
-    MassLowerCut             = 6274.90 - 600,
-    MassUpperCut             = 6274.90 + 600.,
-    RefitPV                  = True,
-    RefPVContainerName       = "BPHY15RefittedPrimaryVertices",
-    JpsipiVertices           = "BPHY15JpsipiCandidates",
-    CascadeVertexCollections = ["BcJpsiDms1CascadeSV3", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV1"],
-    K0Vertices               = "BPHY15RecoV0Candidates",
-    D0Vertices               = "BPHY15D0Candidates")
-
-ToolSvc += BPHY15JpsiDms1
-print BPHY15JpsiDms1
 #--------------------------------------------------------------------
 
 CascadeCollections = []
 
 CascadeCollections += BPHY15JpsiDs.CascadeVertexCollections
 CascadeCollections += BPHY15JpsiDp.CascadeVertexCollections
-CascadeCollections += BPHY15JpsiDm.CascadeVertexCollections
 
 CascadeCollections += BPHY15JpsiDpst.CascadeVertexCollections
-CascadeCollections += BPHY15JpsiDmst.CascadeVertexCollections
 CascadeCollections += BPHY15JpsiDps1.CascadeVertexCollections
-CascadeCollections += BPHY15JpsiDms1.CascadeVertexCollections
 
 #--------------------------------------------------------------------
 
@@ -650,7 +675,7 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY15_SelectBcJpsipiEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY15_SelectBcJpsipiEvent",
-     expression = "(count(BPHY15BcJpsipiCandidates.passed_Bc > 0) + count(BcJpsiDsCascadeSV1.x > -999) + count(BcJpsiDpCascadeSV1.x > -999) + count(BcJpsiDmCascadeSV1.x > -999) + count(BcJpsiDpstCascadeSV1.x > -999) + count(BcJpsiDmstCascadeSV1.x > -999) + count(BcJpsiDps1CascadeSV1.x > -999) + count(BcJpsiDms1CascadeSV1.x > -999) ) > 0")
+     expression = "( count(BPHY15BcJpsipiCandidates.passed_Bc > 0) + count(BcJpsiDsCascadeSV1.x > -999) + count(BcJpsiDpCascadeSV1.x > -999) + count(BcJpsiDpstCascadeSV1.x > -999) + count(BcJpsiDps1CascadeSV1.x > -999) ) > 0")
    
    ToolSvc += BPHY15_SelectBcJpsipiEvent
    print      BPHY15_SelectBcJpsipiEvent
@@ -683,7 +708,7 @@ BPHY15_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
     name                       = "BPHY15_thinningTool_Tracks",
     ThinningService            = "BPHY15ThinningSvc",
     TrackParticleContainerName = "InDetTrackParticles",
-    VertexContainerNames       = ["BPHY15BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDmCascadeSV1","BcJpsiDmCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDmstCascadeSV1", "BcJpsiDmstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3", "BcJpsiDms1CascadeSV1", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV3"],
+    VertexContainerNames       = ["BPHY15BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3"],
     PassFlags                  = ["passed_Bc"])
 
 ToolSvc += BPHY15_thinningTool_Tracks
@@ -693,7 +718,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY15_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
     name                 = "BPHY15_thinningTool_PV",
     ThinningService      = "BPHY15ThinningSvc",
-    CandidateCollections = ["BPHY15BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDmCascadeSV1","BcJpsiDmCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDmstCascadeSV1", "BcJpsiDmstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3", "BcJpsiDms1CascadeSV1", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV3"],
+    CandidateCollections = ["BPHY15BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3"],
     KeepPVTracks         = True)
 
 ToolSvc += BPHY15_thinningTool_PV
@@ -725,14 +750,14 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY15Kernel",
     AugmentationTools = [BPHY15JpsiSelectAndWrite, BPHY15_Select_Jpsi2mumu,
                          BPHY15BcJpsipiSelectAndWrite, BPHY15_Select_Bc2Jpsipi,
-                         BPHY15JpsipiSelectAndWrite,
-                         BPHY15D0SelectAndWrite,
-                         BPHY15_Reco_V0Finder, 
-                         BPHY15DiTrkSelectAndWrite,
-                         BPHY15Dh3SelectAndWrite,
-                         BPHY15JpsiDs, BPHY15JpsiDp, BPHY15JpsiDm, 
-                         BPHY15JpsiDpst, BPHY15JpsiDmst,
-                         BPHY15JpsiDps1, BPHY15JpsiDms1,
+                         BPHY15JpsipiSelectAndWrite, BPHY15_Select_Jpsipi,
+                         BPHY15DiTrkSelectAndWrite, BPHY15_Select_D0, BPHY15_Select_D0b,
+                         BPHY15Dh3SelectAndWrite, BPHY15_Select_Ds, BPHY15_Select_Dp, BPHY15_Select_Dm,
+                         BPHY15JpsiDs,
+                         BPHY15JpsiDp,
+                         BPHY15JpsiDpst,
+                         BPHY15K0SelectAndWrite, BPHY15_Select_K0,
+                         BPHY15JpsiDps1,
                          BPHY15_AugOriginalCounts],
     #Only skim if not MC
     SkimmingTools     = [BPHY15SkimmingOR] if not isSimulation else [],
@@ -796,6 +821,22 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY15Jpsi
 ## Bc+>J/psi pi+ candidates
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY15BcJpsipiSelectAndWrite.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY15BcJpsipiSelectAndWrite.OutputVtxContainerName]
+
+## K+K-, Kpi, D0/D0bar candidates
+#StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY15DiTrkSelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY15DiTrkSelectAndWrite.OutputVtxContainerName]
+
+## D_(s)+/- candidates
+#StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY15Dh3SelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY15Dh3SelectAndWrite.OutputVtxContainerName]
+
+## Jpsi pi+ candidates
+#StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY15JpsipiSelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY15JpsipiSelectAndWrite.OutputVtxContainerName]
+
+## K_S0 candidates
+#StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY15K0SelectAndWrite.OutputVtxContainerName]
+#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY15K0SelectAndWrite.OutputVtxContainerName]
 
 ## Bc+>J/psi D_(s)+/-, J/psi D*+/- and J/psi D_s1+/- candidates
 for cascades in CascadeCollections:
