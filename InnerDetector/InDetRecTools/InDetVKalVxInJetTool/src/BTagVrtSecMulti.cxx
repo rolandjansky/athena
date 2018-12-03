@@ -259,7 +259,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       for(int iv=0; iv<NSoluI-1; iv++ ){  for(int jv=iv+1; jv<NSoluI; jv++){
           if(!(*WrkVrtSet)[iv].Good || !(*WrkVrtSet)[jv].Good)    continue;
           int nTCom=nTrkCommon( WrkVrtSet, iv, jv);     if(!nTCom)continue;
-          vrtWithCommonTrk.emplace(nTCom,std::pair(iv,jv));
+          vrtWithCommonTrk.emplace(nTCom,std::make_pair(iv,jv));
       } }
       //============================== DEBUG output
       //printWrkSet(WrkVrtSet,"InitialVrts");
