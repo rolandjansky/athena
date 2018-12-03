@@ -89,7 +89,8 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
       const std::vector<int>& result_measureType = trkprt.auxdata< std::vector<int> >("measurement_type");
       const std::vector<int>& result_region = trkprt.auxdata< std::vector<int> >("measurement_region");
       std::vector<int> result_iLayer;
-      if (m_fillAdditionalITkPlots) result_iLayer = trkprt.auxdecor<std::vector<int> >("measurement_iLayer");
+      SG::AuxElement::ConstAccessor<std::vector<int>> iLayer ("measurement_iLayer");
+      if (!iLayer.isAvailable(trkprt) && m_fillAdditionalITkPlots) result_iLayer = trkprt.auxdecor<std::vector<int> >("measurement_iLayer");
       // NP: this should be fine... residual filled with -1 if not hit
 
       for (unsigned int idx = 0; idx < result_region.size(); ++idx) {
@@ -98,7 +99,7 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
         const int det = result_det[idx]; // LAYER TYPE L0PIXBARR / PIXEL / ...
         const int region = result_region[idx]; // BARREL OR ENDCAP
         int layer = 0;
-	if (m_fillAdditionalITkPlots) layer = result_iLayer[idx];
+	if (!iLayer.isAvailable(trkprt) && m_fillAdditionalITkPlots) layer = result_iLayer[idx];
 	float eta = std::fabs(trkprt.eta());
         if (det == DBM) {
           continue; // ignore DBM
