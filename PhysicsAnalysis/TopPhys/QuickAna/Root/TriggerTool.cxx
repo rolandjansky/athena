@@ -459,7 +459,7 @@ namespace ana
     ANA_CHECK( TrigSFTool->setProperty("MuonSFstring", MuonSFstring) );
     ANA_CHECK( TrigSFTool->setProperty("IsData",args.configuration()->isData()) );
     ANA_CHECK( TrigSFTool->setProperty("IsAF2",args.configuration()->isAFII()) );
-    trigPtThresh *= 1.05;//Muon trigger tool requires offline pt = 1.05 * online
+    trigPtThresh += 1.0; //Muon trigger tool requires offline pt = online + 1.0
     ANA_CHECK( TrigSFTool->setProperty("TriggerPtThreshold", trigPtThresh) );
     ANA_CHECK( TrigSFTool->setProperty("TriggerYear", static_cast<int>(year)) );
     args.add( std::move(TrigSFTool) );
