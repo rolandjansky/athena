@@ -127,9 +127,9 @@ StatusCode TileBeamInfoProvider::initialize() {
 
   m_calibMode = 0xFFFFFFFF;
 
+  ATH_CHECK( m_tileBadChanTool.retrieve() );
 
   if (m_simulateTrips) {
-    CHECK( m_tileBadChanTool.retrieve() );
     CHECK( m_rndmSvc.retrieve());
     m_pHRengine = m_rndmSvc->GetEngine("Tile_CondToolTrip");
     m_rndmVec = new double[TileCalibUtils::MAX_DRAWER];
@@ -639,8 +639,8 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
                        << coll->identify() << MSG::dec
                        << " size=" << coll->size());
 
-        m_DQstatus.fillArrays(coll, 0);
-        m_DQstatus.fillArrays(coll, 1);
+        m_DQstatus.fillArrays(coll, 0, m_tileBadChanTool);
+        m_DQstatus.fillArrays(coll, 1, m_tileBadChanTool);
       }
       if (m_evt == 1 && m_DQstatus.nonZeroCounter() == 0) {
         ATH_MSG_INFO("all DQ elements are empty - don't check DQ flags");
@@ -718,7 +718,8 @@ TileDQstatus::~TileDQstatus() {
 
 // Fucntion to fill error arrays from DQ fragment stores in DSP RawChannelContainer
 // If monogain run, both gains contain the same results
-void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain) {
+void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain,
+                              const ToolHandle<ITileBadChanTool>& tileBadChanTool) {
 
   int frag = coll->identify();
   int partition = (frag >> 8); // 0=AUX,1=LBA,2=LBC,3=EBA,4=EBC
@@ -730,7 +731,6 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain) {
   // attention! it's assignment below, i.e. only single "=", not "=="
   // LF: ... which is something very dangerous. Does it provide any speed advantage?
   if ((m_GlobalCRCErrArray[partition][drawer][gain] = coll->getFragGlobalCRC()))    ++m_counter;
-  if ((m_BCIDErrArray[partition][drawer][gain] = coll->getFragBCID()))              ++m_counter;
   if ((m_MemoryParityErrArray[partition][drawer][gain] = coll->getFragMemoryPar())) ++m_counter;
   if ((m_SingleStrobeErrArray[partition][drawer][gain] = coll->getFragSstrobe()))   ++m_counter;
   if ((m_DoubleStrobeErrArray[partition][drawer][gain] = coll->getFragDstrobe()))   ++m_counter;
@@ -749,8 +749,39 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain) {
     ++m_counter;
   }
 
-  unsigned short BCIDerr =
-      (unsigned short) m_BCIDErrArray[partition][drawer][gain];
+  unsigned short fragBCID = coll->getFragBCID();
+  unsigned short existingDMUs = 0xFFFF;
+  if (eb) { // do not count non-existing DMUs in EB
+    existingDMUs = (ebsp) ? 0x3cfe : 0x3cff;
+  }
+
+  unsigned short BCIDerr = fragBCID & existingDMUs;
+
+  if (BCIDerr) {
+    unsigned short wrongBCID(0);
+    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(partition, drawer);
+    for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+      if (tileBadChanTool->getChannelStatus(drawerIdx, channel).isWrongBCID()) {
+        int dmu = channel / 3;
+        if (dmu == 1) {
+          // If BCID in 2nd DMU is wrong then there is no sence
+          // to check BCID in other DMUs because they are compared with this one.
+          // So it is assumed that BCID in all DMU are wrong.
+          wrongBCID = 0xFFFF & existingDMUs;
+          break;
+        }
+
+        wrongBCID |= (1U << dmu);
+      }
+    }
+
+    BCIDerr &= ~wrongBCID;
+    fragBCID &= ~wrongBCID;
+  }
+
+  m_BCIDErrArray[partition][drawer][gain] = fragBCID;
+  if (fragBCID) ++m_counter;
+
   if (BCIDerr & 0x2) { // DMU1 (second DMU) is bad - can not trust others 
     m_BCIDErrArray[partition][drawer][gain] = -1;
   } else {
@@ -761,13 +792,6 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain) {
       ++m_counter;
     } else {
       int n_badMB = 0;
-      if (eb) { // do not count non-existing DMUs in EB
-        if (ebsp) {
-          BCIDerr &= 0x3cfe;
-        } else {
-          BCIDerr &= 0x3cff;
-        }
-      }
       while (BCIDerr) {
         if (BCIDerr & 0xF)
           ++n_badMB;
@@ -783,8 +807,11 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll, int gain) {
     }
   }
 
-  if ((m_BCIDErrArray[partition][drawer][gain] & 0x2) && m_checkDigi)
-      fillBCIDErrDetail(frag, gain);
+  if ((m_BCIDErrArray[partition][drawer][gain] & 0x2) && m_checkDigi) {
+    fillBCIDErrDetail(frag, gain);
+  } else {
+    m_BCIDErrArrayDetail[partition][drawer][gain] = fragBCID;
+  }
   
   if (m_HeaderFormatErrArray[partition][drawer][gain]
       || m_HeaderParityErrArray[partition][drawer][gain]

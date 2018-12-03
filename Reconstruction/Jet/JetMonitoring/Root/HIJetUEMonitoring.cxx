@@ -40,6 +40,7 @@ int HIJetUEMonitoring::buildHistos(){
   m_FCALET = bookHisto( hbuilder.build<TH1F>("FCalET") ); 
 
  //inclusive
+  m_2dSubtractedET_pT = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_pT") ); 
   m_SubtractedET_Centrality = bookHisto( hbuilder.build<TProfile>("SubtractedET_Centrality") ); 
   m_2dSubtractedET_Centrality = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_Centrality") ); 
   m_2dSubtractedET_Expected_Centrality = bookHisto( hbuilder.build<TH2F>("2dSubtractedET_Expected_Centrality") ); 
@@ -175,7 +176,7 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
   // float diff = fabs(j.getAttribute<float>("JetSubtractedScaleMomentum_phi") - m_psiN_FCal);
   // while (diff > TMath::Pi()/2. ) diff = TMath::Pi() - diff;
 
-  if (fabs(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"))<2.1){
+  if (fabs(j.getAttribute<float>("JetEtaJESScaleMomentum_eta"))<2.8){
     if (m_FCalET > 2.7){//0-10%
       m_SubtractedET_pt_0_10->Fill(j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV,SubtractedET ); 
     }
@@ -191,6 +192,9 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
   }
 
   if (j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV > m_ptcut){
+    // ATH_MSG_INFO(" FCal ET: "<< m_FCalET<<"  SubtractedE:, "<<SubtractedET<<" m_psiN_FCal: "<<m_psiN_FCal<<" Acos: "<<Acos <<" m_vN_fcal: "<<m_vN_fcal<<" ptcut: "<<m_ptcut);
+    m_2dSubtractedET_pT->Fill( j.getAttribute<float>("JetEtaJESScaleMomentum_pt")*toGeV, SubtractedET);
+
     m_SubtractedET_Centrality->Fill( m_FCalET, SubtractedET);
     m_2dSubtractedET_Centrality->Fill( m_FCalET, SubtractedET);
     m_2dSubtractedET_Expected_Centrality->Fill( m_FCalET, (SubtractedET/m_FCalET)*0.025);

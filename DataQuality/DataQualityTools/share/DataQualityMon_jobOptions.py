@@ -35,7 +35,7 @@ if athenaCommonFlags.isOnline==True:
 
 from RecExConfig.RecFlags import rec
 if rec.doHeavyIon():
-    JetCollectionKey='antikt4HIItrEM_TowerJets'
+    JetCollectionKey='AntiKt4HIJets'
 else:
     JetCollectionKey='AntiKt4EMTopoJets'
                         

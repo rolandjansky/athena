@@ -10,6 +10,8 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+using namespace std;
+
 class ZDCTriggerEfficiency{
   public:
 	bool _haveParams;
@@ -66,11 +68,11 @@ public:
     for (int side : {0, 1}) { 
       _effParams[side] = effParams[side];
       _effParamErrors[side] = effParamErrors[side];
-      for (int iarr=0;iarr<3;iarr++)
-	{
-	  _effParams[side].at(iarr)->Print();
-	  _effParamErrors[side].at(iarr)->Print();
-	}
+      //for (int iarr=0;iarr<3;iarr++)
+	//{
+	  //_effParams[side].at(iarr)->Print();
+	  //_effParamErrors[side].at(iarr)->Print();
+	//}
     }
 
     _minLB = _effParams[0][0]->GetXmin();
@@ -82,18 +84,18 @@ public:
   {
     for (int side : {0, 1}) { 
       _effParamCorrCoeffs[side] = effParamsCorrCoeffs[side];
-      for (int iarr=0;iarr<3;iarr++)
-	{
-	  _effParamCorrCoeffs[side].at(iarr)->Print();
-	}
+      //for (int iarr=0;iarr<3;iarr++)
+	//{
+	  //_effParamCorrCoeffs[side].at(iarr)->Print();
+	//}
     }
 
     _haveCorrCoeffs = true;
   }
 
-  float GetEfficiency(int side, float ADCSum);
-
-  std::pair<float, float> GetEfficiencyAndError(int side, float ADCSum);
+  double GetEfficiency(int side, float ADCSum);
+  
+  std::pair<double, double> GetEfficiencyAndError(int side, float ADCSum);
 
 };
 

@@ -13,31 +13,32 @@ StatusCode RecoPhotonHistograms::initializePlots() {
 
   ATH_CHECK(ParticleHistograms::initializePlots());
 
-  histoMap["convRadius"] = new TH1D(Form("%s_%s",m_name.c_str(),"convRadius"), ";Conversion Radius [mm]; Conversion Radius Events", 14, m_cR_bins);
+  histoMap["convRadius"] = new TH1D(Form("%s_%s",m_name.c_str(),"convRadius"), ";Conversion Radius [mm]; Events", 14, m_cR_bins);
 
   ATH_CHECK(m_rootHistSvc->regHist(m_folder+"convRadius", histoMap["convRadius"]));
 
   return StatusCode::SUCCESS;
 }
 
-void RecoPhotonHistograms::fill(const xAOD::IParticle& phrec) {
+void RecoPhotonHistograms::fill(const xAOD::Photon& phrec) {
 
+  double trueR(-999);
+  
   ParticleHistograms::fill(phrec);
+ 
+  const xAOD::TruthParticle *tmp = xAOD::TruthHelpers::getTruthParticle(phrec);
 
-  m_tmp = xAOD::TruthHelpers::getTruthParticle(phrec);
-  m_trueR = -999;
+  if (tmp) {
+    if (tmp->pdgId() == 22 && tmp->hasDecayVtx()) {
 
-  if (m_tmp) {
-    if (m_tmp->pdgId() == 22 && m_tmp->hasDecayVtx()) {
-
-      m_x     = m_tmp->decayVtx()->x();
-      m_y     = m_tmp->decayVtx()->y();
-      m_trueR = sqrt( m_x*m_x + m_y*m_y );
+      float x = tmp->decayVtx()->x();
+      float y = tmp->decayVtx()->y();
+      trueR = sqrt( x*x + y*y );
 
     }
   }
 
-  histoMap["convRadius"]->Fill(m_trueR);
+  histoMap["convRadius"]->Fill(trueR);
 
   
 } // fill

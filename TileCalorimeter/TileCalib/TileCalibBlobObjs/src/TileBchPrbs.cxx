@@ -60,6 +60,7 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::BrokenClearFibre       ] = "Broken clear fibre";
   m_prbNames[TileBchPrbs::IgnoreCs               ] = "Ignore cesium";
   m_prbNames[TileBchPrbs::UnstableCs             ] = "Unstable cesium";
+  m_prbNames[TileBchPrbs::WrongBCID              ] = "Wrong BCID";
 
   //=== DSP
   m_prbNames[TileBchPrbs::IgnoredInDsp           ] = "Ignored in DSP";
@@ -70,10 +71,12 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::TrigNoGain             ] = "LV1 channel no gain";
   m_prbNames[TileBchPrbs::TrigHalfGain           ] = "LV1 channel half gain";
   m_prbNames[TileBchPrbs::TrigNoisy              ] = "LV1 channel noisy";
+  m_prbNames[TileBchPrbs::DisableForL1           ] = "Channel disabled for LV1";
 
   //=== online channel
   m_prbNames[TileBchPrbs::OnlineBadTiming        ] = "Online bad timing";
 
   //=== online adc
   m_prbNames[TileBchPrbs::OnlineGeneralMaskAdc   ] = "Online ADC masked (unspecified)";
+  m_prbNames[TileBchPrbs::OnlineWrongBCID        ] = "Online wrong BCID";
 }
