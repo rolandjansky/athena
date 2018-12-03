@@ -1,0 +1,942 @@
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : 0
+Beam.Type                                : 'collisions'
+Beam.estimatedLuminosity                 : [function]
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.isOnline                          : False
+GeoModel.Layout                          : 'atlas'
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.isMC                               : [function]
+LAr.RawChannelSource                     : [function]
+LAr.doAlign                              : [function]
+LAr.doCellEmMisCalib                     : [function]
+LAr.doCellNoiseMasking                   : True
+LAr.doCellSporadicNoiseMasking           : True
+LAr.doHVCorr                             : [function]
+Muon.Align.UseALines                     : False
+Muon.Align.UseAsBuilt                    : False
+Muon.Align.UseBLines                     : 'none'
+Muon.Align.UseILines                     : False
+Muon.Calib.CscF001FromLocalFile          : False
+Muon.Calib.CscNoiseFromLocalFile         : False
+Muon.Calib.CscPSlopeFromLocalFile        : False
+Muon.Calib.CscPedFromLocalFile           : False
+Muon.Calib.CscRmsFromLocalFile           : False
+Muon.Calib.CscStatusFromLocalFile        : False
+Muon.Calib.CscT0BaseFromLocalFile        : False
+Muon.Calib.CscT0PhaseFromLocalFile       : False
+Muon.Calib.EventTag                      : 'MoMu'
+Muon.Calib.applyRtScaling                : True
+Muon.Calib.correctMdtRtForBField         : False
+Muon.Calib.correctMdtRtForTimeSlewing    : False
+Muon.Calib.correctMdtRtWireSag           : False
+Muon.Calib.mdtCalibrationSource          : 'MDT'
+Muon.Calib.mdtMode                       : 'ntuple'
+Muon.Calib.mdtPropagationSpeedBeta       : 0.85
+Muon.Calib.readMDTCalibFromBlob          : True
+Muon.Calib.useMLRt                       : True
+Muon.Chi2NDofCut                         : 20.0
+Muon.createTrackParticles                : True
+Muon.doCSCs                              : True
+Muon.doDigitization                      : True
+Muon.doFastDigitization                  : False
+Muon.doMDTs                              : True
+Muon.doMSVertex                          : False
+Muon.doMicromegas                        : False
+Muon.doPseudoTracking                    : False
+Muon.doRPCClusterSegmentFinding          : False
+Muon.doRPCs                              : True
+Muon.doSegmentT0Fit                      : False
+Muon.doTGCClusterSegmentFinding          : False
+Muon.doTGCs                              : True
+Muon.dosTGCs                             : False
+Muon.enableCurvedSegmentFinding          : False
+Muon.enableErrorTuning                   : False
+Muon.optimiseMomentumResolutionUsingChi2 : False
+Muon.patternsOnly                        : False
+Muon.prdToxAOD                           : False
+Muon.printSummary                        : False
+Muon.refinementTool                      : 'Moore'
+Muon.rpcRawToxAOD                        : False
+Muon.segmentOrigin                       : 'Muon'
+Muon.straightLineFitMomentum             : 2000.0
+Muon.strategy                            : []
+Muon.trackBuilder                        : 'Moore'
+Muon.updateSegmentSecondCoordinate       : [function]
+Muon.useAlignmentCorrections             : False
+Muon.useLooseErrorTuning                 : False
+Muon.useSegmentMatching                  : [function]
+Muon.useTGCPriorNextBC                   : False
+Muon.useTrackSegmentMatching             : True
+Muon.useWireSagCorrections               : False
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.HITFileName                       : 'myHIT.pool.root'
+Output.RDOFileName                       : 'myROD.pool.root'
+Output.doESD                             : False
+Trigger.AODEDMSet                        : []
+Trigger.EDMDecodingVersion               : 2
+Trigger.ESDEDMSet                        : []
+Trigger.L1.CTPVersion                    : 4
+Trigger.L1.doBcm                         : True
+Trigger.L1.doMuons                       : True
+Trigger.L1Decoder.forceEnableAllChains   : False
+Trigger.LVL1ConfigFile                   : [function]
+Trigger.LVL1TopoConfigFile               : [function]
+Trigger.OnlineCondTag                    : 'CONDBR2-HLTP-2016-01'
+Trigger.calo.doOffsetCorrection          : True
+Trigger.dataTakingConditions             : 'FullTrigger'
+Trigger.doHLT                            : True
+Trigger.doL1Topo                         : True
+Trigger.doLVL1                           : [function]
+Trigger.doTriggerConfigOnly              : False
+Trigger.doTruth                          : False
+Trigger.egamma.calibMVAVersiona          : [function]
+Trigger.egamma.clusterCorrectionVersion  : [function]
+Trigger.egamma.pidVersion                : [function]
+Trigger.generateLVL1Config               : False
+Trigger.generateLVL1TopoConfig           : False
+Trigger.menu.combined                    : []
+Trigger.menu.egamma                      : []
+Trigger.menu.muons                       : []
+Trigger.menuVersion                      : [function]
+Trigger.muon.doEFRoIDrivenAccess         : False
+Trigger.run2Config                       : '2018'
+Trigger.triggerConfig                    : 'MCRECO:DEFAULT'
+Trigger.triggerMenuSetup                 : 'MC_pp_v7_tight_mc_prescale'
+Trigger.triggerUseFrontier               : False
+Trigger.useL1CaloCalibration             : False
+Trigger.useRun1CaloEnergyScale           : False
+Trigger.writeBS                          : False
+Trigger.writeL1TopoValData               : True
+Py:Athena            INFO About to setup Rpc Raw data decoding
+Py:ComponentAccumulator   DEBUG Adding component EventSelectorByteStream/EventSelector to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamEventStorageInputSvc/ByteStreamInputSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamCnvSvc/ByteStreamCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamAddressProviderSvc/ByteStreamAddressProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
+Py:ComponentAccumulator   DEBUG Adding component StoreGateSvc/MetaDataStore to the job
+Py:ComponentAccumulator   DEBUG Adding component StoreGateSvc/InputMetaDataStore to the job
+Py:ComponentAccumulator   DEBUG Adding component MetaDataSvc/MetaDataSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
+Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:ComponentAccumulator   DEBUG Adding component EventSelectorByteStream/EventSelector to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamEventStorageInputSvc/ByteStreamInputSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamCnvSvc/ByteStreamCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamAddressProviderSvc/ByteStreamAddressProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component StoreGateSvc/MetaDataStore to the job
+Py:ComponentAccumulator   DEBUG Adding component StoreGateSvc/InputMetaDataStore to the job
+Py:ComponentAccumulator   DEBUG Adding component MetaDataSvc/MetaDataSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamAttListMetadataSvc/ByteStreamAttListMetadataSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbMetaDataTool/IOVDbMetaDataTool to the job
+Py:ComponentAccumulator   DEBUG Adding component ByteStreamMetadataTool/ByteStreamMetadataTool to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
+Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc.MuonDetectorTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ComponentAccumulator   DEBUG Adding component ROBDataProviderSvc/ROBDataProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ROBDataProviderSvc
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
+Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondInputLoader/CondInputLoader to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCcablingServerSvc/RPCcablingServerSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component IOVDbSvc/IOVDbSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component PoolSvc/PoolSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component CondSvc/CondSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DBReplicaSvc/DBReplicaSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component MuonRPC_CablingSvc/MuonRPC_CablingSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Adding component RPCCablingDbTool/RPCCablingDbTool to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component GeoModelSvc/GeoModelSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component DetDescrCnvSvc/DetDescrCnvSvc to the job
+Py:ComponentAccumulator   DEBUG Adding component EvtPersistencySvc/EventPersistencySvc to the job
+Py:ComponentAccumulator   DEBUG Adding component TagInfoMgr/TagInfoMgr to the job
+Py:ComponentAccumulator   DEBUG Adding component ProxyProviderSvc/ProxyProviderSvc to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Adding component Muon::MuonIdHelperTool/Muon::MuonIdHelperTool to the job
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc.MuonDetectorTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondInputLoader
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc.MuonDetectorTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component GeoModelSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DetDescrCnvSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component EventPersistencySvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component TagInfoMgr
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ProxyProviderSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component RPCcablingServerSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component IOVDbSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component PoolSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component CondSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component DBReplicaSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component MuonRPC_CablingSvc
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.Muon::MuonIdHelperTool
+Py:ComponentAccumulator   DEBUG Reconciled configuration of component ToolSvc.RPCCablingDbTool
+Py:ComponentAccumulator   DEBUG Adding component AthenaPoolCnvSvc/AthenaPoolCnvSvc to the job
+Py:Athena            INFO Print Config
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
+|-Atomic                                  = False
+|-AuditAlgorithms                         = False
+|-AuditBeginRun                           = False
+|-AuditEndRun                             = False
+|-AuditExecute                            = False
+|-AuditFinalize                           = False
+|-AuditInitialize                         = False
+|-AuditReinitialize                       = False
+|-AuditRestart                            = False
+|-AuditStart                              = False
+|-AuditStop                               = False
+|-ContinueEventloopOnFPE                  = False
+|-Enable                                  = True
+|-ErrorCounter                            = 0
+|-ErrorMax                                = 1
+|-FilterCircularDependencies              = True
+|-IgnoreFilterPassed                      = False
+|-IsIOBound                               = False
+|                                            (default: [])
+|-ModeOR                                  = False
+|-MonitorService                          = 'MonitorSvc'
+|-OutputLevel                             = 0
+|-RegisterForContextService               = False
+|-Sequential                              = False
+|-StopOverride                            = False
+|-TimeOut                                 = 0.0
+|=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
+| |-AuditAlgorithms                         = False
+| |-AuditBeginRun                           = False
+| |-AuditEndRun                             = False
+| |-AuditExecute                            = False
+| |-AuditFinalize                           = False
+| |-AuditInitialize                         = False
+| |-AuditReinitialize                       = False
+| |-AuditRestart                            = False
+| |-AuditStart                              = False
+| |-AuditStop                               = False
+| |-DoSeededDecoding                        = False
+| |-Enable                                  = True
+| |-ErrorCounter                            = 0
+| |-ErrorMax                                = 1
+| |-FilterCircularDependencies              = True
+| |-IsIOBound                               = False
+| |-MonitorService                          = 'MonitorSvc'
+| |-OutputLevel                             = 0
+| |                                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
+| |-RegisterForContextService               = False
+| |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |=/***** Private AlgTool Muon::RPC_RawDataProviderTool/RpcRawDataProvider.RPC_RawDataProviderTool *****
+| | |-AuditFinalize                  = False
+| | |-AuditInitialize                = False
+| | |-AuditReinitialize              = False
+| | |-AuditRestart                   = False
+| | |-AuditStart                     = False
+| | |-AuditStop                      = False
+| | |-AuditTools                     = False
+| | |-MonitorService                 = 'MonitorSvc'
+| | |-OutputLevel                    = 0
+| | |-RPCSec                         = 'StoreGateSvc+RPC_SECTORLOGIC'
+| | |-RdoLocation                    = 'StoreGateSvc+RPCPAD'
+| | |=/***** Private AlgTool Muon::RpcROD_Decoder/RpcRawDataProvider.RPC_RawDataProviderTool.RpcROD_Decoder *****
+| | | |-AuditFinalize                    = False
+| | | |-AuditInitialize                  = False
+| | | |-AuditReinitialize                = False
+| | | |-AuditRestart                     = False
+| | | |-AuditStart                       = False
+| | | |-AuditStop                        = False
+| | | |-AuditTools                       = False
+| | | |-DataErrorPrintLimit              = 1000
+| | | |-MonitorService                   = 'MonitorSvc'
+| | | |-OutputLevel                      = 0
+| | | |-Sector13Data                     = False
+| | | |-SpecialROBNumber                 = -1
+| | | \----- (End of Private AlgTool Muon::RpcROD_Decoder/RpcRawDataProvider.RPC_RawDataProviderTool.RpcROD_Decoder) -----
+| | \----- (End of Private AlgTool Muon::RPC_RawDataProviderTool/RpcRawDataProvider.RPC_RawDataProviderTool) -----
+| \----- (End of Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider) ------------------------------
+|=/***** Algorithm RpcRdoToRpcPrepData/RpcRdoToRpcPrepData *******************************************
+| |-AuditAlgorithms                         = False
+| |-AuditBeginRun                           = False
+| |-AuditEndRun                             = False
+| |-AuditExecute                            = False
+| |-AuditFinalize                           = False
+| |-AuditInitialize                         = False
+| |-AuditReinitialize                       = False
+| |-AuditRestart                            = False
+| |-AuditStart                              = False
+| |-AuditStop                               = False
+| |                                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
+| |-DoSeededDecoding                        = False
+| |-Enable                                  = True
+| |-ErrorCounter                            = 0
+| |-ErrorMax                                = 1
+| |-FilterCircularDependencies              = True
+| |-IsIOBound                               = False
+| |-MonitorService                          = 'MonitorSvc'
+| |-OutputCollection                        = 'StoreGateSvc+RPC_Measurements'
+| |-OutputLevel                             = 0
+| |-PrintInputRdo                           = False
+| |-RegisterForContextService               = False
+| |-RoIs                                    = 'StoreGateSvc+OutputRoIs'
+| |=/***** Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepData.Muon::RpcRdoToPrepDataTool *****
+| | |-AuditFinalize                                   = False
+| | |-AuditInitialize                                 = False
+| | |-AuditReinitialize                               = False
+| | |-AuditRestart                                    = False
+| | |-AuditStart                                      = False
+| | |-AuditStop                                       = False
+| | |-AuditTools                                      = False
+| | |-DecodeData                                      = True
+| | |-InputCollection                                 = 'StoreGateSvc+RPC_triggerHits'
+| | |-MonitorService                                  = 'MonitorSvc'
+| | |-OutputCollection                                = 'StoreGateSvc+RPCPAD'
+| | |-OutputLevel                                     = 0
+| | |-RPCInfoFromDb                                   = False
+| | |                                                    (default: 'Muon::RpcRDO_Decoder')
+| | |-TriggerOutputCollection                         = 'StoreGateSvc+RPC_Measurements'
+| | |-etaphi_coincidenceTime                          = 20.0
+| | |-overlap_timeTolerance                           = 10.0
+| | |-processingData                                  = False
+| | |-produceRpcCoinDatafromTriggerWords              = True
+| | |-reduceCablingOverlap                            = True
+| | |-solvePhiAmbiguities                             = True
+| | |-timeShift                                       = -12.5
+| | |=/***** Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.Muon::RpcRdoToPrepDataTool.Muon::RpcRDO_Decoder *****
+| | | |-AuditFinalize                  = False
+| | | |-AuditInitialize                = False
+| | | |-AuditReinitialize              = False
+| | | |-AuditRestart                   = False
+| | | |-AuditStart                     = False
+| | | |-AuditStop                      = False
+| | | |-AuditTools                     = False
+| | | |-MonitorService                 = 'MonitorSvc'
+| | | |-OutputLevel                    = 0
+| | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/RpcRdoToRpcPrepData.Muon::RpcRdoToPrepDataTool.Muon::RpcRDO_Decoder) -----
+| | \----- (End of Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepData.Muon::RpcRdoToPrepDataTool) -----
+| \----- (End of Algorithm RpcRdoToRpcPrepData/RpcRdoToRpcPrepData) ----------------------------------
+\----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO ['CondInputLoader']
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['EventSelector', 'ByteStreamInputSvc', 'EventPersistencySvc', 'ByteStreamCnvSvc', 'ROBDataProviderSvc', 'ByteStreamAddressProviderSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc', 'ByteStreamAttListMetadataSvc', 'GeoModelSvc', 'DetDescrCnvSvc', 'TagInfoMgr', 'RPCcablingServerSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'MuonRPC_CablingSvc', 'AthenaPoolCnvSvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:Athena            INFO Save Config
+
+JOs reading stage finished, launching Athena from pickle file
+
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
+Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
+Py:Athena            INFO now loading MuonRdoDecode.pkl  ... 
+ApplicationMgr       INFO Application Manager Configured successfully
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
+ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
+ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
+ByteStreamAddre...   INFO initialized 
+ByteStreamAddre...   INFO -- Module IDs for: 
+ByteStreamAddre...   INFO    CTP                                  = 0x1
+ByteStreamAddre...   INFO    muCTPi                               = 0x1
+ByteStreamAddre...   INFO    Calorimeter Cluster Processor RoI    = 0xa8, 0xa9, 0xaa, 0xab
+ByteStreamAddre...   INFO    Calorimeter Jet/Energy Processor RoI = 0xac, 0xad
+ByteStreamAddre...   INFO    Topo Processor RoI = 0x81, 0x91
+ByteStreamAddre...   INFO -- Will fill Store with id =  0
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
+IOVDbSvc             INFO Global tag: CONDBR2-BLKPA-2018-13 set from joboptions
+IOVDbSvc             INFO Initialised with 2 connections and 4 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+IOVDbSvc             INFO Opening COOL connection for COOLONL_RPC/CONDBR2
+IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVDbSvc             INFO Disconnecting from COOLONL_RPC/CONDBR2
+IOVDbSvc             INFO Added taginfo remove for /RPC/CABLING/MAP_SCHEMA
+IOVDbSvc             INFO Added taginfo remove for /RPC/CABLING/MAP_SCHEMA_CORR
+IOVDbSvc             INFO Added taginfo remove for /RPC/TRIGGER/CM_THR_ETA
+IOVDbSvc             INFO Added taginfo remove for /RPC/TRIGGER/CM_THR_PHI
+DetDescrCnvSvc       INFO  initializing 
+DetDescrCnvSvc       INFO Found DetectorStore service
+DetDescrCnvSvc       INFO  filling proxies for detector managers 
+DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_SuperCell_ID with CLID 254277678 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for Tile_SuperCell_ID with CLID 49557789 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for STGCIDHELPER with CLID 4174 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MMIDHELPER with CLID 4175 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+GeoModelSvc.Muo...   INFO Initializing ...
+GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
+GeoModelSvc.Muo...   INFO Properties have been set as follows: 
+GeoModelSvc.Muo...   INFO     LayoutName                     R
+GeoModelSvc.Muo...   INFO     IncludeCutouts                 0
+GeoModelSvc.Muo...   INFO     IncludeCutoutsBog              0
+GeoModelSvc.Muo...   INFO     IncludeCtbBis                  0
+GeoModelSvc.Muo...   INFO     ControlAlines                  111111
+GeoModelSvc.Muo...   INFO     MinimalGeoFlag                 0
+GeoModelSvc.Muo...   INFO     EnableCscIntAlignment          0
+GeoModelSvc.Muo...   INFO     EnableCscIntAlignmentFromGM    1
+GeoModelSvc.Muo...   INFO     ControlCscIntAlines   reset to 0
+GeoModelSvc.Muo...   INFO     EnableMdtDeformations          0
+GeoModelSvc.Muo...   INFO     EnableMdtAsBuiltParameters     0
+MuonGeoModel         INFO MuonDetectorFactory - constructor  MuonSystem OuterRadius 13000 Length 22030
+MuGM:MuonFactory     INFO MuonLayout set to <R.08.01> = Development version for DC3 - infrastructures 
+MuGM:MuonFactory     INFO                    BOG cutouts are activated 1 , all other cutouts are disabled 1
+MuGM:MuonFactory     INFO Manager created for geometry version R.08.01 from DB MuonVersion <MuonSpectrometer-R.08.01>
+MuonGeoModel_MYSQL   INFO GeometryVersion set to <R.08.01>
+MuGM:MuonFactory     INFO Mysql helper class created here for geometry version R.08.01 from DB MuonVersion <MuonSpectrometer-R.08.01>
+EventPersistenc...   INFO Added successfully Conversion service:ByteStreamCnvSvc
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
+MDT_IDDetDescrCnv    INFO in createObj: creating a MdtIdHelper object in the detector store
+IdDictDetDescrCnv    INFO in initialize
+IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store
+IdDictDetDescrCnv    INFO IdDictName:  IdDictParser/ATLAS_IDS.xml
+IdDictDetDescrCnv    INFO Reading InnerDetector    IdDict file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv    INFO Reading LArCalorimeter   IdDict file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv    INFO Reading TileCalorimeter  IdDict file IdDictParser/IdDictTileCalorimeter.xml
+IdDictDetDescrCnv    INFO Reading Calorimeter      IdDict file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv    INFO Reading MuonSpectrometer IdDict file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv    INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv    INFO Found id dicts:
+IdDictDetDescrCnv    INFO Using dictionary tag: null
+IdDictDetDescrCnv    INFO Dictionary ATLAS                version default              DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary Calorimeter          version default              DetDescr tag CaloIdentifier-LVL1-02 file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv    INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-01       file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv    INFO Dictionary InnerDetector        version IBL-DBM              DetDescr tag InDetIdentifier-IBL3D25-02 file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv    INFO Dictionary LArCalorimeter       version fullAtlas            DetDescr tag LArIdentifier-DC3-05-Comm file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv    INFO Dictionary LArElectrode         version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary LArHighVoltage       version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary MuonSpectrometer     version R.03                 DetDescr tag MuonIdentifier-08         file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv    INFO Dictionary TileCalorimeter      version fullAtlasAndTestBeam DetDescr tag TileIdentifier-00         file IdDictParser/IdDictTileCalorimeter.xml
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
+MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 241
+MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 241
+MdtIdHelper          INFO Initializing MDT hash indices ... 
+MdtIdHelper          INFO The element hash max is 1188
+MdtIdHelper          INFO The detector element hash max is 2328
+MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... 
+MuGM:MuonFactory     INFO MDTIDHELPER retrieved from DetStore
+RPC_IDDetDescrCnv    INFO in createObj: creating a RpcIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 241
+RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 241
+RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 241
+RpcIdHelper          INFO Initializing RPC hash indices ... 
+RpcIdHelper          INFO The element hash max is 600
+RpcIdHelper          INFO The detector element hash max is 1122
+RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
+MuGM:MuonFactory     INFO RPCIDHELPER retrieved from DetStore
+TGC_IDDetDescrCnv    INFO in createObj: creating a TgcIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
+TgcIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 210
+TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 241
+TgcIdHelper          INFO Initializing TGC hash indices ... 
+TgcIdHelper          INFO The element hash max is 1578
+TgcIdHelper          INFO The detector element hash max is 1578
+TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
+MuGM:MuonFactory     INFO TGCIDHELPER retrieved from DetStore
+CSC_IDDetDescrCnv    INFO in createObj: creating a CcscIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
+CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 237
+CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 241
+CscIdHelper          INFO Initializing CSC hash indices ... 
+CscIdHelper          INFO The element hash max is 32
+CscIdHelper          INFO The detector element hash max is 64
+CscIdHelper          INFO The channel hash max is 61440
+CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
+MuGM:MuonFactory     INFO CSCIDHELPER retrieved from DetStore
+sTGC_IDDetDescrCnv   INFO in createObj: creating a sTgcIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MuGM:MuonFactory     INFO STGCIDHELPER retrieved from DetStore
+MM_IDDetDescrCnv     INFO in createObj: creating a MmIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MuGM:MuonFactory     INFO MMIDHELPER retrieved from DetStore
+MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ************************
+MuGM:MuonFactory     INFO  *** Start building the Muon Geometry Tree **********************
+RDBAccessSvc      WARNING Could not get the tag for XtomoData node. Returning 0 pointer to IRDBQuery
+MuGM:RDBReadAtlas    INFO After getQuery XtomoData
+In DblQ00Xtomo(data)
+No XtomoData table in the MuonDD Database
+MuGM:RDBReadAtlas    INFO After new DblQ00Xtomo
+MuGM:RDBReadAtlas    INFO After m_dhxtomo.data()
+MuGM:RDBReadAtlas    INFO No Ascii aszt input found: looking for A-lines in ORACLE
+MuGM:RDBReadAtlas    INFO ASZT table found in Oracle
+MuGM:RDBReadAtlas    INFO ASZT size is 32
+MuGM:RDBReadAtlas    INFO No Ascii iacsc input found: looking for A-lines in ORACLE
+RDBAccessSvc      WARNING Could not get the tag for ISZT node. Returning 0 pointer to IRDBQuery
+MuGM:RDBReadAtlas    INFO No ISZT table in Oracle
+MuGM:RDBReadAtlas    INFO Access granted for all dbObjects needed by muon detectors
+MuonGeoModel_MYSQL   INFO LayoutName (from DBAM) set to <R.08>  -- relevant for CTB2004
+MuGM:ProcStations    INFO  Processing Stations and Components
+MuGM:ProcStations    INFO  Processing Stations and Components DONE
+MuGM:ProcTechnol.s   INFO nMDT 13 nCSC 2 nTGC 22 nRPC 25
+MuGM:ProcTechnol.s   INFO nDED 2 nSUP 4 nSPA 2
+MuGM:ProcTechnol.s   INFO nCHV 7 nCRO 7 nCMI 6 nLBI 6
+MuGM:ProcPosition    INFO  *** N. of stations positioned in the setup 234
+MuGM:ProcPosition    INFO  *** N. of stations described in mysql      234
+MuGM:ProcPosition    INFO  *** N. of types  32 size of jtypvec 32
+MuGM:ProcPosition    INFO  *** : 234 kinds of stations (type*sub_type) 
+MuGM:ProcPosition    INFO  *** : 1758 physical stations in space - according to the MuonDD DataBase
+MuGM:ProcCutouts     INFO  Processing Cutouts for geometry layout R.08
+MuGM:ProcCutouts     INFO  Processing Cutouts DONE
+MuGM:RDBReadAtlas    INFO  ProcessTGCreadout - version 7 wirespacing 1.8
+MuGM:RDBReadAtlas    INFO Intermediate Objects built from primary numbers
+MuGM:MuonFactory     INFO  theMaterialManager retrieven successfully from the DetStore
+MuGM:MuonFactory     INFO  TreeTop added to the Manager
+MuGM:MuonFactory     INFO  Muon Layout R.08.01
+MuGM:MuonFactory     INFO Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)
+MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ****************************
+MuGM:MuonFactory     INFO  *** The Muon Chamber Geometry Tree is built with 
+MuGM:MuonFactory     INFO  *** 1758 child volumes 
+MuGM:MuonFactory     INFO  *** 1839 independent elements and 
+MuGM:MuonFactory     INFO  *** 11473 elements cloned or shared 
+MuGM:MuonFactory     INFO  *** 234 kinds of stations
+MuGM:MuonFactory     INFO  *** 1758 stations with alignable transforms
+MuGM:MuonFactory     INFO  *** 148 stations are described as Assemblies
+MuGM:MuonFactory     INFO  *** 1758 MuonStations 
+MuGM:MuonFactory     INFO  *** 	 2324 MDT Readout Elements 	 1186 MDT Detector Elements 
+MuGM:MuonFactory     INFO  *** 	 32 CSC Readout Elements 	 32 CSC Detector Elements 
+MuGM:MuonFactory     INFO  *** 	 1122 RPC Readout Elements 	 600 RPC Detector Elements 
+MuGM:MuonFactory     INFO  *** 	 1578 TGC Readout Elements 	 1578 TGC Detector Elements 
+MuGM:MuonFactory     INFO  ********************************************************************
+MuGM:MuonFactory     INFO  *** Inert Material built according to DB switches and config. ****** 
+MuGM:MuonFactory     INFO  *** The Muon Geometry Tree has 1758 child vol.s in total ********
+MuGM:MuonFactory     INFO  ********************************************************************
+
+MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively 1758/0
+MGM::MuonDetect...   INFO No Aline for CSC wire layers loaded 
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 42828Kb 	 Time = 0.89S
+GeoModelSvc.Muo...   INFO CondAttrListCollection not found in the DetectorStore
+GeoModelSvc.Muo...   INFO Unable to register callback on CondAttrListCollection for any folder in the list 
+GeoModelSvc.Muo...   INFO This is OK unless you expect to read alignment and deformations from COOL 
+CondInputLoader      INFO Initializing CondInputLoader...
+CondInputLoader      INFO Adding base classes:
+CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
+RpcRawDataProvider   INFO RpcRawDataProvider::initialize
+RpcRawDataProvider   INFO  'DoSeededDecoding':False
+ToolSvc.RPCCabl...   INFO Initializing - folders names are: conf /RPC/CABLING/MAP_SCHEMA / corr /RPC/CABLING/MAP_SCHEMA_CORR
+MuonRPC_CablingSvc   INFO RPCCablingDbTool retrieved with statusCode = SUCCESS with handle TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')
+MuonRPC_CablingSvc   INFO Register call-back  against 2 folders listed below 
+MuonRPC_CablingSvc   INFO  Folder n. 1 </RPC/CABLING/MAP_SCHEMA>     found in the DetStore
+MuonRPC_CablingSvc   INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA>
+MuonRPC_CablingSvc   INFO  Folder n. 2 </RPC/CABLING/MAP_SCHEMA_CORR>     found in the DetStore
+MuonRPC_CablingSvc   INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA_CORR>
+MuonRPC_CablingSvc   INFO RPCTriggerDbTool retrieved with statusCode = SUCCESS pointer = TheRpcTriggerDbTool = PublicToolHandle('RPCTriggerDbTool')
+MuonRPC_CablingSvc   INFO Register call-back  against 2 folders listed below 
+MuonRPC_CablingSvc   INFO  Folder n. 1 </RPC/TRIGGER/CM_THR_ETA>     found in the DetStore
+MuonRPC_CablingSvc   INFO initTrigRoadsModel registered for call-back against folder </RPC/TRIGGER/CM_THR_ETA>
+MuonRPC_CablingSvc   INFO  Folder n. 2 </RPC/TRIGGER/CM_THR_PHI>     found in the DetStore
+MuonRPC_CablingSvc   INFO initTrigRoadsModel registered for call-back against folder </RPC/TRIGGER/CM_THR_PHI>
+RpcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+RpcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+RpcRawDataProvi...   INFO  Tool = RpcRawDataProvider.RPC_RawDataProviderTool is connected to JobOptionsSvc Service = JobOptionsSvc
+RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderTool
+RpcRdoToRpcPrep...   INFO properties are 
+RpcRdoToRpcPrep...   INFO processingData                     0
+RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
+RpcRdoToRpcPrep...   INFO reduceCablingOverlap               1
+RpcRdoToRpcPrep...   INFO solvePhiAmbiguities                1
+RpcRdoToRpcPrep...   INFO timeShift                          -12.5
+RpcRdoToRpcPrep...   INFO etaphi_coincidenceTime             20
+RpcRdoToRpcPrep...   INFO overlap_timeTolerance              10
+RpcRdoToRpcPrep...   INFO Correct prd time from cool db      0
+RpcRdoToRpcPrep...   INFO Rpc Cabling Svc name is dataLike
+RpcRdoToRpcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/Muon::RpcRdoToPrepDataTool')
+HistogramPersis...WARNING Histograms saving not required.
+EventSelector     WARNING InputCollections not properly set, checking EventStorageInputSvc properties
+EventSelector        INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
+EventSelector        INFO reinitialization...
+ToolSvc.Luminos...   INFO LuminosityTool::initialize() registering 
+ToolSvc.Luminos...   INFO LumiFolderName is empty, skipping
+ToolSvc.Luminos...   INFO OnlineLumiCalibrationTool.empty() is TRUE, skipping...
+ToolSvc.Luminos...   INFO FillParamsTool.empty() is TRUE, skipping...
+ToolSvc.Luminos...   INFO BunchLumisTool.empty() is TRUE, skipping...
+ToolSvc.Luminos...   INFO BunchGroupTool.empty() is TRUE, skipping...
+ToolSvc.Luminos...   INFO LBLBFolderName is empty, skipping...
+EventSelector        INFO Retrieved InputCollections from InputSvc
+EventSelector        INFO reinitialization...
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+ByteStreamInputSvc   INFO Picked valid file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+ApplicationMgr       INFO Application Manager Started successfully
+EventInfoByteSt...   INFO UserType : RawEvent
+EventInfoByteSt...   INFO IsSimulation : 0
+EventInfoByteSt...   INFO IsTestbeam : 0
+EventInfoByteSt...   INFO IsCalibration : 0
+EventInfoByteSt...   INFO  EventContext not valid 
+AthenaEventLoopMgr   INFO   ===>>>  start of run 327265    <<<===
+EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
+IOVDbSvc             INFO Opening COOL connection for COOLONL_RPC/CONDBR2
+IOVDbSvc             INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCCablingMapSchema_2016_2017_01 for folder /RPC/CABLING/MAP_SCHEMA
+IOVDbSvc             INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCCablingMapSchemaCorr_2016_2017_01 for folder /RPC/CABLING/MAP_SCHEMA_CORR
+IOVDbSvc             INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCTriggerCMThrEta_RUN1-RUN2-HI-02 for folder /RPC/TRIGGER/CM_THR_ETA
+IOVDbSvc             INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCTriggerCMThrPhi_RUN1-RUN2-HI-02 for folder /RPC/TRIGGER/CM_THR_PHI
+IOVDbSvc             INFO Disconnecting from COOLONL_RPC/CONDBR2
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+MuonRPC_CablingSvc   INFO initMappingModel has been called
+MuonRPC_CablingSvc   INFO ToolHandle in initMappingModel - <TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')>
+MuonRPC_CablingSvc   INFO Retrieving cabling singleton; to create an empty one or to get the existing one
+RPCcabling           INFO CablingRPC---singleton constructor ---- this must be executed just once
+RPCcabling           INFO CablingRPC---The singleton will fill the maps from the COOL streams
+RPCcabling           INFO CablingRPC---InitMaps from COOL cannot be executed NOW: empty string
+RPCcabling           INFO CablingRPC---The singleton is created here
+RPCcabling           INFO CablingRPC--- cacheCleared: s_status = 0
+MuonRPC_CablingSvc   INFO Cabling singleton cache has been cleared
+MuonRPC_CablingSvc   INFO  Trigger roads will be loaded from COOL
+ToolSvc.RPCCabl...   INFO LoadParameters /RPC/CABLING/MAP_SCHEMA I=2 
+ToolSvc.RPCCabl...   INFO loadRPCMap --- Load Map from DB
+ToolSvc.RPCCabl...   INFO Try to read from folder </RPC/CABLING/MAP_SCHEMA>
+ToolSvc.RPCCabl...   INFO  CondAttrListCollection from DB folder have been obtained with size 1
+ToolSvc.RPCCabl...   INFO Loop over CondAttrListCollection ic = 1
+ToolSvc.RPCCabl...   INFO After Reading folder, Configuration string size is 222202
+ToolSvc.RPCCabl...   INFO LoadParameters /RPC/CABLING/MAP_SCHEMA_CORR I=2 
+ToolSvc.RPCCabl...   INFO loadRPCCorr --- Load Corrections from DB
+ToolSvc.RPCCabl...   INFO Try to read from folder </RPC/CABLING/MAP_SCHEMA_CORR>
+ToolSvc.RPCCabl...   INFO  CondAttrListCollection from DB folder have been obtained with size 1
+ToolSvc.RPCCabl...   INFO After Reading folder, Correction string size is 29369
+MuonRPC_CablingSvc   INFO  InitMappingModel: Trigger roads not yet loaded from COOL - postpone cabling initialization 
+MuonRPC_CablingSvc   INFO initTrigRoadsModel has been called
+MuonRPC_CablingSvc   INFO  Trigger roads will be loaded from COOL
+MuonRPC_CablingSvc   INFO Retrieve the pointer to the cabling singleton 
+RPCcabling           INFO CablingRPC--- cacheCleared: s_status = 0
+MuonRPC_CablingSvc   INFO Cabling singleton cache has been cleared
+ToolSvc.RPCTrig...   INFO LoadParameters /RPC/TRIGGER/CM_THR_ETA I=2 
+ToolSvc.RPCTrig...   INFO LoadParameters /RPC/TRIGGER/CM_THR_PHI I=2 
+MuonRPC_CablingSvc   INFO ======== RPC Trigger Roads from COOL - Header infos ========
+MuonRPC_CablingSvc   INFO 
+RPC LVL1 Configuration 10.6 with roads from Feb 2012
+L1 THRESHOLDS:   MU4 MU6 MU10 MU11 MU15 MU20
+Road version: "road_files_120209"
+CMA            th0    th1   th2
+eta low-pt     mu4    mu6   mu10
+phi low-pt     mu4    mu6   mu10
+eta high-pt    mu11  mu15   mu20
+phi high-pt    mu11  mu15   mu15
+
+
+RPCcabling           INFO CablingRPC---InitMaps from COOL: going to read configuration
+RPCcabling           INFO CablingRPC--->> RPC cabling map from COOL <<
+RPCcabling           INFO CablingRPC--- ReadConf: map has size 222202
+RPCcabling           INFO CablingRPC--- ReadConf: map n. of lines read is 924
+RPCcabling           INFO CablingRPC--- ReadConf: version is 5.0 Atlas R_07_03_RUN2ver104
+RPCcabling           INFO CablingRPC--- buildRDOmap
+RPCcabling           INFO CablingRPC---InitMaps from COOL: going to read corrections to configuration
+RPCcabling           INFO CablingRPC--->> RPC cabling corrections from COOL <<
+RPCcabling           INFO CablingRPC--- ReadCorr: CorrMap has size 29369
+RPCcabling           INFO CablingRPC--- ReadConf: CorrMap n. of lines read is 743
+RPCcabling           INFO CablingRPC---InitMaps from COOL - maps have been parsed
+MuonRPC_CablingSvc   INFO InitTrigRoadsModel: RPC cabling model is loaded!
+Level-1 configuration database version 5.0 Atlas R_07_03_RUN2ver104 read.
+Contains 26 Trigger Sector Types:
+negative sectors  0 - 15 ==> 18  2 24  3 19  2 24  4 20  2 24  1 18  5 25  6 
+negative sectors 16 - 31 ==> 21 13 26  6 21  7 16  8 14  7 16  6 21 13 26  1 
+positive sectors 32 - 47 ==>  9 24  2 22  9 24  2 23 10 24  2 18  1 25  5 18 
+positive sectors 48 - 63 ==>  1 26 13 21  6 17 12 15 11 17 12 21  6 26 13 22 
+
+MuonRPC_CablingSvc   INFO buildOfflineOnlineMap
+MuonRPC_CablingSvc   INFO Applying FeetPadThresholds : 0,2,5
+MuonRPC_CablingSvc   INFO MuonRPC_CablingSvc initialized succesfully
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186525031, run #327265 0 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr       INFO Application Manager Stopped successfully
+CondInputLoader      INFO Finalizing CondInputLoader...
+EventInfoByteSt...   INFO finalize 
+IdDictDetDescrCnv    INFO in finalize
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+ToolSvc.ByteStr...   INFO in finalize()
+RpcROD_Decoder:...   INFO  ============ FINAL RPC DATA FORMAT STAT. =========== 
+RpcROD_Decoder:...   INFO  RX Header Errors.............0
+RpcROD_Decoder:...   INFO  RX SubHeader Errors..........0
+RpcROD_Decoder:...   INFO  PAD Header Errors............0
+RpcROD_Decoder:...   INFO  PAD/SL SubHeader Errors......0
+RpcROD_Decoder:...   INFO  CM Header Errors.............0
+RpcROD_Decoder:...   INFO  CM SubHeader Errors..........0
+RpcROD_Decoder:...   INFO  CM Footer Errors.............0
+RpcROD_Decoder:...   INFO  PAD PreFooter Errors.........0
+RpcROD_Decoder:...   INFO  PAD Footer Errors............0
+RpcROD_Decoder:...   INFO  SL Header Errors.............0
+RpcROD_Decoder:...   INFO  SL Footer Errors.............0
+RpcROD_Decoder:...   INFO  RX Footer Errors.............0
+RpcROD_Decoder:...   INFO  CRC8 check Failures..........0
+RpcROD_Decoder:...   INFO  ==================================================== 
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
