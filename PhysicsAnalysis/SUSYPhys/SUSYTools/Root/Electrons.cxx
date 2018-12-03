@@ -276,7 +276,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
-  if (acc_isol(input) || !m_doElIsoSignal) {
+  if ( (!m_doElIsoSignal) || acc_isol(input) ) {
     if (acc_isolHighPt(input) || input.pt()<200e3) { // patch for removing the high-pt electron fakes /KY
       ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
     } else return false;

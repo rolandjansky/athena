@@ -222,7 +222,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
     if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
-  if (acc_isol(input) || !m_doMuIsoSignal) {
+  if ( (!m_doMuIsoSignal) || acc_isol(input)) {
     ATH_MSG_VERBOSE( "IsSignalMuon: passed isolation");
   } else return false; //isolation selection with IsoTool
 
