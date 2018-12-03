@@ -311,23 +311,24 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
 
   } 
   else {
-    // ATH_MSG_ERROR("There are not multiple reduced NP scenarios available at the current time");
-    // return StatusCode::FAILURE;
-    
-    // This is legacy code to allow for reduced NP scenarios but currently in R21 they are not functional
-    // However, if they become available we need only change the code here
-    m_jetUncertaintiesToolReducedNPScenario1
 
+    // Strong reductions now enabled. If you want to run a single scenario please note the new config file names R4_SR_Scenario*_SimpleJER
+    m_jetUncertaintiesToolReducedNPScenario1
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario1",
-                                  jetCalibrationName, MC_type,JERisMC,
+                                  jetCalibrationName, 
+                                  MC_type,
+                                  JERisMC,
                                   "rel21/"
                                   + conference
                                   + "/R4_SR_Scenario1_SimpleJER.config",
-                                  nullptr,m_config->jetUncertainties_QGFracFile(),
+                                  nullptr,
+                                  m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
     m_jetUncertaintiesToolReducedNPScenario2
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario2",
-                                  jetCalibrationName, MC_type,JERisMC,
+                                  jetCalibrationName,
+                                  MC_type,
+                                  JERisMC,
                                   "rel21/"
                                   + conference
                                   + "/R4_SR_Scenario2_SimpleJER.config",
@@ -336,18 +337,25 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   calib_area);
     m_jetUncertaintiesToolReducedNPScenario3
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario3",
-                                  jetCalibrationName, MC_type,JERisMC,
+                                  jetCalibrationName,
+                                  MC_type,
+                                  JERisMC,
                                   "rel21/"
                                   + conference
-                                  + "/R4_SR_Scenario3_SimpleJER.config",nullptr,
+                                  + "/R4_SR_Scenario3_SimpleJER.config",
+                                  nullptr,
                                   m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
     m_jetUncertaintiesToolReducedNPScenario4
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario4",
-                                  jetCalibrationName, MC_type,JERisMC,
+                                  jetCalibrationName,
+                                  MC_type,
+                                  JERisMC,
                                   "rel21/"
                                   + conference
-                                  + "/R4_SR_Scenario4_SimpleJER.config",nullptr,m_config->jetUncertainties_QGFracFile(),
+                                  + "/R4_SR_Scenario4_SimpleJER.config",
+                                  nullptr,
+                                  m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
   }
 
