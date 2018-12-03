@@ -311,8 +311,8 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
 
   } 
   else {
-    ATH_MSG_ERROR("There are not multiple reduced NP scenarios available at the current time");
-    return StatusCode::FAILURE;
+    // ATH_MSG_ERROR("There are not multiple reduced NP scenarios available at the current time");
+    // return StatusCode::FAILURE;
     
     // This is legacy code to allow for reduced NP scenarios but currently in R21 they are not functional
     // However, if they become available we need only change the code here
@@ -322,7 +322,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   jetCalibrationName, MC_type,JERisMC,
                                   "rel21/"
                                   + conference
-                                  + "/R4_StrongReduction_Scenario1.config",
+                                  + "/R4_SR_Scenario1_SimpleJER.config",
                                   nullptr,m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
     m_jetUncertaintiesToolReducedNPScenario2
@@ -330,7 +330,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   jetCalibrationName, MC_type,JERisMC,
                                   "rel21/"
                                   + conference
-                                  + "/R4_CategoryReduction.config",
+                                  + "/R4_SR_Scenario2_SimpleJER.config",
                                   nullptr,
                                   m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
@@ -339,7 +339,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   jetCalibrationName, MC_type,JERisMC,
                                   "rel21/"
                                   + conference
-                                  + "/R4_GlobalReduction.config",nullptr,
+                                  + "/R4_SR_Scenario3_SimpleJER.config",nullptr,
                                   m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
     m_jetUncertaintiesToolReducedNPScenario4
@@ -347,7 +347,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   jetCalibrationName, MC_type,JERisMC,
                                   "rel21/"
                                   + conference
-                                  + "/R4_AllNuisanceParameters.config",nullptr,m_config->jetUncertainties_QGFracFile(),
+                                  + "/R4_SR_Scenario4_SimpleJER.config",nullptr,m_config->jetUncertainties_QGFracFile(),
                                   calib_area);
   }
 
