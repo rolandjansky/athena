@@ -92,7 +92,10 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSS
   
   float delta_eta_mm = r * cos(alpha);
   float delta_phi_mm = r * sin(alpha);
+  
+  // Particles with negative eta are expected to have the same shape as those with positive eta after transformation: delta_eta --> -delta_eta
   if(center_eta<0.)delta_eta_mm = -delta_eta_mm;
+  // Particle with negative charge are expected to have the same shape as positively charged particles after transformation: delta_phi --> -delta_phi
   if(charge < 0.)  delta_phi_mm = -delta_phi_mm;
 
   const float dist000    = TMath::Sqrt(center_r * center_r + center_z * center_z);
