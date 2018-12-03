@@ -291,8 +291,6 @@ namespace xAOD
 
     static size_t m_clusterLinkReserve;
     static size_t m_trackLinkReserve; 
-    static size_t m_maxClusterSize;
-    static size_t m_maxTrackSize;
 
   }; // class xAOD::MissingETComponentMap_v1
 } // namespace xAOD

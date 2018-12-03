@@ -426,9 +426,6 @@ namespace xAOD
   private:
     std::map<const IParticle*,ConstVec> m_override;
 
-    static size_t m_objConstLinkReserve;
-    static size_t m_contribObjReserve;
-
   }; // MissingETAssociation_v1
 }
 

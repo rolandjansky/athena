@@ -24,8 +24,6 @@ using namespace xAOD;
 
 size_t MissingETComponentMap_v1::m_clusterLinkReserve = 10000; 
 size_t MissingETComponentMap_v1::m_trackLinkReserve   = 10000;
-size_t MissingETComponentMap_v1::m_maxClusterSize     = 5000;
-size_t MissingETComponentMap_v1::m_maxTrackSize       = 5000;
 
 /////////////////////////////////
 // Constructors and destructor //
@@ -298,13 +296,11 @@ bool MissingETComponentMap_v1::setClusters(const MissingET* pMET,const IParticle
       if(firstCluster) {
 	firstCluster = false;
 	if ( m_clusterLinks.empty() )  { 
-	  size_t nClus(m_maxClusterSize);
 	  const IParticleContainer* pCont(static_cast<const IParticleContainer*>((*fSig)->container()));
 	  // if ( pCont == 0 )
 	  //   { printf("MissingETComponentMap::setClusters(...) - WARNING   - cannot access cluster container (invalid NULL pointer), use %i words\n",(int)nClus); }
 	  // else
-	  nClus = pCont->size();
-	  m_clusterLinks.resize(nClus,MissingETBase::Numerical::invalidLink());
+	  m_clusterLinks.resize(pCont->size(), MissingETBase::Numerical::invalidLink());
 	} // empty cluster link list
       } //first cluster
       // all clusters refer to the same MET contribution
@@ -325,7 +321,6 @@ bool MissingETComponentMap_v1::setTracks(const MissingET* pMET,const IParticle* 
   indexedlink_t ld(cIdx,pIdx); 
   // make sure cache is not cleared
   bool firstTrack = true;
-  size_t nTrack(m_maxTrackSize);
   MissingETBase::Types::object_vector_t::const_iterator fSig(signalList.begin());
   MissingETBase::Types::object_vector_t::const_iterator lSig(signalList.end());
   for ( ; fSig != lSig; ++fSig ) {
@@ -337,8 +332,7 @@ bool MissingETComponentMap_v1::setTracks(const MissingET* pMET,const IParticle* 
 	  // if ( pCont == 0 )
 	  //   { printf("MissingETComponentMap::setTracks(...) - WARNING   - cannot access track container (invalid NULL pointer), use %i words\n",(int)nTrack); }
 	  // else
-	  nTrack = pCont->size();
-	  m_trackLinks.resize(nTrack,MissingETBase::Numerical::invalidLink());
+	  m_trackLinks.resize(pCont->size(), MissingETBase::Numerical::invalidLink());
 	} // empty track link list
       } // first track
       // all tracks refer to the same MET contribution
