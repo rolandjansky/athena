@@ -30,6 +30,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkBPhys/CfAthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "JpsiUpsilonTools/JpsiFinder.h"
 #include "xAODBPhys/BPhysHelper.h"
 
@@ -74,6 +75,9 @@ namespace DerivationFramework {
       bool massCuts(float mass) const;
       bool massInBlindedRegion(float mass) const;
 
+      bool checkAllMuonsTight(const std::vector<const xAOD::Muon*>& muons,
+                              int maxMuonsToCheck=-1) const;
+      
       bool pass(const SG::AuxElement& em, std::string hypo) const;
       bool setPass(const SG::AuxElement& em, std::string hypo, bool passVal) const;
       bool setPassIfNotAvailable(SG::AuxElement& em, std::string hypo,
@@ -82,7 +86,8 @@ namespace DerivationFramework {
       
       /** tools
        */
-      ToolHandle<Trk::V0Tools> m_v0Tools;
+      ToolHandle<Trk::V0Tools>           m_v0Tools;
+      ToolHandle<CP::IMuonSelectionTool> m_muSelectionTool;
       
       /** job options
        */
@@ -99,6 +104,7 @@ namespace DerivationFramework {
       double m_blindMassMax;                //!< blinding mass range
       bool   m_doBlinding;                  //!< enable blinding range
       bool   m_doCutBlinded;                //!< enable cutting blinded vertices
+      bool   m_blindOnlyAllMuonsTight;      //!< only blind candidates with all tight muons
       bool   m_useMuCalcMass;               //!< also check against MUCALC mass
 
       std::vector<std::string> m_subDecVtxContNames; //!< names of sub-decay vertex containers
