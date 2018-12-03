@@ -2,42 +2,24 @@
 <lcgdict>
 
   <!-- MissingET_v1 dictionaries: -->
-  <class name="xAOD::MissingET_v1">
-      <field name="m_nameHashPair" transient="true" />
-  </class>
+  <class name="xAOD::MissingET_v1" />
   <class name="DataVector<xAOD::MissingET_v1>" />
   <class name="xAOD::MissingETContainer_v1" id="F49162FE-6BC0-49BC-A7DA-A792136BD939" />
   <class name="xAOD::MissingETAuxContainer_v1" id="2F92EC94-8CD1-49F3-BCA4-3D78599D4D60" />
 
   <!-- MissingETComponent_v1/MissingETComponentMap_v1 dictionaries: -->
-  <class name="xAOD::MissingETComponent_v1">
-    <field name="m_lastObjectPointer" transient="true" />
-    <field name="m_lastObjectIndex" transient="true" />
-  </class>
+  <class name="xAOD::MissingETComponent_v1" />
   <class name="xAOD::MissingETComponent_v1::Weight">
     <field name="m_wpx" transient="true" />
     <field name="m_wpy" transient="true" />
     <field name="m_wet" transient="true" />
   </class>
   <class name="DataVector<xAOD::MissingETComponent_v1>" />
-  <class name="xAOD::MissingETComponentMap_v1" id="994D9D32-820F-47B1-A54B-37C15CD0FD1E" >
-    <field name="m_lastMETObject" transient="true" />
-    <field name="m_lastContribIndex" transient="true" />
-    <field name="m_clusterLinks" transient="true" />
-    <field name="m_trackLinks" transient="true" />
-    <field name="m_particleLinks" transient="true" />
-  </class>
+  <class name="xAOD::MissingETComponentMap_v1" id="994D9D32-820F-47B1-A54B-37C15CD0FD1E" />
   <class name="xAOD::MissingETAuxComponentMap_v1" id="96287268-4165-4288-8FC1-6227FD4AB95D" />
 
   <!-- MissingETAssociation_v1/MissingETAssociationMap_v1 dictionaries: -->
-  <class name="xAOD::MissingETAssociation_v1">
-    <field name="m_lastObjectPointer" transient="true" />
-    <field name="m_lastObjectIndex" transient="true" />
-    <field name="m_objConstLinks" transient="true" />
-    <field name="m_contribObjects" transient="true" />
-    <field name="m_useObjectFlags" transient="true" />
-    <field name="m_override" transient="true" />
-  </class>
+  <class name="xAOD::MissingETAssociation_v1" />
   <class name="xAOD::MissingETAssociation_v1::ConstVec">
     <field name="m_cpx" transient="true" />
     <field name="m_cpy" transient="true" />
@@ -46,13 +28,7 @@
     <field name="m_sumpt"  transient="true" />
   </class>
   <class name="DataVector<xAOD::MissingETAssociation_v1>" />
-  <class name="xAOD::MissingETAssociationMap_v1" id="E2EAA116-F03E-430E-B4EF-216AAF7DEEE8" >
-    <field name="m_jetConstLinks" transient="true" />
-    <field name="m_lastRefJet" transient="true" />
-    <field name="m_lastContribIndex" transient="true" />
-    <field name="m_lastConstLink" transient="true" />
-    <field name="m_miscAssocIndex" transient="true" />
-  </class>
+  <class name="xAOD::MissingETAssociationMap_v1" id="E2EAA116-F03E-430E-B4EF-216AAF7DEEE8" />
   <!-- Schema evolve aux container -->
   <class name="xAOD::MissingETAuxAssociationMap_v1" id="48EEF1CD-F937-445C-A09C-B978D152868E" />
   <class name="xAOD::MissingETAuxAssociationMap_v2" id="05184C74-A3CE-4C89-959E-D7E9F0A98D13" />
