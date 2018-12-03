@@ -101,10 +101,10 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     else{
         for(unsigned int noJets=0; noJets<m_E.size(); noJets++){
           ATH_MSG_INFO("amanda - considering jet energies "<< m_E[noJets]);
+          EVec.push_back(m_E[noJets]);
           for(unsigned int count=0; count<(m_has.size()/m_E.size()); count++){
               if(m_has[count].compare(match)==0){
                 jetVarVec.push_back(m_jetVars[count%2]);
-                EVec.push_back(m_E[noJets]);
                 ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[count%2]);
                 std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[count%2]))(m_limitMins[count], m_limitMaxs[count]);
 

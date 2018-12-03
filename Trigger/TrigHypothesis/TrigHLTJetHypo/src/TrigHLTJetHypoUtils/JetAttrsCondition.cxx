@@ -34,16 +34,21 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 
   auto jet = ips[0];
   auto trigDecision = true; //all chain bits must be satisfied to keep this true. Any failure will make false
+  auto nmbVars = m_jetVar.size() / m_E.size(); // number of moments considered at each energy point
 
   std::cout << "amanda - in JetAttrsCondition \n";
   std::cout << "amanda - length of condition input arrays (var,E,min,max): "<< m_jetVar.size() << m_E.size() << m_limitMin.size() << m_limitMax.size() << "\n";
 
-  for (unsigned int index=0; index < m_jetVar.size(); index++){
-      if(m_jetVar[index].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
-      else if(m_jetVar[index].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
-      else if(m_jetVar[index].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
+  for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
+    bool trigDec=true; //resets for each energy
+    for (unsigned int index=0; index < nmbVars; index++){
+      if(m_jetVar[index+nmbVars*jetEn].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
+      else if(m_jetVar[index+nmbVars*jetEn].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
+      else if(m_jetVar[index+nmbVars*jetEn].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
       else{trigDecision*=false;} //variable does not yet have passCut method
-      }
+    }
+    trigDecision*=trigDec;
+  }  
 
 
   return trigDecision;
