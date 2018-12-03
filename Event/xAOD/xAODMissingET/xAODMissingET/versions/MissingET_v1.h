@@ -111,7 +111,7 @@ namespace xAOD
     /*!@}*/
 
   private:
-    std::pair< std::string , std::size_t> m_nameHashPair;/*!< @brief Stores the hash function for the current f_name string */
+    std::size_t m_nameHash;/*!< @brief Stores the hash for the current f_name string */
   };
 }
 

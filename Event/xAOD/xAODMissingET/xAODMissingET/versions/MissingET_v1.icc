@@ -16,13 +16,7 @@ inline double xAOD::MissingET_v1::mpy()   const { static SG::AuxElement::Accesso
 inline double xAOD::MissingET_v1::sumet() const { static SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
 
 inline const std::string&              xAOD::MissingET_v1::name()     const { static SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
-//inline const std::string&              xAOD::MissingET_v1::name()     const { return m_nameHashPair.first;  };
-inline std::size_t xAOD::MissingET_v1::nameHash() const {
-  if(!name().empty() && m_nameHashPair.second==0) {
-    return std::hash<std::string>()(name());
-  }
-  return m_nameHashPair.second;
-}
+inline std::size_t xAOD::MissingET_v1::nameHash() const { return m_nameHash; }
 inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source()   const { static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
 
 ////////////////////////////////////////////
@@ -41,9 +35,11 @@ inline void xAOD::MissingET_v1::setMpy(double mpy)     { this->f_mpy() = mpy; }
 inline void xAOD::MissingET_v1::setSumet(double sumet) { this->f_sumet() = sumet; }
 
 
-inline void xAOD::MissingET_v1::setName(const std::string& name)               { this->f_name() = name;
-                                                                                 m_nameHashPair = {name , std::hash<std::string>()(name)} ;
+inline void xAOD::MissingET_v1::setName(const std::string& name) {
+  this->f_name() = name;
+  m_nameHash = std::hash<std::string>()(name);
 }
+
 inline void xAOD::MissingET_v1::setSource(MissingETBase::Types::bitmask_t src) { this->f_source() = src; }
 
 ///////////////////////////////////////////////////
