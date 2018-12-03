@@ -161,9 +161,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( DataVector< LVL1::RecEmTauRoI >, 6256, 1 )
 CLASS_DEF( LVL1::RecEmTauRoI, 6257, 1 )
 

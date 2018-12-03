@@ -141,9 +141,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( DataVector< LVL1::RecEnergyRoI >, 6262, 1 )
 CLASS_DEF( LVL1::RecEnergyRoI, 6263, 1 )
 

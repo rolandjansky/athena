@@ -54,9 +54,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::EnergyCTP, 6254, 1 )
 
 #endif // TRIGT1INTERFACES_ENERGYCTP_H

@@ -165,9 +165,7 @@ namespace LVL1MUONIF {
 
 } // namespace LVL1MUONIF
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1MUONIF::Lvl1MuCTPIInput, 6102, 0 )
 
 #endif // TRIGT1INTERFACES_LVL1MUCTPIINPUT_H

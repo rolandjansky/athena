@@ -13,9 +13,7 @@
 #include "TrigT1Interfaces/RecJetRoI.h"
 
 //#include "StoreGate/tools/ClassID_traits.h"
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthContainers/DataVector.h"                  
 
 CLASS_DEF(DataVector<LVL1CTP::SlinkWord>,   6250, 1)

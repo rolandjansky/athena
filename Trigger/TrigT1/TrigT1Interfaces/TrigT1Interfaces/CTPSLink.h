@@ -130,9 +130,7 @@ namespace LVL1CTP {
 
 } // namespace LVL1CTP
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1CTP::CTPSLink, 6013, 0 )
 
 #endif // TRIGT1INTERFACES_CTPSLINK_H
