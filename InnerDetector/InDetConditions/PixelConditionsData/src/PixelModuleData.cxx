@@ -49,62 +49,94 @@ int PixelModuleData::getTDAQModuleStatus(const CondAttrListCollection::ChanNum& 
 void PixelModuleData::setBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold) { m_BarrelAnalogThreshold = BarrelAnalogThreshold; }
 void PixelModuleData::setEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold) { m_EndcapAnalogThreshold = EndcapAnalogThreshold; }
 void PixelModuleData::setDBMAnalogThreshold(std::vector<int>    DBMAnalogThreshold)    { m_DBMAnalogThreshold = DBMAnalogThreshold; }
-int PixelModuleData::getBarrelAnalogThreshold(int chanNum) const { return m_BarrelAnalogThreshold.at(chanNum); }
-int PixelModuleData::getEndcapAnalogThreshold(int chanNum) const { return m_EndcapAnalogThreshold.at(chanNum); }
-int PixelModuleData::getDBMAnalogThreshold(int chanNum)    const { return m_DBMAnalogThreshold.at(chanNum); }
+
+int PixelModuleData::getAnalogThreshold(int bec, int layer) const {
+  int analogThreshold = -1;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelAnalogThreshold.size()) { analogThreshold=m_BarrelAnalogThreshold.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapAnalogThreshold.size()) { analogThreshold=m_EndcapAnalogThreshold.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMAnalogThreshold.size())    { analogThreshold=m_DBMAnalogThreshold.at(layer); }
+  return analogThreshold;
+}
 
 void PixelModuleData::setBarrelToTThreshold(std::vector<int> BarrelToTThreshold) { m_BarrelToTThreshold = BarrelToTThreshold; }
 void PixelModuleData::setEndcapToTThreshold(std::vector<int> EndcapToTThreshold) { m_EndcapToTThreshold = EndcapToTThreshold; }
 void PixelModuleData::setDBMToTThreshold(std::vector<int>    DBMToTThreshold)    { m_DBMToTThreshold = DBMToTThreshold; }
-int PixelModuleData::getBarrelToTThreshold(int chanNum) const { return m_BarrelToTThreshold.at(chanNum); }
-int PixelModuleData::getEndcapToTThreshold(int chanNum) const { return m_EndcapToTThreshold.at(chanNum); }
-int PixelModuleData::getDBMToTThreshold(int chanNum)    const { return m_DBMToTThreshold.at(chanNum); }
+
+int PixelModuleData::getToTThreshold(int bec, int layer) const {
+  int totThreshold = -1;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelToTThreshold.size()) { totThreshold=m_BarrelToTThreshold.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapToTThreshold.size()) { totThreshold=m_EndcapToTThreshold.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMToTThreshold.size())    { totThreshold=m_DBMToTThreshold.at(layer); }
+  return totThreshold;
+}
 
 void PixelModuleData::setBarrelLatency(std::vector<int> BarrelLatency) { m_BarrelLatency = BarrelLatency; }
 void PixelModuleData::setEndcapLatency(std::vector<int> EndcapLatency) { m_EndcapLatency = EndcapLatency; }
 void PixelModuleData::setDBMLatency(std::vector<int>    DBMLatency)    { m_DBMLatency = DBMLatency; }
-int PixelModuleData::getBarrelLatency(int chanNum) const { return m_BarrelLatency.at(chanNum); }
-int PixelModuleData::getEndcapLatency(int chanNum) const { return m_EndcapLatency.at(chanNum); }
-int PixelModuleData::getDBMLatency(int chanNum)    const { return m_DBMLatency.at(chanNum); }
+
+int PixelModuleData::getLatency(int bec, int layer) const {
+  int  latency = -1;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelLatency.size()) { latency=m_BarrelLatency.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapLatency.size()) { latency=m_EndcapLatency.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMLatency.size())    { latency=m_DBMLatency.at(layer); }
+  return latency;
+}
 
 void PixelModuleData::setBarrelCrossTalk(std::vector<double> BarrelCrossTalk) { m_BarrelCrossTalk = BarrelCrossTalk; }
 void PixelModuleData::setEndcapCrossTalk(std::vector<double> EndcapCrossTalk) { m_EndcapCrossTalk = EndcapCrossTalk; }
 void PixelModuleData::setDBMCrossTalk(std::vector<double>    DBMCrossTalk)    { m_DBMCrossTalk = DBMCrossTalk; }
-double PixelModuleData::getBarrelCrossTalk(int chanNum) const { return m_BarrelCrossTalk.at(chanNum); }
-double PixelModuleData::getEndcapCrossTalk(int chanNum) const { return m_EndcapCrossTalk.at(chanNum); }
-double PixelModuleData::getDBMCrossTalk(int chanNum)    const { return m_DBMCrossTalk.at(chanNum); }
+
+double PixelModuleData::getCrossTalk(int bec, int layer) const { 
+  double crossTalk = -1.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelCrossTalk.size()) { crossTalk=m_BarrelCrossTalk.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapCrossTalk.size()) { crossTalk=m_EndcapCrossTalk.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMCrossTalk.size())    { crossTalk=m_DBMCrossTalk.at(layer); }
+  return crossTalk;
+}
 
 void PixelModuleData::setBarrelThermalNoise(std::vector<double> BarrelThermalNoise) { m_BarrelThermalNoise = BarrelThermalNoise; }
 void PixelModuleData::setEndcapThermalNoise(std::vector<double> EndcapThermalNoise) { m_EndcapThermalNoise = EndcapThermalNoise; }
 void PixelModuleData::setDBMThermalNoise(std::vector<double>    DBMThermalNoise) { m_DBMThermalNoise = DBMThermalNoise; }
-double PixelModuleData::getBarrelThermalNoise(int chanNum) const { return m_BarrelThermalNoise.at(chanNum); }
-double PixelModuleData::getEndcapThermalNoise(int chanNum) const { return m_EndcapThermalNoise.at(chanNum); }
-double PixelModuleData::getDBMThermalNoise(int chanNum)    const { return m_DBMThermalNoise.at(chanNum); }
+
+double PixelModuleData::getThermalNoise(int bec, int layer) const {
+  double noise = -1.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelThermalNoise.size()) { noise=m_BarrelThermalNoise.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapThermalNoise.size()) { noise=m_EndcapThermalNoise.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMThermalNoise.size())    { noise=m_DBMThermalNoise.at(layer); }
+  return noise;
+}
 
 void PixelModuleData::setBarrelHitDuplication(std::vector<bool> BarrelHitDuplication) { m_BarrelHitDuplication = BarrelHitDuplication; }
 void PixelModuleData::setEndcapHitDuplication(std::vector<bool> EndcapHitDuplication) { m_EndcapHitDuplication = EndcapHitDuplication; }
 void PixelModuleData::setDBMHitDuplication(std::vector<bool>    DBMHitDuplication) { m_DBMHitDuplication = DBMHitDuplication; }
-bool PixelModuleData::getBarrelHitDuplication(int chanNum) const { return m_BarrelHitDuplication.at(chanNum); }
-bool PixelModuleData::getEndcapHitDuplication(int chanNum) const { return m_EndcapHitDuplication.at(chanNum); }
-bool PixelModuleData::getDBMHitDuplication(int chanNum)    const { return m_DBMHitDuplication.at(chanNum); }
+
+bool PixelModuleData::getHitDuplication(int bec, int layer) const {
+  bool hitdupli = false;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelHitDuplication.size()) { hitdupli=m_BarrelHitDuplication.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapHitDuplication.size()) { hitdupli=m_EndcapHitDuplication.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMHitDuplication.size())    { hitdupli=m_DBMHitDuplication.at(layer); }
+  return hitdupli;
+}
 
 void PixelModuleData::setBarrelSmallHitToT(std::vector<int> BarrelSmallHitToT) { m_BarrelSmallHitToT = BarrelSmallHitToT; }
 void PixelModuleData::setEndcapSmallHitToT(std::vector<int> EndcapSmallHitToT) { m_EndcapSmallHitToT = EndcapSmallHitToT; }
 void PixelModuleData::setDBMSmallHitToT(std::vector<int>    DBMSmallHitToT) { m_DBMSmallHitToT = DBMSmallHitToT; }
-int PixelModuleData::getBarrelSmallHitToT(int chanNum) const { return m_BarrelSmallHitToT.at(chanNum); }
-int PixelModuleData::getEndcapSmallHitToT(int chanNum) const { return m_EndcapSmallHitToT.at(chanNum); }
-int PixelModuleData::getDBMSmallHitToT(int chanNum)    const { return m_DBMSmallHitToT.at(chanNum); }
+
+int PixelModuleData::getSmallHitToT(int bec, int layer) const {
+  int smallToT = -1;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelSmallHitToT.size()) { smallToT=m_BarrelSmallHitToT.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapSmallHitToT.size()) { smallToT=m_EndcapSmallHitToT.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMSmallHitToT.size())    { smallToT=m_DBMSmallHitToT.at(layer); }
+  return smallToT;
+}
 
 void PixelModuleData::setIBLHitDiscConfig(const int hitDiscConfig) { m_hitDiscConfig = hitDiscConfig; }
 int PixelModuleData::getIBLHitDiscConfig() const { return m_hitDiscConfig; }
 
 int PixelModuleData::getIBLOverflowToT() const {
-  int overflow = 16;
-  if (m_hitDiscConfig== 0) { overflow=14; }
-  if (m_hitDiscConfig== 1) { overflow=15; }
-  if (m_hitDiscConfig== 2) { overflow=16; }
-  if (m_hitDiscConfig== 3) { overflow=14; }
-  return overflow;
+  static const int overflow[]={14,15,16,14,16};
+  unsigned int idx=static_cast<unsigned int>(m_hitDiscConfig) < 4 ? m_hitDiscConfig : 4;
+  return overflow[idx];
 }
 
 void PixelModuleData::clear() {

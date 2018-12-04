@@ -26,51 +26,37 @@ class PixelModuleData {
     void setBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold);
     void setEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold);
     void setDBMAnalogThreshold(std::vector<int>    DBMAnalogThreshold);
-    int getBarrelAnalogThreshold(int chanNum) const;
-    int getEndcapAnalogThreshold(int chanNum) const;
-    int getDBMAnalogThreshold(int chanNum) const;
+    int getAnalogThreshold(int bec, int layer) const;
 
     void setBarrelToTThreshold(std::vector<int> BarrelToTThreshold);
     void setEndcapToTThreshold(std::vector<int> EndcapToTThreshold);
     void setDBMToTThreshold(std::vector<int>    DBMToTThreshold);
-    int getBarrelToTThreshold(int chanNum) const;
-    int getEndcapToTThreshold(int chanNum) const;
-    int getDBMToTThreshold(int chanNum) const;
+    int getToTThreshold(int bec, int layer) const;
 
     void setBarrelLatency(std::vector<int> BarrelLatency);
     void setEndcapLatency(std::vector<int> EndcapLatency);
     void setDBMLatency(std::vector<int>    DBMLatency);
-    int getBarrelLatency(int chanNum) const;
-    int getEndcapLatency(int chanNum) const;
-    int getDBMLatency(int chanNum) const;
+    int getLatency(int bec, int layer) const;
 
     void setBarrelCrossTalk(std::vector<double> BarrelCrossTalk);
     void setEndcapCrossTalk(std::vector<double> EndcapCrossTalk);
     void setDBMCrossTalk(std::vector<double>    DBMCrossTalk);
-    double getBarrelCrossTalk(int chanNum) const;
-    double getEndcapCrossTalk(int chanNum) const;
-    double getDBMCrossTalk(int chanNum) const;
+    double getCrossTalk(int bec, int layer) const;
 
     void setBarrelThermalNoise(std::vector<double> BarrelThermalNoise);
     void setEndcapThermalNoise(std::vector<double> EndcapThermalNoise);
     void setDBMThermalNoise(std::vector<double>    DBMThermalNoise);
-    double getBarrelThermalNoise(int chanNum) const;
-    double getEndcapThermalNoise(int chanNum) const;
-    double getDBMThermalNoise(int chanNum) const;
+    double getThermalNoise(int bec, int layer) const;
 
     void setBarrelHitDuplication(std::vector<bool> BarrelHitDuplication);
     void setEndcapHitDuplication(std::vector<bool> EndcapHitDuplication);
     void setDBMHitDuplication(std::vector<bool>    DBMHitDuplication);
-    bool getBarrelHitDuplication(int chanNum) const;
-    bool getEndcapHitDuplication(int chanNum) const;
-    bool getDBMHitDuplication(int chanNum) const;
+    bool getHitDuplication(int bec, int layer) const;
 
     void setBarrelSmallHitToT(std::vector<int> BarrelSmallHitToT);
     void setEndcapSmallHitToT(std::vector<int> EndcapSmallHitToT);
     void setDBMSmallHitToT(std::vector<int>    DBMSmallHitToT);
-    int getBarrelSmallHitToT(int chanNum) const;
-    int getEndcapSmallHitToT(int chanNum) const;
-    int getDBMSmallHitToT(int chanNum) const;
+    int getSmallHitToT(int bec, int layer) const;
 
     void setIBLHitDiscConfig(const int hitDiscConfig);
     int getIBLHitDiscConfig() const;
