@@ -37,3 +37,15 @@ def LArCalibIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap")
 
 
+if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+
+    acc = LArOnOffIdMappingCfg( ConfigFlags )[0]
+    acc.merge(LArFebRodMappingCfg(ConfigFlags)[0])
+    acc.merge(LArCalibIdMappingCfg(ConfigFlags)[0])
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"

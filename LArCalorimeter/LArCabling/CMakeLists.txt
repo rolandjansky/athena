@@ -46,3 +46,4 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/FEBtoRODfred_v10.data )
 
+atlas_add_test( LArCablingConfig    SCRIPT python -m LArCabling.LArCablingConfig POST_EXEC_SCRIPT nopost.sh )
