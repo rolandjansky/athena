@@ -11,13 +11,23 @@ namespace hltonl {
   namespace Exception {
     /**
      * @class NoMoreEvents
-     * @brief Can be thrown if all events are already read from the input and another one is requested
+     * @brief Thrown if all events are already read from the input and another one is requested
      */
     class NoMoreEvents : public std::exception {
       public:
         NoMoreEvents() {}
         virtual ~NoMoreEvents() {}
         const char* what() const noexcept override {return "No more events to be processed";}
+    };
+    /**
+     * @class EventSourceCorrupted
+     * @brief Thrown if event source keeps throwing exceptions when new event is requested
+     */
+    class EventSourceCorrupted : public std::exception {
+      public:
+        EventSourceCorrupted() {}
+        virtual ~EventSourceCorrupted() {}
+        const char* what() const noexcept override {return "Event source corrupted and cannot provide events";}
     };
   }
 }

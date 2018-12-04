@@ -15,10 +15,6 @@
 
 // Package includes
 #include "hltinterface/HLTInterface.h"
-#include "hltinterface/EventId.h"
-
-// to be removed together with the Psc::process method
-#include "hltinterface/HLTResult.h"
 
 // Gaudi Includes
 #include "GaudiKernel/StatusCode.h"

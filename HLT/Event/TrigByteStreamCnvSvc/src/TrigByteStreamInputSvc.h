@@ -38,20 +38,19 @@ public:
   virtual const RawEvent* currentEvent() const override;
 
 private:
-  // ------------------------- service handles ---- ----------------------------
+  // ------------------------- Service handles ---------------------------------
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<StoreGateSvc> m_evtStore;
 
-  // ------------------------- private data members ----------------------------
+  // ------------------------- Private data members ----------------------------
   struct EventCache {
     ~EventCache();
-    RawEvent* rawEvent = 0; //!< current event
-    // unsigned int eventStatus = 0; //!< status of the current event
+    RawEvent* rawEvent {nullptr}; //!< Current event
   };
 
-  SG::SlotSpecificObj<EventCache> m_eventsCache;
+  SG::SlotSpecificObj<EventCache> m_eventsCache; //!< Cache of RawEvent pointer per event slot
 
-  // ------------------------- private helper methods --------------------------
+  // ------------------------- Private helper methods --------------------------
   /// Clean up parts of previous event and re-init them
   void releaseEvent(EventCache* cache);
 };

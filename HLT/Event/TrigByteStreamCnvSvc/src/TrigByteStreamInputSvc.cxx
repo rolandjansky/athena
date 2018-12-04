@@ -88,11 +88,23 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   eformat::write::FullEventFragment l1r;
   using DCStatus = hltinterface::DataCollector::Status;
-  auto status = DCStatus::NO_EVENT;
+  DCStatus status = DCStatus::NO_EVENT;
   do {
-    status = hltinterface::DataCollector::instance()->getNext(l1r);
-    if (status == DCStatus::NO_EVENT)
-      ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
+    try {
+      status = hltinterface::DataCollector::instance()->getNext(l1r);
+      if (status == DCStatus::NO_EVENT)
+        ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
+    }
+    catch (const std::exception& ex) {
+      ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception: " << ex.what()
+                    << ". Throwing hltonl::Exception::EventSourceCorrupted" );
+      throw hltonl::Exception::EventSourceCorrupted();
+    }
+    catch (...) {
+      ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception. "
+                    << "Throwing hltonl::Exception::EventSourceCorrupted" );
+      throw hltonl::Exception::EventSourceCorrupted();
+    }
   } while (status == DCStatus::NO_EVENT);
 
   if (status == DCStatus::STOP) {
