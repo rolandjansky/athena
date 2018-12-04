@@ -294,7 +294,7 @@ namespace xAOD {
       return isValid;
     }
     else{
-      const static ConstAccessor<float>* p_acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
+      const ConstAccessor<float>* p_acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
       //check if accessor pointer is NULL
       if( ! p_acc ) {  return false ;}
       //check if variable is avaialable
