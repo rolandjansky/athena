@@ -237,8 +237,8 @@ StatusCode TrigEgammaAnalysisBaseTool::execute() {
         return StatusCode::FAILURE;
     } catch(...) {
         sc.ignore();
-        ATH_MSG_ERROR("Unknown exception caught, while filling histograms");
-        return StatusCode::FAILURE;
+        ATH_MSG_WARNING("Unknown exception caught, while filling histograms");
+        return StatusCode::SUCCESS;
     }
     return sc;
 }

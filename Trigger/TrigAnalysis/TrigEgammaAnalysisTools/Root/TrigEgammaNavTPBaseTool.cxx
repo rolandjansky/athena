@@ -380,7 +380,7 @@ void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
         const std::string pidname="is"+m_isemname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
-    for(int ipid=0;ipid<3;ipid++){
+    for(int ipid=0;ipid<2;ipid++){
         bool accept = (bool) m_electronLHTool[ipid]->accept(eg);
         const std::string pidname="is"+m_lhname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
