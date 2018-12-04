@@ -160,8 +160,8 @@
 + Generators/HepMCWeightSvc
 + Generators/McEventSelector
 + Generators/TruthUtils
++ InnerDetector/InDetConditions/BeamSpotConditions
 + InnerDetector/InDetConditions/BeamSpotConditionsData
-+ InnerDetector/InDetConditions/InDetBeamSpotService
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool

@@ -12,7 +12,8 @@ def createMenuFlags():
     flags = AthConfigFlags()
 
     flags.addFlag('Trigger.menu.muons', [])
-    flags.addFlag('Trigger.menu.egamma', [])
+    flags.addFlag('Trigger.menu.electron', [])
+    flags.addFlag('Trigger.menu.photon', [])
     flags.addFlag('Trigger.menu.combined', [])
 
     return flags
@@ -25,7 +26,8 @@ class MenuUtils:
         for k,v in flags._flagdict.iteritems():
             if "Trigger.menu." in k:
                 for chain in v.get():
-                    hlt,l1 = chain.split()[:2]
+                    hlt = chain[0]
+                    l1 = chain[1]
                     seeding[hlt] = l1
         return seeding
 

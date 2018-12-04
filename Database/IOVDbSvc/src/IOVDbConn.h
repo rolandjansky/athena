@@ -15,7 +15,7 @@ class MsgStream;
 
 class IOVDbConn {
  public:
-  IOVDbConn(const std::string& dbname, const bool readOnly, MsgStream* msg);
+  IOVDbConn(const std::string& dbname, const bool readOnly, MsgStream & msg);
   ~IOVDbConn();
 
   bool isActive() const;
@@ -33,7 +33,7 @@ class IOVDbConn {
   void setReadOnly(const bool readOnly);
 
  private:
-  MsgStream* m_log;
+  MsgStream & m_log;
   bool m_active;
   bool m_readonly;
   bool m_abort;
