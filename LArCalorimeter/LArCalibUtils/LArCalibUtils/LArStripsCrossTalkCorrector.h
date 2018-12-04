@@ -11,7 +11,9 @@
 #include "GaudiKernel/ToolHandle.h"
 //#include "StoreGate/StoreGateSvc.h"
 
-#include "LArCabling/LArCablingService.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArElecCalib/ILArPedestal.h"
@@ -48,7 +50,6 @@ private:
 
 
 class ILArBadChannelMasker;
-class ILArBadChanTool;
 
 
 //===================================================================================
@@ -69,8 +70,10 @@ class LArStripsCrossTalkCorrector : public AthAlgorithm
   StatusCode executeWithAccumulatedDigits();
   StatusCode executeWithStandardDigits();
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
+
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey {this, "MissingFEBKey", "LArBadFeb", "SG key for miffing FEB object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
   ToolHandle<ILArBadChannelMasker> m_dontUseForCorr;
   ToolHandle<ILArBadChannelMasker> m_dontCorrect;
 

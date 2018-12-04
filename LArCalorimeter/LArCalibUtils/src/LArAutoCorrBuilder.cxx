@@ -54,12 +54,12 @@ StatusCode LArAutoCorrBuilder::stop() {
   // Initialize LArAutoCorrComplete 
   StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArAutoCorrComplete object" );
     return sc;
   }
   sc=larAutoCorrComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArAutoCorrComplete object" );
     return sc;
   }
 
@@ -93,18 +93,18 @@ StatusCode LArAutoCorrBuilder::stop() {
       NAutoCorr++;
     }//end loop over all cells
 
-    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero << endmsg;
-    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min << endmsg;
-    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max << endmsg;
+    ATH_MSG_DEBUG( "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero );
+    ATH_MSG_DEBUG( "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min );
+    ATH_MSG_DEBUG( "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max );
   }//end loop over gains
 
-  //msg(MSG::INFO << " Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions()  << endmsg;
-  msg(MSG::INFO) << " Summary : Number of cells with a autocorr value computed : " << NAutoCorr  << endmsg;
-  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endmsg;
-  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endmsg;
-  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endmsg;
-  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endmsg;
-  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
+  //msg(MSG::INFO << " Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions()  );
+  ATH_MSG_INFO( " Summary : Number of cells with a autocorr value computed : " << NAutoCorr  );
+  ATH_MSG_INFO( " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " );
+  ATH_MSG_INFO( " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " );
+  ATH_MSG_INFO( " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " );
+  ATH_MSG_INFO( " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " );
+  ATH_MSG_INFO( " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " );
   
   // Record LArAutoCorrComplete
   ATH_CHECK( detStore()->record(std::move(larAutoCorrComplete),m_acContName) );

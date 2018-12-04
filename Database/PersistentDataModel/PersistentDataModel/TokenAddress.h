@@ -36,14 +36,17 @@ public:
 	   const std::string& p1 = "",
 	   const std::string& p2 = "",
 	   unsigned long ip = 0,
-	   const Token* pt = 0) : GenericAddress(svc, clid, p1, p2, ip), m_token(pt), m_par() {
+	   Token* pt = 0) : GenericAddress(svc, clid, p1, p2, ip), m_token(pt), m_par() {
      setPar();
-  }
+   }
+   TokenAddress(const GenericAddress& genAddr, Token* pt = 0) : GenericAddress(genAddr), m_token(pt), m_par() {
+     setPar();
+   }
 
    virtual ~TokenAddress() { delete m_token; m_token = 0; }
 
-   const Token* getToken() const { return m_token; }
-   void setToken(const Token* token) {
+   Token* getToken() { return m_token; }
+   void setToken(Token* token) {
       delete m_token;
       m_token = token;
       setPar();
@@ -61,7 +64,7 @@ private:
          m_par[0] = m_token->toString();
       }
    }
-   const Token* m_token;
+   Token* m_token;
    std::string m_par[3];
 };
 

@@ -35,6 +35,16 @@ def l2PhotonRecoCfg( flags ):
 
     return reco
 
+def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
+
+    l2PhotonHypo = TrigL2PhotonHypoAlgMT()
+    l2PhotonHypo.Photons = Photons
+    l2PhotonHypo.RunInView = RunInView
+    l2PhotonHypo.OutputLevel = VERBOSE
+
+    return l2PhotonHypo
+
 
 def generatePhotonsCfg( flags ):
 

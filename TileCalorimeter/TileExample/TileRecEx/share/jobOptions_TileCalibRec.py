@@ -833,6 +833,7 @@ topSequence+=xAODMaker__EventInfoCnvAlg()
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
+tileDigitsContainer = ''
 if not ReadPool:
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
     include( "TileRec/TileRec_jobOptions.py" )
@@ -855,8 +856,11 @@ else:
         theTileRawChannelGetter=TileRawChannelGetter()
         if doRecoESD:
             topSequence.TileRChMaker.TileDigitsContainer="TileDigitsFlt"
-        ToolSvc.TileBeamInfoProvider.TileDigitsContainer="TileDigitsFlt"
-        ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""
+            tileDigitsContainer = 'TileDigitsFlt'
+
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+dqStatus = TileDQstatusAlgDefault (TileDigitsContainer = tileDigitsContainer,
+                                   TileRawChannelContainer = '')
 
 if doTileFit:
     ToolSvc.TileRawChannelBuilderFitFilter.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
@@ -1182,6 +1186,10 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
+    dqstatus.TileBeamElemContainer   = getattr (TileNtuple, 'TileBeamElemContainer', '')
+    dqstatus.TileDigitsContainer     = getattr (TileNtuple, 'TileDigitsContainer', '')
+    dqstatus.TileRawChannelContainer = getattr (TileNtuple, 'TileRawChannelContainer', '')
+
     # FIXME: TileAANtuple does a back-door set of properties
     #        in TileBeamInfoProvider.  That doesn't really work with
     #        handles and MT.  To compensate, also set the properties here.
@@ -1211,6 +1219,9 @@ if doTileMon:
         runType = 10
     else:
         runType = TileRunType
+
+    from TileRecUtils.TileBeamInfoProviderDefault import TileBeamInfoProviderDefault
+    TileBeamInfoProviderDefault()
 
     from AthenaMonitoring.AthenaMonitoringConf import *
     TileMon = AthenaMonManager( "TileMon" )
@@ -1358,6 +1369,7 @@ if doTileMon:
         TileDigiNoiseMon = TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon',
                                                 OutputLevel        = OutputLevel,
                                                 TileDigitsContainer = "TileDigitsCnt",
+                                                CheckDCS           = TileUseDCS,
                                                 histoPathBase = "/Tile/DigiNoise" );
         
         if not TileBiGainRun: TileDigiNoiseMon.TriggerTypes = [ 0x82 ]
@@ -1409,6 +1421,7 @@ if doTileMon:
                                                            LowGainThreshold = 10.0,
                                                            HiGainThreshold  = 40.0,
                                                            doOnline         = athenaCommonFlags.isOnline(),
+                                                           CheckDCS           = TileUseDCS,
                                                            TileRawChannelContainer = "TileRawChannelFit")
 
         #ToolSvc += TileRawChannelTimeMon
@@ -1429,6 +1442,7 @@ if doTileMon:
                                                               Gain          = "LG",
                                                               do2GFit       = True,
                                                               # doFit         = True,
+                                                              CheckDCS           = TileUseDCS,
                                                               SummaryUpdateFrequency = 0 );
 
         #ToolSvc += TileRawChannelNoiseMonLG;
@@ -1562,6 +1576,7 @@ if doTileCalib:
 
         # declare CIS tool(s) and set jobOptions if necessary
         TileCisTool = TileCisDefaultCalibTool()
+        dqStatus.TileRawChannelContainer = 'TileRawChannelCnt'
 
         if hasattr(ToolSvc, 'TileDigitsMon'):
             TileCisTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
@@ -1587,6 +1602,8 @@ if doTileCalib:
 
         # declare Trigger tool(s) and set jobOptions if necessary
         TileTriggerTool = TileTriggerDefaultCalibTool()
+        dqStatus.TileRawChannelContainer = 'TileRawChannelCnt'
+
         #from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileTriggerTool
         TileCalibAlg.TileCalibTools += [ TileTriggerTool ]

@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "Identifier/IdentifierHash.h" 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
@@ -32,7 +31,6 @@ SCT_SpacePointTool::SCT_SpacePointTool( const std::string& type,
     m_zVertex(0.0),
     m_xCenter(0.0),
     m_yCenter(0.0),
-    m_iBeamCondSvc(0),
     m_useBeamSpot(true),
     m_useOfflineAlgorithm(true),
     m_numberingTool("TrigL2LayerNumberTool")
@@ -86,18 +84,9 @@ StatusCode SCT_SpacePointTool::initialize()  {
   m_spacepointContainer->addRef();
 
   if (m_useBeamSpot)
-    {
-      StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
-      if (scBS.isFailure() || m_iBeamCondSvc == 0) 
-	{
-	  m_iBeamCondSvc = 0;
-	  ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. " );
-	  ATH_MSG_WARNING( "Using origin at ( "<< m_xVertex <<" , "<< m_yVertex << " , " 
-	      << m_yVertex<< " ) ");
-	  m_xCenter = m_xVertex;
-	  m_yCenter = m_yVertex;
-	}
-    }
+  {
+     if(m_beamSpotKey.initialize().isFailure()) return StatusCode::FAILURE;
+  }
   else {
     m_xCenter = m_xVertex;
     m_yCenter = m_yVertex;
@@ -165,12 +154,13 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
     ATH_MSG_DEBUG( "SCT TrigSP Container " << m_spacepointContainerName
         << " is recorded in StoreGate" );
 	}
-      if (m_useBeamSpot && m_iBeamCondSvc)
+      if (m_useBeamSpot)
 	{
-	  Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
-    ATH_MSG_DEBUG( "Beam spot position " << vertex );
-	  m_xCenter=vertex.x() - m_iBeamCondSvc->beamTilt(0)*vertex.z();
-	  m_yCenter=vertex.y() - m_iBeamCondSvc->beamTilt(1)*vertex.z();
+          SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+	  const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
+          ATH_MSG_DEBUG( "Beam spot position " << vertex );
+	  m_xCenter=vertex.x() - beamSpotHandle->beamTilt(0)*vertex.z();
+	  m_yCenter=vertex.y() - beamSpotHandle->beamTilt(1)*vertex.z();
 	}
       else {
 	m_xCenter = m_xVertex;

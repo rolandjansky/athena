@@ -48,10 +48,10 @@ class LArRampValidationAlg: public LArRampValidationBase {
  private:
   /** @brief Method to validate the ramps single readout channels
    */
-  bool validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain);
+  bool validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
   /** @brief Summary method executed after the loop over all channels */
-  StatusCode summary();
+  StatusCode summary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
   
   /** @brief Executed before the loop over all channels to reset global sums */
   StatusCode preLoop();
@@ -80,10 +80,10 @@ class LArRampValidationAlg: public LArRampValidationBase {
 
   //The following is for keeping track of entire FEBs
   /** @brief Method to compare FEB averages */
-  bool febSummary();
+  bool febSummary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
   //The following is used to look for channels deviating from average
-  bool deviateFromAvg(const LArCondObj& val, const HWIdentifier chid, const int gain);
+  bool deviateFromAvg(const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
   class DataPerFEB {
   public:

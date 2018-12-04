@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************//
@@ -19,7 +19,7 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -39,7 +39,6 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   , m_OFNI(false)
   , m_corrtime(false)
   , m_tileToolEmscale("TileCondToolEmscale")
-  , m_beamInfo("TileBeamInfoProvider")
   , m_tileBadChanTool("TileBadChanTool")
   , m_robSvc("ROBDataProviderSvc", name)
   , m_evEref{}
@@ -59,7 +58,6 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("TileRawChannelContainerOF", m_contNameOF = "TileRawChannelOpt2"); //SG OFF-OF2-I RC Cell Container
   declareProperty("TileRawChannelContainerOFNI", m_contNameOFNI = "TileRawChannelFixed"); //SG OFF-OF2-NI
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileBeamInfoProvider", m_beamInfo);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
 
   declareProperty("DspComparisonUnit", m_compUnit = 3); //units, default is 3= MeV
@@ -70,6 +68,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("FillDetailRODFragmentSize", m_fillDetailFragmentSize = true);
   declareProperty("NumberOfEventsToAverageFragmentSize", m_nEvents4FragmentSize = 50);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/ROD"; //ROOT File directory
 
@@ -95,12 +94,13 @@ StatusCode TileRODMonTool:: initialize() {
   for (uint32_t robId = 0x540000; robId < 0x540010; ++robId) m_tileRobIds.push_back(robId); // EBC
  
   CHECK( m_tileToolEmscale.retrieve() );
-  CHECK( m_beamInfo.retrieve() );
   CHECK( m_robSvc.retrieve() );
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
   memset(m_rodFragmentSizeSum, 0, sizeof(m_rodFragmentSizeSum));
   memset(m_lastRodFragmentSize, 0, sizeof(m_lastRodFragmentSize));
+
+  CHECK( m_DQstatusKey.initialize() );
 
   return TileFatherMonTool::initialize();
 }
@@ -758,8 +758,8 @@ StatusCode TileRODMonTool::fillHistograms()
   const TileRawChannelContainer* RawChannelCntDsp;
   //Alberto
 
-  const TileDQstatus* theDQstatus = 0;
-  if (m_beamInfo) theDQstatus = m_beamInfo->getDQstatus();
+  const TileDQstatus* theDQstatus = SG::makeHandle (m_DQstatusKey).get();
+
 
   if (evtStore()->retrieve(RawChannelCntDsp, m_contNameDSP).isFailure()) {
     ATH_MSG_WARNING("Can't retrieve DSP RawChannel from TES");

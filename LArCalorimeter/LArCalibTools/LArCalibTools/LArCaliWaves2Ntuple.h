@@ -37,7 +37,7 @@ class LArCaliWaves2Ntuple : public  LArWaves2Ntuple
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
  private:
-  bool writeEntry(const HWIdentifier chid,  const unsigned gain, const LArCaliWave& wave); 
+  bool writeEntry(const HWIdentifier chid,  const unsigned gain, const LArCaliWave& wave, const LArCalibLineMapping *clCont); 
   
   std::vector<std::string> m_keylist ; 
   std::string m_ntName;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************//
@@ -19,7 +19,6 @@
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigT1Result/CTP_RDO.h"
@@ -27,6 +26,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -85,7 +85,6 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_h_bcidTriggerA(0)
   , m_h_bcidTriggerC(0)
   , m_h_tileRdOutErr(0)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_lvl1ConfigSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
   , m_pitID(32, 0)
   , m_ctpID(32, 0)
@@ -104,6 +103,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
   declareProperty("FillHistogramsPerMBTS", m_fillHistogramsPerMBTS = true); // Switch for using per MBTS histograms
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/MBTS";
   m_numEvents = 0;
@@ -140,7 +140,6 @@ StatusCode TileMBTSMonTool:: initialize(){
 
   ATH_MSG_INFO( "in initialize()" );
 
-  CHECK( m_beamInfo.retrieve() );
   CHECK( TileFatherMonTool::initialize() );
 
   memset(m_MBTSchannels, -1, sizeof(m_MBTSchannels));
@@ -165,6 +164,8 @@ StatusCode TileMBTSMonTool:: initialize(){
     }
   }
 	
+  CHECK( m_DQstatusKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -864,7 +865,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
   ATH_MSG_VERBOSE("Retrieval of Tile Digits container " << m_TileDigitsContainerID << " succeeded");
 
   // Create instance of TileDQstatus used to check for readout errors in Tile
-  const TileDQstatus * theDQstatus = m_beamInfo->getDQstatus();
+  const TileDQstatus * theDQstatus = SG::makeHandle (m_DQstatusKey).get();
 
   TileDigitsContainer::const_iterator collItr = theDigitsContainer->begin();
   TileDigitsContainer::const_iterator lastColl = theDigitsContainer->end();

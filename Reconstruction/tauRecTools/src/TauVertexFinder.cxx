@@ -100,9 +100,8 @@ StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
   }
   else { // trigger mode
     // find default PrimaryVertex (highest sum pt^2)
-    StatusCode sc;
     //for tau trigger
-    sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
+    StatusCode sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
     if ( sc.isFailure() ){
       ATH_MSG_WARNING("Could not retrieve VxPrimaryCandidate");
       return StatusCode::FAILURE;
@@ -158,18 +157,18 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   std::vector<const xAOD::TrackParticle*> assocTracks;
   
   if (inTrigger)   {
-    // TO DO: check this retrieves the correct object. Previously used TauEventData, retrieved "TrackContainer":
-    // StatusCode sc = tauEventData()->getObject( "TrackContainer", trackParticleCont ); // to be replaced by full FTK collection?
-    
-    // Get the track particle container from StoreGate
-    SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
-    if (!trackPartInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
-      ATH_MSG_WARNING("No TrackContainer for TJVA in trigger found");    
-      return ElementLink<xAOD::VertexContainer>();    
+    StatusCode sc = tauEventData()->getObject( "TrackContainer", trackParticleCont ); // to be replaced by full FTK collection?
+    if (sc.isFailure() || !trackParticleCont){
+      ATH_MSG_WARNING("No TrackContainer for TJVA in trigger found");
+      return ElementLink<xAOD::VertexContainer>();
     }
-    trackParticleCont = trackPartInHandle.cptr();
-
+    // convert TrackParticleContainer in std::vector<const xAOD::TrackParticle*>
+    for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont->begin(); tpcItr != trackParticleCont->end(); ++tpcItr) {
+      const xAOD::TrackParticle *trackParticle = *tpcItr;
+      assocTracks.push_back(trackParticle);
+    }
+    ATH_MSG_DEBUG("TrackContainer for online TJVA with size "<< assocTracks.size()); 
+   
     // convert TrackParticleContainer in std::vector<const xAOD::TrackParticle*>
     for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont->begin(); tpcItr != trackParticleCont->end(); ++tpcItr) {
       const xAOD::TrackParticle *trackParticle = *tpcItr;
@@ -177,13 +176,11 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
     }
     ATH_MSG_DEBUG("TrackContainer for online TJVA with size "<< assocTracks.size()); 
   }
-  else {
-    
+  else {    
     if (! pJetSeed->getAssociatedObjects(m_assocTracksName, assocTracks)) {
       ATH_MSG_ERROR("Could not retrieve the AssociatedObjects named \""<< m_assocTracksName <<"\" from jet");
       return ElementLink<xAOD::VertexContainer>();
     }
-
   } 
   
   // Store tracks that meet TJVA track selection criteria and are between deltaR of 0.2 with the jet seed

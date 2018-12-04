@@ -35,6 +35,8 @@
 //include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "JetUtils/TiledEtaPhiMap.h"
 
@@ -47,7 +49,6 @@
 class CaloCell;
 class CaloDetDescrManager;
 class ITileBadChanTool ;
-class ILArBadChanTool;
 
 namespace std {
   template<>
@@ -179,7 +180,7 @@ class MissingCellListTool
 
   ServiceHandle<TileCablingSvc> m_tileCabling;
   ToolHandle<ITileBadChanTool> m_tileTool;
-  ToolHandle<ILArBadChanTool> m_larTool;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
 
   std::string m_missingCellMapName;
 }; 

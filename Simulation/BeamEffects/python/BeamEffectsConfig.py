@@ -31,8 +31,14 @@ def getVertexBeamCondPositioner(name="VertexBeamCondPositioner", **kwargs):
     #simFlags.VertexTimeOffset.get_Value()
     kwargs.setdefault('RandomSvc', simFlags.RandomSvcMT.get_Value())
     # TODO This should really be with the BeamCondSvc configuration.
+    # Conditions sequence for Athena MT
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "BeamSpotCondAlg"):
+        from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+        condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
     from IOVDbSvc.CondDB import conddb
-    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos")
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList')
     return CfgMgr.Simulation__VertexBeamCondPositioner(name, **kwargs)
 
 def getLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwargs):
@@ -40,6 +46,15 @@ def getLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwarg
     #simFlags.VertexTimeOffset.get_Value()
     kwargs.setdefault('LParameter', 150.0)
     kwargs.setdefault('RandomSvc', simFlags.RandomSvcMT.get_Value())
+    # TODO This should really be with the BeamCondSvc configuration.
+    # Conditions sequence for Athena MT
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "BeamSpotCondAlg"):
+        from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+        condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList')
     return CfgMgr.Simulation__LongBeamspotVertexPositioner(name, **kwargs)
 
 def getCrabKissingVertexPositioner(name="CrabKissingVertexPositioner", **kwargs):
@@ -47,6 +62,15 @@ def getCrabKissingVertexPositioner(name="CrabKissingVertexPositioner", **kwargs)
     kwargs.setdefault('BunchLength', 75.0)
     kwargs.setdefault('RandomSvc', simFlags.RandomSvcMT.get_Value())
     kwargs.setdefault('BunchShape'              , "GAUSS")
+    # TODO This should really be with the BeamCondSvc configuration.
+    # Conditions sequence for Athena MT
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "BeamSpotCondAlg"):
+        from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+        condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList')
     return CfgMgr.Simulation__CrabKissingVertexPositioner(name, **kwargs)
 
 #--------------------------------------------------------------------------------------------------

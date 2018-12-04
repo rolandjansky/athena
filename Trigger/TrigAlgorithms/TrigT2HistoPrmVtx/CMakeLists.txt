@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventPrimitives
                           Event/xAOD/xAODBase
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           Reconstruction/Particle
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigNavigation

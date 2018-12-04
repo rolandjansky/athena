@@ -407,6 +407,7 @@ private:
   TileL2Container* m_drawcoll;
   /** Either use one calo layer at a time, or do all of it */
   bool m_loadAllSamplings;
+  /** new Tile ROD schema (2017) */
   /** error reporting */
   uint32_t m_error;
   /** mbts cached */

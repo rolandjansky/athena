@@ -73,6 +73,12 @@ StatusCode CaloCondBlob2Ntuple::stop () {
     return StatusCode::FAILURE;
   }
   
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
   
   const unsigned nChans=condBlob->getNChans();
   //const usnigend nGains=condBlob->getNGains();
@@ -81,7 +87,7 @@ StatusCode CaloCondBlob2Ntuple::stop () {
   for(unsigned h=0;h<nChans;++h) {
     //add here loop over gains
      //const Identifier id=caloCellId->cell_id(h);
-     const HWIdentifier hwid=m_larCablingSvc->createSignalChannelIDFromHash(h);   
+     const HWIdentifier hwid=cabling->createSignalChannelIDFromHash(h);   
      fillFromIdentifier(hwid);
      value= condBlob->getData(h,0,0);
      

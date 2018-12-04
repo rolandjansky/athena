@@ -20,6 +20,62 @@ CLID CondContBase::clid() const
 }
 
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the key type for this container.
+ */
+inline
+CondContBase::KeyType CondContBase::keyType() const
+{
+  return m_keyType;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return CLID/key corresponding to this container.
+ */
+inline
+const DataObjID& CondContBase::id() const
+{
+  return m_id;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the associated @c DataProxy, if any.
+ */
+inline
+SG::DataProxy* CondContBase::proxy()
+{
+  return m_proxy;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Test to see if a given IOV time is mapped in the container.
+ * @param t IOV time to check.
+ */
+inline
+bool CondContBase::valid (const EventIDBase& t) const
+{
+  return findBase (t, nullptr) != nullptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 /**
  * @brief Do pointer conversion for the payload type.
  * @param clid CLID for the desired pointer type.
@@ -34,6 +90,9 @@ const void* CondContBase::cast (CLID /*clid*/, const void* /*ptr*/) const
 }
 
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 /**
  * @brief Make a run+lbn key from an EventIDBase.
  * @param Event ID to convert.
@@ -43,6 +102,9 @@ CondContBase::key_type CondContBase::keyFromRunLBN (const EventIDBase& b)
 {
   return (static_cast<key_type> (b.run_number())<<32) + b.lumi_block();
 }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
 /**
@@ -56,6 +118,9 @@ CondContBase::key_type CondContBase::keyFromTimestamp (const EventIDBase& b)
 }
 
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 /**
  * @brief Default constructor.
  */
@@ -65,6 +130,9 @@ CondContBase::RangeKey::RangeKey()
     m_stop(0)
 {
 }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
 /**
@@ -100,11 +168,7 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
                        const DataObjID& id,
                        SG::DataProxy* proxy /*=nullptr*/,
                        size_t capacity /*= 16*/)
-  : Base (rcusvc, ClassID_traits<CondCont<T> >::ID(), id, proxy),
-    m_condSet_clock (typename CondContSet::Updater_t (rcusvc), capacity),
-    m_condSet_RE (typename CondContSet::Updater_t (rcusvc), capacity),
-    m_id (id),
-    m_proxy (proxy)
+  : Base (rcusvc, ClassID_traits<CondCont<T> >::ID(), id, proxy, delfcn, capacity)
 {
   CondCont<T>::registerBaseInit();
 }
@@ -117,182 +181,27 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
  * @brief Destructor.
  */
 template <typename T>
-CondCont<T>::~CondCont<T>() {
+CondCont<T>::~CondCont<T>()
+{
 }    
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-/**
- * @brief Return CLID/key corresponding to this container.
- */
-template <class T>
-inline
-const DataObjID& CondCont<T>::id() const
-{
-  return m_id;
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the associated @c DataProxy, if any.
- */
-template <class T>
-inline
-SG::DataProxy* CondCont<T>::proxy()
-{
-  return m_proxy;
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Set the associated @c DataProxy.
- * @param proxy The proxy to set.
- */
-template <class T>
-inline
-void CondCont<T>::setProxy (SG::DataProxy* proxy)
-{
-  m_proxy = proxy;
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Dump the container contents for debugging.
- * @param ost Stream to which to write the dump.
- */
-template <typename T>
-void CondCont<T>::list (std::ostream& ost) const
-{
-  ost << "id: " << m_id << "  proxy: " << m_proxy << std::endl;
-
-  ost << "clock: [" << m_condSet_clock.size() << "]" << std::endl;
-  for (const typename CondContSet::value_type& ent : m_condSet_clock.range()) {
-    ost << ent.first.m_range << " " << ent.second << std::endl;
-  }
-  ost << "RE: [" << m_condSet_RE.size() << "]" << std::endl;
-  for (const typename CondContSet::value_type& ent : m_condSet_RE.range()) {
-    ost << ent.first.m_range << " " << ent.second << std::endl;
-  }
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the number of conditions objects in the container.
- */
-template <typename T>
-size_t CondCont<T>::entries() const
-{
-  return m_condSet_RE.size() + m_condSet_clock.size();
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the number of run+LBN conditions objects
- *        in the container.
- */
-template <typename T>
-size_t CondCont<T>::entriesRunLBN() const
-{
-  return m_condSet_RE.size();
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the number of timestamp-based conditions objects
- *        in the container.
- */
-template <typename T>
-size_t CondCont<T>::entriesTimestamp() const
-{
-  return m_condSet_clock.size();
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return all IOV validity ranges defined in this container.
- */
-template <typename T>
-std::vector<EventIDRange> 
-CondCont<T>::ranges() const
-{
-  std::vector<EventIDRange> r;
-  r.reserve (m_condSet_RE.size() + m_condSet_clock.size());
-  for (const typename CondContSet::value_type& ent : m_condSet_RE.range()) {
-    r.push_back( ent.first.m_range );
-  }
-  for (const typename CondContSet::value_type& ent : m_condSet_clock.range()) {
-    r.push_back( ent.first.m_range );
-  }
-
-  return r;
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
 /** 
  * @brief Insert a new conditions object.
  * @param r Range of validity of this object.
- * @param obj Pointer to the object being inserted.
+ * @param t Pointer to the object being inserted.
  * @param ctx Event context for the current thread.
  *
- * @c obj must point to an object of type @c T,
- * except in the case of inheritance, where the type of @c obj must
- * correspond to the most-derived @c CondCont type.
- * The container will take ownership of this object.
- *
- * Returns SUCCESS if the object was successfully inserted;
- * DUPLICATE if the object wasn't inserted because the range
- * duplicates an existing one, and FAILURE otherwise
- * (ownership of the object will be taken in any case).
- */
-template <typename T>
-StatusCode CondCont<T>::typelessInsert (const EventIDRange& r,
-                                        void* obj,
-                                        const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  return insert (r, std::unique_ptr<T> (static_cast<T*>(obj)), ctx);
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/** 
- * @brief Insert a new conditions object.
- * @param r Range of validity of this object.
- * @param obj Pointer to the object being inserted.
- * @param ctx Event context for the current thread.
- *
- * @c obj must point to an object of type @c T.
+ * @c t must point to an object of type @c T.
  * This will give an error if this is not called
  * on the most-derived @c CondCont.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * OVERLAP if the object was inserted but the range partially overlaps
+ * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
  * duplicates an existing one, and FAILURE otherwise
  * (ownership of the object will be taken in any case).
@@ -303,44 +212,11 @@ StatusCode CondCont<T>::insert (const EventIDRange& r,
                                 const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
   if (this->clid() != ClassID_traits<CondCont<T> >::ID()) {
-    std::cerr << "CondCont<T>::insert error: Not most-derived class."
-              << std::endl;
+    this->insertError (ClassID_traits<CondCont<T> >::ID());
     return StatusCode::FAILURE;
   }
 
-  EventIDBase start = r.start();
-  EventIDBase stop = r.stop();
-
-  // LBN part of ranges may be undefined for an open-ended range.
-  if (start.run_number() != EventIDBase::UNDEFNUM &&
-      stop.run_number() != EventIDBase::UNDEFNUM)
-  {
-    if (!m_condSet_RE.emplace( RangeKey(r,
-                                        CondContBase::keyFromRunLBN (start),
-                                        CondContBase::keyFromRunLBN (stop)),
-                               std::move(t), ctx ))
-    {
-      return CondContStatusCode::DUPLICATE;
-    }
-    
-  }
-  else if (start.isTimeStamp() && stop.isTimeStamp()) {
-    if (!m_condSet_clock.emplace( RangeKey(r,
-                                           CondContBase::keyFromTimestamp (start),
-                                           CondContBase::keyFromTimestamp (stop)),
-                                  std::move(t), ctx ))
-    {
-      return CondContStatusCode::DUPLICATE;
-    }
-  }
-  else {
-    std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
-              << " is neither fully RunEvent nor TimeStamp" 
-              << std::endl;
-    return StatusCode::FAILURE;
-  }
-
-  return this->inserted (ctx);
+  return Base::insertBase (r, std::move(t), ctx);
 }
 
 
@@ -360,7 +236,12 @@ bool CondCont<T>::find (const EventIDBase& t,
                         T const *& obj,
                         EventIDRange const** r) const
 {
-  const void* ptr = findByCLID (ClassID_traits<CondCont<T> >::ID(), t, r);
+  const void* ptr = Base::findBase (t, r);
+
+  if (ClassID_traits<CondCont<T> >::ID() != this->clid()) {
+    ptr = doCast (ClassID_traits<CondCont<T> >::ID(), ptr);
+  }
+
   obj = reinterpret_cast<const T*> (ptr);
   return obj != nullptr;
 }
@@ -370,197 +251,22 @@ bool CondCont<T>::find (const EventIDBase& t,
 
 
 /**
- * @brief Test to see if a given IOV time is mapped in the container.
- * @param t IOV time to check.
- */
-template <typename T>
-bool CondCont<T>::valid (const EventIDBase& t) const
-{
-  return findByCLID (this->clid(), t, nullptr) != nullptr;
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the mapped validity range for an IOV time.
- * @param t IOV time to check.
- * @param r[out] The range containing @c t.
+ * @brief Do pointer conversion for the payload type.
+ * @param clid CLID for the desired pointer type.
+ * @param ptr Pointer of type @c T*.
  *
- * Returns true if @c t is mapped; false otherwise.
- */
-template <typename T>
-bool
-CondCont<T>::range(const EventIDBase& t, EventIDRange& r) const
-{
-  const EventIDRange* rp = nullptr;
-  if (findByCLID (this->clid(), t, &rp) != nullptr) {
-    r = *rp;
-    return true;
-  }
-  return false;
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Remove unused run+LBN entries from the front of the list.
- * @param keys List of keys that may still be in use.
- *             (Must be sorted.)
+ * Converts @c ptr from @c T* to a pointer to the type
+ * given by @c clid.  Returns nullptr if the conversion
+ * is not possible.
  *
- * We examine the objects in the container, starting with the earliest one.
- * If none of the keys in @c keys match the range for this object, then
- * it is removed from the container.  We stop when we either find
- * an object with a range matching a key in @c keys or when there
- * is only one object left.
- *
- * The list @c keys should contain keys as computed by keyFromRunLBN.
- * The list must be sorted.
- *
- * Removed objects are queued for deletion once all slots have been
- * marked as quiescent.
- *
- * Returns the number of objects that were removed.
- */
-template <typename T>
-size_t CondCont<T>::trimRunLBN (const std::vector<key_type>& keys)
-{
-  return m_condSet_RE.trim (keys);
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Remove unused timestamp entries from the front of the list.
- * @param keys List of keys that may still be in use.
- *             (Must be sorted.)
- *
- * We examine the objects in the container, starting with the earliest one.
- * If none of the keys in @c keys match the range for this object, then
- * it is removed from the container.  We stop when we either find
- * an object with a range matching a key in @c keys or when there
- * is only one object left.
- *
- * The list @c keys should contain keys as computed by keyFromRunLBN.
- * The list must be sorted.
- *
- * Removed objects are queued for deletion once all slots have been
- * marked as quiescent.
- *
- * Returns the number of objects that were removed.
- */
-template <typename T>
-size_t CondCont<T>::trimTimestamp (const std::vector<key_type>& keys)
-{
-  return m_condSet_clock.trim (keys);
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Erase the first element not less than @c t.
- * @param IOV time of element to erase.
- * @param ctx Event context for the current thread.
- */
-template <typename T>
-void CondCont<T>::erase (const EventIDBase& t,
-                         const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  if (t.isRunLumi()) {
-    m_condSet_RE.erase (CondContBase::keyFromRunLBN (t), ctx);
-  }
-  else if (t.isTimeStamp()) {
-    m_condSet_clock.erase (CondContBase::keyFromTimestamp (t), ctx);
-  }
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Mark that this thread is no longer accessing data from this container.
- * @param ctx Event context for the current thread.
- *
- * This would normally be done through RCU service.
- * Defined here for purposes of testing.
- */
-template <typename T>
-void
-CondCont<T>::quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  m_condSet_RE.quiescent (ctx);
-  m_condSet_clock.quiescent (ctx);
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the number times an item was inserted into the map.
+ * This is a virtual function that calls @c cast from the most-derived class
+ * of the hierarchy.
  */
 template <typename T>
 inline
-size_t CondCont<T>::nInserts() const
+const void* CondCont<T>::doCast (CLID clid, const void* ptr) const
 {
-  return m_condSet_clock.nInserts() + m_condSet_RE.nInserts();
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief Return the maximum size of the map.
- */
-template <typename T>
-inline
-size_t CondCont<T>::maxSize() const
-{
-  return m_condSet_clock.maxSize() + m_condSet_RE.maxSize();
-}
-
-
-/**
- * @brief Extend the range of the last IOV.
- * @param newRange New validity range.
- * @param ctx Event context.
- *
- * Returns failure if the start time of @c newRange does not match the start time
- * of the last IOV in the container.  Otherwise, the end time for the last
- * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
- * is before the end of the last IOV, then nothing is changed.)
- */
-template <typename T>
-StatusCode
-CondCont<T>::extendLastRange (const EventIDRange& newRange,
-                              const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
-{
-  typename CondContSet::const_iterator it = nullptr;
-  if (newRange.start().isRunLumi()) {
-    it = m_condSet_RE.extendLastRange
-      (RangeKey (newRange,
-                 CondContBase::keyFromRunLBN (newRange.start()),
-                 CondContBase::keyFromRunLBN (newRange.stop())), ctx);
-  }
-  else if (newRange.start().isTimeStamp()) {
-    it = m_condSet_clock.extendLastRange
-      (RangeKey (newRange,
-                 CondContBase::keyFromTimestamp (newRange.start()),
-                 CondContBase::keyFromTimestamp (newRange.stop())), ctx);
-  }
-  if (it != nullptr) {
-    return StatusCode::SUCCESS;
-  }
-  return StatusCode::FAILURE;
+  return cast (clid, ptr);
 }
 
 
@@ -573,18 +279,18 @@ CondCont<T>::extendLastRange (const EventIDRange& newRange,
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
+ * @param delfcn Deletion function for the actual payload type.
+ * @param capacity Initial capacity of the container.
  */
 template <typename T>
 inline
 CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
                        CLID clid,
                        const DataObjID& id,
-                       SG::DataProxy* proxy)
-  : Base (rcusvc, clid, id, proxy),
-    m_condSet_clock (typename CondContSet::Updater_t (rcusvc)),
-    m_condSet_RE (typename CondContSet::Updater_t (rcusvc)),
-    m_id(id),
-    m_proxy(proxy)
+                       SG::DataProxy* proxy,
+                       const typename CondContSet::delete_function* delfcn,
+                       size_t capacity)
+  : Base (rcusvc, clid, id, proxy, delfcn, capacity)
 {
   CondCont<T>::registerBaseInit();
 }
@@ -603,63 +309,13 @@ CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
  * is not possible.
  */
 template <typename T>
+inline
 const void* CondCont<T>::cast (CLID clid, const void* ptr) const
 {
   if (clid == ClassID_traits<CondCont<T> >::ID())
     return ptr;
   return Base::cast (clid, static_cast<const typename Base::Payload*>
                              (reinterpret_cast<const T*> (ptr)));
-}
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-/** 
- * @brief Internal lookup function.
- * @param clid CLID for the desired pointer type.
- * @param t IOV time to find.
- * @param r If non-null, copy validity range of the object here.
- *
- * Looks up the conditions object corresponding to the IOV time @c t.
- * If found, convert the pointer to a pointer to the type identified
- * by CLID and return it.  Otherwise, return nullptr.
- */
-template <typename T>
-const void* CondCont<T>::findByCLID (CLID clid,
-                                     const EventIDBase& t,
-                                     EventIDRange const** r) const
-{
-  const void* ptr = nullptr;
-  if (t.isRunLumi()) {
-    key_type key = CondContBase::keyFromRunLBN (t);
-    typename CondContSet::const_iterator it = m_condSet_RE.find (key);
-    if (it && key < it->first.m_stop) {
-      if (r) {
-        *r = &it->first.m_range;
-      }
-      ptr = it->second;
-    }
-  } 
-
-  if (!ptr && t.isTimeStamp()) {
-    key_type key = CondContBase::keyFromTimestamp (t);
-    typename CondContSet::const_iterator it = m_condSet_clock.find (key);
-    if (it && key < it->first.m_stop) {
-      if (r) {
-        *r = &it->first.m_range;
-      }
-      ptr = it->second;
-    }
-  }
-
-  // Do pointer conversion if needed.
-  if (ptr && clid != ClassID_traits<CondCont<T> >::ID()) {
-    ptr = Base::cast (clid, static_cast<const typename Base::Payload*>
-                              (reinterpret_cast<const T*> (ptr)));
-  }
-
-  return ptr;
 }
 
 

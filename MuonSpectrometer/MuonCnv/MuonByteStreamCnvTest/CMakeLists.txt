@@ -28,18 +28,19 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCnv/MuonTGC_CnvTools
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData )
+                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData 
+			  MuonSpectrometer/MuonCablings/MuonCablingData )
 
 # Component(s) in the package:
 atlas_add_library( MuonByteStreamCnvTestLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonByteStreamCnvTest
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonReadoutGeometry MuonRDO StoreGateLib SGtests RPCcablingInterfaceLib TrigT1RPChardwareLib RPChardware TrigT1RPClogicLib MuonMDT_CablingLib TGCcablingInterfaceLib MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES EventInfo MuonDigitContainer MuonPrepRawData )
+                   PRIVATE_LINK_LIBRARIES EventInfo MuonDigitContainer MuonPrepRawData MuonCablingData )
 
 atlas_add_component( MuonByteStreamCnvTest
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry MuonRDO TrigT1RPChardwareLib RPChardware TrigT1RPClogicLib EventInfo MuonMDT_CablingLib TGCcablingInterfaceLib MuonDigitContainer MuonIdHelpersLib MuonPrepRawData MuonByteStreamCnvTestLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry MuonRDO TrigT1RPChardwareLib RPChardware TrigT1RPClogicLib EventInfo MuonMDT_CablingLib TGCcablingInterfaceLib MuonDigitContainer MuonIdHelpersLib MuonPrepRawData MuonByteStreamCnvTestLib MuonCablingData )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

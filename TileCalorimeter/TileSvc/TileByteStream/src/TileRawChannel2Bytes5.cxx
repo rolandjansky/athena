@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileByteStream/TileRawChannel2Bytes5.h" 
@@ -23,6 +23,10 @@
 #define code_full TileRawChannel2Bytes5::code_full
 #define code_dump TileRawChannel2Bytes5::code_dump
 #define code_null TileRawChannel2Bytes5::code_null
+
+
+namespace {
+
 
 // 0 - ADC, 1 - pC, 2 - CspC, 3 - MeV
 const int OF_E_FRACBITS[4] = { 4, 5, 5, -5 };
@@ -54,40 +58,48 @@ int32_t _extr(int32_t d, uint32_t ab) {
   return _ext(d, ab >> 5, ab);
 }
 
+#if 0
 uint32_t _hi(uint32_t d) { return (d >> 16) & 0xFFFF; }
 uint32_t _lo(uint32_t d) { return d & 0xFFFF; }
+#endif
 uint32_t _pack2(uint32_t a, uint32_t b) { return (a & 0xFFFF) << 16 | (b & 0xFFFF); }
+#if 0
 uint32_t _packh2(uint32_t a, uint32_t b) { return _pack2(a >> 16, b >> 16); }
 uint32_t _sub2(uint32_t a, uint32_t b) { return _pack2(_hi(a) - _hi(b), _lo(a) - _lo(b)); }
 uint32_t _set(uint32_t d, int a, int b) { return d |  _extu(0xFFFFFFFF, a, b); }
 uint32_t _clr(uint32_t d, int a, int b) { return d & ~_extu(0xFFFFFFFF, a, b); }
 uint32_t _setr(int a, int b) { return _set(0, a, b); }
+#endif
 
-unsigned char getbyte(unsigned char* ptr) {
+unsigned char getbyte(const unsigned char* ptr) {
   //uint64_t u = (uint64_t) ptr;
-  size_t u = (size_t) ptr;
+  uintptr_t u = reinterpret_cast<uintptr_t> (ptr);
   u = u + 3 - 2*(u % 4);
-  ptr = (unsigned char*) u;
+  ptr = reinterpret_cast<const unsigned char*> (u);
   return *ptr;
 }
 
-uint8_t _mem1(unsigned char* ptr) {
+#if 0
+uint8_t _mem1(const unsigned char* ptr) {
   unsigned char b0;
   b0 = getbyte(ptr);
   return b0;
 }
-uint8_t _mem1(char* ptr)     { return _mem1((unsigned char*) ptr); }
+uint8_t _mem1(const char* ptr)     { return _mem1((const unsigned char*) ptr); }
+#endif
 
 
-uint16_t _mem2(unsigned char* ptr) {
+#if 0
+uint16_t _mem2(const unsigned char* ptr) {
   unsigned char b0, b1;
   b0 = getbyte(ptr++);
   b1 = getbyte(ptr++);
   return (b0 << 8) | b1;
 }
-uint16_t _mem2(char* ptr)     { return _mem2((unsigned char*) ptr); }
+uint16_t _mem2(const char* ptr)     { return _mem2((const unsigned char*) ptr); }
+#endif
 
-uint32_t _mem4(unsigned char* ptr) {
+uint32_t _mem4(const unsigned char* ptr) {
   unsigned char b0, b1, b2, b3;
   b0 = getbyte(ptr++);
   b1 = getbyte(ptr++);
@@ -95,10 +107,15 @@ uint32_t _mem4(unsigned char* ptr) {
   b3 = getbyte(ptr++);
   return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
 }
-uint32_t _mem4(char* ptr)     { return _mem4((unsigned char*) ptr); }
+
+#if 0
+uint32_t _mem4(const char* ptr)     { return _mem4((const unsigned char*) ptr); }
+#endif
 
 uint32_t _packhl2(uint32_t a, uint32_t b) { return (a & 0xFFFF0000) | (b & 0x0000FFFF); }
 
+
+#if 0
 uint32_t _norm(uint32_t d) {
   uint32_t u = d & 0x80000000;
   int n = 0;
@@ -109,6 +126,8 @@ uint32_t _norm(uint32_t d) {
   }
   return n;
 }
+#endif
+
 
 int32_t _sadd(int32_t a, int32_t b) {
   int32_t u = a + b;
@@ -162,8 +181,8 @@ uint32_t _deal(uint32_t u) {
   return u1 | u0;
 }
 
-/// Intrinstic Functions which does not work correctly
-/// due to differense in the byte ordering
+/// Intrinsic functions which do not work correctly
+/// due to differences in byte ordering
 
 //uint32_t _hi(double d) { return (uint64_t)d >> 32; }
 //uint32_t _lo(double d) { return (uint64_t)d & 0xFFFFFFFF; }
@@ -191,56 +210,6 @@ uint32_t _deal(uint32_t u) {
 #define saturate(u, n) _ext(_sshl(u + _abs(u), 30 - (n)), 0, 31 - (n))
 
 int get_code(UINT32 reco) { return TileRawChannel2Bytes5::get_code(reco); }
-
-// ========== DSP reconstruction of Amplitude (DSP code) ========== //
-
-int TileRawChannel2Bytes5::amplitude(UINT32* ofw, int unit, int chan, int gain, int s[])
-{
-
-  UINT32 calib, calib_coeff;
-  INT16 calib_scale;
-  int amp, ene, ene0, ene_shift;
-  //INT16 amp2;
-  UINT32* ofc;
-
-  int FRACBITS_MINUS_11 = _sadd(OF_E_FRACBITS[unit], 11);
-
-  int s1 = s[0], s2 = s[1], s3 = s[2], s4 = s[3], s5 = s[4], s6 = s[5], s7 = s[6];
-
-  // samples
-  UINT32 s1x = _pack2(s1, gain << 15);
-  UINT32 s32 = _pack2(s3, s2);
-  UINT32 s54 = _pack2(s5, s4);
-  UINT32 s76 = _pack2(s7, s6);
-
-  ene_shift = 512 + _mpy(gain, 2048 - 512);
-
-  ofc = ofw + chan*NOFWORDS_WEIGHTS_7S + gain*NOFWORDS_WEIGHTS_7S_1GAIN;
-
-  // amp coeff
-  UINT32 a1x = ofc[0];
-  UINT32 a32 = ofc[1];
-  UINT32 a54 = ofc[2];
-  UINT32 a76 = ofc[3];
-  //UINT16 a_scale = _extu(a1x, 16, 16);
-
-  amp = _mpyh (a1x, s1x)
-      + _dotp2(a32, s32)
-      + _dotp2(a54, s54)
-      + _dotp2(a76, s76);
-
-  // calib
-  calib = ofc[4];
-
-  calib_coeff = _ext(calib, 0, 16);
-  calib_scale = _ssub(_extu(calib, 16, 16) , FRACBITS_MINUS_11);
-  ene0 = _round(amp, 11);
-  ene0 = _round(ene0*calib_coeff, calib_scale);
-  ene = ene0 + ene_shift;
-
-  return ene;
-}
-
 
 // ========== RarCompress.c (DSP code) ========== //
 
@@ -272,6 +241,7 @@ UINT32 repack_hg(UINT32 hg, UINT16 shift)
   return _packhl2(_extr(hg, shift), hg);
 }
 
+#if 0
 INT16 get_ampcorr_coeff(int time)
 {
   // Time with 0.5 ns step
@@ -280,6 +250,7 @@ INT16 get_ampcorr_coeff(int time)
   double ampcorr = ((0.0000006467*time + 0.0002713687)*time + 0.0000365732)*time + 1;
   return _roundf(ampcorr*(0x1 << 14));
 }
+
 
 void print_ampcorr_lookup() {
   int time;
@@ -295,6 +266,8 @@ void print_ampcorr_lookup() {
   }
   printf("}\n");
 }
+#endif
+
 
 #define unpack_diff(diff, nbits, d2, d3, d5, d6, d7)    \
 {                                                       \
@@ -317,10 +290,10 @@ void print_ampcorr_lookup() {
   s[i++] = s7;                                          \
 }
 
-int get_amp_reco(UINT32* ofw, int unit, int chan, int gain, int ene0)
+int get_amp_reco(const UINT32* ofw, int unit, int chan, int gain, int ene0)
 {
-  UINT32* ofc = (UINT32*)(ofw + chan*NOFWORDS_WEIGHTS_7S + 
-                          gain*NOFWORDS_WEIGHTS_7S_1GAIN);
+  const UINT32* ofc = (ofw + chan*NOFWORDS_WEIGHTS_7S + 
+                       gain*NOFWORDS_WEIGHTS_7S_1GAIN);
 
   UINT32 calib    = ofc[4];
   UINT32 uncalib  = get_uncalib(unit, calib); // ofc[RECALIB_OFFSET + 1];
@@ -328,11 +301,11 @@ int get_amp_reco(UINT32* ofw, int unit, int chan, int gain, int ene0)
   return amp_reco;
 }
 
-int get_s4(UINT32* ofw, int unit, int chan, int gain, int ene,
+int get_s4(const UINT32* ofw, int unit, int chan, int gain, int ene,
   int s1, int s2, int s3, int s5, int s6, int s7)
 {
-  UINT32* ofc = (UINT32*)(ofw + chan*NOFWORDS_WEIGHTS_7S + 
-                          gain*NOFWORDS_WEIGHTS_7S_1GAIN);
+  const UINT32* ofc = (ofw + chan*NOFWORDS_WEIGHTS_7S + 
+                       gain*NOFWORDS_WEIGHTS_7S_1GAIN);
 
   UINT32 s1x, s32, s5x, s76;
   UINT32 a1x, a32, a54, a76;
@@ -374,13 +347,13 @@ inline UINT32 pop_buf(unsigned char** pptr_buff, int size)
   return data;
 }
 
-int calc_ped_s4(UINT32* ofw, int unit, int chan, int gain, int ene,
+int calc_ped_s4(const UINT32* ofw, int unit, int chan, int gain, int ene,
   int s1, int s2, int s3, int s5, int s6, int s7)
 {
   return get_s4(ofw, unit, chan, gain, ene, s1, s2, s3, s5, s6, s7);
 }
 
-void calc_amp(UINT32* ofw, int unit, int chan, int gain, int ene, int time,
+void calc_amp(const UINT32* ofw, int unit, int chan, int gain, int ene, int time,
   int s1, int d2, int d3, int d5, int d6, int d7, int s[])
 {
   int s2, s3, s4, s5, s6, s7;
@@ -388,8 +361,8 @@ void calc_amp(UINT32* ofw, int unit, int chan, int gain, int ene, int time,
   int amptime, amp_reco;
   UINT32 wamptime;
 
-  UINT32* ofc = (UINT32*) (ofw + chan*NOFWORDS_WEIGHTS_7S + 
-                           gain*NOFWORDS_WEIGHTS_7S_1GAIN);
+  const UINT32* ofc = (ofw + chan*NOFWORDS_WEIGHTS_7S + 
+                       gain*NOFWORDS_WEIGHTS_7S_1GAIN);
 
   a_scale = _extu(ofc[0], 16, 16); // a1x
   amp_reco = get_amp_reco(ofw, unit, chan, gain, ene);
@@ -430,14 +403,14 @@ void calc_amp(UINT32* ofw, int unit, int chan, int gain, int ene, int time,
   fill_samp(s1, s2, s3, s4, s5, s6, s7, s);
 }
 
-void calc_raw(UINT32* ofw, int unit, int chan, int gain, int ene,
+void calc_raw(const UINT32* ofw, int unit, int chan, int gain, int ene,
   int s1, int s2, int s3, int s5, int s6, int s7, int s[])
 {
   int s4 = get_s4(ofw, unit, chan, gain, ene, s1, s2, s3, s5, s6, s7);
   fill_samp(s1, s2, s3, s4, s5, s6, s7, s);
 }
 
-int unpack_null(UINT32* /* ofw */, int /* chan */, UINT32** pptr_reco,
+int unpack_null(const UINT32* /* ofw */, int /* chan */, UINT32** pptr_reco,
   int* gain, int* ene, int* time, int s[])
 {
   UINT32 reco = **pptr_reco;
@@ -455,7 +428,7 @@ int unpack_null(UINT32* /* ofw */, int /* chan */, UINT32** pptr_reco,
   return 32;
 }
 
-int unpack_ped(UINT32* ofw, int unit, int chan,
+int unpack_ped(const UINT32* ofw, int unit, int chan,
   UINT32** pptr_reco, unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
@@ -500,7 +473,7 @@ int unpack_ped(UINT32* ofw, int unit, int chan,
   return size;
 }
 
-int unpack_amp(UINT32* ofw, int unit, int chan, 
+int unpack_amp(const UINT32* ofw, int unit, int chan, 
   UINT32** pptr_reco, unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
@@ -537,7 +510,7 @@ int unpack_amp(UINT32* ofw, int unit, int chan,
   return size;
 }
 
-int unpack_raw(UINT32* ofw, int unit, int chan,
+int unpack_raw(const UINT32* ofw, int unit, int chan,
   UINT32** pptr_reco, unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
@@ -581,7 +554,7 @@ int unpack_raw(UINT32* ofw, int unit, int chan,
   return size;
 }
 
-int unpack_full(UINT32* /* ofw */, int /* chan */,
+int unpack_full(const UINT32* /* ofw */, int /* chan */,
   UINT32** pptr_reco, unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
@@ -611,7 +584,7 @@ int unpack_full(UINT32* /* ofw */, int /* chan */,
   return 80;
 }
 
-int unpack_dump(UINT32* /* ofw */, int /* chan */,
+int unpack_dump(const UINT32* /* ofw */, int /* chan */,
   UINT32** pptr_reco, unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
@@ -639,7 +612,61 @@ int unpack_dump(UINT32* /* ofw */, int /* chan */,
   return 88;
 }
 
-void TileRawChannel2Bytes5::unpack(UINT32* ofw, UINT32* ptr_frag, TileChanData* ChanData) const
+} // anonymous namespace
+
+
+// ========== DSP reconstruction of Amplitude (DSP code) ========== //
+
+
+int TileRawChannel2Bytes5::amplitude(const UINT32* ofw, int unit, int chan, int gain, int s[]) const
+{
+
+  UINT32 calib, calib_coeff;
+  INT16 calib_scale;
+  int amp, ene, ene0, ene_shift;
+  //INT16 amp2;
+  const UINT32* ofc;
+
+  int FRACBITS_MINUS_11 = _sadd(OF_E_FRACBITS[unit], 11);
+
+  int s1 = s[0], s2 = s[1], s3 = s[2], s4 = s[3], s5 = s[4], s6 = s[5], s7 = s[6];
+
+  // samples
+  UINT32 s1x = _pack2(s1, gain << 15);
+  UINT32 s32 = _pack2(s3, s2);
+  UINT32 s54 = _pack2(s5, s4);
+  UINT32 s76 = _pack2(s7, s6);
+
+  ene_shift = 512 + _mpy(gain, 2048 - 512);
+
+  ofc = ofw + chan*NOFWORDS_WEIGHTS_7S + gain*NOFWORDS_WEIGHTS_7S_1GAIN;
+
+  // amp coeff
+  UINT32 a1x = ofc[0];
+  UINT32 a32 = ofc[1];
+  UINT32 a54 = ofc[2];
+  UINT32 a76 = ofc[3];
+  //UINT16 a_scale = _extu(a1x, 16, 16);
+
+  amp = _mpyh (a1x, s1x)
+      + _dotp2(a32, s32)
+      + _dotp2(a54, s54)
+      + _dotp2(a76, s76);
+
+  // calib
+  calib = ofc[4];
+
+  calib_coeff = _ext(calib, 0, 16);
+  calib_scale = _ssub(_extu(calib, 16, 16) , FRACBITS_MINUS_11);
+  ene0 = _round(amp, 11);
+  ene0 = _round(ene0*calib_coeff, calib_scale);
+  ene = ene0 + ene_shift;
+
+  return ene;
+}
+
+
+void TileRawChannel2Bytes5::unpack(const UINT32* ofw, UINT32* ptr_frag, TileChanData* ChanData) const
 {
   int unit    = _extu(ptr_frag[2], 0, 32 - 2); // frag_info = xx......
   int size_L2 = _extu(ptr_frag[2], 2, 32 - 3); // frag_info = ..xxx...
@@ -724,7 +751,7 @@ void TileRawChannel2Bytes5::unpack(UINT32* ofw, UINT32* ptr_frag, TileChanData* 
   }
 }
 
-bool TileRawChannel2Bytes5::check_raw(uint32_t* feb, int of_energy[], TileChanData* Data)
+bool TileRawChannel2Bytes5::check_raw(const uint32_t* feb, int of_energy[], TileChanData* Data) const
 {
   bool OK = true;
   int chan, i;
@@ -778,12 +805,12 @@ bool TileRawChannel2Bytes5::check_raw(uint32_t* feb, int of_energy[], TileChanDa
   return OK;
 }
 
-bool TileRawChannel2Bytes5::check_reco(UINT32* frag, int of_energy[])
+bool TileRawChannel2Bytes5::check_reco(const UINT32* frag, int of_energy[]) const
 {
   int chan;
   bool OK = true;
   int bad, gain, amp, ene, time;
-  UINT32* reco = (frag + 3); // + Header
+  const UINT32* reco = (frag + 3); // + Header
   UINT32 w;
 
   for (chan = 0; chan < 48; ++chan) {

@@ -107,9 +107,6 @@ private:
   /// List of conditions containers to clean.
   std::vector<DelayedConditionsCleanerSvc::CondContInfo*> m_cis;
 
-  /// Run+LBN or timestamp keys?
-  DelayedConditionsCleanerSvc::KeyType m_keyType;
-
   /// Set of IOV keys for recent events.
   std::vector<DelayedConditionsCleanerSvc::key_type> m_keys;
 };
@@ -119,17 +116,14 @@ private:
  * @brief A TBB task to run cleaning asynchronously.
  * @param cleaner The parent service instance.
  * @param cis List of conditions containers to clean.
- * @param keyType Run+LBN or timestamp keys?
  * @param keys Set of IOV keys for recent events.
  */
 DelayedConditionsCleanerTask::DelayedConditionsCleanerTask
   (DelayedConditionsCleanerSvc& cleaner,
    std::vector<DelayedConditionsCleanerSvc::CondContInfo*>&& cis,
-   DelayedConditionsCleanerSvc::KeyType keyType,
    std::vector<DelayedConditionsCleanerSvc::key_type>&& keys)
   : m_cleaner (cleaner),
     m_cis (cis),
-    m_keyType (keyType),
     m_keys (keys)
 {
 }
@@ -141,7 +135,7 @@ DelayedConditionsCleanerTask::DelayedConditionsCleanerTask
 tbb::task* DelayedConditionsCleanerTask::execute()
 {
   // Do the cleaning.
-  m_cleaner.cleanContainers (std::move (m_cis), m_keyType, std::move (m_keys));
+  m_cleaner.cleanContainers (std::move (m_cis), std::move (m_keys));
 
   // This task is terminating.
   --m_cleaner.m_cleanTasks;
@@ -227,11 +221,17 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
       // go ahead and do them now.
       do {
         CondContInfo* ci = m_work.top().m_ci;
-        if (ci->m_cc.entriesRunLBN() > 0) {
+        switch (ci->m_cc.keyType()) {
+        case KeyType::SINGLE:
+          break;
+        case KeyType::RUNLBN:
           ci_runlbn.push_back (ci);
-        }
-        if (ci->m_cc.entriesTimestamp() > 0) {
+          break;
+        case KeyType::TIMESTAMP:
           ci_timestamp.push_back (ci);
+          break;
+        default:
+          std::abort();
         }
         m_work.pop();
         ++m_workRemoved;
@@ -242,11 +242,11 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
   // Clean the containers.
   if (!ci_runlbn.empty()) {
     scheduleClean (std::move (ci_runlbn), m_runlbn, m_slotLBN,
-                   KeyType::RUN_LBN, allowAsync);
+                   allowAsync);
   }
   if (!ci_timestamp.empty()) {
     scheduleClean (std::move (ci_timestamp), m_timestamp, m_slotTimestamp,
-                   KeyType::TIMESTAMP, allowAsync);
+                   allowAsync);
   }
 
   return StatusCode::SUCCESS;
@@ -321,11 +321,36 @@ StatusCode DelayedConditionsCleanerSvc::printStats() const
 
 
 /**
+ * @brief Clear the internal state of the service.
+ * Only for testing.  Don't call if any other thread may be touching the service.
+ */
+StatusCode DelayedConditionsCleanerSvc::reset()
+{
+  m_runlbn.reset (m_props->m_ringSize);
+  m_timestamp.reset (m_props->m_ringSize);
+
+  std::fill (m_slotLBN.begin(), m_slotLBN.end(), 0);
+  std::fill (m_slotTimestamp.begin(), m_slotTimestamp.end(), 0);
+
+  m_ccinfo.clear();
+  std::priority_queue<QueueItem> tmp;
+  m_work.swap (tmp);
+
+  m_nEvents = 0;
+  m_queueSum = 0;
+  m_workRemoved = 0;
+  m_maxQueue = 0;
+  m_cleanTasks = 0;
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
  * @brief Do cleaning for a set of containers.
  * @param cis Set of containers to clean.
  * @param ring Ring buffer with recent IOV keys.
  * @param slotKeys Vector of current keys for all slots.
- * @param keyType Run+LBN or timestamp keys?
  * @param allowAsync Can this task run asynchronously?
  *
  * This will either run cleaning directly, or submit it as a TBB task.
@@ -334,7 +359,6 @@ void
 DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
                                             Ring& ring,
                                             const std::vector<key_type>& slotKeys,
-                                            KeyType keyType,
                                             bool allowAsync)
 {
   // Remove any duplicates from the list of containers.
@@ -369,7 +393,7 @@ DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
   else
   {
     // Call cleaning directly.
-    cleanContainers (std::move (cis), keyType, std::move (keys));
+    cleanContainers (std::move (cis), std::move (keys));
   }
 }
 
@@ -377,12 +401,10 @@ DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
 /**
  * @brief Clean a set of containers.
  * @param cis Set of containers to clean.
- * @param keyType Run+LBN or timestamp keys?
  * @param keys Set of IOV keys for recent events.
  */
 void
 DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
-                                              KeyType keyType,
                                               std::vector<key_type>&& keys)
 {
   /// Sort the key array and remove duplicates.
@@ -393,7 +415,7 @@ DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
   auto end = std::unique (keys.begin(), keys.end());
   keys.resize (end - keys.begin());
   for (CondContInfo* ci : cis) {
-    cleanContainer (ci, keyType, keys);
+    cleanContainer (ci, keys);
   }
 }
 
@@ -406,22 +428,9 @@ DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
  */
 void
 DelayedConditionsCleanerSvc::cleanContainer (CondContInfo* ci,
-                                             KeyType keyType,
                                              const std::vector<key_type>& keys)
 {
-  size_t n;
-  switch (keyType) {
-  case KeyType::RUN_LBN:
-    n = ci->m_cc.trimRunLBN (keys);
-    break;
-
-  case KeyType::TIMESTAMP:
-    n = ci->m_cc.trimTimestamp (keys);
-    break;
-
-  default:
-    std::abort();
-  }
+  size_t n = ci->m_cc.trim (keys);
 
   ++ci->m_nClean;
   ci->m_nRemoved += n;

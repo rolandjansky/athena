@@ -105,7 +105,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   m_searchInCaloROI   = false       ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = 4.0                ;
-  m_ClusterE     = 15000.0                ;
+  m_ClusterEt     = 12000.0                ;
 
 
   declareInterface<ITRT_SeededTrackFinder>(this);
@@ -133,7 +133,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   declareProperty("SearchInCaloROI"         ,m_searchInCaloROI);
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
-  declareProperty("CaloClusterE"            ,m_ClusterE    );
+  declareProperty("CaloClusterEt"            ,m_ClusterEt    );
 
 }
 
@@ -383,7 +383,6 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
     m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
   }
 
-
   //  Get the calo ROI:
   //
   if(m_searchInCaloROI ) {
@@ -395,13 +394,12 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
 
     if (calo.isValid()) {
 
-      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
+      for( const Trk::CaloClusterROI* c : *calo) {
 
-      for(; c!=ce; ++c) {
-	if ( (*c)->energy() < m_ClusterE) continue;
-        double x = (*c)->globalPosition().x();
-        double y = (*c)->globalPosition().y();
-        double z = (*c)->globalPosition().z();
+        if ( (c->energy()*sin(c->globalPosition().theta())) < m_ClusterEt) {continue;}
+        double x = c->globalPosition().x();
+        double y = c->globalPosition().y();
+        double z = c->globalPosition().z();
         m_caloF.push_back(atan2(y,x));
         m_caloE.push_back(atan2(1.,z/sqrt(x*x+y*y)));
       }

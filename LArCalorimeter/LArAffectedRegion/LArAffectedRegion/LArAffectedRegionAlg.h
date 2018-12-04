@@ -24,10 +24,11 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "LArElecCalib/ILArHVTool.h"
-#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArOnlineID;
 
@@ -42,7 +43,7 @@ class LArAffectedRegionAlg : public AthAlgorithm,virtual public IIncidentListene
   StatusCode finalize();
 
   void handle(const Incident& inc);
-  StatusCode updateMethod(IOVSVC_CALLBACK_ARGS);
+  StatusCode updateMethod();
   StatusCode updateAffectedRegionsFromDB(IOVSVC_CALLBACK_ARGS);
 
   void searchNonNominalHV_EMB();
@@ -58,10 +59,11 @@ class LArAffectedRegionAlg : public AthAlgorithm,virtual public IIncidentListene
   //---
  private:
 
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MissingFEBKey", "LArBadFeb", "SG key for missing FEB object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+
   std::vector<CaloAffectedRegionInfo> m_ArrayLArAffectedRegionInfo_global;
   std::vector<CaloAffectedRegionInfo> m_ArrayLArAffectedRegionInfo_current_run;
-  ToolHandle<LArCablingService> m_larCablingSvc;
-  ToolHandle<ILArBadChanTool> m_BadChanTool;
 
   const DataHandle<CaloIdManager> m_caloIdMgr;
   ToolHandle<ILArHVTool> m_hvtool;

@@ -14,7 +14,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "eformat/SourceIdentifier.h"
 
-// Contructor 
+// Constructor 
 
 SCTRawContByteStreamTool::SCTRawContByteStreamTool(const std::string& type, const std::string& name,
                                                    const IInterface* parent) :

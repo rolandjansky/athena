@@ -44,10 +44,10 @@ class LArCaliWaveValidationAlg: public LArCaliWaveValidationBase {
  private:
   /** @brief Method to validate the pedestal single readout channels
    */
-  bool validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain);
+  bool validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
   /** @brief Summary method executed after the loop over all channels */
-  StatusCode summary();
+  StatusCode summary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
   
   /** @brief Executed before the loop over all channels to reset global sums */
   StatusCode preLoop();
@@ -73,7 +73,7 @@ class LArCaliWaveValidationAlg: public LArCaliWaveValidationBase {
 
   //The following is for keeping track of entire FEBs
   /** @brief Method to compare FEB averages */
-  bool febSummary();
+  bool febSummary(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
   class DataPerFEB {
   public:

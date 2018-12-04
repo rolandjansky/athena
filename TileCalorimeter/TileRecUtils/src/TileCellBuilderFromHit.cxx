@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -164,6 +164,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
   }
 
   ATH_CHECK( m_eventInfoKey.initialize() );
+  ATH_CHECK( m_hitContainerKey.initialize() );
 
   CHECK( detStore()->retrieve(m_tileMgr) );
   CHECK( detStore()->retrieve(m_tileID) );
@@ -954,14 +955,14 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
       eCellTot += ener;
 
       unsigned char iqual = iquality(qual);
-      // for normal cell qbit use only non_zero_time flag and check that energy is above standatd energy threshold in MeV
+      // for normal cell qbit use only non_zero_time flag and check that energy is above standard energy threshold in MeV
       unsigned char qbit = qbits(ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
           , overflow, underflow, overfit);
 
       if (E1_CELL && m_RUN2) {
 
         int drawer2 = m_cabling->E1_merged_with_run2(ros,drawer);
-        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
+        if (drawer2 != 0) { // Raw channel split into two E1 cells for Run 2.
           Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, m_E1_TOWER, TileID::SAMP_E);
           int index2 = m_tileID->cell_hash(cell_id2);
           TileCell* pCell2 = NEWTILECELL();
@@ -975,7 +976,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
           correctCell(pCell2, 1, pmt2, gain, ener, time, iqual, qbit);
 
           ATH_MSG_DEBUG("E1 cell Id => " << m_tileID->to_string(cell_id)
-                       << " splitted into " << m_tileID->to_string(cell_id2));
+                       << " split into " << m_tileID->to_string(cell_id2));
         }
       }
 
@@ -1161,7 +1162,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
     for (int phi = 0; phi < E4NPHI; ++phi) {
 
       int index = e4pr_index(phi);
-      TileCell * pCell = m_MBTSVec[index];
+      TileCell * pCell = m_E4prVec[index];
 
       if (!pCell) {
 

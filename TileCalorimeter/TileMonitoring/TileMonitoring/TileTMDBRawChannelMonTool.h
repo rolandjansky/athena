@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,7 +16,6 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
-class TileBeamInfoProvider;
 class ITileBadChanTool;
 class TileDQstatus;
 class TileCondToolNoiseSample;
@@ -36,14 +35,14 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
 
     TileTMDBRawChannelMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileTMDBRawChannelMonTool();
+    virtual ~TileTMDBRawChannelMonTool();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     //pure virtual methods
-    virtual StatusCode bookHistograms();
-    virtual StatusCode fillHistograms();
-    virtual StatusCode procHistograms();
+    virtual StatusCode bookHistograms() override;
+    virtual StatusCode fillHistograms() override;
+    virtual StatusCode procHistograms() override;
 
   private:
 

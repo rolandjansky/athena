@@ -60,9 +60,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(Placement* placement,
-	   const void* obj,
-	   const RootType& classDesc) const = 0;
+   virtual Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const = 0;
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.

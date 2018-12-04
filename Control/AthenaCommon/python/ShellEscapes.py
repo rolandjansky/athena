@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ShellEscapes.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
@@ -56,14 +56,14 @@ class ShellEscapes:
          cmd = value.text[:-1]
 
     # execute command, if any
-      if cmd != None:
+      if cmd is not None:
          args = string.split( cmd )
          exe = args[0]
 
        # special cases
          if exe == 'cd' and len(args) == 2:
             os.chdir( args[1] )
-            log.info( 'new directory: %s', AthConfig.shell.getcwd() )
+            log.info( 'new directory: %s', os.getcwd() )
             return
 
          if exe == 'help' and len(args) == 2:
@@ -72,14 +72,14 @@ class ShellEscapes:
             return
 
        # cache shell command
-         if not exe in _shellCommands:
+         if exe not in _shellCommands:
             log.debug( 'accepting executable "%s"', exe )
             if unixtools.which( exe ):
                _shellCommands.append( exe )
             else:
                exe = None
 
-         if exe != None:
+         if exe is not None:
             log.debug( 'executing shell command "%s"', cmd )
             os.system( cmd )
             return

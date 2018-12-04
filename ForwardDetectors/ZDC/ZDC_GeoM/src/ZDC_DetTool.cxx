@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDC_DetTool.h"
@@ -36,7 +36,7 @@ StatusCode ZDC_DetTool::create()
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " Building ZDC geometry " << endmsg;
   
   // Locate the top level experiment node  
-  DataHandle<GeoModelExperiment> theExpt; 
+  GeoModelExperiment* theExpt = nullptr;
   
   if (StatusCode::SUCCESS != detStore()->retrieve(theExpt, "ATLAS")) {
 

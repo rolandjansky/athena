@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // CryostatConstructionTBEC
@@ -23,7 +23,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -77,25 +76,25 @@ GeoVFullPhysVol* LArGeo::CryostatConstructionTBEC::GetEnvelope()
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
   
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in CryostatConstructionTBEC, std::Air is not found.");
   
-  GeoMaterial *Al  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Al  = materialManager->getMaterial("std::Aluminium");
   if (!Al) throw std::runtime_error("Error in CryostatConstructionTBEC, std::Aluminium is not found.");
 
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in CryostatConstructionTBEC, std::LiquidArgon is not found.");
   
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in CryostatConstructionTBEC, std::Iron is not found.");
   
-  GeoMaterial *Gten  = materialManager->getMaterial("LAr::G10");
+  const GeoMaterial *Gten  = materialManager->getMaterial("LAr::G10");
   if (!Gten) throw std::runtime_error("Error in CryostatConstructionTBEC, LAr::G10 is not found.");
   
-  GeoMaterial *Vacuum  = materialManager->getMaterial("LAr::Vacuum");
+  const GeoMaterial *Vacuum  = materialManager->getMaterial("LAr::Vacuum");
   if (!Vacuum) throw std::runtime_error("Error in CryostatConstructionTBEC, std::Vacuum is not found.");
   
   //                                                                                                 //

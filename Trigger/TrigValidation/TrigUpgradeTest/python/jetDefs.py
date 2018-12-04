@@ -2,13 +2,14 @@
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
-def jetRecoSequence(inputMakerOut):
+def jetRecoSequence(RoIs):
 
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+    #jetRecoSequence = seqAND("jetRecoSequence")
     jetRecoSequence = parOR("jetRecoSequence")
 
 
@@ -41,23 +42,29 @@ def jetRecoSequence(inputMakerOut):
     svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 
 
+    
+
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
-    algo1=HLTCaloCellMaker("testFastAlgo1")
-    algo1.RoIs=inputMakerOut
+    algo1=HLTCaloCellMaker("HLTCaloCellMaker")
+    algo1.RoIs=RoIs
     #     algo1.RoIs="StoreGateSvc+FSJETRoIs"
     algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-    algo1.roiMode=False
-    algo1.OutputLevel=DEBUG
+    algo1.roiMode = True
+    algo1.CellsName="CellsClusters"
+    algo1.OutputLevel=VERBOSE
     jetRecoSequence += algo1
 
 
-    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
-    algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False)
-    algo2.Cells = "StoreGateSvc+FullScanCells"
-    algo2.OutputLevel = INFO
-    jetRecoSequence += algo2
 
+    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+    algo2 = TrigCaloClusterMakerMT_topo(doMoments=True, doLC=False, cells="CellsClusters")
+#    algo2.Cells = "CellsClusters"
+    algo2.OutputLevel = VERBOSE
+    jetRecoSequence += algo2
+    print algo2
+    for tool in algo2.ClusterMakerTools:
+        print tool
 
     # PseudoJetAlgorithm uses a tool to convert IParticles (eg CaloClusters)
     # to PseudoJets, which are the input to FastJet. The PseudoJets are
@@ -68,7 +75,6 @@ def jetRecoSequence(inputMakerOut):
 
 
     pseudoJetGetter = PseudoJetGetter('simpleJobPJGetter')
-
     pseudoJetGetter.InputContainer = 'StoreGateSvc+caloclusters'
     pseudoJetGetter.OutputContainer = 'StoreGateSvc+PseudoJetEMTopo'
     pseudoJetGetter.Label = ''
@@ -118,7 +124,7 @@ def jetRecoSequence(inputMakerOut):
 
     jetRecTool = JetRecTool()
     jetRecTool.InputContainer = ''  # name of a jet collection.
-    jetRecTool.OutputContainer = 'StoreGateSvc+jets'
+    jetRecTool.OutputContainer = 'jets'
     jetRecTool.JetFinder = jetFinder
     jetRecTool.JetModifiers = []
     jetRecTool.Trigger = False
@@ -129,7 +135,6 @@ def jetRecoSequence(inputMakerOut):
 
     algo4 = JetAlgorithm()
     algo4.Tools = [jetRecTool]
-
     jetRecoSequence += algo4
 
 

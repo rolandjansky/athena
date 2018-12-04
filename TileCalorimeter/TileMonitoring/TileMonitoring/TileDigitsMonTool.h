@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,9 +15,10 @@
 #define TILEMONITORING_TILEDIGITSMONTOOL_H
 
 #include "TileMonitoring/TilePaterMonTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
-class TileBeamInfoProvider;
 class TileCondToolNoiseSample;
 
 
@@ -32,15 +33,15 @@ class TileDigitsMonTool: public TilePaterMonTool
 
     TileDigitsMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileDigitsMonTool();
+    virtual ~TileDigitsMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     //pure virtual methods
-    StatusCode bookHists();
-    StatusCode fillHists();
-    StatusCode finalHists();
-    StatusCode checkHists(bool fromFinalize);
+    virtual StatusCode bookHists() override;
+    virtual StatusCode fillHists() override;
+    virtual StatusCode finalHists() override;
+    virtual StatusCode checkHists(bool fromFinalize) override;
 
     void bookHists(int ros, int drawer);
     void drawHists(int ros, int drawer, std::string moduleName);
@@ -60,7 +61,8 @@ class TileDigitsMonTool: public TilePaterMonTool
     int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0, uint8_t *stuck_probs = NULL);
     /** Method to check global CRC and DMU CRC.
      */
-    void CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer);
+    void CRCcheck(const TileDQstatus* dqStatus,
+                  uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer);
 
     //void DMUheaderCheck(std::vector<uint32_t>* headerVec, int headsize, int ros, int drawer, int gain);
     bool DMUheaderCheck(std::vector<uint32_t>* headerVec, int ros, int drawer, int gain, int dmu);
@@ -73,7 +75,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     static const int m_NCont = 10; //number of colors in palette
     int define_palette(int ncolors, int *colors = NULL);
 
-    StatusCode RODCRCcalc();
+    StatusCode RODCRCcalc(const TileDQstatus* dqStatus);
 
     /// Function to check that the DMU header format is correct
     /// bit_31 of the DMU header must be 1 and
@@ -114,7 +116,6 @@ class TileDigitsMonTool: public TilePaterMonTool
       CisRamp = 10 // expect monogain
     };
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
 
     const uint32_t* m_cispar;
@@ -162,6 +163,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     //int hb;
     bool m_fillPedestalDifference;
     std::string m_digitsContainerName;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 
 #endif

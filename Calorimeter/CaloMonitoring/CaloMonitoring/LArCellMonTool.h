@@ -13,13 +13,15 @@
 #include "CaloMonitoring/CaloMonToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "Identifier/IdentifierHash.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -144,7 +146,7 @@ private:
   //Private methods: Histogram filling
   StatusCode createPerJobHistograms(const CaloCellContainer* cellcont);
   void checkTriggerAndBeamBackground();
-  void sporadicNoiseCandidate(const CaloCell* cell, const LArCellMonTool::LayerEnum iLyr,const float threshold);
+  void sporadicNoiseCandidate(const CaloCell* cell, const LArCellMonTool::LayerEnum iLyr,const float threshold, const LArOnOffIdMapping* cabling);
 
   //Helpers for histogram filling
   void getHistoCoordinates(const CaloDetDescrElement* dde, float& celleta, float& cellphi, unsigned& iLyr, unsigned& iLyrNS) const; 
@@ -168,7 +170,6 @@ private:
  
   // bad channel mask  
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
   bool m_maskKnownBadChannels;
   bool m_maskNoCondChannels;
 
@@ -278,10 +279,12 @@ private:
   StatusCode fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr);
  
   // Identifer helpers and such
-  ToolHandle<LArCablingService> m_LArCablingService;
 
   const LArOnlineID* m_LArOnlineIDHelper;
   const CaloCell_ID* m_calo_id;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   
   std::array<CaloMonitoring::LArCellBinning,MAXLAYER> m_binning;
 
@@ -306,7 +309,7 @@ private:
 
   std::unordered_map<Identifier,SporadicNoiseCell_t,idHasher> m_sporadicNoiseCells;
   
-  void bookNoisyCellHistos(SporadicNoiseCell_t& result, const CaloDetDescrElement* dde, const PartitionEnum part, const float threshold);
+  void bookNoisyCellHistos(SporadicNoiseCell_t& result, const CaloDetDescrElement* dde, const PartitionEnum part, const float threshold, const LArOnOffIdMapping* cabling);
 
   std::array<TH1F*,MAXPARTITIONS> m_h_sporadicHists;
   std::array<unsigned,MAXPARTITIONS> m_sporadicPerPartCounter{};

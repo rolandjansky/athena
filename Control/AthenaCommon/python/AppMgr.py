@@ -173,16 +173,16 @@ class AthAppMgr( AppMgr ):
       
    def __init__( self, name = "ApplicationMgr", **kw ):
       kw['name'] = name
-      if not kw.has_key('outputLevel'): kw['outputLevel'] = 3
-      if not kw.has_key('jobOptions') : kw['jobOptions']  = None
+      if 'outputLevel' not in kw: kw['outputLevel'] = 3
+      if 'jobOptions' not in kw : kw['jobOptions']  = None
 
     # some Atlas defaults
-      if not kw.has_key('JobOptionsPath'): kw['JobOptionsPath'] = ""
-      if not kw.has_key('JobOptionsType'): kw['JobOptionsType'] = "NONE"
-      if not kw.has_key('EventLoop'):      kw['EventLoop']="AthenaEventLoopMgr"
-      if not kw.has_key('OutStreamType'):
+      if 'JobOptionsPath' not in kw: kw['JobOptionsPath'] = ""
+      if 'JobOptionsType' not in kw: kw['JobOptionsType'] = "NONE"
+      if 'EventLoop' not in kw:      kw['EventLoop']="AthenaEventLoopMgr"
+      if 'OutStreamType' not in kw:
          kw['OutStreamType'] = "AthenaOutputStream"
-      if not kw.has_key('StatusCodeCheck'): kw['StatusCodeCheck'] = True
+      if 'StatusCodeCheck' not in kw: kw['StatusCodeCheck'] = True
 
     # always the case in ATLAS (need early or ExtSvc should be a no-op, too)
       kw['ExtSvcCreates'] = False
@@ -202,7 +202,7 @@ class AthAppMgr( AppMgr ):
       self.__class__.OutStream = OldToNewSequenceProxy( self.__dict__[ '_streams' ] )
 
     # install services
-      svcMgr = self.serviceMgr()
+      svcMgr = self.serviceMgr()  # noqa: F841
 
     # external option (TODO: receive this cleanly; AthOptionsParser doesn't manage results, and
     # can't be called directly due to transforms etc.)
@@ -260,7 +260,7 @@ class AthAppMgr( AppMgr ):
       def _build():
          Logging.log.debug ("building master sequence...")
          athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True, StopOverride=True)
-         athFilterSeq = _as.AthSequencer ("AthFilterSeq"); 
+         athFilterSeq = _as.AthSequencer ("AthFilterSeq")
          athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
          athCondSeq   = _as.AthSequencer ("AthCondSeq")
          athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
@@ -363,14 +363,14 @@ class AthAppMgr( AppMgr ):
 
  # explicit user calls
    def addSequence( self, seq ):
-      if not seq in self._sequences:
+      if seq not in self._sequences:
          self._sequences.append( seq )
 
    def removeSequence( self, seq ):
       self._sequences.remove( seq )
 
    def addOutputStream( self, stream ):
-      if not stream in self._streams.getChildren():
+      if stream not in self._streams.getChildren():
          self._streams += stream
 
    def removeOutputStream( self, stream ):
@@ -378,14 +378,14 @@ class AthAppMgr( AppMgr ):
          
  # override toolSvc to handle the transitional one
    def toolSvc( self, name='ToolSvc' ):
-      if not '_toolsvc' in self.__dict__:
+      if '_toolsvc' not in self.__dict__:
          self.__dict__[ '_toolsvc' ] = GaudiSvcConf.ToolSvc( name )
       return self._toolsvc
    toolsvc = toolSvc
 
  # same for serviceMgr
    def serviceMgr( self ):
-      if not '_servicemgr' in self.__dict__:
+      if '_servicemgr' not in self.__dict__:
          self.__dict__[ '_servicemgr' ] = AthServiceManager( 'ServiceManager' )
       return self._servicemgr
    servicemgr = serviceMgr
@@ -393,7 +393,7 @@ class AthAppMgr( AppMgr ):
    def bootProps(self):
       props = {}
       for k in self.getProperties().keys():
-         if not k in [ "Go", "Exit", "AuditInitialize", "AuditFinalize" ]:
+         if k not in [ "Go", "Exit", "AuditInitialize", "AuditFinalize" ]:
             props[k] = self.getDefaultProperty(k)
             if hasattr(self, k):
                props[k] = getattr(self, k)
@@ -430,9 +430,10 @@ class AthAppMgr( AppMgr ):
          self.__dict__['state'] = getattr(self._cppApp, 'state')
          for k,v in selfOptions.items():
             setattr(self._cppApp,k,v)
-         self.__dict__['CreateSvc'] = _createSvc; del _createSvc
+         self.__dict__['CreateSvc'] = _createSvc
+         del _createSvc
 
-      import GaudiPython # this module might have disappeared b/c of cleansing
+      import GaudiPython # this module might have disappeared b/c of cleansing # noqa: F401
       return self._cppApp
    
    @property
@@ -575,7 +576,7 @@ class AthAppMgr( AppMgr ):
          _createSvc[0] != svcMgr.ToolSvc.getFullName():
          _createSvc = [ svcMgr.ToolSvc.getFullName() ] + _createSvc
 
-      if self.__dict__.has_key('CreateSvc'):
+      if 'CreateSvc' in self.__dict__:
          del self.__dict__['CreateSvc']
       handle.__dict__['CreateSvc'] = [ s for s in _createSvc ]
       
@@ -698,7 +699,7 @@ class AthAppMgr( AppMgr ):
          return sc
 
     # determine number of events
-      if nEvt == None:
+      if nEvt is None:
          nEvt = self.EvtMax            # late, as sequences may have changed it
 
     # another communication that needs improving (TODO) ...
@@ -768,8 +769,7 @@ class AthAppMgr( AppMgr ):
          self._exitstate = ExitCodes.FIN_ALG_FAILURE
       try:
          if not self._cppApp:
-            raise RuntimeError, \
-                  "C++ application not instantiated : Nothing to finalize !"
+            raise RuntimeError("C++ application not instantiated : Nothing to finalize !")
          # Set threaded flag to release the GIL when finalizing in the c++
          from ConcurrencyFlags import jobproperties as jp
          finalizeMethod = self.getHandle()._appmgr.finalize
@@ -819,7 +819,7 @@ class AthAppMgr( AppMgr ):
       if sc.isFailure() and not self._exitstate:
          self._exitstate = ExitCodes.INI_ALG_FAILURE
 
-      if nEvt == None:
+      if nEvt is None:
          nEvt = self.curEvent() + 1
 
       try:
@@ -885,8 +885,8 @@ class AthAppMgr( AppMgr ):
       self.__report_python_profile()
 
       Logging.log.info( 'leaving with code %d: "%s"',
-         self._exitstate, ExitCodes.what( self._exitstate ) )
-      sys.exit( code == None and self._exitstate or code )
+                        self._exitstate, ExitCodes.what( self._exitstate ) )
+      sys.exit( code is None and self._exitstate or code )
 
 
 ### global objects for export ------------------------------------------------

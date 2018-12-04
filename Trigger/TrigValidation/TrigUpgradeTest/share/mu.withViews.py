@@ -38,10 +38,10 @@ if doL2CB or doL2ISO:
   InDetFlags.doTruth = False
   InDetFlags.init()
   
-  ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-  include("InDetRecExample/InDetRecConditionsAccess.py")
-
   from InDetRecExample.InDetKeys import InDetKeys
+
+### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+include("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

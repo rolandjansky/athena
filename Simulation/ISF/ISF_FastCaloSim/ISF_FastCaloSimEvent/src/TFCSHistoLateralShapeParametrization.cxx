@@ -93,10 +93,9 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSS
   const float delta_eta = delta_eta_mm / eta_jakobi / dist000;
   const float delta_phi = delta_phi_mm / center_r;
 
-  hit.eta() = center_eta + delta_eta;
-  hit.phi() = center_phi + delta_phi;
+  hit.setEtaPhiZE(center_eta + delta_eta,center_phi + delta_phi,center_z, hit.E());
 
-  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" r="<<r<<" alpha="<<alpha);
+  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<< " z="<<hit.z()<<" r="<<r<<" alpha="<<alpha);
 
   return FCSSuccess;
 }

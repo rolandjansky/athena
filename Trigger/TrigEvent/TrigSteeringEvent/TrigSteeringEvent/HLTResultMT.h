@@ -125,11 +125,11 @@ namespace HLT {
     void setStatus(const std::vector<uint32_t>& status);
 
     /// Replace error codes with the given codes
-    void setStatus(const std::vector<uint32_t>& errorCodes,
-                   const eformat::helper::Status firstStatusWord = {
-                     eformat::GenericStatus::DATA_CORRUPTION,
-                     eformat::FullEventStatus::PSC_PROBLEM
-                   });
+    void setErrorCodes(const std::vector<uint32_t>& errorCodes,
+                       const eformat::helper::Status firstStatusWord = {
+                         eformat::GenericStatus::DATA_CORRUPTION,
+                         eformat::FullEventStatus::PSC_PROBLEM
+                       });
 
     /** @brief Append an error code
      *
@@ -165,6 +165,9 @@ namespace HLT {
     std::vector<uint32_t> m_status;
   };
 } // namespace HLT
+
+/// operator<< overload for printing to std::ostream
+std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult);
 
 CLASS_DEF(HLT::HLTResultMT, 172156324, 1)
 

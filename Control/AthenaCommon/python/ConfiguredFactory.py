@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 __author__ = 'Martin Woudstra <martin.woudstra@cern.ch>'
 
@@ -12,7 +12,7 @@ from GaudiKernel.GaudiHandles import \
 
 from Configurable import Configurable
 import ConfigurableDb
-from AppMgr import ToolSvc,ServiceMgr
+from AppMgr import ToolSvc, ServiceMgr  # noqa: 401
 from Logging import logging
 
 
@@ -281,8 +281,7 @@ class PropertyStack(object):
 
     def pop(self):
         self._names.pop()
-        fullPropName = self._props.pop()
-##        print "Removing from property stack %i: %s" % (self.depth()+1,fullPropName)
+        self._props.pop()
 
     def depth(self):
         return len(self._props)
@@ -674,7 +673,6 @@ class ConfiguredFactory(object):
 
     def _resolveAllProperties(self,conf,indent="",propStack=None):
 
-        confName = conf.getName()
         defaultProps = conf.getDefaultProperties()
         for name,value in defaultProps.items():
             # skip non-configurables, since they don't need to be resolved
@@ -1180,7 +1178,6 @@ class ConfiguredFactory(object):
         log = self.logger()
         nConfig = self.numberOfConfigurables()
         nInstances = self.numberOfInstances()
-        sepLine = 80*"-";
         lines = [ "%d configurables were declared, %d instantiated (indicated by *):" % (nConfig, nInstances) ]
         # print in alphabetic order by name
         names = self._availableConfigurables.keys()
@@ -1189,7 +1186,6 @@ class ConfiguredFactory(object):
             c = self._availableConfigurables[n]
             lines.append( c.shortDescription(n) )
         lines.append( "end of list of declared configurables" )
-#        lines.append( sepLine )
         log.info( os.linesep.join(lines) )
 
 

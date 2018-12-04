@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -14,6 +14,7 @@
 ################################################################################
 
 from RecExConfig.Configured import Configured
+from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.SystemOfUnits import *
 
 ################################################################################
@@ -58,35 +59,27 @@ class TauRecConfigured ( Configured ) :
 
         topSequence = AlgSequence()
 
-        from AthenaCommon.AlgScheduler import AlgScheduler
-        AlgScheduler.ShowDataDependencies(True)
-        AlgScheduler.ShowControlFlow(True)
-        
-        from SGComps.SGCompsConf import SGInputLoader
-        topSequence += SGInputLoader()
-        topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
-                                           ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
+        if jobproperties.Beam.beamType()!="cosmics":
+            # Can I move this to different script?
+            from AthenaCommon.AppMgr import ToolSvc
+            from JetRec.JetRecConf import JetAlgorithm
+            jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
+            from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
+            TauTVATool = TrackVertexAssociationTool(TrackParticleContainer = "InDetTrackParticles",
+                                                    TrackVertexAssociation="JetTrackVtxAssoc_forTaus",
+                                                    VertexContainer= "PrimaryVertices",
+                                                    MaxTransverseDistance = 2.5 *mm,
+                                                    #MaxLongitudinalDistance = 2 *mm,
+                                                    MaxZ0SinTheta = 3.0 *mm,
+                                                    #OutputLevel=2
+                                                    )
+            ToolSvc += TauTVATool
+            jetTrackAlg.Tools = [ TauTVATool ]
+            topSequence += jetTrackAlg
 
-        # Can I move this to different script?
-        from AthenaCommon.AppMgr import ToolSvc
-        from JetRec.JetRecConf import JetAlgorithm
-        jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
-        from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-        TauTVATool = TrackVertexAssociationTool(TrackParticleContainer = "InDetTrackParticles",
-                                                TrackVertexAssociation="JetTrackVtxAssoc_forTaus",
-                                                VertexContainer= "PrimaryVertices",
-                                                MaxTransverseDistance = 2.5 *mm,
-                                                #MaxLongitudinalDistance = 2 *mm,
-                                                MaxZ0SinTheta = 3.0 *mm,
-                                                #OutputLevel=2
-                                                )
-        ToolSvc += TauTVATool
-        jetTrackAlg.Tools = [ TauTVATool ]
-        topSequence += jetTrackAlg
-
-        # import tauRec.TauAlgorithmsHolder as taualgs
-        # add tauJVF tool to topSequence
-        # taualgs.setupTauJVFTool
+            # import tauRec.TauAlgorithmsHolder as taualgs
+            # add tauJVF tool to topSequence
+            # taualgs.setupTauJVFTool
 
         topSequence += self.TauProcessorAlgHandle()
 
@@ -99,12 +92,6 @@ class TauRecConfigured ( Configured ) :
 
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-
-        from SGComps.SGCompsConf import SGInputLoader
-        # not needed? There by default now?
-        topSequence += SGInputLoader(OutputLevel=INFO)
-        topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
-                                           ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
 
         topSequence += self.TauProcessorAlgHandle()
 

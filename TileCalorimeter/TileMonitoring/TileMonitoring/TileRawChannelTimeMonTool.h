@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,9 +16,11 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/ITileDCSTool.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class TileRawChannelTime;
-class TileBeamInfoProvider;
 class ITileBadChanTool;
 class TileDQstatus;
 
@@ -49,11 +51,11 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
 
 
   private:
+    bool isChanDCSgood (int ros, int drawer, int channel) const;
 
     int m_runType;
     std::string m_contName;
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
 
     const TileDQstatus* m_dqStatus;
@@ -95,6 +97,9 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
     std::array<float, 5> m_partitionTimeCorrection;
     std::vector<std::pair<int, int> > m_timeDifferenceBetweenROS;
     int m_nLumiblocks;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
+    ToolHandle<ITileDCSTool> m_tileDCS;
+    bool m_checkDCS;
 };
 
 #endif

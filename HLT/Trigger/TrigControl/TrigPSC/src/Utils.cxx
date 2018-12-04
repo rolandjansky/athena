@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file TrigPSC/src/Utils.cxx
  * @author Frank Winklmeier
- * $Author: ricab $
- * $Revision: 11 $
- * $Date: 2013-05-14 17:22:39 +0200 (Tue, 14 May 2013) $
  *
  * @brief Some helpers for the PSC
  */
@@ -18,7 +15,6 @@
 
 #undef _POSIX_C_SOURCE
 #include <Python.h>
-#include <sys/time.h>
 #include <errno.h>
 
 //--------------------------------------------------------------------------------
@@ -59,35 +55,19 @@ bool psc::Utils::pyInclude (const std::string& pyFileName)
 // ScopeTimer class
 //--------------------------------------------------------------------------------
 
-
 psc::Utils::ScopeTimer::ScopeTimer (const std::string& descr) :
   m_descr(descr),
   m_running(true)
 {
-  gettimeofday(&m_t1, 0);
-
-  // Format time
-  char buf[64];
-  struct tm tms;
-  time_t sec = m_t1.tv_sec;  
-  localtime_r(&sec, &tms);  
-  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", &tms);
-
-  // Print and append milliseconds
-  ERS_LOG( m_descr << " started at time: " << buf
-           << "," << static_cast<unsigned int>(m_t1.tv_usec/1000) );
+  m_t1 = std::chrono::system_clock::now();
+  auto t = std::chrono::system_clock::to_time_t(m_t1);
+  ERS_LOG( m_descr << " started at time: " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") );
 }
 
 void psc::Utils::ScopeTimer::stop()
 {
-  struct timeval t2;
-  gettimeofday(&t2, 0);
-
-  int secs = 0 ;
-  if (t2.tv_sec >= m_t1.tv_sec)
-    secs = t2.tv_sec - m_t1.tv_sec;
-
-  int usecs = t2.tv_usec - m_t1.tv_usec;
-  float mtime = static_cast<float>(secs)*1000 + static_cast<float>(usecs)/1000;
-  ERS_LOG( m_descr << " finished. Time used [ms] = " << mtime );
+  auto t2 = std::chrono::system_clock::now();
+  auto dt_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - m_t1);
+  ERS_LOG( m_descr << " finished. Time used [ms] = " << dt_ms.count() );
+  m_running = false;
 }
