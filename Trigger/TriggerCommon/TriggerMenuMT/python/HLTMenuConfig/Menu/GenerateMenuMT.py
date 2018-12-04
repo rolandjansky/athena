@@ -134,8 +134,8 @@ class GenerateMenuMT:
         ConfigFlags.lock()
         
         #if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.EgammaSlice.signatures()) and self.doEgammaChains:
-        if ConfigFlags.Trigger.menu.egamma and self.doEgammaChains:
-            chains += ConfigFlags.Trigger.menu.egamma
+        if ConfigFlags.Trigger.menu.electron and self.doEgammaChains:
+            chains += ConfigFlags.Trigger.menu.electron
             log.debug("egamma chains "+str(ConfigFlags.Trigger.menu.egamma))
         else:
             self.doEgammaChains   = False
