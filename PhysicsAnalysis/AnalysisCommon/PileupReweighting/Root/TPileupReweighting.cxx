@@ -1357,8 +1357,8 @@ UInt_t CP::TPileupReweighting::GetRandomRunNumber(Int_t periodNumber) {
    if(m_countingMode) { return 0; } //do nothing when in counting mode
 
    Period* p = m_periods[periodNumber];
-   if(!p) {
-      Error("GetRandomRunNumber","Unrecognised periodNumber: %d",periodNumber);
+   if(!p || !p->primaryHists[-1]) {
+      Error("GetRandomRunNumber","Unrecognised periodNumber or no data loaded for: %d",periodNumber);
       throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
    }
 
@@ -1380,8 +1380,8 @@ UInt_t CP::TPileupReweighting::GetRandomRunNumber(Int_t periodNumber, Double_t x
    if(m_countingMode) { return 0; } //do nothing when in counting mode
 
    Period* p = m_periods[periodNumber];
-   if(!p) {
-      Error("GetRandomRunNumber","Unrecognised periodNumber: %d",periodNumber);
+   if(!p || !p->primaryHists[-1]) {
+      Error("GetRandomRunNumber","Unrecognised periodNumber or no data loaded for: %d",periodNumber);
       throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
    }
 
