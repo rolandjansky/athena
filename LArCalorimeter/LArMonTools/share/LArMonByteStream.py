@@ -9,8 +9,8 @@ if not online:
         theByteStreamInputSvc.FilePrefix     = [ FilePrefix ]
         theByteStreamInputSvc.RunNumber      = [ RunNumber ]
     else:
-        for i in range(len(FullFileNameTab)):
-            theByteStreamInputSvc.NumFile += [ 10000 ]        
+        #for i in range(len(FullFileNameTab)):
+            #theByteStreamInputSvc.NumFile += [ 10000 ]        
         theByteStreamInputSvc.FullFileName = FullFileNameTab
     theByteStreamInputSvc.MaxBadEvents=0
 else:

@@ -17,6 +17,10 @@ NoisyRegionsInOuterWheel_FEBs = ["endcapCft21slot04","endcapCft21slot02","endcap
 NotNoisyRegionForComparison_FEBs = ["endcapAft02slot04"]
 FEBs_from_DQ_run_350440 = ["endcapAft19slot12","endcapAft19slot09","endcapAft20slot09"]
 
+defaultFEBs=NotNoisyRegionForComparison_FEBs+NoisyRegionsInOuterWheel_FEBs+NewlyNoisy_FEBs+MiniNoiseBurstFlagging_FEBs+FEBs_from_DQ_run_350440
+if 'coherent_noise_febs' in dir():
+    defaultFEBs=coherent_noise_febs
+    pass
 
 ###### LArNoiseCorrelationMon Configuration ###############
 from LArMonTools.LArMonToolsConf import LArNoiseCorrelationMon
@@ -27,7 +31,7 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
                              LArBadChannelMask     = theLArBadChannelsMasker,
                              ProcessNEvents        = EventBlockSize,
                              TriggerChain          = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY",
-                             FEBsToMonitor         = NotNoisyRegionForComparison_FEBs+NoisyRegionsInOuterWheel_FEBs+NewlyNoisy_FEBs+MiniNoiseBurstFlagging_FEBs+FEBs_from_DQ_run_350440,
+                             FEBsToMonitor         = defaultFEBs,
                              IsCalibrationRun      = False,
                              )
 
@@ -38,9 +42,22 @@ if jobproperties.Global.DataSource.get_Value() == 'data':
     theLArNoiseCorrelationMon.LArPedestalKey='Pedestal'
 else:
     theLArNoiseCorrelationMon.LArPedestalKey='LArPedestal'
-                
+    pass
 
-ToolSvc += theLArNoiseCorrelationMon
+if 'coherent_noise_calibration_run' in dir():
+    if coherent_noise_calibration_run:
+        theLArNoiseCorrelationMon.IsCalibrationRun=True
+        theLArNoiseCorrelationMon.LArDigitContainerKey=Gain
+        theLArNoiseCorrelationMon.TriggerChain=""
+        theLArNoiseCorrelationMon.TrigDecisionTool=""
+        pass
+pass                
+
+if 'coherent_noise_PublishPartialSums' in dir():
+    theLArNoiseCorrelationMon.PublishPartialSums = coherent_noise_PublishPartialSums
+    pass
+
+#ToolSvc += theLArNoiseCorrelationMon
 LArMon.AthenaMonTools+=[ theLArNoiseCorrelationMon ] 
 
 
