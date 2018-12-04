@@ -107,6 +107,7 @@ atlas_install_scripts( scripts/generateMenuMT.py )
 atlas_install_scripts( scripts/generateL1MenuMT.sh )
 atlas_install_scripts( scripts/generateLVL1MenuMT.py )
 atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
+atlas_install_scripts( scripts/test_HLTmenu.sh )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
@@ -118,6 +119,10 @@ atlas_install_xmls( data/*.dtd data/*.xml )
 
 atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
                 PROPERTIES TIMEOUT 500 
+              )
+
+atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
+                PROPERTIES TIMEOUT 1000 
               )
 
 

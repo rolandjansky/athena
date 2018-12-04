@@ -31,7 +31,7 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.egamma = [
-        get_flag_item('HLT_e20_loose', 'L1_EM10', ['RATE:SingleElectron', 'BW:Electron'])
+        get_flag_item('HLT_e20_etcut', 'L1_EM10', ['RATE:SingleElectron', 'BW:Electron'])
     ]
 
     flags.Trigger.menu.combined = [

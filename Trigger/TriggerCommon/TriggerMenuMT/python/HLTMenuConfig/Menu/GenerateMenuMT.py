@@ -51,7 +51,7 @@ class GenerateMenuMT:
 
     def setTriggerConfigHLT(self):
         # setting the hlt menu configuration
-        (HLTPrescales) = self.setupMenu()
+        #(HLTPrescales) = self.setupMenu()
         self.triggerConfigHLT = TriggerConfigHLT(TriggerFlags.outputHLTconfigFile())
         self.triggerConfigHLT.menuName = TriggerFlags.triggerMenuSetup()
         log.debug("Working with menu: %s", self.triggerConfigHLT.menuName)
@@ -63,10 +63,9 @@ class GenerateMenuMT:
         """
         if self.doEgammaChains:
             try:
-                import TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs 
+                import TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs                
             except:
-                log.error('Problems when importing generateElectronChainDefs, disabling egamma chains.')
-                log.info(traceback.print_exc())
+                log.exception('Problems when importing generateElectronChainDefs, disabling egamma chains.')
                 self.doEgammaChains = False
                         
         listOfChainConfigs = []
@@ -84,12 +83,14 @@ class GenerateMenuMT:
             if chainDict["signature"] == "Electron" and self.doEgammaChains:
                 try:
                     log.debug("Try to get chain config")
-                    chainConfigs = TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs.generateChainConfigs(chainDict)
+                    chainConfigs = TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs.generateChainConfigs(chainDict)                    
                 except:
-                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
-                    log.info(traceback.print_exc())
+                    log.exception( 'Problems creating ChainDef for chain\n %s ' % (chainDict['chainName']) ) 
+
+
                     continue
             else:
+                
                 log.error('Chain %s ignored - either trigger signature is turned off or the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
             
@@ -102,7 +103,8 @@ class GenerateMenuMT:
 
         if len(listOfChainConfigs) == 0:  
             log.error('No Chain Configuration found ')
-            return False
+            return None
+        
         elif len(listOfChainConfigs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
                 log.warning("Need to define merging strategy, returning only first chain part configuration")
@@ -125,9 +127,16 @@ class GenerateMenuMT:
 
         log.debug('Creating one big list of of enabled signatures and chains')
         chains = []
+        # we can already use new set of flags
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu as setupMenuFlags
+        setupMenuFlags( ConfigFlags ) 
+        ConfigFlags.lock()
         
-        if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.EgammaSlice.signatures()) and self.doEgammaChains:
-            chains += TriggerFlags.EgammaSlice.signatures() 
+        #if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.EgammaSlice.signatures()) and self.doEgammaChains:
+        if ConfigFlags.Trigger.menu.egamma and self.doEgammaChains:
+            chains += ConfigFlags.Trigger.menu.egamma
+            log.debug("egamma chains "+str(ConfigFlags.Trigger.menu.egamma))
         else:
             self.doEgammaChains   = False
 
@@ -181,8 +190,10 @@ class GenerateMenuMT:
     def setupMenu(self):
         # go over the slices and put together big list of signatures requested
         #(L1Prescales, HLTPrescales, streamConfig) = lumi(self.triggerPythonConfig)
-        (self.L1Prescales, self.HLTPrescales) = lumi(self.triggerConfigHLT)
-        return (self.HLTPrescales)
+        # that does not seem to work
+        #(self.L1Prescales, self.HLTPrescales) = lumi(self.triggerConfigHLT)
+        #return (self.HLTPrescales)
+        pass
 
 
 

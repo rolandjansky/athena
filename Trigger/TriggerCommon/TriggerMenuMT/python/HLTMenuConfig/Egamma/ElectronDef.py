@@ -13,11 +13,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 # fragments generating configuration will be functions in New JO, so let's make them functions already now
 def fastCaloSequenceCfg( flags ):
     from TrigUpgradeTest.electronMenuDefs import fastCaloSequence
-    return fastCaloSequence
+    return fastCaloSequence()
     
 def electronSequenceCfg( flags ):
     from TrigUpgradeTest.electronMenuDefs import electronSequence        
-    return electronSequence
+    return electronSequence()
 
 def generateChain(flags, chainDict ): # in New JO  we will add flags here
     chainDict = type("chainDict", (object,), chainDict)
@@ -25,19 +25,17 @@ def generateChain(flags, chainDict ): # in New JO  we will add flags here
     # it is not exact as the things like the multiplicity are not converted to int, however they should be made int in the first place
     #
 
-    if 'etcut' ins chainDict.chainName:
-        # this is the cache, we hope we will be able to get rid of it in future
-        fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) # the None will be used for flags in future
-        electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
-        
-        return Chain(name = 'HLT_'+chainDict.chainName, 
-                     Seed = chainDict.L1Item, 
-                     ChainSteps = [
-                         ChainStep('ElectronStep1', [fastCalo]),
-                         ChainStep('ElectronStep2', [electronReco])
-                     ])
-    else:
-        raise RuntimeError("Unhandled chain %s" % chainDict.chainName) 
+
+    # this is the cache, we hope we will be able to get rid of it in future
+    fastCalo = RecoFragmentsPool.retrieve( fastCaloSequenceCfg, None ) # the None will be used for flags in future
+    electronReco = RecoFragmentsPool.retrieve( electronSequenceCfg, None )
+    
+    return Chain(name = chainDict.chainName,
+                 Seed = chainDict.L1item, 
+                 ChainSteps = [
+                     ChainStep('ElectronStep1', [fastCalo]),
+                     ChainStep('ElectronStep2', [electronReco])
+                 ])
     
     
 
@@ -70,7 +68,7 @@ class Chain_electron:
 
 
         self.chainSteps = chainSteps
-        myChain = Chain(name = 'HLT_'+self.chainName, 
+        myChain = Chain(name = self.chainName, 
                         Seed = self.chainL1Item, 
                         ChainSteps = self.chainSteps)
         return myChain
