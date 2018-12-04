@@ -1,26 +1,21 @@
-/*
+/**
 
- *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
-SoftKiller.h: Implementation of the SoftKiller algorithm for athena simulation
-Author: Ava Myers (amyers@cern.ch)
-
-Methods:
-
-ConstructGrid: returns a 2D histogram of 0.4 x 0.4 (eta x phi) patches containing the energy of the highest energy gTower within that patch
-
-Et_median_true: returns the true median of a vector, used for validation
-
-Et_median_approx_iteration: helper method for Et_median_approx
-
-Et_median_approx: returns the approximated median for a vector. Iteratively calls Et_median_approx_iteration and returns the average of the constrained bounds returned by the last call
-
-FlattenHistogram: converts the output of ConstructGrid into the input of Et_median_true(approx)
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
  */
 
 #ifndef TRIGT1CALOFEXSIM_SOFTKILLER_H
 #define TRIGT1CALOFEXSIM_SOFTKILLER_H
+
+/*
+ * Class  : Softkiller
+ *
+ * Author : Myers, Ava (amyers@cern.ch)
+ *
+ * Date   : Oct 2018 - Created class
+ *
+ * Implements the Softkiller algorithm in the context of MET reconstruction. Pileup suppression is applied in parallel to the threshold determined by the Softkiller algorithm.
+ */
 
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -37,7 +32,10 @@ FlattenHistogram: converts the output of ConstructGrid into the input of Et_medi
 #include <vector>
 #include "TMath.h"
 
-
+/**
+ * @brief Return a 2D histogram of 0.4x0.4 (eta x phi) patches containing the energy of the highest energy gTower within that patch
+ * @return A @c TH2F*
+ */
 TH2F* ConstructGrid(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   int NEta = 12;
   int NPhi = 16;
@@ -58,6 +56,10 @@ TH2F* ConstructGrid(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   return sk_grid;
 }
 
+/**
+ * @brief Returns the true median of a vector. Used for validation
+ * @return A @c float
+ */
 float Et_median_true(std::vector<float>* EtList){
   
   const int size = EtList->size();
@@ -73,6 +75,10 @@ float Et_median_true(std::vector<float>* EtList){
   return med_true;
 }
 
+/**
+ * @brief Helper method for Et_median_approx
+ * @return @c std::vector<float>
+ */
 std::vector<float> Et_median_approx_iteration(std::vector<float>* EtList, int nbins, float EtMin, float EtMax){
   
   int binUnderflow = 0;
@@ -112,6 +118,10 @@ std::vector<float> Et_median_approx_iteration(std::vector<float>* EtList, int nb
   return new_bounds;
 }
 
+/**
+ *@brief Return the approximate median of a vector. Iteratively calls Et_median_approx_iteration and returns the average of the constrained bounds returned by the last call
+ *@return A @c float
+ */
 float Et_median_approx(std::vector<float>* EtList, int niterations, int nbins, float EtMin, float EtMax){
   for(int i = 0; i < niterations; i++){
     std::vector<float> new_bounds = Et_median_approx_iteration(EtList, nbins, EtMin, EtMax);
@@ -121,6 +131,10 @@ float Et_median_approx(std::vector<float>* EtList, int niterations, int nbins, f
   return (EtMax + EtMin)/2;
 }
 
+/**
+ * @brief Converts the output of ConstructGrid to the input of Et_median_true
+ * @return A @c std::vector<float>
+ */
 std::vector<float> FlattenHistogram(TH2F* h_grid){
   const int nEtaBins = h_grid->GetNbinsX();
   const int nPhiBins = h_grid->GetNbinsY();

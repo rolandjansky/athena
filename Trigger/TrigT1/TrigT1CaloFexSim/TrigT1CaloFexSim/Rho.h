@@ -14,6 +14,14 @@ Rho_med(): Calculates rho as the median tower energy density in the barrel, agai
 #ifndef TRIGT1CALOFEXSIM_RHO_H
 #define TRIGT1CALOFEXSIM_RHO_H
 
+/*
+ * Class   : Rho
+ *
+ * Author  : Myers, Ava (amyers@cern.ch)
+ *
+ *Calculates energy density rho either as a median or an average to subract as pileup
+ */
+
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigL1Calo/JGTower.h"
@@ -28,7 +36,10 @@ Rho_med(): Calculates rho as the median tower energy density in the barrel, agai
 #include <vector>
 #include "TMath.h"
 
-
+/**
+ *@brief Calculates rho as the average tower energy density in the barrel region of the calorimeter, to be scaled with are in more forward regions. An upper threshold of 10 GeV is applied to eliminate bias from hard scatter events
+ *@return @c float
+ */
 float Rho_bar(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   float rho = 0;
   float et_max = 3000;  //an upper threshold such that the average rho is not biased by hard scatter events
@@ -54,6 +65,11 @@ float Rho_bar(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   return rho_bar;
 }
 
+
+/**
+ *@brief Calculates rho as the median tower energy density in the barrel region of the calorimeter, to be scaled with area in more forward regions
+ *@return @c float
+ */
 float Rho_med(const xAOD::JGTowerContainer* towers, bool useNegTowers){
   float rho = 0;
   const unsigned int size = towers->size();

@@ -4,7 +4,13 @@
 
 #ifndef TRIGT1CALOFEXSIM_PUFIT_H
 #define TRIGT1CALOFEXSIM_PUFIT_H
-
+/*
+ * Class   : Pufit
+ *
+ * Author  : Myers, Ava (amyers@cern.ch)
+ *
+ *Implements the Pufit algorithm for MET reconstruction and pileup subtraction. Includes a helper class for gTower patches
+ */
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigL1Calo/JGTower.h"
@@ -21,7 +27,9 @@
 #include <TLorentzVector.h>
 #include <vector>
 
-//Helper class for patches of towers
+/**
+ *@brief Helper class for patches of towers
+ */
 struct Patch{
   float sumEt{0.};
   float px{0.};
@@ -39,6 +47,9 @@ struct Patch{
   };
 };
 
+/**
+ *@brief Namespace for "global" variables in PUfit
+ */
 namespace PUfitVar{
   float m_targetTowerWidth = 0.7;
   float m_maxEta = 5.;

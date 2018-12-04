@@ -1,30 +1,30 @@
-/*
+/**
 
  *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
-JwoJ.h: Implementation of the Jets without Jets algorithm
-Author: Ava Myers (amyers@cern.ch)
-Optimized for resolution (Rebecca Linck) -> uses total reconstructed MET as "soft term"
-
-Includes all helper methods for MET calculation using JwoJ
-
-Methods: 
-
-RunJwoJ: Separates Et into "hard" and "soft" terms depending on value
-         Stores the hard and soft MET terms in global vector entries for MET calculation in METAlgs.cxx
-
-BuildBlocksFromTowers: Takes JGTowers from a JGTowerContainer and combines them into gBlocks. Used for threshold on the "cone"(gBlock) pt
 
  */
 
 #ifndef TRIGT1CALOFEXSIM_JWOJ_H
 #define TRIGT1CALOFEXSIM_JWOJ_H
-
+/*
+ * Class   : JwoJ
+ *
+ * Author  : Myers, Ava (amyers@cern.ch)
+ *
+ * Date    : Oct 2018 - Created class
+ *
+ * Implements the Jets without Jets algorithm for MET reconstruction. Optimized for resolution (Rebecca Linck): Uses total reconstructed MET as the "soft term". Includes all helper methods for MET calculation using JwoJ
+ */
 #include <algorithm>
 #include "TMath.h"
 #include "Objects.h"
 #include "GaudiKernel/SystemOfUnits.h"
-//--------------------------------------------------------------------
+
+
+/**
+ *@brief Takes JGTowers from a JGTowerContainer and combines them into gBlocks. Used for threshold on the "cone" (gBlock) pt
+ *@return @c void 
+ */
 void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers){
   
   blocks.clear();
@@ -60,6 +60,11 @@ void BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::
   
   std::sort(blocks.rbegin(), blocks.rend());
 }
+
+/**
+ *@brief Separates Et into hard and soft terms depending on threshold pt. Stores hard and soft MET terms in a vector to be passed.
+ *@return @c std::vector<float>
+ */
 std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, float pTcone_cut, bool useNegTowers){
   
   std::vector<TowerObject::Block> blocks;

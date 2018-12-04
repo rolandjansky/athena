@@ -2,6 +2,18 @@
  *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef TRIGT1CALOFEXSIM_METALG_H
+#define TRIGT1CALOFEXSIM_METALG_H
+
+/*
+ * Class    : METAlg
+ *
+ * Authors  : Lin, Chiao-Ying (cylin@cern.ch); Myers, Ava (amyers@cern.ch)
+ *
+ * Date     : Oct 2018 - Updated class
+ *
+ * Includes algorithms for MET reconstruction and pileup suppression.
+ */
 
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -28,10 +40,26 @@ class METAlg{
     float et;
     
   };
-  
+  /**
+   *@brief Calculate MET using a fixed 4 sigma noise cut
+   */
   static StatusCode BuildMET(const xAOD::JGTowerContainer*towers,METAlg::MET* met,std::vector<float> noise, bool useNegTowers);
+  /**
+   *@brief Calculates MET with pileup subtraction
+   */
   static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useRMS, bool useMedian, bool useNegTowers);
+  /**
+   *@brief Calculates MET with Softkiller
+   */
   static StatusCode Softkiller_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
+  /**
+   *@brief Calculates MET with Jets without Jets
+   */
   static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, float pTcone_cut, bool useNegTowers);
+  /**
+   *@brief Calculates MET using PUfit
+   */
   static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, METAlg::MET* met, bool useNegTowers);
 };
+
+#endif
