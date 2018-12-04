@@ -11,7 +11,7 @@ def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
 
     result=ComponentAccumulator()
 
-    from EventInfoMgtConf import TagInfoMgr
+    from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
     from SGComps.SGCompsConf import ProxyProviderSvc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
 
@@ -33,3 +33,12 @@ def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
                        
     return result,tagInfoMgr
     
+if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+
+    acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags )
+    print tagInfoMgr
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"
