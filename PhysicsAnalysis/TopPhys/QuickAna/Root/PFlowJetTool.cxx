@@ -42,10 +42,10 @@ namespace
 {
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root";
-  const char *jesFile_pflow = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config";
+    "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root";
+  const char *jesFile_pflow = "JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config";
   const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config";
-  const std::string uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config";
+  const std::string uncertConfigFile = "rel21/Fall2018/R4_SR_Scenario1.config";
   const char *mcType = "MC16";
 }
 
@@ -107,8 +107,8 @@ namespace ana
     const auto jetCollection = m_jetContainer.substr(0, m_jetContainer.size()-4);
     const std::string configFile = m_isAFII ? jesFile_pflow_AFII : jesFile_pflow;
     const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
-                                          : "JetArea_Residual_EtaJES_GSC";
-    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-81") );
+                                          : "JetArea_Residual_EtaJES_GSC_Smear";
+    ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-82") );
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
     ATH_CHECK( m_calibration_tool.setProperty("CalibSequence", calibSeq) );
@@ -124,7 +124,7 @@ namespace ana
     ATH_CHECK( m_uncertainties_tool.setProperty("JetDefinition", jetCollection) );
     ATH_CHECK( m_uncertainties_tool.setProperty("MCType", m_isAFII ? "AFII" : mcType) );
     ATH_CHECK( m_uncertainties_tool.setProperty("ConfigFile", uncertConfigFile) );
-    ATH_CHECK( m_uncertainties_tool.setProperty("CalibArea", "CalibArea-03") );
+    ATH_CHECK( m_uncertainties_tool.setProperty("CalibArea", "CalibArea-06") );
     ATH_CHECK( m_uncertainties_tool.initialize() );
     registerTool( &*m_uncertainties_tool);
 
@@ -162,13 +162,12 @@ namespace ana
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvtEffTool, CP::JetJvtEfficiency) );
     // The default working point is the recommended one
     //ATH_CHECK( m_jvtEffTool.setProperty("WorkingPoint","Default") );
+    ATH_CHECK( m_jvtEffTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root") );
     ATH_CHECK( m_jvtEffTool.initialize() );
     registerTool (&*m_jvtEffTool);
 
     // b-tagging tools
     if(m_enableBTagging) {
-      //const std::string bTagCalibFile =
-      //   "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root";
       // @TODO: update AnaToolHandle tool creation mechanism
       ATH_CHECK( ASG_MAKE_ANA_TOOL(m_bsel_tool, BTaggingSelectionTool) );
       ATH_CHECK( m_bsel_tool.setProperty("TaggerName", m_btagger) );
@@ -316,15 +315,12 @@ namespace ana
     // Recommendations come from
     //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalib2015
 
-    //const std::string btagFile =
-    //  "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root";
-
     // @TODO update tool creation mechanism
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_btagging_eff_tool, BTaggingEfficiencyTool) );
     ATH_CHECK( m_btagging_eff_tool.setProperty("TaggerName", m_btagger) );
     // really stupid that these have different formats
     ATH_CHECK( m_btagging_eff_tool.setProperty("OperatingPoint", m_btagWP) );
-    ATH_CHECK( m_btagging_eff_tool.setProperty("JetAuthor", "AntiKt4EMTopoJets") );
+    ATH_CHECK( m_btagging_eff_tool.setProperty("JetAuthor", "AntiKt4EMPFlowJets") );
     ATH_CHECK( m_btagging_eff_tool.setProperty("ScaleFactorFileName", bTagCalibFile) );
     ATH_CHECK( m_btagging_eff_tool.setProperty("SystematicsStrategy", "Envelope") );
     ATH_CHECK( m_btagging_eff_tool.initialize() );
@@ -337,6 +333,7 @@ namespace ana
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvtEffTool, CP::JetJvtEfficiency) );
     // The default working point is the recommended one
     //ATH_CHECK( m_jvtEffTool.setProperty("WorkingPoint","Default") );
+    ATH_CHECK( m_jvtEffTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root") );
     ATH_CHECK( m_jvtEffTool.initialize() );
     registerTool (&*m_jvtEffTool);
 
@@ -349,7 +346,7 @@ namespace ana
   {
 
     ConstDataVector<xAOD::JetContainer> jvtjets(SG::VIEW_ELEMENTS);
-    for (auto object : *objects.jets())
+    for (auto object : *objects.pflow_jets())
     {
       float weight = 1;
       if (m_anaSelect (*object))
