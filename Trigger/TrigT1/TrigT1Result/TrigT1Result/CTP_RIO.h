@@ -15,7 +15,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class MsgStream;
 

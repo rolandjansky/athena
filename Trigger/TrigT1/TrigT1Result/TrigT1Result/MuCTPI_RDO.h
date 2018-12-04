@@ -13,7 +13,7 @@
 #include <cstdint>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
  *   $Date: 2007-07-05 13:26:22 $
