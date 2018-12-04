@@ -56,6 +56,8 @@ class JGTower{
 
 };
 
-  bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dphi);
-  float deltaPhi(float phi1, float phi2);
+bool inBox(float eta1, float eta2, float deta, float phi1, float phi2, float dphi);
+bool withinRadius(float eta1, float eta2, float phi1, float phi2, float dR, bool acceptEqual=false);
+float deltaPhi(float phi1, float phi2);
+
 #endif
