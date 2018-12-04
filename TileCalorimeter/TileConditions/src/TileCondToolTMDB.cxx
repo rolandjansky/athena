@@ -132,8 +132,8 @@ float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, TMDB::CHANNEL chann
     throw TileCalib::IndexOutOfRange("TileCondToolTMDB::channelCalib", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
-  return m_pryCalib->getCalibDrawer(drawerIdx)->getData(channel, 0, 0) 
-    + amplitude * m_pryCalib->getCalibDrawer(drawerIdx)->getData(channel, 0, 1);
+  return amplitude * m_pryCalib->getCalibDrawer(drawerIdx)->getData(channel, 0, 0)
+    + m_pryCalib->getCalibDrawer(drawerIdx)->getData(channel, 0, 1);
 }
 
 

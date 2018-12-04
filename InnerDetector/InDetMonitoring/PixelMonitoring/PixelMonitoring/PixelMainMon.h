@@ -177,6 +177,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   const PixelID* m_pixelid;
   uint64_t m_event;
+  uint64_t m_event5min;
 
   time_t m_startTime;
   bool m_majorityDisabled;  // check for each event, true if >50% modules disabled
@@ -192,8 +193,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int m_nGood_mod[PixLayerIBL2D3DDBM::COUNT];
   int m_nActive_mod[PixLayerIBL2D3DDBM::COUNT];
 
-  unsigned int m_nRefresh;
-  unsigned int m_nRefresh5min;
+  int m_nRefresh;
+  int m_nRefresh5min;
 
   const AtlasDetectorID* m_idHelper;
 

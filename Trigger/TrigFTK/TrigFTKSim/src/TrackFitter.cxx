@@ -20,6 +20,7 @@ TrackFitter::TrackFitter() :
   m_ncoords(0), m_nplanes(0), m_npars(5),
   m_Chi2Cut(0), m_Chi2Cut_maj(0), m_Chi2Cut_vetomaj(-1), m_Chi2DofCutAux(-1), m_Chi2DofCutSSB(-1),
   m_HitWarrior(2), m_HW_ndiff(3), m_HW_dev(0),
+  m_AuxDoctor(false),
   m_keep_rejected(0), m_fit_removed(0),
   m_max_ncomb(10000), m_max_nhitsperplane(-1), m_max_trkout(2000000), m_norecovery_nhits(-1),
   m_one_per_road(false), m_require_first(true), m_do_majority(1),
@@ -991,6 +992,37 @@ int TrackFitter::doHitWarriorFilter(FTKTrack &track_toadd,list<FTKTrack> &tracks
   return accepted;
 }
 
+/** This is the newly added overlap removal method Aux Doctor. It checks the SSIDs,
+    which are extrapolated Aux track coordinates, and performs the overlap removal. **/
+int TrackFitter::doAuxDoctor(FTKTrack &track_toadd,list<FTKTrack> &tracks_list)
+{
+  // remains 0 if the track has to be added
+  // -1 means it's a duplicate
+  int accepted_AuxDoctor(0);
+
+  list<FTKTrack>::iterator itrack = tracks_list.begin();
+
+  for (;itrack!=tracks_list.end();++itrack) { // loop over tracks of this bank
+    // reference to an old track
+    FTKTrack &track_old = *itrack;
+
+    bool toadd = false;
+    for (int i=0; i<track_toadd.getNPlanesIgnored(); i++) {
+      if (track_toadd.getSSID(i) != track_old.getSSID(i)) {
+        toadd = true;
+        break;
+      }
+    }
+
+    if (!toadd) {
+      accepted_AuxDoctor = -1;
+      // passing the end of the list means remove current
+      removeTrack(tracks_list,tracks_list.end(),track_toadd,track_old,true);
+    }
+  } // end loop over tracks of this bank
+
+  return accepted_AuxDoctor;
+}
 
 /** rejected, or mark as rejected, the track in the list
     against  the second track */

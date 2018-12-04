@@ -32,12 +32,12 @@ class TFCSExtrapolationState;
       ALWAYS,
       NUM_LEVELS
     }; // enum Level
-    const char* LevelNames[NUM_LEVELS]={"NIL","VERBOSE","DEBUG","INFO","WARNING","ERROR","FATAL","ALWAYS"};
+    __attribute__ ((unused)) static const char* LevelNames[NUM_LEVELS]={"NIL","VERBOSE","DEBUG","INFO","WARNING","ERROR","FATAL","ALWAYS"};
   }  // end namespace MSG  
   // Needs a check despite the name, as stand alone mode is not using MsgStream, but just cout internally
   #define ATH_MSG_LVL_NOCHK(lvl, x)               \
     do {                                          \
-      if(this->msgLvl(lvl)) this->msg(lvl)<<setw(45)<<std::left<<this->GetName()<<" "<<MSG::LevelNames[lvl]<<" "<< x << endmsg; \
+      if(this->msgLvl(lvl)) this->msg(lvl) << std::setw(45) << std::left << this->GetName() << " " << MSG::LevelNames[lvl] << " " << x << endmsg; \
     } while (0)
 
   #define ATH_MSG_LVL(lvl, x)                     \
@@ -46,16 +46,16 @@ class TFCSExtrapolationState;
     } while (0)
 
   #define ATH_MSG_VERBOSE(x) ATH_MSG_LVL(MSG::VERBOSE, x)
-  #define ATH_MSG_DEBUG(x)   ATH_MSG_LVL(MSG::DEBUG, x)
+  #define ATH_MSG_DEBUG(x)   ATH_MSG_LVL(MSG::DEBUG,   x)
   // note that we are using the _NOCHK variant here
-  #define ATH_MSG_INFO(x)    ATH_MSG_LVL_NOCHK(MSG::INFO, x)
+  #define ATH_MSG_INFO(x)    ATH_MSG_LVL_NOCHK(MSG::INFO,    x)
   #define ATH_MSG_WARNING(x) ATH_MSG_LVL_NOCHK(MSG::WARNING, x)
-  #define ATH_MSG_ERROR(x)   ATH_MSG_LVL_NOCHK(MSG::ERROR,  x)
-  #define ATH_MSG_FATAL(x)   ATH_MSG_LVL_NOCHK(MSG::FATAL,  x)
+  #define ATH_MSG_ERROR(x)   ATH_MSG_LVL_NOCHK(MSG::ERROR,   x)
+  #define ATH_MSG_FATAL(x)   ATH_MSG_LVL_NOCHK(MSG::FATAL,   x)
 
   // can be used like so: ATH_MSG(INFO) << "hello" << endmsg;
   #define ATH_MSG(lvl) \
-    if (this->msgLvl(MSG::lvl)) this->msg(MSG::lvl)<<setw(45)<<std::left<<this->GetName()<<" "<<MSG::LevelNames[MSG::lvl]<<" " 
+    if (this->msgLvl(MSG::lvl)) this->msg(MSG::lvl) << std::setw(45) << std::left << this->GetName() << " " << MSG::LevelNames[MSG::lvl] << " " 
 
 #else
   #include "AthenaKernel/MsgStreamMember.h"
@@ -164,7 +164,7 @@ public:
 
   /// Log a message using cout; a check of MSG::Level lvl is not possible!
   MsgStream& msg() const {return *m_msg;}
-  MsgStream& msg( const MSG::Level lvl ) const {return *m_msg;}  
+  MsgStream& msg( const MSG::Level ) const {return *m_msg;}  
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( const MSG::Level lvl ) const {return m_level<=lvl;}
 private:

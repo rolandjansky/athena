@@ -35,6 +35,7 @@ private:
   static TH1* s_undelayedFitHist;
   static TH1* s_delayedFitHist;
   static TF1* s_combinedFitFunc;
+  static float s_combinedFitTMax;
 
   // Quantities provided/set in the constructor
   //
@@ -56,6 +57,8 @@ private:
 
   // Default fit values and cuts that can be set via modifier methods
   //
+
+  int m_fitTMax;
   int m_HGOverflowADC;
   int m_HGUnderflowADC;
   int m_LGOverflowADC;
@@ -245,6 +248,8 @@ public:
     else throw;
   }
 
+  void SetFitTimeMax(float tmax);
+
   void SetNonlinCorrParams(const std::vector<float>& params) 
   {
     //  Check for valid length
@@ -255,6 +260,7 @@ public:
 	      << params[0] << ", " << params[1] << std::endl;
 
     m_nonLinCorrParams = params;
+    m_haveNonlinCorr = true;
   }
 
   bool LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::vector<float> ADCSamplesLG);
