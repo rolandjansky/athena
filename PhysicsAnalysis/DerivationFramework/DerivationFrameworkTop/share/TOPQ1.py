@@ -77,7 +77,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 TOPQ1_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
     name                   = "TOPQ1_Reco_V0Finder",
     V0FinderTool           = TOPQ1_V0FinderTools.V0FinderTool,
-    OutputLevel            = INFO,
+    OutputLevel            = WARNING,
     V0ContainerName        = "TOPQ1RecoV0Candidates",
     KshortContainerName    = "TOPQ1RecoKshortCandidates",
     LambdaContainerName    = "TOPQ1RecoLambdaCandidates",
@@ -137,12 +137,12 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+# for VR
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
 TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ1Sequence)
-# for VR
-#BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-#ReTag(TaggerList,['AntiKtVR30Rmax4Rmin02Track'],TOPQ1Sequence)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
