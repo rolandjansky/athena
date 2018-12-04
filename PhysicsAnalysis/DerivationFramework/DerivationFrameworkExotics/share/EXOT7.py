@@ -320,7 +320,7 @@ EXOT7SlimmingHelper.StaticContent = EXOT7Content
 EXOT7SlimmingHelper.SmartCollections = EXOT7SmartCollections
 EXOT7SlimmingHelper.ExtraVariables = EXOT7ExtraVariables
 EXOT7SlimmingHelper.AllVariables = EXOT7AllVariables
-addMETOutputs(EXOT7SlimmingHelper, ["Track", "EXOT7"], ["AntiKt4EMTopo"])
+addMETOutputs(EXOT7SlimmingHelper, ["Track","AntiKt4EMPFlow","AntiKt4EMTopo"], ["AntiKt4EMTopo","AntiKt4EMPFlow"])
 addOriginCorrectedClusters(EXOT7SlimmingHelper, writeLC = True, writeEM = False)
 
 ##Adding Jet collections to dictionary
