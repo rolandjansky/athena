@@ -489,18 +489,22 @@ StatusCode TrigTauRecMergedMT::execute()
 
 	StatusCode processStatus    = StatusCode::SUCCESS;
 
+   // Save Outputs
+   SG::WriteHandle<xAOD::TauJetContainer> outTauJetHandle( m_trigtauRecOutKey );
+   SG::WriteHandle<xAOD::TauTrackContainer> outTauTrackHandle( m_trigtauTrkOutKey );
+
 	//-------------------------------------------------------------------------
 	// setup TauCandidate data
 	//-------------------------------------------------------------------------
 	m_tauEventData.clear();
 	xAOD::TauJetContainer *pContainer = new xAOD::TauJetContainer();
-	xAOD::TauJetAuxContainer pAuxContainer;
+	xAOD::TauJetAuxContainer *pAuxContainer = new xAOD::TauJetAuxContainer();
 
 	xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
 	xAOD::TauTrackAuxContainer pTrackAuxContainer;
 
 	// Set the store: eventually, we want to use a dedicated trigger version
-	pContainer->setStore(&pAuxContainer);
+	pContainer->setStore(pAuxContainer);
 
 	// Set the store: eventually, we want to use a dedicated trigger version
 	pTrackContainer->setStore(&pTrackAuxContainer);
@@ -511,7 +515,7 @@ StatusCode TrigTauRecMergedMT::execute()
 
 	// This is potentially a bit dangerous, but all the tools using m_tauEventData
 	// are run in the current scope
-	m_tauEventData.tauAuxContainer = &pAuxContainer;
+	m_tauEventData.tauAuxContainer = pAuxContainer;
 
 	// Set the Objects that we can attach right now
 	// m_tauEventData.setObject("InTrigger?", true ); Set this in initialize, now a member variable of TauEventData
@@ -787,16 +791,12 @@ StatusCode TrigTauRecMergedMT::execute()
    //std::unique_ptr< xAOD::TauJetContainer > taujetContainer( new xAOD::TauJetContainer() );
    //std::unique_ptr< xAOD::TauTrackContainer > tautrkContainer( new xAOD::TauTrackContainer() );
 
-   // Save Outputs
-   SG::WriteHandle<xAOD::TauJetContainer> outTauJetHandle( m_trigtauRecOutKey );
-   SG::WriteHandle<xAOD::TauTrackContainer> outTauTrackHandle( m_trigtauTrkOutKey );
-
    //if(pContainer) taujetContainer->push_back(&pContainer);
    //if(pTrackContainer) tautrkContainer->push_back(pTrackContainer);
    ATH_MSG_DEBUG("Output TauJetContainer size:"<< pContainer->size());
    ATH_MSG_DEBUG("Output TauTrackJetContainer size:"<< pTrackContainer->size());
 
-   CHECK( outTauJetHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{&pAuxContainer}) );
+   CHECK( outTauJetHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}) );
    //if(pTrackContainer->size()!=0) ATH_CHECK( outTauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{&pTrackAuxContainer}) );
 
 	//hltStatus=attachFeature(outputTE, pContainer, m_outputName);

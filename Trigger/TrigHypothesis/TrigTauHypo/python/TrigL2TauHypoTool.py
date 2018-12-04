@@ -1,69 +1,31 @@
 
-def TrigL2TauHypoToolFromName( name, conf ):
-    """ provides configuration of the hypo tool given the chain name
-    The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
-    """
-    bname = conf.split('_')
+def TrigTauHypoProvider( name, conf ):
+    part='calo'
+    threshold='25'
+    criteria='medium1'
+    strategy='tracktwo'
 
-    threshold = bname[1]
-    print threshold
-    from TrigTauHypo.TrigL2CaloHypoTool import decodeThreshold
-    thresholds = decodeThreshold( threshold )
+    print "TrigL2TauHypoTool: name = ", name
 
-    from TrigTauHypo.TrigTauHypoConf import TrigL2TauHypoTool
-    tool = TrigL2TauHypoTool(name)
-    tool.MonTool = ""
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-        monTool = GenericMonitoringTool("MonTool"+name)
-        monTool.Histograms = [         
-            defineHistogram('CutCounter', type='TH1I', title="L2Tau Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
-            defineHistogram('CaloTrackdEta', type='TH1F', title="L2Tau Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
-            defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Tau Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
-            defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Tau Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12),
-            defineHistogram('PtTrack', type='TH1F', title="L2Tau Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-            defineHistogram('PtCalo', type='TH1F', title="L2Tau Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-            defineHistogram('CaloEta', type='TH1F', title="L2Tau Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
-            defineHistogram('CaloPhi', type='TH1F', title="L2Tau Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2) ]        
+    # Simple implementation of 2015 pre-selection
+    currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
 
-        monTool.HistPath = 'L2TauHypo/'+tool.name()
-        tool.MonTool = monTool
-        tool += monTool
+    # Re-define the calo part using the generic hypo
+    if part == 'calo':
+       from TrigTauHypo.TrigTauHypoConf import TrigTauGenericHypoMT
+       currentHypo = TrigTauGenericHypoMT(name)
+       currentHypo.MonTool = ""
 
-    from AthenaCommon.SystemOfUnits import GeV    
-    nt = len( thresholds )
-    tool.LowerPtCut           =  [20000.0] *nt
-    tool.ClusterEnergySumCone =  [0.2] *nt
-    tool.CellVariableCore     =  [0.1] *nt
-    tool.CellVariableOuter    =  [0.2] *nt
-    tool.CoreFractionCut      =  [0.9] *nt
-    tool.HadRadiusCut         =  [0.2] *nt;
+       # pT cut always defined: ugly string-to-int-to-string conversion, sorry :)
+       myThreshold = str(int(threshold)*1000.0)
+       theDetails  = [int(-1)]
+       theFormulas = ['y > '+myThreshold]
 
-
-    for th, thvalue in enumerate(thresholds):
-        print th, thvalue
-        if float(thvalue) < 15:
-            tool.LowerPtCut[ th ] = 1.0 * GeV 
-        elif float(thvalue) >= 15 and float(thvalue) < 20:
-            tool.TrackPt[ th ] = 2.0 * GeV 
-        elif float(thvalue) >= 20 and float(thvalue) < 50:
-            tool.TrackPt[ th ] =  3.0 * GeV 
-        elif float(thvalue) >= 50:
-            tool.TrackPt[ th ] =  5.0 * GeV 
-            tool.CaloTrackdETA[ th ] =  999. 
-            tool.CaloTrackdPHI[ th ] =  999.
-        else:
-            raise RuntimeError('No threshold: Default cut configured')
-    return tool
-
-
-if __name__ == "__main__":
-    tool = TrigL2TauHypoToolFromName("HLT_e3_etcut")    
-    assert tool, "Not configured simple tool"
-
-    tool = TrigL2TauHypoToolFromName("HLT_2e3_etcut")    
-    assert tool, "Not configured simple tool"
-    assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
-
-    print ( "\n\nALL OK\n\n" )    
+       if strategy =='calo' or strategy == 'caloonly' or strategy == 'tracktwocalo' or strategy == 'trackcalo':
+          # centFrac cut (detail #24: 2nd order fit, turn-off at ~ 55 GeV, 95% efficiency)
+          theDetails += [24]
+          theFormulas += ['x > (0.945 - (1.26e-05*TMath::Min(y, 50000.)) + (1.05e-10*TMath::Min(y, 50000.)*TMath::Min(y, 50000.)))']
+          # centFrac cut (detail #24: 2nd order fit, turn-off at 50 GeV, 90% efficiency)
+          # theFormulas += ['x > TMath::Max(0.936 - (8.5e-06*y) + (6.54e-11*y*y), 0.660)']
+       currentHypo.Details = theDetails
+       currentHypo.Formulas = theFormulas

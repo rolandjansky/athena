@@ -32,8 +32,8 @@ step1=ChainStep("Step1_tau", [tauCaloSequence()])
 
 
 testChains  = [
-    Chain(name='HLT_tau8_loose',  Seed="L1_TAU8",  ChainSteps=[step1] ),
-    Chain(name='HLT_tau10_loose', Seed="L1_TAU8",  ChainSteps=[step1] ),
+    Chain(name='HLT_tau0_perf_ptonly_L1TAU12',  Seed="L1_TAU12",  ChainSteps=[step1] ),
+    Chain(name='HLT_tau25_medium1_tracktwo', Seed="L1_TAU12IM",  ChainSteps=[step1] ),
     ]
     
 

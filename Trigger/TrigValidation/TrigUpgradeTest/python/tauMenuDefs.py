@@ -69,17 +69,30 @@ caloRec.clustersKey = "caloclusters"
 fastCaloInViewAlgs  = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker,CaloRoiUpdater,caloRec])
 fastCaloAthSequence = seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs])
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlgMT
+fastCaloHypo = TrigTauCaloHypoAlgMT("TauGenericHypoMT")
+fastCaloHypo.OutputLevel = DEBUG
 
-def genCaloHypoToolTau( name, conf ):
-    return HLTTest__TestHypoTool("name")
+from TrigTauHypo.TrigL2TauHypoTool import TrigTauHypoProvider
 
 def tauCaloSequence():
     return  MenuSequence( Sequence    = fastCaloAthSequence,
                           Maker       = fastCaloViewsMaker,
-                          Hypo        = HLTTest__TestHypoAlg("DummyTauCaloHypo", Input=""),
-                          HypoToolGen = genCaloHypoToolTau )
+                          Hypo        = fastCaloHypo,
+                          HypoToolGen = TrigTauHypoProvider )
+
+#Generic Hypo implementation (Keep this lines for the future)
+#from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+#from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+
+#def genCaloHypoToolTau( name, conf ):
+#    return HLTTest__TestHypoTool("name")
+
+#def tauCaloSequence():
+#    return  MenuSequence( Sequence    = fastCaloAthSequence,
+#                          Maker       = fastCaloViewsMaker,
+#                          Hypo        = HLTTest__TestHypoAlg("DummyTauCaloHypo", Input=""),
+#                          HypoToolGen = genCaloHypoToolTau )
 
 
 # ===============================================================================================
