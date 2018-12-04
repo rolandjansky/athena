@@ -3,9 +3,10 @@
 */
 
 #include "JetTagTools/RNNIPTag.h"
-#include "JetTagTools/LightweightNeuralNetwork.h"
-#include "JetTagTools/parse_json.h"
-#include "JetTagTools/Exceptions.h"
+
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/Exceptions.hh"
+#include "lwtnn/parse_json.hh"
 
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/GradedTrack.h"

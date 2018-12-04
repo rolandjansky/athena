@@ -15,7 +15,7 @@
     @authors Dan Guest, Luke de Oliveira, Marie Lanfermann
 ********************************************************/
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "JetTagTools/NNLayerConfig.h"
+#include "lwtnn/lightweight_network_config.hh"
 #include "JetTagTools/IMultivariateJetTagger.h"
 
 #include <vector>
