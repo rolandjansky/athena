@@ -132,7 +132,7 @@ namespace ana
   inputTypes() const
   {
     return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_JET) |
-           (1 << OBJECT_TAU) | (1 << OBJECT_PHOTON);
+           (1 << OBJECT_TAU) | (1 << OBJECT_PHOTON) | (1 << OBJECT_PFLOW_JET);
   }
   //---------------------------------------------------------------------------
   unsigned ORTool ::
@@ -165,12 +165,25 @@ namespace ana
           if (jvtAcc(*j)) inAcc(*j) = inAcc(*j)*2;
         }
       }
+      if (objects.pflow_jets()){
+        SG::AuxElement::Accessor<SelectType> jvtAcc("Jvt_pass");
+        for (auto j : *objects.pflow_jets()){
+          if (jvtAcc(*j)) inAcc(*j) = inAcc(*j)*2;
+        }
+      }
+
     }
 
     auto& orTool = m_orToolBox.masterTool;
-    ATH_CHECK( orTool->removeOverlaps(objects.electrons(), objects.muons(),
-                                      objects.jets(), objects.taus(),
-                                      objects.photons()) );
+    if (objects.jets())
+       ATH_CHECK( orTool->removeOverlaps(objects.electrons(), objects.muons(),
+                                         objects.jets(), objects.taus(),
+                                         objects.photons()) );
+    if (objects.pflow_jets())
+       ATH_CHECK( orTool->removeOverlaps(objects.electrons(), objects.muons(),
+                                         objects.pflow_jets(), objects.taus(),
+                                         objects.photons()) );
+
 
     //
     // Post-processing: if "overlaps" is true, set selection flag to false
@@ -182,7 +195,7 @@ namespace ana
     // List of containers to process.
     std::vector< xAOD::IParticleContainer* > containers {
       objects.electrons(), objects.muons(), objects.jets(),
-      objects.taus(), objects.photons()
+      objects.pflow_jets(), objects.taus(), objects.photons()
     };
 
     // Process all containers in one go!

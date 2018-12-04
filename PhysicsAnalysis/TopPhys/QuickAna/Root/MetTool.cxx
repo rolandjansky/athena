@@ -116,7 +116,7 @@ namespace ana
   inputTypes () const
   {
     return (1 << OBJECT_ELECTRON) | (1 << OBJECT_PHOTON) | (1 << OBJECT_TAU) |
-      (1 << OBJECT_MUON) | (1 << OBJECT_JET) | (1 << OBJECT_EVENTINFO);
+      (1 << OBJECT_MUON) | (1 << OBJECT_JET) | (1 << OBJECT_PFLOW_JET) | (1 << OBJECT_EVENTINFO);
   }
 
 
@@ -139,9 +139,14 @@ namespace ana
     m_jetContainer = conf.inputName (OBJECT_JET);
     if (m_jetContainer.empty())
     {
-      ATH_MSG_ERROR ("can't use MET without jets");
-      return StatusCode::FAILURE;
+      m_jetContainer = conf.inputName (OBJECT_PFLOW_JET);
+      if (m_jetContainer.empty()) 
+      {
+         ATH_MSG_ERROR ("can't use MET without jets");
+         return StatusCode::FAILURE;
+      }
     }
+
     return StatusCode::SUCCESS;
   }
 
@@ -273,7 +278,7 @@ namespace ana
           return StatusCode::FAILURE;
         }
         met::addGhostMuonsToJets( *objects.muons(), *objects.jets() );
-      }else {
+      } else {
         if(!objects.muons() || !objects.pflow_jets()) {
           ATH_MSG_ERROR("Configured mu-jet OR for MET but container(s) NULL!");
           return StatusCode::FAILURE;
@@ -355,11 +360,20 @@ namespace ana
     }
 
     // Rebuild jet and soft term
-    if (!objects.jets())
+    if (m_doPFlow)
+    {
+       if (!objects.pflow_jets()) 
+       {
+          ATH_MSG_WARNING("Invalid jet container specified for MET rebuilding!");
+          return StatusCode::SUCCESS;
+       } else if (m_doFJVT || m_doPUmetsig) {
+          m_fjvtTool->modify( *objects.pflow_jets() );
+       }
+    } else if (!objects.jets())
     {
       ATH_MSG_WARNING("Invalid jet container specified for MET rebuilding!");
       return StatusCode::SUCCESS;
-    } else if (m_doFJVT) {
+    } else if (m_doFJVT || m_doPUmetsig) {
       // Make sure for forward jet working point we apply the fJVT tool
       // This always returns zero, so no need for value checking right now
       m_fjvtTool->modify( *objects.jets() );
@@ -388,7 +402,14 @@ namespace ana
 
     ATH_CHECK( m_metutil->buildMETSum("Final", met, (*met)[softTerm]->source()) );
     
-    if (m_doPUmetsig) m_fjvtTool->modify( *objects.jets() );
+    //if (m_doPFlow) 
+    //{
+    //   if (m_doPUmetsig) m_fjvtTool->modify( *objects.pflow_jets() );
+    //}else if (m_doPUmetsig)
+    //{
+    //   m_fjvtTool->modify( *objects.jets() );
+    //}
+
     ATH_CHECK( m_metSigni->varianceMET(met, objects.eventinfo()->averageInteractionsPerCrossing(), "RefJet", softTerm, "Final"));
 
     std::string met_signi = "met_signi_"+m_jetSelection;
