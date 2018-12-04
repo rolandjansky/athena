@@ -16,6 +16,12 @@ if Type == 'Pedestal':
 #    include("LArMonTools/LArScaNoiseMonTool_jobOptions.py")        # Monitoring of fixed pattern noise
 #    include("LArMonTools/LArFebNoiseMonTool_jobOptions.py")        # Monitoring of noise shape (using FEB as a scope)
 #    include("LArMonTools/LArFebNoiseMonToolAlt_jobOptions.py")     # Monitoring of noise shape (using FEB as a scope)
+    include("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")    # Coherent noise plots
+    ToolSvc.LArNoiseCorrelationMon.IsCalibrationRun=True
+    ToolSvc.LArNoiseCorrelationMon.LArDigitContainerKey=Gain
+    ToolSvc.LArNoiseCorrelationMon.TriggerChain=""
+    ToolSvc.LArNoiseCorrelationMon.TrigDecisionTool=""
+
 elif Type == 'Delay':
     include("LArMonTools/LArDelayMon_jobOptions.py") # includes LArWaveMon tool and LArJitterMon
 #    include("LArMonTools/LArXtalk_jobOptions.py")    # includes LArWaveXtalk tool

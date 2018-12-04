@@ -8,6 +8,7 @@
 #include "../LArAffectedRegions.h"
 #include "../LArHVCorrectionMonTool.h"
 #include "../LArNoisyROMon.h"
+#include "../LArNoiseCorrelationMon.h"
 
 
 DECLARE_COMPONENT( LArFEBMon )
@@ -20,4 +21,5 @@ DECLARE_COMPONENT( LArRODMonTool )
 DECLARE_COMPONENT( LArAffectedRegions )
 DECLARE_COMPONENT( LArHVCorrectionMonTool )
 DECLARE_COMPONENT( LArNoisyROMon )
+DECLARE_COMPONENT( LArNoiseCorrelationMon )
 
