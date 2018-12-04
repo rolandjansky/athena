@@ -552,19 +552,24 @@ void PixelChargeInterpolationValidation::WriteErrorsFile(std::string name){
 	int neta = etaModel->GetNbinsX(); // number of eta values bins
 	int nalpha = phiModel->GetNbinsX(); // number of incidence angle bins
 	int ntotbins = ncsx + ncsy + neta + nalpha;
-	float *values = new float[ntotbins];
-	int globalindex = 0;
-	for(int i = 0; i < ncsx && globalindex < ntotbins; i++, globalindex++)
-	        values[globalindex] = i + 0.5;
-	for(int i = 0; i < ncsy && globalindex < ntotbins; i++, globalindex++)
-		values[globalindex] = i + 0.5;
-	values[globalindex++] = -2.5;
-	for(int i = 1; i < neta && globalindex < ntotbins; i++, globalindex++)
-		values[globalindex] = etaModel->GetBinLowEdge(i+1);
-	values[globalindex++] = -180;
-	for(int i = 1; i < nalpha && globalindex < ntotbins; i++, globalindex++)
-		values[globalindex] = phiModel->GetBinLowEdge(i+1);
 
+  std::vector<float> values;
+  values.resize(ntotbins);
+	int globalindex = 0;
+  for (int i=0; i<ncsx && globalindex<ntotbins; i++, globalindex++) {
+    values.push_back(i+0.5);
+  }
+	for (int i=0; i<ncsy && globalindex<ntotbins; i++, globalindex++) {
+		values.push_back(i+0.5);
+  }
+	values.push_back(-2.5);
+	for (int i=1; i<neta && globalindex<ntotbins; i++, globalindex++) {
+		values.push_back(etaModel->GetBinLowEdge(i+1));
+  }
+	values.push_back(-180);
+	for (int i=1; i<nalpha && globalindex<ntotbins; i++, globalindex++) {
+		values.push_back(phiModel->GetBinLowEdge(i+1));
+  }
 	parameters->setParameters(ncsx, ncsy, neta, nalpha,0,values);	
 
 	int ntotyconstnx = ncsx * nalpha;
@@ -587,7 +592,6 @@ void PixelChargeInterpolationValidation::WriteErrorsFile(std::string name){
 	parameters->Print(name.c_str());
 
         delete parameters;
-	delete[] values;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

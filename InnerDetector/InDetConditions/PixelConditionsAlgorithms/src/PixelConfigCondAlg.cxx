@@ -135,8 +135,8 @@ StatusCode PixelConfigCondAlg::execute() {
           while (std::getline(checkModule,buffer,'"')) { moduleString.push_back(buffer); }
 
           if (moduleString.size()<4) {
-            ATH_MSG_FATAL("Not enough moduleString data " << moduleString.size() " < 4 for " << component[i] 
-                << " channel " <<  channelNumber << " read from " << readHandle.fullKey() );
+            ATH_MSG_FATAL("Not enough moduleString data " << moduleString.size() << " < 4 for " << component[i] 
+                << " channel " <<  channelNumber << " read from " << readHandle.fullKey());
             return StatusCode::FAILURE;
           }
 
@@ -148,8 +148,8 @@ StatusCode PixelConfigCondAlg::execute() {
           while (std::getline(checkStatus,buffer,' ')) { moduleStringStatus.push_back(buffer); }
 
           if (moduleStringStatus.size()<2) {
-            ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() " < 2 for " << component[i] 
-                << " channel " <<  channelNumber << " read from " << readHandle.fullKey() );
+            ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() << " < 2 for " << component[i] 
+                << " channel " <<  channelNumber << " read from " << readHandle.fullKey());
             return StatusCode::FAILURE;
           }
 
@@ -172,7 +172,7 @@ StatusCode PixelConfigCondAlg::execute() {
         while (std::getline(ss,buffer,' ')) { moduleStringStatus.push_back(buffer); }
 
         if (moduleStringStatus.size()<2) {
-          ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() " < 2 for channel " <<  channelNumber << " read from " << readHandle.fullKey() );
+          ATH_MSG_FATAL("Not enough moduleStringStatus data " << moduleStringStatus.size() << " < 2 for channel " <<  channelNumber << " read from " << readHandle.fullKey());
           return StatusCode::FAILURE;
         }
 

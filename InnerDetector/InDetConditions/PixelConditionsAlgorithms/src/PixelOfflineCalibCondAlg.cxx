@@ -55,12 +55,11 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
   else if (m_inputSource==1) {
     ATH_MSG_INFO("read from file");
 
-    if (m_calibData) { delete m_calibData; }
-    m_calibData = new PixelCalib::PixelOfflineCalibData;
+    PixelCalib::PixelOfflineCalibData* calibData = new PixelCalib::PixelOfflineCalibData;
 
-    PixelCalib::PixelClusterErrorData* pced = m_calibData->getPixelClusterErrorData();
-    PixelCalib::PixelChargeInterpolationParameters* pcip = m_calibData->getPixelChargeInterpolationParameters();
-    PixelCalib::PixelClusterOnTrackErrorData* pcoted = m_calibData->getPixelClusterOnTrackErrorData();
+    PixelCalib::PixelClusterErrorData* pced = calibData->getPixelClusterErrorData();
+    PixelCalib::PixelChargeInterpolationParameters* pcip = calibData->getPixelChargeInterpolationParameters();
+    PixelCalib::PixelClusterOnTrackErrorData* pcoted = calibData->getPixelClusterOnTrackErrorData();
 
     // Find and open the text file
     ATH_MSG_INFO("Load PixelErrorData constants from text file");
@@ -80,9 +79,9 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
 
     // First constants are info on the number of bins of parametrizations
     ATH_MSG_DEBUG("Get error constants");
-    float* constants = m_calibData->GetConstants();
-    if (constants) { ATH_MSG_VERBOSE("constants pointer is defined"); }
-    else           { ATH_MSG_ERROR("constants pointer is NULL!!!"); } 
+    std::vector<float> constants = calibData->GetConstants();
+    if (constants.size()) { ATH_MSG_VERBOSE("constants are defined"); }
+    else                  { ATH_MSG_ERROR("constants size is NULL!!!"); } 
 
     const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
     const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
@@ -90,7 +89,7 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
 
     ATH_MSG_DEBUG("Range of input is " << rangeW);
 
-    if (constants) {
+    if (constants.size()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
       writeCdo->SetConstants(constants);
     }
@@ -100,6 +99,13 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+
+    if (m_dump!=0) {
+      ATH_MSG_DEBUG("Dump the constants to file");
+      calibData->Dump();
+    }
+    delete calibData;
+
   }
   else if (m_inputSource==2) {
     SG::ReadCondHandle<DetCondCFloat> readHandle{m_readKey};
@@ -117,17 +123,21 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
     ATH_MSG_DEBUG("Size of DetCondCFloat " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << rangeW);
 
-    const float* constants = readCdo->find(Identifier(1));
+    std::vector<float> constants;
+    for (int i=0; i<readCdo->size(); i++) { constants.push_back(readCdo->get(Identifier(1),i)); }
 
-    if (constants) {
+    if (constants.size()>0) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
       writeCdo->SetConstants(constants);
     }
     else {
       Identifier key;
       key.set_literal(1);
-      const float* const2 = readCdo->find(key);
-      if (const2) {
+
+      std::vector<float> const2;
+      for (int i=0; i<readCdo->size(); i++) { const2.push_back(readCdo->get(key.set_literal(i+1),i)); }
+
+      if (const2.size()>0) {
         ATH_MSG_DEBUG("Found constants with old-style Identifier key");
         writeCdo->SetConstants(const2);
       }
@@ -141,11 +151,6 @@ StatusCode PixelOfflineCalibCondAlg::execute() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
-  }
-
-  if (m_dump!=0) {
-    ATH_MSG_DEBUG("Dump the constants to file");
-    m_calibData->Dump();
   }
 
   return StatusCode::SUCCESS;

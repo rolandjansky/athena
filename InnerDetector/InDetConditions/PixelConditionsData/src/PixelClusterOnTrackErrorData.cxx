@@ -266,7 +266,7 @@ void PixelClusterOnTrackErrorData::setParameters(const int n1, // number of clus
 						 const int n3,   // number of eta bins
 						 const int n4,   // number of incidence angle bins
 						 int offset, // start from c[offset]
-					         const float* c){  // vector with bin values
+					         std::vector<float> c){  // vector with bin values
 
   m_csx.clear();
   m_csy.clear();
@@ -277,33 +277,33 @@ void PixelClusterOnTrackErrorData::setParameters(const int n1, // number of clus
   m_etaref.reserve(n3);
   m_phibins.reserve(n4);
   for(int i=0; i<n1; i++){
-    m_csx.push_back(c[i+offset]);
+    m_csx.push_back(c.at(i+offset));
   }   
   offset += n1;
   for(int i=0; i<n2; i++){
-    m_csy.push_back(c[i+offset]);
+    m_csy.push_back(c.at(i+offset));
   }   
   offset += n2;
   if(m_etabinsibl>0){ // IBL eta
     m_ibletaref.reserve(m_etabinsibl+1);
     for(int i = 0; i<m_etabinsibl+1; i++){
-      m_ibletaref.push_back(c[i+offset]);
+      m_ibletaref.push_back(c.at(i+offset));
     }
     offset +=m_etabinsibl+1;
   }
   if(m_phibinsibl>0){ // IBL phi 
     m_iblphibins.reserve(m_phibinsibl+1);
     for(int i = 0; i<m_phibinsibl+1; i++){
-      m_iblphibins.push_back(c[i+offset]);
+      m_iblphibins.push_back(c.at(i+offset));
     }
     offset +=m_phibinsibl+1;
   }    
   for(int i=0; i<n3; i++){
-    m_etaref.push_back(c[i+offset]);
+    m_etaref.push_back(c.at(i+offset));
   }   
   offset += n3;
   for(int i=0; i<n4; i++){
-    m_phibins.push_back(c[i+offset]);
+    m_phibins.push_back(c.at(i+offset));
   }   
   offset +=n4;
   int nxbinsibl = m_csxbinsibl*m_phibinsibl;

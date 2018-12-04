@@ -32,7 +32,6 @@ class PixelOfflineCalibCondAlg : public AthAlgorithm {
     std::string m_textFileName2;
     std::string m_textFileName3;
     int m_dump;
-    mutable PixelCalib::PixelOfflineCalibData* m_calibData;
 
     SG::ReadCondHandleKey<DetCondCFloat> m_readKey{this, "ReadKey", "/PIXEL/PixReco", "Input key of pixreco conditions folder"};
     SG::WriteCondHandleKey<PixelCalib::PixelOfflineCalibData> m_writeKey{this, "WriteKey", "PixelOfflineCalibData", "Output key of pixel module data"};

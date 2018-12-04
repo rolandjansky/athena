@@ -63,9 +63,8 @@ class PixelClusterOnTrackErrorData {
     float getPixelIBLEtaError(int ibin);
     float getPixelIBLPhiError(int ibin);
 
-
     void setParameters(const int ncsx, const int ncsy, const int neta, const int nalpha, 
-                       int offset, const float* constants);
+                       int offset, std::vector<float> constants);
     void setPixelBarrelPhiError(int ibin, double error){ 
              m_barrelphierror[ibin] = error; }
     void setPixelBarrelEtaError(int ibin, double error){ 

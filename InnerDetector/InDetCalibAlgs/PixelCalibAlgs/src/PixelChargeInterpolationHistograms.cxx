@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationHistograms_C
@@ -50,19 +50,20 @@ PixelChargeInterpolationHistograms::PixelChargeInterpolationHistograms(std::stri
 	unsigned int NCSphi = clustersizePhi.size()-1;
 
 	unsigned int ntotbins = Nphi + NCSphi + Neta + NCSeta + 4;	
-	float *bins = new float[ntotbins];
-	unsigned int shift = 0;
-	for(unsigned int i = 0; i < clustersizePhi.size() && shift < ntotbins; i++, shift++){
-		bins[shift] = clustersizePhi[i];
+
+  std::vector<float> bins;
+  bins.resize(ntotbins);
+	for (unsigned int i=0; i<clustersizePhi.size(); i++) {
+		bins.push_back(clustersizePhi[i]);
 	}
-	for(unsigned int i = 0; i < clustersizeEta.size() && shift < ntotbins; i++, shift++){
-		bins[shift] = clustersizeEta[i];
+	for (unsigned int i=0; i<clustersizeEta.size(); i++) {
+		bins.push_back(clustersizeEta[i]);
 	}
-	for(unsigned int i = 0; i < etabins.size() && shift < ntotbins; i++, shift++){
-		bins[shift] = etabins[i];
+	for (unsigned int i=0; i<etabins.size(); i++) {
+		bins.push_back(etabins[i]);
 	}
-	for(unsigned int i = 0; i < phibins.size() && shift < ntotbins; i++, shift++){
-		bins[shift] = phibins[i];
+	for (unsigned int i=0; i<phibins.size(); i++) {
+		bins.push_back(phibins[i]);
 	}
 
 	m_parameters = new PixelChargeInterpolationParameters();
@@ -115,12 +116,10 @@ PixelChargeInterpolationHistograms::PixelChargeInterpolationHistograms(std::stri
 	delete Profmodel;
 	delete THmodel;
 	delete THmodel1;
-	delete[] bins;
 	delete layers;
 	Profmodel = 0;
 	THmodel = 0;
 	THmodel1 = 0;
-	bins = 0;
 	
 }
 

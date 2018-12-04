@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // DetCondCFloat.cxx
@@ -44,6 +44,16 @@ int DetCondCFloat::findindex(const Identifier& ident) const {
     return itr->second;
   } else {
     // identifier not in map, return -ve offset to signal error
+    return -1;
+  }
+}
+
+float DetCondCFloat::get(const Identifier& ident, int k) const {
+  if (k<findindex(ident)+m_size) {
+    return m_buf[findindex(ident)+k];
+  }
+  else {
+    std::cout << "Index " << k << " exceed array size " << findindex(ident)+k << std::endl;
     return -1;
   }
 }

@@ -19,7 +19,6 @@
 class PixelConfigCondAlg : public AthAlgorithm {  
   public:
     PixelConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-// STSTST    virtual ~PixelConfigCondAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;

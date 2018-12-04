@@ -57,8 +57,9 @@ class PixelOfflineCalibData{
 
   // Get/Set the numerical constants 
   int GetNumberOfConstants() const;
-  float* GetConstants() const;
-  void SetConstants(const float* constants);
+
+  std::vector<float> GetConstants() const;
+  void SetConstants(std::vector<float> constants);
 
   void Dump();
 
