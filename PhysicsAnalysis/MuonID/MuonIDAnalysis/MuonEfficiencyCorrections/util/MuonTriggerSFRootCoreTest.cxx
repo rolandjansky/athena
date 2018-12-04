@@ -71,7 +71,7 @@ public:
 
   }
 
-  int initialiseTools(const std::string& customFileName, const std::string& customInputFolder){
+  int initialiseTools(const std::string& customFileName, const std::string& customInputFolder, int year, const std::string& period){
     for (size_t i = 0; i < qualities.size(); i++) {
       std::vector<CP::MuonTriggerScaleFactors*> tools{};
       for (size_t j = 0; j < binnings.size(); j++) {
@@ -82,7 +82,10 @@ public:
 	ASG_CHECK_SA(m_appName, tool->setProperty("CustomInputFolder", customInputFolder));
 	ASG_CHECK_SA(m_appName, tool->setProperty("UseExperimental", true));
 	ASG_CHECK_SA(m_appName, tool->setProperty("AllowZeroSF", true));
-	tool->msg().setLevel( MSG::ERROR );
+	ASG_CHECK_SA(m_appName, tool->setProperty("forceYear", year));
+	ASG_CHECK_SA(m_appName, tool->setProperty("forcePeriod", period));
+
+	tool->msg().setLevel( MSG::WARNING );
 	ASG_CHECK_SA(m_appName, tool->initialize());
 	//CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
 	//if (result != CP::CorrectionCode::Ok){
@@ -96,13 +99,14 @@ public:
     return 0;
   }
 
-  int processEvent(xAOD::TEvent& event){
+  int processEvent(xAOD::TEvent& event, int year, const std::string& period){
     const xAOD::EventInfo* ei = nullptr;
     RETURN_CHECK(m_appName, event.retrieve(ei, "EventInfo"));
     
     const xAOD::MuonContainer* muons = nullptr;
     RETURN_CHECK(m_appName, event.retrieve(muons, "Muons"));
-    static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+    if(year == -1 && period == "")
+      static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
     for (size_t i = 0; i < qualities.size(); i++) {
       for (size_t j = 0; j < binnings.size(); j++) {        
 	for (size_t k = 0; k < m_systematics.size(); k++) {
@@ -112,8 +116,9 @@ public:
 	    continue;
 	  if(binnings[j] == "coarse")
 	    continue; // not supported right now
-	  if(m_trigger == "HLT_2mu14" || m_trigger == "HLT_2mu10")
+	  if(m_trigger == "HLT_2mu14" || m_trigger == "HLT_2mu10"){
 	    checkSymDiMuonTrigger(ei, muons, i, j, k);
+	  }
 	  else{
 	    for(auto muon : *muons)
 	      checkASymDiMuonTrigger(ei, *muon, i, j, k);
@@ -161,7 +166,6 @@ public:
       m_errorsCount++;
     }
     auto triggerSF = efficiencyMC/efficiencyData;
-    std::cout << "trigger: " << m_trigger << " sf: " << triggerSF;
     if (triggerSF < 0.2 || triggerSF > 1.2) {
       if (displayWarning) {
 	Warning(m_appName, "Retrieved trigger scale factor %.3f is outside of expected range from 0.2 to 1.2. Parameters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s", triggerSF, static_cast<int>(ei->eventNumber()), qualities[iquality].c_str(), binnings[ibin].c_str(), m_systematics[isystematic].name().c_str());
@@ -176,13 +180,11 @@ public:
     CHECK_CPSys(m_triggerSFTools[iquality][ibin]->applySystematicVariation(m_systematics[isystematic]));
     double triggerSF = 0.;
     CP::CorrectionCode result;
-	
     result = m_triggerSFTools[iquality][ibin]->getTriggerScaleFactor(*muons, triggerSF, m_trigger);
     if (result != CP::CorrectionCode::Ok) {
       Error(m_appName, "Could not retrieve trigger scale factors. Parameters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s", static_cast<int>(ei->eventNumber()), qualities[iquality].c_str(), binnings[ibin].c_str(), m_systematics[isystematic].name().c_str());
       m_errorsCount++;
     }
-    std::cout << "trigger: " << m_trigger << " sf: " << triggerSF;
     if (triggerSF < 0.2 || triggerSF > 1.2) {
       // Allow scale factor to be outside of this range in case all the muons are below the threshold
       Int_t threshold = 0;
@@ -323,23 +325,25 @@ int main(int argc, char* argv[]) {
     std::string customFileName = "";
     const char* nrOfEntries = "";
     std::string trigger = "";
+    int year = -1;
+    std::string period = "";
     for (int i = 1; i < argc - 1; i++) {
         std::string arg = std::string(argv[i]);
         if (arg == "-x") {
             xAODFileName = argv[i + 1];
         }
-        else if (arg == "-d") {
+        else if (arg == "-d")
             customInputFolder = argv[i + 1];
-        }
-        else if (arg == "-f") {
+        else if (arg == "-f")
             customFileName = argv[i + 1];
-        }
-        else if (arg == "-e") {
+        else if (arg == "-e")
             nrOfEntries = argv[i + 1];
-        }
-        else if (arg == "-t") {
+        else if (arg == "-t")
             trigger = argv[i + 1];
-        }
+	else if (arg == "-y")
+	  year = atoi(argv[i + 1]);
+	else if (arg == "-p")
+            period = argv[i + 1];
     }
     
     bool error = false;
@@ -352,7 +356,7 @@ int main(int argc, char* argv[]) {
         error = true;
     }
     if (error) {
-        Error(APP_NAME, "  Usage: %s -x [xAOD file name] -y [year] -t [trigger] -d [custom input folder] -f [custom file name] -e [number of events to process]", APP_NAME);
+        Error(APP_NAME, "  Usage: %s -x [xAOD file name] -y [year] -p [period] -t [trigger] -d [custom input folder] -f [custom file name] -e [number of events to process]", APP_NAME);
         return 1;
     }
 
@@ -380,11 +384,11 @@ int main(int argc, char* argv[]) {
 
     
     MuonTriggerSFTester sfChecker(APP_NAME, trigger);
-    sfChecker.initialiseTools(customFileName, customInputFolder);
+    sfChecker.initialiseTools(customFileName, customInputFolder, year, period);
     for(Long64_t entry = 0; entry < nrOfEntriesToRunOver; entry++) {
         // Tell the object which entry to look at:
         event.getEntry(entry);
-	sfChecker.processEvent(event);
+	sfChecker.processEvent(event, year, period);
 
     }
 	
