@@ -23,6 +23,7 @@ JetAttrsCondition::JetAttrsCondition(
 
 bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 
+  //Consider single jets
   if(ips.size() != 1){
     std::stringstream ss;
     ss << "JetAttrs::isSatisfied must see exactly 1 particles, but received "
@@ -32,6 +33,7 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
     throw std::runtime_error(ss.str());
   }
 
+
   auto jet = ips[0];
   auto trigDecision = true; //all chain bits must be satisfied to keep this true. Any failure will make false
   auto nmbVars = m_jetVar.size() / m_E.size(); // number of moments considered at each energy point
@@ -39,8 +41,9 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
   std::cout << "amanda - in JetAttrsCondition \n";
   std::cout << "amanda - length of condition input arrays (var,E,min,max): "<< m_jetVar.size() << m_E.size() << m_limitMin.size() << m_limitMax.size() << "\n";
 
+  //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
   for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
-    bool trigDec=true; //resets for each energy
+    bool trigDec=true; //resets for each jet energy
     for (unsigned int index=0; index < nmbVars; index++){
       if(m_jetVar[index+nmbVars*jetEn].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
       else if(m_jetVar[index+nmbVars*jetEn].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
@@ -81,6 +84,7 @@ bool JetAttrsCondition::passWidthCut(pHypoJet j0, int i) const {
 
 }
 
+
 bool JetAttrsCondition::passKtDRCut(pHypoJet j0, int i) const {
 
   bool result;
@@ -106,6 +110,7 @@ bool JetAttrsCondition::passKtDRCut(pHypoJet j0, int i) const {
   return result;
 
 }
+
 
 std::string JetAttrsCondition::toString() const noexcept {
   std::stringstream ss;

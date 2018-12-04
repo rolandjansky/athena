@@ -384,7 +384,7 @@ class HLThypo2_dijet(HypoAlg):
 
 #Added A. Steinhebel, June 2018
 class HLThypo2_jetattrs(HypoAlg):
-    # Store parameters for the TrigHLTJetRc using the single jet moments scenario
+    # Store parameters for the TrigHLTJetRec using the jet attributes scenario
 
     def __init__(self, ddict):
         print "Amanda hypo_factory dictionary "+str(ddict)

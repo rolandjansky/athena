@@ -419,7 +419,6 @@ class AlgFactory(object):
         
         kargs['E'] = hypo.E
         kargs['momentstr'] =  '"%s"' % hypo.momentstr 
-        #kargs['momentstr'] =  hypo.momentstr
         kargs['jetVars'] = hypo.jetVars
         kargs['has'] = hypo.has
         kargs['limit_mins'] = hypo.limit_mins

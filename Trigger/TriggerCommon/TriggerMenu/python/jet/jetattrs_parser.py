@@ -1,4 +1,4 @@
-""" 7 May 2018 parse string defining the single moment hypo cuts,
+""" 7 May 2018 parse string defining the jet attributes hypo cuts,
 and return lists of strings suitable for initializing the hypo.
 If low or high values mising from menu string, attempt to fill in
 default values from dictionary. Raise an exception if this fails. 
@@ -7,8 +7,6 @@ default values from dictionary. Raise an exception if this fails.
 
 import re
 import sys
-
-#moment_re = re.compile(r'^(?P<low>\d*)(?P<var>[a-zA-Z]+)(?P<high>\d*)$')
 
 
 def parse(s, vals):
@@ -21,8 +19,8 @@ def parse(s, vals):
     j_dicts = []
 
     known_defaults = {
-    'ktdr' : {'low' : '0', 'high' : '20'}, #scaled by 0.1
-    'width' : {'low' : '0', 'high' : '10'}, #scaled by 0.1
+    'ktdr' : {'low' : '0', 'high' : '20'}, #scaled by 0.1 in interpreter
+    'width' : {'low' : '0', 'high' : '10'}, #scaled by 0.1 in interpreter
     }
 
 

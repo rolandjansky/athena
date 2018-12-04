@@ -559,8 +559,6 @@ class JetSequencesBuilder(object):
         # hypo = menu_data.hypo_params
         f = self.alg_factory.hlthypo2_jetattrs
 
-        # hypo = menu_data.hypo_params
-        # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
         alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
 
         return AlgList(f(hypo), alias)
