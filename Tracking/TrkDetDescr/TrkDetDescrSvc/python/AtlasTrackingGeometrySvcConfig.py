@@ -90,10 +90,8 @@ if __name__ == '__main__':
     ConfigFlags.lock()
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
 
     acc, tracking_geometry_service = TrackingGeometrySvcCfg(ConfigFlags )
-    result.merge(acc)
 
     f=open('TrackingGeometrySvcCfg.pkl','w')
     acc.store(f)
