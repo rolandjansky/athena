@@ -29,3 +29,5 @@ def TrigTauHypoProvider( name, conf ):
           # theFormulas += ['x > TMath::Max(0.936 - (8.5e-06*y) + (6.54e-11*y*y), 0.660)']
        currentHypo.Details = theDetails
        currentHypo.Formulas = theFormulas
+
+    return currentHypo

@@ -65,6 +65,7 @@ caloRec.OutputLevel  = DEBUG
 caloRec.RoIInputKey = "RoiForTau"
 caloRec.L1RoIKey    = "TAUCaloRoIs"
 caloRec.clustersKey = "caloclusters"
+caloRec.TrigTauRecOutputKey = "taujets"
 
 fastCaloInViewAlgs  = seqAND("fastCaloInViewAlgsTau", [cellMaker,clusMaker,CaloRoiUpdater,caloRec])
 fastCaloAthSequence = seqAND("fastCaloAthSequenceTau",[fastCaloViewsMaker, fastCaloInViewAlgs])
