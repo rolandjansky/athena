@@ -43,10 +43,23 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
  private: 
   bool m_outputNoise;
+  bool m_debugJetAlg;
+  bool m_dumpTowersEtaPhi;
+  bool m_dumpSeedsEtaPhi;
+  bool  m_makeSquareJets;
   float m_jJet_thr;
   float m_jSeed_size;
   float m_jMax_r;
   float m_jJet_r;
+
+  bool  m_makeRoundJets;
+  float m_jJet_jet_thr;
+  float m_jJetSeed_size;
+  float m_jJet_max_r;
+  float m_jJet_jet_r;
+
+  bool m_plotSeeds;
+
   float m_gJet_thr;
   float m_gSeed_size;
   float m_gMax_r;
@@ -62,21 +75,26 @@ class JGTowerReader: public ::AthAlgorithm {
 
   std::vector<float> jT_noise;
   std::vector<float> jJet_thr;
+  std::vector<float> jJet_jet_thr;
   std::vector<float> gT_noise;
   std::vector<float> gJet_thr;
   ServiceHandle<ITHistSvc> histSvc;
   std::vector<TString> hists;
 
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
+  JetAlg::Seed*   jJetSeeds = new JetAlg::Seed;
   JetAlg::Seed*   gSeeds=new JetAlg::Seed;
   METAlg::MET*    jMET=new  METAlg::MET;
   METAlg::MET*    gMET=new  METAlg::MET;
   std::vector<JetAlg::L1Jet>  jL1Jets;
+  std::vector<JetAlg::L1Jet>  jJet_L1Jets;
   std::vector<JetAlg::L1Jet>  gL1Jets;
   std::map<TString, TH1*> hName;
   std::map<TString, TH2*> h2Name;
   int m_jTowerHashMax;
   int m_gTowerHashMax;
+
+  int m_eventCount = 0;
 
 }; 
 
