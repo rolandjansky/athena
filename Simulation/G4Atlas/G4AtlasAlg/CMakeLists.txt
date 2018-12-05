@@ -21,7 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/MCTruthBase
-                          Simulation/ISF/ISF_Core/ISF_Interfaces)
+                          Simulation/ISF/ISF_Core/ISF_Interfaces
+                          Simulation/Barcode/BarcodeInterfaces)
 
 # External dependencies:
 find_package( CLHEP )

@@ -127,6 +127,7 @@ StatusCode ISF::TruthSvc::finalize()
 /** Initialize the TruthSvc and the truthSvc */
 StatusCode ISF::TruthSvc::initializeTruthCollection()
 {
+  ATH_CHECK( m_barcodeSvc->initializeBarcodes() );
   return StatusCode::SUCCESS;
 }
 
