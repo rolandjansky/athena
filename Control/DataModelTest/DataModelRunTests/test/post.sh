@@ -223,6 +223,7 @@ PP="$PP"'|is still valid for| and sid '
 
 PP="$PP"'|INFO Found MetaDataTools'
 PP="$PP"'|INFO AthenaOutputStream'
+PP="$PP"'|^DbSession.*INFO'
 
 
 test=$1

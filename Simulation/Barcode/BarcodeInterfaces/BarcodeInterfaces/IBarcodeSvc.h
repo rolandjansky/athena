@@ -33,6 +33,11 @@ namespace Barcode {
     ///////////////////////////////////////////////////////////////////
   public:
 
+    //TODO not fully implemented in Generic, Global, and Validation BarcodeSvcs
+    //only fully implemented in LegacyBarcodeSvc (only barcode service used in production)
+    virtual StatusCode initializeBarcodes() { return StatusCode::SUCCESS; };
+    virtual StatusCode resetBarcodes() { return StatusCode::SUCCESS; };
+
     /// Creates the InterfaceID and interfaceID() method
     DeclareInterfaceID(IBarcodeSvc, 1 , 0);
 

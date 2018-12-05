@@ -8,7 +8,7 @@ atlas_subdir( TrigTauRec )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           LumiBlock/LumiBlockComps
                           Reconstruction/tauRecTools
                           Trigger/TrigEvent/TrigParticle

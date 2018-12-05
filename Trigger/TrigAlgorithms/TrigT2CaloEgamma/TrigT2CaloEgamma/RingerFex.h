@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -108,17 +108,19 @@ protected:
   // Start of central methods
 public: 
 
-  using IAlgToolCalo::execute;
-
   RingerFex (const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~RingerFex() { }
+
+  using IAlgToolCalo::execute;
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   //StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, double etamin, double etamax, double phimin, double phimax);
-  StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
-				const CaloDetDescrElement*& /*caloDDE*/,
-                                const EventContext* /*context*/);
+  virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
+                             const CaloDetDescrElement*& /*caloDDE*/) override;
+  virtual StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
+                             const CaloDetDescrElement*& /*caloDDE*/,
+                             const EventContext* /*context*/);
 
 private: // Representation
   

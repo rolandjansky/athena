@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -14,14 +14,15 @@
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 //Event info
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Tile includes
 #include "TileCalibAlgs/TileDigiNoiseCalibAlg.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
@@ -29,7 +30,6 @@
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileCalibAlgs/TileOFCorrelation.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -48,7 +48,6 @@
 
 TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_adderFilterAlgTool("TileRawChannelBuilderFlatFilter/TileAdderFlatFilter", this)
   , m_beamCnv(0)
   , m_cabling(0)
@@ -66,7 +65,6 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
   , m_min(0)
   , m_trigType(0)
 {
-  declareProperty("TileBeamInfoProvider", m_beamInfo);
   declareProperty("TileAdderFlatFilter", m_adderFilterAlgTool);
   declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
@@ -83,6 +81,7 @@ TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocato
   declareProperty("NSamples", m_nSamples = 7);
   declareProperty("DoAvgCorr", m_doAvgCorr = false);
   declareProperty("DoRobustCov", m_doRobustCov = false);
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 
   m_run = 0;
   m_evtNr = -1;
@@ -110,6 +109,8 @@ StatusCode TileDigiNoiseCalibAlg::initialize() {
   memset(m_noise_cov, 0, sizeof(m_noise_cov));
   memset(m_auto_corr, 0, sizeof(m_auto_corr));
 
+  CHECK( m_dqStatusKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -124,8 +125,6 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
   CHECK( detStore()->retrieve(m_tileID) );
 
   CHECK( detStore()->retrieve(m_tileHWID) );
-
-  CHECK( m_beamInfo.retrieve() );
 
   CHECK( m_adderFilterAlgTool.retrieve() );
 
@@ -177,6 +176,9 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
 /// Main method
 StatusCode TileDigiNoiseCalibAlg::execute() {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus * dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
+
   StatusCode sc;
   bool empty(false);
 
@@ -186,23 +188,23 @@ StatusCode TileDigiNoiseCalibAlg::execute() {
       ATH_MSG_ERROR( "FirstEvt_initialize failed" );
     }
 
-    bool calibMode = (m_beamInfo->calibMode() == 1);
+    bool calibMode = (dqStatus->calibMode() == 1);
     if (calibMode != m_calibMode) {
       ATH_MSG_INFO( "Calib mode from data is " );
       ATH_MSG_INFO( "  Overwriting calib mode " );
       m_calibMode = calibMode;
     }
 
-    m_cispar = m_beamInfo->cispar();
-    StoreRunInfo(); // done only once
+    m_cispar = dqStatus->cispar();
+    StoreRunInfo(dqStatus); // done only once
   }
 
-  m_cispar = m_beamInfo->cispar();
+  m_cispar = dqStatus->cispar();
   if (m_evtNr % 1000 == 0)
     ATH_MSG_WARNING( m_evtNr << " events processed so far" );
 
   // store TileDigits
-  if (m_nSamples > 0) sc = fillDigits();
+  if (m_nSamples > 0) sc = fillDigits (dqStatus);
   empty &= (sc.isFailure());
 
   if (empty) {
@@ -275,9 +277,9 @@ StatusCode TileDigiNoiseCalibAlg::finalize() {
 }
 
 /// StoreRunInfo is called only during the first event
-void TileDigiNoiseCalibAlg::StoreRunInfo() {
+void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
 
-  if (m_beamInfo->calibMode() == 1 && m_beamElemContainer.length() > 0) {// Bigain can use cispar
+  if (dqStatus->calibMode() == 1 && m_beamElemContainer.length() > 0) {// Bigain can use cispar
     if (m_beamCnv) {
       //    std::cout << "LUCA m_time= "<< m_time << "   bc_time_seconds= "<<  m_beamCnv->eventFragment()->bc_time_seconds() <<
       //  "   bc_time_nanoseconds= " << m_beamCnv->eventFragment()->bc_time_nanoseconds() << std::endl;
@@ -289,7 +291,7 @@ void TileDigiNoiseCalibAlg::StoreRunInfo() {
     } else
       m_run = 0;
 
-    if (m_beamInfo && m_cispar) {
+    if (dqStatus && m_cispar) {
       m_time = m_cispar[10]; //time in sc from 1970
       m_trigType = m_cispar[12];
     } else {
@@ -342,10 +344,8 @@ void TileDigiNoiseCalibAlg::StoreRunInfo() {
 /// fillDigits is called at every events.
 /// Statistics is summed for Average, RMS and covariance calculations
 /*---------------------------------------------------------*/
-StatusCode TileDigiNoiseCalibAlg::fillDigits() {
+StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
 /*---------------------------------------------------------*/
-
-  const TileDQstatus * theDQstatus = m_beamInfo->getDQstatus();
 
   const TileDigitsContainer* DigitsCnt;
   CHECK( evtStore()->retrieve(DigitsCnt, "TileDigitsCnt") );

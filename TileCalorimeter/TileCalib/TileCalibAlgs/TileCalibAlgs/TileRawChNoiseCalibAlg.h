@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERAWCHNOISECALIBALG_H
@@ -20,12 +20,14 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Tile includes
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondIdTransforms.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileEvent/TileDQstatus.h"
 
 #include <cmath>
 #include <vector>
@@ -34,7 +36,6 @@
 #include <stdint.h>
 
 class TileHWID;
-class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
 class TileDQstatus;
 class TileRawChannel;
@@ -47,9 +48,9 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     virtual ~TileRawChNoiseCalibAlg();
 
     // Functions
-    StatusCode initialize(); //only array initialization is done here
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override; //only array initialization is done here
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
     void finalRawCh(int rctype);
 
   private:
@@ -64,8 +65,8 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
 
     StatusCode FirstEvt_initialize(); // real initialization is done in this method
 
-    StatusCode fillRawChannels(std::string rcCnt, RCtype rctype); // raw chans variables is done here
-    void StoreRunInfo(); // called only at the first event. General variables
+    StatusCode fillRawChannels(const TileDQstatus* dqStatus, std::string rcCnt, RCtype rctype); // raw chans variables is done here
+    void StoreRunInfo(const TileDQstatus* dqStatus); // called only at the first event. General variables
     void removeRC(RCtype rctype); // if a RawChannel container doesn't exist, it is removed from the list
 
     void fillCell(TileRawChannelUnit::UNIT RChUnit, const TileRawChannel * rch);
@@ -101,15 +102,14 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     bool m_fillidx;
 
     // Tools / storegate info
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     TileBeamElemContByteStreamCnv* m_beamCnv;
-    //TileBeamInfoProvider* m_beamPrv;
     const TileCablingService* m_cabling;
     // Identifiers
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
+    SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
     ToolHandle<TileCondIdTransforms> m_tileIdTrans;
     const uint32_t* m_cispar;
 

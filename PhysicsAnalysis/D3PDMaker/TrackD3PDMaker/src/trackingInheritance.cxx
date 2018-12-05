@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,11 +14,9 @@
 
 #include "TrkParameters/TrackParameters.h"
 #include "VxVertex/VxContainer.h"
-#include "TrkV0Vertex/V0Container.h"
 #include "AthenaKernel/BaseInfo.h"
 
 
 SG_ADD_BASE (Trk::Perigee, Trk::TrackParameters);
 SG_ADD_BASE (VxContainer, DataVector<Trk::VxCandidate>);
-SG_ADD_BASE (V0Container, DataVector<Trk::V0Candidate>);
 

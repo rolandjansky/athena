@@ -3,7 +3,6 @@
 */
 
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/PixelID.h"
@@ -28,7 +27,6 @@ PixelSpacePointTool::PixelSpacePointTool( const std::string& type,
     m_zVertex(0.0),
     m_xCenter(0.0),
     m_yCenter(0.0),
-    m_iBeamCondSvc(0),
     m_useBeamSpot(true),
     m_numberingTool("TrigL2LayerNumberTool")
 {
@@ -77,18 +75,9 @@ StatusCode PixelSpacePointTool::initialize()  {
   m_spacepointContainer->addRef();
 
   if (m_useBeamSpot)
-    {
-      StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
-      if (scBS.isFailure() || m_iBeamCondSvc == 0) 
-	{
-	  m_iBeamCondSvc = 0;
-	  ATH_MSG_WARNING("Could not retrieve Beam Conditions Service. ");
-	  ATH_MSG_WARNING("Using origin at ( "<< m_xVertex <<" , "<< m_yVertex << " , " 
-	      << m_yVertex<< " ) ");
-	  m_xCenter = m_xVertex;
-	  m_yCenter = m_yVertex;
-	}
-    }
+  {
+    if(m_beamSpotKey.initialize().isFailure()) return StatusCode::FAILURE;
+  }
   else {
     m_xCenter = m_xVertex;
     m_yCenter = m_yVertex;
@@ -148,12 +137,13 @@ StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCo
 	    ATH_MSG_DEBUG("Pixel TrigSP Container " << m_spacepointContainerName
 		<< " is recorded in StoreGate");
 	}
-      if (m_useBeamSpot && m_iBeamCondSvc)
+      if (m_useBeamSpot)
 	{
-	  Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
-    ATH_MSG_DEBUG("Beam spot position " << vertex); 
-	  m_xCenter=vertex.x() - m_iBeamCondSvc->beamTilt(0)*vertex.z();
-	  m_yCenter=vertex.y() - m_iBeamCondSvc->beamTilt(1)*vertex.z();
+          SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+	  const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
+          ATH_MSG_DEBUG("Beam spot position " << vertex); 
+	  m_xCenter=vertex.x() - beamSpotHandle->beamTilt(0)*vertex.z();
+	  m_yCenter=vertex.y() - beamSpotHandle->beamTilt(1)*vertex.z();
 	}
       else {
 	m_xCenter = m_xVertex;

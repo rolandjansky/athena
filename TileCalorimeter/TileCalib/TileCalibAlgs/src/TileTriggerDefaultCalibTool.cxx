@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,13 +16,13 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloIdentifier/TileID.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/TileCablingService.h"
@@ -51,7 +51,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   AthAlgTool(type, name, pParent)
   , m_maxNTT(0)
   , m_nevpmt(0)
-  , m_beamPrv(nullptr)
   , m_TT_ID(nullptr)
   , m_tileHWID(nullptr)
   , m_tileID(nullptr)
@@ -96,6 +95,7 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   declareProperty("NumEventPerPMT", m_nevpmt=195); // changed from 200 to 195
   declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
 }
 
@@ -115,9 +115,6 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
   ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
   ATH_MSG_DEBUG("L1CaloTTIdTools retrieved");
 
-  ATH_CHECK( toolSvc()->retrieveTool("TileBeamInfoProvider",m_beamPrv) );
-  ATH_CHECK( m_beamPrv->setProperty("TileRawChannelContainer","TileRawChannelCnt") );
-
   ATH_CHECK( detStore()->retrieve(m_TT_ID) );
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
   ATH_CHECK( detStore()->retrieve(m_tileID) );
@@ -127,6 +124,8 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
   
+  CHECK( m_dqStatusKey.initialize() );
+
   return StatusCode::SUCCESS;  
 }
 
@@ -140,6 +139,9 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 {
   ATH_MSG_DEBUG ( "executeTrigger()" );
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
+
   // Get TileRawChannelContainer
   const TileRawChannelContainer *container;
   ATH_CHECK( evtStore()->retrieve(container, m_rawChannelContainerName) );
@@ -150,7 +152,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   memset(chanIds, 0, sizeof(chanIds));
 
   // Get event's ext CIS parameters
-  const uint32_t *cispar = m_beamPrv->cispar();
+  const uint32_t *cispar = dqStatus->cispar();
 
   // Mapping pmt2chan
   int chan_bar[54] = {4 ,1 ,2 ,3 ,0 ,-1 ,

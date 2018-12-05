@@ -1,19 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                          NimCTP.h  -  description
                             -------------------
    begin                : August 2010
-   copyright            : (C) 2002 by dobson
    email                : eleanor.dobson@cern.ch
 ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef TRIGT1INTERFACES_NIMCTP_H
 #define TRIGT1INTERFACES_NIMCTP_H
@@ -48,9 +41,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::NimCTP, 22423433, 1 )
 
 #endif // TRIGT1INTERFACES_NIMCTP_H

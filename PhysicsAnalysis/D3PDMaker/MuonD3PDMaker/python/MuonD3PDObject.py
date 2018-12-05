@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 import MuonD3PDMaker
@@ -596,24 +596,4 @@ if rec.doTruth():
 #                     MuonD3PDMaker.MuonTrackParticleAssociationTool,
 #                     blockname = 'TrkInfoInDetOrPrimary',
 #                     Type = 'InDetOrPrimary')
-
-# from TrackD3PDMaker.trackIsolationTool import \
-#      trackIsolationTool_500MeV, trackIsolationTool_trkelstyle
-
-# from TrackD3PDMaker.addTrackIsolationCones import addTrackIsolationCones
-# addTrackIsolationCones (MuonIDOrPTPAssoc,
-#                         'Isolation_500MeV',
-#                         sizes = [0.2, 0.3, 0.4],
-#                         level = 999,
-#                         suffix = '_trk500MeV',
-#                         isolationTool=DeferArg('tool()',
-#                                                tool=trackIsolationTool_500MeV))
-# addTrackIsolationCones (MuonIDOrPTPAssoc,
-#                         'Isolation_elstyletracks',
-#                         sizes = [0.2, 0.3, 0.4],
-#                         level = 999,
-#                         suffix = '_trkelstyle',
-#                         isolationTool=DeferArg('tool()',
-#                                                tool=trackIsolationTool_trkelstyle))
-
 

@@ -9,6 +9,9 @@
 #include "CaloConditions/ICaloBadChanTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+
 
 //static const InterfaceID IID_CaloBadChanTool("CaloBadChanTool", 1 , 0); 
 
@@ -28,7 +31,7 @@ public:
 
 private:
 
-  ToolHandle<ICaloBadChanTool> m_larBCT{this, "LArBadChanTool", "LArBadChanTool", "LAr bad channel tool"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_larBCKey{this, "LArBadChanKey", "LArBadChannel", "LAr bad channel SG key"};
   ToolHandle<ICaloBadChanTool> m_tileBCT{this, "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
   const CaloCell_ID* m_caloID;
 };

@@ -8,13 +8,11 @@
 
 #include "BarcodeServices/LegacyBarcodeSvc.h"
 // framework include
-#include "GaudiKernel/IIncidentSvc.h"
 
 
 /** Constructor **/
 Barcode::LegacyBarcodeSvc::LegacyBarcodeSvc(const std::string& name,ISvcLocator* svc) :
   base_class(name,svc),
-  m_incidentSvc("IncidentSvc", name),
   m_bitcalculator(new Barcode::BitCalculator()),
   m_firstVertex(-200001),
   m_vertexIncrement(-1),
@@ -45,33 +43,69 @@ Barcode::LegacyBarcodeSvc::~LegacyBarcodeSvc()
 StatusCode Barcode::LegacyBarcodeSvc::initialize()
 {
   ATH_MSG_VERBOSE ("initialize() ...");
+  ATH_MSG_DEBUG( "LegacyBarcodeSvc start of initialize in thread ID: " << std::this_thread::get_id() );
 
-  CHECK( m_incidentSvc.retrieve() );
-
-  // register to the incident service: BeginEvent needed for refresh of counter
-  m_incidentSvc->addListener( this, IncidentType::BeginEvent);
+  ATH_CHECK( this->initializeBarcodes() );
 
   ATH_MSG_VERBOSE ("initialize() successful");
   return StatusCode::SUCCESS;
 }
 
+StatusCode Barcode::LegacyBarcodeSvc::initializeBarcodes() {
+    static std::mutex barcodeMutex;
+    std::lock_guard<std::mutex> barcodeLock(barcodeMutex);
+    ATH_MSG_DEBUG( name() << "::initializeBarcodes()" );
+
+  // look for pair containing barcode info using the thread ID
+  // if it doesn't exist, construct one and insert it.
+  const auto tid = std::this_thread::get_id();
+  auto bcPair = m_bcThreadMap.find(tid);
+  if ( bcPair == m_bcThreadMap.end() ) {
+      auto result = m_bcThreadMap.insert( std::make_pair( tid, BarcodeInfo(m_currentVertex, m_currentSecondary)) );
+      if (result.second) {
+          ATH_MSG_DEBUG( "initializeBarcodes: initialized new barcodes for thread ID " << tid );
+          ATH_CHECK( this->resetBarcodes() );
+          ATH_MSG_DEBUG( "initializeBarcodes: reset new barcodes for thread ID " << tid );
+      } else {
+          ATH_MSG_ERROR( "initializeBarcodes: failed to initialize new barcode for thread ID " << tid );
+      }
+  } else {
+      ATH_MSG_DEBUG( "initializeBarcodes: barcodes for this thread ID found, did not construct new" );
+      ATH_CHECK( this->resetBarcodes() );
+      ATH_MSG_DEBUG( "initializeBarcodes: reset existing barcodes for thread ID " << tid );
+  }
+  return StatusCode::SUCCESS;
+}
+
+//FIXME this should return an optional type, since returning the value of the end iterator is undefined behaviour (I think it causes a segfault).
+Barcode::LegacyBarcodeSvc::BarcodeInfo& Barcode::LegacyBarcodeSvc::getBarcodeInfo() const {
+    const auto tid = std::this_thread::get_id();
+    auto bcPair = m_bcThreadMap.find(tid);
+    if ( bcPair == m_bcThreadMap.end() ) {
+        ATH_MSG_ERROR( "getBarcodeInfo: failed to get BarcodeInfo for thread ID " << tid );
+        return bcPair->second;
+    } else {
+        return bcPair->second;
+    }
+}
 
 /** Generate a new unique vertex barcode, based on the parent particle barcode and
     the physics process code causing the truth vertex*/
 Barcode::VertexBarcode Barcode::LegacyBarcodeSvc::newVertex( Barcode::ParticleBarcode /* parent */,
                                                              Barcode::PhysicsProcessCode /* process */)
 {
-  m_currentVertex += m_vertexIncrement;
+  BarcodeInfo& bc = getBarcodeInfo();
+  bc.currentVertex += m_vertexIncrement;
   // a naive underflog checking based on the fact that vertex
   // barcodes should never be positive
-  if ( m_doUnderOverflowChecks && (m_currentVertex > 0))
+  if ( m_doUnderOverflowChecks && (bc.currentVertex > 0))
     {
       ATH_MSG_ERROR("LegacyBarcodeSvc::newVertex(...)"
                     << " will return a vertex barcode greater than 0: "
-                    << m_currentVertex << ". Possibly Integer Underflow?");
+                    << bc.currentVertex << ". Possibly Integer Underflow?");
     }
 
-  return m_currentVertex;
+  return bc.currentVertex;
 }
 
 
@@ -81,19 +115,20 @@ Barcode::VertexBarcode Barcode::LegacyBarcodeSvc::newVertex( Barcode::ParticleBa
 Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::newSecondary( Barcode::ParticleBarcode /* parentBC */,
                                                                   Barcode::PhysicsProcessCode /* process */)
 {
-  m_currentSecondary += m_secondaryIncrement;
+  BarcodeInfo& bc = getBarcodeInfo();
+  bc.currentSecondary += m_secondaryIncrement;
   // a naive overflow checking based on the fact that particle
   // barcodes should never be negative
-  if ( m_doUnderOverflowChecks && (m_currentSecondary < 0))
+  if ( m_doUnderOverflowChecks && (bc.currentSecondary < 0))
     {
       ATH_MSG_DEBUG("LegacyBarcodeSvc::newSecondary(...)"
                     << " will return a particle barcode of less than 0: "
-                    << m_currentSecondary << ". Reset to zero.");
+                    << bc.currentSecondary << ". Reset to zero.");
 
-      m_currentSecondary = Barcode::fUndefinedBarcode;
+      bc.currentSecondary = Barcode::fUndefinedBarcode;
     }
 
-  return m_currentSecondary;
+  return bc.currentSecondary;
 }
 
 
@@ -152,16 +187,13 @@ Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::particleGenerationIncrement(
   return m_particleGenerationIncrement;
 }
 
-
-/** Handle incident */
-void Barcode::LegacyBarcodeSvc::handle(const Incident& inc)
+StatusCode Barcode::LegacyBarcodeSvc::resetBarcodes()
 {
-  if ( inc.type() == IncidentType::BeginEvent )
-    {
-      ATH_MSG_VERBOSE("'BeginEvent' incident caught. Resetting Vertex and Particle barcode counters.");
-      m_currentVertex    = m_firstVertex    - m_vertexIncrement;
-      m_currentSecondary = m_firstSecondary - m_secondaryIncrement;
-    }
+    ATH_MSG_DEBUG( "resetBarcodes: resetting barcodes" );
+    BarcodeInfo& bc = getBarcodeInfo();
+    bc.currentVertex    = m_firstVertex    - m_vertexIncrement;
+    bc.currentSecondary = m_firstSecondary - m_secondaryIncrement;
+    return StatusCode::SUCCESS;
 }
 
 

@@ -27,7 +27,7 @@ include ('D3PDMakerTest/run-d3pd-test.py')
 
 
 # Make a track d3pd tree too!
-from TrackD3PDMaker.TrackD3PD import TrackD3PD
+from InDetD3PDMaker.TrackD3PD import TrackD3PD
 alg = TrackD3PD (tupleFileOutput,
                  Track_trackParametersAtGlobalPerigeeLevelOfDetails = 3,
                  Track_storeDiagonalCovarianceAsErrors = True,

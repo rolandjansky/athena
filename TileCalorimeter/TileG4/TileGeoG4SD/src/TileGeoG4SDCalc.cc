@@ -440,7 +440,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   const bool isE5 = (hitData.nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
 
   // Take into account Birk's saturation law in organic scintillators.
-  const G4double edep = (m_options.doBirk) ? this->BirkLaw(aStep) : aStep->GetTotalEnergyDeposit();
+  const G4double edep = (m_options.doBirk) ? this->BirkLaw(aStep) : aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
 
   double deltaT_up = 0;
   double deltaT_down = 0;
@@ -883,7 +883,7 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   const G4double birk2 = 9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2);
   G4double response = 0.;
 
-  const G4double destep = aStep->GetTotalEnergyDeposit();
+  const G4double destep = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   //  doesn't work with shower parameterisation
   //  G4Material* material = aStep->GetTrack()->GetMaterial();
   //  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();

@@ -28,7 +28,7 @@ using jet::JetConstituentFiller;
 //**********************************************************************
 
 JetSplitter::JetSplitter(std::string name)
-: AsgTool(name), m_bld(""),
+  : AsgTool(name), m_bld("",this),
   m_pdmp(new JetDumper(name+"Dumper")) {
   declareProperty("MuMax", m_mumax =1.0);
   declareProperty("YMin", m_ymin =0.0);

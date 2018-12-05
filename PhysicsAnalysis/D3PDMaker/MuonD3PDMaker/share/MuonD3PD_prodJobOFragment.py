@@ -308,61 +308,6 @@ TrackD3PDFlags.storeTrackPredictionAtBLayer = False
 TrackD3PDFlags.storeVertexType = False
 TrackD3PDFlags.storeDetailedTruth = False #True
 
-# Add TrackParticle D3PD
-
-from TrackD3PDMaker.TrackD3PDObject import TrackD3PDObject
-from TrackD3PDMaker.TrackD3PDObject import TrackParticleD3PDObject
-
-MuonTrackPartD3PDObject = TrackD3PDObject(_label='muTP',
-                                            _prefix='muTP_',
-                                            _sgkey='MuonSpectrometerParticles',
-                                            typeName='Rec::TrackParticleContainer',
-                                            truthTarget='mc',
-                                            truthPrefix='mc_',
-                                            detailedTruthPrefix='detailed_mc_',
-                                            truthMapKey='MuonSpectrometerParticlesTruth',
-                                            detailedTruthMapKey='MuonSpectrometerTracksTruth',
-                                            flags=TrackD3PDFlags)
-MuonD3PDStream += MuonTrackPartD3PDObject(TrackLevelOfDetail)
-
-# >>>>>Backward compatibility for Staco/Miud<<<<< 
-if not MuonD3PDFlags.doNewChainOnly:
-    MboyTrackPartD3PDObject = TrackD3PDObject(_label='mboyTP',
-                                              _prefix='mboyTP_',
-                                              _sgkey='MuonboyTrackParticles',
-                                              typeName='Rec::TrackParticleContainer',
-                                              truthTarget='mc',
-                                              truthPrefix='mc_',
-                                              detailedTruthPrefix='detailed_mc_',
-                                              truthMapKey='MuonboyTrackTruthCollection',
-                                              detailedTruthMapKey='DetailedTrackTruth',
-                                              flags=TrackD3PDFlags)
-    MuonD3PDStream += MboyTrackPartD3PDObject(TrackLevelOfDetail)
-    
-    import MuonD3PDMaker
-    import D3PDMakerCoreComps
-    from D3PDMakerCoreComps.IndexAssociation  import IndexAssociation
-    IndexAssociation( StacoD3PDObject,
-                      MuonD3PDMaker.MuonTrackParticleAssociationTool,
-                      target = "mboyTP_",
-                      prefix = "mboyTP_",
-                      level = 0,
-                      blockname = "StacoTrackAssocIndex",
-                      Type = "MuonSpectrometer")
-    
-    MooreTrackPartD3PDObject = TrackD3PDObject(_label='mooreTP',
-                                               _prefix='mooreTP_',
-                                               _sgkey='MooreTrackParticles',
-                                               typeName='Rec::TrackParticleContainer',
-                                               truthTarget='mc',
-                                               truthPrefix='mc_',
-                                               detailedTruthPrefix='detailed_mc_',
-                                               truthMapKey='MooreTrackParticlesTruth',
-                                               detailedTruthMapKey='MooreTracksTruth',
-                                               flags=TrackD3PDFlags)
-    MuonD3PDStream += MooreTrackPartD3PDObject(TrackLevelOfDetail)
-# >>>>>----------------end------------------<<<<< 
-
     
         
 # ID Tracks (for TP studies)
@@ -398,13 +343,11 @@ IDTrackFlags.trackParametersAtBeamSpotLevelOfDetails = 0
 IDTrackFlags.trackParametersAtGlobalPerigeeLevelOfDetails = 2
 IDTrackFlags.trackParametersAtPrimaryVertexLevelOfDetails = 3  
 
-IDTrackParticleD3PDObject = TrackD3PDObject(_label='trkpt4',
-                                            _prefix='trkpt4_',
-                                            _sgkey='HighPtTracks',
-                                            typeName='Rec::TrackParticleContainer',
-                                            truthMapKey='TrackParticleTruthCollection',
-                                            SGKeyForTruth=D3PDMakerFlags.TrackSGKey(),
-                                            flags=IDTrackFlags)
+from TrackD3PDMaker.xAODTrackD3PDObject import xAODTrackD3PDObject
+IDTrackParticleD3PDObject = xAODTrackD3PDObject(_label='trkpt4',
+                                                _prefix='trkpt4_',
+                                                _sgkey='HighPtTracks',
+                                                flags=IDTrackFlags)
 
 MuonD3PDStream += IDTrackParticleD3PDObject( 3, 'Tracks2',
                                              sgkey  = 'HighPtTracks',
@@ -420,63 +363,3 @@ if not MuonD3PDFlags.doNewChainOnly:
     MuonD3PDStream += StacoD3PDObject(level=0, name='Muon_staco', sgkey=StacoMergedCollection, prefix="mu_staco_", include = muonIncludes)
     MuonD3PDStream += MuidD3PDObject(level=0, name='Muon_muid',  sgkey=MuidMergedCollection,  prefix="mu_muid_", include = muonIncludes)
 # >>>>>----------------end------------------<<<<< 
-
-
-
-
-
-
-
-
-
-##### old stuff, could still be useful
-
-#     # Truth   
-#     if rec.doTruth():
-#         #from TrackD3PDMaker.TruthTrackD3PDObject import TruthTrackD3PDObject          
-#         #     MuonD3PDStream+= TruthTrackD3PDObject(levelOfDetail)
-#         from MuonD3PDMaker.TrackRecordD3PDObject import TrackRecordD3PDObject
-#         MuonD3PDStream += TrackRecordD3PDObject ("TrackRecord")
-
-
-
-
-###### Trk::Track D3PD
-#     MooreTrackD3PDObject =   TrackD3PDObject(_label='moore',
-#                                              _prefix='mutrk_moore_',
-#                                              _sgkey='MooreTracks',
-#                                              typeName='TrackCollection',
-#                                              truthTarget='mc',
-#                                              truthMapKey='',
-#                                              detailedTruthPrefix='detailed_mc_',
-#                                              detailedTruthMapKey='MooreTracksTruth',
-#                                              SGKeyForDetailedTruth='MooreTracks',
-#                                              flags=TrackD3PDFlags)
-
-#     MboyTrackD3PDObject =   TrackD3PDObject(_label='mboy',
-#                                             _prefix='mutrk_mboy_',
-#                                             _sgkey='ConvertedMBoyTracks',
-#                                             typeName='TrackCollection', 
-#                                             truthTarget='mc',
-#                                             truthPrefix='mc_',
-#                                             detailedTruthPrefix='detailed_mc_',
-#                                             truthMapKey='ConvertedMBoyTracksTruth',
-#                                             detailedTruthMapKey='ConvertedMBoyTracksTruth',
-#                                             SGKeyForDetailedTruth='ConvertedMBoyTracksTruth',
-#                                             flags=TrackD3PDFlags)
-    
-#     MuonTrackD3PDObject =   TrackD3PDObject(_label='muon',
-#                                             _prefix='mutrk_',
-#                                             _sgkey='MuonSpectrometerTracks',
-#                                             typeName='TrackCollection', 
-#                                             truthTarget='mc',
-#                                             truthPrefix='mc_',
-#                                             detailedTruthPrefix='detailed_mc_',
-#                                             truthMapKey='MuonSpectrometerTrackTruthCollection',
-#                                             detailedTruthMapKey='DetailedTrackTruth',
-#                                             SGKeyForDetailedTruth='MuonSpectrometerTracks',
-#                                             flags=TrackD3PDFlags)
-
-#     MuonD3PDStream += MooreTrackD3PDObject(levelOfDetail)
-#     MuonD3PDStream += MboyTrackD3PDObject(levelOfDetail)
-#     MuonD3PDStream += MuonTrackD3PDObject(levelOfDetail)

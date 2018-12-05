@@ -20,7 +20,7 @@ using xAOD::JetContainer;
 //**********************************************************************
 
 JetPruner::JetPruner(std::string name)
-: AsgTool(name), m_bld("") {
+  : AsgTool(name), m_bld("",this) {
   declareProperty("JetAlgorithm", m_jetalg ="CamKt");
   declareProperty("RCut", m_rcut =0.3);
   declareProperty("ZCut", m_zcut =0.10);

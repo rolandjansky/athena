@@ -55,7 +55,8 @@ atlas_add_test( ViewCollectionMerge_test
     ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test")
 
 atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
-                PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view_9" )
+                PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view_9"
+                TIMEOUT 300 )
 
 atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh )
 

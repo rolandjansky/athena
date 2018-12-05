@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurableMeta.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -37,7 +37,7 @@ class ConfigurableMeta( type ):
     # it is safe to assume that any such vars are python private ones)
       newclass = type.__new__( self, name, bases, dct )
 
-      if not 'AthenaCommon' in newclass.__module__:
+      if 'AthenaCommon' not in newclass.__module__:
        # check for required methods and the right number of arguments
        # meths = { 'getServices'   : 1,    # retrieve list of services to configure
          meths = { 'getDlls'       : 1,    # provide list of Dlls to load

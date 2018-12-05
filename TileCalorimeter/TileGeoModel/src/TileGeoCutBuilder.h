@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,7 +27,7 @@ class TileGeoCutBuilder
 {
  public:
   /** Constructor */
-  TileGeoCutBuilder(DataHandle<StoredMaterialManager> & matManager,
+  TileGeoCutBuilder(const StoredMaterialManager* matManager,
                     TileDddbManager* pDbManager,
                     MsgStream * log);
 
@@ -49,8 +49,6 @@ class TileGeoCutBuilder
                 double X1, double X2, double Y1, double Y2, double Z); 
 
  private:
-
-  //DataHandle<StoredMaterialManager>     theMaterialManager;
   MsgStream *                           m_log;
 };
 

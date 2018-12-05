@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -35,7 +36,7 @@ using fastjet::PseudoJet;
 
 JetByVertexFinder::JetByVertexFinder(string name)
 : AsgTool(name),
-  m_finder("") {
+  m_finder("",this) {
   declareProperty("JetFinder", m_finder);
   declareProperty("Vertex", m_ivtx);
 }

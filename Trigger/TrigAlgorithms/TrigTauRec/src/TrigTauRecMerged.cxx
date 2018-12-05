@@ -58,7 +58,6 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
 		  m_endtools(this),
 		  m_lumiTool("LuminosityTool"),
 		  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-		  m_beamSpotSvc("BeamCondSvc", name),
 		  m_maxeta( 2.5 ),
 		  m_minpt( 10000 ),
 		  m_trkcone( 0.2 )
@@ -284,10 +283,10 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	}                                                                            
 
 	// Retrieve beam conditions
-	if(m_beamSpotSvc.retrieve().isFailure()) {
-	  msg() << MSG::WARNING << "Unable to retrieve Beamspot service" << endmsg;
+	if(m_beamSpotKey.initialize().isFailure()) {
+	  msg() << MSG::WARNING << "Unable to retrieve Beamspot key" << endmsg;
         } else {
-          msg() << MSG::DEBUG << "Successfully retrieved Beamspot service" << endmsg;
+          msg() << MSG::DEBUG << "Successfully retrieved Beamspot key" << endmsg;
 	}
 	
 	msg() << MSG::INFO << " " << endmsg;
@@ -567,18 +566,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::Vertex theBeamspot;
 	theBeamspot.makePrivateStore();
 	const xAOD::Vertex* ptrBeamspot = 0;
-
-	if(m_beamSpotSvc){
+        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+	if(beamSpotHandle.isValid()){
 	
 	  // Alter the position of the vertex
-	  theBeamspot.setPosition(m_beamSpotSvc->beamPos());
+	  theBeamspot.setPosition(beamSpotHandle->beamPos());
 	
 	  m_beamspot_x=theBeamspot.x();
 	  m_beamspot_y=theBeamspot.y();
 	  m_beamspot_z=theBeamspot.z();
 
 	  // Create a AmgSymMatrix to alter the vertex covariance mat.
-	  AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
+	  const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
 	  theBeamspot.setCovariancePosition(cov);
 
 	  ptrBeamspot = &theBeamspot;
@@ -666,6 +665,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
 	xAOD::TauTrackAuxContainer pTrackAuxContainer;
 
+	// make dummy container to pass to TauVertexVariables, not actually used in trigger though
+	xAOD::VertexContainer* dummyVxCont = new xAOD::VertexContainer();
+
 	// Set the store: eventually, we want to use a dedicated trigger version
 	pContainer->setStore(&pAuxContainer);
 
@@ -685,7 +687,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_tauEventData.setObject("TrackContainer", RoITrackContainer);
 	m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
 	if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-	if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+	if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
 	if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
 
@@ -751,7 +753,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		++toolnum;
 		if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->start();
 
-		processStatus = (*firstTool)->execute( *p_tau );
+		if ( (*firstTool)->name().find("VertexVariables") != std::string::npos){
+		  processStatus = (*firstTool)->executeVertexVariables(*p_tau, *dummyVxCont);
+		}
+		else {
+		  processStatus = (*firstTool)->execute( *p_tau );
+		}
+
 		if ( !processStatus.isFailure() ) {
 			if( msgLvl() <= MSG::DEBUG ) {
 				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endmsg;

@@ -269,9 +269,7 @@ bool psc::Psc::configure(const ptree& config)
     pyCmds.push_back("from AthenaCommon.Include import include");
     // have C++ bool representation be recognized in python:
     pyCmds.push_back("true, false = True, False");
-    pyCmds.push_back(std::string("include.setShowIncludes(") +
-        m_config->getOption("SHOWINCLUDE") + std::string(")"));
-    if ( !psc::Utils::execPython(pyCmds) ) {      
+    if ( !psc::Utils::execPython(pyCmds) ) {
       ERS_PSC_ERROR("Athena 'include' setup failed.");
       return false;
     }       

@@ -5,7 +5,6 @@
 #include "TrigSecVtxFinder/TrigSecVtxFinder.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -67,6 +66,8 @@ HLT::ErrorCode TrigSecVtxFinder::hltInitialize() {
   }
   else
     ATH_MSG_INFO( "Retrieved tool " << m_secvtxFinderTool  );
+
+  if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
@@ -225,17 +226,16 @@ HLT::ErrorCode TrigSecVtxFinder::getPrmVtxForFit(Trk::RecVertex& vertex,
   }
 
   //* Retrieve beamspot information *//
-  IBeamCondSvc* iBeamCondSvc; 
-  StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
-  if (sc.isFailure() || iBeamCondSvc == 0) {
+  if (!beamSpotHandle.isValid()) {
     ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. "  );
     return HLT::ERROR;
   }
 
-  Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
+  const Amg::Vector3D &beamSpot = beamSpotHandle->beamPos();
 
-  int beamSpotBitMap = iBeamCondSvc->beamStatus();
+  int beamSpotBitMap = beamSpotHandle->beamStatus();
 
   //* Check if beam spot is from online algorithms *//
   int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
@@ -245,8 +245,8 @@ HLT::ErrorCode TrigSecVtxFinder::getPrmVtxForFit(Trk::RecVertex& vertex,
     beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
 
   ATH_MSG_DEBUG( "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
-                 << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
-                 << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
+                 << ", tiltXZ=" << beamSpotHandle->beamTilt(0) << ", tiltYZ=" << beamSpotHandle->beamTilt(1) 
+                 << ", sigmaX=" << beamSpotHandle->beamSigma(0) << ", sigmaY=" << beamSpotHandle->beamSigma(1) << ", sigmaZ=" << beamSpotHandle->beamSigma(2) 
                  << ", status=" << beamSpotStatus  );
 
   if (m_useBeamSpotFlag && !beamSpotStatus) {
@@ -259,11 +259,11 @@ HLT::ErrorCode TrigSecVtxFinder::getPrmVtxForFit(Trk::RecVertex& vertex,
   y = beamSpot.y();
 
   //* Apply beam spot correction for tilt *//
-  x = x + tan(iBeamCondSvc->beamTilt(0)) * (z - beamSpot.z());
-  y = y + tan(iBeamCondSvc->beamTilt(1)) * (z - beamSpot.z());
+  x = x + tan(beamSpotHandle->beamTilt(0)) * (z - beamSpot.z());
+  y = y + tan(beamSpotHandle->beamTilt(1)) * (z - beamSpot.z());
 
-  exx = iBeamCondSvc->beamSigma(0);
-  eyy = iBeamCondSvc->beamSigma(1);
+  exx = beamSpotHandle->beamSigma(0);
+  eyy = beamSpotHandle->beamSigma(1);
 
   AmgSymMatrix(3) err;  
   err(1,1) = exx;

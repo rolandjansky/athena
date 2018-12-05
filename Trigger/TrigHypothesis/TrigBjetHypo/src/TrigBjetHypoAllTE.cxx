@@ -13,7 +13,6 @@
 
 #include "TrigBjetHypo/TrigBjetHypoAllTE.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
@@ -94,6 +93,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
     m_triggerReqsAND.push_back(triggerRequirement(m_EtThresholds.at(iReq), m_BTagMin.at(iReq), m_BTagMax.at(iReq), m_Multiplicities.at(iReq)));
   }
 
+  if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
 
   //
   //  Configure the OR
@@ -182,16 +182,15 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   //
   if (m_useBeamSpotFlag) {
 
-    IBeamCondSvc* iBeamCondSvc; 
-    StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     
-    if (sc.isFailure() || iBeamCondSvc == 0) {
+    if (!beamSpotHandle.isValid()) {
       if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
       m_BSCode = 3;
     } else {
 
       int beamSpotStatus = 0;
-      int beamSpotBitMap = iBeamCondSvc->beamStatus();    
+      int beamSpotBitMap = beamSpotHandle->beamStatus();
 
       beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
       if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);

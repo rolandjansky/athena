@@ -56,5 +56,6 @@ atlas_add_test( IOVDbSvc_test
                 test/IOVDbSvc_test.cxx
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
                 LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES}
+                PROPERTIES TIMEOUT 300
                 EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

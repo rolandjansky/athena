@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //  HECClampConstruction.cxx 1.0.0
@@ -36,7 +36,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/GenericFunctions/Variable.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GaudiKernel/MsgStream.h"
@@ -97,13 +96,13 @@ GeoPhysVol* LArGeo::HECClampConstruction::GetClampingBar(bool rail,bool left)
   
 
   // Get access to the material manager:
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in HECModuleConstruction(ClampBar), cannot access Material Manager");
   }  
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in HECModuleConstruction(ClampBar), std::LiquidArgon is not found.");  
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in HECModuleConstruction(ClampBar), std::Iron is not found.");
  
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/ServicesPythonize.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -44,7 +44,7 @@ entries if no argument is given."""
 
    out.write( 'Dump of current catalogue entries:\n' )
    for client in allClients:
-      if what and not client in what:
+      if what and client not in what:
          continue
 
       out.write( '  %s\n' % client )

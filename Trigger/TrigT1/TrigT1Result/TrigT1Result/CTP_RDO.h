@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // TO DO: encapsulate logic from raw data words! And fill the data
@@ -113,9 +113,7 @@ class CTP_RDO {
 
 }; // class CTP_RDO
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CTP_RDO, 6014, 0 )
 
 #endif // TRIGT1RESULT_CTP_RDO_H

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import D3PDMakerCoreComps
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
@@ -6,7 +6,6 @@ from RecExConfig.RecFlags import rec
 from MissingETD3PDMaker.MissingETD3PDMakerFlags import *
 from MissingETD3PDMaker.MissingETD3PDObject   import *
 from MissingETD3PDMaker.MissingETGoodnessD3PDObject import 	MissingETGoodnessD3PDObject
-## from TrackD3PDMaker.TrackD3PDObject                  import TrackParticleD3PDObject
 ## from TrackD3PDMaker.TrackD3PDMakerFlags              import *
 ## from CaloD3PDMaker.ClusterD3PDObject                 import ClusterD3PDObject
 ## from egammaD3PDMaker.ElectronD3PDObject              import ElectronD3PDObject
@@ -59,7 +58,6 @@ def MissingETD3PD (file,
 ##     alg += JetD3PDObject(0, sgkey=MissingETD3PDMakerFlags.METDefaultJetCollectionSGKey(), prefix="jet_"+MissingETD3PDMakerFlags.METDefaultJetCollectionSGKey()[:-4].lower()+"_")
 ##     alg += ClusterD3PDObject(0, prefix='cl_')
 ##     #TrackD3PDMakerFlags.stor    eTrackPredictionAtBLayer = False
-    #alg += TrackParticleD3PDObject(0)
     ##If you want a custom objecto MissingEtCalo type use MissingETCaloD3PDObject
     ##Or TruthMETD3PDObject
     ##JetsInfoMETD3PDObject

@@ -10,7 +10,7 @@
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
-  m_trigInputConstits(NULL), m_trigOutputConstits(NULL) {
+  m_trigInputConstits(NULL), m_trigOutputConstits(NULL),m_modifiers(this) {
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);

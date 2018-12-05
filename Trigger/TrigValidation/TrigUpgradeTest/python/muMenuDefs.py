@@ -62,7 +62,7 @@ ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 ### Output data name ###
 muFastInfo = "MuonL2SAInfo"
 muCombInfo = "MuonL2CBInfo"
-muEFSAInfo = "Muon"
+muEFSAInfo = "Muons"
 muL2ISInfo = "MuonL2ISInfo"
 # get Track container name
 TrackParticlesName = ""
@@ -146,7 +146,7 @@ def muCombStep():
     ### A simple algorithm to confirm that data has been inherited from parent view ###
     ### Required to satisfy data dependencies                                       ###
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
+    ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muFastInfo)]
     viewAlgs.append(ViewVerify)
     
     for viewAlg in viewAlgs:
@@ -228,11 +228,12 @@ def muEFSAStep():
     
     efsaViewsMaker = EventViewCreatorAlgorithm("efsaViewsMaker", OutputLevel=DEBUG)
     efsaViewsMaker.ViewFallThrough = True
-    efsaViewsMaker.RoIsLink = "initialRoI" # -||-
+    #efsaViewsMaker.RoIsLink = "initialRoI" # -||-
+    efsaViewsMaker.RoIsLink = "roi" # -||-
     efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
     efsaViewsMaker.ViewNodeName = efsaViewNode.name()
-    
+   
     # setup muEFMsonly algs
     from TrigUpgradeTest.MuonSetup import makeMuEFSAAlgs
     efAlgs = makeMuEFSAAlgs()    
@@ -268,6 +269,11 @@ def muIsoStep():
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
     l2muIsoViewsMaker.ViewNodeName = l2muIsoViewNode.name()
 
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muCombViewDataVerifier")
+    ViewVerify.DataObjects = [('xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName),
+                              ('xAOD::L2CombinedMuonContainer','StoreGateSvc+'+muCombInfo)]
+    l2muIsoViewNode += ViewVerify 
+ 
     # set up algs    
     from TrigmuIso.TrigmuIsoConfig import TrigmuIsoMTConfig
     trigL2muIso = TrigmuIsoMTConfig("TrigL2muIso")

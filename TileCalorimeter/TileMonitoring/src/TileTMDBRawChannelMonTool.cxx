@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -27,7 +27,6 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileBadChanTool.h"
 #include "TileConditions/TileCondToolNoiseSample.h"

@@ -63,7 +63,7 @@ StatusCode LArAutoCorrValidationAlg::preLoop() {
   
 }
 
-bool LArAutoCorrValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
+bool LArAutoCorrValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont) {
   
 if (gain<0 || gain>2) {
      ATH_MSG_ERROR ( "Unexpected gain value " << gain ) ;
@@ -71,18 +71,18 @@ if (gain<0 || gain>2) {
   }
 
   if (val.m_vAutoCorr.size()==0) {
-    msg() <<  this->m_myMsgLvl << "Empty! No AC found for " << channelDescription(chid,gain) << endmsg;
+    msg() <<  this->m_myMsgLvl << "Empty! No AC found for " << channelDescription(chid,cabling, bcCont, gain) << endmsg;
     return false;
   }
   if (ref.m_vAutoCorr.size()==0) {
-    ATH_MSG_WARNING ( "No reference value found for " << channelDescription(chid,gain) ) ;
+    ATH_MSG_WARNING ( "No reference value found for " << channelDescription(chid,cabling, bcCont, gain) ) ;
     return false;
   }
 
   const float covVal=val.m_vAutoCorr[0];
   const float covRef=ref.m_vAutoCorr[0];
 
-  const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+  const Identifier id=cabling->cnvToIdentifier(chid);
 
   const float covTolerance=m_covTolerance.valuesForCell(id)[gain];
 
@@ -106,12 +106,12 @@ if (gain<0 || gain>2) {
   for (size_t i=0;i<s;++i) {
     const float covVal_i=val.m_vAutoCorr[i];
     if (fabs(covVal_i)>1.0) {
-      msg() <<  this->m_myMsgLvl << "Unphysical! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " 
+      msg() <<  this->m_myMsgLvl << "Unphysical! " << channelDescription(chid, cabling, bcCont, gain) << " AutoCorr[" << i << "]: " 
 	       <<  std::setprecision(4) << covVal_i << endmsg;
       return false;
     }
     if (m_checkFifthSample and i==5 and fabs(covVal_i)>0.13) {
-      msg() <<  this->m_myMsgLvl << "LARGE Autocorr sample 5 " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << covVal_i << endmsg;
+      msg() <<  this->m_myMsgLvl << "LARGE Autocorr sample 5 " << channelDescription(chid, cabling, bcCont, gain) << " AutoCorr[" << i << "]: " << covVal_i << endmsg;
       return false;
     }
     if (i<m_nSamplesToCheck && i<sr) {
@@ -120,7 +120,7 @@ if (gain<0 || gain>2) {
 	if (m_nFailedValidation<m_maxmessages) {
 	  std::stringstream devMsg;
 	  devMsg.setf(std::ios::fixed,std::ios::floatfield);
-	  devMsg <<  "Deviating! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << std::setprecision(4) << covVal_i
+	  devMsg <<  "Deviating! " << channelDescription(chid, cabling, bcCont,gain) << " AutoCorr[" << i << "]: " << std::setprecision(4) << covVal_i
 		 <<" (" << covRef_i << ", " << std::setprecision(2) << ((covVal_i-covRef_i)/covRef_i)*100 << "%)";
 	  msg() << this->m_myMsgLvl << devMsg.str() << endmsg;
 	  ATH_MSG_DEBUG ( "Covariance Tolerance: " <<  covTolerance ) ;
@@ -135,7 +135,7 @@ if (gain<0 || gain>2) {
 }
 
 
-bool LArAutoCorrValidationAlg::febSummary() {
+bool LArAutoCorrValidationAlg::febSummary(const LArOnOffIdMapping *cabling,const LArBadChannelCont * bcCont) {
   unsigned nBadFebs=0;
   msg().precision(3);
   msg().setf(std::ios::fixed,std::ios::floatfield); 
@@ -146,13 +146,12 @@ bool LArAutoCorrValidationAlg::febSummary() {
     DataPerFEB& dataPerFeb=*it;
     dataPerFeb.covVal/=dataPerFeb.nEntries;
     dataPerFeb.covRef/=dataPerFeb.nEntries;
-    //(*m_log) << MSG::INFO << " nb of channels = "  <<dataPerFeb.nEntries << " for " << channelDescription(dataPerFeb.febid, dataPerFeb.gain, true) << endmsg;  
 
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(dataPerFeb.chid);
+    const Identifier id=cabling->cnvToIdentifier(dataPerFeb.chid);
     const float& covToleranceFEB=m_covToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
 
     if (fabs(dataPerFeb.covVal-dataPerFeb.covRef)>covToleranceFEB){
-      msg() << m_myMsgLvl << "Deviating!" << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average AutoCorr: " 
+      msg() << m_myMsgLvl << "Deviating!" << channelDescription(dataPerFeb.febid, cabling, bcCont, dataPerFeb.gain,true) << "Average AutoCorr: " 
             << dataPerFeb.covVal << " (" << dataPerFeb.covRef << ")" << endmsg;
       ++nBadFebs;
     }
@@ -167,13 +166,13 @@ bool LArAutoCorrValidationAlg::febSummary() {
     return true;
   }
 }
-StatusCode LArAutoCorrValidationAlg::summary() {
+StatusCode LArAutoCorrValidationAlg::summary(const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont) {
   StatusCode sc=StatusCode::SUCCESS;
   //1nd step: Check the FEB-averages:
-  if (m_doFebAverages && !febSummary())
+  if (m_doFebAverages && !febSummary(cabling, bcCont))
     sc=StatusCode::RECOVERABLE;
   //2nd step: Call the summary method from base-class (single-channel summary)
-  if (!LArAutoCorrValidationBase::summary().isSuccess())
+  if (!LArAutoCorrValidationBase::summary(cabling, bcCont).isSuccess())
     sc=StatusCode::RECOVERABLE;
   //3rd step: Check the gobal averages:
   if (m_nEntriesGlobal) {

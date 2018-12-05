@@ -8,7 +8,13 @@ atlas_subdir( MuonConfig )
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_data( share/*.ref )
 
+# Configure unit tests
+atlas_add_test( MuonDataDecodeTest
+                PROPERTIES TIMEOUT 500
+                EXTRA_PATTERNS "GeoModelSvc.MuonDetectorTool.*SZ="
+                SCRIPT test/testMuonDataDecode.sh )
 
 atlas_add_test( MuonCablingConfigTest
    SCRIPT python -m MuonConfig.MuonCablingConfig

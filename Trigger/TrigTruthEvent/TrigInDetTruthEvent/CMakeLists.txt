@@ -9,13 +9,11 @@ atlas_subdir( TrigInDetTruthEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Generators/GeneratorObjects
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
-                          Control/AthenaKernel
                           GaudiKernel )
 
 # External dependencies:
@@ -28,12 +26,12 @@ atlas_add_library( TrigInDetTruthEvent
                    PUBLIC_HEADERS TrigInDetTruthEvent
                    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${HEPMC_LIBRARIES} AthContainers AthLinks SGTools GeneratorObjects TrigInDetEvent TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel )
+                   LINK_LIBRARIES ${HEPMC_LIBRARIES} AthContainers AthLinks AthenaKernel GeneratorObjects TrigInDetEvent TrigSteeringEvent
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( TrigInDetTruthEventDict
                       TrigInDetTruthEvent/TrigInDetTruthEventDict.h
                       TrigInDetTruthEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks SGTools GeneratorObjects TrigInDetEvent TrigSteeringEvent AthenaKernel GaudiKernel TrigInDetTruthEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks GeneratorObjects TrigInDetEvent TrigSteeringEvent AthenaKernel GaudiKernel TrigInDetTruthEvent )
 

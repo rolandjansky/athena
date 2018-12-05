@@ -13,9 +13,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include <string>
 
-//class LArBadChanTool;
 class StoreGateSvc;
-class LArCablingService;
 
 class LArBadChannel2Ascii : public AthAlgorithm 
 {
@@ -30,11 +28,8 @@ public:
 
 private:
 
-  //ToolHandle< LArBadChanTool > m_BadChanTool;
-  //ReadCondHandleKey<LArBadChannelCont> m_BCKey;
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey;
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey;
-  //ToolHandle<LArCablingService> m_larCablingSvc;
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
   
   std::string                  m_dbFolder;

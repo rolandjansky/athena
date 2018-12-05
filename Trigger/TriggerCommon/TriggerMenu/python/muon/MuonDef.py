@@ -11,6 +11,14 @@ logging.getLogger().info("Importing %s",__name__)
 
 log = logging.getLogger("TriggerMenu.muon.MuonDef")
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
 from TriggerMenu.menu.HltConfig import *
 
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence

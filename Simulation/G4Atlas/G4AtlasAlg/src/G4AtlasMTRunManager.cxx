@@ -5,7 +5,7 @@
 // Hide multi-threading classes from builds without G4MT
 #ifdef G4MULTITHREADED
 
-#include "G4AtlasMTRunManager.h"
+#include "G4AtlasAlg/G4AtlasMTRunManager.h"
 
 #include "G4StateManager.hh"
 #include "G4GeometryManager.hh"

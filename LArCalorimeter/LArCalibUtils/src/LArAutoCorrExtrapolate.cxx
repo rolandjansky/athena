@@ -25,15 +25,13 @@
 
 #include "LArRawConditions/LArAutoCorrComplete.h"
 #include "LArRawConditions/LArPedestalComplete.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 
 #include "CaloIdentifier/CaloGain.h"
 
 
 LArAutoCorrExtrapolate::LArAutoCorrExtrapolate(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
-    m_onlineId(0),
-    m_badChannelTool("LArBadChanTool")
+    m_onlineId(0)
 {
   m_useBad=true;
   declareProperty("KeyOutput",    m_keyoutput="LArAutoCorr");
@@ -42,7 +40,6 @@ LArAutoCorrExtrapolate::LArAutoCorrExtrapolate(const std::string& name, ISvcLoca
   declareProperty("keyPedInput",  m_keyPedInput="PedestalElec");
   declareProperty("keyRamp",      m_keyRamp="LArRamp");
   declareProperty("nSamples",     m_Nsamples=5);
-  declareProperty("BadChannelTool",m_badChannelTool);
 }
 
 
@@ -53,8 +50,8 @@ StatusCode LArAutoCorrExtrapolate::initialize()
 {
   ATH_MSG_INFO ( ">>> Initialize" );
   
-  if (m_badChannelTool.retrieve().isFailure()) {
-    ATH_MSG_WARNING ( "No tool for bad channel" );
+  if (m_BFKey.initialize().isFailure()) {
+    ATH_MSG_WARNING ( "No bad febs key" );
     m_useBad=false;
   }
   
@@ -93,6 +90,13 @@ StatusCode LArAutoCorrExtrapolate::stop()
   const ILArRamp* larRamp = nullptr;
   ATH_CHECK( detStore()->retrieve(larRamp,m_keyRamp) );
   ATH_MSG_INFO ( " Got ramp from database " );
+
+  SG::ReadCondHandle<LArBadFebCont> readHandle{m_BFKey};
+  const LArBadFebCont *bfCont {*readHandle};
+  if ( bfCont == nullptr) {
+       ATH_MSG_WARNING("Failed to retrieve BadFebCont with key "<<m_BFKey.key() );
+       m_useBad=false;
+  }
 
 // loop over channels
    std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
@@ -149,7 +153,7 @@ StatusCode LArAutoCorrExtrapolate::stop()
       bool recovered=false;
       if (corr.size()==0) {
            HWIdentifier febId = m_onlineId->feb_Id(hwid);
-           if (m_useBad && m_badChannelTool->febMissing(febId)) {
+           if (m_useBad && (!bfCont->status(febId).good()) ) {
              ATH_MSG_DEBUG ( " Known missing Feb, no physics autocorr  " << m_onlineId->channel_name(hwid) << "... use electronics from db " );
            } else {
              ATH_MSG_WARNING ( " No physics autocorr for channel " << m_onlineId->channel_name(hwid) << " .. use electronics from db" );

@@ -6,8 +6,6 @@
 
 #include "StoreGate/StoreGate.h"
 
-//#include "LArRecConditions/ILArBadChanTool.h"
-#include "LArBadChannelTool/LArBadChanTool.h"
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include <fstream>

@@ -31,7 +31,7 @@ svcMgr += SG__HiveMgrSvc("EventDataSvc")
 #svcMgr.EventDataSvc.OutputLevel = VERBOSE
 
 from GaudiHive.GaudiHiveConf import AlgResourcePool
-arp=AlgResourcePool( OutputLevel = INFO )
+arp=AlgResourcePool()
 arp.TopAlg=["AthMasterSeq"] #this should enable control flow
 svcMgr += arp
 
@@ -39,16 +39,12 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 #AlgScheduler.setThreadPoolSize(nThreads)
 AlgScheduler.ShowDataDependencies(True)
 AlgScheduler.ShowControlFlow(True)
-AlgScheduler.OutputLevel=VERBOSE
 
 from StoreGate.StoreGateConf import StoreGateSvc
 svcMgr += StoreGateSvc()
-svcMgr.StoreGateSvc.OutputLevel = VERBOSE
-svcMgr.StoreGateSvc.Dump = True
 
 from StoreGate.StoreGateConf import SGImplSvc
 svcMgr += SGImplSvc("SGImplSvc")
-svcMgr.SGImplSvc.OutputLevel = VERBOSE
 
 # ThreadPoolService thread local initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
@@ -71,10 +67,6 @@ theAuditorSvc = svcMgr.AuditorSvc
 theApp.AuditAlgorithms=True
 from SGComps.SGCompsConf import SGCommitAuditor
 theAuditorSvc += SGCommitAuditor()
-
-# for easier browsing of verbose logs
-ClassIDSvc = Service("ClassIDSvc")
-ClassIDSvc.OutputLevel = DEBUG
 
 # ==============================================================================
 # Event selector and input service

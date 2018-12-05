@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -8,7 +8,7 @@
 #define TRIGSTEERINGEVENT_PARTIALEVENTBUILDINGINFO_H
 #include <set>
 #include <vector>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "eformat/SourceIdentifier.h"
 
 class PartialEventBuildingInfo {

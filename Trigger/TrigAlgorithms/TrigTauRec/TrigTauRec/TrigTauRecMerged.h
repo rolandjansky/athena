@@ -24,7 +24,8 @@
 #include "tauRecTools/ITauToolBase.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 
 namespace HLT {
   class TriggerElement;
@@ -102,7 +103,7 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
   /** Beam spot service */
-  ServiceHandle<IBeamCondSvc>  m_beamSpotSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   /** only build taus with eta_seed < m_maxeta */
   float m_maxeta;

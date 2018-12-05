@@ -158,11 +158,6 @@ while (os.access(outputRootFileName,os.F_OK)):
     outputRootFileName="AdditionalCorrections_%i_%i.root" % (IOVstart,i)
 
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-#theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
-
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
 theLArRCBMasker.DoMasking=True

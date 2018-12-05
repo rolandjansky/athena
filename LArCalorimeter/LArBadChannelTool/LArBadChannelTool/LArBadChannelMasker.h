@@ -13,7 +13,7 @@ Author:        Ryan Taylor
 Description:   
 
    The LArBadChannelMasker tool is a very simple and 
-   generic interface to the LArBadChanTool, and is used 
+   generic interface to ILArBadChannelMasker, and is used 
    to check whether cells have any of the problems specified
    by the user in the 'ProblemsToMask' property. 
 

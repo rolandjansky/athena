@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -46,21 +46,4 @@ void AGDDMMSpacer::CreateVolume()
 		SetVolume(vvv);
 //		std::cout<<"done creating volume "<<std::endl;
 	}
-}
-
-GeoMaterial* AGDDMMSpacer::GetMMMaterial(std::string name)
-{
-	StoreGateSvc* pDetStore=0;
-	ISvcLocator* svcLocator = Gaudi::svcLocator();
-	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
-	if(sc.isSuccess())
-	{
-		DataHandle<StoredMaterialManager> theMaterialManager;
-		sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
-		if(sc.isSuccess())
-        {
-			return theMaterialManager->getMaterial(name);
-        }
-	}
-	return 0;
 }

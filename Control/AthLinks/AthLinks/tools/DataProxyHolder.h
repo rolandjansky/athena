@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -21,6 +21,7 @@
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/RCUObject.h"
+#include "AthenaKernel/IInputRename.h"
 #include "CxxUtils/checker_macros.h"
 #include <string>
 #include <unordered_map>
@@ -72,8 +73,8 @@ public:
   typedef void* castfn_t (SG::DataProxy*);
 
   /// Input renaming map.
-  typedef std::unordered_map<SG::sgkey_t, SG::sgkey_t> InputRenameMap_t;
-  typedef Athena::RCUObject<InputRenameMap_t> InputRenameRCU_t;
+  typedef Athena::IInputRename::InputRenameMap_t InputRenameMap_t;
+  typedef Athena::IInputRename::InputRenameRCU_t InputRenameRCU_t;
 
 
   /**

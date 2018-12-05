@@ -207,9 +207,9 @@ class TileROD_Decoder: public AthAlgTool {
     // second is vector with all trailer words
     // third is 16 chip headers and forth is 16 chip CRC
     // In case of calib mode, there are 2 additional vectors, one header and one CRC
-    std::vector<std::vector<uint32_t>*> m_digitsMetaData;
+    typedef std::vector<std::vector<uint32_t> > DigitsMetaData_t;
 
-    std::vector<std::vector<uint32_t>*> m_rawchannelMetaData;
+    typedef std::vector<std::vector<uint32_t> > RawChannelMetaData_t;
 
     /** getOFW returns Optimal Filtering Weights for Frag5 decoder loaded from COOL
      for correspondent units. Coefficients automatically stored in memory,
@@ -219,12 +219,16 @@ class TileROD_Decoder: public AthAlgTool {
 
     /** unpack_frag0 decodes tile subfragment type 0x0. This subfragment contains the
      tile raw digits from the 48 read-out channels of a tilecal module. */
-    void unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec & pDigits);
+    void unpack_frag0(uint32_t version, uint32_t sizeOverhead,
+                      DigitsMetaData_t& digitsMetaData,
+                      const uint32_t* p, pDigiVec & pDigits);
 
     /** unpack_frag1 decodes tile subfragment type 0x1. This subfragment contains the
      tile raw digits ONLY from the existing channels of a tilecal module. <p>
      (not implemented yet). */
-    void unpack_frag1(uint32_t version, const uint32_t* p, pDigiVec & pDigits);
+    void unpack_frag1(uint32_t version, uint32_t sizeOverhead,
+                      DigitsMetaData_t& digitsMetaData,
+                      const uint32_t* p, pDigiVec & pDigits);
 
     /** unpack_frag2 decodes tile subfragment type 0x2. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -233,7 +237,8 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x2 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag2(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
+    void unpack_frag2(uint32_t version, uint32_t sizeOverhead,
+                      const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag3 decodes tile subfragment type 0x3. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -242,7 +247,8 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x3 contains the reconstructed parameters ONLY
      from the existing channels of a tilecal module. */
-    void unpack_frag3(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
+    void unpack_frag3(uint32_t version, uint32_t sizeOverhead,
+                      const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag4 decodes tile subfragment type 0x4. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -255,7 +261,9 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
+    void unpack_frag4(uint32_t version, uint32_t sizeOverhead, unsigned int unit,
+                      RawChannelMetaData_t& rawchannelMetaData,
+                      const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag5 decodes tile subfragment type 0x4. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -268,11 +276,15 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x5 contains the reconstructed parameters and residuals from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag5(uint32_t version, const uint32_t* p, pDigiVec & pDigits, pRwChVec & pChannel);
+    void unpack_frag5(uint32_t version, uint32_t sizeOverhead, unsigned int unit,
+                      DigitsMetaData_t& digitsMetaData,
+                      const uint32_t* p, pDigiVec & pDigits, pRwChVec & pChannel);
 
     /** unpack_frag6 decodes tile subfragment type 0x6. This subfragment contains the
      tile raw digits with 16 samples and 2 gains from the 48 read-out channels of a tilecal module. */
-    void unpack_frag6(uint32_t version, const uint32_t* p, pDigiVec & pDigits);
+    void unpack_frag6(uint32_t version, uint32_t sizeOverhead,
+                      DigitsMetaData_t& digitsMetaData,
+                      const uint32_t* p, pDigiVec & pDigits);
 
     /** unpack_frag3HLT decodes tile subfragment type 0x3 for the high level trigger (HLT).
      This subfragment contains the
@@ -282,7 +294,8 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x3 contains the reconstructed parameters ONLY
      from the existing channels of a tilecal module. */
-    void unpack_frag3HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag3HLT(uint32_t version, uint32_t sizeOverhead,
+                         const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag2HLT decodes tile subfragment type 0x2 for the high level trigger (HLT).
      This subfragment contains the
@@ -292,7 +305,8 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x2 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag2HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag2HLT(uint32_t version, uint32_t sizeOverhead,
+                         const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag4HLT decodes tile subfragment type 0x4 for the high level trigger (HLT).
      This subfragment contains the
@@ -306,7 +320,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag4HLT(uint32_t version, uint32_t sizeOverhead, unsigned int unit, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag5HLT decodes tile subfragment type 0x5 for the high level trigger (HLT).
      This subfragment contains the
@@ -319,11 +333,13 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x5 contains the reconstructed parameters and residuals from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag5HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
+    void unpack_frag5HLT(uint32_t version, uint32_t sizeOverhead, unsigned int unit, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_fragA decodes tile subfragment type 0XA. This subfragment contains
      data quality checks. */
-    void unpack_fragA(uint32_t version, const uint32_t* p, pRwChVec & pChannel) const;
+    void unpack_fragA(uint32_t version,
+                      RawChannelMetaData_t& rawchannelMetaData,
+                      const uint32_t* p, pRwChVec & pChannel) const;
     /** unpack_fragAHLT decodes tile subfragment type 0XA. This subfragment contains
      data quality checks. */
     void unpack_fragAHLT(uint32_t version, const uint32_t* p, uint16_t rob_bcid,
@@ -373,7 +389,7 @@ class TileROD_Decoder: public AthAlgTool {
 
     /** unpack_frag4L2 decodes tile subfragment type 0x4
      and extract transverse energy from this fragment */
-    bool unpack_frag4L2(uint32_t version, const uint32_t* p, TileL2Container & v) const;
+    bool unpack_frag4L2(uint32_t version, uint32_t sizeOverhead, const uint32_t* p, TileL2Container & v) const;
 
     /** unpack_frag5L2 decodes tile subfragment type 0x5
      and extract transverse energy from this fragment */
@@ -385,11 +401,11 @@ class TileROD_Decoder: public AthAlgTool {
 
     /** unpack_frag17 decodes tile subfragment type 0x17 or 0x20. This subfragment contains
      informations coming from the Laser box [calibration run] */
-    void unpack_frag17(uint32_t version, const uint32_t* p, TileLaserObject & v); // LASERII
+    void unpack_frag17(uint32_t version, uint32_t sizeOverhead, const uint32_t* p, TileLaserObject & v); // LASERII
 
     /** unpack_brod decodes all ancillary tile subfragments coming from beam ROD
      at the testbeam or LASTROD in normal ATLAS configuration */
-    void unpack_brod(uint32_t version, const uint32_t* p, pBeamVec & pBeam) const;
+    void unpack_brod(uint32_t version, uint32_t sizeOverhead, const uint32_t* p, pBeamVec & pBeam) const;
 
     /** unpacking methods dedicated to the TMDB ROD format sub-fragments 0x40 0x41 0x42 */
     void unpack_frag40(uint32_t collid,   uint32_t version, const uint32_t* p, int size, TileDigitsCollection &coll) ;
@@ -398,14 +414,31 @@ class TileROD_Decoder: public AthAlgTool {
 
     /**/
 
-    inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+    inline void make_copy(uint32_t bsflags,
+                          TileFragHash::TYPE rChType,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          DigitsMetaData_t& digitsMetaData,
+                          RawChannelMetaData_t& rawchannelMetaData,
+                          const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileBeamElemCollection& v) const;
-    inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+    inline void make_copy(uint32_t bsflags,
+                          TileFragHash::TYPE rChType,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          DigitsMetaData_t& digitsMetaData,
+                          RawChannelMetaData_t& rawchannelMetaData,
+                          const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileDigitsCollection& v) const;
-    inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+    inline void make_copy(uint32_t bsflags,
+                          TileFragHash::TYPE rChType,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          DigitsMetaData_t& digitsMetaData,
+                          RawChannelMetaData_t& rawchannelMetaData,
+                          const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileRawChannelCollection& v) const;
 
-    uint32_t make_copyHLT(pFRwChVec & pChannel, TileCellCollection& v, const uint16_t DQuality,
+    uint32_t make_copyHLT(bool of2,
+                          TileRawChannelUnit::UNIT rChUnit,
+                          pFRwChVec & pChannel, TileCellCollection& v, const uint16_t DQuality,
                           D0CellsHLT& d0cells);
 
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileBeamElemCollection& v) const;
@@ -475,8 +508,6 @@ class TileROD_Decoder: public AthAlgTool {
     // TileCellBuilder* m_CellBuilder;
     std::string m_TileDefaultCellBuilder;
 
-    uint32_t m_sizeOverhead;
-
     // fast decoding
     pFRwChVec m_pRwChVec;
     std::vector<int> m_Rw2Cell[4];
@@ -485,11 +516,7 @@ class TileROD_Decoder: public AthAlgTool {
 
     TileFragHash m_hashFunc;
 
-    // RawChannels units and type (taken from BS frag type
-    TileFragHash::TYPE m_rChType;
-    TileRawChannelUnit::UNIT m_rChUnit;
-    uint32_t m_bsflags;
-    bool m_of2;
+    bool m_of2Default;
 
     // TileRawChannelContainer
     TileRawChannelContainer * m_container;
@@ -620,7 +647,12 @@ inline void TileROD_Decoder::copy_vec(std::vector<ELEMENT *> & v, COLLECTION & c
 }
 
 inline
-void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+void TileROD_Decoder::make_copy(uint32_t /*bsflags*/,
+                                TileFragHash::TYPE /*rChType*/,
+                                TileRawChannelUnit::UNIT /*rChUnit*/,
+                                DigitsMetaData_t& digitsMetaData,
+                                RawChannelMetaData_t& /*rawchannelMetaData*/,
+                                const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
     TileDigitsCollection & v) const {
   copy_vec(pDigits, v); // Digits stored
 
@@ -634,26 +666,26 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
   v.setRODBCID(rob->rod_bc_id());
 
   uint32_t status = TileFragStatus::ALL_OK;
-  for (size_t j=0; j<m_digitsMetaData[6]->size(); ++j) {
-    status |= (*(m_digitsMetaData[6]))[j];
+  for (size_t j=0; j<digitsMetaData[6].size(); ++j) {
+    status |= digitsMetaData[6][j];
   }
 
   if (v.size() > 0) {
     // Set meta data
-    v.setFragSize((*(m_digitsMetaData[0]))[0]);
-    v.setFragBCID((*(m_digitsMetaData[0]))[2] | (status<<16));
+    v.setFragSize(digitsMetaData[0][0]);
+    v.setFragBCID(digitsMetaData[0][2] | (status<<16));
 
-    v.setFragExtraWords(*(m_digitsMetaData[1]));
+    v.setFragExtraWords(digitsMetaData[1]);
 
-    v.setFragChipHeaderWords(*(m_digitsMetaData[2]));
-    v.setFragChipCRCWords(*(m_digitsMetaData[3]));
+    v.setFragChipHeaderWords(digitsMetaData[2]);
+    v.setFragChipCRCWords(digitsMetaData[3]);
 
     if (v.isCalibMode()) {
-      v.setFragChipHeaderWordsHigh(*(m_digitsMetaData[4]));
-      v.setFragChipCRCWordsHigh(*(m_digitsMetaData[5]));
+      v.setFragChipHeaderWordsHigh(digitsMetaData[4]);
+      v.setFragChipCRCWordsHigh(digitsMetaData[5]);
     }
     if (m_verbose) v.printExtra();
-  } else if ( m_digitsMetaData[0]->size() == 0 ) {
+  } else if ( digitsMetaData[0].size() == 0 ) {
     // no useful digi fragment or no data inside fragment
     status |= TileFragStatus::NO_FRAG;
     v.setFragBCID(0xDEAD | (status<<16));
@@ -665,18 +697,23 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
 }
 
 inline
-void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
+void TileROD_Decoder::make_copy(uint32_t bsflags,
+                                TileFragHash::TYPE rChType,
+                                TileRawChannelUnit::UNIT rChUnit,
+                                DigitsMetaData_t& /*digitsMetaData*/,
+                                RawChannelMetaData_t& rawchannelMetaData,
+                                const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
     TileRawChannelCollection & v) const {
   if (pChannel.size() > 0) { // take available raw channels
                              // and store in collection
     if (m_container) {
-      ATH_MSG_VERBOSE( "RawChannel unit is " << m_rChUnit
+      ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit
                       << "  - setting unit in TileRawChannelContainer " );
-      m_container->set_unit(m_rChUnit);
-      m_container->set_type(m_rChType);
-      m_container->set_bsflags(m_bsflags);
+      m_container->set_unit(rChUnit);
+      m_container->set_type(rChType);
+      m_container->set_bsflags(bsflags);
     } else {
-      ATH_MSG_ERROR( "Can't set unit=" << m_rChUnit << " in TileRawChannelContainer" );
+      ATH_MSG_ERROR( "Can't set unit=" << rChUnit << " in TileRawChannelContainer" );
     }
 
     copy_vec(pChannel, v);
@@ -695,7 +732,7 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     } else {
       ATH_MSG_DEBUG( "data for drawer 0x" << MSG::hex << v.identify() << MSG::dec << " not found in BS" );
     }
-    m_rawchannelMetaData[6]->push_back(TileFragStatus::NO_FRAG);
+    rawchannelMetaData[6].push_back(TileFragStatus::NO_FRAG);
     HWIdentifier drawerID = m_tileHWID->drawer_id(v.identify());
     for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
       HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, 0);
@@ -709,42 +746,47 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
   v.setDetEvType(rob->rod_detev_type());
   v.setRODBCID(rob->rod_bc_id());
 
-  if (m_rChUnit < TileRawChannelUnit::OnlineOffset && m_rChType > TileFragHash::OptFilterDsp) { // set good status for BS from MC
-    m_rawchannelMetaData[0]->push_back(0);
-    m_rawchannelMetaData[0]->push_back(0xDEAD);
-    m_rawchannelMetaData[5]->push_back(0xFFFF);
-    m_rawchannelMetaData[5]->push_back(0xFFFF);
+  if (rChUnit < TileRawChannelUnit::OnlineOffset && rChType > TileFragHash::OptFilterDsp) { // set good status for BS from MC
+    rawchannelMetaData[0].push_back(0);
+    rawchannelMetaData[0].push_back(0xDEAD);
+    rawchannelMetaData[5].push_back(0xFFFF);
+    rawchannelMetaData[5].push_back(0xFFFF);
   }
 
   for (unsigned int i = 0; i < 6; ++i) {
-    for (size_t j=m_rawchannelMetaData[i]->size(); j<2; ++j) {
-      m_rawchannelMetaData[i]->push_back(0);
+    for (size_t j=rawchannelMetaData[i].size(); j<2; ++j) {
+      rawchannelMetaData[i].push_back(0);
     }
   }
 
-  uint32_t status = ((*(m_rawchannelMetaData[0]))[0] & 0x1) ? TileFragStatus::CRC_ERR : TileFragStatus::ALL_OK ;
-  for (size_t j=0; j<m_rawchannelMetaData[6]->size(); ++j) {
-    status |= (*(m_rawchannelMetaData[6]))[j];
+  uint32_t status = (rawchannelMetaData[0][0] & 0x1) ? TileFragStatus::CRC_ERR : TileFragStatus::ALL_OK ;
+  for (size_t j=0; j<rawchannelMetaData[6].size(); ++j) {
+    status |= rawchannelMetaData[6][j];
   }
   if (status>TileFragStatus::CRC_ERR)
     ATH_MSG_DEBUG( "Status for drawer 0x" << MSG::hex << v.identify() << " is 0x" << status << MSG::dec);
 
   v.setFragGlobalCRC(status);
-  v.setFragDSPBCID((*(m_rawchannelMetaData[0]))[1]);
-  v.setFragBCID((*(m_rawchannelMetaData[1]))[0]);
-  v.setFragMemoryPar((*(m_rawchannelMetaData[1]))[1]);
-  v.setFragSstrobe((*(m_rawchannelMetaData[2]))[0]);
-  v.setFragDstrobe((*(m_rawchannelMetaData[2]))[1]);
-  v.setFragHeaderBit((*(m_rawchannelMetaData[3]))[0]);
-  v.setFragHeaderPar((*(m_rawchannelMetaData[3]))[1]);
-  v.setFragSampleBit((*(m_rawchannelMetaData[4]))[0]);
-  v.setFragSamplePar((*(m_rawchannelMetaData[4]))[1]);
-  v.setFragFEChipMask((*(m_rawchannelMetaData[5]))[0]);
-  v.setFragRODChipMask((*(m_rawchannelMetaData[5]))[1]);
+  v.setFragDSPBCID(rawchannelMetaData[0][1]);
+  v.setFragBCID(rawchannelMetaData[1][0]);
+  v.setFragMemoryPar(rawchannelMetaData[1][1]);
+  v.setFragSstrobe(rawchannelMetaData[2][0]);
+  v.setFragDstrobe(rawchannelMetaData[2][1]);
+  v.setFragHeaderBit(rawchannelMetaData[3][0]);
+  v.setFragHeaderPar(rawchannelMetaData[3][1]);
+  v.setFragSampleBit(rawchannelMetaData[4][0]);
+  v.setFragSamplePar(rawchannelMetaData[4][1]);
+  v.setFragFEChipMask(rawchannelMetaData[5][0]);
+  v.setFragRODChipMask(rawchannelMetaData[5][1]);
 }
 
 inline
-void TileROD_Decoder::make_copy(const ROBData * /* rob */, pDigiVec & pDigits
+void TileROD_Decoder::make_copy(uint32_t /*bsflags*/,
+                                TileFragHash::TYPE /*rChType*/,
+                                TileRawChannelUnit::UNIT /*rChUnit*/,
+                                DigitsMetaData_t& /*digitsMetaData*/,
+                                RawChannelMetaData_t& /*rawchannelMetaData*/,
+                                const ROBData * /* rob */, pDigiVec & pDigits
     , pRwChVec & pChannel, TileBeamElemCollection &) const {
   // do nothing
   delete_vec(pDigits);
@@ -837,6 +879,10 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
   uint32_t size = data_size(rob, error);
   const uint32_t * p = get_data(rob);
 
+  // 2 extra words in every frag by default (frag id + frag size)
+  // but for all data after 2005 it is set to 3 later in the code
+  uint32_t sizeOverhead = 2;
+
   // bool skipWords = ( ! isBeamROD && version == 0x1 );
   // std::cout << " *(p) = 0x" << std::hex << (*(p)) << std::dec << std::endl;
   if (size) {
@@ -849,14 +895,14 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     }
     if (V3format) {
       ++p; // skip frag marker
-      m_sizeOverhead = 3;
+      sizeOverhead = 3;
     } else {
-      m_sizeOverhead = 2;
+      sizeOverhead = 2;
     }
   }
 
   //std::cout << std::hex << " frag_id " << frag_id << " mask " << mask
-  //          << " version " << version << " sizeOverhead " << m_sizeOverhead
+  //          << " version " << version << " sizeOverhead " << sizeOverhead
   //          << " skipWords " << skipWords << " V3format " << V3format
   //          << std::dec << std::endl;
   //std::cout << " size is "<< size << std::endl;
@@ -870,7 +916,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     int frag = (idAndType & mask);
     int type = (idAndType & 0xF00000) >> 16; // note special mask, we ignore one digit, keep only 0x10, 0x20, 0x30, ...
 
-    if (count < m_sizeOverhead || count > size - wc) {
+    if (count < sizeOverhead || count > size - wc) {
       int cnt = 0;
       for (; wc < size; ++wc, ++cnt, ++p) {
         if ((*p) == 0xff1234ff) {
@@ -926,7 +972,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
       p = (*it);
 
-      unpack_brod(version, p, pBeam);
+      unpack_brod(version, sizeOverhead, p, pBeam);
     }
 
     make_copy(rob, pBeam, v);
@@ -941,9 +987,11 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     pChannel.reserve(48);
 
     // initialize meta data storage
+    DigitsMetaData_t digitsMetaData (7);
+    RawChannelMetaData_t rawchannelMetaData (7);
     for (unsigned int i = 0; i < 7; ++i) {
-      m_digitsMetaData[i]->clear();
-      m_rawchannelMetaData[i]->clear();
+      digitsMetaData[i].reserve(16);
+      rawchannelMetaData[i].reserve(2);
     }
 
     // now unpack all channels in all fragments
@@ -951,6 +999,10 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
     std::vector<const uint32_t *>::const_iterator it = pFrag.begin();
     std::vector<const uint32_t *>::const_iterator itEnd = pFrag.end();
+
+    uint32_t bsflags = 0;
+    TileFragHash::TYPE rChType = TileFragHash::Digitizer;
+    TileRawChannelUnit::UNIT rChUnit = TileRawChannelUnit::ADCcounts;
 
     for (; it != itEnd; ++it) {
 
@@ -968,22 +1020,21 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
       switch (type) {
         case 0:
-          if (m_useFrag0) unpack_frag0(version, p, pDigits);
+          if (m_useFrag0) unpack_frag0(version, sizeOverhead, digitsMetaData, p, pDigits);
           break;
         case 1:
-          if (m_useFrag1) unpack_frag1(version, p, pDigits);
+          if (m_useFrag1) unpack_frag1(version, sizeOverhead, digitsMetaData, p, pDigits);
           break;
         case 2:
-          if (m_useFrag4) unpack_frag2(version, p, pChannel);
+          if (m_useFrag4) unpack_frag2(version, sizeOverhead, p, pChannel);
           break;
         case 3:
-          if (m_useFrag4) unpack_frag3(version, p, pChannel);
+          if (m_useFrag4) unpack_frag3(version, sizeOverhead, p, pChannel);
           break;
         case 4:
           if (m_useFrag4) {
-            m_bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
+            bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
             int unit = (idAndType & 0xC0000000) >> 30;
-            m_rc2bytes4.setUnit(unit);
 
             int DataType = (idAndType & 0x30000000) >> 28;
 
@@ -991,50 +1042,49 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
               // only one bit for type and next 2 bits for number of iterations
               //int AlgoType = (idAndType & 0x4000000) >> 26;
-              //if (AlgoType == 0)      m_rChType = TileFragHash::OF1Filter;
-              //else                    m_rChType = TileFragHash::OF2Filter;
+              //if (AlgoType == 0)      rChType = TileFragHash::OF1Filter;
+              //else                    rChType = TileFragHash::OF2Filter;
               // always set special type, which means now that OF is done inside DSP
-              m_rChType = TileFragHash::OptFilterDsp;
-              m_of2 = ((idAndType & 0x4000000) != 0);
+              rChType = TileFragHash::OptFilterDsp;
 
               // Attention! Switching to Online Units for release 14.2.0
-              m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
-              // m_rChUnit = (TileRawChannelUnit::UNIT) ( unit );
+              rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
+              // rChUnit = (TileRawChannelUnit::UNIT) ( unit );
 
             } else { // simulated data
 
               // all 3 bits for type
               int AlgoType = (idAndType & 0x7000000) >> 24;
-              m_rChType = (TileFragHash::TYPE) AlgoType;
+              rChType = (TileFragHash::TYPE) AlgoType;
 
-              m_rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
+              rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
 
-            unpack_frag4(version, p, pChannel);
+            unpack_frag4(version, sizeOverhead, unit, rawchannelMetaData, p, pChannel);
           }
           break;
 
         case 5:
           if (m_useFrag5Raw || m_useFrag5Reco) {
-            m_bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
+            bsflags = idAndType & 0xFFFF0000; // ignore frag num, keep all the rest
             int unit = (idAndType & 0xC0000000) >> 30;
-            m_rc2bytes5.setUnit(unit);
 
             // always set special type, which means now that OF is done inside DSP
-            m_rChType = TileFragHash::OptFilterDspCompressed;
-            m_of2 = ((idAndType & 0x4000000) != 0);
+            rChType = TileFragHash::OptFilterDspCompressed;
 
-            m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
-            unpack_frag5(version, p, pDigits, pChannel);
+            rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
+            unpack_frag5(version, sizeOverhead, unit,
+                         digitsMetaData,
+                         p, pDigits, pChannel);
           }
           break;
 
         case 6:
-          unpack_frag6(version, p, pDigits);
+          unpack_frag6(version, sizeOverhead, digitsMetaData, p, pDigits);
           break;
 
         case 0xA:
-          unpack_fragA(version, p, pChannel);
+          unpack_fragA(version, rawchannelMetaData, p, pChannel);
           break;
 
         default:
@@ -1045,7 +1095,8 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
       }
     } // end of all frags
 
-    make_copy(rob, pDigits, pChannel, v);
+    make_copy(bsflags, rChType, rChUnit, digitsMetaData, rawchannelMetaData,
+              rob, pDigits, pChannel, v);
   }
 
   return;

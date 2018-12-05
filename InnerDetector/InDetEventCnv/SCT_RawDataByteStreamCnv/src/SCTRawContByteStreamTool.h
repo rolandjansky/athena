@@ -19,7 +19,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include <mutex>
-#include <string>
 
 class ISCT_RodEncoder;
 class ISCT_CablingTool;

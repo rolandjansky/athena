@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -87,14 +87,15 @@ StatusCode xAODTestReadCVec::execute_r (const EventContext& ctx) const
   for (SG::auxid_t auxid : cvec->getAuxIDs())
     names.push_back (r.getName(auxid));
   std::sort (names.begin(), names.end());
-  std::cout << m_cvecKey.key() << " aux items: ";
+  std::ostringstream ost1;
+  ost1 << m_cvecKey.key() << " aux items: ";
   for (const std::string& n : names)
-    std::cout << n << " ";
-  std::cout << "\n";
+    ost1 << n << " ";
+  ATH_MSG_INFO (ost1.str());
   {
     const SG::IConstAuxStore* auxstore = cvec->getConstStore();
-      std::cout << "Type of aux store: "
-                << System::typeinfoName (typeid (*auxstore)) << "\n";
+    ATH_MSG_INFO("Type of aux store: "
+                 << System::typeinfoName (typeid (*auxstore)));
   }
 
   for (const C* c : *cvec) {
@@ -151,7 +152,7 @@ StatusCode xAODTestReadCVec::execute_r (const EventContext& ctx) const
       ost << "]\n";
     }
 
-    std::cout << ost.str();
+    ATH_MSG_INFO (ost.str());
   }
 
   if (!m_writeKey.key().empty()) {

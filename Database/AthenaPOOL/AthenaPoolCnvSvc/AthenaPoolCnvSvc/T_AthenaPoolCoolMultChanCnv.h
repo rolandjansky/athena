@@ -61,7 +61,7 @@ protected:
     /// @param token        [OUT] Token from writing out CondMultChanCollImpl
     StatusCode objectToAttrListColl(COLL_T* obj, 
 				    CondAttrListCollection*& attrListColl,
-				    const Token*& token);
+				    Token*& token);
 
     /// Read in objects from POOL for the tokens stored
     /// CondAttrListCollection and save the objects in the output

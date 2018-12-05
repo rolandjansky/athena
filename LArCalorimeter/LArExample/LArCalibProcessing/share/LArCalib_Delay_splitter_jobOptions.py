@@ -562,13 +562,6 @@ if CorrectBadChannels:
    theLArCaliWavePatcher.PatchMethod="PhiAverage" ##do an aveage in phi after removing bad and empty event
    theLArCaliWavePatcher.OutputLevel=INFO
    
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-   theLArBadChannelTool=LArBadChanTool()
-   theLArBadChannelTool.OutputLevel=DEBUG
-   theLArBadChannelTool.CoolFolder=BadChannelsFolder
-   theLArBadChannelTool.CoolMissingFEBsFolder=MissingFEBsFolder
-   ToolSvc+=theLArBadChannelTool
-   
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
    theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
    theLArRCBMasker.DoMasking=True

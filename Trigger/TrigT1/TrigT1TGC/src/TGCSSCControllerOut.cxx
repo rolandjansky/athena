@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //$Id: TGCSSCControllerOut.cxx,v 1.5 2005-11-29 08:12:40 nkanaya Exp $

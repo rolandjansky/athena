@@ -18,8 +18,6 @@
 
 #include "xAODTrigger/TrigPassBits.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
@@ -81,7 +79,7 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
   if (m_xcutCHI2   != -20) ATH_MSG_DEBUG( " CutXCHI2  = "  << m_xcutCHI2 );
   if (m_xcutIP3D   != -20) ATH_MSG_DEBUG( " CutXIP3D  = "  << m_xcutIP3D );
   if (m_xcutIP2D   != -20) ATH_MSG_DEBUG( " CutXIP2D  = "  << m_xcutIP2D );
-
+  if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
   return HLT::OK;
 }
 
@@ -105,10 +103,9 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   // Retrieve beamspot information 
   if (m_useBeamSpotFlag) {
 
-    IBeamCondSvc* iBeamCondSvc; 
-    StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     
-    if (sc.isFailure() || iBeamCondSvc == 0) {
+    if ( !beamSpotHandle.isValid() ) {
       
       if (msgLvl() <= MSG::WARNING)
 	msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
@@ -116,7 +113,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
     } else {
 
       int beamSpotStatus = 0;
-      int beamSpotBitMap = iBeamCondSvc->beamStatus();    
+      int beamSpotBitMap = beamSpotHandle->beamStatus();    
 
       beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
       if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);

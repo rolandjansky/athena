@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Event/FourMomUtils
                           Event/xAOD/xAODTracking
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetConversionFinderTools
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
@@ -42,7 +43,7 @@ atlas_add_component( egammaAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS 
 		     LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel 
-		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel  StoreGateLib xAODTracking 
+		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel  StoreGateLib xAODTracking InDetReadoutGeometry
 		     EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils  TrkToolInterfaces InDetRecToolInterfaces 
 		     FourMomUtils RecoToolInterfaces TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension)            
 	     

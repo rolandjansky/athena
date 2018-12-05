@@ -37,22 +37,26 @@ grep REGTEST athena.log > athena.regtest
 
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  grep REGTEST athena.log > athena.regtest
   timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
+  echo "art-result: 999 RegTest"
 fi
+
+mv athena.regtest athena.regtest.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root | tee rootcompout.log
+  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root | tee rootcompout.log
   echo "art-result: ${PIPESTATUS[0]} RootComp"
   echo $(date "+%FT%H:%M %Z")"     Running checkcounts"
   timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT | tee checkcountout.log
   echo "art-result: ${PIPESTATUS[0]} CheckCounts"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
+  echo "art-result:  999 RootComp"
+  echo "art-result:  999 CheckCounts"
 fi
 
 if [ -f trig_cost.root ]; then 

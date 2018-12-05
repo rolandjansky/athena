@@ -182,7 +182,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   ATH_CHECK( clusterContainer.record (std::make_unique<xAOD::CaloClusterContainer>(),  std::make_unique<xAOD::CaloClusterTrigAuxContainer> () ));
 
   xAOD::CaloClusterContainer* pCaloClusterContainer = clusterContainer.ptr();
-  ATH_MSG_DEBUG(" created ClusterContainer at 0x" << std::hex << pCaloClusterContainer);
+  ATH_MSG_DEBUG(" created ClusterContainer at 0x" << std::hex << pCaloClusterContainer<< std::dec);
 
 
   // monitored variables 
@@ -216,10 +216,10 @@ StatusCode TrigCaloClusterMakerMT::execute()
   time_clusMaker.start();
 
   auto cells = SG::makeHandle(m_inputCellsKey, ctx);
-  ATH_MSG_DEBUG(" Input Cells : " << cells.name());
+  ATH_MSG_DEBUG(" Input Cells : " << cells.name() <<" of size " <<cells->size() );
 
   auto towers = SG::makeHandle(m_inputTowersKey, ctx);
-  ATH_MSG_DEBUG(" Input Towers : " << towers.name());
+  //  ATH_MSG_DEBUG(" Input Towers : " << towers.name() <<" of size "<< towers->size());
 
   int index=0;
   for (CaloClusterCollectionProcessor* clproc : m_clusterMakerPointers) {

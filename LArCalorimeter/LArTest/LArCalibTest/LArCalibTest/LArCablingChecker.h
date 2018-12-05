@@ -6,10 +6,13 @@
 #define LARCABLINGCHECKER
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
-#include "LArCabling/LArCablingService.h"
 //#include "CaloIdentifier/LArEM_ID.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "LArIdentifier/LArOnlineID.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 #include <fstream>
 #include <vector>
@@ -28,8 +31,10 @@ class LArCablingChecker : public AthAlgorithm
 
  private:
   int m_count;
-  LArCablingService *m_larCablingSvc;
-  ILArBadChanTool *m_caloBadChannelTool;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
 
   const LArOnlineID* m_onlineHelper;
   const LArEM_ID* m_emId;

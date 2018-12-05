@@ -880,10 +880,12 @@ if InDetFlags.loadSummaryTool():
     if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
         from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
         pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-        pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setUseConditions(True)
+        pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+        pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
+        pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
         pixelConditionsSummaryToolSetup.setup()
-
 
     #
     # Loading Pixel test tool

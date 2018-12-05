@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -40,7 +40,12 @@ class IInputRename
 {
 public:
   /// Type of the input rename map: sgkey_t -> sgkey_t.
-  typedef std::unordered_map<SG::sgkey_t, SG::sgkey_t> InputRenameMap_t;
+  struct Rename
+  {
+    SG::sgkey_t m_sgkey;
+    std::string m_key;
+  };
+  typedef std::unordered_map<SG::sgkey_t, Rename> InputRenameMap_t;
   typedef RCUObject<InputRenameMap_t> InputRenameRCU_t;
 
   DeclareInterfaceID (IInputRename,1,0);

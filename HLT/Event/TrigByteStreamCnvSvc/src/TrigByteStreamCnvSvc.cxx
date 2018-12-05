@@ -229,5 +229,5 @@ void TrigByteStreamCnvSvc::printRawEvent() {
     ss << "]}" << std::endl;
   }
 
-  ATH_MSG_INFO(ss.str());
+  ATH_MSG_DEBUG(ss.str());
 }

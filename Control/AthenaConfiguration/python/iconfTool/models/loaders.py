@@ -6,7 +6,7 @@
 import pickle
 import logging
 
-from models.structure import ComponentsStructure
+from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
 
 logger = logging.getLogger('iconfTool.' + __name__)
 

@@ -8,22 +8,17 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
-
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
 
 #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
+#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
-class Identifier;
-class IdentifierHash;
-class PixelID;
-class IPixelByteStreamErrorsSvc;
-class ISpecialPixelMapSvc;
-class DetectorSpecialPixelMap;
-class StoreGateSvc;
-class IPixelTDAQSvc;
-class IBLParameterSvc;
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "InDetIdentifier/PixelID.h"
+
+#include "PixelConditionsData/PixelModuleData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
   public:
@@ -32,40 +27,32 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~PixelConditionsSummaryTool();
     virtual StatusCode initialize() override;
-    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
 
     virtual bool isActive(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override final;
-    virtual bool isActive(const IdentifierHash & elementHash) const override final;
-    virtual bool isActive(const IdentifierHash & elementHash, const Identifier & elementId)  const override final;
-    virtual double activeFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd)  const override final;
+    virtual bool isActive(const IdentifierHash & moduleHash) const override final;
+    virtual bool isActive(const IdentifierHash & moduleHash, const Identifier & elementId)  const override final;
+    virtual double activeFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd)  const override final;
 
     virtual bool isGood(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override final;
-    virtual bool isGood(const IdentifierHash & elementHash) const override final;
-    virtual bool isGood(const IdentifierHash & elementHash, const Identifier & elementId) const override final;
-    virtual double goodFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd) const override final;
+    virtual bool isGood(const IdentifierHash & moduleHash) const override final;
+    virtual bool isGood(const IdentifierHash & moduleHash, const Identifier & elementId) const override final;
+    virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd) const override final;
 
   private:
-    ServiceHandle< StoreGateSvc > m_detStore;
-
     const PixelID* m_pixelID;
 
-    SG::ReadCondHandleKey< DetectorSpecialPixelMap> m_specialPixelMapKey;
+    ToolHandle<IPixelDCSConditionsTool>     m_DCSConditionsTool    {this, "PixelDCSConditionsTool",     "PixelDCSConditionsTool",     "Tool to retrieve Pixel information"};
 
-    ServiceHandle< ISpecialPixelMapSvc > m_specialPixelMapSvc;
-    ToolHandle<IPixelDCSConditionsTool> m_DCSConditionsTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
-    ServiceHandle< IBLParameterSvc> m_IBLParameterSvc;
     ServiceHandle< IPixelByteStreamErrorsSvc > m_pixelBSErrorsSvc;
-    ServiceHandle< IPixelTDAQSvc > m_pixelTDAQSvc;
     std::vector<std::string> m_isActiveStatus;
     std::vector<std::string> m_isActiveStates;
 
-    bool m_useSpecialPixelMap;
-    bool m_useDCS;
-    bool m_useBS;
+    bool m_useDCSState;
+    bool m_useByteStream;
     bool m_useTDAQ;
+    bool m_useDeadMap;
 
-    void getID(const Identifier& id, unsigned int& pixID, unsigned int& mchips) const;
-
+    SG::ReadCondHandleKey<PixelModuleData> m_condKey{this, "PixelModuleData", "PixelModuleData", "Output key of pixel module data"};
 };
 
 inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){

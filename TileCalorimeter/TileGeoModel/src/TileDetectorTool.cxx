@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoModel/TileDetectorTool.h"
@@ -80,7 +80,7 @@ StatusCode TileDetectorTool::create()
   }
   
   //Locate the top level experiment node
-  DataHandle<GeoModelExperiment> theExpt;
+  GeoModelExperiment* theExpt = nullptr;
   CHECK( detStore()->retrieve(theExpt, "ATLAS") );
 
   if ( 0 == m_detector )

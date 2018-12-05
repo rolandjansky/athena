@@ -113,6 +113,13 @@ public:
   virtual StatusCode printStats() const override;
 
 
+  /**
+   * @brief Clear the internal state of the service.
+   * Only for testing.  Don't call if any other thread may be touching the service.
+   */
+  virtual StatusCode reset() override;
+
+
 
 private:
   friend class DelayedConditionsCleanerTask;
@@ -123,11 +130,7 @@ private:
 
 
   /// Run+LBN or timestamp key?
-  enum class KeyType
-  {
-    RUN_LBN,
-    TIMESTAMP
-  };
+  using KeyType = CondContBase::KeyType;
 
 
   /// Information that we maintain about each conditions container.
@@ -162,7 +165,6 @@ private:
    * @param cis Set of containers to clean.
    * @param ring Ring buffer with recent IOV keys.
    * @param slotKeys Vector of current keys for all slots.
-   * @param keyType Run+LBN or timestamp keys?
    * @param allowAsync Can this task run asynchronously?
    *
    * This will either run cleaning directly, or submit it as a TBB task.
@@ -170,29 +172,24 @@ private:
   void scheduleClean (std::vector<CondContInfo*>&& cis,
                       Ring& ring,
                       const std::vector<key_type>& slotKeys,
-                      KeyType keyType,
                       bool allowAsync);
 
 
   /**
    * @brief Clean a set of containers.
    * @param cis Set of containers to clean.
-   * @param keyType Run+LBN or timestamp keys?
    * @param keys Set of IOV keys for recent events.
    */
   void cleanContainers (std::vector<CondContInfo*>&& cis,
-                        KeyType keytype,
                         std::vector<key_type>&& keys);
 
 
   /**
    * @brief Clean a single container.
    * @param ci The container to clean.
-   * @param keyType Run+LBN or timestamp keys?
    * @param keys Set of IOV keys for recent events.
    */
   void cleanContainer (CondContInfo* ci,
-                       KeyType keyType,
                        const std::vector<key_type>& keys);
 
 

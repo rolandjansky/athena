@@ -2,7 +2,8 @@
 
 from TrigInDetRecoTools.TrigInDetRecoToolsConf import TrigL2PattRecoStrategyC
 from TrigInDetRecoTools.ConfiguredSettings import SettingsForStrategyC
- 
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool
+
 from AthenaCommon.Logging import logging  
 log = logging.getLogger("FactoryForStrategyC")
 
@@ -57,12 +58,6 @@ class FactoryForStrategyC() :
              InDetTrigSiDetElementsRoadMaker_C.RoadWidth = self.settings[('RoadWidth',instName)]
              ToolSvc += InDetTrigSiDetElementsRoadMaker_C
 
-             if DetFlags.haveRIO.pixel_on():
-                 from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-                 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-                 InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
-             else:
-                 InDetTrigPixelConditionsSummaryTool = None
              if DetFlags.haveRIO.SCT_on():
                  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
                  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool

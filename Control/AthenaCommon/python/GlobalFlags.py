@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################################
 ##
@@ -202,7 +202,7 @@ class GlobalFlags:
         def is_ctb (cls):
             # stop if any flags have not been set yet
             if not cls._beenSet:
-                raise RuntimeError, 'ERROR : GlobalFlags.%s has not been set!' % cls.__name__
+                raise RuntimeError('ERROR : GlobalFlags.%s has not been set!' % cls.__name__)
             return cls._flag_ctbh6 | cls._flag_ctbh8
         is_ctb = classmethod(is_ctb)
 
@@ -253,19 +253,19 @@ class GlobalFlags:
                     def set (self):
                         # stop if already set
                         if self._clsObj._beenSet:
-                            raise RuntimeError, 'ERROR : GlobalFlags.%s has been already set!' % self._clsObj.__name__
+                            raise RuntimeError('ERROR : GlobalFlags.%s has been already set!' % self._clsObj.__name__)
                         # set flags true
                         setattr(self._clsObj, self._flagName, True)
                         self._clsObj._beenSet = True
-                        raise RuntimeError, "ERROR GlobalFlags.set_%s() deprecated ! Use globalflags.%s.set_Value_and_Lock(blah) instead !" % (self._clsObj.__name__+"."+self._flagName[6:],self._clsObj.__name__)
+                        raise RuntimeError("ERROR GlobalFlags.set_%s() deprecated ! Use globalflags.%s.set_Value_and_Lock(blah) instead !" % (self._clsObj.__name__+"."+self._flagName[6:],self._clsObj.__name__))
                         # setting at the same time jobproperties value 
                         data={'JobProperties.Global':{self._clsObj._name:self._flagName.replace('_flag_','')}}   
                         jobproperties.set_JobProperties(data)
                     def is_xyz (self):
-                        raise RuntimeError,"ERROR GlobalFlags.is_%s() deprecated ! Use if globalflags.%s == blah instead !" % (self._flagName[6:],self._clsObj.__name__)
+                        raise RuntimeError("ERROR GlobalFlags.is_%s() deprecated ! Use if globalflags.%s == blah instead !" % (self._flagName[6:],self._clsObj.__name__))
                         # stop if any flags have not been set yet
                         if not self._clsObj._beenSet:
-                            raise RuntimeError, 'ERROR : GlobalFlags.%s has not been set!' % self._clsObj.__name__
+                            raise RuntimeError('ERROR : GlobalFlags.%s has not been set!' % self._clsObj.__name__)
                         return getattr(self._clsObj, self._flagName)
                     
                 _tmpC = _TmpC(_classObj,_attr)

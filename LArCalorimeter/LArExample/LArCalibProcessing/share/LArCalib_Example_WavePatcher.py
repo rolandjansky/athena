@@ -66,11 +66,6 @@ theLArCaliWavePatcher.PatchMethod="PhiNeighbor"
 theLArCaliWavePatcher.OutputLevel=DEBUG
 topSequence+=theLArCaliWavePatcher
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
-
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
 theLArRCBMasker.DoMasking=True

@@ -12,6 +12,8 @@
 
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
+#include "PersistentDataModel/TokenAddress.h"
+
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p3.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p4.h"
 
@@ -118,7 +120,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    this->setPlacementWithType("DataHeader", tname);
    Placement placement;
    placement.fromString(m_placement->toString() + "[KEY=" + obj->getProcessTag() + "][FORM=" + dhf_token->toString() + "]");
-   const Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(&placement, persObj, m_classDesc);
+   Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(&placement, persObj, m_classDesc);
    if (dh_token == nullptr) {
       delete dhf_token; dhf_token = nullptr;
       MsgStream log(msgSvc(), "DataHeaderCnv");
@@ -144,7 +146,15 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
          delete attr_token; attr_token = nullptr;
       }
    }
-   this->m_o_poolToken = dh_token; // return to converter
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   if (tokAddr != nullptr) {
+      tokAddr->setToken(dh_token); dh_token = nullptr; // Token will be inserted into DataHeader, which takes ownership
+   } else { // No address (e.g. satellite DataHeader), delete Token
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::FATAL << "Failed to get DataHeader Token" << endmsg;
+      delete dh_token; dh_token = nullptr;
+      return(StatusCode::FAILURE);
+   }
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________

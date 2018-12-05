@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CavernInfraDetectorFactory01.h"
@@ -28,7 +28,6 @@
 #include "CLHEP/GenericFunctions/Variable.hh"
 #include "CLHEP/GenericFunctions/Sin.hh"
 #include "CLHEP/GenericFunctions/Cos.hh"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
 
@@ -59,7 +58,7 @@ void CavernInfraDetectorFactory01::create(GeoPhysVol *world)
 { 
   m_detectorManager=new CavernInfraDetectorManager();
 
-  const DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   } 

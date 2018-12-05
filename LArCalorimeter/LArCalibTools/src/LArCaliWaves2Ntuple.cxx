@@ -112,6 +112,13 @@ StatusCode LArCaliWaves2Ntuple::stop()
     }
   }
 
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
+     return StatusCode::FAILURE;
+  }
+
   for ( unsigned k=0 ; k<m_keylist.size() ; k++ ) {
     const std::string& key = m_keylist[k] ;
 
@@ -156,7 +163,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
 	  const LArCaliWave& wave=*cwv_it;
 	  if (wave.isEmpty()) continue;
 	  if (m_addCorrUndo) m_corrUndo=0;
-	  bool skip=writeEntry(chid,igain,wave);
+	  bool skip=writeEntry(chid,igain,wave,clCont);
 	  if (skip) continue;
 	  sc=ntupleSvc()->writeRecord(m_nt);
 	  if (sc!=StatusCode::SUCCESS) {
@@ -181,7 +188,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
 	  LArCaliWaveVec::const_iterator cwv_it_e=cwv.end();
 	  for (;cwv_it!=cwv_it_e;++cwv_it) {
 	    const LArCaliWave& wave=*cwv_it;
-	    bool skip=writeEntry(chid,igain,wave);
+	    bool skip=writeEntry(chid,igain,wave,clCont);
 	    if (skip) continue;
 	    sc=ntupleSvc()->writeRecord(m_nt);
 	    if (sc!=StatusCode::SUCCESS) {
@@ -199,7 +206,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
 
 
 
-bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gain, const LArCaliWave& wave) {
+bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gain, const LArCaliWave& wave,const LArCalibLineMapping *clCont) {
   //call fill method of base-class 
   fillWave(chid,wave);
   m_dac = wave.getDAC();
@@ -225,7 +232,7 @@ bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gai
 
   /// HEC calibration lines
   if ( !m_isSC ) {
-  const std::vector<HWIdentifier>& calibLineV = ((LArCablingService*)m_larCablingSvc)->calibSlotLine(chid);
+  const std::vector<HWIdentifier>& calibLineV = clCont->calibSlotLine(chid);
   if ( calibLineV.size()>0 ) {
     (*m_log) << MSG::DEBUG << "wave.getIsPulsedInt() " << wave.getIsPulsedInt()<<" : "<< calibLineV.size()<< endmsg;
     for(int i=0;i<4;i++)
