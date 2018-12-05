@@ -47,142 +47,101 @@ VGammaORTool::~VGammaORTool() {
 }
 
 //============================================================================
+// UPDATE FUNCTIONS
+StatusCode VGammaORTool::updateInput(const std::vector<TLorentzVector>* lepton_p4s,
+				     const std::vector<TLorentzVector>* photon_p4s,
+				     const std::vector<int>* lepton_origins,
+				     const std::vector<int>* photon_origins) {
+
+  // truth particles are retrieved from event if not given by user
+  const xAOD::TruthParticleContainer* truthParticles = nullptr;
+  if(lepton_p4s==0 || photon_p4s==0){
+    ANA_CHECK( evtStore()->retrieve(truthParticles, m_truthparticle_collection_name) );
+  }
+
+  // relevant photons and leptons identified
+  if(lepton_p4s==0){
+    m_leptons = getLeptonP4s(*truthParticles);
+  }
+  else{
+    if(lepton_origins!=0){
+      m_leptons = filterLeptonOrigins(*lepton_p4s,*lepton_origins);
+    }
+    else{
+      m_leptons = *lepton_p4s;
+    }
+  }
+  if(photon_p4s==0){
+    m_photons = getPhotonP4s(*truthParticles);
+  }
+  else{
+    if(photon_origins!=0){
+      m_photons = filterPhotonOrigins(*photon_p4s,*photon_origins);
+    }
+    else{
+      m_photons = *photon_p4s;
+    }
+  }
+
+  ATH_MSG_DEBUG(BOOST_CURRENT_FUNCTION << ": Found " << m_photons.size() << " photons.");
+  ATH_MSG_DEBUG(BOOST_CURRENT_FUNCTION << ": Found " << m_leptons.size() << " leptons.");
+
+  if (m_n_leptons >=0 && int(m_leptons.size()) < m_n_leptons) {
+    ATH_MSG_WARNING(
+      BOOST_CURRENT_FUNCTION << ": Found " << m_leptons.size() << " leptons but expected " << m_n_leptons << ".");
+  }
+
+
+  m_setInput=true;
+  
+  return StatusCode::SUCCESS;
+}
+
+//============================================================================
 // PUBLIC IN OVERLAP FUNCTIONS
 // See header for description
 bool VGammaORTool::inOverlap() const {
+  if(!m_setInput){
+    ATH_MSG_ERROR("You need to update the input particles (with 'updateInput') before calling inOverlap()");
+  }
   return checkPhotonPts(photonPtsOutsideDr());
-}
-bool VGammaORTool::inOverlap(const std::vector<TLorentzVector>& leptons) const {
-  return checkPhotonPts(photonPtsOutsideDr(leptons));
-}
-bool VGammaORTool::inOverlap(const std::vector<TLorentzVector>& leptons,
-                             const std::vector<TLorentzVector>& photons) const {
-  return checkPhotonPts(photonPtsOutsideDr(leptons, photons));
-}
-bool VGammaORTool::inOverlap(const std::vector<TLorentzVector>& lepton_p4s,
-                             const std::vector<TLorentzVector>& photon_p4s,
-                             const std::vector<int>& photon_origins) const {
-  return checkPhotonPts(photonPtsOutsideDr(lepton_p4s,photon_p4s, photon_origins));
-}
-bool VGammaORTool::inOverlap(const std::vector<TLorentzVector>& lepton_p4s,
-                             const std::vector<int>& lepton_origins,
-                             const std::vector<TLorentzVector>& photon_p4s,
-                             const std::vector<int>& photon_origins) const {
-  return checkPhotonPts(photonPtsOutsideDr(lepton_p4s, lepton_origins, photon_p4s, photon_origins));
 }
 
 //============================================================================
 // PUBLIC PTS OUTSIDE DR FUNCTIONS
 // See header for description
 std::vector<float> VGammaORTool::photonPtsOutsideDr() const {
+  if(!m_setInput){
+    ATH_MSG_ERROR("You need to update the input particles (with 'updateInput') before calling photonPtsOutsideDr()");
+  }
   return photonPtsOutsideDrs(std::vector<float>(1, m_dR_lepton_photon_cut))[m_dR_lepton_photon_cut];
 }
 
-std::vector<float> VGammaORTool::photonPtsOutsideDr(const std::vector<TLorentzVector>& leptons) const {
-  return photonPtsOutsideDrs(std::vector<float>(1, m_dR_lepton_photon_cut), leptons)[m_dR_lepton_photon_cut];
-}
-
-std::vector<float> VGammaORTool::photonPtsOutsideDr(const std::vector<TLorentzVector>& leptons,
-						     const std::vector<TLorentzVector>& photons) const {
-  return photonPtsOutsideDrs(std::vector<float>(1, m_dR_lepton_photon_cut), leptons, photons)[m_dR_lepton_photon_cut];
-}
-
-std::vector<float> VGammaORTool::photonPtsOutsideDr(const std::vector<TLorentzVector>& lepton_p4s,
-                                                                         const std::vector<TLorentzVector>& photon_p4s,
-                                                                         const std::vector<int>& photon_origins) const {
-  return photonPtsOutsideDrs(std::vector<float>(1, m_dR_lepton_photon_cut), lepton_p4s, photon_p4s, photon_origins)[m_dR_lepton_photon_cut];
-}
-
-std::vector<float> VGammaORTool::photonPtsOutsideDr(const std::vector<TLorentzVector>& lepton_p4s,
-                                                                         const std::vector<int>& lepton_origins,
-                                                                         const std::vector<TLorentzVector>& photon_p4s,
-                                                                         const std::vector<int>& photon_origins) const {
-  return photonPtsOutsideDrs(std::vector<float>(1, m_dR_lepton_photon_cut), lepton_p4s, lepton_origins, photon_p4s, photon_origins)[m_dR_lepton_photon_cut];
-}
 //============================================================================
 // PUBLIC PTS OUTSIDE DR*S* FUNCTIONS
 // See header for description
 
 std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs() const {
+  if(!m_setInput){
+    ATH_MSG_ERROR("You need to update the input particles (with 'updateInput') before calling photonPtsOutsideDrs()");
+  }
   return photonPtsOutsideDrs(m_dR_lepton_photon_cuts);
 }
 
-std::map<float,std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<TLorentzVector>& leptons) const {
-  return photonPtsOutsideDrs(m_dR_lepton_photon_cuts, leptons);
-}
-
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<TLorentzVector>& leptons,
-                                                                         const std::vector<TLorentzVector>& photons) const {
-  return photonPtsOutsideDrs(m_dR_lepton_photon_cuts, leptons, photons);
-}
-
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<TLorentzVector>& lepton_p4s,
-                                                                         const std::vector<TLorentzVector>& photon_p4s,
-                                                                         const std::vector<int>& photon_origins) const {
-  return photonPtsOutsideDrs(m_dR_lepton_photon_cuts, lepton_p4s, photon_p4s, photon_origins);
-}
-
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<TLorentzVector>& lepton_p4s,
-                                                                         const std::vector<int>& lepton_origins,
-                                                                         const std::vector<TLorentzVector>& photon_p4s,
-                                                                         const std::vector<int>& photon_origins) const {
-  return photonPtsOutsideDrs(m_dR_lepton_photon_cuts, lepton_p4s, lepton_origins, photon_p4s, photon_origins);
-}
 
 //============================================================================
-// PRIVATE PTS OUTSIDE DR FUNCTIONS
-// These exectute the algorithm if one of the public funtions is called
-// See header for description
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<float>& drCuts) const {
-  // truth particles are retrieved from event
-  const xAOD::TruthParticleContainer* truthParticles = nullptr;
-
-  evtStore()->retrieve(truthParticles, m_truthparticle_collection_name), std::map<float, std::vector<float> >();
-  if (truthParticles == nullptr) {
-    ATH_MSG_ERROR(BOOST_CURRENT_FUNCTION << "Could not retrieve collection " << truthParticles);
-  }
-  // relevant photons and leptons identified
-  std::vector<TLorentzVector> leptons = getLeptonP4s(*truthParticles);
-  std::vector<TLorentzVector> photons = getPhotonP4s(*truthParticles);
-  ATH_MSG_DEBUG(BOOST_CURRENT_FUNCTION << ": Found " << photons.size() << " photons.");
-  ATH_MSG_DEBUG(BOOST_CURRENT_FUNCTION << ": Found " << leptons.size() << " leptons.");
-  // overlap algorithm exectuted here
-  return photonPtsOutsideDrs(drCuts, leptons, photons);
-}
-
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<float>& drCuts,
-                                                                         const std::vector<TLorentzVector>& leptons)
+// PRIVATE PTS OUTSIDE DR FUNCTION
+// This function exectutes the OR algorithm if one of the public funtions is called
+std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<float>& drCuts)
 const {
-  // only photons are taken from event, leptons by user
-  const xAOD::TruthParticleContainer* truthParticles = nullptr;
-
-  evtStore()->retrieve(truthParticles, m_truthparticle_collection_name), std::map<float, std::vector<float> >();
-  if (truthParticles == nullptr) {
-    ATH_MSG_ERROR(BOOST_CURRENT_FUNCTION << "Could not retrieve collection " << truthParticles);
-  }
-  std::vector<TLorentzVector> photons = getPhotonP4s(*truthParticles);
-  ATH_MSG_DEBUG(BOOST_CURRENT_FUNCTION << ": Found " << photons.size() << " photons.");
-  return photonPtsOutsideDrs(drCuts, leptons, photons);
-}
-
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<float>& drCuts,
-                                                                         const std::vector<TLorentzVector>& leptons,
-                                                                         const std::vector<TLorentzVector>& photons)
-const {
-  // in rare cases the number of leptons can be wrong
-  // either the algorithm did not find any or the wrong leptons were given by the user
-  if (m_n_leptons >=0 && int(leptons.size()) < m_n_leptons) {
-    ATH_MSG_WARNING(
-      BOOST_CURRENT_FUNCTION << ": Found " << leptons.size() << " leptons but expected " << m_n_leptons << ".");
-  }
   // the actual OR algorithm is here, pts of photon outside dRs are determined first
   std::map<float, std::vector<float> > result;
   for (const auto& drCut : drCuts) {
     result[drCut] = std::vector<float>();
-    for (const auto& photon : photons) {
+    for (const auto& photon : m_photons) {
       bool tooCloseToLepton = false;
-      for (uint i_lep = 0; i_lep < leptons.size() && (m_n_leptons<0 || int(i_lep) < m_n_leptons); i_lep++) {
-        const float dr = photon.DeltaR(leptons[i_lep]);
+      for (uint i_lep = 0; i_lep < m_leptons.size() && (m_n_leptons<0 || int(i_lep) < m_n_leptons); i_lep++) {
+        const float dr = photon.DeltaR(m_leptons[i_lep]);
         if (dr < drCut) {
           tooCloseToLepton = true;
           break;
@@ -196,22 +155,6 @@ const {
     sort(result[drCut].begin(), result[drCut].end(), std::greater<float>());
   }
   return result;
-}
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<float>& drCuts,
-                                                                         const std::vector<TLorentzVector>& leptons,
-									 const std::vector<TLorentzVector>& photon_p4s,
-                                                                         const std::vector<int>& photon_origins) const {
-  auto photons = filterPhotonOrigins(photon_p4s, photon_origins);
-  return photonPtsOutsideDrs(drCuts, leptons, photons);
-}
-std::map<float, std::vector<float> > VGammaORTool::photonPtsOutsideDrs(const std::vector<float>& drCuts,
-                                                                         const std::vector<TLorentzVector>& lepton_p4s,
-									 const std::vector<int>& lepton_origins,
-									 const std::vector<TLorentzVector>& photon_p4s,
-                                                                         const std::vector<int>& photon_origins) const {
-  auto photons = filterPhotonOrigins(photon_p4s, photon_origins);
-  auto leptons = filterLeptonOrigins(lepton_p4s, lepton_origins);
-  return photonPtsOutsideDrs(drCuts, leptons, photons);
 }
 
 //============================================================================
@@ -366,7 +309,7 @@ std::vector<TLorentzVector> VGammaORTool::getPhotonP4s(const xAOD::TruthParticle
 
 bool VGammaORTool::isFromTau(const xAOD::TruthParticle& lepton, int nRecursions) const{
   // avoid being stuck in some weird particle family tree
-  if(nRecursions>10){
+  if(nRecursions>20){
     return false;
   }
   for(uint i=0; i<lepton.nParents(); i++){
