@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -270,23 +270,23 @@ void test1 (Athena::IInputRename& svc,
 
   it = r->find (sp.stringToKey ("foo1", fooclid));
   assert (it != r->end());
-  assert (it->second == sp.stringToKey ("bar1", fooclid));
+  assert (it->second.m_sgkey == sp.stringToKey ("bar1", fooclid));
 
   it = r->find (sp.stringToKey ("foo2", fooclid));
   assert (it != r->end());
-  assert (it->second == sp.stringToKey ("bar2", fooclid));
+  assert (it->second.m_sgkey == sp.stringToKey ("bar2", fooclid));
 
   it = r->find (sp.stringToKey ("foo2", 321));
   assert (it != r->end());
-  assert (it->second == sp.stringToKey ("bar2", 321));
+  assert (it->second.m_sgkey == sp.stringToKey ("bar2", 321));
 
   it = r->find (sp.stringToKey ("foo3.d1", fooclid));
   assert (it != r->end());
-  assert (it->second == sp.stringToKey ("foo3.x1", fooclid));
+  assert (it->second.m_sgkey == sp.stringToKey ("foo3.x1", fooclid));
 
   it = r->find (sp.stringToKey ("foo2.d3", fooclid));
   assert (it != r->end());
-  assert (it->second == sp.stringToKey ("bar2.x3", fooclid));
+  assert (it->second.m_sgkey == sp.stringToKey ("bar2.x3", fooclid));
 }
 
 

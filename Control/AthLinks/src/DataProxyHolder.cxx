@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -319,7 +319,7 @@ DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDict* sg /*= 0*/)
     Athena::RCURead<InputRenameMap_t> r (*s_inputRenameMap);
     auto it = r->find (sgkey);
     if (it != r->end())
-      sgkey = it->second;
+      sgkey = it->second.m_sgkey;
   }
 
   if (sgkey)
