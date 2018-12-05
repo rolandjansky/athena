@@ -752,7 +752,6 @@ namespace InDet{
                  m_curTup->SigR[i]=SignifR; m_curTup->SigZ[i]=SignifZ; 
                  m_curTup->d0[i]=Impact[0]; m_curTup->Z0[i]=Impact[1];
 	         m_curTup->idMC[i]=getG4Inter(SelectedTracks[i]); 
-	         //if(isBTrk(SelectedTracks[i]))m_curTup->idMC[i]=2;
                  if(getIdHF(SelectedTracks[i]))m_curTup->idMC[i]=2;
 	         if(getMCPileup(SelectedTracks[i]))m_curTup->idMC[i]=3;
 		 m_curTup->wgtB[i]=trkScore[i][0]; m_curTup->wgtL[i]=trkScore[i][1]; m_curTup->wgtG[i]=trkScore[i][2]; 
