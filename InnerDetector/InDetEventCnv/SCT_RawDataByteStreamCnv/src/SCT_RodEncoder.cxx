@@ -85,7 +85,7 @@ StatusCode SCT_RodEncoder::finalize() {
 ///=========================================================================
 
 void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, 
-                             vRDOs_t& vecRDOs) const {
+                             const vRDOs_t& vecRDOs) const {
   
   /** retrieve errors from SCT_ByteStreamErrorsSvc */
 
@@ -275,7 +275,7 @@ void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<Ide
 /// Encode Data function
 ///========================================================================= 
 
-void SCT_RodEncoder::encodeData(std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const {
+void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const {
   
   const int encodedSide{side(rdo) << 14};
   

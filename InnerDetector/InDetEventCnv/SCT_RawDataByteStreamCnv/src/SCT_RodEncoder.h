@@ -58,12 +58,12 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   virtual StatusCode finalize();
 
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
-  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, vRDOs_t& vecRDOs) const;
+  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const vRDOs_t& vecRDOs) const;
 
  private:
 
   /// Encode rdo into the data: called by fillROD(..) 
-  void encodeData(std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const;
+  void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const;
   
   /// pack 32 bit word:  called by  encodeData(..) 
   void packFragments(std::vector<uint16_t>& vec16Words, std::vector<uint32_t>& vec32Words) const;
