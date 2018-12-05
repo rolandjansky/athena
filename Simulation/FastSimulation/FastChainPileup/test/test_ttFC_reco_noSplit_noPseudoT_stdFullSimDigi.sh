@@ -78,9 +78,6 @@ echo  "art-result: $? regression"
 
 # InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
 
-# art-output: dcube/dcube.xml
-# art-output: dcube/dcube.log
-# art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php
+# art-output: dcube/
 
 echo  "art-result: $? histcomp test"
