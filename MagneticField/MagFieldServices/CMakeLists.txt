@@ -30,4 +30,6 @@ atlas_add_component( MagFieldServices
 atlas_install_headers( MagFieldServices )
 atlas_install_python_modules( python/*.py )
 
-atlas_add_test( MagFieldServicesConfig    SCRIPT python -m MagFieldServices.MagFieldServicesConfig POST_EXEC_SCRIPT nopost.sh )
+if( NOT SIMULATIONBASE )
+  atlas_add_test( MagFieldServicesConfig    SCRIPT python -m MagFieldServices.MagFieldServicesConfig POST_EXEC_SCRIPT nopost.sh )
+endif()

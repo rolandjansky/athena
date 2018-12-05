@@ -47,5 +47,7 @@ atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
 
 
-atlas_add_test( TileGMConfig    SCRIPT python -m TileGeoModel.TileGMConfig POST_EXEC_SCRIPT nopost.sh )
+if( NOT SIMULATIONBASE )
+  atlas_add_test( TileGMConfig    SCRIPT python -m TileGeoModel.TileGMConfig POST_EXEC_SCRIPT nopost.sh )
+endif()
 
