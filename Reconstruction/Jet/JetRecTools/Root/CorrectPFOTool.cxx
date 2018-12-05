@@ -9,7 +9,7 @@
 
 CorrectPFOTool::CorrectPFOTool(const std::string &name):
   JetConstituentModifierBase(name), 
-  m_weightPFOTool("") {
+  m_weightPFOTool("",this) {
 
   // Configuration
   declareProperty("WeightPFOTool",   m_weightPFOTool,     "Name of tool that extracts the cPFO weights.");

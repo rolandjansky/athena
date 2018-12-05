@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -13,7 +14,7 @@ using std::string;
 
 JetAlgorithm::JetAlgorithm(const std::string& name, 
                            ISvcLocator* pSvcLocator )
-: ::AthAlgorithm( name, pSvcLocator ) {
+  : ::AthAlgorithm( name, pSvcLocator ),m_exetools(this) { 
   declareProperty( "Tools", m_exetools);
 }
 

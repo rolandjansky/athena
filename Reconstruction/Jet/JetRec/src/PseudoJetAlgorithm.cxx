@@ -13,7 +13,7 @@ using std::string;
 
 PseudoJetAlgorithm::PseudoJetAlgorithm(const std::string& name, 
                            ISvcLocator* pSvcLocator )
-: ::AthAlgorithm( name, pSvcLocator ) {
+  : ::AthAlgorithm( name, pSvcLocator ),m_pjg(this) {
   declareProperty( "PJGetter", m_pjg);
 }
 

@@ -25,7 +25,7 @@ using xAOD::JetContainer;
 //**********************************************************************
 
 JetModifiedMassDrop::JetModifiedMassDrop(std::string name)
-: AsgTool(name), m_bld("") {
+  : AsgTool(name), m_bld("",this) {
   declareProperty("ZCut",            m_zcut = 0.1);
   declareProperty("SymmetryMeasure", m_sym = scalar_z);
   declareProperty("MassDrop",        m_mu = std::numeric_limits<double>::infinity() );
