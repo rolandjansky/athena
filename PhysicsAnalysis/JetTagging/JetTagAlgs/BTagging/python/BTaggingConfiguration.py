@@ -495,13 +495,15 @@ class Configuration:
           self._BTaggingConfig_MainAssociatorTools[jetcol] = thisBTagTrackAssociation
           options.setdefault('BTagTrackAssocTool', thisBTagTrackAssociation)
           # setup the secondary vertexing tool
-          options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
+          thisSecVtxTool = self.setupSecVtxTool('SecVx'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+          self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
+          options.setdefault('BTagSecVertexing', thisSecVtxTool)
           # Setup the associator tool
           self.ConfigureMainAssociatorTool(thisBTagTrackAssociation, jetcol)
           # Set remaining options
           btagname = self.getOutputFilesPrefix() + jetcol
-          #options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
-          options.setdefault('name', 'btag_akt4')
+          options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
+          #options.setdefault('name', 'btag_akt4')
           options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
           options.setdefault('BTaggingCollectionName', btagname)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
@@ -593,7 +595,10 @@ class Configuration:
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
           # setup the secondary vertexing tool
-          options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
+          thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+          self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
+          options.setdefault('BTagSecVertexing', thisSecVtxTool)
+          #options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
           # Set remaining options
           options.setdefault('name', (self.getOutputFilesPrefix() + jetcol + self.GeneralToolSuffix()).lower())
           options.setdefault('JetCollectionName', jetcol + "Jets")
@@ -1371,6 +1376,8 @@ class Configuration:
       options.setdefault('BTagAssociation', BTaggingFlags.doStandardAssoc)
       from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
       tool = Analysis__BTagTrackAssociation(**options)
+      if self._name == "Trig":
+          ToolSvc += tool
       return tool
 
   def setupSecVtxTool(self, name, JetCollection, ToolSvc, Verbose = False, options={}):
@@ -1421,6 +1428,8 @@ class Configuration:
       options['name'] = name
       from BTagging.BTaggingConf import Analysis__BTagSecVertexing
       tool = Analysis__BTagSecVertexing(**options)
+      if self._name == "Trig":
+          ToolSvc += tool
       return tool
 
   def setupBTagTool(self, jetcol, ToolSvc, Verbose = False, options={}):
@@ -1442,8 +1451,8 @@ class Configuration:
       # Setup a removal tool for it
       options.setdefault('storeSecondaryVerticesInJet', BTaggingFlags.writeSecondaryVertices)
       #thisSecVtxTool = self.setupSecVtxTool('thisBTagSecVertexing_'+jetcol+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
-      thisSecVtxTool = self.setupSecVtxTool('SecVx'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
-      self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
+      #thisSecVtxTool = self.setupSecVtxTool('SecVx'+self.GeneralToolSuffix(), jetcol, ToolSvc, Verbose)
+      #self._BTaggingConfig_SecVtxTools[jetcol] = thisSecVtxTool
       #options['BTagSecVertexingTool'] = thisSecVtxTool # MOVED TO JETBTAGGERTOOL
       del options['storeSecondaryVerticesInJet'] # we don't want it passed to the main b-tag tool
       #options['name'] = 'myBTagTool_'+jetcol+self.GeneralToolSuffix()
@@ -1452,6 +1461,8 @@ class Configuration:
       #options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
       #options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
       btagtool = toolMainBTaggingTool('btag', **options)
+      if self._name == "Trig":
+          ToolSvc += btagtool
       if BTaggingFlags.OutputLevel < 3:
           print self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol
       if self._BTaggingConfig_JetCollections.get(jetcol, None) is None:

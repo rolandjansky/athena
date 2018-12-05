@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-# Configuration functions for IP3DTrigTag
+# Configuration functions for IP3DTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
+
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from IOVDbSvc.CondDB import conddb
@@ -13,32 +14,34 @@ elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
 
 metaIP3DTag_Trig = { 'IsATagger'         : True,
-                   'xAODBaseName'      : 'IP3D',
-                   'DependsOn'         : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool',
-                                          'InDetVKalVxInJetTool_Trig',
-                                          'BTagFullLinearizedTrackFactory',
-                                          'BTagTrackToVertexIPEstimator',
-                                          'IP3DNewLikelihoodTool_Trig',
-                                          'IP3DTrackSelector_Trig',
-                                          'InDetTrackSelector',
-                                          'SpecialTrackAssociator',
-                                          'SVForIPTool_IP3D_Trig',
-                                          'IP3DBasicTrackGradeFactory_Trig',
-                                          'IP3DDetailedTrackGradeFactory_Trig'],
-                   'PassByPointer'     : {'SVForIPTool'                : 'SVForIPTool_IP3D_Trig',
-                                          'trackSelectorTool'          : 'IP3DTrackSelector_Trig',
-                                          'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory_Trig',
-                                          'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
-                                          'InDetTrackSelectionTool'    : 'InDetTrackSelector',
-                                          'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
-                                          'LikelihoodTool'             : 'IP3DNewLikelihoodTool_Trig'},
-                   'PassTracksAs'      : 'trackAssociationName',
-                   'JetCollectionList' : 'jetCollectionList',
-                   'ToolCollection'    : 'IP3DTag_Trig' }
+                'xAODBaseName'      : 'IP3D',
+                'DependsOn'         : [#'AtlasExtrapolator',
+                                       #'BTagTrackToVertexTool',
+                                       #'InDetVKalVxInJetTool',
+                                       #'BTagFullLinearizedTrackFactory',
+                                       #'BTagTrackToVertexIPEstimator',
+                                       #'IP3DNewLikelihoodTool',
+                                       #'IP3DTrackSelector',
+                                       #'InDetTrackSelector',
+                                       #'SpecialTrackAssociator',
+                                       #'SVForIPTool_IP3D',
+                                       #'IP3DBasicTrackGradeFactory',
+                                       #'IP3DDetailedTrackGradeFactory'],
+                                      ],
+                'PassByPointer'     : {#'SVForIPTool'                : 'SVForIPTool_IP3D',
+                                       #'trackSelectorTool'          : 'IP3DTrackSelector',
+                                       #'InDetTrackSelectionTool'    : 'InDetTrackSelector',
+                                       #'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
+                                       #'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
+                                       #'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
+                                       #'LikelihoodTool'             : 'IP3DNewLikelihoodTool'
+                                      },
+                'PassTracksAs'      : 'trackAssociationName',
+                'JetCollectionList' : 'jetCollectionList',
+                'ToolCollection'    : 'IP3DTag_Trig' }
 
 def toolIP3DTag_Trig(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a IP3DTrigTag tool and returns it.
+    """Sets up a IP3DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -55,7 +58,6 @@ def toolIP3DTag_Trig(name, useBTagFlagsDefaults = True, **options):
     SecVxFinderName                     default: "SV1"
     jetPtMinRef                         default: BTaggingFlags.JetPtMinRef
 
-
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
@@ -68,18 +70,40 @@ def toolIP3DTag_Trig(name, useBTagFlagsDefaults = True, **options):
                   "InANDNInSplit", "PixSplit",
                   "Good"]
         if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
+
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexIPEstimator as toolBTagTrackToVertexIPEstimator
+        trackToVertexIPEstimator = toolBTagTrackToVertexIPEstimator('TrkToVxIPEstimator')
+        svForIPTool = toolSVForIPTool_IP3D('SVForIPTool')
+        trackGradeFactory= toolIP3DDetailedTrackGradeFactory('IP3DDetailedTrackGradeFactory')
+        trackSelectorTool = toolIP3DTrackSelector('IP3DTrackSelector')
+        inDetTrackSelectionTool = toolInDetTrackSelector('InDetTrackSelector')
+        trackVertexAssociationTool = toolSpecialTrackAssociator('SpecialTrackAssociator')
+        likelihood = toolIP3DNewLikelihoodTool('IP3DNewLikelihoodTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'impactParameterView'              : '3D',
-                     'trackGradePartitions'             : grades,
+                     'trackGradePartitions'             : grades ,
                      'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
+#                     'SecVxFinderNameForV0Removal'      : "InDetVKalVxInJetTool",
+#                     'SecVxFinderNameForIPSign'         : "InDetVKalVxInJetTool",
                      'unbiasIPEstimation'               : False,
+                     #'trackAssociation'                 : "Tracks" }
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',
-                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
+                     'storeTrackParameters': True,
+                     'storeTrackParticles': True,
+                     'storeIpValues': True,
+                     'LikelihoodTool'                   : likelihood,
+                     'trackSelectorTool'                : trackSelectorTool,
+                     'InDetTrackSelectionTool'          : inDetTrackSelectionTool,
+                     'SVForIPTool'                      : svForIPTool,
+                     'trackGradeFactory'                : trackGradeFactory,
+                     'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
+                     'TrackVertexAssociationTool'       : trackVertexAssociationTool,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -87,12 +111,13 @@ def toolIP3DTag_Trig(name, useBTagFlagsDefaults = True, **options):
     from JetTagTools.JetTagToolsConf import Analysis__IPTag
     return Analysis__IPTag(**options)
 
-#---------------------------------------------------------------------
 
-metaIP3DDetailedTrackGradeFactory_Trig = { 'ToolCollection' : 'IP3DTag_Trig' }
+#------------------------------------------------------------------
 
-def toolIP3DDetailedTrackGradeFactory_Trig(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a IP3DTrigDetailedTrackGradeFactory tool and returns it.
+metaIP3DDetailedTrackGradeFactory = { 'ToolCollection' : 'IP3DTag' }
+
+def toolIP3DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a IP3DDetailedTrackGradeFactory tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -110,23 +135,22 @@ def toolIP3DDetailedTrackGradeFactory_Trig(name, useBTagFlagsDefaults = True, **
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'hitBLayerGrade'         : True,
                      'useRun2TrackGrading'    : (btagrun1 == False),
                      'useInnerLayers0HitInfo' : (btagrun1 == False),
                      'useDetailSplitHitInfo'  : (btagrun1 == False),
-                     }
+                     'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__DetailedTrackGradeFactory
     return Analysis__DetailedTrackGradeFactory(**options)
 
-#---------------------------------------------------------------------
+#------------------------------------------------------------------
 
-metaIP3DBasicTrackGradeFactory_Trig = { 'ToolCollection' : 'IP3DTag_Trig' }
+metaIP3DBasicTrackGradeFactory = { 'ToolCollection' : 'IP3DTag' }
 
-def toolIP3DBasicTrackGradeFactory_Trig(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a IP3DTrigBasicTrackGradeFactory tool and returns it.
+def toolIP3DBasicTrackGradeFactory(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a IP3DBasicTrackGradeFactory tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -146,12 +170,12 @@ def toolIP3DBasicTrackGradeFactory_Trig(name, useBTagFlagsDefaults = True, **opt
     from JetTagTools.JetTagToolsConf import Analysis__BasicTrackGradeFactory
     return Analysis__BasicTrackGradeFactory(**options)
 
-#---------------------------------------------------------------------
+#------------------------------------------------------------------
 
-metaSVForIPTool_IP3D_Trig = { 'ToolCollection' : 'IP3DTag_Trig' }
+metaSVForIPTool_IP3D = { 'ToolCollection' : 'IP3DTag' }
 
-def toolSVForIPTool_IP3D_Trig(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a SVForIPTool_IP3DTrig tool and returns it.
+def toolSVForIPTool_IP3D(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a SVForIPTool_IP3D tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -169,14 +193,14 @@ def toolSVForIPTool_IP3D_Trig(name, useBTagFlagsDefaults = True, **options):
     from JetTagTools.JetTagToolsConf import Analysis__SVForIPTool
     return Analysis__SVForIPTool(**options)
 
-#---------------------------------------------------------------------
+#------------------------------------------------------------------
 
-metaIP3DTrackSelector_Trig = { 'DependsOn'      : ['BTagTrackToVertexTool',],
-                             'PassByPointer'  : {'trackToVertexTool' : 'BTagTrackToVertexTool'},
-                             'ToolCollection' : 'IP3DTag_Trig' }
+metaIP3DTrackSelector = { #'DependsOn'      : ['BTagTrackToVertexTool',],
+                          #'PassByPointer'  : {'trackToVertexTool' : 'BTagTrackToVertexTool'},
+                          'ToolCollection' : 'IP3DTag' }
 
-def toolIP3DTrackSelector_Trig(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a IP3DTrigTrackSelector tool and returns it.
+def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a IP3DTrackSelector tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -190,23 +214,78 @@ def toolIP3DTrackSelector_Trig(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        from BTagging.BTaggingConfiguration_CommonTools import toolBTagTrackToVertexTool as toolBTagTrackToVertexTool
+        trackToVertexTool = toolBTagTrackToVertexTool('BTagTrackToVertexTool')
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
-                     'useBLayerHitPrediction' : True,
+                     'useBLayerHitPrediction' : True ,
                      'nHitBLayer'             : 0 ,
-                     'usepTDepTrackSel'       : False }
+                     'usepTDepTrackSel'       : False,
+                     'trackToVertexTool'      : trackToVertexTool, }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
     return Analysis__TrackSelector(**options)
 
-#---------------------------------------------------------------------
+#------------------------------------------------------------------
 
-metaIP3DNewLikelihoodTool_Trig = { 'CalibrationTaggers' : ['IP3D',],
-                                 'ToolCollection'     : 'IP3DTag_Trig' }
+metaInDetTrackSelector = { 'ToolCollection' : 'IP3DTag' }
+ 
+def toolInDetTrackSelector(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a InDetTrackSelector tool and returns it.
 
-def toolIP3DNewLikelihoodTool_Trig(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a IP3DTrigNewLikelihoodTool tool and returns it.
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
+                     'CutLevel'               : "Loose",
+                     'maxZ0SinTheta'          : 3 }
+#                     'maxD0'                  : 2 }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    return InDet__InDetTrackSelectionTool(**options)
+
+#------------------------------------------------------------------
+
+metaSpecialTrackAssociator = { 'ToolCollection' : 'IP3DTag' }
+ 
+def toolSpecialTrackAssociator(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a InDetTrackSelector tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+    
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
+                     'dzSinTheta_cut'         : 3,
+                     'doPV'                   : True }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    
+    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
+    return CP__TightTrackVertexAssociationTool(**options)
+
+#------------------------------------------------------------------
+
+metaIP3DNewLikelihoodTool = { 'CalibrationTaggers' : ['IP3D',],
+                              'ToolCollection'     : 'IP3DTag' }
+
+def toolIP3DNewLikelihoodTool(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a IP3DNewLikelihoodTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -226,4 +305,3 @@ def toolIP3DNewLikelihoodTool_Trig(name, useBTagFlagsDefaults = True, **options)
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__NewLikelihoodTool
     return Analysis__NewLikelihoodTool(**options)
-

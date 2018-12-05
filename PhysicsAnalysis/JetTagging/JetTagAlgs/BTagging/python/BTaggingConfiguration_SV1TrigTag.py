@@ -5,14 +5,15 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaSV1Tag_Trig = { 'IsATagger'         : True,
-                   'xAODBaseName'      : 'SV1',
-                   'DependsOn'         : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool',
-                                          'InDetVKalVxInJetTool_Trig',
-                                          'SV1NewLikelihoodTool_Trig'],
-                   'PassByPointer'     : {'LikelihoodTool'  : 'SV1NewLikelihoodTool_Trig'},
-                   'JetCollectionList' : 'jetCollectionList',
-                   'ToolCollection'    : 'SV1Tag_Trig' }
+               'xAODBaseName'      : 'SV1',
+               'DependsOn'         : [#'AtlasExtrapolator',
+                                      #'BTagTrackToVertexTool',
+                                      #'InDetVKalVxInJetTool',
+                                      #'SV1NewLikelihoodTool'
+                                     ],
+               #'PassByPointer'     : {'LikelihoodTool'  : 'SV1NewLikelihoodTool'},
+               'JetCollectionList' : 'jetCollectionList',
+               'ToolCollection'    : 'SV1Tag_Trig' }
 
 def toolSV1Tag_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a SV1Tag_Trig tool and returns it.
@@ -33,25 +34,25 @@ def toolSV1Tag_Trig(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        likelihood = toolSV1NewLikelihoodTool_Trig('SV1NewLikelihoodTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'SVAlgType'                        : 'SV1',
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'SV1',
-                     'LikelihoodTool'                   : None,
                      'UseCHypo'                         : True,
-                     }
+                     'LikelihoodTool'                   : likelihood }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__SVTag
     return Analysis__SVTag(**options)
 
-#---------------------------------------------------------------------
+#-----------------------------------------------------------------
 
 metaSV1NewLikelihoodTool_Trig = { 'CalibrationTaggers' : ['SV1',],
-                                 'ToolCollection'     : 'SV1Tag_Trig' }
+                             'ToolCollection'     : 'SV1Tag_Trig' }
 
 def toolSV1NewLikelihoodTool_Trig(name, useBTagFlagsDefaults = True, **options):
     """Sets up a SV1NewLikelihoodTool_Trig tool and returns it.
