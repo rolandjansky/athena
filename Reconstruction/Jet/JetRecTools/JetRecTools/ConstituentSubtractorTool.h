@@ -44,7 +44,7 @@ private:
   float m_alpha = 0.0;
   float m_maxEta = 4.5;
   float m_maxRapForRhoComputation = 2.0;
-  float m_gridSize = 0.01;
+  float m_gridSize = 0.5;
   float m_ghostArea = 0.01;
   bool m_commonBgeForRhoAndRhom = false;
   bool m_ignoreChargedPFOs = true;

@@ -16,7 +16,6 @@
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/TrackCaloCluster.h"
 
-#include "TSystem.h"
 #include "TString.h"
 
 using namespace fastjet;
@@ -66,10 +65,7 @@ StatusCode ConstituentSubtractorTool::initialize() {
   }
 
   if(m_doRapidityRescaling || m_doRapidityPhiRescaling){
-    TString fullPath=gSystem->Getenv("WorkDir_DIR");
-    fullPath+="/";
-    fullPath+=m_fileRescaling;
-    std::unique_ptr<TFile> file(TFile::Open(fullPath, "READ"));
+    std::unique_ptr<TFile> file(TFile::Open(m_fileRescaling.data(), "READ"));
     if (!file){
       ATH_MSG_ERROR("Incompatible configuration: The provided file name was not found.");
       return StatusCode::FAILURE;
