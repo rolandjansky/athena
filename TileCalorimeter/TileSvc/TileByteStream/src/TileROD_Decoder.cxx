@@ -82,17 +82,6 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   m_timeMinThresh = -25;
   m_timeMaxThresh = 25;
   
-  for (unsigned int i = 0; i < 7; ++i) {
-    m_digitsMetaData.push_back(new std::vector<uint32_t>);
-    m_digitsMetaData[i]->reserve(16);
-    m_rawchannelMetaData.push_back(new std::vector<uint32_t>);
-    m_rawchannelMetaData[i]->reserve(2);
-    (*(m_rawchannelMetaData[i]))[0] = 0;
-    (*(m_rawchannelMetaData[i]))[1] = 0;
-  }
-  m_sizeOverhead = 2; // 2 extra words in every frag by default (frag id + frag size)
-  // but for all data after 2005 it is set to 3 later in the code
-  
   m_of2Default = true;
   m_container = 0;
   m_MBTS = NULL;
@@ -112,10 +101,6 @@ void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
 /** destructor
  */
 TileROD_Decoder::~TileROD_Decoder() {
-  for (unsigned int i = 0; i < 7; ++i) {
-    delete m_digitsMetaData[i];
-    delete m_rawchannelMetaData[i];
-  }
   if (m_hid2re) delete m_hid2re;
   if (m_hid2reHLT) delete m_hid2reHLT;
   
@@ -245,7 +230,10 @@ bool TileROD_Decoder::checkBit(const uint32_t* p, int chan) const {
  * Assume that mode (calib/normal) is the same
  * for every invocation.
  */
-void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec & pDigits) {
+void TileROD_Decoder::unpack_frag0(uint32_t version,
+                                   uint32_t sizeOverhead,
+                                   DigitsMetaData_t& digitsMetaData,
+                                   const uint32_t* p, pDigiVec & pDigits) {
   int gain = 0;
   int n;
   
@@ -257,7 +245,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   int channel;
   
   // first word is full frag size, first two words are not data
-  int size = *(p) - m_sizeOverhead;
+  int size = *(p) - sizeOverhead;
   // second word is frag ID (0x100-0x4ff) and frag type
   int frag = *(p + 1) & 0xFFFF;
   
@@ -280,7 +268,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   }
 
   uint32_t status = (all00 | allFF);
-  m_digitsMetaData[6]->push_back( status );
+  digitsMetaData[6].push_back( status );
 
   // check that fragment is not dummy
   if (m_suppressDummyFragments && status != TileFragStatus::ALL_OK) {
@@ -289,7 +277,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   
   // if (msgLvl(MSG::VERBOSE))
   //   msg(MSG::VERBOSE) << "version=" << version << " size: " << (*p) << " " << size;
-  if (m_sizeOverhead == 2 && (version == 0x2 || version == 0x1)) { /* can not guess number of samples from size */
+  if (sizeOverhead == 2 && (version == 0x2 || version == 0x1)) { /* can not guess number of samples from size */
     if (size > 178 && size < 205)
       size = 179; /* we expect this number (9+2)*16+2 */
     else if (size > 274 && size < 405) size = 275; /* we expect this number (7*2+3)*16+2 */
@@ -377,10 +365,10 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   if (gainOffset > 0) {
     // calibration mode
     pDigits.reserve(96);
-    std::vector<uint32_t> *chipHeaderLow = m_digitsMetaData[2];
-    std::vector<uint32_t> *chipCRCLow = m_digitsMetaData[3];
-    std::vector<uint32_t> *chipHeaderHigh = m_digitsMetaData[4];
-    std::vector<uint32_t> *chipCRCHigh = m_digitsMetaData[5];
+    std::vector<uint32_t>& chipHeaderLow = digitsMetaData[2];
+    std::vector<uint32_t>& chipCRCLow = digitsMetaData[3];
+    std::vector<uint32_t>& chipHeaderHigh = digitsMetaData[4];
+    std::vector<uint32_t>& chipCRCHigh = digitsMetaData[5];
     
     // loop through all chips
     for (chip = 0; chip < chipCount; ++chip) {
@@ -419,10 +407,10 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
       delete digiVec;
       
       // store metadata
-      chipHeaderLow->push_back(*data);
-      chipCRCLow->push_back(*(data + gainOffset - 1));
-      chipHeaderHigh->push_back(*(data + gainOffset));
-      chipCRCHigh->push_back(*(data + blockSize - 1));
+      chipHeaderLow.push_back(*data);
+      chipCRCLow.push_back(*(data + gainOffset - 1));
+      chipHeaderHigh.push_back(*(data + gainOffset));
+      chipCRCHigh.push_back(*(data + blockSize - 1));
       
       // next block
       data += blockSize;
@@ -430,8 +418,8 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   } else {
     // Normal mode
     pDigits.reserve(pDigits.size() + 48);
-    std::vector<uint32_t> *chipHeader = m_digitsMetaData[2];
-    std::vector<uint32_t> *chipCRC = m_digitsMetaData[3];
+    std::vector<uint32_t>& chipHeader = digitsMetaData[2];
+    std::vector<uint32_t>& chipCRC = digitsMetaData[3];
     
     // loop through all chips
     for (chip = 0; chip < chipCount; ++chip) {
@@ -470,8 +458,8 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
       delete digiVec;
       
       // store some metadata, first word in chip is header, last is CRC
-      chipHeader->push_back(*data);
-      chipCRC->push_back(*(data + blockSize - 1));
+      chipHeader.push_back(*data);
+      chipCRC.push_back(*(data + blockSize - 1));
       
       // go to next block
       data += blockSize;
@@ -485,7 +473,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
     if ((m_ErrorCounter++) < m_maxErrorPrint) {
       ATH_MSG_WARNING( "Too short fragment ! Expected at least " << MSG::dec << (data - p)
                       << " data words, while size from header is " << size
-                      << " data words (plus " << m_sizeOverhead << " words overhead)" );
+                      << " data words (plus " << sizeOverhead << " words overhead)" );
     }
   }
   
@@ -526,14 +514,14 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   
   // store metadata for this collection
   // size, fragID, BCID,  DMU Mask, CRC and other extra words
-  m_digitsMetaData[0]->push_back(size);
-  m_digitsMetaData[0]->push_back(frag);
-  m_digitsMetaData[0]->push_back(bcid);
+  digitsMetaData[0].push_back(size);
+  digitsMetaData[0].push_back(frag);
+  digitsMetaData[0].push_back(bcid);
   for (int i = 0; i < extra; ++i) {
-    m_digitsMetaData[1]->push_back(data[i]);
+    digitsMetaData[1].push_back(data[i]);
   }
-  if (m_sizeOverhead == 2 && (version == 0x2 || version == 0x1)) { // keep also first skipped word
-    m_digitsMetaData[1]->push_back(p[2]);
+  if (sizeOverhead == 2 && (version == 0x2 || version == 0x1)) { // keep also first skipped word
+    digitsMetaData[1].push_back(p[2]);
   }
   
   if (dataWordsPerChip > 14) { // can not be true !!!
@@ -541,10 +529,13 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   }
 }
 
-void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag1(uint32_t /* version */,
+                                   uint32_t sizeOverhead,
+                                   DigitsMetaData_t& digitsMetaData,
+                                   const uint32_t* p,
                                    pDigiVec & pDigits) {
   // first word is full frag size, first two words are not data
-  int size = *(p) - m_sizeOverhead;
+  int size = *(p) - sizeOverhead;
   // second word is frag ID (0x100-0x4ff) and frag1 type (old and new version).
   int frag = *(p + 1) & 0xFFFF;
   int frag1version = (*(p + 1) >> 31) & 0x1;
@@ -552,9 +543,9 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
   
   // store metadata for this collection
   // size, fragID, BCID
-  m_digitsMetaData[0]->push_back(size);
-  m_digitsMetaData[0]->push_back(frag);
-  m_digitsMetaData[0]->push_back(0);
+  digitsMetaData[0].push_back(size);
+  digitsMetaData[0].push_back(frag);
+  digitsMetaData[0].push_back(0);
   
   if (frag1version == 0) { //Old version
     p += 2; // 2 words so far
@@ -768,7 +759,9 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
   
 }
 
-void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag2(uint32_t /* version */,
+                                   uint32_t sizeOverhead,
+                                   const uint32_t* p,
                                    pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -783,7 +776,7 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
   //                  << MSG::dec );
   
   p += 2; // 2 words so far
-  int wc = m_sizeOverhead; // can be 2 or 3 words
+  int wc = sizeOverhead; // can be 2 or 3 words
   
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
@@ -828,7 +821,9 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
   return;
 }
 
-void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag3(uint32_t /* version */,
+                                   uint32_t sizeOverhead,
+                                   const uint32_t* p,
                                    pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -847,7 +842,7 @@ void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
   const short* p16 = (const short *)p;
   
   p16 = p16 + 8; // 8 16bit words so far
-  short wc16 = 4 + m_sizeOverhead * 2; // can be 8 or 10 (if overhead is 3 words)
+  short wc16 = 4 + sizeOverhead * 2; // can be 8 or 10 (if overhead is 3 words)
   
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
@@ -894,7 +889,9 @@ void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
+                                   uint32_t sizeOverhead,
                                    unsigned int unit,
+                                   RawChannelMetaData_t& rawchannelMetaData,
                                    const uint32_t* p,
                                    pRwChVec & pChannel) {
   // first word is frag size
@@ -909,7 +906,7 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
   //                  << "  0x" << *(p+1) << MSG::dec );
   
   p += 2; // 2 words so far
-  int wc = m_sizeOverhead; // can be 2 or 3 words
+  int wc = sizeOverhead; // can be 2 or 3 words
   
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
@@ -947,7 +944,7 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
     ++p;
   }
   
-  m_rawchannelMetaData[6]->push_back( all00 | allFF );
+  rawchannelMetaData[6].push_back( all00 | allFF );
 
   if (wc > count) {
     // check word count
@@ -965,7 +962,9 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */,
 }
 
 void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
+                                   uint32_t sizeOverhead,
                                    unsigned int unit,
+                                   DigitsMetaData_t& digitsMetaData,
                                    const uint32_t* p, pDigiVec & pDigits,
                                    pRwChVec & pChannel) {
   // first word is frag size
@@ -976,16 +975,16 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
   
   // store metadata for this collection
   // size, fragID, BCID
-  m_digitsMetaData[0]->push_back(count);
-  m_digitsMetaData[0]->push_back(frag);
-  m_digitsMetaData[0]->push_back(0);
+  digitsMetaData[0].push_back(count);
+  digitsMetaData[0].push_back(frag);
+  digitsMetaData[0].push_back(0);
   
   TileRawChannel2Bytes5::TileChanData ChanData[48];
   uint32_t* ptrFrag = (uint32_t*) (p - 1); // begin of fragment
   const uint32_t* ptrOFW = getOFW(frag, unit); // get OF Weights
   m_rc2bytes5.unpack(ptrOFW, ptrFrag, ChanData);
   
-  int wc = m_sizeOverhead; // can be 2 or 3 words
+  int wc = sizeOverhead; // can be 2 or 3 words
   int bc = (size_L2 * 32 + 48) / 8; // size_L2 + BadBits
   
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
@@ -1039,10 +1038,13 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
   return;
 }
 
-void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDigiVec & pDigits) {
+void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
+                                   uint32_t sizeOverhead,
+                                   DigitsMetaData_t& digitsMetaData,
+                                   const uint32_t* p, pDigiVec & pDigits) {
 
 
-  int size = *(p) - m_sizeOverhead;
+  int size = *(p) - sizeOverhead;
 
   // second word is frag ID (0x100-0x4ff) and frag type
   int frag = *(p + 1) & 0xFFFF;
@@ -1069,7 +1071,7 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDig
   }
 
   uint32_t status = (all00 | allFF);
-  m_digitsMetaData[6]->push_back( status );
+  digitsMetaData[6].push_back( status );
 
   // check that fragment is not dummy
   if (m_suppressDummyFragments && status != TileFragStatus::ALL_OK) {
@@ -1206,18 +1208,20 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDig
     }
   }
 
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &l1id[0], &l1id[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &bcid[0], &bcid[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &moduleID[0], &moduleID[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &runType[0], &runType[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &runNumber[0], &runNumber[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &chargeInjected[0], &chargeInjected[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &timeInjected[0], &timeInjected[4]);
-  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &capacitor[0], &capacitor[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &l1id[0], &l1id[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &bcid[0], &bcid[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &moduleID[0], &moduleID[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &runType[0], &runType[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &runNumber[0], &runNumber[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &chargeInjected[0], &chargeInjected[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &timeInjected[0], &timeInjected[4]);
+  digitsMetaData[1].insert(digitsMetaData[1].end(), &capacitor[0], &capacitor[4]);
   
 }
 
-void TileROD_Decoder::unpack_fragA(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_fragA(uint32_t /* version */,
+                                   RawChannelMetaData_t& rawchannelMetaData,
+                                   const uint32_t* p,
                                    pRwChVec & /* pChannel */) const {
   // second word is frag ID and frag type
   int size = *(p);
@@ -1228,17 +1232,17 @@ void TileROD_Decoder::unpack_fragA(uint32_t /* version */, const uint32_t* p,
   
   // Global CRC
   w = (*p);
-  m_rawchannelMetaData[0]->push_back(w & 0xFFFF);
+  rawchannelMetaData[0].push_back(w & 0xFFFF);
   if (w >> 31 & 0x1) //most significant bit is 1. It means that it is a fragment containing the DSP BCID
-    m_rawchannelMetaData[0]->push_back((w >> 16) & 0x7FFF); //DSP BCID
+    rawchannelMetaData[0].push_back((w >> 16) & 0x7FFF); //DSP BCID
   else
-    m_rawchannelMetaData[0]->push_back(0xDEAD); //0xDEAD if it is not filled
+    rawchannelMetaData[0].push_back(0xDEAD); //0xDEAD if it is not filled
   ++p;
   
   for (int i = 0; i < (size - 4); ++i) {
     w = (*p);
-    m_rawchannelMetaData[i + 1]->push_back(w & 0xFFFF);
-    m_rawchannelMetaData[i + 1]->push_back(w >> 16);
+    rawchannelMetaData[i + 1].push_back(w & 0xFFFF);
+    rawchannelMetaData[i + 1].push_back(w >> 16);
     ++p;
   }
   
@@ -2401,7 +2405,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   if (errorFlag) m_ErrorCounter++;
 } // unpack_frag16
 
-void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag17(uint32_t /* version */,
+                                    uint32_t sizeOverhead,
+                                    const uint32_t* p,
                                     TileLaserObject & laserObject) {
   
   // first word is full frag size, first two words are not data
@@ -2414,7 +2420,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
   bool debug = msgLvl(MSG::DEBUG);
   
   if (true) {
-    int maxn=size+2-m_sizeOverhead;
+    int maxn=size+2-sizeOverhead;
     for(int n=0; n<maxn; ++n){
       ATH_MSG_DEBUG("WORD " << n << " (" << n+11 << ") : (DEC) " << p[n] << "  (HEX) 0x" << MSG::hex << p[n] << MSG::dec );
     }
@@ -2647,7 +2653,9 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
 } // unpack_frag17
 
 
-void TileROD_Decoder::unpack_brod(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_brod(uint32_t /* version */,
+                                  uint32_t sizeOverhead,
+                                  const uint32_t* p,
                                   pBeamVec & pBeam) const {
   // first word is frag size
   int count = *(p);
@@ -2655,7 +2663,7 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */, const uint32_t* p,
   int frag = *(p + 1) & 0xFFFF;
   
   p += 2; // 2 words so far
-  int datasize = count - m_sizeOverhead; // can be 2 or 3 words less
+  int datasize = count - sizeOverhead; // can be 2 or 3 words less
   
   if (msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE) << "Unpacking Beam Elements, ID=0x" << MSG::hex << frag
@@ -2897,6 +2905,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
   
   int counter = 0;
   
+  uint32_t sizeOverhead = 2;
   if (size) {
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
     if (!V3format && version>0xff) {
@@ -2906,9 +2915,9 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
     }
     if (V3format) {
       ++p; // skip frag marker
-      m_sizeOverhead = 3;
+      sizeOverhead = 3;
     } else {
-      m_sizeOverhead = 2;
+      sizeOverhead = 2;
     }
   }
 
@@ -2926,7 +2935,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
 
     int type = (*(p + 1) >> 16) & 0xFF;
     
-    if (count < m_sizeOverhead || count > size - wc) {
+    if (count < sizeOverhead || count > size - wc) {
       int cnt = 0;
       for (; wc < size; ++wc, ++cnt, ++p) {
         if ((*p) == 0xff1234ff) {
@@ -2950,7 +2959,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
     
     if (type == 4) { // frag4 which contains sum Et at the end
       
-      if (unpack_frag4L2(version, p, v)) {
+      if (unpack_frag4L2(version, sizeOverhead, p, v)) {
         counter++;
       }
       
@@ -3114,6 +3123,7 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
     return;
   }
   
+  uint32_t sizeOverhead = 2;
   bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
   if (!V3format && version>0) {
     V3format = true;
@@ -3122,13 +3132,13 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   }
   if (V3format) {
     ++p; // skip frag marker
-    m_sizeOverhead = 3;
+    sizeOverhead = 3;
   } else {
-    m_sizeOverhead = 2;
+    sizeOverhead = 2;
   }
   
-  if(V3format) ATH_MSG_DEBUG("tile flag found! size overhead = " << m_sizeOverhead);
-  else         ATH_MSG_DEBUG("tile flag not found! size overhead = " << m_sizeOverhead);
+  if(V3format) ATH_MSG_DEBUG("tile flag found! size overhead = " << sizeOverhead);
+  else         ATH_MSG_DEBUG("tile flag not found! size overhead = " << sizeOverhead);
   
   while (wc < size) { // iterator over all words in a ROD
     // first word is frag size
@@ -3139,7 +3149,7 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
     
     msg(MSG::DEBUG) << wc << " / " << size << " HEX = 0x" << MSG::hex << count << " DEC = " << MSG::dec << count << " ( FRAG , TYPE ) = " << frag << " , " << type << endmsg;
     
-    if (count < m_sizeOverhead || count > size - wc) {
+    if (count < sizeOverhead || count > size - wc) {
       int cnt = 0;
       for (; wc < size; ++wc, ++cnt, ++p) {
         if ((*p) == 0xff1234ff) {
@@ -3174,7 +3184,7 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
         unpack_frag16(version, p, v);
       } else if (size>24) {
         ATH_MSG_DEBUG("UNPACKING NEW FRAG16");
-        unpack_frag17(version, p, v);
+        unpack_frag17(version, sizeOverhead, p, v);
       }
     }
     
@@ -3184,7 +3194,7 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
       v.setBCID(LASTROD_BCID);
       
       ATH_MSG_DEBUG("UNPACKING FRAG17");
-      unpack_frag17(version, p, v);
+      unpack_frag17(version, sizeOverhead, p, v);
     } // IF
     
     p += count;
@@ -3223,6 +3233,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
   // prepare bcid with one extra bit set for comparison with bcid in DQ fragment
   uint16_t rob_bcid = ((rob->rod_bc_id() & 0x7FFF) | 0x8000);
   
+  uint32_t sizeOverhead = 2;
   if (size) {
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
     if (!V3format && version>0xff) {
@@ -3232,9 +3243,9 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
     }
     if (V3format) {
       ++p; // skip frag marker
-      m_sizeOverhead = 3;
+      sizeOverhead = 3;
     } else {
-      m_sizeOverhead = 2;
+      sizeOverhead = 2;
     }
   }
   bool of2 = m_of2Default;
@@ -3258,7 +3269,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
     int frag = (idAndType & 0xFFFF);
     int type = (idAndType & 0xFF0000) >> 16;
     
-    if (count < m_sizeOverhead || count > size - wc) {
+    if (count < sizeOverhead || count > size - wc) {
       int cnt = 0;
       for (; wc < size; ++wc, ++cnt, ++p) {
         if ((*p) == 0xff1234ff) {
@@ -3289,13 +3300,13 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
           fragFound = true;
           DQfragMissing = false;
           m_correctAmplitude = false;
-          unpack_frag2HLT(version, p, m_pRwChVec);
+          unpack_frag2HLT(version, sizeOverhead, p, m_pRwChVec);
           break;
         case 3:
           fragFound = true;
           DQfragMissing = false;
           m_correctAmplitude = false;
-          unpack_frag3HLT(version, p, m_pRwChVec);
+          unpack_frag3HLT(version, sizeOverhead, p, m_pRwChVec);
           break;
         case 4:
           if (!m_ignoreFrag4HLT && !fragFound) {
@@ -3318,7 +3329,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
               rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
             }
             
-            unpack_frag4HLT(version, unit, p, m_pRwChVec);
+            unpack_frag4HLT(version, sizeOverhead, unit, p, m_pRwChVec);
           }
           break;
           
@@ -3331,7 +3342,7 @@ uint32_t TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollect
             m_correctAmplitude = true; // fragment 5 will appear only if there is no iterations, so correction required
             rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             
-            unpack_frag5HLT(version, unit, p, m_pRwChVec);
+            unpack_frag5HLT(version, sizeOverhead, unit, p, m_pRwChVec);
           }
           break;
           
@@ -3585,13 +3596,15 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
   return error;
 }
 
-void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */,
+                                      unsigned sizeOverhead,
+                                      const uint32_t* p,
                                       pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   
   p += 2; // 2 words so far
-  int wc = m_sizeOverhead; // can be 2 or 3 words
+  int wc = sizeOverhead; // can be 2 or 3 words
   
   for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
@@ -3623,7 +3636,9 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
   return;
 }
 
-void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
+void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */,
+                                      uint32_t sizeOverhead,
+                                      const uint32_t* p,
                                       pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
@@ -3641,7 +3656,7 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
   const short* p16 = (const short *)p;
   
   p16 = p16 + 8; // 8 16bit words so far
-  short wc16 = 4 + m_sizeOverhead * 2; // can be 8 or 10 (if overhead is 3 words)
+  short wc16 = 4 + sizeOverhead * 2; // can be 8 or 10 (if overhead is 3 words)
   
   for (unsigned int ch = 0U; ch < 48U; ++ch) {
     if (checkBit(pMap, ch)) {
@@ -3686,6 +3701,7 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
+                                      uint32_t sizeOverhead,
                                       unsigned int unit,
                                       const uint32_t* p,
                                       pFRwChVec & pChannel) {
@@ -3694,7 +3710,7 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
   // second word is frag ID and frag type
   
   p += 2; // 2 words so far
-  int wc = m_sizeOverhead; // can be 2 or 3 words
+  int wc = sizeOverhead; // can be 2 or 3 words
   for (unsigned int ch = 0U; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     if (w != 0) { // skip invalid channels
@@ -3725,6 +3741,7 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */,
 }
 
 void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
+                                      uint32_t sizeOverhead,
                                       unsigned int unit,
                                       const uint32_t* p,
                                       pFRwChVec & pChannel) {
@@ -3735,7 +3752,7 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
   int size_L2 = (*(p + 1) >> (32 - 2 - 3)) & 0x7;
   
   p += 2; // 2 words so far
-  int wc = m_sizeOverhead; // can be 2 or 3 words
+  int wc = sizeOverhead; // can be 2 or 3 words
   uint16_t* ptr_bad = (uint16_t*) (p + 48 + size_L2); // Reco + Size_L2
   uint16_t bad_bits[3] = { ptr_bad[1], ptr_bad[0], ptr_bad[3] };
   
@@ -3780,7 +3797,9 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
   return;
 }
 
-bool TileROD_Decoder::unpack_frag4L2(uint32_t /* version */, const uint32_t* p,
+bool TileROD_Decoder::unpack_frag4L2(uint32_t /* version */,
+                                     uint32_t sizeOverhead,
+                                     const uint32_t* p,
                                      TileL2Container & pL2) const {
   // first word is frag size
   int size = *(p);
@@ -3804,7 +3823,7 @@ bool TileROD_Decoder::unpack_frag4L2(uint32_t /* version */, const uint32_t* p,
   
 #endif
   
-  int size_L2 = size - m_sizeOverhead - 48;
+  int size_L2 = size - sizeOverhead - 48;
   if (size_L2 > 0) {
     
     std::vector<float> sumE;
@@ -4268,7 +4287,6 @@ void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileM
 
   const uint32_t *p = get_data(rob);
   std::vector<const uint32_t *> pFragTmdb;
-  m_sizeOverhead = 3;
 
   ATH_MSG_DEBUG( " Trying DECODER over source ID: " << MSG::hex
                 << " 0x" << sourceid << MSG::dec
