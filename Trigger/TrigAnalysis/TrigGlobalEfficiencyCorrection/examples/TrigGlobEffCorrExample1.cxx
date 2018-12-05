@@ -98,16 +98,20 @@ int main(int argc, char* argv[])
     enum{ cLEGS, cKEY };
     vector<std::array<string,2>> toolConfigs = {
          /// {<list of trigger legs>, <key in map file>}
-         /// Single-electron trigger (same tool instance for 2015 and 2016):
+         /// Single-electron trigger (same tool instance for 2015-2018):
         {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose, e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0",
-            "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
-        /// Dielectron trigger (same tool instance for 2015-2017):
+            "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
+        /// Dielectron trigger (same tool instance for 2015-2018):
         {"e12_lhloose_L1EM10VH, e17_lhvloose_nod0, e24_lhvloose_nod0_L1EM20VH", 
-            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"}
+            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"},
+        /// Complementary 2e17_lhvloose_nod0_L12EM15VHI trigger
+        {"e17_lhvloose_nod0_L1EM15VHI", 
+            //"DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e17_lhvloose_nod0_L1EM15VHI"}
+            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"} // temporary: using the wrong key until the right one is available
      };
 
     const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
-            "rel21.2/Moriond_February2018_v2/map6.txt";
+            "rel21.2/Consolidation_September2018_v1/map1.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
@@ -118,8 +122,7 @@ int main(int argc, char* argv[])
         t->setProperty("MapFilePath", mapPath).ignore();
         t->setProperty("TriggerKey", string(j?"":"Eff_") + cfg[cKEY]).ignore();
         t->setProperty("IdKey", "Tight").ignore();
-        t->setProperty("IsoKey", "FixedCutTightTrackOnly").ignore();
-
+        t->setProperty("IsoKey", "FCTight").ignore();
         t->setProperty("CorrelationModel", "TOTAL").ignore();
         t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full).ignore();
         if(t->initialize() != StatusCode::SUCCESS)
@@ -160,24 +163,27 @@ int main(int argc, char* argv[])
     myTool.setProperty("ElectronEfficiencyTools", electronEffTools).ignore();
     myTool.setProperty("ElectronScaleFactorTools", electronSFTools).ignore();
     myTool.setProperty("MuonTools", muonTools).ignore();
-    const char* triggers2015 = 
+    std::map<std::string, std::string> triggers;
+    triggers["2015"] = 
         "mu20_iloose_L1MU15_OR_mu50"
-        "|| mu18_mu8noL1"
+        // "|| mu18_mu8noL1" temporary: disabled as mu8noL1 efficiencies are not available
         "|| e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose"
         "|| 2e12_lhloose_L12EM10VH";
-    myTool.setProperty("TriggerCombination2015", triggers2015).ignore();
-    const char* triggers2016 = 
+    triggers["2016"] = 
         "mu26_ivarmedium_OR_mu50"
-        "|| mu22_mu8noL1"
+        // "|| mu22_mu8noL1" temporary: disabled as mu8noL1 efficiencies are not available
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e17_lhvloose_nod0";
-    myTool.setProperty("TriggerCombination2016", triggers2016).ignore();
-    const char* triggers2017 = 
+    std::string only2e24 = 
         "mu26_ivarmedium_OR_mu50"
-        "|| mu22_mu8noL1"
+        // "|| mu22_mu8noL1" temporary: disabled as mu8noL1 efficiencies are not available
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
         "|| 2e24_lhvloose_nod0";
-    myTool.setProperty("TriggerCombination2017", triggers2017).ignore();
+    std::string nominal = only2e24 + "|| 2e17_lhvloose_nod0_L12EM15VHI";
+    triggers["324320-326695"] = nominal; /// 2017 before accidental prescale of L12EM15VHI
+    triggers["326834-328393"] = only2e24; /// 2017 during accidental prescale
+    triggers["329385-364292"] = nominal; /// 2017 after accidental prescale + 2018
+    myTool.setProperty("TriggerCombination", triggers).ignore();
     myTool.setProperty("ListOfLegsPerTool", legsPerTool).ignore();
 
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
@@ -197,8 +203,10 @@ int main(int argc, char* argv[])
         296939, 300345, 301912, 302737, 303638, 303943, 305291, 307124, 
         305359, 309311, 310015,
         /// 2017 periods B-K
-        325713, 329385, 330857, 332720, 334842, 335302, 336497, 336832, 
-        338183
+        325713, 329385, 330857, 332720, 334842, 336497, 336832, 338183,
+        /// 2018 periods B-Q
+        348885, 349534, 350310, 352274, 354107, 354826, 355261, 355331,
+        355529, 357050, 359191, 361635, 361738, 363664
     };
     std::uniform_int_distribution<unsigned> uniformPdf(0,
             sizeof(periodRuns)/sizeof(*periodRuns) - 1);
@@ -238,8 +246,8 @@ int main(int argc, char* argv[])
             int t = truthType(*electron), o = truthOrigin(*electron);
             if(t!=2 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
             /// lepton must be above softest trigger threshold:
-            if((runNumber>320000 && pt<25e3f) /// 2017: 2e24
-                || (runNumber>290000 && pt<18e3f) /// 2016: 2e17
+            if((runNumber>=326834 && runNumber<=328393 && pt<25e3f) /// 2017 during accidental prescale: 2e24
+                || (runNumber>290000 && pt<18e3f) /// 2016-2018: 2e17
                 || (pt<13e3f)) continue; /// 2015: 2e12
             /// also count leptons above single-lepton trigger threshold
             if(pt >= (runNumber>290000? 27e3f : 25e3f)) ++nTrig1L;
@@ -252,7 +260,6 @@ int main(int argc, char* argv[])
         event.retrieve(muons,"Muons").ignore();
         for(auto muon : *muons)
         {
-            if(runNumber >= 324320) break; // delete line once all SFs available for 2017
             float pt = muon->pt();
             if(pt<10e3f || fabs(muon->eta())>=2.5) continue;
             auto mt = muon->muonType();

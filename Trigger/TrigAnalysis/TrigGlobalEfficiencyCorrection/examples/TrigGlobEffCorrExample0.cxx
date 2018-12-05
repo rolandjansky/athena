@@ -7,7 +7,7 @@
 /// Contact: jmaurer@cern.ch
 /*
  *    Simple example: single electron or single muon trigger, using different 
- * configurations for 2015 and 2016.
+ * triggers for 2015 and 2016-2018.
  * 
  */
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
     /// RAII on-the-fly creation of electron CP tools:
     vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> factory;
     const char* mapPath = "ElectronEfficiencyCorrection/2015_2017/"
-            "rel21.2/Moriond_February2018_v2/map6.txt";
+            "rel21.2/Consolidation_September2018_v1/map1.txt";
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
         string name = "AsgElectronEfficiencyCorrectionTool/"
@@ -101,10 +101,9 @@ int main(int argc, char* argv[])
         auto t = factory.emplace(factory.end(), name);
         t->setProperty("MapFilePath", mapPath).ignore();
         t->setProperty("TriggerKey", string(j?"":"Eff_")
-            + "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0").ignore();
+            + "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0").ignore();
         t->setProperty("IdKey", "Tight").ignore();
-        t->setProperty("IsoKey", "FixedCutTightTrackOnly").ignore();
-
+        t->setProperty("IsoKey", "FCTight").ignore();
         t->setProperty("CorrelationModel", "TOTAL").ignore();
         t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full).ignore();
         if(t->initialize() != StatusCode::SUCCESS)
@@ -144,11 +143,12 @@ int main(int argc, char* argv[])
         "mu20_iloose_L1MU15_OR_mu50"
         "|| e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose";
     myTool.setProperty("TriggerCombination2015", triggers2015).ignore();
-    const char* triggers2016and2017 = 
+    const char* triggers2016to2018 = 
         "mu26_ivarmedium_OR_mu50"
         "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
-    myTool.setProperty("TriggerCombination2016", triggers2016and2017).ignore();
-    myTool.setProperty("TriggerCombination2017", triggers2016and2017).ignore();
+    myTool.setProperty("TriggerCombination2016", triggers2016to2018).ignore();
+    myTool.setProperty("TriggerCombination2017", triggers2016to2018).ignore();
+    myTool.setProperty("TriggerCombination2018", triggers2016to2018).ignore();
 
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
     if(toys) myTool.setProperty("NumberOfToys", 1000).ignore();
@@ -167,8 +167,10 @@ int main(int argc, char* argv[])
         296939, 300345, 301912, 302737, 303638, 303943, 305291, 307124, 
         305359, 309311, 310015,
         /// 2017 periods B-K
-        325713, 329385, 330857, 332720, 334842, 335302, 336497, 336832, 
-        338183
+        325713, 329385, 330857, 332720, 334842, 336497, 336832, 338183,
+        /// 2018 periods B-Q
+        348885, 349534, 350310, 352274, 354107, 354826, 355261, 355331,
+        355529, 357050, 359191, 361635, 361738, 363664
     };
     std::uniform_int_distribution<unsigned> uniformPdf(0,
             sizeof(periodRuns)/sizeof(*periodRuns) - 1);
@@ -215,7 +217,6 @@ int main(int argc, char* argv[])
         event.retrieve(muons,"Muons").ignore();
         for(auto muon : *muons)
         {
-            if(runNumber >= 324320) break; // delete line once all SFs available for 2017
             float pt = muon->pt();
             if(pt<10e3f || fabs(muon->eta())>=2.5) continue;
             auto mt = muon->muonType();
