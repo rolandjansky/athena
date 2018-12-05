@@ -50,9 +50,10 @@ bool EfficiencyTool::analyseIsEMLH(const xAOD::Electron *eg, const std::string p
     const std::string ineff = "Ineff" + pidword;
 
     bool failIsEMLH = true;
+    unsigned int isem = 9999;
     try{
 	ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
-	unsigned int isem = eg->selectionisEM(pidword);
+	isem = eg->selectionisEM(pidword);
 
 	failIsEMLH = false;
 	for (int ii = 0; ii < 11; ii++) {
@@ -91,7 +92,7 @@ bool EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid
 
     unsigned int isem = 9999;
     try{
-	unsigned int isem = eg->selectionisEM(pidword);
+	isem = eg->selectionisEM(pidword);
     } catch (const ValidationException &eg) {
 	ATH_MSG_WARNING("Exception thrown: " << eg.msg() );
 	ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
