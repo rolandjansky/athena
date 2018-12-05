@@ -136,15 +136,13 @@ namespace ana
 
     m_isData = conf.isData();
     m_isAF2  = conf.isAFII();
-    m_jetContainer = conf.inputName (OBJECT_JET);
+    if (m_doPFlow) m_jetContainer = conf.inputName (OBJECT_PFLOW_JET);
+    else m_jetContainer = conf.inputName (OBJECT_JET);
+
     if (m_jetContainer.empty())
     {
-      m_jetContainer = conf.inputName (OBJECT_PFLOW_JET);
-      if (m_jetContainer.empty()) 
-      {
-         ATH_MSG_ERROR ("can't use MET without jets");
-         return StatusCode::FAILURE;
-      }
+       ATH_MSG_ERROR ("can't use MET without jets");
+       return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -248,8 +246,6 @@ namespace ana
     ATH_CHECK (objects.addNew (m_type));
 
     auto met = objects.get<xAOD::MissingETContainer> (m_type);
-
-    if (m_doPFlow) m_jetContainer = "AntiKt4EMPFlowJets";
 
     // Retrieve the container of object weights. These were filled during
     // reconstruction and will be used to recalculate the MET with our
@@ -402,14 +398,6 @@ namespace ana
 
     ATH_CHECK( m_metutil->buildMETSum("Final", met, (*met)[softTerm]->source()) );
     
-    //if (m_doPFlow) 
-    //{
-    //   if (m_doPUmetsig) m_fjvtTool->modify( *objects.pflow_jets() );
-    //}else if (m_doPUmetsig)
-    //{
-    //   m_fjvtTool->modify( *objects.jets() );
-    //}
-
     ATH_CHECK( m_metSigni->varianceMET(met, objects.eventinfo()->averageInteractionsPerCrossing(), "RefJet", softTerm, "Final"));
 
     std::string met_signi = "met_signi_"+m_jetSelection;

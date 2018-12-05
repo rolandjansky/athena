@@ -349,12 +349,13 @@ namespace ana
       // Should only pass selected muons!  See
       //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#Muon_trigger_efficiency_scale_fa
       xAOD::MuonContainer my_muons(SG::VIEW_ELEMENTS);
+      bool m_PassTrigPtThre = false;
       if (objects.muons()){
         for (const auto m : *objects.muons()){
-          if ( m->auxdata<char>("ana_select_or") &&
-               !m->auxdata<char>("overlaps") &&
-               m->pt() > m_TriggerPtThreshold*1000. ){
-            my_muons.push_back( m ); // 1.05*online pt requirement
+          if ( m->auxdata<char>("ana_select_or") && !m->auxdata<char>("overlaps") ) {
+            my_muons.push_back( m );
+            if ( m->pt() > m_TriggerPtThreshold*1000. ) m_PassTrigPtThre = true;
+//            my_muons.push_back( m ); // 1.05*online pt requirement
             //// As long as we are here, get the efficiency
             double trig_eff_mc = 1., trig_eff_data = 1.;
             if (!isDiMuTrig) {
@@ -370,7 +371,7 @@ namespace ana
       }
 
       auto evtInfo = objects.eventinfo();
-      if (!isDiMuTrig && my_muons.size()>=1){
+      if (!isDiMuTrig && my_muons.size()>=1 && m_PassTrigPtThre){
         // Single muon trigger case - simple, scale factor for all the muons
         QA_CHECK_WEIGHT
           ( double, sf, muonSFToolForThisYear(my_runNumber)->getTriggerScaleFactor(my_muons, sf, m_muon_trig_str) );
