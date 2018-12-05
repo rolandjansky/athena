@@ -1,3 +1,4 @@
+
 #********************************************************************
 # EGAM3.py
 # Z->eegamma reduction for low-pT electron and photon studies
@@ -172,6 +173,16 @@ ToolSvc += EGAM3_GainDecoratorTool
 
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM3_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+
+#====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+EGAM3_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM3_MaxCellDecoratorTool",
+                                                                    SGKey_electrons         = "Electrons",
+                                                                    SGKey_photons           = "Photons",
+                                                                    )
+ToolSvc += EGAM3_MaxCellDecoratorTool
 
 #====================================================================
 # Cell reweighter
@@ -353,7 +364,7 @@ DerivationFrameworkJob += egam3Seq
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool]
+augmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool,EGAM3_MaxCellDecoratorTool]
 if DoCellReweighting:
     augmentationTools += [EGAM3_NewCellTool, EGAM3_ClusterDecoratorTool, EGAM3_EGammaReweightTool]
 augmentationTools += EGAM3_ClusterEnergyPerLayerDecorators

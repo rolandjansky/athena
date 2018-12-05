@@ -86,7 +86,7 @@ print "EGAM4 skimming tool: ", EGAM4_SkimmingTool
 
 
 #====================================================================
-# DECORATION TOOLS
+# SET UP AUGMENTATIONS
 #====================================================================
 
 
@@ -99,6 +99,17 @@ ToolSvc += EGAM4_GainDecoratorTool
 
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+
+
+#====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+EGAM4_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM4_MaxCellDecoratorTool",
+                                                                    SGKey_electrons         = "Electrons",
+                                                                    SGKey_photons           = "Photons",
+                                                                    )
+ToolSvc += EGAM4_MaxCellDecoratorTool
 
 
 #====================================================================
@@ -280,7 +291,7 @@ DerivationFrameworkJob += egam4Seq
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool]
+augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool,EGAM4_MaxCellDecoratorTool]
 if DoCellReweighting:
     augmentationTools += [EGAM4_NewCellTool, EGAM4_ClusterDecoratorTool, EGAM4_EGammaReweightTool]
 augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
