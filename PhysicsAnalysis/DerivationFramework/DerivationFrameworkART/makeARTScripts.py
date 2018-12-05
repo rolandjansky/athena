@@ -117,6 +117,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
 
 def generateTrains(formatList,label,inputFile,isMC):
    if (isMC == True) and ("BPHY8" in formatList): formatList.remove("BPHY8")
+   if (isMC == True) and ("TOPQ2" in formatList): formatList.remove("TOPQ2")
    outputFileName = "test_"+label+"_".join(formatList)+".sh"
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
@@ -162,6 +163,7 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,heavyIonFile,False,False,"-1")
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
+         if formatName == "TOPQ2": continue # only for data
          if formatName[0:4]=='HION' and not formatName=='HION3': continue # only HION3 runs on MC
          if formatName in ["SUSY15","SUSY6","EXOT15"]:
             generateText(formatName,mcLabel+"RPVLL",mcFileRPVLL,False,True,"-1")
@@ -184,6 +186,6 @@ if (makeTrains):
    for train in trainList:
       generateTrains(train,dataLabel,dataFile,False)
       generateTrains(train,mcLabel,mcFile,True)
-   generateTrains(['TOPQ1','TOPQ2','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
+   generateTrains(['TOPQ1','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
    generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],mcLabel,mcFileEXOT23,True)
    generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],dataLabel,dataFileRPVLL,False)
