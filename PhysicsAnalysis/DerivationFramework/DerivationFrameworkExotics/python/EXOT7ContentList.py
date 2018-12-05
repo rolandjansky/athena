@@ -12,6 +12,7 @@ EXOT7SmartCollections = [
     "Muons",
     "PrimaryVertices",
     'MET_Reference_AntiKt4EMTopo',
+    'MET_Reference_AntiKt4EMPFlow',
     'AntiKt4TruthJets',
     'AntiKt4TruthWZJets',
     'AntiKt4EMTopoJets',
@@ -30,7 +31,7 @@ EXOT7ExtraVariables = [
     "AntiKt10TruthJets.pt.eta.phi.m",
     "CaloCalTopoClusters.calE.calEta.calPhi.calM.rawM.rawE.rawEta.rawPhi.e_sampl.eta_sampl.etaCalo.phiCalo",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.constituentLinks.Qw.GhostBHadronsFinalCount",
-    "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.GhostBHadronsFinalCount"
+    "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.GhostBHadronsFinalCount.GhostCHadronsFinalCount"
 ]
 
 EXOT7AllVariables = [
