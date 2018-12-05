@@ -120,21 +120,10 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::EndEvent()
 {
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-  if(ScM){
-    G4int nPar = ScM->GetNumberOfMesh();
-    G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
-    if(HCE && nPar>0){
-      G4int nColl = HCE->GetCapacity();
-      for(G4int i=0;i<nColl;i++)
-        {
-          G4VHitsCollection* HC = HCE->GetHC(i);
-          if(HC) ScM->Accumulate(HC);
-        }
-    }
-  }
+  // ADA, 11/28/2018: According to ZLM this function is never called. Code is 
+  // duplicated in ISFFluxRecorder and removed from here
+
   ATH_MSG_DEBUG( "G4AtlasRunManager::EndEvent" );
-  // ZLM note 1.12.2016: This function does not get called
 }
 
 //________________________________________________________________________
@@ -170,84 +159,12 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
   }
 
   if (m_recordFlux) {
-    this->InitializeFluxRecording();
+    m_fluxRecorder->InitializeFluxRecording();
   }
 
   return;
 }
 
-//________________________________________________________________________
-void iGeant4::G4AtlasRunManager::InitializeFluxRecording()
-{
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
-
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-
-  if(!ScM) { return; }
-
-  ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
-  //                        R  Z(-24 to 24)
-  ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
-  //                iR iZ
-  //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
-  ui->ApplyCommand("/score/mesh/nBin 120 480 1");
-
-  ui->ApplyCommand("/score/quantity/energyDeposit eDep");
-
-  ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
-  ui->ApplyCommand("/score/filter/particle photonFilter gamma");
-  // above 2 line crete tally for cell flux for gamma
-
-  ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
-  ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
-
-  ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
-  ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
-
-  ui->ApplyCommand("/score/quantity/doseDeposit dose");
-
-  ui->ApplyCommand("/score/close");
-  ui->ApplyCommand("/score/list");
-
-  G4int nPar = ScM->GetNumberOfMesh();
-
-  if(nPar<1) { return; }
-
-  G4ParticleTable::G4PTblDicIterator* particleIterator
-    = G4ParticleTable::GetParticleTable()->GetIterator();
-
-  for(G4int iw=0;iw<nPar;iw++) {
-    G4VScoringMesh* mesh = ScM->GetMesh(iw);
-    G4VPhysicalVolume* pWorld
-      = G4TransportationManager::GetTransportationManager()
-      ->IsWorldExisting(ScM->GetWorldName(iw));
-      if(!pWorld) {
-        pWorld = G4TransportationManager::GetTransportationManager()
-          ->GetParallelWorld(ScM->GetWorldName(iw));
-        pWorld->SetName(ScM->GetWorldName(iw));
-
-        G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
-          = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
-        theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
-
-        particleIterator->reset();
-        while( (*particleIterator)() ) {
-          G4ParticleDefinition* particle = particleIterator->value();
-          G4ProcessManager* pmanager = particle->GetProcessManager();
-          if(pmanager) {
-            pmanager->AddProcess(theParallelWorldScoringProcess);
-            pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
-            pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
-            pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
-          }
-        }
-      }
-
-      mesh->Construct(pWorld);
-  }
-  return;
-}
 
 //________________________________________________________________________
 bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
@@ -265,7 +182,7 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
     return true;
   }
 
-  if (m_recordFlux) { this->RecordFlux(); }
+  if (m_recordFlux) { m_fluxRecorder->RecordFlux(currentEvent); }
 
   this->StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();
@@ -274,30 +191,13 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   return abort;
 }
 
-//________________________________________________________________________
-void iGeant4::G4AtlasRunManager::RecordFlux()
-{
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-  if(ScM) {
-    G4int nPar = ScM->GetNumberOfMesh();
-    G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
-    if(HCE && nPar>0) {
-      G4int nColl = HCE->GetCapacity();
-      for(G4int i=0;i<nColl;i++) {
-        G4VHitsCollection* HC = HCE->GetHC(i);
-        if(HC) { ScM->Accumulate(HC); }
-      }
-    }
-  }
-  return;
-}
 
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::RunTermination()
 {
   ATH_MSG_DEBUG( " G4AtlasRunManager::RunTermination() " );
   if (m_recordFlux) {
-    this->WriteFluxInformation();
+    m_fluxRecorder->WriteFluxInformation();
   }
 
   this->CleanUpPreviousEvents();
@@ -330,17 +230,5 @@ void iGeant4::G4AtlasRunManager::RunTermination()
   userDetector = nullptr;
   userPrimaryGeneratorAction = nullptr;
 
-  return;
-}
-
-//________________________________________________________________________
-void iGeant4::G4AtlasRunManager::WriteFluxInformation()
-{
-  G4UImanager *ui=G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
   return;
 }

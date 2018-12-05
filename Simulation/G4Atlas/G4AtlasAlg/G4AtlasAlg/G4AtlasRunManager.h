@@ -19,6 +19,7 @@
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+#include "G4AtlasInterfaces/IFluxRecorder.h"
 
 /// ATLAS custom singleton run manager.
 ///
@@ -28,11 +29,9 @@
 
 class G4AtlasRunManager: public G4RunManager {
 
-  friend class G4AtlasAlg;   // Is this needed?
-
 public:
 
-  virtual ~G4AtlasRunManager() {}
+  virtual ~G4AtlasRunManager() {delete m_fluxRecorder;m_fluxRecorder=nullptr;}
 
   /// Retrieve the singleton instance
   static G4AtlasRunManager* GetG4AtlasRunManager();
@@ -42,33 +41,7 @@ public:
 
   /// G4 function called at end of run
   void RunTermination() override final;
-
-protected:
-
-  /// @name Overridden G4 init methods for customization
-  /// @{
-  void Initialize() override final;
-  void InitializeGeometry() override final;
-  void InitializePhysics() override final;
-  /// @}
-
-private:
-
-  /// Pure singleton private constructor
-  G4AtlasRunManager();
-
-  void EndEvent();
-
-  /// @name Methods related to flux recording
-  /// @{
-  /// Initialize flux recording
-  void InitializeFluxRecording();
-  /// Record fluxes from current event
-  void RecordFlux();
-  /// Dump flux information to text files
-  void WriteFluxInformation();
-  /// @}
-
+  
   /// @name Methods to pass configuration in from G4AtlasAlg
   /// @{
   /// Configure the user action service handle
@@ -96,9 +69,25 @@ private:
     m_physListTool.setTypeAndName(typeAndName);
   }
 
-  void SetRecordFlux(bool b) { m_recordFlux = b; }
+  void SetRecordFlux(bool b, IFluxRecorder *f) { m_recordFlux = b; m_fluxRecorder=f;}
   void SetLogLevel(int) { /* Not implemented */ }
   /// @}
+
+protected:
+
+  /// @name Overridden G4 init methods for customization
+  /// @{
+  void Initialize() override final;
+  void InitializeGeometry() override final;
+  void InitializePhysics() override final;
+  /// @}
+
+private:
+
+  /// Pure singleton private constructor
+  G4AtlasRunManager();
+
+  void EndEvent();
 
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
@@ -117,6 +106,10 @@ private:
   /// Handle to the user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+  
+  /// Interface to flux recording
+  
+  IFluxRecorder *m_fluxRecorder;
 };
 
 #endif // G4ATLASALG_G4AtlasRunManager_h
