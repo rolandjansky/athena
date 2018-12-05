@@ -51,8 +51,6 @@ echo  "art-result: $? regression"
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_Split_fastSim_fastDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
 
 
-# art-output: dcube/dcube.xml
-# art-output: dcube/dcube.log
-# art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php
+# art-output: dcube/
+
 echo  "art-result: $? histcomp"

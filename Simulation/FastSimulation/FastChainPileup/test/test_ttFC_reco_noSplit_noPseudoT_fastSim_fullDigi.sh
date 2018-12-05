@@ -51,8 +51,5 @@ echo  "art-result: $? regression"
 
 
 
-# art-output: dcube/dcube.xml
-# art-output: dcube/dcube.log
-# art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php
+# art-output: dcube/
 echo  "art-result: $? histcomp"
