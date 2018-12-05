@@ -340,6 +340,10 @@ def main():
    # Modify pre/postcommands if necessary
    update_pcommands(args, cdict)
 
+   # Tell the PSC if we are in interactive mode (relevant for state machine)
+   import TrigPSC.PscConfig
+   TrigPSC.PscConfig.interactive = args.interactive
+
    # Run HLTMPPU
    from HLTMPPy.runner import runHLTMPPy
    runHLTMPPy(cdict)

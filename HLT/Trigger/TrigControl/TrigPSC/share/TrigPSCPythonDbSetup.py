@@ -59,10 +59,6 @@ if not _Conf.useOnlineTHistSvc:
    isvcMgr.declareSvcType("THistSvc","THistSvc")
    setTHistSvcOutput()
 
-if 'interactive' in dir():   
-   PscConfig.interactive = bool(interactive)
-   del interactive
-   
 ## Some cleanup
 del _Conf
 del logLevel
