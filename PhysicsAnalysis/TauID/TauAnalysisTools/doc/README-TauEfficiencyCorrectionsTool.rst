@@ -127,19 +127,23 @@ are available for tool steering:
 
    * - ``InputFilePathRecoHadTau``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_2016-ichep.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_mc16-prerec.root"``
 
    * - ``InputFilePathEleOLRHadTau``
      - ``std::string``
      - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueHadTau_2016-ichep.root"``
 
-   * - ``InputFilePathEleOLRHadTau``
+   * - ``InputFilePathEleOLRElectron``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_2017-moriond.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_2018-summer.root"``
+
+   * - ``InputFilePathEleBDTElectron``
+     - ``std::string``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleBDT_TrueElectron_2018-summer.root"``
 
    * - ``InputFilePathJetIDHadTau``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/JetID_TrueHadTau_2017-moriond.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/JetID_TrueHadTau_2018-summer.root"``
 
    * - ``VarNameRecoHadTau``
      - ``std::string``
@@ -187,26 +191,6 @@ In addition the following properties are available for further configurations:
      - ``std::string``
      - ``"combined"``
      
-   * - ``UseIDExclusiveSF``
-     - ``bool``
-     - ``false``
-
-   * - ``UseInclusiveEta``
-     - ``bool``
-     - ``false``
-
-   * - ``UseTriggerInclusiveEta``
-     - ``bool``
-     - ``true``
-
-   * - ``UsePtBinnedSF``
-     - ``bool``
-     - ``false``
-
-   * - ``UseHighPtUncert``
-     - ``bool``
-     - ``false``
-
    * - ``IDLevel``
      - ``int``
      - ``JETIDBDTTIGHT``
@@ -215,13 +199,13 @@ In addition the following properties are available for further configurations:
      - ``int``
      - ``TAUELEOLR``
 
-   * - ``ContSysType``
-     - ``int``
-     - ``TOTAL``
-
    * - ``TriggerPeriodBinning``
      - ``int``
      - ``PeriodBinningAll``
+
+   * - ``MCCampaign``
+     - ``std::string``
+     - ``""``
 
 Details
 =======
@@ -239,7 +223,6 @@ factors:
 * SFJetIDHadTau: scale factors for tau jet identification of true hadronic tau decays
 
 The InputFilePath* strings are predefined to load the files in
-/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/ or
 /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ using PathResolver, but own
 files can be used as well. If you plan to do this, please contact the author as
 there are requirements on the input file for some EfficiencyCorrectionTypes. For
@@ -306,6 +289,7 @@ These can be accessed, for example via::
 
   TauEffTool.setProperty("OLRLevel", (int)TAUELEOLR);
 
+Since AnalysisBase/AthAnalysis 21.2.55 the BDT related working points (``ELEBDTLOOSE``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUM``, ``ELEBDTMEDIUMPLUSVETO``) are provided separately for MC16a (corresponding to 2015-2016 data) and MC16d (corresponding to 2017 data). If you use one of those working points, you will have to provide TauEfficiencyCorrectionsTool with either a ``PileupReweightingTool`` or with the ``MCCampaign`` property. For the ``MCCampaign`` property you can choose between "MC16a", "MC16d" or "MC16e". If the MC campaign is not set explicitly TauEfficiencyCorrectionsTool will use the PileupReweightingTool to retrieve a random run number and apply the corresponding systematic prescriptions. If none of the above properties are provided TauEfficiencyCorrectionsTool will throw the following error message: ``One of these properties has to be set: "MCCampaign" or "PileupReweightingTool"``. 
 
 
 --------------------------------------

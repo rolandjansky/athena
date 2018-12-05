@@ -50,6 +50,18 @@ Setup
 Please have a look into this `tutorial <https://atlassoftwaredocs.web.cern.ch/ABtutorial/>`_ 
 to get general information on how to setup an analysis release. In particular the section about initializing CP tools via `AnaToolHandles <https://atlassoftwaredocs.web.cern.ch/ABtutorial/basic_ana_tool_handle/>`_ might be worth to read.
 
+A vanilla version of TauAnalysisTools comes with AnalysisBase and AthAnalysis releases. These can be set up with e.g.:: 
+
+  asetup 21.2.56,AnalysisBase or 
+  asetup 21.2.56,AthAnalysis
+
+The latest releases and changes are documented on the `AnalysisRelease page <https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisBaseReleaseNotes21_2>`_.
+
+If you plan to contribute to TauAnalysisTools, please refer to the `ATLAS Git Workflow Tutorial <https://atlassoftwaredocs.web.cern.ch/gittutorial/>`_. This tutorial describes how to get your own copy of the offline code from GitLab and how to prepare a merge request that asks for your code to be added to the main repository. For such developments it is recommended to set up the latest nightly with::
+
+  asetup 21.2,AnalysisBase,latest or 
+  asetup 21.2,AthAnalysis,latest
+
 --------
 Examples
 --------
