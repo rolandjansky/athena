@@ -97,11 +97,6 @@ d3pdalg = D3PDMakerCoreComps.MakerAlg( "background", theJob, file = OutputFile,
 from BackgroundD3PDMaker.backgroundD3PD import backgroundD3PD
 backgroundD3PD(d3pdalg)
 
-## Pixel Clusters
-##
-#from TrackD3PDMaker.PixelClusterD3PDObject import PixelClusterD3PDObject
-#d3pdalg += PixelClusterD3PDObject( 0 )
-
 ## Unassociated Hits
 ##
 #from MinBiasD3PDMaker.UnassociatedHitsD3PDObject import UnassociatedHitsD3PDObject
