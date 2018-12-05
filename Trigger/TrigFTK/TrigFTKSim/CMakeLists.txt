@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PileUpTools
                           Control/StoreGate
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier

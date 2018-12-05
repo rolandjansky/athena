@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Event/EventPrimitives
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack

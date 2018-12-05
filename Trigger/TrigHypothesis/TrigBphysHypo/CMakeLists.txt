@@ -24,7 +24,6 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/BeamSpotConditionsData
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
