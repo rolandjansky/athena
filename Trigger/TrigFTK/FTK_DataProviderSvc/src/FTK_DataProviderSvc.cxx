@@ -1955,18 +1955,18 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   double eta = -std::log(std::tan(trkPerigee.parameters()[Trk::theta]/2.));
 
   if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){
+    SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
     if(pixelDetectorElement->isBarrel()){
       // Barrel corrections //
-      int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
-      (*cov)(0,0) = square(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin));
-      (*cov)(1,1) = square(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin));
-
+      int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+      (*cov)(0,0) = square(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin));
+      (*cov)(1,1) = square(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin));
       ATH_MSG_VERBOSE("Barrel Corrections " << (*cov)(0,0)<< " " <<  (*cov)(1,1) );
     } else{
       // End-cap corrections //
-      int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
-      (*cov)(0,0) = square(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin));
-      (*cov)(1,1) = square(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin));
+      int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+      (*cov)(0,0) = square(offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin));
+      (*cov)(1,1) = square(offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin));
       ATH_MSG_VERBOSE("Endcap Corrections " << (*cov)(0,0)<< " " <<  (*cov)(1,1) );
     }
   } else {

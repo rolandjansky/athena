@@ -207,17 +207,18 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     // contain long pixels or ganged pixels
     // Also require calibration service is available....
     if (!ganged && zPitch>399*micrometer && zPitch<401*micrometer) {
+      SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
       if(element->isBarrel()){
-        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
-        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
-        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+        double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
+        double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
 	      errorMatrix->fillSymmetric(0,0,square(phiError));
 	      errorMatrix->fillSymmetric(1,1,square(etaError));
       }
       else {
-        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
-        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
-        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+        double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
+        double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
 	      errorMatrix->fillSymmetric(0,0,square(phiError));
 	      errorMatrix->fillSymmetric(1,1,square(etaError));
 			}
@@ -399,17 +400,18 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     // Also require calibration service is available....
     if (!ganged && zPitch>399*micrometer && zPitch<401*micrometer) {
 	    
+      SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
       if (element->isBarrel()) {
-        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
-        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
-        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+        double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin);
+        double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin);
 				errorMatrix->fillSymmetric(0,0,pow(phiError,2));  
 				errorMatrix->fillSymmetric(1,1,pow(etaError,2)); 
       }
       else {
-        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
-        double phiError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
-        double etaError = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+        double phiError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin);
+        double etaError = offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin);
 				errorMatrix->fillSymmetric(0,0,square(phiError)); 
 				errorMatrix->fillSymmetric(1,1,square(etaError)); 
 			}

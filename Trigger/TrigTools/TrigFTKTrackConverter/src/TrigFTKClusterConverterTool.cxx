@@ -302,15 +302,16 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
 
     if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){ 
 
+      SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
       if(pDE->isBarrel()){ 
-        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
- 	      (*cov)(0,0) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin),2);   
-        (*cov)(1,1) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin),2);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
+ 	      (*cov)(0,0) = pow(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin),2);   
+        (*cov)(1,1) = pow(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelEtaError(ibin),2);
       } 
       else{ 
-        int ibin = SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
-        (*cov)(0,0) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin),2);
-        (*cov)(1,1) = pow(SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData>(m_clusterErrorKey)->getPixelClusterErrorData()->getPixelEndcapRError(ibin),2);
+        int ibin = offlineCalibData->getPixelClusterErrorData()->getEndcapBin(int(colRow.y()),int(colRow.x()));
+        (*cov)(0,0) = pow(offlineCalibData->getPixelClusterErrorData()->getPixelEndcapPhiError(ibin),2);
+        (*cov)(1,1) = pow(offlineCalibData->getPixelClusterErrorData()->getPixelEndcapRError(ibin),2);
       } 
     } else { 
       (*cov)(0,0) = pow(siWidth.phiR()/colRow.x(),2)/12; 
