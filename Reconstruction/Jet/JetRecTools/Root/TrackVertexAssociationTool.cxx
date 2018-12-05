@@ -7,7 +7,7 @@
 
 TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& t)
     : AsgTool(t)
-    , m_tvaTool("") // default as empty
+    , m_tvaTool("",this) // default as empty
     , m_transDistMax(10e6)
     , m_longDistMax(10e6)
     , m_maxZ0SinTheta(10e6)

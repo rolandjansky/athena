@@ -15,7 +15,7 @@ typedef IJetFinder::NameList NameList;
 //**********************************************************************
 
 JetReclusterer::JetReclusterer(std::string name)
-: AsgTool(name), m_hcr(""), m_finder("") {
+  : AsgTool(name), m_hcr("",this), m_finder("",this) {
   declareProperty("JetConstituentsRetriever", m_hcr);
   declareProperty("JetFinder", m_finder);
 }

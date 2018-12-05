@@ -13,7 +13,7 @@
 from JetRec.JetRecStandard import jtm,jetlog
 myname = "JetRec_jobOptions.py: "
 jetlog.info( myname + "Begin." )
-
+jtm.usePublic = False
 from JetRec.JetRecFlags import jetFlags, JetContentDetail
 # jetFlags.separateJetAlgs.set_Value(True)
 # jetFlags.timeJetToolRunner.set_Value(2)
@@ -103,8 +103,7 @@ addJetRecoToAlgSequence()
 # save event shapes set with the JetAlgorithm
 #--------------------------------------------------------------
 for esTool in jtm.allEDTools:
-    t = getattr(ToolSvc, esTool.getName() )
-    jetFlags.jetAODList += [ "xAOD::EventShape#"+t.OutputContainer,
-                             "xAOD::EventShapeAuxInfo#"+t.OutputContainer+'Aux.' ]
+    jetFlags.jetAODList += [ "xAOD::EventShape#"+esTool.OutputContainer,
+                             "xAOD::EventShapeAuxInfo#"+esTool.OutputContainer+'Aux.' ]
 
 jetlog.info( myname + "End." )

@@ -48,6 +48,7 @@ from GaudiKernel.Constants import (VERBOSE,
 class JetToolManager:
   prefix = "JetToolManager: "
   debug = 0
+  usePublic = True
   m_jetBuilder = None
   jetBuilderWithArea = None
   jetBuilderWithoutArea = None
@@ -88,9 +89,13 @@ class JetToolManager:
     else:
       jetlog.info( type(mytool) )
       self.tools[myname] = mytool
-      from AthenaCommon.AppMgr import ToolSvc 
-      ToolSvc += mytool
-      mytool.lock()
+      from AthenaCommon.AppMgr import ToolSvc
+
+      # Hardcoded Public tools to support Public ToolHandles in other packages
+      if self.usePublic or  "JetMCTruth" in myname or "jetquark" in myname or "trackselloose" in myname:
+        ToolSvc += mytool
+        mytool.lock()
+
       setattr(self, myname, mytool)
       return mytool
 

@@ -24,7 +24,7 @@ typedef IJetConstituentsRetriever::NameList NameList;
 //**********************************************************************
 
 JetConstituentsRetriever::JetConstituentsRetriever(std::string name)
-: AsgTool(name), m_hpjr("") {
+  : AsgTool(name), m_hpjr("",this) {
   declareProperty("UsePseudojet", m_usepj =true);
   declareProperty("UseJetConstituents", m_usejetcons =true);
   declareProperty("PseudojetRetriever", m_hpjr);
