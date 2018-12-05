@@ -402,7 +402,7 @@ Identifier SCT_RodEncoder::offlineID(const RDO* rdo) const {
 uint32_t SCT_RodEncoder::onlineID(const RDO* rdo) const {
   const Identifier waferID{offlineID(rdo)};
   const IdentifierHash offlineIDHash{m_sctID->wafer_hash(waferID)};
-  return (const uint32_t) m_cabling->getOnlineIdFromHash(offlineIDHash);
+  return static_cast<const uint32_t>(m_cabling->getOnlineIdFromHash(offlineIDHash));
 }
 
 /** ROD Link Number In the ROD header data */
