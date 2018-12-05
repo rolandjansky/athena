@@ -85,10 +85,9 @@ addHadRecoilMETMap(STDM6Sequence, STDM6Stream, "STDM6")
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="STDM6ThinningSvc", outStreams=[evtStream] )
 
-<<<<<<< HEAD
+
 # QGTaggerTool ### 
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=STDM6Sequence, algname="QGTaggerToolAlg")
-=======
 
 #====================================================================
 # Jet reconstruction/retagging
@@ -96,8 +95,6 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=STDM6Sequence, algname="QGTagge
 
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM6Sequence)
-
->>>>>>> upstream/21.2
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
