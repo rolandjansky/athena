@@ -59,6 +59,9 @@ datamodel_run_test (xAODTestRead2b DEPENDS xAODTestRead)
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
 datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
+datamodel_run_test (xAODTestReadRenameMT
+                    COMMAND "athena.py --thread=1"
+                    DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilter DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilterRead DEPENDS xAODTestReadFilter)
 datamodel_run_test (xAODTestReadARA
