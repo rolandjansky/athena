@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -89,7 +89,7 @@ TrackD3PDFlags.trackParametersAtBeamSpotLevelOfDetails = 0
 TrackD3PDFlags.trackParametersAtGlobalPerigeeLevelOfDetails = 0
 TrackD3PDFlags.trackParametersAtPrimaryVertexLevelOfDetails = 1
 
-from TrackD3PDMaker.TrackD3PDObject                    import TrackParticleD3PDObject
+from TrackD3PDMaker.xAODTrackD3PDObject            import xAODTrackParticleD3PDObject
 
 # PV config
 
@@ -100,11 +100,11 @@ TrackD3PDFlags.storeVertexTrackAssociation = False
 TrackD3PDFlags.storeVertexTrackIndexAssociation = True
 TrackD3PDFlags.vertexPositionLevelOfDetails = 2
 
-from TrackD3PDMaker.VertexD3PDObject                   import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject               import PrimaryxAODVertexD3PDObject
 
 # BeamSpot / MinBias
 
-from TrackD3PDMaker.BeamSpotD3PDObject                 import BeamSpotD3PDObject
+from InDetD3PDMaker.BeamSpotD3PDObject                 import BeamSpotD3PDObject
 
 # MET
 
@@ -617,7 +617,7 @@ def SMWZD3PD (alg = None,
                                                  sgkey  = 'HighPtEMClusters',
                                                  prefix = 'emclpt10_'))
 
-    from TrackD3PDMaker.TrackD3PDObject import TrackD3PDObject    
+    from TrackD3PDMaker.xAODTrackD3PDObject import xAODTrackD3PDObject
 
     # ... good tracks only (nSCT>3; no pt cut)
 
@@ -648,13 +648,10 @@ def SMWZD3PD (alg = None,
         softQcdFlags.trackParametersAtGlobalPerigeeLevelOfDetails = 2
         softQcdFlags.trackParametersAtPrimaryVertexLevelOfDetails = 2 
 
-        SoftQCDTrackParticleD3PDObject = TrackD3PDObject(_label='trk',
-                                                         _prefix='trk_',
-                                                         _sgkey='GoodTracks',
-                                                         typeName='Rec::TrackParticleContainer',
-                                                         truthMapKey='TrackParticleTruthCollection',
-                                                         SGKeyForTruth=D3PDMakerFlags.TrackSGKey(),
-                                                         flags=softQcdFlags)
+        SoftQCDTrackParticleD3PDObject = xAODTrackD3PDObject(_label='trk',
+                                                             _prefix='trk_',
+                                                             _sgkey='GoodTracks',
+                                                             flags=softQcdFlags)
 
         alg += SoftQCDTrackParticleD3PDObject(**_args ( 3, 'Tracks1', kw,
                                                         sgkey  = 'GoodTracks',
@@ -665,10 +662,10 @@ def SMWZD3PD (alg = None,
 
         # ... use standard level of track info for 'GoodTracks'
 
-        alg += TrackParticleD3PDObject    (**_args ( 3, 'Tracks1', kw,
-                                                     sgkey  = 'GoodTracks',
-                                                     label  = 'trk',
-                                                     prefix = 'trk_'))
+        alg += xAODTrackParticleD3PDObject    (**_args ( 3, 'Tracks1', kw,
+                                                         sgkey  = 'GoodTracks',
+                                                         label  = 'trk',
+                                                         prefix = 'trk_'))
 
         # ... high-pt tracks (nSCT>3; pt>5 GeV)
 
@@ -697,13 +694,10 @@ def SMWZD3PD (alg = None,
         highPtFlags.trackParametersAtGlobalPerigeeLevelOfDetails = 2
         highPtFlags.trackParametersAtPrimaryVertexLevelOfDetails = 3  
 
-        HighPtTrackParticleD3PDObject = TrackD3PDObject(_label='trkpt4',
-                                                        _prefix='trkpt4_',
-                                                        _sgkey='HighPtTracks',
-                                                        typeName='Rec::TrackParticleContainer',
-                                                        truthMapKey='TrackParticleTruthCollection',
-                                                        SGKeyForTruth=D3PDMakerFlags.TrackSGKey(),
-                                                        flags=highPtFlags)
+        HighPtTrackParticleD3PDObject = xAODTrackD3PDObject(_label='trkpt4',
+                                                            _prefix='trkpt4_',
+                                                            _sgkey='HighPtTracks',
+                                                            flags=highPtFlags)
 
         alg += HighPtTrackParticleD3PDObject(**_args ( 3, 'Tracks2', kw,
                                                      sgkey  = 'HighPtTracks',
@@ -713,10 +707,10 @@ def SMWZD3PD (alg = None,
     
     # Primary vertex block - May be missing in single-beam data.
 
-    alg += PrimaryVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
-                                             allowMissing = True,
-                                             sgkey = D3PDMakerFlags.VertexSGKey(),
-                                             prefix = 'vxp_'))
+    alg += PrimaryxAODVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
+                                                 allowMissing = True,
+                                                 sgkey = D3PDMakerFlags.VertexSGKey(),
+                                                 prefix = 'vxp_'))
     
     # MBTS 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id: SMWZLightD3PD.py 521211 2012-10-11 23:42:23Z boonekam $
 #
@@ -84,7 +84,7 @@ TrackD3PDFlags.trackParametersAtBeamSpotLevelOfDetails = 0
 TrackD3PDFlags.trackParametersAtGlobalPerigeeLevelOfDetails = 0
 TrackD3PDFlags.trackParametersAtPrimaryVertexLevelOfDetails = 1
 
-from TrackD3PDMaker.TrackD3PDObject                    import TrackParticleD3PDObject
+from TrackD3PDMaker.xAODTrackD3PDObject                import xAODTrackParticleD3PDObject
 
 # PV config
 
@@ -95,11 +95,11 @@ TrackD3PDFlags.storeVertexTrackAssociation = False
 TrackD3PDFlags.storeVertexTrackIndexAssociation = True
 TrackD3PDFlags.vertexPositionLevelOfDetails = 2
 
-from TrackD3PDMaker.VertexD3PDObject                   import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject               import PrimaryxAODVertexD3PDObject
 
 # BeamSpot / MinBias
 
-from TrackD3PDMaker.BeamSpotD3PDObject                 import BeamSpotD3PDObject
+from InDetD3PDMaker.BeamSpotD3PDObject                 import BeamSpotD3PDObject
 
 # MET
 
@@ -603,19 +603,19 @@ def SMWZLightD3PD (alg                  = None,
     # ... good tracks only (nSCT>=6; no pt cut)
 
     if trackContainer != 'None':
-        alg += TrackParticleD3PDObject (**_args ( 3, 'Tracks', kw,
-                                                  sgkey  = trackContainer,
-                                                  label  = 'trk',
-                                                  prefix = 'trk_',
-                                                  allowMissing=True ))
+        alg += xAODTrackParticleD3PDObject (**_args ( 3, 'TrackParticleCandidate', kw,
+                                                      sgkey  = trackContainer,
+                                                      label  = 'trk',
+                                                      prefix = 'trk_',
+                                                      allowMissing=True ))
 
     
     # Primary vertex block - May be missing in single-beam data.
 
-    alg += PrimaryVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
-                                             sgkey = D3PDMakerFlags.VertexSGKey(),
-                                             prefix = 'vxp_',
-                                             allowMissing=True ))
+    alg += PrimaryxAODVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
+                                                 sgkey = D3PDMakerFlags.VertexSGKey(),
+                                                 prefix = 'vxp_',
+                                                 allowMissing=True ))
     
     # Truth
 
