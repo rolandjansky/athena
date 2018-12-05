@@ -18,6 +18,8 @@
 #include "JetRecTools/CorrectPFOTool.h"
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 #include "JetRecTools/PuppiWeightTool.h"
+#include "JetRecTools/TARJetTool.h"
+#include "JetRecTools/SATScaleTool.h"
 
 DECLARE_COMPONENT( JetTrackSelectionTool )
 DECLARE_COMPONENT( SimpleJetTrackSelectionTool )
@@ -36,4 +38,6 @@ DECLARE_COMPONENT( CorrectPFOTool )
 DECLARE_COMPONENT( ChargedHadronSubtractionTool )
 DECLARE_COMPONENT( PuppiWeightTool )
 DECLARE_COMPONENT( ConstitTimeCutTool )
+DECLARE_COMPONENT( TARJetTool )
+DECLARE_COMPONENT( SATScaleTool )
 

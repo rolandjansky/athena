@@ -25,5 +25,7 @@
 #include "JetRecTools/CorrectPFOTool.h"
 #include "JetRecTools/PuppiWeightTool.h"
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
+#include "JetRecTools/TARJetTool.h"
+#include "JetRecTools/SATScaleTool.h"
 
 #endif
