@@ -61,61 +61,62 @@ void SiHitIdHelper::Initialize() {
 
 // Info retrieval:
 // Pixel or SCT
-bool SiHitIdHelper::isPixel(const int& hid){
-  this->SetID(hid);
-  int ps = this->GetFieldValue("PixelSCT");
+bool SiHitIdHelper::isPixel(const int& hid) const
+{
+  int ps = this->GetFieldValue("PixelSCT", hid);
   if (ps ==0 ) return true;
   else return false;
 }
 
-bool SiHitIdHelper::isSCT(const int& hid){
-  this->SetID(hid);
-  int ps = this->GetFieldValue("PixelSCT");
+bool SiHitIdHelper::isSCT(const int& hid) const
+{
+  int ps = this->GetFieldValue("PixelSCT", hid);
   if (ps ==0 ) return false;
   else return true;
 }
 
 // Barrel or Endcap
-int SiHitIdHelper::getBarrelEndcap(const int& hid){
-  this->SetID(hid);
-  return this->GetFieldValue("BarrelEndcap");
+int SiHitIdHelper::getBarrelEndcap(const int& hid) const
+{
+  return this->GetFieldValue("BarrelEndcap", hid);
 }
 
 // Layer/Disk
-int SiHitIdHelper::getLayerDisk(const int& hid) {
-  this->SetID(hid);
-  return this->GetFieldValue("LayerDisk");
+int SiHitIdHelper::getLayerDisk(const int& hid) const
+{
+  return this->GetFieldValue("LayerDisk", hid);
 }
 
 // eta module
-int SiHitIdHelper::getEtaModule(const int& hid)  {
-  this->SetID(hid);
-  return this->GetFieldValue("EtaModule");
+int SiHitIdHelper::getEtaModule(const int& hid) const
+{
+  return this->GetFieldValue("EtaModule", hid);
 }
 
 // phi module
-int SiHitIdHelper::getPhiModule(const int& hid) {
-  this->SetID(hid);
-  return this->GetFieldValue("PhiModule");
+int SiHitIdHelper::getPhiModule(const int& hid) const
+{
+  return this->GetFieldValue("PhiModule", hid);
 }
 
 // side
-int SiHitIdHelper::getSide(const int& hid) {
-  this->SetID(hid);
-  return this->GetFieldValue("Side");
+int SiHitIdHelper::getSide(const int& hid) const
+{
+  return this->GetFieldValue("Side", hid);
 }
 
 
 //
 // Info packing:
 int SiHitIdHelper::buildHitId(const int Pixel_SCT, const int BrlECap, const int LayerDisk,
-                              const int etaM, const int phiM, const int side) {
-  this->SetID(0);
-  this->SetFieldValue("PixelSCT",       Pixel_SCT);
-  this->SetFieldValue("BarrelEndcap",   BrlECap);
-  this->SetFieldValue("LayerDisk",      LayerDisk);
-  this->SetFieldValue("EtaModule",      etaM);
-  this->SetFieldValue("PhiModule",      phiM);
-  this->SetFieldValue("Side",           side);
-  return this->GetID();
+                              const int etaM, const int phiM, const int side) const
+{
+  int theID(0);
+  this->SetFieldValue("PixelSCT",       Pixel_SCT, theID);
+  this->SetFieldValue("BarrelEndcap",   BrlECap, theID);
+  this->SetFieldValue("LayerDisk",      LayerDisk, theID);
+  this->SetFieldValue("EtaModule",      etaM, theID);
+  this->SetFieldValue("PhiModule",      phiM, theID);
+  this->SetFieldValue("Side",           side, theID);
+  return theID;
 }
