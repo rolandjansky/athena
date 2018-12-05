@@ -23,7 +23,6 @@
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
 
-using namespace std;
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
 using namespace InDet;
 
@@ -91,8 +90,8 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >* dec_GhostTruthAssociationLink;
 
     // Ntracks for QGTaggerTool ---
-    bool m_decoratentracks;
-    SG::AuxElement::Decorator<int>* dec_AssociatedNtracks;
+    bool m_decorateNTracks;
+    SG::AuxElement::Decorator<int>* dec_AssociatedNTracks;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
   };

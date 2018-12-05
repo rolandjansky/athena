@@ -12,8 +12,6 @@
 #include "xAODCore/ShallowCopy.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-
 namespace DerivationFramework {
 
   JetAugmentationTool::JetAugmentationTool(const std::string& t,
@@ -43,8 +41,8 @@ namespace DerivationFramework {
     dec_originm(0),
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
-    dec_AssociatedNtracks(0), // QGTaggerTool ---
-    m_decoratentracks(false), 
+    dec_AssociatedNTracks(0), // QGTaggerTool ---
+    m_decorateNTracks(false), 
     m_trkSelectionTool("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -126,8 +124,8 @@ namespace DerivationFramework {
     // set up InDet selection tool
     if(!m_trkSelectionTool.empty()) {
       CHECK( m_trkSelectionTool.retrieve() );
-      m_decoratentracks = true; 
-      dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTracks");
+      m_decorateNTracks = true; 
+      dec_AssociatedNTracks = new SG::AuxElement::Decorator<int>(m_momentPrefix + "QGTagger_NTracks");
     } // now works
 
 
@@ -176,9 +174,9 @@ namespace DerivationFramework {
     }
     
     // QGTaggerTool ---
-    if(m_decoratentracks)
+    if(m_decorateNTracks)
       {
-	delete dec_AssociatedNtracks;
+	delete dec_AssociatedNTracks;
       }
     
     if(m_decorateorigincorrection){
@@ -300,7 +298,7 @@ namespace DerivationFramework {
       }
 
       // QGTaggerTool ---
-      if(m_decoratentracks)
+      if(m_decorateNTracks)
 	{
 	  ATH_MSG_DEBUG("Test Decorate QG ");
 	  std::vector<const xAOD::IParticle*> jettracks;
@@ -354,7 +352,7 @@ namespace DerivationFramework {
 	    
 	  }// end loop over jettracks
 	  
-	  (*dec_AssociatedNtracks)(jet_orig) = nTracksCount;
+	  (*dec_AssociatedNTracks)(jet_orig) = nTracksCount;
 
 	}// end if m_decoratentracks
 
