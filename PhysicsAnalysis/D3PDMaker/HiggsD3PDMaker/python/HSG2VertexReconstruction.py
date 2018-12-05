@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id: HSG2VertexReconstruction.py 520030 2012-10-03 10:11:57Z krasznaa $
 #
@@ -27,9 +27,9 @@ def addHSG2VertexReconstruction( d3pdalg,
                                  muon_target = "mu_muon_" ):
 
     # Add information about the vertices separately:
-    from TrackD3PDMaker.VertexD3PDObject import PrimaryVertexD3PDObject
-    d3pdalg += PrimaryVertexD3PDObject( 1, sgkey = vertex_key,
-                                        prefix = "quad_vertex_" )
+    from TrackD3PDMaker.xAODVertexD3PDObject import PrimaryxAODVertexD3PDObject
+    d3pdalg += PrimaryxAODVertexD3PDObject( 1, sgkey = vertex_key,
+                                            prefix = "quad_vertex_" )
 
     # Add the information about the quadruplets:
     from HiggsD3PDMaker.HSG2QuadrupletD3PDObject import HSG2QuadrupletD3PDObject
