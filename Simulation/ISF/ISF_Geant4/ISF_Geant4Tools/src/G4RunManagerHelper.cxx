@@ -42,7 +42,7 @@ StatusCode iGeant4::G4RunManagerHelper::finalize()
 }
 
 
-iGeant4::G4AtlasRunManager* iGeant4::G4RunManagerHelper::g4RunManager() const
+G4AtlasRunManager* iGeant4::G4RunManagerHelper::g4RunManager() const
 
 {
   if (m_g4RunManager) return m_g4RunManager;
