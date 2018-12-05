@@ -13,7 +13,6 @@
 #include <string>
 
 // FrameWork includes
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 
@@ -23,7 +22,8 @@
 
 #include "BarcodeServices/BitCalculator.h"
 
-class IIncidentSvc;
+#include "tbb/concurrent_unordered_map.h"
+
 
 
 namespace Barcode {
@@ -36,7 +36,7 @@ namespace Barcode {
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
 
-  class LegacyBarcodeSvc : public extends<AthService, IBarcodeSvc, IIncidentListener> {
+  class LegacyBarcodeSvc : public extends<AthService, IBarcodeSvc> {
   public:
 
     /** Constructor with parameters */
@@ -49,8 +49,11 @@ namespace Barcode {
     StatusCode  initialize();
     StatusCode  finalize();
 
-    /** Incident to reset the barcodes at the beginning of the event */
-    void handle(const Incident& inc);
+    /** Construct and insert a new set of barcode members. To be called for every new thread. */
+    virtual StatusCode initializeBarcodes() override;
+
+    /** Reset barcodes. To be called at the beginning of each event. */
+    virtual StatusCode resetBarcodes() override;
 
     /** Generate a new unique vertex barcode, based on the parent particle barcode and
         the physics process code causing the truth vertex*/
@@ -90,7 +93,6 @@ namespace Barcode {
     virtual inline bool hasBitCalculator() const { return (m_bitcalculator!=0); }
 
   private:
-    ServiceHandle<IIncidentSvc>                   m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
 
     /** bitwise utility calculator for barcodes */
     Barcode::BitCalculator*                       m_bitcalculator;
@@ -110,6 +112,20 @@ namespace Barcode {
 
     /** throw error messages if a possible overflow is detected */
     bool                                          m_doUnderOverflowChecks;
+
+    struct BarcodeInfo {
+        BarcodeInfo() = delete;
+        BarcodeInfo(VertexBarcode cv, ParticleBarcode cs) : currentVertex(cv), currentSecondary(cs) {};
+        VertexBarcode currentVertex;
+        ParticleBarcode currentSecondary;
+    };
+
+    using LegacyBarcodeSvcThreadMap_t = tbb::concurrent_unordered_map
+        < std::thread::id, BarcodeInfo, std::hash<std::thread::id> >;
+    LegacyBarcodeSvcThreadMap_t m_bcThreadMap;
+
+    BarcodeInfo& getBarcodeInfo() const;
+
   };
 
 

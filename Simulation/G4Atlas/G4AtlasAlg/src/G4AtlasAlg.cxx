@@ -273,7 +273,7 @@ StatusCode G4AtlasAlg::execute()
   }
 
   // tell TruthService we're starting a new event
-  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() ); //FIXME POINTLESS - THIS METHOD IS EMPTY IN MASTER
+  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() );
 
   // Release GeoModel Geometry if necessary
   if (m_releaseGeoModel) {
