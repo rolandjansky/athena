@@ -717,8 +717,11 @@ bool TileJetMonTool::isGoodEvent() {
   if (! m_do_event_cleaning) return true;
 
   ATH_MSG_DEBUG("TileJetMonTool::isGoodEvent()....");
-  const EventInfo* eventInfo(NULL);
-  CHECK(evtStore()->retrieve(eventInfo));
+  const EventInfo* eventInfo = nullptr;
+  if (! evtStore()->retrieve(eventInfo, "EventInfo").isSuccess()){
+    ATH_MSG_ERROR("Cannot retrieve EventInfo object!");
+    return false;
+  }
   if (eventInfo->errorState(EventInfo::LAr) == EventInfo::Error) return(false);
   if (eventInfo->errorState(EventInfo::Tile) == EventInfo::Error) return(false);
 
@@ -726,8 +729,11 @@ bool TileJetMonTool::isGoodEvent() {
   */
   if (! m_do_jet_cleaning) return true;
 
-  const xAOD::JetContainer* jetContainer = evtStore()->tryConstRetrieve<xAOD::JetContainer>("AntiKt4EMTopoJets");
-  if (!jetContainer) return true;
+  const xAOD::JetContainer* jetContainer = nullptr;
+  if (! evtStore()->retrieve(jetContainer, "AntiKt4EMTopoJets").isSuccess()){
+    ATH_MSG_INFO("Cannot retrieve AntiKt4EMTopoJets. However, returning true.");
+    return true;
+  }
 
   int ijet=0;
   for (const xAOD::Jet* jet : *jetContainer) {
