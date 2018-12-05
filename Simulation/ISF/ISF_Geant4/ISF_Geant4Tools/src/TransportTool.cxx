@@ -7,6 +7,7 @@
 
 //package includes
 #include "ISF_Geant4Tools/G4AtlasRunManager.h"
+#include "ISFFluxRecorder.h"
 
 // ISF classes
 #include "ISF_Event/ISFParticle.h"
@@ -126,7 +127,7 @@ void iGeant4::G4TransportTool::initializeOnce()
   }
   m_physListTool->SetPhysicsList();
 
-  m_pRunMgr->SetRecordFlux( m_recordFlux );
+  m_pRunMgr->SetRecordFlux( m_recordFlux, new ISFFluxRecorder );
   m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
   m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
   m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );

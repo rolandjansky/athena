@@ -30,12 +30,21 @@ find_package( HepMC )
 find_package( XercesC )
 find_package( Eigen )
 
+# G4AtlasAlgLib library 
+
+atlas_add_library( G4AtlasAlgLib
+                     src/*.cxx
+                     PUBLIC_HEADERS G4AtlasAlg
+                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+ ${HEPMC_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CxxUtils SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruth MCTruthBaseLib )
+
 # Component(s) in the package:
 atlas_add_component( G4AtlasAlg
-                     src/*.cxx
                      src/components/*.cxx
+                     PUBLIC_HEADERS G4AtlasAlg
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CxxUtils SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruth MCTruthBaseLib )
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasToolsLib G4AtlasAlgLib CxxUtils SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruth MCTruthBaseLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
