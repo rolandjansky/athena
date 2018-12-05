@@ -10,6 +10,8 @@
 
 #include "GaudiKernel/Property.h"
 
+using namespace TrigCompositeUtils;
+
 namespace HLTTest {
 
   TestRoRSeqFilter::TestRoRSeqFilter( const std::string& name, 
