@@ -38,27 +38,29 @@ namespace CP {
       return 340453;
     }
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
-                asg::AsgTool(name),
+      asg::AsgTool(name),
 
-                m_systFilter(),
+      m_systFilter(),
 
-                m_appliedSystematics(nullptr),
-                m_fileName(),
-                m_efficiencyMap(),
-                m_efficiencyMapReplicaArray(),
-                m_muonquality("Medium"),
-                m_calibration_version("180905_TriggerUpdate"),
-                m_custom_dir(),
-                m_binning("fine"),
-		m_eventInfoContName("EventInfo"),
-                m_allowZeroSF(false),
-		m_experimental(false),
-		m_useRel207(false),
-		m_useMC16c(false),
-                m_replicaTriggerList(),
-                m_replicaSet(),
-                m_nReplicas(100),
-                m_ReplicaRandomSeed(12345) {
+      m_appliedSystematics(nullptr),
+      m_fileName(),
+      m_efficiencyMap(),
+      m_efficiencyMapReplicaArray(),
+      m_muonquality("Medium"),
+      m_calibration_version("181204_TriggerUpdate"),
+      m_custom_dir(),
+      m_binning("fine"),
+      m_eventInfoContName("EventInfo"),
+      m_allowZeroSF(false),
+      m_experimental(false),
+      m_useRel207(false),
+      m_useMC16c(false),
+      m_forceYear(-1),
+      m_forcePeriod(""),
+      m_replicaTriggerList(),
+      m_replicaSet(),
+      m_nReplicas(100),
+      m_ReplicaRandomSeed(12345) {
       
         declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose,LowPt
         declareProperty("CalibrationRelease", m_calibration_version);
@@ -75,28 +77,30 @@ namespace CP {
         declareProperty("ReplicaRandomSeed", m_ReplicaRandomSeed, "Random seed for toy replica generation.");
         declareProperty("AllowZeroSF", m_allowZeroSF, "If a trigger is not available will return 0 instead of throwing an error. More difficult to spot configuration issues. Use at own risk");
 	declareProperty("EventInfoContName", m_eventInfoContName, "Overwrite default event info container name");
-
+	declareProperty("forceYear", m_forceYear, "Only for developers. Never use this in any analysis!!!!!!");
+	declareProperty("forcePeriod", m_forcePeriod, "Only for developers. Never use this in any analysis!!!!!!");
     }
 
     MuonTriggerScaleFactors::~MuonTriggerScaleFactors() { }
 
   StatusCode MuonTriggerScaleFactors::LoadTriggerMap(unsigned int year) {
-
         std::string fileName = m_fileName;
         if (fileName.empty() && !m_useRel207) {
-            if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v02.root";
-            else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v03.root";
-	    else if (year == 2017){
-	      if(m_useMC16c)
-		fileName = "muontrigger_sf_2017_mc16c_v02.root";
-	      else
-		fileName = "muontrigger_sf_2017_mc16d_v01.root";
-	    }
-            else {
-                ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
-                return StatusCode::SUCCESS;
-            }	    
-        }
+	  if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v03.root";
+	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v04.root";
+	  else if (year == 2017){
+	    if(m_useMC16c)
+	      fileName = "muontrigger_sf_2017_mc16c_v02.root";
+	    else
+	      fileName = "muontrigger_sf_2017_mc16d_v02.root";
+	  }
+	  else if (year == 2018)
+	    fileName = "muontrigger_sf_2018_mc16e_v01.root";
+	  else{
+	    ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
+	    return StatusCode::SUCCESS;
+	  }
+	}
 	else if (fileName.empty()) {
 	  if (year == 2015) fileName = "muontrigger_sf_2015_mc15c_v01.root";
 	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc15c_v02.root";
@@ -105,7 +109,6 @@ namespace CP {
 	    return StatusCode::SUCCESS;
 	  }  
         }
-	
         TDirectory* origDir = gDirectory;
 
         std::string filePath;
@@ -154,6 +157,8 @@ namespace CP {
                 if (not triggerKey->IsFolder()) continue;
                 TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
                 std::string triggerName = std::string(triggerKey->GetName());
+		if (std::set<std::string>{"HLT_mu10", "HLT_mu14", "HLT_mu20", "HLT_mu22"}.count(triggerName) && year == 2018)
+		  continue;
 		if(!std::set<std::string>{"HLT_mu26_ivarmedium", "HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50"}.count(triggerName) && m_binning == "coarse"){
 		  ATH_MSG_DEBUG("Coarse binning not supported for di-muon trigger legs at the moment");
 		  continue;
@@ -169,7 +174,7 @@ namespace CP {
                             TH2* hist = dynamic_cast<TH2*>(triggerDirectory->Get(path.c_str()));
                             if (not hist) {
 			      
-                                ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize " << path << " not found under trigger " << triggerName << " and period " << periodName);
+			      ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize " << path << " not found under trigger " << triggerName << " and period " << periodName << " for year: " << year);
                                 continue;
                             }
                             hist->SetDirectory(0);
@@ -235,7 +240,7 @@ namespace CP {
             m_replicaSet.insert(trigToy);
 
         ATH_MSG_INFO("MuonTriggerScaleFactors::initialize");
-        for (int i = 2015; i <= 2017; ++i) {
+        for (int i = 2015; i <= 2018; ++i) {
             ATH_CHECK(LoadTriggerMap(i));
         }
         return StatusCode::SUCCESS;
@@ -412,9 +417,9 @@ namespace CP {
 
     }
     TH1_Ptr MuonTriggerScaleFactors::getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
-      
         EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(year, period), encodeHistoName(period, trigger, isData, Systematic, isBarrel));
         EfficiencyMap::const_iterator Itr = m_efficiencyMap.find(Ident);
+
         if (Itr == m_efficiencyMap.end()) {
             return TH1_Ptr();
         }
@@ -488,7 +493,13 @@ namespace CP {
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
         }
-
+	unsigned int run = getRunNumber();            
+	auto year = getYear(run);
+	if(year == 2018){
+	  ATH_MSG_WARNING("You tried to access di-muon trigger SFs for 2018 which are currently not available. SF will be set to one");
+	  TriggerSF = 1.;
+	  return CorrectionCode::Ok;
+	}
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
         Double_t eff_data = 0;
@@ -732,13 +743,17 @@ namespace CP {
     }
 
     unsigned int MuonTriggerScaleFactors::getYear(unsigned int run) const {
-        if (run <= 284484) return 2015;
-        else if (run <= 311481) return 2016;
-        else return 2017;
+      if(m_forceYear != -1){
+	return m_forceYear;
+      }
+      if (run <= 284484) return 2015;
+      else if (run <= 311481) return 2016;
+      else if (run <= 340453) return 2017;
+      else return 2018;
     }
   
     std::string MuonTriggerScaleFactors::getDataPeriod() const {
-        return getDataPeriod(getRunNumber());
+      return getDataPeriod(getRunNumber());
     }
 
     std::string MuonTriggerScaleFactors::getDataPeriod(unsigned int run) const {
@@ -746,45 +761,63 @@ namespace CP {
     }
 
     std::string MuonTriggerScaleFactors::getDataPeriod(unsigned int runNumber, unsigned year) const {
-        if (year == 2015) {
-            if (runNumber >= 266904 && runNumber <= 272531) return "AC";
-            else if (runNumber >= 276073 && runNumber <= 276954) return "D";
-            else if (runNumber >= 278727 && runNumber <= 279928) return "E";
-            else if (runNumber >= 279932 && runNumber <= 280422) return "F";
-            else if (runNumber >= 280423 && runNumber <= 281075) return "G";
-            else if (runNumber >= 281130 && runNumber <= 281411) return "H";
-            else if (runNumber >= 281662 && runNumber <= 282482) return "I"; // special ALFA run
-            else if (runNumber >= 282625 && runNumber <= 284484) return "J";
-        }
-	else if (year == 2016) {
-            if (runNumber >= 296939 && runNumber <= 300287) return "A";
-            else if (runNumber >= 300345 && runNumber <= 300908) return "B";
-            else if (runNumber >= 301912 && runNumber <= 302393) return "C";
-            else if (runNumber >= 302737 && runNumber <= 302872) return "D1D3";
-            else if (runNumber >= 302919 && runNumber <= 303560) return "D4D8";
-            else if (runNumber >= 303638 && runNumber <= 303892) return "E";
-            else if (runNumber >= 303943 && runNumber <= 304494) return "F";
-            else if (runNumber >= 305291 && runNumber <= 306714) return "G";
-            else if (runNumber >= 307124 && runNumber <= 308084) return "I";
-            else if (runNumber >= 309311 && runNumber <= 309759) return "K";
-            else if (runNumber >= 310015 && runNumber <= 311481) return "L";
-	}
-	else if (year == 2017) {
-            if (runNumber >= 324320 && runNumber <= 325558) return "A";
-            else if (runNumber >= 325713 && runNumber <= 328393) return "B";
-            else if (runNumber >= 329385 && runNumber <= 330470) return "C";
-            else if (runNumber >= 331033 && runNumber <= 331239) return "D";
-            else if (runNumber >= 331697 && runNumber <= 332304) return "D";
-            else if (runNumber >= 332720 && runNumber <= 334779) return "E";
-            else if (runNumber >= 334842 && runNumber <= 335290) return "F";
-            else if (runNumber >= 336497 && runNumber <= 336782) return "H";
-            else if (runNumber >= 336832 && runNumber <= 337833) return "I";
-            else if (runNumber >= 338183 && runNumber <= 339070) return "K";
-            else if (runNumber >= 339205 && runNumber <= 340453) return "K";
-        }
+      if(!m_forcePeriod.empty())
+	return m_forcePeriod;
+      if (year == 2015) {
+	if (runNumber >= 266904 && runNumber <= 272531) return "AC";
+	else if (runNumber >= 276073 && runNumber <= 276954) return "D";
+	else if (runNumber >= 278727 && runNumber <= 279928) return "E";
+	else if (runNumber >= 279932 && runNumber <= 280422) return "F";
+	else if (runNumber >= 280423 && runNumber <= 281075) return "G";
+	else if (runNumber >= 281130 && runNumber <= 281411) return "H";
+	else if (runNumber >= 281662 && runNumber <= 282482) return "I"; // special ALFA run
+	else if (runNumber >= 282625 && runNumber <= 284484) return "J";
+      }
+      else if (year == 2016) {
+	if (runNumber >= 296939 && runNumber <= 300287) return "A";
+	else if (runNumber >= 300345 && runNumber <= 300908) return "B";
+	else if (runNumber >= 301912 && runNumber <= 302393) return "C";
+	else if (runNumber >= 302737 && runNumber <= 302872) return "D1D3";
+	else if (runNumber >= 302919 && runNumber <= 303560) return "D4D8";
+	else if (runNumber >= 303638 && runNumber <= 303892) return "E";
+	else if (runNumber >= 303943 && runNumber <= 304494) return "F";
+	else if (runNumber >= 305291 && runNumber <= 306714) return "G";
+	else if (runNumber >= 307124 && runNumber <= 308084) return "I";
+	else if (runNumber >= 309311 && runNumber <= 309759) return "K";
+	else if (runNumber >= 310015 && runNumber <= 311481) return "L";
+      }
+      else if (year == 2017) {
+	if (runNumber >= 324320 && runNumber <= 325558) return "A";
+	else if (runNumber >= 325713 && runNumber <= 328393) return "B";
+	else if (runNumber >= 329385 && runNumber <= 330470) return "C";
+	else if (runNumber >= 330857 && runNumber <= 332304) return "D";
+	else if (runNumber >= 332720 && runNumber <= 334779) return "E";
+	else if (runNumber >= 334842 && runNumber <= 335290) return "F";
+	else if (runNumber >= 336497 && runNumber <= 336782) return "H";
+	else if (runNumber >= 336832 && runNumber <= 337833) return "I";
+	else if (runNumber >= 338183 && runNumber <= 340453) return "K";
+      }
+      else if (year == 2018) {
+	if (runNumber >= 348197 && runNumber <= 348836) return "A";
+	else if (runNumber >= 348885 && runNumber <= 349533) return "B";
+	else if (runNumber >= 349534 && runNumber <= 350220) return "C";
+	else if (runNumber >= 350310 && runNumber <= 352107) return "D";
+	else if (runNumber >= 352123 && runNumber <= 352137) return "E";
+	else if (runNumber >= 352274 && runNumber <= 352514) return "F";
+	else if (runNumber >= 354107 && runNumber <= 354494) return "G";
+	else if (runNumber >= 354826 && runNumber <= 355224) return "H";
+	else if (runNumber >= 355261 && runNumber <= 355273) return "I";
+	else if (runNumber >= 355331 && runNumber <= 355468) return "J";
+	else if (runNumber >= 355529 && runNumber <= 356259) return "K";
+	else if (runNumber >= 357050 && runNumber <= 359171) return "L";
+	else if (runNumber >= 359191 && runNumber <= 360414) return "M";
+	else if (runNumber >= 361635 && runNumber <= 361696) return "N";
+	else if (runNumber >= 361738 && runNumber <= 363400) return "O";
+	else if (runNumber >= 363664 && runNumber <= 364292) return "Q";
+      }
     
-        //Return some  default  value
-        return getDataPeriod(getFallBackRunNumber() , getYear(getFallBackRunNumber() ));
+      //Return some  default  value
+      return getDataPeriod(getFallBackRunNumber() , getYear(getFallBackRunNumber() ));
     }
   
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
@@ -799,8 +832,9 @@ namespace CP {
             return info->runNumber();
         }
         if (!acc_rnd.isAvailable(*info)) {
+	  if(m_forceYear == -1 && m_forcePeriod == "")
             ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
-            return getFallBackRunNumber() ;
+	  return getFallBackRunNumber() ;
         } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
             return getFallBackRunNumber();

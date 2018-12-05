@@ -145,7 +145,8 @@ namespace CP {
             bool m_experimental;
             bool m_useRel207;
             bool m_useMC16c;
-            
+      int m_forceYear;
+      std::string m_forcePeriod;
             //Variables for toy replicas setup
             std::vector<std::string> m_replicaTriggerList;
             std::set<std::string> m_replicaSet; //set of triggers for replicas, for fast searching
