@@ -47,10 +47,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
-
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::TrtCTP , 50110070 , 1 )
 
 #endif // TRIGT1INTERFACES_TRT_CTP_H

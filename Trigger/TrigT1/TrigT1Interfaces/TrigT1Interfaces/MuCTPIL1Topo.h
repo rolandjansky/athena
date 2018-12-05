@@ -61,8 +61,6 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::MuCTPIL1Topo, 6175, 0 )
  #endif // TRIGT1INTERFACES_MUCTPIL1TOPO_H
