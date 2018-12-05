@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -137,12 +137,8 @@ namespace psc {
     uint32_t            m_run_number;         ///< (initial) run number to be used for this run
     IAppMgrUI*          m_pesaAppMgr;         ///< Application Manager
     std::string         m_nameEventLoopMgr;   ///< name of the event loop manager
-    bool                m_interactive;        ///< Running in interactive mode (athenaMT/PT)
-
-    // User command handling
-    bool           m_failNextUsrCmd;
-    unsigned int   m_sleepNextUsrCmd;
-    psc::Config * m_config;
+    bool                m_interactive;        ///< Running in interactive mode (athenaHLT)
+    psc::Config*        m_config;             ///< Config derived from ptree
   };
 }
 
