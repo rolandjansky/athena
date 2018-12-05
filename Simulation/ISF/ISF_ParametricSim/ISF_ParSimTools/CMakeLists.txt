@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_ParametricSim/ISF_ParSimInterfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces

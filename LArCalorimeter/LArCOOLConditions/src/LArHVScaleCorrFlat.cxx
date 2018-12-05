@@ -27,12 +27,13 @@ LArHVScaleCorrFlat::LArHVScaleCorrFlat(const CondAttrListCollection* attrList) {
   return;
 }
 
+
 const float& LArHVScaleCorrFlat::HVScaleCorr(const HWIdentifier& chid) const {
   return getDataByHash(m_onlineHelper->channel_Hash(chid),0);
 
 }
 
-  // retrieving HVScaleCorr using offline ID  
+// retrieving HVScaleCorr using offline ID  
 const float& LArHVScaleCorrFlat::HVScaleCorr(const Identifier& id) const  {
   const HWIdentifier OnId = m_larCablingSvc->createSignalChannelID(id);
   return HVScaleCorr(OnId);

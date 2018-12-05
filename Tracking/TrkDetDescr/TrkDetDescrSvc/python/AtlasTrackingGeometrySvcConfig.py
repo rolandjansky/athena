@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-# TODO This
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingGeometrySvc
@@ -7,22 +6,8 @@ from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
 from CaloTrackingGeometry.ConfiguredCaloTrackingGeometryBuilder import ConfiguredCaloTrackingGeometryBuilder
 from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder
 from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders, addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import EnvelopeDefSvc
-
-# Copied from MuonCalibConfig - should be central.
-def addFoldersSplitOnline(flags, db, online_folders, offline_folders, className=None, addMCString="_OFL"):
-    "Add access to given folder, using online_folder online, offline_folder offline"
-    result=ComponentAccumulator()
-    
-    if flags.Common.isOnline and not configFlags.Input.isMC:
-        folders = online_folders
-    else:
-        # MC, so add addMCString
-        db = db+addMCString
-        folders = offline_folders
-    result.merge( addFolders(flags, folders, className=className, detDb=db) )
-    return result, None
 
 def _setupCondDB(flags, CoolDataBaseFolder):
     result=ComponentAccumulator()

@@ -48,8 +48,6 @@
 
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
 
@@ -93,7 +91,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_ftkRefit(false),
   m_useBeamSpot(true),
   m_nfreeCut(5), 
-  m_iBeamCondSvc(nullptr),
   m_nTracks(0),
   m_nPixSPsInRoI(0),
   m_nSCTSPsInRoI(0),
@@ -255,7 +252,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareMonitoredStdContainer("hit_PIXEndCapL3PhiResidual",m_pixResPhiECL3);
   declareMonitoredStdContainer("hit_PIXEndCapL3EtaResidual",m_pixResEtaECL3);
 
-  
 }
 
 //--------------------------------------------------------------------------
@@ -305,10 +301,10 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
     
     if (m_useBeamSpot) {
-      StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
-      if (scBS.isFailure() || m_iBeamCondSvc == 0) {
-	m_iBeamCondSvc = 0;
-	ATH_MSG_WARNING("Could not retrieve Beam Conditions Service. ");
+      auto sc = m_beamSpotKey.initialize();
+      if(sc.isFailure()) {
+         ATH_MSG_ERROR("Error initializing beamspot info");
+         return HLT::BAD_JOB_SETUP;
       }
     }
     
@@ -499,7 +495,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
   m_shift_x=0.0;
   m_shift_y=0.0;
-  if(m_useBeamSpot && m_iBeamCondSvc) {
+  if(m_useBeamSpot) {
     getBeamSpot();
 
   }
@@ -1058,13 +1054,14 @@ void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<TrigInDetTripl
 }
 
 void TrigFastTrackFinder::getBeamSpot() {
-  m_vertex = m_iBeamCondSvc->beamPos();
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  m_vertex = beamSpotHandle->beamPos();
   ATH_MSG_VERBOSE("Beam spot position " << m_vertex);
   double xVTX = m_vertex.x();
   double yVTX = m_vertex.y();
   double zVTX = m_vertex.z();
-  double tiltXZ = m_iBeamCondSvc->beamTilt(0);
-  double tiltYZ = m_iBeamCondSvc->beamTilt(1);
+  double tiltXZ = beamSpotHandle->beamTilt(0);
+  double tiltYZ = beamSpotHandle->beamTilt(1);
   m_shift_x = xVTX - tiltXZ*zVTX;//correction for tilt
   m_shift_y = yVTX - tiltYZ*zVTX;//correction for tilt
   ATH_MSG_VERBOSE("Beam center position:  " << m_shift_x <<"  "<< m_shift_y);

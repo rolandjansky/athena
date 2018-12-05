@@ -18,8 +18,9 @@ class MMSDOVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-                       std::string containername) :
-    ValAlgVariables(evtStore, detManager, tree, containername, "MMSDOVariables"),
+							  std::string containername,
+							  MSG::Level msglvl) :
+    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nsdo(0), 
     m_NSWMM_sdo_stationName(0),

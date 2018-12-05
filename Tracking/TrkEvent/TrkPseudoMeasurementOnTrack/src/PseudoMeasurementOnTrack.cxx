@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,16 @@
 #include <string>
 #include <typeinfo>
 
+
+namespace {
+  // helper to move pointer and set source to nullptr
+  template <class T>
+  T move_ptr(T &src) {
+    T tmp = src;
+    src = nullptr;
+    return tmp;
+  }
+}
 
 
 Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(const LocalParameters& locpars,
@@ -57,6 +67,14 @@ Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack( const Trk::PseudoMeasur
   m_globalPosition(0)
 {}
 
+// move constructor:
+Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(Trk::PseudoMeasurementOnTrack&& pmot) :
+  Trk::MeasurementBase(pmot),
+  m_associatedSurface(move_ptr(pmot.m_associatedSurface)),
+  m_globalPosition(move_ptr(pmot.m_globalPosition))
+{}
+
+
 // assignment operator:
 Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(const PseudoMeasurementOnTrack& pmot)
 {
@@ -71,6 +89,22 @@ Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(const Ps
   }
   return *this;
 }
+
+
+// move assignment operator:
+Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(PseudoMeasurementOnTrack&& pmot)
+{
+  if ( &pmot != this) {
+    Trk::MeasurementBase::operator=(pmot);
+    if (m_associatedSurface && m_associatedSurface->isFree())
+      delete m_associatedSurface;
+    m_associatedSurface = move_ptr(pmot.m_associatedSurface);
+    delete m_globalPosition;
+    m_globalPosition    = move_ptr(pmot.m_globalPosition);
+  }
+  return *this;
+}
+
 
 const Amg::Vector3D& Trk::PseudoMeasurementOnTrack::globalPosition() const
 {

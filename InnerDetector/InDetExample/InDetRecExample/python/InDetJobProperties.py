@@ -1168,6 +1168,12 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doDigitalROTCreation(InDetFlagsJobProperty): 
+  """use PixelClusterOnTrackToolDigital during ROT creation to save CPU""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1305,7 +1311,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
-       self.checkThenSet(self.doRefitInvalidCov      ,True)
+       #self.checkThenSet(self.doRefitInvalidCov      ,True) temporarily commenting out due to ATLASRECTS-4691
 
     # --- special case SLHC
     elif (self.doSLHC()):
@@ -2778,7 +2784,8 @@ _list_InDetJobProperties = [Enabled,
                             doParticleConversion,
                             doStoreTrackSeeds,
                             doHIP300,
-                            checkDeadElementsOnTrack
+                            checkDeadElementsOnTrack,
+                            doDigitalROTCreation
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

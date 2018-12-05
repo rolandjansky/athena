@@ -23,6 +23,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Event/xAOD/xAODTau
       Event/xAOD/xAODEgamma
       Event/xAOD/xAODTracking
+      Event/xAOD/xAODParticleEvent
       Reconstruction/MVAUtils
       PRIVATE
       Event/FourMomUtils
@@ -43,6 +44,7 @@ else()
       Event/xAOD/xAODTau
       Event/xAOD/xAODEgamma
       Event/xAOD/xAODTracking
+      Event/xAOD/xAODParticleEvent
       Reconstruction/Particle
       Reconstruction/MVAUtils
       PRIVATE
@@ -107,7 +109,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking
+      xAODTracking xAODParticleEvent
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
@@ -119,7 +121,7 @@ else()
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking CaloUtilsLib Particle
+      xAODTracking xAODParticleEvent CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
 endif()
@@ -131,14 +133,14 @@ if( NOT XAOD_STANDALONE )
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
+         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloUtilsLib
          xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils NavFourMom
-         xAODCaloEvent xAODJet xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel
+         xAODCaloEvent xAODJet xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel
          InDetRecToolInterfaces JetEDM Particle ITrackToVertex
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces

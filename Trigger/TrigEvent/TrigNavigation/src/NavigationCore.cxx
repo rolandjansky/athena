@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -9,7 +9,7 @@
 
 #include "GaudiKernel/IConversionSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "SGTools/DataBucketBase.h"
+#include "AthenaKernel/DataBucketBase.h"
 
 #include "TrigConfHLTData/HLTUtils.h"
 

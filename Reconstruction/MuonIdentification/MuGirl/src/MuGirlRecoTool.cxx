@@ -32,6 +32,7 @@
 
 #include "MuonCombinedEvent/MuGirlTag.h"
 #include "MuonCombinedEvent/MuGirlLowBetaTag.h"
+#include <memory>//unique_ptr
 
 using namespace MuGirlNS;
 using namespace std;
@@ -474,8 +475,8 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
             std::vector<const Muon::MuonSegment*> stauSegmentList = *m_pStauTool->newMdtSegments();
             m_pSegmentManager->setInStore(stauSegmentList, true);
 
-            MuonCombined::MuGirlLowBetaTag* lowbetatag = new MuonCombined::MuGirlLowBetaTag(stauRefittedTrack,
-                                                                                            stauSegmentList);
+            std::unique_ptr<MuonCombined::MuGirlLowBetaTag> lowbetatag{new MuonCombined::MuGirlLowBetaTag(stauRefittedTrack,
+                                                                                            stauSegmentList)};
 
             //dress tag
             stauSummary->saveStau = 1;
@@ -509,8 +510,8 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
           std::unique_ptr<MuGirlNS::RHExtras> rhExtras(new MuGirlNS::RHExtras);
           if (m_pStauTool->fillRHExtras(rhExtras.get()).isFailure()) ATH_MSG_DEBUG("RunFromID: Cannot fill rhExtras");
           if (rhExtras->numCaloCells > 0) {
-            MuonCombined::MuGirlLowBetaTag* lowbetatag
-              = new MuonCombined::MuGirlLowBetaTag(pTrackParticle->track(), std::vector<const Muon::MuonSegment*>());
+            std::unique_ptr<MuonCombined::MuGirlLowBetaTag> lowbetatag
+              {new MuonCombined::MuGirlLowBetaTag(pTrackParticle->track(), std::vector<const Muon::MuonSegment*>())};
             lowbetatag->setRHExtras(rhExtras.release());
             //pParticle->pInDetCandidate->addTag(*lowbetatag);
           }
@@ -529,11 +530,11 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList) {
 
       ATH_MSG_DEBUG("RunFromID: delivering the muon pTrkRefitted track to the MuGirl tag");
       std::vector<const Muon::MuonSegment*> muonSegmentList = summary->muonSegmentList;
-      MuonCombined::MuGirlTag* tag = 0;
+      std::unique_ptr<MuonCombined::MuGirlTag> tag{};
       if (summary->pTrkRefitted == NULL) {
         if (summary->isSiliconAssociated) continue;
-        tag = new MuonCombined::MuGirlTag(muonSegmentList);
-      } else tag = new MuonCombined::MuGirlTag(summary->pTrkRefitted, muonSegmentList);
+        tag.reset(new MuonCombined::MuGirlTag(muonSegmentList));
+      } else tag.reset(new MuonCombined::MuGirlTag(summary->pTrkRefitted, muonSegmentList));
       tag->setUpdatedExtrapolatedTrack(std::move(summary->pTrkMSRefitted));
       //pParticle->pInDetCandidate->addTag(*tag);
       //set the segment into SegmentManager undeletable

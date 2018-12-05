@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDigitsContainer_H
@@ -16,6 +16,13 @@ public:
   TileDigitsContainer(bool createColl=false, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) 
     : TileRawDataContainer<TileDigitsCollection> (createColl, TileFragHash::Digitizer, 
                                                   TileRawChannelUnit::ADCcounts, ownPolicy) { }
+
+  TileDigitsContainer(bool createColl,
+                      TYPE type,
+                      UNIT unit=TileRawChannelUnit::ADCcounts,
+                      SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) 
+    : TileRawDataContainer<TileDigitsCollection> (createColl, type, 
+                                                  unit, ownPolicy) { }
 
   ~TileDigitsContainer() { }
 };

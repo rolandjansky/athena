@@ -10,21 +10,11 @@ def createMenuFlags():
     # Should the HLT_ and L1_ prefixes are omitted (DRY principle)?
     # each flag is translated to an independent reconstruction chain
     flags = AthConfigFlags()
-    # default electron chains
-
-    flags.addFlag('Trigger.menu.electrons', [ "HLT_e3_etcut L1_EM3",        
-                                              "HLT_e5_etcut L1_EM3",        
-                                              "HLT_e7_etcut L1_EM7"])
-    # electrons w/o the ID selection
-    flags.addFlag('Trigger.menu.electronsNoID', [])
-
-    flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 
-                                           'HLT_g15_etcut L1_EM12'])
 
     flags.addFlag('Trigger.menu.muons', [])
-    flags.addFlag('Trigger.menu.MSMuons', [])
-
-    flags.addFlag('Trigger.menu.met', [])
+    flags.addFlag('Trigger.menu.electron', [])
+    flags.addFlag('Trigger.menu.photon', [])
+    flags.addFlag('Trigger.menu.combined', [])
 
     return flags
 
@@ -36,7 +26,8 @@ class MenuUtils:
         for k,v in flags._flagdict.iteritems():
             if "Trigger.menu." in k:
                 for chain in v.get():
-                    hlt,l1 = chain.split()[:2]
+                    hlt = chain[0]
+                    l1 = chain[1]
                     seeding[hlt] = l1
         return seeding
 

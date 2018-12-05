@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62004.h"
@@ -30,7 +30,6 @@
 #include "CLHEP/GenericFunctions/Sin.hh"
 #include "CLHEP/GenericFunctions/Cos.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "AthContainers/DataVector.h"
 
 // need if we want tu use EMEC from LArGeoTBEC:
@@ -130,7 +129,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
 //   VDetectorParameters* parameters = (VDetectorParameters *) new  LArGeo::RAL();
 //   VDetectorParameters::SetInstance(parameters);
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   }

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/IRegisterTransient.h"
@@ -46,16 +46,6 @@ void db_free_ptr (T* ptr, std::true_type)
   //  std::cout << "db_free_ptr: releasing ptr @" << ptr << " of type " << ClassID_traits<T>::typeName() << std::endl;
   const_cast<T_nc*>(ptr)->release();
 }
-
-// if T is abstract just return NULL and let clients deal with that
-template <typename T>
-SG::DataBucket<T>* db_clone_ptr (T*, std::false_type)
-{ return NULL; }
-
-// else use the copy constructor
-template <typename T>
-SG::DataBucket<T>* db_clone_ptr (T* ptr, std::true_type)
-{ return new SG::DataBucket<T>( new T(*ptr) ); }
 
 } // namespace SG
 
@@ -181,22 +171,6 @@ void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
   }
 
   return 0;
-}
-
-/**
- * @brief Return a new @c DataBucket whose payload has been cloned from the
- *        original one.
- */
-template <typename T>
-SG::DataBucket<T>* SG::DataBucket<T>::clone() const
-{ 
-  if (!m_ptr) { return NULL; }
-
-  typedef 
-    std::integral_constant< bool, !std::is_abstract<T>::value &&
-                                   std::is_trivially_copyable<T>::value >
-    truth_type_t;
-  return SG::db_clone_ptr( m_ptr, truth_type_t() );
 }
 
 template <typename T> 

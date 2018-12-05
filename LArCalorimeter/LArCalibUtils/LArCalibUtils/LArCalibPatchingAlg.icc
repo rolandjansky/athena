@@ -7,9 +7,7 @@
 template<class CONDITIONSCONTAINER>
 LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
-  m_badChannelTool("LArBadChanTool"),
   m_maskingTool("LArBadChannelMaskingTool"),
-  m_larCablingSvc("LArCablingService"),
   m_useCorrChannel(true),
   m_patchAllMissing(false),
   m_onlineHelper(0),
@@ -26,8 +24,6 @@ LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string
 		  "Method to patch conditions for channels with broken calibration line");
   declareProperty("NewContainerKey",m_newContainerKey="",
 		  "If the corrections go in a separate container put SG key here");
-  declareProperty("BadChannelTool",m_badChannelTool,
-		  "BadChannelTool to be used");
   declareProperty("MaskingTool",m_maskingTool,
 		  "Masking tool to define channels that should be set to zero");
   declareProperty("UseCorrChannels",m_useCorrChannel,
@@ -46,6 +42,10 @@ LArCalibPatchingAlg<CONDITIONSCONTAINER>::~LArCalibPatchingAlg() {
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::initialize() {
+
+  ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
+
   if(m_patchMethodProp=="FEBNeighbor") {
     m_patchMethod=FEBNeighbor;
     return StatusCode::SUCCESS;
@@ -88,9 +88,19 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
   ATH_CHECK( detStore()->retrieve(m_fcalId, "LArFCAL_ID") );
   ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 
-  ATH_CHECK( m_badChannelTool.retrieve() );
-  ATH_CHECK( m_larCablingSvc.retrieve() );
   ATH_CHECK( m_maskingTool.retrieve() );
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_ERROR( "Do not have Bad chan container !!!" );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling = *cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have OnOff Id mapping !!!" );
+     return StatusCode::FAILURE;
+  }
 
   if (m_newContainerKey.size()) {
     //New container key give -> different containers for reading and writing
@@ -121,11 +131,11 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
     CONTIT it_e=m_contIn->end(igain);
     for (;it!=it_e;it++) {
       const HWIdentifier chid = it.channelId();
-      if (!m_larCablingSvc->isOnlineConnected(chid)) continue; //Don't care about disconnected channels
+      if (!cabling->isOnlineConnected(chid)) continue; //Don't care about disconnected channels
       if (m_maskingTool->cellShouldBeMasked(chid)) {
 	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
                        <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." );
-	if (patch(chid,igain)) {
+	if (patch(chid,igain, bcCont, cabling)) {
 	  ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
         } else {
 	  ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
@@ -138,7 +148,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
                           << " has no calibration but is not (yet?) flagged in the bad-channel database" );
 	  if (m_patchAllMissing) {
 	    ATH_MSG_INFO ( "Will try to patch anyway." );
-	    if (patch(chid,igain)) {
+	    if (patch(chid,igain, bcCont, cabling)) {
 	      ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
 	    } else {
 	      ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
@@ -165,7 +175,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
 }
 
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, const int gain) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, const int gain, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling) {
   if (m_patchMethod==FEBNeighbor){
     const HWIdentifier febId=m_onlineHelper->feb_Id(chid);
     const int febChan=m_onlineHelper->channel(chid);
@@ -173,7 +183,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
     if (febChan>0) {
       //try lower channel
       chid_patch=m_onlineHelper->channel_Id(febId, febChan-1);
-      if (m_larCablingSvc->isOnlineConnected(chid_patch) && m_badChannelTool->status(chid_patch).good()) {
+      if (cabling->isOnlineConnected(chid_patch) && bcCont->status(chid_patch).good()) {
 	const LArCondObj patch=m_contIn->get(chid_patch,gain); //Should be the const-get method
 	if (!patch.isEmpty()) {
 	  StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel); 
@@ -189,7 +199,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
     }//end if febChan
     if (febChan<(m_onlineHelper->channelInSlotMax(febId)-1)) {
       chid_patch=m_onlineHelper->channel_Id(febId, febChan+1);
-      if (m_larCablingSvc->isOnlineConnected(chid_patch) && m_badChannelTool->status(chid_patch).good()) {
+      if (cabling->isOnlineConnected(chid_patch) && bcCont->status(chid_patch).good()) {
 	const LArCondObj patch=m_contIn->get(chid_patch,gain); //Should be the const-get method
 	if (!patch.isEmpty()) {
 	  StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel); 
@@ -210,7 +220,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
   } else if (m_patchMethod==PhiNeighbor) {
     //    (*m_log) << MSG::ERROR << "Patching Method 'Phi-neighbor' not yet implemented." << endmsg;
     try {
-      const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+      const Identifier id=cabling->cnvToIdentifier(chid);
       int eta, phi, phi_min, phi_max, phi_range;
       Identifier regionID;
       regionID=m_caloId->region_id(id);
@@ -236,8 +246,8 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
 	//std::cout << "i=" << i << " Using cell with phi=" 
 	//	  << phi_patch << " eta=" << eta << std::endl;
 	Identifier patch_id=m_caloId->cell_id(regionID,eta,phi_patch);
-	HWIdentifier chid_patch=m_larCablingSvc->createSignalChannelID(patch_id);
-	if (m_badChannelTool->status(chid_patch).good()) {
+	HWIdentifier chid_patch=cabling->createSignalChannelID(patch_id);
+	if (bcCont->status(chid_patch).good()) {
 	  const LArCondObj patch=m_contIn->get(chid_patch,gain); 
 	  if (!patch.isEmpty()) {
 	    StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel); 
@@ -261,7 +271,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
   }  
   else if (m_patchMethod==PhiAverage) {
     LArCondObj patch;
-    if (!getAverage(chid,gain,patch)){
+    if (!getAverage(chid,gain,patch,bcCont,cabling)){
       ATH_MSG_ERROR ( "Failed get phi-average!" );
       return false;
     } else {
@@ -272,7 +282,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
   }
   else if (m_patchMethod==FEBAverage) {
     LArCondObj patch;
-    if (!getAverage(chid,gain,patch,false)){
+    if (!getAverage(chid,gain,patch,bcCont, cabling, false)){
       ATH_MSG_ERROR ( "Failed get FEB-average!" );
       return false;
     } else {
@@ -288,11 +298,11 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
 
 
 template<class CONDITIONSCONTAINER>
-std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(const HWIdentifier chid, unsigned distance) {
+std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(const HWIdentifier chid, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, unsigned distance) {
   if (distance==0) distance=1;
   m_idList.clear();
   try {
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+    const Identifier id=cabling->cnvToIdentifier(chid);
     int eta,phi, phi_min, phi_max;
     Identifier regionID;
     regionID=m_caloId->region_id(id);
@@ -323,8 +333,8 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(
       //std::cout << "i=" << i << " Adding cell with phi=" 
       //	<< phi_patch << " eta=" << eta << std::endl;
       Identifier patch_id=m_caloId->cell_id(regionID,eta,phi_patch);
-      HWIdentifier chid_patch=m_larCablingSvc->createSignalChannelID(patch_id);
-      if (m_badChannelTool->status(chid_patch).good()) {
+      HWIdentifier chid_patch=cabling->createSignalChannelID(patch_id);
+      if (bcCont->status(chid_patch).good()) {
 	m_idList.push_back(chid_patch);
       }
       else
@@ -338,7 +348,7 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(
 }
 
 template<class CONDITIONSCONTAINER>
-std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans(const HWIdentifier chid) {
+std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans(const HWIdentifier chid, const LArBadChannelCont* bcCont) {
   m_idList.clear();
   HWIdentifier febid = m_onlineHelper->feb_Id(chid);
   ATH_MSG_VERBOSE ( "Assembling list of channels for FEB=" << febid  );
@@ -346,7 +356,7 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans
       HWIdentifier fchan = m_onlineHelper->channel_Id(febid,i);
       if(fchan == chid) continue;
       //try {
-        //const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+        //const Identifier id=cabling->cnvToIdentifier(chid);
         //if(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid)) {
         //   if(!m_emId->is_connected(id)) continue;
         //} else if (m_onlineHelper->isHECchannel(chid)) {
@@ -358,7 +368,7 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans
       //  ATH_MSG_ERROR ( "LArID_Exception caught!" );
       //}
       ATH_MSG_VERBOSE  ( " Adding channel =" << i );
-      if (m_badChannelTool->status(fchan).good()) {
+      if (bcCont->status(fchan).good()) {
 	m_idList.push_back(fchan);
       } else {
         ATH_MSG_VERBOSE ( "This channel is bad as well. Ignored." );
@@ -377,17 +387,17 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier, co
 */
 
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArRampP1& patch, bool isphi) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArRampP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi) {
 
   std::vector<HWIdentifier>::const_iterator it;
   std::vector<HWIdentifier>::const_iterator it_e;
 
   if(isphi) {
-   std::vector<HWIdentifier>& symCells=getPhiRing(chid);  
+   std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
    it = symCells.begin();
    it_e=symCells.end();
   } else {
-   std::vector<HWIdentifier>& symCells=getFEBChans(chid);
+   std::vector<HWIdentifier>& symCells=getFEBChans(chid, bcCont);
    it = symCells.begin();
    it_e=symCells.end();
   }
@@ -439,9 +449,9 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
 
 
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArOFCP1& patch, bool /*isphi*/) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArOFCP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool /*isphi*/) {
 
-  std::vector<HWIdentifier>& symCells=getPhiRing(chid);  
+  std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
   std::vector<HWIdentifier>::const_iterator it=symCells.begin();
   std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
@@ -517,9 +527,9 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
 }
 
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArCaliWaveVec& patch, bool /*isphi*/) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArCaliWaveVec& patch,const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool /*isphi*/) {
 
-  std::vector<HWIdentifier>& symCells=getPhiRing(chid);  
+  std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
   std::vector<HWIdentifier>::const_iterator it=symCells.begin();
   std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
@@ -587,7 +597,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   patch.clear();
        
   for ( ; it_e != it; it++) {
-    ATH_MSG_DEBUG ( "Adding ch. "<<*it<<", layer: "<<m_caloId->sampling(m_larCablingSvc->cnvToIdentifier(*it))<<", region: "<<m_caloId->region(m_larCablingSvc->cnvToIdentifier(*it))<<" eta: "<<m_caloId->eta(m_larCablingSvc->cnvToIdentifier(*it))<<", phi: "<<m_caloId->phi(m_larCablingSvc->cnvToIdentifier(*it)));
+    ATH_MSG_DEBUG ( "Adding ch. "<<*it<<", layer: "<<m_caloId->sampling(cabling->cnvToIdentifier(*it))<<", region: "<<m_caloId->region(cabling->cnvToIdentifier(*it))<<" eta: "<<m_caloId->eta(cabling->cnvToIdentifier(*it))<<", phi: "<<m_caloId->phi(cabling->cnvToIdentifier(*it)));
 
     std::vector<LArCaliWave>::const_iterator vecit = m_contIn->get(*it,gain).begin();
     std::vector<LArCaliWave>::const_iterator vecit_e = m_contIn->get(*it,gain).end();
@@ -647,9 +657,9 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
 
 #ifdef LARRAWCONDITIONS_LARMPHYSOVERMCALP
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArMphysOverMcalP1& patch, bool isphi) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArMphysOverMcalP1& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool isphi) {
 
-  std::vector<HWIdentifier>& symCells=getPhiRing(chid);  
+  std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
   std::vector<HWIdentifier>::const_iterator it=symCells.begin();
   std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
@@ -677,9 +687,9 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
 
 #ifdef LARRAWCONDITIONS_LARSINGLEFLOATP
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArSingleFloatP& patch, bool /*isphi*/) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArSingleFloatP& patch, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, bool /*isphi*/) {
 
-  std::vector<HWIdentifier>& symCells=getPhiRing(chid);  
+  std::vector<HWIdentifier>& symCells=getPhiRing(chid, bcCont, cabling);  
   std::vector<HWIdentifier>::const_iterator it=symCells.begin();
   std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 

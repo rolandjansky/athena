@@ -39,6 +39,9 @@ else: # it should be 'tier0'
     tileRawMon=True
     tileESDMon=True
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault()
+
 if tileESDMon:
 
     TileCellMon = CfgMgr.TileCellMonTool(name                 = 'TileCellMon'
@@ -200,7 +203,8 @@ if  tileRawMon:
                                                , histoPathBase       = "/Tile/DigiNoise" 
                                                , TriggerChain        = "HLT_noalg_cosmiccalo_L1RD1_EMPTY"
                                                , TrigDecisionTool    = getattr(ToolSvc, DQMonFlags.nameTrigDecTool()) if DQMonFlags.useTrigger() else ""
-                                               , TriggerTypes        = [ 0x82 ]);
+                                               , TriggerTypes        = [ 0x82 ]
+                                               , CheckDCS                 = hasattr(ServiceMgr, "TileDCSSvc"))
 
         if globalflags.InputFormat() == 'pool':
             TileDigiNoiseMon.TileDigitsContainer = 'TileDigitsFlt'

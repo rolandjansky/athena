@@ -25,6 +25,7 @@
 #include "TrkGeometry/LayerAttemptsCalculator.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/ObjectAccessor.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
 #include "TrkEventPrimitives/PropDirection.h"
 //STL
@@ -46,7 +47,6 @@ namespace Trk {
   class PlaneLayer;
   class TrackingVolume;
   class DetachedTrackingVolume;
-  class ObjectAccessor;
   class GlueVolumesDescriptor;
   class VolumeBounds;
 
@@ -283,7 +283,7 @@ namespace Trk {
                                                  bool startOffBoundary = false) const;
       
       /** Get the BoundarySurface to the appointed Accessor state */
-      const BoundarySurface<TrackingVolume>* boundarySurface(const ObjectAccessor& oa) const;
+      const BoundarySurface<TrackingVolume>* boundarySurface(const ObjectAccessor::value_type& oa) const;
       
       /** show if you are on a boundary surface */
       template <class T> bool onVolumeBoundary(const T& pars ) const;

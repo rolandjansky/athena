@@ -32,6 +32,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
+from LArCellRec.LArCellRecConf import LArHVFraction
+
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 from AthenaCommon.AppMgr import ToolSvc
@@ -253,8 +255,7 @@ class CaloClusterTopoGetter ( Configured )  :
 
         if doDigiTruthFlag:
           TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
-          from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
-          TopoMoments_Truth.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+          TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
           TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool
@@ -296,8 +297,10 @@ class CaloClusterTopoGetter ( Configured )  :
         # only add HV related moments if it is offline.
         from IOVDbSvc.CondDB import conddb
         if not conddb.isOnline:
-            from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
-            TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+            if globalflags.DataSource=="data":
+                TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorrRecomputed")
+            else:
+                TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
             TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
                                          ,"N_BAD_HV_CELLS"
                                          ]

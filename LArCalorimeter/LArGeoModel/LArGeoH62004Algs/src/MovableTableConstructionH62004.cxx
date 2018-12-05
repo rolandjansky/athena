@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MovableTableConstructionH62004.h"
@@ -25,7 +25,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
@@ -92,11 +91,11 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   sc=detStore->retrieve(materialManager, std::string("MATERIALS"));
   if (StatusCode::SUCCESS != sc) return NULL;
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in MovableTableConstructionH62004, std::Air is not found.");
    
   // Is this ok for the Scintillator?
@@ -106,7 +105,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   // The old FrontBeam testbeam code uses a composition of C9 H10 (density 1.032)
   // ... because it's easiest at the moment and not all that different from the fractional
   // composition of the old tb code, take the Tile material (polysterene)...     
-  GeoMaterial *Scint  = materialManager->getMaterial("std::Polystyrene");
+  const GeoMaterial *Scint  = materialManager->getMaterial("std::Polystyrene");
   if (!Scint) throw std::runtime_error("Error in MovableTableConstructionH62004, std::Polystyrene is not found.");
   
   //-------------------------------------------------------------------------------------------------//

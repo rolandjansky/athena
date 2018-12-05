@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena includes
@@ -11,7 +11,6 @@
 
 // Tile includes
 #include "TileCalibAlgs/TileLaserTimingTool.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
@@ -123,7 +122,6 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
   : AthAlgTool(type, name, pParent)
   , m_tileHWID(0)
   , m_cabling(0)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_tileToolTiming("TileCondToolTiming")
   , m_nevts(0)
   , m_gaussf(0)
@@ -132,7 +130,6 @@ TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::str
   declareInterface<ITileCalibTool>( this );
 
   declareProperty("TileCondToolTiming", m_tileToolTiming);
-  declareProperty("TileBeamInfoProvider", m_beamInfo);
   declareProperty("RawChannelContainer", m_rawChannelContainerName = "TileRawChannelFit");
   declareProperty("DigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("NtupleID", m_ntupleID = "h3000");
@@ -163,9 +160,6 @@ TileLaserTimingTool::~TileLaserTimingTool() {
 StatusCode TileLaserTimingTool::initialize() {
 
   ATH_MSG_INFO( "initialize()" );
-
-  // get beam info tool
-  CHECK( m_beamInfo.retrieve() );
 
   // get TileHWID helper
   CHECK( detStore()->retrieve(m_tileHWID) );

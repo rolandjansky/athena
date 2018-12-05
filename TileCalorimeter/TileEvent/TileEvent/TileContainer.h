@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -33,27 +33,27 @@
 #include "TileEvent/TileMuonReceiverObj.h"
 #include <string>
 
-template <typename _TElement>
-class TileContainer: public DataVector<_TElement>
+template <typename TELEMENT>
+class TileContainer: public DataVector<TELEMENT>
 {
 public:
 
-    typedef DataVector<_TElement> MyVector;
+    typedef DataVector<TELEMENT> MyVector;
     typedef typename MyVector::const_iterator my_const_iterator ; 
 
     // constructor
-    TileContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) : DataVector < _TElement > (ownPolicy) { }
+    TileContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS) : DataVector < TELEMENT > (ownPolicy) { }
 
     // destructor
     virtual ~TileContainer() { }
 
     // insert a Tile element into a collection.
-    inline void add (_TElement* rc) { MyVector::push_back(rc); }
+    inline void add (TELEMENT* rc) { MyVector::push_back(rc); }
 
     // print all the channels
     virtual void print() const;
     virtual operator std::string () const;
-    std::string whoami (void) const { _TElement elem;
+    std::string whoami (void) const { TELEMENT elem;
                  return "TileContainer of "+elem.whoami(); }
 
 private:

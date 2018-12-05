@@ -42,6 +42,7 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "LArRawConditions/LArADC2MeV.h"
+#include "LArRawConditions/LArAutoCorrNoise.h"
 
 class StoreGateSvc;
 class PileUpMergeSvc;
@@ -212,7 +213,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShape","SG Key of LArShape object"};
   SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
 
-  ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
+  //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
+  SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey;
   ToolHandle<ITriggerTime> m_triggerTimeTool;

@@ -122,7 +122,8 @@ theApp.EvtMax                   = 25
 # Load POOL support
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
-
+from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
+svcMgr.AthenaPoolCnvSvc.PoolContainerPrefix = "ROOTTREE:CollectionTree"
 
 #--------------------------------------------------------------
 #  Use AthenaOutputStreamTool to write

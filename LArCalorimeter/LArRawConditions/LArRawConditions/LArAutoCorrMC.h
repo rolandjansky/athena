@@ -14,7 +14,6 @@
 
 #include <vector>
 
-class LArCablingService ;
 
 /** Implementation of the interface ILArAutoCorr for MC
  *  Derives from LArAutoCorrComplete, and implements the phi-z symmetry
@@ -37,8 +36,6 @@ class LArAutoCorrMC: public LArAutoCorrComplete {
   
   virtual AutoCorrRef_t autoCorr(const HWIdentifier&  CellID, int gain) const ;
 
-  virtual AutoCorrRef_t autoCorr(const Identifier&  CellID, int gain) const ;
-  
  protected:
 
   // helper for MC z-phi symmetry 

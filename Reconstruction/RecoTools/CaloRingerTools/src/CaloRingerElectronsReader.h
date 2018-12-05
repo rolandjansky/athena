@@ -26,6 +26,7 @@
 
 // StoreGate includes:
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 
 namespace Ringer {
 
@@ -76,6 +77,9 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     StatusCode retrieveSelectors();
     /// @}
 
+    /** Add decorations for a given selector */
+    StatusCode addSelectorDeco(const std::string &contName, const std::string &selName);
+
     /// Tool CaloRingerElectronsReader props (python configurables):
     /// @{
     /**
@@ -94,8 +98,16 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     /// Tool CaloRingerElectronsReader props (non configurables):
     /// @{
 
-    /// The writeDecorHandleKeys for the selectors
-    writeDecorHandleKeys<xAOD::ElectronContainer> m_selectorDecorHandleKeys;
+    /// The WriteDecorHandleKeyArrays for the selectors. 
+    /// Need to be properties for dependency propagation.
+    SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer, char> m_selKeys {this,
+       "DoNotSet_selKeys", {}, "dummy property"};
+
+    SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer, unsigned int> m_isEMKeys {this,
+       "DoNotSet_isEMKeys", {}, "dummy property"};
+
+    SG::WriteDecorHandleKeyArray<xAOD::ElectronContainer, float> m_lhoodKeys {this,
+       "DoNotSet_lhoodKeys", {}, "dummy property"};
 
     /// The CaloRings Builder functor:
     BuildCaloRingsFctor<xAOD::ElectronContainer> *m_clRingsBuilderElectronFctor;

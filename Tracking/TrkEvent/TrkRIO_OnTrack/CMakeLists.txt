@@ -7,8 +7,7 @@ atlas_subdir( TrkRIO_OnTrack )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Event/EventPrimitives
@@ -26,6 +25,6 @@ atlas_add_library( TrkRIO_OnTrack
                    src/*.cxx
                    PUBLIC_HEADERS TrkRIO_OnTrack
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} SGTools GeoPrimitives Identifier EventPrimitives TrkEventPrimitives TrkMeasurementBase
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier EventPrimitives TrkEventPrimitives TrkMeasurementBase
                    PRIVATE_LINK_LIBRARIES GaudiKernel TrkPrepRawData )
 

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoCode/LArMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -27,7 +26,7 @@ LArMaterialManager::LArMaterialManager(StoreGateSvc* detStore):
   if(status.isFailure())
     throw std::runtime_error("LArMaterialManager: cannot initialize message service");
 
-  DataHandle<StoredMaterialManager> materialManager;
+  StoredMaterialManager* materialManager = nullptr;
   status = detStore->retrieve(materialManager, std::string("MATERIALS"));
   if(status.isFailure())
     throw std::runtime_error("Error in LArMaterialManager, list of precalculated materials is absent..");
@@ -46,7 +45,7 @@ void LArMaterialManager::buildMaterials()
   msg << "**** in Material Manager " << endmsg;
 #endif
 
-  GeoMaterial *Copper  = m_storedManager->getMaterial("std::Copper");
+  const GeoMaterial *Copper  = m_storedManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in LArMaterialManager, std::Copper is not found.");
 #ifdef DEBUGGEO
   msg << "Copper radiation length " << Copper->getRadLength() << " "
@@ -54,10 +53,10 @@ void LArMaterialManager::buildMaterials()
 #endif
 
 
-  GeoMaterial *Iron  = m_storedManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = m_storedManager->getMaterial("std::Iron");
   if (!Iron) throw std::runtime_error("Error in LArMaterialManager, std::Iron is not found.");
 
-  GeoMaterial *Lead  = m_storedManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead  = m_storedManager->getMaterial("std::Lead");
   if (!Lead) throw std::runtime_error("Error in LArMaterialManager, std::Lead is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Lead radiation length " << Lead->getRadLength() << " "
@@ -65,7 +64,7 @@ void LArMaterialManager::buildMaterials()
 #endif
 
 
-  GeoMaterial *LAr  = m_storedManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = m_storedManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in LArMaterialManager, std::LiquidArgon is not found.");
 
 #ifdef DEBUGGEO
@@ -73,10 +72,10 @@ void LArMaterialManager::buildMaterials()
             << LAr->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
 #endif
 
-  GeoMaterial *Air  = m_storedManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = m_storedManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in LArMaterialManager, std::Air is not found.");
 
-  GeoMaterial *Kapton  = m_storedManager->getMaterial("std::Kapton");
+  const GeoMaterial *Kapton  = m_storedManager->getMaterial("std::Kapton");
   if (!Kapton) throw std::runtime_error("Error in LArMaterialManager, std::Kapton is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Kapton radiation length " << Kapton->getRadLength() <<  " "
@@ -88,7 +87,7 @@ void LArMaterialManager::buildMaterials()
 
 #endif
 
-  GeoMaterial *Glue  = m_storedManager->getMaterial("LAr::Glue");
+  const GeoMaterial *Glue  = m_storedManager->getMaterial("LAr::Glue");
   if (!Glue) throw std::runtime_error("Error in LArMaterialManager, LAr::Glue is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Glue   radiation length " << Glue->getRadLength() << " "
@@ -99,7 +98,7 @@ void LArMaterialManager::buildMaterials()
 
 #endif
 
-  GeoMaterial *G10  = m_storedManager->getMaterial("LAr::G10");
+  const GeoMaterial *G10  = m_storedManager->getMaterial("LAr::G10");
   if (!G10) throw std::runtime_error("Error in LArMaterialManager, LAr::G10 is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "G10    radiation length " << G10->getRadLength() << " "
@@ -253,8 +252,8 @@ void LArMaterialManager::buildMaterials()
 
 //==GU  28 July 2005
 //  implement latest definitions from hard coded geometry
-    GeoElement* Si = m_storedManager->getElement("Silicon");
-    GeoElement *O = m_storedManager->getElement("Oxygen");
+    const GeoElement* Si = m_storedManager->getElement("Silicon");
+    const GeoElement *O = m_storedManager->getElement("Oxygen");
 
     density = dB.getDouble("BarrelMotherboards", "BarrelMotherboards-00", "DG10")*(CLHEP::g/CLHEP::cm3);   //LArEMBEpoxyVolumicMass
     GeoMaterial* SiO2 = new GeoMaterial("SiO2",density);
@@ -311,7 +310,7 @@ void LArMaterialManager::buildMaterials()
     // Vacuum for TB cryostat
     // ----------------------
 
-    GeoElement *H = m_storedManager->getElement( "Hydrogen" );
+    const GeoElement *H = m_storedManager->getElement( "Hydrogen" );
 
     GeoMaterial *Vacuum = new GeoMaterial( "Vacuum", CLHEP::universe_mean_density );
     Vacuum->add( H, 1. );

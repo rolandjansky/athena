@@ -1,5 +1,6 @@
 #!/bin/sh
 # art-type: build
+# art-include: master/Athena
 # art-ci: master
 
 # We expect this command to fail, so invert the exit code

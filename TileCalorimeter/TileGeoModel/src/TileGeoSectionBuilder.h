@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,7 +35,7 @@ class TileGeoSectionBuilder
 {
  public:
   /** Constructor */
-  TileGeoSectionBuilder(DataHandle<StoredMaterialManager> & matManager,
+  TileGeoSectionBuilder(const StoredMaterialManager* matManager,
                         TileDddbManager* pDbManager,
                         int uShape,
                         int glue,
@@ -184,7 +184,7 @@ class TileGeoSectionBuilder
 
  private:
 
-  DataHandle<StoredMaterialManager>     m_theMaterialManager;
+  const StoredMaterialManager*          m_theMaterialManager;
   TileDddbManager *                     m_dbManager;
   MsgStream *                           m_log;
 

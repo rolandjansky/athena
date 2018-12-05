@@ -36,6 +36,9 @@ class InsituDataCorrection
 
   virtual StatusCode initializeTool(const std::string& name);
 
+  inline double getRelHistoPtMax(){return m_relhistoPtMax;}
+  inline double getAbsHistoPtMax(){return m_abshistoPtMax;}
+
  protected:
   virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
@@ -50,6 +53,7 @@ class InsituDataCorrection
 
   TH2D * m_insituCorr;
   double m_insituEtaMax, m_insituPtMin, m_insituPtMax;
+  double m_relhistoPtMax, m_abshistoPtMax;
 
   TH2D * m_insituCorr_ResidualMCbased;
   double m_insituEtaMax_ResidualMCbased, m_insituPtMin_ResidualMCbased, m_insituPtMax_ResidualMCbased;

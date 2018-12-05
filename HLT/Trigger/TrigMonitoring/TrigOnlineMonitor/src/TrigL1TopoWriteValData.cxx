@@ -61,7 +61,7 @@ StatusCode TrigL1TopoWriteValData::doWriteValData(){
   
   int num_words = 4;
   // Retrieve HLTResult
-  DataHandle<HLT::HLTResult> hltResult; ///! HLTResult object
+  HLT::HLTResult* hltResult = nullptr; ///! HLTResult object
   if ( ! evtStore()->transientContains<HLT::HLTResult>(m_HltResultName.value()) ) {
     ATH_MSG_INFO("Could not find HLTResult with key " << m_HltResultName.value() << "in SG." );
   } else {
@@ -73,7 +73,7 @@ StatusCode TrigL1TopoWriteValData::doWriteValData(){
   }
 
   // Retrieve L1Topo CTP simulated decision if present
-  const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
+  const LVL1::FrontPanelCTP* simTopoCTP = nullptr; ///! simulation output
   if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoCTPLocation.value()) ){
     ATH_MSG_INFO("Could not find LVL1::FrontPanelCTP with key " << m_simTopoCTPLocation.value() << "in SG." );
   } else {
@@ -85,7 +85,7 @@ StatusCode TrigL1TopoWriteValData::doWriteValData(){
   }
 
   // Retrieve L1Topo CTP simulated overflows if present
-  const DataHandle< LVL1::FrontPanelCTP > simTopoOverflowCTP; ///! simulated overflow output
+  const LVL1::FrontPanelCTP* simTopoOverflowCTP = nullptr; ///! simulated overflow output
   if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoOverflowCTPLocation.value()) ){
     ATH_MSG_INFO("Could not find LVL1::FrontPanelCTP with key " << m_simTopoOverflowCTPLocation.value() << " in SG. No simulated overflow bits" );
   } else {

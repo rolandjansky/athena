@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkGeometry/MaterialProperties.h"
-#include <climits>
+#include <iostream>
 
 Trk::MaterialProperties::MaterialProperties():
   m_material(),
@@ -110,12 +110,12 @@ void Trk::MaterialProperties::setDeDx(float dEdX) const
 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::MaterialProperties& mprop)
 {
-    sl << "Trk::MaterialProperties: "                                                 << std::endl;
-    sl << "   - thickness/X0                          = " << mprop.thicknessInX0()    << std::endl; 
-    sl << "   - thickness                       [mm]  = " << mprop.thickness()        << std::endl;
-    sl << "   - radiation length X0             [mm]  = " << mprop.x0()               << std::endl;
-    sl << "   - nuclear interaction length L0   [mm]  = " << mprop.l0()               << std::endl;
-    sl << "   - average material Z/A*rho [gram/mm^3]  = " << mprop.zOverAtimesRho()   << std::endl;
+    sl << "Trk::MaterialProperties: "                                                 << endmsg;
+    sl << "   - thickness/X0                          = " << mprop.thicknessInX0()    << endmsg; 
+    sl << "   - thickness                       [mm]  = " << mprop.thickness()        << endmsg;
+    sl << "   - radiation length X0             [mm]  = " << mprop.x0()               << endmsg;
+    sl << "   - nuclear interaction length L0   [mm]  = " << mprop.l0()               << endmsg;
+    sl << "   - average material Z/A*rho [gram/mm^3]  = " << mprop.zOverAtimesRho()   << endmsg;
     /*  interface not finalized
     if (mprop.material().composition){
         sl << "   - material composition from " << mprop.material().composition->size() << " elements " << std::endl;

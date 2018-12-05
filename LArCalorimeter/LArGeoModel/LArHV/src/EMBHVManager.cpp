@@ -24,13 +24,17 @@
 #include "LArCabling/LArHVCablingTool.h"
 
 #include "Identifier/HWIdentifier.h"
-
+#include <mutex>
+#include <atomic>
 
 class EMBHVManager::Clockwork {
 public:
+  Clockwork() {};
+  Clockwork(const Clockwork&) = delete;
   EMBHVDescriptor      *descriptor;
   EMBHVModuleConstLink  linkArray[2][8][16][2];
-  bool                  init;
+  std::atomic<bool>     init{false};
+  std::mutex            mtx;
   std::vector<EMBHVPayload> payloadArray;
 };
 
@@ -43,7 +47,6 @@ EMBHVManager::EMBHVManager()
 {
   m_c->descriptor = new EMBHVDescriptor(CellBinning(0.0, 1.4, 7, 1),CellBinning(0.0, 2*M_PI, 16));	
   m_c->init=false;
-  
 }
 
 
@@ -105,8 +108,8 @@ unsigned int EMBHVManager::endSideIndex() const
 }
 
 void EMBHVManager::update() const {
-  if (!m_c->init) {
-
+  std::lock_guard<std::mutex> lock(m_c->mtx);
+  if (!(m_c->init)) {
     m_c->init=true;
     m_c->payloadArray.reserve(2*8*16*2*32);
 

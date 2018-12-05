@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomToTrackParticleAssocsCnv_p1.cxx 
@@ -16,12 +16,8 @@
 #include "GaudiKernel/MsgStream.h"
 
 // NavFourMom includes
-#define private public
-#define protected public
 #include "Particle/TrackParticleContainer.h"
 #include "ParticleEvent/INav4MomToTrackParticleAssocs.h"
-#undef protected
-#undef private
 
 // EventCommonTPCnv includes
 #include "ParticleEventTPCnv/INav4MomToTrackParticleAssocsCnv_p1.h"
@@ -54,8 +50,10 @@ INav4MomToTrackParticleAssocsCnv_p1::persToTrans( const INav4MomToTrackParticleA
                                                   MsgStream& msg )
 {
    LOG_MSG(msg, MSG::DEBUG, "Loading INav4MomToTrackParticleAssocs from persistent state..." );
+
+   *trans = INav4MomToTrackParticleAssocs();
+
   // retrieve underlying association stores
-  trans->m_assocStores.clear();
   for ( INav4MomToTrackParticleAssocs_p1::TrackParticleStores_t::const_iterator 
           i = pers->m_assocStores.begin(),
           iEnd = pers->m_assocStores.end();
@@ -64,10 +62,9 @@ INav4MomToTrackParticleAssocsCnv_p1::persToTrans( const INav4MomToTrackParticleA
     {
       IAssocStoresCnv_t::DLink_t	dlink;
       m_assocStoresCnv.persToTrans( &*i, &dlink, msg );
-      trans->m_assocStores[ dlink.dataID() ] = dlink;
+      trans->addAssocStore (dlink);
     }
 
-  trans->m_associationMap.clear();
   for ( std::size_t i = 0, iEnd = pers->m_assocs.size(); i != iEnd; ++i )
     {
       const ElementLinkInt_p3& key = pers->m_assocs[i].first;
@@ -78,13 +75,11 @@ INav4MomToTrackParticleAssocsCnv_p1::persToTrans( const INav4MomToTrackParticleA
       //unpack only if valid
       if(k.isValid())
         {      
-          trans->m_associationMap[k] = INav4MomToTrackParticleAssocs::asso_store();
-          trans->m_associationMap[k].reserve( val.size() );
           for ( std::size_t j = 0, jEnd = val.size(); j != jEnd; ++j )
             {
               TrackParticleLink_t assocLink;
               m_TrackParticleLinkCnv.persToTrans( &val[j], &assocLink, msg );
-              trans->m_associationMap[k].push_back( assocLink );
+              trans->addAssociation (k, assocLink);
             }
         }
     }
@@ -100,46 +95,37 @@ INav4MomToTrackParticleAssocsCnv_p1::transToPers( const INav4MomToTrackParticleA
 {
   LOG_MSG(msg, MSG::DEBUG, "Creating persistent state of INav4MomToTrackParticleAssocs...");
 
-
-  pers->m_assocStores.resize( trans->m_assocStores.size() );
-  std::size_t j = 0;
   // retrieve underlying association stores
-  for ( std::map<std::string, 
-                 INav4MomToTrackParticleAssocs::INav4MomToTrackParticleAssocsLink_t>::const_iterator 
-          i = trans->m_assocStores.begin(),
-          iEnd = trans->m_assocStores.end();
-        i != iEnd;
-        ++i,++j )
-    {
-      m_assocStoresCnv.transToPers( &i->second, 
-                                    &pers->m_assocStores[j], msg );
+  std::vector<DataLink<INav4MomToTrackParticleAssocs> > assocStores = trans->getAssocStores();
+  pers->m_assocStores.resize( assocStores.size() );
+  std::size_t j = 0;
+  for (const DataLink<INav4MomToTrackParticleAssocs>& l : assocStores) {
+    m_assocStoresCnv.transToPers( &l, &pers->m_assocStores[j], msg );
+    ++j;
+  }
+
+  j = 0;
+  pers->m_assocs.resize( trans->size() );
+  INav4MomToTrackParticleAssocs::object_iterator begObj = trans->beginObject();
+  INav4MomToTrackParticleAssocs::object_iterator endObj = trans->endObject();
+  for (; begObj != endObj; ++begObj)
+  {
+    const INav4MomLink_t& key = begObj.getObjectLink();
+    INav4MomToTrackParticleAssocs_p1::AssocElem_t& persAssoc = pers->m_assocs[j];
+    m_inav4MomLinkCnv.transToPers( &key, &persAssoc.first, msg );
+    persAssoc.second.resize( begObj.getNumberOfAssociations() );
+
+    INav4MomToTrackParticleAssocs::asso_iterator begAsso = begObj.getFirstAssociation();
+    INav4MomToTrackParticleAssocs::asso_iterator endAsso = begObj.getLastAssociation();
+    size_t i = 0;
+    for (; begAsso != endAsso; ++begAsso) {
+      const INav4MomToTrackParticleAssocs::asso_link asso = begAsso.getLink();
+      m_TrackParticleLinkCnv.transToPers( &asso, &persAssoc.second[i], msg );
+      ++i;
     }
 
-  pers->m_assocs.resize( trans->m_associationMap.size() );
-  const INav4MomToTrackParticleAssocs::store_type& assocMap = trans->m_associationMap;
-  j = 0;
-  for ( INav4MomToTrackParticleAssocs::store_type::const_iterator itr = assocMap.begin();
-        itr != assocMap.end();
-        ++itr,++j )
-    {
-      const INav4MomLink_t& key = itr->first;
-      const INav4MomToTrackParticleAssocs::asso_store& assocs = itr->second;
-      const std::size_t iMax = assocs.size();
-      INav4MomToTrackParticleAssocs_p1::AssocElem_t& persAssoc = pers->m_assocs[j];
-
-      persAssoc.second.resize( iMax );
-      m_inav4MomLinkCnv.transToPers( &key, &persAssoc.first, msg );
-
-
-      for ( unsigned int i = 0; i != iMax; ++i )
-        {
-          const TrackParticleLink_t assLink( assocs.elementDataID(i),
-                                             assocs.elementIndex(i) );
-          
-          m_TrackParticleLinkCnv.transToPers( &assLink, &persAssoc.second[i], msg );
-          
-        }//> loop over associations
-    }//> loop over object links
+    ++j;
+  }
 
   LOG_MSG(msg, MSG::DEBUG, "Created persistent state of INav4MomToTrackParticleAssocs [OK]"); 
   return;

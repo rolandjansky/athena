@@ -101,7 +101,6 @@ outStream.OutputFile = OUTPUT
 
 from AthenaSealSvc.AthenaSealSvcConf import AthenaSealSvc
 svcMgr += AthenaSealSvc( OutputLevel = ERROR )
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 100
 
 from GaudiSvc.GaudiSvcConf import MessageSvc
 svcMgr += MessageSvc( defaultLimit = 4000000 )

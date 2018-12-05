@@ -13,19 +13,11 @@
 
 #include "SCT_SensorsTestAlg.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 
 // Include STL stuff
-#include <string>
-//for o/p to file
-#include <iostream>
-#include <cstdlib>
-
-using namespace std;
+#include <vector>
 
 SCT_SensorsTestAlg::SCT_SensorsTestAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) : 

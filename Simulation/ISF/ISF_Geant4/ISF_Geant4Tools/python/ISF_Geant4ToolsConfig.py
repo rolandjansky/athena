@@ -69,7 +69,7 @@ def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserAction
 
 ## -----------------------------------------------------------------------------
 ### Base Version
-def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
+def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
@@ -87,24 +87,29 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     kwargs.setdefault('MultiThreading', is_hive)
     # Set commands for the G4AtlasAlg
     kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
-    return iGeant4__G4TransportTool(name, **kwargs)
-### Specialized Versions
-def getFullG4TransportTool(name='FullG4TransportTool', **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('PrintTimingInfo'       , ISF_Flags.DoTimeMonitoring() )
+    kwargs.setdefault('SenDetMasterTool', 'SensitiveDetectorMasterTool')
+    kwargs.setdefault('FastSimMasterTool', 'FastSimulationMasterTool')
+    from AthenaCommon import CfgMgr
+    return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
+
+def getFullGeant4Tool(name="ISF_FullGeant4Tool", **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFFullUserActionSvc')
-    return getG4TransportTool(name, **kwargs)
+    return getGeant4Tool(name, **kwargs)
 
-def getPassBackG4TransportTool(name='PassBackG4TransportTool', **kwargs):
+### Specialized Versions
+def getPassBackGeant4Tool(name="ISF_PassBackGeant4Tool", **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFPassBackUserActionSvc')
-    return getG4TransportTool(name, **kwargs)
+    return getGeant4Tool(name, **kwargs)
 
-def getAFII_G4TransportTool(name='AFII_G4TransportTool', **kwargs):
+def getAFIIGeant4Tool(name="ISF_AFIIGeant4Tool", **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISF_AFIIUserActionSvc')
-    return getG4TransportTool(name, **kwargs)
+    return getPassBackGeant4Tool(name, **kwargs)
 
-def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
+def getLongLivedGeant4Tool(name="ISF_LongLivedGeant4Tool", **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFQuasiStableUserActionSvc')
     kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
-    return getG4TransportTool(name, **kwargs)
+    return getFullGeant4Tool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------

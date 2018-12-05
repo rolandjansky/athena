@@ -61,10 +61,9 @@ StatusCode HLT::HLTResultMTByteStreamCnv::finalize() {
 // Implementation of Converter::createObj
 // =============================================================================
 StatusCode HLT::HLTResultMTByteStreamCnv::createObj(IOpaqueAddress* /*pAddr*/, DataObject*& /*pObj*/) {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  // Not yet implemented
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
+  ATH_REPORT_ERROR(StatusCode::FAILURE) << "Using BS converter to decode HLTResultMT is not supported!"
+                                        << " Use HLTResultMTByteStreamDecoderAlg instead";
+  return StatusCode::FAILURE;
 }
 
 // =============================================================================
@@ -115,7 +114,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   re->stream_tag(nStreamTagWords, m_streamTagData.get());
 
   // Fill the HLT bits
-  re->hlt_info(hltResult->getHltBits().size(), hltResult->getHltBits().data());
+  const std::vector<uint32_t>& hltBits = hltResult->getHltBitsAsWords();
+  re->hlt_info(hltBits.size(), hltBits.data());
 
   // Clear the FEA stack
   m_fullEventAssembler.clear();
@@ -123,8 +123,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
   // Loop over all module IDs and fill the ROBFragments
   ATH_MSG_DEBUG("Iterating over modules to assemble output data");
   for (const auto& p : hltResult->getSerialisedData()) {
-    uint16_t moduleId = p.first;
-    std::vector<uint32_t> data = p.second;
+    const uint16_t moduleId = p.first;
+    const std::vector<uint32_t>& data = p.second;
 
     // Get a pointer to ROD data vector to be filled
     eformat::helper::SourceIdentifier sid(eformat::TDAQ_HLT,moduleId);
@@ -136,7 +136,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
 
     // Fill the ROD data vector
     rod->assign(data.cbegin(), data.cend());
-    ATH_MSG_DEBUG("Assembled data for module 0x" << MSG::hex << sid.code() << MSG::dec);
+    ATH_MSG_DEBUG("Assembled data for module 0x" << MSG::hex << sid.code() << MSG::dec << " with "
+                  << data.size() << " words of serialised payload");
   }
 
   ATH_MSG_DEBUG("Appending data to RawEventWrite");

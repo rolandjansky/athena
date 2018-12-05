@@ -223,7 +223,7 @@ namespace InDet
     //+++ DQM (SA): monitoring
     //    ResetMon();
 
-    auto ctx = getContext();
+    const auto &ctx = getContext();
     auto tpHandle =   SG::makeHandle (m_trackParticleKey, ctx);
     
     ATH_CHECK( tpHandle.record (std::make_unique<xAOD::TrackParticleContainer>(),
@@ -266,6 +266,7 @@ namespace InDet
       //    if(doTiming()) m_timerMemAlloc->start();
       tpCont->reserve(tracks->size());                                                     
       //    if(doTiming()) m_timerMemAlloc->stop();
+//      const InDet::BeamSpotData* BsData = m_particleCreatorTool->CacheBeamSpotData(ctx);
       for(unsigned int idtr=0; idtr< tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*tracks, idtr);
 

@@ -49,3 +49,13 @@ atlas_add_component( IOVDbSvc
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+
+atlas_add_test( IOVDbSvc_test
+                SOURCES
+                test/IOVDbSvc_test.cxx
+                INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
+                LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel ${COOL_LIBRARIES}
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import TrackD3PDMakerConf
 for k, v in TrackD3PDMakerConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
-
-from TrackPIDFillerTool import TrackPIDFillerTool
 
 # Backwards compatibility.
 TrackPerigeeFillerTool = PerigeeFillerTool

@@ -28,12 +28,7 @@ using std::string;
 
 TauPi0ClusterScaler::TauPi0ClusterScaler( const string& name ) :
     TauRecToolBase(name)
-    , m_chargedPFOContainer(0)
-    , m_chargedPFOContainerName("TauChargedParticleFlowObjects")
-    , m_chargedPFOAuxStore(0)
 {
-    declareProperty("ChargedPFOContainerName", m_chargedPFOContainerName); 
-    declareProperty("runOnAOD", m_AODmode=false);
 }
 
 //-------------------------------------------------------------------------
@@ -47,29 +42,12 @@ TauPi0ClusterScaler::~TauPi0ClusterScaler()
 
 StatusCode TauPi0ClusterScaler::initialize()
 {
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0ClusterScaler::eventInitialize() {
-
-    //---------------------------------------------------------------------
-    // Create charged PFO container
-    //---------------------------------------------------------------------
-    if(not m_AODmode){
-        m_chargedPFOContainer = new xAOD::PFOContainer();
-        m_chargedPFOAuxStore = new xAOD::PFOAuxContainer();
-        m_chargedPFOContainer->setStore(m_chargedPFOAuxStore);
-        ASG_CHECK( evtStore()->record(m_chargedPFOContainer, m_chargedPFOContainerName ) );
-        ASG_CHECK( evtStore()->record( m_chargedPFOAuxStore, m_chargedPFOContainerName + "Aux." ) );
-    }
-    else{
-        ATH_MSG_DEBUG("TauPi0ClusterScaler running in AOD mode");
-        ASG_CHECK( evtStore()->retrieve(m_chargedPFOContainer, m_chargedPFOContainerName) );
-        ASG_CHECK( evtStore()->retrieve( m_chargedPFOAuxStore, m_chargedPFOContainerName + "Aux." ) );
-        m_chargedPFOContainer->clear();
-    }
-    return StatusCode::SUCCESS;
-
+StatusCode TauPi0ClusterScaler::eventInitialize()
+{
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0ClusterScaler::finalize()
@@ -78,7 +56,7 @@ StatusCode TauPi0ClusterScaler::finalize()
 }
 
 
-StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
+StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& chargedPFOContainer)
 {
     // Clear vector of cell-based charged PFO Links. 
     // Required when rerunning on xAOD level.
@@ -96,7 +74,7 @@ StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
     // reset neutral PFO kinematics (incase re-run on AOD)
     resetNeutralPFOs(pTau);
     // create new proto charged PFOs, extrapolate tracks, add to tau 
-    createChargedPFOs(pTau);
+    createChargedPFOs(pTau, chargedPFOContainer);
     // associate hadronic PFOs to charged PFOs using extrapolated positions in HCal
     associateHadronicToChargedPFOs(pTau);
     // associate charged PFOs to neutral PFOs using extrapolated positions in ECal
@@ -141,7 +119,7 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau)
 
 
 
-void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau)
+void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& cPFOContainer)
 {
     ATH_MSG_DEBUG("Creating charged PFOs");
     for(auto tauTrackLink : pTau.tauTrackLinks(xAOD::TauJetParameters::classifiedCharged)){
@@ -152,22 +130,20 @@ void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau)
         const xAOD::TauTrack* tauTrack = (*tauTrackLink);
         // create pfo
         xAOD::PFO* chargedPFO = new xAOD::PFO();
-        m_chargedPFOContainer->push_back(chargedPFO);
+        cPFOContainer.push_back(chargedPFO);
         // set properties
         chargedPFO->setCharge(tauTrack->track()->charge());
         chargedPFO->setP4(tauTrack->p4());
         // link to track
-        if(not chargedPFO->setTrackLink((*tauTrackLink)->trackLinks().at(0))) 
-            ATH_MSG_WARNING("Could not add Track to PFO");
-        // link to tau track
-        ElementLink< xAOD::IParticleContainer > newTauTrackLink;
-        newTauTrackLink.toPersistent();
-        newTauTrackLink.resetWithKeyAndIndex( tauTrackLink.persKey(), tauTrackLink.persIndex() );
-        if(not chargedPFO->setAssociatedParticleLink(xAOD::PFODetails::CaloCluster,newTauTrackLink)) 
-            ATH_MSG_WARNING("Could not add TauTrack to PFO");
-        // link from tau
+	if(not chargedPFO->setTrackLink((*tauTrackLink)->trackLinks().at(0)))
+	  ATH_MSG_WARNING("Could not add Track to PFO");
+	// now directly using tau track link from above
+        if(not chargedPFO->setAssociatedParticleLink(xAOD::PFODetails::CaloCluster,tauTrackLink))
+	  ATH_MSG_WARNING("Could not add TauTrack to PFO");
+
+	// link from tau
         pTau.addProtoChargedPFOLink(ElementLink< xAOD::PFOContainer >
-                                    (chargedPFO, *m_chargedPFOContainer));
+                                    (chargedPFO, cPFOContainer));
     }
 }
 
@@ -204,24 +180,25 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau)
                 ATH_MSG_WARNING("ChargedPFO has no associated TauTrack");
                 continue;
             }
-            auto tauTrack = dynamic_cast<const xAOD::TauTrack*>(tauTrackPcleVec.at(0));
-            if( not tauTrack ){
+
+	    auto tauTrack = dynamic_cast<const xAOD::TauTrack*>(tauTrackPcleVec.at(0));
+	    if( not tauTrack ){
                 ATH_MSG_WARNING("Failed to retrieve TauTrack from ChargedPFO");
                 continue;
-            } 
-            float etaCalo = -10.0;
-            float phiCalo = -10.0;
-            if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingEtaHad, etaCalo))
-                ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO eta");
-            if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingPhiHad, phiCalo))
-                ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO phi");
+	    }
+	    float etaCalo = -10.0;
+	    float phiCalo = -10.0;
+	    if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingEtaHad, etaCalo))
+	      ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO eta");
+	    if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingPhiHad, phiCalo))
+	      ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO phi");
             // calculate dR (false means use eta instead of rapidity)
             float dR = xAOD::P4Helpers::deltaR((**hadPFOLink), etaCalo, phiCalo, false);
             ATH_MSG_DEBUG("chargedPFO, pt: " << chargedPFO->pt()
-                            << ", type: " << tauTrack->flagSet()
-                            << ", eta: " << etaCalo 
-                            << ", phi: " << phiCalo
-                            << ", dR: " << dR );
+			  << ", type: " << tauTrack->flagSet()
+			  << ", eta: " << etaCalo
+			  << ", phi: " << phiCalo
+			  << ", dR: " << dR );
             if (dR < dRmin){
                 dRmin = dR;
                 chargedPFOMatch = chargedPFO;
@@ -384,4 +361,9 @@ void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::TauJet& pTa
         ATH_MSG_DEBUG("Neutral PFO pt, orig: " << neutralPFO->pt() << "  new: " << neutralPt); 
         neutralPFO->setP4(neutralPt , neutralPFO->eta(), neutralPFO->phi(), neutralPFO->m());
     }
+}
+
+StatusCode TauPi0ClusterScaler::eventFinalize() {
+  
+  return StatusCode::SUCCESS;
 }

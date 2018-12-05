@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Calculates COVF(21) - symmetric 6x6 covariance matrix
@@ -28,7 +28,7 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
 {
     int i,j;
     double px,py,pz,pt,invR,cth;
-    double verr[6][6]={0.};   //for (i=0; i<6*6; i++) verr[i]=0;
+    double verr[6][6]={{0.}};   //for (i=0; i<6*6; i++) verr[i]=0;
 
     int NTRK = vk->TrackList.size();
     int NVar = NTRK*3+3;
@@ -81,7 +81,7 @@ int afterFitWithIniPar(VKVertex *vk, double *ader, double * dcv, double * ptot, 
 {
     int i,j;
     double px,py,pz,pt,invR,cth;
-    double verr[6][6]={0.};
+    double verr[6][6]={{0.}};
 
 
     int NTRK = vk->TrackList.size();

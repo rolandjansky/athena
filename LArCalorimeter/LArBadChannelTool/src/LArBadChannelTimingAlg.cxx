@@ -10,7 +10,6 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "LArBadChannelTool/LArBadChanTool.h"
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -26,11 +25,11 @@ using namespace std;
 
 LArBadChannelTimingAlg::LArBadChannelTimingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm( name, pSvcLocator),
-  m_BadChanTool("LArBadChanTool"),
+  m_BCKey("LArBadChannel"),
   m_cellID(0),
   m_reallyCheck(true)
 {
-  declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
+  declareProperty("BadChanKey", m_BCKey);
   declareProperty("ReallyCheck", m_reallyCheck);
 
 }
@@ -42,9 +41,7 @@ StatusCode LArBadChannelTimingAlg::initialize() {
 
   ATH_MSG_INFO ( "initialize()" );
 
-  ATH_CHECK( m_BadChanTool.retrieve() );
-  ATH_MSG_INFO ( m_BadChanTool.propertyName() << ": Retrieved tool " 
-                 << m_BadChanTool.type() );
+  ATH_CHECK( m_BCKey.initialize() );
 
   ATH_CHECK( detStore()->retrieve(m_cellID,"CaloCell_ID") );
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
@@ -71,7 +68,14 @@ void LArBadChannelTimingAlg::timeOnlineAccess()
 {
   long factor = ~(1<<31); 
   factor = factor / m_onlineID->channelHashMax() + 1; 
-  cout << "online random scaling factor " << factor << endl;
+  ATH_MSG_INFO( "online random scaling factor " << factor );
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
+     return;
+  }
 
   int nbad = 0;
   {
@@ -80,19 +84,18 @@ void LArBadChannelTimingAlg::timeOnlineAccess()
       long rnd = random() / factor; // int arythmetic for speed to get a rnd channel hash
       HWIdentifier hid( m_hwarray.at(rnd));
       if ( m_reallyCheck) {
-	if (!m_BadChanTool->status(hid).good()) nbad++;
+	if (!bcCont->status(hid).good()) nbad++;
       }
       else {
 	if (rnd > 100000) nbad++;
       }
     }
   }
-  cout << "Number of randomly found online bad channels " << nbad << endl;
+  ATH_MSG_INFO( "Number of randomly found online bad channels " << nbad );
 }
 
 void LArBadChannelTimingAlg::fillChannelArray() 
 {
-  // cout << "channelHashMax " << m_onlineID->channelHashMax() << endl;
   m_hwarray.resize( m_onlineID->channelHashMax()+1);
 
   Chrono chrono( chronoSvc() , "fillChannelArray" );
@@ -103,8 +106,7 @@ void LArBadChannelTimingAlg::fillChannelArray()
     m_hwarray.at(hash) = hit->get_identifier32().get_compact();
   }
 
-  cout << "m_hwarray.size() " << m_hwarray.size() 
-       << " capacity " << m_hwarray.capacity() << endl;
+  ATH_MSG_INFO( "m_hwarray.size() " << m_hwarray.size() << " capacity " << m_hwarray.capacity() );
 
 }
 
@@ -120,9 +122,14 @@ void LArBadChannelTimingAlg::timeOfflineAccess()
 
   long factor = ~(1<<31); 
   factor = factor / allIDs.size() + 1; 
-  cout << "connected offline IDs " << allIDs.size() 
-       << " offline random scaling factor " << factor << endl;
-  m_BadChanTool->offlineStatus( allIDs[0]); // first call takes much longer
+  ATH_MSG_INFO( "connected offline IDs " << allIDs.size() << " offline random scaling factor " << factor );
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
+     return;
+  }
+  bcCont->offlineStatus( allIDs[0]); // first call takes much longer
 
   int nbad = 0;
   {
@@ -131,14 +138,14 @@ void LArBadChannelTimingAlg::timeOfflineAccess()
       long rnd = random() / factor; // int arythmetic for speed to get a rnd channel hash
       Identifier id( allIDs.at(rnd));
       if ( m_reallyCheck) {
-	if (!m_BadChanTool->offlineStatus(id).good()) nbad++;
+	if (!bcCont->offlineStatus(id).good()) nbad++;
       }
       else {
 	if (rnd > 100000) nbad++;
       }
     }
   }
-  cout << "Number of randomly found offline bad channels " << nbad << endl;
+  ATH_MSG_INFO( "Number of randomly found offline bad channels " << nbad );
 
 }
 
@@ -153,6 +160,13 @@ void LArBadChannelTimingAlg::timeFEBAccess()
   long factor = ~(1<<31); 
   factor = factor / febVec.size() + 1; 
 
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
+     return;
+  }
+
   int nbad = 0;
   {
     Chrono chrono( chronoSvc() , "BadChanByFEB" );
@@ -161,12 +175,12 @@ void LArBadChannelTimingAlg::timeFEBAccess()
       int rndFEB = rnd / factor; // int arythmetic for speed to get a rnd channel hash
 
       if ( m_reallyCheck) {
-	if (!m_BadChanTool->status( febVec.at(rndFEB), rnd & 127).good()) nbad++;
+	if (!bcCont->status(HWIdentifier( febVec.at(rndFEB).get_compact() + (rnd & 127))).good()) nbad++;
       }
       else {
 	if (rnd > 100000) nbad++;
       }
     }
   }
-  cout << "Number of randomly found bad channels by FEB " << nbad << endl;
+  ATH_MSG_INFO( "Number of randomly found bad channels by FEB " << nbad );
 }

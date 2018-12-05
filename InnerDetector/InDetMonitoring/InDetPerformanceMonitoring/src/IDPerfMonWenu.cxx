@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -58,9 +58,9 @@
 
 namespace{
 template <class T>
-  T *
+  const T *
   getCollectionWithCheck(const ServiceHandle<StoreGateSvc> & evtStore,const std::string &contName){
-    T * container{};
+    const T * container{};
     if (evtStore->contains<T>(contName)){
       //retrieve
       if(evtStore->retrieve(container,contName).isFailure()) return nullptr;

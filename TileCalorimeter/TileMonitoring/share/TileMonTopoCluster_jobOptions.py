@@ -22,7 +22,7 @@ from AthenaCommon.GlobalFlags import globalflags
 
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
-#include( "LArDetDescr/LArDetDescr_joboptions.py" )
+include( "LArDetDescr/LArDetDescr_joboptions.py" )
 #include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 

@@ -61,11 +61,12 @@ StatusCode CondWriterAlg::writeSCond (unsigned int count)
   ATH_CHECK( m_streamer->streamObjects (typeKeys) );
   ATH_CHECK( m_streamer->commitOutput() );
 
+  // Each IOV for this folder is two LBs long.
   ATH_CHECK( m_regSvc->registerIOV ("DMTest::S2",
                                     m_s2Key,
                                     "S2_noTag",
-                                    IOVTime::MINRUN, IOVTime::MAXRUN,
-                                    count, count+1) );
+                                    0, 0,
+                                    count, count+2) );
 
   return StatusCode::SUCCESS;
 }
@@ -88,8 +89,8 @@ StatusCode CondWriterAlg::execute()
   ATH_CHECK( m_regSvc->registerIOV ("AthenaAttributeList",
                                     m_attrListKey,
                                     "AttrList_noTag",
-                                    IOVTime::MINRUN, IOVTime::MAXRUN,
-                                    count, count) );
+                                    0, IOVTime::MAXRUN,
+                                    count, IOVTime::MAXEVENT) );
 
   if (count%2 == 0) {
     ATH_CHECK( writeSCond (count) );

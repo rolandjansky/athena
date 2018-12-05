@@ -106,7 +106,7 @@ def setupTJVFTool():
                                          )
 
     ToolSvc += TVATool
-    jetTrackAlg.Tools += [TVATool]
+    jetTrackAlg.Tools = [TVATool]
 
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()

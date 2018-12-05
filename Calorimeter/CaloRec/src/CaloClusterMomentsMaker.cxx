@@ -23,8 +23,8 @@
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "LArTools/LArHVFraction.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "CaloInterface/ILArHVFraction.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
@@ -133,7 +133,7 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
     m_twoGaussianNoise(false),
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
-    m_larHVScaleRetriever("LArHVScaleRetriever", this),
+    m_larHVFraction("LArHVFraction",this),
     m_absOpt(false) 
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
@@ -163,7 +163,7 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   // use 2-gaussian noise for Tile
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
-  declareProperty("LArHVScaleRetriever",m_larHVScaleRetriever,"Tool Handle for LAr HV Scale Retriever Tool");
+  declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
 
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.
@@ -262,16 +262,10 @@ StatusCode CaloClusterMomentsMaker::initialize()
   }
 
   if (m_calculateLArHVFraction) { 
-    if(m_larHVScaleRetriever.retrieve().isFailure()){
-      msg(MSG::WARNING)
-	  << "Unable to find LAr HV Scale Retriever Tool" << endmsg;
-    }  
-    else {
-      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endmsg;
-    }
+    ATH_CHECK(m_larHVFraction.retrieve());
   }
   else {
-    m_larHVScaleRetriever.disable();
+    m_larHVFraction.disable();
   }
   return StatusCode::SUCCESS;
   
@@ -302,7 +296,7 @@ struct cellinfo {
 } // namespace CaloClusterMomentsMaker_detail
 
 StatusCode
-CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
+CaloClusterMomentsMaker::execute(const EventContext& ctx,
                                  xAOD::CaloClusterContainer *theClusColl)
   const
 { 
@@ -359,11 +353,6 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
     }
   }
 
-  const ILArHVCorrTool* hvCorrTool = nullptr;
-  if (m_calculateLArHVFraction)
-    hvCorrTool = &*m_larHVScaleRetriever;
-  LArHVFraction larHVFraction (hvCorrTool);
-  
   // Move allocation of temporary arrays outside the cluster loop.
   // That way, we don't need to delete and reallocate them
   // each time through the loop.
@@ -454,12 +443,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	if ( ene > 0 ) {
 	  ePos += ene*weight;
 	}
-	if ( m_calculateLArHVFraction ) {
-	  if ( larHVFraction.isHVAffected(pCell) ) {
-	    eBadLArHV += ene*weight;
-	    nBadLArHV ++;
-	  }
-	}
+      
 	if ( m_calculateSignificance ) {
 	  double sigma = 0;
 	  if ( m_usePileUpNoise ) {
@@ -554,6 +538,11 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  ncell++;
 	}
       } //end of loop over all cells
+      if (m_calculateLArHVFraction) {
+	const auto hvFrac=m_larHVFraction->getLArHVFrac(theCluster->getCellLinks(),ctx);
+	eBadLArHV= hvFrac.first;
+	nBadLArHV=hvFrac.second;
+      }
 
       if ( w > 0 ) {
 	mass = w*w - mx*mx - my*my - mz*mz;

@@ -1,6 +1,16 @@
 test1
-CondCont<T>::insert error: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
+ClassIDSvc           INFO  getRegistryEntries: read 51 CLIDRegistry entries for module ALL
+UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
+UNKNOWN_CLASS:c...  ERROR CondContBase::erase: Non-Run/LBN key used in Run/LBN container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::erase: Non-Timestamp key used in timestamp container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: Timestamp key used in non-timestamp container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: Run/LBN key used in non-Run/LBN container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::findBase: Non-Run/LBN key used in Run/LBN container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::findBase: Non-timestamp key used in timestamp container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::extendLastRange: Non-Run/LBN range used in Run/LBN container.
+UNKNOWN_CLASS:c...  ERROR CondContBase::extendLastRange: Non-timestamp range used in timestamp container.
 test2
-CondCont<T>::insert error: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
-CondCont<T>::insert error: Not most-derived class.
+UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
+UNKNOWN_CLASS:c...  ERROR CondCont<T>::insert: Not most-derived class; CLID used: 932847546; container CLID: 932847547
 test3
+testThread

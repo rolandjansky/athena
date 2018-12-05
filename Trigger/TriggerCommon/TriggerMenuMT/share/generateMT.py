@@ -1,16 +1,46 @@
-#!/bin/env python
+# import flags
+include("TrigUpgradeTest/testHLT_MT.py")
 
-from AthenaCommon.AthenaCommonFlags import jobproperties 
-from AthenaCommon.GlobalFlags import jobproperties
+#################################
+# Configure L1Decoder
+#################################
 
-jobproperties.print_JobProperties('tree&value')
+# provide a minimal menu information
+if globalflags.InputFormat.is_bytestream():
+   topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
+   topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
+
+# map L1 decisions for menu
+for unpack in topSequence.L1DecoderTest.roiUnpackers:
+    if unpack.name() is "EMRoIsUnpackingTool":
+        unpack.Decisions="L1EM"
+        emUnpacker=unpack
+    if unpack.name() is "MURoIsUnpackingTool":
+        unpack.Decisions="L1MU"
+        
+for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
+    if unpack.name() is "EMRerunRoIsUnpackingTool":
+        unpack.Decisions="RerunL1EM"
+        unpack.SourceDecisions="L1EM"
+
+for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
+    if unpack.name() is "EMRerunRoIsUnpackingTool":
+        unpack.SourceDecisions="L1EM"
+    if unpack.name() is "MURerunRoIsUnpackingTool":
+        unpack.SourceDecisions="L1MU"
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenu import GenerateMenuMT
 
+
+##########################################
+# Menu and CF construction
+##########################################
+
+from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 g = GenerateMenuMT()
 g.generateMT()
 
-jobproperties.AthenaCommonFlags.EvtMax=0
 
-jobproperties.print_JobProperties('tree&value')
+
+
+

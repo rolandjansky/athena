@@ -29,9 +29,6 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
 
         self.AthenaMonTools = [ time, validation, online, cosmic ]
         
-        # Beam Conditions Service
-        self.BeamCondSvcName   = "BeamCondSvc" # Name of the service for the BeamCondSvc
-        
         # Setup the self algorithm parameters
         # Algorithm IDs: SiTrack = 1, IDScan = 2, TrtXK = 4 
         # (from /offline/Trigger/TrigEvent/TrigInDetEvent/TrigInDetEvent/TrigInDetTrack.h)

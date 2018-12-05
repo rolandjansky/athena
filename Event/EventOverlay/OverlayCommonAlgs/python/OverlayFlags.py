@@ -32,12 +32,6 @@ class doSignal(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue = False
-   
-class doBkg(JobProperty):
-    """Background"""
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue = False
 
 class evtStore(JobProperty):
     """MC EvtStore name for overlay"""

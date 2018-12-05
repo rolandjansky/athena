@@ -47,15 +47,6 @@ class ILArMCSymTool;
                                int tbin,
                                int mode) const ;
   
-  // retrieving Shape using offline ID
-  virtual  ShapeRef_t Shape   (const Identifier&  CellID,
-                               int gain,
-                               int tbin,
-                               int mode) const;
-  virtual  ShapeRef_t ShapeDer(const Identifier&  CellID,
-                               int gain,
-                               int tbin,
-                               int mode) const;
     
  private: 
   

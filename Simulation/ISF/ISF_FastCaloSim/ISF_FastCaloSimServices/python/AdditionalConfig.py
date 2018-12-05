@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_FastCaloSimServices
@@ -871,3 +871,36 @@ def getFastHitConvAlg(name="ISF_FastHitConvAlg", **kwargs):
     #  kwargs.setdefault("doPileup", False)
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConv
     return FastHitConv(name, **kwargs )
+
+def getFastCaloToolBase(name="ISF_FastCaloToolBase", **kwargs):
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+    kwargs.setdefault("BatchProcessMcTruth"              , False                                             )
+    kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
+    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()              )
+    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
+    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
+    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
+    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
+    kwargs.setdefault("CaloCellMakerTools_release"       , [ #'ISF_AddNoiseCellBuilderTool',
+                                                             'ISF_CaloCellContainerFinalizerTool',
+                                                             'ISF_FastHitConvertTool' ])
+    kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
+    # register the FastCaloSim random number streams
+    from G4AtlasApps.SimFlags import simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
+        simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
+    return CfgMgr.ISF__FastCaloTool(name, **kwargs)
+
+def getFastCaloTool(name="ISF_FastCaloTool", **kwargs):
+    return getFastCaloToolBase(name, **kwargs)
+
+def getFastCaloPileupTool(name="ISF_FastCaloPileupTool", **kwargs):
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
+    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_PileupFastShowerCellBuilderTool' ])
+    return getFastCaloToolBase(name, **kwargs)
+
+def getLegacyAFIIFastCaloTool(name="ISF_LegacyAFIIFastCaloTool", **kwargs):
+    kwargs.setdefault("BatchProcessMcTruth" , True )
+    kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_LegacyFastShowerCellBuilderTool' ] )
+    return getFastCaloToolBase(name, **kwargs)

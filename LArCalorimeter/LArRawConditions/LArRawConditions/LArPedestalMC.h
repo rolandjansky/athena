@@ -32,10 +32,6 @@ class LArPedestalMC: public ILArPedestal {
   
   float pedestalRMS(const HWIdentifier&  CellID, int gain) const ;
   
-  float pedestal(const Identifier&  CellID, int gain) const;
-  
-  float pedestalRMS(const Identifier&  CellID, int gain) const;
-  
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const std::vector<float>& vPedestal,

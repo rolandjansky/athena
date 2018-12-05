@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTUTILS_TRACKMATCHINGMULTIMAP_H
@@ -7,7 +7,7 @@
 
 #include <map>
 #include "TrkTrack/Track.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**This typedef represents a multimap that holds the matching chi2 of two tracks
  from different track collections together with a boolean that indicatges if the 

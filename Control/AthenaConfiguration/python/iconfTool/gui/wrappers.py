@@ -6,8 +6,8 @@
 import curses
 import logging
 
-from gui.modals import SearchModal
-from gui.pad import Pad
+from AthenaConfiguration.iconfTool.gui.modals import SearchModal
+from AthenaConfiguration.iconfTool.gui.pad import Pad
 
 logger = logging.getLogger('iconfTool.' + __name__)
 

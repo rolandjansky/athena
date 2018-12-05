@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -173,7 +173,7 @@ StatusCode TileL2Builder::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2Container) {
+StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2Container) const {
 
   // Get TileRawChannels
   SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
@@ -295,7 +295,7 @@ void TileL2Builder::MTagLB(int partition
                           , std::vector<float> &EMuons1
                           , std::vector<float> &EMuons2
                           , std::vector<unsigned int> &qf
-                          , std::vector<unsigned int> &extraWord) {
+                          , std::vector<unsigned int> &extraWord) const {
 
   // Maximum number of muons tagged per superdrawer
   int cut = 4;
@@ -478,7 +478,7 @@ void TileL2Builder::MTagEB(int partition
                           , std::vector<float> &EMuons1
                           , std::vector<float> &EMuons2
                           , std::vector<unsigned int> &qf
-                          , std::vector<unsigned int> &extraWord) {
+                          , std::vector<unsigned int> &extraWord) const {
 
   // Maximum number of muons tagged per superdrawer
   int cut = 4;
@@ -668,7 +668,7 @@ void TileL2Builder::MTagEB(int partition
 }
 
 void TileL2Builder::SumE(int ros, int /* drawer */, int unit, float *E, int *gain,
-    std::vector<float> &sumE) {
+    std::vector<float> &sumE) const {
   // precision in DSP - 1/16 ADC counts or 1/2048 pC and CspC  or 1/2 MeV
   static const float AMPLITUDE_FACTOR_HG[4] = { 16.0, 32.0 * 64, 32.0 * 64., 2.0 };
   static const float AMPLITUDE_FACTOR_LG[4] = { 16.0, 32.0, 32.0, 2.0 / 64.0 };
@@ -682,9 +682,9 @@ void TileL2Builder::SumE(int ros, int /* drawer */, int unit, float *E, int *gai
   const float scaleHG = AMPLITUDE_FACTOR_HG[unit];
   const float scaleLG = AMPLITUDE_FACTOR_LG[unit];
   int ros1 = ros - 1;
-  float* wt = m_sinThRound[ros1];
-  float* wz = m_cosThRound[ros1];
-  bool* connected = m_connected[ros1];
+  const float* wt = m_sinThRound[ros1];
+  const float* wz = m_cosThRound[ros1];
+  const bool* connected = m_connected[ros1];
 
   float Et = 0.0;
   float Ez = 0.0;
@@ -715,16 +715,16 @@ void TileL2Builder::SumE(int ros, int /* drawer */, int unit, float *E, int *gai
   sumE[2] = Es * inv_scaleHG;
 }
 
-void TileL2Builder::SumE(int ros, int /* drawer */, float *E, std::vector<float> &sumE) {
+void TileL2Builder::SumE(int ros, int /* drawer */, float *E, std::vector<float> &sumE) const {
   if (ros < 1 || ros > 4) {
     sumE[0] = sumE[1] = sumE[2] = 0.0;
     return;
   }
 
   int ros1 = ros - 1;
-  float* wt = m_sinTh[ros1];
-  float* wz = m_cosTh[ros1];
-  bool* connected = m_connected[ros1];
+  const float* wt = m_sinTh[ros1];
+  const float* wz = m_cosTh[ros1];
+  const bool* connected = m_connected[ros1];
   float Et = 0.0;
   float Ez = 0.0;
   float Es = 0.0;
@@ -748,7 +748,7 @@ void TileL2Builder::SumE(int ros, int /* drawer */, float *E, std::vector<float>
   sumE[2] = Es;
 }
 
-void TileL2Builder::MaskBad(int ros, float *E, int * gain, bool *bad) {
+void TileL2Builder::MaskBad(int ros, float *E, int * gain, bool *bad) const {
   for (int i = 0; i < 48; ++i) {
     if (bad[i]) {
       int j = m_channelPairs[ros - 1][i];

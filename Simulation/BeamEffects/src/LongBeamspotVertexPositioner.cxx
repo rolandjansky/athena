@@ -32,7 +32,6 @@ namespace Simulation
                                                               const IInterface* p )
     : base_class(t,n,p),
       m_L(150.0),// 150.0 mm
-      m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("VERTEX"),
@@ -40,7 +39,6 @@ namespace Simulation
   {
     // declare properties for the configuration
     declareProperty( "LParameter", m_L );
-    declareProperty( "BeamCondSvc", m_beamCondSvc );
     declareProperty( "RandomSvc", m_rndGenSvc );
     declareProperty( "RandomStream", m_randomEngineName );
     declareProperty( "SimpleTimeSmearing", m_timeSmearing );
@@ -56,8 +54,7 @@ namespace Simulation
   {
     ATH_MSG_VERBOSE("Initializing ...");
 
-    // retrieve the BeamCondService
-    ATH_CHECK(m_beamCondSvc.retrieve());
+    ATH_CHECK(m_beamSpotKey.initialize());
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
     m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
@@ -105,20 +102,20 @@ namespace Simulation
     // Prepare the random engine
     m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
     CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     // See jira issue ATLASSIM-497 for an explanation of why calling
     // shoot outside the CLHEP::HepLorentzVector constructor is
     // necessary/preferable.
-    float vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(0);
-    float vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(1);
+    float vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*beamSpotHandle->beamSigma(0);
+    float vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*beamSpotHandle->beamSigma(1);
     float vertexZ = getZpos(randomEngine);
     // calculate the vertexSmearing
     CLHEP::HepLorentzVector *vertexSmearing =
       new CLHEP::HepLorentzVector( vertexX, vertexY, vertexZ, 0. );
 
     // (1) code from: Simulation/G4Atlas/G4AtlasUtilities/VertexPositioner.cxx
-    const double tx = tan( m_beamCondSvc->beamTilt(1) );
-    const double ty = tan( m_beamCondSvc->beamTilt(0) );
+    const double tx = tan( beamSpotHandle->beamTilt(1) );
+    const double ty = tan( beamSpotHandle->beamTilt(0) );
 
     const double sqrt_abc = sqrt(1. + tx*tx + ty*ty);
     const double sqrt_fgh = sqrt(1. + ty*ty);
@@ -140,17 +137,17 @@ namespace Simulation
     // first rotation, then translation
     HepGeom::Transform3D transform(
         HepGeom::Rotate3D(from1, from2, to1, to2).getRotation(),
-        CLHEP::Hep3Vector( m_beamCondSvc->beamPos().x(),
-                           m_beamCondSvc->beamPos().y(),
-                           m_beamCondSvc->beamPos().z() )
+        CLHEP::Hep3Vector( beamSpotHandle->beamPos().x(),
+                           beamSpotHandle->beamPos().y(),
+                           beamSpotHandle->beamPos().z() )
         );
 
     // FIXME: don't use endl in MsgStream printouts
-    ATH_MSG_VERBOSE("BeamSpotSvc reported beam position as " << m_beamCondSvc->beamPos() << std::endl
-                    << "\tWidth is (" << m_beamCondSvc->beamSigma(0)
-                    << ", " << m_beamCondSvc->beamSigma(1) << ", "
+    ATH_MSG_VERBOSE("BeamSpotSvc reported beam position as " << beamSpotHandle->beamPos() << std::endl
+                    << "\tWidth is (" << beamSpotHandle->beamSigma(0)
+                    << ", " << beamSpotHandle->beamSigma(1) << ", "
                     << m_L << ")" << std::endl
-                    << "\tTilts are " << m_beamCondSvc->beamTilt(0) << " and " << m_beamCondSvc->beamTilt(1) << std::endl
+                    << "\tTilts are " << beamSpotHandle->beamTilt(0) << " and " << beamSpotHandle->beamTilt(1) << std::endl
                     << "\tVertex Position before transform: " << *vertexSmearing);
 
     // update with the tilt

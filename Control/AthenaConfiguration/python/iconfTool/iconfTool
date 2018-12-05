@@ -8,7 +8,7 @@ import logging
 
 
 # Logging configuration
-logging_file = 'run.log'
+logging_file = 'iconfTool.log'
 # Creating or cleaning log file
 with open(logging_file, 'w'):
     pass
@@ -22,9 +22,9 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
 
-from gui.wrappers import GuiLoader, DoublePad
-from models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
-from utils import serialization
+from AthenaConfiguration.iconfTool.gui.wrappers import GuiLoader, DoublePad
+from AthenaConfiguration.iconfTool.models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
+from AthenaConfiguration.iconfTool.utils import serialization
 
 
 if __name__ == '__main__':

@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/DumpProperties.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Dump all properties from Gaudi objects in a given namespace."""
 
-import os, sys, re, types
+import os
+import sys
 import GaudiPython
 
 
@@ -27,11 +28,11 @@ log = logging.getLogger( 'DumpProperties' )
 def _printFromLookup( ns, listing, lookup, extra, klass ):
    """<internal>"""
  
-   if not ns.has_key( 'theApp' ):
+   if 'theApp' not in ns:
       log.error( 'given namespace does not contain "theApp"' )
       return
 
-   if not ns.has_key( lookup ):
+   if lookup not in ns:
       log.error( 'given namespace does not contain "%s" lookup', lookup )
       return
 
@@ -47,7 +48,7 @@ def _printFromLookup( ns, listing, lookup, extra, klass ):
    if extra and type(extra) != list:
       extra = getattr( app, extra )
 
-   extra = [ e for e in extra if not e in listing ]
+   extra = [ e for e in extra if e not in listing ]
 
    lookup = ns[ lookup ]
    for name in listing:
@@ -105,7 +106,7 @@ def dump( opt = [ 'set' ], ns = None ):
 'all', or a list of a combination of these. The given namespace must contain the
 application manager."""
 
-   if ns == None:
+   if ns is None:
       import __main__
       ns = __main__.__dict__ 
 
@@ -135,7 +136,7 @@ def dumpSet( ns = None ):
    """Dump all Gaudi objects that have had their properties set. The namespace must
 contain the application manager."""
 
-   if ns == None:
+   if ns is None:
       import __main__
       ns = __main__.__dict__
 
@@ -147,7 +148,7 @@ contain the application manager."""
 def dumpAlgorithms( ns = None ):
    """Dump all algorithm properties. The namespace must contain the application mgr."""
 
-   if ns == None:
+   if ns is None:
       import __main__
       ns = __main__.__dict__
 
@@ -157,7 +158,7 @@ def dumpAlgorithms( ns = None ):
 def dumpServices( ns = None ):
    """Dump all service properties. The namespace must contain the application mgr."""
 
-   if ns == None:
+   if ns is None:
       import __main__
       ns = __main__.__dict__
 

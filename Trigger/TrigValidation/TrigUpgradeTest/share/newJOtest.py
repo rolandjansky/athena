@@ -8,12 +8,15 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 
+from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu
+
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-#theApp.setup()
 
 flags = ConfigFlags
+setupMenu(flags)
+
 
 flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
@@ -58,30 +61,10 @@ acc.merge(TrigBSReadCfg(flags ))
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
-def menu( mf ):
-    menuAcc = ComponentAccumulator()
-    menuAcc.addSequence( seqAND("HLTAllSteps") )
 
-
-    from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
-    electronAcc, electronChains = generateElectronsCfg( mf )
-    menuAcc.merge( electronAcc )
-
-    from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
-    photonsAcc, photonChains = generatePhotonsCfg( mf )
-    menuAcc.merge( photonsAcc )
-    
-    allChains =   photonChains + electronChains
-    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import decisionTree_From_Chains       
-    decisionTree_From_Chains( menuAcc.getSequence("HLTAllSteps"), allChains )
-    menuAcc.printConfig()
-    
-    return menuAcc
-
-
-
+from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
-acc.merge( triggerRunCfg( flags, menu ) )
+acc.merge( triggerRunCfg( flags, generateMenu ) )
 
 
 
@@ -97,7 +80,7 @@ acc.getService("IOVDbSvc").Folders += ['/TagInfo<metaOnly/>']
 
 
 # setup algorithm sequences here, need few additional components
-from TrigUpgradeTest.RegSelConfig import RegSelConfig
+from RegionSelector.RegSelConfig import RegSelConfig
 acc.merge( RegSelConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG

@@ -12,8 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/ByteStreamCnvSvcBase
@@ -40,7 +38,7 @@ atlas_add_component( MuonCSC_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests Identifier ByteStreamCnvSvcBaseLib EventInfo EventPrimitives CSCcablingLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData TrkSurfaces )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier ByteStreamCnvSvcBaseLib EventInfo EventPrimitives CSCcablingLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData TrkSurfaces )
 
 # Install files from the package:
 atlas_install_headers( MuonCSC_CnvTools )

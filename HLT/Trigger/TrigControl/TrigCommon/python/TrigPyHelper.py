@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ######################################################################
 ## @file   TrigPyHelper.py
 ## @brief  Helpers for C++ Python bindings
 ## @author Frank Winklmeier
-## $Id: TrigPyHelper.py,v 1.1 2008-09-02 16:37:18 fwinkl Exp $
 ######################################################################
 
-from GaudiPython import *
+from GaudiPython import *    # noqa
+from GaudiPython import gbl, InterfaceCast
 from GaudiPython.Bindings import Helper, iProperty
 from AthenaCommon.Logging import logging
     
@@ -32,7 +32,7 @@ class TrigApp(object):
       
       jobOptSvc = InterfaceCast(gbl.IJobOptionsSvc)(Helper.service(gbl.Gaudi.svcLocator(), "JobOptionsSvc"))
       if not jobOptSvc:
-         log.error("Cannot find JobOptionsSvc")
+         self.log.error("Cannot find JobOptionsSvc")
          return
 
       import re
@@ -43,7 +43,7 @@ class TrigApp(object):
       for client in jobOptSvc.getClients():
          for prop in jobOptSvc.getProperties(client):      
             if reClient.match(client) and reProp.match(prop.name()):
-               self.log.info("Changing %s.%s from '%s' to '%s'" % \
+               self.log.info("Changing %s.%s from '%s' to '%s'" %
                              (client, prop.name(), prop.value(), newValue))
                iprop = iProperty(client)
                setattr(iprop, prop.name(), newValue)

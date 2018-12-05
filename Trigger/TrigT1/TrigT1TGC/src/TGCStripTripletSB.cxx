@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //$Id: TGCStripTripletSB.cxx,v 1.6 2009-05-14 01:28:04 isaya Exp $

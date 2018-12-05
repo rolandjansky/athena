@@ -28,21 +28,8 @@ LArAutoCorrMC::~LArAutoCorrMC() {}
 /* retrieve AutoCorr ******************************************************
  */
 ILArAutoCorr::AutoCorrRef_t LArAutoCorrMC::autoCorr(const HWIdentifier& CellID, int gain) const 
-{ 
-
-//  if(!m_larmcsym) initialize(); 
-  // symmetrize CellID for MC usage
+{ // symmetrize CellID for MC usage
   HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
   return  LArAutoCorrComplete::autoCorr(SymCellID, gain); 
-}
-
-ILArAutoCorr::AutoCorrRef_t LArAutoCorrMC::autoCorr(const Identifier&  CellID, int gain) const
-{
-//  if(!m_larmcsym) initialize(); 
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
-  return  LArAutoCorrComplete::autoCorr(SymCellID, gain); 
-
 }
 

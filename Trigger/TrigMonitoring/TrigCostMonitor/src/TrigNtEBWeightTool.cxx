@@ -101,7 +101,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
     m_chainEnabled[EBEnum] = true; // Start off assuming enabled
 
     // Get the L1 chain
-    // This depends on the _original_ menu. So for all data12, it will be L2_ even if reprocessed.
+    // This depends on the origional_ menu. So for all data12, it will be L2_ even if reprocessed.
     // Loop over all chains
 
     std::string EBChain = EBTriggerNameHLT[EB];
@@ -295,7 +295,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
         //if (L1Name.find("RD0") != std::string::npos || L1Name.find("RD1") != std::string::npos)  continue;
 
         // Get if this L1 item *could* have passed the event. unless it's a random streamer then it must be after veto
-        //if ( _costData_L1.getIsL1PassedBeforePrescale( _L1Name ) == kFALSE ) continue;
+        //if ( costData_L1.getIsL1PassedBeforePrescale( L1Name ) == kFALSE ) continue;
         Int_t passedL1Raw = 0;
         for (unsigned i = 0; i < eventL1Items.size(); ++i) {
           if (eventL1Items.at(i).getCtpId() != L1CPTID) continue;

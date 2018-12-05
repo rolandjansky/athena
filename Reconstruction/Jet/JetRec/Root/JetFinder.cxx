@@ -41,6 +41,7 @@ using xAOD::JetContainer;
 
 JetFinder::JetFinder(string name)
 : AsgTool(name),
+  m_bld("JetFromPseudojet",this),
   m_fjalg(fastjet::undefined_jet_algorithm),
   m_isVariableR(false) {
   declareProperty("JetAlgorithm", m_jetalg="AntiKt");

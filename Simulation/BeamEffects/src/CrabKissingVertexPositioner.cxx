@@ -30,7 +30,6 @@ namespace Simulation
                                                             const std::string& n,
                                                             const IInterface* p )
     : base_class(t,n,p),
-      m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("VERTEX"),
@@ -44,7 +43,6 @@ namespace Simulation
       m_thetaX(295e-6)
   {
     // declare properties for the configuration
-    declareProperty( "BeamCondSvc"  , m_beamCondSvc,      ""                                                );
     declareProperty( "RandomSvc"    , m_rndGenSvc,        ""                                                );
     declareProperty( "RandomStream" , m_randomEngineName, "Name of the random number stream"                );
     declareProperty( "BunchShape"   , m_bunchShapeProp,   "GAUSS or FLAT"                                   );
@@ -74,10 +72,10 @@ namespace Simulation
   {
     ATH_MSG_VERBOSE("Initializing ...");
 
-    // retrieve the BeamCondService
-    ATH_CHECK(m_beamCondSvc.retrieve());
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
+    ATH_CHECK(m_beamSpotKey.initialize());
+
     m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
     if (!m_randomEngine) {
       ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
@@ -137,12 +135,12 @@ namespace Simulation
     // Prepare the random engine
     m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
     CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
-
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     // See jira issue ATLASSIM-497 for an explanation of why calling
     // shoot outside the CLHEP::HepLorentzVector constructor is
     // necessary/preferable.
-    double vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(0);
-    double vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(1);
+    double vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*beamSpotHandle->beamSigma(0);
+    double vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*beamSpotHandle->beamSigma(1);
     double piwinski_phi = std::fabs(m_thetaX - m_alphaX) * m_bunchLength/std::sqrt(m_epsilon * m_betaStar);
     double piwinski_psi = m_alphaPar * m_bunchLength / std::sqrt( m_epsilon * m_betaStar);
     double vertexZ = 0;
@@ -170,8 +168,8 @@ namespace Simulation
       new CLHEP::HepLorentzVector( vertexX, vertexY, vertexZ, 0. );
 
     // (1) code from: Simulation/G4Atlas/G4AtlasUtilities/VertexPositioner.cxx
-    const double tx = tan( m_beamCondSvc->beamTilt(1) );
-    const double ty = tan( m_beamCondSvc->beamTilt(0) );
+    const double tx = tan( beamSpotHandle->beamTilt(1) );
+    const double ty = tan( beamSpotHandle->beamTilt(0) );
 
     const double sqrt_abc = std::sqrt(1. + tx*tx + ty*ty);
     const double sqrt_fgh = std::sqrt(1. + ty*ty);
@@ -193,16 +191,16 @@ namespace Simulation
     // first rotation, then translation
     HepGeom::Transform3D transform(
         HepGeom::Rotate3D(from1, from2, to1, to2).getRotation(),
-        CLHEP::Hep3Vector( m_beamCondSvc->beamPos().x(),
-                           m_beamCondSvc->beamPos().y(),
-                           m_beamCondSvc->beamPos().z() )
+        CLHEP::Hep3Vector( beamSpotHandle->beamPos().x(),
+                           beamSpotHandle->beamPos().y(),
+                           beamSpotHandle->beamPos().z() )
         );
 
-    ATH_MSG_VERBOSE("BeamSpotSvc reported beam position as " << m_beamCondSvc->beamPos());
-    ATH_MSG_VERBOSE("Width is (" << m_beamCondSvc->beamSigma(0) << ", " <<
-                    m_beamCondSvc->beamSigma(1) << ", " << m_bunchLength << ")");
-    ATH_MSG_VERBOSE("Tilts are " << m_beamCondSvc->beamTilt(0) << " and " <<
-                    m_beamCondSvc->beamTilt(1));
+    ATH_MSG_VERBOSE("BeamSpotSvc reported beam position as " << beamSpotHandle->beamPos());
+    ATH_MSG_VERBOSE("Width is (" << beamSpotHandle->beamSigma(0) << ", " <<
+                    beamSpotHandle->beamSigma(1) << ", " << m_bunchLength << ")");
+    ATH_MSG_VERBOSE("Tilts are " << beamSpotHandle->beamTilt(0) << " and " <<
+                    beamSpotHandle->beamTilt(1));
     ATH_MSG_VERBOSE("Vertex Position before transform: " << *vertexSmearing);
 
     // update with the tilt

@@ -11,6 +11,9 @@
 
 #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
 
+#include "PixelConditionsData/PixelModuleData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
     PixelSiliconConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
@@ -21,7 +24,9 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-    ToolHandle<IPixelDCSConditionsTool> m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+    ToolHandle<IPixelDCSConditionsTool>     m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_condKey{this, "PixelModuleData", "PixelModuleData", "Pixel dead map"};
 };
 
 #endif // PIXELSILICONcONDITIONSTESTALG_H

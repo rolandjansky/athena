@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -48,7 +48,6 @@ namespace Trk
     m_allowReordering(false),
     m_useStepPropagator(1),
     m_maxWarnings(10),
-    m_materialMaxGap(2.0 * Gaudi::Units::meter),
     m_orderingTolerance(1. * Gaudi::Units::mm),
     m_scattererMinGap(100. * Gaudi::Units::mm),
     m_scatteringConstant(13.6 * Gaudi::Units::MeV),   // Coulomb scattering constant

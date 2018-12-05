@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNEL2BYTES5_H 
@@ -66,10 +66,9 @@ class TileRawChannel2Bytes5
       int s[7];
     } TileChanData;
 
-    uint8_t FormatLookup[256];
+    uint8_t m_FormatLookup[256];
 
-    TileRawChannel2Bytes5() : m_verbose(false)
-                            , m_rChUnit(0)
+    TileRawChannel2Bytes5()
     {
       setFormatLookup();
     }
@@ -90,7 +89,7 @@ class TileRawChannel2Bytes5
     inline static bool is_code_amp_raw_dump(uint32_t code) { return (code & 0x6C); }
 
     /** Unpack Frag5 reco from 32-bit word w. */
-    inline void unpack_reco(unsigned int w, int &fmt, int &gain, double &amp, double &time) const;
+    inline void unpack_reco(unsigned int w, unsigned int unit, int &fmt, int &gain, double &amp, double &time) const;
     inline bool unpack_reco_bin(unsigned int w, int &fmt, int &gain, int &amp, int &time) const;
 
     /** Get SumEt, SumEz, SumE value **/
@@ -101,13 +100,7 @@ class TileRawChannel2Bytes5
     inline double getSumE (uint32_t* ptr_frag) const;
 
     /** Sets verbose mode true or false. */
-    inline void setVerbose(bool verbose) { m_verbose=verbose; }  
-
-    /** Sets the energy units value (TileRawChannel2Bytes5::m_rChUnit). */
-    inline void setUnit( unsigned int unit ) { m_rChUnit = unit; }
-
-    /** Gets the energy units value (TileRawChannel2Bytes5::m_rChUnit). */
-    unsigned int getUnit() const { return m_rChUnit; }
+    inline void setVerbose(bool /*verbose*/) {  }  
 
     inline static int get_code(uint32_t reco)
     {
@@ -158,7 +151,7 @@ class TileRawChannel2Bytes5
       return size/8;
     }
 
-    inline int get_format(int code) const { return FormatLookup[code & 0xFF]; }
+    inline int get_format(int code) const { return m_FormatLookup[code & 0xFF]; }
     inline static int get_quality(int bad, int format) { return (bad << 4) + format; }
 
     inline void setFormatLookup()
@@ -175,22 +168,15 @@ class TileRawChannel2Bytes5
         if (is_code_full(code)) fmt = 7; else
         if (is_code_dump(code)) fmt = 8; else
           fmt = 0xFF;
-        FormatLookup[code] = fmt;
+        m_FormatLookup[code] = fmt;
       }
     }
 
-    int amplitude(uint32_t* ofw, int unit, int chan, int gain, int s[]);
+    int amplitude(const uint32_t* ofw, int unit, int chan, int gain, int s[]) const;
 
-    void unpack(uint32_t* ofw, uint32_t* ptr_frag, TileChanData* ChanData) const;
-    bool check_raw(uint32_t* feb, int of_energy[], TileChanData* ChanData);
-    bool check_reco(uint32_t* frag, int of_energy[]);
-
-
-  private:
-    /** Verbose flag. */ 
-    bool m_verbose;
-    /** Energy units. */
-    unsigned int m_rChUnit;
+    void unpack(const uint32_t* ofw, uint32_t* ptr_frag, TileChanData* ChanData) const;
+    bool check_raw(const uint32_t* feb, int of_energy[], TileChanData* ChanData) const;
+    bool check_reco(const uint32_t* frag, int of_energy[]) const;
 };
 
 /// ped4 | ped5
@@ -260,7 +246,7 @@ if (TileRawChannel2Bytes5::is_code_full(code)) {                \
 inline bool TileRawChannel2Bytes5::unpack_reco_bin(unsigned int w, int &fmt, int &gain, int &amp, int &time) const
 {
   uint32_t code = w >> 24;
-  fmt = FormatLookup[code];
+  fmt = m_FormatLookup[code];
 
   if_Frag5_unpack_reco_bin(w, code, gain, amp, time)
   else {
@@ -271,11 +257,12 @@ inline bool TileRawChannel2Bytes5::unpack_reco_bin(unsigned int w, int &fmt, int
   return true;
 }
 
-inline void TileRawChannel2Bytes5::unpack_reco(unsigned int w, int &fmt, int &gain, double &amp, double &time) const
+inline void TileRawChannel2Bytes5::unpack_reco(unsigned int w, unsigned int unit,
+                                               int &fmt, int &gain, double &amp, double &time) const
 {
   int amp_bin, time_bin;
   if (unpack_reco_bin(w, fmt, gain, amp_bin, time_bin)) {
-    Frag5_unpack_bin2reco(m_rChUnit, gain, amp_bin, amp, time_bin, time);
+    Frag5_unpack_bin2reco(unit, gain, amp_bin, amp, time_bin, time);
   } else {
     amp = 0.0; time = 0.0;
   }

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  *   */
 
 /*
@@ -17,6 +17,7 @@
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
+    m_tileEMScaleKey ("TileEMScale"),
     m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name ),
     m_roiMode(true)
 {
@@ -25,6 +26,7 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cells container");
   declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
   declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
+  declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
 }
 
 HLTCaloCellMaker::~HLTCaloCellMaker()
@@ -37,6 +39,7 @@ StatusCode HLTCaloCellMaker::initialize() {
     ATH_CHECK( m_cellContainerKey.initialize() );
   else
     ATH_CHECK( m_cellContainerVKey.initialize() );
+  ATH_CHECK( m_tileEMScaleKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
@@ -51,19 +54,23 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
   if ( m_roiMode ) {
     if ( roiCollection->size() > 1 ) 
       ATH_MSG_INFO ( "roiMode but multiple rois found, will only use the first one");
+
     SG::WriteHandle<ConstDataVector<CaloCellContainer> > cellContainer = SG::WriteHandle<ConstDataVector<CaloCellContainer> > ( m_cellContainerKey, context );
     auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
+      ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
         ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
-
+	
       } else {
 	LArTT_Selector<LArCellCont> sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
       }
+      ATH_MSG_INFO ("Producing "<<cdv->size()<<" cells");
       auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
+
       return StatusCode::SUCCESS;
     }
 

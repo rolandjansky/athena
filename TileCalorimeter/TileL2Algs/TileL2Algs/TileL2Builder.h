@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -49,20 +49,20 @@ class TileL2Builder: public AthAlgTool {
                   , const std::string& name
                   , const IInterface* parent);
 
-    virtual ~TileL2Builder();
+    virtual ~TileL2Builder() override;
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode process(int fragmin, int fragmax, TileL2Container *l2Container);
+    virtual StatusCode process(int fragmin, int fragmax, TileL2Container *l2Container) const;
 
-    /** Return colllection ID for a given index  */
-    inline int indexToId(int i) {
+    /** Return collection ID for a given index  */
+    inline int indexToId(int i) const {
       return m_hashFunc.identifier(i);
     }
 
-    inline int idToIndex(int id) {
+    inline int idToIndex(int id) const {
       return m_hashFunc(id);
     }
 
@@ -78,7 +78,7 @@ class TileL2Builder: public AthAlgTool {
      * @param gain      gain for all channels - on return it will contain corrected values
      * @param bad       bad flag for all channels
      */
-    void MaskBad(int partition, float* E, int* gain, bool* bad);
+    void MaskBad(int partition, float* E, int* gain, bool* bad) const;
 
     /**
      * Muon tagging function for LB superdrawers as processed at the ROD DSPs.
@@ -98,7 +98,7 @@ class TileL2Builder: public AthAlgTool {
                 , std::vector<float> &EMuons1
                 , std::vector<float> &EMuons2
                 , std::vector<unsigned int> &qf
-                , std::vector<unsigned int> &extraWord);
+                , std::vector<unsigned int> &extraWord) const;
 
     inline void MTagLB(int partition
                       , int drawer
@@ -110,7 +110,7 @@ class TileL2Builder: public AthAlgTool {
                       , std::vector<float> &EMuons1
                       , std::vector<float> &EMuons2
                       , std::vector<unsigned int> &qf
-                      , std::vector<unsigned int> &extraWord) {
+                      , std::vector<unsigned int> &extraWord) const {
       MaskBad(partition, EMeV, gain, bad);
       MTagLB(partition, drawer, EMeV, EtaMuons, EMuons0, EMuons1, EMuons2, qf, extraWord);
     }
@@ -133,7 +133,7 @@ class TileL2Builder: public AthAlgTool {
                 , std::vector<float> &EMuons1
                 , std::vector<float> &EMuons2
                 , std::vector<unsigned int> &qf
-                , std::vector<unsigned int> &extraWord);
+                , std::vector<unsigned int> &extraWord) const;
 
     inline void MTagEB(int partition
                       , int drawer
@@ -145,7 +145,7 @@ class TileL2Builder: public AthAlgTool {
                       , std::vector<float> &EMuons1
                       , std::vector<float> &EMuons2
                       , std::vector<unsigned int> &qf
-                      , std::vector<unsigned int> &extraWord) {
+                      , std::vector<unsigned int> &extraWord) const {
       MaskBad(partition, EMeV, gain, bad);
       MTagEB(partition, drawer, EMeV, EtaMuons, EMuons0, EMuons1, EMuons2, qf, extraWord);
     }
@@ -160,15 +160,15 @@ class TileL2Builder: public AthAlgTool {
      * @param bad       bad flag for all channels
      * @param sumE      sumEt, sumEz and sumE for the drawer in one vector
      */
-    void SumE(int partition, int drawer, float * E, std::vector<float> &sumE);
-    void SumE(int partition, int drawer, int unit, float* E, int* gain, std::vector<float> &sumE);
+    void SumE(int partition, int drawer, float * E, std::vector<float> &sumE) const;
+    void SumE(int partition, int drawer, int unit, float* E, int* gain, std::vector<float> &sumE) const;
     inline void SumE(int partition
                     , int drawer
                     , int unit
                     , float* E
                     , int* gain
                     , bool* bad
-                    , std::vector<float> &sumE) {
+                    , std::vector<float> &sumE) const {
       MaskBad(partition, E, gain, bad);
       SumE(partition, drawer, unit, E, gain, sumE);
     }

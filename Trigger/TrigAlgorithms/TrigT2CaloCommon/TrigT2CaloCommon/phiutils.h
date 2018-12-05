@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    phiutils.h        
 //
 //                   
 //  
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: phiutils.h, v0.0   Sun 30 Mar 2014 16:12:42 CEST sutt $
 

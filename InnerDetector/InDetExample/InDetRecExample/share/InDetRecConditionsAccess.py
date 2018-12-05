@@ -21,10 +21,6 @@ if not ('conddb' in dir()):
     IOVDbSvc = Service("IOVDbSvc")
     from IOVDbSvc.CondDB import conddb
 
-# Conditions sequence for Athena MT
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-
 #
 # --- Setup BeamSpot data
 #
@@ -40,9 +36,12 @@ except ImportError:
     # Protection for AthSimulationBase release which does not contain RecExConfig
     conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
 
-
-from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
-condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
 
 #
@@ -54,16 +53,14 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
         from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
         pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseDCS(isData  and InDetFlags.usePixelDCS())
-        pixelConditionsSummaryToolSetup.setUseBS(isData)
+        pixelConditionsSummaryToolSetup.setUseConditions(True)
+        pixelConditionsSummaryToolSetup.setUseDCSState(isData  and InDetFlags.usePixelDCS())
+        pixelConditionsSummaryToolSetup.setUseByteStream(isData)
+        pixelConditionsSummaryToolSetup.setUseTDAQ(False)
+        pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
         pixelConditionsSummaryToolSetup.setup()
 
     InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
-
-    if athenaCommonFlags.isOnline() :
-        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
-    else:
-        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
 
     if InDetFlags.usePixelDCS():
         InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
@@ -82,43 +79,6 @@ if DetFlags.haveRIO.pixel_on():
         ServiceMgr += InDetPixelCalibSvc
         if InDetFlags.doPrintConfigurables():
             print InDetPixelCalibSvc
-
-    # Load pixel special pixel map services
-    if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested('/PIXEL/PixMapShort'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort", className='CondAttrListCollection')
-        if not conddb.folderRequested('/PIXEL/PixMapLong'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong", className='CondAttrListCollection')
-        if not conddb.folderRequested('/PIXEL/NoiseMapShort'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapShort", className='CondAttrListCollection')
-        if not conddb.folderRequested('/PIXEL/NoiseMapLong'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapLong", className='CondAttrListCollection')
-        if not conddb.folderRequested('/PIXEL/PixMapOverlay'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
-        InDetSpecialPixelMapSvc = SpecialPixelMapSvc(DBFolders           = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" , "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ] ,
-                                                     SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong", "NoiseMapShort", "NoiseMapLong" ] ,
-                                                     OverlayFolder       = "/PIXEL/PixMapOverlay",
-                                                     OverlayKey          = "PixMapOverlay", RegisterCallback = True)
-        ServiceMgr += InDetSpecialPixelMapSvc
-        if InDetFlags.doPrintConfigurables():
-            print InDetSpecialPixelMapSvc
-
-        #Alg is suppose to replace service, sync withh service for now
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import SpecialPixelMapCondAlg
-        InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
-               DBFolders  = InDetSpecialPixelMapSvc.DBFolders,
-               SpecialPixelMapKeys = InDetSpecialPixelMapSvc.SpecialPixelMapKeys ,
-               OverlayFolder       = InDetSpecialPixelMapSvc.OverlayFolder,
-               OverlayKey          = InDetSpecialPixelMapSvc.OverlayKey)
-        condSeq += InDetSpecialPixelMapCondAlg
-        if InDetFlags.doPrintConfigurables():
-            print InDetSpecialPixelMapSvc
-
-
-    if not InDetFlags.usePixelDCS():
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
-        PixelSiliconConditionsSvc.UseDB = False
 
     # Load Pixel BS errors service
     if not (globalflags.DataSource=='geant4'):
@@ -344,7 +304,7 @@ if DetFlags.haveRIO.TRT_on():
     # Compression table
     if (globalflags.DataSource() == 'data'): 
         if not conddb.folderRequested('/TRT/Onl/ROD/Compress'):
-            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress",className='CondAttrListCollection')
 
     # Calibration constants
     # Block folders if they are to be read from or written to text files

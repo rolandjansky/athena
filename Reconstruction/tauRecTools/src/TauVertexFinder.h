@@ -7,9 +7,12 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "JetEDM/TrackVertexAssociation.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +42,12 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode eventInitialize();
   virtual StatusCode execute(xAOD::TauJet& pTau);
+  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
   virtual StatusCode eventFinalize();
   virtual StatusCode finalize();
 
@@ -55,15 +64,7 @@ private:
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;
   // for online ATR-15665
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const;      
-  //-------------------------------------------------------------
-  //! Convenience functions to handle storegate objects
-  //-------------------------------------------------------------
-  template <class T>
-  bool openContainer(T* &container, std::string containerName, bool printFATAL=false);
-
-  template <class T>
-  bool retrieveTool(T &tool);
-
+  
 private:
   bool m_printMissingContainerINFO;
   ToolHandle< InDet::IInDetTrackSelectionTool > m_TrackSelectionToolForTJVA;
@@ -74,13 +75,16 @@ private:
   //! Configureables
   //-------------------------------------------------------------
   bool m_useTJVA;
-  std::string m_inputPrimaryVertexContainerName;
   std::string m_assocTracksName;
-  std::string m_trackVertexAssocName;    
   // for online ATR-15665
   float m_transDistMax;
   float m_longDistMax;
   float m_maxZ0SinTheta;
+  
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "InDetTrackParticles", "input vertex container key"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};   
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_jetTrackVtxAssoc{this, "Key_JetTrackVtxAssoc_forTaus", "JetTrackVtxAssoc_forTaus", "input TVA for taus"};
+
 };
 
 #endif // not TAUREC_TAUVERTEXFINDER_H

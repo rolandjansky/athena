@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EndcapDMConstruction.h"
@@ -8,7 +8,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -75,7 +74,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
     throw std::runtime_error("Error in EndcapDMConstruction, cannot access RDBAccessSvc");
 
   DecodeVersionKey keyLAr(geoModel, "LAr");
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if(StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) 
     throw std::runtime_error("Error in EndcapDMConstruction, stored MaterialManager is not found");
 
@@ -109,8 +108,8 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   unsigned int recordIndex;
 
   // Get materials
-  GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
-  GeoMaterial* matBoardsEnvelope = materialManager->getMaterial("LAr::BoardsEnvelope");// 0.932*CLHEP::gram/CLHEP::cm3);
+  const GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
+  const GeoMaterial* matBoardsEnvelope = materialManager->getMaterial("LAr::BoardsEnvelope");// 0.932*CLHEP::gram/CLHEP::cm3);
 
   ////----------- Building Front-end crates --------------------
   recordIndex = tubeMap["Ped2"];
@@ -238,7 +237,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   // Build services
   IRDBRecordset_ptr EndcapDMTubes = rdbAccess->getRecordsetPtr("LArEndcapDMTubes",keyLAr.tag(),keyLAr.node());
   if(EndcapDMTubes->size()) {
-    GeoMaterial* matECServices = materialManager->getMaterial("LAr::LArECServices");    
+    const GeoMaterial* matECServices = materialManager->getMaterial("LAr::LArECServices");    
     for(unsigned i(0); i<EndcapDMTubes->size(); ++i) {
       GeoTube* endcapTube = new GeoTube((*EndcapDMTubes)[i]->getDouble("RMIN"),(*EndcapDMTubes)[i]->getDouble("RMAX"),(*EndcapDMTubes)[i]->getDouble("DZ"));
       GeoLogVol* endcapTubeLv = new GeoLogVol((*EndcapDMTubes)[i]->getString("TUBENAME"),endcapTube,matECServices);

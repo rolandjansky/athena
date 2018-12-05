@@ -18,7 +18,7 @@ Muon::TgcRawDataProvider::TgcRawDataProvider(const std::string& name,
         ISvcLocator* pSvcLocator) :
         AthAlgorithm(name, pSvcLocator),
         m_robDataProvider ("ROBDataProviderSvc",name),
-        m_rawDataTool     ("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool", this)
+        m_rawDataTool     ("Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool", this)
 {
     declareProperty ("ProviderTool", m_rawDataTool);
 }
@@ -70,4 +70,3 @@ StatusCode Muon::TgcRawDataProvider::execute()
 
     return StatusCode::SUCCESS;
 }
-

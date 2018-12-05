@@ -22,12 +22,11 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 class VxContainer;
 
 namespace Trk{
@@ -82,7 +81,7 @@ private:
                                                             
   unsigned int                     m_constrainFitMode;       //!< 0 - not constraint, 1 - vertex, 2 - beamspot
   SG::ReadHandleKey<VxContainer>  m_vxContainerName;   
-  ServiceHandle<IBeamCondSvc>      m_iBeamCondSvc;           //!< the beam conditions service
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   ToolHandle<Trk::IExtrapolator>   m_extrapolator;           //!< the extrapoaltor for the consistent measurement frame
   
   bool m_usetrackhypo;                                       //!< Fit using particle hypothesis from input track    

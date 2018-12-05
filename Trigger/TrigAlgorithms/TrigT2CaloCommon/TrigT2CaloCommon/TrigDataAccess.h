@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -407,6 +407,7 @@ private:
   TileL2Container* m_drawcoll;
   /** Either use one calo layer at a time, or do all of it */
   bool m_loadAllSamplings;
+  /** new Tile ROD schema (2017) */
   /** error reporting */
   uint32_t m_error;
   /** mbts cached */
@@ -436,6 +437,8 @@ private:
   std::vector<unsigned int> m_zdc_rods;
   uint32_t m_numberOfLarRoses;
   uint32_t m_numberOfTileRoses;
+
+  TileROD_Decoder::D0CellsHLT m_d0cells;
 };
 
 #endif

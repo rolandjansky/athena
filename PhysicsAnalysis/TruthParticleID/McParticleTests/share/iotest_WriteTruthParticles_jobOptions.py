@@ -137,9 +137,6 @@ if 'OUTPUT' not in dir():
 outStream.OutputFile = OUTPUT
 outStream.ForceRead        = True  #force read of output data objs
 
-## tweak the default commit interval
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 100
-
 svcMgr.MessageSvc.defaultLimit = 4000000
 svcMgr.MessageSvc.OutputLevel  = ERROR
 

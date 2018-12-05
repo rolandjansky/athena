@@ -10,13 +10,13 @@ def jetSequence():
     from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
     #input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
-    InputMakerAlg.Output='FSJETRoIs'
-
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+    InputMakerAlg.RoIs='FSJETRoI'
+    
     #reco sequence
     from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.Output)
+    (recoSequence, sequenceOut) = jetRecoSequence(InputMakerAlg.RoIs)
 
     #hypo
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT

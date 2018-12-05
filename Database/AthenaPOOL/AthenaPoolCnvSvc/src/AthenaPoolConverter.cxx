@@ -25,7 +25,6 @@ namespace pool {
 AthenaPoolConverter::~AthenaPoolConverter() {
    delete m_placement; m_placement = nullptr;
    delete m_i_poolToken; m_i_poolToken = nullptr;
-   delete m_o_poolToken; m_o_poolToken = nullptr;
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::initialize() {
@@ -56,24 +55,18 @@ long AthenaPoolConverter::repSvcType() const {
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
    std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
+bool ownTokAddr = false;
    if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
-      if (m_i_poolToken == nullptr) m_i_poolToken = new Token;
-      const_cast<Token*>(m_i_poolToken)->fromString(*(pAddr->par()));
-   } else {
-      m_i_poolToken = tokAddr->getToken();
+      ownTokAddr = true;
+      Token* token = new Token;
+      token->fromString(*(pAddr->par()));
+      GenericAddress* genAddr = dynamic_cast<GenericAddress*>(pAddr);
+      tokAddr = new TokenAddress(*genAddr, token);
    }
-   if (m_i_poolToken != nullptr) {
-      char text[32];
-      if (*(pAddr->ipar()) != IPoolSvc::kInputStream) {
-// Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
-         ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddr->ipar())));
-// Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddr->clID()); to create persSvc
-         const_cast<Token*>(m_i_poolToken)->setAuxString(text);
-      }
-   }
+   m_i_poolToken = tokAddr->getToken();
    try {
-      if (!PoolToDataObject(pObj, m_i_poolToken).isSuccess()) {
-         ATH_MSG_ERROR("createObj PoolToDataObject() failed, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
+      if (!PoolToDataObject(pObj, tokAddr->getToken()).isSuccess()) {
+         ATH_MSG_ERROR("createObj PoolToDataObject() failed, Token = " << (tokAddr->getToken() ? tokAddr->getToken()->toString() : "NULL"));
          pObj = nullptr;
       }
    } catch (std::exception& e) {
@@ -81,13 +74,12 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
       pObj = nullptr;
    }
    if (pObj == nullptr) {
-      ATH_MSG_ERROR("createObj failed to get DataObject, Token = " << (m_i_poolToken ? m_i_poolToken->toString() : "NULL"));
+      ATH_MSG_ERROR("createObj failed to get DataObject, Token = " << (tokAddr->getToken() ? tokAddr->getToken()->toString() : "NULL"));
    }
-   if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
-      delete m_i_poolToken; m_i_poolToken = nullptr;
-   } else {
-      m_i_poolToken = nullptr;
+   if (ownTokAddr) {
+      delete tokAddr; tokAddr = nullptr;
    }
+   m_i_poolToken = nullptr;
    if (pObj == nullptr) {
       return(StatusCode::FAILURE);
    }
@@ -119,8 +111,8 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj) {
    std::lock_guard<CallMutex> lock(m_conv_mut);
-   m_o_poolToken = nullptr;
    try {
+      pObj->registry()->setAddress(pAddr);
       if (!DataObjectToPool(pObj, pObj->registry()->name()).isSuccess()) {
          ATH_MSG_ERROR("FillRepRefs failed, key = " << pObj->registry()->name());
          return(StatusCode::FAILURE);
@@ -128,25 +120,6 @@ StatusCode AthenaPoolConverter::fillRepRefs(IOpaqueAddress* pAddr, DataObject* p
    } catch (std::exception& e) {
       ATH_MSG_ERROR("fillRepRefs - caught exception: " << e.what());
       return(StatusCode::FAILURE);
-   }
-   // Null/empty token means ERROR
-   if (m_o_poolToken == nullptr || m_o_poolToken->classID() == Guid::null()) {
-      ATH_MSG_ERROR("FillRepRefs failed to get Token, key = " << pObj->registry()->name());
-      return(StatusCode::FAILURE);
-   }
-   const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
-   if (proxy == nullptr) {
-      ATH_MSG_ERROR("AthenaPoolConverter FillRepRefs failed to cast DataProxy, key = "
-	      << pObj->registry()->name());
-      return(StatusCode::FAILURE);
-   }
-   // Update IOpaqueAddress for this object.
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
-   if (tokAddr != nullptr) {
-      tokAddr->setToken(m_o_poolToken);
-      m_o_poolToken = nullptr; // Token will be inserted into DataHeader, which takes ownership
-   } else { // No address (e.g. satellite DataHeader), delete Token
-      delete m_o_poolToken; m_o_poolToken = nullptr;
    }
    return(StatusCode::SUCCESS);
 }
@@ -166,8 +139,7 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 	m_className(),
 	m_classDescs(),
 	m_dataObject(nullptr),
-	m_i_poolToken(nullptr),
-	m_o_poolToken(nullptr) {
+	m_i_poolToken(nullptr) {
 }
 //__________________________________________________________________________
 void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key) {
@@ -175,25 +147,24 @@ void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const s
       // Create placement for this converter if needed
       m_placement = new Placement();
    }
-   // Use technology from AthenaPoolCnvSvc
-   if (m_athenaPoolCnvSvc->technologyType().type() == 0) {
-      // error if type is 0
-      ATH_MSG_WARNING("technology UNDEFINED for type " << tname);
-   }
-   m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType().type());
    // Set DB and Container names
-   const std::string fileName = m_athenaPoolCnvSvc->getOutputConnectionSpec();
-   m_placement->setFileName(fileName);
+   m_placement->setFileName(m_athenaPoolCnvSvc->getOutputConnectionSpec());
+   std::string containerName;
    if (key.empty()) { // No key will result in a separate tree by type for the data object
-      m_placement->setContainerName(m_athenaPoolCnvSvc->getOutputContainer(tname));
+      containerName = m_athenaPoolCnvSvc->getOutputContainer(tname);
    } else if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?
-      m_placement->setContainerName(m_placementHints[tname + key]);
+      containerName = m_placementHints[tname + key];
    } else { // Generate PlacementHint
-      const std::string containerName = m_athenaPoolCnvSvc->getOutputContainer(tname, key);
-      const std::pair<std::string, std::string> entry(key, containerName);
-      m_placementHints.insert(entry);
-      m_placement->setContainerName(containerName);
+      containerName = m_athenaPoolCnvSvc->getOutputContainer(tname, key);
+      m_placementHints.insert(std::pair<std::string, std::string>(key, containerName));
    }
+   m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType(containerName).type());
+   //  Remove Technology from containerName
+   std::size_t colonPos = containerName.find(":");
+   if (colonPos != std::string::npos) {
+      containerName.erase(0, colonPos + 1);
+   }
+   m_placement->setContainerName(containerName);
 }
 //__________________________________________________________________________
 const DataObject* AthenaPoolConverter::getDataObject() const {

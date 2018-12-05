@@ -22,7 +22,7 @@
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
 
 // InDetBeamSpotService
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 // Forward declarations
 namespace ATHRNG {
@@ -66,7 +66,7 @@ namespace Simulation
       double getDisplacement(double bunchSize, double angle1, double angle2,
                              CLHEP::HepRandomEngine* rng) const;
       double beamspotFunction(double displacement, double angle1, double angle2) const;
-      ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
       ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
       std::string                     m_randomEngineName;         //!< Name of the random number stream

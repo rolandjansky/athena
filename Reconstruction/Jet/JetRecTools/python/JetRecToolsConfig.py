@@ -83,7 +83,6 @@ class ConstituentToolManager(object):
 
         from AthenaCommon.AppMgr import ToolSvc
 
-        ToolSvc += tool
         self.modifiersMap[name] = tool
         if alias: self.modifiersMap[alias] = tool
         return tool

@@ -20,8 +20,7 @@ elseif( XAOD_ANALYSIS )
       PUBLIC
       Control/AthContainers
       Control/AthToolSupport/AsgTools
-      Control/CLIDSvc
-      Control/SGTools
+      Control/AthenaKernel
       DetectorDescription/RoiDescriptor
       Trigger/TrigConfiguration/TrigConfHLTData
       DetectorDescription/RoiDescriptor
@@ -32,8 +31,6 @@ else()
       Control/AthContainers
       Control/AthToolSupport/AsgTools
       Control/AthenaKernel
-      Control/CLIDSvc
-      Control/SGTools
       DetectorDescription/RoiDescriptor
       Event/xAOD/xAODCore
       GaudiKernel
@@ -59,7 +56,7 @@ elseif( XAOD_ANALYSIS )
    atlas_add_library( TrigSteeringEvent
       TrigSteeringEvent/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
-      LINK_LIBRARIES AthContainers AsgTools AthenaKernel SGTools RoiDescriptor
+      LINK_LIBRARIES AthContainers AsgTools AthenaKernel RoiDescriptor
       xAODCore GaudiKernel TrigConfHLTData )
 
    atlas_add_dictionary( TrigSteeringEventDict
@@ -72,7 +69,7 @@ else()
       PUBLIC_HEADERS TrigSteeringEvent
       INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
       LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthContainers AsgTools AthenaKernel
-      SGTools RoiDescriptor xAODCore GaudiKernel TrigConfHLTData
+      RoiDescriptor xAODCore GaudiKernel TrigConfHLTData
       PRIVATE_LINK_LIBRARIES TrigT1Interfaces xAODTrigger TrigNavigationLib )
 
    atlas_add_dictionary( TrigSteeringEventDict

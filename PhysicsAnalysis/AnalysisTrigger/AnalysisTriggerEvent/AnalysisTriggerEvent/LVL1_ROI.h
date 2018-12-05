@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LVL1_ROI.h,v 1.4 2008-05-08 15:00:11 krasznaa Exp $
@@ -12,7 +12,7 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Local include(s):
 #include "AnalysisTriggerEvent/Muon_ROI.h"

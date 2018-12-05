@@ -222,14 +222,7 @@ StatusCode xAODRingSetConfWriter::retrieveCaloRingsBuilders()
   ATH_MSG_INFO("Retrieving " << m_crBuilderTools.size() <<
     " reader tools for " << name() );
 
-  for (const auto& tool : m_crBuilderTools )
-  {
-    if ( tool.retrieve().isFailure() )
-    {
-      ATH_MSG_FATAL( "Could not get tool: " << tool );
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK(m_crBuilderTools.retrieve());
 
   return StatusCode::SUCCESS;
 }

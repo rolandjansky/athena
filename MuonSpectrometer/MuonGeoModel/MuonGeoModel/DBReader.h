@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -536,63 +536,6 @@ namespace MuonGM {
             }
         }
     }
-
-//     static void ProcessCSC(const DataHandle<CtbhgeotbWcsc>  dhwcsc, const CtbhgeotbWcsc::WCSC * wcsc,
-//                     std::string s)
-//     {
-//         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcessCSC");
-//         Technology* t=NULL;
-//         t = MYSQL::GetPointer()->GetTechnology(s);
-//         if ( t != NULL ) return;
-
-        
-//         CSC *csc=new CSC(s);
-// 	ncsc++;
-//         std::cerr << " TECH. A new CSC named " <<s<<" ncsc = "<<ncsc<<std::endl;
-//         if (ncsc >1)
-//         {
-//             log<<MSG::FATAL<<" More than 1 CSC technology in the TB layout ? EXIT";
-//             return;
-//         }
-
-//         csc->numOfLayers=wcsc->laycsc;
-//         csc->totalThickness=wcsc->ttotal*CLHEP::cm;
-//         csc->thickness=csc->totalThickness;
-//         csc->honeycombthick=wcsc->tnomex*CLHEP::cm;        
-//         csc->g10thick=wcsc->tlag10*CLHEP::cm;  //csc->g10thick=0.0820*CLHEP::cm;
-        
-//         // wire spacing 
-//         csc->wirespacing =wcsc->wispa*CLHEP::cm;
-//         // anode-cathode distance
-//         csc->anocathodist=wcsc->dancat*CLHEP::cm;
-//         // gapbetwcathstrips
-//         csc->gapbetwcathstrips=wcsc->gstrip*CLHEP::cm;
-        
-//         // precision (Radial) strip pitch
-//         csc->cathreadoutpitch=wcsc->pcatr*CLHEP::cm; // it was not used before but set by hand in CscReadoutEl.
-//         // Azimuthal strip pitch
-//         csc->phireadoutpitch =wcsc->pcata*CLHEP::cm;
-//         // number of strips 
-//         csc->nEtastrips = 192;
-//         csc->nPhistrips = 48;
-        
-//         // precision (Radial) strip width
-//         csc->readoutstripswidth  = wcsc->wrestr*CLHEP::cm;
-//         // Azimuthal strip width
-//         csc->phistripwidth      = wcsc->wflstr*CLHEP::cm; // CTB and layout Q interpretation
-//         // 
-//         // dead materials 
-//         csc->rectwasherthick=wcsc->trrwas*CLHEP::cm;
-//         csc->roxacellwith = 54.96*CLHEP::mm; //  CTB and layout Q: must be computed
-        
-//         csc->roxwirebargap=wcsc->groxwi*CLHEP::cm;
-//         csc->fullgasgapwirewidth=wcsc->wgasba*CLHEP::cm;
-//         csc->fullwirefixbarwidth=wcsc->wfixwi*CLHEP::cm;
-//         csc->wirebarposx=wcsc->pba1wi*CLHEP::cm;
-//         csc->wirebarposy=wcsc->pba2wi*CLHEP::cm;
-//         csc->wirebarposz=wcsc->pba3wi*CLHEP::cm;
-
-//     }
 
     template <class TYPEdhwspa, class TYPEwspa>
     static void ProcessSPA(const TYPEdhwspa dhwspa, const TYPEwspa * wspa,

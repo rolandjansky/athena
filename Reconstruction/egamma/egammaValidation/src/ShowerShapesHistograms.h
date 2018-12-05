@@ -11,6 +11,7 @@
 
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "TH1.h"
+#include "TH2.h"
 
 namespace egammaMonitoring{
 
@@ -29,6 +30,8 @@ namespace egammaMonitoring{
       m_rootHistSvc(rootHistSvc) {}
 
     std::map<std::string, TH1D* > histoMap;
+    std::map<std::string, TH2D* > histo2DMap;
+
     StatusCode initializePlots();
     void fill(const xAOD::Egamma& egamma);
 

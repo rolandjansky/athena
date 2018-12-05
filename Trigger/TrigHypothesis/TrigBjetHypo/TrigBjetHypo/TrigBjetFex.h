@@ -25,7 +25,7 @@
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 
 class MsgStream;
@@ -298,6 +298,8 @@ class TrigBjetFex: public HLT::FexAlgo {
 
   /** @brief necessary for calibration constants for BjetProbability */
   std::vector<float> m_par_0_MC, m_par_1_MC, m_par_0_DT, m_par_1_DT;
+
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
 #endif

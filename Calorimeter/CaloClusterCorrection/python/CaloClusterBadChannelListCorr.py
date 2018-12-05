@@ -4,8 +4,6 @@ def CaloClusterBadChannelListCorr() :
 
       from CaloBadChannelTool.CaloBadChannelToolConf import CaloBadChanTool 
       theCaloBadChannelTool = CaloBadChanTool()
-      from AthenaCommon.AppMgr import ToolSvc
-      ToolSvc += theCaloBadChannelTool
 
       from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterBadChannelList
       corr = CaloClusterBadChannelList()

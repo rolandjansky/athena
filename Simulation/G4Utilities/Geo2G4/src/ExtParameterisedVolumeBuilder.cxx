@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtParameterisedVolumeBuilder.h"
@@ -264,7 +264,7 @@ void ExtParameterisedVolumeBuilder::getMatEther() const
   }
   else
     {
-      DataHandle<StoredMaterialManager> theMaterialManager;
+      const StoredMaterialManager* theMaterialManager = nullptr;
       if(pDetStore->retrieve(theMaterialManager, "MATERIALS").isFailure()) {
         ATH_MSG_ERROR ( "ExtParameterisedVolumeBuilder: Unable to access Material Manager" );
       }

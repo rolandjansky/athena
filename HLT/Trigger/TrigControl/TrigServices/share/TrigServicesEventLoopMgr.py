@@ -31,7 +31,7 @@ svcMgr += SG__HiveMgrSvc("EventDataSvc")
 #svcMgr.EventDataSvc.OutputLevel = VERBOSE
 
 from GaudiHive.GaudiHiveConf import AlgResourcePool
-arp=AlgResourcePool( OutputLevel = INFO )
+arp=AlgResourcePool()
 arp.TopAlg=["AthMasterSeq"] #this should enable control flow
 svcMgr += arp
 
@@ -39,16 +39,12 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 #AlgScheduler.setThreadPoolSize(nThreads)
 AlgScheduler.ShowDataDependencies(True)
 AlgScheduler.ShowControlFlow(True)
-AlgScheduler.OutputLevel=VERBOSE
 
 from StoreGate.StoreGateConf import StoreGateSvc
 svcMgr += StoreGateSvc()
-svcMgr.StoreGateSvc.OutputLevel = VERBOSE
-svcMgr.StoreGateSvc.Dump = True
 
 from StoreGate.StoreGateConf import SGImplSvc
 svcMgr += SGImplSvc("SGImplSvc")
-svcMgr.SGImplSvc.OutputLevel = VERBOSE
 
 # ThreadPoolService thread local initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
@@ -71,10 +67,6 @@ theAuditorSvc = svcMgr.AuditorSvc
 theApp.AuditAlgorithms=True
 from SGComps.SGCompsConf import SGCommitAuditor
 theAuditorSvc += SGCommitAuditor()
-
-# for easier browsing of verbose logs
-ClassIDSvc = Service("ClassIDSvc")
-ClassIDSvc.OutputLevel = DEBUG
 
 # ==============================================================================
 # Event selector and input service
@@ -147,6 +139,25 @@ if not hasattr(svcMgr, 'AthenaSealSvc'):
 theApp.CreateSvc += [svcMgr.AthenaSealSvc.getFullJobOptName()]
 
 # ==============================================================================
+#  HLT result monitoring
+# ==============================================================================
+from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMaker
+hltResultMaker =  HLTResultMTMaker()
+
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+hltResultMaker.MonTool = GenericMonitoringTool("MonOfHLTResultMTtest")
+hltResultMaker.MonTool.HistPath = "OutputMonitoring"
+hltResultMaker.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result construction in;[micro seccond]',
+                                                       xbins=100, xmin=0, xmax=1000 ),
+                                      defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='number of streams',
+                                                       xbins=60, xmin=0, xmax=60 ),
+                                      defineHistogram( 'nfrags', path='EXPERT', type='TH1F', title='number of HLT results',
+                                                       xbins=10, xmin=0, xmax=10 ),
+                                      defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
+                                                       xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
+
+
+# ==============================================================================
 #  Message format
 # ==============================================================================
 msgFmt = "% F%40W%S %4W%e%s %7W%R %T %0W%M"
@@ -163,6 +174,7 @@ HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
 HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
 HltEventLoopMgr.EvtSel = evtSel
 HltEventLoopMgr.OutputCnvSvc = outputCnvSvc
+HltEventLoopMgr.ResultMaker = hltResultMaker
 
 
 # configure here Level-1 CTP ROB identifier which is used in HLT

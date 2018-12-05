@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDBReaderAtlas_H
@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "MuonGeoModel/DBReader.h"
-#include "StoreGate/DataHandle.h"
 #include "MuonGMdbObjects/DblQ00IAcsc.h"
 #include "MuonGMdbObjects/DblQ00Xtomo.h"
 

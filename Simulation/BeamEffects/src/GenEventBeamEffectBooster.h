@@ -16,7 +16,6 @@
 #include "HepMC_Interfaces/IGenEventManipulator.h"
 // Athena headers
 #include "AthenaKernel/IAthRNGSvc.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 // Gaudi headers
 #include "GaudiKernel/ServiceHandle.h"
 // CLHEP headers
@@ -62,7 +61,6 @@ namespace Simulation {
     /** apply boost to individual GenParticles */
     void boostParticle(HepMC::GenParticle* p, const CLHEP::HepLorentzRotation& transform) const;
 
-    ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
     ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
     ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
     std::string                     m_randomEngineName;         //!< Name of the random number stream

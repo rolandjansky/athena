@@ -20,9 +20,8 @@
 
 #include <list>
 #include <vector>
-#include <iostream>
 
-#include <math.h>
+#include <cmath>
 
 
 #include "JetUtils/JetDistances.h"
@@ -32,7 +31,7 @@ namespace JetTiledMap {
   struct utils {
     static double DR2(double eta1, double phi1, double eta2,double phi2) {
       double deta = eta1 - eta2;
-      static double pi = acos(-1.0);
+      static double pi = std::acos(-1.0);
       static double twopi = 2.0*pi;
       double dphi = phi1 - phi2;
       while ( dphi > pi ) dphi -= twopi;
@@ -106,13 +105,13 @@ namespace JetTiledMap {
 
   protected:
 
-    double  m_etarange ;
-    double  m_halfetarange;
-    double m_rmax;
-    size_t m_ndivX, m_ndivY;
-    double m_sizeX,m_sizeY;
+    double  m_etarange{} ;
+    double  m_halfetarange{};
+    double m_rmax{};
+    size_t m_ndivX{}, m_ndivY{};
+    double m_sizeX{},m_sizeY{};
     
-    unsigned int m_size;
+    unsigned int m_size{};
     
 
     /// index of the tile containing p

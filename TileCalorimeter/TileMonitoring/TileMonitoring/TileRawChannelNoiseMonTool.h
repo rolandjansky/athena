@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +23,12 @@
 #define TILERAWCHANNELMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/ITileDCSTool.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class ITileBadChanTool;
 class TileCondToolEmscale;
-class TileBeamInfoProvider;
 class TileDQstatus;
 
 /** @class TileRawChannelNoiseMonTool
@@ -61,7 +63,8 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     void fitGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
     void fitDoubleGauss(TH1F* h, double*, TF1*); // perform  gaussian fit
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
+    bool isChanDCSgood (int ros, int drawer, int channel) const;
+
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
 
@@ -96,6 +99,9 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     std::vector<uint32_t> m_triggerTypes;
     int m_nbins;
     unsigned int m_minimumEventsNumberToFit;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
+    ToolHandle<ITileDCSTool> m_tileDCS;
+    bool m_checkDCS;
 };
 
 #endif

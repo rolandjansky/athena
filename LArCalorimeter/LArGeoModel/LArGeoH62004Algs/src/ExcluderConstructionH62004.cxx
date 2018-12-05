@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExcluderConstructionH62004.h"
@@ -28,7 +28,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -61,31 +60,31 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
   if (svcLocator->service("DetectorStore", detectorStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in ModulesConstruction, cannot access DetectorStore");
   }
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return NULL;
   }
 
 
-  GeoElement *elH = materialManager->getElement("Hydrogen");
+  const GeoElement *elH = materialManager->getElement("Hydrogen");
   if (!elH) throw std::runtime_error("Error in ExcluderConstruction, Hydrogen is not found.");
 
-  GeoElement *elC = materialManager->getElement("Carbon");
+  const GeoElement *elC = materialManager->getElement("Carbon");
   if (!elC) throw std::runtime_error("Error in ExcluderConstruction, Carbon is not found.");
 
-  GeoElement* elN = materialManager->getElement("Nitrogen");
+  const GeoElement* elN = materialManager->getElement("Nitrogen");
   if (!elN) throw std::runtime_error("Error in ExcluderConstruction, Nitrogen is not found.");
 
-  GeoElement *elO = materialManager->getElement("Oxygen");
+  const GeoElement *elO = materialManager->getElement("Oxygen");
   if (!elO) throw std::runtime_error("Error in ExcluderConstruction, Oxygen is not found.");
 
-  GeoMaterial* LAr = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial* LAr = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) throw std::runtime_error("Error in ExcluderConstruction, std::LiquidArgon is not found.");
 
-  GeoMaterial* Fe = materialManager->getMaterial("std::Iron");
+  const GeoMaterial* Fe = materialManager->getMaterial("std::Iron");
   if (!Fe) throw std::runtime_error("Error in ExcluderConstruction, std::Iron is not found.");
 
-  GeoMaterial* Cu = materialManager->getMaterial("std::Copper");
+  const GeoMaterial* Cu = materialManager->getMaterial("std::Copper");
   if (!Cu) throw std::runtime_error("Error in ExcluderConstruction, std::Copper is not found.");
 
   // How to get Rohacell ????
@@ -94,10 +93,10 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
   // Rohacell foam has density: 0.11g/cm3
   std::string name;
   double density;
-  GeoElement*  C=materialManager->getElement("Carbon");
-  GeoElement*  H=materialManager->getElement("Hydrogen");
-  GeoElement*  O=materialManager->getElement("Oxygen");
-  GeoElement*  N=materialManager->getElement("Nitrogen");
+  const GeoElement*  C=materialManager->getElement("Carbon");
+  const GeoElement*  H=materialManager->getElement("Hydrogen");
+  const GeoElement*  O=materialManager->getElement("Oxygen");
+  const GeoElement*  N=materialManager->getElement("Nitrogen");
   GeoMaterial* Rohacell = new GeoMaterial(name="Rohacell", density=0.112*CLHEP::g/CLHEP::cm3);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);

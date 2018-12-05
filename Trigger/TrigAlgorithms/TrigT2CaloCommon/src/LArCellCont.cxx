@@ -124,7 +124,7 @@ if(!sc.isSuccess())	//not a critical error. LArCellCont can proceed as usual, wi
 	std::cout << "LArCellCont\t\t INFO \t Failed to retrieve LArBadChannelMasker - no masking will be done." << std::endl;
 
 
-sc = toolSvc->retrieveTool("LArBadChanTool/MyBadChanTool", m_badChanTool);
+sc = toolSvc->retrieveTool("LArBadChanLegacyTool/MyBadChanTool", m_badChanTool);
 bool toolAvailable = sc.isSuccess(); 
 
 if(!sc.isSuccess())	//not a critical error. LArCellCont can proceed as usual, without masking.

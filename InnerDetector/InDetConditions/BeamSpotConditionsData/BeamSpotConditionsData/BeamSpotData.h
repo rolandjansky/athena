@@ -26,43 +26,34 @@ namespace InDet
 
     BeamSpotData() = delete; //Forbid undefined behaviour
 
-    const Amg::Vector3D& beamPos() const;
+    const Amg::Vector3D& beamPos() const noexcept;
 
    /**
     * @brief Returns the beam sigma for the i-th error matrix element
     * @return The matrix element as float
     * @param i the requested index
     */
-    float beamSigma(int i) const;
+    float beamSigma(int i) const noexcept;
 
-    float beamSigmaXY() const;
+    float beamSigmaXY() const noexcept;
 
    /**
     * @brief Returns the beam sigma for the i+3-th error matrix element (the 'tilt')
     * @return The (i + 3)th element as float
     * @param i the requested index after the addition of 3
     */
-    float beamTilt(int i) const;
+    float beamTilt(int i) const noexcept;
 
-    int beamStatus() const;
+    int beamStatus() const noexcept;
 
 #ifndef SIMULATIONBASE
-    const Trk::RecVertex& beamVtx() const;
+    const Trk::RecVertex& beamVtx() const noexcept;
 #endif
     
 
   private:
 
     int m_status;
-    float m_posX;
-    float m_posY;
-    float m_posZ;
-    float m_sigmaX;
-    float m_sigmaY;
-    float m_sigmaZ;
-    float m_tiltX;
-    float m_tiltY;
-    float m_sigmaXY;
 
     std::vector<float> m_errPar;
 
@@ -74,18 +65,18 @@ namespace InDet
 
   };
 
-  inline const Amg::Vector3D& BeamSpotData::beamPos() const { return m_beamPos; }
+  inline const Amg::Vector3D& BeamSpotData::beamPos() const noexcept { return m_beamPos; }
 
-  inline float BeamSpotData::beamSigma(int i) const { return m_errPar[i]; }
+  inline float BeamSpotData::beamSigma(int i) const noexcept { return m_errPar[i]; }
 
-  inline float BeamSpotData::beamSigmaXY() const { return m_errPar[5]; }
+  inline float BeamSpotData::beamSigmaXY() const noexcept { return m_errPar[5]; }
 
-  inline float BeamSpotData::beamTilt(int i) const { return m_errPar[3+i]; }
+  inline float BeamSpotData::beamTilt(int i) const noexcept { return m_errPar[3+i]; }
 
-  inline int BeamSpotData::beamStatus() const { return m_status; }
+  inline int BeamSpotData::beamStatus() const noexcept { return m_status; }
 
 #ifndef SIMULATIONBASE
-  inline const Trk::RecVertex& BeamSpotData::beamVtx() const { return m_vertex; }
+  inline const Trk::RecVertex& BeamSpotData::beamVtx() const noexcept { return m_vertex; }
 #endif
 
 }

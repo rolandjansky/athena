@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPIXELDCSCONDITIONSTOOL_H
@@ -22,10 +22,6 @@ class IPixelDCSConditionsTool: virtual public ISiliconConditionsTool {
 
     virtual std::string PixelFSMStatus(const Identifier& elementId) const = 0;
     virtual std::string PixelFSMStatus(const IdentifierHash& elementHash) const = 0;
-
-
-//    virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
-//    virtual bool isGood(const IdentifierHash& hashId) const =0;
 
 }; 
 

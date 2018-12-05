@@ -57,12 +57,7 @@ class EgammaMonitoring : public AthAlgorithm
  public:
 
   /// Tools and services ///
-  ITHistSvc*   rootHistSvc ;
-
-//  egammaMonitoring::EffIDPlots  Eff_ID  ;
-//  egammaMonitoring::EffRecPlots Eff_Reco;
-
-
+  ITHistSvc*   rootHistSvc = nullptr;
 
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapesAll;
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapes10GeV;

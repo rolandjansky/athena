@@ -34,13 +34,16 @@ using xAOD::Jet;
 
 JetRecTool::JetRecTool(std::string myname)
 : AsgTool(myname),
-  m_intool(""),
+  m_intool("",this),
 #ifdef XAOD_STANDALONE
-  m_hpjr(""),
+  m_hpjr("",this),
 #else
-  m_hpjr("JetPseudojetRetriever/jpjr"),
+  m_hpjr("JetPseudojetRetriever/jpjr",this),
 #endif
-  m_finder(""), m_groomer(""),
+  m_finder("",this),
+  m_groomer("",this),
+  m_modifiers(this),
+  m_consumers(this),
   m_trigger(false),
   m_initCount(0),
   m_find(false), m_groom(false), m_copy(false),

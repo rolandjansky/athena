@@ -94,8 +94,6 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
   ToolHandle<LArCablingService> m_larCablingService;  
-  /** Handle to bad-channel tool */
-  //ToolHandle<ILArBadChanTool> m_badChannelTool;
   /** Handle to bad-channel mask */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
   

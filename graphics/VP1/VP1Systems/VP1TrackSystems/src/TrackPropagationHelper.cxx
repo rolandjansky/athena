@@ -27,7 +27,6 @@
 #include "TrkVolumes/VolumeBounds.h"
 
 
-#include "TrkDetDescrUtils/ObjectAccessor.h"
 #include "VP1Base/VP1QtUtils.h"
 #include <limits>
 

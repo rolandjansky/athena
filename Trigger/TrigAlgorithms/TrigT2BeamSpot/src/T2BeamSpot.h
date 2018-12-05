@@ -20,10 +20,10 @@
 #ifndef TRIGT2BEAMSPOT_T2BEAMSPOT_H
 #define TRIGT2BEAMSPOT_T2BEAMSPOT_H
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include <iostream>
 
+namespace InDet { class BeamSpotData; }
 
 namespace PESA
 {
@@ -31,33 +31,9 @@ namespace PESA
   class T2BeamSpot
   {
   public:
-  T2BeamSpot( const IBeamCondSvc* beamCondSvc )
-    : m_status ( 0  )
-      , m_posX   ( 0. )
-      , m_posY   ( 0. )
-      , m_posZ   ( 0. )
-      , m_sigmaX ( 0. )
-      , m_sigmaY ( 0. )
-      , m_sigmaZ ( 0. )
-      , m_tiltX  ( 0. )
-      , m_tiltY  ( 0. )
-      , m_sigmaXY( 0. )
-      {
-        if ( beamCondSvc )
-          {
-            m_status   = beamCondSvc->beamStatus();
-            m_posX     = beamCondSvc->beamPos().x();
-            m_posY     = beamCondSvc->beamPos().y();
-            m_posZ     = beamCondSvc->beamPos().z();
-            m_sigmaX   = beamCondSvc->beamSigma(0);
-            m_sigmaY   = beamCondSvc->beamSigma(1);
-            m_sigmaZ   = beamCondSvc->beamSigma(2);
-            m_tiltX    = beamCondSvc->beamTilt(0);
-            m_tiltY    = beamCondSvc->beamTilt(1);
-            m_sigmaXY  = 0.; // FIXME: fill this in
-          }
-      }
 
+
+    T2BeamSpot( const InDet::BeamSpotData* );
     // Accessors
     unsigned status () const { return m_status ; }
     double   posX   () const { return m_posX   ; }

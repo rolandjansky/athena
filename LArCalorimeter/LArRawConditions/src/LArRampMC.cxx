@@ -29,26 +29,7 @@ LArRampMC::~LArRampMC() {}
  */
 LArRampMC::RampRef_t LArRampMC::ADC2DAC(const HWIdentifier& CellID,int gain) const 
 { 
-//  if(!m_larmcsym) initialize(); 
-  
   // symmetrize CellID for MC usage
   HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);  
-
   return LArRampComplete::ADC2DAC(SymCellID,gain); 
-
 }
-
-LArRampMC::RampRef_t LArRampMC::ADC2DAC(const Identifier&  CellID,int gain) const
-{
-//   if(!m_larmcsym) initialize(); 
-  
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
-  return LArRampComplete::ADC2DAC(SymCellID,gain);
-
-}
-
-
-  
-

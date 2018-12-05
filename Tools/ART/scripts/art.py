@@ -6,14 +6,15 @@ ART - ATLAS Release Tester.
 You need to setup for an ATLAS release before using ART.
 
 Usage:
-  art.py run             [-v -q --type=<T> --max-jobs=<N> --ci] <script_directory> <sequence_tag>
-  art.py grid            [-v -q --type=<T> --max-jobs=<N> -n] <script_directory> <sequence_tag>
-  art.py submit          [-v -q --type=<T> --max-jobs=<N> --config=<file> -n] <sequence_tag> [<package>]
+  art.py run             [-v -q --type=<T> --max-jobs=<N> --ci --run-all-tests] <script_directory> <sequence_tag>
+  art.py grid            [-v -q --type=<T> --max-jobs=<N> -n --run-all-tests] <script_directory> <sequence_tag>
+  art.py submit          [-v -q --type=<T> --max-jobs=<N> --config=<file> -n --run-all-tests] <sequence_tag> [<packages>...]
   art.py copy            [-v -q --user=<user> --dst=<dir> --no-unpack --tmp=<dir> --seq=<N> --keep-tmp] <indexed_package>
-  art.py validate        [-v -q] <script_directory>
-  art.py included        [-v -q --type=<T> --test-type=<TT>] <script_directory>
-  art.py compare grid    [-v -q --days=<D> --user=<user> --entries=<entries> --file=<pattern>... --mode=<mode>] <package> <test_name>
-  art.py compare ref     [-v -q --entries=<entries> --file=<pattern>... --mode=<mode>] <path> <ref_path>
+  art.py validate        [-v -q] [<script_directory>]
+  art.py included        [-v -q --type=<T> --test-type=<TT>] [<script_directory>]
+  art.py download        [-v -q --days=<D> --user=<user> --dst=<dir>] <package> <test_name>
+  art.py compare grid    [-v -q --days=<D> --user=<user> --entries=<entries> --file=<pattern>... --mode=<mode> --diff-pool --diff-root] <package> <test_name>
+  art.py compare ref     [-v -q --entries=<entries> --file=<pattern>... --mode=<mode> --diff-pool --diff-root] <path> <ref_path>
   art.py list grid       [-v -q --user=<user> --json --test-type=<TT>] <package>
   art.py log grid        [-v -q --user=<user>] <package> <test_name>
   art.py output grid     [-v -q --user=<user>] <package> <test_name>
@@ -24,6 +25,8 @@ Options:
   --ci                   Run Continuous Integration tests only (using env: AtlasBuildBranch)
   --config=<file>        Use specific config file [default: art-configuration.yml]
   --days=<D>             Number of days ago to pick up reference for compare [default: 1]
+  --diff_pool            Do comparison with POOL
+  --diff_root            Do comparison with ROOT (none specified means POOL and ROOT are compared)
   --dst=<dir>            Destination directory for downloaded files
   --entries=<entries>    Number of entries to compare [default: 10]
   --file=<pattern>...    Compare the following file patterns for diff-root [default: *AOD*.pool.root *ESD*.pool.root *HITS*.pool.root *RDO*.pool.root *TAG*.root]
@@ -35,6 +38,7 @@ Options:
   -n --no-action         No real submit will be done
   --no-unpack            Do not unpack downloaded tar files
   -q --quiet             Show less information, only warnings and errors
+  --run-all-tests        Ignores art-include headers, runs all tests
   --seq=<N>              Use N as postfix on destination nightly-tag (for retries) [default: 0]
   --test-type=<TT>       Type of test (e.g. all, batch or single) [default: all]
   --tmp=<dir>            Temporary directory for downloaded files and caching of EXT0
@@ -56,10 +60,12 @@ Sub-commands:
   output            Get the output of a job
   config            Show configuration
   createpoolfile    Creates an 'empty' poolfile catalog
+  download          Downloads the output of a reference job for comparison
 
 Arguments:
   indexed_package   Package of the test or indexed package (e.g. MooPerformance.4)
   package           Package of the test (e.g. Tier0ChainTests)
+  packages          List of packages (e.g. Tier0ChainTests)
   path              Directory or File to compare
   ref_path          Directory or File to compare to
   script_directory  Directory containing the package(s) with tests
@@ -78,7 +84,7 @@ Tests are called with:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.10.21'
+__version__ = '0.11.13'
 
 import logging
 import os
@@ -88,7 +94,7 @@ from ART.docopt_dispatch import dispatch
 
 from ART import ArtBase, ArtGrid, ArtBuild
 
-from ART.art_misc import get_atlas_env, set_log
+from ART.art_misc import build_script_directory, get_atlas_env, set_log
 
 MODULE = "art"
 
@@ -103,9 +109,14 @@ def compare_ref(path, ref_path, **kwargs):
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     files = kwargs['file']
+    diff_pool = kwargs['diff_pool']
+    diff_root = kwargs['diff_root']
+    if not diff_pool and not diff_root:
+        diff_pool = True
+        diff_root = True
     entries = kwargs['entries']
     mode = kwargs['mode']
-    exit(ArtBase(art_directory).compare_ref(path, ref_path, files, entries, mode))
+    exit(ArtBase(art_directory).compare_ref(path, ref_path, files, diff_pool, diff_root, entries, mode))
 
 
 @dispatch.on('compare', 'grid')
@@ -117,9 +128,14 @@ def compare_grid(package, test_name, **kwargs):
     days = int(kwargs['days'])
     user = kwargs['user']
     files = kwargs['file']
+    diff_pool = kwargs['diff_pool']
+    diff_root = kwargs['diff_root']
+    if not diff_pool and not diff_root:
+        diff_pool = True
+        diff_root = True
     entries = kwargs['entries']
     mode = kwargs['mode']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).compare(package, test_name, days, user, files, entries=entries, mode=mode, shell=True))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).compare(package, test_name, days, user, files, diff_pool, diff_root, entries=entries, mode=mode, shell=True))
 
 
 @dispatch.on('list', 'grid')
@@ -164,11 +180,13 @@ def submit(sequence_tag, **kwargs):
     job_type = 'grid' if kwargs['type'] is None else kwargs['type']
     user = os.getenv('USER', 'artprod')
     inform_panda = user == 'artprod'
-    package = kwargs['package']
+    packages = kwargs['packages']
     config = kwargs['config']
     no_action = kwargs['no_action']
+    max_jobs = int(kwargs['max_jobs'])
     wait_and_copy = True
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, max_jobs=int(kwargs['max_jobs'])).task_list(job_type, sequence_tag, inform_panda, package, no_action, wait_and_copy, config))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, max_jobs=max_jobs, run_all_tests=run_all_tests).task_list(job_type, sequence_tag, inform_panda, packages, no_action, wait_and_copy, config))
 
 
 @dispatch.on('grid')
@@ -179,11 +197,13 @@ def grid(script_directory, sequence_tag, **kwargs):
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     job_type = 'grid' if kwargs['type'] is None else kwargs['type']
     inform_panda = False
-    package = None
+    packages = []
     config = None
     no_action = kwargs['no_action']
+    max_jobs = int(kwargs['max_jobs'])
     wait_and_copy = False
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=True, max_jobs=int(kwargs['max_jobs'])).task_list(job_type, sequence_tag, inform_panda, package, no_action, wait_and_copy, config))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=True, max_jobs=max_jobs, run_all_tests=run_all_tests).task_list(job_type, sequence_tag, inform_panda, packages, no_action, wait_and_copy, config))
 
 
 @dispatch.on('run')
@@ -193,7 +213,8 @@ def run(script_directory, sequence_tag, **kwargs):
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     job_type = 'build' if kwargs['type'] is None else kwargs['type']
-    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory, max_jobs=int(kwargs['max_jobs']), ci=kwargs['ci']).task_list(job_type, sequence_tag))
+    run_all_tests = kwargs['run_all_tests']
+    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, max_jobs=int(kwargs['max_jobs']), ci=kwargs['ci'], run_all_tests=run_all_tests).task_list(job_type, sequence_tag))
 
 
 @dispatch.on('copy')
@@ -213,21 +234,29 @@ def copy(indexed_package, **kwargs):
 
 
 @dispatch.on('validate')
-def validate(script_directory, **kwargs):
+def validate(**kwargs):
     """Check headers in tests."""
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    script_directory = kwargs['script_directory']
+    if script_directory is None:
+        (nightly_release, project, platform, nightly_tag) = get_atlas_env()
+        script_directory = build_script_directory(script_directory, nightly_release, nightly_tag, project, platform)
     exit(ArtBase(art_directory).validate(script_directory))
 
 
 @dispatch.on('included')
-def included(script_directory, **kwargs):
+def included(**kwargs):
     """Show list of files which will be included for art submit/art grid."""
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     job_type = kwargs['type']   # None will list all types
     index_type = kwargs['test_type']
+    script_directory = kwargs['script_directory']
+    if script_directory is None:
+        (nightly_release, project, platform, nightly_tag) = get_atlas_env()
+        script_directory = build_script_directory(script_directory, nightly_release, nightly_tag, project, platform)
     exit(ArtBase(art_directory).included(script_directory, job_type, index_type, nightly_release, project, platform))
 
 
@@ -248,6 +277,18 @@ def createpoolfile(package, **kwargs):
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).createpoolfile())
+
+
+@dispatch.on('download')
+def download(package, test_name, **kwargs):
+    """Download the output of a reference job."""
+    set_log(kwargs)
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    (nightly_release, project, platform, nightly_tag) = get_atlas_env()
+    days = int(kwargs['days'])
+    user = kwargs['user']
+    dst = kwargs['dst']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).download(package, test_name, days, user, ref_dir=dst, shell=True))
 
 
 if __name__ == '__main__':

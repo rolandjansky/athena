@@ -1,45 +1,67 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "CopyTimings.h"
 
-#include "RecEvent/RecoTimingObj.h"
+CopyTimings::CopyTimings(const std::string &name, ISvcLocator *pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator) {}
 
-#include <iostream>
-#include <typeinfo>
-
-//================================================================
-CopyTimings::CopyTimings(const std::string &name, ISvcLocator *pSvcLocator) :
-  OverlayAlgBase(name, pSvcLocator) {}
-
-//================================================================
-StatusCode CopyTimings::overlayInitialize()
+StatusCode CopyTimings::initialize()
 {
+  ATH_MSG_DEBUG("Initializing...");
+
+  // Check and initialize keys
+  ATH_CHECK( m_bkgInputKey.initialize(!m_bkgInputKey.key().empty()) );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgInputKey);
+  ATH_CHECK( m_signalInputKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalInputKey);
+  ATH_CHECK( m_outputKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputKey);
+
   return StatusCode::SUCCESS;
 }
 
-//================================================================
-StatusCode CopyTimings::overlayFinalize()
+StatusCode CopyTimings::execute()
 {
-  return StatusCode::SUCCESS;
-}
+  ATH_MSG_DEBUG("execute() begin");
 
-//================================================================
-StatusCode CopyTimings::overlayExecute() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "CopyTimings::execute() begin"<< endmsg;
+  // Reading the input timings
+  ATH_MSG_VERBOSE("Retrieving input timing containers");
 
-  std::auto_ptr<RecoTimingObj> ap(m_storeGateData->retrievePrivateCopy<RecoTimingObj>("EVNTtoHITS_timings"));
-  if (!m_storeGateOutput->record(ap, "EVNTtoHITS_timings").isSuccess()) {
-    log << MSG::ERROR << "problem recording object p=" << ap.get() << ", key=" << "EVNTtoHITS_timings" << endmsg;
-    return StatusCode::FAILURE;
+  const RecoTimingObj *bkgContainerPtr = nullptr;
+  if (!m_bkgInputKey.key().empty()) {
+    SG::ReadHandle<RecoTimingObj> bkgContainer(m_bkgInputKey);
+    if (!bkgContainer.isValid()) {
+      ATH_MSG_ERROR("Could not get background timings container " << bkgContainer.name() << " from store " << bkgContainer.store());
+      return StatusCode::FAILURE;
+    }
+    bkgContainerPtr = bkgContainer.cptr();
+
+    ATH_MSG_DEBUG("Found background timings container " << bkgContainer.name() << " in store " << bkgContainer.store());
   }
 
-  log << MSG::DEBUG << "CopyTimings::execute() end"<< endmsg;
+  SG::ReadHandle<RecoTimingObj> signalContainer(m_signalInputKey);
+  if (!signalContainer.isValid()) {
+    ATH_MSG_ERROR("Could not get signal timings container " << signalContainer.name() << " from store " << signalContainer.store());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Found signal timings container " << signalContainer.name() << " in store " << signalContainer.store());
+
+  // Creating output timings container
+  SG::WriteHandle<RecoTimingObj> outputContainer(m_outputKey);
+  ATH_CHECK(outputContainer.record(std::make_unique<RecoTimingObj>()));
+  if (!outputContainer.isValid()) {
+    ATH_MSG_ERROR("Could not record output timings container " << outputContainer.name() << " to store " << outputContainer.store());
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Recorded output timings container " << outputContainer.name() << " in store " << outputContainer.store());
+
+  if (!m_bkgInputKey.key().empty()) {
+    outputContainer->insert(outputContainer->end(), bkgContainerPtr->begin(), bkgContainerPtr->end());
+  }
+  outputContainer->insert(outputContainer->end(), signalContainer->begin(), signalContainer->end());
+
+  ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;
 }
-
-//================================================================
-//EOF

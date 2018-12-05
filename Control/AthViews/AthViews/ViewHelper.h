@@ -80,11 +80,16 @@ namespace ViewHelper
                                    EventContext const& SourceContext, IScheduler * Scheduler )
   {
     //Prevent view nesting - test if source context has view attached
-    Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
-    if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
-    {
-      return StatusCode::FAILURE;
+    if ( SourceContext.template hasExtension<Atlas::ExtendedEventContext>() ) {
+      if ( dynamic_cast< SG::View* >( SourceContext.template getExtension<Atlas::ExtendedEventContext>().proxy() ) ) {
+        return StatusCode::FAILURE;
+      }
     }
+    // Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+    // if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
+    // {
+    //   return StatusCode::FAILURE;
+    // }
 
     //Retrieve the scheduler
     if ( !Scheduler )
@@ -94,11 +99,12 @@ namespace ViewHelper
 
     if ( not ViewVector->empty() )
     {
+      Atlas::ExtendedEventContext const extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
       for ( SG::View* view : *ViewVector )
       {
         //Make a context with the view attached
         auto viewContext = std::make_unique< EventContext >( SourceContext );
-        viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext->conditionsRun() ) );
+        viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
 
         //Attach the view to the named node
         StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );

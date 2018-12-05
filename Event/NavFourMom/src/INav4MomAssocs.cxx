@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -183,6 +183,18 @@ void INav4MomAssocs::addAssocStore( const DataLink<INav4MomAssocs>& assocStore )
     m_assocStores[id] = assocStore;
   }
 }
+
+
+std::vector<DataLink<INav4MomAssocs> > INav4MomAssocs::getAssocStores() const
+{
+  std::vector<DataLink<INav4MomAssocs> > ret;
+  ret.reserve (m_assocStores.size());
+  for (const auto& p : m_assocStores) {
+    ret.push_back (p.second);
+  }
+  return ret;
+}
+
 
 #ifdef __APPLE__
 /////////////////////////////////////////////////////////////////// 

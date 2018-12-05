@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/KeyStore.py
 # @author: Sebastien Binet (binet@cern.ch)
@@ -68,7 +68,7 @@ class CfgItemList( object ):
 
     def __new__(cls, *p, **kw):
 
-        if not kw.has_key('name'):
+        if 'name' not in kw:
             if len(p) == 0: kw['name'] = cls.__slots__['_name']
             else:           kw['name'] = p[0]
 
@@ -104,10 +104,10 @@ class CfgItemList( object ):
         if not self._items:    self._items    = []
 
         items = []
-        if kwargs.has_key('items'):
+        if 'items' in kwargs:
             items = kwargs['items']
 
-        if kwargs.has_key('allowWildCard'):
+        if 'allowWildCard' in kwargs:
             self._allowWildCard = kwargs['allowWildCard']
             
         msg.verbose( "create [%s] items = %r allowWildCard = %s",
@@ -152,8 +152,6 @@ class CfgItemList( object ):
     def __iadd__( self, itemLists ):
         if not type(itemLists) in (list,tuple):
             itemLists = ( itemLists, )
-
-        name = self._name
 
         for cfg in itemLists:
             # prevent type mismatches
@@ -230,7 +228,7 @@ class CfgItemList( object ):
         if not type(items) in ( types.ListType, types.TupleType ):
             items = [ items ]
 
-        self._children = [ e for e in self._children if not e in items ]
+        self._children = [ e for e in self._children if e not in items ]
 
     def removeAll( self ):
         self.remove( self._children )
@@ -252,7 +250,7 @@ class CfgItemList( object ):
         for item in self._items:
             cppType = item.split("#")[0]
             sgKey   = item.replace( cppType+"#", '' )
-            if props.has_key( cppType ):
+            if cppType in props:
                 if sgKey not in props[cppType]:
                     props[cppType].append( sgKey )
             else:
@@ -417,7 +415,7 @@ class CfgKeyStore( object ):
 
     def __new__(cls, *p, **kw):
 
-        if not kw.has_key('name'):
+        if 'name' not in kw:
             if len(p) == 0: kw['name'] = cls.__slots__['_name']
             else:           kw['name'] = p[0]
 
@@ -477,21 +475,21 @@ class CfgKeyStore( object ):
     ##
 
     def __getitem__( self, k ):
-        if not k in CfgKeyStore.__slots__['Labels']:
-            raise KeyError, "key [%s] is not an allowed one: %s" % \
-                  ( k, CfgKeyStore.__slots__['Labels'] )
+        if k not in CfgKeyStore.__slots__['Labels']:
+            raise KeyError("key [%s] is not an allowed one: %s" %
+                           ( k, CfgKeyStore.__slots__['Labels'] ))
         root = self._items
         if k.count('stream') > 0:
             root = getattr( root, self._name+'_transient' )
         try:
             return getattr( root, self._name+"_"+k )
         except AttributeError,err:
-            raise KeyError, str(err)
+            raise KeyError(str(err))
     
     def __setitem__( self, k, v ):
-        if not k in CfgKeyStore.__slots__['Labels']:
-            raise KeyError, "key [%s] is not an allowed one: %s" % \
-                  ( k, CfgKeyStore.__slots__['Labels'] )
+        if k not in CfgKeyStore.__slots__['Labels']:
+            raise KeyError("key [%s] is not an allowed one: %s" %
+                           ( k, CfgKeyStore.__slots__['Labels'] ))
         root = self._items
         if k.count('stream') > 0:
             root = getattr( root, self._name+'_transient' )
@@ -505,7 +503,7 @@ class CfgKeyStore( object ):
                 return super(CfgKeyStore, self).__getattribute__(k)
             return super(CfgKeyStore, self).__getattribute__(k)
         except KeyError,err:
-            raise AttributeError,str(err)
+            raise AttributeError(str(err))
 
     def __setattr__( self, k, v ):
         if k in CfgKeyStore.__slots__['Labels']:
@@ -528,7 +526,7 @@ class CfgKeyStore( object ):
         return zip( self.keys(), self.values() )
     
     def clear(self, label = None):
-        if label != None:
+        if label is not None:
             self[label].clear()
         else:
             for c in self._items.children():
@@ -682,10 +680,10 @@ def keystore_diff (ref, chk, labels=None, ofile=None):
             diff.append ("- len(ref[%s]) == %i" % (label,len(ref_content)))
             diff.append ("+ len(chk[%s]) == %i" % (label,len(chk_content)))
         for r in ref_content:
-            if not r in chk_content:
+            if r not in chk_content:
                 diff.append ("- ref[%s] : %s" % (label, r))
         for c in chk_content:
-            if not c in ref_content:
+            if c not in ref_content:
                 diff.append ("+ chk[%s] : %s" % (label, c))
     if len(diff) == 0:
         return ""

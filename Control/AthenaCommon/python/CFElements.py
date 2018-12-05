@@ -216,4 +216,4 @@ class TestCF( unittest.TestCase ):
         self.assertIsNotNone( a1, "Could not find algorithm within the required nesting depth == 2" )
 
         a1 = findAlgorithm( self.top, "SomeAlg3", 2)
-        self.assertIsNotNone( a1 == None, "Could find algorithm evn if it is deep in sequences structure" )
+        self.assertIsNotNone( a1 is None, "Could find algorithm even if it is deep in sequences structure" )

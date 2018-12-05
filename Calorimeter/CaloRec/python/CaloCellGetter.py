@@ -332,16 +332,6 @@ class CaloCellGetter (Configured)  :
                 print traceback.format_exc()
                 return False
 
-            # bad channel tools
-            try:
-                from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                theLArBadChannelTool = LArBadChanTool()
-            except:
-                mlog.error("could not access bad channel tool Quit")
-                print traceback.format_exc()
-                return False
-            ToolSvc += theLArBadChannelTool
-
             if doSporadicMask:
                 try:
                     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -396,14 +386,6 @@ class CaloCellGetter (Configured)  :
                 return False
             theCaloCellMaker += theLArBadFebMaskingTool
 
-            # bad channel tools
-            try:
-                from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                theLArBadChannelTool = LArBadChanTool()
-            except:
-                mlog.error("could not access bad channel tool Quit")
-                print traceback.format_exc()
-                return False
             theCaloCellMaker.CaloCellMakerToolNames += [theLArBadFebMaskingTool]
 
         #
@@ -515,15 +497,16 @@ class CaloCellGetter (Configured)  :
        
 
         if doHVCorr:
-            from LArCellRec.LArCellHVCorrDefault import LArCellHVCorrDefault
-            theLArCellHVCorr=LArCellHVCorrDefault()
+            from LArCellRec.LArCellRecConf import LArCellHVCorrAlg
+            theLArCellHVCorrAlg = LArCellHVCorrAlg()
+            svcMgr.ToolSvc += theLArCellHVCorrAlg
             
             try:
                 from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloIdentifier import SUBCALO 
                 theHVCorrTool = CaloCellContainerCorrectorTool("HVCorrTool",
                         CaloNums=[ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ],
-                        CellCorrectionToolNames=[ theLArCellHVCorr])
+                        CellCorrectionToolNames=[ theLArCellHVCorrAlg])
             except:
                 mlog.error("could not get handle to HVCorrTool Quit")
                 print traceback.format_exc()

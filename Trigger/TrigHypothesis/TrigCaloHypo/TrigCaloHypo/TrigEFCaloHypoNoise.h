@@ -79,6 +79,14 @@ class TrigEFCaloHypoNoise : public HLT::HypoAlgo {
   long int m_publishTime;
 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
+  // helpers to define what is to be used to save events
+  bool m_badFEBFlaggedPartitions;
+  bool m_satTightFlaggedPartitions;
+  bool m_mNBLooseFlaggedPartitions;
+  bool m_mNBTightFlaggedPartitions;
+  bool m_mNBTight_PsVetoFlaggedPartitions;
+  unsigned int m_mask;
+
   SG::ReadCondHandleKey<LArBadFebCont> m_knownBadFEBsVecKey {this, "BadFEBsKey", "LArKnownBadFEBs", "key to read the known Bad FEBs"};
   SG::ReadCondHandleKey<LArBadFebCont> m_knownMNBFEBsVecKey {this, "MNBFEBsKey", "LArKnownMNBFEBs", "key to read the known MNB FEBs"};
   std::set<unsigned int> m_knownBadFEBs;

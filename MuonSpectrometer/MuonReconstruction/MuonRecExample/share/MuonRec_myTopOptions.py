@@ -21,6 +21,20 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample import MuonRecUtils
 from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
+
+#Need the beam spot for the TrackParticleCreator
+if not ('conddb' in dir()):
+    IOVDbSvc = Service("IOVDbSvc")
+    from IOVDbSvc.CondDB import conddb
+conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
 #--------------------------------------------------------------------------------
 # Input
 #--------------------------------------------------------------------------------
@@ -56,8 +70,6 @@ rec.doTruth=True
 rec.doTrigger = False
 #recFlags.doTruth.set_Value_and_Lock(False)
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
-# Read geometry alignment corrections from DB
-#muonRecFlags.useAlignmentCorrections = True
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
