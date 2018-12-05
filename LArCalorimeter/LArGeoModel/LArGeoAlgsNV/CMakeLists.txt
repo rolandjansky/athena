@@ -41,3 +41,5 @@ atlas_add_component( LArGeoAlgsNV
 # Install files from the package:
 atlas_install_headers( LArGeoAlgsNV )
 atlas_install_python_modules( python/*.py )
+
+atlas_add_test( LArGMConfigTest SCRIPT python -m LArGeoAlgsNV.LArGMConfig POST_EXEC_SCRIPT nopost.sh )
