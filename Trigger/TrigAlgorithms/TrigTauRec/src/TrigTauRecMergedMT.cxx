@@ -230,50 +230,6 @@ StatusCode TrigTauRecMergedMT::execute()
 		return StatusCode::SUCCESS;
 	}
 
-	// get CaloCellContainer
-	// Probably not necessary
-	/*vector<const CaloCellContainer*> vectorCaloCellContainer;
-	hltStatus = getFeatures(inputTE, vectorCaloCellContainer);
-
-	if(hltStatus!=HLT::OK ) {
-		msg() << MSG::ERROR << " No CaloCellContainers retrieved for the trigger element" << endmsg;
-		m_calo_errors.push_back(NoCellCont);
-		return hltStatus;
-	}
-
-	if (vectorCaloCellContainer.size() < 1) {
-		msg() << MSG::ERROR
-				<< "Size of vector CaloCell container is not 1. Is"
-				<< vectorCaloCellContainer.size()
-				<< endmsg;
-		m_calo_errors.push_back(NoCellCont);
-		return HLT::ERROR;
-	}
-
-	const CaloCellContainer* RoICaloCellContainer = vectorCaloCellContainer.back();
-
-	if(RoICaloCellContainer != NULL) {
-		m_nCells = RoICaloCellContainer->size();
-
-		msg() << MSG::DEBUG
-				<< "REGTEST: Size of vector CaloCell container is "
-				<< RoICaloCellContainer->size()
-				<< endmsg;
-		if(RoICaloCellContainer->size()==0) {
-			msg() << MSG::INFO
-					<< "Cannot proceed, size of vector CaloCell container is "
-					<< RoICaloCellContainer->size()
-					<< endmsg;
-			m_calo_errors.push_back(EmptyCellCont);
-			return HLT::OK;
-		}
-	}
-	else {
-		msg() << MSG::ERROR << "no CaloCell container found "<< endmsg;
-		m_calo_errors.push_back(NoCellCont);
-		return HLT::ERROR;
-	}*/
-
 	// Retrieve Calocluster container
    SG::ReadHandle< xAOD::CaloClusterContainer > CCContainerHandle = SG::makeHandle( m_clustersKey,ctx );
    CHECK( CCContainerHandle.isValid() );
@@ -291,72 +247,6 @@ StatusCode TrigTauRecMergedMT::execute()
      ATH_MSG_DEBUG( "no CaloCluster container found " );
      return StatusCode::SUCCESS;
    }
-
-	/*if(hltStatus!=HLT::OK ) {
-	  msg() << MSG::ERROR << " No CaloClusterContainers retrieved for the trigger element" << endmsg;
-	  m_calo_errors.push_back(NoClustCont);
-	  return hltStatus;
-	}
-
-	if (vectorCaloClusterContainer.size() < 1) {
-	  msg() << MSG::ERROR
-		<< "  CaloCluster container is empty"
-		<< endmsg;
-	  m_calo_errors.push_back(NoClustCont);
-	  return HLT::ERROR;
-	}
-  
-	if( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG << " CaloCluster container size is " << vectorCaloClusterContainer.size() << endmsg;
-  
-	// Grab the last cluster collection attached
-	const xAOD::CaloClusterContainer* RoICaloClusterContainer = vectorCaloClusterContainer.back();
-
-	std::string collKey;
-	hltStatus = getStoreGateKey( RoICaloClusterContainer, collKey );
-
-	if(hltStatus!=HLT::OK ) {
-		msg() << MSG::ERROR << "Cluster has no key " << endmsg;
-		m_calo_errors.push_back(NoClustKey);
-		return HLT::ERROR;
-	}
-
-	if( msgLvl() <= MSG::DEBUG )
-		msg() << MSG::DEBUG << " cluster key for back cluster is " << collKey << endmsg;
-
-	*/
-	// Not necessary anymore
-	/*
-	const INavigable4MomentumCollection*  RoICaloClusterContainer;
-	StatusCode sc = store()->retrieve(RoICaloClusterContainer,collKey);
-
-	if(sc.isFailure()) {
-		msg() << MSG :: ERROR << "failed to find Cluster container"<< endmsg;
-		m_calo_errors.push_back(NoClustCont);
-		return HLT :: ERROR;
-	}
-
-	if(RoICaloClusterContainer != NULL) {
-		msg() << MSG::DEBUG
-				<< "REGTEST: Size of vector CaloCluster container is "
-				<< RoICaloClusterContainer->size()
-				<< endmsg;
-		if(RoICaloClusterContainer->size()==0) {
-			msg() << MSG::DEBUG
-					<< "Cannot proceed, size of vector CaloCluster container is "
-					<< RoICaloClusterContainer->size()
-					<< endmsg;
-			m_calo_errors.push_back(EmptyClustCont);
-			return HLT::OK;
-		}
-	}
-	else {
-		msg() << MSG::ERROR << "no CaloCluster container found "<< endmsg;
-		m_calo_errors.push_back(NoClustCont);
-		return HLT::ERROR;
-	}
-	*/
-	
 
 	// get TrackContainer
    SG::ReadHandle< xAOD::TrackParticleContainer > TPContainerHandle = SG::makeHandle( m_tracksKey,ctx );
@@ -437,18 +327,6 @@ StatusCode TrigTauRecMergedMT::execute()
 	
 	xAOD::Jet* aJet = new xAOD::Jet();
 
-	// xxx ToDo: necessary?? no xAOD setter yet
-	/*
-	// set initial tau values to RoI position
-	// pass a name modifier to the offline tools to adjust container
-	// names based on RoI number
-	int roiNumber = roiDescriptor->roiId();
-	std::string TrigRoIName;
-	std::stringstream strm; strm << roiNumber;
-	TrigRoIName=strm.str();
-	aJet->set_RoIword( roiNumber);
-	*/
-
 	theJetCollection->push_back(aJet);
 	
 	// Build the jet, also keep track of the kinematics by hand
@@ -501,24 +379,16 @@ StatusCode TrigTauRecMergedMT::execute()
 	xAOD::TauJetAuxContainer *pAuxContainer = new xAOD::TauJetAuxContainer();
 
 	xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
-	xAOD::TauTrackAuxContainer pTrackAuxContainer;
+	xAOD::TauTrackAuxContainer *pTrackAuxContainer = new xAOD::TauTrackAuxContainer();
 
-	// Set the store: eventually, we want to use a dedicated trigger version
 	pContainer->setStore(pAuxContainer);
+	pTrackContainer->setStore(pTrackAuxContainer);
 
-	// Set the store: eventually, we want to use a dedicated trigger version
-	pTrackContainer->setStore(&pTrackAuxContainer);
 	m_tauEventData.setObject("TauTrackContainer", pTrackContainer);
-
-	// set TauCandidate properties (xAOD style)
 	m_tauEventData.xAODTauContainer = pContainer;
-
-	// This is potentially a bit dangerous, but all the tools using m_tauEventData
-	// are run in the current scope
 	m_tauEventData.tauAuxContainer = pAuxContainer;
 
 	// Set the Objects that we can attach right now
-	// m_tauEventData.setObject("InTrigger?", true ); Set this in initialize, now a member variable of TauEventData
 	m_tauEventData.setObject("TrackContainer", RoITrackParticleContainer);
 	m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
 	if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
@@ -688,30 +558,6 @@ StatusCode TrigTauRecMergedMT::execute()
 	  dPhi =  PhiEF - roiDescriptor->phi();
 	  if(dPhi<-M_PI) dPhi += 2.0*M_PI;
 	  if(dPhi>M_PI)  dPhi -= 2.0*M_PI;
-	  
-	  // author variable removed. There are no different tau reco algs anymor
-	  
-	  // write out delta Z0
-	  /*
-	   * FF, March 2014: deactivated.
-	   * If the output of these variables is still needed, drop me a line.
-	   * We can either print them here as done before or put them into tauEDM to have them available globally
-	   if (m_useTauPVTool) {
-	   m_tauPVTool->getDeltaZ0Values(m_deltaZ0coreTrks, m_deltaZ0wideTrks);
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endmsg;
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endmsg;
-	   }
-	  */
-
-	  //
-	  // copy CaloOnly four vector, if present
-	  //
 
 	  std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
 
@@ -746,16 +592,6 @@ StatusCode TrigTauRecMergedMT::execute()
                ATH_MSG_WARNING( "TauJetContainer not found :");
      }
 
-
-	  //
-	  // Set NUMVERTICES Aux variable
-	  //
-
-	  // static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-	  // acc_nVertex(*p_tau) = avg_mu;
-
-
-
 	  ATH_MSG_DEBUG("REGTEST: Roi: " << roiDescriptor->roiId()
 		<< " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF
 		<< " wrt L1 dEta "<< dEta<<" dPhi "<<dPhi
@@ -787,31 +623,15 @@ StatusCode TrigTauRecMergedMT::execute()
 	// all done, register the tau Container in TDS.
 	//-------------------------------------------------------------------------
 
-   // Prepare Outputs
-   //std::unique_ptr< xAOD::TauJetContainer > taujetContainer( new xAOD::TauJetContainer() );
-   //std::unique_ptr< xAOD::TauTrackContainer > tautrkContainer( new xAOD::TauTrackContainer() );
-
-   //if(pContainer) taujetContainer->push_back(&pContainer);
-   //if(pTrackContainer) tautrkContainer->push_back(pTrackContainer);
    ATH_MSG_DEBUG("Output TauJetContainer size:"<< pContainer->size());
    ATH_MSG_DEBUG("Output TauTrackJetContainer size:"<< pTrackContainer->size());
 
    CHECK( outTauJetHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}) );
-   //if(pTrackContainer->size()!=0) ATH_CHECK( outTauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{&pTrackAuxContainer}) );
+   CHECK( outTauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTrackAuxContainer}) );
 
-	//hltStatus=attachFeature(outputTE, pContainer, m_outputName);
-	//hltStatus=attachFeature(outputTE, pTrackContainer, m_outputName+"Tracks");
-	//if (hltStatus!=HLT::OK )  {
-	//	ATH_MSG_ERROR("Unable to record tau Container in TDS");
-	//	calo_errors.push_back(NoHLTtauAttach);
-	//	return StatusCode::FAILURE;
-	//}
-	//else {
-		ATH_MSG_DEBUG("Recorded a tau container: HLT_TrigTauRecMergedMT");
-	//}
-
+   ATH_MSG_DEBUG("Recorded a tau container: HLT_TrigTauRecMergedMT");
 	ATH_MSG_DEBUG("the tau object has been registered in the tau container");
-	
+
 	// set status of TE to always true for FE algorithms
 	return StatusCode::SUCCESS;
 }

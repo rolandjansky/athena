@@ -61,21 +61,10 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   TrigTauRecMergedMT(const std::string& name, ISvcLocator* pSvcLocator);
   ~TrigTauRecMergedMT();
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode execute() override;
 
-
-  // Gaudi algorithm hooks
-  /** HLT method to initialize */
-  //HLT::ErrorCode  hltInitialize();
-
-  /** HLT method to finalize */
-  //HLT::ErrorCode hltFinalize();
-
-  /** HLT method to execute FEX algo on a given TE.
-   input is last TE from EF ID, output is TE for EF tauRec hypo execution */
-  //HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);
 
  private:
 
