@@ -15,5 +15,7 @@
 <class name="TrackPseudoJetGetter"/>
 <class name="TrackVertexAssociationTool"/>
 <class name="VoronoiWeightTool"/>
+<class name="TARJetTool"/>
+<class name="SATScaleTool"/>
 
 </lcgdict>
