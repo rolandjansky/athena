@@ -41,8 +41,10 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    acc = GeoModelCfg( ConfigFlags )
-    acc[0].store( file( "test.pkl", "w" ) )
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+
+    acc, gms = GeoModelCfg( ConfigFlags )
+    acc.store( file( "test.pkl", "w" ) )
     print "All OK"

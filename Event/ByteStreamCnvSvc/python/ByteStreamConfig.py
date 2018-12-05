@@ -114,7 +114,9 @@ def TrigBSReadCfg( inputFlags ):
 
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags    
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
 
     acc = TrigBSReadCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
