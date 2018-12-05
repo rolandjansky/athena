@@ -1,7 +1,7 @@
 // this file is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,6 +20,13 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+#include <string>
+#include "fastjet/FunctionOfPseudoJet.hh"
+#include "TFile.h"
+#include "TH1D.h"
+#include "TH2D.h"
+
+
 class ConstituentSubtractorTool: public JetConstituentModifierBase {
 ASG_TOOL_CLASS(ConstituentSubtractorTool, IJetConstituentModifier) 
 public:
@@ -37,10 +44,18 @@ private:
   float m_alpha = 0.0;
   float m_maxEta = 4.5;
   float m_maxRapForRhoComputation = 2.0;
-  float m_ghost_area = 0.01;
-  bool m_common_bge_for_rho_and_rhom = false;
+  float m_gridSize = 0.01;
+  float m_ghostArea = 0.01;
+  bool m_commonBgeForRhoAndRhom = false;
   bool m_ignoreChargedPFOs = true;
   bool m_useWorkaroundForBugInFastjetContrib=true;
+  bool m_doRapidityRescaling = false;
+  bool m_doRapidityPhiRescaling = false;
+  std::string m_fileRescaling;
+  std::string m_histogramRescaling;
+  std::unique_ptr<fastjet::FunctionOfPseudoJet<double> > m_rescaling=nullptr;
+  std::unique_ptr<TH1D> m_hist=nullptr;
+  std::unique_ptr<TH2D> m_hist2D=nullptr;
 };
 
 #endif

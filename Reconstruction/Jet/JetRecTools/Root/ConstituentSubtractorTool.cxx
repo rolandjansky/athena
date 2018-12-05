@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source code for the ConstituentSubtractorTool implementation class
@@ -9,11 +9,15 @@
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/contrib/ConstituentSubtractor.hh"
+#include "fastjet/contrib/RescalingClasses.hh"
 #include "fastjet/tools/GridMedianBackgroundEstimator.hh"
 #include "fastjet/Selector.hh"
 
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/TrackCaloCluster.h"
+
+#include "TSystem.h"
+#include "TString.h"
 
 using namespace fastjet;
 ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): JetConstituentModifierBase(name) {
@@ -22,8 +26,13 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
   declareProperty("Alpha", m_alpha=0.);
   declareProperty("MaxEta", m_maxEta=4.5);
   declareProperty("MaxRapForRhoComputation", m_maxRapForRhoComputation=2.0);
-  declareProperty("GhostArea", m_ghost_area=0.01);
-  declareProperty("CommonBGEForRhoAndRhom",m_common_bge_for_rho_and_rhom=false);
+  declareProperty("GridSize", m_gridSize=0.5);  // grid size (not area) for GridMedianBackgroundEstimator
+  declareProperty("GhostArea", m_ghostArea=0.01);
+  declareProperty("CommonBgeForRhoAndRhom",m_commonBgeForRhoAndRhom=false);
+  declareProperty("DoRapidityRescaling",m_doRapidityRescaling=false);
+  declareProperty("DoRapidityPhiRescaling",m_doRapidityPhiRescaling=false);
+  declareProperty("FileRescaling",m_fileRescaling="");
+  declareProperty("HistogramRescaling",m_histogramRescaling="");
 
   // Option to disregard cPFOs in the weight calculation
   declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
@@ -44,6 +53,59 @@ StatusCode ConstituentSubtractorTool::initialize() {
       return StatusCode::FAILURE;
     }
   }
+
+  
+  if(m_doRapidityRescaling && m_doRapidityPhiRescaling) {
+    ATH_MSG_ERROR("Incompatible configuration: You set both, DoRapidityRescaling and DoRapidityPhiRescaling, to true. Use maximally only one of them.");
+    return StatusCode::FAILURE;
+  }
+
+  if((m_doRapidityRescaling || m_doRapidityPhiRescaling) && (m_fileRescaling=="" || m_histogramRescaling=="")) {
+    ATH_MSG_ERROR("Incompatible configuration: You have chosen a background rescaling, but you have not specified the path to the file with rescaling histograms or the name of the histogram. Specify properties FileRescaling and HistogramRescaling.");
+    return StatusCode::FAILURE;
+  }
+
+  if(m_doRapidityRescaling || m_doRapidityPhiRescaling){
+    TString fullPath=gSystem->Getenv("WorkDir_DIR");
+    fullPath+="/";
+    fullPath+=m_fileRescaling;
+    std::unique_ptr<TFile> file(TFile::Open(fullPath, "READ"));
+    if (!file){
+      ATH_MSG_ERROR("Incompatible configuration: The provided file name was not found.");
+      return StatusCode::FAILURE;
+    }
+    std::unique_ptr<TObject> object(file->Get(m_histogramRescaling.data()));
+    if (!object){
+      ATH_MSG_ERROR("Incompatible configuration: The provided histogram name was not found in the root file.");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_doRapidityRescaling){
+      if (object->InheritsFrom(TH1D::Class())){
+        m_hist.reset(static_cast<TH1D*>(object->Clone("hist_cloned")));
+        m_hist->SetDirectory(0);
+        m_rescaling.reset(static_cast<fastjet::FunctionOfPseudoJet<double>*>(new contrib::BackgroundRescalingYFromRoot<TH1D>(m_hist.get())));
+      }
+      else{
+        ATH_MSG_ERROR("Incompatible configuration: You want to do rapidity rescaling, but the provided histogram name is not a TH1D.");
+        return StatusCode::FAILURE;
+      }
+    }
+    if (m_doRapidityPhiRescaling){
+      if (object->InheritsFrom(TH2D::Class())){
+        m_hist2D.reset(static_cast<TH2D*>(object->Clone("hist_cloned")));
+        m_hist2D->SetDirectory(0);
+        m_rescaling.reset(static_cast<fastjet::FunctionOfPseudoJet<double>*>(new contrib::BackgroundRescalingYPhiFromRoot<TH2D>(m_hist2D.get())));
+      }
+      else{
+        ATH_MSG_ERROR("Incompatible configuration: You want to do rapidity-phi rescaling, but the provided histogram name is not a TH2D.");
+        return StatusCode::FAILURE;
+      }
+    }
+  }
+
+  
+
   return StatusCode::SUCCESS;
 }
 
@@ -59,7 +121,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   subtractor.set_alpha(m_alpha);  
 
   // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
-  subtractor.set_ghost_area(m_ghost_area); 
+  subtractor.set_ghost_area(m_ghostArea); 
 
   // prepare PseudoJet input
   std::vector<PseudoJet> inputs_to_correct, inputs_to_not_correct;
@@ -114,7 +176,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     bool needToModifyParticlesWithMaxRap=false; // boolean to tell if it is needed to modify the rapidity of particle (or more particles) with maximum rapidity
 
     // these lines find out the positions of the ghosts in CS. This is exactly the same procedure as in fastjet-contrib ConstituentSubtractor and was copied from it.
-    double ghostAreaSqrt=sqrt(m_ghost_area);
+    double ghostAreaSqrt=sqrt(m_ghostArea);
     int nRap=2*m_maxEta/ghostAreaSqrt+0.5;
     double sizeRap=2*m_maxEta/(double)nRap;
     for (int iRap=0;iRap<nRap;++iRap){
@@ -146,12 +208,13 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   // create what we need for the background estimation
   //----------------------------------------------------------
   // maximal rapidity is used (not pseudo-rapidity). Since the inputs are massless, it does not matter
-  GridMedianBackgroundEstimator bge_rho(m_maxRapForRhoComputation, 0.5);
+  GridMedianBackgroundEstimator bge_rho(m_maxRapForRhoComputation, m_gridSize);
+  bge_rho.set_rescaling_class(m_rescaling.get());
   bge_rho.set_particles(inputs_to_correct);
   subtractor.set_background_estimator(&bge_rho);
 
   // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-  subtractor.set_common_bge_for_rho_and_rhom(m_common_bge_for_rho_and_rhom); 
+  subtractor.set_common_bge_for_rho_and_rhom(m_commonBgeForRhoAndRhom); 
   // for massless input particles it does not make any difference (rho_m is always zero)
 
   ATH_MSG_DEBUG("Subtracting event density from constituents");
