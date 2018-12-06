@@ -56,7 +56,7 @@ option['l2pu-worker'] = 1
 # ================================
 
 # Defines the L2 HLT Implementation to use. It has to be either a python dictionary (like the default argument), a dictionary that configures an HLTImplementation, or a string, that determines the path to the jobOptions to use. This parameter can also be set to dal.HLTImplementation object that will be used blindly to configure the L2 system at your partition.
-# option['l2-hlt'] = {'jobOptionsPath': 'TrigExMTHelloWorld/MTHelloWorldOptions.py'}
+# option['l2-hlt'] = {'jobOptionsPath': 'AthExHelloWorld/​HelloWorldOptions.py'}
 
 # Defines the EF HLT Implementation to use. It has to be either a python dictionary (like the default argument), a dictionary that configures an HLTImplementation, or a string, that determines the path to the jobOptions to use. This parameter can also be set to dal.HLTImplementation object that will be used blindly to configure the EF system at your partition.
 #option['ef-hlt'] = option['l2-hlt']
