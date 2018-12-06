@@ -227,11 +227,21 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool')
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 
-try:
-    from RecAlgs.RecAlgsConf import TimingAlg
-    topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
-except:
-    atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads > 0:
+    from GaudiHive.GaudiHiveConf import ThreadPoolSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'ThreadPoolSvc'):
+        svcMgr+=ThreadPoolSvc("ThreadPoolSvc")
+    svcMgr.ThreadPoolSvc.ThreadInitTools+=["G4ThreadInitTool"]
+else:
+    try:
+        from RecAlgs.RecAlgsConf import TimingAlg
+        topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
+    except:
+        atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
+    pass
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
@@ -252,6 +262,11 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
         svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
     else:
         svcMgr.EventSelector.FirstEvent = 0
+
+if nThreads > 0:
+    from AthenaCommon.AlgSequence import AlgSequence
+    job = AlgSequence()
+    job.StreamHITS.AcceptAlgs = [] # doesn't work in MT yet
 
 ## Post-include
 if hasattr(runArgs, "postInclude"):
