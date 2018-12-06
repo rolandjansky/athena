@@ -376,7 +376,6 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ [output3,output4],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
 
-
         elif EFrecoAlg=='pufittrack':
             makelist = lambda x: x if isinstance(x, list) else [x]
             self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
