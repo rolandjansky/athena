@@ -305,7 +305,12 @@ if __name__ == "__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     acc.merge( TrigInDetConfig( ConfigFlags ) )
     from RegionSelector.RegSelConfig import RegSelConfig
-    acc.merge( RegSelConfig( flags ) )
+    acc.merge( RegSelConfig( ConfigFlags ) )
+
+    from L1Decoder.L1DecoderConfig import L1DecoderCfg
+    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
+    acc.addEventAlgo(l1DecoderAlg)
+    acc.merge(l1DecoderAcc)
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
