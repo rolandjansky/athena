@@ -295,7 +295,8 @@ namespace SH
     std::string line;
     while (std::getline (str, line))
     {
-      if (!line.empty())
+      if (!line.empty() &&
+          line != "Warning: missing 32-bit kerberos externals dir")
       {
 	if (line.find ("root:") != 0)
 	  RCU_THROW_MSG ("couldn't parse line: " + line);
