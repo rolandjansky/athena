@@ -85,7 +85,7 @@ StatusCode SCT_RodEncoder::finalize() {
 ///=========================================================================
 
 void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, 
-                             const vRDOs_t& vecRDOs) const {
+                             const std::vector<const SCT_RDORawData*>& vecRDOs) const {
   
   /** retrieve errors from SCT_ByteStreamErrorsSvc */
 
@@ -120,7 +120,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
   
   std::vector<bool> vec_isDuplicated(vecRDOs.size(), false);
   for (unsigned int iRDO1{0}; iRDO1<vecRDOs.size(); iRDO1++) {
-    const RDO* rdo1{vecRDOs.at(iRDO1)};
+    const SCT_RDORawData* rdo1{vecRDOs.at(iRDO1)};
     if (rdo1==nullptr) {
       ATH_MSG_ERROR("RDO pointer is NULL. skipping this hit.");
       vec_isDuplicated.at(iRDO1) = true;
@@ -129,7 +129,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
 
     // Check if there is another RDO with the same first strip
     for (unsigned int iRDO2{0}; iRDO2<iRDO1; iRDO2++) {
-      const RDO* rdo2{vecRDOs.at(iRDO2)};
+      const SCT_RDORawData* rdo2{vecRDOs.at(iRDO2)};
       if (vec_isDuplicated.at(iRDO2)) continue;
 
       if (rdo1->identify()==rdo2->identify()) {
@@ -154,7 +154,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
   bool firstInROD{true};
   uint16_t lastTrailer{0};
   for (unsigned int iRDO{0}; iRDO<vecRDOs.size(); iRDO++) {
-    const RDO* rdo{vecRDOs.at(iRDO)};
+    const SCT_RDORawData* rdo{vecRDOs.at(iRDO)};
     if (vec_isDuplicated.at(iRDO)) continue;
 
     const uint16_t header{this->getHeaderUsingRDO(rdo)};
@@ -208,7 +208,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
     else {/** Expanded mode */
       
       vecTimeBins.clear();
-      const RDO* rdo{vecRDOs.at(iRDO)};
+      const SCT_RDORawData* rdo{vecRDOs.at(iRDO)};
       strip = getStrip(rdo);
       timeBin = getTimeBin(rdo);
       groupSize = rdo->getGroupSize();
@@ -275,7 +275,7 @@ void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<Ide
 /// Encode Data function
 ///========================================================================= 
 
-void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const {
+void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const {
   
   const int encodedSide{side(rdo) << 14};
   
@@ -387,31 +387,31 @@ uint32_t SCT_RodEncoder::set32Bits(const unsigned short int* arr16Words, const u
 /// Link and Side Numbers 
 ///=========================================================================
 /** Strip number */ 
-int SCT_RodEncoder::getStrip(const RDO* rdo) const {
+int SCT_RodEncoder::getStrip(const SCT_RDORawData* rdo) const {
   const Identifier rdoID{rdo->identify()};
   return m_sctID->strip(rdoID);
 }
 
 /** RDO ID */
-Identifier SCT_RodEncoder::offlineID(const RDO* rdo) const {
+Identifier SCT_RodEncoder::offlineID(const SCT_RDORawData* rdo) const {
   const Identifier rdoId{rdo->identify()};
   return m_sctID->wafer_id(rdoId);
 }
 
 /** ROD online ID */
-uint32_t SCT_RodEncoder::onlineID(const RDO* rdo) const {
+uint32_t SCT_RodEncoder::onlineID(const SCT_RDORawData* rdo) const {
   const Identifier waferID{offlineID(rdo)};
   const IdentifierHash offlineIDHash{m_sctID->wafer_hash(waferID)};
   return static_cast<const uint32_t>(m_cabling->getOnlineIdFromHash(offlineIDHash));
 }
 
 /** ROD Link Number In the ROD header data */
-int SCT_RodEncoder::getRODLink(const RDO* rdo) const {
+int SCT_RodEncoder::getRODLink(const SCT_RDORawData* rdo) const {
   return rodLinkFromOnlineID(onlineID(rdo));
 }
 
 /** Side Info */
-int SCT_RodEncoder::side(const RDO* rdo) const {
+int SCT_RodEncoder::side(const SCT_RDORawData* rdo) const {
   const Identifier rdoID{rdo->identify()};
   int sctSide{m_sctID->side(rdoID)};
   /** see if we need to swap sides due to cabling weirdness */
@@ -421,7 +421,7 @@ int SCT_RodEncoder::side(const RDO* rdo) const {
 }
 
 /** Time Bin Info */
-int SCT_RodEncoder::getTimeBin(const RDO* rdo) const {
+int SCT_RodEncoder::getTimeBin(const SCT_RDORawData* rdo) const {
   int timeBin{0};
   const SCT3_RawData* rdoCosmic{dynamic_cast<const SCT3_RawData*>(rdo)};
   if (rdoCosmic != 0) timeBin = rdoCosmic->getTimeBin();
@@ -433,7 +433,7 @@ int SCT_RodEncoder::getTimeBin(const RDO* rdo) const {
 ///-------------------------------------------------------------------------------------
 
 uint16_t 
-SCT_RodEncoder::getHeaderUsingRDO(const RDO* rdo) const {
+SCT_RodEncoder::getHeaderUsingRDO(const SCT_RDORawData* rdo) const {
   const int rodLink{getRODLink(rdo)};
   const uint16_t linkHeader{static_cast<uint16_t>(0x2000 | (m_condensed.value() << 8) | rodLink)};
   return linkHeader;

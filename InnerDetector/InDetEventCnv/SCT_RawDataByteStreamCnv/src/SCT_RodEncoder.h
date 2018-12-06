@@ -40,10 +40,6 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
 { 
  public:
  
-  typedef SCT_RDORawData RDO;
-  typedef std::vector<const RDO*> vRDOs_t;
-  typedef SCT_RDO_Container SCTRawContainer;
-  
   /** constructor  */
 
   SCT_RodEncoder(const std::string& type, const std::string& name, const IInterface* parent);
@@ -58,12 +54,12 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   virtual StatusCode finalize() override;
 
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
-  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const vRDOs_t& vecRDOs) const override;
+  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const std::vector<const SCT_RDORawData*>& vecRDOs) const override;
 
  private:
 
   /// Encode rdo into the data: called by fillROD(..) 
-  void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const RDO *rdo, const int& groupSize, const int& strip) const;
+  void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const;
   
   /// pack 32 bit word:  called by  encodeData(..) 
   void packFragments(std::vector<uint16_t>& vec16Words, std::vector<uint32_t>& vec32Words) const;
@@ -72,25 +68,25 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   uint32_t set32Bits(const unsigned short int* arr16Words, const unsigned short int* position, const unsigned short int& numWords) const;
 
   /// Get the side info from the RDO 
-  int side(const RDO* rdo) const;
+  int side(const SCT_RDORawData* rdo) const;
   
   /// Get the time bin info from the RDO
-  int getTimeBin(const RDO* rdo) const;
+  int getTimeBin(const SCT_RDORawData* rdo) const;
   
   /// Get the strip number info from the RDO  
-  int getStrip(const RDO* rdo) const;
+  int getStrip(const SCT_RDORawData* rdo) const;
  
   /// Get the offline Identifirer from the RDO  
-  Identifier offlineID(const RDO* rdo) const;
+  Identifier offlineID(const SCT_RDORawData* rdo) const;
 
   /// Get the online id from the RDO  
-  uint32_t onlineID(const RDO* rdo) const;
+  uint32_t onlineID(const SCT_RDORawData* rdo) const;
 
   /// Get the ROD link info from the RDO 
-  int getRODLink(const RDO* rdo) const;
+  int getRODLink(const SCT_RDORawData* rdo) const;
 
   /// Get the 16-bit word for a header for a hit 
-  uint16_t getHeaderUsingRDO(const RDO* rdo) const;
+  uint16_t getHeaderUsingRDO(const SCT_RDORawData* rdo) const;
   
   /// Get the 16-bit word for a header for a link with a ByteStream error 
   uint16_t getHeaderUsingHash(const IdentifierHash& linkHash, const int& errorWord) const;
