@@ -224,6 +224,7 @@ PP="$PP"'|is still valid for| and sid '
 PP="$PP"'|INFO Found MetaDataTools'
 PP="$PP"'|INFO AthenaOutputStream'
 PP="$PP"'|^DbSession.*INFO'
+PP="$PP"'|^IOVDb(Svc|Folder).*INFO (Folder|Connection|Total payload|.*bytes in)'
 
 
 test=$1
