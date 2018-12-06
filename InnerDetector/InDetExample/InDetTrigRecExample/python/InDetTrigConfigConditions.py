@@ -377,7 +377,8 @@ class SCT_ConditionsServicesSetup:
     "Init DCS conditions service"
     dcs_folder="/SCT/DCS"
     db_loc = "DCS_OFL"
-    if (not self.isMC): 
+    from AthenaCommon.GlobalFlags import globalflags
+    if not (self.isMC or globalflags.isOverlay()):
       dcs_folder="/SCT/HLT/DCS"
       db_loc = "SCT"
       
@@ -386,7 +387,7 @@ class SCT_ConditionsServicesSetup:
     else:        
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
       dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
-      if (not self.isMC):
+      if not (self.isMC or globalflags.isOverlay()):
         dcsSvc.FolderLocation="/SCT/HLT/DCS"
         dcsSvc.ReadAllDBFolders=False
         dcsSvc.ReturnHVTemp=True

@@ -385,4 +385,23 @@ hypos["HIL2VtxMultHyp_2000"] = HIL2VtxMultHypo(name='HIL2VtxMultHyp_2000', weigh
 
 
 
+from TrigHIHypo.TrigHIHypoConf import LbyLTopoClusterHypo
+class LbyLTopoClusterHypoConfig(LbyLTopoClusterHypo):
+    def __init__(self, name="LbyLTopoClusterHypoConfig"):
+        super(LbyLTopoClusterHypoConfig, self).__init__(name)
 
+	from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
+
+	class LbyLHypoMonitoring(TrigGenericMonitoringToolConfig):
+	    def __init__ (self, name="LbyLHypoMOnitoring"):
+	        """ defines histograms for validation """
+	        super(LbyLHypoMonitoring, self).__init__(name)
+        	self.defineTarget(['Online', 'Validation'])
+        	import math
+        	self.Histograms = [ defineHistogram('AllDPhi', type='TH1F', title="Cluster distance;radians; n pairs", xbins=64, xmin=0., xmax=math.pi) ]
+		self.AthenaMonTools = [ LbyLHypoMonitoring() ]
+
+	        print self
+
+if __name__ == "__main__":
+    print LbyLTopoClusterHypoConfig()

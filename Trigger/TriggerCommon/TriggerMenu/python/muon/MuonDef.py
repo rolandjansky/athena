@@ -211,6 +211,8 @@ class L2EFChain_mu(L2EFChainDef):
       muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly" + "_v15a"
     elif int(self.chainPart['threshold'])  == 4:
       muFastThresh = '4GeV_v15a'
+    elif int(self.chainPart['threshold'])  == 3:
+      muFastThresh = '3GeV_v15a'
     elif int(self.chainPart['threshold']) == 2:
       muFastThresh = '2GeV_v15a'
     elif "3layersEC" in self.chainPart['extra']:

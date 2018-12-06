@@ -71,9 +71,9 @@ class CaloDef:
         # min PT for TOBs
         if "HI_" in menuName:
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=7) ]
-            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=12) ]
-            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=10, window=4) ]
-            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=10, window=8) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=1) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=12, window=4) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
         else:
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
             caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=8) ]

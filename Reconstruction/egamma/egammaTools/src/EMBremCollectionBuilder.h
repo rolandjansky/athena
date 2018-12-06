@@ -14,11 +14,12 @@ class IegammaTrkRefitterTool;
 class IegammaCheckEnergyDepositTool;
 class IEMExtrapolationTools;
 
-
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+#include "TrkTrack/TrackCollection.h"
 
 
 namespace Trk
@@ -30,6 +31,7 @@ namespace Trk
 
 class CaloCluster;
 
+
 class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollectionBuilder{
     public:
         EMBremCollectionBuilder(const std::string& type, const std::string& name, const IInterface* parent);
@@ -38,13 +40,19 @@ class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollecti
         virtual StatusCode initialize();
         virtual StatusCode finalize();
         virtual StatusCode contExecute();
+	virtual StatusCode hltExecute(const xAOD::CaloClusterContainer *clusters,
+				      const xAOD::TrackParticleContainer *inputTracks,
+				      TrackCollection *refitTracks,
+				      xAOD::TrackParticleContainer *refitTrackParticles);
+	
     private:
 	//------------------------------------------------------------------------
 	//      methods
 	//------------------------------------------------------------------------
 	//
         /** @brief Refit of track */
-	StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart);
+	StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart, 
+			      TrackCollection *refitTracks, xAOD::TrackParticleContainer *refitTrackParticles);
         /** @brief broad track selection */
 	bool Select(const xAOD::CaloCluster*        cluster,
               bool                      trkTRT,

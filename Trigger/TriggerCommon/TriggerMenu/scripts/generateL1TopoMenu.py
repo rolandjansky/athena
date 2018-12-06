@@ -43,13 +43,21 @@ def main():
     if sys.argv[1] in ["Physics_HI_v5", "MC_HI_v5","Physics_HI_v4", "MC_HI_v4", "LS1_v1", "DC14","Physics_pp_v7", "MC_pp_v7","Physics_pp_v6", "MC_pp_v6", "MC_PhaseII"]: # explicit names for TMXML nightly
         generateL1TopoMenu(menu=sys.argv[1])
         return 0
+    
+    tmp_menu = sys.argv[1].lower()
 
-    if sys.argv[1].lower().startswith("ph"): # for interactive production
-        generateL1TopoMenu(menu="Physics_pp_v6")
+    if tmp_menu.startswith("ph"): # for interactive production
+        if 'v6' in tmp_menu:
+            generateL1TopoMenu(menu="Physics_pp_v6")
+        else:
+            generateL1TopoMenu(menu="Physics_pp_v7")
         return 0
 
-    if sys.argv[1].lower().startswith("mc"):
-        generateL1TopoMenu(menu="MC_pp_v6")
+    if tmp_menu.startswith("mc"):
+        if 'v6' in tmp_menu:
+            generateL1TopoMenu(menu="MC_pp_v6")
+        else:
+            generateL1TopoMenu(menu="MC_pp_v7")
         return 0
 
     if sys.argv[1].lower().startswith("hiph"):

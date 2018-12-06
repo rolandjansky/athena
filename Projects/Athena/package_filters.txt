@@ -5,10 +5,11 @@
 # Don't pick up anything from the Projects directory:
 - Projects/.*
 
-# Remove most HLT packages
-+ HLT/Trigger/TrigTransforms/TrigTransform
-- HLT/.*
-- Trigger/TrigValidation/TrigP1Test
+# We currently build the HLT as part of Athena. Uncomment the following three lines to revert:
+#+ HLT/Trigger/TrigTransforms/TrigTransform
+#- HLT/.*
+#- Trigger/TrigValidation/TrigP1Test
+- HLT/HLToks
 
 # Offload service has build problems
 - Offloading/.*
