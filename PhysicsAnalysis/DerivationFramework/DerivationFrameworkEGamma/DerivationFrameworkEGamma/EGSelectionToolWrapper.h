@@ -15,8 +15,6 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
-#include "PATCore/IAsgSelectionTool.h"
-#include "AsgTools/IAsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace DerivationFramework {
