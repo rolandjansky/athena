@@ -95,6 +95,7 @@ StatusCode LArFex::execute(){
         }
 	CaloCellContainer allcalo(SG::VIEW_ELEMENTS);
 	allcalo.reserve(10000);
+
 	if ( !( (m_etS>0) || ( m_etInSigmaS > 0 ) ) ) {
         for(auto cl : *allcalocells) {
                 int samp = cl->caloDDE()->getSampling();
@@ -120,6 +121,8 @@ StatusCode LArFex::execute(){
 	// monitoring and identifying seeds
 	std::vector< int > seeds;
 	seeds.reserve(5000);
+//	seeds.reserve(1000); //from commit ac85b744
+
 	int ii=-1;
         for(auto cl : allcalo) {
 		//int samp = cl->caloDDE()->getSampling();
@@ -148,6 +151,7 @@ StatusCode LArFex::execute(){
         xAOD::TrigEMClusterAuxContainer* auxclusters = new xAOD::TrigEMClusterAuxContainer();
         clusters->setStore(auxclusters);
 	clusters->reserve(seeds.size());
+
         std::string clusterName(m_outputClusterName);
         if ( evtStore()->record(clusters,clusterName).isFailure() ){
                 msg << MSG::ERROR  << "recording was not possible" << endreq;
@@ -257,6 +261,7 @@ StatusCode LArFex::execute(){
 	allcalo.clear();
 
 	m_counter++;
+
 	return StatusCode::SUCCESS;
 }
 
