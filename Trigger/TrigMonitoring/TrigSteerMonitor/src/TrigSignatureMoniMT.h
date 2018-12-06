@@ -46,14 +46,16 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_bookingPath{ this, "HistParh", "/EXPERT/TrigSteer_HLT", "Booking path for the histogram"};
 
-  TH2* m_outputHistogram;
+  TH2* m_passHistogram;
+  TH2* m_countHistogram;
 
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX() const { return m_allChains.size() +1; }
   int nBinsY() const;
-  StatusCode initHist();
-  StatusCode fillChains(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
+  StatusCode initHist(TH2*);
+  StatusCode fillCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row);
+  StatusCode fillPass(const TrigCompositeUtils::DecisionIDContainer& dc, int row);
 }; 
 
 
