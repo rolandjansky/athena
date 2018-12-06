@@ -439,4 +439,10 @@ namespace Muon {
   correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const {
     return createRIO_OnTrack(RIO,TP.position(),TP.momentum().unit());
   }
+
+  /// These functions are provided from the interface
+  const ToolHandle<ICscStripFitter>& CscClusterOnTrackCreator::GetICscStripFitter() const {return m_stripFitter;}
+  const ToolHandle<ICscClusterFitter>& CscClusterOnTrackCreator::GetICscClusterFitter() const {return m_clusterFitter;}
+  const ToolHandle<ICscClusterUtilTool>& CscClusterOnTrackCreator::GetICscClusterUtilTool() const {return m_clusterUtilTool;}
+
 }

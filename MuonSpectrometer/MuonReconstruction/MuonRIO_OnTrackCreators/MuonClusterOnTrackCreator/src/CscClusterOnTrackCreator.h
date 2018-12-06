@@ -18,7 +18,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -28,9 +28,9 @@
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
-class ICscStripFitter;
-class ICscClusterFitter;
-class ICscClusterUtilTool;
+//class ICscStripFitter;
+//class ICscClusterFitter;
+//class ICscClusterUtilTool;
 class CscIdHelper;
 
 namespace Muon {
@@ -59,7 +59,7 @@ namespace Muon {
        - CscStripFitter: Tool to fit charge + time of a CSC strip
        - CscStripPrepDataLocation: Storegate key of the CscStripPrepData collection
    */
- class CscClusterOnTrackCreator : public AthAlgTool, virtual public IMuonClusterOnTrackCreator {
+ class CscClusterOnTrackCreator : public AthAlgTool, virtual public ICscClusterOnTrackCreator {
   public:
     
     CscClusterOnTrackCreator(const std::string&,const std::string&,const IInterface*);
@@ -96,10 +96,9 @@ namespace Muon {
     */
     virtual const MuonClusterOnTrack* correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const; 
   
-    // These tools are used elsewhere with default setups, so we should just pass them out
-    ToolHandle<ICscStripFitter>     GetCalibCscStripFitter()  {return m_stripFitter;}
-    ToolHandle<ICscClusterFitter>   GetQratCscClusterFitter() {return m_clusterFitter;}
-    ToolHandle<ICscClusterUtilTool> GetCscClusterUtilTool()   {return m_clusterUtilTool;}
+    virtual const ToolHandle<ICscStripFitter>& GetICscStripFitter() const;
+    virtual const ToolHandle<ICscClusterFitter>& GetICscClusterFitter() const;
+    virtual const ToolHandle<ICscClusterUtilTool>& GetICscClusterUtilTool() const;
 
 
   private:
@@ -107,9 +106,9 @@ namespace Muon {
     const CscIdHelper*                   m_cscIdHelper;
     const RpcIdHelper*                   m_rpcIdHelper;     
     const TgcIdHelper*                   m_tgcIdHelper;     
-    ToolHandle<ICscStripFitter>                     m_stripFitter;
-    ToolHandle<ICscClusterFitter>                   m_clusterFitter;
-    ToolHandle<ICscClusterUtilTool>                 m_clusterUtilTool;
+    ToolHandle<ICscStripFitter>          m_stripFitter;
+    ToolHandle<ICscClusterFitter>        m_clusterFitter;
+    ToolHandle<ICscClusterUtilTool>      m_clusterUtilTool;
     bool m_have_csc_tools;
 
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_cscErrorScalingKey
