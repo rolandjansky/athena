@@ -241,9 +241,50 @@ def TrigInDetConfig( flags ):
 
   #acc.merge( MainServicesSerialCfg( ) )
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  gmc,geoSvc = GeoModelCfg( ConfigFlags )
+  gmc,geoModelSvc = GeoModelCfg( ConfigFlags )
   acc.merge( gmc )
-  acc.addService(geoSvc)
+
+  from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+  acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
+
+  from AthenaCommon import CfgGetter
+  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
+
+#  if (DetFlags.detdescr.BCM_on() ) :
+  from AthenaCommon.AppMgr import ToolSvc
+  from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
+  bcmTool = InDetDD__BCM_Builder()
+  ToolSvc += bcmTool
+  geoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
+
+  from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
+  blmTool = InDetDD__BLM_Builder()
+  ToolSvc += blmTool
+  geoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
+
+  geoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
+
+#if ( DetFlags.detdescr.SCT_on() ):
+  # Current atlas specific code
+  from AthenaCommon import CfgGetter
+  geoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
+
+  geoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
+
+#    if ( DetFlags.detdescr.TRT_on() ):
+  from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
+  trtDetectorTool = TRT_DetectorTool()
+  if ( DetFlags.simulate.TRT_on() ):
+      trtDetectorTool.DoXenonArgonMixture = True
+      trtDetectorTool.DoKryptonMixture = True
+  trtDetectorTool.useDynamicAlignFolders = True #InDetGeometryFlags.useDynamicAlignFolders()
+  geoModelSvc.DetectorTools += [ trtDetectorTool ]
+  acc.addService(geoModelSvc)
+
+  from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+  mfsc, mag_field_svc = MagneticFieldSvcCfg(flags)
+  acc.merge( mfsc )
+  acc.addService(mag_field_svc)
 
 
   return acc
@@ -258,9 +299,13 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = ComponentAccumulator()
+    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
+    acc.merge(TrigBSReadCfg(ConfigFlags))
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     acc.merge( TrigInDetConfig( ConfigFlags ) )
+    from RegionSelector.RegSelConfig import RegSelConfig
+    acc.merge( RegSelConfig( flags ) )
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
