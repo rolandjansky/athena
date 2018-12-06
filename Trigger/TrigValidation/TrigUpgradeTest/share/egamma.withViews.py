@@ -58,7 +58,7 @@ clustersKey = "HLT_xAOD__TrigEMClusterContainer_L2CaloClusters" #"L2CaloClusters
 
 def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""
-   __l1RoIDecisions = "RerunEMRoIDecisions" if rerun else "EMRoIDecisions"
+   __l1RoIDecisions = "RerunL1EM" if rerun else "L1EM"
    __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
 
    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
@@ -350,6 +350,8 @@ serialiser = TriggerEDMSerialiserTool(name="Serialiser", OutputLevel=VERBOSE)
 
 serialiser.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#remap_EgammaCaloDecisions",
                                       "xAOD::TrigCompositeAuxContainer_v1#remap_EgammaCaloDecisionsAux.",
+                                      "xAOD::TrigEMClusterContainer_v1#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters",
+                                      "xAOD::TrigEMClusterAuxContainer_v2#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux.eta",
                                       "xAOD::TrigElectronContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFex",
                                       "xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.e232.wstot"  ]
                                       #"xAOD::TrigElectronAuxContainer_v1#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
