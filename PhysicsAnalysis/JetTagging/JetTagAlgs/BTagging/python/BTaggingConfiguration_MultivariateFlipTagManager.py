@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for MultivariateFlipTagManager
 # Author: Marie Lanfermann (October 2015)
@@ -36,6 +36,9 @@ def toolMultivariateFlipTagManager(name, useBTagFlagsDefaults = True, **options)
                      'inputIP2DSourceName'              : 'IP2DNeg',
                      'inputIP3DSourceName'              : 'IP3DNeg',
                      'inputJFSourceName'                : 'JetFitterFlip',
+                     'MVTagToolList'                    : BTaggingFlags.MVFlipTagToolList,
+                     'arbitraryAuxData'                 : BTaggingFlags.MultivariateFlipTagManagerAuxBranches,
+                     'auxDataNameMap'                   : BTaggingFlags.MultivariateTagManagerAuxNameMap,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -15,9 +15,6 @@
 
 #include "BTagging/BTagTool.h"
 
-//#include "VxVertex/VxContainer.h"
-//#include "VxVertex/RecVertex.h"
-
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
@@ -29,12 +26,12 @@ namespace Analysis {
 
   BTagTool::BTagTool(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_bTagToolHandleArray(),
+    m_bTagToolHandleArray(this),
     m_bTagTool(std::map<std::string, ITagTool*>()),
     m_BaselineTagger("IP3D+SV1"),
     m_vxPrimaryName("PrimaryVertices"),
     m_runModus("analysis"),
-    m_BTagLabelingTool("Analysis::BTagLabeling")
+    m_BTagLabelingTool("Analysis::BTagLabeling", this)
   {
     declareInterface<IBTagTool>(this);
 

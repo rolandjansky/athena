@@ -473,36 +473,31 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
   mvtm_active_flip_taggers = list(set(mvtm_flip_taggers) & set(TaggerList))
 
-  #set up MVTM if any of its taggers are active
-  if (mvtm_active_taggers):
-    MVTM = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if 'RNNIP' in TaggerList:
-      MVTM.arbitraryAuxData = BTaggingFlags.MultivariateTagManagerAuxBranches
-    else:
-      MVTM.arbitraryAuxData=[]
-
-  #set up MVTMFlip
-  if (mvtm_active_flip_taggers):
-    MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    MVTMFlip.arbitraryAuxData = BTaggingFlags.MultivariateFlipTagManagerAuxBranches
-    MVTMFlip.auxDataNameMap = BTaggingFlags.MultivariateTagManagerAuxNameMap
-
   if 'TagNtupleDumper' in TaggerList:
     tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    MVTM.MVTagToolList.append(tag)
+    BTaggingFlags.MVTagToolList.append(tag)
 
   #add all the taggers that use MVTM
   for mvtm_tagger in mvtm_active_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-
-    if tag not in MVTM.MVTagToolList:
-      MVTM.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVTagToolList:
+      BTaggingFlags.MVTagToolList.append(tag)
 
   #add all the flip taggers that use MVTM
   for mvtm_tagger in mvtm_active_flip_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if tag not in MVTMFlip.MVTagToolList:
-      MVTMFlip.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVFlipTagToolList:
+      BTaggingFlags.MVFlipTagToolList.append(tag)
+
+  #set up MVTM if any of its taggers are active
+  if (mvtm_active_taggers):
+    if 'RNNIP' not in TaggerList:
+      BTaggingFlags.MultivariateTagManagerAuxBranches = []
+    ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  #set up MVTMFlip
+  if (mvtm_active_flip_taggers):
+    ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   # -- b-tagging tool is now fully configured.
 
@@ -668,6 +663,7 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
 
   # Setup associators
   BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+
   if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
     BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   else:
@@ -738,33 +734,31 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
   mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
   mvtm_active_flip_taggers = list(set(mvtm_flip_taggers) & set(TaggerList))
 
-  #set up MVTM if any of its taggers are active
-  if (mvtm_active_taggers):
-    MVTM = ConfInstance.addTool('MultivariateTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if 'RNNIP' in TaggerList:
-      MVTM.arbitraryAuxData = BTaggingFlags.MultivariateTagManagerAuxBranches
-    else:
-      MVTM.arbitraryAuxData=[]
-
-  #set up MVTMFlip
-  if (mvtm_active_flip_taggers):
-    MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-
-  #if 'TagNtupleDumper' in TaggerList:
-  #  tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-  #  MVTM.MVTagToolList.append(tag)
-
   #add all the taggers that use MVTM
   for mvtm_tagger in mvtm_active_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if tag not in MVTM.MVTagToolList:
-      MVTM.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVTagToolList:
+      BTaggingFlags.MVTagToolList.append(tag)
 
   #add all the flip taggers that use MVTM
   for mvtm_tagger in mvtm_active_flip_taggers:
     tag = ConfInstance.addTool(mvtm_tagger+'Tag_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    if tag not in MVTMFlip.MVTagToolList:
-      MVTMFlip.MVTagToolList.append(tag)
+    if tag not in BTaggingFlags.MVFlipTagToolList:
+      BTaggingFlags.MVFlipTagToolList.append(tag)
+
+  #set up MVTM if any of its taggers are active
+  if (mvtm_active_taggers):
+    if 'RNNIP' not in TaggerList:
+      BTaggingFlags.MultivariateTagManagerAuxBranches = []
+    MVTM = ConfInstance.addTool('MultivariateTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  #set up MVTMFlip
+  #if (mvtm_active_flip_taggers):
+  #  MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  #if 'TagNtupleDumper' in TaggerList:
+  #  tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  #  MVTM.MVTagToolList.append(tag)
 
   if BTaggingFlags.OutputLevel < 3:
     ConfInstance.printAllTools()

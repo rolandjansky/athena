@@ -54,12 +54,12 @@ namespace Trk
 
   JetFitterRoutines::JetFitterRoutines(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_initializationHelper("Trk::JetFitterInitializationHelper"),
-    m_helper("Trk::JetFitterHelper"),
-    m_updator("Trk::KalmanVertexOnJetAxisUpdator"),
-    m_smoother("Trk::KalmanVertexOnJetAxisSmoother"),
-    m_minDistanceFinder("Trk::TrkDistanceFinderNeutralCharged/TrkDistanceFinderNeutralCharged"),
-    m_minDistanceFinderNeutral("Trk::TrkDistanceFinderNeutralNeutral/TrkDistanceFinderNeutralNeutral"),
+    m_initializationHelper("Trk::JetFitterInitializationHelper", this),
+    m_helper("Trk::JetFitterHelper", this),
+    m_updator("Trk::KalmanVertexOnJetAxisUpdator", this),
+    m_smoother("Trk::KalmanVertexOnJetAxisSmoother", this),
+    m_minDistanceFinder("Trk::TrkDistanceFinderNeutralCharged/TrkDistanceFinderNeutralCharged", this),
+    m_minDistanceFinderNeutral("Trk::TrkDistanceFinderNeutralNeutral/TrkDistanceFinderNeutralNeutral", this),
     m_fast(false),
     m_maxDRshift(.5),
     m_noPrimaryVertexRefit(false),

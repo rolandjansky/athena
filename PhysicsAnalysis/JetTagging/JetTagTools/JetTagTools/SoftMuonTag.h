@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_SOFTMUONTAG_H
@@ -93,9 +93,6 @@ namespace Analysis
     const bool m_writeRootFile=false;//Developper option
     bool m_disableAlgo;
     int  m_warnCounter;
-
-    /** TrackToVertex tool */
-    ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
     /** GP: Tool for the estimation of the IPs to the Vertex */
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
