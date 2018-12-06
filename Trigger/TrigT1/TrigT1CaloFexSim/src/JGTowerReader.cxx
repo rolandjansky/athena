@@ -229,7 +229,6 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
     if(jJetSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jJetSeeds,m_dumpSeedsEtaPhi));
   }
 
-
   if(m_makeSquareJets) {
     // find all seeds
     // the diameter of seed, and its range to be local maximum
@@ -247,7 +246,7 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   }
   
   ATH_MSG_DEBUG("JFexAlg: BuildMET");
-  CHECK(METAlg::BuildMET(jTs, jMET, jT_noise));
+  CHECK(METAlg::BuildMET(jTs, jMET, jT_noise, m_useNegTowers));
 
   ATH_MSG_DEBUG("JFexAlg: Done");
 
