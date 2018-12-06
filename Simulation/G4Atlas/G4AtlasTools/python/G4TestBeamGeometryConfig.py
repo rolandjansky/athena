@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm
@@ -11,9 +11,10 @@ def getTileTB_Beampipe1(name="TileTB_BeamPipe1", **kwargs):
     kwargs.setdefault("DetectorName", "BEAMPIPE1")
     kwargs.setdefault("InnerRadius", 0.*mm)
     kwargs.setdefault("OuterRadius", 100.*mm)
-    kwargs.setdefault("dZ", 268500.*mm)
+    dz=268500.*mm
+    kwargs.setdefault("dZ", dz)
     kwargs.setdefault("Material", 'Vacuum')
-    kwargs.setdefault("OffsetX",-280574.*mm)
+    kwargs.setdefault("OffsetX",-12080.*mm-dz)
     import math
     kwargs.setdefault("RotateY", math.radians(-90.))
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
@@ -22,9 +23,10 @@ def getTileTB_Beampipe2(name="TileTB_BeamPipe2", **kwargs):
     kwargs.setdefault("DetectorName", "BEAMPIPE2")
     kwargs.setdefault("InnerRadius", 0.*mm)
     kwargs.setdefault("OuterRadius", 100.*mm)
-    kwargs.setdefault("dZ", 6419.8*mm)
+    dz=6419.8*mm
+    kwargs.setdefault("dZ", dz)
     kwargs.setdefault("Material", 'Vacuum')
-    kwargs.setdefault("OffsetX",-4474.8*mm)
+    kwargs.setdefault("OffsetX",1945.*mm-dz)
     import math
     kwargs.setdefault("RotateY", math.radians(-90.))
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
@@ -33,9 +35,10 @@ def getTileTB_MYLAREQUIV(name="TileTB_MYLAREQUIV", **kwargs):
     kwargs.setdefault("DetectorName", "MYLAREQUIV")
     kwargs.setdefault("InnerRadius", 0.*mm)
     kwargs.setdefault("OuterRadius", 100.*mm)
-    kwargs.setdefault("dZ", 0.00168*mm)
+    dz=0.00168*mm
+    kwargs.setdefault("dZ", dz)
     kwargs.setdefault("Material", 'Mylar')
-    kwargs.setdefault("OffsetX",-13980.*mm)
+    kwargs.setdefault("OffsetX",-12080*mm+dz)
     import math
     kwargs.setdefault("RotateY", math.radians(-90.))
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
@@ -56,6 +59,15 @@ def getTileTB_S2(name="TileTB_S2", **kwargs):
     kwargs.setdefault("dZ", 27.5*mm)
     kwargs.setdefault("Material", 'Scintillator')
     kwargs.setdefault("OffsetX",-11294.6*mm)
+    return CfgMgr.BoxEnvelope(name, **kwargs)
+
+def getTileTB_S3(name="TileTB_S3", **kwargs):
+    kwargs.setdefault("DetectorName", "S3")
+    kwargs.setdefault("dX", 10.*mm)
+    kwargs.setdefault("dY", 40.*mm)
+    kwargs.setdefault("dZ", 27.5*mm)
+    kwargs.setdefault("Material", 'Scintillator')
+    kwargs.setdefault("OffsetX",-10994.6*mm)
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 #########################################################################################
@@ -144,7 +156,7 @@ def getTileTB_WorldEnvelope(name="TileTB_World", **kwargs):
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Calo_on():
         SubDetectorList += ['TileTB_CALO']
-    SubDetectorList += ['TileTB_BeamPipe1','TileTB_BeamPipe2','TileTB_S1','TileTB_S2']
+    SubDetectorList += ['TileTB_BeamPipe1','TileTB_BeamPipe2','TileTB_S1','TileTB_S2','TileTB_S3']
     #SubDetectorList += ['TileTB_MYLAREQUIV']
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.BoxEnvelope(name, **kwargs)

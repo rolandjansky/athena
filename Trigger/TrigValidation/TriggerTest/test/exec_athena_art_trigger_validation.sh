@@ -5,7 +5,7 @@ echo  $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 ### DEFAULTS
 
 if [ -z ${MENU} ]; then
-  export MENU="MC_pp_v7_tightperf_mc_prescale"
+  export MENU="Physics_pp_v7_primaries"
 fi
 
 if [ -z ${EVENTS} ]; then

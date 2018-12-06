@@ -22,8 +22,8 @@
 #include "TH1F.h"
 
 #include <string>
-#include <stdio.h>
-#include <math.h>
+#include <iostream>
+#include <cmath>
 #include <map>
 
 
@@ -35,23 +35,13 @@ namespace Units = Athena::Units;
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_trkEnergyInCalo("TrackEnergyInCaloTool")//,
-  // m_clusCont(0)
+  m_trkEnergyInCalo("TrackEnergyInCaloTool"),
+  m_fileNames{"CaloMuonLikelihood.PDF.A0.root", "CaloMuonLikelihood.PDF.A1.root", 
+  "CaloMuonLikelihood.PDF.A2.root", "CaloMuonLikelihood.PDF.B0.root", "CaloMuonLikelihood.PDF.B1.root",
+  "CaloMuonLikelihood.PDF.B2.root", "CaloMuonLikelihood.PDF.C0.root", "CaloMuonLikelihood.PDF.C1.root",
+  "CaloMuonLikelihood.PDF.C2.root"}
 {
   declareInterface<ICaloMuonLikelihoodTool>(this);  
-
-  m_fileNames.clear();
-  
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.A0.root");
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.A1.root");
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.A2.root");  
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.B0.root");
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.B1.root");
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.B2.root");  
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.C0.root");
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.C1.root");
-  m_fileNames.push_back("CaloMuonLikelihood.PDF.C2.root");  
-  
   declareProperty("RootFileNames", m_fileNames);
   declareProperty("TrackEnergyInCaloTool",m_trkEnergyInCalo);
 }

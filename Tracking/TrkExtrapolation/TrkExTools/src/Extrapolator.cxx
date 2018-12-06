@@ -165,7 +165,7 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   declareProperty("UseMuonMatApproximation", m_useMuonMatApprox);
   declareProperty("UseDenseVolumeDescription", m_useDenseVolumeDescription);
   declareProperty("CheckForCompoundLayers", m_checkForCompundLayers);
-  declareProperty("ResolveMuonStation", m_resolveActive);
+  declareProperty("ResolveMuonStation", m_resolveActive = false);
   declareProperty("ResolveMultilayers", m_resolveMultilayers);
   declareProperty("ConsiderMuonStationOverlaps", m_activeOverlap);
   declareProperty("RobustSampling", m_robustSampling);

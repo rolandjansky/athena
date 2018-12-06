@@ -12,6 +12,9 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
+// Framework includes
+#include "GaudiKernel/IChronoStatSvc.h"
+
 // FastCaloSim includes
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h" 

@@ -78,8 +78,8 @@ def TrigMinBiasMonitoringTool():
 	
 	# ---------------------- !Collective Histograms Management
 										  
-	ToolSvc += HLTMinBiasMon;
-	list = [ "HLTMinBiasMonTool/HLTMinBiasMon" ];
+	#ToolSvc += HLTMinBiasMon;
+	list = [ HLTMinBiasMon ];
 
 	return list
 

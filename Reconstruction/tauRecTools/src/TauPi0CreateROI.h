@@ -16,8 +16,6 @@
 
 #include "xAODTau/TauJet.h"
 
-class ICaloCellMakerTool;
-
 /**
  * @brief Create ROIs for the Pi0 finder.
  * 
@@ -34,7 +32,13 @@ public:
 
     virtual StatusCode initialize();
     virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer);
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize();
     virtual StatusCode finalize();
 
@@ -44,27 +48,19 @@ public:
 private:
 
     /** @brief store cell in output container */ 
-    void storeCell(const CaloCell* /* cell*/);
-
-    /** @brief tool handles */
-    ToolHandle<ICaloCellMakerTool> m_cellMakerTool;
+    void storeCell(const CaloCell* /* cell*/, CaloCellContainer& cellContainer);
 
     /** @brief calo cell navigation */
     const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;
- 
-    /** @brief all calo cell container name */
-    std::string m_caloCellContainerName;
   
-    /** @brief output cell container and name*/ 
+    /** @brief output cell container*/ 
     CaloCellContainer *m_pPi0CellContainer;
-    std::string m_pi0CellContainerName;
 
     /** @brief hash map in order to keep track, which cells have been added to output cell container*/
     std::vector<CaloCell*> m_addedCellsMap;
 
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
-    SG::WriteHandleKey<CaloCellContainer> m_tauCaloOutputContainer{this,"Key_tauCaloOutputContainer","TauCommonPi0Cells","output calo cell key"};
 
 };
 

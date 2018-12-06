@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,15 +29,17 @@ class TileDetDescriptor;
 class TileDetDescrManager;
 class GeoMaterial;
 class GeoTrd;
+class GeoShape;
 
 class TileGeoSectionBuilder   
 {
  public:
   /** Constructor */
-  TileGeoSectionBuilder(DataHandle<StoredMaterialManager> & matManager,
+  TileGeoSectionBuilder(const StoredMaterialManager* matManager,
                         TileDddbManager* pDbManager,
                         int uShape,
                         int glue,
+                        int csTube,
                         MsgStream * log);
 
   /** Destructor */
@@ -182,12 +184,13 @@ class TileGeoSectionBuilder
 
  private:
 
-  DataHandle<StoredMaterialManager>     m_theMaterialManager;
+  const StoredMaterialManager*          m_theMaterialManager;
   TileDddbManager *                     m_dbManager;
   MsgStream *                           m_log;
 
   int          m_uShape;
   int          m_glue;
+  int          m_csTube;
   double       m_barrelPeriodThickness;
   double       m_barrelGlue;
   double       m_extendedPeriodThickness;
@@ -204,6 +207,8 @@ class TileGeoSectionBuilder
   void checktransfunc(double absorber, double period, int np, double center);
   void printdouble(const char * name, double val);
 
+  const GeoShape * makeHolesScint(const GeoShape * mother, double R, double H2, double off, double off0 = 0.);
+  const GeoShape * makeHoles(const  GeoShape * mother, double R, double H2, double off, double off0 = 0.);
 };
 
 #endif // not TILEGEOMODEL_TILEGEOSECTIONBUILDER_H

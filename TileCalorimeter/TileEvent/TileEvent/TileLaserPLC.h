@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -8,6 +8,9 @@
 
 #ifndef TILELASERPLC
 #define TILELASERPLC
+
+
+#include <string>
 
 
 class TileLaserPLC{
@@ -46,7 +49,13 @@ class TileLaserPLC{
       m_alarm = alarm;
     }
 
-  private:
+
+  /** Convertion operator to a std::string,
+   * can be used in a cast operation : (std::string) TileLaserPmt */
+  operator std::string() const;
+
+
+private:
 
     int m_alphaPos;
     double m_LVdiodes;

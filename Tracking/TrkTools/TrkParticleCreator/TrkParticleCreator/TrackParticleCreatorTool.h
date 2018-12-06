@@ -39,7 +39,6 @@ changes : 11.02.04 added docu
 
 class AtlasDetectorID;
 
-class IBeamCondSvc;
 class IBLParameterSvc;
 
 namespace Rec
@@ -57,6 +56,7 @@ namespace MagField
   class IMagFieldSvc;
 }
 
+namespace InDet { class BeamSpotData; }
 
 namespace Trk {
 
@@ -80,13 +80,14 @@ namespace Trk {
     i.e. the TrackParticle will not be complete
     @param track Pointer to a valid track (i.e. do not pass a zero!). Ownership is not taken (i.e. it will not be deleted)
     @param vxCandidate Pointer to a valid vxCandidate (i.e. do not pass a zero!). Ownership is not taken (i.e. it will not be deleted)
+    @param bsdata BeamSpot data - can be obtained with CondHandle or from a tool.
     @param prtOrigin 
     @warning In my opinion, the interface is not optimal - we're not taking ownership of the Trk::Track or Vx::Candidate, 
     so they should be passed by reference.
     */
     Rec::TrackParticle* createParticle( const Trk::Track* track,
     const Trk::VxCandidate* vxCandidate,
-    Trk::TrackParticleOrigin prtOrigin);
+    Trk::TrackParticleOrigin prtOrigin) override;
 
     /** Method to construct a xAOD::TrackParticle from a Rec::TrackParticle.
     @param track particle 
@@ -106,7 +107,7 @@ namespace Trk {
     xAOD::TrackParticle* createParticle( const Trk::Track& track,
                                          xAOD::TrackParticleContainer* container,
                                          const xAOD::Vertex* vxCandidate,
-                                         xAOD::ParticleHypothesis prtOrigin) const;
+                                         xAOD::ParticleHypothesis prtOrigin) const override;
 
     /** Method to construct a TrackParticle from a passed Track. Currently, it will ONLY fill the MeasuredPerigee
     i.e. the TrackParticle will not be complete
@@ -118,7 +119,7 @@ namespace Trk {
     xAOD::TrackParticle* createParticle( const ElementLink<TrackCollection>& trackLink,
                                          xAOD::TrackParticleContainer* container,
                                          const xAOD::Vertex* vxCandidate,
-                                         xAOD::ParticleHypothesis prtOrigin) const;
+                                         xAOD::ParticleHypothesis prtOrigin) const override;
 
     /** create a xAOD::TrackParticle out of constituents */
   xAOD::TrackParticle* createParticle( const Perigee* perigee, const FitQuality* fq, const TrackInfo* trackInfo, const TrackSummary* summary,
@@ -152,8 +153,10 @@ namespace Trk {
   
   /** Get the name used for the decoration of the track particle with the number of used hits for TRT dE/dx computation.*/
   static const std::string & trtdEdxUsedHitsAuxName() { return s_trtdEdxUsedHitsDecorationName; }
+  virtual const InDet::BeamSpotData* CacheBeamSpotData(const EventContext &ctx) const override;
 
 private:
+
   void compare( const Rec::TrackParticle& tp, const xAOD::TrackParticle& tpx ) const;      
   void compare( const TrackParameters& tp1, const TrackParameters& tp2 ) const;
   /**atlas id helper*/
@@ -167,7 +170,6 @@ private:
 
   /** to query magnetic field configuration */
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
-  ServiceHandle<IBeamCondSvc> m_beamConditionsService;
   ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
 
 

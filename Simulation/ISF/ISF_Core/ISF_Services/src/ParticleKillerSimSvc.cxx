@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// ParticleKillerSimSvc.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header include
 #include "ParticleKillerSimSvc.h"
@@ -24,40 +20,16 @@ ISF::ParticleKillerSimSvc::~ParticleKillerSimSvc()
 /** framework methods */
 StatusCode ISF::ParticleKillerSimSvc::initialize()
 {
-  ATH_MSG_INFO ( m_screenOutputPrefix << "initialize() ...");
-  return StatusCode::SUCCESS;
-}
-
-/** framework methods */
-StatusCode ISF::ParticleKillerSimSvc::finalize()
-{
-  ATH_MSG_INFO ( m_screenOutputPrefix << "finalize() ...");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode ISF::ParticleKillerSimSvc::setupEvent()
-{
-  ATH_MSG_DEBUG ( m_screenOutputPrefix << "setup Event");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode ISF::ParticleKillerSimSvc::releaseEvent()
-{
-  ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event");
+  ATH_CHECK (m_simulatorTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
 /** Simulation Call */
 StatusCode ISF::ParticleKillerSimSvc::simulate(const ISF::ISFParticle& particle)
 {
-
-  // give a screen output that you entered ParticleKillerSimSvc
-  ATH_MSG_VERBOSE( m_screenOutputPrefix << "Particle '" << particle
-                   << "' received for simulation." );
-  ATH_MSG_VERBOSE( m_screenOutputPrefix << "Killing this particle, since this"
-                   << "is the soul purpose of this 'simulation engine'." );
-
-  // particle 'simulation' done
-  // (memory management, ie delete, of the ISFParticle is done inside the ISFKernel)
+  ATH_MSG_VERBOSE( m_screenOutputPrefix << " simulate" );
+  ISFParticleContainer secondaries;
+  ATH_CHECK(m_simulatorTool->simulate( particle,  secondaries));
+  ATH_MSG_VERBOSE( "Returned "<< secondaries.size() << " secondaries.");
   return StatusCode::SUCCESS;
 }

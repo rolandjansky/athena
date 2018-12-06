@@ -145,7 +145,7 @@ StatusCode egammaRecBuilder::execute(){
   if (m_doTrackMatching){
     smallChrono timer(*m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters", m_doChrono);
     for (auto egRec : *egammaRecs) {
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+      if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
 	return StatusCode::FAILURE;
       }
@@ -156,7 +156,7 @@ StatusCode egammaRecBuilder::execute(){
     ATH_MSG_DEBUG("Running ConversionBuilder");  
     smallChrono timer(*m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters", m_doChrono);
     for (auto egRec : *egammaRecs) {
-      if (m_conversionBuilder->executeRec(egRec).isFailure()){
+      if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
 	ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
 	return StatusCode::FAILURE;  
       }

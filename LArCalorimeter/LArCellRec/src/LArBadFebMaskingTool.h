@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LArBadFebMaskingTool_H
@@ -19,17 +19,15 @@
 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "LArRecConditions/ILArBadChanTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <atomic>
 
-class LArCablingService;
-class StoreGateSvc;
 class CaloCell_ID;
 class LArOnlineID;
 class LArFebErrorSummary;
@@ -58,12 +56,13 @@ public:
 
  private:
 
-  /** handle to bad channel tool (to get problematic Feb into)
+  /** handle to get bad febs
   */
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
-  /** handle to LAr cabling service
+  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"BadFebKey","LArBadFeb","Key of Bad-Feb object"};
+  /** handle to LAr cabling    
   */
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+
   /** flags to select which errors to mask
   */
   bool m_maskParity;

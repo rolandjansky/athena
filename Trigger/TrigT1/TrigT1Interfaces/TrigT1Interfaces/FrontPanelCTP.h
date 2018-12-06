@@ -1,5 +1,8 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 // FrontPanelCTP.h 
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // Header file for class FrontPanelCTP
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
@@ -86,9 +89,7 @@ private:
 
 } //> end namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::FrontPanelCTP , 33637034 , 1 )
 
 #endif //> !TRIGT1INTERFACES_FRONTPANELCTP_H

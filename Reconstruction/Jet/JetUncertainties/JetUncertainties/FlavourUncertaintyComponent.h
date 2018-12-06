@@ -23,6 +23,7 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
                                     );
         FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy);
         virtual FlavourUncertaintyComponent* clone() const;
+        FlavourUncertaintyComponent & operator=(const FlavourUncertaintyComponent &) =delete;
         virtual ~FlavourUncertaintyComponent();
         virtual StatusCode initialize(TFile* histFile);
 

@@ -81,7 +81,8 @@ atlas_add_test( ut_web_bunch_tool_test
    Root/count_bunch_neighbors.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTrigger
-   TrigConfL1Data )
+   TrigConfL1Data
+   PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
 atlas_install_headers( TrigBunchCrossingTool )

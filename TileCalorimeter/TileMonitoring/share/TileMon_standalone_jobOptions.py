@@ -14,6 +14,9 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon import CfgMgr
 toolSvc = CfgMgr.ToolSvc()
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault()
+
 topSequence += CfgMgr.AthenaMonManager(name                  = 'ManagedAthenaTileMon'
                                        , FileKey             = 'SHIFT'
                                        , ManualDataTypeSetup = True

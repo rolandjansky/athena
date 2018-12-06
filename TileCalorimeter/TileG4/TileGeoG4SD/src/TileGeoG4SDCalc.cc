@@ -71,6 +71,13 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocat
   declareProperty( "DoBirk" , m_options.doBirk );
   declareProperty( "DoTileRow" , m_options.doTileRow );
   declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
+
+  declareProperty("PlateToCell", m_options.plateToCell);
+  declareProperty("DoCalibHitParticleID", m_options.doCalibHitParticleID);
+  declareProperty("RDBAccessSvcName", m_options.rDBAccessSvcName);
+  declareProperty("GeoModelSvcName", m_options.geoModelSvcName);
+
+  declareProperty("VerboseLevel", m_options.verboseLevel);
 }
 
 TileGeoG4SDCalc::~TileGeoG4SDCalc() {
@@ -91,6 +98,9 @@ StatusCode TileGeoG4SDCalc::initialize() {
 
   ATH_CHECK(m_geoModSvc.retrieve());
   ATH_MSG_VERBOSE("GeoModelSvc initialized.");
+
+  if (msgLvl(MSG::VERBOSE))   { m_options.verboseLevel = std::max(10,m_options.verboseLevel); }
+  else if(msgLvl(MSG::DEBUG)) { m_options.verboseLevel = std::max( 5,m_options.verboseLevel); }
 
   const int uShapeFromGM = this->getUshapeFromGM();
 
@@ -231,18 +241,15 @@ TileGeoG4LookupBuilder* TileGeoG4SDCalc::GetLookupBuilder() const
   return s_lookup.get();
 }
 
+const TileSDOptions* TileGeoG4SDCalc::GetOptions() const
+{
+  return &m_options;
+}
+
 G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hitData) const
 {
-  ATH_MSG_VERBOSE("Process Hits");
-
   // Get the lookup table
   auto lookup = GetLookupBuilder();
-
-  const G4double edep = aStep->GetTotalEnergyDeposit();
-  if (edep == 0. && aStep->GetTrack()->GetDefinition() != G4Geantino::GeantinoDefinition()) {
-    ATH_MSG_VERBOSE("Edep=0");
-    return false;
-  }
 
   // Determine touchablehistory for the step
   G4TouchableHistory* theTouchable = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
@@ -251,12 +258,15 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   G4int level = theTouchable->GetHistoryDepth();
 
   // Debugging of volumes hierarchy
-  for (int i = 0; i < level; i++) {
-    G4VPhysicalVolume* pv = theTouchable->GetVolume(i);
-    G4LogicalVolume* lv = pv->GetLogicalVolume();
-    ATH_MSG_VERBOSE(" Level--> " << i <<
-                    ", LogVol--> " << (lv->GetName()).c_str() <<
-                    ", PhysVol--> " << (pv->GetName()).c_str());
+  if (msgLvl(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "FindTileScinSection" << endmsg;
+    for (int i = 0; i < level; i++) {
+      G4VPhysicalVolume* pv = theTouchable->GetVolume(i);
+      G4LogicalVolume* lv = pv->GetLogicalVolume();
+      msg(MSG::VERBOSE) << " Level--> " << i
+                        << ", LogVol--> " << lv->GetName()
+                        << ", PhysVol--> " << pv->GetName() << endmsg;
+    }
   }
 
   // Find envelope of TileCal
@@ -266,7 +276,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
     level--;
     nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
   }
-  ATH_MSG_VERBOSE("Tile volume level --->" << level);
+  ATH_MSG_VERBOSE("Tile volume level ---> " << level);
 
   level--;  // Move to the level of sections Barrel, EBarrelPos, EBarrelNeg, Gap etc...
 
@@ -388,17 +398,15 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
       hitData.tileSize += 9;
       nScin = hitData.tileSize; //last tile row in first period
       hitData.cell = hitData.section->ScinToCell(nScin);
-      if (m_options.verboseLevel > 10) {
-        char nm[5] = {'X', 'A', 'B', 'D', 'E'};
-        G4cout << "Disabling special D4, all energy goes to cell "
-               << nm[hitData.cell->sample] << hitData.cell->cellNum << G4endl;
-      }
+      const char nm[5] = {'X', 'A', 'B', 'D', 'E'};
+      ATH_MSG_VERBOSE("Disabling special D4, all energy goes to cell "
+                      << nm[hitData.cell->sample] << hitData.cell->cellNum);
     }
   } else if (sect == 4) {
     // Change number of PMTs in Special C10 Cells
     hitData.nrOfPMT = lookup->TileGeoG4npmtC10(std::max(0, hitData.nSide), hitData.nModule - 1);
-    if (m_options.verboseLevel > 10 && hitData.nrOfPMT != 2) {
-      G4cout << "Changing number of PMTs in special C10 to " << hitData.nrOfPMT << G4endl;
+    if (hitData.nrOfPMT != 2) {
+      ATH_MSG_VERBOSE("Changing number of PMTs in special C10 to " << hitData.nrOfPMT);
     }
   } else if (sect == 6 && hitData.cell->tower > 16) {
     // Check number of PMTs in Special E4' Cells (side C, modules 32,33)
@@ -432,12 +440,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   const bool isE5 = (hitData.nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
 
   // Take into account Birk's saturation law in organic scintillators.
-  // G4double edep;
-  // if (m_options.doBirk)
-  //   edep = BirkLaw(aStep);
-  // else
-  //   edep = aStep->GetTotalEnergyDeposit();
-  const G4double edep = (m_options.doBirk) ? this->BirkLaw(aStep) : aStep->GetTotalEnergyDeposit();
+  const G4double edep = (m_options.doBirk) ? this->BirkLaw(aStep) : aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
 
   double deltaT_up = 0;
   double deltaT_down = 0;
@@ -596,7 +599,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
     }
     totalTime += correction;
 
-    if (m_options.verboseLevel > 10) {
+    if (m_options.verboseLevel >= 10) {
       G4cout << " deltaT_up: " << deltaT_up << " deltaT_down: " << deltaT_down << G4endl;
       G4cout << "Global time " << totalTime - correction << G4endl;
 
@@ -714,6 +717,11 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep, TileHitData& 
   microHit.time_up = 0.0;
   microHit.time_down = 0.0;
   //microHit.period  = 0;               microHit.tilerow   = 0; // prepared for future use
+
+  if (aStep->GetTotalEnergyDeposit() == 0. && aStep->GetTrack()->GetDefinition() != G4Geantino::GeantinoDefinition()) {
+    ATH_MSG_DEBUG("GetTileMicroHit: Edep=0");
+    return microHit;
+  }
 
   //Search for the tilecal sub-section, its module and some identifiers
   if (!this->FindTileScinSection(aStep, hitData)) {
@@ -875,7 +883,7 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   const G4double birk2 = 9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2);
   G4double response = 0.;
 
-  const G4double destep = aStep->GetTotalEnergyDeposit();
+  const G4double destep = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   //  doesn't work with shower parameterisation
   //  G4Material* material = aStep->GetTrack()->GetMaterial();
   //  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();

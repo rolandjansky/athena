@@ -20,7 +20,9 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
         CombinedMassUncertaintyComponent(const ComponentHelper& component);
         CombinedMassUncertaintyComponent(const CombinedMassUncertaintyComponent& toCopy);
         virtual CombinedMassUncertaintyComponent* clone() const;
+        CombinedMassUncertaintyComponent & operator=(const CombinedMassUncertaintyComponent &) = delete;
         virtual ~CombinedMassUncertaintyComponent();
+        //
         virtual StatusCode setCaloTerm(UncertaintyGroup* caloComp);
         virtual StatusCode setTATerm(  UncertaintyGroup* TAComp);
         virtual StatusCode setCaloWeights(const UncertaintyHistogram* caloWeights);
@@ -41,7 +43,6 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
 
         // Method overrides
         virtual bool   isAlwaysZero() const;
-
     protected:
         // Uncertainty/validity retrieval helper methods
         virtual bool getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const;

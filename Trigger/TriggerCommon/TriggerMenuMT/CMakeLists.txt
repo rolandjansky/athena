@@ -110,10 +110,25 @@ atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-atlas_add_test( generateMenuMT SCRIPT scripts/testMenuMT.sh 
+#atlas_add_test( generateMenuMT SCRIPT scripts/generateMenuMT.sh 
+#                PROPERTIES TIMEOUT 500 
+#                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf generateMenuMT.log"
+#              )
+
+
+atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
                 PROPERTIES TIMEOUT 500 
-                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf generateMenuMT.log"
               )
+
+
+
+#file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenu )
+#atlas_add_test( generateMenu
+#                SCRIPT scripts/test_HLTmenu.sh
+#                EXTRA_PATTERNS "-s TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+#                PROPERTIES TIMEOUT 500
+#                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenu
+#              )
 
 
 

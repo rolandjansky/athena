@@ -48,6 +48,8 @@ class JetPileupCorrection
 
   bool m_useFull4vectorArea;
   ResidualOffsetCorrection * m_residualOffsetCorr;
+  
+  std::string m_originScale;
 
 };
 

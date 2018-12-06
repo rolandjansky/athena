@@ -62,8 +62,6 @@ svcMgr.EventSelector.InputCollections = [ "SimplePoolReplica1.root" ]; # ** mand
 svcMgr.PoolSvc.ReadCatalog = [ "file:Catalog.xml" ]
 svcMgr.PoolSvc.WriteCatalog = "file:Catalog1.xml"
 
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------

@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecTools/SiSpacePointTool
@@ -31,11 +32,11 @@ atlas_add_library( SiSpacePointFormationLib
                    src/*.cxx
                    PUBLIC_HEADERS SiSpacePointFormation
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkSpacePoint VxVertex SiSpacePointToolLib
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkSpacePoint VxVertex SiSpacePointToolLib BeamSpotConditionsData
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr xAODEventInfo InDetIdentifier )
 
 atlas_add_component( SiSpacePointFormation
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointToolLib TrkSpacePoint VxVertex AtlasDetDescr xAODEventInfo InDetIdentifier SiSpacePointFormationLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointToolLib TrkSpacePoint VxVertex AtlasDetDescr xAODEventInfo InDetIdentifier SiSpacePointFormationLib BeamSpotConditionsData )
 

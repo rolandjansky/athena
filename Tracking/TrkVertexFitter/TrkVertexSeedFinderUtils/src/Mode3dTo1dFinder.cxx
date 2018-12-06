@@ -17,7 +17,7 @@ namespace Trk
 
   Mode3dTo1dFinder::Mode3dTo1dFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_mode1dfinder("Trk::FsmwMode1dFinder")
+    m_mode1dfinder("Trk::FsmwMode1dFinder", this)
   {   
     declareProperty("Mode1dFinder", m_mode1dfinder);
     declareInterface<IMode3dFinder>(this);

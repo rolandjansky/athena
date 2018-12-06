@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // CondInputLoader.cxx 
@@ -336,12 +336,10 @@ CondInputLoader::execute()
   // number with the conditions run number from the event context,
   // if it is defined.
   EventIDBase::number_type conditionsRun =
-    getContext().template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+    getContext().template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
   if (conditionsRun != EventIDBase::UNDEFNUM) {
     now.set_run_number (conditionsRun);
   }
-
-  IOVTime t(now.run_number(), now.lumi_block(), now.time_stamp());
 
   StatusCode sc(StatusCode::SUCCESS);
   std::string tag;

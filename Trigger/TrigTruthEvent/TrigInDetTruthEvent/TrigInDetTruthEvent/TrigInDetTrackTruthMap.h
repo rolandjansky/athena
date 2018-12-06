@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,7 @@
 #ifndef TRIGINDETTRACK_TRUTH_MAP_H
 #define TRIGINDETTRACK_TRUTH_MAP_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLinkVector.h"

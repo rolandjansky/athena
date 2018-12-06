@@ -39,10 +39,3 @@ const float& LArMphysOverMcalMC::MphysOverMcal(const HWIdentifier& CellID, int g
   return LArMphysOverMcalComplete::MphysOverMcal(SymCellID, gain);
 }
 
-const float& LArMphysOverMcalMC::MphysOverMcal(const Identifier&  CellID, int gain) const
-{
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  return LArMphysOverMcalComplete::MphysOverMcal(SymCellID, gain);
-
-}

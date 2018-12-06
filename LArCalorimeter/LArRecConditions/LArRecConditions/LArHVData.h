@@ -36,7 +36,7 @@ class LArHVData {
     float weight; 
   }; 
 
-  const std::set<Identifier>& getUpdatedCells();
+  const std::set<Identifier>& getUpdatedCells() const;
 
   /** brief  Given a Offline Readout ID, return values of HV and Weight 
    */
@@ -56,11 +56,11 @@ class LArHVData {
 };
 
 inline 
-const std::set<Identifier>&  LArHVData::getUpdatedCells() { 
+const std::set<Identifier>&  LArHVData::getUpdatedCells() const { 
    return m_updatedCells;
 }
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArHVData, 94850034, 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArHVData>, 35533232, 1) 

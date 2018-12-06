@@ -22,10 +22,12 @@ namespace CP
     declareProperty("doPV", m_doPV=false); // if true, only apply the dz recover for the PV 
     declareProperty("Applyd0Selection", m_dod0sel=false);
     declareProperty("d0_cut", m_d0_cut=2.5);
+    ATH_MSG_WARNING("CP::TightTrackVertexAssociationTool is DEPRECATED (Nov 2018) and will removed in future releases");
   }
 
   StatusCode TightTrackVertexAssociationTool::initialize()
   {
+    ATH_MSG_WARNING("CP::TightTrackVertexAssociationTool is DEPRECATED (Nov 2018) and will removed in future releases");
     ATH_CHECK( m_vertexKey.initialize() );
     return StatusCode::SUCCESS;
   }

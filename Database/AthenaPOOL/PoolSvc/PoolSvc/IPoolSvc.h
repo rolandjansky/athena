@@ -47,14 +47,18 @@ public: // Non-static members
    /// @param placement [IN] pointer to the placement hint.
    /// @param obj [IN] pointer to the Data Object to be written to Pool.
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   virtual const Token* registerForWrite(const Placement* placement,
-                                         const void* obj,
-                                         const RootType& classDesc) const = 0;
+   virtual Token* registerForWrite(const Placement* placement,
+                                   const void* obj,
+                                   const RootType& classDesc) = 0;
 
    /// @return void
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] token of the Data Object for which a Pool Ref is filled.
-   virtual void setObjPtr(void*& obj, const Token* token) const = 0;
+   virtual void setObjPtr(void*& obj, const Token* token) = 0;
+
+   /// @return an Id for an output context (POOL persistency service) and create it if needed.
+   /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
+   virtual unsigned int getOutputContext(const std::string& label) = 0;
 
    /// @return an Id for an input context (POOL persistency service) and create it if needed.
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
@@ -110,7 +114,7 @@ public: // Non-static members
 
    /// Connect to a logical database unit; PersistencySvc is chosen according to transaction type (accessmode).
    virtual StatusCode connect(pool::ITransaction::Type type,
-	   unsigned int contextId = IPoolSvc::kInputStream) const = 0;
+	   unsigned int contextId = IPoolSvc::kInputStream) = 0;
 
    /// Commit data for a given stream and flush buffer.
    /// @param stream [IN] poolStream to be commited.

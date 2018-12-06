@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -7,6 +7,7 @@
 
 //package includes
 #include "ISF_Geant4Tools/G4AtlasRunManager.h"
+#include "ISFFluxRecorder.h"
 
 // ISF classes
 #include "ISF_Event/ISFParticle.h"
@@ -33,6 +34,10 @@
 #include "G4TransportationManager.hh"
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
+#include "G4Timer.hh"
+#include "G4SDManager.hh"
+
+#include "AtlasDetDescr/AtlasRegionHelper.h"
 
 // call_once mutexes
 #include <mutex>
@@ -40,10 +45,10 @@ static std::once_flag initializeOnceFlag;
 static std::once_flag finalizeOnceFlag;
 
 //________________________________________________________________________
-iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
-                                          const std::string& n,
-                                          const IInterface*  p )
-  : base_class(t,n,p)
+iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
+                                          const std::string& name,
+                                          const IInterface*  parent )
+  : ISF::BaseSimulatorTool(type, name, parent)
 {
   declareProperty("Dll",                   m_libList);
   declareProperty("Physics",               m_physList);
@@ -56,6 +61,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty("MultiThreading",        m_useMT, "Multi-threading specific settings");
   //declareProperty("KillAllNeutrinos",      m_KillAllNeutrinos=true);
   //declareProperty("KillLowEPhotons",       m_KillLowEPhotons=-1.);
+  declareProperty("PrintTimingInfo",      m_doTiming       );
 
 }
 
@@ -67,6 +73,15 @@ iGeant4::G4TransportTool::~G4TransportTool()
 StatusCode iGeant4::G4TransportTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize");
+
+  ATH_CHECK( ISF::BaseSimulatorTool::initialize() );
+
+  // create G4Timers if enabled
+  if (m_doTiming) {
+    m_runTimer   = new G4Timer();
+    m_eventTimer = new G4Timer();
+    m_runTimer->Start();
+  }
 
   ATH_CHECK(m_inputConverter.retrieve());
 
@@ -83,6 +98,11 @@ StatusCode iGeant4::G4TransportTool::initialize()
   ATH_CHECK(m_g4atlasSvc.retrieve());
 
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
+
+  ATH_CHECK (m_detGeoSvc.retrieve());
+
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -107,7 +127,7 @@ void iGeant4::G4TransportTool::initializeOnce()
   }
   m_physListTool->SetPhysicsList();
 
-  m_pRunMgr->SetRecordFlux( m_recordFlux );
+  m_pRunMgr->SetRecordFlux( m_recordFlux, new ISFFluxRecorder );
   m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
   m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
   m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
@@ -174,6 +194,22 @@ StatusCode iGeant4::G4TransportTool::finalize()
     return StatusCode::FAILURE;
   }
 
+  if (m_doTiming) {
+    m_runTimer->Stop();
+    float runTime=m_runTimer->GetUserElapsed()+m_runTimer->GetSystemElapsed();
+    float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : runTime;
+    float sigma=( m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
+                                                avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0;
+    ATH_MSG_INFO("*****************************************"<<endmsg<<
+                 "**                                     **"<<endmsg<<
+                 "    End of run - time spent is "<<std::setprecision(4) <<
+                 runTime<<endmsg<<
+                 "    Average time per event was "<<std::setprecision(4) <<
+                 avgTimePerEvent <<" +- "<< std::setprecision(4) << sigma<<endmsg<<
+                 "**                                     **"<<endmsg<<
+                 "*****************************************");
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -188,23 +224,28 @@ void iGeant4::G4TransportTool::finalizeOnce()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
-{
-  ATH_MSG_VERBOSE("process(...)");
+StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries ) {
 
+  // give a screen output that you entered Geant4SimSvc
+  ATH_MSG_VERBOSE( "Particle " << isp << " received for simulation." );
+
+  /** Process ParticleState from particle stack */
   // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
   // (minimizing code duplication)
   const ISF::ConstISFParticleVector ispVector(1, &isp);
-  return this->processVector(ispVector);
+  StatusCode success = this->simulateVector(ispVector, secondaries);
+  ATH_MSG_VERBOSE( "Simulation done" );
+
+  // Geant4 call done
+  return success;
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVector& ispVector)
-{
-  ATH_MSG_VERBOSE("processVector(...)");
-  ATH_MSG_DEBUG("processing vector of "<<ispVector.size()<<" particles");
+StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries ) {
 
-  G4Event* inputEvent = m_inputConverter->ISF_to_G4Event(ispVector, genEvent());
+  ATH_MSG_DEBUG (name() << ".simulateVector(...) : Received a vector of " << particles.size() << " particles for simulation.");
+  /** Process ParticleState from particle stack */
+  G4Event* inputEvent = m_inputConverter->ISF_to_G4Event(particles, genEvent());
   if (!inputEvent) {
     ATH_MSG_ERROR("ISF Event conversion failed ");
     return StatusCode::FAILURE;
@@ -231,7 +272,108 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
   // }
 
   // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
+  ATH_MSG_VERBOSE( "Simulation done" );
+
+  for (auto* cisp : particles) {
+    auto* isp = const_cast<ISF::ISFParticle*>(cisp);
+    // return any secondaries associated with this particle
+    auto searchResult = m_secondariesMap.find( isp );
+    if ( searchResult == m_secondariesMap.end() ) {
+
+      ATH_MSG_VERBOSE( "Found no secondaries" );
+
+    } else {
+
+      ATH_MSG_VERBOSE( "Found secondaries: " << searchResult->second.size() );
+      secondaries.splice( end(secondaries), std::move(searchResult->second) ); //append vector
+      m_secondariesMap.erase( searchResult );
+    }
+  }
+  // Geant4 call done
   return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+StatusCode iGeant4::G4TransportTool::setupEvent()
+{
+  ATH_MSG_DEBUG ( "setup Event" );
+
+  ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
+
+  m_nrOfEntries++;
+  if (m_doTiming) m_eventTimer->Start();
+
+  // make sure SD collections are properly initialized in every Athena event
+  G4SDManager::GetSDMpointer()->PrepareNewEvent();
+
+  return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+StatusCode iGeant4::G4TransportTool::setupEventST()
+{
+  return setupEvent();
+}
+
+//________________________________________________________________________
+StatusCode iGeant4::G4TransportTool::releaseEvent()
+{
+  ATH_MSG_DEBUG ( "release Event" );
+  /** @todo : strip hits of the tracks ... */
+
+  /* todo: ELLI: the following is copied in from the PyG4AtlasAlg:
+     -> this somehow needs to be moved into C++
+     and put into releaseEvent() ( or setupEvent() ?)
+
+     from ISF_Geant4Example import AtlasG4Eng
+     from ISF_Geant4Example.ISF_SimFlags import simFlags
+     if self.doFirstEventG4SeedsCheck :
+     if simFlags.SeedsG4.statusOn:
+     rnd = AtlasG4Eng.G4Eng.menu_G4RandomNrMenu()
+     rnd.set_Seed(simFlags.SeedsG4.get_Value())
+     self.doFirstEventG4SeedsCheck = False
+     if self.RndG4Menu.SaveStatus:
+     self.RndG4Menu.Menu.saveStatus('G4Seeds.txt')
+  */
+
+  // print per-event timing info if enabled
+  if (m_doTiming) {
+    m_eventTimer->Stop();
+
+    double eventTime=m_eventTimer->GetUserElapsed()+m_eventTimer->GetSystemElapsed();
+    if (m_nrOfEntries>1) {
+      m_accumulatedEventTime  +=eventTime;
+      m_accumulatedEventTimeSq+=eventTime*eventTime;
+    }
+
+    float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : eventTime;
+    float sigma=(m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
+                                               avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0.;
+
+    ATH_MSG_INFO("\t Event nr. "<<m_nrOfEntries<<" took " << std::setprecision(4) <<
+                 eventTime << " s. New average " << std::setprecision(4) <<
+                 avgTimePerEvent<<" +- "<<std::setprecision(4) << sigma);
+  }
+
+  ATH_CHECK(m_senDetTool->EndOfAthenaEvent());
+  ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
+
+  return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+StatusCode iGeant4::G4TransportTool::releaseEventST()
+{
+  return releaseEvent();
+}
+
+//________________________________________________________________________
+// Act as particle broker for G4 secondaries
+void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
+{
+  ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
+
+  m_secondariesMap[ parent ].push_back( particle );
 }
 
 //________________________________________________________________________

@@ -18,7 +18,6 @@
 
 class MdtCsmContainer; 
 class MsgStream;
-class MuonMDT_CablingSvc;
 
 #include <string>
 
@@ -65,7 +64,6 @@ public:
 
 private: 
 
-  MuonMDT_CablingSvc* m_cabling;
   MDT_Hid2RESrcID* m_hid2re; 
 
   const MdtIdHelper* m_mdtIdHelper;

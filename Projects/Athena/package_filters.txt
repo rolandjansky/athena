@@ -13,10 +13,6 @@
 #+ HLT/Trigger/TrigTransforms/TrigTransform
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
-- HLT/HLTTestApps
-- HLT/HLToks
-- Trigger/ALP
-- Event/DFStreamEventSelector
 
 # Offload service has build problems
 - Offloading/.*
@@ -30,9 +26,6 @@
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
-
-# Suspend building of Qat
-- graphics/Qat/.*
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
@@ -66,5 +59,8 @@
 - Tracking/TrkTools/TrkSegmentConverter
 
 # Huge D3PD librarys not really useful any more
-- PhysicsAnalysis/D3PDMaker/TrackD3PDMaker
-- PhysicsAnalysis/D3PDMaker/CaloD3PDMaker
+- PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
+- PhysicsAnalysis/D3PDMaker/CaloSysD3PDMaker
+
+# Don't build PerfMonVTune which has external Intel tool dependency
+- Control/PerformanceMonitoring/PerfMonVTune

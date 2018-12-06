@@ -15,9 +15,6 @@
 // Base class header
 #include "G4AtlasTools/SensitiveDetectorBase.h"
 
-// Package headers
-#include "TileGeoG4SD/TileSDOptions.h"
-
 // STL headers
 #include <string>
 
@@ -44,8 +41,6 @@ protected:
 private:
   /// Calculator Service
   ServiceHandle<ITileCalculator> m_tileCalculator;
-  /// Options for the SD configuration
-  TileSDOptions m_options;
 
 };
 

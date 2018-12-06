@@ -38,16 +38,18 @@ public:
   
 private:
   // PRD truth maps in any order
-  SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames;
+  SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames{this,"PRD_TruthNames",{"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"PRD truth"};
 
   // Track input
-  SG::ReadHandleKeyArray<TrackCollection> m_trackCollectionNames;
+  SG::ReadHandleKeyArray<TrackCollection> m_trackCollectionNames{this,"TrackCollectionNames",{"MuonSpectrometerTracks"},"track collections"};
 
   // DetailedTrackTruthCollection output
-  SG::WriteHandleKeyArray<DetailedTrackTruthCollection> m_detailedTrackTruthNames;
+  SG::WriteHandleKeyArray<DetailedTrackTruthCollection> m_detailedTrackTruthNames{this,"DetailedTrackTruthNames",{""},"output collections"};
 
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
+
+  bool m_useNSW;
 
 };
 

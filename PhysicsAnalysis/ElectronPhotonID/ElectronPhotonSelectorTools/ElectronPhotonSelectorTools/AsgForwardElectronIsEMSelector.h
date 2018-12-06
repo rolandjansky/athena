@@ -28,6 +28,7 @@
 
 #include "xAODTracking/VertexContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <string>
 
@@ -65,29 +66,25 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
 
   /** Accept with generic interface */
   virtual asg::AcceptData accept( const xAOD::IParticle* part ) const ;
-
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part ) const ;
 
   /** Accept with Egamma objects */
-  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
-
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* part) const ;
 
   /** Accept with Photon objects */
-  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
-
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Photon* part ) const ;
 
   /** Accept with Electron objects */
-  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
-
+  virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::Electron* part ) const ;
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   //The main execute method
-  StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
-
+  StatusCode execute(const EventContext& ctx, const xAOD::Egamma* eg, unsigned int& isEM) const;
   // Private member variables
 private:
 
-  unsigned int getNPrimVertices() const;
+  unsigned int getNPrimVertices(const EventContext& ctx) const;
 
   unsigned int calocuts_electrons(const xAOD::Egamma* eg,
 				  float eta2, float nvtx,
@@ -107,9 +104,6 @@ private:
 
   // defualt nPV (when not using PVCont)
   unsigned int m_nPVdefault;
-
-  // The primary vertex container name
-  std::string m_primVtxContName;
 
   ///  read handle key to primary vertex container
   SG::ReadHandleKey<xAOD::VertexContainer> m_primVtxContKey;

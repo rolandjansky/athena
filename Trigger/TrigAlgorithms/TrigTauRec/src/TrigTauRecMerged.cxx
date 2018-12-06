@@ -58,7 +58,6 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
 		  m_endtools(this),
 		  m_lumiTool("LuminosityTool"),
 		  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-		  m_beamSpotSvc("BeamCondSvc", name),
 		  m_maxeta( 2.5 ),
 		  m_minpt( 10000 ),
 		  m_trkcone( 0.2 )
@@ -284,10 +283,10 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	}                                                                            
 
 	// Retrieve beam conditions
-	if(m_beamSpotSvc.retrieve().isFailure()) {
-	  msg() << MSG::WARNING << "Unable to retrieve Beamspot service" << endmsg;
+	if(m_beamSpotKey.initialize().isFailure()) {
+	  msg() << MSG::WARNING << "Unable to retrieve Beamspot key" << endmsg;
         } else {
-          msg() << MSG::DEBUG << "Successfully retrieved Beamspot service" << endmsg;
+          msg() << MSG::DEBUG << "Successfully retrieved Beamspot key" << endmsg;
 	}
 	
 	msg() << MSG::INFO << " " << endmsg;
@@ -567,18 +566,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::Vertex theBeamspot;
 	theBeamspot.makePrivateStore();
 	const xAOD::Vertex* ptrBeamspot = 0;
-
-	if(m_beamSpotSvc){
+        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+	if(beamSpotHandle.isValid()){
 	
 	  // Alter the position of the vertex
-	  theBeamspot.setPosition(m_beamSpotSvc->beamPos());
+	  theBeamspot.setPosition(beamSpotHandle->beamPos());
 	
 	  m_beamspot_x=theBeamspot.x();
 	  m_beamspot_y=theBeamspot.y();
 	  m_beamspot_z=theBeamspot.z();
 
 	  // Create a AmgSymMatrix to alter the vertex covariance mat.
-	  AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
+	  const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
 	  theBeamspot.setCovariancePosition(cov);
 
 	  ptrBeamspot = &theBeamspot;
@@ -666,6 +665,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
 	xAOD::TauTrackAuxContainer pTrackAuxContainer;
 
+	// make dummy container to pass to TauVertexVariables, not actually used in trigger though
+	xAOD::VertexContainer* dummyVxCont = new xAOD::VertexContainer();
+
 	// Set the store: eventually, we want to use a dedicated trigger version
 	pContainer->setStore(&pAuxContainer);
 
@@ -685,7 +687,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_tauEventData.setObject("TrackContainer", RoITrackContainer);
 	m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
 	if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-	if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+	if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
 	if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
 
@@ -716,6 +718,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	p_tau->setJet(theJetCollection, p_seed);
 	m_tauEventData.seedContainer = theJetCollection;
 
+	// This sets one track and link. Need to have at least 1 track linked to retrieve track container
+	setEmptyTauTrack(p_tau, pTrackContainer);
+
 	if(p_seed->e()<=0) {
 		msg() << MSG::DEBUG << " Roi: changing eta due to energy " << p_seed->e() << endmsg;
 		p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
@@ -736,12 +741,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	firstTool = m_tools.begin();
 	lastTool  = m_tools.end();
 	processStatus    = StatusCode::SUCCESS;
-
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Starting tool loop with seed jet" << endmsg;
 	std::vector<TrigTimer* >::iterator itimer =  m_mytimers.begin();
 	while ( ! processStatus.isFailure() && firstTool != lastTool ) {
-		// loop stops only when Failure indicated by one of the tools
-		if( msgLvl() <= MSG::DEBUG ) {
+	        // loop stops only when Failure indicated by one of the tools
+	        if( msgLvl() <= MSG::DEBUG ) {
 			msg() << MSG::DEBUG << "Starting Tool: " << endmsg;
 			msg() << MSG::DEBUG <<  (*firstTool)->name() << endmsg;
 		}
@@ -749,7 +753,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		++toolnum;
 		if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->start();
 
-		processStatus = (*firstTool)->execute( *p_tau );
+		if ( (*firstTool)->name().find("VertexVariables") != std::string::npos){
+		  processStatus = (*firstTool)->executeVertexVariables(*p_tau, *dummyVxCont);
+		}
+		else {
+		  processStatus = (*firstTool)->execute( *p_tau );
+		}
+
 		if ( !processStatus.isFailure() ) {
 			if( msgLvl() <= MSG::DEBUG ) {
 				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endmsg;
@@ -761,7 +771,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		else {
 			if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG <<"REGTEST: "<< (*firstTool)->name() << " execution failed " << endmsg;
 		}
-
 		++firstTool;
 		++itimer;
 		if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->stop();
@@ -770,7 +779,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	//check status
 	if ( !processStatus.isSuccess() )  {   // some problem
 		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has NOT been registered in the tau container" << endmsg;
-
 		// ToolHandleArray<ITauToolBase> ::iterator tool = m_tools.begin();
 		// for(; tool != firstTool; ++tool ) (*tool)->cleanup( &m_tauEventData );
 		// (*tool)->cleanup( &m_tauEventData );
@@ -813,7 +821,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	    processStatus = ( *p_itET )->execute( *p_tau);
 	    if( processStatus.isFailure() ) break;
 	  }
-	  
 	  // Get L1 RoiDescriptor
 	  const TrigRoiDescriptor* roiL1Descriptor = 0;
 	  HLT::ErrorCode tmpStatus = getFeature(inputTE, roiL1Descriptor,"initialRoI");
@@ -971,5 +978,18 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	
 	// set status of TE to always true for FE algorithms
 	return HLT::OK;
+}
+
+void TrigTauRecMerged::setEmptyTauTrack(xAOD::TauJet* &pTau,
+                                       xAOD::TauTrackContainer* &tauTrackContainer)
+{
+  // Make a new tau track, add to container
+  xAOD::TauTrack* pTrack = new xAOD::TauTrack();
+  tauTrackContainer->push_back(pTrack);
+
+  // Create an element link for that track
+  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+  linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
+  pTau->addTauTrackLink(linkToTauTrack);
 }
 

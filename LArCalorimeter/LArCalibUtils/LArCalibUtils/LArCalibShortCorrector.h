@@ -8,17 +8,17 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "LArElecCalib/ILArPedestal.h"
 
 #include <vector>
 
 class LArAccumulatedCalibDigit;
-class ILArBadChanTool;
 class CaloCell_ID;
 class LArOnlineID;
-class LArCablingService;
 class HWIdentifier;
 
 
@@ -39,9 +39,9 @@ class LArCalibShortCorrector : public AthAlgorithm//, public IIncidentListener
 
   StatusCode findShortedNeighbors();
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
-
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+    
   const LArOnlineID*  m_onlineId;
   const CaloCell_ID*  m_caloCellId;
   

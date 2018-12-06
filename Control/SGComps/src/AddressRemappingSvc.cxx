@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AddressRemappingSvc.cxx
@@ -176,7 +176,7 @@ StatusCode AddressRemappingSvc::initInputRenames()
     // Translate to sgkeys and add to the map.
     SG::sgkey_t from_key = m_proxyDict->stringToKey (from, clid);
     SG::sgkey_t to_key = m_proxyDict->stringToKey (to, clid);
-    newmap[from_key] = to_key;
+    newmap[from_key] = Athena::IInputRename::Rename { to_key, to };
   }
 
   // Publish the map.
@@ -367,52 +367,47 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
     SG::sgkey_t sgkey = m_proxyDict->stringToKey (tad->name(), tad_clid);
     auto it = r->find (sgkey);
     if (it != r->end()) {
-      SG::sgkey_t sgkey_renamed = it->second;
-      const std::string* name_renamed = m_proxyDict->keyToString (sgkey_renamed);
-      if (name_renamed) {
-        // We're doing a renaming.  Make a new TAD with the new name.
-        auto tad_new = std::make_unique<SG::TransientAddress>
-          (tad_clid, *name_renamed,
-           tad->address(), tad->clearAddress());
-        for (CLID clid : tad->transientID()) {
-          if (clid == tad_clid) continue;
-          tad_new->setTransientID (clid);
-          SG::sgkey_t from_key = m_proxyDict->stringToKey (tad->name(), clid);
-          if (r->find(from_key) == r->end()) {
-            SG::sgkey_t to_key = m_proxyDict->stringToKey (*name_renamed, clid);
-            newmap[from_key] = to_key;
-          }
+      const std::string& name_renamed = it->second.m_key;
+
+      // We're doing a renaming.  Make a new TAD with the new name.
+      auto tad_new = std::make_unique<SG::TransientAddress>
+        (tad_clid, name_renamed,
+         tad->address(), tad->clearAddress());
+      for (CLID clid : tad->transientID()) {
+        if (clid == tad_clid) continue;
+        tad_new->setTransientID (clid);
+        SG::sgkey_t from_key = m_proxyDict->stringToKey (tad->name(), clid);
+        if (r->find(from_key) == r->end()) {
+          SG::sgkey_t to_key = m_proxyDict->stringToKey (name_renamed, clid);
+          newmap[from_key] = Athena::IInputRename::Rename { to_key, name_renamed };
         }
-
-        size_t namelen = tad->name().size();
-        SG::TransientAddress::TransientAliasSet newAliases;
-        for (const std::string& a : tad->alias()) {
-          std::string a_renamed = a;
-
-          SG::sgkey_t from_key = m_proxyDict->stringToKey (a_renamed, tad_clid);
-          auto it_a = r->find (from_key);
-          if (it_a != r->end()) {
-            const std::string* s = m_proxyDict->keyToString (it_a->second);
-            if (s) {
-              a_renamed = *s;
-            }
-          }
-
-          if (strncmp (a_renamed.c_str(), tad->name().c_str(), namelen) == 0 &&
-              a_renamed[namelen] == '.')
-          {
-            a_renamed = *name_renamed + a_renamed.substr (namelen, std::string::npos);
-          }
-          
-          newAliases.insert (a_renamed);
-        }
-        tad_new->setAlias (newAliases);
-        tad_new->setProvider (tad->provider(), tad->storeID());
-
-        // Replace the old TAD in the list with the new one.
-        delete tad;
-        tad = tad_new.release();
       }
+
+      size_t namelen = tad->name().size();
+      SG::TransientAddress::TransientAliasSet newAliases;
+      for (const std::string& a : tad->alias()) {
+        std::string a_renamed = a;
+
+        SG::sgkey_t from_key = m_proxyDict->stringToKey (a_renamed, tad_clid);
+        auto it_a = r->find (from_key);
+        if (it_a != r->end()) {
+          a_renamed = it_a->second.m_key;
+        }
+
+        if (strncmp (a_renamed.c_str(), tad->name().c_str(), namelen) == 0 &&
+            a_renamed[namelen] == '.')
+        {
+          a_renamed = name_renamed + a_renamed.substr (namelen, std::string::npos);
+        }
+          
+        newAliases.insert (a_renamed);
+      }
+      tad_new->setAlias (newAliases);
+      tad_new->setProvider (tad->provider(), tad->storeID());
+
+      // Replace the old TAD in the list with the new one.
+      delete tad;
+      tad = tad_new.release();
 
       ++pos;
     }
@@ -428,11 +423,9 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
         SG::sgkey_t from_key = m_proxyDict->stringToKey (a, tad_clid);
         auto it_a = r->find (from_key);
         if (it_a != r->end()) {
-          const std::string* s = m_proxyDict->keyToString (it_a->second);
-          if (s) {
-            tad->removeAlias (a);
-            tad->setAlias (*s);
-          }
+          const std::string& s = it_a->second.m_key;
+          tad->removeAlias (a);
+          tad->setAlias (s);
         }
       }
 

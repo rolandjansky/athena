@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _LArG4TBPosOptions_h_
-#define _LArG4TBPosOptions_h_
+#ifndef LARG4RUNCONTTROL_LARG4TBPOSOPTIONS_H
+#define LARG4RUNCONTTROL_LARG4TBPOSOPTIONS_H
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <string>
 // ----------------------------------------------------------------------//
@@ -48,7 +48,7 @@ class LArG4TBPosOptions {
 };
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF(LArG4TBPosOptions, 321345482, 1)
 #endif
 

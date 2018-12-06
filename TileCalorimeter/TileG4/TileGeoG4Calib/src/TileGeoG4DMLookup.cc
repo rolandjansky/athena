@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -133,7 +133,7 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
   }
   
   // check lookup table
-  if (m_verboseLevel > 10) {
+  if (m_verboseLevel >= 10) {
     if (!gap_crack) {
       for (samp = 0; samp < l_nSample; samp++) {
         for (per = 0; per < l_nPeriod; per++) {

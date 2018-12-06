@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileTBFactory.h"
@@ -46,6 +46,7 @@ TileTBFactory::TileTBFactory(StoreGateSvc *pDetStore,
                              bool addPlates,
                              int ushape,
                              int glue,
+                             int cstube,
                              MsgStream *log)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
@@ -53,6 +54,7 @@ TileTBFactory::TileTBFactory(StoreGateSvc *pDetStore,
   , m_addPlatesToCellVolume(addPlates)
   , m_uShape(ushape)
   , m_glue(glue)
+  , m_csTube(cstube)
   , m_testbeamGeometry(true)
   , m_verbose(log->level()<=MSG::VERBOSE)
 {
@@ -69,7 +71,7 @@ void TileTBFactory::create(GeoPhysVol *world)
   (*m_log) << MSG::INFO <<" Entering TileTBFactory::create()" << endmsg;
 
   // -------- -------- MATERIAL MANAGER -------- ----------
-  DataHandle<StoredMaterialManager> theMaterialManager;
+  const StoredMaterialManager* theMaterialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
     (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 
@@ -79,7 +81,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_csTube,m_log);
 
   //Tile envelope thickness, Extended & ITC offset
   //and Central module center Z coordinate

@@ -31,16 +31,8 @@
   
   <!-- TrackParticle_v1 dictionaries: -->
   <class name="xAOD::TrackParticle_v1">
-         <field name="m_perigeeCached" transient="true"/>
+         <field name="m_perigeeParameters" transient="true"/>
   </class>
-
-  <read sourceClass="xAOD::TrackParticle_v1" version="[1-]"
-        targetClass="xAOD::TrackParticle_v1"
-        source="" target="m_perigeeCached">
-    <![CDATA[
-      m_perigeeCached = false;
-     ]]>
-  </read>
 
   <class name="xAOD::TrackParticleAuxContainer_v1"
          id="C3B01EA0-CA87-4C96-967F-E0F9A75BD370"/>

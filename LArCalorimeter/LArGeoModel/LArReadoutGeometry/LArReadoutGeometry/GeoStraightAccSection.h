@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GeoStraightAccSection_h_
-#define _GeoStraightAccSection_h_
+#ifndef LARREADOUTGEOMETRY_GEOSTRAIGHTACCSECTION_H
+#define LARREADOUTGEOMETRY_GEOSTRAIGHTACCSECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GeoModelKernel/GeoXF.h"
 /**
  * @brief Record of All Electrode Straight Pieces

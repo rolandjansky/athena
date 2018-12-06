@@ -306,7 +306,7 @@ namespace ISFTesting {
 
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -2, generated->barcode() );
+    ASSERT_EQ( -200001, generated->barcode() );
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -358,10 +358,10 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(nullptr));
 
     recordIncidentToMCTruth(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-2); //Find a nicer way to get this.
+    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -2, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -404,7 +404,7 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(inParticle3->barcode()));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-2); //Find a nicer way to get this.
+    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
     HepMC::GenVertex* expectedVtx(nullptr);
     ASSERT_EQ( expectedVtx, generated);
   }
@@ -454,10 +454,10 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(inParticle3));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-2); //Find a nicer way to get this.
+    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -2, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -524,10 +524,10 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(false));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-2); //Find a nicer way to get this.
+    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -2, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
@@ -597,10 +597,10 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(true));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-2); //Find a nicer way to get this.
+    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -2, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
     ASSERT_EQ( 1, generated->particles_out_size());

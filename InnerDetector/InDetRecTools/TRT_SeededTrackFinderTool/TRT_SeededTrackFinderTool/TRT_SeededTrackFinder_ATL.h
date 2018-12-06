@@ -210,7 +210,7 @@ namespace InDet{
       std::list<double>              m_caloE         ;
       double m_phiWidth                              ;
       double m_etaWidth                              ;
-      double m_ClusterE				     ;
+      double m_ClusterEt				                     ;
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;

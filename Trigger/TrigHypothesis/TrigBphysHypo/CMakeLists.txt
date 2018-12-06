@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTrigger
                           GaudiKernel
                           Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack

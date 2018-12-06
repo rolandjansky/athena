@@ -1,17 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
 #include "G4AtlasAlg.h"
+#include "G4AtlasFluxRecorder.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 
 // Can we safely include all of these?
-#include "G4AtlasMTRunManager.h"
-#include "G4AtlasWorkerRunManager.h"
-#include "G4AtlasUserWorkerThreadInitialization.h"
-#include "G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasMTRunManager.h"
+#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
+#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
+#include "G4AtlasAlg/G4AtlasRunManager.h"
 
 // Geant4 includes
 #include "G4StateManager.hh"
@@ -34,6 +35,7 @@
 #include "EventInfo/EventInfo.h"
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GaudiKernel/IThreadInitTool.h"
 
 // call_once mutexes
 #include <mutex>
@@ -106,6 +108,9 @@ StatusCode G4AtlasAlg::initialize()
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
 
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
+
   ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
 }
@@ -135,7 +140,7 @@ void G4AtlasAlg::initializeOnce()
   else {
     auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
     m_physListTool->SetPhysicsList();
-    runMgr->SetRecordFlux( m_recordFlux );
+    runMgr->SetRecordFlux( m_recordFlux, new G4AtlasFluxRecorder );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
@@ -247,6 +252,20 @@ StatusCode G4AtlasAlg::execute()
   static int n_Event=0;
   ATH_MSG_DEBUG("++++++++++++  G4AtlasAlg execute  ++++++++++++");
 
+#ifdef G4MULTITHREADED
+  // In some rare cases, TBB may create more physical worker threads than
+  // were requested via the pool size.  This can happen at any time.
+  // In that case, those extra threads will not have had the thread-local
+  // initialization done, leading to a crash.  Try to detect that and do
+  // the initialization now if needed.
+  if (G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume() == nullptr)
+  {
+    ToolHandle<IThreadInitTool> ti ("G4ThreadInitTool", nullptr);
+    ATH_CHECK( ti.retrieve() );
+    ti->initThread();
+  }
+#endif
+
   n_Event += 1;
 
   if (n_Event<=10 || (n_Event%100) == 0) {
@@ -254,7 +273,7 @@ StatusCode G4AtlasAlg::execute()
   }
 
   // tell TruthService we're starting a new event
-  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() ); //FIXME POINTLESS - THIS METHOD IS EMPTY IN MASTER
+  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() );
 
   // Release GeoModel Geometry if necessary
   if (m_releaseGeoModel) {
@@ -275,10 +294,6 @@ StatusCode G4AtlasAlg::execute()
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
-  if(!m_senDetTool) {
-    // FIXME temporary lazy init. To be (re)moved
-    ATH_CHECK(m_senDetTool.retrieve());
-  }
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   SG::ReadHandle<McEventCollection> inputTruthCollection(m_inputTruthCollectionKey);
@@ -345,10 +360,6 @@ StatusCode G4AtlasAlg::execute()
 
   // Register all of the collections if there are any new-style SDs
   ATH_CHECK(m_senDetTool->EndOfAthenaEvent());
-  if(!m_fastSimTool) {
-    // FIXME temporary lazy init. To be (re)moved
-    ATH_CHECK(m_fastSimTool.retrieve());
-  }
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   ATH_CHECK( m_truthRecordSvc->releaseEvent() );

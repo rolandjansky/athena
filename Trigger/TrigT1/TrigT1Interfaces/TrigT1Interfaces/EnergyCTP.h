@@ -1,20 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                          EnergyCTP.h  -  description
                             -------------------
    begin                : Friday May 05 2002
-   copyright            : (C) 2002 by moyse
    email                : e.moyse@qmul.ac.uk
 ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef TRIGT1INTERFACES_ENERGYCTP_H
 #define TRIGT1INTERFACES_ENERGYCTP_H
@@ -61,9 +54,7 @@ namespace LVL1 {
 
 } // namespace LVL1
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LVL1::EnergyCTP, 6254, 1 )
 
 #endif // TRIGT1INTERFACES_ENERGYCTP_H

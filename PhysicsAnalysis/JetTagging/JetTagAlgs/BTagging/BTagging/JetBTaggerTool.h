@@ -53,7 +53,6 @@ class  JetBTaggerTool:
   mutable ToolHandle< IBTagTool > m_bTagTool; 
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
   ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
-  ToolHandle< IBTagJetPtScaling> m_PtRescalingTool;
   bool m_augment;
   bool m_PtRescale;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;

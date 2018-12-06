@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Haifeng.Li@cern.ch
 
@@ -13,8 +13,7 @@ from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject
 from JetD3PDMaker.jetMETD3PDTrigger           import jetMETTriggerBitsD3PDObject
 from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
-from TrackD3PDMaker.TrackD3PDObject           import TrackD3PDObject
-from TrackD3PDMaker.VertexD3PDObject          import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
 from MissingETD3PDMaker.MissingETD3PDObject   import *
 from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from egammaD3PDAnalysis.egammaUserDataConfig  import egammaUserDataConfig
@@ -46,9 +45,9 @@ def JetD3PD (file,
     alg += ElectronD3PDObject (0)
     alg += PhotonD3PDObject (0)
     alg += MuonD3PDObject (0)
-    alg += PrimaryVertexD3PDObject (4, allowMissing = True,
-                                    sgkey = D3PDMakerFlags.VertexSGKey(),
-                                    prefix = 'vxp_')
+    alg += PrimaryxAODVertexD3PDObject (4, allowMissing = True,
+                                        sgkey = D3PDMakerFlags.VertexSGKey(),
+                                        prefix = 'vxp_')
     #-- JET
     alg += JetD3PDObject (level, sgkey='AntiKt4H1TopoJets',  include = JetIncludes, prefix='AntiKt4H1Topo_' )
     alg += JetD3PDObject (level, sgkey='AntiKt6H1TopoJets',  include = JetIncludes, prefix='AntiKt6H1Topo_'           )

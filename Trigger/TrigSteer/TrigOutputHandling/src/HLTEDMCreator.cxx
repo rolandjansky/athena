@@ -172,8 +172,8 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
           // WARNING: untested
           if ( remappedCollections.find( keyString ) != remappedCollections.end() ) {
 
-            ATH_MSG_DEBUG( "Remap link to collection: " << keyString << " -> " << keyString << "_remap" );
-            remappedKeys[ collectionIndex ] = evtStore()->stringToKey( keyString + "_remap", collectionClid );
+            ATH_MSG_DEBUG( "Remap link to collection: " << keyString << " -> remap_" << keyString );
+            remappedKeys[ collectionIndex ] = evtStore()->stringToKey( "remap_" + keyString, collectionClid );
           }
         }
 
@@ -183,7 +183,7 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
       }
 
       // Store the remapped TCs
-      SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( writeHandleKey.key() + "_remap" );
+      SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( "remap_" + writeHandleKey.key() );
       CHECK(output.record( writeHandle ));
     }
   }

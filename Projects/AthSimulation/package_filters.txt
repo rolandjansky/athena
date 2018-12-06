@@ -27,6 +27,7 @@
 + Control/AthLinks
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
++ Control/AthenaConfiguration
 + Control/AthenaCommon
 + Control/AthenaExamples/AthExHelloWorld
 + Control/AthenaInterprocess
@@ -159,7 +160,8 @@
 + Generators/HepMCWeightSvc
 + Generators/McEventSelector
 + Generators/TruthUtils
-+ InnerDetector/InDetConditions/InDetBeamSpotService
++ InnerDetector/InDetConditions/BeamSpotConditions
++ InnerDetector/InDetConditions/BeamSpotConditionsData
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool
@@ -288,7 +290,6 @@
 + Simulation/ISF/ISF_Geant4/ISF_Geant4CommonServices
 + Simulation/ISF/ISF_Geant4/ISF_Geant4CommonTools
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Event
-+ Simulation/ISF/ISF_Geant4/ISF_Geant4Interfaces
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Services
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
@@ -320,6 +321,7 @@
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
 + Tools/CodeCheck
++ Tools/FilePeeker
 + Tools/JobTransforms
 + Tools/KitValidation
 + Tools/PathResolver

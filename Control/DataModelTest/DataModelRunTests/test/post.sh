@@ -221,6 +221,10 @@ PP="$PP"'|MetaInputLoader *INFO  address'
 # MetaInputLoader SIDs
 PP="$PP"'|is still valid for| and sid '
 
+PP="$PP"'|INFO Found MetaDataTools'
+PP="$PP"'|INFO AthenaOutputStream'
+PP="$PP"'|^DbSession.*INFO'
+
 
 test=$1
 if [ -z "$testStatus" ]; then

@@ -35,8 +35,8 @@ StatusCode LArShapeCorrector::initialize()
   } else if ( m_groupingName == "ExtendedSubDetector" ) {
      m_groupingType = LArConditionsContainerBase::ExtendedSubDetGrouping ;
   } else {
-     msg(MSG::ERROR)<< "Grouping type " << m_groupingName << " is not foreseen!" << endmsg ;
-     msg(MSG::ERROR)<< "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" << endmsg ;
+     ATH_MSG_ERROR( "Grouping type " << m_groupingName << " is not foreseen!" ) ;
+     ATH_MSG_ERROR( "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" ) ;
      return StatusCode::FAILURE ;
   }
 
@@ -57,7 +57,7 @@ StatusCode LArShapeCorrector::stop() {
   const LArShapeComplete* inputShape=NULL;
   StatusCode sc=detStore()->retrieve(inputShape,m_keyShape);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input Shapes with key " << m_keyShape << endmsg;
+    ATH_MSG_ERROR( "Failed to get input Shapes with key " << m_keyShape );
     return sc;
   }
     
@@ -65,7 +65,7 @@ StatusCode LArShapeCorrector::stop() {
   const LArShapeComplete* inputShapeResidual=NULL;
   sc=detStore()->retrieve(inputShapeResidual,m_keyShapeResidual);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input Shape residuals with key " << m_keyShapeResidual << endmsg;
+    ATH_MSG_ERROR( "Failed to get input Shape residuals with key " << m_keyShapeResidual );
     return sc;
   }
 
@@ -73,7 +73,7 @@ StatusCode LArShapeCorrector::stop() {
   larShapeCompleteCorr->setGroupingType( static_cast<LArConditionsContainerBase::GroupingType>(m_groupingType));
   sc  = larShapeCompleteCorr->initialize(); 
   if ( sc.isFailure() ) {
-     msg(MSG::ERROR)<< "Could not initialize LArShapeComplete data object - exit!" << endmsg ;
+     ATH_MSG_ERROR( "Could not initialize LArShapeComplete data object - exit!" ) ;
      return sc;
   }
 
@@ -99,12 +99,12 @@ StatusCode LArShapeCorrector::stop() {
       //some sanity check on the Shapes
       bool doShapeCorr=true;
       if ( vShape.size() == 0 || vShapeDer.size() == 0 ) {
-	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel 0x"  << std::hex << id.get_compact() << std::dec << endmsg;
+	ATH_MSG_WARNING( "Shape not found for gain "<< gain << " channel 0x"  << std::hex << id.get_compact() << std::dec );
 	continue;
       }
       if ( vShape.size() != vShapeDer.size() ) {
-	msg(MSG::WARNING) << "Shape (" << vShape.size() << ") derivative (" << vShapeDer.size() << ") don't have the same size for channel 0x" 
-			  << std::hex << id.get_compact() << std::dec << endmsg;
+	ATH_MSG_WARNING( "Shape (" << vShape.size() << ") derivative (" << vShapeDer.size() << ") don't have the same size for channel 0x" 
+			  << std::hex << id.get_compact() << std::dec );
 	continue;
       }
 
@@ -114,24 +114,24 @@ StatusCode LArShapeCorrector::stop() {
       ILArShape::ShapeRef_t vShapeResidual=inputShapeResidual->Shape(id,gain,8); // only one phase, stored in phase #8
       ILArShape::ShapeRef_t vShapeResidualDer=inputShapeResidual->ShapeDer(id,gain,8);
       if ( vShapeResidual.size() == 0 || vShapeResidualDer.size() == 0 ) {
-	msg(MSG::WARNING) << "Shape residual not found for gain " << gain 
+	ATH_MSG_WARNING( "Shape residual not found for gain " << gain 
 			  << " channel 0x"  << std::hex << id.get_compact() << std::dec 
-			  << ". Will not be applied!" << endmsg;
+			  << ". Will not be applied!" );
 	doShapeCorr=false;
       }
       if ( vShapeResidual.size() != vShapeResidualDer.size() ) {
-	msg(MSG::ERROR) << "Shape residual (" << vShapeResidual.size() << ") and its derivative (" << vShapeResidualDer.size() 
+	ATH_MSG_ERROR( "Shape residual (" << vShapeResidual.size() << ") and its derivative (" << vShapeResidualDer.size() 
 			<< ") don't have the same size for channel 0x" 
 			<< std::hex << id.get_compact() << std::dec 
-			<< ". Will be not applied!" << endmsg;
+			<< ". Will be not applied!" );
 	doShapeCorr=false;
       }
 
       // check if shape and residuals sizes match
       if ( vShape.size() > vShapeResidual.size() ) { //FIXME, allow to apply 5 sample residual on 4 sample shape
-	msg(MSG::WARNING) << "Shape residual size does not match the shape size for channel 0x" 
+	ATH_MSG_WARNING( "Shape residual size does not match the shape size for channel 0x" 
 			  << std::hex << id.get_compact() << std::dec 
-			  << ". Will be not corrected!" << endmsg;
+			  << ". Will be not corrected!" );
 	doShapeCorr=false;
       }
 	 
@@ -163,18 +163,18 @@ StatusCode LArShapeCorrector::stop() {
 
   sc = detStore()->record(larShapeCompleteCorr,  m_keyShape_newcorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to record LArShapeComplete object with key " << m_keyShape_newcorr << endmsg;
+    ATH_MSG_ERROR( "Failed to record LArShapeComplete object with key " << m_keyShape_newcorr );
     return sc;
   }
-  msg(MSG::INFO) << "Successfully registered LArShapeComplete object with key " << m_keyShape_newcorr << endmsg;
+  ATH_MSG_INFO( "Successfully registered LArShapeComplete object with key " << m_keyShape_newcorr );
 
   sc = detStore()->symLink(larShapeCompleteCorr, (ILArShape*)larShapeCompleteCorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to sym-link LArShapeComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to sym-link LArShapeComplete object" );
     return sc;
   }
 
-  //msg(MSG::INFO) << detStore()->dump() << endmsg;
+  //ATH_MSG_INFO( detStore()->dump() );
 
   return StatusCode::SUCCESS;
   

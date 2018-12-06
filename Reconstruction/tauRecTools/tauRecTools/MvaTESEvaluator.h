@@ -24,7 +24,14 @@ class MvaTESEvaluator
   StatusCode initialize();
   StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
-  StatusCode finalize() { delete m_reader; return StatusCode::SUCCESS;}
+  StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
+  //StatusCode finalize() { delete m_reader; return StatusCode::SUCCESS;}
+  StatusCode finalize() { return StatusCode::SUCCESS; }
   
  private:
    
@@ -66,6 +73,8 @@ class MvaTESEvaluator
   float m_ptDetectorAxis; //!
   float m_truthDecayMode; //!
   float m_PanTau_DecayMode; //!
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

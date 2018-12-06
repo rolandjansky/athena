@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_IPTAG_H
@@ -149,9 +149,6 @@ namespace Analysis {
     
     
     //// VD: list of tools below
-    /** TrackToVertex tool */
-    ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
-      
     /** Track selection cuts for IPTagging */
     ToolHandle< TrackSelector >        m_trackSelectorTool;
 

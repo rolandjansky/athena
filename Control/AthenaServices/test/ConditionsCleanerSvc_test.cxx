@@ -27,9 +27,9 @@ class RCUTest
   : public Athena::IRCUSvc
 {
 public:
-  virtual void add (Athena::IRCUObject*) override { std::abort(); }
-  virtual StatusCode remove (Athena::IRCUObject*) override { std::abort(); }
-  virtual size_t getNumSlots() const override { std::abort(); }
+  virtual void add (Athena::IRCUObject*) override {  }
+  virtual StatusCode remove (Athena::IRCUObject*) override { return StatusCode::SUCCESS; }
+  virtual size_t getNumSlots() const override { return 1; }
   virtual unsigned long addRef()override { std::abort(); }
   virtual unsigned long release() override { std::abort(); }
   virtual StatusCode queryInterface( const InterfaceID&, void** ) override { std::abort(); }
@@ -41,37 +41,12 @@ class CondContTest
   : public CondContBase
 {
 public:
-  CondContTest()
-    : CondContBase (m_rcu, 123, m_id, nullptr)
+  CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id)
+    : CondContBase (rcusvc, 123, id, nullptr, nullptr, 0)
   {}
-  virtual const DataObjID& id() const override { std::abort(); }
-  virtual SG::DataProxy* proxy() override { std::abort(); }
-  virtual void setProxy(SG::DataProxy*) override { std::abort(); }
-  virtual void list (std::ostream&) const override { std::abort(); }
-  virtual size_t entries() const override { std::abort(); }
-  virtual size_t entriesRunLBN() const override { std::abort(); }
-  virtual size_t entriesTimestamp() const override { std::abort(); }
-  virtual std::vector<EventIDRange> ranges() const override { std::abort(); }
-  virtual StatusCode typelessInsert (const EventIDRange&,
-                                     void*,
-                                     const EventContext&) override { std::abort(); }
-  virtual bool valid( const EventIDBase&) const override { std::abort(); }
-  virtual bool range (const EventIDBase&, EventIDRange&) const override { std::abort(); }
-  virtual void erase (const EventIDBase&,
-                      const EventContext&) override { std::abort(); }
-  virtual size_t trimRunLBN (const std::vector<key_type>&) override { std::abort(); }
-  virtual size_t trimTimestamp (const std::vector<key_type>&) override { std::abort(); }
-  virtual void quiescent (const EventContext&) override { std::abort(); }
-  
-  virtual const void* findByCLID (CLID,
-                                  const EventIDBase&,
-                                  EventIDRange const**) const override { std::abort(); }
-  virtual size_t nInserts() const override { std::abort(); }
-  virtual size_t maxSize() const override { std::abort(); }
 
-private:
-  RCUTest m_rcu;
-  DataObjID m_id;
+  virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override
+  { std::abort(); }
 };
 
 
@@ -90,6 +65,7 @@ public:
                                    CondContBase& cc) override;
 
   virtual StatusCode printStats() const override;
+  virtual StatusCode reset() override;
 };
 
 
@@ -118,6 +94,13 @@ StatusCode ConditionsCleanerTest::printStats() const
 }
 
 
+StatusCode ConditionsCleanerTest::reset()
+{
+  std::cout << "ConditionsCleanerTest::reset\n";
+  return StatusCode::SUCCESS;
+}
+
+
 DECLARE_COMPONENT( ConditionsCleanerTest )
 
 
@@ -129,10 +112,14 @@ void testit (IService* mgr)
 
   assert( ccs->event (EventContext(0,0), false).isSuccess() );
 
-  CondContTest cc;
+  RCUTest rcu;
+  DataObjID id;
+
+  CondContTest cc (rcu, id);
 
   assert( ccs->condObjAdded (EventContext(0,0), cc).isSuccess() );
   assert( ccs->printStats().isSuccess() );
+  assert( ccs->reset().isSuccess() );
 }
 
 

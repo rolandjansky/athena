@@ -49,9 +49,9 @@ if doAllHits:
   ##Other parameters                                                                                                                  
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetPixelMainsMon.FilterTools.append(monFilledBunchFilterTool)
+    InDetPixelMainsMon.FilterTools += [monFilledBunchFilterTool]
                                                                                                                                        
-  ToolSvc += InDetPixelMainsMon                 
+  #ToolSvc += InDetPixelMainsMon                 
   if (InDetFlags.doPrintConfigurables()): 
     print InDetPixelMainsMon     
                                                                                                                                        
@@ -115,9 +115,9 @@ if doHitsOnTrack:
   ##Other parameters                                                                                                                  
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetPixelMainsMonOnTrack.FilterTools.append(monFilledBunchFilterTool)
+    InDetPixelMainsMonOnTrack.FilterTools += [monFilledBunchFilterTool]
   
-  ToolSvc += InDetPixelMainsMonOnTrack                
+  #ToolSvc += InDetPixelMainsMonOnTrack                
   if (InDetFlags.doPrintConfigurables()): 
     print InDetPixelMainsMonOnTrack            
 

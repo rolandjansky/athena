@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -534,7 +534,7 @@ AuxTypeRegistry::setInputRenameMap (const Athena::IInputRename::InputRenameMap_t
   if (!map) return;
   for (const auto& p : *map) {
     sgkey_t from_sgkey = p.first;
-    sgkey_t to_sgkey = p.second;
+    sgkey_t to_sgkey = p.second.m_sgkey;
 
     const std::string* from_str = pool.keyToString (from_sgkey);
     if (!from_str) continue;

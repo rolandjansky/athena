@@ -12,7 +12,7 @@
  *
  * This implements the algorithm described in this reference:
  *
- *   Gopal, et. al, ``Fast CRC Computation for Generic Polynomials
+ *   Gopal, et al., ``Fast CRC Computation for Generic Polynomials
  *   Using PCLMULQDQ Instruction,'' Intel White Paper 323102 (2009).
  *   <http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf>
  *   <https://github.com/intel/soft-crc>

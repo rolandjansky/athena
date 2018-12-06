@@ -31,7 +31,6 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -48,7 +47,6 @@ class ITruthParameters;
 class TruthSelector;
 class PixelID;
 class SCT_ID;
-class IBeamCondSvc;
 class EventID;
 
 namespace InDetDD {

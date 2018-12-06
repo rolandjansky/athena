@@ -31,6 +31,8 @@
 
 #include "AuxDiscoverySvc.h"
 
+#include <algorithm>
+
 //______________________________________________________________________________
 // Initialize the service.
 StatusCode AthenaPoolCnvSvc::initialize() {
@@ -88,8 +90,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
 	   last = m_maxFileSizes.value().end(); iter != last; iter++) {
       if (iter->find('=') != std::string::npos) {
          long long maxFileSize = atoll(iter->substr(iter->find('=') + 1).c_str());
-         if (maxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (maxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
          std::string databaseName = iter->substr(0, iter->find_first_of(" 	="));
@@ -97,19 +99,12 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          m_databaseMaxFileSize.insert(entry);
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
-         if (m_domainMaxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
+         if (m_domainMaxFileSize > 15000000000LL) {
+            ATH_MSG_WARNING("Files larger than 15GB are disallowed by ATLAS policy.");
             ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
          }
       }
    }
-   // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
-   std::vector<std::string> maxFileSize;
-   maxFileSize.push_back("TREE_MAX_SIZE");
-   maxFileSize.push_back("1099511627776L");
-   m_domainAttr.push_back(maxFileSize);
-   // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
-   extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
    // Extracting INPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
    extractPoolAttributes(m_inputPoolAttr, &m_inputAttr, &m_inputAttr, &m_inputAttr);
    // Extracting the INPUT POOL ItechnologySpecificAttributes which are to be printed for each event
@@ -193,6 +188,14 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    }
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
+   }
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
+   if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
+      char text[32];
+      // Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
+      ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddress->ipar())));
+      // Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddress->clID()); to create persSvc
+      tokAddr->getToken()->setAuxString(text);
    }
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
@@ -282,10 +285,16 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSpec) {
 // This is called before DataObjects are being converted.
    // Reset streaming parameters to CnvSvc properties.
-   m_dhContainerPrefix = "POOLContainer";
    m_containerPrefix = m_containerPrefixProp.value();
    m_containerNameHint = m_containerNameHintProp.value();
    m_branchNameHint = m_branchNameHintProp.value();
+   // Get Technology from m_containerPrefix
+   std::size_t colonPos = m_containerPrefix.find(":");
+   if (colonPos != std::string::npos) {
+      m_dhContainerPrefix = m_containerPrefix.substr(0, colonPos + 1) + "POOLContainer";
+   } else {
+      m_dhContainerPrefix = "POOLContainer";
+   }
 
    // Override streaming parameters from StreamTool if requested.
    std::string::size_type pos1 = outputConnectionSpec.find("[");
@@ -329,8 +338,10 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    if (streamClient == m_streamClientFiles.size()) {
       m_streamClientFiles.push_back(outputConnectionSpec);
    }
+   unsigned int contextId = IPoolSvc::kOutputStream;
+   if (m_persSvcPerOutput) contextId = m_poolSvc->getOutputContext(m_outputConnectionSpec);
    try {
-      if (!m_poolSvc->connect(pool::ITransaction::UPDATE).isSuccess()) {
+      if (!m_poolSvc->connect(pool::ITransaction::UPDATE, contextId).isSuccess()) {
          ATH_MSG_ERROR("connectOutput FAILED to open an UPDATE transaction.");
          return(StatusCode::FAILURE);
       }
@@ -338,10 +349,20 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       ATH_MSG_ERROR("connectOutput - caught exception: " << e.what());
       return(StatusCode::FAILURE);
    }
-   if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
+   if (std::find(m_contextAttr.begin(), m_contextAttr.end(), contextId) == m_contextAttr.end()) {
+      m_contextAttr.push_back(contextId);
+      // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
+      std::vector<std::string> maxFileSize;
+      maxFileSize.push_back("TREE_MAX_SIZE");
+      maxFileSize.push_back("1099511627776L");
+      m_domainAttr.push_back(maxFileSize);
+      // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
+      extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
+   }
+   if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, contextId).isSuccess()) {
       ATH_MSG_DEBUG("connectOutput failed process POOL domain attributes.");
    }
-   if (!processPoolAttributes(m_databaseAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
+   if (!processPoolAttributes(m_databaseAttr, m_outputConnectionSpec, contextId).isSuccess()) {
       ATH_MSG_DEBUG("connectOutput failed process POOL database attributes.");
    }
    return(StatusCode::SUCCESS);
@@ -511,23 +532,25 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("commitOutput");
    }
-   if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
+   unsigned int contextId = IPoolSvc::kOutputStream;
+   if (m_persSvcPerOutput) contextId = m_poolSvc->getOutputContext(m_outputConnectionSpec);
+   if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, contextId).isSuccess()) {
       ATH_MSG_DEBUG("commitOutput failed process POOL domain attributes.");
    }
-   if (!processPoolAttributes(m_databaseAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
+   if (!processPoolAttributes(m_databaseAttr, m_outputConnectionSpec, contextId).isSuccess()) {
       ATH_MSG_DEBUG("commitOutput failed process POOL database attributes.");
    }
-   if (!processPoolAttributes(m_containerAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
+   if (!processPoolAttributes(m_containerAttr, m_outputConnectionSpec, contextId).isSuccess()) {
       ATH_MSG_DEBUG("commitOutput failed process POOL container attributes.");
    }
    try {
       if (doCommit) {
-         if (!m_poolSvc->commit(IPoolSvc::kOutputStream).isSuccess()) {
+         if (!m_poolSvc->commit(contextId).isSuccess()) {
             ATH_MSG_ERROR("commitOutput FAILED to commit OutputStream.");
             return(StatusCode::FAILURE);
          }
       } else {
-         if (!m_poolSvc->commitAndHold(IPoolSvc::kOutputStream).isSuccess()) {
+         if (!m_poolSvc->commitAndHold(contextId).isSuccess()) {
             ATH_MSG_ERROR("commitOutput FAILED to commitAndHold OutputStream.");
             return(StatusCode::FAILURE);
          }
@@ -544,7 +567,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       iter->second.Destruct(iter->first);
    }
    // Check FileSize
-   long long int currentFileSize = m_poolSvc->getFileSize(m_outputConnectionSpec, m_dbType.type(), IPoolSvc::kOutputStream);
+   long long int currentFileSize = m_poolSvc->getFileSize(m_outputConnectionSpec, m_dbType.type(), contextId);
    if (m_databaseMaxFileSize.find(m_outputConnectionSpec) != m_databaseMaxFileSize.end()) {
       if (currentFileSize > m_databaseMaxFileSize[m_outputConnectionSpec]) {
          ATH_MSG_WARNING("FileSize > MaxFileSize for " << m_outputConnectionSpec);
@@ -554,9 +577,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_WARNING("FileSize > domMaxFileSize for " << m_outputConnectionSpec);
       return(StatusCode::RECOVERABLE);
    }
-   // For "safety" we reset the output file and the technology type
-   m_outputConnectionSpec = "";
-   m_dbType = pool::DbType();
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("commitOutput");
    }
@@ -589,7 +609,9 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput() {
    m_domainAttr.push_back(maxFileSize);
    // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
    extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
-   return(m_poolSvc->disconnect(IPoolSvc::kOutputStream));
+   unsigned int contextId = IPoolSvc::kOutputStream;
+   if (m_persSvcPerOutput) contextId = m_poolSvc->getOutputContext(m_outputConnectionSpec);
+   return(m_poolSvc->disconnect(contextId));
 }
 //______________________________________________________________________________
 const std::string& AthenaPoolCnvSvc::getOutputConnectionSpec() const {
@@ -633,7 +655,14 @@ std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
    return(ret);
 }
 //______________________________________________________________________________
-pool::DbType AthenaPoolCnvSvc::technologyType() const {
+pool::DbType AthenaPoolCnvSvc::technologyType(const std::string& containerName) const {
+   if (containerName.find("ROOTKEY:") == 0) {
+      return(pool::DbType(pool::ROOTKEY_StorageType));
+   } else if (containerName.find("ROOTTREE:") == 0) {
+      return(pool::DbType(pool::ROOTTREE_StorageType));
+   } else if (containerName.find("ROOTTREEINDEX:") == 0) {
+      return(pool::DbType(pool::ROOTTREEINDEX_StorageType));
+   }
    return(m_dbType);
 }
 //__________________________________________________________________________
@@ -641,13 +670,11 @@ IPoolSvc* AthenaPoolCnvSvc::getPoolSvc() {
    return(&*m_poolSvc);
 }
 //______________________________________________________________________________
-const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
-		const void* obj,
-		const RootType& classDesc) const {
+Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const {
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cRepR_ALL");
    }
-   const Token* token = nullptr;
+   Token* token = nullptr;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       std::size_t streamClient = 0;
       std::string fileName = placement->fileName();
@@ -763,6 +790,11 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
             token = m_poolSvc->registerForWrite(placement, obj, classDesc);
          }
       } else {
+         if (m_persSvcPerOutput) {
+            char text[32];
+            ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getOutputContext(placement->fileName()));
+            placement->setAuxString(text);
+         }
          token = m_poolSvc->registerForWrite(placement, obj, classDesc);
       }
    }
@@ -1090,8 +1122,8 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
 	m_dbType(),
 	m_outputConnectionSpec(),
-	m_dhContainerPrefix("POOLContainer"),
-	m_collContainerPrefix("POOLCollectionTree"),
+	m_dhContainerPrefix(),
+	m_collContainerPrefix("ROOTTREE:POOLCollectionTree"),
 	m_lastFileName(),
 	m_poolSvc("PoolSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
@@ -1103,10 +1135,10 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),
-	m_domainMaxFileSize(10000000000LL),
+	m_domainMaxFileSize(15000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
-   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "CollectionTree");
+   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREE:CollectionTree");
    declareProperty("TopLevelContainerName", m_containerNameHintProp = "");
    declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
    declareProperty("PoolAttributes", m_poolAttr);
@@ -1114,7 +1146,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
    declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
    declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
    declareProperty("MaxFileSizes", m_maxFileSizes);
-   declareProperty("CommitInterval", m_commitInterval = 0);
+   declareProperty("PersSvcPerOutput", m_persSvcPerOutput = false);
    declareProperty("SkipFirstChronoCommit", m_skipFirstChronoCommit = false);
    declareProperty("InputStreamingTool", m_inputStreamingTool);
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
@@ -1248,7 +1280,7 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
                if (m_poolSvc->setAttribute(opt, data, m_dbType.type(), fileName, cont, contextId).isSuccess()) {
                   ATH_MSG_DEBUG("setAttribute " << opt << " to " << data << " for db: " << fileName << " and cont: " << cont);
                   if (doClear) {
-                     if (file.substr(0, 1) == "*") {
+                     if (file.substr(0, 1) == "*" && !m_persSvcPerOutput) {
                         (*iter)[2] += "," + fileName + ",";
                      } else {
                         iter->clear();

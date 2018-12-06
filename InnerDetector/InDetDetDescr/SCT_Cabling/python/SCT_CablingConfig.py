@@ -85,7 +85,7 @@ def SCT_CablingFoldersCfg(configFlags):
     if configFlags.Input.isMC:
         instance="SCT_OFL"
     from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    cfg.merge(addFolders(configFlags, [path+"ROD", path+"RODMUR", path+"MUR", path+"Geog"], instance, className="CondAttrListVec")[0])
+    cfg.merge(addFolders(configFlags, [path+"ROD", path+"RODMUR", path+"MUR", path+"Geog"], instance, className="CondAttrListVec"))
     return cfg, path
 
 def SCT_CablingCondAlgCfg(configFlags):

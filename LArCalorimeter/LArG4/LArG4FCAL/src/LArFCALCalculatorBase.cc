@@ -92,7 +92,7 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
   // make sure hdata is reset
   hdata.resize(1);
   // First, get the energy.
-  hdata[0].energy = a_step->GetTotalEnergyDeposit();
+  hdata[0].energy = a_step->GetTotalEnergyDeposit() * a_step->GetTrack()->GetWeight();
 
   G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
   if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10);

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGCOMPS_ADDRESSREMAPPINGSVC_H
@@ -97,8 +97,8 @@ private: // Data
    /// Map of sgkey->sgkey for input renames.
    /// This object is exported via inputRenameMap and is synchronized
    /// via RCU.
-   typedef std::unordered_map<SG::sgkey_t, SG::sgkey_t> InputRenameMap_t;
-   typedef Athena::RCUObject<InputRenameMap_t> InputRenameRCU_t;
+  typedef Athena::IInputRename::InputRenameMap_t InputRenameMap_t;
+  typedef Athena::IInputRename::InputRenameRCU_t InputRenameRCU_t;
    std::unique_ptr<InputRenameRCU_t> m_inputRenames;
 
    bool m_skipBadRemappings;

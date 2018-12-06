@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -7,15 +7,14 @@
 // NAME:     TrigBjetHypoTool.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypoTool
 //
-// AUTHOR:   Lidija Zivkovic
-// EMAIL:    Lidija.Zivkovic@cern.ch
+// AUTHOR:   Carlo Varni
+// EMAIL:    carlo.varni@cern.ch
 // 
 // ************************************************
 
 #include "DecisionHandling/HLTIdentifier.h"
 
 #include "TrigBjetHypoTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "AthenaMonitoring/MonitoredScope.h"
 
 
@@ -47,7 +46,7 @@ StatusCode TrigBjetHypoTool::initialize()  {
   // =====================================
   if ( retrieveTool( "Monitoring Tool",m_monTool ).isFailure() ) return StatusCode::FAILURE;
   // =====================================
-
+  if(m_beamSpotKey.initialize().isFailure()) return StatusCode::FAILURE;
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_id  );
   return StatusCode::SUCCESS;
 }
@@ -77,18 +76,16 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
 
   // Retrieve beamspot information - check if this is going to be changed
   if (m_useBeamSpotFlag) {
-
-    IBeamCondSvc* iBeamCondSvc; 
-    StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     
-    if (sc.isFailure() || iBeamCondSvc == 0) {
+    if (!beamSpotHandle.isValid()) {
       
       ATH_MSG_WARNING(  "Could not retrieve Beam Conditions Service. "  );
       
     } else {
 
       int beamSpotStatus = 0;
-      int beamSpotBitMap = iBeamCondSvc->beamStatus();    
+      int beamSpotBitMap = beamSpotHandle->beamStatus();    
 
       beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
       if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);

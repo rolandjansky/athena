@@ -113,6 +113,7 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileBadChanTool",m_tileBadChanTool);
   declareProperty("MaskBadChannels",m_maskBadChannels = false,"Remove channels tagged bad (default=false)");
   declareProperty("DoHSTruthReconstruction",m_doDigiTruth = true);
+  declareProperty("AllChannels", m_allChannels = -1, "Create all channels, use 0 or 1 or 2 (default=-1 - unset)");
 }
 
 TileDigitsMaker::~TileDigitsMaker() {
@@ -225,6 +226,7 @@ StatusCode TileDigitsMaker::initialize() {
     m_tileCoherNoise = false;
     m_tileThresh = false;
     m_calibRun = false;
+    if (m_allChannels<0) m_allChannels = 2; // create all channels with noise in overlay by default
 
     ATH_MSG_INFO( "Pileup and/or noise added by overlaying digits of random events");
 
@@ -238,6 +240,8 @@ StatusCode TileDigitsMaker::initialize() {
 
   } else {
     m_beamInfo.disable();
+    if (m_allChannels<0) m_allChannels = 0;                 // do not create all channels by default
+    if (m_tileNoise || m_tileCoherNoise) m_allChannels = 2; // unless noise is set to True
     if (msgLvl(MSG::INFO)) {
       msg(MSG::INFO) << "Obtained info from TileInfo" << endmsg;
       msg(MSG::INFO) << "tileNoise=" << ((m_tileNoise) ? "true" : "false")
@@ -249,6 +253,13 @@ StatusCode TileDigitsMaker::initialize() {
         msg(MSG::INFO) << endmsg;
     }
   }
+
+  if (m_allChannels>1)
+    ATH_MSG_INFO( "Create all channels with noise: true");
+  else if (m_allChannels>0)
+    ATH_MSG_INFO( "Create all channels without noise: true");
+  else
+    ATH_MSG_INFO( "Create all channels: false");
 
   if (m_calibRun) {
     m_filteredDigitsContainerKey = "";
@@ -314,18 +325,6 @@ StatusCode TileDigitsMaker::initialize() {
 
       for (int ch = 0; ch < nchMax; ++ch) {
         adc_ids[ch] = m_tileHWID->adc_id(drawer_id, ch, TileID::HIGHGAIN);
-        if (msgLvl(MSG::VERBOSE) && m_cabling->getTestBeam()
-            && m_cabling->connected(ros, drawer) && !m_rndmEvtOverlay) {
-          double pedSimHi = m_tileInfo->DigitsPedLevel(TileID::HIGHGAIN, ch, idhash);
-          double pedSimLo = m_tileInfo->DigitsPedLevel(TileID::LOWGAIN, ch, idhash);
-          double sigmaNoiseHi = m_tileInfo->DigitsPedSigma(TileID::HIGHGAIN, ch, idhash);
-          double sigmaNoiseLo = m_tileInfo->DigitsPedSigma(TileID::LOWGAIN, ch, idhash);
-          msg(MSG::VERBOSE) << "Ch " << m_tileHWID->to_string(drawer_id, -2) << "/" << ch
-                            << " pedHi=" << pedSimHi
-                            << " pedLo=" << pedSimLo
-                            << " rmsHi=" << sigmaNoiseHi
-                            << " rmsLo=" << sigmaNoiseLo << endmsg;
-        }
       }
     }
     m_all_ids.push_back(adc_ids);
@@ -370,7 +369,7 @@ StatusCode TileDigitsMaker::initialize() {
 StatusCode TileDigitsMaker::execute() {
   ATH_MSG_DEBUG( "Executing TileDigitsMaker");
 
-  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay && !m_cabling->getTestBeam());
+  static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );
   if (first) {
     ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
     first = false;
@@ -573,10 +572,11 @@ StatusCode TileDigitsMaker::execute() {
     /* set to be active.  If not, set them all to be inactive (gain=-1).  */
     /* Only those which contain actual hits will be set active when the   */
     /* hits are read in.                                                  */
-    int igainch = -1;
-    if (m_tileNoise || m_tileCoherNoise || m_rndmEvtOverlay) {
+    int igainch = (m_allChannels) ? TileID::HIGHGAIN : -1;
+    if (m_rndmEvtOverlay) {
+      memset(over_gain, -1, sizeof(over_gain));
+    } else if (m_tileNoise || m_tileCoherNoise) {
       igainch = TileID::HIGHGAIN;
-      if (m_rndmEvtOverlay) memset(over_gain, -1, sizeof(over_gain));
     }
     for (int ich = 0; ich < nchMax; ++ich) {
       igain[ich] = igainch;
@@ -842,7 +842,7 @@ StatusCode TileDigitsMaker::execute() {
       bool tileNoiseHG(false),tileNoiseLG(false);
 
       if (overNoiseHG) {
-        overNoiseHG &= m_rndmEvtOverlay; // set it to true only for overlay
+        overNoiseHG &= (m_rndmEvtOverlay && m_allChannels>1); // set it to true only for overlay
         tileNoiseHG = m_tileNoise || overNoiseHG;
 
         pedSimHi = m_tileToolNoiseSample->getPed(idhash, ich, TileID::HIGHGAIN);
@@ -862,7 +862,7 @@ StatusCode TileDigitsMaker::execute() {
       }
       
       if (overNoiseLG) {
-        overNoiseLG &= m_rndmEvtOverlay; // set it to true only for overlay
+        overNoiseLG &= (m_rndmEvtOverlay && m_allChannels>1); // set it to true only for overlay
         tileNoiseLG = m_tileNoise || overNoiseLG;
 
         pedSimLo = m_tileToolNoiseSample->getPed(idhash, ich, TileID::LOWGAIN);
@@ -895,8 +895,8 @@ StatusCode TileDigitsMaker::execute() {
       double * pDigitSamplesLo = m_drawerBufferLo[ich];
       double * pDigitSamplesHi_DigiHSTruth = nullptr;
       double * pDigitSamplesLo_DigiHSTruth = nullptr;
-			if(m_doDigiTruth) pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
-			if(m_doDigiTruth) pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
+      if(m_doDigiTruth) pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
+      if(m_doDigiTruth) pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
 
       ATH_MSG_DEBUG(" Channel " << ros << '/' << drawer << '/' << ich 
                      << " sampHi=" << pDigitSamplesHi[m_iTrig]
@@ -1017,8 +1017,8 @@ StatusCode TileDigitsMaker::execute() {
           overNoiseHG = false;
 
           if (msgLvl(MSG::VERBOSE)) {
-              msg(MSG::VERBOSE) << "Channel " << ros << '/' << drawer << '/' << ich << "/" << igain[ich]
-                                << "  Switch to low gain  Amp(lo)=" << digitsBuffer[m_iTrig] << endmsg;
+            msg(MSG::VERBOSE) << "Channel " << ros << '/' << drawer << '/' << ich << "/" << igain[ich]
+                              << "  Switch to low gain  Amp(lo)=" << digitsBuffer[m_iTrig] << endmsg;
             if (overNoiseLG) {
               if (sigmaLo_Norm<1.0) {
                 msg(MSG::VERBOSE) << "LG Ped & noise from DB "
@@ -1284,8 +1284,7 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
   double ech_tot[nchMax];
   //double ech_int[nchMax];
 
-    ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
-    IdContext drawer_context = m_tileHWID->drawer_context();
+  IdContext drawer_context = m_tileHWID->drawer_context();
 
   /* Set up buffers for handling information in a single collection. */
   IdentifierHash idhash;
@@ -1330,7 +1329,7 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
 
     /* Set gain=high and get digitSamples and calibration for this channel. */
     if (igain[ich] < 0)
-    igain[ich] = TileID::HIGHGAIN;
+      igain[ich] = TileID::HIGHGAIN;
     // conversion from scintillator energy to total cell energy (sampling fraction)  
     double hit_calib = m_tileInfo->HitCalib(pmt_id);
 
@@ -1421,7 +1420,7 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
       }
 
       if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "subHit:  ch=" << ich
+        msg(MSG::VERBOSE) << "subHit:  ch=" << ich
                           << " e_hit=" << e_hit
                           << " t_hit=" << t_hit
                           << " SamplesHi[" << m_iTrig << "]=" << pDigitSamplesHi[m_iTrig]

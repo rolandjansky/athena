@@ -16,7 +16,7 @@
 
 namespace{
 // static particle masses
-constexpr Trk::ParticleMasses s_particleMasses;
+const Trk::ParticleMasses s_particleMasses{};
 // static doubles
 constexpr double s_main_RutherfordScott = 13.6 * Gaudi::Units::MeV;
 constexpr double s_log_RutherfordScott = 0.038;

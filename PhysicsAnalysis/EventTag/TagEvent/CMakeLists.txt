@@ -7,8 +7,7 @@ atlas_subdir( TagEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities )
 
 # External dependencies:
@@ -19,12 +18,12 @@ atlas_add_library( TagEvent
                    src/*.cxx
                    PUBLIC_HEADERS TagEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES SGTools AthenaPoolUtilities
+                   LINK_LIBRARIES AthenaKernel AthenaPoolUtilities
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( TagEventDict
                       TagEvent/TagEventDict.h
                       TagEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools AthenaPoolUtilities TagEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaPoolUtilities TagEvent )
 

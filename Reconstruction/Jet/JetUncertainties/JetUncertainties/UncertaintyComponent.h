@@ -28,6 +28,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         UncertaintyComponent(const ComponentHelper& component, const size_t numHist = 1);
         UncertaintyComponent(const UncertaintyComponent& toCopy);
         virtual UncertaintyComponent* clone() const = 0;
+        UncertaintyComponent & operator = (const UncertaintyComponent &) = delete;
         virtual ~UncertaintyComponent();
         virtual StatusCode initialize(TFile* histFile);
         
@@ -54,7 +55,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         const bool m_interpolate;
         const int m_splitNumber;
         
-        int m_numExpectedHist;
+        int m_numExpectedHist{};
         UncertaintyHistogram* m_uncHist;
         UncertaintyHistogram* m_validHist;
 

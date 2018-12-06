@@ -176,6 +176,9 @@ ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
 
 topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault()
+
 if not athenaCommonFlags.isOnline():
     from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
     lumiTool = LuminosityToolDefault()

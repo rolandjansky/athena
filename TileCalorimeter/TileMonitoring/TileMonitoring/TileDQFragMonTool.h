@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,12 +15,13 @@
 #define TILEMONITORING_TILEDQFRAGMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <array>
 
 class ITileBadChanTool;
 class TileDCSSvc;
-class TileBeamInfoProvider;
 class TileDQstatus;
 class TileRawChannel;
 class TileRawChannelCollection;
@@ -36,17 +37,18 @@ class TileDQFragMonTool: public TileFatherMonTool {
 
     TileDQFragMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileDQFragMonTool();
+    virtual ~TileDQFragMonTool();
 
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     //pure virtual methods
 
     /*---------------------------------------------------------*/
     /* njunior@cern.ch */
-    StatusCode bookHistograms();
-    StatusCode fillHistograms();
-    StatusCode procHistograms();
+    virtual StatusCode bookHistograms() override;
+    virtual StatusCode fillHistograms() override;
+    virtual StatusCode procHistograms() override;
+
     void bookErrHist(int ros, int drawer);
     void fillErrHist(int ros, int drawer);
     void drawErrHist(int ros, int drawer);
@@ -71,7 +73,6 @@ class TileDQFragMonTool: public TileFatherMonTool {
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
     ServiceHandle<TileDCSSvc> m_tileDCSSvc; //!< Pointer to TileDCSSvc
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
 
     /*---------------------------------------------------------*/
     /* properties*/
@@ -134,6 +135,7 @@ class TileDQFragMonTool: public TileFatherMonTool {
 
     int m_nLumiblocks;
     float m_qualityCut;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
     unsigned int m_nEventsWithAllDigits;
     /*---------------------------------------------------------*/
 

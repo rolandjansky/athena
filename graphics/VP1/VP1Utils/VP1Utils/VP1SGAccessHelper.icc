@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -73,7 +73,7 @@ inline bool VP1SGAccessHelper::retrieve(const DataHandle<T>& begin, const DataHa
   try {
     sc = storeGate()->retrieve(begin,end);
     exception = false;
-  } catch (std::runtime_error e) {
+  } catch (const std::runtime_error& e) {
     exception = true;
   }
   if (exception) {

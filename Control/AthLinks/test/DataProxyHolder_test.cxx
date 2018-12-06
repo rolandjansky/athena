@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -368,8 +368,8 @@ void initInputRename ATLAS_NOT_THREAD_SAFE ()
 {
   SG::StringPool sp;
   auto m = std::make_unique<SG::DataProxyHolder::InputRenameMap_t>();
-  (*m)[sp.stringToKey("foox", fooclid)]
-    = sp.stringToKey("fooy", fooclid);
+  Athena::IInputRename::Rename ren { sp.stringToKey("fooy", fooclid), "fooy" };
+  (*m)[sp.stringToKey("foox", fooclid)] = ren;
   Athena::RCUUpdate<SG::DataProxyHolder::InputRenameMap_t> u (inputRenameMap);
   u.update (std::move (m));
   SG::DataProxyHolder::setInputRenameMap (&inputRenameMap);

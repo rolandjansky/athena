@@ -65,7 +65,6 @@ outStream.ItemList  = [
    "AthExElephantino#*",
    "AthExFatObject#*",
    ]
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10
 
 ##############################################################
 #

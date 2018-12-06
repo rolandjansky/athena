@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.h
@@ -8,7 +8,9 @@
 #ifndef IOVDBSVC_IOVDBFOLDER_H
 #define IOVDBSVC_IOVDBFOLDER_H
 
-#include<string>
+#include <string>
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
@@ -22,6 +24,7 @@
 #include "CoraCool/CoraCoolObjectIter.h"
 #include "CoraCool/CoraCoolObject.h"
 #include <memory>
+#include "FolderTypes.h"
 
 class MsgStream;
 class IOVDbConn;
@@ -34,18 +37,10 @@ class CondAttrListCollection;
 
 class IOVDbFolder {
 public:
-  IOVDbFolder(IOVDbConn* conn,const IOVDbParser& folderprop, MsgStream* msg,
+  IOVDbFolder(IOVDbConn* conn,const IOVDbParser& folderprop, MsgStream & /*msg*/,
               IClassIDSvc* clidsvc,const bool checkglock);
   ~IOVDbFolder();
-  // enum for folder types
-  enum FolderType {
-    AttrList=0,
-    AttrListColl,
-    PoolRef,
-    PoolRefColl,
-    CoraCool,
-    CoolVector
-  };
+  
 
   // access methods to various internal information
   const std::string& folderName() const;
@@ -56,11 +51,15 @@ public:
   bool tagOverride() const;
   bool retrieved() const;
   bool noOverride() const;
-  FolderType folderType() const;
+  IOVDbNamespace::FolderType folderType() const;
   bool readMeta() const;
   bool writeMeta() const;
   // read from meta data only, otherwise ignore folder
   bool fromMetaDataOnly() const;
+  // If true, then the end time for an open-ended range will be set to just
+  // past the current event.  The end time will be automatically updated on accesses
+  // in subsequent events.
+  bool extensible() const;
   bool dropped() const;
   const std::string& joTag() const;
   const std::string& resolvedTag() const;
@@ -147,10 +146,8 @@ private:
   void setSharedSpec(const coral::AttributeList& atrlist);
   // calculate bytesize of given attributeList, using cached typeinfo
   void countSize(const coral::AttributeList& atrlist);
-  // return if channel is selected, compensating for COOL channel seln bug
-  bool isChanSelected(const cool::ChannelId chan);
-  // strip leading/trailing spaces from given string
-  std::string spaceStrip(const std::string& input) const;
+  
+  
   // add this IOV to cache, including channel counting if over edge of cache
   void addIOVtoCache(cool::ValidityKey since, cool::ValidityKey until);
 
@@ -160,8 +157,13 @@ private:
 
   void specialCacheUpdate(const cool::IObject& obj,
                           const ServiceHandle<IIOVSvc>& iovSvc);
+  //override IOV with run, lumi specified
+  void overrideWithRunLumi(const unsigned long long run, const unsigned long long lb=0);
 
-  MsgStream*           m_log;
+  //override IOV with timestamp sepcified
+  void overrideWithTimestamp(const unsigned long long timestamp);
+
+  
   StoreGateSvc*        p_detStore;     // pointer to detector store
   IClassIDSvc*         p_clidSvc;      // pointer to CLID service
   IIOVDbMetaDataTool*  p_metaDataTool; // pointer to metadata tool (writing)
@@ -174,6 +176,7 @@ private:
   bool m_notagoverride;// tag must not be overridden from input file
   bool m_writemeta;    // is writing to metadata
   bool m_fromMetaDataOnly; // to be read from metadata only
+  bool m_extensible;   // xxx
   bool m_named;        // folder has named channels
   bool m_iovoverridden;// folder has IOV override
   bool m_jokey;        // folder has non-default key from joboptions
@@ -181,7 +184,7 @@ private:
   bool m_autocache;    // indicates if cache length was automatically set
   bool m_checklock;    // indicates if global tags should be checked locked
   cool::ValidityKey m_iovoverride; // validity key to use
-  FolderType        m_foldertype; // type of data in folder (enum)
+  IOVDbNamespace::FolderType        m_foldertype; // type of data in folder (enum)
   const IOVMetaDataContainer* m_metacon; // metadata container (=0 if not FLMD)
 
   cool::ValidityKey m_cachelength; // length of cache
@@ -234,6 +237,23 @@ private:
   std::vector<coral::AttributeList> m_cacheattr;
   std::vector<unsigned int> m_cacheccstart;
   std::vector<unsigned int> m_cacheccend;
+  
+  protected:
+   /// Log a message using the Athena controlled logging system
+          MsgStream&
+          msg(MSG::Level lvl) const {
+            return m_msg.get() << lvl;
+          }
+       
+          /// Check whether the logging system is active at the provided verbosity level
+          bool
+          msgLvl(MSG::Level lvl) {
+            return m_msg.get().level() <= lvl;
+          }
+       
+          /// Private message stream member
+          mutable Athena::MsgStreamMember m_msg;
+  
 };
 
 inline const std::string& IOVDbFolder::folderName() const {return m_foldername;}
@@ -251,7 +271,7 @@ inline bool IOVDbFolder::noOverride() const { return m_notagoverride; }
 
 inline bool IOVDbFolder::retrieved() const { return m_retrieved; }
 
-inline IOVDbFolder::FolderType IOVDbFolder::folderType() const 
+inline IOVDbNamespace::FolderType IOVDbFolder::folderType() const 
 {return m_foldertype;}
 
 inline bool IOVDbFolder::readMeta() const { return (m_metacon!=0); }
@@ -259,6 +279,8 @@ inline bool IOVDbFolder::readMeta() const { return (m_metacon!=0); }
 inline bool IOVDbFolder::writeMeta() const { return m_writemeta; }
 
 inline bool IOVDbFolder::fromMetaDataOnly() const { return m_fromMetaDataOnly; }
+
+inline bool IOVDbFolder::extensible() const { return m_extensible; }
 
 inline bool IOVDbFolder::dropped() const { return m_dropped; }
 

@@ -1,0 +1,280 @@
+Sun Nov  4 22:36:36 EST 2018
+WARNING: TCMALLOCDIR not defined, will use libc malloc
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "DataModelRunTests/CondReadWrite_jo.py"
+>== Data valid for run,LB [ 0 , 0 ] to [ 0 , 4 ]
+shared_ptr<cool::IDatabase> cool::IDatabaseSvc::openDatabase(const string& dbId, bool readOnly = true) =>
+    The database does not exist (C++ exception of type cool::DatabaseDoesNotExist)
+Could not connect to sqlite://;schema=condtest_rw.db;dbname=OFLP200 try to create it
+>== Store object in folder /DMTest/TestAttrList
+Attempting to create /DMTest/TestAttrList with description <timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>
+Folder created
+>== Store object with IOV [ 0 , 5 ] and tag AttrList_noTag xint 10
+>== Storing COOL object succeeded. Current content:
+[0,0] - [0,5) (0) [xint (Int32) : 10]
+>== Data valid for run,LB [ 0 , 5 ] to [ 2147483647 , 4294967294 ]
+>== Store object in folder /DMTest/TestAttrList
+>== Store object with IOV [ 5 , 9223372036854775807 ] and tag AttrList_noTag xint 20
+>== Storing COOL object succeeded. Current content:
+[0,0] - [0,5) (0) [xint (Int32) : 10]
+[0,5] - [2147483647,4294967295) (0) [xint (Int32) : 20]
+Py:ConfigurableDb    INFO Read module info for 687 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+EventInfoMgtInit: Got release version  sss-rel_0
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Nov  4 22:36:47 2018
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+StatusCodeSvc                                      INFO initialize
+AthDictLoaderSvc                                   INFO in initialize...
+AthDictLoaderSvc                                   INFO acquired Dso-registry
+ClassIDSvc                                         INFO  getRegistryEntries: read 3318 CLIDRegistry entries for module ALL
+CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr                                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc                                         INFO  getRegistryEntries: read 12079 CLIDRegistry entries for module ALL
+CondInputLoader                                    INFO Initializing CondInputLoader...
+MetaDataSvc                                        INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc                                            INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc                                            INFO Frontier compression level set to 5
+DBReplicaSvc                                       INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
+DBReplicaSvc                                       INFO No specific match for domain found - use default fallback
+DBReplicaSvc                                       INFO Total of 1 servers found for host karma [atlas_dd ]
+PoolSvc                                            INFO Successfully setup replica sorting algorithm
+PoolSvc                                            INFO Setting up APR FileCatalog and Streams
+PoolSvc                                            INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
+PoolSvc                                            INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
+PoolSvc                                         WARNING Unable to locate catalog for apcfile:poolcond/PoolFileCatalog.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                            INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession                                          INFO     Open     DbSession    
+Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc                                        INFO Found MetaDataTools = PrivateToolHandleArray([])
+IOVDbSvc                                           INFO Opened read transaction for POOL PersistencySvc
+IOVDbSvc                                           INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc                                           INFO Read from meta data only for folder /TagInfo
+IOVDbSvc                                           INFO Extensible folder /DMTest/TestAttrList
+IOVDbSvc                                           INFO Initialised with 2 connections and 2 folders
+IOVDbSvc                                           INFO Service IOVDbSvc initialised successfully
+IOVDbSvc                                           INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
+IOVDbSvc                                           INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVSvc                                             INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvcTool                                         INFO IOVRanges will be checked at every Run
+IOVDbSvc                                           INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                           INFO Added taginfo remove for /DMTest/TestAttrList
+ClassIDSvc                                         INFO  getRegistryEntries: read 1002 CLIDRegistry entries for module ALL
+CondInputLoader                                    INFO Adding base classes:
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' )   ->
+CondInputLoader                                    INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
+HistogramPersistencySvc                         WARNING Histograms saving not required.
+EventSelector                                      INFO  Enter McEventSelector Initialization 
+AthenaEventLoopMgr                                 INFO Setup EventSelector service EventSelector
+ApplicationMgr                                     INFO Application Manager Initialized successfully
+ClassIDSvc                                         INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
+CondInputLoader                                    INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/DMTest/TestAttrList'
+ApplicationMgr                                     INFO Application Manager Started successfully
+EventPersistencySvc                                INFO Added successfully Conversion service:McCnvSvc
+AthenaEventLoopMgr                      0   0      INFO   ===>>>  start of run 0    <<<===
+EventPersistencySvc                     0   0      INFO Added successfully Conversion service:AthenaPoolCnvSvc
+EventPersistencySvc                     0   0      INFO Added successfully Conversion service:TagInfoMgr
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 109 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr                      0   0      INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
+IOVDbSvc                                0   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                0   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondWriterExtAlg                0   0      INFO Event 0 LBN 0
+DMTest::CondReaderAlg                   0   0      INFO Event 0 LBN 0
+DMTest::CondReaderAlg                   0   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   0   0      INFO   scond 1000
+AthenaEventLoopMgr                      0   0      INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr                      1   0      INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
+DMTest::CondWriterExtAlg                1   0      INFO Event 1 LBN 0
+IOVDbSvc                                1   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                1   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   1   0      INFO Event 1 LBN 0
+DMTest::CondReaderAlg                   1   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   1   0      INFO   scond 1000
+AthenaEventLoopMgr                      1   0      INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
+AthenaEventLoopMgr                      2   0      INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
+DMTest::CondWriterExtAlg                2   0      INFO Event 2 LBN 1
+IOVDbSvc                                2   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                2   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   2   0      INFO Event 2 LBN 1
+DMTest::CondReaderAlg                   2   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   2   0      INFO   scond 1000
+AthenaEventLoopMgr                      2   0      INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
+AthenaEventLoopMgr                      3   0      INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
+DMTest::CondWriterExtAlg                3   0      INFO Event 3 LBN 1
+IOVDbSvc                                3   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                3   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   3   0      INFO Event 3 LBN 1
+DMTest::CondReaderAlg                   3   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   3   0      INFO   scond 1000
+AthenaEventLoopMgr                      3   0      INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
+AthenaEventLoopMgr                      4   0      INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
+DMTest::CondWriterExtAlg                4   0      INFO Event 4 LBN 2
+IOVDbSvc                                4   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                4   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   4   0      INFO Event 4 LBN 2
+DMTest::CondReaderAlg                   4   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   4   0      INFO   scond 1000
+AthenaEventLoopMgr                      4   0      INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
+AthenaEventLoopMgr                      5   0      INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
+DMTest::CondWriterExtAlg                5   0      INFO Event 5 LBN 2
+IOVDbSvc                                5   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                5   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   5   0      INFO Event 5 LBN 2
+DMTest::CondReaderAlg                   5   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   5   0      INFO   scond 1000
+AthenaEventLoopMgr                      5   0      INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr                      6   0      INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+DMTest::CondWriterExtAlg                6   0      INFO Event 6 LBN 3
+IOVDbSvc                                6   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                6   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   6   0      INFO Event 6 LBN 3
+DMTest::CondReaderAlg                   6   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   6   0      INFO   scond 1000
+AthenaEventLoopMgr                      6   0      INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
+AthenaEventLoopMgr                      7   0      INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
+DMTest::CondWriterExtAlg                7   0      INFO Event 7 LBN 3
+IOVDbSvc                                7   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                7   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   7   0      INFO Event 7 LBN 3
+DMTest::CondReaderAlg                   7   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   7   0      INFO   scond 1000
+AthenaEventLoopMgr                      7   0      INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr                      8   0      INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+DMTest::CondWriterExtAlg                8   0      INFO Event 8 LBN 4
+IOVDbSvc                                8   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                8   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   8   0      INFO Event 8 LBN 4
+DMTest::CondReaderAlg                   8   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   8   0      INFO   scond 1000
+AthenaEventLoopMgr                      8   0      INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr                      9   0      INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+DMTest::CondWriterExtAlg                9   0      INFO Event 9 LBN 4
+IOVDbSvc                                9   0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                9   0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   9   0      INFO Event 9 LBN 4
+DMTest::CondReaderAlg                   9   0      INFO   xint xint (int) : 10
+DMTest::CondReaderAlg                   9   0      INFO   scond 1000
+AthenaEventLoopMgr                      9   0      INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
+AthenaEventLoopMgr                      10  0      INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
+IOVDbSvc                                10  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                10  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondWriterExtAlg                10  0      INFO Event 10 LBN 5
+DMTest::CondReaderAlg                   10  0      INFO Event 10 LBN 5
+DMTest::CondReaderAlg                   10  0      INFO   xint xint (int) : 20
+DMTest::CondReaderAlg                   10  0      INFO   scond 2000
+AthenaEventLoopMgr                      10  0      INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
+AthenaEventLoopMgr                      11  0      INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
+DMTest::CondWriterExtAlg                11  0      INFO Event 11 LBN 5
+IOVDbSvc                                11  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                11  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   11  0      INFO Event 11 LBN 5
+DMTest::CondReaderAlg                   11  0      INFO   xint xint (int) : 20
+DMTest::CondReaderAlg                   11  0      INFO   scond 2000
+AthenaEventLoopMgr                      11  0      INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
+AthenaEventLoopMgr                      12  0      INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
+IOVDbSvc                                12  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                12  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondWriterExtAlg                12  0      INFO Event 12 LBN 6
+DMTest::CondWriterExtAlg                12  0      INFO Executing: dmtest_condwriter.py --rs=0 --ls=8  'sqlite://;schema=condtest_rw.db;dbname=OFLP200' AttrList_noTag 42
+>== Data valid for run,LB [ 0 , 8 ] to [ 2147483647 , 4294967294 ]
+>== Store object in folder /DMTest/TestAttrList
+>== Store object with IOV [ 8 , 9223372036854775807 ] and tag AttrList_noTag xint 42
+>== Storing COOL object succeeded. Current content:
+[0,0] - [0,5) (0) [xint (Int32) : 10]
+[0,5] - [0,8) (0) [xint (Int32) : 20]
+[0,8] - [2147483647,4294967295) (0) [xint (Int32) : 42]
+DMTest::CondWriterExtAlg                12  0      INFO Resetting and dropping payload of folder /DMTest/TestAttrList
+DMTest::CondReaderAlg                   12  0      INFO Event 12 LBN 6
+DMTest::CondReaderAlg                   12  0      INFO   xint xint (int) : 20
+DMTest::CondReaderAlg                   12  0      INFO   scond 2000
+AthenaEventLoopMgr                      12  0      INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
+AthenaEventLoopMgr                      13  0      INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
+DMTest::CondWriterExtAlg                13  0      INFO Event 13 LBN 6
+IOVDbSvc                                13  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                13  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   13  0      INFO Event 13 LBN 6
+DMTest::CondReaderAlg                   13  0      INFO   xint xint (int) : 20
+DMTest::CondReaderAlg                   13  0      INFO   scond 2000
+AthenaEventLoopMgr                      13  0      INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
+AthenaEventLoopMgr                      14  0      INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
+IOVDbSvc                                14  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                14  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondWriterExtAlg                14  0      INFO Event 14 LBN 7
+DMTest::CondReaderAlg                   14  0      INFO Event 14 LBN 7
+DMTest::CondReaderAlg                   14  0      INFO   xint xint (int) : 20
+DMTest::CondReaderAlg                   14  0      INFO   scond 2000
+AthenaEventLoopMgr                      14  0      INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
+AthenaEventLoopMgr                      15  0      INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
+DMTest::CondWriterExtAlg                15  0      INFO Event 15 LBN 7
+IOVDbSvc                                15  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                15  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   15  0      INFO Event 15 LBN 7
+DMTest::CondReaderAlg                   15  0      INFO   xint xint (int) : 20
+DMTest::CondReaderAlg                   15  0      INFO   scond 2000
+AthenaEventLoopMgr                      15  0      INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
+AthenaEventLoopMgr                      16  0      INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
+IOVDbSvc                                16  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                16  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondWriterExtAlg                16  0      INFO Event 16 LBN 8
+DMTest::CondReaderAlg                   16  0      INFO Event 16 LBN 8
+DMTest::CondReaderAlg                   16  0      INFO   xint xint (int) : 42
+DMTest::CondReaderAlg                   16  0      INFO   scond 4200
+AthenaEventLoopMgr                      16  0      INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
+AthenaEventLoopMgr                      17  0      INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
+DMTest::CondWriterExtAlg                17  0      INFO Event 17 LBN 8
+IOVDbSvc                                17  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                17  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   17  0      INFO Event 17 LBN 8
+DMTest::CondReaderAlg                   17  0      INFO   xint xint (int) : 42
+DMTest::CondReaderAlg                   17  0      INFO   scond 4200
+AthenaEventLoopMgr                      17  0      INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
+AthenaEventLoopMgr                      18  0      INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
+IOVDbSvc                                18  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                18  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondWriterExtAlg                18  0      INFO Event 18 LBN 9
+DMTest::CondReaderAlg                   18  0      INFO Event 18 LBN 9
+DMTest::CondReaderAlg                   18  0      INFO   xint xint (int) : 42
+DMTest::CondReaderAlg                   18  0      INFO   scond 4200
+AthenaEventLoopMgr                      18  0      INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
+AthenaEventLoopMgr                      19  0      INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
+DMTest::CondWriterExtAlg                19  0      INFO Event 19 LBN 9
+IOVDbSvc                                19  0      INFO Opening COOL connection for sqlite://;schema=condtest_rw.db;dbname=OFLP200
+IOVDbSvc                                19  0      INFO Disconnecting from sqlite://;schema=condtest_rw.db;dbname=OFLP200
+DMTest::CondReaderAlg                   19  0      INFO Event 19 LBN 9
+DMTest::CondReaderAlg                   19  0      INFO   xint xint (int) : 42
+DMTest::CondReaderAlg                   19  0      INFO   scond 4200
+AthenaEventLoopMgr                      19  0      INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
+Domain[ROOT_All]                        19  0      INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr                          19  0      INFO Application Manager Stopped successfully
+IncidentProcAlg1                        19  0      INFO Finalize
+CondInputLoader                         19  0      INFO Finalizing CondInputLoader...
+IncidentProcAlg2                        19  0      INFO Finalize
+EventSelector                           19  0      INFO finalize
+IOVDbSvc                                19  0      INFO Folder /DMTest/TestAttrList (AttrList) db-read 20/26 objs/chan/bytes 47/1/188 ((     0.07 ))s
+IOVDbSvc                                19  0      INFO Total payload read from COOL: 188 bytes in ((      0.07 ))s
+IOVDbSvc                                19  0      INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc                                19  0      INFO Connection sqlite://;schema=condtest_rw.db;dbname=OFLP200 : nConnect: 21 nFolders: 1 ReadTime: ((     0.07 ))s
+AthDictLoaderSvc                        19  0      INFO in finalize...
+ToolSvc                                 19  0      INFO Removing all tools created by ToolSvc
+ChronoStatSvc.finalize()                19  0      INFO  Service finalized successfully 
+ApplicationMgr                          19  0      INFO Application Manager Finalized successfully
+ApplicationMgr                          19  0      INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

@@ -176,7 +176,6 @@ else:
     PESA__T2VertexBeamSpot.TrackAlgoID = 2
 
 PESA__T2VertexBeamSpot.UseBeamConditionService = True
-PESA__T2VertexBeamSpot.BeamCondSvcName         = "BeamCondSvc" 
 
 PESA__T2VertexBeamSpot.DoPerLBHistograms       = True 
 PESA__T2VertexBeamSpot.LBHistoryLength         = 10

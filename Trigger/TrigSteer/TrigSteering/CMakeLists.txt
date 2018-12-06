@@ -70,7 +70,7 @@ atlas_add_dictionary( TrigSteeringDict
                       TrigSteering/TrigSteeringDict.h
                       TrigSteering/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib )
+LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib )
 
 atlas_add_test( Signature_test
                 SOURCES
@@ -78,6 +78,15 @@ atlas_add_test( Signature_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib
                 EXTRA_PATTERNS ".*" )
+
+
+atlas_add_test( SteeringChain_test
+                SOURCES
+                test/SteeringChain_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib
+                EXTRA_PATTERNS ".*" )
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

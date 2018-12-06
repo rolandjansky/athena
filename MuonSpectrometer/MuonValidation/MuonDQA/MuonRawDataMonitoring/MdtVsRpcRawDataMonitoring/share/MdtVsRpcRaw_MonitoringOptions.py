@@ -27,7 +27,7 @@ MdtVsRpcRawDataValAlg = MdtVsRpcRawDataValAlg(name='MdtVsRpcRawDataValAlg',
                                               RpcPrepDataContainer="RPC_Measurements",
                                               MdtPrepDataContainer="MDT_DriftCircles",
                                               LastEvent = MuonDQAFlags.EvtMax)
-ToolSvc += MdtVsRpcRawDataValAlg
+#ToolSvc += MdtVsRpcRawDataValAlg
 MdtRpcRawMonMan.AthenaMonTools += [ MdtVsRpcRawDataValAlg ]
 topSequence += MdtRpcRawMonMan
 print MdtRpcRawMonMan

@@ -14,11 +14,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TrigTimer;
 class IRegSelSvc;
 class ITrigRun1ZFinder;
-class IBeamCondSvc;
 class ITrigHitFilter;
 class ITrigL2DupTrackRemovalTool;
 class EventID;
@@ -75,7 +75,7 @@ class TrigL2PattRecoStrategyA: public AthAlgTool, virtual public ITrigL2PattReco
 
   bool m_doZF_Only;
 
-  IBeamCondSvc* m_iBeamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   // patt rec. stuff
   ToolHandle<ITrigHitFilter>  m_hitFilter;

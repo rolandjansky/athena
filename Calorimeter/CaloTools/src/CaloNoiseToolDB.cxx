@@ -11,7 +11,6 @@
 //=== TileCalibBlobObjs
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 #include "CaloCondBlobObjs/CaloCondUtils.h"
-
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 

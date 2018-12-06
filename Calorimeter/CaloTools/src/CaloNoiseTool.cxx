@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloNoiseTool.h"
@@ -9,10 +9,6 @@
 #include "TileConditions/TileCablingService.h"
 
 // For Gaudi
-#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IService.h"
-//#include "GaudiKernel/IToolSvc.h"
-//#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -63,8 +59,8 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
     m_UseLAr(true),m_UseTile(true),m_UseSymmetry(true),
     m_DumpDatabaseHG(false),m_DumpDatabaseMG(false),m_DumpDatabaseLG(false),
     m_isMC(true),
-    m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"), m_keyADC2GeV("LArADC2MeV"), 
-    m_keyOFShape("LArOFC_Shape"), m_keyAutoCorr("LArAutoCorr"),
+    m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"),
+    m_keyAutoCorr("LArAutoCorr"),
     m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBias("LArMinBias"),
     m_Nmessages_forTilePileUp(0),
     m_noiseOK(false),
@@ -98,12 +94,10 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
   declareProperty("IsMC",m_isMC);
   declareProperty("keyAutoCorr",m_keyAutoCorr); 
   declareProperty("keyPedestal",m_keyPedestal); 
-  declareProperty("keyOFC",m_keyOFShape); 
   declareProperty("keyShape",m_keyShape); 
   declareProperty("keyfSampl",m_keyfSampl); 
   declareProperty("keyMinBias",m_keyMinBias); 
   declareProperty("keyNoise",m_keyNoise); 
-  declareProperty("keyADC2GeV",m_keyADC2GeV); 
   declareProperty("LoadAtBegin",m_loadAtBegin=true);
   declareProperty("deltaBunch",m_deltaBunch);
   declareProperty("firstSample",m_firstSample);
@@ -284,32 +278,6 @@ CaloNoiseTool::initialize()
       }
     }
 
-    if(m_WorkMode==0)
-    {      
-
-      StatusCode sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
-			     dynamic_cast<ICaloNoiseTool*>(this),
-			     m_dd_adc2gev,m_keyADC2GeV,true);
-      if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyADC2GeV  );
-      } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyADC2GeV  );
-      }
-
-      sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
-                            dynamic_cast<ICaloNoiseTool*>(this),
-			     m_detDHOFC,m_keyOFShape,true);
-      if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyOFShape  );
-      } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyOFShape  );
-      }
-    }
-
     StatusCode sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
 			   dynamic_cast<ICaloNoiseTool*>(this),
 			   m_dd_acorr,m_keyAutoCorr,true);
@@ -388,9 +356,17 @@ CaloNoiseTool::initialize()
 
   }//UseLAr
 
-  if(m_UseTile)
-  {
-   //currently no database for Tile
+  if(m_UseTile) {
+    //currently no database for Tile
+    ATH_CHECK( m_tileCellNoise.retrieve() );
+    ATH_CHECK( m_tileToolEmscale.retrieve() );
+    ATH_CHECK( m_tileToolNoiseSample.retrieve() );
+    ATH_CHECK( m_tileIdTransforms.retrieve() );
+  } else {
+    m_tileCellNoise.disable();
+    m_tileToolEmscale.disable();
+    m_tileToolNoiseSample.disable();
+    m_tileIdTransforms.disable();
   }
 
   m_CNoise    = 0.456E-3;
@@ -680,17 +656,7 @@ CaloNoiseTool::initAdc2MeV()
     CaloCell_ID::SUBCALO iCalo = this->caloNum(m_idSymmCaloHashContainer[it]);
     Identifier id=m_calocell_id->cell_id(m_idSymmCaloHashContainer[it]);
     //::::::::::::::::::::::::::::::::::::::
-    if(m_WorkMode==0)    
-    {
-      if(iCalo==CaloCell_ID::LAREM || iCalo==CaloCell_ID::LARHEC) 
-      { //only for EM and HEC
-	m_adc2mevContainer[it]=m_dd_adc2gev->AllFactors(id);
-	for(float & fac : m_adc2mevContainer[it])
-	  fac *= GeV;
-      }
-    }
-    //::::::::::::::::::::::::::::::::::::::
-    else if(m_WorkMode==1)  
+    if(m_WorkMode==1)  
     {
       if(iCalo!=CaloCell_ID::TILE) 
       {
@@ -936,7 +902,10 @@ CaloNoiseTool::calculateElecNoiseForTILE(const IdentifierHash & idCaloHash)
   for(int igain=0;igain<CaloGain::LARNGAIN;++igain)
   {
     CaloGain::CaloGain gain = static_cast<CaloGain::CaloGain>(igain);
-    float sigma = m_tileInfo->CellNoiseSigma(id,gain);
+    float sigma = m_tileCellNoise->getCellNoise(id, gain);
+    // Conversion from ADC sigma noise to OF sigma noise
+    sigma *= m_tileInfo->getNoiseScaleFactor();
+
     //the LAr gain is internally (in CellNoiseSigma) converted into Tile gain
     sigmaVector[igain]= sigma;
     //::::::::::::::::::::::::::::::::::::::
@@ -1103,16 +1072,8 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
 
   if(m_retrieve[iADC2MEV])
   {
-    if(m_WorkMode==0) 
-    {
-      const std::vector<float>& vAdc2MeVFactor = m_dd_adc2gev->AllFactors(id);
-      m_Adc2MeVFactor = vAdc2MeVFactor[igain]*GeV;
-    }
-    else 
-    {      
-      int index=this->index(idCaloHash);
-      m_Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
-    } 
+    int index=this->index(idCaloHash);
+    m_Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
     if(PRINT) std::cout<<"m_Adc2MeVFactor="<<m_Adc2MeVFactor<<std::endl;
   }
 
@@ -1157,8 +1118,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //OFC
   if(m_retrieve[iOFC])
   {
-    if(m_WorkMode==0) m_OFC = m_detDHOFC->OFC_a(hwid, igain, 0) ;
-    else              m_OFC = m_OFCTool->OFC_a(hwid, igain) ;
+    m_OFC = m_OFCTool->OFC_a(hwid, igain) ;
     /////////
     if(PRINT) {
       std::cout<<"OFC= ";
@@ -2001,42 +1961,56 @@ CaloNoiseTool::estimatedTileGain(const CaloCell* caloCell,
   //double eneTot = tileCell->energy();
 
     // threshold (1023 counts) is the same for all channels
-  double thr = m_tileInfo->ADCmax(); 
+  double threshold = m_tileInfo->ADCmax();
 
   static const TileHWID * tileHWID = TileCablingService::getInstance()->getTileHWID();
   static const IdContext chContext = tileHWID->channel_context();
-  HWIdentifier hwid;
+  HWIdentifier hwid1;
   
-  tileHWID->get_id(caloDDE->onl1(), hwid, &chContext ); // pmt id
-  hwid = tileHWID->adc_id(hwid,TileHWID::HIGHGAIN); // high gain ADC id
+  tileHWID->get_id(caloDDE->onl1(), hwid1, &chContext ); // pmt id
+  hwid1 = tileHWID->adc_id(hwid1, TileHWID::HIGHGAIN); // high gain ADC id
   
+  unsigned int drawerIdx1(0), channel1(0), adc1(0);
+  m_tileIdTransforms->getIndices(hwid1, drawerIdx1, channel1, adc1);
+
   // first PMT, convert energy to ADC counts
-  double amp = tileCell->ene1();
-  amp /= m_tileInfo->ChannelCalib(hwid,TileRawChannelUnit::ADCcounts,TileRawChannelUnit::MegaElectronVolts);
-  double ped = m_tileInfo->DigitsPedLevel(hwid); 
+  double amplitude1 = tileCell->ene1();
+  amplitude1 /= m_tileToolEmscale->channelCalib(drawerIdx1, channel1, adc1, 1.0,
+                                          TileRawChannelUnit::ADCcounts,
+                                          TileRawChannelUnit::MegaElectronVolts);
+
+  double pedestal1 = m_tileToolNoiseSample->getPed(drawerIdx1, channel1, adc1);
 
   int igain1;
 
-  if (amp + ped < thr )
+  if (amplitude1 + pedestal1 < threshold ) {
     igain1 = TileID::HIGHGAIN;
-  else
+  } else {
     igain1 = TileID::LOWGAIN;
+  }
 
   // second PMT, if it exists
-  if (caloDDE->onl2() !=  TileID::NOT_VALID_HASH ) 
-  {
-    tileHWID->get_id(caloDDE->onl2(), hwid, &chContext ); // pmt id
-    hwid = tileHWID->adc_id(hwid,TileHWID::HIGHGAIN); // high gain ADC id
+  if (caloDDE->onl2() !=  TileID::NOT_VALID_HASH ) {
 
-    amp = tileCell->ene2();
-    amp /= m_tileInfo->ChannelCalib(hwid,TileRawChannelUnit::ADCcounts,TileRawChannelUnit::MegaElectronVolts);
-    ped = m_tileInfo->DigitsPedLevel(hwid); 
+    HWIdentifier hwid2;
+    tileHWID->get_id(caloDDE->onl2(), hwid2, &chContext ); // pmt id
+    hwid2 = tileHWID->adc_id(hwid2, TileHWID::HIGHGAIN); // high gain ADC id
 
-    if (amp + ped < thr ) {
+    unsigned int drawerIdx2(0), channel2(0), adc2(0);
+    m_tileIdTransforms->getIndices(hwid2, drawerIdx2, channel2, adc2);
+
+    // first PMT, convert energy to ADC counts
+    double amplitude2 = tileCell->ene2();
+    amplitude2 /= m_tileToolEmscale->channelCalib(drawerIdx2, channel2, adc2, 1.0,
+                                            TileRawChannelUnit::ADCcounts,
+                                            TileRawChannelUnit::MegaElectronVolts);
+
+    double pedestal2 = m_tileToolNoiseSample->getPed(drawerIdx2, channel2, adc2);
+
+    if (amplitude2 + pedestal2 < threshold) {
       // igain2 high
       return igain1 == TileID::LOWGAIN ? CaloGain::TILEHIGHLOW : CaloGain::TILEHIGHHIGH;
-    }
-    else {
+    } else {
       // igain2 low
       return igain1 == TileID::LOWGAIN ? CaloGain::TILELOWLOW : CaloGain::TILEHIGHLOW;
     }

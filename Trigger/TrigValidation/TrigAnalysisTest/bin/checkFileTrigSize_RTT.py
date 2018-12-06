@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #################################################################
-# a script to grab the trigger stuff from checkfile.py output
+# a script to grab the trigger information from checkfile.py output
 # Fabrizio Salvatore - University of Sussex - May 2009
 # Edit - July 2013 - Rodger Mantifel - get trigger category from TriggerEDM.py
+# Edit - Oct 2018 - Catrin Bernius
 #################################################################
 
 import sys;
@@ -16,7 +17,7 @@ from TrigEDMConfig.TriggerEDM import *
 
 
 
-#a 'Counter' just contains the list of classes you want to include and the size
+# 'Counter' just contains the list of classes you want to include and the size
 class Counter:
     size = 0
     def __init__(self,myname,mylist):
@@ -79,7 +80,8 @@ class checkFileTrigSize_RTT:
             'egDetailContainer_p1_AtlfastIsoPhoShowerContainer',
             'PhotonContainer_p1_AtlfastIsoPhotonCollection',
             'egDetailContainer_p1_AtlfastPhoShowerContainer',
-        'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationCombined_Electron_EFID',        
+            'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationCombined_Electron_EFID',  
+      
             
             #    'Rec::TrackParticleTruthCollection_p1_IPatTrackParticleTruthCollection',
             #    'Rec::TrackParticleTruthCollection_p1_XKalTrackParticleTruthCollection',
@@ -439,8 +441,7 @@ class checkFileTrigSize_RTT:
             'Muon::ChamberT0s_p1_MboyMuonChamberT0s',   
             'Muon::ChamberT0s_p1_MooreMuonChamberT0s',
             'CaloClusterContainer_p7_MuonClusterCollection',
-
-         #    'MuonContainer_p1_AtlfastMuonCollection',
+            #    'MuonContainer_p1_AtlfastMuonCollection',
             #    'Rec::MuonSpShowerContainer_MuonSpShowers',
             ]
         muonCounter = Counter('muon',muonList)
@@ -552,22 +553,42 @@ class checkFileTrigSize_RTT:
         ]
         triggerCounterBphys = Counter('triggerBphys',triggerListBphys)
   
-        triggerListConfig = [
+        triggerListConfigID = [
             'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_FullScan_EFID',
             'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationTRTOnly_FullScan_EFID',
+
+            'HLT_xAOD__RoiDescriptorStore_forID',            
+            'HLT_xAOD__RoiDescriptorStore_forIDAux.',            
+            'HLT_xAOD__RoiDescriptorStore_forID1',
+            'HLT_xAOD__RoiDescriptorStore_forID1Aux.',
+            'HLT_xAOD__RoiDescriptorStore_forID2',
+            'HLT_xAOD__RoiDescriptorStore_forID2Aux.',
+            'HLT_xAOD__RoiDescriptorStore_forID3',
+            'HLT_xAOD__RoiDescriptorStore_forID3Aux.',
         ]
-        triggerCounterID = Counter('triggerID',triggerListConfig)
+        triggerCounterID = Counter('triggerID',triggerListConfigID)
   
         triggerListConfig = [
-            'IOVMetaDataContainer_p1__TRIGGER_HLT_HltConfigKeys',
             'IOVMetaDataContainer_p1__TRIGGER_HLT_Menu',
             'IOVMetaDataContainer_p1__TRIGGER_LVL1_Lvl1ConfigKey',
             'IOVMetaDataContainer_p1__TRIGGER_LVL1_Menu',
             'IOVMetaDataContainer_p1__TRIGGER_LVL1_Prescales',
-            'IOVMetaDataContainer_p1__TRIGGER_HLT_PrescaleKey'
+            'IOVMetaDataContainer_p1__TRIGGER_HLT_PrescaleKey',
+            'IOVMetaDataContainer_p1__TRIGGER_HLT_ConfigKeys',
+            '_TRIGGER_HLT_Menu', 
+            '_TRIGGER_HLT_Prescales',
+            '_TRIGGER_HLT_PrescaleKey',
+            '_TRIGGER_HLT_HltConfigKeys', 
+            '_TRIGGER_LVL1_Menu',
+            '_TRIGGER_LVL1_Lvl1ConfigKey',
+            '_TRIGGER_LVL1_Prescales',
+            '_TRIGGER_LVL1_ItemDef',
+            '_TRIGGER_LVL1_Thresholds',
+            'TriggerMenu',
+            'TriggerMenuAux.',
         ]
         triggerCounterConfig = Counter('triggerConfig',triggerListConfig)
-            
+
         triggerListCosmics = [
             'CosmicMuonCollection_tlp1_HLT_CosmicMuons',
             'MdtTrackSegmentCollection_tlp1_HLT_MDTsegments',
@@ -728,12 +749,15 @@ class checkFileTrigSize_RTT:
         triggerCounterMinBias = Counter('triggerMinBias',triggerListMinBias)
     
         triggerListMuon = [
+            'HLT_MuonFeatureContainer',
+            'HLT_MuonFeatureDetailsContainer',
+            'HLT_CombinedMuonFeatureContainer',
             'CombinedMuonFeatureContainer_tlp1_HLT',
             'IsoMuonFeatureContainer_tlp1_HLT',
-        'CombinedMuonFeatureContainer_p2_HLT',
-        'CombinedMuonFeatureContainer_p3_HLT',
-        'CombinedMuonFeatureContainer_p4_HLT',
-        'MuonFeatureContainer_p3_HLT',
+            'CombinedMuonFeatureContainer_p2_HLT',
+            'CombinedMuonFeatureContainer_p3_HLT',
+            'CombinedMuonFeatureContainer_p4_HLT',
+            'MuonFeatureContainer_p3_HLT',
             'MuonFeatureContainer_tlp1_HLT',
             'MuonFeatureContainer_tlp2_HLT',
             'MuonFeatureDetailsContainer_p2_HLT',
@@ -784,10 +808,10 @@ class checkFileTrigSize_RTT:
             'TrigMuonClusterFeatureContainer_tlp1_HLT_MuonCluster',
             'IsoMuonFeatureContainer_p2_HLT',  
             'IsoMuonFeatureContainer_p3_HLT',  
-        'ElectronMuonTopoInfoContainer_p1_HLT_EF_EgMuTopoFEX',
-        'ElectronMuonTopoInfoContainer_p1_HLT_EgMuTopoFEX',
-        'ElectronMuonTopoInfoContainer_p1_HLT_EF_PhotonMuonTopoFEX',
-        'ElectronMuonTopoInfoContainer_p1_HLT_L2_PhotonMuonTopoFEX',
+            'ElectronMuonTopoInfoContainer_p1_HLT_EF_EgMuTopoFEX',
+            'ElectronMuonTopoInfoContainer_p1_HLT_EgMuTopoFEX',
+            'ElectronMuonTopoInfoContainer_p1_HLT_EF_PhotonMuonTopoFEX',
+            'ElectronMuonTopoInfoContainer_p1_HLT_L2_PhotonMuonTopoFEX',
             # Only in ESDs
             'Trk::TrackCollection_tlp2_HLT_InDetTrigTrackSlimmer_Muon_EFID',
             'Muon::TgcCoinDataContainer_tlp1_TrigT1CoinDataCollectionNextBC',
@@ -799,7 +823,9 @@ class checkFileTrigSize_RTT:
             'Muon::MuonPRD_Container_p2<Muon::RpcCoinData_p1>_RPC_triggerHits',
             'Muon::TgcCoinDataContainer_tlp2_TrigT1CoinDataCollection',
             'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreationTRTOnly_Muon_EFID',
-        'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Muon_EFID', 
+            'Rec::TrackParticleContainer_tlp2_HLT_InDetTrigParticleCreation_Muon_EFID', 
+            'HLT_xAOD__RoiDescriptorStore_forMS',
+            'HLT_xAOD__RoiDescriptorStore_forMSAux.',
         ]
         triggerCounterMuon = Counter('triggerMuon',triggerListMuon)
     
@@ -833,6 +859,14 @@ class checkFileTrigSize_RTT:
             'TrigRoiDescriptorCollection_tlp1_HLT_TrigT2CaloEgamma',
             'TrigRoiDescriptorCollection_tlp1_HLT_TrigT2CaloJet',
             'TrigRoiDescriptorCollection_tlp1_HLT_TrigT2CaloTau',
+            'HLT_xAOD__RoiDescriptorStore_secondaryRoI_L2',
+            'HLT_xAOD__RoiDescriptorStore_secondaryRoI_L2Aux.',
+            'HLT_xAOD__RoiDescriptorStore_secondaryRoI_EF',
+            'HLT_xAOD__RoiDescriptorStore_secondaryRoI_EFAux.',
+            'HLT_xAOD__RoiDescriptorStore_secondaryRoI_HLT',
+            'HLT_xAOD__RoiDescriptorStore_secondaryRoI_HLTAux.',
+            'HLT_xAOD__RoiDescriptorStore_initialRoI',
+            'HLT_xAOD__RoiDescriptorStore_initialRoIAux.',
             # Only in ESDs
             'TrigOperationalInfoCollection_tlp1_HLT_OPI_EF',
             'TrigOperationalInfoCollection_tlp1_HLT_OPI_L2',
@@ -912,7 +946,6 @@ class checkFileTrigSize_RTT:
             'LVL1_ROI_p1_LVL1_ROI',
             'TriggerTowerCollection_tlp1_TriggerTowers',
             'IOVMetaDataContainer_p1__TRIGGER_LVL1_ItemDef',
-
         ]
         triggerCounterL1 = Counter('triggerL1',triggerListL1)
 
@@ -1037,10 +1070,6 @@ class checkFileTrigSize_RTT:
     
         sumNU = 0 #sum of non used containers
 
-#print ""
-#print "Trigger Items:"
-
-        ## Added by Rodger
         ## list of trigger algorithms found in AOD, their category, and their size in the AOD
         self.triggerAlgList = []
         triggerAlgListNotIncluded = []
@@ -1079,33 +1108,45 @@ class checkFileTrigSize_RTT:
 
             isLineCounted = False
             
-            ## Added by Rodger
-            ## ========================================================
-
             # sum of all algorithm sizes in checkFile
             self.totalAlgSize += float(sizePerEvent)
             
             # Variable for testing if algorithm might be trigger related
             # Used in the last elif statement
             TrigInName = name.find("Trig") + name.find("HLT") + name.find("LVL1")
-
             
             ## Add trigger algorithm to trigger list if it's found in TriggerEDM.py dictionary
             ## !! It should definately be found if it's a trigger algorithm !!
+            ## Some exceptions for Steering info and RoIDescriptorStore
             if getCategory(name) != 'NOTFOUND':
-                self.triggerAlgList.append([name, getCategory(name), float(sizePerEvent)])
-
                 
-            ## IOVMetaDataContainer* are not in TriggerEDM.py dictionary
-            ## Add these manually to list
+                
+                
+
+                self.triggerAlgList.append([name, getCategory(name), float(sizePerEvent)])
+                
+            ## IOVMetaDataContainer* are not in TriggerEDM.py dictionary -> Add manually to list
             elif getCategory(name) == 'NOTFOUND' and name.count('IOVMetaDataContainer'):
                 self.triggerAlgList.append([name, 'Config', float(sizePerEvent)])
+                
+            elif getCategory(name) == 'NOTFOUND' and name in triggerListConfig:
+                self.triggerAlgList.append([name, 'Config', float(sizePerEvent)])
+
+            elif getCategory(name) == 'NOTFOUND' and name in triggerListMuon:
+                self.triggerAlgList.append([name, 'Muon', float(sizePerEvent)])
+
+            elif getCategory(name) == 'NOTFOUND' and name in triggerListSteer:
+                self.triggerAlgList.append([name, 'Steer', float(sizePerEvent)])
+
+            elif getCategory(name)  == 'NOTFOUND' and name in triggerListConfigID:
+                self.triggerAlgList.append([name, 'Tracking', float(sizePerEvent)])
 
             ## Do some simple checks if algorithm is not found in dictionary (and isn't IOVMetaDataContainer*)
             ## Add these to triggerAlgsNotIncluded
             ## Can be used to debug the search algorithm of getCategory() in TriggerEDM.py
             elif getCategory(name) == 'NOTFOUND' and TrigInName != -3:
                 triggerAlgListNotIncluded.append([name, getCategory(name), float(sizePerEvent)])
+
                     
             ## Otherwise, put in non-trigger algorithm list
             else:
@@ -1132,19 +1173,11 @@ class checkFileTrigSize_RTT:
                  sumNU += float(splitline[4])
                 except: pass
                 TrigInName = name.find("Trig") + name.find("HLT") + name.find("LVL1")
-#                if TrigInName!=-3:
-#                    notUsedList.append(name)
-#                    print "====================="
-#                    print "Missing Trigger Containers!!!"
-#                    print "====================="
-#                    print name, sizePerEvent
-                    
 
         sum = 0 #the sum of all counters (should be equal to 'total')
         sumTrig = 0 #the sum of trigger component
         sumNonTrig = 0 #the sum of non trigger component
         
-        ## Added by Rodger
         ## Calculate trigger category sizes and store in dictionary
         ## ========================================================
         self.triggerAlgSize = {}
@@ -1190,17 +1223,9 @@ class checkFileTrigSize_RTT:
 
             print ""
             print "====================="
-            #print "debugging information:"
-            #print "sumNonTrig = ", sumNonTrig
-            # print "Total Trigger Size".ljust(23), "%6.3f" % sumTrig
-            # fout.write("Total Trigger Size".ljust(23) + "%6.3f" % sumTrig + "\n")
             print "Total Trigger Size".ljust(23), "%6.3f" % self.triggerAlgSize[ 'Total' ]
             fout.write("Total Trigger Size".ljust(23) + "%6.3f" % self.triggerAlgSize[ 'Total' ] + "\n")
-            #print "trig+nonTrig=", sumNonTrig+sumTrig
-            #print "sum = ", sum
             tsize = sumNU+sum
-            # print "Total file size".ljust(23), tsize
-            # fout.write("Total file size".ljust(23) + "%6.3f" % tsize + "\n")
             print "Total file size".ljust(23), self.totalAlgSize
             fout.write("Total file size".ljust(23) + "%6.3f" % self.totalAlgSize + "\n")
             print "Total file size (list)".ljust(23), self.totalAlgSizeInLists
@@ -1208,30 +1233,12 @@ class checkFileTrigSize_RTT:
             print "Total (from checkFile)".ljust(23), self.total
             fout.write("Total (from checkFile)".ljust(23)+"%6.3f" % self.total + "\n")
             print 
-            ##print triggerlist in order of size
-            #orderedlist = [(v, k) for k, v in triggerlist.items()]
-            #orderedlist.sort() 
-            #orderedlist.reverse()             # so largest is first
-            #orderedlist = [(k, v) for v, k in orderedlist]
 
-            #total=0
-            #print "Original Tag List:"
-            #for tag,size in orderedlist:
-            #    total+=size
-            #    print "%4.2f \t %s" % (size, tag)
-            #print "Total: %6.2f" % (total)
-             #
-            # if len(notUsedList) > 0: 
-                # fout.write( "The following were not counted \n")
-                # fout.write( "Please addd any trigger related packages to Trigger/TrigValidation/TrigAnalysisTest/bin/checkFileTrigSize_RTT.py \n")
-                # for item in notUsedList:
-                    # fout.write( "WARNING:  Unknown item "+item+"\n")
-                # return self.error
-                
-            fout.write( "\nThe following were found in TriggerEDM and counted but have a classification 'Unknown'. \n")
-            for item in self.triggerAlgList:
-                if item[1] == 'Unknown':
-                    fout.write( "INFO:  "+item[0]+"\n" )
+            if len(self.triggerAlgList) > 0:
+                fout.write( "\nThe following were found in TriggerEDM and counted but have a classification 'Unknown': \n")
+                for item in self.triggerAlgList:
+                    if item[1] == 'Unknown':
+                        fout.write( "INFO:  "+item[0]+"\n" )
                 
             if len(triggerAlgListNotIncluded) > 0:
                 fout.write( "\nThe following were not found in TriggerEDM and were not counted. \n")
@@ -1240,7 +1247,6 @@ class checkFileTrigSize_RTT:
                 for item in triggerAlgListNotIncluded:
                     fout.write( "WARNING:  Unknown item "+item[0]+"\n")
                 return self.error
-
             return self.success
 
 # This is just for testing outside of the RTT

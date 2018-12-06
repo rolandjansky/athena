@@ -75,12 +75,12 @@ bool Trk::Volume::inside(const Amg::Vector3D& gp, double tol) const
 }
 
 
-const Trk::ObjectAccessor& Trk::Volume::boundarySurfaceAccessor(const Amg::Vector3D& gp,
+Trk::ObjectAccessor Trk::Volume::boundarySurfaceAccessor(const Amg::Vector3D& gp,
                                                                 const Amg::Vector3D& dir,
                                                                 bool forceInside) const
 {
- if (!m_transform) return volumeBounds().boundarySurfaceAccessor(gp, dir, forceInside);
- return volumeBounds().boundarySurfaceAccessor(transform().inverse()*gp, dir, forceInside);
+ if (!m_transform) return Trk::ObjectAccessor(volumeBounds().boundarySurfaceAccessor(gp, dir, forceInside));
+ return Trk::ObjectAccessor(volumeBounds().boundarySurfaceAccessor(transform().inverse()*gp, dir, forceInside));
 }
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 

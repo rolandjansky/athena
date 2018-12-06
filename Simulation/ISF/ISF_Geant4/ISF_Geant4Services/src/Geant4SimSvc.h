@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// Geant4SimSvc.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_GEANT4SIMSVC_H
 #define ISF_GEANT4SIMSVC_H 1
@@ -12,30 +8,19 @@
 // STL includes
 #include <string>
 
-// FrameWork includes
+// Gaudi
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthService.h"
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
-
-class IDetectorGeometrySvc;
-class G4Timer;
-
-namespace ISF {
-  class ISFParticle;
-  class ITruthSvc;
-}
+#include "ISF_Interfaces/ISimulatorTool.h"
+#include "ISF_Event/ISFParticleContainer.h"
 
 namespace iGeant4 {
 
-  class ITransportTool;
-
   /** @class Geant4SimSvc
 
-      @author Andreas.Salzburger -at- cern.ch
   */
   class Geant4SimSvc : public ISF::BaseSimulationSvc {
 
@@ -47,43 +32,26 @@ namespace iGeant4 {
     virtual ~Geant4SimSvc();
 
     /** Athena algorithm's interface methods */
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** Simulation Call  */
-    StatusCode simulate(const ISF::ISFParticle& isp);
-
+    virtual StatusCode simulate(const ISF::ISFParticle& isp) override;
 
     /** Simulation Call for vector of ISF particles */
-    StatusCode simulateVector(const ISF::ConstISFParticleVector& particles);
+    virtual StatusCode simulateVector(const ISF::ConstISFParticleVector& particles) override;
 
     /** Setup Event chain - in case of a begin-of event action is needed */
-    StatusCode setupEvent();
+    virtual StatusCode setupEvent() override;
 
     /** Release Event chain - in case of an end-of event action is needed */
-    StatusCode releaseEvent();
+    virtual StatusCode releaseEvent() override;
 
   private:
     /** Default constructor */
     Geant4SimSvc();
 
-    ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
-
-    /** Track Creation & transport */
-    ToolHandle<iGeant4::ITransportTool>  m_simulationTool;            //!< Pointer to the TrackCreator AlgTool
-
-    /** Geant4 Python Configuration Tool */
-    ToolHandle<IAlgTool>                 m_configTool;                //!< Pointer to the G4 Python Config Tool
-
-    // timing checks
-    bool  m_doTiming;
-    //float m_runTime;
-    float m_accumulatedEventTime;
-    float m_accumulatedEventTimeSq;
-    unsigned int m_nrOfEntries;
-
-    G4Timer* m_runTimer;
-    G4Timer* m_eventTimer;
+    PublicToolHandle<ISF::ISimulatorTool> m_simulatorTool{this, "SimulatorTool", "", ""};
 
   };
 }

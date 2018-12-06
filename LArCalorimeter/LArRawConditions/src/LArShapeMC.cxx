@@ -1,20 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArShapeMC.h" 
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "LArElecCalib/ILArMCSymTool.h"
-
-#include <iostream> 
-using namespace std ;
 
 LArShapeMC::LArShapeMC() : ILArShape(), 
 			   LArConditionsContainer<LArShapeP1>(), 
@@ -107,39 +98,7 @@ void do_get_shape (const std::vector<float>& shape,
      } 
   }
 }
-
-
-#if 0
-bool setup_cabling_service (const Identifier& CellID,
-                            HWIdentifier& OnId)
-{
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc;
-  StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
-  if(sc.isFailure()) {
-    MsgStream logstr(Athena::getMessageSvc(), "LArShapeMC");
-    logstr << MSG::ERROR << "Could not retrieve ToolSvc " << endmsg;
-    return false; 
-  }
-
-  LArCablingService* cablingService;
-  sc = toolSvc->retrieveTool("LArCablingService",cablingService);
-  if(sc.isFailure()){
-    MsgStream logstr(Athena::getMessageSvc(), "LArShapeMC");
-    logstr << MSG::ERROR << "Could not retrieve LArCablingService Tool "
-           << endmsg;
-    return false; 
-  }
-
-  OnId = cablingService->createSignalChannelID(CellID);  
-
-  return true;
-}
-#endif
-
-
-} // anonymous namespace
-
+} //anonymous namespace
 
 /* 
  * retrieve Shape
@@ -166,25 +125,4 @@ LArShapeMC::ShapeDer(const HWIdentifier& CellID,
   HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
   do_get_shape (get(SymCellID, gain).m_vShapeDer, CellID, tbin, mode, true, v);
   return v;
-}
-
-
-LArShapeMC::ShapeRef_t
-LArShapeMC::Shape(const Identifier&  CellID,
-                  int gain,
-                  int tbin=0,
-                  int mode=0 ) const
-{
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  return Shape(SymCellID, gain, tbin, mode);
-}
-
-LArShapeMC::ShapeRef_t
-LArShapeMC::ShapeDer(const Identifier&  CellID,
-                     int gain,
-                     int tbin=0,
-                     int mode=0) const
-{
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID); 
-  return ShapeDer(SymCellID, gain, tbin, mode);
 }

@@ -5,34 +5,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import DEBUG,VERBOSE
 
-def l2PhotonCaloStepCfg( flags, chains ):
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NJMenuSequence
-    fhSeq = NJMenuSequence( 'PhotonFastCalo' )
-    fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' )
-
-    from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
-
-    # obtain the reconstruction CF fragment    
-    fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloRecoCfg, flags ) )
-
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    hypo = TrigL2CaloHypoAlgMT("L2PhotonCaloHypo")
-    hypo.CaloClusters        = 'L2CaloEMClusters'
-    hypo.OutputLevel = DEBUG
-    
-
-    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName    
-    for chain in chains:
-        tool  = TrigL2CaloHypoToolFromName( chain, chain )
-        hypo.HypoTools +=  [ tool ]
-        
-    fhSeq.addHypo( hypo )
-    
-    return fhSeq
-
-
 def l2PhotonAlgCfg( flags ):
     acc = ComponentAccumulator()
     from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
@@ -63,48 +35,69 @@ def l2PhotonRecoCfg( flags ):
 
     return reco
 
-def l2PhotonRecoStepCfg( flags, chains, inputSequence ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NJMenuSequence
-    fhSeq = NJMenuSequence( 'PhotonFastReco' )
-    fhSeq.addFilter( chains, inKey=inputSequence.hypoDecisions() )
-
-    from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg # generator for the L2 Calo EM clustering
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
-
-    # obtain the reconstruction CF fragment
-    fhSeq.addReco( RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags ) )
-
+def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
-    hypo = TrigL2PhotonHypoAlgMT()
-    hypo.Photons = "L2Photons"
-    hypo.RunInView=True
-    hypo.OutputLevel = VERBOSE
 
-    from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromName
-    for chain in chains:
-        tool  = TrigL2PhotonHypoToolFromName( chain, chain )
-        hypo.HypoTools +=  [ tool ]
-        
-    fhSeq.addHypo( hypo )
-    
-    return fhSeq
+    l2PhotonHypo = TrigL2PhotonHypoAlgMT()
+    l2PhotonHypo.Photons = Photons
+    l2PhotonHypo.RunInView = RunInView
+    l2PhotonHypo.OutputLevel = VERBOSE
 
+    return l2PhotonHypo
 
 
 def generatePhotonsCfg( flags ):
 
     acc = ComponentAccumulator()
-    photonChains = [ f.split()[0] for f in flags.Trigger.menu.photons ]
-    if not photonChains:
-        return None,None
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
-    l2CaloStep = l2PhotonCaloStepCfg( flags, photonChains )
-    acc.merge( l2CaloStep )
+    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
+    l2CaloHypo              = TrigL2CaloHypoAlgMT("L2PhotonCaloHypo")
+    l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
 
-    l2PhotonStep = l2PhotonRecoStepCfg( flags, photonChains, l2CaloStep )
-    acc.merge ( l2PhotonStep )
 
-    return acc, [l2CaloStep, l2PhotonStep]
+    from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg
+    
+    
+    l2CaloReco = RecoFragmentsPool.retrieve( l2CaloRecoCfg, flags )
+    acc.merge( l2CaloReco )
+    
+    fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
+                                     Maker       = l2CaloReco.inputMaker(),
+                                     Hypo        = l2CaloHypo,
+                                     HypoToolGen = TrigL2CaloHypoToolFromName )
+
+    fastCaloStep = ChainStep( "Photon_step1", [fastCaloSequence] )
+
+
+
+    l2PhotonReco = RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags )
+    acc.merge( l2PhotonReco )
+    
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
+    l2PhotonHypo = TrigL2PhotonHypoAlgMT()
+    l2PhotonHypo.Photons = "L2Photons"
+    l2PhotonHypo.RunInView=True
+    l2PhotonHypo.OutputLevel = VERBOSE
+
+    from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromName
+
+    l2PhotonSequence = MenuSequence( Sequence    = l2PhotonReco.sequence(),
+                                     Maker       = l2PhotonReco.inputMaker(),
+                                     Hypo        = l2PhotonHypo,
+                                     HypoToolGen = TrigL2PhotonHypoToolFromName )
+
+    l2PhotonStep = ChainStep( "Photon_step2", [ l2PhotonSequence] )
+    
+
+
+    chains = [ Chain(c.split()[0], c.split()[1], [fastCaloStep, l2PhotonStep] )  for c in flags.Trigger.menu.photons ]    
+
+
+    
+
+    return acc, chains
 
 
 if __name__ == "__main__":

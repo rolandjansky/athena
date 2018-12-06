@@ -14,6 +14,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import re
 from TriggerMenu.menu.HltConfig import *
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
 #-----------------------------------
 class L2EFChain_mu(L2EFChainDef):

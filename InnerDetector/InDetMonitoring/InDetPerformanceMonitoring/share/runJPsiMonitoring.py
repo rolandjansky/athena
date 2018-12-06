@@ -165,7 +165,7 @@ JpsiMon = DiMuMon(name = "JpsiMon_NoTrig",
                   doSaveFits = False,
                   OutputLevel = VERBOSE)
 
-ToolSvc += JpsiMon
+#ToolSvc += JpsiMon
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager

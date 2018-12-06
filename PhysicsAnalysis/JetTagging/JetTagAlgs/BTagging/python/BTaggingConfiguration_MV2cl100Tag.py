@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for MV2cl100Tag
 # Author: Wouter van den Wollenberg (2013-2014) Jonathan Shlomi (2016)
@@ -6,8 +6,9 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMV2cl100Tag = { 'IsATagger'          : False,#True,
                   'xAODBaseName'       : 'MV2cl100',
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool'],
+                  'DependsOn'          : [#'AtlasExtrapolator',
+                                          #'BTagTrackToVertexTool'
+                                         ],
                   'CalibrationTaggers' : ['MV2cl100',],
                   'ToolCollection'     : 'MV2cl100Tag'}
 

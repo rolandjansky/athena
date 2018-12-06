@@ -32,8 +32,6 @@
 //#include "TrigParticle/TrigL2BjetContainer.h"
 //#include "TrigParticle/TrigEFBjetContainer.h"
 
-//#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 //#include "TrigInDetEvent/TrigVertex.h"
 
 

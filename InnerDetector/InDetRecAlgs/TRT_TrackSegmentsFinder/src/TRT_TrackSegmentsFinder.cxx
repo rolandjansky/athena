@@ -32,12 +32,15 @@ InDet::TRT_TrackSegmentsFinder::TRT_TrackSegmentsFinder
   m_nsegmentsTotal    = 0                                ;
   m_useCaloSeeds      = false                            ;
   m_minNumberDCs     = 9                                 ; 
+  m_ClusterEt         = 2500.0                           ; 
   declareProperty("SegmentsMakerTool",m_segmentsMakerTool);
   declareProperty("SegmentsLocation" ,m_foundSegments    );
   declareProperty("useCaloSeeds"     ,m_useCaloSeeds     );
   declareProperty("RoadTool"         ,m_roadtool         );
   declareProperty("InputClusterContainerName",m_calo);
   declareProperty("MinNumberDriftCircles"    ,m_minNumberDCs);
+  declareProperty("CaloClusterEt"            ,m_ClusterEt   );
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -128,10 +131,10 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
       CaloClusterROI_Collection::const_iterator c = m_calo->begin(), ce = m_calo->end();
 
       for(; c!=ce; ++c) {
-	
-	double x = (*c)->globalPosition().x();
-	double y = (*c)->globalPosition().y();
-	double z = (*c)->globalPosition().z();
+        if ( ( (*c)->energy()*sin((*c)->globalPosition().theta()) ) < m_ClusterEt) {continue;}
+        double x = (*c)->globalPosition().x();
+        double y = (*c)->globalPosition().y();
+        double z = (*c)->globalPosition().z();
 	
 	par = PS.createTrackParameters(0.,0.,atan2(y,x), atan2(1.,z/sqrt(x*x+y*y)),0.,0);
 

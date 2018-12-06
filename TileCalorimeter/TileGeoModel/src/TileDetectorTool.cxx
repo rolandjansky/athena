@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoModel/TileDetectorTool.h"
@@ -35,6 +35,7 @@ TileDetectorTool::TileDetectorTool(const std::string& type,
   m_addPlates(true),
   m_uShape(-1),
   m_glue(-1),
+  m_csTube(-1),
   m_not_locked(true),
   m_useNewFactory(true),
   m_geometryConfig("FULL"),
@@ -46,6 +47,7 @@ TileDetectorTool::TileDetectorTool(const std::string& type,
   declareProperty("GeometryConfig",m_geometryConfig);
   declareProperty("Ushape",m_uShape);
   declareProperty("Glue",m_glue);
+  declareProperty("CsTube",m_csTube);
 }
 
 TileDetectorTool::~TileDetectorTool()
@@ -78,7 +80,7 @@ StatusCode TileDetectorTool::create()
   }
   
   //Locate the top level experiment node
-  DataHandle<GeoModelExperiment> theExpt;
+  GeoModelExperiment* theExpt = nullptr;
   CHECK( detStore()->retrieve(theExpt, "ATLAS") );
 
   if ( 0 == m_detector )
@@ -123,23 +125,36 @@ StatusCode TileDetectorTool::create()
       }
     }
 
+    int csTubeDB = 0;
+    if (m_csTube < 0) {
+       m_csTube = csTubeDB;
+       ATH_MSG_INFO(" Cs Tube parameter from database is: " << m_csTube);
+    } else {
+       if (m_csTube != csTubeDB) {
+           ATH_MSG_WARNING(" Overriding U-shape value from DB by value from jobOptions, using "
+               << m_csTube << " instead of " << csTubeDB);
+       } else {
+           ATH_MSG_INFO(" Cs Tube parameter from jobOptions is: " << m_csTube);
+       }
+    }
+
     m_not_locked = false;
     
     m_addPlates = dbManager->addPlatesToCell();
     GeoPhysVol *world=&*theExpt->getPhysVol();
     if(m_testBeam)
     {
-      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,&log);
+      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
       theTileTBFactory.create(world);
     }
     else if (m_useNewFactory)
     {
-      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,&log,m_geometryConfig=="FULL");
+      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log,m_geometryConfig=="FULL");
       theTileFactory.create(world);
     }
     else
     {
-      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,&log);
+      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
       theTileFactory.create(world);
     }
 

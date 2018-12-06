@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id: TrigT1RPCRecRoiConfig.py 301203 2010-05-26 12:08:22Z krasznaa $
 #

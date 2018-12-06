@@ -42,4 +42,7 @@ topSequence += LArRecUtilsConf.LArFCalTowerBuilderToolTestAlg ('towertest')
 
 theApp.EvtMax = 1
 
-theApp.getHandle().Dlls += [ 'LArRecUtils' ]
+# Suppress useless GeoModelSvc messages.
+from AthenaCommon import Constants
+GeoModelSvc().OutputLevel=Constants.WARNING
+

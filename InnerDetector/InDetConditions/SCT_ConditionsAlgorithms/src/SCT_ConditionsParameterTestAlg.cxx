@@ -16,7 +16,6 @@
 #include "SCT_ConditionsUtilities.h"
 
 // Include Athena stuff
-#include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
 // Include Read Handle
@@ -26,14 +25,11 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
 
-using namespace std;
 using namespace SCT_ConditionsAlgorithms;
 
 SCT_ConditionsParameterTestAlg::SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm(name, pSvcLocator),
-  m_currentEventKey{std::string("EventInfo")}
+  AthAlgorithm(name, pSvcLocator)
 { //nop
 }
 
@@ -123,13 +119,13 @@ StatusCode SCT_ConditionsParameterTestAlg::finalize() {
   //  string xmlPath{CoveritySafe::getenv("XMLPATH")};
   //  size_t found{xmlPath.find(":")};
   //  if (found!=std::string::npos) xmlPath = xmlPath.substr(0, found);
-  string stylePath{"./histo.xsl"};
-  string filename{"./thresholds.xml"};
+  std::string stylePath{"./histo.xsl"};
+  std::string filename{"./thresholds.xml"};
   ATH_MSG_INFO("Filename: " << filename);
 
   ATH_MSG_INFO("------------");
 
-  ofstream opFile{filename.c_str(), ios::out};
+  std::ofstream opFile{filename.c_str(), std::ios::out};
   opFile << xmlHeader();
   opFile << stylesheet(stylePath);
 

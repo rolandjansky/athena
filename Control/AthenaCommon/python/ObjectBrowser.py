@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/ObjectBrowser.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
@@ -67,19 +67,19 @@ class TopTreeItem( ibrowser.ObjectTreeItem ):
 
 
 def initTreeItemsDispatch():
-   if gmod != None:
+   if gmod is not None:
     ## add Gaudi specific tree items
-      if not ibrowser.dispatch.has_key( gmod.iAlgorithm ):
+      if gmod.iAlgorithm not in ibrowser.dispatch:
          ibrowser.dispatch[ gmod.iAlgorithm ] = GaudiAlgTypeTreeItem
 
-      if not ibrowser.dispatch.has_key( gmod.iService ):
+      if gmod.iService not in ibrowser.dispatch:
          ibrowser.dispatch[ gmod.iService ] = GaudiSvcTypeTreeItem
 
 
 class Browser( Tkinter.Frame ):
    def __init__( self, master = None ):
     # setup Tk as necessary
-      if master == None:
+      if master is None:
          master = Tkinter.Tk()
 
     # setup base
@@ -98,7 +98,7 @@ class Browser( Tkinter.Frame ):
       dct = sys.modules[ '__main__' ].__dict__
 
       algs, svcs = {}, {}
-      if gmod != None:
+      if gmod is not None:
          algs = self.select( dct, gmod.iAlgorithm )
          svcs = self.select( dct, gmod.iService )
 

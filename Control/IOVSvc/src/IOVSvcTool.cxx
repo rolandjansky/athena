@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvc/IOVSvcTool.h"
@@ -331,8 +331,6 @@ IOVSvcTool::handle(const Incident &inc) {
     }
   }
 
-
-
   set< const DataProxy*, SortDPptr > proxiesToReset;
 
   // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
@@ -523,6 +521,16 @@ IOVSvcTool::handle(const Incident &inc) {
       if (itr != proxiesToReset.end()) {
         proxiesToReset.erase( itr );
       }
+    }
+
+    // If MT, must not call any callback functions after first event
+    if (!m_first && proxiesToReset.size() > 0 &&
+        ( (Gaudi::Concurrency::ConcurrencyFlags::numThreads() +
+           Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) > 0 ) ) {
+      m_log << MSG::FATAL 
+            << "Cannot update Conditions via callback functions in MT after the first event"
+            << endmsg;
+      throw GaudiException("Cannot update Conditions via callback functions in MT after the first event",name(),StatusCode::FAILURE);
     }
 
     //
@@ -1408,18 +1416,6 @@ IOVSvcTool::regFcn(SG::DataProxy* dp,
   } else {
     m_names[dp] = fullname;
   }
-
-  // if using old compiler, can't detect between non-virtual functions,
-  // so issue an error.
-
-#if (__GNUC__ < 3)
-  if (c.offset() == 0x7fff) {
-    m_log << MSG::ERROR << "Callback function " << c.name() 
-          << " is not virtual." << " Cannot bind it to " << fullname << endmsg;
-    return StatusCode::FAILURE;
-  }
-#endif
-
 
   // check if this prox/function pair already registered
   

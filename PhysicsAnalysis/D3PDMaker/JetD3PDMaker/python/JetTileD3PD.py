@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 import D3PDMakerCoreComps            
@@ -69,11 +69,11 @@ def JetTileD3PD (file,
     TrackD3PDFlags.storeVertexTrackAssociation.set_Value_and_Lock(False)
     TrackD3PDFlags.storeVertexFitQuality.set_Value_and_Lock(False)
 
-    from TrackD3PDMaker.VertexD3PDObject    import PrimaryVertexD3PDObject
-    alg += PrimaryVertexD3PDObject (**_args (0, 'PrimaryVertex', kw,
-                                             allowMissing = True,
-                                             sgkey = D3PDMakerFlags.VertexSGKey(),
-                                             prefix = 'vxp_'))    
+    from TrackD3PDMaker.xAODVertexD3PDObject    import PrimaryxAODVertexD3PDObject
+    alg += PrimaryxAODVertexD3PDObject (**_args (0, 'PrimaryVertex', kw,
+                                                 allowMissing = True,
+                                                 sgkey = D3PDMakerFlags.VertexSGKey(),
+                                                 prefix = 'vxp_'))    
 
 
     if rec.doTruth():

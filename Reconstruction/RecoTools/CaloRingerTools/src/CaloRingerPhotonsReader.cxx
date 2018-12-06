@@ -45,7 +45,8 @@ StatusCode CaloRingerPhotonsReader::initialize()
       new BuildCaloRingsFctor<xAOD::PhotonContainer>(
           m_inputPhotonContainerKey.key(),
           m_crBuilder,
-          msg() );
+          msg(),
+	  this);
       ATH_CHECK( m_clRingsBuilderPhotonFctor->initialize() );
   }
 

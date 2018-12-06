@@ -187,7 +187,6 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
         TIter nextkey(keys);
         while (TKey* key = dynamic_cast<TKey*>(nextkey()))
         {
-            if (!key) continue;
             const TString keyName = key->GetName();
             if (keyName.Contains(m_jetType) && !keyName.Contains("valid"))
             {

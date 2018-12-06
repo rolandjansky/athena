@@ -24,9 +24,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
 #include "StoreGate/StoreGateSvc.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 #include "CaloIdentifier/CaloGain.h"
 
@@ -93,7 +96,7 @@ protected:
     * @param gain Gain in question
     * This method needs to be implemeted by the deriving algorithm
     */
-  virtual bool validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain)=0;
+  virtual bool validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain, const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont)=0;
 
   /**
     * @brief Method executed after the loop over all channels
@@ -102,7 +105,7 @@ protected:
     * newly found bad channels.
     * The return value of this method is also the return value of the @c finalize method.
     */
-  virtual StatusCode summary();
+  virtual StatusCode summary(const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont);
 
  /**
     * @brief Textual representation of gain and location of a certain cell or FEB
@@ -113,7 +116,7 @@ protected:
     * Creates a string containing the Side, Barrel-EC, FT, Slot, 
     * FEB-Channel in human-readable form
     */
-  const std::string channelDescription(const HWIdentifier& chid, const unsigned gain=99, bool isFeb=false) const;
+  const std::string channelDescription(const HWIdentifier& chid, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont, const unsigned gain=99, bool isFeb=false) const;
 
 
 private:
@@ -122,13 +125,13 @@ private:
     * @return False if at least one incomplete COOL channel is found, true otherwise
     * Calls @c patchMissingFEBs if @c m_patchMissingFebs is true
     */
-  bool checkCoolChannelCompleteness();
+  bool checkCoolChannelCompleteness(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
  
  /** 
     * @brief Verify if all COOL channels in the ref container are also in val
     * @return False if at least one incomplete COOL channel is found, true otherwise
     */
-  bool checkNumberOfCoolChannels() const;
+  bool checkNumberOfCoolChannels(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont) const;
 
   typedef std::vector<std::pair<HWIdentifier,unsigned> > FEBANDGAIN_t;
    /** 
@@ -138,11 +141,11 @@ private:
     * Inserts the corresponding channel from the reference container 
     * as correction channel to the validation container
     */
-  bool patchMissingFEBs(const FEBANDGAIN_t& febAndGain);
+  bool patchMissingFEBs(const FEBANDGAIN_t& febAndGain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
   void febOutput(const HWIdentifier& febid, const unsigned gain, const unsigned nGood, const unsigned nBad);
 
-  void findFailedPatterns();
+  void findFailedPatterns(const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont);
 
   std::vector<std::string> m_gainMap;
 
@@ -152,11 +155,12 @@ protected:
   int m_myMsgLvlProp;
 
 
-  /** Handle to bad-channel tool (job-Propety */
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle<ILArBadChannelMasker>  m_badChanMaskingTool;
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingService> m_larCablingSvc;  
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
+
 
   // Pointers to various identifier helper classes, not used her, but
   // probably useful for deriving algorithm

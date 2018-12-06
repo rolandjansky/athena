@@ -20,10 +20,11 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: *.regtest.new
 
 export NAME="slice_minbias_grid"
 export SLICE="minbias"
-export MENU="Physics_pp_v7"
+export MENU="Physics_pp_v7_primaries"
 export INPUT="minbias"
 
 source exec_athena_art_trigger_validation.sh

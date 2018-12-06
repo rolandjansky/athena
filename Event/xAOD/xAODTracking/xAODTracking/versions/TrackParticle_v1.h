@@ -17,6 +17,7 @@ extern "C" {
 // Core include(s):
 #include "AthLinks/ElementLink.h"
 #include "AthContainers/DataVector.h"
+#include "CxxUtils/CachedValue.h"
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
@@ -318,14 +319,10 @@ namespace xAOD {
       /// @}
     private:
 
-     /// Set to false if anything related to the perigee was changed
-     /// (and so it needs updating);  *** NEEDS UPDATING FOR MT ***
-     mutable bool m_perigeeCached;
-
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)
       /// @brief Cached MeasuredPerigee, built from this object.
       /// @note This is only available in Athena.
-     mutable Trk::Perigee* m_perigeeParameters;
+     CxxUtils::CachedValue<Trk::Perigee> m_perigeeParameters;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
 
     }; // class Track Particle

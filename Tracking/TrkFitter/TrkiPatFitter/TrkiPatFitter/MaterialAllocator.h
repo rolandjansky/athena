@@ -143,7 +143,6 @@ private:
     unsigned						m_maxWarnings;
 
     // configurable parameters and tolerances (for aggregation rules and Coulomb scattering constants)
-    double						m_materialMaxGap;
     double						m_orderingTolerance;
     double						m_scattererMinGap;
     double						m_scatteringConstant;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,8 +9,6 @@
 #ifndef TRKEXUTILS_PARTICLEHYPOTHESIS_H
 #define TRKEXUTILS_PARTICLEHYPOTHESIS_H
 
-// STL
-#include <array>
 // Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 // define the particle hypotheses
@@ -51,8 +49,8 @@ namespace Trk {
    */
     
    struct ParticleMasses {
-      /** the vector of masses */
-     const std::array<double,PARTICLEHYPOTHESES> mass=
+      /** the array of masses */
+     const double mass[PARTICLEHYPOTHESES] =
      { (0.*Gaudi::Units::MeV),// non interacting mass
        (0.51099891*Gaudi::Units::MeV), // electron mass
        (105.658367*Gaudi::Units::MeV), // muon mass
@@ -65,9 +63,6 @@ namespace Trk {
        (497.614*Gaudi::Units::MeV),    // K0 rest mass
        (105.658367*Gaudi::Units::MeV) // muon mass
      }; 
-      /**Default constructor*/
-      ParticleMasses()=default;
-     
    };
    
   /** @struct ParticleSwitcher
@@ -77,8 +72,8 @@ namespace Trk {
    */
     
    struct ParticleSwitcher {
-      /** the vector of masses */
-   const std::array<ParticleHypothesis,PARTICLEHYPOTHESES> particle=
+      /** the array  of masses */
+   const ParticleHypothesis particle[PARTICLEHYPOTHESES] =
    { (Trk::nonInteracting), 
      (Trk::electron),
      (Trk::muon),          
@@ -91,8 +86,6 @@ namespace Trk {
      (Trk::k0),
      (Trk::nonInteractingMuon)
    };
-   /**Default constructor*/
-   ParticleSwitcher()=default;    
    };
     
    

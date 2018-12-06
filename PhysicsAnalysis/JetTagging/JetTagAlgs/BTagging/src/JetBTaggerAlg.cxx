@@ -24,8 +24,9 @@ namespace Analysis {
 
   JetBTaggerAlg::JetBTaggerAlg(const std::string& n, ISvcLocator *p) : 
     AthAlgorithm(n,p),
-    m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
-    m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
+    m_bTagTool("Analysis::BTagTool",this),
+    m_BTagTrackAssocTool("Analysis::BTagTrackAssociation",this),
+    m_bTagSecVtxTool("Analysis::BTagSecVertexing",this),
     m_magFieldSvc("AtlasFieldSvc",n)
   {
     declareProperty("BTagTool", m_bTagTool);
@@ -48,7 +49,7 @@ namespace Analysis {
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
     m_jetBTaggingLinkName = m_JetCollectionName.key()+".btaggingLink";
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
-    
+   
     /// retrieve the main BTagTool
     if ( m_bTagTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_bTagTool);

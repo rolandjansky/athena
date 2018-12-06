@@ -75,7 +75,6 @@ outStream.OutputFile = OUTPUT
 
 ## somehow better configure the AthenaPoolCnvSvc for our small
 ## persistency output job
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 1000
 
 svcMgr += CfgMgr.AthenaSealSvc( OutputLevel = ERROR )
 

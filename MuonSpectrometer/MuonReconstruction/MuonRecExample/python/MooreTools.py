@@ -327,6 +327,12 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         kwargs.setdefault("SegmentMaker", segMaker)
         kwargs.setdefault("SegmentMakerNoHoles", segMaker)
 
+        if muonRecFlags.doNSWNewThirdChain():
+            kwargs.setdefault("CscPrepDataContainer","")
+        else:
+            kwargs.setdefault("sTgcPrepDataContainer","")
+            kwargs.setdefault("MMPrepDataContainer","")
+
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
 # end of factory function MuonSeededSegmentFinder

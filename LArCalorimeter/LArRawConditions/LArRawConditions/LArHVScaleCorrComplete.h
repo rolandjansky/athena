@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -24,8 +24,9 @@ class LArHVScaleCorrComplete: public ILArHVScaleCorr ,
     // online ID
   inline const float& HVScaleCorr(const HWIdentifier& id )  const 
     {return (this->get(id).m_data);};
-  
-  // offline ID 
+
+
+  // offline ID, not implemented here! 
   const float& HVScaleCorr(const Identifier& id ) const;
   
   // set method filling the data members individually (if one

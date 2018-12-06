@@ -11,6 +11,14 @@ logging.getLogger().info("Importing %s",__name__)
 
 log = logging.getLogger("TriggerMenu.muon.MuonDef")
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "BeamSpotCondAlg"):
+   from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+   condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
+
+
 from TriggerMenu.menu.HltConfig import *
 
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
@@ -177,6 +185,8 @@ class L2EFChain_mu(L2EFChainDef):
       muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly" + "_v15a"
     elif int(self.chainPart['threshold'])  == 4:
       muFastThresh = '4GeV_v15a'
+    elif int(self.chainPart['threshold'])  == 3:
+      muFastThresh = '3GeV_v15a'
     elif int(self.chainPart['threshold']) == 2:
       muFastThresh = '2GeV_v15a'
     elif "3layersEC" in self.chainPart['extra']:

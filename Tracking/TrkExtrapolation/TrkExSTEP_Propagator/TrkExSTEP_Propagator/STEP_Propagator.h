@@ -308,14 +308,14 @@ namespace Trk {
       bool                   m_brem{false};
       int                    m_propagateWithPathLimit{}; 
       size_t                 m_currentLayerBin{};
-      double                 m_matupd_lastmom;   
-      double                 m_matupd_lastpath;   
-      double                 m_matdump_lastpath;   
+      double                 m_matupd_lastmom{};   
+      double                 m_matupd_lastpath{};   
+      double                 m_matdump_lastpath{};   
       double                 m_delRad{0};          // deRad/dl;
-      double                 m_delIoni{0};          // deIoni/dl;
+      double                 m_delIoni{0};         // deIoni/dl;
       double                 m_sigmaIoni{0};       // dsigma(ioni)/dl;
       double                 m_kazL{0};            // kazL constant;
-      double                 m_sigmaRad;           // dsigma(rad)/dl;
+      double                 m_sigmaRad{0};        // dsigma(rad)/dl;
       // cache for input variance
       double                 m_inputThetaVariance{};
       double                 m_stragglingVariance{};
@@ -333,14 +333,14 @@ namespace Trk {
       double                m_bremSampleThreshold{0.}; 
       double                m_P[45];
 
-      const Trk::BinnedMaterial*                                m_binMat;    
-      std::vector<const Trk::TrackStateOnSurface*>*              m_matstates; //!< cache of TrackStateOnSurfaces
-      std::vector<std::pair<const Trk::TrackParameters*,int> >*  m_identifiedParameters; //!< cache of intersections
-      std::vector<Trk::HitInfo>*  m_hitVector; //!< cache of intersections/hit info
+      const Trk::BinnedMaterial*                                m_binMat{nullptr};    
+      std::vector<const Trk::TrackStateOnSurface*>*              m_matstates{nullptr}; //!< cache of TrackStateOnSurfaces
+      std::vector<std::pair<const Trk::TrackParameters*,int> >*  m_identifiedParameters{nullptr}; //!< cache of intersections
+      std::vector<Trk::HitInfo>*  m_hitVector{nullptr}; //!< cache of intersections/hit info
 
-      ParticleHypothesis             m_particle;
-      const TrackingVolume*          m_trackingVolume;
-      const Material*                m_material;
+      ParticleHypothesis             m_particle{};
+      const TrackingVolume*          m_trackingVolume{nullptr};
+      const Material*                m_material{nullptr};
       Trk::ExtrapolationCache*       m_extrapolationCache{nullptr};      //!< cache for collecting the total X0 ans Elos
       // cache for combined covariance matrix contribution
       AmgSymMatrix(5)                m_combinedCovariance; 

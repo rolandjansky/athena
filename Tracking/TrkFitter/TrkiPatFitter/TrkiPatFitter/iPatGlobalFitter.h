@@ -20,30 +20,37 @@
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk
-{  
-    
+{
+
 /**  GlobalTrackFitter tool providing methods used during alignment */
-    
+
 class iPatGlobalFitter: public iPatFitter,
 			virtual public IGlobalTrackFitter
 {
 public:
-    iPatGlobalFitter		(const std::string& type, 
+    iPatGlobalFitter		(const std::string& type,
 				 const std::string& name,
 				 const IInterface* parent);
     ~iPatGlobalFitter		(void); 	// destructor
 
+   Track* alignmentFit ( AlignmentCache&,
+                const Track&,
+                const RunOutlierRemoval  runOutlier=false,
+                const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+
+
+private:
     /**  GlobalTrackFitter methods:
-	 access to the matrix of derivatives used during the latest track fit */
+  	 access to the matrix of derivatives used during the latest track fit */
     Amg::MatrixX*		DerivMatrix() const;
-	
+
     /**  access to the global fitter's full covariance matrix */
     Amg::MatrixX*		FullCovarianceMatrix() const;
-	
+
     /**  access to the number of iterations taken by the latest track fit */
     int				iterationsOfLastFit() const;
 
-private:
+
     /**  set method for the minimum number of iterations for (alignment) friend */
     void			setMinIterations (int minIterations);
 
@@ -52,7 +59,7 @@ private:
 
     // cached data
     mutable Amg::MatrixX*	m_derivativeMatrix;
-    
+
 };
 
 } // end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.cxx - helper class for IOVDbSvc to manage folder & data cache
@@ -8,12 +8,14 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "GaudiKernel/MsgStream.h"
+
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/IAddressCreator.h"
 #include "GaudiKernel/ISvcLocator.h"
+
+
 #include "StoreGate/StoreGateSvc.h"
 #include "CoolKernel/IObject.h"
 #include "CoolKernel/IObjectIterator.h"
@@ -47,14 +49,18 @@
 #include "IOVDbConn.h"
 
 #include "IOVDbFolder.h"
+#include "IOVDbStringFunctions.h"
+#include "IOVDbCoolFunctions.h"
 #include "CxxUtils/make_unique.h"
+
+using namespace IOVDbNamespace;
 
 
 
 IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
-                         const IOVDbParser& folderprop, MsgStream* msg,
+                         const IOVDbParser& folderprop, MsgStream & /*msg*/,
                          IClassIDSvc* clidsvc, const bool checklock):
-  m_log(msg),
+  
   p_detStore(0),
   p_clidSvc(clidsvc),
   p_metaDataTool(0),
@@ -67,6 +73,7 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_notagoverride(false),
   m_writemeta(false),
   m_fromMetaDataOnly(false),
+  m_extensible(false),
   m_named(false),
   m_iovoverridden(false),
   m_jokey(false),
@@ -101,7 +108,8 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_boundmin(),
   m_boundmax(),
   m_nboundmin(0),
-  m_nboundmax(0)
+  m_nboundmax(0),
+  m_msg("IOVDbFolder")
 {
   // extract settings from the properties
   // foldername from the 'unnamed' property
@@ -119,83 +127,65 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   std::string buf;
   // check for <noover> - disables using tag override read from input file
   m_notagoverride=folderprop.getKey("noover","",buf);
-  if (m_notagoverride) *m_log << MSG::INFO << 
-                         "Inputfile tag override disabled for " << m_foldername << endmsg;
+  if (m_notagoverride) ATH_MSG_INFO( "Inputfile tag override disabled for " << m_foldername );
 
   // channel selection from 'channelSelection' property
   // syntax is A:B,C:D,E:F
   // :B implies zero lower limit, A: implies zero upper limit
   std::string chanspec,rangespec;
   if (folderprop.getKey("channelSelection","",chanspec) && chanspec!="") {
+    m_chanrange=IOVDbNamespace::parseChannelSpec<cool::ChannelId>(chanspec);
     // explicit setting of channel selection
-    bool first=true;
-    std::string::size_type index;
-    do {
-      index=chanspec.find(',');
-      if (index!=std::string::npos) {
-        rangespec=chanspec.substr(0,index);
-        chanspec=chanspec.substr(index+1,chanspec.size());
-      } else {
-        rangespec=chanspec;
-      }
-      if (rangespec!="") {
-        // parse the range specification, look for : separator between limits
-        std::string::size_type icol=rangespec.find(':');
-        cool::ChannelId lower,upper;
-        if (icol!=std::string::npos) {
-          lower=makeChannel(spaceStrip(rangespec.substr(0,icol)),0);
-          upper=makeChannel(spaceStrip(rangespec.substr(
-                                                        icol+1,rangespec.size())),std::numeric_limits<cool::ChannelId>::max());
+    bool first(true);
+    //push to the channel selection
+    try{
+      for(const auto & i:m_chanrange){
+        if (first){
+          first = false;
+          m_chansel = cool::ChannelSelection(i.first,i.second);
         } else {
-          lower=atol(spaceStrip(rangespec).c_str());
-          upper=lower;
+          m_chansel.addRange(i.first,i.second);
         }
-        *m_log << MSG::INFO << "Add channel range " << lower << ":" << upper 
-               << " for folder " << m_foldername << endmsg;
-        if (first) {
-          m_chansel=cool::ChannelSelection(lower,upper);
-          first=false;
-        } else {
-          // COOL gives error if range is not given in pure ascending
-          // or descending order
-          try {
-            m_chansel.addRange(lower,upper);
-          }
-          catch (cool::Exception& e) {
-            *m_log << MSG::ERROR  <<  
-              "defining channel range (must be given in ascending order)" 
-                   << endmsg;
-            throw;
-          }
-        }
-        m_chanrange.push_back(ChanRange(lower,upper));
       }
-    } while (index!=std::string::npos);
-    *m_log << MSG::INFO << "Channel selection for folder " << m_foldername << 
-      " with " << m_chanrange.size() << " ranges" << endmsg;
+    } catch (cool::Exception& e) {
+        ATH_MSG_ERROR("defining channel range (must be given in ascending order)");
+        throw;
+    }
   }
   // check for folder-specific run/LB/time overrides
   if (folderprop.getKey("forceRunNumber","",buf)) {
-    unsigned long long run=atoi(buf.c_str());
+    const auto run = IOVDbNamespace::iovFromRunString(buf);
     unsigned int lb=0;
-    if (folderprop.getKey("forceLumiblockNumber","",buf)) lb=atoi(buf.c_str());
-    m_iovoverridden=true;
-    m_iovoverride=(run << 32LL)+lb;
-    *m_log << MSG::INFO << 
-      "Override run/LB number to [" << run << ":" << lb << 
-      "] for folder " << m_foldername << endmsg;
+    if (folderprop.getKey("forceLumiblockNumber","",buf)) lb=IOVDbNamespace::iovFromLumiBlockString(buf);
+    overrideWithRunLumi(run, lb);
   }
   if (folderprop.getKey("forceTimestamp","",buf)) {
-    unsigned int time=atoi(buf.c_str());
-    m_iovoverridden=true;
-    m_iovoverride=time*1000000000LL;
-    *m_log << MSG::INFO << "Override timestamp to " << m_iovoverride << 
-      " for folder " << m_foldername << endmsg;
+    const auto ts=IOVDbNamespace::iovFromTimeString(buf);
+    overrideWithTimestamp(ts);
   }
   m_fromMetaDataOnly=folderprop.getKey("metaOnly","",buf);
   if (m_fromMetaDataOnly) {
-    *m_log << MSG::INFO << "Read from meta data only for folder " << m_foldername << endmsg;
+    ATH_MSG_INFO( "Read from meta data only for folder " << m_foldername );
   }
+
+  m_extensible=folderprop.getKey("extensible","",buf);
+  if (m_extensible) {
+    ATH_MSG_INFO( "Extensible folder " << m_foldername );
+  }
+}
+
+void
+IOVDbFolder::overrideWithRunLumi(const unsigned long long run, const unsigned long long lb){
+  m_iovoverridden=true;
+  m_iovoverride=run+lb;
+  ATH_MSG_INFO( "Override run/LB number to [" << run << ":" << lb << "] for folder " << m_foldername );
+}
+
+void
+IOVDbFolder::overrideWithTimestamp(const unsigned long long timestamp){
+  m_iovoverridden=true;
+  m_iovoverride = timestamp;
+  ATH_MSG_INFO( "Override timestamp to " << m_iovoverride << " for folder " << m_foldername );
 }
 
 IOVDbFolder::~IOVDbFolder() {
@@ -214,13 +204,12 @@ void IOVDbFolder::setMetaCon(const IOVMetaDataContainer* metacon) {
 
 void IOVDbFolder::setTagOverride(const std::string& tag,const bool setFlag) {
   if (m_tagoverride) {
-    *m_log << MSG::WARNING << "Request to override tag for folder " <<
-      m_foldername << " to " << tag << " supercedes earlier override to " 
-           << m_jotag << endmsg;
+    ATH_MSG_WARNING( "Request to override tag for folder " <<
+      m_foldername << " to " << tag << " supercedes earlier override to "  << m_jotag );
   } else {
     if (setFlag) m_tagoverride=true;
   }
-  m_jotag=spaceStrip(tag);
+  m_jotag=IOVDbNamespace::spaceStrip(tag);
 }
 
 void IOVDbFolder::setWriteMeta(IIOVDbMetaDataTool* metadatatool) {
@@ -237,17 +226,17 @@ void IOVDbFolder::setIOVOverride(const unsigned int run,
   if (m_timestamp) {
     if (time!=0) {
       m_iovoverride=(static_cast<unsigned long long>(time))*1000000000LL;
-      *m_log << MSG::INFO << 
+      ATH_MSG_INFO( 
         "Override timestamp to " << m_iovoverride << " for folder "
-             << m_foldername << endmsg;
+             << m_foldername );
       m_iovoverridden=true;
     }
   } else {
     if (run!=0 || lumiblock!=0) {
       m_iovoverride=((static_cast<unsigned long long>(run)) << 32LL)+lumiblock;
-      *m_log << MSG::INFO << 
+      ATH_MSG_INFO( 
         "Override run/LB number to [" << run << ":" << lumiblock << 
-        "] for folder " << m_foldername << endmsg;
+        "] for folder " << m_foldername );
       m_iovoverridden=true;
     }
   }
@@ -260,10 +249,7 @@ cool::ValidityKey IOVDbFolder::iovTime(const IOVTime& reftime) const {
   if (m_iovoverridden) {
     return m_iovoverride;
   } else {
-    if (m_timestamp)
-      return reftime.timestamp();
-    else 
-      return reftime.re_time();
+    return (m_timestamp ? reftime.timestamp() : reftime.re_time());
   }
 }
 
@@ -280,18 +266,16 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
   // timer to track amount of time in loadCache
   TStopwatch cachetimer;
 
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG << "IOVDbFolder::loadCache for folder " << m_foldername 
-           << " validitykey " << vkey << endmsg;
+  ATH_MSG_DEBUG( "Load cache for folder " << m_foldername << " validitykey " << vkey);
   // if not first time through, and limit not reached,and cache was not reset, 
   // and we are going forwards in time, double cachesize
   if (m_ndbread>0 && m_cacheinc<3 && (m_cachestop!=m_cachestart) && 
       vkey>m_cachestart &&m_autocache) {
     m_cachelength*=2;
     ++m_cacheinc;
-    *m_log << MSG::INFO << "Increase cache length (step " << m_cacheinc << 
+    ATH_MSG_INFO( "Increase cache length (step " << m_cacheinc << 
       ") for folder " << m_foldername
-           << " to " << m_cachelength << " at validityKey " << vkey << endmsg;
+           << " to " << m_cachelength << " at validityKey " << vkey );
   }
   ++m_ndbread;
   if (cacheDiv>0) {
@@ -310,9 +294,8 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
     m_cachestop=vkey+m_cachelength;
   }
   if (m_cachestop>cool::ValidityKeyMax) m_cachestop=cool::ValidityKeyMax;
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG << "IOVDbFolder:loadCache limits set to [" 
-           << m_cachestart << "," << m_cachestop << "]" << endmsg;
+  ATH_MSG_DEBUG( "IOVDbFolder:loadCache limits set to [" 
+           << m_cachestart << "," << m_cachestop << "]" );
 
   if (m_cachespec==0) {
     // on first init, guess size based on channel count
@@ -343,18 +326,14 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
   // query to fill cache - request for database activates connection
   cool::IDatabasePtr dbPtr=m_conn->getCoolDb();
   if (dbPtr.get()==0) {
-    *m_log << MSG::FATAL << "Conditions database connection " <<
-      m_conn->name() << " cannot be opened - STOP" << endmsg;
+    ATH_MSG_FATAL( "Conditions database connection " <<
+      m_conn->name() << " cannot be opened - STOP" );
     return false;
   }
   // access COOL inside try/catch in case of using stale connection
   unsigned int attempts=0;
   bool retrievedone=false;
-  // check if explicit checking of channels is required to work around COOL
-  // bug 42708
-  // bool checkChan=(m_chanrange.size()>1);
-  // now relying on COOL channel selection alone
-  bool checkChan=false;
+  
   while (attempts<2 && !retrievedone) {
     ++attempts;
     try {
@@ -365,30 +344,24 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
       // if a selection is in use, count them explicitly
       if (m_chanrange.size()>0) {
         m_nboundmin=0;
-        for (std::vector<cool::ChannelId>::const_iterator citr=
-               m_channums.begin();citr!=m_channums.end();++citr) {
-          // if (isChanSelected(*citr)) ++m_nboundmin;
+        for (const auto & thisChannel:m_channums) {
           // use internal COOL channel selection
-          if (m_chansel.inSelection(*citr)) ++m_nboundmin;
+          if (m_chansel.inSelection(thisChannel)) ++m_nboundmin;
         }
       } else {
         m_nboundmin=m_nchan;
       }
-      if (m_log->level()<=MSG::DEBUG)
-        *m_log << MSG::DEBUG << "Expecting to see " << m_nboundmin << 
-          " channels" << endmsg;
+      ATH_MSG_DEBUG( "Expecting to see " << m_nboundmin << " channels" );
       m_nboundmax=m_nboundmin;
       // check pointer is still valid - can go stale in AthenaMT environment
       // according to CORAL server tests done by Andrea Valassi (23/6/09)
-      if (dbPtr.get()==0) throw std::runtime_error(
-                                                   "COOL database pointer invalidated");
+      if (not dbPtr.get()) throw std::runtime_error("COOL database pointer invalidated");
       // access COOL folder in case needed to resolve tag (even for CoraCool)
       cool::IFolderPtr folder=dbPtr->getFolder(m_foldername);
       // resolve the tag for MV folders if not already done so
       if (m_multiversion && m_tag=="") {
         if (!resolveTag(folder,globalTag)) return false;
-        if (m_log->level()<=MSG::DEBUG) 
-          *m_log << MSG::DEBUG << "resolveTag returns " << m_tag << endmsg;
+        ATH_MSG_DEBUG( "resolveTag returns " << m_tag);
       }
       if (m_foldertype==CoraCool) {
         // CoraCool retrieve
@@ -399,8 +372,6 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
                                                           m_cachestop,m_chansel,m_tag);
         while (itr->hasNext()) {
           CoraCoolObjectPtr obj=itr->next();
-          // skip channels which are explicitly vetoed by range
-          if (checkChan && !isChanSelected(obj->channelId()))  continue;
           addIOVtoCache(obj->since(),obj->until());
           m_cachechan.push_back(obj->channelId());
           // store all the attributeLists in the buffer
@@ -427,8 +398,6 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
                                                            m_cachestop,m_chansel,m_tag);
         while (itr->goToNext()) {
           const cool::IObject& ref=itr->currentRef();
-          // skip channels which are explicitly vetoed by range
-          if (checkChan && !isChanSelected(ref.channelId())) continue;
           addIOVtoCache(ref.since(),ref.until());
           m_cachechan.push_back(ref.channelId());
 
@@ -469,64 +438,56 @@ bool IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         itr->close();
         retrievedone=true;
       }
-      if (m_log->level()<=MSG::DEBUG) 
-        *m_log << MSG::DEBUG << "Retrieved " << iadd << " objects for " 
-               << m_nchan << " channels into cache" << endmsg;
+      ATH_MSG_DEBUG( "Retrieved " << iadd << " objects for "<< m_nchan << " channels into cache" );
       m_nobjread+=iadd;
     }
     catch (std::exception& e) {
-      *m_log << MSG::WARNING << "COOL retrieve attempt " << attempts << 
-        " failed: " << e.what() << endmsg;
+      ATH_MSG_WARNING( "COOL retrieve attempt " << attempts << 
+        " failed: " << e.what() );
       // disconnect and reconnect
       try {
         m_conn->setInactive();
         dbPtr=m_conn->getCoolDb();
       }
       catch (std::exception& e) {
-        *m_log << MSG::WARNING << "Exception from disconnect/reconnect: " << 
-          e.what() << endmsg;
+        ATH_MSG_WARNING( "Exception from disconnect/reconnect: " <<e.what() );
         // try once more to connect
         try {
           dbPtr=m_conn->getCoolDb();
         }
         catch (std::exception& e) {
-          *m_log << MSG::ERROR << "Cannot reconnect to database:" << e.what()
-                 << endmsg;
+          ATH_MSG_ERROR( "Cannot reconnect to database:" << e.what());
         }
       }
     }
   }
 
   if (!retrievedone) {
-    *m_log << MSG::ERROR << "Could not retrieve COOL data for folder " <<
+    ATH_MSG_ERROR( "Could not retrieve COOL data for folder " <<
       m_foldername << " tag " << m_tag << " validityKeys [" << m_cachesince <<
-      "," << m_cacheuntil << "]" << endmsg;
+      "," << m_cacheuntil << "]" );
     return false;
   }
   // check if cache can be stretched according to extent of IOVs crossing
   // boundaries - this requires all channels to have been seen
-  if (m_log->level()<=MSG::DEBUG)
-    *m_log << MSG::DEBUG << "Cache retrieve missing " << m_nboundmin 
-           << " lower and " << m_nboundmax << " upper channels" << endmsg;
+  ATH_MSG_DEBUG( "Cache retrieve missing " << m_nboundmin 
+           << " lower and " << m_nboundmax << " upper channels" );
   if ((m_nboundmin==0 || ignoreMissChan) && m_boundmin < m_cachestart) {
-    if (m_log->level()<=MSG::DEBUG)
-      *m_log << MSG::DEBUG << "Lower cache limit extended from " 
-             << m_cachestart << " to " << m_boundmin << endmsg;
+    ATH_MSG_DEBUG( "Lower cache limit extended from " 
+             << m_cachestart << " to " << m_boundmin );
     m_cachestart=m_boundmin;
   }
   if ((m_nboundmax==0 || ignoreMissChan) && m_boundmax > m_cachestop) {
-    if (m_log->level()<=MSG::DEBUG)
-      *m_log << MSG::DEBUG << "Upper cache limit extended from " <<
-        m_cachestop << " tp " << m_boundmax << endmsg;
+    ATH_MSG_DEBUG( "Upper cache limit extended from " <<
+        m_cachestop << " tp " << m_boundmax );
     m_cachestop=m_boundmax;
   }
   // keep track of time spent
   const float timeinc=cachetimer.RealTime();
   m_readtime+=timeinc;
-  if (m_log->level()<=MSG::DEBUG)
-    *m_log << "Cache retrieve done for " << m_foldername << " with " << 
+  ATH_MSG_DEBUG( "Cache retrieve done for " << m_foldername << " with " << 
       m_cachesince.size() << " objects stored in" << std::fixed <<
-      std::setw(8) << std::setprecision(2) << timeinc << " s" << endmsg;
+      std::setw(8) << std::setprecision(2) << timeinc << " s" );
   return true;
 }
 
@@ -535,12 +496,10 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
                                        cool::IDatabasePtr dbPtr,
                                        const ServiceHandle<IIOVSvc>& iovSvc) {
     
-  if (m_log->level()<=MSG::DEBUG)     
-    *m_log << MSG::DEBUG << "IOVDbFolder::recheck with DB for folder " << m_foldername
-           << " validitykey: " << vkey << endmsg;
+  ATH_MSG_DEBUG( "IOVDbFolder::recheck with DB for folder " << m_foldername
+           << " validitykey: " << vkey );
   if (!m_cachesince.size()) {
-    if (m_log->level()<=MSG::DEBUG)         
-      *m_log << MSG::DEBUG << "Cache empty ! returning ..." << endmsg;
+    ATH_MSG_DEBUG( "Cache empty ! returning ..." );
     return true;
   }
         
@@ -548,7 +507,6 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
   // access COOL inside try/catch in case of using stale connection
   unsigned int attempts     = 0;
   bool         retrievedone = false;
-  bool         checkChan    = false;
 
   while (attempts<2 && !retrievedone) {
     ++attempts;
@@ -565,26 +523,22 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
       } 
       else        m_nboundmin=m_nchan;
       
-      if (m_log->level()<=MSG::DEBUG) 
-        *m_log << MSG::DEBUG << "Expecting to see " << m_nboundmin << " channels" << endmsg;
+      ATH_MSG_DEBUG( "Expecting to see " << m_nboundmin << " channels" );
       m_nboundmax=m_nboundmin;
       // access COOL folder in case needed to resolve tag (even for CoraCool)
       cool::IFolderPtr folder=dbPtr->getFolder(m_foldername);
       // resolve the tag for MV folders if not already done so
-      if (m_multiversion && m_tag=="") { // NEEDED OR NOT?
+      if (m_multiversion && m_tag.empty()) { // NEEDED OR NOT?
         if (!resolveTag(folder,globalTag)) return false;
-        if (m_log->level()<=MSG::DEBUG)
-          *m_log << MSG::DEBUG << "resolveTag returns " << m_tag << endmsg;
+        ATH_MSG_DEBUG( "resolveTag returns " << m_tag );
       }
       
                 
                 
       int counter=0;
       if (m_foldertype==CoraCool) {
-        if (m_log->level()<=MSG::DEBUG) {
-          *m_log<< MSG::DEBUG<<"CoraCool folder cachestart:\t"<<m_cachestart<<" \t cachestop:"<< m_cachestop<<endmsg;
-          *m_log<< MSG::DEBUG<<"checking range:  "<<vkey+1<<" - "<<vkey+2<<endmsg;
-        }
+        ATH_MSG_DEBUG("CoraCool folder cachestart:\t"<<m_cachestart<<" \t cachestop:"<< m_cachestop);
+        ATH_MSG_DEBUG("checking range:  "<<vkey+1<<" - "<<vkey+2);
         // CoraCool retrieve initialise CoraCool connection
         CoraCoolDatabasePtr ccDbPtr   = m_conn->getCoraCoolDb();
         CoraCoolFolderPtr   ccfolder  = ccDbPtr->getFolder(m_foldername);
@@ -595,13 +549,10 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
         while (itr->hasNext()) {
           CoraCoolObjectPtr obj = itr->next();
                                         
-          // skip channels which are explicitly vetoed by range
-          if (checkChan && !isChanSelected(obj->channelId()))  continue;
                                         
-          if (m_log->level()<=MSG::DEBUG) 
-            *m_log << MSG::DEBUG<<"from DB \t chID: "<<obj->channelId()
+          ATH_MSG_DEBUG("from DB \t chID: "<<obj->channelId()
                    <<"\tobjstart:\t"<<obj->since()<<"\t objstop: \t"
-                   << obj->until() <<endmsg;
+                   << obj->until() );
                                         
           std::vector<cool::ValidityKey>::iterator st = m_cachesince.begin();
           std::vector<cool::ValidityKey>::iterator ut = m_cacheuntil.begin();
@@ -618,14 +569,10 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
               // obj time is larger than cache start (and less than cache stop)
               //   ==> update cache
               ++counter;
-              if (m_log->level()<=MSG::DEBUG) {
-                *m_log << MSG::DEBUG<<"special reload needed on THIS ONE !!!!!!!!!!!"<<endmsg;
-
+              ATH_MSG_DEBUG("special reload needed on THIS ONE !!!!!!!!!!!");
                 // just change existing IOVRange
-                *m_log << MSG::DEBUG<<"changing "<<(*ut)<<"  to "<<obj->since()-1<<endmsg;
-              }
+              ATH_MSG_DEBUG("changing "<<(*ut)<<"  to "<<obj->since()-1);
               (*ut)=obj->since()-1;
-
               specialCacheUpdate(obj, iovSvc); //  reset proxy, add to cache, addIOV 
               covered = 1;
               break; // can not be more than one
@@ -640,18 +587,16 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
             specialCacheUpdate(obj, iovSvc);
           }
         }
-        if (m_log->level()<=MSG::DEBUG) 
-          *m_log << MSG::DEBUG << "Need a special update for " << counter << " objects " << endmsg;
+        ATH_MSG_DEBUG( "Need a special update for " << counter << " objects " );
         itr->close();
         retrievedone=true;
     
 
       } else {
         
-        if (m_log->level()<=MSG::DEBUG) {
-          *m_log << MSG::DEBUG<<"not CoraCool type.   cachestart:"<<m_cachestart<<"  cachestop:"<< m_cachestop <<endmsg;
-          *m_log<< MSG::DEBUG<<"checking range:  "<<vkey+1<<" - "<<vkey+2<<endmsg;
-        }
+        ATH_MSG_DEBUG("not CoraCool type.   cachestart:"<<m_cachestart<<"  cachestop:"<< m_cachestop );
+        ATH_MSG_DEBUG("checking range:  "<<vkey+1<<" - "<<vkey+2);
+        
                 
         // this returns all the objects whose IOVRanges crosses this range . 
         cool::IObjectIteratorPtr itr=folder->browseObjects(vkey+1, vkey+2, m_chansel,m_tag);
@@ -659,12 +604,8 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
         while (itr->goToNext()) {
           const cool::IObject& ref=itr->currentRef();
                         
-          // skip channels which are explicitly vetoed by range
-          if (checkChan && !isChanSelected(ref.channelId())) continue;
         
-          if (m_log->level()<=MSG::DEBUG) 
-            *m_log << MSG::DEBUG<<"from DB -----> objstart:"<<ref.since()<<"  objstop:"
-                   << ref.until() <<" chID: "<<ref.channelId()<<endmsg;
+          ATH_MSG_DEBUG("from DB -----> objstart:"<<ref.since()<<"  objstop:"<< ref.until() <<" chID: "<<ref.channelId());
                         
           std::vector<cool::ValidityKey>::iterator st = m_cachesince.begin();
           std::vector<cool::ValidityKey>::iterator ut = m_cacheuntil.begin();
@@ -680,14 +621,10 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
             if ((*st) < ref.since() && ref.since() < (*ut)){
               // ref time is larger than cache start (and less than cache stop)
               //   ==> update cache
-              if (m_log->level()<=MSG::DEBUG) {
-                *m_log << MSG::DEBUG<<"special reload needed on this one !!!!!!!!!!!"<<endmsg;
+              ATH_MSG_DEBUG("special reload needed on this one !!!!!!!!!!!");
                 // just change existing IOVRange
-                *m_log << MSG::DEBUG<<"changing "<<(*ut)<<"  to "<<ref.since()-1<<endmsg;
-              }
-                            
-              (*ut)=ref.since()-1;
-                                        
+              ATH_MSG_DEBUG("changing "<<(*ut)<<"  to "<<ref.since()-1);
+              (*ut)=ref.since()-1;               
               ++counter;
               specialCacheUpdate(ref, iovSvc);
               covered=1;
@@ -706,8 +643,7 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
             specialCacheUpdate(ref, iovSvc);
           }
         }
-        if (m_log->level()<=MSG::DEBUG) 
-          *m_log << MSG::DEBUG << "Need a special update for " << counter << " objects " << endmsg; 
+        ATH_MSG_DEBUG( "Need a special update for " << counter << " objects " ); 
         itr->close();
         retrievedone=true;
       }      
@@ -716,18 +652,18 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
 
     }
     catch (std::exception& e) {
-      *m_log << MSG::WARNING << "COOL retrieve attempt " << attempts <<  " failed: " << e.what() << endmsg;
+      ATH_MSG_WARNING( "COOL retrieve attempt " << attempts <<  " failed: " << e.what() );
       try { // disconnect and reconnect
         m_conn->setInactive();
         dbPtr=m_conn->getCoolDb();
       }
       catch (std::exception& e) {
-        *m_log << MSG::WARNING << "Exception from disconnect/reconnect: " << e.what() << endmsg;
+        ATH_MSG_WARNING( "Exception from disconnect/reconnect: " << e.what() );
       }
     }
   }
 
-  *m_log << "Special cache check finished for folder " << m_foldername << endmsg;
+  ATH_MSG_INFO( "Special cache check finished for folder " << m_foldername );
   return true;
 }
 
@@ -738,8 +674,8 @@ void IOVDbFolder::specialCacheUpdate(CoraCoolObjectPtr obj,
   // time earlier than since.
   IOVRange range = makeRange(obj->since()-2, obj->since()-1);
   if (StatusCode::SUCCESS != iovSvc->setRange(clid(), key(), range, eventStore())) {
-    *m_log << MSG::ERROR << "IOVDbFolder::specialCacheUpdate - setRange failed for folder " 
-           << folderName() << endmsg;
+    ATH_MSG_ERROR( "IOVDbFolder::specialCacheUpdate - setRange failed for folder " 
+           << folderName() );
     return;
   }
     
@@ -749,19 +685,6 @@ void IOVDbFolder::specialCacheUpdate(CoraCoolObjectPtr obj,
   // store all the attributeLists in the buffer save pointer to start
   const unsigned int istart=m_cacheattr.size();
   for (CoraCoolObject::const_iterator pitr=obj->begin(); pitr!=obj->end();++pitr) {
-    // setup shared specification on first store
-    // if (m_cachespec==0) {  //never happens
-    //      m_cachespec=new coral::AttributeListSpecification;
-    //      m_varfields.clear();
-    //      m_fixedfields=0;
-    //      unsigned int ielm=0;
-    //      for (coral::AttributeList::const_iterator aitr=pitr->begin(); aitr!=pitr->end();++aitr,++ielm) {
-    //              const coral::AttributeSpecification& aspec=aitr->specification();
-    //              m_cachespec->extend(aspec.name(),aspec.type());
-    //              addType(aspec.typeName(),ielm);
-    //      }
-    //      *m_log << MSG::DEBUG << "Setup shared CoraCool AttributeListSpecifcation with " << m_cachespec->size() << " elements" << endmsg;
-    // }
     // use the shared specification in storing the payload
     m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));
     m_cacheattr.back().fastCopyData(*pitr);
@@ -778,8 +701,8 @@ void IOVDbFolder::specialCacheUpdate(const cool::IObject& ref,
   // time earlier than since.
   IOVRange range = makeRange(ref.since()-2, ref.since()-1);
   if (StatusCode::SUCCESS != iovSvc->setRange(clid(), key(), range, eventStore())) {
-    *m_log << MSG::ERROR << "IOVDbFolder::specialCacheUpdate - setRange failed for folder " 
-           << folderName() << endmsg;
+    ATH_MSG_ERROR( "IOVDbFolder::specialCacheUpdate - setRange failed for folder " 
+           << folderName() );
     return;
   }
 
@@ -787,27 +710,14 @@ void IOVDbFolder::specialCacheUpdate(const cool::IObject& ref,
   addIOVtoCache(ref.since(),ref.until());
   m_cachechan.push_back(ref.channelId());
   const coral::AttributeList& atrlist = ref.payload().attributeList();
-  // setup shared specification on first store
-  //     if (m_cachespec==0) { // never happens
-  // *m_log << MSG::DEBUG << "Setting up shared specs... " << m_key << endmsg;
-  //          m_cachespec=new coral::AttributeListSpecification;
-  //          m_varfields.clear();
-  //          m_fixedfields=0;
-  //          unsigned int ielm=0;
-  //          for (coral::AttributeList::const_iterator aitr=atrlist.begin();aitr!=atrlist.end();++aitr,++ielm) {
-  //                  const coral::AttributeSpecification& aspec=aitr->specification();
-  //                  m_cachespec->extend(aspec.name(),aspec.type());
-  //                  addType(aspec.typeName(),ielm);
-  //          }
-  //          *m_log << MSG::DEBUG << "Setup shared AttributeListSpecifcation with " << m_cachespec->size() << " elements" << endmsg;
-  //          }
+ 
   // use the shared specification in storing the payload
   m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));// maybe needs to be cleared before
-  if (m_log->level()<=MSG::DEBUG) {
+  /**if (m_msg.level()<=MSG::DEBUG) {
     std::ostringstream os;
     atrlist.toOutputStream(os);
-    *m_log << MSG::DEBUG << "AttributeList: " << os.str() << endmsg;
-  }
+    m_msg << MSG::DEBUG << "AttributeList: " << os.str() );
+  }**/
   m_cacheattr.back().fastCopyData(atrlist);
   countSize(atrlist);
 }
@@ -840,8 +750,7 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
     // get payload container, assuming it has the correct tag
     const IOVPayloadContainer* payload=m_metacon->payloadContainer();
     if (payload==0) {
-      *m_log << MSG::ERROR << "Could not find IOVPayloadContainer for folder "
-             << m_foldername << endmsg;
+      ATH_MSG_ERROR( "Could not find IOVPayloadContainer for folder "<< m_foldername );
       return false;
     }
     // get payload for current time, including case where nothing returned
@@ -852,29 +761,29 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
     bool newpptr=false; 
     const CondAttrListCollection* pptr;
     if (pitr==payload->end()) {
-      if (m_log->level()<=MSG::DEBUG) 
-        *m_log << MSG::DEBUG << "No IOVPayloadContainer for time " 
-               << ireftime << " so make empty CondAttrListCollection" << endmsg;
+      ATH_MSG_DEBUG( "No IOVPayloadContainer for time " 
+               << ireftime << " so make empty CondAttrListCollection");
       pptr=new CondAttrListCollection(!m_timestamp);
       newpptr=true;
     } else {
       pptr=*pitr;
     }
+    FolderType fType=IOVDbNamespace::determineFolderType(pptr);
     m_nobjread+=pptr->size();
     // check for single magic channel - then need an AttributeList or PoolRef
-    if (pptr->size()==1 && pptr->begin()->first==0xFFFF) {
-      // check if this is a poolref
+    if ((fType==PoolRef) or (fType==AttrList)) {
       const coral::AttributeList& payload1=pptr->begin()->second;
-      const coral::AttributeSpecification& spec=payload1[0].specification();
-      if (spec.name()=="PoolRef" && spec.typeName()=="string") {
+      if (fType==PoolRef) {
         // single channel with PoolRef
         strAddress=payload1[0].data<std::string>();
         poolPayloadReq=true;
+        ATH_MSG_WARNING( "Folder type set to PoolRef");
         m_foldertype=PoolRef;
       } else {
         // create an AthenaAttributeList for this data
         attrList=new AthenaAttributeList(payload1);
         strAddress="POOLContainer_AthenaAttributeList][CLID=x";
+        ATH_MSG_WARNING( "Folder type set to AttrList");
         m_foldertype=AttrList;
       }
       range=(pptr->iov_begin())->second;
@@ -883,11 +792,10 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
       // this can only be done if the collection is non-empty
       // otherwise we assume it is a CondAttrListCollection
       m_foldertype=AttrListColl;
-      if (pptr->size()>0) {
-        const coral::AttributeList& payload1=pptr->begin()->second;
-        const coral::AttributeSpecification& spec=payload1[0].specification();
-        if (spec.name()=="PoolRef" && spec.typeName()=="string") {
+      if (pptr->size()>0) {     
+        if (fType==PoolRefColl) {
           m_foldertype=PoolRefColl;
+          ATH_MSG_WARNING( "Folder type set to PoolRefColl");
           poolPayloadReq=true;
         }
       }
@@ -898,9 +806,8 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
       // release the pointer if we created a new CondAttrListCollection object
       if (newpptr) delete pptr;
     }
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "Read file metadata for folder " << m_foldername 
-             << " foldertype is " << m_foldertype << endmsg;
+    ATH_MSG_DEBUG( "Read file metadata for folder " << m_foldername 
+             << " foldertype is " << m_foldertype );
   } else {
     // COOL/CoraCool data to be read from cache
     // for AttrListColl or PoolRefColl, need a CondAttrListCollection ready
@@ -943,14 +850,11 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
                                 m_cachechan[ic],m_cacheattr,
                                 m_cacheccstart[ic],m_cacheccend[ic]);
           if (m_writemeta) {
-            *m_log << MSG::ERROR << 
-              "Writing of CoraCool folders to file metadata not implemented" 
-                   << endmsg;
+            ATH_MSG_ERROR( "Writing of CoraCool folders to file metadata not implemented");
             return false;
           }
         } else {
-          *m_log << MSG::ERROR << "Unhandled folder type " << m_foldertype
-                 << endmsg;
+          ATH_MSG_ERROR( "Unhandled folder type " << m_foldertype);
           return false;
         }
       } else if (m_cacheuntil[ic]<=reftime && m_cacheuntil[ic]>naystart) {
@@ -978,30 +882,28 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
     } else if (m_foldertype==AttrList || m_foldertype==PoolRef) {
       // single object retrieve - should have exactly one object
       if (nobj==0) {
-        *m_log << MSG::ERROR << 
-          "COOL object not found in single-channel retrieve, folder " 
-               << m_foldername << " currentTime " << reftime << endmsg;
+        ATH_MSG_ERROR("COOL object not found in single-channel retrieve, folder " 
+               << m_foldername << " currentTime " << reftime );
         return false;
       } else if (nobj>1) {
-        *m_log << MSG::ERROR << nobj << 
+        ATH_MSG_ERROR( nobj << 
           " valid objects found for single-channel retrieve, folder " << 
-          m_foldername << " currentTime " << reftime << endmsg;
+          m_foldername << " currentTime " << reftime );
         return false;
       }
     }
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "Retrieved object: folder " << m_foldername 
+    //was debug
+    ATH_MSG_DEBUG( "Retrieved object: folder " << m_foldername 
              <<  " at IOV " << reftime << " channels " << nobj << " has range " 
-             << range << endmsg;
+             << range );
     // shrink range so it does not extend into 'gap' channels or outside cache
     IOVTime tnaystart=makeTime(naystart);
     IOVTime tnaystop=makeTime(naystop);
     IOVTime rstart=range.start();
     IOVTime rstop=range.stop();
     if (tnaystart > rstart || rstop > tnaystop) {
-      if (m_log->level()<=MSG::DEBUG) 
-        *m_log << MSG::DEBUG << "Shrink IOV range from [" << rstart << ":" <<
-          rstop << "] to [" << tnaystart << ":" << tnaystop << "]" << endmsg;
+      ATH_MSG_DEBUG( "Shrink IOV range from [" << rstart << ":" <<
+          rstop << "] to [" << tnaystart << ":" << tnaystop << "]" );
       if (tnaystart > rstart) rstart=tnaystart;
       if (tnaystop  < rstop)  rstop=tnaystop;
       range=IOVRange(rstart,rstop);
@@ -1023,14 +925,14 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
   // turn the data into an IOpaqueAddress
   strAddress=m_addrheader+strAddress;
   if (StatusCode::SUCCESS!=persSvc->createAddress(0,0,strAddress,address)) {
-    *m_log << MSG::ERROR << "Could not get IOpaqueAddress from string address "
-           << strAddress << endmsg;
+    ATH_MSG_ERROR( "Could not get IOpaqueAddress from string address "
+           << strAddress );
     return false;
   }
   GenericAddress* gAddr=dynamic_cast<GenericAddress*>(address);
   if (!gAddr) {
-    *m_log << MSG::ERROR << "Could not cast IOpaqueAddress to GenericAddress" 
-           << endmsg;
+    ATH_MSG_ERROR( "Could not cast IOpaqueAddress to GenericAddress" 
+           );
     return false;
   }
   // create a new GenericAddress to set pool context
@@ -1065,31 +967,18 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
 
 
 void IOVDbFolder::summary() {
+  const std::string & folderTypeName=IOVDbNamespace::folderTypeName(m_foldertype);
   // summarise the read statistics for this folder
-  *m_log << MSG::INFO <<  "Folder " << m_foldername << " (";
-  if (m_foldertype==AttrList) {
-    *m_log << "AttrList";
-  } else if (m_foldertype==AttrListColl) {
-    *m_log << "AttrListColl";
-  } else if (m_foldertype==PoolRef) {
-    *m_log << "PoolRef";
-  } else if (m_foldertype==PoolRefColl) {
-    *m_log << "PoolColl";
-  } else if (m_foldertype==CoraCool) {
-    *m_log << "CoraCool";
-  } else if (m_foldertype==CoolVector) {
-    *m_log << "CoolVector";
-  } else {
-    *m_log << "Unknown";
-  }
-  *m_log << ") db-read " << m_ndbread << "/" << 
-    m_ncacheread << " objs/chan/bytes " << m_nobjread << "/" << 
-    m_nchan << "/" << m_nbytesread << " (( " << std::fixed << std::setw(8)
-         << std::setprecision(2) << m_readtime << " ))s" << endmsg;
+  ATH_MSG_INFO(  "Folder " << m_foldername << " ("<<folderTypeName
+	    << ") db-read " << m_ndbread << "/" <<
+	    m_ncacheread << " objs/chan/bytes " << m_nobjread << "/" <<
+	    m_nchan << "/" << m_nbytesread << " (( " << std::fixed << std::setw(8)
+	         << std::setprecision(2) << m_readtime << " ))s" );
+	
   // print WARNING if data for this fodler was never read from Storegate
   if (m_ncacheread==0 && m_ndbread>0) {
-    *m_log << MSG::WARNING << "Folder " << m_foldername << 
-      " is requested but no data retrieved" << endmsg;
+    ATH_MSG_WARNING( "Folder " << m_foldername << 
+      " is requested but no data retrieved" );
   }
 }
 
@@ -1103,9 +992,7 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
   // as detector store does not exist yet in IOVDbSvc initialisation
   // and sets up cache length, taking into account optional overrides
   // returns null pointer in case of problem
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG << "preLoadFolder for folder " << m_foldername 
-           << endmsg;
+  ATH_MSG_DEBUG( "preLoadFolder for folder " << m_foldername);
   p_detStore=detStore;
   std::string folderdesc;
   cool::IDatabasePtr dbPtr;
@@ -1115,49 +1002,44 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
     // get COOL database - will wake up connection on first access
     dbPtr=m_conn->getCoolDb();
     if (dbPtr.get()==0) {
-      *m_log << MSG::FATAL << "Conditions database connection " 
-             << m_conn->name() << " cannot be opened - STOP" << endmsg;
+      ATH_MSG_FATAL( "Conditions database connection " << m_conn->name() << " cannot be opened - STOP" );
       return 0;
     }
     // get folder and read information
     if (!dbPtr->existsFolder(m_foldername)) {
-      *m_log << MSG::FATAL << "Folder " << m_foldername << " does not exist" 
-             << endmsg;
+      ATH_MSG_FATAL( "Folder " << m_foldername << " does not exist" );
       return 0;
     }
     fldPtr=dbPtr->getFolder(m_foldername);
     // get versiontype of folder
-    m_multiversion=(fldPtr->versioningMode()==
-                    cool::FolderVersioning::MULTI_VERSION);
+    m_multiversion=(fldPtr->versioningMode()==cool::FolderVersioning::MULTI_VERSION);
     // read and process description string
     folderdesc=fldPtr->description();
   } else {
     // folder from meta-data
     folderdesc=m_metacon->folderDescription();
   }
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG << "Folder description " << folderdesc << endmsg;
+  ATH_MSG_DEBUG( "Folder description " << folderdesc);
 
   // register folder with meta-data tool if writing metadata
   if (m_writemeta) {
     if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,
                                                             folderdesc)) {
-      *m_log << MSG::ERROR << "Failed to register folder " << m_foldername
-             << " for meta-data write" << endmsg;
+      ATH_MSG_ERROR( "Failed to register folder " << m_foldername
+             << " for meta-data write" );
       return 0;
     }
   }
 
   // parse the description string
-  IOVDbParser folderpar(folderdesc,m_log);
+  IOVDbParser folderpar(folderdesc,m_msg.get());
   // check for timeStamp indicating folder is timestamp indexed
   std::string buf;
   m_timestamp=(folderpar.getKey("timeStamp","",buf) && buf=="time");
   // check for key, giving a different key to the foldername
   if (folderpar.getKey("key","",buf) && !m_jokey) {
-    if (m_log->level()<=MSG::DEBUG)
-      *m_log << MSG::DEBUG << "Key for folder " << m_foldername << " set to "
-             << buf << " from description string" << endmsg;
+    ATH_MSG_DEBUG( "Key for folder " << m_foldername << " set to "
+             << buf << " from description string" );
     m_key=buf;
   }
   // check for 'cache' but only if not already found in joboptions
@@ -1173,53 +1055,33 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
   bool gotCLID=false;
   // get addressHeader
   if (folderpar.getKey("addrHeader","",m_addrheader)) {
-    const std::size_t svcType = m_addrheader.find("service_type=\"71\"");
-    if (svcType != std::string::npos) {
-      m_addrheader.replace(svcType, 17, "service_type=\"256\"");
-    }
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "Decode addrHeader " << m_addrheader << endmsg;
-    IOVDbParser addrH(m_addrheader,m_log);
+    IOVDbNamespace::replaceServiceType71(m_addrheader);
+    ATH_MSG_DEBUG( "Decode addrHeader " << m_addrheader);
+    IOVDbParser addrH(m_addrheader,m_msg.get());
     std::string addr2;
     // parse addrHeader XML of form
     // <addrHeader><address_header service_type="256" clid="12345" /></addrHeader>
     if (addrH.getKey("address_header","",addr2)) {
       // look for 'clid', then number between quotes afterwards
-      std::string::size_type iofs=addr2.find("clid");
-      if (iofs!=std::string::npos) {
-        std::string::size_type iofs1=addr2.find("\"",iofs+4);
-        if (iofs1!=std::string::npos) {
-          std::string::size_type iofs2=addr2.find("\"",iofs1+1);
-          if (iofs2!=std::string::npos) {
-            std::istringstream is(addr2.substr(iofs1+1,iofs2-iofs1-1));
-            is >> m_clid;
-            if (m_log->level()<=MSG::DEBUG) 
-              *m_log << MSG::DEBUG << "Got CLID " << m_clid << " from " 
-                     << addr2 << endmsg;
-            gotCLID=true;
-          }
-        }
-      }
+      m_clid = IOVDbNamespace::parseClid(addr2);
+      ATH_MSG_DEBUG( "Got CLID " << m_clid << " from " << addr2 );
+      gotCLID=(m_clid>0);
     }
   }
   // decode the typeName
   if (!folderpar.getKey("typeName","",m_typename)) {
-    *m_log << MSG::ERROR << "Primary type name is empty" << endmsg;
+    ATH_MSG_ERROR( "Primary type name is empty" );
     return 0;
   }
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG << "Got folder typename " << m_typename << endmsg;
+  ATH_MSG_DEBUG( "Got folder typename " << m_typename );
   if (!gotCLID)
     if (StatusCode::SUCCESS==p_clidSvc->getIDOfTypeName(m_typename,m_clid)) 
       gotCLID=true;
   if (!gotCLID) {
-    *m_log << MSG::ERROR << "Could not get clid for typeName: " << 
-      m_typename << endmsg;
+    ATH_MSG_ERROR("Could not get clid for typeName: " << m_typename);
     return 0;
   }
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG << "Got folder typename " << m_typename << 
-      " with CLID " << m_clid << endmsg;
+  ATH_MSG_DEBUG( "Got folder typename " << m_typename <<  " with CLID " << m_clid );
 
   // setup channel list and folder type
   if (m_metacon==0) {
@@ -1235,15 +1097,13 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
         m_channames.push_back(chitr->second);
       }
       m_nchan=m_channums.size();
-      if (m_log->level()<=MSG::DEBUG)
-        *m_log << MSG::DEBUG << "Retrieving list of channel numbers/names: got "
-               << m_nchan << " channels " << endmsg;
+      ATH_MSG_DEBUG( "Retrieving list of channel numbers/names: got "
+               << m_nchan << " channels " );
     } else {
       m_channums=fldPtr->listChannels();
       m_nchan=m_channums.size();
-      if (m_log->level()<=MSG::DEBUG) 
-        *m_log << MSG::DEBUG << "Retrieving list of channel numbers only: got "
-               << m_nchan << " channels " << endmsg;
+      ATH_MSG_DEBUG( "Retrieving list of channel numbers only: got "
+               << m_nchan << " channels " );
     }
 
     // set folder type 
@@ -1270,9 +1130,7 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
         }
       }
     }
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "Folder identified as type " << m_foldertype << 
-        endmsg;
+    ATH_MSG_DEBUG( "Folder identified as type " << m_foldertype );
   }
   // note that for folders read from metadata, folder type identification
   // is deferred until getAddress when first data is read
@@ -1288,39 +1146,19 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
   // process symlinks, if any
   if (folderpar.getKey("symlinks","",buf)) {
     // symlinks specified as <symlink>A:B:C</symlink> i.e. colon-sep list
-    std::string linkname;
-    std::string::size_type idx;
-    do {
-      // Type names may be qualified C++ names including a scope: SCOPE::NAME.
-      // So ignore double colons when splitting the symlink list.
-      idx = 0;
-      while (true) {
-        idx=buf.find(":", idx);
-        if (idx == std::string::npos || buf[idx+1] != ':') break;
-        idx += 2;
-      }
-
-      if (idx!=std::string::npos) {
-        linkname=buf.substr(0,idx);
-        buf=buf.substr(1+idx,buf.size());
-      } else {
-        linkname=buf;
-      }
-      linkname=spaceStrip(linkname);
-      if (linkname!="") {
+    const auto linknameVector=IOVDbNamespace::parseLinkNames(buf);
+    for (const auto & linkname:linknameVector){
+      if (not linkname.empty()) {
         CLID sclid;
         if (StatusCode::SUCCESS==p_clidSvc->getIDOfTypeName(linkname,sclid)) {
           tad->setTransientID(sclid);
-          if (m_log->level()<=MSG::DEBUG) 
-            *m_log << MSG::DEBUG << "Setup symlink " << linkname << " CLID " <<
-              sclid << " for folder " << m_foldername << endmsg;
+          ATH_MSG_DEBUG( "Setup symlink " << linkname << " CLID " <<sclid << " for folder " << m_foldername );
         } else {
-          *m_log << MSG::ERROR << "Could not get clid for symlink: "
-                 << linkname << endmsg;
+          ATH_MSG_ERROR( "Could not get clid for symlink: "<< linkname );
           return 0;
         }
       }
-    } while (idx!=std::string::npos);
+   }
   }
 
   // setup cache length
@@ -1334,9 +1172,7 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
       if (m_cachepar!="") clen=atoi(m_cachepar.c_str());
     }
     m_cachelength=clen*1000000000LL;
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "Cache length set to " << clen << " seconds" << 
-        endmsg;
+    ATH_MSG_DEBUG( "Cache length set to " << clen << " seconds" );
   } else {
     // for run/event, cache parameter sets length in LB
     // default value is 1 whole run (-1 to avoid getting the next run)
@@ -1347,9 +1183,8 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
     } else {
       if (m_cachepar!="") m_cachelength=atoi(m_cachepar.c_str());
     }
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "Cache length set to " << (m_cachelength >> 32) <<
-        " runs " << (m_cachelength & 0xFFFFFFFF) << " lumiblocks" << endmsg;
+    ATH_MSG_DEBUG( "Cache length set to " << (m_cachelength >> 32) <<
+        " runs " << (m_cachelength & 0xFFFFFFFF) << " lumiblocks" );
   }
   return tad;
 }
@@ -1409,8 +1244,7 @@ bool IOVDbFolder::resolveTag(cool::IFolderPtr fptr,
   if (tag=="HEAD") return true;
   if (tag=="") tag=globalTag;
   if (tag=="") {
-    *m_log << MSG::ERROR << 
-      "No IOVDbSvc.GlobalTag specified on job options or input file" << endmsg;
+    ATH_MSG_ERROR( "No IOVDbSvc.GlobalTag specified on job options or input file" );
     return false;
   }
   // check for magic tags
@@ -1422,14 +1256,13 @@ bool IOVDbFolder::resolveTag(cool::IFolderPtr fptr,
   const std::vector<std::string>& taglist=fptr->listTags();
   if (find(taglist.begin(),taglist.end(),tag)!=taglist.end()) {
     // tag exists directly in folder
-    if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "Using tag "
-                                           << tag << " for folder " << m_foldername << endmsg;
+    ATH_MSG_DEBUG( "Using tag "<< tag << " for folder " << m_foldername );
   } else {
     // tag maybe an HVS tag 
     try {
       std::string restag=fptr->resolveTag(tag);
-      *m_log << MSG::INFO << "HVS tag " << tag << " resolved to "
-             << restag << " for folder " << m_foldername << endmsg;
+      ATH_MSG_INFO( "HVS tag " << tag << " resolved to "
+             << restag << " for folder " << m_foldername );
       // HVS tag may itself be magic
       if (restag.substr(0,7)=="TagInfo" && 
           restag.find('/')!=std::string::npos) {
@@ -1438,8 +1271,7 @@ bool IOVDbFolder::resolveTag(cool::IFolderPtr fptr,
       tag=restag;
     }
     catch (cool::Exception& e) {
-      *m_log << MSG::ERROR << "Tag " << tag << 
-        " cannot be resolved for folder " << m_foldername << endmsg;
+      ATH_MSG_ERROR( "Tag " << tag <<" cannot be resolved for folder " << m_foldername );
       return false;
     }
   }
@@ -1448,14 +1280,12 @@ bool IOVDbFolder::resolveTag(cool::IFolderPtr fptr,
   if (m_checklock) {
     try {
       if (fptr->tagLockStatus(tag)!=cool::HvsTagLock::LOCKED) {
-        *m_log << MSG::ERROR << "Tag " << tag << 
-          " is not locked and IOVDbSvc.CheckLock is set" << endmsg;
+        ATH_MSG_ERROR("Tag " << tag <<" is not locked and IOVDbSvc.CheckLock is set" );
         return false;
       }
     }
     catch (cool::Exception& e) {
-      *m_log << MSG::ERROR << "Could not check tag lock status for " << tag 
-             << endmsg;
+      ATH_MSG_ERROR( "Could not check tag lock status for " << tag );
       return false;
     }
   }
@@ -1471,26 +1301,17 @@ bool IOVDbFolder::magicTag(std::string& tag) {
   // return true for successful resolution
   const std::string inputtag=tag;
   tag="";
-  std::string prefix="";
-  // find the / after the TagInfo{Major|Minor}
-  std::string::size_type ptr1=inputtag.find('/');
-  if (ptr1==std::string::npos) return false;
-  std::string target=inputtag.substr(ptr1+1);
-  // check for TagInfoMajor or TagInfoMinor - if so, will need to strip
-  // characters from the end of the looked up tag
   std::string::size_type rstrip=0;
-  if (inputtag.substr(7,5)=="Major") {
-    rstrip=6;
-  } else if (inputtag.substr(7,5)=="Minor") {
-    rstrip=3;
-  }
-  std::string::size_type ptr=target.find("/");
-  if (ptr!=std::string::npos) {
-    prefix=target.substr(0,ptr);
-    target=target.substr(ptr+1);
-  }
-  if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << 
-                                    "In magicTag for tag name: " << target << " prefix " << prefix << endmsg;
+  enum ResultIndices{WHOLETAG, MAJMIN, PATH1, PATH2, SIZEWITHPREFIX};
+  auto results=IOVDbNamespace::parseMagicTag(inputtag);
+  if (results.empty())   return false;
+  //number of characters to strip from tag end
+  rstrip = (results[MAJMIN] == "Major")?6:3;
+  //revisit with C++17 in mind
+  const auto & resultPair = IOVDbNamespace::tag2PrefixTarget(results);
+  const std::string & prefix=resultPair.first;
+  const std::string & target=resultPair.second;
+  ATH_MSG_DEBUG("In magicTag for tag name: " << target << " prefix " << prefix );
 
   // try to get TagInfo object
   const TagInfo* tagInfo=0;
@@ -1501,27 +1322,23 @@ bool IOVDbFolder::magicTag(std::string& tag) {
   }
   // if nothing found, try to get GeoAtlas directly from GeoModelSvc
   if (tag=="" && target=="GeoAtlas") {
-    if (m_log->level()<=MSG::DEBUG)  *m_log << MSG::DEBUG << 
-                                       "Attempt to get GeoAtlas tag directly from GeoModelSvc" << endmsg;
+    ATH_MSG_DEBUG( "Attempt to get GeoAtlas tag directly from GeoModelSvc" );
     IGeoModelSvc* geomodel=0;
     ISvcLocator* svcLocator=Gaudi::svcLocator();
     if (svcLocator==0 || 
         StatusCode::SUCCESS!=svcLocator->service("GeoModelSvc",geomodel)) {
-      *m_log << MSG::ERROR << "Cannot get GeoModelSvc" << endmsg;
+      ATH_MSG_ERROR( "Cannot get GeoModelSvc" );
     } else { 
       tag=prefix+geomodel->atlasVersion();
-      *m_log << MSG::INFO << "Resolved tag " << target << " to " << 
-        tag << " directly from GeoModel" << endmsg;
+      ATH_MSG_DEBUG( "Resolved tag " << target << " to " << tag << " directly from GeoModel" );
     }
   }
   if (tag!="") {
     // check if characters need to be stripped from end of tag
     if (rstrip>0 && tag.size()>rstrip) tag=tag.substr(0,tag.size()-rstrip);
-    *m_log << MSG::INFO << "Resolved TagInfo tag " << target 
-           << " to value " << tag << endmsg;
+    ATH_MSG_DEBUG( "Resolved TagInfo tag " << target  << " to value " << tag );
   } else {
-    *m_log << MSG::ERROR << "Could not resolve TagInfo tag " << target 
-           << endmsg;
+    ATH_MSG_ERROR( "Could not resolve TagInfo tag " << target );
   }
   return (tag!="");
 }
@@ -1542,13 +1359,10 @@ bool IOVDbFolder::addMetaAttrListColl(const CondAttrListCollection* coll) {
   // make a new CondAttrListCollection for the payload
   CondAttrListCollection* flmdColl=new CondAttrListCollection(*coll);
   if (StatusCode::SUCCESS!=p_metaDataTool->addPayload(m_foldername,flmdColl)) {
-    *m_log << MSG::ERROR << 
-      "addMetaAttrList: Failed to write metadata for folder " << m_foldername
-           << endmsg;
+    ATH_MSG_ERROR( "addMetaAttrList: Failed to write metadata for folder " << m_foldername);
     return false;
   } else {
-    if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << 
-                                      "addMetaAttrList: write metadata for folder " << m_foldername << endmsg;
+    ATH_MSG_DEBUG( "addMetaAttrList: write metadata for folder " << m_foldername );
     return true;
   }
 }
@@ -1568,9 +1382,9 @@ void IOVDbFolder::addType(const std::string& type,const unsigned int ielm)
   } else if (type=="blob") {
     m_varfields.push_back(VarSizePair(2,ielm));
   } else {
-    *m_log << MSG::WARNING << "addType: unknown type " << type << 
+    ATH_MSG_WARNING( "addType: unknown type " << type << 
       " in folder " << m_foldername << 
-      " will not be counted for bytes-read statistics" << endmsg;
+      " will not be counted for bytes-read statistics" );
   }
 }
 
@@ -1585,10 +1399,8 @@ void IOVDbFolder::setSharedSpec(const coral::AttributeList& atrlist) {
     m_cachespec->extend(aspec.name(),aspec.type());
     addType(aspec.typeName(),ielm);
   }
-  if (m_log->level()<=MSG::DEBUG) 
-    *m_log << MSG::DEBUG 
-           << "Setup shared AttributeListSpecifcation with " << 
-      m_cachespec->size() << " elements" << endmsg;
+  ATH_MSG_DEBUG( "Setup shared AttributeListSpecifcation with " << 
+      m_cachespec->size() << " elements" );
 }
 
 void IOVDbFolder::countSize(const coral::AttributeList& atrlist) {
@@ -1608,32 +1420,7 @@ void IOVDbFolder::countSize(const coral::AttributeList& atrlist) {
   }
 }
 
-bool IOVDbFolder::isChanSelected(const cool::ChannelId chan) {
-  // simple check of channel ranges
-  bool sel=false;
-  for (std::vector<ChanRange>::const_iterator itr=m_chanrange.begin();
-       itr!=m_chanrange.end(); ++itr) {
-    if (chan>=itr->first && chan<=itr->second) {
-      sel=true;
-      break;
-    }
-  }
-  return sel;
-}
-
-std::string IOVDbFolder::spaceStrip(const std::string& input) const {
-  // return the input string stripped of leading/trailing spaces
-  std::string::size_type idx1=input.find_first_not_of(" ");
-  std::string::size_type idx2=input.find_last_not_of(" ");
-  if (idx1==std::string::npos || idx2==std::string::npos) {
-    return "";
-  } else {
-    return input.substr(idx1,1+idx2-idx1);
-  }
-}
-
-void IOVDbFolder::addIOVtoCache(cool::ValidityKey since,
-                                cool::ValidityKey until) {
+void IOVDbFolder::addIOVtoCache(cool::ValidityKey since,cool::ValidityKey until) {
   // add IOV to the cache, and check for IOVs crossing cache boundaries
   // indicating missing channels
   m_cachesince.push_back(since);
@@ -1650,16 +1437,15 @@ void IOVDbFolder::addIOVtoCache(cool::ValidityKey since,
 }
 
 void IOVDbFolder::printCache(){
-  if (m_log->level()<=MSG::DEBUG) {
-    *m_log<<MSG::DEBUG<<"folder cache printout -------------------"<<endmsg;
-    *m_log<<MSG::DEBUG<<"length: "<<m_cachelength<<"\tstart: "<<m_cachestart<<"\tstop: "<<m_cachestop<<endmsg;
-    *m_log<<MSG::DEBUG<<"current range: "<<m_currange<<endmsg;
+    ATH_MSG_DEBUG("folder cache printout -------------------");
+    ATH_MSG_DEBUG("length: "<<m_cachelength<<"\tstart: "<<m_cachestart<<"\tstop: "<<m_cachestop);
+    ATH_MSG_DEBUG("current range: "<<m_currange);
     std::vector<cool::ValidityKey>::iterator i= m_cachesince.begin();
     std::vector<cool::ValidityKey>::iterator o= m_cacheuntil.begin();
     std::vector<cool::ChannelId>::iterator      ci= m_cachechan.begin();
     for (;i!=m_cachesince.end();++i,++o,++ci){
-      *m_log<<MSG::DEBUG<<"channelID:\t"<<(*ci)<<"\t since: "<<(*i)<<"\t until: "<<(*o)<<endmsg;
+      ATH_MSG_DEBUG("channelID:\t"<<(*ci)<<"\t since: "<<(*i)<<"\t until: "<<(*o));
     }
-    *m_log<<MSG::DEBUG<<"folder cache printout -------------------"<<endmsg;
-  }
+    ATH_MSG_DEBUG("folder cache printout -------------------");
+  
 }

@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // WarmTCConstructionH62004
 
-#ifndef __WarmTCConstructionH62004_H__
-#define __WarmTCConstructionH62004_H__
+#ifndef LARGEOH62004ALGS_WARMTCCONSTRUCTIONH62004_H
+#define LARGEOH62004ALGS_WARMTCCONSTRUCTIONH62004_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "StoreGate/StoreGateSvc.h"
 
 namespace LArGeo {
    
@@ -24,8 +24,7 @@ namespace LArGeo {
         private:
 	   GeoFullPhysVol*  m_WarmTCPhys;
 	   StoreGateSvc * m_detectorStore;
-	   DataHandle<StoredMaterialManager> m_materialManager;
   };
 }
 
-#endif // __WarmTCConstructionH62004_H__
+#endif // LARGEOH62004ALGS_WARMTCCONSTRUCTIONH62004_H

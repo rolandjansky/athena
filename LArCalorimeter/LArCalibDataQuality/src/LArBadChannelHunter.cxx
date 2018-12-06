@@ -10,7 +10,6 @@
 #include "LArRawConditions/LArWave.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -22,11 +21,8 @@ LArBadChannelHunter::LArBadChannelHunter(const std::string& name, ISvcLocator* p
   AthAlgorithm(name,pSvcLocator),
   m_onlineId(0),
   m_caloId(0),
-  m_badChannelTool("LArBadChanTool"),
-  m_larCablingSvc("LArCablingService"), 
   m_avgType(FEB) {
 
-  declareProperty("BadChannelTool",	m_badChannelTool, 	"BadChannelTool to be used");
   declareProperty("PedestalKey",	m_pedKey="", 		"Key of the pedestal container");
   declareProperty("CaliWaveKey",	m_caliWaveKey="",	"Key of the CaliWave container");
 
@@ -111,6 +107,10 @@ StatusCode LArBadChannelHunter::initialize() {
       return StatusCode::FAILURE;
     }
   }
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_BCKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -118,8 +118,6 @@ StatusCode LArBadChannelHunter::initialize() {
 StatusCode LArBadChannelHunter::stop() {
   ATH_CHECK( detStore()->retrieve(m_onlineId, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
-  ATH_CHECK( m_badChannelTool.retrieve() );
-  ATH_CHECK( m_larCablingSvc.retrieve() );
 
   const ILArPedestal* pedestal = nullptr;
   ATH_CHECK( detStore()->retrieve(pedestal,m_pedKey) );
@@ -133,6 +131,24 @@ StatusCode LArBadChannelHunter::stop() {
     caliwavecomplete->undoCorrections();
   }
 
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
 
 ////////////////////////////////
   LArWaveHelper waveHelper;
@@ -148,7 +164,7 @@ StatusCode LArBadChannelHunter::stop() {
 
   for(; itOnId!=itOnIdEnd;++itOnId){
     const HWIdentifier chid = *itOnId;
-    if (!m_larCablingSvc->isOnlineConnected(chid)) continue;
+    if (!cabling->isOnlineConnected(chid)) continue;
     //const HWIdentifier febid= m_onlineId->feb_Id(chid);
     float ped=pedestal->pedestalRMS(chid,0);
     const LArCaliWaveVec& cwv=caliwave->get(chid,0);
@@ -163,7 +179,7 @@ StatusCode LArBadChannelHunter::stop() {
     thisCellData.m_wid =wid;
     thisCellData.m_tmax=tmax;
 
-    const unsigned regId=getSymId(chid);
+    const unsigned regId=getSymId(chid, cabling);
     Average& avreg=averageMap[regId];
 
     for(unsigned igain=CaloGain::LARHIGHGAIN; igain<CaloGain::LARNGAIN; igain++) {
@@ -233,14 +249,14 @@ StatusCode LArBadChannelHunter::stop() {
     const CellData& thisCellData=*itcells;
     const HWIdentifier chid = thisCellData.m_chid;
 
-    unsigned regId=getSymId(chid);
-    ATH_MSG_VERBOSE ( "Checking " << channelDescription(chid) ) ;
+    unsigned regId=getSymId(chid, cabling);
+    ATH_MSG_VERBOSE ( "Checking " << channelDescription(chid, cabling) ) ;
     std::map<unsigned,Average>::const_iterator febit=averageMap.find(regId);
     if (febit==averageMap.end()) continue;
     const Average& avreg=febit->second;
 
     LArBadChannel problem(0); /// bad bit newly found 
-    LArBadChannel bc = m_badChannelTool->status(chid); /// known bad bit
+    LArBadChannel bc = bcCont->status(chid); /// known bad bit
 
     for(unsigned igain=CaloGain::LARHIGHGAIN; igain<CaloGain::LARNGAIN; igain++) {
 	if (avreg.m_nPed[igain]>2) {//Check if have average ped-rms for this cell & gain
@@ -257,7 +273,7 @@ StatusCode LArBadChannelHunter::stop() {
 	  }
 	    
 	  if (rms==-1)
-	    ATH_MSG_ERROR ( "No Pedestal found for " << channelDescription(chid,igain) ) ;
+	    ATH_MSG_ERROR ( "No Pedestal found for " << channelDescription(chid,cabling, igain) ) ;
 	  else {
 	    ATH_MSG_VERBOSE ( "PedRMS, gain: " << igain << ":" << rms << " Average: " 
                               << avreg.m_avPedRMS[igain] << " Median: " << avreg.m_medPedRMS ) ; 
@@ -276,7 +292,7 @@ StatusCode LArBadChannelHunter::stop() {
 	      else		
 	        my_status=(bc.lowNoiseHG()||bc.highNoiseHG()) ? "BC " : "NEW ";
 
-	      ATH_MSG_INFO( my_status << channelDescription(chid,igain) 
+	      ATH_MSG_INFO( my_status << channelDescription(chid,cabling,igain) 
                             << " RMS: " << rms << " ( " << avreg.m_avPedRMS[igain] << " , " 
                             << float(int(10000*(rms-avreg.m_avPedRMS[igain])/avreg.m_avPedRMS[igain]))/100 <<" %) " << ", #Sig: " 
                             << float(int(100*(rms-avreg.m_avPedRMS[igain])/avreg.m_avPedRMSSD[igain]))/100 
@@ -315,7 +331,7 @@ StatusCode LArBadChannelHunter::stop() {
 	
 
 	if (ampl==-1 || wid==-1) {
-	  ATH_MSG_INFO ( "No Amplitude or Width found for " << channelDescription(chid,0) ) ;
+	  ATH_MSG_INFO ( "No Amplitude or Width found for " << channelDescription(chid,cabling,0) ) ;
 	  packing.setBit(LArBadChannelEnum::deadReadoutBit,problem);
 	}
 	else {
@@ -332,7 +348,7 @@ StatusCode LArBadChannelHunter::stop() {
 	  else if (fabs(tmax-avreg.m_avTmax[0])>Cut_tmax) {
             packing.setBit(LArBadChannelEnum::distortedBit,problem);	  
 //	    std::string my_status=(bc.good()) ? "NEW " : "BC ";
-//            log << MSG::INFO << my_status << channelDescription(chid,0) << " Tmax: " << tmax << " ( " << avreg.m_avTmax[0] << " , " 
+//            log << MSG::INFO << my_status << channelDescription(chid,cabling,0) << " Tmax: " << tmax << " ( " << avreg.m_avTmax[0] << " , " 
 //	    	<< float(int(10000*(tmax-avreg.m_avTmax[0])/avreg.m_avTmax[0]))/100 << " %) "
 //            	<< " #Sig:" << float(int(100*(tmax-avreg.m_avTmax[0])/avreg.m_avTmaxSD[0]))/100 
 //		<< " ( " << avreg.m_avTmaxSD[0] << " ) " << endmsg;
@@ -348,7 +364,7 @@ StatusCode LArBadChannelHunter::stop() {
 	    else	
 		my_status=(bc.deadReadout()||bc.deadCalib()||bc.deadPhys()||bc.distorted()||bc.shortProblem()) ? "BC " : "NEW ";
 		
-	    ATH_MSG_INFO ( my_status << channelDescription(chid,0) 
+	    ATH_MSG_INFO ( my_status << channelDescription(chid,cabling,0) 
 	        << " Amp: " << ampl << " ( " << avreg.m_avAmpl[0] << " , " 
 	    	<< float(int(10000*(ampl-avreg.m_avAmpl[0])/avreg.m_avAmpl[0]))/100 << " %) " << " #Sig: " 
 		<< float(int(100*(ampl-avreg.m_avAmpl[0])/avreg.m_avAmplSD[0]))/100 << " ( " << avreg.m_avAmplSD[0] <<" ) "
@@ -365,7 +381,7 @@ StatusCode LArBadChannelHunter::stop() {
       }//end if have amplitude for this cell
 
 
-      const std::vector<HWIdentifier>& cLids=m_larCablingSvc->calibSlotLine(chid);
+      const std::vector<HWIdentifier>& cLids=clCont->calibSlotLine(chid);
       for (unsigned i=0;i<cLids.size();i++) {
 	goodAndBad_t& gb=calibLineMap[cLids[i]];
 	if (problem.deadReadout()||problem.distorted())
@@ -385,7 +401,7 @@ StatusCode LArBadChannelHunter::stop() {
     const goodAndBad_t& gb=itCalib->second;
     for (unsigned i=0;i<gb.second.size();i++) {
     if (gb.first==0) {
-      ATH_MSG_INFO ( "All channels belonging to calibLine " << channelDescription(badChanVec[gb.second[i]].first) 
+      ATH_MSG_INFO ( "All channels belonging to calibLine " << channelDescription(badChanVec[gb.second[i]].first, cabling) 
                      << " don't respond to pulses. Assume bad calib line." ) ;
 	packing.setBit(LArBadChannelEnum::deadReadoutBit,badChanVec[gb.second[i]].second,false);
 	packing.setBit(LArBadChannelEnum::distortedBit,badChanVec[gb.second[i]].second,false);
@@ -405,8 +421,8 @@ StatusCode LArBadChannelHunter::stop() {
       for(;bcvit!=bcvit_e;++bcvit) {
 	const HWIdentifier chid=bcvit->first;
 	const LArBadChannel bc=bcvit->second;
-	const HWIdentifier cLid=m_larCablingSvc->calibSlotLine(chid)[0];
-	const LArBadChannel bc2=m_badChannelTool->status(chid);
+	const HWIdentifier cLid=clCont->calibSlotLine(chid)[0];
+	const LArBadChannel bc2=bcCont->status(chid);
 	std::string my_ps=(bc2.good())? "NEW " : "BC ";
 	if (!bc2.good()&&m_outOnlyNew) continue; // just new
 	  outfile << m_onlineId->barrel_ec(chid) << " " 
@@ -426,6 +442,7 @@ StatusCode LArBadChannelHunter::stop() {
 }
 
 const std::string LArBadChannelHunter::channelDescription(const HWIdentifier& chid, 
+                                                          const LArOnOffIdMapping *cabling,
 							  const unsigned gain) const {
 							  
 /// the format of output is changed a bit to be consistent with the output format of 
@@ -454,7 +471,7 @@ const std::string LArBadChannelHunter::channelDescription(const HWIdentifier& ch
   output << ",Ch:" << m_onlineId->channel(chid);
   if (!m_onlineId->isCalibration(chid)) {
     try {
-      if (m_larCablingSvc->isOnlineConnected(chid)) {
+      if (cabling->isOnlineConnected(chid)) {
 	if (m_onlineId->isFCALchannel(chid))
 	  output << ",FCAL";
 	if (m_onlineId->isHECchannel(chid))
@@ -463,9 +480,6 @@ const std::string LArBadChannelHunter::channelDescription(const HWIdentifier& ch
 	  output << ",EMB";
 	if (m_onlineId->isEMECchannel(chid))
 	  output << ",EMEC";
-//	const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
-//        output << ",Samp:" << m_caloId->sampling(id); 
-      //Could add Eta, phi....
       }//end if is connected
       else
         output << ",disconnected";
@@ -640,12 +654,12 @@ void LArBadChannelHunter::Average::finish(float my_recalcPer) {
 
 
 
-unsigned  LArBadChannelHunter::getSymId(const HWIdentifier chid) const {
+unsigned  LArBadChannelHunter::getSymId(const HWIdentifier chid, const LArOnOffIdMapping *cabling) const {
   if (m_avgType==FEB)
     return m_onlineId->feb_Id(chid).get_identifier32().get_compact();
   else {
     const unsigned caloRegionHashMax=m_caloId->calo_region_hash_max();
-    const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+    const Identifier id=cabling->cnvToIdentifier(chid);
     const Identifier regid=m_caloId->region_id(id);
     const unsigned reghash=m_caloId->calo_region_hash(regid);
     const int eta=m_caloId->eta(id);

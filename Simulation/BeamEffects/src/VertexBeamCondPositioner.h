@@ -12,16 +12,12 @@
 // STL includes
 #include <string>
 #include <utility>
-#include <vector>
-#include <map>
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
-// InDetBeamSpotService
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 namespace ATHRNG {
   class RNGWrapper;
 }
@@ -56,7 +52,7 @@ namespace Simulation {
 
     private:
 
-      ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
       ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
 

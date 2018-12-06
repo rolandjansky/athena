@@ -32,6 +32,10 @@
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
+// New Small Wheel
+#include "MuonPrepRawData/sTgcPrepDataCollection.h"
+#include "MuonPrepRawData/MMPrepDataCollection.h"
+
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "IRegionSelector/RegSelEnums.h"
 
@@ -48,6 +52,9 @@ class MdtIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
 class CscIdHelper;
+// New Small Wheel
+class sTgcIdHelper;
+class MMIdHelper;
 
 class IRegSelSvc;
 class IRoiDescriptor;
@@ -108,6 +115,13 @@ namespace Muon {
       std::set<IdentifierHash> csc;
       std::set<IdentifierHash> cscTrack;
       std::vector<const CscPrepDataCollection*> cscCols;
+      // New Small Wheel
+      std::set<IdentifierHash> stgc;
+      std::set<IdentifierHash> stgcTrack;
+      std::vector<const sTgcPrepDataCollection*> stgcCols;
+      std::set<IdentifierHash> mm;
+      std::set<IdentifierHash> mmTrack;
+      std::vector<const MMPrepDataCollection*> mmCols;     
     };
   public:
     /** @brief constructor */
@@ -168,6 +182,8 @@ namespace Muon {
     bool m_excludeEES;
     bool m_onlyEO;
     bool m_useFitterOutlierLogic;
+    bool m_doNSW;
+
   };
 }
 

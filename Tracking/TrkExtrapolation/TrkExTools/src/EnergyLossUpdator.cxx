@@ -18,7 +18,7 @@
 
 namespace{
 // static particle masses
-Trk::ParticleMasses  s_particleMasses{};
+const Trk::ParticleMasses  s_particleMasses{};
 // statics doubles
 constexpr double s_ka_BetheBloch = 30.7075 * Gaudi::Units::MeV;
 
@@ -157,11 +157,12 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
     " Energy loss updator deltaE " << deltaE << " meanIoni " << meanIoni << " meanRad " << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad << " sign " << sign << " pathLength " <<
   pathLength);
 
-  Trk::EnergyLoss *eloss = !m_detailedEloss ? new Trk::EnergyLoss(deltaE, sigmaDeltaE) :
-                           new Trk::EnergyLoss(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni,
-                                               meanRad, sigRad, pathLength);
+  std::unique_ptr<Trk::EnergyLoss> eloss = !m_detailedEloss ? 
+    std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE) :
+    std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni,meanRad, sigRad, pathLength);
+  
   if (m_useTrkUtils) {
-    return eloss;
+    return eloss.release();
   }
 
 // Code below will not be used if the parameterization of TrkUtils is used

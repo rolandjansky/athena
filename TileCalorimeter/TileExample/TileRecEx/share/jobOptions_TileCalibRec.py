@@ -833,6 +833,7 @@ topSequence+=xAODMaker__EventInfoCnvAlg()
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
+tileDigitsContainer = ''
 if not ReadPool:
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
     include( "TileRec/TileRec_jobOptions.py" )
@@ -855,8 +856,11 @@ else:
         theTileRawChannelGetter=TileRawChannelGetter()
         if doRecoESD:
             topSequence.TileRChMaker.TileDigitsContainer="TileDigitsFlt"
-        ToolSvc.TileBeamInfoProvider.TileDigitsContainer="TileDigitsFlt"
-        ToolSvc.TileBeamInfoProvider.TileRawChannelContainer=""
+            tileDigitsContainer = 'TileDigitsFlt'
+
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+dqStatus = TileDQstatusAlgDefault (TileDigitsContainer = tileDigitsContainer,
+                                   TileRawChannelContainer = '')
 
 if doTileFit:
     ToolSvc.TileRawChannelBuilderFitFilter.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
@@ -1182,6 +1186,10 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
+    dqStatus.TileBeamElemContainer   = getattr (TileNtuple, 'TileBeamElemContainer', '')
+    dqStatus.TileDigitsContainer     = getattr (TileNtuple, 'TileDigitsContainer', '')
+    dqStatus.TileRawChannelContainer = getattr (TileNtuple, 'TileRawChannelContainer', '')
+
     # FIXME: TileAANtuple does a back-door set of properties
     #        in TileBeamInfoProvider.  That doesn't really work with
     #        handles and MT.  To compensate, also set the properties here.
@@ -1212,6 +1220,9 @@ if doTileMon:
     else:
         runType = TileRunType
 
+    from TileRecUtils.TileBeamInfoProviderDefault import TileBeamInfoProviderDefault
+    TileBeamInfoProviderDefault()
+
     from AthenaMonitoring.AthenaMonitoringConf import *
     TileMon = AthenaMonManager( "TileMon" )
 
@@ -1222,7 +1233,7 @@ if doTileMon:
     TileMon.Run                 = RunNumber
     TileMon.LumiBlock           = 1
 
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
     from TileMonitoring.TileMonitoringConf import *
 
     doTileMonDigi = ReadDigits
@@ -1242,7 +1253,7 @@ if doTileMon:
                                                book2D          = b2d,
                                                runType         = runType,
                                                FillPedestalDifference = True)
-        ToolSvc += theTileDigitsMon
+        #ToolSvc += theTileDigitsMon
         TileMon.AthenaMonTools += [ theTileDigitsMon ]
         print theTileDigitsMon
 
@@ -1253,7 +1264,7 @@ if doTileMon:
                                                        book2D          = b2d,
                                                        PlotDSP         = useRODReco,
                                                        runType         = runType )
-        ToolSvc += theTileRawChannelMon
+        #ToolSvc += theTileRawChannelMon
         TileMon.AthenaMonTools += [ theTileRawChannelMon ]
 
         theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelCnt"; # default for simulation
@@ -1321,7 +1332,7 @@ if doTileMon:
         if useRODReco:
             theTileDQFragMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
 
-        ToolSvc += theTileDQFragMon;
+        #ToolSvc += theTileDQFragMon;
         TileMon.AthenaMonTools += [ theTileDQFragMon ];
         print theTileDQFragMon
 
@@ -1334,7 +1345,7 @@ if doTileMon:
                                              negEnergyThreshold = -2000,
                                              energyThreshold    = 300,
                                              histoPathBase      = "/Tile/Cell");
-            ToolSvc += theTileCellMonHG;
+            #ToolSvc += theTileCellMonHG;
             TileMon.AthenaMonTools += [ theTileCellMonHG ];
             print theTileCellMonHG;
 
@@ -1350,7 +1361,7 @@ if doTileMon:
             #theTileCellMon.energyThreshold = 300.
             #theTileCellMon.energyThresholdForTime = 150.
             #theTileCellMon.FillTimeHistograms = True
-            ToolSvc += theTileCellMon;
+            #ToolSvc += theTileCellMon;
             TileMon.AthenaMonTools += [ theTileCellMon ];
             print theTileCellMon;
 
@@ -1358,10 +1369,11 @@ if doTileMon:
         TileDigiNoiseMon = TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon',
                                                 OutputLevel        = OutputLevel,
                                                 TileDigitsContainer = "TileDigitsCnt",
+                                                CheckDCS           = TileUseDCS,
                                                 histoPathBase = "/Tile/DigiNoise" );
         
         if not TileBiGainRun: TileDigiNoiseMon.TriggerTypes = [ 0x82 ]
-        ToolSvc += TileDigiNoiseMon;
+        #ToolSvc += TileDigiNoiseMon;
         TileMon.AthenaMonTools += [ TileDigiNoiseMon ];
         print TileDigiNoiseMon;
 
@@ -1373,7 +1385,7 @@ if doTileMon:
                                                   histoPathBase = "/Tile/CellNoise/LG");
         TileCellNoiseMonLG.Xmin          = -2000.;
         TileCellNoiseMonLG.Xmax          =  2000.;
-        ToolSvc += TileCellNoiseMonLG;
+        #ToolSvc += TileCellNoiseMonLG;
         TileMon.AthenaMonTools += [ TileCellNoiseMonLG ];
         print TileCellNoiseMonLG;
 
@@ -1385,7 +1397,7 @@ if doTileMon:
                                                   histoPathBase = "/Tile/CellNoise/HG");
         TileCellNoiseMonHG.Xmin          = -300.;
         TileCellNoiseMonHG.Xmax          =  300.;
-        ToolSvc += TileCellNoiseMonHG;
+        #ToolSvc += TileCellNoiseMonHG;
         TileMon.AthenaMonTools += [ TileCellNoiseMonHG ];
         print TileCellNoiseMonHG;
 
@@ -1397,7 +1409,7 @@ if doTileMon:
                                                 histoPathBase = "/Tile/CellNoise");
         TileCellNoiseMon.Xmin          = -2000.;
         TileCellNoiseMon.Xmax          =  2000.;
-        ToolSvc += TileCellNoiseMon;
+        #ToolSvc += TileCellNoiseMon;
         TileMon.AthenaMonTools += [ TileCellNoiseMon ];
         print TileCellNoiseMon;
 
@@ -1409,9 +1421,10 @@ if doTileMon:
                                                            LowGainThreshold = 10.0,
                                                            HiGainThreshold  = 40.0,
                                                            doOnline         = athenaCommonFlags.isOnline(),
+                                                           CheckDCS           = TileUseDCS,
                                                            TileRawChannelContainer = "TileRawChannelFit")
 
-        ToolSvc += TileRawChannelTimeMon
+        #ToolSvc += TileRawChannelTimeMon
         TileMon.AthenaMonTools += [ TileRawChannelTimeMon ];
         print TileRawChannelTimeMon
 
@@ -1429,9 +1442,10 @@ if doTileMon:
                                                               Gain          = "LG",
                                                               do2GFit       = True,
                                                               # doFit         = True,
+                                                              CheckDCS           = TileUseDCS,
                                                               SummaryUpdateFrequency = 0 );
 
-        ToolSvc += TileRawChannelNoiseMonLG;
+        #ToolSvc += TileRawChannelNoiseMonLG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonLG ];
         print TileRawChannelNoiseMonLG;
 
@@ -1448,7 +1462,7 @@ if doTileMon:
                                                               SummaryUpdateFrequency = 0 );
 
 
-        ToolSvc += TileRawChannelNoiseMonHG;
+        #ToolSvc += TileRawChannelNoiseMonHG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonHG ];
         print TileRawChannelNoiseMonHG;
 
@@ -1468,7 +1482,7 @@ if doTileMon:
         # if not defined here, then by default all triggers will be considered
         TileRawChannelNoiseMon.TriggerTypes           = [ 0x82 ];
 
-        ToolSvc += TileRawChannelNoiseMon;
+        #ToolSvc += TileRawChannelNoiseMon;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
         print TileRawChannelNoiseMon;
 
@@ -1476,27 +1490,27 @@ if doTileMon:
     ########### end doTileCellNoiseMon ##########
 
     if doTileTMDBDigitsMon:
-        ToolSvc += CfgMgr.TileTMDBDigitsMonTool(name                  = 'TileTMDBDigitsMon'
+        TileTMDBDigitsMon = CfgMgr.TileTMDBDigitsMonTool(name                  = 'TileTMDBDigitsMon'
                                                 , OutputLevel         = INFO
                                                 , TileDigitsContainer = "MuRcvDigitsCnt"
                                                 , histoPathBase       = "/Tile/TMDBDigits")
         
-        TileMon.AthenaMonTools += [ ToolSvc.TileTMDBDigitsMon ]
-        print ToolSvc.TileTMDBDigitsMon
+        TileMon.AthenaMonTools += [ TileTMDBDigitsMon ]
+        print TileTMDBDigitsMon
 
 
     if doTileTMDBRawChannelMon:
-        ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
+        TileTMDBRawChannelDspMon = CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
                                                     , OutputLevel   = INFO
                                                     , NotDSP           = False
                                                     , TileRawChannelContainer = "MuRcvRawChCnt"
                                                     , histoPathBase = "/Tile/TMDBRawChannel/Dsp")
 
 
-        TileMon.AthenaMonTools += [ToolSvc.TileTMDBRawChannelDspMon ]
-        print ToolSvc.TileTMDBRawChannelDspMon
+        TileMon.AthenaMonTools += [TileTMDBRawChannelDspMon ]
+        print TileTMDBRawChannelDspMon
         
-        ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name                      = 'TileTMDBRawChannelMon'
+        TileTMDBRawChannelMon = CfgMgr.TileTMDBRawChannelMonTool(name                      = 'TileTMDBRawChannelMon'
                                                     , OutputLevel             = INFO
                                                     , TileRawChannelContainer = "TileMuRcvRawChannelOpt2"
                                                     , NotDSP                   = True
@@ -1504,8 +1518,8 @@ if doTileMon:
                                                     , histoPathBase           = "/Tile/TMDBRawChannel")
         
         
-        TileMon.AthenaMonTools += [ToolSvc.TileTMDBRawChannelMon ]
-        print ToolSvc.TileTMDBRawChannelMon
+        TileMon.AthenaMonTools += [TileTMDBRawChannelMon ]
+        print TileTMDBRawChannelMon
 
 
     if doTileMonDigi or doTileMonRch or doTileMonCell or doTileMonDQ                \
@@ -1562,12 +1576,13 @@ if doTileCalib:
 
         # declare CIS tool(s) and set jobOptions if necessary
         TileCisTool = TileCisDefaultCalibTool()
+        dqStatus.TileRawChannelContainer = 'TileRawChannelCnt'
 
         if hasattr(ToolSvc, 'TileDigitsMon'):
             TileCisTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
 
         TileCisTool.removePed = True
-        from AthenaCommon.AppMgr import ToolSvc
+        #from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileCisTool
         TileCalibAlg.TileCalibTools += [ TileCisTool ]
 
@@ -1587,7 +1602,9 @@ if doTileCalib:
 
         # declare Trigger tool(s) and set jobOptions if necessary
         TileTriggerTool = TileTriggerDefaultCalibTool()
-        from AthenaCommon.AppMgr import ToolSvc
+        dqStatus.TileRawChannelContainer = 'TileRawChannelCnt'
+
+        #from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileTriggerTool
         TileCalibAlg.TileCalibTools += [ TileTriggerTool ]
 
@@ -1608,7 +1625,7 @@ if doTileCalib:
         if hasattr(ToolSvc, 'TileDigitsMon'):
             TileLaserTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
 
-        from AthenaCommon.AppMgr import ToolSvc
+        #from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileLaserTool
         TileCalibAlg.Tools = [ TileLaserTool ]
 
@@ -1648,7 +1665,7 @@ if doEventDisplay:
 
 if doAtlantis:
     include("JiveXML/JiveXML_jobOptionBase.py")
-    from AthenaCommon.AppMgr import ToolSvc
+    #from AthenaCommon.AppMgr import ToolSvc
 
     if 'doAtlantisStreamToServer' in dir() and doAtlantisStreamToServer:
         from JiveXML.JiveXMLConf import JiveXML__ONCRPCServerSvc

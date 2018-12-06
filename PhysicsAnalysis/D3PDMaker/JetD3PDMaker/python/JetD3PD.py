@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 # Haifeng Li <Haifeng.Li@cern.ch>
@@ -11,8 +11,7 @@ from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject
 from JetD3PDMaker.jetMETD3PDTrigger           import jetMETTriggerBitsD3PDObject
 from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
-from TrackD3PDMaker.TrackD3PDObject           import TrackD3PDObject
-from TrackD3PDMaker.VertexD3PDObject          import PrimaryVertexD3PDObject
+from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
 from MissingETD3PDMaker.MissingETD3PDObject   import *
 from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from egammaD3PDAnalysis.egammaUserDataConfig  import egammaUserDataConfig
@@ -67,10 +66,10 @@ def JetD3PD (file,
         alg +=  jetMETTriggerBitsD3PDObject(level)
         
  
-    alg += PrimaryVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
-                                             allowMissing = True,
-                                             sgkey = D3PDMakerFlags.VertexSGKey(),
-                                             prefix = 'vxp_'))    
+    alg += PrimaryxAODVertexD3PDObject (**_args (1, 'PrimaryVertex', kw,
+                                                 allowMissing = True,
+                                                 sgkey = D3PDMakerFlags.VertexSGKey(),
+                                                 prefix = 'vxp_'))    
 
 
     if rec.doTruth():

@@ -61,6 +61,12 @@ StatusCode LArNoise2Ntuple::stop() {
     return StatusCode::FAILURE;
    }
 
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
+ if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+ }
 
  unsigned cellCounter=0;
  for(long igain=CaloGain::LARHIGHGAIN; igain<CaloGain::LARNGAIN; igain++) {
@@ -68,7 +74,7 @@ StatusCode LArNoise2Ntuple::stop() {
    std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
-     if ( m_larCablingSvc->isOnlineConnected(hwid)) {
+     if ( cabling->isOnlineConnected(hwid)) {
 	 fillFromIdentifier(hwid);       
 	 cellIndex = cellCounter;
          gain=igain;     

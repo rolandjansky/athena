@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasRunManager.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -43,6 +43,12 @@ G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
 void G4AtlasRunManager::Initialize()
 {
   const std::string methodName = "G4AtlasRunManager::Initialize";
+  
+  // ADA 11/28.2018: switch initialization order to meet ISF requirements
+  // Call the base class Initialize method. This will call
+  // InitializeGeometry and InitializePhysics.
+  G4RunManager::Initialize();
+  
   // Setup the user actions now.
   if( !m_userActionSvc.name().empty() ) {
     ATH_MSG_INFO("Creating user actions now");
@@ -55,9 +61,7 @@ void G4AtlasRunManager::Initialize()
                            methodName, StatusCode::FAILURE);
     }
   }
-  // Call the base class Initialize method. This will call
-  // InitializeGeometry and InitializePhysics.
-  G4RunManager::Initialize();
+
 }
 
 
@@ -74,17 +78,29 @@ void G4AtlasRunManager::InitializeGeometry()
 
   // Set smartlessness
   G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
+  if (logicalVolumeStore->size() == 0) {
+      ATH_MSG_ERROR( "G4 logical volume store is empty." );
+  }
   const G4String muonSys("Muon::MuonSys");
   const G4String embSTAC("LArMgr::LAr::EMB::STAC");
+  bool ilvMuonSys = false, ilvEmbSTAC = false;
   for (auto* ilv : *logicalVolumeStore ) {
     if ( ilv->GetName() == muonSys ) {
       ilv->SetSmartless( 0.1 );
       ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
+      ilvMuonSys = true;
     }
     else if ( ilv->GetName() == embSTAC ) {
       ilv->SetSmartless( 0.5 );
       ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
+      ilvEmbSTAC = true;
     }
+  }
+  if (ilvMuonSys == false) {
+      ATH_MSG_INFO( "Muon::MuonSys not in G4 logical volume store. Smartlessness not set." );
+  }
+  if (ilvEmbSTAC == false) {
+      ATH_MSG_INFO( "LArMgr::LAr::EMB::STAC not in G4 logical volume store. Smartlessness not set." );
   }
 
   // Create/assign detector construction
@@ -152,81 +168,9 @@ void G4AtlasRunManager::InitializePhysics()
   }
 
   if (m_recordFlux) {
-    this->InitializeFluxRecording();
+    m_fluxRecorder->InitializeFluxRecording();
   }
 
-  return;
-}
-
-void G4AtlasRunManager::InitializeFluxRecording()
-{
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
-
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-
-  if(!ScM) { return; }
-
-  ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
-  //                        R  Z(-24 to 24)
-  ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
-  //                iR iZ
-  //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
-  ui->ApplyCommand("/score/mesh/nBin 120 480 1");
-
-  ui->ApplyCommand("/score/quantity/energyDeposit eDep");
-
-  ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
-  ui->ApplyCommand("/score/filter/particle photonFilter gamma");
-  // above 2 line crete tally for cell flux for gamma
-
-  ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
-  ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
-
-  ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
-  ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
-
-  ui->ApplyCommand("/score/quantity/doseDeposit dose");
-
-  ui->ApplyCommand("/score/close");
-  ui->ApplyCommand("/score/list");
-
-  G4int nPar = ScM->GetNumberOfMesh();
-
-  if(nPar<1) { return; }
-
-  G4ParticleTable::G4PTblDicIterator* particleIterator
-    = G4ParticleTable::GetParticleTable()->GetIterator();
-
-  for(G4int iw=0;iw<nPar;iw++) {
-    G4VScoringMesh* mesh = ScM->GetMesh(iw);
-    G4VPhysicalVolume* pWorld
-      = G4TransportationManager::GetTransportationManager()
-      ->IsWorldExisting(ScM->GetWorldName(iw));
-    if(!pWorld) {
-      pWorld = G4TransportationManager::GetTransportationManager()
-        ->GetParallelWorld(ScM->GetWorldName(iw));
-      pWorld->SetName(ScM->GetWorldName(iw));
-
-      G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
-        = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
-      theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
-
-      particleIterator->reset();
-      while( (*particleIterator)() ) {
-        G4ParticleDefinition* particle = particleIterator->value();
-        G4ProcessManager* pmanager = particle->GetProcessManager();
-        if(pmanager) {
-          pmanager->AddProcess(theParallelWorldScoringProcess);
-          pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
-          pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
-          pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
-        }
-      }
-    }
-
-    mesh->Construct(pWorld);
-  }
   return;
 }
 
@@ -245,14 +189,7 @@ bool G4AtlasRunManager::ProcessEvent(G4Event* event)
     return true;
   }
 
-  this->AnalyzeEvent(currentEvent);
-  if (currentEvent->IsAborted()) {
-    ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Analysis level" );
-    currentEvent = nullptr;
-    return true;
-  }
-
-  if (m_recordFlux) { this->RecordFlux(); }
+  if (m_recordFlux) { m_fluxRecorder->RecordFlux(currentEvent); }
 
   this->StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();
@@ -261,29 +198,13 @@ bool G4AtlasRunManager::ProcessEvent(G4Event* event)
   return abort;
 }
 
-void G4AtlasRunManager::RecordFlux()
-{
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-  if(ScM) {
-    G4int nPar = ScM->GetNumberOfMesh();
-    G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
-    if(HCE && nPar>0) {
-      G4int nColl = HCE->GetCapacity();
-      for(G4int i=0;i<nColl;i++) {
-        G4VHitsCollection* HC = HCE->GetHC(i);
-        if(HC) { ScM->Accumulate(HC); }
-      }
-    }
-  }
-  return;
-}
-
 void G4AtlasRunManager::RunTermination()
 {
   ATH_MSG_DEBUG( " G4AtlasRunManager::RunTermination() " );
   if (m_recordFlux) {
-    this->WriteFluxInformation();
+    m_fluxRecorder->WriteFluxInformation();
   }
+  
   this->CleanUpPreviousEvents();
   previousEvents->clear();
 
@@ -317,13 +238,3 @@ void G4AtlasRunManager::RunTermination()
   return;
 }
 
-void G4AtlasRunManager::WriteFluxInformation()
-{
-  G4UImanager *ui=G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
-  return;
-}

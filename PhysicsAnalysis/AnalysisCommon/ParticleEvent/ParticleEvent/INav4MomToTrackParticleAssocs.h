@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomToTrackParticleAssocs.h 
@@ -105,7 +105,9 @@ public:
   /// Number of associated stores.
   size_t nAssocStores() const;
 
-  
+  /// Return links to all other association stores.
+  std::vector<DataLink<INav4MomToTrackParticleAssocs> > getAssocStores() const;
+
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 

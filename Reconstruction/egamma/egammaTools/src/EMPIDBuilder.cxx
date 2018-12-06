@@ -4,10 +4,8 @@
 
 // INCLUDE HEADER FILES:
 #include "AthenaKernel/errorcheck.h"
-
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
-//#include "LumiBlockComps/LumiBlockMuTool.h"
 #include "PATCore/AcceptData.h"
 
 // ===========================================================================
@@ -42,35 +40,28 @@ StatusCode EMPIDBuilder::initialize()
 
     ATH_MSG_DEBUG(" Initializing EMPIDBuilder");
 
-    for (const auto& selector : m_electronIsEMselectors) {
-        CHECK(selector.retrieve());
-    }
+    ATH_CHECK(m_electronIsEMselectors.retrieve());
 
     if (m_electronIsEMselectors.size() != m_electronIsEMselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given electronIsEMselector names");
         return StatusCode::FAILURE;
     }
 
-    for (const auto& selector : m_electronLHselectors) {
-        CHECK(selector.retrieve());
-    }
+    ATH_CHECK(m_electronLHselectors.retrieve());
 
     if (m_electronLHselectors.size() != m_electronLHselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given electron LH selector names");
         return StatusCode::FAILURE;
     }
 
-    for (const auto& selector : m_genericIsEMselectors) {
-        CHECK(selector.retrieve());
-    }
+    ATH_CHECK(m_genericIsEMselectors.retrieve());
 
     if (m_genericIsEMselectors.size() != m_genericIsEMselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given generic selector names");
         return StatusCode::FAILURE;
     }
-    for (const auto& selector : m_photonIsEMselectors) {
-        CHECK(selector.retrieve());
-    }
+
+    ATH_CHECK(m_photonIsEMselectors.retrieve());
 
     if (m_photonIsEMselectors.size() != m_photonIsEMselectorResultNames.size()) {
         ATH_MSG_ERROR("The number of selectors does not match the number of given photon selector names");
@@ -103,8 +94,8 @@ StatusCode EMPIDBuilder::finalize()
 
 
 // =====================================================================
-StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
-{ 
+StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
+{   
 
     ATH_MSG_DEBUG("Executing EMPIDBuilder::execute");
 
@@ -117,12 +108,12 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
     size_t size = m_electronIsEMselectors.size();
 
     for (size_t i = 0; i<size;++i) {
-        asg::AcceptData accept = m_electronIsEMselectors[i]->accept(eg);
+        asg::AcceptData accept = m_electronIsEMselectors[i]->accept(ctx, eg);
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_electronIsEMselectorResultNames[i]);
         //save the isem
         unsigned int isEM = (~0);
-        if ( m_electronIsEMselectors[i]->execute(eg, isEM).isFailure() ) {
+        if ( m_electronIsEMselectors[i]->execute(ctx, eg, isEM).isFailure() ) {
             ATH_MSG_ERROR("problem to get isEM for " << m_electronIsEMselectorResultNames[i]);
             return StatusCode::FAILURE;
         }
@@ -133,12 +124,12 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
     size_t sizePh = m_photonIsEMselectors.size();
 
     for (size_t i = 0; i<sizePh;++i) {
-        asg::AcceptData accept = m_photonIsEMselectors[i]->accept(eg);
+        asg::AcceptData accept = m_photonIsEMselectors[i]->accept(ctx, eg);
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_photonIsEMselectorResultNames[i]);
         //save the isem
         unsigned int isEM = ~0;
-        if ( m_photonIsEMselectors[i]->execute(eg, isEM).isFailure() ) {
+        if ( m_photonIsEMselectors[i]->execute(ctx, eg, isEM).isFailure() ) {
             ATH_MSG_ERROR("problem to get isEM for " << m_photonIsEMselectorResultNames[i]);
             return StatusCode::FAILURE;
         }
@@ -159,7 +150,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
 
     for (size_t i = 0; i<sizeLH; ++i) {
 
-        asg::AcceptData accept = m_electronLHselectors[i]->accept(eg,avg_mu);
+        asg::AcceptData accept = m_electronLHselectors[i]->accept(ctx, eg,avg_mu);
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
         //save the isem
@@ -167,7 +158,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
 
         //save the LHValue only once
         if(i==0){
-            eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->calculate(eg,avg_mu)), m_LHValueName);
+            eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->calculate(ctx,eg,avg_mu)), m_LHValueName);
         }  
     }
 

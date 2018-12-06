@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -172,7 +172,7 @@ def BTaggingD3PD(alg = None,
 
 ### add beam spot object
     if JetTagD3PDFlags.AddBeamSpotObject():
-        from TrackD3PDMaker.BeamSpotD3PDObject import BeamSpotD3PDObject
+        from InDetD3PDMaker.BeamSpotD3PDObject import BeamSpotD3PDObject
         alg += BeamSpotD3PDObject(10)
 
 ### add muid object

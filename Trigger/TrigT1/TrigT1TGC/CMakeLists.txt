@@ -8,8 +8,7 @@ atlas_subdir( TrigT1TGC )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Control/StoreGate
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -37,13 +36,13 @@ atlas_add_library( TrigT1TGCLib
                    PUBLIC_HEADERS TrigT1TGC
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps SGTools Identifier GaudiKernel TrigT1Interfaces StoreGateLib SGtests TGCcablingInterfaceLib MuonIdHelpersLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier GaudiKernel TrigT1Interfaces StoreGateLib SGtests TGCcablingInterfaceLib MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} EventInfo GeneratorObjects MuonDigitContainer MuonRDO MuonCondInterface AthenaPoolUtilities TileEvent PathResolver TrigConfL1Data )
 
 atlas_add_component( TrigT1TGC
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps SGTools StoreGateLib SGtests Identifier GaudiKernel TrigT1Interfaces EventInfo GeneratorObjects TGCcablingInterfaceLib MuonDigitContainer MuonIdHelpersLib MuonRDO MuonCondInterface AthenaPoolUtilities TileEvent PathResolver TrigConfL1Data TrigT1TGCLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel TrigT1Interfaces EventInfo GeneratorObjects TGCcablingInterfaceLib MuonDigitContainer MuonIdHelpersLib MuonRDO MuonCondInterface AthenaPoolUtilities TileEvent PathResolver TrigConfL1Data TrigT1TGCLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

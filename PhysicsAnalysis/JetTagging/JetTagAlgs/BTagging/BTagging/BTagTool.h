@@ -95,8 +95,6 @@ namespace Analysis
       std::string m_runModus;                //!< the run modus of the btagger (reference or analysis)
 
       ToolHandle< IBTagLabeling > m_BTagLabelingTool;        //!< pointer to the labeling tool
-      //  ToolHandle< IBTagSecVertexing > m_BTagSecVertexingTool;              
-      //ToolHandle< IBTagRemoving > m_BTagRemovingTool; 
 
   }; // End class
 } // End namespace

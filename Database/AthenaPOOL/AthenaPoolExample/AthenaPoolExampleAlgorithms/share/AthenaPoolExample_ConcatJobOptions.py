@@ -37,8 +37,6 @@ import AthenaPoolCnvSvc.AthenaPool
 #Explicitly specify the output file catalog
 svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog1.xml"
 
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
-
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------

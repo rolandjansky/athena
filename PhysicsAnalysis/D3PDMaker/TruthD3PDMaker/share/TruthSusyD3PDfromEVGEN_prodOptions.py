@@ -63,7 +63,7 @@ alg += EventInfoD3PDObject (10,'EventInfo')
 from TruthD3PDMaker.GenEventD3PDObject               import GenEventD3PDObject
 alg += GenEventD3PDObject (1, 'GenEvent')
 
-from TrackD3PDMaker.TruthVertexD3PDObject            import TruthVertexD3PDObject
+from InDetD3PDMaker.TruthVertexD3PDObject            import TruthVertexD3PDObject
 from D3PDMakerConfig.D3PDMakerFlags                  import D3PDMakerFlags
 alg += TruthVertexD3PDObject(1, 'TruthVertex', sgkey=D3PDMakerFlags.TruthSGKey(),prefix='mcVx',label='mcVx_')
 alg += TruthVertexD3PDObject(1, 'TruthVertexFake', sgkey=D3PDMakerFlags.TruthSGKey(),prefix='vx',label='vx_')

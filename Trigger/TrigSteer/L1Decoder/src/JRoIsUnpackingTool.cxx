@@ -20,10 +20,8 @@ StatusCode JRoIsUnpackingTool::initialize() {
   ATH_CHECK( RoIsUnpackingToolBase::initialize() );
   ATH_CHECK( m_configSvc.retrieve() );
   ATH_CHECK( m_trigRoIsKey.initialize() );
-  ATH_CHECK( m_trigFSRoIsKey.initialize() );
   ATH_CHECK( m_recRoIsKey.initialize() );
-  ATH_CHECK( m_trigFSRoIsKey.initialize() ) ;
-  ATH_CHECK( m_fsDecisions.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -34,21 +32,19 @@ StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::Se
 			    m_configSvc->ctpConfig()->menu().itemVector(),
 			    seeding ) );
 
-  m_jetThresholds.clear();
-  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::JET ) ) {
-    if ( th != nullptr ) {
-      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
-      m_jetThresholds.push_back( th );    
-    }
-  }
-  //
-  
-
-  //  m_jetThresholds.clear();
+  m_jetThresholds.clear();  
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JF ), m_jetThresholds ) );
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JB ), m_jetThresholds ) );
+
+  if ( m_jetThresholds.empty() ) {
+    ATH_MSG_WARNING( "No JET thresholds configured" );
+  } else {
+    ATH_MSG_INFO( "Configured " << m_jetThresholds.size() << " thresholds" );
+  }
+
+
+  
   return StatusCode::SUCCESS;
 }
 
@@ -63,49 +59,37 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
   auto recRoIs  = std::make_unique< DataVector<LVL1::RecJetRoI> >();
 
-
-  // Additional FS RoI tagged with the decisions of all chains
-  auto trigFSRoIs = std::make_unique< TrigRoiDescriptorCollection >();
-  trigFSRoIs->push_back( new TrigRoiDescriptor( true ) ); // the c'tor for the FS RoI
-  auto fsDecisionOutput = std::make_unique<DecisionContainer>();
-  auto fsDecisionAux    = std::make_unique<DecisionAuxContainer>();
-  fsDecisionOutput->setStore( fsDecisionAux.get() );  
-  Decision* fsDecision = newDecisionIn( fsDecisionOutput.get() );
-  fsDecision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIsKey.key(), 0 ) );
-
-  // here we attempt to add all jet chains to FS RoI, it will be trimmed by the set of active chains
-  for ( auto thresholdChainsPair: m_thresholdToChainMapping ) {
-    addChainsToDecision( thresholdChainsPair.first, fsDecision, activeChains );    
-  }
-  ATH_MSG_DEBUG( "Stored "  << decisionIDs( fsDecision ).size() << "  decision in FS RoI" );
+ 
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );  
+  decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
   
-  if ( msgLvl(MSG::DEBUG) ) {
-    for ( auto chain : decisionIDs( fsDecision ) ) {
-      ATH_MSG_DEBUG( "Chain decision stored for FS RoI " <<  HLT::Identifier( chain ) );      
-    }
-  }
+  auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+  CHECK( roiEL.isValid() );
+  ATH_MSG_DEBUG("Linked new Decision to the FS roI");
+  ATH_MSG_DEBUG("Now get jet L1 thresholds from RoIB");
 
-
-  // RoIBResult contains vector of TAU fragments
+  // RoIBResult contains vector of jet fragments
   for ( auto& jetFragment : roib.jetEnergyResult() ) {
     for ( auto& roi : jetFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::JetRoIWordType == roi.roIType() ) )  {
-	ATH_MSG_DEBUG( "Skipping RoI as it is not JET threshold " << roIWord );
+	ATH_MSG_DEBUG( "Skipping RoI as it is not JET threshold " << roIWord <<" Type "<< roi.roIType() );
 	continue;
       }
       
       auto recRoI = new LVL1::RecJetRoI( roIWord, &m_jetThresholds );
       recRoIs->push_back( recRoI );
-      
+
+      /* TDOD, decide if we need this collection at all here, now keep filling of it commented out
+      //decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecJetRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
       auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
 					    recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
 					    recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
       trigRoIs->push_back( trigRoI );
-        
+      */
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+
       
       for ( auto th: m_jetThresholds ) {
 	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
@@ -120,11 +104,17 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
       }
       
 
-      // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail( "Thresholds", passedThresholds ); // record passing threshold names ( for easy debugging )            
-      decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
-      decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecJetRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
   }
+  TrigCompositeUtils::DecisionIDContainer uniqueDecisions; // this is set
+  std::vector<int>& storedIDs = TrigCompositeUtils::decisionIDs( decision );
+  TrigCompositeUtils::decisionIDs( decision, uniqueDecisions ); // copy to set -> unique
+  storedIDs.clear();
+  storedIDs.insert( storedIDs.end(), uniqueDecisions.begin(), uniqueDecisions.end() );
+  //copy back
+  
+
+
   if ( msgLvl(MSG::DEBUG) ) {
     for ( auto roi: *trigRoIs ) {
       ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
@@ -140,8 +130,9 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
-  ATH_MSG_DEBUG( "Unpacked " <<  trigRoIs->size() << " RoIs" );
-  ATH_MSG_DEBUG( "Unpacked " <<  trigFSRoIs->size() << " FS RoIs" );
+  ATH_MSG_DEBUG( "Number of decision IDs associated with FS RoI: " <<  TrigCompositeUtils::decisionIDs( decision ).size()  );
+
+
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );
@@ -155,15 +146,6 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
     auto handle = SG::makeHandle( m_decisionsKey, ctx );
     ATH_CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
   }
-  {
-    auto handle = SG::makeHandle( m_trigFSRoIsKey, ctx );
-    ATH_CHECK( handle.record ( std::move( trigFSRoIs ) ) );
-  }
-  {
-    auto handle = SG::makeHandle( m_fsDecisions, ctx );
-    ATH_CHECK( handle.record ( std::move( fsDecisionOutput ), std::move( fsDecisionAux ) ) );
-  }
-
 
   return StatusCode::SUCCESS; // what else
 }

@@ -40,7 +40,7 @@ class TGCcablingServerSvc : public AthService,
     virtual bool isAtlas(void) const;
     virtual bool isConfigured(void) const;
 
-    virtual StatusCode compareTags(IOVSVC_CALLBACK_ARGS);
+    virtual StatusCode compareTags() const;
 };
  
 #endif

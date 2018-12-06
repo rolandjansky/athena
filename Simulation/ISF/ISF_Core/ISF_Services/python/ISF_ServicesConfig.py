@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -35,20 +35,6 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
     return getParticleBrokerSvc(name, **kwargs)
 
 
-def getSimHitService(name="ISF_SimHitService", **kwargs):
-    return CfgMgr.ISF__SimHitSvc(name, **kwargs)
-
-
-def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
-    kwargs.setdefault("SensitiveDetectorMasterTool", "EmptySensitiveDetectorMasterTool")
-    kwargs.setdefault("FastSimulationMasterTool", "EmptyFastSimulationMasterTool")
-    return getSimHitService(name, **kwargs)
-
-
-def getPileupSimHitService(name="ISF_PileupSimHitService", **kwargs):
-    return getNoG4SimHitService(name, **kwargs)
-
-
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
     kwargs.setdefault("ATLASEnvelopeDefSvc", "AtlasGeometry_EnvelopeDefSvc")
@@ -76,8 +62,8 @@ def getAFIIGeoIDSvc(name="ISF_AFIIGeoIDSvc", **kwargs):
 
 def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
     kwargs.setdefault('Identifier',           "ParticleKiller")
+    kwargs.setdefault('SimulatorTool',        "ISF_ParticleKillerTool")
     return CfgMgr.ISF__ParticleKillerSimSvc(name, **kwargs)
-
 
 def getGenParticleFilters():
     genParticleFilterList = []

@@ -1463,13 +1463,15 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  modPhi    = m_sctID->phi_module(id);
 	  sctSide   = m_sctID->side(id);
 	  const InDetDD::SiDetectorElement *siDet = dynamic_cast<const InDetDD::SiDetectorElement*>(hit->detectorElement());
-	  isStereo = siDet->isStereo();
-	  const InDet::SCT_Cluster *clus = dynamic_cast<const InDet::SCT_Cluster*>(hit->prepRawData());
-	  if(clus){
-	    const InDet::SiWidth cw = clus->width();
-	    ClusSizePhi = (int)cw.colRow()[0];
-	    ClusSize = (int)clus->rdoList().size();
-	  }
+	  if (siDet){
+      isStereo = siDet->isStereo();
+      const InDet::SCT_Cluster *clus = dynamic_cast<const InDet::SCT_Cluster*>(hit->prepRawData());
+      if(clus){
+        const InDet::SiWidth cw = clus->width();
+        ClusSizePhi = (int)cw.colRow()[0];
+        ClusSize = (int)clus->rdoList().size();
+      }
+    }
 	}
 
 	//const Trk::TrackParameters* trackParameter = tsos->trackParameters();  // Already defined before in line 880. Should be safe here to take the one up since there are the continues.

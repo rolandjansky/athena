@@ -30,9 +30,9 @@ namespace Analysis {
 
   JetBTaggerTool::JetBTaggerTool(const std::string& n) :
     asg::AsgTool(n),
-    m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
-    m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
-    m_PtRescalingTool("Analysis::BTagJetPtScaling"),
+    m_bTagTool("Analysis::BTagTool",this),
+    m_BTagTrackAssocTool("Analysis::BTagTrackAssociation", this),
+    m_bTagSecVtxTool("Analysis::BTagSecVertexing", this),
     m_augment(false),
     m_PtRescale(false),
     m_magFieldSvc("AtlasFieldSvc",n)
@@ -87,14 +87,6 @@ namespace Analysis {
       return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("#BTAGVTX# Retrieved tool " << m_bTagSecVtxTool);
-    }
-
-    /// retrieve the jet pt rescaling tool
-    if (m_PtRescalingTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_PtRescalingTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_PtRescalingTool);
     }
 
     /// retrieve the magnetic field service

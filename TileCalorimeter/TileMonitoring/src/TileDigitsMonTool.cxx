@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,9 +16,9 @@
 
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1S.h"
 #include "TH1F.h"
@@ -49,7 +49,6 @@
 /*---------------------------------------------------------*/
 TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TilePaterMonTool(type, name, parent)
-  , m_beamInfo("TileBeamInfoProvider")
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_cispar(0)
   , m_nEvents(0)
@@ -71,6 +70,7 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   declareProperty("TileRawChannelContainerDSP", m_contNameDSP = "TileRawChannelCnt");
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/Digits"; //ROOT file directory
 }
@@ -86,8 +86,6 @@ StatusCode TileDigitsMonTool::initialize()
 /*---------------------------------------------------------*/
 {
   ATH_MSG_INFO("in initialize()");
-
-  CHECK(m_beamInfo.retrieve());
 
   if (m_fillPedestalDifference) CHECK(m_tileToolNoiseSample.retrieve());
 
@@ -107,6 +105,8 @@ StatusCode TileDigitsMonTool::initialize()
   //For test stuck_bits_maker
   //hp = 1;
   //hb = -1;
+
+  CHECK( m_DQstatusKey.initialize() );
 
   return TilePaterMonTool::initialize();
 }
@@ -321,11 +321,13 @@ StatusCode TileDigitsMonTool::fillHists()
 
   ATH_MSG_DEBUG("in fillHists()");
 
+  const TileDQstatus* dqStatus = SG::makeHandle (m_DQstatusKey).get();
+
   // array of 16 CIS parameters
-  m_cispar = m_beamInfo->cispar();
+  m_cispar = dqStatus->cispar();
   ++m_nEvents;
 
-  //  std::cout << "Calib Mode=" << m_beamInfo->calibMode() << "\n";
+  //  std::cout << "Calib Mode=" << dqStatus->calibMode() << "\n";
 
   const TileDigitsContainer* digitsContainer;
   CHECK(evtStore()->retrieve(digitsContainer, m_digitsContainerName));
@@ -389,7 +391,7 @@ StatusCode TileDigitsMonTool::fillHists()
     int drawer = m_tileHWID->drawer(adc_id);
 
     if (m_data->m_hist1[ros][drawer][0][0].size() == 0) {
-      //m_bigain = (m_beamInfo->calibMode() == 1); // true if bi-gain run
+      //m_bigain = (dqStatus->calibMode() == 1); // true if bi-gain run
       // For the time being, we fill both high and low gain plots, as it was requiered by Tomas
       m_bigain = true;
       m_nSamples = digitsCollection->front()->NtimeSamples(); // number of samples
@@ -528,18 +530,18 @@ StatusCode TileDigitsMonTool::fillHists()
     
     //DMUheaderCheck(&headerVec,headsize,ros,drawer,1);
     
-    if (m_beamInfo->calibMode() == 1) {
+    if (dqStatus->calibMode() == 1) {
       // global and DMU CRC check
       uint32_t crc32 = digitsCollection->getFragCRC();
       uint32_t CRCmask = digitsCollection->getFragDMUMask();
       
-      CRCcheck(crc32, CRCmask, headsize, ros, drawer);
+      CRCcheck(dqStatus, crc32, CRCmask, headsize, ros, drawer);
     }
   } //loop over drawers
   // 
  
-  if (m_beamInfo->calibMode() == 0) {
-    if (RODCRCcalc().isFailure()) ATH_MSG_WARNING("Not possible to check CRC from ROD");
+  if (dqStatus->calibMode() == 0) {
+    if (RODCRCcalc(dqStatus).isFailure()) ATH_MSG_WARNING("Not possible to check CRC from ROD");
   }
   
   return StatusCode::SUCCESS;
@@ -1521,7 +1523,8 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
 }
 
 
-void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer) {
+void TileDigitsMonTool::CRCcheck(const TileDQstatus* dqStatus,
+                                 uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer) {
   //! Author: Luca. F. November 06
   //! This method provides CRC checks for Global and TileDMU chips.
   //! Global CRC is taken from the trailer and it is correct if 
@@ -1561,7 +1564,7 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
   if (headsize < 16) {  // How to handle EB? All bits are filled anyway or not?
   }
 
-  if (m_beamInfo->calibMode() == 1) { //!bigain: dummy information
+  if (dqStatus->calibMode() == 1) { //!bigain: dummy information
     for (int ch = 0; ch < headsize; ++ch) {
       if (crc32 == 0)
         m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
@@ -1683,7 +1686,7 @@ bool TileDigitsMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int ros
   return err;
 }
 
-StatusCode TileDigitsMonTool::RODCRCcalc() {
+StatusCode TileDigitsMonTool::RODCRCcalc(const TileDQstatus* dqStatus) {
   //! Author: Luca. F. Mar 08
   //! This method provides CRC checks for Global and TileDMU chips.
   //! They are taken from the the ROD RawChannel Container
@@ -1718,7 +1721,7 @@ StatusCode TileDigitsMonTool::RODCRCcalc() {
     CRCmask = CRCmask << 16; // ROD mask is stored in the 16 most significant bits ce
     CRCmask += rawChannelCollection->getFragFEChipMask();
     
-    CRCcheck(crc32, CRCmask, 16, ros, drawer); //reuse the same funcion used for digits
+    CRCcheck(dqStatus, crc32, CRCmask, 16, ros, drawer); //reuse the same funcion used for digits
     
   }
 

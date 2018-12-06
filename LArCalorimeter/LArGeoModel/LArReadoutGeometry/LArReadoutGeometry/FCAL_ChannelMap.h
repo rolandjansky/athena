@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -274,7 +274,7 @@ m_invert_xy = flag;
 return ;
 }
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FCAL_ChannelMap, 74242524, 1)
  
 #endif // LARDETDESCR_FCAL_CHANNELMAP_H

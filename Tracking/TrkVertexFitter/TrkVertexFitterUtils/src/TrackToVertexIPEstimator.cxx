@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
@@ -21,8 +21,8 @@ namespace Trk
 {
 
  TrackToVertexIPEstimator::TrackToVertexIPEstimator(const std::string& t, const std::string& n, const IInterface*  p):
-  AthAlgTool(t,n,p), m_extrapolator("Trk::Extrapolator"),m_Updator("Trk::KalmanVertexUpdator"),
-  m_linFactory("Trk::FullLinearizedTrackFactory")
+  AthAlgTool(t,n,p), m_extrapolator("Trk::Extrapolator",this),m_Updator("Trk::KalmanVertexUpdator",this),
+  m_linFactory("Trk::FullLinearizedTrackFactory",this)
  {
   declareProperty("Extrapolator",            m_extrapolator);
   declareProperty("VertexUpdator",           m_Updator);

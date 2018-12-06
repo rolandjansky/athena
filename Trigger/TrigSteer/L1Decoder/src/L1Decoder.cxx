@@ -36,6 +36,8 @@ StatusCode L1Decoder::initialize() {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
 
+  ATH_CHECK( m_trigFSRoIKey.initialize() ) ;
+
   return StatusCode::SUCCESS;
 }
 
@@ -73,7 +75,14 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   // this should really be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
-
+  {
+    std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
+    TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
+    fsRoIsColl->push_back( fsRoI );
+   
+    auto handle = SG::makeHandle( m_trigFSRoIKey, ctx );
+    ATH_CHECK( handle.record ( std::move( fsRoIsColl ) ) );
+  }
 
   auto chainsInfo = std::make_unique<DecisionContainer>();
   auto chainsAux = std::make_unique<DecisionAuxContainer>();
@@ -117,7 +126,8 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   for ( auto unpacker: m_rerunRoiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, rerunChainSet ) );
   }
-  
+
+
 
   ATH_MSG_DEBUG("Recording chains");
 

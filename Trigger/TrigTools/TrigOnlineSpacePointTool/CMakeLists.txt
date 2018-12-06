@@ -27,11 +27,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigSiSpacePointTool
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Event/ByteStreamCnvSvcBase
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetEventCnv/SCT_RawDataByteStreamCnv
                           Tracking/TrkEvent/TrkSpacePoint
                           Trigger/TrigTools/TrigInDetToolInterfaces

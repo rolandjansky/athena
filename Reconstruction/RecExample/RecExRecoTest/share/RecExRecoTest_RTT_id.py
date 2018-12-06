@@ -18,6 +18,9 @@ rec.doMuonCombined=False
 rec.doJetMissingETTag=False
 rec.doTau=False
 
+from RecExConfig.RecAlgsFlags import recAlgs
+recAlgs.doTrackParticleCellAssociation = False
+
 include ("RecExCond/RecExCommon_flags.py")
 rec.AutoConfiguration = ['FieldAndGeo']
 import RecExConfig.AutoConfiguration as auto

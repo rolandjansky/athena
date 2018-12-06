@@ -17,6 +17,7 @@ def LArAutoCorrTotalToolDefault (name="LArAutoCorrTotalToolDefault", **kw):
 
     mlog = logging.getLogger( 'LArAutoCorrTotalToolDefault::__init__ ' )
     mlog.info("entering")
+    mlog.warning("LArAutoCorrTotalTool is deprecated. Please use LArAutoCorrCondAlg")
 
     # do the configuration
     if globalflags.DataSource()=='data':

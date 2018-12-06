@@ -29,7 +29,8 @@
 #include "TrigL2MuonSA/RpcFitResult.h"
 #include "TrigL2MuonSA/TgcFitResult.h"
 
-#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
@@ -130,10 +131,7 @@ namespace TrigL2MuonSA {
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
     //ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider {
     // 	this, "MDT_RawDataProvider", "Muon::MDT_RawDataProviderTool", "MDTRawDataProviderTool"};
-    
-    // Cabling
-    ServiceHandle<MuonMDT_CablingSvc> m_mdtCabling;
-    
+        
     // Geometry Services
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;
@@ -170,6 +168,8 @@ namespace TrigL2MuonSA {
     bool m_BMGpresent;
     int  m_BMGid;
     std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
+
+    SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
   };
 

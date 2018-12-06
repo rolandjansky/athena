@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
@@ -299,7 +299,7 @@ bool MuonMDT_CablingMap::addMezzanine( int mezType, int station, int eta, int ph
 
 
 
-MdtSubdetectorMap* MuonMDT_CablingMap::getSubdetectorMap(uint8_t subdetectorId) {
+MdtSubdetectorMap* MuonMDT_CablingMap::getSubdetectorMap(uint8_t subdetectorId) const{
   return getItem(subdetectorId);
 }
 
@@ -367,7 +367,7 @@ bool MuonMDT_CablingMap::addChamberToRODMap(int station, int eta, int phi,
  *
  */
 bool MuonMDT_CablingMap::getStationCode(int station, int eta, int phi, 
-					IdentifierHash& mdtHashId)
+					IdentifierHash& mdtHashId) const
 {
   // create the station identifier
   Identifier elementId = m_mdtIdHelper->elementID(station,eta,phi);
@@ -387,7 +387,7 @@ bool MuonMDT_CablingMap::getStationCode(int station, int eta, int phi,
  * return the ROBid of a given station, identified through station, eta, phi
  *
  */
-uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi)
+uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi) const
 {
 
   int rodId = 0;
@@ -407,7 +407,8 @@ uint32_t MuonMDT_CablingMap::getROBId(int station, int eta, int phi)
 }
 
 // get the ROBid given the identifier hash
-uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode)
+
+uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode) const
 {
   int rodId = 0;
 
@@ -423,7 +424,30 @@ uint32_t MuonMDT_CablingMap::getROBId(const IdentifierHash stationCode)
   return rodId;
 }
 
-const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId)
+//get the robs corresponding to a vector of hashIds, copied from Svc before the readCdo migration
+
+std::vector<uint32_t> MuonMDT_CablingMap::getROBId(const std::vector<IdentifierHash>& mdtHashVector) const
+{
+  std::vector<uint32_t> robVector;
+
+  for ( unsigned int i = 0 ; i<mdtHashVector.size() ; ++i ) {
+
+    int robId = getROBId(mdtHashVector[i]);
+    if (robId==0) {
+
+      *m_log << MSG::ERROR << "ROB id not found for Hash Id: " << mdtHashVector[i] << endmsg;
+
+    } else {
+      *m_log << MSG::VERBOSE << "Found ROB id 0x" << MSG::hex << robId << MSG::dec << " for hashId " << mdtHashVector[i] << endmsg;
+    }
+    robVector.push_back(robId);
+  }
+  *m_log << MSG::VERBOSE << "Size of ROB vector is: " << robVector.size() << endmsg;
+
+  return robVector;
+}
+
+const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const uint32_t ROBId) const
 {
   RODToChamberMap::const_iterator Rob_it = m_RODToChamber->find(ROBId);
   if(Rob_it != m_RODToChamber->end()) {
@@ -435,7 +459,7 @@ const std::vector<IdentifierHash>& MuonMDT_CablingMap::getChamberHashVec(const u
   }
 }
 
-const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const std::vector< uint32_t> &ROBId_list)
+const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const std::vector< uint32_t> &ROBId_list) const
 {
    std::vector<IdentifierHash> HashVec;
   
@@ -457,7 +481,7 @@ const std::vector<IdentifierHash> MuonMDT_CablingMap::getChamberHashVec(const st
  * get the full list of ROBid
  *
  */
-std::vector<uint32_t> MuonMDT_CablingMap::getAllROBId() 
+std::vector<uint32_t> MuonMDT_CablingMap::getAllROBId() const
 {
   return *m_listOfROD;
 }
@@ -475,7 +499,7 @@ bool MuonMDT_CablingMap::getOfflineId(uint8_t subdetectorId,
 				      uint8_t tdcId,
 				      uint8_t channelId,
 				      int& stationName, int& stationEta, int& stationPhi,
-				      int& multiLayer, int& layer, int& tube)
+				      int& multiLayer, int& layer, int& tube) const
 {
   
   // get the subdetector
@@ -587,7 +611,7 @@ bool MuonMDT_CablingMap::getOnlineId(int stationName, int stationEta, int statio
 				     int multiLayer, int layer, int tube,
 				     uint8_t& subdetectorId, uint8_t& rodId, 
 				     uint8_t& csmId, uint8_t& tdcId, 
-				     uint8_t& channelId)
+				     uint8_t& channelId) const
 {
 
   

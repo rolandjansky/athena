@@ -177,6 +177,9 @@ class _BTaggingFlags:
       # old jetfitter nns which sometimes crash
       self.RunJetFitterNNTool = True
 
+      self.MVTagToolList = []
+      self.MVFlipTagToolList = []
+
       for attr in self._Active:
         setattr(self, attr, True)
 

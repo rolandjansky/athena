@@ -28,9 +28,4 @@ const float& LArTshaperComplete::Tshaper(const HWIdentifier& CellID) const
   return (t.m_Tshaper);
 }
 
-const float& LArTshaperComplete::Tshaper(const Identifier&  CellID) const
-{
 
-  const LArTshaperP& t = this->get_offline(CellID); 
-  return (t.m_Tshaper);
-}

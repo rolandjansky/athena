@@ -3,18 +3,33 @@
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 
-# My idea would be to create three steps, thus three different hypoTools
-# 1 TFT + Jet Reco + j cut
-# 2 Precision Tracking + GSC + gsc cut
-# 3 BTagging
+# Set InDet Flags
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doCaloSeededBrem = False
+InDetFlags.InDet25nsec = True 
+InDetFlags.doPrimaryVertex3DFinding = False 
+InDetFlags.doPrintConfigurables = False
+InDetFlags.doResolveBackTracks = True 
+InDetFlags.doSiSPSeededTrackFinder = True
+InDetFlags.doTRTPhaseCalculation = True
+InDetFlags.doTRTSeededTrackFinder = True
+InDetFlags.doTruth = False
+InDetFlags.init()
+
+from AthenaCommon.Include import include
+include("InDetRecExample/InDetRecConditionsAccess.py")
+
+# ====================================================================================================  
+#    Get MenuSequences
+# ==================================================================================================== 
 
 def getBJetSequence( step ):
     if step == "j":
         return bJetStep1Sequence()
     if step == "gsc":
-        return bJetSequence()
+        return bJetStep1Sequence()
     if step == "bTag":
-        return bJetSequence()
+        return bJetStep1Sequence()
     return None
 
 # ==================================================================================================== 
@@ -27,25 +42,59 @@ def bJetStep1Sequence():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 
     # input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    InputMakerAlg = InputMakerForRoI("JetInputMaker", OutputLevel = DEBUG, LinkName="initialRoI")
+    InputMakerAlg.RoIs='FSJETRoI'
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = "FSJETRoIs"
 
-    # Construct jets ( how do I impose split or non-split configuration ? ) 
+
+    # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
+    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
+
+    # Start with b-jet-specific algo sequence
+    # Construct RoI. Needed input for Fast Tracking
+    # WILL BE REMOVED IN THE FUTURE 
+    from TrigBjetHypo.TrigBjetHypoConf import TrigRoiBuilderMT
+    RoIBuilder = TrigRoiBuilderMT("RoIBuilder")
+    RoIBuilder.OutputLevel = DEBUG
+    RoIBuilder.JetInputKey = sequenceOut
+    RoIBuilder.RoIOutputKey = "EMViewRoIs" # Default for Fast Tracking Algs
+
+    # Fast Tracking 
+    from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs()
+
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
+    theFTF_Jet = TrigFastTrackFinder_Jet()
+    theFTF_Jet.OutputLevel = DEBUG
+    theFTF_Jet.isRoI_Seeded = True
+    theFTF_Jet.RoIs = RoIBuilder.RoIOutputKey
+    viewAlgs.append( theFTF_Jet )
+
+    # Getting output track particle container name
+    TrackParticlesName = ""
+    for viewAlg in viewAlgs:
+        if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+            TrackParticlesName = viewAlg.TrackParticlesName
+
+    fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
+    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence] )
 
     # hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlg
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromName
-    hypo = TrigBjetEtHypoAlg("TrigBjetEtHypoAlg")
+    hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT")
     hypo.OutputLevel = DEBUG
     hypo.Jets = sequenceOut
+    hypo.OutputJets = "SplitJets"
+    # These two are only for temporary debug. Will be removed 
+    hypo.TrackParticleContainerKey = TrackParticlesName
+    hypo.RoiKey = RoIBuilder.RoIOutputKey
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
+    BjetAthSequence = seqAND("BjetAthSequence",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
@@ -60,35 +109,4 @@ def bJetStep1Sequence():
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging
 # ==================================================================================================== 
-
-def bJetSequence():
-    # menu components   
-    from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-
-    # input maker
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
-    InputMakerAlg = HLTTest__TestInputMaker("BJetInputMaker")
-    InputMakerAlg.OutputLevel = DEBUG
-    InputMakerAlg.LinkName = "initialRoI"
-    InputMakerAlg.Output = 'FSJETRoIs'
-
-    # Construct jets ( how do I impose split or non-split configuration ? )
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.Output )
-
-    # Hypo
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoAlg
-    from TrigBjetHypo.TrigBjetHypoTool import TrigBjetHypoToolFromName
-    hypo = TrigBjetHypoAlg("TrigBjetHypoAlg")
-    hypo.OutputLevel = DEBUG
-    hypo.RoIsKey = sequenceOut
-
-    # Sequence
-    BjetAthSequence = seqAND("BjetAthSequence",[InputMakerAlg,recoSequence])
-
-    return MenuSequence( Sequence    = BjetAthSequence,
-                         Maker       = InputMakerAlg,
-                         Hypo        = hypo,
-                         HypoToolGen = TrigBjetHypoToolFromName )
 

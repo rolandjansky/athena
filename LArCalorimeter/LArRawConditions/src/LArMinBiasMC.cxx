@@ -32,21 +32,7 @@ LArMinBiasMC::~LArMinBiasMC() {}
  */
 const float& LArMinBiasMC::minBiasRMS(const HWIdentifier& CellID) const 
 { 
-
   // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-  
+  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);  
   return LArMinBiasComplete::minBiasRMS(SymCellID); 
-
-}
-
-const float& LArMinBiasMC::minBiasRMS(const Identifier&  CellID) const
-{
-  
-  // symmetrize CellID for MC usage
-  HWIdentifier SymCellID = m_larmcsym->symOnline(CellID);
-
-  return LArMinBiasComplete::minBiasRMS(SymCellID);
-
-
 }

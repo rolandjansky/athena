@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /// ********************************************************************
@@ -23,8 +23,8 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileCell.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -47,7 +47,6 @@ using Athena::Units::ns;
 TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
-  , m_beamInfo("TileBeamInfoProvider")
   , m_TileCellTrig(0U)
   , m_delta_lumiblock(0U)
   , m_TileCellEneBal{}
@@ -87,6 +86,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("NumberOfLastLumiblocks4MaskedChannelsOnFly", m_nLastLumiblocks = -7);
   declareProperty("SkipNotPhysicsEvents", m_skipNotPhysicsEvents = true);
+  declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/Cell";
 
@@ -128,7 +128,7 @@ TileCellMonTool::~TileCellMonTool() {
 }
 
 /*---------------------------------------------------------*/
-StatusCode TileCellMonTool:: initialize() {
+StatusCode TileCellMonTool::initialize() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in initialize()" );
@@ -136,14 +136,14 @@ StatusCode TileCellMonTool:: initialize() {
   //=== get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
 
-  CHECK( m_beamInfo.retrieve() );
-
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
   if (m_doOnline && m_nLastLumiblocks > 0) {
     m_fillMaskedOnFly4LastLumiblocks = true;
     for (int i = 0; i < m_nLastLumiblocks; ++i) m_nEventsLastLumiblocksShadow.push_back(0U);
   }
+
+  CHECK( m_DQstatusKey.initialize() );
 
   return TileFatherMonTool::initialize();
 }
@@ -775,7 +775,7 @@ StatusCode TileCellMonTool::fillHistograms() {
     m_old_lumiblock = current_lumiblock;
   }
 
-  const TileDQstatus* dqStatus = m_beamInfo->getDQstatus();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_DQstatusKey).get();
 
   // Pointer to a Tile cell container
   const CaloCellContainer* cell_container;

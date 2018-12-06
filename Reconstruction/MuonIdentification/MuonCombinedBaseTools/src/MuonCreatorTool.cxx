@@ -150,11 +150,11 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
-    ATH_CHECK(m_caloExtTool.retrieve());
+    if(m_useCaloCells) ATH_CHECK(m_caloExtTool.retrieve());
+    else m_caloExtTool.disable();
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
-    ATH_CHECK(m_propagator.retrieve());
     ATH_CHECK(m_muonDressingTool.retrieve());
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
     ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
@@ -179,8 +179,14 @@ namespace MuonCombined {
     ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
-    if(!m_doSA) ATH_CHECK(m_caloMaterialProvider.retrieve());
-    else m_caloMaterialProvider.disable();
+    if(!m_doSA){
+      ATH_CHECK(m_caloMaterialProvider.retrieve());
+      ATH_CHECK(m_propagator.retrieve());
+    }
+    else{
+      m_caloMaterialProvider.disable();
+      m_propagator.disable();
+    }
 
     ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
 

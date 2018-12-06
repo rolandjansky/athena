@@ -25,7 +25,7 @@ UPDATE : 25/06/2018
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
+#include "GaudiKernel/EventContext.h"
 //std includes
 #include <algorithm>
 #include <cmath>
@@ -35,7 +35,15 @@ UPDATE : 25/06/2018
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
                                                  ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_AllClusters{},
+  m_SelectedClusters{},
+  m_AllTracks{},
+  m_SelectedTracks{},
+  m_AllSiTracks{},
+  m_SelectedSiTracks{},
+  m_AllTRTTracks{},
+  m_SelectedTRTTracks{}
 {
 }
 
@@ -58,12 +66,16 @@ StatusCode egammaSelectedTrackCopy::initialize() {
 
 StatusCode egammaSelectedTrackCopy::egammaSelectedTrackCopy::finalize(){ 
 
-  ATH_MSG_INFO ("AllTracks " << m_AllTracks);
-  ATH_MSG_INFO ("AllSiTracks " << m_AllSiTracks);
-  ATH_MSG_INFO ("AllTRTTracks " << m_AllTRTTracks);
-  ATH_MSG_INFO ("SelectedTracks " << m_SelectedTracks);
-  ATH_MSG_INFO ("SelectedSiTracks " << m_SelectedSiTracks);
-  ATH_MSG_INFO ("SelectedTRTTracks " << m_SelectedTRTTracks);
+  ATH_MSG_INFO ("--- egamma Selected Track Copy Statistics ---");
+  ATH_MSG_INFO ("--- All Clusters: " << m_AllClusters);
+  ATH_MSG_INFO ("--- Selected Clusters: " << m_SelectedClusters);
+  ATH_MSG_INFO ("--- All Tracks: " << m_AllTracks);
+  ATH_MSG_INFO ("--- Selected Tracks: " << m_SelectedTracks);
+  ATH_MSG_INFO ("--- All Si Tracks: " << m_AllSiTracks);
+  ATH_MSG_INFO ("--- Selected Si Tracks: " << m_SelectedSiTracks);
+  ATH_MSG_INFO ("--- All TRT Tracks: " << m_AllTRTTracks);
+  ATH_MSG_INFO ("--- Selected TRT Tracks: " << m_SelectedTRTTracks);
+  ATH_MSG_INFO ("----------------------------------------- ---");
   return StatusCode::SUCCESS;
 }
 
@@ -92,25 +104,30 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Track Particle  container  size: "  <<trackTES->size() );
 
   //Local counters
-  unsigned int allTracks(0);
-  unsigned int allTRTTracks(0);
-  unsigned int allSiTracks(0);  
-  unsigned int selectedTracks(0);
-  unsigned int selectedTRTTracks(0); 
-  unsigned int selectedSiTracks(0);  
+  auto allClusters = m_AllClusters.buffer();
+  auto selectedClusters = m_SelectedClusters.buffer();
+  auto allTracks= m_AllTracks.buffer();
+  auto selectedTracks = m_SelectedTracks.buffer()  ;
+  auto allSiTracks = m_AllSiTracks.buffer();  
+  auto selectedSiTracks = m_SelectedSiTracks.buffer();  
+  auto allTRTTracks =  m_AllTRTTracks.buffer();
+  auto selectedTRTTracks = m_SelectedTRTTracks.buffer(); 
 
   // // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster *> passingClusters;
   for(const xAOD::CaloCluster* cluster : *clusterTES ){
+    ++allClusters;   
     if (m_egammaCaloClusterSelector->passSelection(cluster)) {
       passingClusters.push_back(cluster);
+       ++selectedClusters;
     }
   }
 
-  //Extrapolation Cache
+ //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
+    ++allTracks;
     bool isTRT=false;
     int nhits(0);
     uint8_t dummy(0); 
@@ -120,7 +137,6 @@ StatusCode egammaSelectedTrackCopy::execute()
     if( track->summaryValue(dummy,xAOD::numberOfSCTHits) ){
       nhits+= dummy;
     }
-    ++allTracks;    
     if(nhits<4){
       isTRT = true;
       ++allTRTTracks;
@@ -135,7 +151,7 @@ StatusCode egammaSelectedTrackCopy::execute()
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if(!Select(cluster,track,cache,isTRT)){
+      if(!Select(Gaudi::Hive::currentContext(), cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
       }
@@ -160,23 +176,12 @@ StatusCode egammaSelectedTrackCopy::execute()
   ATH_MSG_DEBUG ("Selected Track container size: "  << viewCopy->size() );
   ATH_CHECK( outputTrkPartContainer.record(std::move(viewCopy)) );
 
-  /*
-   * Typical use for relaxed memory ordering is incrementing counters, 
-   * (such as the reference counters of std::shared_ptr) 
-   * since this only requires atomicity, but not ordering or synchronization.
-   */
-  m_AllTracks.fetch_add(allTracks, std::memory_order_relaxed);
-  m_AllTRTTracks.fetch_add(allTRTTracks, std::memory_order_relaxed);
-  m_AllSiTracks.fetch_add(allSiTracks,std::memory_order_relaxed);
-  m_SelectedTracks.fetch_add(selectedTracks,std::memory_order_relaxed);
-  m_SelectedTRTTracks.fetch_add(selectedTRTTracks,std::memory_order_relaxed);
-  m_SelectedSiTracks.fetch_add(selectedSiTracks,std::memory_order_relaxed);
-
   return StatusCode::SUCCESS;
 }
 
 
-bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
+bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
+                                     const xAOD::CaloCluster* cluster,
                                      const xAOD::TrackParticle* track,
                                      IEMExtrapolationTools::Cache& cache,
                                      bool trkTRT) const
@@ -242,7 +247,8 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
   std::vector<double>  phi(4, -999.0);
   std::vector<double>  deltaEta(4, -999.0);
   std::vector<double>  deltaPhi(4, -999.0);
-  if (m_extrapolationTool->getMatchAtCalo (cluster, 
+  if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                           cluster, 
                                            track, 
                                            trkTRT,
                                            Trk::alongMomentum, 
@@ -270,7 +276,8 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
-    if (m_extrapolationTool->getMatchAtCalo (cluster, 
+    if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                             cluster, 
                                              track, 
                                              trkTRT,
                                              Trk::alongMomentum, 

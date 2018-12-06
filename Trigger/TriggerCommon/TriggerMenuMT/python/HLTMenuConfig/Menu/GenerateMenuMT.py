@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags                               import TriggerFlags
-from TriggerJobOpts.MuonSliceFlags           import MuonSliceFlags
-from TriggerJobOpts.EgammaSliceFlags       import EgammaSliceFlags
+from TriggerJobOpts.TriggerFlags              import TriggerFlags
+from TriggerJobOpts.MuonSliceFlags            import MuonSliceFlags
+from TriggerJobOpts.EgammaSliceFlags          import EgammaSliceFlags
 from TriggerJobOpts.JetSliceFlags             import JetSliceFlags
-from TriggerJobOpts.CombinedSliceFlags   import CombinedSliceFlags
+from TriggerJobOpts.CombinedSliceFlags        import CombinedSliceFlags
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -14,9 +14,14 @@ AlgScheduler.ShowDataFlow( True )
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import *
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import *
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTSignatureConfig import *
+from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils import splitInterSignatureChainDict
+from TriggerMenuMT.HLTMenuConfig.Menu.Lumi import lumi
+
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 
 import os, traceback, operator, commands, time
 
@@ -29,11 +34,14 @@ _func_to_modify_signatures = None
 class GenerateMenuMT:   
     
     def __init__(self):
-        self.triggerMTConfig = None
+        self.triggerConfigHLT = None
         self.chains = []
         self.chainDefs = []
         self.listOfErrorChainDefs = []
         self.signaturesOverwritten = False
+        self.L1Prescales = None
+        self.HLTPrescales = None
+
         # flags
         self.doEgammaChains      = True
         self.doJetChains         = True
@@ -41,176 +49,199 @@ class GenerateMenuMT:
         self.doCombinedChains    = True
 
 
+    def setTriggerConfigHLT(self):
+        # setting the hlt menu configuration
+        (HLTPrescales) = self.setupMenu()
+        self.triggerConfigHLT = TriggerConfigHLT(TriggerFlags.outputHLTconfigFile())
+        self.triggerConfigHLT.menuName = TriggerFlags.triggerMenuSetup()
+        log.debug("Working with menu: %s", self.triggerConfigHLT.menuName)
 
-    def getChainDef(self,chainDicts):
-    # get the Chain object from each signature of the form Chain(chainname, L1seed, ChainSteps
-        if self.doMuonChains:
+        
+    def getChainConfig(self, chainDicts):
+        """
+        == Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
+        """
+        if self.doEgammaChains:
             try:
-                import TriggerMenu.muon.generateMuonChainDefs 
+                import TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs 
             except:
-                log.error('Problems when importing MuonDef.py, disabling muon chains.')
+                log.error('Problems when importing generateElectronChainDefs, disabling egamma chains.')
                 log.info(traceback.print_exc())
-                self.doMuonChains = False
+                self.doEgammaChains = False
                         
-
-        allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
-                             "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']        
-    
-        listOfChainDefs = []
-        chainDicts = TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils.splitInterSignatureChainDict(chainDicts)        
-        log.debug("\n chainDicts2 %s", chainDicts)
+        listOfChainConfigs = []
+        chainDicts = splitInterSignatureChainDict(chainDicts)        
+        if log.isEnabledFor(logging.DEBUG):
+            import pprint
+            pp = pprint.PrettyPrinter(indent=4, depth=8)
+            log.debug('dictionary is: %s', pp.pformat(chainDicts))
 
         for chainDict in chainDicts:
-            chainDef = None
-            print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
+            chainConfigs = None
+            log.debug('Checking chainDict for chain %s' , chainDict['chainName'])
             
-            if chainDict["signature"] == "Muon" and self.doMuonChains:
+
+            if chainDict["signature"] == "Electron" and self.doEgammaChains:
                 try:
-                    chainDef = TriggerMenuMT.HLTMenuConfig.Muon.generateMuonChainDefs.generateChainDefs(chainDict)
+                    log.debug("Try to get chain config")
+                    chainConfigs = TriggerMenuMT.HLTMenuConfig.Egamma.generateElectronChainDefs.generateChainConfigs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
-            
             else:
-                log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
+                log.error('Chain %s ignored - either trigger signature is turned off or the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
             
-            log.debug(' ChainDef  %s ' % chainDef)
+            log.debug('ChainConfigs  %s ' % chainConfigs)
+
+            log.debug('type of chainconfigs %s' % (type(chainConfigs))) 
+            #for chainConfig in chainConfigs:
+            listOfChainConfigs.append(chainConfigs)
 
 
-        if len(listOfChainDefs) == 0:  
+        if len(listOfChainConfigs) == 0:  
+            log.error('No Chain Configuration found ')
             return False
+        elif len(listOfChainConfigs)>1:
+            if ("mergingStrategy" in chainDicts[0].keys()):
+                log.warning("Need to define merging strategy, returning only first chain part configuration")
+                theChainConfig = listOfChainConfigs[0]
+            else:
+                log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
         else:
-            theChainDef = listOfChainDefs[0]
+            theChainConfig = listOfChainConfigs[0]
             
-        return theChainDef
+        return theChainConfig
 
 
 
-    def writeLvl1EmuFiles(self):
-        data = {'noreco': [';', ';', ';']}  # in the lists there are the events
-        data['emclusters'] = ['eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:35000;',
-                              'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;',
-                              'eta:-0.6,phi:1.7,et:9000;']
-        data['msmu']  = [';',
-                         'eta:-1.2,phi:0.7,pt:6500; eta:-1.1,phi:0.6,pt:8500;',
-                         'eta:-1.7,phi:-0.2,pt:9500;']
-        
-        data['ctp'] = [ 'HLT_g100',  'HLT_2g50 HLT_e20', 'HLT_mu20 HLT_mu8 HLT_2mu8 HLT_mu8_e8' ]
-        
-        data['l1emroi'] = ['1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
-                           '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
-                           '-0.6,1.5,0,EM3,EM7,EM7']
-        
-        data['l1muroi'] = ['0,0,0,MU0;',
-                           '-1,0.5,0,MU6,MU8; -1,0.5,0,MU6,MU8,MU10',
-                           '-1.5,-0.1,0,MU6,MU8']
-        
-        data['tracks'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
-                          'eta:0.5,phi:0,pt:130000; eta:1,phi:-1.2,pt:60000;eta:-1.2,phi:0.7,pt:6700; eta:-1.1,phi:0.6,pt:8600;',
-                          'eta:-0.6,phi:1.7,et:9000;'] # no MU track for MS candidate 'eta:-1.7,phi:-0.2,pt:9500;'
-        
-        data['mucomb'] = [';',
-                          'eta:-1.2,phi:0.7,pt:6600; eta:-1.1,phi:0.6,pt:8600;',
-                          ';']
-        
-        data['electrons'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
-                             ';',
-                             ';']
-        data['photons'] = ['eta:1,phi:1,pt:130000;',
-                           ';',
-                           ';']    
-        from TrigUpgradeTest.TestUtils import writeEmulationFiles
-        writeEmulationFiles(data)
-        
+    def getChainsFromMenu(self):
+        """
+        == returns the list of chain names that are in the menu 
+        """
+        log.debug('Setting TriggerConfigHLT to get the right menu')
+        self.setTriggerConfigHLT()
 
-    def Lvl1Decoder(self):
-        #_L1UnpackingSeq = parOR("L1UnpackingSeq")
-        from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-        l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
-        l1Decoder.prescaler.EventInfo=""
+        log.debug('Creating one big list of of enabled signatures and chains')
+        chains = []
         
-        ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
-        #ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
-        l1Decoder.ctpUnpacker = ctpUnpacker
-        
-        emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-        emUnpacker.ThresholdToChainMapping = ["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
-        
-        muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
-        muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU8 : HLT_mu8", "MU8 : HLT_2mu8",  "MU8 : HLT_mu8_e8",  "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
-        
-        l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
+        if (TriggerFlags.CombinedSlice.signatures() or TriggerFlags.EgammaSlice.signatures()) and self.doEgammaChains:
+            chains += TriggerFlags.EgammaSlice.signatures() 
+        else:
+            self.doEgammaChains   = False
 
-        #print l1Decoder
-        #_L1UnpackingSeq += l1Decoder
-        print l1Decoder
-
-        return l1Decoder
+        if len(chains) == 0:
+            log.warning("There seem to be no chains in the menu - please check")
+        else:
+            log.debug("The following chains were found in the menu %s", chains)
+            
+        return chains 
+                                
 
 
-    def allChains(self):
-        # muon chains
-        muStep1 = muStep1Sequence()
-        muStep2 = muStep2Sequence()
-        MuChains  = [
-            Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,step1mu20())]),
-                                                                 ChainStep("Step2_mu20", [SequenceHypoTool(muStep2,step2mu20())]) ] ),            
-            Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,step1mu8())] ),
-                                                                 ChainStep("Step2_mu8",  [SequenceHypoTool(muStep2,step2mu8())]) ] )
-            ]
-        #electron chains
-        elStep1 = elStep1Sequence()
-        elStep2 = elStep2Sequence()
-        ElChains  = [
-            Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,step1e20())]),
-                                                                ChainStep("Step2_e20",  [SequenceHypoTool(elStep2,step2e20())]) ] )
-            ]
-        # combined chain
-        muelStep1 = combStep1Sequence()
-        muelStep2 = combStep2Sequence()
-        CombChains =[
-            Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1, step1mu8_e8())]),
-                                                                      ChainStep("Step2_mu8_e8",  [SequenceHypoTool(muelStep2, step2mu8_e8())]) ] )
-            ]
+    def generateL1Topo(self):
+        """
+        == Generates the L1Topo menu
+        """
+        if not TriggerFlags.readL1TopoConfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
+            log.info('Generating L1 topo configuration for %s' % TriggerFlags.triggerMenuSetup())
+            from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
+            self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile() )
+            # build the menu structure
+            self.trigConfL1Topo.generateMenu()        
+            log.info('Topo Menu has %i trigger lines' % len(self.trigConfL1Topo.menu) )
+            # write xml file
+            self.trigConfL1Topo.writeXML()
+        elif TriggerFlags.readLVL1configFromXML():
+            log.info("ReadingL1TopocofnigFromXML currently not implemented")
+        else:
+            log.info("Doing nothing with L1Topo menu configuration...")
 
-        _allChains = MuChains + ElChains + CombChains
-        return _allChains
+    def generateLVL1(self):
+        """
+        == Generates the LVL1 menu
+        """
+        if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
+            log.info('Generating L1 configuration for %s' % TriggerFlags.triggerMenuSetup() )
+            from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
+            self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile())
+            # build the menu structure
+            self.trigConfL1.generateMenu()        
+            log.info('Menu has %i items' % len(self.trigConfL1.menu.items) )
+            # write xml file
+            self.trigConfL1.writeXML()
+        elif TriggerFlags.readLVL1configFromXML():
+            log.info("ReadingLVL1cofnigFromXML currently not implemented")
+        else:
+            log.info("Doing nothing with L1 menu configuration...")
+                       
 
+
+    def setupMenu(self):
+        # go over the slices and put together big list of signatures requested
+        #(L1Prescales, HLTPrescales, streamConfig) = lumi(self.triggerPythonConfig)
+        (self.L1Prescales, self.HLTPrescales) = lumi(self.triggerConfigHLT)
+        return (self.HLTPrescales)
+
+
+
+    def generateChainConfigs(self):
+
+        # get all chain names from menu 
+        log.debug ("getting chains from Menu")
+        chainsInMenu = self.getChainsFromMenu()
+
+        # decoding of the chain name
+        decodeChainName = DictFromChainName.DictFromChainName()
+        
+        chainCounter = 0
+        for chain in chainsInMenu:
+            log.debug("Currently processing chain: %s ", chain) 
+            chainDict = decodeChainName.getChainDict(chain)
+            chainCounter += 1
+            chainDict['chainCounter'] = chainCounter
+
+            log.debug("Next: getting chain configuration for chain %s ", chain) 
+            chainConfig= self.getChainConfig(chainDict)
+
+            log.debug("Finished with retrieving chain configuration for chain %s", chain) 
+            self.triggerConfigHLT.allChainConfigs.append(chainConfig)
+            
+        return self.triggerConfigHLT.allChainConfigs
 
 
     #----------------------#
     # Menu generation #
     #----------------------#
     def generateMT(self):
+        """
+        == Generates L1, L1Topo and HLT menu
+        """
         log.info('GenerateMenuMT.py:generateMT ')
-
-        topSequence = AlgSequence()
-        TopHLTRootSeq = seqAND("TopHLTRootSeq") 
-        topSequence += TopHLTRootSeq
         
-        #----------------------#
-        # L1 menu generation #
-        #----------------------#
-        self.writeLvl1EmuFiles()
-        Lvl1UnpackingSeq = parOR("L1UnpackingSeq")
-        Lvl1UnpackingSeq += Lvl1Decoder()
-        log.info('Lvl1UnpackingSeq: %s', Lvl1UnpackingSeq  )
-        TopHLTRootSeq += L1UnpackingSeq
+        # --------------------------------------------------------------------
+        # L1 menu generation 
+        # - from the code, from DB and from xmls (if we want to maintain this)
+        # currently implementing the generation from configuration code
+        # --------------------------------------------------------------------
+        #generateL1Topo()
+        #generateLVL1()
 
-        #----------------------#
-        # HLT menu generation #
-        #----------------------#
-        nsetps = 2 
-
-        HLTAllStepsSeq = seqAND("HLTAllStepsSeq")
-        TopHLTRootSeq += HLTAllStepsSeq
         
-        group_of_chains = allChains()
-        print 'all Chains ', allChains()
-        decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
+        # --------------------------------------------------------------------
+        # HLT menu generation 
+        # --------------------------------------------------------------------
+        finalListOfChainConfigs = self.generateChainConfigs()
+        log.debug("Length of FinalListofChainConfigs %s", len(finalListOfChainConfigs))
 
- 
+        log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
+        for cc in finalListOfChainConfigs:
+            log.debug('ChainName %s', cc.name)
+            log.debug('  L1Seed %s', cc.seed)
+            log.debug('  ChainSteps %s', cc.steps)
+            for step in cc.steps:
+                print step
 
- 
+        makeHLTTree(finalListOfChainConfigs)
+            

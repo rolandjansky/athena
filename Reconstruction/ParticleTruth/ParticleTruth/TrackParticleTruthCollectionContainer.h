@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLETRUTH_TRKPARTICLETRUTHCOLLECTIONCONT_H
@@ -10,7 +10,7 @@
   @author Jiri.Masik@cern.ch
 */
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 
 typedef DataVector<TrackParticleTruthCollection> TrackParticleTruthCollectionContainer;

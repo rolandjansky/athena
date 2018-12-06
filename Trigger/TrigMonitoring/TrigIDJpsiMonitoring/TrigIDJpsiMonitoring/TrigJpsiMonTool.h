@@ -9,8 +9,6 @@
 #ifndef TRIGIDJPSIMONITORING_TRIGJPSIMONTOOL_H
 #define TRIGIDJPSIMONITORING_TRIGJPSIMONTOOL_H
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 
 #include "TrigInDetAnalysis/TrackFilter.h"

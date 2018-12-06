@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TriggerAnalysisTutorial.cxx 792124 2017-01-13 17:55:55Z ssnyder $
 
 // System include(s):
 #include <iomanip>

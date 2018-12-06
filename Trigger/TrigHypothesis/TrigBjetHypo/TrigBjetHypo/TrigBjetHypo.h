@@ -16,7 +16,7 @@
 #define TRIGBJETHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TrigEFBjetContainer;
 class TrigTimerSvc;
@@ -25,6 +25,7 @@ class TriggerElement;
 /**
  * @brief Hypo class for HLT b-jet selection.
  *
+ * @author John Alison <johnda@uchicago.edu>
  * @author Andrea Coccaro <Andrea.Coccaro@ge.infn.it>
  *
  * This is the base hypothesis class for the b-jet selection. 
@@ -78,6 +79,8 @@ class TrigBjetHypo : public HLT::HypoAlgo {
   float m_xcutCHI2;
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
   float m_xcutMV2c20;
+  float m_xcutMV2c10;
+  float m_xcutMV2c10_hybrid;
 
   /** @brief DeclareProperty: string corresponding to the trigger level in which the algorithm is running. */
   std::string m_instance;
@@ -85,12 +88,16 @@ class TrigBjetHypo : public HLT::HypoAlgo {
   /** @brief to check the beam spot flag status. */
   bool m_useBeamSpotFlag;
 
+  /** @brief Overide the requirement that the BS is valid. */
+  /** @brief Used to not apply the correction to the GSC chains */
+  bool m_overRideBeamSpotValid;
+  
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   float m_monitorMethod;
 
   /** @brief Cut counter. */
   int m_cutCounter;
-
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
 #endif

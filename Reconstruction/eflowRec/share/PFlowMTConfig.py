@@ -149,6 +149,44 @@ PFClusterMomentsMaker.MomentsNames = [
 
 PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
 
+
+from eflowRec.eflowRecFlags import jobproperties
+
+if jobproperties.eflowRecFlags.useCalibHitTruth:
+
+   PFMomentCalculatorTool.UseCalibHitTruth=True
+
+   from CaloCalibHitRec.CaloCalibHitRecConf import CaloCalibClusterMomentsMaker2
+   PFCalibClusterMomentsMaker = CaloCalibClusterMomentsMaker2("PFCalibClusterMomentsMaker")
+   PFCalibClusterMomentsMaker.MomentsNames = ["ENG_CALIB_TOT"
+                                              ,"ENG_CALIB_OUT_L"
+                                              ,"ENG_CALIB_EMB0"
+                                              ,"ENG_CALIB_EME0"
+                                              ,"ENG_CALIB_TILEG3"
+                                              ,"ENG_CALIB_DEAD_TOT"
+                                              ,"ENG_CALIB_DEAD_EMB0"
+                                              ,"ENG_CALIB_DEAD_TILE0"
+                                              ,"ENG_CALIB_DEAD_TILEG3"
+                                              ,"ENG_CALIB_DEAD_EME0"
+                                              ,"ENG_CALIB_DEAD_HEC0"
+                                              ,"ENG_CALIB_DEAD_FCAL"
+                                              ,"ENG_CALIB_DEAD_LEAKAGE"
+                                              ,"ENG_CALIB_DEAD_UNCLASS"
+                                              ,"ENG_CALIB_FRAC_EM"
+                                              ,"ENG_CALIB_FRAC_HAD"
+                                              ,"ENG_CALIB_FRAC_REST"]
+
+   PFCalibClusterMomentsMaker.CalibrationHitContainerNames = ["LArCalibrationHitInactive"
+                                                              ,"LArCalibrationHitActive"
+                                                              ,"TileCalibHitActiveCell"
+                                                              ,"TileCalibHitInactiveCell"]
+   PFCalibClusterMomentsMaker.DMCalibrationHitContainerNames = ["LArCalibrationHitDeadMaterial"
+                                                                ,"TileCalibHitDeadMaterial"]
+
+   PFMomentCalculatorTool.CaloCalibClusterMomentsMaker2=PFCalibClusterMomentsMaker
+
+   
+                                           
 from eflowRec.eflowRecConf import PFClusterCollectionTool
 PFClusterCollectionTool_default = PFClusterCollectionTool("PFClusterCollectionTool")
 
@@ -187,13 +225,11 @@ topSequence += PFAlgorithm
 from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
 PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
 
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool        
-PFlowTrackVertexAssociationTool = CP__TightTrackVertexAssociationTool(name="PFlowTightCPTool", dzSinTheta_cut=2.0, doPV=True)
-PFOChargedCreatorAlgorithm.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
-
 topSequence += PFOChargedCreatorAlgorithm
 
 from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
 PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
-
+if jobproperties.eflowRecFlags.useCalibHitTruth:
+   PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
+   
 topSequence += PFONeutralCreatorAlgorithm

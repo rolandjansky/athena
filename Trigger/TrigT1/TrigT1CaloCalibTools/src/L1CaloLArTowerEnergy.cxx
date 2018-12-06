@@ -14,7 +14,7 @@ namespace LVL1{
     m_LArOnlineHelper(nullptr),
     m_ttService(nullptr),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-    m_badChannelTool("LArBadChanTool"),
+    m_badChannelTool("LArBadChanLegacyTool"),
     m_larCablingSvc("LArCablingService"),
     m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
   {

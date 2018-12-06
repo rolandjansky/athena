@@ -37,9 +37,9 @@ class RCUTest
   : public Athena::IRCUSvc
 {
 public:
-  virtual void add (Athena::IRCUObject*) override { std::abort(); }
-  virtual StatusCode remove (Athena::IRCUObject*) override { std::abort(); }
-  virtual size_t getNumSlots() const override { std::abort(); }
+  virtual void add (Athena::IRCUObject*) override {  }
+  virtual StatusCode remove (Athena::IRCUObject*) override { return StatusCode::SUCCESS; }
+  virtual size_t getNumSlots() const override { return 1; }
   virtual unsigned long addRef()override { std::abort(); }
   virtual unsigned long release() override { std::abort(); }
   virtual StatusCode queryInterface( const InterfaceID&, void** ) override { std::abort(); }
@@ -47,83 +47,76 @@ public:
 };
 
 
+EventIDBase runlbn (int run, int lbn)
+{
+  return EventIDBase (run,
+                      EventIDBase::UNDEFEVT,  // event
+                      EventIDBase::UNDEFNUM,  // timestamp
+                      EventIDBase::UNDEFNUM,  // timestamp ns
+                      lbn);
+}
+
+
+EventIDBase timestamp (int t)
+{
+  return EventIDBase (EventIDBase::UNDEFNUM,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      t);
+}
+
+
 class CondContTest
   : public CondContBase
 {
 public:
-  CondContTest (int nlbn, int nts)
-    : CondContBase (m_rcu, 123, m_id, nullptr),
-      m_nlbn(nlbn), m_nts (nts)
-  {}
-  
-  virtual const DataObjID& id() const override { std::abort(); }
-  virtual SG::DataProxy* proxy() override { std::abort(); }
-  virtual void setProxy(SG::DataProxy*) override { std::abort(); }
-  virtual void list (std::ostream&) const override { std::abort(); }
-  virtual size_t entries() const override { std::abort(); }
-  virtual std::vector<EventIDRange> ranges() const override { std::abort(); }
-  virtual StatusCode typelessInsert (const EventIDRange&,
-                                     void*,
-                                     const EventContext& = Gaudi::Hive::currentContext()) override { std::abort(); }
-  virtual bool valid( const EventIDBase&) const override { std::abort(); }
-  virtual bool range (const EventIDBase&, EventIDRange&) const override { std::abort(); }
-  virtual void erase (const EventIDBase&,
-                      const EventContext& = Gaudi::Hive::currentContext()) override { std::abort(); }
-  virtual void quiescent (const EventContext& = Gaudi::Hive::currentContext()) override { std::abort(); }
-  virtual const void* findByCLID (CLID,
-                                  const EventIDBase&,
-                                  EventIDRange const**) const override { std::abort(); }
-
-  virtual size_t nInserts() const override { return 0; }
-  virtual size_t maxSize() const override { return 0; }
-
-  
-  virtual size_t entriesRunLBN() const override
+  static void delfcn (const void*) {}
+  CondContTest (Athena::IRCUSvc& rcusvc, const DataObjID& id, int n,
+                CondContBase::KeyType keyType)
+    : CondContBase (rcusvc, 123, id, nullptr, delfcn, 0),
+      m_n (n)
   {
-    return m_nlbn;
-  }
-
-  virtual size_t entriesTimestamp() const override
-  {
-    return m_nts;
+    // Do a dummy insert to set the key type.
+    EventIDRange r;
+    switch (keyType) {
+    case CondContBase::KeyType::RUNLBN:
+      r = EventIDRange (runlbn (10, 2), runlbn (10, 10));
+      break;
+    case CondContBase::KeyType::TIMESTAMP:
+      r = EventIDRange (timestamp (100), timestamp (200));
+      break;
+    default:
+      std::abort();
+    }
+    assert (typelessInsert (r, nullptr));
   }
   
-  virtual size_t trimRunLBN (const std::vector<key_type>& keys) override
+  virtual const void* doCast (CLID /*clid*/, const void* /*ptr*/) const override
+  { std::abort(); }
+  
+  virtual size_t entries() const override
   {
-    m_keysRunLBN.push_back (keys);
+    return m_n;
+  }
+
+  virtual size_t trim (const std::vector<key_type>& keys) override
+  {
+    m_keys.push_back (keys);
     return 1;
   }
   
-  virtual size_t trimTimestamp (const std::vector<key_type>& keys) override
-  {
-    m_keysTimestamp.push_back (keys);
-    return 1;
-  }
 
-
-  size_t nkeysRunLBN() const { return m_keysRunLBN.size(); }
-  size_t nkeysTimestamp() const { return m_keysTimestamp.size(); }
-  std::vector<key_type> keysRunLBN()
+  size_t nkeys() const { return m_keys.size(); }
+  std::vector<key_type> keys()
   {
-    std::vector<key_type> v = m_keysRunLBN.front();
-    m_keysRunLBN.pop_front();
-    return v;
-  }
-  std::vector<key_type> keysTimestamp()
-  {
-    std::vector<key_type> v = m_keysTimestamp.front();
-    m_keysTimestamp.pop_front();
+    std::vector<key_type> v = m_keys.front();
+    m_keys.pop_front();
     return v;
   }
 
   
 private:
-  RCUTest m_rcu;
-  DataObjID m_id;
-  int m_nlbn;
-  int m_nts;
-  std::list<std::vector<key_type> > m_keysRunLBN;
-  std::list<std::vector<key_type> > m_keysTimestamp;
+  int m_n;
+  std::list<std::vector<key_type> > m_keys;
 };
 
 
@@ -149,9 +142,12 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
 {
   typedef CondContBase::key_type key_type;
 
+  RCUTest rcu;
+  DataObjID id;
+
   std::cout << "test1\n";
-  CondContTest cc1 (10, 0);
-  CondContTest cc2 (0, 10);
+  CondContTest cc1 (rcu, id, 10, CondContBase::KeyType::RUNLBN);
+  CondContTest cc2 (rcu, id, 10, CondContBase::KeyType::TIMESTAMP);
 
   assert( svc.event (makeCtx(0), false).isSuccess() );
   assert( svc.event (makeCtx(1), false).isSuccess() );
@@ -163,31 +159,25 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
   assert( svc.event (makeCtx(4), false).isSuccess() );
   assert( svc.event (makeCtx(3), false).isSuccess() );
 
-  assert (cc1.nkeysRunLBN() == 0);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 0);
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 0);
 
   assert( svc.event (makeCtx(201), false).isSuccess() );
   // 1 1 4 3 201
-  assert (cc1.nkeysRunLBN() == 0);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 1);
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 1);
   //for (key_type k : cc2.keysTimestamp()) std::cout << k << " ";
   //std::cout << "\n";
-  assert (cc2.keysTimestamp() == (std::vector<key_type> { 0, 2001, 2003, 2004, 2201 }));
+  assert (cc2.keys() == (std::vector<key_type> { 0, 2001, 2003, 2004, 2201 }));
 
   assert( svc.event (makeCtx(301), false).isSuccess() );
   // 1 4 3 201 301
-  assert (cc1.nkeysRunLBN() == 1);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 0);
-  assert (cc1.keysRunLBN() == (std::vector<key_type> { 0, 1001, 1003, 1004, 1201, 1301 }));
+  assert (cc1.nkeys() == 1);
+  assert (cc2.nkeys() == 0);
+  assert (cc1.keys() == (std::vector<key_type> { 0, 1001, 1003, 1004, 1201, 1301 }));
 
-  CondContTest cc3 (10, 0);
-  CondContTest cc4 (0, 10);
+  CondContTest cc3 (rcu, id, 10, CondContBase::KeyType::RUNLBN);
+  CondContTest cc4 (rcu, id, 10, CondContBase::KeyType::TIMESTAMP);
 
   assert( svc.condObjAdded (makeCtx(300), cc1).isSuccess() );
   assert( svc.condObjAdded (makeCtx(303), cc2).isSuccess() );
@@ -196,29 +186,23 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
 
   assert( svc.event (makeCtx(401), false).isSuccess() );
   // 4 3 201 301 401
-  assert (cc1.nkeysRunLBN() == 1);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc3.nkeysRunLBN() == 1);
-  assert (cc4.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 1);
-  assert (cc3.nkeysTimestamp() == 0);
-  assert (cc4.nkeysTimestamp() == 0);
-  assert (cc1.keysRunLBN() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
-  assert (cc2.keysTimestamp() == (std::vector<key_type> { 0, 2003, 2004, 2201, 2301, 2401 }));
-  assert (cc3.keysRunLBN() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
+  assert (cc1.nkeys() == 1);
+  assert (cc2.nkeys() == 1);
+  assert (cc3.nkeys() == 1);
+  assert (cc4.nkeys() == 0);
+  assert (cc1.keys() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
+  assert (cc2.keys() == (std::vector<key_type> { 0, 2003, 2004, 2201, 2301, 2401 }));
+  assert (cc3.keys() == (std::vector<key_type> { 0, 1003, 1004, 1201, 1301, 1401 }));
 
   assert( svc.event (makeCtx(430), false).isSuccess() );
   // 3 201 301 401 430
-  assert (cc1.nkeysRunLBN() == 0);
-  assert (cc2.nkeysRunLBN() == 0);
-  assert (cc3.nkeysRunLBN() == 0);
-  assert (cc4.nkeysRunLBN() == 0);
-  assert (cc1.nkeysTimestamp() == 0);
-  assert (cc2.nkeysTimestamp() == 0);
-  assert (cc3.nkeysTimestamp() == 0);
-  assert (cc4.nkeysTimestamp() == 1);
-  assert (cc4.keysTimestamp() == (std::vector<key_type> { 0, 2003, 2201, 2301, 2401, 2430 }));
+  assert (cc1.nkeys() == 0);
+  assert (cc2.nkeys() == 0);
+  assert (cc3.nkeys() == 0);
+  assert (cc4.nkeys() == 1);
+  assert (cc4.keys() == (std::vector<key_type> { 0, 2003, 2201, 2301, 2401, 2430 }));
+
+  assert (svc.reset().isSuccess());
 }
 
 
@@ -240,8 +224,6 @@ public:
   virtual StatusCode selectStore( size_t ) override { std::abort(); }
   virtual StatusCode clearStore( size_t ) override { std::abort(); }
   virtual StatusCode setNumberOfStores( size_t ) override { std::abort(); }
-  virtual void addNewDataObjects( DataObjIDColl& ) override { std::abort(); }
-  virtual DataObjIDColl getNewDataObjects() override { std::abort(); }
   virtual bool exists( const DataObjID& ) override { std::abort(); }
   virtual size_t allocateStore( int ) override { std::abort(); }
   virtual StatusCode freeStore( size_t ) override { std::abort(); }
@@ -607,6 +589,7 @@ void Tester::event_loop (CCS& ccs, const std::vector<size_t>& evnums)
 void threaded_test (Athena::IConditionsCleanerSvc& cleaner,
                     Athena::IRCUSvc& rcu)
 {
+  assert (cleaner.reset().isSuccess());
   std::vector<size_t> evnums (nevt);
   for (size_t i = 0; i < nevt; i++) {
     evnums[i] = i;

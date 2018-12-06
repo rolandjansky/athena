@@ -65,10 +65,10 @@ namespace Analysis
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_trackToVertexTool("Reco::TrackToVertex"),
-      m_muonSelectorTool("JVC_MuonSelectorTool"),
-      m_likelihoodTool("Analysis::NewLikelihoodTool"),
-      m_SVmuonFinder("InDet::InDetSVWithMuonTool/findSVwithMuon"),
+      m_trackToVertexIPEstimator(this),
+      m_muonSelectorTool("JVC_MuonSelectorTool", this),
+      m_likelihoodTool("Analysis::NewLikelihoodTool", this),
+      m_SVmuonFinder("InDet::InDetSVWithMuonTool/findSVwithMuon", this),
       m_histoHelper(0)
   {
     declareInterface<ITagTool>(this);
@@ -86,8 +86,7 @@ namespace Analysis
     declareProperty("TaggingAlgType", m_algMode                = "L1D");
     declareProperty("BTagJetPTmin",   m_pTjetmin               = 15.*Gaudi::Units::GeV);
     declareProperty("BTagJetEtamin",  m_etajetmin              = 2.7);
-    declareProperty("LikelihoodTool", m_likelihoodTool=nullptr);
-    declareProperty("TrackToVertexTool"       , m_trackToVertexTool=nullptr);
+    declareProperty("LikelihoodTool", m_likelihoodTool);
     declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);   
     declareProperty("muonSelectorTool", 	m_muonSelectorTool);
     declareProperty("checkOverflows", m_checkOverflows         = false);

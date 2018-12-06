@@ -112,21 +112,33 @@ if __name__=="__main__":
 
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.Files = ["myESD.pool.root"]
+    ConfigFlags.Output.ESDFileName="esdOut.pool.root"
     ConfigFlags.lock()
 
-    cfg=ComponentAccumulator()
-
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    #cfg=ComponentAccumulator()
+    cfg=MainServicesSerialCfg() 
     cfg.merge(PoolReadCfg(ConfigFlags))
     
+    theKey="CaloCalTopoClustersNew"
+
     topoAcc,topoAlg=CaloTopoClusterCfg(ConfigFlags)
-    topoAlg.ClustersOutputName="CaloCalTopoClustersNew" 
+    topoAlg.ClustersOutputName=theKey
     
     cfg.merge(topoAcc)
-    cfg.addEventAlgo(topoAlg)
-              
+    cfg.addEventAlgo(topoAlg,sequenceName="AthAlgSeq")
 
-    f=open("CaloTopoCluster.pkl","w")
-    cfg.store(f)
-    f.close()
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"ESD", ItemList=["xAOD::CaloClusterContainer#"+theKey,
+                                                            "xAOD::CaloClusterAuxContainer#"+theKey+"Aux.",
+                                                            "CaloClusterCellLinkContainer#"+theKey+"_links"]))
+
+  
+    cfg.getService("StoreGateSvc").Dump=True
+
+    cfg.run()
+    #f=open("CaloTopoCluster.pkl","w")
+    #cfg.store(f)
+    #f.close()
     

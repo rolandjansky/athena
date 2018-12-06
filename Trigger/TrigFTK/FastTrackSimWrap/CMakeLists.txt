@@ -31,7 +31,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Event/EventPrimitives
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelCabling
                           InnerDetector/InDetDetDescr/SCT_Cabling

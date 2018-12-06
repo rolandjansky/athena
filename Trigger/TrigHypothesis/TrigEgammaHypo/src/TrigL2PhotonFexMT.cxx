@@ -60,7 +60,7 @@ StatusCode TrigL2PhotonFexMT::execute()
 				   std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputPhotonsKey );
-  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
+  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
 
 
   auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);

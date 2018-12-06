@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -28,11 +28,9 @@ class StoreGateSvc;
 #include "CaloIdentifier/CaloGain.h"
 
 #include "StoreGate/DataHandle.h"
-#include "LArElecCalib/ILArOFC_Shape.h"
 #include "LArElecCalib/ILArAutoCorr.h" 
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArElecCalib/ILArAdc2GeV.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArfSampl.h"
 #include "LArElecCalib/ILArMinBias.h"
@@ -41,6 +39,10 @@ class StoreGateSvc;
 #include "LArElecCalib/ILArADC2MeVTool.h" 
 
 #include "TileConditions/TileInfo.h"
+#include "TileConditions/ITileCellNoiseTool.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCondIdTransforms.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "LArRecEvent/LArCell.h"
@@ -138,12 +140,24 @@ private:
   std::string     m_tileInfoName;
   const TileInfo* m_tileInfo;
 
+  ToolHandle<ITileCellNoiseTool> m_tileCellNoise{this,
+      "TileCellNoiseTool", "TileCellNoiseTool", "Tile Cell noise tool"};
+
+  ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+      "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
+  ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
+      "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};
+
+  ToolHandle<TileCondIdTransforms> m_tileIdTransforms{this,
+      "TileCondIdTransforms", "TileCondIdTransforms",
+      "Tile tool to tranlate hardware identifiers to the drawerIdx, channel, and adc"};
+
 //Database  
 
   bool m_retrieve[15];
 
   float  m_Adc2MeVFactor;
-  const  DataHandle<ILArAdc2GeV> m_dd_adc2gev;
   double m_AdcPerMev;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
 
@@ -159,7 +173,6 @@ private:
   ILArAutoCorr::AutoCorrRef_t m_AutoCorr;
   float m_c[32][32];
 
-  const DataHandle<ILArOFC_Shape> m_detDHOFC ;
   ToolHandle<ILArOFCTool> m_OFCTool;
   ILArOFCTool::OFCRef_t m_OFC;
    
@@ -186,7 +199,7 @@ private:
   bool m_isMC;
   bool m_loadAtBegin; // load constant at BeginRun time.
  
-  std::string m_keyNoise, m_keyPedestal, m_keyADC2GeV, m_keyOFShape, m_keyAutoCorr;
+  std::string m_keyNoise, m_keyPedestal, m_keyAutoCorr;
   std::string m_keyShape, m_keyfSampl, m_keyMinBias;
 
   unsigned int m_Nmessages_forTilePileUp;

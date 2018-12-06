@@ -5,6 +5,7 @@
 #include "../KinematicParticleFilter.h"
 #include "../CosmicEventFilterTool.h"
 #include "../GenericParticleOrderingTool.h"
+#include "../ParticleKillerSimTool.h"
 
 DECLARE_COMPONENT( ISF::ParticleHelper )
 DECLARE_COMPONENT( ISF::MemoryMonitoringTool )
@@ -13,4 +14,4 @@ DECLARE_COMPONENT( ISF::EntryLayerFilter )
 DECLARE_COMPONENT( ISF::KinematicParticleFilter )
 DECLARE_COMPONENT( ISF::CosmicEventFilterTool )
 DECLARE_COMPONENT( ISF::GenericParticleOrderingTool )
-
+DECLARE_COMPONENT( ISF::ParticleKillerSimTool )

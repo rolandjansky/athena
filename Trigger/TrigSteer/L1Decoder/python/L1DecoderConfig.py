@@ -5,32 +5,40 @@
 
 def L1DecoderCfg(flags):
     flags.dump()
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-    from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
+    from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()
+    decoderAlg.Chains = recordable("L1Seeds")
     decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 
 
-    decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = "EMRoIDecisions",
-                                                      OutputTrigRoIs = "EMRoIs",
+    decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = recordable("L1EM"),
+                                                      OutputTrigRoIs = recordable("EMRoIs"),
                                                       MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
 
-    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "METRoIDecisions",
-                                                      OutputTrigRoI = "METRoI") ]
+    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = recordable("L1MET")) ]
 
-    from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
-    acc.merge(TGCCablingConfig(flags ))
-    acc.merge(RPCCablingConfig(flags ))
-    decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
-                                                      OutputTrigRoIs = "MURoIs",
+    decoderAlg.roiUnpackers += [JRoIsUnpackingTool( Decisions = recordable("L1J"),
+                                                      OutputTrigRoIs = recordable("JETRoI")) ]
+
+
+    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg    
+    acc.mergeAll( TGCCablingConfigCfg( flags ) )
+    acc.mergeAll( RPCCablingConfigCfg( flags ) )
+    decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = recordable("L1MU"),
+                                                      OutputTrigRoIs = recordable("MURoIs"),
                                                       MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
     
+
+
+
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
 
@@ -46,6 +54,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     acc, alg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(alg)
+
     f=open("L1DecoderConf.pkl","w")
     acc.store(f)
     f.close()

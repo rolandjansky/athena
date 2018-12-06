@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibAlgs/TileLaserLinearityCalibTool.h"
@@ -11,12 +11,12 @@
 
 
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -36,7 +36,6 @@ TileLaserLinearityCalibTool::TileLaserLinearityCalibTool(const std::string& type
   m_tileHWID (nullptr),
   m_cabling (nullptr),
   m_tileToolEmscale("TileCondToolEmscale"),
-  m_beamInfo (nullptr),
   m_toolRunNo(0),
   m_ADC_problem(0),
   m_las_filter(0),
@@ -84,6 +83,7 @@ TileLaserLinearityCalibTool::TileLaserLinearityCalibTool(const std::string& type
   declareProperty("toolNtuple", m_toolNtuple="h3000");
   declareProperty("rawChannelContainer", m_rawChannelContainerName="");
   declareProperty("laserObjContainer", m_laserContainerName="");
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
 
 TileLaserLinearityCalibTool::~TileLaserLinearityCalibTool()
@@ -193,7 +193,8 @@ StatusCode TileLaserLinearityCalibTool::initialize()
 
   m_cabling = TileCablingService::getInstance();
 
-  ATH_CHECK( toolSvc()->retrieveTool("TileBeamInfoProvider",m_beamInfo) );
+  CHECK( m_dqStatusKey.initialize() );
+
   return StatusCode::SUCCESS;  
 }       
 
@@ -219,6 +220,9 @@ StatusCode TileLaserLinearityCalibTool::execute()
 {
   ATH_MSG_INFO ( "execute()" );
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
+
   //
   // Here we analyze a run with filter wheel moving
   // we just keep the information from the first turn of the wheel
@@ -240,7 +244,7 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   // First we got event time (From 1/1/70)
 
-  const uint32_t *cispar = m_beamInfo->cispar();
+  const uint32_t *cispar = dqStatus->cispar();
   
   m_las_time = static_cast<double>(cispar[10])+static_cast<double>(cispar[11])/1000000;
 

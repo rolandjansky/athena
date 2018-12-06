@@ -19,7 +19,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -72,14 +71,11 @@
 
 LArAffectedRegionAlg::LArAffectedRegionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc("LArCablingService"),
-  m_BadChanTool("LArBadChanTool"),
   m_hvtool("LArHVToolMC"),
   m_onlineID(NULL),
   m_metaDataTool("IOVDbMetaDataTool"),
   m_doHV(true)
 {
-  declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("ReadingFromBytestream", m_readingFromBytestream = true);
   declareProperty("doHV",m_doHV,"include HV non nominal regions info");
   declareTool( m_metaDataTool, m_metaDataTool.typeAndName() );
@@ -89,14 +85,10 @@ LArAffectedRegionAlg::LArAffectedRegionAlg(const std::string& name, ISvcLocator*
 StatusCode LArAffectedRegionAlg::initialize() {
   ATH_MSG_INFO ( "initialize()" );
 
-  //-------------- deals with LAr Febs  
-  if (m_larCablingSvc.retrieve().isFailure()) {
-    ATH_MSG_ERROR ( "Could not retrieve LArCablingService Tool" );
-    return StatusCode::FAILURE;
-  }
-
   ATH_CHECK( m_metaDataTool.retrieve() );
   
+  ATH_CHECK( m_cablingKey.initialize());
+
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloIdMgr) );
   ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
@@ -106,18 +98,9 @@ StatusCode LArAffectedRegionAlg::initialize() {
 
   if (m_readingFromBytestream) {
     
-    ATH_CHECK( m_BadChanTool.retrieve() );
-    ATH_MSG_INFO ( m_BadChanTool.propertyName() << ": Retrieved tool " 
-                   << m_BadChanTool.type() );
+    ATH_CHECK( m_BFKey.initialize() );
     
-    StatusCode sc = detStore()->regFcn( &ILArBadChanTool::updateBadFebsFromDB,dynamic_cast<ILArBadChanTool*>(&(*m_BadChanTool)),&LArAffectedRegionAlg::updateMethod,this,true);
-    
-    if (sc.isSuccess())
-      ATH_MSG_INFO ( "Registered callback for LArAffectedRegionAlg/LArAffectedRegionAlg" );
-    else
-      ATH_MSG_WARNING ( "Cannot register Callback function for LArAffectedRegionAlg/LArAffectedRegionAlg" );
   } else {     // Do only when reading ESD/AOD
-    m_BadChanTool.disable();
 
     if (detStore()->contains<CondAttrListCollection>("/LAR/LArAffectedRegionInfo")) {
         const DataHandle<CondAttrListCollection> affectedRegionH;
@@ -819,15 +802,28 @@ void LArAffectedRegionAlg::searchNonNominalHV_FCAL() { // deals with LAr HV, FCA
   } //end status success
 }
 //=========================================================================================
-StatusCode LArAffectedRegionAlg::updateMethod(IOVSVC_CALLBACK_ARGS) { //store informations on the missing Febs w/ range of eta, phi, layer
+StatusCode LArAffectedRegionAlg::updateMethod() { //store informations on the missing Febs w/ range of eta, phi, layer
   ATH_MSG_INFO ( "updateMethod()" );
   
+  SG::ReadCondHandle<LArBadFebCont> bfHdl{m_BFKey};
+  const LArBadFebCont* bfCont{*bfHdl};
+  if(!bfCont) {
+      ATH_MSG_ERROR( "Do not have missing FEBs " << m_BFKey.key() );
+      return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+      ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping");
+      return StatusCode::FAILURE;
+  }
+
   std::vector<HWIdentifier>::const_iterator febid_it=m_onlineID->feb_begin();
   std::vector<HWIdentifier>::const_iterator febid_end_it=m_onlineID->feb_end();
 
   for (;febid_it!=febid_end_it;++febid_it) {
       
-    bool IsMissingFeb=m_BadChanTool->febMissing(*febid_it);
+    bool IsMissingFeb=(bfCont->status(*febid_it).deadAll() || bfCont->status(*febid_it).deadReadout());
     
     if (IsMissingFeb) {       //flag for special treatment for FEB that has non contiguous eta regions, so we have to separate them
       bool is_normal=0; //FEB without discontinuity
@@ -846,8 +842,8 @@ StatusCode LArAffectedRegionAlg::updateMethod(IOVSVC_CALLBACK_ARGS) { //store in
       for (int icha=0;icha<chans_per_feb;icha++) {   //loop on each channel of the relevant FEB
 	HWIdentifier channelId=m_onlineID->channel_Id(*febid_it,icha);
 
-	if (m_larCablingSvc->isOnlineConnected(channelId)) {
-	  Identifier offlineId=m_larCablingSvc->cnvToIdentifier(channelId);
+	if (cabling->isOnlineConnected(channelId)) {
+	  Identifier offlineId=cabling->cnvToIdentifier(channelId);
 	  const CaloDetDescrElement* caloddElement=m_calodetdescrmgr->get_element(offlineId);
 	  
 	  CaloCell_ID::CaloSample current_layer=caloddElement->getSampling(); // calo layer
@@ -975,6 +971,8 @@ StatusCode LArAffectedRegionAlg::execute() {
      }
     }
    
+  }else{
+     ATH_CHECK(updateMethod());
   }
 
   return StatusCode::SUCCESS;
