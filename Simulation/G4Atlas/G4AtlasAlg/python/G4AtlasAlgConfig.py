@@ -4,8 +4,16 @@ from AthenaCommon import CfgMgr
 
 def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
+    ## Killing neutrinos
     if "ATLAS" in simFlags.SimLayout():
         kwargs.setdefault('KillAllNeutrinos',  True)
+    ## Neutron Russian Roulette
+    if hasattr(simFlags, 'RussianRouletteThreshold') and simFlags.RussianRouletteThreshold.statusOn and \
+       hasattr(simFlags, 'RussianRouletteWeight') and simFlags.RussianRouletteWeight.statusOn:
+        if simFlags.CalibrationRun.statusOn:
+            raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
+        kwargs.setdefault('RussianRouletteThreshold',  simFlags.RussianRouletteThreshold.get_Value())
+        kwargs.setdefault('RussianRouletteWeight',  simFlags.RussianRouletteWeight.get_Value())
     kwargs.setdefault('IsISFJob', simFlags.ISFRun())
     return CfgMgr.G4UA__AthenaStackingActionTool(name, **kwargs)
 

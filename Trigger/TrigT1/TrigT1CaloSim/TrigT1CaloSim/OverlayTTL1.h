@@ -84,16 +84,19 @@ private:
   SG::ReadHandleKey<LArTTL1Container> m_EmTTL1MainKey;
   SG::ReadHandleKey<LArTTL1Container> m_HadTTL1MainKey;
   SG::ReadHandleKey<TileTTL1Container> m_TileTTL1MainKey;
+  SG::ReadHandleKey<TileTTL1Container> m_TileMBTSTTL1MainKey;
 
   // locations of overlay TTL1 data
   SG::ReadHandleKey<LArTTL1Container> m_EmTTL1OverlayKey;
   SG::ReadHandleKey<LArTTL1Container> m_HadTTL1OverlayKey;
   SG::ReadHandleKey<TileTTL1Container> m_TileTTL1OverlayKey;
+  SG::ReadHandleKey<TileTTL1Container> m_TileMBTSTTL1OverlayKey;
 
   // locations of output TTL1 data
   SG::WriteHandleKey<LArTTL1Container> m_EmTTL1OutputKey;
   SG::WriteHandleKey<LArTTL1Container> m_HadTTL1OutputKey;
   SG::WriteHandleKey<TileTTL1Container> m_TileTTL1OutputKey;
+  SG::WriteHandleKey<TileTTL1Container> m_TileMBTSTTL1OutputKey;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
@@ -108,13 +111,14 @@ private:
   std::map<std::string, std::vector<LArTTL1*>> m_emTowerMap; 
   std::map<std::string, std::vector<LArTTL1*>> m_hecTowerMap; 
   std::map<std::string, std::vector<TileTTL1*>> m_tileTowerMap; 
+  std::map<std::string, std::vector<TileTTL1*>> m_tileMBTSTowerMap; 
 
   /** fetch Calorimeter Towers */
   StatusCode getTowers();
 
   /** overlay amplitudes from other TTL1 */
   void groupLArTowers(SG::ReadHandle<LArTTL1Container>& towers, std::map<std::string, std::vector<LArTTL1*>> &towerMap);
-  void groupTileTowers(SG::ReadHandle<TileTTL1Container>& towers);
+  void groupTileTowers(SG::ReadHandle<TileTTL1Container>& towers, std::map<std::string, std::vector<TileTTL1*>> &towerMap);
 
   /** Merge tower amplitudes */
   StatusCode mergeTowers();
