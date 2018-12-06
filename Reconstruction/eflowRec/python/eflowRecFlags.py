@@ -106,6 +106,13 @@ class useAODReductionClusterMomentList(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = True
+
+class useCalibHitTruth(JobProperty):
+    """ Flag to toggle use of calibration hit truth, which is off by default because most Monte Carlo samples do not contain the calibration hit truth information
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
     
 # Defines the container for the eflowRec flags
 
@@ -117,7 +124,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

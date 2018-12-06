@@ -16,11 +16,11 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetInterface
    Reconstruction/Jet/JetUtils
    TileCalorimeter/TileConditions
+   LArCalorimeter/LArRecConditions 
    PRIVATE
    Calorimeter/CaloDetDescr
    Calorimeter/CaloEvent
-   Control/AthenaKernel
-   LArCalorimeter/LArRecConditions )
+   Control/AthenaKernel )
 
 # Component(s) in the package:
 atlas_add_library( JetRecCaloLib

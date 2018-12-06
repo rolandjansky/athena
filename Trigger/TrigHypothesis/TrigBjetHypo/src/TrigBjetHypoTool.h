@@ -29,7 +29,7 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 //Not sure if these are needed, thus commeneted
 /* class TrigEFBjetContainer; */
@@ -114,7 +114,7 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
   PublicToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "GenericMonitoringTool/MonTool", "Monitoring tool" };
-
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 
 inline const InterfaceID& TrigBjetHypoTool::interfaceID()

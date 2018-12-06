@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERTIMINGTOOL_H
@@ -52,7 +52,6 @@
 #include <sstream>
 
 class TileHWID;
-class TileBeamInfoProvider;
 class TileRawChannelContainer;
 
 class TFile;
@@ -69,12 +68,12 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     virtual ~TileLaserTimingTool();
 
     // implementation of ITileCalibTool
-    virtual StatusCode initialize();
-    virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile);
-    virtual StatusCode execute();
-    virtual StatusCode finalizeCalculations();
-    virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile);
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode initNtuple(int runNumber, int runType, TFile * rootfile) override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalizeCalculations() override;
+    virtual StatusCode writeNtuple(int runNumber, int runType, TFile * rootfile) override;
+    virtual StatusCode finalize() override;
 
   private:
     /**
@@ -234,7 +233,6 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     // Tools info
     const TileHWID* m_tileHWID;
     const TileCablingService* m_cabling;
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
 
     // jobOptions

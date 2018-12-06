@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigHLTJetHypo_TrigJetHypoAlgMT_H
 #define TrigHLTJetHypo_TrigJetHypoAlgMT_H
@@ -32,8 +32,8 @@ class TrigJetHypoAlgMT : public ::HypoBase {
  private:
 
   StatusCode decide(const xAOD::JetContainer*,
-                    std::unique_ptr<DecisionContainer>& newDecisions,
-                    const DecisionContainer* previousDecisions
+                    std::unique_ptr<TrigCompositeUtils::DecisionContainer>& newDecisions,
+                    const TrigCompositeUtils::DecisionContainer* previousDecisions
 		    /* , */
                     /* const ToolHandle<ITrigJetHypoToolMT>&xs */
 		    ) const;

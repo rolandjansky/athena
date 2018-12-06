@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/AlgSequence.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -32,7 +32,7 @@ class AthSequencer( GaudiSequencerConf.AthSequencer ):
        props = super( AthSequencer, self ).getProperties()
 
        ## correctly display the value of 'Members' by gathering children
-       if props.has_key( 'Members' ):
+       if 'Members' in props:
           props['Members'] = [ c.getFullName() for c in self.getChildren() ]
        return props
 
@@ -74,7 +74,7 @@ if hasattr(GaudiSequencerConf, 'AthRetrySequencer'):
             props = super( AthRetrySequencer, self ).getProperties()
 
             ## correctly display the value of 'Members' by gathering children
-            if props.has_key( 'Members' ):
+            if 'Members' in props:
                 props['Members'] = [ c.getFullName() for c in self.getChildren() ]
             return props
 
@@ -119,7 +119,7 @@ if hasattr(GaudiSequencerConf, 'AthAnalysisSequencer'):
             props = super( AthAnalysisSequencer, self ).getProperties()
 
             ## correctly display the value of 'Members' by gathering children
-            if props.has_key( 'Members' ):
+            if 'Members' in props:
                 props['Members'] = [ c.getFullName() for c in self.getChildren() ]
             return props
 

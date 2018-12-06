@@ -28,6 +28,8 @@
 #include "egammaInterfaces/IegammaCaloClusterSelector.h"
 #include "GaudiKernel/Counters.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloCluster;
 
@@ -98,6 +100,9 @@ private:
   ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector {this, 
       "egammaCaloClusterSelector", "egammaCaloClusterSelector",
       "Tool that makes the cluster selection"};
+
+  // For P->T converters of ID tracks with SCT
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /* counters. For now use mutable atomic
    * the methods will increment a local variable

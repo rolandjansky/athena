@@ -69,7 +69,6 @@
 #include "TrigBjetMonitoring/HLTBjetMonTool.h"
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "GaudiKernel/ListItem.h"
 

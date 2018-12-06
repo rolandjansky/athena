@@ -182,14 +182,6 @@ print L1UnpackingSeq
 
 ########################## L1 #################################################
 
-# Cati's menu code
-#print "=============== MEOW ================"
-#include("TrigUpgradeTest/TriggerMenuMT.py")
-#genMenu = GenerateMenu()
-#genMenu.generate()
-#print "=============== WOOF ================"
-
-
 # steps: sequential AND of 1=Filter 2=Processing
 # chainstep=single chain step
 # global step=joint for all chains

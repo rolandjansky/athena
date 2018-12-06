@@ -640,9 +640,6 @@ if CorrectBadChannels:
    theLArRampPatcher.ContainerKey=KeyOutput
    theLArRampPatcher.PatchMethod="PhiAverage"
    
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-   theLArBadChannelTool=LArBadChanTool()
-   ToolSvc+=theLArBadChannelTool
    theLArRampPatcher.MaskingTool=theLArRCBMasker
    theLArRampPatcher.UseCorrChannels=False      
    topSequence+=theLArRampPatcher

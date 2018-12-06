@@ -77,9 +77,6 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   HLT::ErrorCode hltStart();
 
-  /** Find the impact parameter by extrapolating to either the beam spot or (0,0) **/
-  double findImpact(const xAOD::TrackParticle* track) const;//AT: copied from Offline
-
  private:
 
   // define the properties:
@@ -143,8 +140,7 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   TrigTimer* m_timerPIDTool;
 
   Amg::Vector3D m_primaryVertex; //AT Jan 2010  
-  /** @brief Tool handle for track extrapolation to vertex */   	   	 
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool; //AT Jan 2010
+
 
   void prepareMonitoringVars();
 

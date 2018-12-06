@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecTools/SiSpacePointTool

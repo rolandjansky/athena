@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDetectorFactory.h"
@@ -80,7 +80,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   int nregion = 0;
 
   // -------- -------- MATERIAL MANAGER -------- ----------
-  DataHandle<StoredMaterialManager> theMaterialManager;
+  const StoredMaterialManager* theMaterialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
     (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 

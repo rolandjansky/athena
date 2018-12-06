@@ -189,8 +189,8 @@ void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& errorCodes,
-                                 const eformat::helper::Status firstStatusWord) {
+void HLT::HLTResultMT::setErrorCodes(const std::vector<uint32_t>& errorCodes,
+                                     const eformat::helper::Status firstStatusWord) {
   m_status.clear();
   m_status.push_back(firstStatusWord.code());
   m_status.insert(m_status.end(),errorCodes.cbegin(),errorCodes.cend());
@@ -202,4 +202,53 @@ void HLT::HLTResultMT::addErrorCode(const uint32_t& errorCode,
   if (m_status.empty()) m_status.push_back(firstStatusWord.code());
   else m_status[0] |= firstStatusWord.code();
   m_status.push_back(errorCode);
+}
+
+// =============================================================================
+std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult) {
+  auto printWord = [&str](const uint32_t word, const size_t width=8){
+    str << "0x" << std::hex << std::setw(width) << std::setfill('0') << word << " " << std::dec;
+  };
+  str << "Printing HLTResultMT:" << std::endl;
+
+  // Status
+  str << "--> Status words = ";
+  for (const uint32_t word : hltResult.getStatus()) {
+    printWord(word);
+  }
+  str << std::endl;
+
+  // Stream tags
+  str << "--> Stream tags  = ";
+  bool first = true;
+  for (const eformat::helper::StreamTag& st : hltResult.getStreamTags()) {
+    if (first) first=false;
+    else str << "                   ";
+    str << "{" << st.name << ", " << st.type << ", obeysLB=" << st.obeys_lumiblock << ", robs=[";
+    for (const auto& robid : st.robs) printWord(robid);
+    str << "], dets = [";
+    for (const auto& detid : st.dets) printWord(detid,2);
+    str << "]}" << std::endl;
+  }
+
+  // HLT bits
+  std::vector<uint32_t> hltBitWords;
+  hltBitWords.resize(hltResult.getHltBits().num_blocks());
+  boost::to_block_range(hltResult.getHltBits(),hltBitWords.begin());
+  str << "--> HLT bits     = ";
+  for (const uint32_t word : hltBitWords) {
+    printWord(word);
+  }
+  str << std::endl;
+
+  // Payload size
+  str << "--> Payload size = ";
+  first = true;
+  for (const auto& p : hltResult.getSerialisedData()) {
+    if (first) first=false;
+    else str << "                   ";
+    str << "{module " << p.first << ": " << p.second.size() << " words}" << std::endl;
+  }
+
+  return str;
 }

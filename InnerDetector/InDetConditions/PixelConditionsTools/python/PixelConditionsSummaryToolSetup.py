@@ -1,54 +1,103 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 class PixelConditionsSummaryToolSetup:
-    "Class to simplify setup of PixelConditionsSummaryTool and required conditions algorithms"
+  "Class to simplify setup of PixelConditionsSummaryTool and required conditions algorithms"
 
-    def __init__(self):
-        self.toolName = "PixelConditionsSummaryTool"
-        self.tool = None
-        self.useDCS = False
-        self.useBS = False
-        self.useTDAQ = False
+  def __init__(self):
+    self.toolName = "PixelConditionsSummaryTool"
+    self.tool = None
+    self.useConditions = True
+    self.useDCSState = False
+    self.useByteStream = False
+    self.useTDAQ = False
+    self.useDeadMap = True
 
-    def setUseDCS(self, useDCS):
-        self.useDCS = useDCS
+  def setUseConditions(self, useConditions):
+    self.useConditions = useConditions
 
-    def getUseDCS(self):
-        return self.useDCS
+  def getUseConditions(self):
+    return self.useConditions
 
-    def setUseBS(self, useBS):
-        self.useBS = useBS
+  def setUseDCSState(self, useDCSState):
+    self.useDCSState = useDCSState
 
-    def getUseBS(self):
-        return self.useBS
+  def getUseDCSState(self):
+    return self.useDCSState
 
-    def setUseTDAQ(self, useTDAQ):
-        self.useTDAQ = useTDAQ
+  def setUseByteStream(self, useByteStream):
+    self.useByteStream = useByteStream
 
-    def getUseTDAQ(self):
-        return self.useTDAQ
+  def getUseByteStream(self):
+    return self.useByteStream
 
-    def getTool(self):
-        return self.tool
+  def setUseTDAQ(self, useTDAQ):
+    self.useTDAQ = useTDAQ
 
-    def getToolName(self):
-        return self.toolName
+  def getUseTDAQ(self):
+    return self.useTDAQ
 
-    def setToolName(self, toolName):
-        self.toolName = toolName
+  def setUseDeadMap(self, useDeadMap):
+    self.useDeadMap = useDeadMap
 
-    def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, "PixelDCSConditionsTool"):
-            from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-            pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
-            pixelDCSConditionsToolSetup.setup()
+  def getUseDeadMap(self):
+    return self.useDeadMap
 
-        if not hasattr(ToolSvc, self.toolName):
-            from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-            ToolSvc += PixelConditionsSummaryTool(name=self.toolName, PixelDCSConditionsTool=ToolSvc.PixelDCSConditionsTool, UseDCS=self.useDCS, UseByteStream=self.useBS, UseTDAQ=self.useTDAQ)
-        self.tool = getattr(ToolSvc, self.toolName)
+  def getTool(self):
+    return self.tool
 
-    def setup(self):
-        self.setTool()
+  def getToolName(self):
+    return self.toolName
+
+  def setToolName(self, toolName):
+    self.toolName = toolName
+
+  def setTool(self):
+    from AthenaCommon.AppMgr import ToolSvc
+    from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    if not hasattr(ToolSvc, "PixelDCSConditionsTool"):
+      from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+      pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+      pixelDCSConditionsToolSetup.setUseConditions(self.useConditions)
+      pixelDCSConditionsToolSetup.setup()
+
+    if (self.useTDAQ):
+      PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
+      PixelTDAQInstance = "TDAQ_ONL"
+
+      if not conddb.folderRequested(PixelTDAQFolder):
+        conddb.addFolder(PixelTDAQInstance, PixelTDAQFolder, className="CondAttrListCollection")
+
+      if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
+
+    if (self.useDeadMap):
+      PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
+      PixelDeadMapInstance = "PIXEL_OFL"
+
+      if not conddb.folderRequested(PixelDeadMapFolder):
+        conddb.addFolder(PixelDeadMapInstance, PixelDeadMapFolder, className="CondAttrListCollection")
+
+      if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
+
+      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg", ReadKey=PixelDeadMapFolder)
+
+    if not hasattr(ToolSvc, self.toolName):
+      from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+      ToolSvc += PixelConditionsSummaryTool(name=self.toolName, 
+                                            PixelDCSConditionsTool=ToolSvc.PixelDCSConditionsTool, 
+                                            UseDCSState=self.useDCSState, 
+                                            UseByteStream=self.useByteStream, 
+                                            UseTDAQ=self.useTDAQ, 
+                                            UseDeadMap=self.useDeadMap)
+    self.tool = getattr(ToolSvc, self.toolName)
+
+  def setup(self):
+    self.setTool()
 

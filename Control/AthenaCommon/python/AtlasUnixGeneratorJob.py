@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasUnixGeneratorJob.py
 ## @brief py-module to configure the Athena AppMgr for generator (UNIX) jobs
@@ -7,7 +7,7 @@
 ###############################################################
 
 def _setupAtlasUnixGeneratorJob():
-    import AtlasUnixStandardJob
+    import AtlasUnixStandardJob    # noqa: F401
     from AppMgr import theApp
     from AppMgr import ServiceMgr as svcMgr
 

@@ -32,7 +32,6 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -40,7 +39,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 
 #include <boost/iostreams/filtering_stream.hpp>
@@ -87,7 +86,7 @@ private:
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
-  ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,6 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -83,7 +82,7 @@ static const double DYc=2771.6*tan(Alfa/2);
 
 void
 createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
-                              DataHandle<StoredMaterialManager>& materialManager,
+                              const StoredMaterialManager& materialManager,
                               std::map<std::string, unsigned int>& trdMap,
                               IRDBRecordset& BarrelDMTrds,
                               std::map<std::string, unsigned int>& trapMap,
@@ -170,12 +169,12 @@ createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
   double Spb2ytr = BarrelDMTraps[recordIndex]->getDouble("YTR");
   double Spb2ztr = BarrelDMTraps[recordIndex]->getDouble("ZTR");
 
-  GeoMaterial* matLArServices17  = materialManager->getMaterial("LAr::LArServices17");// 0.035*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices18  = materialManager->getMaterial("LAr::LArServices18");// 0.240*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices19  = materialManager->getMaterial("LAr::LArServices19");// 0.469*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices20  = materialManager->getMaterial("LAr::LArServices20");// 0.353*CLHEP::gram/CLHEP::cm3
-  GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
-  GeoMaterial *air               = materialManager->getMaterial("std::Air"); //0.001214 CLHEP::g/CLHEP::cm3
+  const GeoMaterial* matLArServices17  = materialManager.getMaterial("LAr::LArServices17");// 0.035*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices18  = materialManager.getMaterial("LAr::LArServices18");// 0.240*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices19  = materialManager.getMaterial("LAr::LArServices19");// 0.469*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices20  = materialManager.getMaterial("LAr::LArServices20");// 0.353*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial *alu               = materialManager.getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
+  const GeoMaterial *air               = materialManager.getMaterial("std::Air"); //0.001214 CLHEP::g/CLHEP::cm3
 
   HepGeom::Transform3D Cut3Boxe  = HepGeom::Translate3D(Boxxtr, Boxytr, Boxztr)*HepGeom::RotateX3D(-20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
   HepGeom::Transform3D Cut4Boxe  = HepGeom::Translate3D(Boxxtr, -Boxytr,Boxztr)*HepGeom::RotateX3D(20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
@@ -293,7 +292,7 @@ void
 createBridgeEnvelopesFromDB (GeoFullPhysVol* envelope,
                              std::map<std::string, unsigned int>& trapMap,
                              IRDBRecordset& BarrelDMTraps,
-                             GeoMaterial* matLArServices8,
+                             const GeoMaterial* matLArServices8,
                              GENFUNCTION& f)
 {
   unsigned int recordIndex = trapMap["BridgeE"];
@@ -329,7 +328,7 @@ void
 createBaseEnvelopesFromDB (GeoFullPhysVol* envelope,
                            std::map<std::string, unsigned int>& trdMap,
                            IRDBRecordset& BarrelDMTrds,
-                           GeoMaterial* matLArServices8,
+                           const GeoMaterial* matLArServices8,
                            GENFUNCTION& f)
 {
   unsigned int recordIndex = trdMap["BaseE"];
@@ -358,7 +357,7 @@ createBaseEnvelopesFromDB (GeoFullPhysVol* envelope,
 void createFromDB (GeoFullPhysVol* envelope,
                    IRDBAccessSvc* rdbAccess,
                    IGeoModelSvc* geoModel,
-                   DataHandle<StoredMaterialManager>& materialManager)
+                   const StoredMaterialManager& materialManager)
 {
   // Use Geometry Database
   DecodeVersionKey keyLAr(geoModel,"LAr");
@@ -395,24 +394,24 @@ void createFromDB (GeoFullPhysVol* envelope,
   unsigned int recordIndex;
     
   // Get materials
-  GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
-  GeoMaterial* matBoardsEnvelope = materialManager->getMaterial("LAr::BoardsEnvelope");// 0.932*CLHEP::gram/CLHEP::cm3);
-  GeoMaterial* matLArServices1   = materialManager->getMaterial("LAr::LArServices1");// 1.020*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices2   = materialManager->getMaterial("LAr::LArServices2");// 0.955*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices3   = materialManager->getMaterial("LAr::LArServices3");// 1.005*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices4   = materialManager->getMaterial("LAr::LArServices4");// 0.460*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices5   = materialManager->getMaterial("LAr::LArServices5");// 0.480*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices6   = materialManager->getMaterial("LAr::LArServices6");// 1.000*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices7   = materialManager->getMaterial("LAr::LArServices7");// 0.935*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices8   = materialManager->getMaterial("LAr::LArServices8");// 1.070*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices9   = materialManager->getMaterial("LAr::LArServices9");// 1.020*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices10  = materialManager->getMaterial("LAr::LArServices10");// 0.995*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices11  = materialManager->getMaterial("LAr::LArServices11");// 0.835*CLHEP::gram/CLHEP::cm3 
-  GeoMaterial* matLArServices12  = materialManager->getMaterial("LAr::LArServices12");// 0.640*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices13  = materialManager->getMaterial("LAr::LArServices13");// 0.690*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices14  = materialManager->getMaterial("LAr::LArServices14");// 0.825*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices15  = materialManager->getMaterial("LAr::LArServices15");// 0.875*CLHEP::gram/CLHEP::cm3
-  GeoMaterial* matLArServices16  = materialManager->getMaterial("LAr::LArServices16");// 1.035*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial *alu               = materialManager.getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
+  const GeoMaterial* matBoardsEnvelope = materialManager.getMaterial("LAr::BoardsEnvelope");// 0.932*CLHEP::gram/CLHEP::cm3);
+  const GeoMaterial* matLArServices1   = materialManager.getMaterial("LAr::LArServices1");// 1.020*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices2   = materialManager.getMaterial("LAr::LArServices2");// 0.955*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices3   = materialManager.getMaterial("LAr::LArServices3");// 1.005*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices4   = materialManager.getMaterial("LAr::LArServices4");// 0.460*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices5   = materialManager.getMaterial("LAr::LArServices5");// 0.480*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices6   = materialManager.getMaterial("LAr::LArServices6");// 1.000*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices7   = materialManager.getMaterial("LAr::LArServices7");// 0.935*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices8   = materialManager.getMaterial("LAr::LArServices8");// 1.070*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices9   = materialManager.getMaterial("LAr::LArServices9");// 1.020*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices10  = materialManager.getMaterial("LAr::LArServices10");// 0.995*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices11  = materialManager.getMaterial("LAr::LArServices11");// 0.835*CLHEP::gram/CLHEP::cm3 
+  const GeoMaterial* matLArServices12  = materialManager.getMaterial("LAr::LArServices12");// 0.640*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices13  = materialManager.getMaterial("LAr::LArServices13");// 0.690*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices14  = materialManager.getMaterial("LAr::LArServices14");// 0.825*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices15  = materialManager.getMaterial("LAr::LArServices15");// 0.875*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial* matLArServices16  = materialManager.getMaterial("LAr::LArServices16");// 1.035*CLHEP::gram/CLHEP::cm3
 
   const double inv_Endab = 1. / (Endb - Enda);
   Variable       i;
@@ -659,7 +658,7 @@ void createFromDB (GeoFullPhysVol* envelope,
       double dy1 = DYa + (DYb-DYa)*(radiusMin-Enda)*inv_Endab;
       double dy2 = DYa + (DYb-DYa)*(radiusMax-Enda)*inv_Endab;
       double zpos=0.5*(radiusMax+radiusMin - (Endb+Enda));
-      GeoMaterial *matExtraTdr = materialManager->getMaterial((*BarrelDMRing)[i]->getString("MATERIAL"));
+      const GeoMaterial *matExtraTdr = materialManager.getMaterial((*BarrelDMRing)[i]->getString("MATERIAL"));
 
       //std::cout << " extraTdr: etamin,etamx " << etaMin << " " << etaMax << " thickness " << thicknessExtra << " size in Radius " << (radiusMax-radiusMin)
       //   << " size in R.phi " << dy1*2 << " " << dy2*2 << std::endl;
@@ -688,7 +687,7 @@ void createFromDB (GeoFullPhysVol* envelope,
       int nphi=(*BarrelDMPhiBox)[i]->getInt("NPHI");
       int noHorizontal = (*BarrelDMPhiBox)[i]->getInt("NOHORIZ");
 
-      GeoMaterial* matExtraPPF1 = materialManager->getMaterial((*BarrelDMPhiBox)[i]->getString("MATERIAL"));
+      const GeoMaterial* matExtraPPF1 = materialManager.getMaterial((*BarrelDMPhiBox)[i]->getString("MATERIAL"));
       std::string boxName = "LAr::DM::SectorEnvelopes1::"+(*BarrelDMPhiBox)[i]->getString("BOXNAME");
 
       //std::cout << " extraBox name " << boxName << " eta " << eta << " phi0" << phi0 << " deltaR " << deltaR << " deltaRphi " << deltaRphi
@@ -934,7 +933,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
   DecodeVersionKey larVersionKey(geoModel, "LAr");
   
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in BarrelDMConstruction, stored MaterialManager is not found.");
 
@@ -959,20 +958,20 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   else if(strDMTopTag=="LArBarrelDM-00")
   {
     // Get some standard materials
-    GeoMaterial *air        = materialManager->getMaterial("std::Air");
+    const GeoMaterial *air        = materialManager->getMaterial("std::Air");
     const GeoMaterial *alu        = materialManager->getMaterial("std::Aluminium");
     //const GeoMaterial *c        = materialManager->getMaterial("std::Carbon");
     //const GeoMaterial *cu        = materialManager->getMaterial("std::Copper");
-    GeoMaterial *matXeCO2O2 = materialManager->getMaterial("trt::XeCO2O2");
-    GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel");
-    GeoMaterial *matRubber = materialManager->getMaterial("sct::Rubber");
+    const GeoMaterial *matXeCO2O2 = materialManager->getMaterial("trt::XeCO2O2");
+    const GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel");
+    const GeoMaterial *matRubber = materialManager->getMaterial("sct::Rubber");
     
     // Get required elements
-    GeoElement* silicon = materialManager->getElement("Silicon");
-    GeoElement* oxygen = materialManager->getElement("Oxygen");
-    GeoElement* hydrogen = materialManager->getElement("Hydrogen");
-    GeoElement* carbon = materialManager->getElement("Carbon");
-    GeoElement* copper = materialManager->getElement("Copper");
+    const GeoElement* silicon = materialManager->getElement("Silicon");
+    const GeoElement* oxygen = materialManager->getElement("Oxygen");
+    const GeoElement* hydrogen = materialManager->getElement("Hydrogen");
+    const GeoElement* carbon = materialManager->getElement("Carbon");
+    const GeoElement* copper = materialManager->getElement("Copper");
     
     
     // Define some custom materials - That will move to the GeomDB
@@ -1201,21 +1200,21 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   else if(strDMTopTag=="LArBarrelDM-01" || strDMTopTag=="LArBarrelDM-02")
   {
   // Get some standard materials
-  GeoMaterial *air        = materialManager->getMaterial("std::Air"); //0.001214 CLHEP::g/CLHEP::cm3
-  GeoMaterial *alu        = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
-  GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel"); //8 CLHEP::g/CLHEP::cm3
-  GeoMaterial *matCO2 = materialManager->getMaterial("trt::CO2"); //0.001842 CLHEP::g/CLHEP::cm3
-  GeoMaterial *matKapton = materialManager->getMaterial("std::Kapton"); // 1.42*CLHEP::gram/CLHEP::cm3
-  GeoMaterial *matC3F8 = materialManager->getMaterial("std::C3F8"); //1.032*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial *air        = materialManager->getMaterial("std::Air"); //0.001214 CLHEP::g/CLHEP::cm3
+  const GeoMaterial *alu        = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
+  const GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel"); //8 CLHEP::g/CLHEP::cm3
+  const GeoMaterial *matCO2 = materialManager->getMaterial("trt::CO2"); //0.001842 CLHEP::g/CLHEP::cm3
+  const GeoMaterial *matKapton = materialManager->getMaterial("std::Kapton"); // 1.42*CLHEP::gram/CLHEP::cm3
+  const GeoMaterial *matC3F8 = materialManager->getMaterial("std::C3F8"); //1.032*CLHEP::gram/CLHEP::cm3
 
   // Get required elements
-  GeoElement* silicon = materialManager->getElement("Silicon");
-  GeoElement* oxygen = materialManager->getElement("Oxygen");
-  GeoElement* hydrogen = materialManager->getElement("Hydrogen");
-  GeoElement* carbon = materialManager->getElement("Carbon");
-  GeoElement* copper = materialManager->getElement("Copper");
-  GeoElement* nitrogen = materialManager->getElement("Nitrogen"); 
-  GeoElement* fluorine = materialManager->getElement("Fluorine");
+  const GeoElement* silicon = materialManager->getElement("Silicon");
+  const GeoElement* oxygen = materialManager->getElement("Oxygen");
+  const GeoElement* hydrogen = materialManager->getElement("Hydrogen");
+  const GeoElement* carbon = materialManager->getElement("Carbon");
+  const GeoElement* copper = materialManager->getElement("Copper");
+  const GeoElement* nitrogen = materialManager->getElement("Nitrogen"); 
+  const GeoElement* fluorine = materialManager->getElement("Fluorine");
 
   // Define some custom materials - That will move to the GeomDB
 
@@ -1578,7 +1577,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   } 
   else
   {
-    LArGeo::BarrelDM::createFromDB (envelope, rdbAccess, geoModel, materialManager);
+    LArGeo::BarrelDM::createFromDB (envelope, rdbAccess, geoModel, *materialManager);
   }
 }
 

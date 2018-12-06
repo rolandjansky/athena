@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArDetectorConstructionH62003
@@ -31,7 +31,7 @@ namespace LArGeo {
       
     private:
       
-      void  createAxis(GeoFullPhysVol* H62003MotherPhysical, GeoMaterial* mat);
+      void  createAxis(GeoFullPhysVol* H62003MotherPhysical, const GeoMaterial* mat);
       
       GeoFullPhysVol*      m_H62003EnvelopePhysical;
       

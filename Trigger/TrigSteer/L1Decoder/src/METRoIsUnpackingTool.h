@@ -29,9 +29,8 @@ public:
                     const HLT::IDSet& activeChains) const override;
 
 private: 
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
-    this, "OutputTrigRoI", "METRoI", "Name of the RoI object produced by the unpacker"};
-
+  Gaudi::Property<std::string> m_fsRoIKey{ this, "FSRoIKey", "FSRoI", "The key of FS RoI made earlier by the L1Decoder" };
+  
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   LVL1::JEPRoIDecoder m_jepDecoder;
   HLT::IDSet m_allMETChains;

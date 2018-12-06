@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
-#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "Identifier/HWIdentifier.h"
 
 // Athena includes
 #include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
 
 // Tile includes
 #include "TileCalibAlgs/TileCisDefaultCalibTool.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
@@ -43,7 +43,6 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   , m_tileHWID(0)
   , m_cabling(0)
   , m_cablingSvc("TileCablingSvc", name)
-  , m_beamPrv("TileBeamInfoProvider")
   , m_stuckBitsProbs("")
   , m_scanMap(0)
   , m_scanMapRMS(0)
@@ -68,7 +67,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
   declareProperty("DigitsContainer", m_DigitsContainerName = "TileDigitsCnt");
   declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
-
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 }
 
 TileCisDefaultCalibTool::~TileCisDefaultCalibTool() {
@@ -92,17 +91,14 @@ StatusCode TileCisDefaultCalibTool::initialize() {
   memset(m_BitStatus, 0, sizeof(m_BitStatus));
   memset(m_NumSamp, 0, sizeof(m_NumSamp));
 
-  // get beam info tool
-  CHECK( m_beamPrv.retrieve() );
-
-  CHECK( m_beamPrv->setProperty("TileRawChannelContainer", "TileRawChannelCnt") );
-
   // get TileHWID helper
   CHECK( detStore()->retrieve(m_tileHWID) );
 
   // get TileCabling Service
   CHECK( m_cablingSvc.retrieve() );
   m_cabling = m_cablingSvc->cablingService();
+
+  CHECK( m_dqStatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -117,14 +113,15 @@ StatusCode TileCisDefaultCalibTool::execute() {
 
   ATH_MSG_DEBUG( "execute()" );
 
+  // Get the DQ digital check information
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* theDQstatus = SG::makeHandle (m_dqStatusKey, ctx).get();
+
   // Get event's CIS parameters
-  const uint32_t *cispar = m_beamPrv->cispar();
+  const uint32_t *cispar = theDQstatus->cispar();
   uint32_t dac = cispar[6];
   uint32_t phase = cispar[5];
   uint32_t cap = cispar[7];
-
-  // Get the DQ digital check information
-  const TileDQstatus * theDQstatus = m_beamPrv->getDQstatus();
 
   // Check if event should be used in calibration
   bool pass = true;

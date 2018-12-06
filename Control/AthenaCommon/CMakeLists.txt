@@ -32,3 +32,7 @@ atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
 atlas_add_test( CFElementsTest SCRIPT python -m unittest -v AthenaCommon.CFElements
 		POST_EXEC_SCRIPT nopost.sh ) 
 
+# Check python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=F,E101,E112,E113,E7,E9,W6 --ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )

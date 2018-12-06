@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This will construct a generic BPC for the H6 beamline that leads to the H1 cryostat.
@@ -25,7 +25,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"  
 #include "GeoModelKernel/GeoSerialDenominator.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -102,22 +101,22 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
 
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
 
   std::string name;
   double density;
-  GeoElement* W=materialManager->getElement("Wolfram");
+  const GeoElement* W=materialManager->getElement("Wolfram");
   GeoMaterial* Tungsten = new GeoMaterial(name="Tungsten", density=19.3*CLHEP::g/CLHEP::cm3);
   Tungsten->add(W,1.);
   Tungsten->lock();
   
   
-  GeoElement* Ar=materialManager->getElement("Argon");
-  GeoElement*  C=materialManager->getElement("Carbon");
-  GeoElement*  O=materialManager->getElement("Oxygen");
-  GeoElement*  H=materialManager->getElement("Hydrogen");
-  GeoElement*  Al=materialManager->getElement("Aluminium");
+  const GeoElement* Ar=materialManager->getElement("Argon");
+  const GeoElement*  C=materialManager->getElement("Carbon");
+  const GeoElement*  O=materialManager->getElement("Oxygen");
+  const GeoElement*  H=materialManager->getElement("Hydrogen");
+  const GeoElement*  Al=materialManager->getElement("Aluminium");
   GeoMaterial* CO2 =  new GeoMaterial(name="CO2", density=1.84E-03*CLHEP::g/CLHEP::cm3);
   CO2->add(C,0.273);
   CO2->add(O,0.727);
@@ -139,13 +138,13 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
   AlMylar->add(Al,0.219245);
   AlMylar->lock();
 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in BPCConstruction, std::Air is not found.");
    
-  GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Aluminium  = materialManager->getMaterial("std::Aluminium");
   if (!Aluminium) throw std::runtime_error("Error in BPCConstruction, std::Aluminium is not found.");
   
-  GeoMaterial *Mylar  = materialManager->getMaterial("std::Mylar");
+  const GeoMaterial *Mylar  = materialManager->getMaterial("std::Mylar");
   if (!Mylar) throw std::runtime_error("Error in BPCConstruction, std::Mylar is not found.");
   
   

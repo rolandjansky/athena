@@ -25,28 +25,49 @@ def setupMenu(flags):
     #---------------------------------------------------------------------
 
 
-    flags.Trigger.menu.muons = [
-        get_flag_item('mu20', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
-        get_flag_item('mu8', 'L1_MU6', ['RATE:SingleMuon', 'BW:Muon'])
+    # flags.Trigger.menu.muons = [
+    #     get_flag_item('mu20', 'L1_MU10', ['RATE:SingleMuon', 'BW:Muon']),
+    #     get_flag_item('mu8', 'L1_MU6', ['RATE:SingleMuon', 'BW:Muon'])
+    # ]
+
+    flags.Trigger.menu.electron = [
+        get_flag_item('HLT_e3_etcut', 'L1_EM3', ['RATE:SingleElectron', 'BW:Electron']),
+        get_flag_item('HLT_e5_etcut', 'L1_EM3', ['RATE:SingleElectron', 'BW:Electron']),
+        get_flag_item('HLT_e7_etcut', 'L1_EM7', ['RATE:SingleElectron', 'BW:Electron'])
     ]
 
-    flags.Trigger.menu.egamma = [
-        get_flag_item('e20', 'L1_EM10', ['RATE:SingleElectron', 'BW:Electron'])
+    flags.Trigger.menu.photon = [
+        get_flag_item('HLT_g10_etcut', 'L1_EM7', ['RATE:SinglePhoton', 'BW:Photon']),
+        get_flag_item('HLT_g15_etcut', 'L1_EM12', ['RATE:SinglePhoton', 'BW:Photon'])
     ]
 
-    flags.Trigger.menu.combined = [
-        get_flag_item('e8_mu8', 'L1_EM6_MU6', ['RATE:SingleMuon', 'BW:Muon'])
-    ]
+    # flags.Trigger.menu.combined = [
+    #     get_flag_item('e8_mu8', 'L1_EM6_MU6', ['RATE:SingleMuon', 'BW:Muon'])
+    # ]
 
 
 
 if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+    acc = ComponentAccumulator()
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     setupMenu(ConfigFlags)
+
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+
     ConfigFlags.lock()
     ConfigFlags.dump()
     
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu    
     menu = generateMenu( ConfigFlags )
-    
+
+    acc.merge(menu)
+
+    f = open('newJOMenu.pkl', 'wb')
+    acc.store(f)
+    f.close()

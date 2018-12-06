@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRDO_Decoder.h"
@@ -8,19 +8,13 @@ using namespace Muon;
 
 MdtRDO_Decoder::MdtRDO_Decoder(const std::string& type, const std::string& name,const IInterface* parent) :
   AthAlgTool(type,name,parent),
-  m_mdtIdHelper(0),
-  m_cablingSvc(0)
+  m_mdtIdHelper(0)
 {  
   declareInterface< Muon::IMDT_RDO_Decoder  >( this );
 }
 
 StatusCode MdtRDO_Decoder::initialize() {
- 
-  if (StatusCode::SUCCESS != service("MuonMDT_CablingSvc", m_cablingSvc)) {
-    ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
-    return StatusCode::FAILURE; 
-  }  
-  
+   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore", detStore);
   if (status.isFailure()) {
@@ -36,7 +30,7 @@ StatusCode MdtRDO_Decoder::initialize() {
   else {
     ATH_MSG_DEBUG(" Found the MdtIdHelper. ");
   }
-
+  ATH_CHECK( m_readKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -45,15 +39,5 @@ StatusCode MdtRDO_Decoder::finalize()
 {
   return StatusCode::SUCCESS;
 }
-
-
-//void MdtRDO_Decoder::set(const MdtIdHelper * mdtIdHelper, const MDTcablingSvc* mdtCabling) 
-//{
-//  m_mdtIdHelper = mdtIdHelper;
-//  m_cablingSvc  = mdtCabling;
-//}
-
-
-
 
 

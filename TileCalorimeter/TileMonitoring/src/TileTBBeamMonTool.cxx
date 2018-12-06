@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //TileTBBeamMonTool
@@ -21,7 +21,6 @@
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileBeamElemContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileMonitoring/TileTBBeamMonTool.h"
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileEvent/TileCell.h"

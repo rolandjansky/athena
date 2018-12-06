@@ -164,7 +164,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
 {    
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }

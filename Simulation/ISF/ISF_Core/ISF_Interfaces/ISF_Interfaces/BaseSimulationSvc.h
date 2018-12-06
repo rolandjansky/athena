@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// BaseSimulationSvc.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_BASESIMULATIONSVC_H
 #define ISF_BASESIMULATIONSVC_H 1
@@ -47,12 +43,7 @@ namespace ISF {
     BaseSimulationSvc( const std::string& name, ISvcLocator* pSvcLocator):
       base_class(name,pSvcLocator),
       m_evtStore( "StoreGateSvc/StoreGateSvc",  name ),
-      m_detStore( "StoreGateSvc/DetectorStore", name ),
-      m_simDescr(),
-      m_screenOutputPrefix("isf >> "),
-      m_chronoSvcName("ChronoStatSvc"),
-      m_chrono(0),
-      m_particleBroker(0)
+      m_detStore( "StoreGateSvc/DetectorStore", name )
     {
       // to be set to a unique descriptor
       declareProperty( "Identifier",
@@ -219,19 +210,19 @@ namespace ISF {
 
   protected:
     /** The simulator service descriptor */
-    std::string       m_simDescr;
+    std::string       m_simDescr{""};
 
     /** Screen output refinement - can be changed by declareProperty() */
-    std::string       m_screenOutputPrefix;
+    std::string       m_screenOutputPrefix{"isf >> "};
 
     /** Name of the timing service - can be set by declareProperty()*/
-    std::string       m_chronoSvcName;
+    std::string       m_chronoSvcName{"ChronoStatSvc"};
 
     /** The timing service for general usage */
-    IChronoStatSvc*   m_chrono;
+    IChronoStatSvc*   m_chrono{};
 
     /** The particle service used to push particles into the simulation */
-    IParticleBroker*  m_particleBroker;
+    IParticleBroker*  m_particleBroker{};
 
   };
 

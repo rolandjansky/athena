@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ExcluderConstructionH62004_H__
-#define __ExcluderConstructionH62004_H__
+#ifndef LARGEOH62004ALGS_EXCLUDERCONSTRUCTIONH62004_H
+#define LARGEOH62004ALGS_EXCLUDERCONSTRUCTIONH62004_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -24,4 +24,4 @@ namespace LArGeo {
 
 } // namespace LArGeo
 
-#endif // __ExcluderConstructionH62004_H__
+#endif // LARGEOH62004ALGS_EXCLUDERCONSTRUCTIONH62004_H

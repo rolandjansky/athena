@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -28,6 +28,7 @@ from TruthD3PDMaker.TruthEventD3PDObject      import TruthEventD3PDObject
 # from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
+from TrackD3PDMaker.xAODTrackD3PDObject       import xAODTrackParticleD3PDObject
 #from TrigEgammaD3PDMaker.TrigEgammaD3PD       import TrigEgammaD3PDObjects
 from RecExConfig.RecFlags                     import rec
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
@@ -341,6 +342,11 @@ def egammaD3PD (alg = None,
         prefix = 'vxp_',
         storeVertexTrackIndexAssociation = False,
         storeVertexTrackAssociation = True,
+        storeDiagonalCovarianceAsErrors = True))
+
+    alg += xAODTrackParticleD3PDObject    (**_args (
+        3, 'TrackParticleCandidate', kw,
+        trackParametersAtGlobalPerigeeLevelOfDetails = 3,
         storeDiagonalCovarianceAsErrors = True))
 
     if rec.doTruth():

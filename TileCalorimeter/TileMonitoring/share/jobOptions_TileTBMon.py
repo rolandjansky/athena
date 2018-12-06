@@ -300,6 +300,9 @@ if doTileCells:
         ToolSvc.TileCellBuilder.UseDemoCabling = UseDemoCabling
         ToolSvc.TileCellBuilder.maskBadChannels = False
 
+from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+TileDQstatusAlgDefault()
+
 #----------------
 # TileMonitoring
 #----------------
@@ -422,6 +425,7 @@ if doMonitoring:
                                                , histoPathBase = "/Tile/DigiNoise"
                                                , FillEmptyFromDB = False
                                                , FillPedestalDifference = False
+                                               , CheckDCS           = TileUseDCS
                                                , SummaryUpdateFrequency = TileSummaryUpdateFrequency );
         
         topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];

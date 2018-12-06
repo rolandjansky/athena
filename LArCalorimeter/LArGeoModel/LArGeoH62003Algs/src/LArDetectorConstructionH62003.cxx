@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArDetectorConstructionH62003
@@ -27,7 +27,6 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
@@ -107,7 +106,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in LArDetectorConstructionH62003, cannot access DetectorStore");
   }
-  DataHandle<StoredMaterialManager> materialManager;
+  const StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   StatusCode sc;
@@ -126,45 +125,45 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 
   // Get the materials from the material manager:----------------------//
   //                                                                                                 
-  GeoMaterial *Air  = materialManager->getMaterial("std::Air");
+  const GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Air is not found.");
  
-  GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
+  const GeoMaterial *Lead  = materialManager->getMaterial("std::Lead");
   if (!Lead) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Lead is not found.");
   
-  GeoMaterial *PStyrene  = materialManager->getMaterial("std::Polystyrene");
+  const GeoMaterial *PStyrene  = materialManager->getMaterial("std::Polystyrene");
   if (!PStyrene) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Polystyrene is not found.");
 
-  GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
+  const GeoMaterial *Iron  = materialManager->getMaterial("std::Iron");
   if (!Iron) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Iron is not found.");
 
-  GeoMaterial *Aluminum  = materialManager->getMaterial("std::Aluminium");
+  const GeoMaterial *Aluminum  = materialManager->getMaterial("std::Aluminium");
   if (!Aluminum) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Aluminum is not found.");  
 
-  GeoMaterial *Concrete  = materialManager->getMaterial("std::Concrete");
+  const GeoMaterial *Concrete  = materialManager->getMaterial("std::Concrete");
   if (!Concrete) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Concrete is not found.");  
 
-  GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
+  const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");
   if (!LAr) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::LiquidArgon is not found.");  
 
-  GeoMaterial *Vac  = materialManager->getMaterial("std::Vacuum");
+  const GeoMaterial *Vac  = materialManager->getMaterial("std::Vacuum");
   if (!Vac) 
     throw std::runtime_error("Error in LArDetectorConstructionH62003, std::Vacuum is not found.");  
 
   // Rohacell foam has density: 0.011g/cm3
   const std::string RohacellName = "Rohacell";
   const double RoDensity = 0.011*g/cm3;
-  GeoElement*  C=materialManager->getElement("Carbon");
-  GeoElement*  H=materialManager->getElement("Hydrogen");
-  GeoElement*  O=materialManager->getElement("Oxygen");
-  GeoElement*  N=materialManager->getElement("Nitrogen");
+  const GeoElement*  C=materialManager->getElement("Carbon");
+  const GeoElement*  H=materialManager->getElement("Hydrogen");
+  const GeoElement*  O=materialManager->getElement("Oxygen");
+  const GeoElement*  N=materialManager->getElement("Nitrogen");
   GeoMaterial* Rohacell = new GeoMaterial(RohacellName, RoDensity);
   Rohacell->add(C,0.6465);
   Rohacell->add(H,0.07836);
@@ -176,8 +175,8 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   // Stainless Steel
   const std::string SSteelName = "StainlessSteel";
   double SSDensity = 7.9*g/cm3;
-  GeoElement* Fe=materialManager->getElement("Iron");
-  GeoElement* Cr=materialManager->getElement("Chromium");
+  const GeoElement* Fe=materialManager->getElement("Iron");
+  const GeoElement* Cr=materialManager->getElement("Chromium");
   GeoMaterial* StainlessSteel = new GeoMaterial(SSteelName, SSDensity);
   StainlessSteel->add(Fe,0.90);
   StainlessSteel->add(Cr,0.10);
@@ -881,7 +880,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   return m_H62003EnvelopePhysical;
 }
 
-void LArGeo::LArDetectorConstructionH62003::createAxis(GeoFullPhysVol* H62003EnvelopePhysical, GeoMaterial* mat)
+void LArGeo::LArDetectorConstructionH62003::createAxis(GeoFullPhysVol* H62003EnvelopePhysical, const GeoMaterial* mat)
 {
 	std::string baseName = "LAr::TBH62003::";
 	double axisXYHalfLength = 2.5*m;

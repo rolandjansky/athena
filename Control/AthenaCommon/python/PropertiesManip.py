@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertiesManip.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -35,7 +35,7 @@ def removeItemsFromList( owner, property, items ):
    if type(items) != list and type(items) != tuple:
       items = [ items ]
 
-   current = getattr( owner, property )
+   current = getattr( owner, property )  # noqa: F841
    exec( 'owner.%s = [ e for e in current if not e in items ]' % property )
 
 

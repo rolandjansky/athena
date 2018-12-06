@@ -50,11 +50,17 @@ def configureFlagsFullG4():
     ISF_Flags.HITSMergingRequired = False
     return
 
+def configureFlagsFullG4MT():
+    return configureFlagsFullG4()
+
 def configureFlagsFullG4_LongLived():
     configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "FullG4_LongLived"
     return
+
+def configureFlagsFullG4MT_LongLived():
+    return configureFlagsFullG4_LongLived()
 
 def configureFlagsFullG4_IDOnly():
     configureFlagsFullG4()
@@ -73,6 +79,9 @@ def configureFlagsPassBackG4():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "PassBackG4"
     return
+
+def configureFlagsPassBackG4MT():
+    return configureFlagsPassBackG4()
 
 def configureFlagsCosmicsG4():
     configureFlagsFullG4()
@@ -113,6 +122,9 @@ def configureFlagsATLFASTII():
     ISF_Flags.UsingGeant4 = True
     return
 
+def configureFlagsATLFASTIIMT():
+    return configureFlagsATLFASTII()
+
 def configureFlagsATLFASTII_PileUp():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTII_PileUp"
@@ -134,6 +146,9 @@ def configureFlagsATLFASTIIF():
     TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
     return
+
+def configureFlagsATLFASTIIFMT():
+    return configureFlagsATLFASTIIF()
 
 def configureFlagsFatras_newExtrapolation():
     configureFlagsATLFASTIIF()

@@ -295,16 +295,16 @@ StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-const Token* PoolSvc::registerForWrite(const Placement* placement,
-                                       const void* obj,
-                                       const RootType& classDesc) const {
+Token* PoolSvc::registerForWrite(const Placement* placement,
+                                 const void* obj,
+                                 const RootType& classDesc) {
    unsigned int contextId = IPoolSvc::kOutputStream;
    const std::string& auxString = placement->auxString();
    if (!auxString.empty()) {
       if (auxString.substr(0, 6) == "[CTXT=") {
          ::sscanf(auxString.c_str(), "[CTXT=%08X]", &contextId);
       } else if (auxString.substr(0, 8) == "[CLABEL=") {
-         contextId = const_cast<PoolSvc*>(this)->getOutputContext(auxString);//FIXME?
+         contextId = this->getOutputContext(auxString);
       }
       if (contextId >= m_persistencySvcVec.size()) {
          ATH_MSG_WARNING("registerForWrite: Using default output Stream instead of id = " << contextId);
@@ -319,14 +319,14 @@ const Token* PoolSvc::registerForWrite(const Placement* placement,
    return(token);
 }
 //__________________________________________________________________________
-void PoolSvc::setObjPtr(void*& obj, const Token* token) const {
+void PoolSvc::setObjPtr(void*& obj, const Token* token) {
    unsigned int contextId = IPoolSvc::kInputStream;
    const std::string& auxString = token->auxString();
    if (!auxString.empty()) {
       if (auxString.substr(0, 6) == "[CTXT=") {
          ::sscanf(auxString.c_str(), "[CTXT=%08X]", &contextId);
       } else if (auxString.substr(0, 8) == "[CLABEL=") {
-         contextId = const_cast<PoolSvc*>(this)->getInputContext(auxString);
+         contextId = this->getInputContext(auxString);
       }
       if (contextId >= m_persistencySvcVec.size()) {
          ATH_MSG_WARNING("setObjPtr: Using default input Stream instead of id = " << contextId);
@@ -458,11 +458,9 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    }
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (openMode == pool::ICollection::READ) {
-      if (contextId > m_persistencySvcVec.size()) {
+      if (contextId >= m_persistencySvcVec.size()) {
          ATH_MSG_WARNING("createCollection: Using default input Stream instead of id = " << contextId);
          contextId = IPoolSvc::kInputStream;
-      } else if (contextId == m_persistencySvcVec.size()) {
-         contextId = const_cast<PoolSvc*>(this)->getInputContext("");
       }
    }
    if (contextId >= m_persistencySvcVec.size()) {
@@ -583,7 +581,7 @@ Token* PoolSvc::getToken(const std::string& connection,
    return(thisToken);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextId) const {
+StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextId) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (type != pool::ITransaction::READ) {
       if (contextId >= m_persistencySvcVec.size()) {
@@ -596,7 +594,7 @@ StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextI
          contextId = IPoolSvc::kInputStream;
       } else if (contextId == m_persistencySvcVec.size()) {
          ATH_MSG_INFO("Connecting to InputStream for: " << contextId);
-         contextId = const_cast<PoolSvc*>(this)->getInputContext("");
+         contextId = this->getInputContext("");
       }
    }
    if (contextId >= m_persistencySvcVec.size()) {

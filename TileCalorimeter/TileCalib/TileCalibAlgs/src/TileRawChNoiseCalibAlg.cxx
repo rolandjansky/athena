@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****** **************************************************************
@@ -19,17 +19,16 @@
 //Event info
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
 
 // Tile includes
 #include "TileCalibAlgs/TileRawChNoiseCalibAlg.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
@@ -62,9 +61,7 @@
 
 TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
  : AthAlgorithm(name,pSvcLocator)
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_beamCnv(0)
-  //, m_beamPrv(0)
   , m_cabling(0)
   , m_tileID(0)
   , m_tileHWID(0)
@@ -110,6 +107,7 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   declareProperty("TreeSize", m_treeSize = 16000000000LL);
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
+  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
 
   m_evtNr=-1;
 
@@ -229,6 +227,7 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
   //=== get TileCondIdTransforms
   CHECK( m_tileIdTrans.retrieve() );
 
+  CHECK( m_dqStatusKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -245,8 +244,6 @@ StatusCode TileRawChNoiseCalibAlg::FirstEvt_initialize() {
   CHECK( detStore()->retrieve(m_tileID) );
 
   CHECK( detStore()->retrieve(m_tileHWID) );
-
-  CHECK( m_beamInfo.retrieve() );
 
   ATH_MSG_INFO( "calibMode " << m_calibMode  );
 
@@ -283,35 +280,37 @@ StatusCode TileRawChNoiseCalibAlg::FirstEvt_initialize() {
 /// Main method
 StatusCode TileRawChNoiseCalibAlg::execute() {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_dqStatusKey, ctx).get();
+
   bool empty(false); // to add all StatusCodes
-  
 
   if (m_evtNr < 0) {
 
     if (FirstEvt_initialize().isFailure()) { ATH_MSG_ERROR( "FirstEvt_initialize failed" ); }
 
-    bool calibMode  = (m_beamInfo->calibMode() == 1);
+    bool calibMode  = (dqStatus->calibMode() == 1);
     if ( calibMode != m_calibMode ) {
       ATH_MSG_INFO( "Overwriting calib mode [" << m_calibMode << "] by one from data: " << calibMode );
       m_calibMode = calibMode;
     }
 
-    m_cispar = m_beamInfo->cispar();
-    StoreRunInfo(); // done only once
+    m_cispar = dqStatus->cispar();
+    StoreRunInfo(dqStatus); // done only once
   }
 
   memset(m_ecell_ene     ,0,          sizeof(m_ecell_ene     ));
   memset(m_cell_nch      ,0,          sizeof(m_cell_nch      ));
 
-  m_cispar = m_beamInfo->cispar();
+  m_cispar = dqStatus->cispar();
   if (m_evtNr % 1000 == 0) ATH_MSG_INFO( " events processed so far " << m_evtNr );
   
-  if (m_doFit){empty &= (fillRawChannels(m_fitRawChannelContainer, Fit).isFailure());}
-  if (m_doFixed){empty &= (fillRawChannels(m_fixedRawChannelContainer, Fixed).isFailure());}
-  if (m_doOpt){empty &= (fillRawChannels(m_optRawChannelContainer, Opt).isFailure());}
-  if (m_doDsp) {empty &= (fillRawChannels(m_dspRawChannelContainer, Dsp).isFailure());}
-  if (m_doOF1) {empty &= (fillRawChannels(m_OF1RawChannelContainer, OF1).isFailure());}
-  if (m_doMF) {empty &= (fillRawChannels(m_MFRawChannelContainer, MF).isFailure());}
+  if (m_doFit){empty &= (fillRawChannels(dqStatus, m_fitRawChannelContainer, Fit).isFailure());}
+  if (m_doFixed){empty &= (fillRawChannels(dqStatus, m_fixedRawChannelContainer, Fixed).isFailure());}
+  if (m_doOpt){empty &= (fillRawChannels(dqStatus, m_optRawChannelContainer, Opt).isFailure());}
+  if (m_doDsp) {empty &= (fillRawChannels(dqStatus, m_dspRawChannelContainer, Dsp).isFailure());}
+  if (m_doOF1) {empty &= (fillRawChannels(dqStatus, m_OF1RawChannelContainer, OF1).isFailure());}
+  if (m_doMF) {empty &= (fillRawChannels(dqStatus, m_MFRawChannelContainer, MF).isFailure());}
 
 
   if (empty) {ATH_MSG_ERROR( "Error in execute " ); }
@@ -592,10 +591,11 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
 }
 
 /// StoreRunInfo is called only during the first event
-void TileRawChNoiseCalibAlg::StoreRunInfo() {
+void TileRawChNoiseCalibAlg::StoreRunInfo(const TileDQstatus* dqStatus) {
+
   MsgStream log(msgSvc(), name());
 
-  if (m_beamInfo->calibMode() == 1 && m_beamElemContainer.length() > 0) {// Bigain can use cispar
+  if (dqStatus->calibMode() == 1 && m_beamElemContainer.length() > 0) {// Bigain can use cispar
 
     if (m_beamCnv) {
 
@@ -607,7 +607,7 @@ void TileRawChNoiseCalibAlg::StoreRunInfo() {
     } else
       m_run = 0;
 
-    if (m_beamInfo && m_cispar) {
+    if (dqStatus && m_cispar) {
       m_time = m_cispar[10]; //time in sc from 1970
       m_trigType = m_cispar[12];
     } else {
@@ -660,10 +660,9 @@ void TileRawChNoiseCalibAlg::StoreRunInfo() {
 // fillRawChannels is called at every events.
 // Statistics is summed for Average, RMS calculations
 /*---------------------------------------------------------*/
-StatusCode TileRawChNoiseCalibAlg::fillRawChannels(std::string rcCnt, RCtype rctype) {
+StatusCode TileRawChNoiseCalibAlg::fillRawChannels(const TileDQstatus* dqStatus,
+                                                   std::string rcCnt, RCtype rctype) {
 /*---------------------------------------------------------*/
-
-  const TileDQstatus* theDQstatus = m_beamInfo->getDQstatus();
 
   const TileRawChannelContainer* RawChannelCnt;
 
@@ -698,12 +697,12 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(std::string rcCnt, RCtype rct
       m_tileIdTrans->getIndices(adc_id, ros, drawer, channel, gain);
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
-      if (theDQstatus->isChEmpty(ros, drawer, channel)) continue;
+      if (dqStatus->isChEmpty(ros, drawer, channel)) continue;
 
       // If DQ problem, do not fill calib ntuple
       if (m_calibMode == 1) { // Bigain: check indivual adc's
 
-        if (!(theDQstatus->isAdcDQgood(ros, drawer, channel, gain))) {
+        if (!(dqStatus->isAdcDQgood(ros, drawer, channel, gain))) {
           ATH_MSG_VERBOSE(  "Skipping Module: " << TileCalibUtils::getDrawerString(ros, drawer)
                            << " channel: " << channel
                            << " ADC: " << gain << " due to DQ error found." );
@@ -712,7 +711,7 @@ StatusCode TileRawChNoiseCalibAlg::fillRawChannels(std::string rcCnt, RCtype rct
         }
       } else { // monogain, just check channel
 
-        if (!(theDQstatus->isChanDQgood(ros, drawer, channel))) {
+        if (!(dqStatus->isChanDQgood(ros, drawer, channel))) {
           ATH_MSG_VERBOSE( "Skipping Module: " << TileCalibUtils::getDrawerString(ros, drawer)
                            << " channel: " << channel << " due to DQ error found."  );
 

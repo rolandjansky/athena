@@ -44,7 +44,7 @@ namespace Athena {
 
 /**
  * @brief Define extended status codes used by CondCont.
- *        We add DUPLICATE.
+ *        We add DUPLICATE and OVERLAP.
  */
 enum class CondContStatusCode : StatusCode::code_t
 {
@@ -56,7 +56,12 @@ enum class CondContStatusCode : StatusCode::code_t
   // an existing one.  The original contents of the container are unchanged,
   // and the new item has been deleted.
   // This is classified as Success.
-  DUPLICATE         = 10
+  DUPLICATE         = 10,
+
+  // Attempt to insert an item in a CondCont with a range that partially
+  // overlaps with an existing one.
+  // This is classified as Success.
+  OVERLAP           = 11
 };
 STATUSCODE_ENUM_DECL (CondContStatusCode)
 
@@ -66,7 +71,7 @@ class CondContBase
 public:
   /**
    * @brief Status code category for ContCont.
-   *        This adds a new code, DUPLICATE, which is classified
+   *        This adds new codes DUPLICATE and OVERLAP, which are classified
    *        as success.
    */
   class Category : public StatusCode::Category
@@ -87,6 +92,26 @@ public:
     static bool isDuplicate (code_t code);
     /// Helper to test whether a code is DUPLICATE.
     static bool isDuplicate (StatusCode code);
+
+    /// Helper to test whether a code is OVERLAP.
+    static bool isOverlap (code_t code);
+    /// Helper to test whether a code is OVERLAP.
+    static bool isOverlap (StatusCode code);
+  };
+
+
+  /// Type of key used for this container.
+  enum class KeyType
+  {
+    /// Either TIMESTAMP or RUNLBN, but nothing's been put in the container yet,
+    /// so we don't know which one.
+    SINGLE,
+
+    /// Container uses timestamp keys.
+    TIMESTAMP,
+
+    /// Container uses run+lbn keys.
+    RUNLBN
   };
 
 
@@ -112,29 +137,36 @@ public:
 
 
   /**
+   * @brief Return the key type for this container.
+   */
+  KeyType keyType() const;
+
+
+  /**
    * @brief Return CLID/key corresponding to this container.
    */
-  virtual const DataObjID& id() const = 0;
+  const DataObjID& id() const;
 
 
   /**
    * @brief Return the associated @c DataProxy, if any.
    */
-  virtual SG::DataProxy* proxy() = 0;
+  SG::DataProxy* proxy();
 
 
   /**
    * @brief Set the associated @c DataProxy.
    * @param proxy The proxy to set.
    */
-  virtual void setProxy(SG::DataProxy*) = 0;
+  void setProxy(SG::DataProxy*);
 
 
   /**
    * @brief Dump the container contents for debugging.
    * @param ost Stream to which to write the dump.
    */
-  virtual void list (std::ostream& ost) const = 0;
+  virtual
+  void list (std::ostream& ost) const;
 
 
   /**
@@ -146,27 +178,14 @@ public:
   /**
    * @brief Return the number of conditions objects in the container.
    */
-  virtual size_t entries() const = 0;
+  virtual size_t entries() const;
 
   
   /**
-   * @brief Return the number of run+LBN conditions objects
-   *        in the container.
-   */
-  virtual size_t entriesRunLBN() const = 0;
-
-
-  /**
-   * @brief Return the number of timestamp-based conditions objects
-   *        in the container.
-   */
-  virtual size_t entriesTimestamp() const = 0;
-
-
-  /**
    * @brief Return all IOV validity ranges defined in this container.
    */
-  virtual std::vector<EventIDRange> ranges() const = 0;
+  virtual
+  std::vector<EventIDRange> ranges() const;
 
 
   /** 
@@ -181,20 +200,24 @@ public:
    * The container will take ownership of this object.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
    * duplicates an existing one, and FAILURE otherwise
    * (ownership of the object will be taken in any case).
    */
-  virtual StatusCode typelessInsert (const EventIDRange& r,
-                                     void* obj,
-                                     const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+  virtual
+  StatusCode typelessInsert (const EventIDRange& r,
+                             void* obj,
+                             const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /**
    * @brief Test to see if a given IOV time is mapped in the container.
    * @param t IOV time to check.
    */
-  virtual bool valid( const EventIDBase& t) const = 0;
+  virtual
+  bool valid( const EventIDBase& t) const;
 
 
   /**
@@ -204,7 +227,8 @@ public:
    *
    * Returns true if @c t is mapped; false otherwise.
    */
-  virtual bool range (const EventIDBase& t, EventIDRange& r) const = 0;
+  virtual
+  bool range (const EventIDBase& t, EventIDRange& r) const;
 
 
   /**
@@ -212,12 +236,13 @@ public:
    * @param IOV time of element to erase.
    * @param ctx Event context for the current thread.
    */
-  virtual void erase (const EventIDBase& t,
-                      const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+  virtual
+  StatusCode erase (const EventIDBase& t,
+                    const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /**
-   * @brief Remove unused run+LBN entries from the front of the list.
+   * @brief Remove unused entries from the front of the list.
    * @param keys List of keys that may still be in use.
    *             (Must be sorted.)
    *
@@ -227,37 +252,17 @@ public:
    * an object with a range matching a key in @c keys or when there
    * is only one object left.
    *
-   * The list @c keys should contain keys as computed by keyFromRunLBN.
-   * The list must be sorted.
+   * The list @c keys should contain keys as computed by keyFromRunLBN
+   * or keyFromTimestamp, as appropriate for the container's key type
+   * (as returned from keyType()).  The list must be sorted.
    *
    * Removed objects are queued for deletion once all slots have been
    * marked as quiescent.
    *
    * Returns the number of objects that were removed.
    */
-  virtual size_t trimRunLBN (const std::vector<key_type>& keys) = 0;
-
-
-  /**
-   * @brief Remove unused timestamp entries from the front of the list.
-   * @param keys List of keys that may still be in use.
-   *             (Must be sorted.)
-   *
-   * We examine the objects in the container, starting with the earliest one.
-   * If none of the keys in @c keys match the range for this object, then
-   * it is removed from the container.  We stop when we either find
-   * an object with a range matching a key in @c keys or when there
-   * is only one object left.
-   *
-   * The list @c keys should contain keys as computed by keyFromRunLBN.
-   * The list must be sorted.
-   *
-   * Removed objects are queued for deletion once all slots have been
-   * marked as quiescent.
-   *
-   * Returns the number of objects that were removed.
-   */
-  virtual size_t trimTimestamp (const std::vector<key_type>& keys) = 0;
+  virtual
+  size_t trim (const std::vector<key_type>& keys);
 
 
   /**
@@ -267,19 +272,19 @@ public:
    * This would normally be done through RCU service.
    * Defined here for purposes of testing.
    */
-  virtual void quiescent (const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+  void quiescent (const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /**
    * @brief Return the number times an item was inserted into the map.
    */
-  virtual size_t nInserts() const = 0;
+  size_t nInserts() const;
 
 
   /**
    * @brief Return the maximum size of the map.
    */
-  virtual size_t maxSize() const = 0;
+  size_t maxSize() const;
 
 
   /**
@@ -292,8 +297,9 @@ public:
    * IOV is changed to the end time for @c newRange.  (If the end time for @c newRange
    * is before the end of the last IOV, then nothing is changed.)
    */
-  virtual StatusCode extendLastRange (const EventIDRange& newRange,
-                                      const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+  virtual
+  StatusCode extendLastRange (const EventIDRange& newRange,
+                              const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /**
@@ -354,6 +360,17 @@ public:
     {
       return t >= r.m_start && t< r.m_stop;
     }
+    // Check whether R1 overlaps R2, given that r1.m_start < r2.m_start.
+    // We first tried checking that r1.m_stop > r2.m_start.
+    // However, it turns out that IOVDbSvc can in fact return IOV ranges
+    // that do overlap like this, at least for timestamp folders.
+    // That's because the range returned by IOVDbSvc is bounded by
+    // the range of the cache which is set from the particular query.
+    // The only sort of overlap that should really cause a problem, though,
+    // is if one range is entirely contained within another.
+    // I don't think IOVDbSvc should do _that_, so we check for that here.
+    bool overlap (const RangeKey& r1, const RangeKey& r2) const
+    { return r1.m_stop > r2.m_stop; }
     bool extendRange (RangeKey& r, const RangeKey& newRange) const
     {
       if (r.m_start != newRange.m_start) {
@@ -377,17 +394,58 @@ public:
 
   
 protected:
+  typedef CxxUtils::ConcurrentRangeMap<RangeKey, key_type, void, Compare,
+    Athena::RCUUpdater>
+    CondContSet;
+
+  typedef CondContSet::Updater_t Updater_t;
+
   /**
    * @brief Internal constructor.
    * @param rcusvc RCU service instance.
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
+   * @param delfcn Deletion function for the actual payload type.
+   * @param capacity Initial capacity of the container.
    */
   CondContBase (Athena::IRCUSvc& rcusvc,
                 CLID clid,
                 const DataObjID& id,
-                SG::DataProxy* proxy);
+                SG::DataProxy* proxy,
+                CondContSet::delete_function* delfcn,
+                size_t capacity);
+                
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param t Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
+   *
+   * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
+   */
+  StatusCode insertBase (const EventIDRange& r,
+                         CondContSet::payload_unique_ptr t,
+                         const EventContext& ctx = Gaudi::Hive::currentContext());
+
+
+  /** 
+   * @brief Internal lookup function.
+   * @param t IOV time to find.
+   * @param r If non-null, copy validity range of the object here.
+   *
+   * Looks up the conditions object corresponding to the IOV time @c t.
+   * If found, return the pointer (as a pointer to the payload type
+   * of the most-derived CondCont).  Otherwise, return nullptr.
+   */
+  const void* findBase (const EventIDBase& t,
+                        EventIDRange const** r) const;
 
 
   /**
@@ -402,19 +460,19 @@ protected:
   const void* cast (CLID clid, const void* ptr) const;
 
 
-  /** 
-   * @brief Internal lookup function.
+  /**
+   * @brief Do pointer conversion for the payload type.
    * @param clid CLID for the desired pointer type.
-   * @param t IOV time to find.
-   * @param r If non-null, copy validity range of the object here.
+   * @param ptr Pointer of type @c T*.
    *
-   * Looks up the conditions object corresponding to the IOV time @c t.
-   * If found, convert the pointer to a pointer to the type identified
-   * by CLID and return it.  Otherwise, return nullptr.
+   * Converts @c ptr from @c T* to a pointer to the type
+   * given by @c clid.  Returns nullptr if the conversion
+   * is not possible.
+   *
+   * This is a virtual function that calls @c cast from the most-derived class
+   * of the hierarchy.
    */
-  virtual const void* findByCLID (CLID clid,
-                                  const EventIDBase& t,
-                                  EventIDRange const** r) const = 0;
+  virtual const void* doCast (CLID clid, const void* ptr) const = 0;
 
 
   /**
@@ -423,9 +481,29 @@ protected:
   StatusCode inserted (const EventContext& ctx);
 
 
+  /**
+   * @brief Helper to report an error due to using a base class for insertion.
+   * @param usedCLID CLID of the class used for insertion.
+   */
+  void insertError (CLID usedCLID) const;
+
+
 private:
+  /// Key type of this container.
+  KeyType m_keyType;
+
+
   /// CLID of the most-derived @c CondCont
   CLID m_clid;
+
+  /// CLID+key for this container.
+  DataObjID m_id;
+
+  /// Associated @c DataProxy.
+  SG::DataProxy* m_proxy;
+
+  /// Set of mapped objects.
+  CondContSet m_condSet;
 
   /// Handle to the cleaner service.
   ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
@@ -523,6 +601,8 @@ public:
   /// Base class.
   typedef typename CondContBaseInfo<T>::Base Base;
 
+  typedef typename Base::CondContSet CondContSet;
+
   /// Payload type held by this class.
   typedef T Payload;
 
@@ -550,79 +630,6 @@ public:
   CondCont& operator= (const CondCont&) = delete;
 
 
-  /**
-   * @brief Return CLID/key corresponding to this container.
-   */
-  virtual const DataObjID& id() const override;
-
-
-  /**
-   * @brief Return the associated @c DataProxy, if any.
-   */
-  virtual SG::DataProxy* proxy() override;
-
-
-  /**
-   * @brief Set the associated @c DataProxy.
-   * @param proxy The proxy to set.
-   */
-  virtual void setProxy (SG::DataProxy* proxy) override;
-
-
-  /**
-   * @brief Dump the container contents for debugging.
-   * @param ost Stream to which to write the dump.
-   */
-  virtual void list (std::ostream& ost) const override;
-
-
-  /**
-   * @brief Return the number of conditions objects in the container.
-   */
-  virtual size_t entries() const override;
-
-
-  /**
-   * @brief Return the number of run+LBN conditions objects
-   *        in the container.
-   */
-  virtual size_t entriesRunLBN() const override;
-
-
-  /**
-   * @brief Return the number of timestamp-based conditions objects
-   *        in the container.
-   */
-  virtual size_t entriesTimestamp() const override;
-
-
-  /**
-   * @brief Return all IOV validity ranges defined in this container.
-   */
-  virtual std::vector<EventIDRange> ranges() const override;
-
-
-  /** 
-   * @brief Insert a new conditions object.
-   * @param r Range of validity of this object.
-   * @param obj Pointer to the object being inserted.
-   * @param ctx Event context for the current thread.
-   *
-   * @c obj must point to an object of type @c T,
-   * except in the case of inheritance, where the type of @c obj must
-   * correspond to the most-derived @c CondCont type.
-   * The container will take ownership of this object.
-   *
-   * Returns SUCCESS if the object was successfully inserted;
-   * DUPLICATE if the object wasn't inserted because the range
-   * duplicates an existing one, and FAILURE otherwise
-   * (ownership of the object will be taken in any case).
-   */
-  virtual StatusCode typelessInsert (const EventIDRange& r,
-                                     void* obj,
-                                     const EventContext& ctx = Gaudi::Hive::currentContext()) override;
-
-
   /** 
    * @brief Insert a new conditions object.
    * @param r Range of validity of this object.
@@ -634,6 +641,8 @@ public:
    * on the most-derived @c CondCont.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * OVERLAP if the object was inserted but the range partially overlaps
+   * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
    * duplicates an existing one, and FAILURE otherwise
    * (ownership of the object will be taken in any case).
@@ -656,103 +665,6 @@ public:
              EventIDRange const** r = nullptr) const;
 
 
-  /**
-   * @brief Test to see if a given IOV time is mapped in the container.
-   * @param t IOV time to check.
-   */
-  virtual bool valid (const EventIDBase& t) const override;
-
-
-  /**
-   * @brief Return the mapped validity range for an IOV time.
-   * @param t IOV time to check.
-   * @param r[out] The range containing @c t.
-   *
-   * Returns true if @c t is mapped; false otherwise.
-   */
-  virtual bool range (const EventIDBase& t, EventIDRange& r) const override;
-
-
-  /**
-   * @brief Erase the first element not less than @c t.
-   * @param IOV time of element to erase.
-   * @param ctx Event context for the current thread.
-   */
-  virtual void erase (const EventIDBase& t,
-                      const EventContext& ctx = Gaudi::Hive::currentContext()) override;
-
-
-  /**
-   * @brief Remove unused run+LBN entries from the front of the list.
-   * @param keys List of keys that may still be in use.
-   *             (Must be sorted.)
-   *
-   * We examine the objects in the container, starting with the earliest one.
-   * If none of the keys in @c keys match the range for this object, then
-   * it is removed from the container.  We stop when we either find
-   * an object with a range matching a key in @c keys or when there
-   * is only one object left.
-   *
-   * The list @c keys should contain keys as computed by keyFromRunLBN.
-   * The list must be sorted.
-   *
-   * Removed objects are queued for deletion once all slots have been
-   * marked as quiescent.
-   *
-   * Returns the number of objects that were removed.
-   */
-  virtual size_t trimRunLBN (const std::vector<key_type>& keys) override;
-
-
-  /**
-   * @brief Remove unused timestamp entries from the front of the list.
-   * @param keys List of keys that may still be in use.
-   *             (Must be sorted.)
-   *
-   * We examine the objects in the container, starting with the earliest one.
-   * If none of the keys in @c keys match the range for this object, then
-   * it is removed from the container.  We stop when we either find
-   * an object with a range matching a key in @c keys or when there
-   * is only one object left.
-   *
-   * The list @c keys should contain keys as computed by keyFromRunLBN.
-   * The list must be sorted.
-   *
-   * Removed objects are queued for deletion once all slots have been
-   * marked as quiescent.
-   *
-   * Returns the number of objects that were removed.
-   */
-  virtual size_t trimTimestamp (const std::vector<key_type>& keys) override;
-
-  
-  /**
-   * @brief Mark that this thread is no longer accessing data from this container.
-   * @param ctx Event context for the current thread.
-   *
-   * This would normally be done through RCU service.
-   * Defined here for purposes of testing.
-   */
-  virtual void
-  quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) override;
-
-
-  /**
-   * @brief Return the number times an item was inserted into the map.
-   */
-  virtual size_t nInserts() const override;
-
-
-  /**
-   * @brief Return the maximum size of the map.
-   */
-  virtual size_t maxSize() const override;
-
-
-  virtual StatusCode extendLastRange (const EventIDRange& newRange,
-                                      const EventContext& ctx = Gaudi::Hive::currentContext()) override;
-
-
 protected:
   /**
    * @brief Internal constructor.
@@ -760,11 +672,15 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
+   * @param delfcn Deletion function for the actual payload type.
+   * @param capacity Initial capacity of the container.
    */
   CondCont (Athena::IRCUSvc& rcusvc,
             CLID clid,
             const DataObjID& id,
-            SG::DataProxy* proxy);
+            SG::DataProxy* proxy,
+            const typename CondContSet::delete_function* delfcn,
+            size_t capacity);
 
 
   /**
@@ -779,19 +695,19 @@ protected:
   const void* cast (CLID clid, const void* ptr) const;
 
 
-  /** 
-   * @brief Internal lookup function.
+  /**
+   * @brief Do pointer conversion for the payload type.
    * @param clid CLID for the desired pointer type.
-   * @param t IOV time to find.
-   * @param r If non-null, copy validity range of the object here.
+   * @param ptr Pointer of type @c T*.
    *
-   * Looks up the conditions object corresponding to the IOV time @c t.
-   * If found, convert the pointer to a pointer to the type identified
-   * by CLID and return it.  Otherwise, return nullptr.
+   * Converts @c ptr from @c T* to a pointer to the type
+   * given by @c clid.  Returns nullptr if the conversion
+   * is not possible.
+   *
+   * This is a virtual function that calls @c cast from the most-derived class
+   * of the hierarchy.
    */
-  virtual const void* findByCLID (CLID clid,
-                                  const EventIDBase& t,
-                                  EventIDRange const** r) const override;
+  virtual const void* doCast (CLID clid, const void* ptr) const override;
 
 
 public:
@@ -804,17 +720,10 @@ private:
   typedef CondContBase::RangeKey RangeKey;
 
 
-  /// Sets of mapped objects, by timestamp and run+LBN.
-  typedef CxxUtils::ConcurrentRangeMap<RangeKey, key_type, T, CondContBase::Compare,
-    Athena::RCUUpdater>
-    CondContSet;
-  CondContSet m_condSet_clock, m_condSet_RE;
-
-  /// CLID+key for this container.
-  DataObjID m_id;
-
-  /// Associated @c DataProxy.
-  SG::DataProxy* m_proxy;
+  /// Deletion function to pass to @c ConcurrentRangeMap.
+  static void delfcn (const void* p) {
+    delete reinterpret_cast<const T*>(p);
+  }
 };
 
 

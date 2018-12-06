@@ -13,13 +13,6 @@ theLArCoverage = LArCoverage(name="LArCoverage",
 #ToolSvc += theLArCoverage
 LArMon.AthenaMonTools+=[ theLArCoverage ]
 
-# BadChannelTool configuration
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=False
-ToolSvc+=theLArBadChannelTool
-LArCoverage.LArBadChannelTool=theLArBadChannelTool
-
 # CaloNoiseTool configuration
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theLArCoverageCaloNoiseTool=CaloNoiseToolDefault()

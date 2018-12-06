@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_Geo2G4Builder_H
@@ -58,7 +58,7 @@ private:
   VolumeBuilder *m_theBuilder;
 
   // std::Air in the case when top boolean envelope has to be built
-  GeoMaterial* m_matAir;
+  const GeoMaterial* m_matAir;
   StoreGateSvc* m_pDetStore;
 
   /// Private message stream member

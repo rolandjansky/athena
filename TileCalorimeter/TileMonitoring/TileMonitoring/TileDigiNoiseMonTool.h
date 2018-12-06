@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,8 +15,10 @@
 #define TILEDIGINOISEMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
+#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/ITileDCSTool.h"
+#include "StoreGate/ReadHandleKey.h"
 
-class TileBeamInfoProvider;
 class ITileBadChanTool;
 class TileDQstatus;
 class TileCondToolNoiseSample;
@@ -31,23 +33,24 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
 
     TileDigiNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
-    ~TileDigiNoiseMonTool();
+    virtual ~TileDigiNoiseMonTool() override;
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     //pure virtual methods
-    virtual StatusCode bookHistograms();
-    virtual StatusCode fillHistograms();
-    virtual StatusCode procHistograms();
+    virtual StatusCode bookHistograms() override;
+    virtual StatusCode fillHistograms() override;
+    virtual StatusCode procHistograms() override;
 
   private:
 
     StatusCode bookNoiseHistograms();
     StatusCode updateSummaryHistograms();
 
+    bool isChanDCSgood (int ros, int drawer, int channel) const;
+
     std::string m_digitsContainerName;
 
-    ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
 
@@ -71,6 +74,9 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     bool m_fillEmtyFromDB;
     bool m_fillPedestalDifference;
     std::vector<uint32_t> m_triggerTypes;
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
+    ToolHandle<ITileDCSTool> m_tileDCS;
+    bool m_checkDCS;
     bool m_histogramsNotBooked;
 };
 

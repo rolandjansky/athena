@@ -66,7 +66,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
   
   SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez };
   const CondAttrListCollection* readCdoMez{*readHandleMez}; 
-  if(readCdoMez==0){
+  if(readCdoMez==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   }   
@@ -80,7 +80,7 @@ StatusCode MuonMDT_CablingAlg::execute(){
 
   SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap };
   const CondAttrListCollection* readCdoMap{*readHandleMap}; 
-  if(readCdoMap==0){
+  if(readCdoMap==nullptr){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   }   

@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoPrimitives
    DetectorDescription/IdDictDetDescr
    InnerDetector/InDetConditions/InDetBeamSpotService
+   InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    MagneticField/MagFieldInterfaces

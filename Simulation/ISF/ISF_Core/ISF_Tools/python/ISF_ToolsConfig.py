@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -137,3 +137,5 @@ def getParticleOrderingTool(name="ISF_ParticleOrderingTool", **kwargs):
     kwargs.setdefault('OrderCavern'      , 1           )
     return CfgMgr.ISF__GenericParticleOrderingTool(name, **kwargs)
 
+def getParticleKillerTool(name="ISF_ParticleKillerTool", **kwargs):
+    return CfgMgr.ISF__ParticleKillerSimTool(name, **kwargs)

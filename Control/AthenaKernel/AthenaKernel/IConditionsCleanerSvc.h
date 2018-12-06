@@ -59,6 +59,13 @@ public:
    *        as a separate interface for testing/debugging purposes.
    */
   virtual StatusCode printStats() const = 0;
+
+
+  /**
+   * @brief Clear the internal state of the service.
+   * Only for testing.  Don't call if any other thread may be touching the service.
+   */
+  virtual StatusCode reset() = 0;
 };
 
 

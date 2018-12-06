@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasUnixStandardJob.py
 ## @brief py-module to configure the Athena AppMgr for standard (UNIX) jobs
@@ -10,8 +10,7 @@ def _setupAtlasUnixStandardJob():
     from AppMgr import theApp
     from AppMgr import ServiceMgr as svcMgr
 
-    import SystemOfUnits as Units
-    from Constants import VERBOSE, DEBUG, INFO, ERROR
+    from Constants import INFO
 
     ## basic Gaudi services
     import GaudiSvc.GaudiSvcConf as GaudiSvcConf

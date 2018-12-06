@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,10 +38,9 @@ namespace Trig {
   {
   public:
     DecisionObjectHandleAthena( EventPtr_t sg, const std::string& key );
-    using DataHandle<TrigDec::TrigDecision>::reset;
-    virtual void reset();
-    virtual TrigDec::TrigDecision const * getDecision() const;
-    virtual TrigDec::TrigDecision const * getNavigation() const;
+    virtual void reset (bool hard) override;
+    virtual TrigDec::TrigDecision const * getDecision() const override;
+    virtual TrigDec::TrigDecision const * getNavigation() const override;
   private:
     StoreGateSvc* m_sg;
     const std::string m_key;

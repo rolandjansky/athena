@@ -62,12 +62,19 @@ StatusCode LAruA2MeV2Ntuple::stop() {
    return StatusCode::FAILURE;
  } 
 
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
+ if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+ }
+
  std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
  std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
  unsigned cellCounter=0;
  for(; itOnId!=itOnIdEnd;++itOnId){
    const HWIdentifier hwid = *itOnId;
-   if (m_larCablingSvc->isOnlineConnected(hwid)) {
+   if (cabling->isOnlineConnected(hwid)) {
      uA2MeV=laruA2MeVComplete->UA2MEV(hwid);
      if(m_DAC2uAKey != "") DAC2uA=larDAC2uAComplete->DAC2UA(hwid);
      fillFromIdentifier(hwid);

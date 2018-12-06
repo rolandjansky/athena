@@ -19,7 +19,6 @@
 #include "LArRawConditions/LArAutoCorrComplete.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
@@ -67,9 +66,7 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_nLArError(0),
   m_nNoDigits(0),
   m_dumperTool("LArShapeDumperTool"),
-  m_larCablingSvc("LArCablingService"),
   m_caloNoiseTool("CaloNoiseToolDefault"),
-  m_badChannelTool("LArBadChanTool"),
   m_badChannelMasker("BadChannelMasker", this),
   m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -96,7 +93,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("Gains", m_gainSpec = "HIGH,MEDIUM,LOW");
   declareProperty("DumpDisconnected", m_dumpDisc = false);
   declareProperty("CaloNoiseTool", m_caloNoiseTool);
-  declareProperty("BadChannelTool", m_badChannelTool),
   declareProperty("BadChannelMasker", m_badChannelMasker);
   declareProperty("ADC2MeVTool", m_adc2mevTool);
   declareProperty("BunchCrossingTool",m_bcidTool);
@@ -124,11 +120,12 @@ StatusCode LArShapeDumper::initialize()
 
   m_samples = new DataStore();
 
-  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_BCKey.initialize() );
+
   ATH_CHECK( m_badChannelMasker.retrieve() );
   ATH_CHECK( m_adc2mevTool.retrieve() );
   ATH_CHECK( m_caloNoiseTool.retrieve() );
-  ATH_CHECK( m_badChannelTool.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
 
@@ -307,6 +304,13 @@ StatusCode LArShapeDumper::execute()
   
   ATH_CHECK( detStore()->retrieve(m_larPedestal) );
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
+
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
     ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
@@ -336,7 +340,7 @@ StatusCode LArShapeDumper::execute()
       CellInfo* info = 0;
       if (!histCont) {
         HWIdentifier channelID = channel->hardwareID();
-        const Identifier id = m_larCablingSvc->cnvToIdentifier(channelID);
+        const Identifier id = cabling->cnvToIdentifier(channelID);
         const CaloDetDescrElement* caloDetElement = m_caloDetDescrMgr->get_element(id);
         info = m_dumperTool->makeCellInfo(channelID, id, caloDetElement);
         if (!info) continue;
@@ -354,6 +358,13 @@ StatusCode LArShapeDumper::execute()
   ATH_MSG_INFO ( "njpbSizes : " << larDigitContainer->size()
                  << " " << (ofIterResult ? ofIterResult->size() : 0) << " " 
                  << rawChannelContainer->size() << " " << channelsToKeep.size() );
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+  const LArBadChannelCont *bcCont {*readHandle};
+  if(!bcCont) {
+     ATH_MSG_ERROR( "Do not have Bad chan container " << m_BCKey.key() );
+     return StatusCode::FAILURE;
+  }
   
   for (LArDigitContainer::const_iterator digit = larDigitContainer->begin();
        digit != larDigitContainer->end(); ++digit) 
@@ -376,7 +387,7 @@ StatusCode LArShapeDumper::execute()
     if (gain >= CaloGain::LARNGAIN || m_gains[gain] == false) continue;
 
     //Check if connected
-    const bool connected = m_larCablingSvc->isOnlineConnected(channelID);
+    const bool connected = cabling->isOnlineConnected(channelID);
     if (!connected && !m_dumpDisc) continue;
    
     // Check ADCMax selection
@@ -392,7 +403,7 @@ StatusCode LArShapeDumper::execute()
       if (m_noiseSignifCut > 0 && fabs(maxValue) < pedestalRMS*m_noiseSignifCut) continue;
     }
    
-    const Identifier id = m_larCablingSvc->cnvToIdentifier(channelID);
+    const Identifier id = cabling->cnvToIdentifier(channelID);
     const CaloDetDescrElement* caloDetElement = 0;
   
     HistoryContainer* histCont = m_samples->hist_cont(hash);
@@ -411,7 +422,7 @@ StatusCode LArShapeDumper::execute()
     if (connected) {
       if (!caloDetElement) caloDetElement = m_caloDetDescrMgr->get_element(id);
       noise = m_caloNoiseTool->getNoise(caloDetElement, ICalorimeterNoiseTool::TOTALNOISE);
-      status = m_badChannelTool->status(channelID).packedData();
+      status = bcCont->status(channelID).packedData();
       HWIdentifier febId = m_onlineHelper->feb_Id(m_onlineHelper->feedthrough_Id(channelID), m_onlineHelper->slot(channelID));
       std::map<unsigned int,uint16_t>::const_iterator findError = febErrorMap.find(febId.get_identifier32().get_compact());
       if (findError != febErrorMap.end()) {

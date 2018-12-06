@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_GeoModelFactory.h"
@@ -17,7 +17,6 @@
 #include "CLHEP/GenericFunctions/Sin.hh"
 #include "CLHEP/GenericFunctions/Cos.hh"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 #include "GeoModelUtilities/GeoOpticalPhysVol.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -62,7 +61,7 @@ void AFP_GeoModelFactory::DefineMaterials()
     std::string matName;
     GeoMaterialPropertiesTable *pMPT=NULL;
 
-    DataHandle<StoredMaterialManager> materialManager;
+    const StoredMaterialManager* materialManager = nullptr;
     if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
         return;
     }
@@ -85,8 +84,8 @@ void AFP_GeoModelFactory::DefineMaterials()
 
     // vacuum
     matName = "std::Vacuum";
-    GeoMaterial *vacuum = materialManager->getMaterial(matName);
-    m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,vacuum));
+    const GeoMaterial *vacuum = materialManager->getMaterial(matName);
+    m_MapMaterials.emplace(matName,vacuum);
 
     // optical vacuum
     matName = "OpticalVacuum";

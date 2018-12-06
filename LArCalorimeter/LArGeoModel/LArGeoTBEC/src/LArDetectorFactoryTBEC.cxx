@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArDetectorFactory.cxx
@@ -18,7 +18,6 @@
 #include "CLHEP/Geometry/Transform3D.h" 
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "StoreGate/DataHandle.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -78,11 +77,6 @@ void LArGeo::LArDetectorFactoryTBEC::create( GeoPhysVol* a_container )
   StoreGateSvc *detStore;
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in LArDetectorFactoryTBEC, cannot access DetectorStore");
-  }
-  
-  DataHandle<StoredMaterialManager> materialManager;
-  if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
-    throw std::runtime_error("Error in LArDetectorFactoryTBEC, cannot access Material Manager");
   }
   
   // V.N :  Patch LAr materials

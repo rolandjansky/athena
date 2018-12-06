@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L1Muctpi.h 681356 2015-07-08 12:17:52Z wengler $
@@ -81,6 +81,10 @@ namespace LVL1MUCTPI {
       StatusCode executeFromRDO();
       /// Validate the muon threshold configuration
       StatusCode validate( const std::vector< TrigConf::TriggerThreshold* >& thresholds ) const;
+      /// Update the data word for the RDO object
+      StatusCode updateMuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord);
+      /// Save the MuCTPI RDO object
+      StatusCode saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord);
       /// Save the outputs of the simulation into StoreGate
       StatusCode saveOutput(int bcidOffset = 0);
 

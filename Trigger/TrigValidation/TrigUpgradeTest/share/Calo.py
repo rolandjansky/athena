@@ -31,22 +31,18 @@ if TriggerFlags.doCalo:
     
      svcMgr += TrigCaloDataAccessSvc()
      svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
-     svcMgr.TrigCaloDataAccessSvc.MonTool = mon
-    
-    
-    
-     #topSequence += algo
-     #from TrigUpgradeTest.TestUtils import L1DecoderTest
-     #l1DecoderTest=L1DecoderTest()
-     #topSequence+=l1DecoderTest
+     svcMgr.TrigCaloDataAccessSvc.MonTool = mon           
     
      from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
      from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
+
+     RoIMode=True
 
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+EMRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
      algo1.OutputLevel=VERBOSE
+     algo1.roiMode = RoIMode
      topSequence += algo1
      algo2=HLTCaloCellSumMaker("testSumFastAlgo")
      algo2.OutputLevel=VERBOSE
@@ -65,3 +61,5 @@ if TriggerFlags.doCalo:
   algo.RoIs="StoreGateSvc+EMRoIs"
   topSequence += algo
 
+  from AthenaCommon.AlgSequence import dumpMasterSequence
+  dumpMasterSequence()

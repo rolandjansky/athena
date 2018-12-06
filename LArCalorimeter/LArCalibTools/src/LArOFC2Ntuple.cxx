@@ -96,6 +96,13 @@ StatusCode LArOFC2Ntuple::stop() {
      }
   }
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const LArOnOffIdMapping* cabling=*cablingHdl;
+  if(!cabling) {
+     ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
+     return StatusCode::FAILURE;
+  }
+
   unsigned cellCounter=0;  
   for ( unsigned igain=CaloGain::LARHIGHGAIN; 
 	igain<CaloGain::LARNGAIN ; ++igain ) {
@@ -104,7 +111,7 @@ StatusCode LArOFC2Ntuple::stop() {
     if ( m_isMC ) {
      for (;it!=it_e;it++) {
       const HWIdentifier chid = *it;
-      if (!m_larCablingSvc->isOnlineConnected(chid)) continue;
+      if (!cabling->isOnlineConnected(chid)) continue;
         (*m_log) <<  MSG::VERBOSE << "Dumping OFC for channel 0x" << MSG::hex 
 	  << chid.get_compact() << MSG::dec << endmsg;
         ILArOFC::OFCRef_t ofc_a=m_OFCTool->OFC_a(chid,igain);
@@ -131,7 +138,7 @@ StatusCode LArOFC2Ntuple::stop() {
     }  else { // is_MC
      for (;it!=it_e;it++) {
       const HWIdentifier chid = *it;
-      if ( !m_larCablingSvc->isOnlineConnected(chid)) continue;
+      if ( !cabling->isOnlineConnected(chid)) continue;
       (*m_log) <<  MSG::VERBOSE << "Dumping OFC for channel 0x" << MSG::hex
           << chid.get_compact() << MSG::dec << endmsg;
       for (unsigned iphase=0;iphase<larOFC->nTimeBins(chid,igain);iphase++) {

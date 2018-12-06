@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
@@ -99,11 +99,11 @@ GeoElement* AGDD2GeoModelBuilder::CreateElement(std::string name)
 	else
 		return 0;
 }
-GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(std::string name)
+const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(std::string name)
 {
 
 //  give priority to GeoModel's Material Manager in retrieving materials
-	GeoMaterial* mmMaterial=GetMMMaterial(name);
+        const GeoMaterial* mmMaterial=GetMMMaterial(name);
 	if (mmMaterial)
 	{
 //		std::cout<<"material "<<name<<" found in Material Manager "<<std::endl;
@@ -171,7 +171,7 @@ GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(std::string name)
 				for (int i=0;i<nmat->NComponents();i++)
 				{
 					AGDDSimpleMaterial *el=nmat->Material(i);
-					GeoMaterial* g4el=CreateMaterial(el->GetName());
+					const GeoMaterial* g4el=CreateMaterial(el->GetName());
 					g4mat->add(g4el,nmat->Composition(i));
 				}
 				mat->SetMaterial(g4mat);
@@ -504,7 +504,7 @@ void AGDD2GeoModelBuilder::CreatePgon(AGDDPgon* v)
 void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 {
 	static int ifirst=1;
-	static GeoMaterial *ether=0;
+	static const GeoMaterial *ether=0;
 	static GeoShape* fakeVol=0;
 	if (ifirst)
 	{
@@ -581,7 +581,7 @@ void AGDD2GeoModelBuilder::CreateVolume(AGDDVolume* v)
 {
 //	std::cout<<" this is CreateVolume"<<std::endl;
 
-	GeoMaterial *mat=CreateMaterial(ALIAS(v->GetMaterial()));
+	const GeoMaterial *mat=CreateMaterial(ALIAS(v->GetMaterial()));
 	
 	void* p=v->GetVolume();
 	if (!p)
@@ -801,14 +801,14 @@ void AGDD2GeoModelBuilder::CreateUbeam(AGDDUbeam *b)
 	}
 }
 
-GeoMaterial* AGDD2GeoModelBuilder::GetMMMaterial(std::string name)
+const GeoMaterial* AGDD2GeoModelBuilder::GetMMMaterial(std::string name)
 {
 	StoreGateSvc* pDetStore=0;
 	ISvcLocator* svcLocator = Gaudi::svcLocator();
 	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
 	if(sc.isSuccess())
 	{
-		DataHandle<StoredMaterialManager> theMaterialManager;
+                const StoredMaterialManager* theMaterialManager = nullptr;
 		sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
 		if(sc.isSuccess())
         {

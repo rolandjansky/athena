@@ -9,6 +9,68 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExe import athenaExecutor
 
+### Returns the toal number of needed events
+def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch,nBunches):
+    totalSubEvts  = nBunches*nSubEvtPerBunch
+    totalSubEvts += totalSubEvts*refreshRate*nSignalEvts
+    return totalSubEvts
+
+
+### Preparing the list of required input PU files
+import math
+def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings, logger):
+    uberList = []
+    refreshrate = 1.0
+
+    nSignalEvts = 1000
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if (athenaCommonFlags.EvtMax.get_Value()>0):
+        nSignalEvts = int(athenaCommonFlags.EvtMax.get_Value())
+        logger.info('Number of signal events (from athenaCommonFlags.EvtMax) = %s.', nSignalEvts )
+    else:
+        nSignalEvts = 0
+        import PyUtils.AthFile as athFile
+        for inFile in athenaCommonFlags.PoolHitsInput.get_Value():
+            try:
+                inputFile = athFile.fopen(inFile)
+                nSignalEvts += int(inputFile.nentries)
+                del inputFile
+            except:
+                logger.warning("Unable to open file [%s]"%inFile)
+                logger.warning('caught:\n%s',err)
+                import traceback
+                traceback.print_exc()
+        logger.info('Number of signal events (read from files) = %s.', nSignalEvts )
+
+    nBkgEventsPerFile = 5000
+    try:
+        import PyUtils.AthFile as athFile
+        inputFile = athFile.fopen(initialList[0])
+        nBkgEventsPerFile = int(inputFile.nentries)
+        logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
+        del inputFile
+    except:
+        import traceback
+        traceback.print_exc()
+        logger.warning('Failed to count the number of background events in %s. Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    from AthenaCommon.BeamFlags import jobproperties
+    Nbunches = 1 + digitizationFlags.finalBunchCrossing.get_Value() - digitizationFlags.initialBunchCrossing.get_Value()
+    nbunches = int(Nbunches)
+    if correctForEmptyBunchCrossings:
+        nbunches = int(math.ceil(float(nbunches) * float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value())))
+    logger.info('Simulating a maximum of %s colliding-bunch crossings (%s colliding+non-colliding total) per signal event', nbunches, Nbunches)
+    nBkgEventsForJob = pileUpCalc(float(nSignalEvts), 1.0, float(nBkgEvtsPerCrossing), nbunches)
+    logger.info('Number of background events required: %s. Number of background events in input files: %s', nBkgEventsForJob, (nBkgEventsPerFile*len(initialList)) )
+    numberOfRepetitionsRequired =float(nBkgEventsForJob)/float(nBkgEventsPerFile*len(initialList))
+    NumberOfRepetitionsRequired = 1 + int(math.ceil(numberOfRepetitionsRequired))
+    for i in range(0, NumberOfRepetitionsRequired):
+        uberList+=initialList
+    logger.info('Expanding input list from %s to %s', len(initialList), len(uberList))
+    return uberList
+
+
 ### Add Argument Methods
 def addCommonSimDigArguments(parser):
     from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addCommonSimDigTrfArgs

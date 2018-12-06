@@ -24,10 +24,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBase/IParticle.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
-
-
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
@@ -98,7 +94,7 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltInitialize() {
   }
 
   m_constTrigT2HistoPrmVtxBase = const_cast<const TrigT2HistoPrmVtxBase*>(m_c);
-
+  if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
   return HLT::OK;
 }
 
@@ -150,27 +146,25 @@ HLT::ErrorCode TrigT2HistoPrmVtx::hltExecute(const HLT::TriggerElement* /*inputT
   
   if(m_c->m_useBeamSpot) {
     
-    IBeamCondSvc* iBeamCondSvc; 
-    StatusCode scBS = service("BeamCondSvc", iBeamCondSvc);
-    
-    if (scBS.isFailure() || iBeamCondSvc == 0) {
-      iBeamCondSvc = 0;
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+
+    if (!beamSpotHandle.isValid()) {
       
       ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. "  );
       ATH_MSG_WARNING( "Using origin at ( " << m_c->m_xBeamSpot << " , "  << m_c->m_yBeamSpot << " , "  << m_c->m_zBeamSpot << " ) " );
       
     } else {
       
-      Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
+      const Amg::Vector3D &beamSpot = beamSpotHandle->beamPos();
       
       m_c->m_xBeamSpot = beamSpot.x();
       m_c->m_yBeamSpot = beamSpot.y();
       m_c->m_zBeamSpot = beamSpot.z();
-      m_c->m_xBeamSpotSigma = iBeamCondSvc->beamSigma(0);
-      m_c->m_yBeamSpotSigma = iBeamCondSvc->beamSigma(1);
-      m_c->m_zBeamSpotSigma = iBeamCondSvc->beamSigma(2);
-      m_c->m_xBeamSpotTilt = iBeamCondSvc->beamTilt(0);
-      m_c->m_yBeamSpotTilt = iBeamCondSvc->beamTilt(1);
+      m_c->m_xBeamSpotSigma = beamSpotHandle->beamSigma(0);
+      m_c->m_yBeamSpotSigma = beamSpotHandle->beamSigma(1);
+      m_c->m_zBeamSpotSigma = beamSpotHandle->beamSigma(2);
+      m_c->m_xBeamSpotTilt = beamSpotHandle->beamTilt(0);
+      m_c->m_yBeamSpotTilt = beamSpotHandle->beamTilt(1);
 
       ATH_MSG_DEBUG( "Beam spot from service: x = " << m_c->m_xBeamSpot << " +/- " << m_c->m_xBeamSpotSigma << "   "
                      << "y = " << m_c->m_yBeamSpot << " +/- " << m_c->m_yBeamSpotSigma << "   "

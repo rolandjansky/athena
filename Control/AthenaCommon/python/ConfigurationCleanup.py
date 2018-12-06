@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurationCleanup.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -42,7 +42,8 @@ def Cleanse():
    pycomps_dumpname = 'pycomponents_dump.pickle'
    f = open( pycomps_dumpname, 'wb' )
    pickle.dump( AthenaPython.Configurables.PyComponents.instances, f )
-   f.flush(); f.close()
+   f.flush()
+   f.close()
    del f, AthenaPython.Configurables, pickle
 
    def _is_special (c):
@@ -193,7 +194,7 @@ def Cleanse():
          continue
 
       try:
-         if issubclass( o, JobProperty ) and not o is JobProperty:
+         if issubclass( o, JobProperty ) and o is not JobProperty:
             stillThere.append( o )
             continue
       except TypeError:

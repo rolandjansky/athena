@@ -45,7 +45,6 @@ class Identifier;
 class CaloDetDescrManager;
 
 class ITileBadChanTool;
-class ILArBadChanTool;
 class ITHistSvc;
 
 class JetBadChanCorrTool: public JetModifierBase

@@ -22,8 +22,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
-//Beam Spot Condition
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkParameters/TrackParameters.h"
 
 class IBeamCondSvc;
@@ -52,11 +50,8 @@ namespace InDet {
     InDet::PixelClusterSplitProb compileSplitProbability(std::vector<double>& vectorOfProbs ) const;
     
     ToolHandle<TruthClusterizationFactory> m_truthClusterizationFactory;
-    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
 
     std::vector<double> m_priorMultiplicityContent;
-
-    bool m_useBeamSpotInfo;
 
   };
   

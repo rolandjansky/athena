@@ -13,12 +13,12 @@
 #include <vector>
 
 #include "TrkSpacePoint/SpacePointContainer.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class AtlasDetectorID;
 class SCT_ID;
 class PixelID;
 class IRegSelSvc;
-class IBeamCondSvc;
 
 class ITrigL2LayerNumberTool;
 
@@ -30,12 +30,12 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   virtual ~TrigSpacePointConversionTool(){};
 		
   // standard Athena methods
-  StatusCode initialize();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode finalize() override;
 
   //concrete implementations
 
-  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&);
+  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) override final;
 
  protected:
 
@@ -45,7 +45,7 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   const PixelID* m_pixelId;
   std::string    m_regionSelectorName;
   IRegSelSvc*    m_regionSelector;
-  IBeamCondSvc*  m_beamCondSvc; 
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   std::string m_pixelSpContName,m_sctSpContName;// offline/EF containers
   SG::ReadHandleKey<SpacePointContainer> m_sctSpacePointsContainerKey;

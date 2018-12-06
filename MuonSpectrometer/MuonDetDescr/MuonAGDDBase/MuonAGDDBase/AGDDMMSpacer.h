@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDMMSpacer_H
@@ -38,8 +38,6 @@ private:
 	double m_large_x;
 	double m_y;
 	double m_z;
-	
-	GeoMaterial* GetMMMaterial(std::string);
 };
 
 #endif

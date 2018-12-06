@@ -32,14 +32,13 @@
 #include "TrkTrack/Track.h"
 
 #include "IRegionSelector/RoiUtil.h"
-
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class ISpacePointProvider;
 class ITrigInDetTrackFitter;
 class ITrigTRT_TrackExtensionTool;
 class ITrigL2ResidualCalculator;
 class IRegSelSvc;
-class IBeamCondSvc;
 class EventID;
 class ITrigL2PattRecoStrategy;
 class SCT_ID;
@@ -225,7 +224,7 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
   std::string m_regionSelectorName;
   IRegSelSvc*       m_regionSelector;
 
-  IBeamCondSvc* m_iBeamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   // Data members for monitoring
 

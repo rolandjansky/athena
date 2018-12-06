@@ -100,7 +100,7 @@ namespace HLTTest {
 
     
     // Finally, record output
-    ATH_MSG_DEBUG("Produced "<<reco_output->size() <<" reco objects");
+    ATH_MSG_DEBUG("Produced "<<reco_output->size() <<" reco objects and stored in "<<m_recoOutput);
     auto reco_outputHandle = SG::makeHandle(m_recoOutput, context);
     CHECK( reco_outputHandle.record(std::move(reco_output), std::move(aux)) );
 

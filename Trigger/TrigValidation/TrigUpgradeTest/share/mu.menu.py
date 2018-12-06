@@ -76,39 +76,12 @@ if  TriggerFlags.doMuon==True:
     isData = False 
     if globalflags.InputFormat.is_bytestream():
         isData = True
-  
-    ### provide a minimal menu information ###
-    if isData:
-        topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-        topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
-        topSequence.L1DecoderTest.roiUnpackers[1].OutputLevel=DEBUG
-    else:
-        pass
-
-    # map L1 decisions for menu
-    for unpack in topSequence.L1DecoderTest.roiUnpackers:
-        if unpack.name() is "EMRoIsUnpackingTool":
-            unpack.Decisions="L1EM"
-        if unpack.name() is "MURoIsUnpackingTool":
-            unpack.Decisions="L1MU"
-            muUnpacker=unpack
-        
-    for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
-        if unpack.name() is "EMRerunRoIsUnpackingTool":
-            unpack.Decisions="RerunL1EM"
-            unpack.SourceDecisions="L1EM"
-   
-        if unpack.name() is "MURerunRoIsUnpackingTool":
-            unpack.Decisions="RerunL1MU"
-            unpack.SourceDecisions="L1MU"
+ 
            
     # this is a temporary hack to include new test chains
     EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in MenuChains])
     topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
-
-    #EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MenuChains]
-    #muUnpacker.ThresholdToChainMapping = EnabledMuChains
-
+  
 
     ##########################################
     # CF construction

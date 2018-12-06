@@ -12,7 +12,7 @@
 #ifndef SIMULATIONBASE
 #include "VxVertex/RecVertex.h"
 #endif
-
+//[[deprecated("Use BeamSpotData condition object")]] 
 class IBeamCondSvc : virtual public IInterface {
 
  public:

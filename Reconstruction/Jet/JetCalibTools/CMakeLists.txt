@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 789330 2016-12-12 17:07:48Z khoo $
+# $Id: CMakeLists.txt 808750 2017-07-26 19:46:53Z jbossios $
 ################################################################################
 # Package: JetCalibTools
 ################################################################################
@@ -31,7 +31,9 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree Hist RIO )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
+
+atlas_install_generic( share/* DESTINATION data/JetCalibTools )
 
 # Libraries in the package:
 atlas_add_library( JetCalibToolsLib
@@ -60,11 +62,49 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore xAODRootAccess JetCalibToolsLib )
+   
+   atlas_add_executable( JetCalibTools_PlotJESFactors
+      util/JetCalibTools_PlotJESFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
+   
+   atlas_add_executable( JetCalibTools_PlotJMSFactors
+      util/JetCalibTools_PlotJMSFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_SmearingPlots
+      util/JetCalibTools_SmearingPlots.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
+   
 else()
    atlas_add_executable( JetCalibTools_Example
       util/JetCalibTools_Example.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODEventShape xAODCore POOLRootAccess xAODRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotJESFactors
+      util/JetCalibTools_PlotJESFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotJMSFactors
+      util/JetCalibTools_PlotJMSFactors.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_SmearingPlots
+      util/JetCalibTools_SmearingPlots.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccess JetCalibToolsLib )
+
 endif()
 

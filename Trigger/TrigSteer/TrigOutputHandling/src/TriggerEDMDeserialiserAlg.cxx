@@ -51,7 +51,10 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
   auto resultHandle = SG::makeHandle( m_resultKey, context );
   const Payload* dataptr = nullptr;
   // TODO: revise if there are use cases where result may be not available in some events
-  ATH_CHECK( resultHandle->getSerialisedData( m_moduleID, dataptr ) );
+  if ( resultHandle->getSerialisedData( m_moduleID, dataptr ).isFailure() ) {
+    ATH_MSG_DEBUG("No payload available with moduleId " << m_moduleID << " in this event");
+    return StatusCode::SUCCESS;
+  }
   PayloadIterator start = dataptr->begin();
   
   while ( start != dataptr->end() )  {
@@ -68,7 +71,7 @@ StatusCode TriggerEDMDeserialiserAlg::execute_r(const EventContext& context) con
     RootType classDesc = RootType::ByName( transientType+"_v1" ); // TODO remove this dirty hack, needsdiscussion how to find the real type
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
-    ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " from available " << bsize  );
+    ATH_MSG_DEBUG( "Obtained object " << obj << " which used " << usedBytes << " bytes from available " << bsize  );
     // for the moment I do not know what do with the raw prt
 
     if ( obj ) {

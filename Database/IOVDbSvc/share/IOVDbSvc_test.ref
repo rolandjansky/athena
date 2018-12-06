@@ -2,7 +2,7 @@ IOVDbSvc_test
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/IOVDbSvc_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/work/s/ssnyder/builds/atlas-work3/build-x86_64-slc6-gcc62-dbg/Database/IOVDbSvc/unitTestRun/../share/IOVDbSvc_test.txt
+JobOptionsSvc        INFO # =======> user_path/athena/Database/IOVDbSvc/share/../share/IOVDbSvc_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (2,1): IOVDbSvc.Folders = ["/key1", "/key2<extensible/>"]
 JobOptionsSvc        INFO # (3,1): EventPersistencySvc.CnvServices += ["AthenaPoolCnvSvc"]
@@ -10,7 +10,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/IOVDbSv
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r4)
-                                          running on lxplus051.cern.ch on Sat Nov 10 04:16:03 2018
+                                          running on lxplus021.cern.ch on Mon Nov 19 14:46:10 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ClassIDSvc           INFO  getRegistryEntries: read 642 CLIDRegistry entries for module ALL
@@ -23,8 +23,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-11-08T2259/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus051.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-11-17T2340/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus021.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -32,7 +32,7 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
-IOVDbSvc             INFO Extensible folder /key2
+IOVDbFolder          INFO Extensible folder /key2
 IOVDbSvc             INFO Initialised with 1 connections and 2 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=cooldummy.db;dbname=OFLP200
@@ -44,6 +44,6 @@ IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=cooldummy
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=cooldummy.db;dbname=OFLP200
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-IOVDbSvc             INFO Increase cache length (step 1) for folder /key2 to 8589934590 at validityKey 85899345935
+IOVDbFolder          INFO Increase cache length (step 1) for folder /key2 to 8589934590 at validityKey 85899345935
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=cooldummy.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=cooldummy.db;dbname=OFLP200
