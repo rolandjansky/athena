@@ -49,7 +49,7 @@ class doFastElectronFex(JobProperty):
     '''enable L2ElectronFex cuts and sequence'''
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 _flags.append(doFastElectronFex)
 
@@ -57,15 +57,33 @@ class doRinger(JobProperty):
     '''apply ringer selection for Electron chains'''
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 _flags.append(doRinger) 
 
+
+class doRingerBelow15GeV(JobProperty):
+    '''apply ringer selection for Electron chains below 15GeV'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doRingerBelow15GeV) 
+
+
+class doSuperClusters(JobProperty):
+    '''Use Superclusters to build Egamma trigger objects'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doSuperClusters) 
+
 class ringerVersion (JobProperty):
     """ Version ringer tunes """
-    statusOn=False
-    allowedTypes=['str','None']
-    StoreValues=None
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue='RingerSelectorTools/TrigL2_20180125_v8/'
 
 _flags.append(ringerVersion)
 
@@ -74,7 +92,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_mc16a/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20180312/'
 
 _flags.append(pidVersion)
 
@@ -85,7 +103,7 @@ class clusterCorrectionVersion (JobProperty):
     statusOn=True
     allowedTypes=['str','None']
     allowedValues=['v12phiflip_noecorrnogap','None']
-    StoredValue=None
+    StoredValue='v12phiflip_noecorrnogap'
 
 _flags.append(clusterCorrectionVersion)
 
@@ -95,7 +113,7 @@ class calibMVAVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='egammaMVACalib/online/v3'
+    StoredValue='egammaMVACalib/online/v6'
 
 _flags.append(calibMVAVersion)
 
@@ -116,17 +134,28 @@ del _flags
 # make an alias
 EgammaSliceFlags = TriggerFlags.EgammaSlice
 
-run2Flag = TriggerFlags.run2Config
-if run2Flag=='2016':
-    log.info('EgammaSliceFlags set for %s',run2Flag)
-    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_mc16a/'
-    EgammaSliceFlags.clusterCorrectionVersion = None
-    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v3'
-elif run2Flag=='2017':
-    log.info('EgammaSliceFlags set for %s',run2Flag)
-    EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170214/'
-    EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
-    EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
-else:
-    log.info('EgammaSliceFlags not set use defaults',run2Flag)
+def run2ConfigAction(run2Flag):
+    if run2Flag=='2016':
+        log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170505_v6'
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
+        EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+        EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+        EgammaSliceFlags.doSuperClusters=False
+    elif run2Flag=='2017':
+        log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170505_v6'
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217/'
+        EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+        EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+        EgammaSliceFlags.doSuperClusters=False
+    elif run2Flag=='2018':
+        log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20180125_v8/'
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312/'
+        EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+        EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'                       # Hey! Here we need to use new calibration constants....
+        EgammaSliceFlags.doSuperClusters=False
+    else:
+        log.info('EgammaSliceFlags not set use defaults',run2Flag)
 

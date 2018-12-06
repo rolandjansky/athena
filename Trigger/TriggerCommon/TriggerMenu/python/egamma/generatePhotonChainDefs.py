@@ -46,47 +46,50 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
         if signature['listOfTriggerElements'][0][0:2] == "L2":
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
-    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']
-      
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-    L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     
-    if "Jpsiee" in chainDict["topo"]:
+    if 'dPhi15' in chainDict['topo']:
+        EFChainName = 'EF_2g_OvlRem_dPhi15'
+        from TrigGenericAlgs.TrigGenericAlgsConfig import OverlapRemovalConfig
+        OverlapRemoval_algo = OverlapRemovalConfig('OvlRem', MinPhiDist = 1.5, MinEtaDist = 0)
+    
+        theChainDef.addSequence([OverlapRemoval_algo],inputTEsEF,EFChainName)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+    elif "Jpsiee" in chainDict["topo"]:
 
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Jpsiee, TrigL2DielectronMassHypo_Jpsiee
-
-        L2Fex = TrigL2DielectronMassFex_Jpsiee()
-        L2Hypo = TrigL2DielectronMassHypo_Jpsiee()        
 
         EFFex = TrigEFDielectronMassFex_Jpsi()
         EFHypo = TrigEFDielectronMassHypo_Jpsi()
         
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
-
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
-    if "Zeg" in chainDict["topo"]:
+    elif "Zeg" in chainDict["topo"]:
 
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zeg, TrigEFDielectronMassHypo_Zeg
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zeg, TrigL2DielectronMassHypo_Zeg
-
-        L2Fex = TrigL2DielectronMassFex_Zeg()
-        L2Hypo = TrigL2DielectronMassHypo_Zeg()        
 
         EFFex = TrigEFDielectronMassFex_Zeg()
         EFHypo = TrigEFDielectronMassHypo_Zeg()
         
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
-        theChainDef.addSignatureL2([L2ChainName])
-
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
+    #elif "Heg" in chainDict["topo"]:
+
+    #    from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Heg, TrigEFDielectronMassHypo_Heg
+
+    #    EFFex = TrigEFDielectronMassFex_Heg()
+    #    EFHypo = TrigEFDielectronMassHypo_Heg()
+        
+    #    theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+    #    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+    
+    else:
+        pass 
 
     return theChainDef
 
