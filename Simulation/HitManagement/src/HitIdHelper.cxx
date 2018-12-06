@@ -7,7 +7,7 @@
 #include <cmath>
 #include <assert.h>
 
-void HitIdHelper::InitializeField(std::string n, int vmn, int vmx)
+void HitIdHelper::InitializeField(const std::string& n, int vmn, int vmx)
 {
   int field = vmx -vmn+1;
   int nb=1;
@@ -18,7 +18,7 @@ void HitIdHelper::InitializeField(std::string n, int vmn, int vmx)
   assert (m_currentStorage<33);
 }
 
-void HitIdHelper::InitializeField(std::string n,int nb)
+void HitIdHelper::InitializeField(const std::string& n,int nb)
 {
   int vmn=0;
   int vmx=int(pow(2,nb))-1;
@@ -28,24 +28,7 @@ void HitIdHelper::InitializeField(std::string n,int nb)
   assert (m_currentStorage<33);
 }
 
-void HitIdHelper::SetFieldValue(std::string name, int n)
-{
-  for (unsigned int i=0;i<m_IDs.size();i++)
-    {
-      if (m_IDs[i].fieldName==name)
-        {
-          if (n<m_IDs[i].vMin || n>m_IDs[i].vMax)
-            std::cout<<"HitIdHelper: field "<<name<<": supplied value "<<n<<
-              " is not within the allowed range ["<<m_IDs[i].vMin<<","<<m_IDs[i].vMax
-                     <<"] : the result of this action is unpredictable "<<std::endl;
-          n-=m_IDs[i].vMin;
-          Store(m_id,n,m_IDs[i].firstBit,m_IDs[i].nBits);
-          break;
-        }
-    }
-}
-
-void HitIdHelper::SetFieldValue(std::string name, int n, HitID& targetID) const
+void HitIdHelper::SetFieldValue(const std::string& name, int n, HitID& targetID) const
 {
   for (unsigned int i=0;i<m_IDs.size();i++)
     {
@@ -62,22 +45,7 @@ void HitIdHelper::SetFieldValue(std::string name, int n, HitID& targetID) const
     }
 }
 
-int  HitIdHelper::GetFieldValue(std::string name)
-{
-  for (unsigned int i=0;i<m_IDs.size();i++)
-    {
-      if (m_IDs[i].fieldName==name)
-        {
-          int n=Retrieve(m_id,m_IDs[i].firstBit,m_IDs[i].nBits);
-          return n+m_IDs[i].vMin;
-        }
-    }
-  std::cout<<"HitIdHelper: field "<<name<<" not found: returning 0"<<
-    std::endl;
-  return 0;
-}
-
-int HitIdHelper::GetFieldValue(std::string name, HitID targetID) const
+int HitIdHelper::GetFieldValue(const std::string& name, HitID targetID) const
 {
   for (unsigned int i=0;i<m_IDs.size();i++)
     {

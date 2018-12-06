@@ -22,21 +22,15 @@ typedef std::vector<IdField> IdFields;
 
 class HitIdHelper {
 public:
-  HitIdHelper():m_id(0), m_currentStorage(0)  {}
+  HitIdHelper(): m_currentStorage(0)  {}
   virtual ~HitIdHelper() {}
-  void InitializeField(std::string n, int vmn, int vmx);
-  void InitializeField(std::string n, int nb);
-  void SetFieldValue(std::string name, int n);
-  void SetFieldValue(std::string name, int n, HitID& targetID) const;
-  int  GetFieldValue(std::string name);
-  int  GetFieldValue(std::string name, HitID targetID) const;
+  void InitializeField(const std::string& n, int vmn, int vmx);
+  void InitializeField(const std::string& n, int nb);
+  void SetFieldValue(const std::string& name, int n, HitID& targetID) const;
+  int  GetFieldValue(const std::string& name, HitID targetID) const;
   void PrintFields();
-  void SetID(int i)       {m_id=i;}      // FIXME drop this method?
-  HitID GetID()           {return m_id;} // FIXME drop this method?
-  void ResetID()          {m_id=0;} // FIXME drop this method?
   void Print(int id);
 protected:
-  HitID m_id; // FIXME drop this member variable
   IdFields m_IDs;
   int m_currentStorage;
   void SetBit(int& i, int bitpos) const;
