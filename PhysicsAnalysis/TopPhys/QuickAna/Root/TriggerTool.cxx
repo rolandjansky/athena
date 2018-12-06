@@ -355,7 +355,6 @@ namespace ana
           if ( m->auxdata<char>("ana_select_or") && !m->auxdata<char>("overlaps") ) {
             my_muons.push_back( m );
             if ( m->pt() > m_TriggerPtThreshold*1000. ) m_PassTrigPtThre = true;
-//            my_muons.push_back( m ); // 1.05*online pt requirement
             //// As long as we are here, get the efficiency
             double trig_eff_mc = 1., trig_eff_data = 1.;
             if (!isDiMuTrig) {
