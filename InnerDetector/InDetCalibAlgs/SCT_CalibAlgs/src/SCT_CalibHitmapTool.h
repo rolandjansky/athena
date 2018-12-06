@@ -32,12 +32,13 @@ class StatusCode;
 
 //class SCT_CalibHitmapTool : virtual public ISCT_CalibHistoTool, public AthAlgTool
 class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
-{
+ {
 
    public:
       //@name Tool methods, reimplemented
       //@{
-      SCT_CalibHitmapTool(const std::string&);
+      SCT_CalibHitmapTool(const std::string& type, const std::string& name, const IInterface* parent);
+      //SCT_CalibHitmapTool(const std::string&);
       virtual ~SCT_CalibHitmapTool(){};
       virtual StatusCode initialize();
       virtual StatusCode finalize();

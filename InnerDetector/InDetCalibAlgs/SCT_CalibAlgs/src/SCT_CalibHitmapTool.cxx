@@ -33,7 +33,8 @@ const static string pathRoot("/HitMaps/");
 const static string detectorNames[] = { "negativeEndcap", "barrel", "positiveEndcap" };
 const static string detectorPaths[]= {"SCTEC/", "SCTB/","SCTEA/"};
 
-SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& name) :
+SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& type, const std::string& name, const IInterface* parent) :
+   base_class(type, name, parent),
    m_detStore("DetectorStore", name),
    m_evtStore("StoreGateSvc", name),
    m_pSCTHelper(0),
