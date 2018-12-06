@@ -46,10 +46,18 @@ def TrigInDetConfig( flags ):
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
                                                      #OutputLevel = INFO)
     InDetPixelRawDataProvider.isRoI_Seeded = True
-    InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
+    InDetPixelRawDataProvider.RoIs = "EMRoIs"
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
 
     acc.addEventAlgo(InDetPixelRawDataProvider)
+
+
+    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+    extra_folders = addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+    acc.merge(extra_folders)
+
+    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+    acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
 
 
 
@@ -70,7 +78,7 @@ def TrigInDetConfig( flags ):
                                                 ProviderTool = InDetSCTRawDataProviderTool, )
                                                 #OutputLevel = INFO)
     InDetSCTRawDataProvider.isRoI_Seeded = True
-    InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
+    InDetSCTRawDataProvider.RoIs = "EMRoIs"
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
 
     acc.addEventAlgo(InDetSCTRawDataProvider)
@@ -108,7 +116,7 @@ def TrigInDetConfig( flags ):
                                                  RDOKey       = "TRT_RDOs",
                                                   ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
-    InDetTRTRawDataProvider.RoIs = "EMViewRoIs"
+    InDetTRTRawDataProvider.RoIs = "EMRoIs"
 
     acc.addEventAlgo(InDetTRTRawDataProvider)
 
@@ -147,7 +155,7 @@ def TrigInDetConfig( flags ):
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
                                                         ClustersName            = "PixelTrigClusters",)# OutputLevel = INFO)
   InDetPixelClusterization.isRoI_Seeded = True
-  InDetPixelClusterization.RoIs = "EMViewRoIs"
+  InDetPixelClusterization.RoIs = "EMRoIs"
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey
 
   acc.addEventAlgo(InDetPixelClusterization)
@@ -192,7 +200,7 @@ def TrigInDetConfig( flags ):
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
-  InDetSCT_Clusterization.RoIs = "EMViewRoIs"
+  InDetSCT_Clusterization.RoIs = "EMRoIs"
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey
 
   acc.addEventAlgo(InDetSCT_Clusterization)
@@ -236,10 +244,9 @@ def TrigInDetConfig( flags ):
   #                                                         TrackName = "TrigFastTrackFinder_Tracks",
   #                                                         TrackParticlesName = "xAODTracks",
   #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-  #theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
+  #theTrackParticleCreatorAlg.roiCollectionName = "EMRoIs"
   #acc.addEventAlgo(theTrackParticleCreatorAlg)
 
-  #acc.merge( MainServicesSerialCfg( ) )
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
   gmc,geoModelSvc = GeoModelCfg( ConfigFlags )
   acc.merge( gmc )
@@ -296,21 +303,26 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    ConfigFlags.Trigger.LVL1ConfigFile = "LVL1config_Physics_pp_v7.xml"
     ConfigFlags.lock()
 
     acc = ComponentAccumulator()
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge(TrigBSReadCfg(ConfigFlags))
-
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    acc.merge( TrigInDetConfig( ConfigFlags ) )
-    from RegionSelector.RegSelConfig import RegSelConfig
-    acc.merge( RegSelConfig( ConfigFlags ) )
-
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(l1DecoderAlg)
     acc.merge(l1DecoderAcc)
+    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
+    acc.merge(TrigBSReadCfg(ConfigFlags))
+
+    acc.merge( TrigInDetConfig( ConfigFlags ) )
+    from RegionSelector.RegSelConfig import RegSelConfig
+    rsc, regSel = RegSelConfig( ConfigFlags )
+    regSel.enableCalo = False # turn off calo, certainly a better way to do this...
+    acc.merge( rsc )
+    acc.addService(regSel)
+
+    #from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    #acc.merge( MainServicesSerialCfg( ) )
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
