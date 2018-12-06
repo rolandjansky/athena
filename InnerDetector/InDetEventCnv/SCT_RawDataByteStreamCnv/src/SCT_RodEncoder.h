@@ -52,13 +52,13 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   virtual ~SCT_RodEncoder() = default;
 
   /** AlgTool initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalize*/
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
-  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const vRDOs_t& vecRDOs) const;
+  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const vRDOs_t& vecRDOs) const override;
 
  private:
 
