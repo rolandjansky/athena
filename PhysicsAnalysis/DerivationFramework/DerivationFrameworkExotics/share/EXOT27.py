@@ -75,6 +75,7 @@ EXOT27AllVariables = [
 if DerivationFrameworkIsMonteCarlo:
   EXOT27AllVariables += [
     "TruthParticles",
+    "TruthVertices",
     "MET_Truth",
     ]
 EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink",
