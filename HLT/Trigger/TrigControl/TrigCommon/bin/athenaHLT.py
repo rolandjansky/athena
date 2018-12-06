@@ -181,8 +181,9 @@ def HLTMPPy_cfgdict(args):
    }
 
    cdict['trigger'] = {
-      'library': ['TrigServices', 'TrigPSC'],
-      'joType' : args.joboptionsvc_type
+      'library': ['TrigPSC'],
+      'joType' : args.joboptionsvc_type,
+      'msgType' : args.msgsvc_type
    }
    if not args.use_database:      # job options
       cdict['trigger'].update({
