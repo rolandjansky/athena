@@ -77,10 +77,6 @@ def _setupCommonServices():
     # Configuration of Interval of Validity Service
     svcMgr += CfgMgr.IOVSvc()
     
-    # Configure TrigISHelper
-    from TrigServices.TrigServicesConf import TrigISHelper
-    ToolSvc += TrigISHelper("TrigISHelper")
-
     # Configure CoreDumpSvc
     if not hasattr(svcMgr,"CoreDumpSvc"):
         from AthenaServices.Configurables import CoreDumpSvc
