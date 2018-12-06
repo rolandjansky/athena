@@ -20,6 +20,9 @@ def TrigInDetConfig( flags ):
 
   acc.addEventAlgo(InDetCacheCreatorTrigViews)
 
+  from AthenaCommon.CfgGetter import getService
+  PixelCablingSvc = getService("PixelCablingSvc")
+  acc.addService(PixelCablingSvc)
 
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
@@ -236,10 +239,11 @@ def TrigInDetConfig( flags ):
   #theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   #acc.addEventAlgo(theTrackParticleCreatorAlg)
 
-  acc.merge( MainServicesSerialCfg( ) )
+  #acc.merge( MainServicesSerialCfg( ) )
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
   gmc,geoSvc = GeoModelCfg( ConfigFlags )
   acc.merge( gmc )
+  acc.addService(geoSvc)
 
 
   return acc
