@@ -4,6 +4,8 @@
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
 
+#xxx configure TileDQstatusAlg
+
 from AthenaCommon.Logging import logging
 log_tbntuple = logging.getLogger( 'jobOptions_TileTBNtuple.py' )
 
@@ -116,6 +118,7 @@ if TileCisRun or TileMonoRun:
 
     # declare CIS tool(s) and set jobOptions if necessary
     TileCisTool = TileCisDefaultCalibTool()
+    # xxx set TileDQstatusAlg.TileRawChannelContainer="TileRawChannelCnt"
 
     if hasattr(ToolSvc, 'TileDigitsMon'):
         TileCisTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
