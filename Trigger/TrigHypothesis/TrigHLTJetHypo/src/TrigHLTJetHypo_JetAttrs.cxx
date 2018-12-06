@@ -66,7 +66,7 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     std::vector<double> EVec ;
     std::vector<double> limitMinVec ;
     std::vector<double> limitMaxVec ;
-
+    unsigned int nmbVars= m_has.size()/m_E.size();
 
     if(m_E.size() == 0){
       ATH_MSG_INFO("amanda - no defined jet moments, return false");    
@@ -79,11 +79,11 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
         for(unsigned int noJets=0; noJets<m_E.size(); noJets++){
           ATH_MSG_INFO("amanda - considering jet energies "<< m_E[noJets]);
           EVec.push_back(m_E[noJets]);
-          for(unsigned int count=0; count<(m_has.size()/m_E.size()); count++){
-              if(m_has[count].compare(match)==0){
-                jetVarVec.push_back(m_jetVars[count%2]);
-                ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[count%2]);
-                std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[count%2]))(m_limitMins[count], m_limitMaxs[count]);
+          for(unsigned int count=0; count<nmbVars; count++){
+              if(m_has[count+nmbVars*noJets].compare(match)==0){
+                jetVarVec.push_back(m_jetVars[(count+nmbVars*noJets)% m_jetVars.size()]);
+                ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[(count+nmbVars*noJets)% m_jetVars.size()]);
+                std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[(count+nmbVars*noJets)% m_jetVars.size()]))(m_limitMins[count+nmbVars*noJets], m_limitMaxs[count+nmbVars*noJets]);
 
                 ATH_MSG_INFO("amanda - got limits " << limits);
                 limitMinVec.push_back(limits.first);

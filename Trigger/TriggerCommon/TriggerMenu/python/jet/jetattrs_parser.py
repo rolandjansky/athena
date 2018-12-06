@@ -74,6 +74,7 @@ def parse(s, vals):
 if __name__ == '__main__':
 
     for s in ('subj360Iktdr2I3width6IIsubj300Iwidth',
+              'subj360Iktdr3IIsubj300Iwidth2',
               'subj360Iktdr',
               'subj360I0width5',
               'subj360IXXX', 'XXX'):

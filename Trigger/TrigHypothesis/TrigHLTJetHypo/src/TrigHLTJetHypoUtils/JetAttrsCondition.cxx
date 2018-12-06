@@ -41,21 +41,36 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
   std::cout << "amanda - in JetAttrsCondition \n";
   std::cout << "amanda - length of condition input arrays (var,E,min,max): "<< m_jetVar.size() << m_E.size() << m_limitMin.size() << m_limitMax.size() << "\n";
 
+  /*
   //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
   for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
     bool trigDec=true; //resets for each jet energy
     for (unsigned int index=0; index < nmbVars; index++){
-      if(m_jetVar[index+nmbVars*jetEn].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
-      else if(m_jetVar[index+nmbVars*jetEn].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
+      if(m_jetVar[index+nmbVars*jetEn].compare("width")==0){trigDecision*=passWidthCut(jet,index+nmbVars*jetEn);}
+      else if(m_jetVar[index+nmbVars*jetEn].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index+nmbVars*jetEn);}
       else if(m_jetVar[index+nmbVars*jetEn].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
       else{trigDecision*=false;} //variable does not yet have passCut method
     }
     trigDecision*=trigDec;
   }  
+  */
+
+  //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
+  for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
+    //bool trigDec=true; //resets for each jet energy
+    for (unsigned int index=0; index < nmbVars; index++){
+      if(m_jetVar[index+nmbVars*jetEn].compare("width")==0){trigDecision*=passWidthCut(jet,index+nmbVars*jetEn);}
+      else if(m_jetVar[index+nmbVars*jetEn].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index+nmbVars*jetEn);}
+      else if(m_jetVar[index+nmbVars*jetEn].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
+      else{trigDecision*=false;} //variable does not yet have passCut method
+    }
+    if(trigDecision){return true;} //if full trigger is satisfied, return true (trigDecision==true)
+  }  
 
 
-  return trigDecision;
+  return false;
 }
+
 
 
 bool JetAttrsCondition::passWidthCut(pHypoJet j0, int i) const {
@@ -65,6 +80,8 @@ bool JetAttrsCondition::passWidthCut(pHypoJet j0, int i) const {
   Jet jetStruct;
 
   std::cout << "amanda - in JetAttrsCondition passWidthCut \n";
+  std::cout << "amanda - limits " << m_limitMin[i] << " and " << m_limitMax[i] << "\n";
+
   if (j0 -> getAttribute("Width",widthVar)){
     jetStruct.validCondition=true;
     jetStruct.value=widthVar;
