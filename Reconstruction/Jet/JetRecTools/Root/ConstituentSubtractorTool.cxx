@@ -31,8 +31,8 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
   declareProperty("CommonBgeForRhoAndRhom",m_commonBgeForRhoAndRhom=false);
   declareProperty("DoRapidityRescaling",m_doRapidityRescaling=false);
   declareProperty("DoRapidityPhiRescaling",m_doRapidityPhiRescaling=false);
-  declareProperty("FileRescaling",m_fileRescaling="");
-  declareProperty("HistogramRescaling",m_histogramRescaling="");
+  declareProperty("RescalingFileName",m_rescalingFileName="");
+  declareProperty("RescalingHistogramName",m_rescalingHistogramName="");
 
   // Option to disregard cPFOs in the weight calculation
   declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
@@ -60,13 +60,13 @@ StatusCode ConstituentSubtractorTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if((m_doRapidityRescaling || m_doRapidityPhiRescaling) && (m_fileRescaling=="" || m_histogramRescaling=="")) {
+  if((m_doRapidityRescaling || m_doRapidityPhiRescaling) && (m_rescalingFileName=="" || m_rescalingHistogramName=="")) {
     ATH_MSG_ERROR("Incompatible configuration: You have chosen a background rescaling, but you have not specified the path to the file with rescaling histograms or the name of the histogram. Specify properties FileRescaling and HistogramRescaling.");
     return StatusCode::FAILURE;
   }
 
   if(m_doRapidityRescaling || m_doRapidityPhiRescaling){
-    std::string fullPathToFile=PathResolverFindCalibFile(m_fileRescaling); // returns "" if file not found
+    std::string fullPathToFile=PathResolverFindCalibFile(m_rescalingFileName); // returns "" if file not found
     if (fullPathToFile.empty()){
       ATH_MSG_ERROR("Incompatible configuration: The provided file for rescaling was not found using PathResolver.");
       return StatusCode::FAILURE;
@@ -76,7 +76,7 @@ StatusCode ConstituentSubtractorTool::initialize() {
       ATH_MSG_ERROR("Incompatible configuration: The file for rescaling has been tried to open, but it was found it is zombie.");
       return StatusCode::FAILURE;
     }
-    std::unique_ptr<TObject> object(file->Get(m_histogramRescaling.data()));
+    std::unique_ptr<TObject> object(file->Get(m_rescalingHistogramName.data()));
     if (!object){
       ATH_MSG_ERROR("Incompatible configuration: The provided histogram name was not found in the root file.");
       return StatusCode::FAILURE;

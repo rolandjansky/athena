@@ -51,8 +51,8 @@ private:
   bool m_useWorkaroundForBugInFastjetContrib=true;
   bool m_doRapidityRescaling = false;
   bool m_doRapidityPhiRescaling = false;
-  std::string m_fileRescaling;
-  std::string m_histogramRescaling;
+  std::string m_rescalingFileName;
+  std::string m_rescalingHistogramName;
   std::unique_ptr<fastjet::FunctionOfPseudoJet<double> > m_rescaling=nullptr;
   std::unique_ptr<TH1D> m_hist=nullptr;
   std::unique_ptr<TH2D> m_hist2D=nullptr;
