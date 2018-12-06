@@ -136,6 +136,15 @@ class EFMetHypoXE (EFMissingETHypoBase):
         self.SumETCut = 100000000*GeV
         self.forceAccept=False
         self.onlineMonitoring(False)
+        self.doLArH11off=False
+        self.doLArH12off=False
+        self.doMETphicut=False
+        if 'LArH11off' in name:
+            self.doLArH11off = True
+        if 'LArH12off' in name:
+            self.doLArH12off = True
+        if 'METphi' in name:
+            self.doMETphicut = True
         if 'wMu' in name:
             self.doMuonCorrection = True
         if 'Mon' in name:
@@ -302,18 +311,27 @@ class EFMetHypoFTKTrackAndJetsXE (EFMissingETHypoBase):
 
 class EFMetHypoTCPUCXE (EFMissingETHypoBase):
     __slots__ = []
-    def __init__(self, name = "EFMetHypo_tcpucxe1000",ef_thr=1000*GeV):
+    def __init__(self, name = "EFMetHypo_tcpucxe1000",ef_thr=1000*GeV,labelMET = ""):
         super( EFMetHypoTCPUCXE, self ).__init__( name )
 
         self.SumETCut=ef_thr
         self.MissingETCut=ef_thr
         self.CutType=-2.0
-        self.METLabel='TrigEFMissingET_topocl_PUC'
+        self.METLabel='TrigEFMissingET_topocl_PUC' if 'LAr' not in labelMET else 'TrigEFMissingET_EFMissingET_Fex_topoClustersPUC'+labelMET
         self.doMuonCorrection = False
         self.SumETCut = 100000000*GeV
         self.forceAccept=False
         self.onlineMonitoring(False)
         self.doEMScaleTC=True
+        self.doLArH11off=False
+        self.doLArH12off=False
+        self.doMETphicut=False
+        if 'LArH11off' in name:
+            self.doLArH11off = True
+        if 'LArH12off' in name:
+            self.doLArH12off = True
+        if 'METphi' in name:
+            self.doMETphicut = True
         if 'tchad' in name:
             self.doEMScaleTC = False
         if 'tclcw' in name:
@@ -327,6 +345,35 @@ class EFMetHypoTCPUCXE (EFMissingETHypoBase):
             self.SumETCut=-100*GeV
         if 'xe30' in name:
             self.onlineMonitoring(True)
+
+class EFMetHypoTCTrkPUCXE (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_tctrkpucxe1000",ef_thr=1000*GeV, extraCalib = ""):
+        super( EFMetHypoTCTrkPUCXE, self ).__init__( name )
+
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_topocltrk_PUC{0}'.format(extraCalib)
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doEMScaleTC=True
+        if 'tchad' in name:
+            self.doEMScaleTC = False
+        if 'tc' in name and 'lcw' in name:
+            self.doEMScaleTC = False
+        if 'tc' in name and 'em' in name:
+            self.doEMScaleTC = True
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
 
 class L2MetHypoTE (EFMissingETHypoBase):
     __slots__ = []

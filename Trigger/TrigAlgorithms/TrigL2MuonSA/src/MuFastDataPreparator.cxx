@@ -283,7 +283,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     }
   }
  
-  //m_recRPCRoiSvc->reconstruct((*p_roi)->roiWord());
+  m_recRPCRoiSvc->reconstruct(p_roi->roiWord());
   double roiEtaMinLow = 0.;
   double roiEtaMaxLow = 0.;
   double roiEtaMinHigh = 0.;

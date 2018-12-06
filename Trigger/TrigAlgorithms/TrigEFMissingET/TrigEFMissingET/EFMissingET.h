@@ -164,6 +164,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_decodeDetMask;    //!< switch on/off DetMask decoding
     bool m_doTopoClusters;   //!< switch on/off topo. clusters
     bool m_doJets;           //!< switch on/off jets
+    bool m_doJetVeto;        //!< siwtch on/off jetveto
     bool m_doTracks;         //!< switch on/off tracks
     bool m_doPUC;            //!< switch on/off Pile-up fit
     int  m_n_sizePers;       //!< number of components in pers. objects

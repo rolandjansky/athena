@@ -128,6 +128,8 @@ class TrigEFElectronHypo_e_ID_HI (TrigEFElectronHypoBase):
             self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
+            # Note that HI use different isEM bits than standard ones
+            from TrigEgammaHypo.TrigEGammaPIDdefsHI import ElectronIsEMBits
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
 

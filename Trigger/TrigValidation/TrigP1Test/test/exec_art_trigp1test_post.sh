@@ -59,7 +59,8 @@ fi
 
 if [ -f trig_cost.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CostMon"
-  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode > costMon.log 2>&1
+#  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --ratesMode > costMon.log 2>&1
+  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --monitorRates --isCPUPrediction --useEBWeight --patternsMonitor HLT_costmonitor HLT_mistimemonj400 HLT_mistimemoncaltimenomu HLT_mistimemoncaltime HLT_l1topodebug HLT_l1calooverflow HLT_e5_lhvloose_nod0_bBeexM6000t HLT_2e5_lhvloose_nod0_bBeexM6000t HLT_cscmon_L1All HLT_j0_perf_ds1_L1J100 --patternsInvert  --predictionLumi 1.50e34 > costMon.log 2>&1
 else 
   echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi
