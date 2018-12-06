@@ -68,4 +68,3 @@ atlas_add_dictionary( JetRecToolsDict
 atlas_install_headers( JetRecTools )
 atlas_install_python_modules( python/*.py )
  			      
-atlas_install_data( data )
