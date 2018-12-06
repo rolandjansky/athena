@@ -15,6 +15,7 @@
 
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/TrackCaloCluster.h"
+#include "PathResolver/PathResolver.h"
 
 #include "TString.h"
 
@@ -65,9 +66,14 @@ StatusCode ConstituentSubtractorTool::initialize() {
   }
 
   if(m_doRapidityRescaling || m_doRapidityPhiRescaling){
-    std::unique_ptr<TFile> file(TFile::Open(m_fileRescaling.data(), "READ"));
-    if (!file){
-      ATH_MSG_ERROR("Incompatible configuration: The provided file name was not found.");
+    std::string fullPathToFile=PathResolverFindCalibFile(m_fileRescaling); // returns "" if file not found
+    if (fullPathToFile.empty()){
+      ATH_MSG_ERROR("Incompatible configuration: The provided file for rescaling was not found using PathResolver.");
+      return StatusCode::FAILURE;
+    }
+    std::unique_ptr<TFile> file(TFile::Open(fullPathToFile.data(), "READ"));
+    if (file->IsZombie()){
+      ATH_MSG_ERROR("Incompatible configuration: The file for rescaling has been tried to open, but it was found it is zombie.");
       return StatusCode::FAILURE;
     }
     std::unique_ptr<TObject> object(file->Get(m_histogramRescaling.data()));

@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/JetRec
                           Reconstruction/PFlow/PFlowUtils 
+			  Tools/PathResolver
                           ${extra_deps} )
 
 # External dependencies
@@ -44,7 +45,7 @@ atlas_add_library( JetRecToolsLib
                    LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow 
                    xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma 
                    xAODJet TrackVertexAssociationToolLib JetEDM 
-                   JetInterface JetRecLib InDetTrackSelectionToolLib
+                   JetInterface JetRecLib InDetTrackSelectionToolLib PathResolver
                    PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE )
@@ -52,7 +53,7 @@ atlas_add_component( JetRecTools
                      JetRecTools/*.h Root/*.cxx src/components/*.cxx
                      LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow 
                      xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma 
-                     xAODJet GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib JetRecToolsLib 
+                     xAODJet GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib JetRecToolsLib PathResolver
                      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES})
 endif()
 
@@ -66,3 +67,5 @@ atlas_add_dictionary( JetRecToolsDict
 # Install files from the package:
 atlas_install_headers( JetRecTools )
 atlas_install_python_modules( python/*.py )
+ 			      
+atlas_install_data( data )
