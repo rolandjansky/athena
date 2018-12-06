@@ -37,7 +37,7 @@ const static string detectorPaths[]={"SCTEC/", "SCTB/","SCTEA/"};
 
 
 
-SCT_CalibHitmapSvc::SCT_CalibHitmapSvc(const std::string &name, ISvcLocator * svc):AthService(name,svc),
+SCT_CalibHitmapSvc::SCT_CalibHitmapSvc(const std::string &name, ISvcLocator * svc) : AthService(name,svc),
   m_detStore("DetectorStore", name),
   m_evtStore("StoreGateSvc", name),
   m_pSCTHelper(0),

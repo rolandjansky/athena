@@ -4,40 +4,40 @@
 
 
 /**
- * @file ISCT_CalibHistoSvc.cxx
+ * @file ISCT_CalibHistoTool.cxx
  * Implementation file to interface class for histograms in the SCT_CalibAlgs package
  * @author Shaun Roe
 **/
-#include "SCT_CalibAlgs/ISCT_CalibHistoSvc.h"
+#include "SCT_CalibAlgs/ISCT_CalibHistoTool.h"
 #include "TH1I.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TMath.h"
 #include <stdexcept> // out_of_range exception
 
-int ISCT_CalibHistoSvc::m_nLb=0;
-int ISCT_CalibHistoSvc::m_nLbMerge=0;
+int ISCT_CalibHistoTool::m_nLb=0;
+int ISCT_CalibHistoTool::m_nLbMerge=0;
 
-ISCT_CalibHistoSvc::ISCT_CalibHistoSvc():m_numberOfEventsHisto(0),m_thistSvc(0),m_pSCTHelper(0) {
-   //std::cout<<"Instantiation of ISCT_CalibHistoSvc"<<std::endl;
+ISCT_CalibHistoTool::ISCT_CalibHistoTool():m_numberOfEventsHisto(0),m_thisSvc(0),m_pSCTHelper(0) {
+   //std::cout<<"Instantiation of ISCT_CalibHistoTool"<<std::endl;
    //nop
 }
 
 int
-ISCT_CalibHistoSvc::getNumberOfEventsInBin(const int nbin) {
+ISCT_CalibHistoTool::getNumberOfEventsInBin(const int nbin) {
    if (m_numberOfEventsHisto) return m_numberOfEventsHisto->GetBinContent(nbin);
    std::cout << "ERROR: a histogram pointer, m_numberOfEventsHisto, is zero" << std::endl;
    return 0;
 }
 
 int
-ISCT_CalibHistoSvc::size() {
+ISCT_CalibHistoTool::size() {
    return m_numberOfEventsHisto->GetEntries();
 }
 
 
 int
-ISCT_CalibHistoSvc::size(const int histogramIndex) {
+ISCT_CalibHistoTool::size(const int histogramIndex) {
    TH1F* pHisto=0;
    int result=0;
    try {
@@ -50,7 +50,7 @@ ISCT_CalibHistoSvc::size(const int histogramIndex) {
 }
 
 double
-ISCT_CalibHistoSvc::getBinForHistogramIndex(const int bin, const int histogramIndex) {
+ISCT_CalibHistoTool::getBinForHistogramIndex(const int bin, const int histogramIndex) {
    TH1F* pHisto=0;
    double result=0.0;
    try {
@@ -63,8 +63,8 @@ ISCT_CalibHistoSvc::getBinForHistogramIndex(const int bin, const int histogramIn
 }
 
 void
-//ISCT_CalibHistoSvc::binHistograms(const int eventsPerWindow){
-ISCT_CalibHistoSvc::binHistograms(const int nLbMerged) {
+//ISCT_CalibHistoTool::binHistograms(const int eventsPerWindow){
+ISCT_CalibHistoTool::binHistograms(const int nLbMerged) {
 
    int nLb = numberOfLb();
    int yAxisBins = TMath::Ceil(1.0*nLb/nLbMerged);
@@ -79,22 +79,22 @@ ISCT_CalibHistoSvc::binHistograms(const int nLbMerged) {
 }
 
 void
-ISCT_CalibHistoSvc::setNumberOfLb(const int nLb) {
+ISCT_CalibHistoTool::setNumberOfLb(const int nLb) {
    m_nLb=nLb;
 }
 
 int
-ISCT_CalibHistoSvc::numberOfLb() {
+ISCT_CalibHistoTool::numberOfLb() {
    return m_nLb;
 }
 
 void
-ISCT_CalibHistoSvc::setLbToMerge(const int nLbMerge) {
+ISCT_CalibHistoTool::setLbToMerge(const int nLbMerge) {
    m_nLbMerge=nLbMerge;
 }
 
 int
-ISCT_CalibHistoSvc::LbToMerge() {
+ISCT_CalibHistoTool::LbToMerge() {
    return m_nLbMerge;
 }
 

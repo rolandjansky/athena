@@ -39,7 +39,7 @@ public:
   //@name Service methods, reimplemented
   //@{
   SCT_CalibHitmapSvc(const std::string &name, ISvcLocator * svc); 
-  virtual ~SCT_CalibHitmapSvc(){}
+  virtual ~SCT_CalibHitmapSvc(){};
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   //interfaceID() implementation is in the baseclass
