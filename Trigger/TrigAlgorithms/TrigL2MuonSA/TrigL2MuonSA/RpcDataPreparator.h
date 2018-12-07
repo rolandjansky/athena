@@ -114,6 +114,7 @@ class RpcDataPreparator: public AthAlgTool
 
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
+      Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
 };
 
 } // namespace TrigL2MuonSA
