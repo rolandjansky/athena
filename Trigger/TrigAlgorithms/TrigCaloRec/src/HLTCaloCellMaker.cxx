@@ -55,7 +55,6 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     if ( roiCollection->size() > 1 ) 
       ATH_MSG_INFO ( "roiMode but multiple rois found, will only use the first one");
 
-    //SG::WriteHandle<ConstDataVector<CaloCellContainer> > cellContainer = SG::WriteHandle<ConstDataVector<CaloCellContainer> > ( m_cellContainerKey, context );
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
     auto cdv = CxxUtils::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
