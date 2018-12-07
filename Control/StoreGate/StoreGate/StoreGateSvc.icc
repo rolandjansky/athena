@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file StoreGateSvc.icc
@@ -1068,14 +1068,14 @@ StoreGateSvc::retrieve(const DataHandle<T>& chbegin,
 }
 
 /// DEPRECATED put a dobj pointer in a bucket as appropriate
-/// see tools/StorableConversion.h for replacement
+/// see AthenaKernel/StorableConversion.h for replacement
 template <typename T>
 DataObject* 
 StoreGateSvc::asStorable(T* pDObj) {
   return SG::asStorable(pDObj);
 }
 /// DEPRECATED gets a dobj pointer from a bucket as appropriate
-/// see tools/StorableConversion.h for replacement
+/// see AthenaKernel/StorableConversion.h for replacement
 template <typename T> 
 bool 
 StoreGateSvc::fromStorable(DataObject* pObject, T*& pData) {

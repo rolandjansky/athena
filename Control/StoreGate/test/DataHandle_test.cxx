@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestTools/initGaudi.h"
@@ -37,8 +37,8 @@ typedef std::list<int> IntList;
  * $Id: DataHandle_test.cxx,v 1.15 2008-05-22 22:52:12 calaf Exp $
  ***************************************************************************/
 
-#include "SGTools/CLASS_DEF.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/StorableConversions.h"
 CLASS_DEF(IntList, 8001, 3)
 CLASS_DEF(MyDataObj, 8000, 1)
 
