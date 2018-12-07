@@ -474,7 +474,7 @@ MsgStream& Trk::AnnulusBoundsPC::dump( MsgStream& sl ) const
 {
   std::stringstream ss;
   dump(ss);
-  sl << ss;
+  sl << ss.str();
   return sl;
 }
 
