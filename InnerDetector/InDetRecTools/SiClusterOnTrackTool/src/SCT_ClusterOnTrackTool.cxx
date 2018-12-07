@@ -466,5 +466,10 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
   ATH_MSG_VERBOSE("ABPC cov bfore: \n" << SC->localCovariance());
 
 
-  return new InDet::SCT_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
+  InDet::SCT_ClusterOnTrack* cot = new InDet::SCT_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
+
+  // set to surface coming from track par
+  const Trk::Surface* srf = &(trackPar.associatedSurface());
+  cot->setAssociatedSurface(srf);
+  return cot;
 }

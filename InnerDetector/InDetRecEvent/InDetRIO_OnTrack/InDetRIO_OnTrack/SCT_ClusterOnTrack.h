@@ -140,6 +140,11 @@ namespace InDet{
 
       double positionAlongStrip() const;
 
+      void
+      setAssociatedSurface(const Trk::Surface* srf) {
+        m_associatedSurface = srf;
+      }
+
     private:
     /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
@@ -152,6 +157,8 @@ namespace InDet{
       const InDetDD::SiDetectorElement* m_detEl;
       
       double m_positionAlongStrip;
+
+      const Trk::Surface* m_associatedSurface = nullptr;
       
   };
 
