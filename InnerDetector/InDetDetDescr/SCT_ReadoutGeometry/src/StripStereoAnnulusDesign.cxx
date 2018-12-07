@@ -222,15 +222,23 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &
     // @TODO: do we need this? there is also SiCellId::etaIndex() and phiIndex()
     int strip, row;
     getStripRow(cellId, &strip, &row);
+    // this is the radius in the module / radial system
     double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
 
     // get phi of strip
     // I think this re-centers on the center of the row, so that phi=0 is the center
-    // -1: Seems like this orientation is wrong w.r.t. the normal of the surfaces we're on
-    double phi = -1 * (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+    double phiPrime = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+
+    double b = -2. * m_lengthBF * sin(m_stereo/2. + phiPrime);
+    double c = m_lengthBF * m_lengthBF - r * r;
+    // this is the radius in the strip system
+    double rPrime = (-b + sqrt(b * b - 4. * c))/2.;
+
+    // flip this, since coordinate system is defined the other way round
+    double phi = -1*phiPrime;
 
     // xEta => r, xPhi = phi
-    return SiLocalPosition(r, phi); 
+    return SiLocalPosition(rPrime, phi); 
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId const &cellId, int clusterSize) const {
