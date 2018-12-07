@@ -30,7 +30,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
    outputStream = AthenaOutputStream(
       outputAlgName,
       WritingTool = writingTool,
-      ItemList    = [ "xAOD::EventInfo#*" ]+ItemList, 
+      ItemList    = [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*"  ]+ItemList, 
       OutputFile = fileName,
       HelperTools = [ streamInfoTool ],
       )
