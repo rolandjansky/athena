@@ -61,11 +61,12 @@ def MainServicesSerialCfg(LoopMgr='AthenaEventLoopMgr'):
 def MainServicesThreadedCfg(cfgFlags):
     # Neater ways to set the loop manager? Can't be altered
     # after setting up the 
-    cfg = MainServicesSerialCfg("AthenaHiveEventLoopMgr")
 
     # Run a serial job for threads=0
     if cfgFlags.Concurrency.NumThreads==0:
-        return cfg
+        return MainServicesSerialCfg()
+
+    cfg = MainServicesSerialCfg("AthenaHiveEventLoopMgr")
 
     # Migrated code from AtlasThreadedJob.py
     from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
