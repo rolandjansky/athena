@@ -61,8 +61,8 @@ histSvc("THistSvc",name){
 
   declareProperty("gJet_threshold",m_gJet_thr=2.0);
   declareProperty("gSeed_size",m_gSeed_size=0.2);
-  declareProperty("gMax_r",m_gMax_r=0.4);
-  declareProperty("gJet_r",m_gJet_r=0.4);
+  declareProperty("gMax_r",m_gMax_r=1.0);  //gFEX constructs large radius jets
+  declareProperty("gJet_r",m_gJet_r=1.0);
 
   declareProperty("useRMS", m_useRMS=false);
   declareProperty("useMedian", m_useMedian=false);
@@ -270,10 +270,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     }
   }
   
-  CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
+  // CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
                                                                          // Careful to ensure the range set to be no tower double counted
-  CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
+  //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr, m_debugJetAlg)); //default gFex jets are cone jets wih radius of 1.0
   
+  CHECK(JetAlg::BuildFatJet(*gTs, gL1Jets, m_gJet_r, gJet_thr));
   //gFEX MET algorithms
   CHECK(METAlg::BuildMET(gTs,met_algs["Noise"],gT_noise, m_useNegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
   CHECK(METAlg::SubtractRho_MET(gTs, met_algs["rho_sub"], m_useRMS, m_useMedian, m_useNegTowers) ); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
@@ -368,6 +369,23 @@ StatusCode JGTowerReader::ProcessObjects(){
     }
   }
   
+  //output gFEX large R jet algorithm
+  xAOD::JetRoIAuxContainer* gFexFatJetContAux = new xAOD::JetRoIAuxContainer();
+  xAOD::JetRoIContainer* gFexFatJetCont = new xAOD::JetRoIContainer();
+  gFexFatJetCont->setStore(gFexFatJetContAux);
+  for(unsigned g=0; g<gL1Jets.size(); g++  ){
+    JetAlg::L1Jet jet = gL1Jets.at(g);
+    CHECK(HistBookFill("gJet_fat_et",50,0,500,jet.et/1000.,1.));
+    CHECK(HistBookFill("gJet_fat_eta",49,-4.9,4.9,jet.eta,1.));
+    CHECK(HistBookFill("gJet_fat_phi",31,-M_PI,M_PI,jet.phi,1.));
+    xAOD::JetRoI* gFexFatJet = new xAOD::JetRoI();
+    gFexFatJetCont->push_back(gFexFatJet);
+    gFexFatJet->initialize(0x0,jet.eta,jet.phi);
+    gFexFatJet->setEt8x8(jet.et);
+  }
+  CHECK(evtStore()->record(gFexFatJetCont,"gFexFatJets"));
+  CHECK(evtStore()->record(gFexFatJetContAux,"gFexFatJetsAux."));
+
   //output gFEX MET algorithms
   //4sigma noise cut
   xAOD::EnergySumRoIAuxInfo* gFexMETContAux = new xAOD::EnergySumRoIAuxInfo();
