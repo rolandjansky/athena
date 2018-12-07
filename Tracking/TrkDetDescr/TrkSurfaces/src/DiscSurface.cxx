@@ -112,7 +112,8 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* annb
   Amg::Vector2D origin2D = annpcbounds->moduleOrigin();
   Amg::Translation3D transl(Amg::Vector3D(origin2D.x(), origin2D.y(), 0));
   Amg::Rotation3D rot(Amg::AngleAxis3D(-phiShift, Amg::Vector3D::UnitZ()));
-  Amg::Transform3D originTrf = transl * rot;
+  Amg::Transform3D originTrf;
+  originTrf = transl * rot;
 
   *m_transform = (*m_transform) * originTrf.inverse();
 }
