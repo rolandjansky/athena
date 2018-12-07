@@ -23,6 +23,8 @@
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileIdentifier/TileFragHash.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/ITileBadChanTool.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -37,9 +39,6 @@
 
 // forward declarations
 class TileHWID;
-class TileCondToolEmscale;
-class TileCondToolNoiseRawChn;
-class ITileBadChanTool;
 
 class TileL2Builder: public AthAlgTool {
 
@@ -189,11 +188,13 @@ class TileL2Builder: public AthAlgTool {
     const TileHWID* m_tileHWID;
 
     /** Handle to Tile calibration tool */
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
-    ToolHandle<TileCondToolNoiseRawChn> m_tileToolNoiseRawChn; //!< tool which provided noise values
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
 
     /** Handle to Tile bad channel tool */
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+
 
     TileFragHash m_hashFunc;
 
