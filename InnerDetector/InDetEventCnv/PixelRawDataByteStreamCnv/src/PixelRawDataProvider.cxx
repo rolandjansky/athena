@@ -156,7 +156,7 @@ StatusCode PixelRawDataProvider::execute() {
   if (m_rawDataTool->convert(listOfRobf,  containerInterface).isFailure())
     ATH_MSG_ERROR("BS conversion into RDOs failed");
 
-  if(tempcont) tempcont->MergeToRealContainer(rdoContainer.ptr());
+  if(tempcont) ATH_CHECK(tempcont->MergeToRealContainer(rdoContainer.ptr()));
 #ifdef PIXEL_DEBUG
     ATH_MSG_DEBUG("Number of Collections in IDC " << rdoContainer->numberOfCollections());
 #endif
