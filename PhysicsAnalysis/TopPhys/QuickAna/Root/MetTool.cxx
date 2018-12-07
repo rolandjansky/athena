@@ -165,7 +165,9 @@ namespace ana
  
       if (m_doPUmetsig) {
         ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
-        ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+        ATH_CHECK( m_fjvtTool.setProperty("UseTightOP", true) ); // Tight
+        ATH_CHECK( m_fjvtTool.setProperty("EtaThresh", 2.5) );   //Eta dividing central from forward jets
+        ATH_CHECK( m_fjvtTool.setProperty("ForwardMaxPt", 120.0e3) ); //Max Pt to define fwdJets for JVT
         ATH_CHECK( m_fjvtTool.initialize() );
       }
     } else {
@@ -173,7 +175,9 @@ namespace ana
       m_doFJVT = true;
       ATH_CHECK( m_metutil.setProperty("JetRejectionDec", m_jetSelection) );
       ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
-      ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+      ATH_CHECK( m_fjvtTool.setProperty("UseTightOP", true) ); 
+      ATH_CHECK( m_fjvtTool.setProperty("EtaThresh", 2.5) );
+      ATH_CHECK( m_fjvtTool.setProperty("ForwardMaxPt", 120.0e3) ); 
       ATH_CHECK( m_fjvtTool.initialize() );
     }
 
@@ -222,7 +226,7 @@ namespace ana
     ATH_CHECK( m_metSigni.setProperty("TreatPUJets",  m_doPUmetsig) );
     ATH_CHECK( m_metSigni.setProperty("DoPhiReso",  true) );
     ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
-    // ATH_CHECK( m_metSigni.setProperty("IsData",   true) );
+    ATH_CHECK( m_metSigni.setProperty("JetCollection",  m_jetContainer.substr(0, m_jetContainer.size()-4)) );
     ATH_CHECK( m_metSigni.retrieve() ); 
 
     return StatusCode::SUCCESS;
@@ -445,7 +449,7 @@ namespace ana
 
   // Macro for creating a MetTool using the provided function
   QUICK_ANA_MET_DEFINITION_MAKER( "default",   makeMetTool(args) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,false,true,true,true,true,false,true,true,"Tight") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,true,true,true,true,true,false,true,true,"Tight") )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,true,false,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,false,true,true,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,false,true,true,true,false,true,true) )
