@@ -21,7 +21,7 @@
 #ifndef XAOD_STANDALONE
 #   include "SGTools/DataProxy.h"
 #   include "SGTools/TransientAddress.h"
-#   include "SGTools/DataBucketBase.h"
+#   include "AthenaKernel/DataBucketBase.h"
 #   include "GaudiKernel/Converter.h"
 #   include "GaudiKernel/GenericAddress.h"
 #endif // NOT XAOD_STANDALONE
