@@ -145,9 +145,7 @@ private:
 
   // for the efficiencies                                                                                                    
   std::string m_denominator_trigger;
-  TH1F *h_denominator = 0;
   std::string m_numerator_trigger[4];                                                       
-  TH1F *trig_eff_num[4] = {0};
 
   // for MET significance
   float m_sigOffset;

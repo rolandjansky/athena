@@ -556,7 +556,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
     m_met->defineComponents(vs_aux);
 
     ATH_MSG_DEBUG (" Created pers. object of size " << m_n_sizePers);
-    ConstDataVector<xAOD::TrackParticleContainer> m_ttracks (SG::VIEW_ELEMENTS);//Define a track container for Pufit track
+    ConstDataVector<xAOD::TrackParticleContainer> v_ttracks (SG::VIEW_ELEMENTS);//Define a track container for Pufit track
     // fetch topo. clusters for later use
     if (m_doTopoClusters && tes_in.size() > 0) { // safe-guard
         for (const auto& te_in : tes_in.at(0) ) {
@@ -616,16 +616,16 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
                         ATH_MSG_ERROR( "Failed to get tracks" );
                         return HLT::NAV_ERROR;
                     } else {
-                        // m_ttracks.push_back(tempTracks);
+                        // v_ttracks.push_back(tempTracks);
                         ATH_MSG_DEBUG( "size of track container " << tempTracks->size() );
                         for (const auto& itrack : *tempTracks) {
-                            m_ttracks.push_back(itrack);
+                            v_ttracks.push_back(itrack);
                             ATH_MSG_DEBUG( " Track pt, eta, phi, vertex, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
                                            <<  fabs(itrack->z0()) << ", " << itrack->vz() );
                         }
                     }//correctly retrived the tracks
                 }//retrieve te2
-                m_tracks = m_ttracks.asDataVector();
+                m_tracks = v_ttracks.asDataVector();
                 std::vector<const xAOD::TrackParticle*> TracksVec(m_tracks->begin(), m_tracks->end());
                 ATH_MSG_DEBUG( "num of tracks in datavector: " << TracksVec.size() );
                 for (const xAOD::TrackParticle* trk : TracksVec) {
