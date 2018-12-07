@@ -93,7 +93,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   
   // 
   if (m_patternFinder.retrieve().isFailure()) {
-   ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
+    ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -126,6 +126,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_ERROR("Could not retrieve " << m_cscsegmaker);
     return HLT::BAD_JOB_SETUP;
   }
+
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
   m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -610,7 +611,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     ATH_MSG_DEBUG("Start an algorithm of MuonSA");
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
       ATH_MSG_DEBUG("Barrel");
-   
+
       m_muonRoad.setScales(m_scaleRoadBarrelInner,
                            m_scaleRoadBarrelMiddle,
                            m_scaleRoadBarrelOuter);      
@@ -737,6 +738,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       sc = m_patternFinder->findPatterns(m_muonRoad,
                                          m_mdtHits_normal,
                                          trackPatterns);
+
 
 
       if (!sc.isSuccess()) {
@@ -1004,6 +1006,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
   int endcapinner = 3;
   int bee = 8;
   int bme = 9;
+  // int bmg = 10;
 
   // define inner, middle, outer
   if (pattern.s_address==-1) {
@@ -1659,6 +1662,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
   auto inner_mdt_hits 	= MonitoredScalar::declare("InnMdtHits", -1);
   auto middle_mdt_hits 	= MonitoredScalar::declare("MidMdtHits", -1);
   auto outer_mdt_hits 	= MonitoredScalar::declare("OutMdtHits", -1);
+  auto invalid_rpc_roi_number = MonitoredScalar::declare("InvalidRpcRoINumber", -1);
 
   auto efficiency 	= MonitoredScalar::declare("Efficiency", 0);
   auto sag_inverse 	= MonitoredScalar::declare("SagInv", 9999.);
@@ -1691,6 +1695,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
   auto fit_residuals	= MonitoredCollection::declare("FitResiduals", f_residuals);
 
   auto monitorIt	= MonitoredScope::declare(m_monTool, inner_mdt_hits, middle_mdt_hits, outer_mdt_hits, 
+						  invalid_rpc_roi_number,
 					          efficiency, sag_inverse, address, absolute_pt, sagitta, track_pt,
 					          track_eta, track_phi, failed_eta, failed_phi, 
 						  res_inner, res_middle, res_outer, fit_residuals );
@@ -1736,6 +1741,9 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     inner_mdt_hits  = count_inner;
     middle_mdt_hits = count_middle;
     outer_mdt_hits  = count_outer;
+
+    if ( m_dataPreparator->isRpcFakeRoi() ) 
+      invalid_rpc_roi_number = roi->getRoINumber();
     
     track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
     absolute_pt = fabs(track_pt);
