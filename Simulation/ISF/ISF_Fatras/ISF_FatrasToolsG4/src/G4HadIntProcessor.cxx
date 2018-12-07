@@ -443,7 +443,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
   const G4ThreeVector mom( momentum.x(), momentum.y(), momentum.z() );
   inputPar->SetMomentum( mom);
   // position and timing dummy
-  std::unique_ptr<G4Track> g4track(new G4Track( inputPar, 0 /* time */, *m_g4zeroPos));
+  std::unique_ptr<G4Track> g4track = std::make_unique<G4Track>( inputPar, 0 /* time */, *m_g4zeroPos);
 
   // setup up G4Material ---------------------------------------------------------------------------
   std::pair<G4Material*, G4MaterialCutsCouple*> g4mat = retrieveG4Material(ematprop);
