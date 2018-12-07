@@ -156,7 +156,7 @@ StatusCode SCTRawDataProvider::execute()
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 
-  if (dummyRDO) dummyRDO->MergeToRealContainer(rdoContainer.ptr());
+  if (dummyRDO) ATH_CHECK(dummyRDO->MergeToRealContainer(rdoContainer.ptr()));
   
   return StatusCode::SUCCESS;
 }

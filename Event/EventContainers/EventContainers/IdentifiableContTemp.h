@@ -92,13 +92,15 @@ public:
         return StatusCode::SUCCESS; 
     }
     
-    void MergeToRealContainer(IIdentifiableCont<T> *real){
+    StatusCode MergeToRealContainer(IIdentifiableCont<T> *real){
         for(auto &x : m_usedhashes){
           auto ptr = std::unique_ptr<T>(const_cast<T*>( x.second));
-          real->addOrDelete(std::move(ptr), x.first);
+          auto sc = real->addOrDelete(std::move(ptr), x.first);
+          if(sc.isFailure()) { return StatusCode::FAILURE; }
           m_randomcont[x.first] = nullptr;
         }
         m_usedhashes.clear();
+        return StatusCode::SUCCESS;
     }
     
     virtual void cleanup() override{
