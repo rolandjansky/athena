@@ -28,9 +28,36 @@ def RegSelConfig( flags ):
     #regSel.TileRegionSelectorTable     = tileTable
 
     regSel.enableCalo = True
+    regSel.enableID = True
+    regSel.enablePixel = True
+    regSel.enableSCT = True
+    regSel.enableTRT = True
 
-    acc.addService( regSel )
-    return acc
+    from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
+    pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
+                                     ManagerName = "Pixel",
+                                     OutputFile  = "RoITablePixel.txt",
+                                     PrintHashId = True,
+                                     PrintTable  = False)
+    acc.addPublicTool(pixTable)
+
+    from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
+    sctTable = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
+                                     ManagerName = "SCT",
+                                     OutputFile  = "RoITableSCT.txt",
+                                     PrintHashId = True,
+                                     PrintTable  = False)
+    acc.addPublicTool(sctTable)
+
+    from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
+    trtTable = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
+                                       ManagerName = "TRT",
+                                       OutputFile  = "RoITableTRT.txt",
+                                       PrintHashId = True,
+                                       PrintTable  = False)
+    acc.addPublicTool(trtTable)
+
+    return acc, regSel
 
 if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -38,6 +65,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
 
-    acc = RegSelConfig( ConfigFlags )
+    acc,regSel = RegSelConfig( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
     print "All OK"
