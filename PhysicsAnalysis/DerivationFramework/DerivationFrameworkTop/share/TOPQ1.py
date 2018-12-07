@@ -126,7 +126,7 @@ addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
 # add TTC jets
 addTCCTrimmedJetsForTop(TOPQ1Sequence, "TOPQ1")
 # add VR jets
-addVRJetsForTop(TOPQ1Sequence, "TOPQ1")
+addVRJetsForTop(TOPQ1Sequence)
 # apply jet calibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
