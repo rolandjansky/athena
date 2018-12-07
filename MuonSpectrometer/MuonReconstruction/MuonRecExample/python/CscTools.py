@@ -174,7 +174,6 @@ def QratCscClusterFitter( name="QratCscClusterFitter",extraFlags=None,**kwargs):
 
 
 def CscSegmentUtilTool(name= "CscSegmentUtilTool",extraFlags=None,**kwargs):
-    kwargs.setdefault("precision_fitter",  getPublicTool("QratCscClusterFitter") )
     kwargs.setdefault("rot_creator",  getPublicTool("CscClusterOnTrackCreator") )
     return CfgMgr.CscSegmentUtilTool(name,**kwargs)
 

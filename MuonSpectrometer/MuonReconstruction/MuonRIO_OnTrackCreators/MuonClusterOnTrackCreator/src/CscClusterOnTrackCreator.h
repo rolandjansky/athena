@@ -28,9 +28,6 @@
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
-//class ICscStripFitter;
-//class ICscClusterFitter;
-//class ICscClusterUtilTool;
 class CscIdHelper;
 
 namespace Muon {
