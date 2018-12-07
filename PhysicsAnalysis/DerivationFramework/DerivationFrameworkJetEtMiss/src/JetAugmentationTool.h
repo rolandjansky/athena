@@ -89,8 +89,10 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >* dec_GhostTruthAssociationLink;
 
     // Ntracks for QGTaggerTool ---
-    bool m_decorateNTracks;
+    bool m_decorateQGVariables;
     SG::AuxElement::Decorator<int>* dec_AssociatedNTracks;
+    SG::AuxElement::Decorator<float>* dec_AssociatedTracksWidth;
+    SG::AuxElement::Decorator<float>* dec_AssociatedTracksC1;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
   };
