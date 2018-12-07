@@ -62,7 +62,7 @@ cd $rundir
 
 generateLVL1MenuMT.py $menu >&! logfiletopo 
 generateL1TopoMenuMT.py $menu >&! logfilelvl1 
-tgenerateMenuMT.py $menu >&! logfilehlt
+generateMenuMT.py $menu >&! logfilehlt
 
 cp L1Topoconfig_*.xml ${dest}
 cp LVL1config_*.xml ${dest}
