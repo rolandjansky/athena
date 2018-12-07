@@ -86,7 +86,7 @@ namespace top{
       
     protected:
       // specify Systematic
-      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false);       
+      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false, bool onlyJER=false);       
       
       StatusCode execute( const bool isLargeR, bool executeNominal );
       
@@ -111,7 +111,9 @@ namespace top{
       std::shared_ptr<top::TopConfig> m_config;
       bool m_doJER;
       bool m_doFull_JER;
-
+      bool m_doFull_JER_Pseudodata;
+      bool m_isMC;
+      bool m_doMultipleJES;
       bool m_do_fjvt = false;
            
       std::list<CP::SystematicSet> m_specifiedSystematics;  

@@ -26,6 +26,9 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_config(nullptr),
   m_doJER(false),
   m_doFull_JER(false),
+  m_doFull_JER_Pseudodata(false),
+  m_isMC(false),
+  m_doMultipleJES(false),
 
   m_specifiedSystematics(),
   m_specifiedSystematicsLargeR(),
@@ -106,29 +109,40 @@ StatusCode JetObjectCollectionMaker::initialize() {
     m_doFull_JER = true;
   if (m_config->jetJERSmearingModel() == "Simple")
     m_doFull_JER = false;
+  if (m_config->jetJERSmearingModel() == "Full_PseudoData" || m_config->jetJERSmearingModel() == "All_PseudoData")
+    m_doFull_JER_Pseudodata=true;
+  else m_doFull_JER_Pseudodata=false;
+
+
+  m_isMC=m_config->isMC();
+  m_doMultipleJES=m_config->doMultipleJES();
 
   ///-- Are we doing JER? Let's not repeat this logic over and over --///
-  if (m_config->isMC())
+  if (m_isMC)
     m_doJER = true;
-  if (!m_config->isMC() && m_doFull_JER)
+  if (!m_isMC && m_doFull_JER)
     m_doJER = true;
   /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
 
-
-  if (m_config->isMC()) {
-    if (!m_config->doMultipleJES()) {
+  if(m_isMC || m_doFull_JER){
+    if (!m_doMultipleJES) {
       top::check( m_jetUncertaintiesTool.retrieve() , "Failed to retrieve JetUncertaintiesTool" );
       if ( m_config->jetCalibSequence() == "JMS" ){
 	top::check( m_jetUncertaintiesToolFrozenJMS.retrieve() , "Failed to retrieve JetUncertaintiesTool (FrozenJMS)" );
       }
     }
-    if (m_config->doMultipleJES()) {
+    else{
       top::check( m_jetUncertaintiesToolReducedNPScenario1.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario1" );
       top::check( m_jetUncertaintiesToolReducedNPScenario2.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario2" );
       top::check( m_jetUncertaintiesToolReducedNPScenario3.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario3" );
       top::check( m_jetUncertaintiesToolReducedNPScenario4.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario4" );
     }
   }
+  
+  
+
+
+
 
   top::check( m_jetUpdateJvtTool.retrieve() , "Failed to retrieve JetUpdateJvtTool" );
   top::check(m_fjvtTool.retrieve(), "Failed to retrieve fJVTTool");
@@ -160,27 +174,30 @@ StatusCode JetObjectCollectionMaker::initialize() {
 
   
   ///-- JES systematics --///
-  if (m_config->isMC()) {
+  if (m_isMC || m_doFull_JER) {
     std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),
       np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
     std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
-    std::string largeR_strong("LARGERJET_Strong_"),
-      largeR_medium("LARGERJET_Medium_"),
-      largeR_weak("LARGERJET_Weak_");
+    
+    bool onlyJER = ( (!m_isMC) && m_doFull_JER ) || ( m_isMC && m_doFull_JER_Pseudodata );
 
-    if (!m_config->doMultipleJES()) {
-      specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP );
+    if (!m_doMultipleJES) {
+      specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP, false, onlyJER );
       if ( m_config->jetCalibSequence() == "JMS" ){
-	specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS );
+	specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS, false, onlyJER );
       }
     }
-    if (m_config->doMultipleJES()) {
-      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 );
-      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 , np2 );
-      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 , np3 );
-      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 );
+    else {
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 , false , onlyJER );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 , np2 , false , onlyJER );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 , np3 , false , onlyJER );
+      specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 , false , onlyJER );
     }
+  }
+  ///-- Large-R JES systematics --///
+  if (m_isMC && !m_doFull_JER_Pseudodata) {
     if (m_config->useLargeRJets()) {
+      std::string largeR_strong("LARGERJET_Strong_"),largeR_medium("LARGERJET_Medium_"),largeR_weak("LARGERJET_Weak_");
       specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
       specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
       specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
@@ -193,7 +210,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
   if (m_config->doLargeRSmallRCorrelations()) {
     systMap* smallR_systs = &m_systMap_AllNP;
     // Not sure what to do if the frozen JMS is used
-    if (m_config->doMultipleJES()) {
+    if (m_doMultipleJES) {
       smallR_systs = &m_systMap_ReducedNPScenario1;
     }
     addCorrelation("CORR_LargeRSmallR_A", *smallR_systs,
@@ -254,7 +271,7 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeN
   ///-- Run nominal first, if executing nominal
   if(executeNominal){
     // decorating the HS jets with truth info on which are HS jets
-    if (!isLargeR & m_config->isMC()) {
+    if (!isLargeR & m_isMC) {
       top::check( decorateHSJets() , "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
     }
   
@@ -273,14 +290,14 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeN
   ///-- JES, JER regular atk4 for now --///
   if (!isLargeR) {
     ///-- JES --///
-    if (m_config->isMC()) {
-      if (!m_config->doMultipleJES()) {
+    if (m_isMC || m_doFull_JER) {
+      if (!m_doMultipleJES) {
         top::check( applySystematic( m_jetUncertaintiesTool , m_systMap_AllNP ) , "Failed to apply JES");
 	if ( m_config->jetCalibSequence() == "JMS" ){
 	  top::check( applySystematic( m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS ) , "Failed to apply JES Frozen JMS");
 	}
       }
-      if (m_config->doMultipleJES()) {
+      if (m_doMultipleJES) {
         top::check( applySystematic( m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 ) , "Failed to apply JES");
         top::check( applySystematic( m_jetUncertaintiesToolReducedNPScenario2 , m_systMap_ReducedNPScenario2 ) , "Failed to apply JES");
         top::check( applySystematic( m_jetUncertaintiesToolReducedNPScenario3 , m_systMap_ReducedNPScenario3 ) , "Failed to apply JES");
@@ -289,7 +306,7 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeN
     }
   } 
   else {
-    if (m_config->isMC()) {
+    if (m_isMC && !m_doFull_JER_Pseudodata) {
       top::check( applySystematic( m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong, true ) , "Failed to apply large-R syst.");
       top::check( applySystematic( m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium, true ) , "Failed to apply large-R syst.");
       top::check( applySystematic( m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak, true ) , "Failed to apply large-R syst.");
@@ -552,42 +569,44 @@ StatusCode JetObjectCollectionMaker::printout( const bool isLargeR ) {
 void JetObjectCollectionMaker::specifiedSystematics(const std::set<std::string>& specifiedSystematics,
                                                     const ToolHandle<ICPJetUncertaintiesTool>& tool,
                                                     std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map,
-                                                    const std::string& modName, bool isLargeR ) {
+                                                    const std::string& modName, bool isLargeR , bool onlyJER) {
 
-  ///-- MC only --///
-  if (m_config->isMC()) {
-    ///-- Get the recommended systematics from the tool, in std::vector format --///
-    const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( tool->recommendedSystematics() );
+  
+  ///-- Get the recommended systematics from the tool, in std::vector format --///
+  const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( tool->recommendedSystematics() );
 
-    for (auto s : systList) {
-      if (s.size() == 1) {
-        CP::SystematicSet::const_iterator ss = s.begin();
-        CP::SystematicSet modSet( modName + ss->name() );
+  for (auto s : systList) {
+    if (s.size() == 1) {
+      CP::SystematicSet::const_iterator ss = s.begin();
 
-        m_recommendedSystematics.push_back(modSet);
-        if (!m_config->isSystNominal( m_config->systematics() )) {
-          if (specifiedSystematics.size() == 0) {
-            if (!isLargeR)
-              m_specifiedSystematics.push_back(modSet);
-            else
-              m_specifiedSystematicsLargeR.push_back(modSet);
-            map.insert( std::make_pair(modSet,s) );
-          } else if (specifiedSystematics.size()  > 0) {
-            for (auto i : specifiedSystematics) {
-              if ( i == modSet.name() ) {
-                if (!isLargeR)
-                  m_specifiedSystematics.push_back(modSet);
-                else
-                  m_specifiedSystematicsLargeR.push_back(modSet);
-                map.insert( std::make_pair(modSet,s) );
-              }
-            }
-          } // User has specified a systematic
-          
-        } // Don't do anything if the user requests nominal only
-      } // size() == 1 -- this means that there is a CP::SystematicVariation
-    } // Loop over systList
-  } // MC only
+      if( onlyJER && ss->name().find("JER")==std::string::npos ) continue;
+      
+      CP::SystematicSet modSet( modName + ss->name() );
+      
+      m_recommendedSystematics.push_back(modSet);
+      if (!m_config->isSystNominal( m_config->systematics() )) {
+	if (specifiedSystematics.size() == 0) {
+	  if (!isLargeR)
+	    m_specifiedSystematics.push_back(modSet);
+	  else
+	    m_specifiedSystematicsLargeR.push_back(modSet);
+	  map.insert( std::make_pair(modSet,s) );
+	} else if (specifiedSystematics.size()  > 0) {
+	  for (auto i : specifiedSystematics) {
+	    if ( i == modSet.name() ) {
+	      if (!isLargeR)
+		m_specifiedSystematics.push_back(modSet);
+	      else
+		m_specifiedSystematicsLargeR.push_back(modSet);
+	      map.insert( std::make_pair(modSet,s) );
+	    }
+	  }
+	} // User has specified a systematic
+	
+      } // Don't do anything if the user requests nominal only
+    } // size() == 1 -- this means that there is a CP::SystematicVariation
+  } // Loop over systList
+
   m_recommendedSystematics.sort();
   m_recommendedSystematics.unique();
   
