@@ -57,6 +57,19 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const std::vector<const SCT_RDORawData*>& vecRDOs) const override;
 
  private:
+  
+  enum ErrorWords{TIMEOUT_ERR=(1<<11),
+                  L1_ERR=(1<<10),
+                  BCID_ERR=(1<<9),
+                  PREAMBLE_ERR=(1<<12),
+                  FORMATTER_ERR=12,
+                  TRAILER_ERR=(1<<12),
+                  NULL_HEADER_ERR=0,
+                  HEADER_TRAILER_ERR=(1<<11),
+                  TRAILER_OVFLW_ERR=(1<<10),
+                  ABCD_ERR=0,
+                  RAWDATA_ERR=(3<<13),
+                  NULL_TRAILER_ERR=0}; 
 
   /// Encode rdo into the data: called by fillROD(..) 
   void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const;
@@ -94,18 +107,6 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   /// Get the 16-bit word for a trailer, with or without ByteStream errors 
   uint16_t getTrailer(const int& errorWord) const;
 
-  enum ErrorWords{TIMEOUT_ERR=(1<<11),
-                  L1_ERR=(1<<10),
-                  BCID_ERR=(1<<9),
-                  PREAMBLE_ERR=(1<<12),
-                  FORMATTER_ERR=12,
-                  TRAILER_ERR=(1<<12),
-                  NULL_HEADER_ERR=0,
-                  HEADER_TRAILER_ERR=(1<<11),
-                  TRAILER_OVFLW_ERR=(1<<10),
-                  ABCD_ERR=0,
-                  RAWDATA_ERR=(3<<13),
-                  NULL_TRAILER_ERR=0}; 
   void addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
                             const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const;
   void addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
