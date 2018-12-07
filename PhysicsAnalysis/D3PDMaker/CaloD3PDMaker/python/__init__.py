@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -21,5 +21,3 @@ import CaloD3PDMakerConf
 for k, v in CaloD3PDMakerConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
-
-from ClusterMomentFillerTool import ClusterMomentFillerTool
