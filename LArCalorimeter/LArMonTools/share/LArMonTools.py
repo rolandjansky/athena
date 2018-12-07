@@ -8,6 +8,8 @@ theLArBadChannelsMasker.ProblemsToMask=[
     ]
 ToolSvc+=theLArBadChannelsMasker
 
+include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+
 include("LArMonTools/LArFEBMon_jobOptions.py") # Data integrity checks - Includes LArFEBMon tool and LArEventInfo
 if Type == 'Pedestal':
     #include("LArMonTools/LArDigitNoiseMonTool_jobOptions.py")       # Monitoring of digits (noise, pedestal, correlation...)
