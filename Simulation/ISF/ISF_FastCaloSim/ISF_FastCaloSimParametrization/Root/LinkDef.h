@@ -7,7 +7,6 @@
 #pragma link C++ class TFCSSimpleLateralShapeParametrization+;
 #pragma link C++ class MeanAndRMS;
 #pragma link C++ class TreeReader;
-#pragma link C++ class EnergyParametrizationValidation;
 #pragma link C++ struct FCS_cell+;
 #pragma link C++ struct FCS_hit+;
 #pragma link C++ struct FCS_g4hit+;
