@@ -22,7 +22,6 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileHitContainer.h"
 
 // Calo includes
@@ -61,15 +60,13 @@ TileHitToRawChannel::TileHitToRawChannel(std::string name, ISvcLocator* pSvcLoca
   , m_ampMaxHi(0.0)
   , m_atRndmGenSvc(0)
   , m_pHRengine(0)
-  , m_tileToolEmscale("TileCondToolEmscale")
 {
   m_rChUnit = TileRawChannelUnit::ADCcounts;
   m_rChType = TileFragHash::Default;
 
   declareProperty("TileInfoName", m_infoName  = "TileInfo");
-  declareProperty("DeltaT",m_deltaT = -1.0); // keep hits only within deltaT;
-  declareProperty("calibrateEnergy",m_calibrateEnergy = false); // convert or not to pCb
-  declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
+  declareProperty("DeltaT", m_deltaT = -1.0); // keep hits only within deltaT;
+  declareProperty("calibrateEnergy", m_calibrateEnergy = false); // convert or not to pCb
 }
 
 TileHitToRawChannel::~TileHitToRawChannel() {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -33,6 +33,7 @@
 // Tile includes
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileContainer.h"
+#include "TileConditions/TileCondToolEmscale.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -49,7 +50,7 @@ class TileID;
 class TileHWID;
 class TileInfo;
 class TileCablingService;
-class TileCondToolEmscale;
+
 
 class TileMuonReceiverDecision: public AthAlgorithm {
 
@@ -88,7 +89,9 @@ class TileMuonReceiverDecision: public AthAlgorithm {
   float m_threshold_d5d6_hi;
   float m_selCutQf;
 
-  ToolHandle<TileCondToolEmscale> m_tileToolEmscale;         //!< main Tile Calibration tool
+  ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+      "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
+
 
   bool m_run2;
 };
