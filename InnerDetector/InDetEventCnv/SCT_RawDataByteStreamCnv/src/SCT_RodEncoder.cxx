@@ -237,7 +237,8 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
 /// Encode Data function
 ///========================================================================= 
 
-void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const {
+void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, 
+                                const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const {
   
   const int encodedSide{side(rdo) << 14};
   
@@ -305,7 +306,8 @@ void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector
 ///=========================================================================
 /// Converting the 16 bit vector v16 to 32 bit words v32
 ///=========================================================================
-void SCT_RodEncoder::packFragments(std::vector<uint16_t>& vec16Words, std::vector<uint32_t>& vec32Words) const {
+void SCT_RodEncoder::packFragments(std::vector<uint16_t>& vec16Words, 
+                                   std::vector<uint32_t>& vec32Words) const {
   int num16Words{static_cast<int>(vec16Words.size())};
   if (isOdd(num16Words)) {
     /** just add an additional 16bit words to make even size v16 to in the 32 bits word 0x40004000 */
@@ -333,7 +335,9 @@ void SCT_RodEncoder::packFragments(std::vector<uint16_t>& vec16Words, std::vecto
 /// set the 16 bit word v16 to 32 bit words v32
 ///=========================================================================
 
-uint32_t SCT_RodEncoder::set32Bits(const unsigned short int* arr16Words, const unsigned short int* position, const unsigned short int& numWords) const {
+uint32_t SCT_RodEncoder::set32Bits(const unsigned short int* arr16Words, 
+                                   const unsigned short int* position, 
+                                   const unsigned short int& numWords) const {
   uint32_t uint32Word{0};
   uint32_t pos{0};
   uint32_t uint16Word{0};
@@ -421,7 +425,8 @@ SCT_RodEncoder::getTrailer(const int& errorWord) const {
 /// Add errors
 ///-------------------------------------------------------------------------------------
 
-void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
+                                          const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
   for (const IdentifierHash& linkHash: *errors) {
     const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
     if (errROBID == robID) {
@@ -434,7 +439,8 @@ void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<
 } 
 
 //
-void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
+                                           const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
   for (const IdentifierHash& linkHash: *errors) {
     const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
     if (errROBID == robID) {
@@ -446,7 +452,8 @@ void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set
   }
 }
 
-void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
+                                       const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
   for (const IdentifierHash& linkHash: *errors) {
     const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
     if (errROBID == robID) {

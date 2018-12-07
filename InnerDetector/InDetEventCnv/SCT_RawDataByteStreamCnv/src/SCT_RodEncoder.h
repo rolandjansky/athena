@@ -54,7 +54,8 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   virtual StatusCode finalize() override;
 
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
-  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const std::vector<const SCT_RDORawData*>& vecRDOs) const override;
+  virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, 
+                       const std::vector<const SCT_RDORawData*>& vecRDOs) const override;
 
  private:
   
@@ -72,13 +73,16 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                   NULL_TRAILER_ERR=0}; 
 
   /// Encode rdo into the data: called by fillROD(..) 
-  void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const;
+  void encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, 
+                  const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const;
   
   /// pack 32 bit word:  called by  encodeData(..) 
   void packFragments(std::vector<uint16_t>& vec16Words, std::vector<uint32_t>& vec32Words) const;
 
   /// from 16 bits array to 32 bit array   
-  uint32_t set32Bits(const unsigned short int* arr16Words, const unsigned short int* position, const unsigned short int& numWords) const;
+  uint32_t set32Bits(const unsigned short int* arr16Words, 
+                     const unsigned short int* position, 
+                     const unsigned short int& numWords) const;
 
   /// Get the side info from the RDO 
   int side(const SCT_RDORawData* rdo) const;
@@ -116,10 +120,21 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
   void addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
                          const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const;
 
-  ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
+  ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, 
+                                                    "SCT_ByteStreamErrorsTool", 
+                                                    "SCT_ByteStreamErrorsTool", 
+                                                    "Tool to retrieve SCT ByteStream Errors"};
+
+  ToolHandle<ISCT_CablingTool> m_cabling{this, 
+                                         "SCT_CablingTool", 
+                                         "SCT_CablingTool", 
+                                         "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_sctID;
-  BooleanProperty m_condensed{this, "CondensedMode", false, "Condensed mode (true) or Expanded mode (false)"};
+  BooleanProperty m_condensed{this, 
+                              "CondensedMode", 
+                              false, 
+                              "Condensed mode (true) or Expanded mode (false)"};
+
   std::set<Identifier> m_swapModuleID; // Set by SCTRawContByteStreamTool
 };
 
