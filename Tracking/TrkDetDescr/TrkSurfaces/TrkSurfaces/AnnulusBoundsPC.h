@@ -72,6 +72,19 @@ public:
 
   MsgStream& dump(MsgStream& sl) const override;
   std::ostream& dump(std::ostream& sl) const override;
+      
+  std::array<Amg::Vector2D, 4>
+  cornerPoints() const {
+    auto rot = m_rotationStripPC.inverse();
+
+    return {
+      rot * m_inLeftStripPC,
+      rot * m_outLeftStripPC,
+      rot * m_outRightStripPC,
+      rot * m_inRightStripPC,
+    };
+
+  }
 
 private:
   double m_minR;
