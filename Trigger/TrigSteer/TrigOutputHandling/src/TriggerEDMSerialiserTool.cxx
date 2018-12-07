@@ -12,6 +12,7 @@
 #include "AthenaKernel/StorableConversions.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/debug.h"
 #include "xAODCore/AuxContainerBase.h"
 
 #include "TrigSerializeResult/StringSerializer.h"
@@ -103,16 +104,18 @@ StatusCode TriggerEDMSerialiserTool::fillPayload( const void* data, size_t sz, s
 
 StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObject* dObj, std::vector<uint32_t>& buffer ) const {
   // TODO, check if we can cache this informion after it is filled once
-
+  ATH_MSG_DEBUG("About to start streaming aux data of " << address.key );
   DataBucketBase* dObjAux = dynamic_cast<DataBucketBase*>(dObj);
   ATH_CHECK( dObjAux != nullptr );  
 
   const xAOD::AuxContainerBase* auxStore = dObjAux->template cast<xAOD::AuxContainerBase> (nullptr, true);
   if ( auxStore == nullptr ) {
-    ATH_MSG_DEBUG( "Can't obtain AuxStoreIO of " << address.key <<  " no dynamic variables presumably" );
+    ATH_MSG_DEBUG( "Can't obtain AuxContainerBase of " << address.key <<  " no dynamic variables presumably" );
     return StatusCode::SUCCESS;
   }
-
+  ATH_MSG_DEBUG( "dump aux store" );
+  SGdebug::dump_aux_vars( *auxStore );
+  
   const SG::auxid_set_t& selected = address.sel.getSelectedAuxIDs( auxStore->getDynamicAuxIDs() );
   
   if ( selected.empty() ) {
@@ -136,7 +139,7 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
     ATH_MSG_DEBUG( "CLID " << clid );
 
     RootType classDesc = RootType::ByName( typeName );  
-    size_t sz=0;
+
 
     const void* rawptr = auxStore->getData( auxVarID );
     ATH_CHECK( rawptr != nullptr );
@@ -148,8 +151,11 @@ StatusCode TriggerEDMSerialiserTool::fillDynAux( const Address& address, DataObj
 	ATH_MSG_DEBUG("  v:  " << v );
       }
     }
-    
+
+    size_t sz=0;    
     void* mem = m_serializerSvc->serialize( rawptr, classDesc, sz );
+
+
     
     if ( mem == nullptr or sz == 0 ) {
       ATH_MSG_ERROR( "Serialisation of " << address.type <<"#" << address.key << "."<< name << " unsuccessful" );
