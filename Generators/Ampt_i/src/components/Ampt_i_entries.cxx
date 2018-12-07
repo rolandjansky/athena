@@ -1,4 +1,4 @@
-#include "Ampt_i/Ampt.h"
+#include "Ampt_h/Ampt.h"
 
 DECLARE_COMPONENT( Ampt )
 
