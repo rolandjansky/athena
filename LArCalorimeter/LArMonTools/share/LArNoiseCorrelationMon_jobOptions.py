@@ -37,12 +37,6 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
 
 
 
-from AthenaCommon.BeamFlags import jobproperties
-if jobproperties.Global.DataSource.get_Value() == 'data':
-    theLArNoiseCorrelationMon.LArPedestalKey='Pedestal'
-else:
-    theLArNoiseCorrelationMon.LArPedestalKey='LArPedestal'
-    pass
 
 if 'coherent_noise_calibration_run' in dir():
     if coherent_noise_calibration_run:

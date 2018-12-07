@@ -3,9 +3,8 @@
 */
 
 /**
- * TBD: update
  * @class LArNoiseCorrelationMon
- * @author Louis Helary 
+ * @author Margherita Spalla 
  *
  */
 
@@ -19,7 +18,7 @@
 //LAr services:
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-
+#include "LArCabling/LArCablingService.h"
 
 
 //STL:
@@ -30,7 +29,6 @@
 class LArOnlineID;
 class HWIdentifier;
 class LArOnlineIDStrHelper;
-class LArCablingService;
 class TProfile2D_LW;
 class TProfile_LW;
 class TH2F_LW;
@@ -61,49 +59,49 @@ protected:
   /** services  */
   LArOnlineIDStrHelper* m_strHelper;
   const LArOnlineID* m_LArOnlineIDHelper;
-  
+
+  /** Handle to bad-channel mask */
+  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
+
   /** Handle to LArCablingService */
   ToolHandle<LArCablingService> m_LArCablingService; 
   
-  /** Handle to bad-channel mask */
-  ToolHandle<ILArBadChannelMasker> m_badChannelMask;
   
   /** Handle to pedestal */
-  const DataHandle<ILArPedestal>  m_larPedestal;
-  
+  SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
   
 private:
   
   /**correlation histograms*/
-  int Nchan; 
-  double chan_low,chan_up;
-  std::string  hist_name;
-  std::string  hist_summary_name1;
-  std::string  hist_summary_name2;
-  std::string hist_title;
+  int m_Nchan; 
+  double m_chan_low,m_chan_up;
+  std::string  m_hist_name;
+  std::string  m_hist_summary_name1;
+  std::string  m_hist_summary_name2;
+  std::string m_hist_title;
 
   /** The FEB map*/
   std::map<HWIdentifier,std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > > m_FEBhistograms; 
   std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > m_histos;  //for handling histograms
 
   /** Summary plot*/
-  TH2F_LW * h_summary_plot1_EMBA;
-  TH2F_LW * h_summary_plot1_EMBC;
-  TH2F_LW * h_summary_plot1_EMECA;
-  TH2F_LW * h_summary_plot1_EMECC;
-  TH2F_LW * h_summary_plot1_HECA;
-  TH2F_LW * h_summary_plot1_HECC;
-  TH2F_LW * h_summary_plot1_FCALA;
-  TH2F_LW * h_summary_plot1_FCALC;
+  TH2F_LW * m_h_summary_plot1_EMBA;
+  TH2F_LW * m_h_summary_plot1_EMBC;
+  TH2F_LW * m_h_summary_plot1_EMECA;
+  TH2F_LW * m_h_summary_plot1_EMECC;
+  TH2F_LW * m_h_summary_plot1_HECA;
+  TH2F_LW * m_h_summary_plot1_HECC;
+  TH2F_LW * m_h_summary_plot1_FCALA;
+  TH2F_LW * m_h_summary_plot1_FCALC;
 
-  TH2F_LW * h_summary_plot2_EMBA;
-  TH2F_LW * h_summary_plot2_EMBC;
-  TH2F_LW * h_summary_plot2_EMECA;
-  TH2F_LW * h_summary_plot2_EMECC;
-  TH2F_LW * h_summary_plot2_HECA;
-  TH2F_LW * h_summary_plot2_HECC;
-  TH2F_LW * h_summary_plot2_FCALA;
-  TH2F_LW * h_summary_plot2_FCALC;
+  TH2F_LW * m_h_summary_plot2_EMBA;
+  TH2F_LW * m_h_summary_plot2_EMBC;
+  TH2F_LW * m_h_summary_plot2_EMECA;
+  TH2F_LW * m_h_summary_plot2_EMECC;
+  TH2F_LW * m_h_summary_plot2_HECA;
+  TH2F_LW * m_h_summary_plot2_HECC;
+  TH2F_LW * m_h_summary_plot2_FCALA;
+  TH2F_LW * m_h_summary_plot2_FCALC;
 
 
   /** list of FEBs to monitor. FEB names are expected to be of the type  LARONLINEID defined in the package atlas/LArCalorimeter/LArMonTools/LArMonTools/LArOnlineIDStrHelper.h  e.g. 'BarrelCFT00Slot02'  */
@@ -128,7 +126,6 @@ private:
   bool m_DoSummary;
 
   std::string m_LArDigitContainerKey;
-  std::string m_larPedestalKey;
   
   /** Private members*/
   int m_evtId;
