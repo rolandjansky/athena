@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
-
+#include <numeric> //to product vector
 
 JetAttrsCondition::JetAttrsCondition(
                 std::vector<std::string> jetVar,
@@ -35,12 +35,13 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 
 
   auto jet = ips[0];
-  auto trigDecision = true; //all chain bits must be satisfied to keep this true. Any failure will make false
-  auto nmbVars = m_jetVar.size() / m_E.size(); // number of moments considered at each energy point
+//  auto trigDecision = true; //all chain bits must be satisfied to keep this true. Any failure will make false
+//  auto nmbVars = m_jetVar.size() / m_E.size(); // number of moments considered at each energy point
 
   std::cout << "amanda - in JetAttrsCondition \n";
   std::cout << "amanda - length of condition input arrays (var,E,min,max): "<< m_jetVar.size() << m_E.size() << m_limitMin.size() << m_limitMax.size() << "\n";
 
+  //first working try
   /*
   //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
   for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
@@ -55,13 +56,15 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
   }  
   */
 
+  //second working try - good for single E
+  /*
   //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
-  for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
-    //bool trigDec=true; //resets for each jet energy
-    for (unsigned int index=0; index < nmbVars; index++){
-      if(m_jetVar[index+nmbVars*jetEn].compare("width")==0){trigDecision*=passWidthCut(jet,index+nmbVars*jetEn);}
-      else if(m_jetVar[index+nmbVars*jetEn].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index+nmbVars*jetEn);}
-      else if(m_jetVar[index+nmbVars*jetEn].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
+  //for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
+  if(m_E.size()==1){    
+    for (unsigned int index=0; index < m_jetVar.size(); index++){//for each jet variable
+      if(m_jetVar[index].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
+      else if(m_jetVar[index].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
+      else if(m_jetVar[index].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
       else{trigDecision*=false;} //variable does not yet have passCut method
     }
     if(trigDecision){return true;} //if full trigger is satisfied, return true (trigDecision==true)
@@ -69,6 +72,60 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 
 
   return false;
+  */
+
+
+  //Create vector of decisions. If/when every element is "true" then condition is fully satisfied
+  //If has=false, fill decision vector with "true" to ignore. Fill other elements with false. The "false" entries must now be checked with passCut methods below
+  std::vector<bool> trigDecision;
+
+  //to keep track of which limits to use
+  for(auto var : m_jetVar){
+    if(var.compare(" ")==0){
+      trigDecision.push_back(true);
+    }
+    else{trigDecision.push_back(false);}
+  } 
+
+  for(unsigned int index=0;index<m_jetVar.size();index++){
+    if(!trigDecision[index]){
+      if(m_jetVar[index].compare("width")==0){
+        trigDecision[index]=passWidthCut(jet,index);
+      }
+      else if(m_jetVar[index].compare("ktdr")==0){
+        trigDecision[index]=passKtDRCut(jet,index);
+      }
+    }
+  }
+  
+
+
+  //if(checkDecision(trigDecision)){return true;}
+  //return false;
+  return checkDecision(trigDecision);
+
+}
+
+
+bool JetAttrsCondition::checkDecision(std::vector<bool> dec) const {
+  //if vector is full of "true" statments, the product will also be true and trigger satisfied
+  //Check multiplication here
+
+  auto nmbVars = m_jetVar.size()/m_E.size();
+  bool result=true;
+   
+  for (unsigned int i=0; i<m_E.size(); i++){
+    auto start_itr = std::next(dec.cbegin(),i*nmbVars);
+    auto end_itr = std::next(dec.cbegin(), i*nmbVars + nmbVars);
+    bool resultE = std::accumulate(start_itr, end_itr, 1, std::multiplies<bool>());
+    result*=resultE;
+  }
+
+  std::cout << "amanda - In check decision \n";
+  std::cout << "amanda - Returning event decision " << result << "\n";
+
+  return result;
+
 }
 
 

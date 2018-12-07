@@ -39,6 +39,7 @@ class JetAttrsCondition: public ICondition{
  private:
 
   typedef struct {bool validCondition; double value;} Jet;
+  bool checkDecision(std::vector<bool>) const;
   bool passWidthCut(pHypoJet, int) const;
   bool passKtDRCut(pHypoJet, int) const;
 
