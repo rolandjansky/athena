@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MdtHitIdHelper_H
@@ -8,28 +8,28 @@
 #include <string>
 
 //base class
-#include "HitManagement/HitIdHelper.h" 
+#include "HitManagement/HitIdHelper.h"
 
 class MdtHitIdHelper: public HitIdHelper {
 public:
-	
-	static MdtHitIdHelper* GetHelper();
-	std::string GetStationName(const int& hid);
-	void SetStationName(std::string name);
-	int GetPhiSector(const int& hid);
-	int GetZSector(const int& hid);
-	int GetMultiLayer(const int& hid);
-	int GetLayer(const int& hid);
-	int GetTube(const int& hid);
-	
-	int BuildMdtHitId (const std::string, const int, const int, const int,
-		const int, const int); 
+
+  static MdtHitIdHelper* GetHelper();
+  std::string GetStationName(const int& hid) const;
+  void SetStationName(std::string name, int& hid) const;
+  int GetPhiSector(const int& hid) const;
+  int GetZSector(const int& hid) const;
+  int GetMultiLayer(const int& hid) const;
+  int GetLayer(const int& hid) const;
+  int GetTube(const int& hid) const;
+
+  int BuildMdtHitId (const std::string, const int, const int, const int,
+                     const int, const int) const;
 
 private:
-	MdtHitIdHelper();
-	void Initialize();
-	void InitializeStationName();
-	static MdtHitIdHelper* m_help;
+  MdtHitIdHelper();
+  void Initialize();
+  void InitializeStationName();
+  static MdtHitIdHelper* m_help;
 
 };
 
