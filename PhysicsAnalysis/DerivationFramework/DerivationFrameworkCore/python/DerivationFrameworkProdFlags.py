@@ -808,7 +808,18 @@ class WriteDAOD_STDM10Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM10Stream)
 listAODtoDPD.append(WriteDAOD_STDM10Stream.StreamName)
 
-
+class WriteDAOD_STDM11Stream (JobProperty):
+    """Derivation for inclusive jets and leading jet measurements"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM11'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM11.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM11Stream)
+listAODtoDPD.append(WriteDAOD_STDM11Stream.StreamName)
 
 #################################
 # Defined by the Tau group
