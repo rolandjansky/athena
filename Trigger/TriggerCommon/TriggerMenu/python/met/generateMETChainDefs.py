@@ -9,10 +9,10 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
 
-from TriggerMenu.met.MissingETDef import L2EFChain_met
+from TriggerMenu.met.MissingETDef import *
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
+from TriggerMenu.menu.MenuUtils import *
 
 
 
@@ -31,17 +31,13 @@ def generateChainDefs(chainDict):
         MissingET = L2EFChain_met(subChainDict)
         
         listOfChainDefs += [MissingET.generateHLTChainDef()]
-
-
-    if "v6" in TriggerFlags.triggerMenuSetup() or "v5" in TriggerFlags.triggerMenuSetup():       
-        if len(listOfChainDefs)>1:
-            listOfChainDefs = [mergeChainDefs(listOfChainDefs)]
-        else:
-            listOfChainDefs = [listOfChainDefs[0]]
+        
+    if len(listOfChainDefs)>1:
+        theChainDef = mergeChainDefs(listOfChainDefs)
+    else:
+        theChainDef = listOfChainDefs[0]        
     
-    listOfChainDefs.reverse()
-    
-    return listOfChainDefs
+    return theChainDef
 
 
 ##########################################################
