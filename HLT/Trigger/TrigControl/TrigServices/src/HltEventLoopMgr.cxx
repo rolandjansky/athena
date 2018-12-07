@@ -295,17 +295,6 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_hltResultRHKey.initialize());
 
   //----------------------------------------------------------------------------
-  // Setup the HLT Histogram Service when configured
-  //----------------------------------------------------------------------------
-  if ( &*m_THistSvc ) {
-    m_hltTHistSvc = SmartIF<IHltTHistSvc>( &*m_THistSvc );
-    if (m_hltTHistSvc.isValid())
-      ATH_MSG_INFO("A THistSvc implementing the HLT interface IHltTHistSvc was found");
-    else
-      ATH_MSG_INFO("No THistSvc implementing the HLT interface IHltTHistSvc was found");
-  }
-
-  //----------------------------------------------------------------------------
   // Setup the HLT ROB Data Provider Service when configured
   //----------------------------------------------------------------------------
   if ( &*m_robDataProviderSvc ) {
@@ -358,7 +347,6 @@ StatusCode HltEventLoopMgr::finalize()
   ATH_MSG_INFO("Total number of EventContext objects created " << m_localEventNumber);
 
   // Need to release now - automatic release in destructor is too late since services are already gone
-  m_hltTHistSvc.reset();
   m_hltROBDataProviderSvc.reset();
 
   // Finalise top level algorithms
@@ -406,7 +394,6 @@ StatusCode HltEventLoopMgr::finalize()
                  m_algResourcePool,
                  m_aess,
                  m_schedulerSvc,
-                 m_hltTHistSvc,
                  m_hltROBDataProviderSvc);
 
 #else // standard older than C++17
@@ -439,7 +426,6 @@ StatusCode HltEventLoopMgr::finalize()
   m_algResourcePool.reset();
   m_aess.reset();
   m_schedulerSvc.reset();
-  m_hltTHistSvc.reset();
   m_hltROBDataProviderSvc.reset();
 
 #endif
