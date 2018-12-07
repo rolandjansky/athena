@@ -24,7 +24,6 @@
 #include "xAODJet/JetContainer.h"
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
-using namespace InDet;
 
 namespace DerivationFramework {
 
