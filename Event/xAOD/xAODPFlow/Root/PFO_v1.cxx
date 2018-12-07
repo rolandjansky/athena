@@ -563,7 +563,7 @@ namespace xAOD {
   }
 
   bool PFO_v1::addAssociatedParticleLink(PFODetails::PFOParticleType ParticleType,  const ElementLink<IParticleContainer>& theParticle) {
-    const static Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
     if (!p_acc) return false;
     else{
       if (!p_acc->isAvailable(*this)) return false;
@@ -593,7 +593,7 @@ namespace xAOD {
   
   bool PFO_v1::setAssociatedParticleLinks(PFODetails::PFOParticleType ParticleType,  const std::vector<ElementLink<IParticleContainer> >& theParticles) {
 
-    const static Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
     if (!p_acc) return false;
     else{
       (*p_acc)(*this) = theParticles;
@@ -603,7 +603,7 @@ namespace xAOD {
   
   bool PFO_v1::associatedParticles(PFODetails::PFOParticleType ParticleType, std::vector<const IParticle*>& theParticles ) const{
 
-    const static ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
     if (!p_acc) return false;
     else{
       if (!p_acc->isAvailable(*this)) return false;
@@ -652,7 +652,7 @@ namespace xAOD {
 
   const CaloCluster* PFO_v1::cluster(unsigned int index) const {
     
-    const static ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
     if (!p_acc) return nullptr;
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
@@ -674,7 +674,7 @@ namespace xAOD {
 
   const TrackParticle* PFO_v1::track(unsigned int index) const {
 
-    const static ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
     if (!p_acc) return nullptr;
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
@@ -761,7 +761,7 @@ namespace xAOD {
     //if you added your own consituents the links will not be correctly persistified
 
     //clusters
-    const static Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accClusters = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accClusters = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
     if (p_accClusters){
       const static Accessor<std::vector<ElementLink<IParticleContainer > > >& accClusters = *p_accClusters;
       if ( accClusters.isAvailableWritable(*this) ){
@@ -773,7 +773,7 @@ namespace xAOD {
     }
     
     //tracks
-    const static Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accTracks = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accTracks = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
     if (p_accTracks){
       const static Accessor<std::vector<ElementLink<IParticleContainer > > >& accTracks = *p_accTracks;
       if ( accTracks.isAvailableWritable(*this) ){
@@ -786,7 +786,7 @@ namespace xAOD {
     }
 
     //shots    
-    const static Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accShots = PFOParticleTypeMapper_temp::getAccessor(PFODetails::TauShot);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accShots = PFOParticleTypeMapper_temp::getAccessor(PFODetails::TauShot);
     if (p_accShots){
       const static Accessor<std::vector<ElementLink<IParticleContainer > > >& accShots = *p_accShots;
       if ( accShots.isAvailableWritable(*this) ){
