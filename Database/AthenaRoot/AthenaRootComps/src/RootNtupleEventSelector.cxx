@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleEventSelector.cxx 
@@ -37,11 +37,11 @@
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // StoreGate includes
 
 #include "SGTools/BuiltinsClids.h"   // to make sure we have their clids
-#include "SGTools/CLASS_DEF.h"
 #include "SGTools/StlMapClids.h"     // to make sure we have their clids
 #include "SGTools/StlVectorClids.h"  // to make sure we have their clids
 #include "SGTools/TransientAddress.h"

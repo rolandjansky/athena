@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // xAODBranchAddress.cxx 
@@ -18,7 +18,7 @@
 // fwk includes
 #include "GaudiKernel/System.h"
 //#include "GaudiKernel/ClassID.h"
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 
 // ROOT includes
 #include "TBranch.h"

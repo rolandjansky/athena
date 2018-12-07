@@ -15,8 +15,7 @@
 #include <string>
 #include <stdexcept>
 
-// SGTools
-#include "SGTools/DataBucketBase.h"
+#include "AthenaKernel/DataBucketBase.h"
 
 #include "DataModelRoot/RootType.h"
 
