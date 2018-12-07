@@ -17,7 +17,8 @@
 
 namespace {
   //int rodLinkFromOnlineID(const uint32_t id) {
-  int rodLinkFromOnlineID(const SCT_OnlineId onlineID) {
+  int rodLinkFromOnlineID(const SCT_OnlineId onlineID) 
+  {
     //const SCT_OnlineId online{id};
     const uint32_t fibre{onlineID.fibre()};
     const int formatter{static_cast<int>((fibre/12) & 0x7)};
@@ -25,28 +26,32 @@ namespace {
     const int rodLink{(formatter << 4) | linkNum};
     return rodLink;
   } 
-  bool isOdd(const int someNumber){
+  bool isOdd(const int someNumber)
+  {
     return static_cast<bool>(someNumber & 1);
   }
  
-  bool isEven(const int someNumber) {
+  bool isEven(const int someNumber) 
+  {
     return not isOdd(someNumber);
   }
  
-  bool swappedCable(const int moduleSide, const int linkNumber) {
+  bool swappedCable(const int moduleSide, const int linkNumber) 
+  {
     return isOdd(linkNumber) ? (moduleSide==0) : (moduleSide==1);
   }
 }//end of anon namespace
 
 
-SCT_RodEncoder::SCT_RodEncoder
-(const std::string& type, const std::string& name, const IInterface* parent) : 
+SCT_RodEncoder::SCT_RodEncoder(const std::string& type, const std::string& name, const IInterface* parent) : 
   base_class(type, name, parent),
   m_sctID{nullptr},
-  m_swapModuleID{} {
-  }
+  m_swapModuleID{} 
+{
+}
 
-StatusCode SCT_RodEncoder::initialize() {
+StatusCode SCT_RodEncoder::initialize() 
+{
   //prob. dont need this next line now:
   //ATH_CHECK( AlgTool::initialize());
   ATH_MSG_DEBUG("SCT_RodEncoder::initialize()");
@@ -67,7 +72,7 @@ StatusCode SCT_RodEncoder::initialize() {
   ATH_CHECK(detStore()->retrieve(sctDetManager, "SCT"));
 
   const InDetDD::SiDetectorElementCollection* sctDetElementColl{sctDetManager->getDetectorElementCollection()};
-  for (auto sctDetElement: *sctDetElementColl) {
+  for (auto sctDetElement : *sctDetElementColl) {
     if (sctDetElement->swapPhiReadoutDirection()) {
       m_swapModuleID.insert(sctDetElement->identify());
     }
@@ -76,7 +81,8 @@ StatusCode SCT_RodEncoder::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_RodEncoder::finalize() {
+StatusCode SCT_RodEncoder::finalize() 
+{
   return StatusCode::SUCCESS;
 }
 
@@ -85,8 +91,8 @@ StatusCode SCT_RodEncoder::finalize() {
 ///=========================================================================
 
 void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, 
-                             const std::vector<const SCT_RDORawData*>& vecRDOs) const {
-  
+                             const std::vector<const SCT_RDORawData*>& vecRDOs) const 
+{
   /** retrieve errors from SCT_ByteStreamErrorsSvc */
 
   const std::set<IdentifierHash>* timeOutErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TimeOutError)};
@@ -159,7 +165,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
 
     const uint16_t header{this->getHeaderUsingRDO(rdo)};
     if (header != lastHeader) {
-      if (! firstInROD) {
+      if (!firstInROD) {
         vec16Data.push_back(lastTrailer);
       }
       firstInROD = false;
@@ -206,7 +212,6 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
     } /** end of condensed Mode */
     
     else {/** Expanded mode */
-      
       vecTimeBins.clear();
       const SCT_RDORawData* rdo{vecRDOs.at(iRDO)};
       strip = getStrip(rdo);
@@ -238,8 +243,8 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
 ///========================================================================= 
 
 void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector<uint16_t>& vec16Words, 
-                                const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const {
-  
+                                const SCT_RDORawData* rdo, const int& groupSize, const int& strip) const 
+{
   const int encodedSide{side(rdo) << 14};
   
   ///-------------------------------------------------------------------------------------
@@ -307,7 +312,8 @@ void SCT_RodEncoder::encodeData(const std::vector<int>& vecTimeBins, std::vector
 /// Converting the 16 bit vector v16 to 32 bit words v32
 ///=========================================================================
 void SCT_RodEncoder::packFragments(std::vector<uint16_t>& vec16Words, 
-                                   std::vector<uint32_t>& vec32Words) const {
+                                   std::vector<uint32_t>& vec32Words) const 
+{
   int num16Words{static_cast<int>(vec16Words.size())};
   if (isOdd(num16Words)) {
     /** just add an additional 16bit words to make even size v16 to in the 32 bits word 0x40004000 */
@@ -337,7 +343,8 @@ void SCT_RodEncoder::packFragments(std::vector<uint16_t>& vec16Words,
 
 uint32_t SCT_RodEncoder::set32Bits(const unsigned short int* arr16Words, 
                                    const unsigned short int* position, 
-                                   const unsigned short int& numWords) const {
+                                   const unsigned short int& numWords) const 
+{
   uint32_t uint32Word{0};
   uint32_t pos{0};
   uint32_t uint16Word{0};
@@ -353,31 +360,36 @@ uint32_t SCT_RodEncoder::set32Bits(const unsigned short int* arr16Words,
 /// Link and Side Numbers 
 ///=========================================================================
 /** Strip number */ 
-int SCT_RodEncoder::getStrip(const SCT_RDORawData* rdo) const {
+int SCT_RodEncoder::getStrip(const SCT_RDORawData* rdo) const 
+{
   const Identifier rdoID{rdo->identify()};
   return m_sctID->strip(rdoID);
 }
 
 /** RDO ID */
-Identifier SCT_RodEncoder::offlineID(const SCT_RDORawData* rdo) const {
+Identifier SCT_RodEncoder::offlineID(const SCT_RDORawData* rdo) const 
+{
   const Identifier rdoId{rdo->identify()};
   return m_sctID->wafer_id(rdoId);
 }
 
 /** ROD online ID */
-uint32_t SCT_RodEncoder::onlineID(const SCT_RDORawData* rdo) const {
+uint32_t SCT_RodEncoder::onlineID(const SCT_RDORawData* rdo) const 
+{
   const Identifier waferID{offlineID(rdo)};
   const IdentifierHash offlineIDHash{m_sctID->wafer_hash(waferID)};
   return static_cast<const uint32_t>(m_cabling->getOnlineIdFromHash(offlineIDHash));
 }
 
 /** ROD Link Number In the ROD header data */
-int SCT_RodEncoder::getRODLink(const SCT_RDORawData* rdo) const {
+int SCT_RodEncoder::getRODLink(const SCT_RDORawData* rdo) const 
+{
   return rodLinkFromOnlineID(onlineID(rdo));
 }
 
 /** Side Info */
-int SCT_RodEncoder::side(const SCT_RDORawData* rdo) const {
+int SCT_RodEncoder::side(const SCT_RDORawData* rdo) const 
+{
   const Identifier rdoID{rdo->identify()};
   int sctSide{m_sctID->side(rdoID)};
   /** see if we need to swap sides due to cabling weirdness */
@@ -387,7 +399,8 @@ int SCT_RodEncoder::side(const SCT_RDORawData* rdo) const {
 }
 
 /** Time Bin Info */
-int SCT_RodEncoder::getTimeBin(const SCT_RDORawData* rdo) const {
+int SCT_RodEncoder::getTimeBin(const SCT_RDORawData* rdo) const 
+{
   int timeBin{0};
   const SCT3_RawData* rdoCosmic{dynamic_cast<const SCT3_RawData*>(rdo)};
   if (rdoCosmic != 0) timeBin = rdoCosmic->getTimeBin();
@@ -398,15 +411,15 @@ int SCT_RodEncoder::getTimeBin(const SCT_RDORawData* rdo) const {
 /// Link header
 ///-------------------------------------------------------------------------------------
 
-uint16_t 
-SCT_RodEncoder::getHeaderUsingRDO(const SCT_RDORawData* rdo) const {
+uint16_t SCT_RodEncoder::getHeaderUsingRDO(const SCT_RDORawData* rdo) const 
+{
   const int rodLink{getRODLink(rdo)};
   const uint16_t linkHeader{static_cast<uint16_t>(0x2000 | (m_condensed.value() << 8) | rodLink)};
   return linkHeader;
 }
 
-uint16_t 
-SCT_RodEncoder::getHeaderUsingHash(const IdentifierHash& linkHash, const int& errorWord) const {
+uint16_t SCT_RodEncoder::getHeaderUsingHash(const IdentifierHash& linkHash, const int& errorWord) const 
+{
   const int rodLink{rodLinkFromOnlineID(m_cabling->getOnlineIdFromHash(linkHash))};
   const uint16_t linkHeader{static_cast<uint16_t>(0x2000 | errorWord | (m_condensed.value() << 8) | rodLink)};
   return linkHeader;
@@ -415,8 +428,8 @@ SCT_RodEncoder::getHeaderUsingHash(const IdentifierHash& linkHash, const int& er
 ///-------------------------------------------------------------------------------------
 /// Link trailer
 ///-------------------------------------------------------------------------------------
-uint16_t 
-SCT_RodEncoder::getTrailer(const int& errorWord) const {
+uint16_t SCT_RodEncoder::getTrailer(const int& errorWord) const 
+{
   const uint16_t linkTrailer{static_cast<uint16_t>(0x4000 | errorWord)};
   return linkTrailer;
 }
@@ -426,7 +439,8 @@ SCT_RodEncoder::getTrailer(const int& errorWord) const {
 ///-------------------------------------------------------------------------------------
 
 void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
-                                          const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+                                          const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const 
+{
   for (const IdentifierHash& linkHash: *errors) {
     const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
     if (errROBID == robID) {
@@ -440,7 +454,8 @@ void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<
 
 //
 void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
-                                           const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+                                           const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const 
+{
   for (const IdentifierHash& linkHash: *errors) {
     const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
     if (errROBID == robID) {
@@ -453,7 +468,8 @@ void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set
 }
 
 void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
-                                       const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+                                       const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const 
+{
   for (const IdentifierHash& linkHash: *errors) {
     const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
     if (errROBID == robID) {

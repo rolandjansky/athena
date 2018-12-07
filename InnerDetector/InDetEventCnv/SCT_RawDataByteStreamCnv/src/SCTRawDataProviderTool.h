@@ -33,8 +33,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
  public:
    
   /** Constructor */
-  SCTRawDataProviderTool(const std::string& type, const std::string& name,
-                         const IInterface* parent);
+  SCTRawDataProviderTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** Destructor */
   virtual ~SCTRawDataProviderTool() = default;

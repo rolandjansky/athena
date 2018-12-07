@@ -41,7 +41,6 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
  public:
  
   /** constructor  */
-
   SCT_RodEncoder(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** destructor  */
@@ -129,7 +128,9 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                                          "SCT_CablingTool", 
                                          "SCT_CablingTool", 
                                          "Tool to retrieve SCT Cabling"};
+
   const SCT_ID* m_sctID;
+
   BooleanProperty m_condensed{this, 
                               "CondensedMode", 
                               false, 

@@ -11,9 +11,9 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 // Constructor
 
-SCTRawDataProviderTool::SCTRawDataProviderTool
-(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type, name, parent),
+SCTRawDataProviderTool::SCTRawDataProviderTool(const std::string& type, const std::string& name, 
+                                               const IInterface* parent) : 
+  base_class(type, name, parent),
   m_robIDSet{},
   m_decodeErrCount{0},
   m_mutex{}
