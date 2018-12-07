@@ -37,8 +37,7 @@ from CaloD3PDMaker.MBTSTriggerBitsD3PDObject           import MBTSTriggerBitsD3P
 from CaloD3PDMaker.ZDCTriggerBitsD3PDObject            import ZDCTriggerBitsD3PDObject
 from CaloD3PDMaker.LArCollisionTimeD3PDObject          import LArCollisionTimeD3PDObject
 from CaloD3PDMaker.CollisionDecisionD3PDObject         import CollisionDecisionD3PDObject
-from CaloD3PDMaker.ClusterD3PDObject                   import ClusterD3PDObject
-from CaloD3PDMaker.EMClusterD3PDObject                 import EMClusterD3PDObject
+from CaloD3PDMaker.xAODClusterD3PDObject               import xAODClusterD3PDObject
 from TrackD3PDMaker.xAODTrackD3PDObject                import xAODTrackParticleD3PDObject
 
 from TrackD3PDMaker.xAODVertexD3PDObject               import PrimaryxAODVertexD3PDObject
@@ -176,8 +175,10 @@ def physicsD3PD (alg = None,
 
     # track and cluster blocks
     
-    alg += ClusterD3PDObject          (**_args ( 1, 'Cluster', kw))
-    alg += EMClusterD3PDObject        (**_args ( 2, 'EMCluster', kw))
+    alg += xAODClusterD3PDObject      (**_args ( 1, 'Cluster', kw))
+    alg += xAODClusterD3PDObject      (**_args ( 2, 'EMCluster', kw,
+                                                 sgkey=D3PDMakerFlags.EMTopoClusterSGKey(),
+                                                 prefix='emcl_'))
 
     # Many of these are just being set to the defaults --- that's because
     # they're being changed in TrigEgamma...
