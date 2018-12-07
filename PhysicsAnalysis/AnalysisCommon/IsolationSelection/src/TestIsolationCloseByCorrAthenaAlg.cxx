@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 //// Developed by Johannes Josef Junggeburth (jojungge@cern.ch)
@@ -60,7 +60,7 @@ namespace CP {
         ATH_CHECK(CreateContainerLinks("Electrons", Electrons));
         for (const auto ielec : *Electrons) {
             //Store if the electron passes the isolation
-            dec_PassIsol(*ielec) = m_isoSelectorTool->accept(*ielec);
+            dec_PassIsol(*ielec) = static_cast<bool>(m_isoSelectorTool->accept(*ielec));
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
         }
@@ -68,7 +68,7 @@ namespace CP {
         ATH_CHECK(CreateContainerLinks("Photons", Photons));
         for (const auto iphot : *Photons) {
             //Store if the photon passes the isolation (only needed for later comparisons)
-            dec_PassIsol(*iphot) = m_isoSelectorTool->accept(*iphot);
+            dec_PassIsol(*iphot) = static_cast<bool>(m_isoSelectorTool->accept(*iphot));
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
         }
@@ -76,7 +76,7 @@ namespace CP {
         ATH_CHECK(CreateContainerLinks("Muons", Muons));
         for (const auto imuon : *Muons) {
             //Store if the muon passes the isolation
-            dec_PassIsol(*imuon) = m_isoSelectorTool->accept(*imuon);
+            dec_PassIsol(*imuon) = static_cast<bool>(m_isoSelectorTool->accept(*imuon));
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
         }

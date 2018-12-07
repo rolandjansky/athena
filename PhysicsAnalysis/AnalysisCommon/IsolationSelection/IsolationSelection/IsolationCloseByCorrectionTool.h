@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef IsolationSelection_IsolationCloseByCorrectionTool_H
@@ -56,8 +56,12 @@ namespace CP {
             virtual CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
             virtual CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
-            virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
-            virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual asg::AcceptData acceptCorrected(const xAOD::IParticle& x, 
+                                                     const std::vector<const xAOD::IParticle*>& closePar, 
+                                                     int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual asg::AcceptData acceptCorrected(const xAOD::IParticle& x, 
+                                                    const xAOD::IParticleContainer& closePar, 
+                                                    int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
             virtual CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
             virtual CorrectionCode subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
@@ -167,6 +171,7 @@ namespace CP {
             //Functionallity to backup the original cone variables if needed
             std::string m_backup_prefix;
 
+            asg::AcceptInfo m_corrAcceptInfo;
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
             mutable IsoHelperMap m_isohelpers;
 
