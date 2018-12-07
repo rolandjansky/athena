@@ -103,6 +103,9 @@ public:
 
    // Correction for AnnulusBounds 
    const InDet::SCT_ClusterOnTrack* correctAnnulus(const InDet::SCT_Cluster*, const Trk::TrackParameters&) const; 
+
+   const InDet::SCT_ClusterOnTrack* correctAnnulusPC
+    (const InDet::SCT_Cluster* SC, const Trk::TrackParameters& trackPar) const; 
 };
 
 } // end of namespace InDet

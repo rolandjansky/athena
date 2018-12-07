@@ -385,3 +385,67 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulus
 
   return new InDet::SCT_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
 } 
+
+const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
+    (const InDet::SCT_Cluster* SC, const Trk::TrackParameters& trackPar) const
+{
+  ATH_MSG_ALWAYS(name() << " " << __FUNCTION__);
+  if(!SC) return 0;
+
+  const InDetDD::SiDetectorElement* EL = SC->detectorElement(); if(!EL) return 0;
+
+  Trk::LocalParameters locpar(SC->localPosition()); // local parameters from cluster
+  //Amg::Vector3D glob(SC->globalPosition());
+  // cell id from cluster
+  // @TODO: Do we want to have this from TP?
+  InDetDD::SiCellId lp = EL->cellIdOfPosition(SC->localPosition()); 
+  IdentifierHash iH = EL->identifyHash();
+
+  const InDetDD::StripStereoAnnulusDesign *design 
+    = dynamic_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
+  
+  if(design == nullptr) {
+    ATH_MSG_ERROR(__FUNCTION__ << " called with non AnnulusBounds");
+    return 0;
+  }
+
+  double striplength = design->stripLength(lp); // in mm I assume
+  double pitch = design->phiPitchPhi(lp); // in units of phi
+
+  // build covariance
+  Amg::MatrixX cov(2,2);
+  cov.setZero();
+  cov(0, 0) = striplength*striplength / 12.;
+  // @TODO: Is this right? Do we need the width of the cluster in phi for this?
+  ATH_MSG_VERBOSE("phiPitch = " << pitch);
+  cov(1, 1) = pitch*pitch / 12.;
+  
+  // ??
+  bool isbroad=(m_option_errorStrategy==0) ? true : false;
+
+  const InDet::SiWidth width = SC->width();
+  const Amg::Vector2D& colRow = width.colRow();
+  // get local position of cluster in PC
+  int clusterSize = colRow.x(); // clusterSize == number of strips
+  InDetDD::SiLocalPosition siLocPC = design->localPositionOfClusterPC(lp, clusterSize);
+
+  // xPhi is just phi, xEta is r
+  // pi/2 is offset in the bounds definition, so module local phi=0 is surface local phi=pi/2
+  // @TODO: is this correct? Could that be done nicer?
+  Amg::Vector2D locpos(siLocPC.xEta(), siLocPC.xPhi());
+  Trk::LocalParameters locparPC(locpos);
+
+  // use track parameters' surface for loc to glob
+  const Amg::Vector3D* glob_ptr = trackPar.associatedSurface().localToGlobal(locpos);
+
+  Amg::Vector3D glob = *glob_ptr;
+  delete glob_ptr;
+
+  ATH_MSG_VERBOSE("ABPC locParPC: " << locparPC);
+  ATH_MSG_VERBOSE("ABPC locParXY was: " << locpar);
+  ATH_MSG_VERBOSE("ABPC cov: \n" << cov);
+  ATH_MSG_VERBOSE("ABPC cov bfore: \n" << SC->localCovariance());
+
+
+  return new InDet::SCT_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
+}
