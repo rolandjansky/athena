@@ -139,9 +139,9 @@ fi
 AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
 # Check out AthenaExternals from the right branch/tag:
-#${scriptsdir}/checkout_atlasexternals.sh \
-#    -t ${AthenaExternalsVersion} \
-#    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
+${scriptsdir}/checkout_atlasexternals.sh \
+    -t ${AthenaExternalsVersion} \
+    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
 
 # log analyzer never affects return status in the parent shell:
 {
@@ -162,7 +162,7 @@ AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/ex
 ## Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
 ${scriptsdir}/build_atlasexternals.sh \
-    -s /build1/tsulaia/athena-devel/atlasexternals/src \
+    -s ${BUILDDIR}/src/AthenaExternals \
     -b ${BUILDDIR}/build/AthenaExternals \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
