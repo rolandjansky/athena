@@ -55,12 +55,17 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     if ( roiCollection->size() > 1 ) 
       ATH_MSG_INFO ( "roiMode but multiple rois found, will only use the first one");
 
-    SG::WriteHandle<ConstDataVector<CaloCellContainer> > cellContainer = SG::WriteHandle<ConstDataVector<CaloCellContainer> > ( m_cellContainerKey, context );
-    auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
+    SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
+    auto cdv = CxxUtils::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
         ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
+	cdv->setHasCalo(CaloCell_ID::LAREM);
+	cdv->setHasCalo(CaloCell_ID::LARHEC);
+	cdv->setHasCalo(CaloCell_ID::LARFCAL);
+	cdv->setHasCalo(CaloCell_ID::TILE);
+	cdv->updateCaloIterators();
 	
       } else {
 	LArTT_Selector<LArCellCont> sel;
@@ -80,14 +85,14 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
-	auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
+	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
 		
       } else {
 	LArTT_Selector<LArCellCont> sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
-	auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
+	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 	int cc(0);
 	for( const auto cell : sel ) {c->push_back( cell ); cc++;}
 	cellContainerV->push_back( c.release()->asDataVector() );
