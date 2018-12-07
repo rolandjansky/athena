@@ -161,10 +161,28 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   else if (boundsType == Trk::SurfaceBounds::Rectangle){ boundsy = (static_cast<const Trk::RectangleBounds *>(bounds))->halflengthY();}
 
   else if(boundsType == Trk::SurfaceBounds::Annulus){ //for annuli do something different, since we already have in-sensor stereo rotations which strip length accounts for
-    const InDetDD::SiCellId & lp = EL->cellIdOfPosition(SC->localPosition());
-    const InDetDD::StripStereoAnnulusDesign * design = static_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
-    striphalflength = design->stripLength(lp) / 2.0;
-    if (distance > striphalflength) distance = striphalflength - 1; // subtract 1 to be consistent with below; no sure why this has to be so large...
+
+    // cartesian or polar coordinate annulus bounds?
+    const Trk::AnnulusBounds *abounds
+      = dynamic_cast<const Trk::AnnulusBounds *> (&trackPar.associatedSurface().bounds());
+    const Trk::AnnulusBoundsPC *aboundspc
+      = dynamic_cast<const Trk::AnnulusBoundsPC *> (&trackPar.associatedSurface().bounds());
+
+    if(aboundspsc != nullptr) {
+      return correctAnnulusPC(SC, trackPar);
+    }
+    else if(abounds != nullptr) {
+      const InDetDD::SiCellId & lp = EL->cellIdOfPosition(SC->localPosition());
+      const InDetDD::StripStereoAnnulusDesign * design = static_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
+      striphalflength = design->stripLength(lp) / 2.0;
+      if (distance > striphalflength) distance = striphalflength - 1; // subtract 1 to be consistent with below; no sure why this has to be so large...
+    }
+    else {
+      // this shouldn't really happen
+      ATH_MSG_ERROR("AnnulusBounds type is neither cartesian nor polar");
+      return 0;
+    }
+
   }
  else {
    ATH_MSG_ERROR("Undefined bounds! Strip position may be off-sensor!"); 
