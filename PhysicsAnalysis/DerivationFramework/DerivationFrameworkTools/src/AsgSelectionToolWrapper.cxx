@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 
 #include "DerivationFrameworkTools/AsgSelectionToolWrapper.h"
 #include "xAODBase/IParticleContainer.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
 #include <vector>
 #include <string>
 
@@ -59,18 +59,18 @@ namespace DerivationFramework {
     
     // Write mask for each element and record to SG for subsequent selection
     for (xAOD::IParticleContainer::const_iterator pItr = particles->begin(); pItr!=particles->end(); ++pItr) {
-      Root::TAccept theAccept(m_tool->accept(*pItr)); 
+      asg::AcceptData theAccept=m_tool->accept(*pItr); 
       if(m_cut==""){
-	bool pass_selection = (bool) theAccept;
-	if(pass_selection) decorator(**pItr) = 1;
-	else decorator(**pItr) = 0;
+        bool pass_selection = static_cast<bool>(theAccept);
+        if(pass_selection) decorator(**pItr) = 1;
+        else decorator(**pItr) = 0;
       }
       else{
-	if (theAccept.getCutResult(m_cut)) {
-	  decorator(**pItr) = 1;
-	} else {
-	  decorator(**pItr) = 0;
-	}
+        if (theAccept.getCutResult(m_cut)) {
+          decorator(**pItr) = 1;
+        } else {
+          decorator(**pItr) = 0;
+        }
       }
     }
         
