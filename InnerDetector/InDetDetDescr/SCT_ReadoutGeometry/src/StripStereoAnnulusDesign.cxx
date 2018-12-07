@@ -217,6 +217,38 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const 
     return (startPos + endPos) / 2.0;
 }
 
+SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &cellId) const {
+  
+    // @TODO: do we need this? there is also SiCellId::etaIndex() and phiIndex()
+    int strip, row;
+    getStripRow(cellId, &strip, &row);
+    double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
+
+    // get phi of strip
+    // I think this re-centers on the center of the row, so that phi=0 is the center
+    // -1: Seems like this orientation is wrong w.r.t. the normal of the surfaces we're on
+    double phi = -1 * (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+
+    // xEta => r, xPhi = phi
+    return SiLocalPosition(r, phi); 
+}
+
+SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId const &cellId, int clusterSize) const {
+    SiLocalPosition startPos = localPositionOfCellPC(cellId);
+
+    if (clusterSize <= 1) {
+        return startPos;
+    }
+
+    int strip, row;
+    getStripRow(cellId, &strip, &row);
+    int stripEnd = strip + clusterSize - 1;
+    SiCellId endId = strip1Dim(stripEnd, row);
+    SiLocalPosition endPos = localPositionOfCellPC(endId);
+
+    return (startPos + endPos) / 2.0;
+}
+
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
