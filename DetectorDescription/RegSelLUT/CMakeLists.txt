@@ -7,8 +7,7 @@ atlas_subdir( RegSelLUT )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/Identifier
                           GaudiKernel )
 
@@ -16,5 +15,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RegSelLUT
                    src/*.cxx
                    PUBLIC_HEADERS RegSelLUT
-                   LINK_LIBRARIES SGTools Identifier GaudiKernel )
+                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel )
 
