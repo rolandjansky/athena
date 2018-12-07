@@ -515,7 +515,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	 
 	 ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
 	 ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
-	 ATH_MSG_DEBUG("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
+	 ATH_MSG_DEBUG("Muon iso: " << static_cast<bool> (m_isolationSelectionTool->accept(**muonItr)));
 	 ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
 	 ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
 	 if (pVtx) 
