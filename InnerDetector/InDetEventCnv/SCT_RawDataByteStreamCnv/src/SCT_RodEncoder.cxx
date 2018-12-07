@@ -233,44 +233,6 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
   
 } // end of fillROD(...)
 
-void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
-  for (const IdentifierHash& linkHash: *errors) {
-    const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
-    if (errROBID == robID) {
-      const uint16_t header{getHeaderUsingHash(linkHash, errType)};
-      vec16Data.push_back(header);
-      const uint16_t trailer{getTrailer(NULL_TRAILER_ERR)};
-      vec16Data.push_back(trailer);
-    }
-  }
-} 
-
-//
-void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
-  for (const IdentifierHash& linkHash: *errors) {
-    const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
-    if (errROBID == robID) {
-      const uint16_t header{getHeaderUsingHash(linkHash, NULL_HEADER_ERR)};
-      const uint16_t trailer{getTrailer(errType)};
-      vec16Data.push_back(header);
-      vec16Data.push_back(trailer);
-    }
-  }
-}
-
-void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
-  for (const IdentifierHash& linkHash: *errors) {
-    const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
-    if (errROBID == robID) {
-      const uint16_t header{getHeaderUsingHash(linkHash, NULL_HEADER_ERR)};
-      const uint16_t trailer{getTrailer(NULL_TRAILER_ERR)};
-      vec16Data.push_back(header);
-      vec16Data.push_back(errType);
-      vec16Data.push_back(trailer);
-    }
-  }
-}
-
 ///=========================================================================
 /// Encode Data function
 ///========================================================================= 
@@ -453,4 +415,46 @@ uint16_t
 SCT_RodEncoder::getTrailer(const int& errorWord) const {
   const uint16_t linkTrailer{static_cast<uint16_t>(0x4000 | errorWord)};
   return linkTrailer;
+}
+
+///-------------------------------------------------------------------------------------
+/// Add errors
+///-------------------------------------------------------------------------------------
+
+void SCT_RodEncoder::addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+  for (const IdentifierHash& linkHash: *errors) {
+    const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
+    if (errROBID == robID) {
+      const uint16_t header{getHeaderUsingHash(linkHash, errType)};
+      vec16Data.push_back(header);
+      const uint16_t trailer{getTrailer(NULL_TRAILER_ERR)};
+      vec16Data.push_back(trailer);
+    }
+  }
+} 
+
+//
+void SCT_RodEncoder::addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+  for (const IdentifierHash& linkHash: *errors) {
+    const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
+    if (errROBID == robID) {
+      const uint16_t header{getHeaderUsingHash(linkHash, NULL_HEADER_ERR)};
+      const uint16_t trailer{getTrailer(errType)};
+      vec16Data.push_back(header);
+      vec16Data.push_back(trailer);
+    }
+  }
+}
+
+void SCT_RodEncoder::addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const {
+  for (const IdentifierHash& linkHash: *errors) {
+    const uint32_t errROBID{m_cabling->getRobIdFromHash(linkHash)};
+    if (errROBID == robID) {
+      const uint16_t header{getHeaderUsingHash(linkHash, NULL_HEADER_ERR)};
+      const uint16_t trailer{getTrailer(NULL_TRAILER_ERR)};
+      vec16Data.push_back(header);
+      vec16Data.push_back(errType);
+      vec16Data.push_back(trailer);
+    }
+  }
 }

@@ -23,11 +23,11 @@ class SCT_RDORawData;
 class ISCT_RodEncoder : virtual public IAlgTool {
  public:
 
-  /** destructor */
-  virtual ~ISCT_RodEncoder() = default;
-
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(ISCT_RodEncoder, 1, 0);
+
+  /** destructor */
+  virtual ~ISCT_RodEncoder() = default;
 
   /** convert all collections of RDO's in the current  list to vector of 32bit words */
   virtual void fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& robID, const std::vector<const SCT_RDORawData*>& vecRDOs) const = 0;

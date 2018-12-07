@@ -109,10 +109,13 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
 
   void addHeadersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
                             const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const;
+
   void addTrailersWithErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
                              const ErrorWords& errType, std::vector<uint16_t>& vec16dDta) const;
+
   void addSpecificErrors(const uint32_t& robID, const std::set<IdentifierHash>* errors, 
                          const ErrorWords& errType, std::vector<uint16_t>& vec16Data) const;
+
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_sctID;
