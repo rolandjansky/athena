@@ -75,7 +75,7 @@ namespace Trk {
        * will produce AnnulusBoundsPC as bounds. 
 	     * - ownership of bounds is passed 
        */
-      DiscSurface(Amg::Transform3D* htrans, AnnulusBounds* annbounds);
+      DiscSurface(Amg::Transform3D* htrans, AnnulusBounds* annbounds, const TrkDetElementBase* detElem = nullptr);
 
       /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
        - bounds is not set */

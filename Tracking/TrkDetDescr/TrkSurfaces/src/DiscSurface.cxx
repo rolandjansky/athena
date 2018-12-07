@@ -87,10 +87,16 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::AnnulusBoundsPC* an
   m_referencePoint(0)
 {}
 
-Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* annbounds)
+Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* annbounds, const TrkDetElementBase* detElem)
   : Trk::Surface(htrans),
-  m_referencePoint(0)
+    m_referencePoint(0)
 {
+
+  if(detElem != nullptr) {
+    m_associatedDetElement = detElem;
+    m_associatedDetElementId = m_associatedDetElement->identify();
+  }
+
   // build AnnulusBoundsPC from XY AnnulusBounds
   std::pair<AnnulusBoundsPC, double> res = AnnulusBoundsPC::fromCartesian(*annbounds);
   AnnulusBoundsPC* annpcbounds = res.first.clone();
