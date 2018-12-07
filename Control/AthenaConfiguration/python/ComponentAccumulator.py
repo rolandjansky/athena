@@ -7,7 +7,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
-from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle
+from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, ServiceHandle, PrivateToolHandle, PrivateToolHandleArray
 import ast
 import collections
 
@@ -72,10 +72,13 @@ class ComponentAccumulator(object):
                     continue
 
                 propstr = str(propval)
-                if propval.__class__ == PublicToolHandleArray:
-                    ths = [str(th) for th in propval]
+                if isinstance(propval,PublicToolHandleArray):
+                    ths = [th.getFullName() for th in propval]
                     propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
-                elif ConfigurableAlgTool in propval.__class__.__bases__:
+                elif isinstance(propval,PrivateToolHandleArray):
+                    ths = [th.getFullName() for th in propval]
+                    propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+                elif isinstance(propval,ConfigurableAlgTool):
                     propstr = propval.getFullName()
                 self._msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
             return
@@ -426,7 +429,7 @@ class ComponentAccumulator(object):
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
                     if existingAlg:
                         if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
-                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
+                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )
                     else: # absent, adding
                         self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
