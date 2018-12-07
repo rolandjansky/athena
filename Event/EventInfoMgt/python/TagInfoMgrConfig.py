@@ -11,7 +11,7 @@ def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
 
     result=ComponentAccumulator()
 
-    from EventInfoMgtConf import TagInfoMgr
+    from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
     from SGComps.SGCompsConf import ProxyProviderSvc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
 
@@ -33,3 +33,15 @@ def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
                        
     return result,tagInfoMgr
     
+if __name__ == "__main__":
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.lock()
+
+    acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags )
+    print tagInfoMgr
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"

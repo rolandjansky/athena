@@ -62,3 +62,5 @@ atlas_add_component( CaloTools
 atlas_install_headers( CaloTools )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+atlas_add_test( CaloNoiseToolConfigTest SCRIPT python -m CaloTools.CaloNoiseToolConfig POST_EXEC_SCRIPT nopost.sh )

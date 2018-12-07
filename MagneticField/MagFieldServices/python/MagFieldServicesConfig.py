@@ -79,7 +79,9 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     log.setLevel(VERBOSE)
-    ConfigFlags.Input.Files = ["myESD.pool.root"]
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Input.isMC = False
     ConfigFlags.lock()
 
