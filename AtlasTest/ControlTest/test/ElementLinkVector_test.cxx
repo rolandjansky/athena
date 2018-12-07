@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestTools/SGassert.h"
 #include "AthLinks/ElementLinkVector.h"
 #include "AthContainers/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 
