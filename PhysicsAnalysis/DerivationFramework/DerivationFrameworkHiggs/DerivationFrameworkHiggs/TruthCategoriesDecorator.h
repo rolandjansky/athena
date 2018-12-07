@@ -60,8 +60,7 @@ namespace DerivationFramework {
 
     // Converts a string to a vector of integers
     std::vector<int> vectorize(TString string, TString sep=" ") const;
-    std::string findConfigFile();
-
+  
     // Method to access the production mode for a given MC channel number
     HTXS::HiggsProdMode getHiggsProductionMode(uint32_t mc_channel_number,HTXS::tH_type &th_type) const;
  

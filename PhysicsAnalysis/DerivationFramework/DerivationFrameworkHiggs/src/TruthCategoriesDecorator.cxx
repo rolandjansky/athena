@@ -33,35 +33,12 @@ namespace DerivationFramework {
     m_configPath("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("ConfigPath",m_configPath="DerivationFrameworkHiggs/share/HiggsMCsamples.cfg");
+    declareProperty("ConfigPath",m_configPath="DerivationFrameworkHiggs/HiggsMCsamples.cfg");
     declareProperty("DetailLevel",m_detailLevel=3);
   }
   
   TruthCategoriesDecorator::~TruthCategoriesDecorator() {}
   
-  std::string TruthCategoriesDecorator::findConfigFile() {
-
-    // first check the absolute path
-    //if (fileExists(m_configPath)) return m_configPath;
-    // second, check path relative to TestArea, in case the file is modified by user
-    //    TString fname = gSystem->BaseName(m_configPath.c_str());
-    //    TString path  = gSystem->ExpandPathName("$TestArea/InstallArea/share/DerivationFrameworkHiggs/"+fname);
-    //    if (fileExists(path)) return path.Data();
-    // third, check path relative the AtlasArea (for derivation framework)
-    //    TString path2 = gSystem->ExpandPathName("$AtlasArea/PhysicsAnalysis/DerivationFramework/DerivationFrameworkHiggs/share/"+fname);
-    //    if (fileExists(path2)) return path2.Data();
-    // if we get here we have failed :(
-    //    ATH_MSG_FATAL("Cannot find file "<<m_configPath);
-    //    ATH_MSG_FATAL("Searched in $TestArea/InstallArea: "<<path);
-    //    ATH_MSG_FATAL("  and in $AtlasArea: "<<path2);
-
-    //    return m_configPath;
-    TString fname = gSystem->BaseName(m_configPath.c_str());
-    std::string fullPathToFile = PathResolverFindCalibFile("DerivationFrameworkHiggs/" + std::string(fname.Data()));
-    if(fullPathToFile=="")
-      ATH_MSG_FATAL("Unable to find  MCSamples config file: " << fname.Data()); 
-    return fullPathToFile;
-  }
 
   StatusCode TruthCategoriesDecorator::initialize() {
     
@@ -84,7 +61,7 @@ namespace DerivationFramework {
 
     // Open the TEnv configuration file
     m_config = new TEnv();
-    int status = m_config->ReadFile(findConfigFile().c_str(),EEnvLevel(0));
+    int status = m_config->ReadFile(PathResolverFindCalibFile(m_configPath).c_str(),EEnvLevel(0));
     if ( status != 0 ) {
       ATH_MSG_FATAL("Failed to open TEnv file "<<m_configPath);
       return StatusCode::FAILURE;
