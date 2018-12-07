@@ -144,11 +144,6 @@ else:
          sys.exit( theApp._exitstate )      
       raise
 
-   if 'interactive' in dir():   
-      import TrigPSC.PscConfig 
-      TrigPSC.PscConfig.interactive = bool(interactive)
-      del interactive
-      
    ### run user jobOptions file -------------------------------------------------
    try:
       include( "%s" % PscConfig.optmap['JOBOPTIONSPATH'] )
