@@ -21,12 +21,14 @@ StatusCode DecisionCollectorTool::finalize() {
 
 
 
-StatusCode DecisionCollectorTool::getDecisions( TrigCompositeUtils::DecisionIDContainer& output ) const {
+StatusCode DecisionCollectorTool::getDecisions( std::vector<TrigCompositeUtils::DecisionID>& output ) const {
   for (auto decisionKey: m_decisionsKey ) {
     auto handle = SG::makeHandle( decisionKey );
     if ( handle.isValid() ) {
-      for ( const TrigCompositeUtils::Decision* d : *handle.cptr() )  {
-	TrigCompositeUtils::decisionIDs( d, output );
+      for ( const TrigCompositeUtils::Decision* d : *handle.cptr() )  {	
+	output.insert( output.end(), 
+		       TrigCompositeUtils::decisionIDs( d ).begin(),
+		       TrigCompositeUtils::decisionIDs( d ).end() );
       }
     }
   }
