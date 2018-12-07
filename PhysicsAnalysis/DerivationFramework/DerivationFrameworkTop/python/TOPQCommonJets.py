@@ -78,9 +78,9 @@ def addTCCTrimmedJetsForTop(algseq, outputGroup):
 #================
 # VR jets
 #================
-def addVRJetsForTop(algseq, outputGroup):
+def addVRJetsForTop(algseq):
   from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-  addVRJets(algseq, outputGroup)
+  addVRJets(algseq)
 
 #================
 # JET CALIBRATION
