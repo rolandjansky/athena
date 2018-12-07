@@ -17,6 +17,7 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/AnnulusBounds.h"
+#include "TrkSurfaces/AnnulusBoundsPC.h"
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 
@@ -168,7 +169,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
     const Trk::AnnulusBoundsPC *aboundspc
       = dynamic_cast<const Trk::AnnulusBoundsPC *> (&trackPar.associatedSurface().bounds());
 
-    if(aboundspsc != nullptr) {
+    if(aboundspc != nullptr) {
       return correctAnnulusPC(SC, trackPar);
     }
     else if(abounds != nullptr) {
