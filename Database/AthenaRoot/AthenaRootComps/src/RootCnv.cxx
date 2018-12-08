@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootCnv.cxx
@@ -25,12 +25,11 @@
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
 #include "AthenaKernel/ITPCnvBase.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
-// sgtools
-#include "SGTools/StorableConversions.h"
 
 namespace {
   std::string name_from_clid(const CLID clid) {
