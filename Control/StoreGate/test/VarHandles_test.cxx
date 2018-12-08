@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -46,7 +46,7 @@ typedef std::list<int> IntList;
  * $Id: VarHandles_test.cxx 781577 2016-11-01 14:41:16Z ssnyder $
  ***************************************************************************/
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(IntList, 8001, 3)
 CLASS_DEF(MyDataObj, 8000, 1)
 

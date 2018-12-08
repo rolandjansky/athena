@@ -10,10 +10,10 @@
 #ifndef STOREGATE_DATAHANDLE_H
 #define STOREGATE_DATAHANDLE_H
 
-#include "SGTools/DataBucket.h"
-#include "SGTools/ProxyMap.h"
+#include "AthenaKernel/DataBucket.h"
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/IProxyDict.h"
+#include "SGTools/ProxyMap.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/DataHandleBase.h"
 #include <iterator>

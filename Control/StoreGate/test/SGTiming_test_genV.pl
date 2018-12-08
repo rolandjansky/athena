@@ -50,7 +50,7 @@ if ($DO_OBJGEN) {
         print OUT "$X\n";
     }
     
-    print OUT "#include \"SGTools/CLASS_DEF.h\"\n";
+    print OUT "#include \"AthenaKernel/CLASS_DEF.h\"\n";
     
     print "generating $n CLIDs: ";
     $i = 1;
