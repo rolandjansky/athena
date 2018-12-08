@@ -8,8 +8,14 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import *
+
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -22,39 +28,29 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MINIKern
 # JET/MET   
 #====================================================================
 
-#OutputJets["MINI"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
-#                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-#                      "AntiKt4EMTopoLowPtJets",
-#                      "AntiKt4LCTopoLowPtJets",
-#                      "AntiKt4EMPFlowLowPtJets"]
-#
-#reducedJetList = [ "AntiKt10PV0TrackJets",
-#                   "AntiKt10LCTopoJets",
-#                   "AntiKt2PV0TrackJets",
-#                   "AntiKt4PV0TrackJets"]
-#
-#if (DerivationFrameworkIsMonteCarlo):
-#   OutputJets["MINI"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-#   reducedJetList.append("AntiKt4TruthWZJets")
-#   reducedJetList.append("AntiKt10TruthJets")
-#   reducedJetList.append("AntiKt10TruthWZJets")
-#   reducedJetList.append("AntiKt4TruthJets")  
+OutputJets["MINI"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
-#replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"MINI")
-#updateJVT_xAODColl("AntiKt4EMTopo")
-#addAntiKt4LowPtJets(DerivationFrameworkJob,"MINI")
+if (DerivationFrameworkIsMonteCarlo):
+   OutputJets["MINI"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
+   reducedJetList.append("AntiKt4TruthWZJets")
+   reducedJetList.append("AntiKt4TruthJets")  
+   replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"MINI")
+
+updateJVT_xAODColl("AntiKt4EMTopo")
+addAntiKt4LowPtJets(DerivationFrameworkJob,"MINI")
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 # alias for VR
 #BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-#
-#addDefaultTrimmedJets(DerivationFrameworkJob,"MINI",dotruth=True)
+
+addDefaultTrimmedJets(DerivationFrameworkJob,"MINI",dotruth=True)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-#addVRJets(DerivationFrameworkJob)
+addVRJets(DerivationFrameworkJob)
 
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
@@ -93,6 +89,9 @@ MINISlimmingHelper.SmartCollections = ["Electrons",
                                        "MET_Reference_AntiKt4LCTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
+                                       "AntiKt4TruthWZJets",
+                                       "AntiKt4TruthJets"
                                       ]
 
 
@@ -114,7 +113,7 @@ MINISlimmingHelper.IncludeBPhysTriggerContent = True
 MINISlimmingHelper.IncludeMinBiasTriggerContent = True
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
-#addJetOutputs(MINISlimmingHelper,["MINI"])
+addJetOutputs(MINISlimmingHelper,["MINI"])
 
 # Truth containers
 MINISlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
@@ -130,9 +129,7 @@ MINISlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContaine
                                          'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                         'AntiKt4TruthDressedWZJets':'xAOD::JetContainer','AntiKt4TruthDressedWZJetsAux':'xAOD::JetAuxContainer',
-                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
-                                          }
+                                        }
 MINISlimmingHelper.AllVariables = ["MET_Truth",
                                    "MET_TruthRegions",
                                    "TruthElectrons",
@@ -145,8 +142,7 @@ MINISlimmingHelper.AllVariables = ["MET_Truth",
                                    "TruthBoson",
                                    "TruthWbosonWithDecayParticles",
                                    "TruthWbosonWithDecayVertices"]
-MINISlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
-                                     "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+MINISlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                      "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
 
 # Final construction of output stream
