@@ -41,6 +41,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
                "TagInfoMgr.ExtraTagValuePairs":unifySetOfPairs,
                "AthenaOutputStream.ItemList":unifySet,
+               "AthenaPoolCnvSvc.PoolAttributes":unifySet
                }
 
 
