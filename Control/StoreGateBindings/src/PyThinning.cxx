@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Python.h"
@@ -13,11 +13,9 @@
 #include "GaudiKernel/DataObject.h"
 #include "AthenaKernel/IThinningHdlr.h"
 #include "AthenaKernel/ISlimmingHdlr.h"
+#include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/IThinningSvc.h"
-
-// SGTools includes
-#include "SGTools/DataBucketBase.h"
-#include "SGTools/BaseInfo.h"
 
 // ROOT includes
 #include "TClass.h"

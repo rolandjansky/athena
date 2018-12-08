@@ -18,12 +18,10 @@
 #include "GaudiKernel/DataObject.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaKernel/DataBucketBase.h"
+#include "AthenaKernel/BaseInfo.h"
 
 extern CLID PyCLID;
-
-// SGTools includes
-#include "SGTools/DataBucketBase.h"
-#include "SGTools/BaseInfo.h"
 
 // ROOT includes
 #include "TClass.h"
