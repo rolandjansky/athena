@@ -25,6 +25,8 @@ met_triggers_hlt_expert = [
     "HLT_xe100_trkmht_FTK_L1XE50",
     "HLT_xe110_trkmht_FTK_L1XE55",
     "HLT_xe110_trkmht_FTK_L1XE60",
+    "HLT_xe110_trktc_lcw_L1XE50",
+    "HLT_xe110_trktc_lcw_FTK_L1XE50",
 ]
 
 
