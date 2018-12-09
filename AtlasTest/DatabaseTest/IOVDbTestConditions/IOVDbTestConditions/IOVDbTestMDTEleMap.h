@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,7 +13,7 @@
 //<doc><file>	$Id: IOVDbTestMDTEleMap.h,v 1.5 2006-03-26 17:26:30 schaffer Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include<string>
 
 #define DIGIT 0

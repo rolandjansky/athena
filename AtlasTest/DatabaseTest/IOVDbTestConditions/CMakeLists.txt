@@ -7,8 +7,7 @@ atlas_subdir( IOVDbTestConditions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
+                          Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities )
 
 # External dependencies:
@@ -23,12 +22,12 @@ atlas_add_library( IOVDbTestConditions
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} SGTools AthenaPoolUtilities
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( IOVDbTestConditionsDict
                       IOVDbTestConditions/IOVDbTestConditionsDict.h
                       IOVDbTestConditions/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} SGTools AthenaPoolUtilities IOVDbTestConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities IOVDbTestConditions )
 
