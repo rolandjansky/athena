@@ -680,15 +680,16 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr) const
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
   double Trt_HitPhi = trkP->parameters()[Trk::phi];
-  double error = sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
+  double error2 = 2*driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius);
+  double distance2 = (Trt_Rtrack - Trt_RHit)*(Trt_Rtrack - Trt_RHit);
   Identifier DCId = driftcircle->identify();
   int HitPart =  m_trtId->barrel_ec(DCId);
   const InDetDD::TRT_BaseElement* element = m_trtman->getElement(DCId);
   double strawphi = element->center(DCId).phi();
-  
-  if ( itr->type(Trk::TrackStateOnSurface::Outlier)  ) return false; //Outliers
-  if ( m_useZeroRHitCut && Trt_RHit==0 && error>1.) return false;    //Select precision hits only
-  if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall 
+
+  if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
+  if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
+  if (distance2 > error2) return false; // Select precision hit only
 
   L = 0;
   if (std::abs(HitPart)==1) { //Barrel
@@ -853,14 +854,8 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track)
 		  {
 		  	int trunkGas = kUnset;
 		  	double maxToT = 0.;
-			if(nhitsXe>0 && vecToT_Xe.at(nhitsXe-1)>maxToT){
-			  trunkGas = kXenon;
-			  maxToT = vecToT_Xe.at(nhitsXe-1);
-			}
-			if(nhitsAr>0 && vecToT_Ar.at(nhitsAr-1)>maxToT){
-			  trunkGas = kArgon;
-			  maxToT = vecToT_Ar.at(nhitsAr-1);
-		        }
+		  	if(nhitsXe>0 && vecToT_Xe.at(nhitsXe-1)>maxToT) trunkGas = kXenon;
+		  	if(nhitsAr>0 && vecToT_Ar.at(nhitsAr-1)>maxToT) trunkGas = kArgon;
 		  	if(nhitsKr>0 && vecToT_Kr.at(nhitsKr-1)>maxToT) trunkGas = kKrypton;
 
 		  	if(trunkGas==kXenon)   nhitsXe-=ntrunk;
@@ -1693,13 +1688,9 @@ double TRT_ToT_dEdx::getToTlargerIsland(unsigned int BitPattern) const
 	unsigned int current_length = 0;
 	unsigned int k = 0;
 
-	//Set 4 last bits to zero (to match data and MC bitmasks)
-	unsigned int mask_last_bits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
-	unsigned int BitPattern0 =BitPattern & mask_last_bits;
-	
 	//shift bitmask to the right until end;
 	while (true) {
-		if (BitPattern0 & mask) {
+		if (BitPattern & mask) {
 			++current_length;
 		}
 		else {
