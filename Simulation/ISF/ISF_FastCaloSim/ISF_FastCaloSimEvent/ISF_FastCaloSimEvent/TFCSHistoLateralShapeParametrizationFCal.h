@@ -7,6 +7,7 @@
 
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
+#include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 
 class TH2;
 
