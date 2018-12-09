@@ -33,18 +33,6 @@ class SCT_ID;
 class IInDetConditionsTool;
 class StoreGateSvc;
 class TF1;
-namespace InDet {
-    class ClusterMakerTool;
-}
-
-namespace InDetDD  {
-    class SiDetectorElement;
-}
-
-namespace Trk {
-    class IRIO_OnTrackCreator; class LocalPosition;
-    class Surface;
-}
 
 namespace ISF {
     class ISFParticle;
