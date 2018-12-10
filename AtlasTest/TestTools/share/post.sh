@@ -213,6 +213,9 @@ PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 # Ignore sourceID message from EventSelector.
 PP="$PP"'|Disconnecting input sourceID'
 
+# Printouts from new-style job configuration.
+PP="$PP"'|Py:ComponentAccumulator +INFO '
+PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
