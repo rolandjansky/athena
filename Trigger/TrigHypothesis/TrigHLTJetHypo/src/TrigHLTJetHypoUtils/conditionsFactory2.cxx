@@ -22,8 +22,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsCondition.h"
-//#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsWidthCondition.h"
-//#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsKtDRCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsWidthCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetAttrsKtDRCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FalseCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
 
@@ -178,7 +178,6 @@ Conditions conditionsFactoryHT(double htMin){
 
 
 //added A. Steinhebel, April 2018
-/*
 Conditions conditionsFactoryJetAttrsWidth(double limitMin,
                       double limitMax){
   Conditions conditions;
@@ -202,7 +201,6 @@ Conditions conditionsFactoryJetAttrsKtDR(double limitMin,
   conditions.push_back(ConditionBridge(pCondition));
   return conditions;
 }
-*/
 
 Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
                       const std::vector<double>& Es,
