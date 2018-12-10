@@ -49,13 +49,7 @@ int DetCondCFloat::findindex(const Identifier& ident) const {
 }
 
 float DetCondCFloat::get(const Identifier& ident, int k) const {
-  if (k<findindex(ident)+m_size) {
-    return m_buf[findindex(ident)+k];
-  }
-  else {
-    std::cout << "Index " << k << " exceed array size " << findindex(ident)+k << std::endl;
-    return -1;
-  }
+  return m_buf.at(findindex(ident)+k);
 }
 
 void DetCondCFloat::print() const {

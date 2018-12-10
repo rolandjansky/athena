@@ -52,7 +52,7 @@ PixelChargeInterpolationHistograms::PixelChargeInterpolationHistograms(std::stri
 	unsigned int ntotbins = Nphi + NCSphi + Neta + NCSeta + 4;	
 
   std::vector<float> bins;
-  bins.resize(ntotbins);
+  bins.reserve(ntotbins);
 	for (unsigned int i=0; i<clustersizePhi.size(); i++) {
 		bins.push_back(clustersizePhi[i]);
 	}

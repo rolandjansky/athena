@@ -554,7 +554,7 @@ void PixelChargeInterpolationValidation::WriteErrorsFile(std::string name){
 	int ntotbins = ncsx + ncsy + neta + nalpha;
 
   std::vector<float> values;
-  values.resize(ntotbins);
+  values.reserve(ntotbins);
 	int globalindex = 0;
   for (int i=0; i<ncsx && globalindex<ntotbins; i++, globalindex++) {
     values.push_back(i+0.5);

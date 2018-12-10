@@ -60,6 +60,11 @@ StatusCode PixelChargeToTConversion::execute(){
     }
   ATH_MSG_DEBUG( "Pixel Cluster container found:  " << m_Pixel_clcontainer->size() << " collections" );
 
+  int overflowIBLToT=0;
+  if( m_IBLParameterSvc->containsIBL()) {
+    overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLOverflowToT();
+  }
+
   typedef InDet::PixelClusterContainer::const_iterator ClusterIter;
   ClusterIter itrCluster;
   ClusterIter itrClubeg=m_Pixel_clcontainer->begin();
@@ -117,9 +122,7 @@ StatusCode PixelChargeToTConversion::execute(){
 
     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
       int tot0 = totInt;
-      int overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLOverflowToT();
       if ( totInt >= overflowIBLToT ) totInt = overflowIBLToT;
-
       msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << tot0 << " Real ToT = " << totInt << endmsg;
     }
 
