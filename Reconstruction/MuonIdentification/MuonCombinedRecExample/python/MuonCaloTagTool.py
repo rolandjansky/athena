@@ -50,8 +50,9 @@ def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
-    kwargs.setdefault("CaloMuonTagLoose",       getPublicTool("CaloMuonTagLoose") )
-    kwargs.setdefault("CaloMuonTagTight",       getPublicTool("CaloMuonTag") )
+    from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
+    kwargs.setdefault("CaloMuonTagLoose",       ConfiguredCaloMuonTag(name = "CaloMuonTagLoose") )
+    kwargs.setdefault("CaloMuonTagTight",       ConfiguredCaloMuonTag(name = "CaloMuonTag") )
     kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
