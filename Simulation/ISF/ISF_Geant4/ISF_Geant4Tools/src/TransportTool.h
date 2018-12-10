@@ -33,6 +33,8 @@
 
 class G4Event;
 
+class G4AtlasRunManager;
+
 namespace ISF {
   class ISFParticle;
 }
@@ -51,8 +53,6 @@ namespace iGeant4
 
       @author Robert Harrington
   */
-
-  class G4AtlasRunManager;
 
   class G4TransportTool : public ISF::BaseSimulatorTool {
 
