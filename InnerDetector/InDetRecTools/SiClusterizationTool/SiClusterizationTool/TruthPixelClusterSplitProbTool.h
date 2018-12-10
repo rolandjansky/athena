@@ -24,7 +24,6 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 #include "TrkParameters/TrackParameters.h"
 
-class IBeamCondSvc;
 
 namespace InDet {
 

@@ -15,7 +15,7 @@ atlas_depends_on_subdirs(
    Event/EventPrimitives
    GaudiKernel
    InnerDetector/InDetRawEvent/InDetSimData
-   InnerDetector/InDetConditions/InDetBeamSpotService
+   InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
