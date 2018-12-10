@@ -764,29 +764,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     //mixed-leptons
     std::map<std::string,std::string> electronTriggerSFMapMixedLepton {
       // legs, Trigger keys, 
-      {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", m_electronTriggerSFStringSingle},
-      {"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", m_electronTriggerSFStringSingle},
-      // DI_E_XXX legs and eff 
-      {"e12_lhloose_L1EM10VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"},
-      {"e17_lhvloose_nod0","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"},
-      {"e24_lhvloose_nod0_L1EM20VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"},
-      // MULTI_L_XXX legs and eff (Not yet updated for 2018)
-      {"e17_lhloose","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
-      {"e17_lhloose_nod0","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
-      {"e12_lhloose","MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0"},
-      {"e12_lhloose_nod0","MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0"},
-      {"e7_lhmedium","MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium_nod0"},
-      {"e7_lhmedium_nod0","MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium_nod0"},
-      {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose","MULTI_L_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhmedium_nod0_L1EM22VHI_2017_e26_lhmedium_nod0"},
-      {"e26_lhmedium_nod0_L1EM22VHI","MULTI_L_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhmedium_nod0_L1EM22VHI_2017_e26_lhmedium_nod0"},
-      {"e26_lhmedium_nod0","MULTI_L_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhmedium_nod0_L1EM22VHI_2017_e26_lhmedium_nod0"},
-      // TRI_E_XXX legs and eff 
-      {"e9_lhloose","TRI_E_2015_e9_lhloose_2016_e9_lhloose_nod0_2017_e12_lhvloose_nod0_L1EM10VH"},
-      {"e9_lhloose_nod0","TRI_E_2015_e9_lhloose_2016_e9_lhloose_nod0_2017_e12_lhvloose_nod0_L1EM10VH"},
-      {"e12_lhvloose_nod0_L1EM10VH","TRI_E_2015_e9_lhloose_2016_e9_lhloose_nod0_2017_e12_lhvloose_nod0_L1EM10VH"},
-      {"e17_lhloose","TRI_E_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
-      {"e17_lhloose_nod0","TRI_E_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
-      {"e24_lhvloose_nod0_L1EM20VH","TRI_E_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"}
+      {"e24_lhvloose_nod0_L1EM20VH,e17_lhvloose_nod0,e12_lhloose_L1EM10VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_2018_e24_lhvloose_nod0_L1EM20VH"},
+      {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", m_electronTriggerSFStringSingle},
+      {"e26_lhmedium_nod0_L1EM22VHI,e26_lhmedium_nod0","MULTI_L_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhmedium_nod0_L1EM22VHI_2017_e26_lhmedium_nod0"},
+      {"e17_lhloose,e17_lhloose_nod0","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
+      {"e12_lhloose,e12_lhloose_nod0","MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0"},
+      {"e7_lhmedium,e7_lhmedium_nod0","MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium_nod0"},
+      {"e12_lhvloose_nod0_L1EM10VH,e9_lhloose,e9_lhloose_nod0","TRI_E_2015_e9_lhloose_2016_e9_lhloose_nod0_2017_e12_lhvloose_nod0_L1EM10VH"}
     };
 
     std::string triggerMixedEleIso("");
@@ -811,7 +795,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       ATH_MSG_VERBOSE ("Selected WP: " << item.second << "_" << eleId << "_" << triggerMixedEleIso);
 
-      toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + item.first + m_eleId;
+      toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + (item.first).substr(0,8) + m_eleId;
       auto t_sf = m_elecEfficiencySFTool_trig_mixLep.emplace(m_elecEfficiencySFTool_trig_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
       ATH_CHECK( t_sf->setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( t_sf->setProperty("TriggerKey", item.second) );
@@ -829,7 +813,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       m_legsPerTool["ToolSvc."+toolName] = item.first;
 #endif
 
-      toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_" + item.first + m_eleId;
+      toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_" + (item.first).substr(0,8) + m_eleId;
       auto t_eff = m_elecEfficiencySFTool_trigEff_mixLep.emplace(m_elecEfficiencySFTool_trigEff_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
       ATH_CHECK( t_eff->setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( t_eff->setProperty("TriggerKey", "Eff_"+item.second) );
@@ -911,29 +895,64 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_photonIsolationSFTool.setProperty("IsoKey", m_photonIso_WP.substr(8) ));    // Set isolation WP: Loose,Tight,TightCaloOnly 
     ATH_CHECK( m_photonIsolationSFTool.setProperty("ForceDataType", 1) ); // Set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonIsolationSFTool.retrieve() );
-
   }
 
-  // trigger scale factors are new in Release 21 
+  // trigger scale factors 
   if (!m_photonTriggerSFTool.isUserConfigured() && !isData()) {
     m_photonTriggerSFTool.setTypeAndName("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool_trig" + m_photonTriggerName);
 
-    if ( !check_isOption(m_photonTriggerName, m_ph_trig_support) ) { //check if supported
-      ATH_MSG_WARNING( "No Photon trigger efficiency available for " << m_photonTriggerName);
-    }
-
+    // Fallback to TightCaloOnly if Tight is selected
+    std::string photonIso_forTrigSF = m_photonIso_WP;
     if (m_photonIso_WP == "FixedCutTight") {
-      ATH_MSG_WARNING( "No Photon trigger SF available for " << m_photonIso_WP << ", using TightCaloOnly instead...Use at your own risk" );  
-      ATH_CHECK( m_photonTriggerSFTool.setProperty("IsoKey", "TightCaloOnly" ));    // Set isolation WP: Loose,TightCaloOnly 
-    } else {
-      ATH_CHECK( m_photonTriggerSFTool.setProperty("IsoKey", m_photonIso_WP.substr(8) )); // Set isolation WP: Loose,TightCaloOnly 
+      ATH_MSG_WARNING( "No Photon trigger SF available for " << m_photonIso_WP << ", using TightCaloOnly instead... Use at your own risk" );  
+      photonIso_forTrigSF = "TightCaloOnly";
+    } else { //  isolation WP supported: Loose or TightCaloOnly, removing "FixedCut" suffix..
+      photonIso_forTrigSF = TString(m_photonIso_WP).ReplaceAll("FixedCut","").Data();
     } 
+
+    // "symmetric" diphoton triggers (year dependent)
+    ATH_CHECK( m_photonTriggerSFTool.setProperty("IsoKey", photonIso_forTrigSF ));    // Set isolation WP: Loose,TightCaloOnly 
     ATH_CHECK( m_photonTriggerSFTool.setProperty("TriggerKey", m_photonTriggerName ));    
     ATH_CHECK( m_photonTriggerSFTool.setProperty("ForceDataType", 1) ); // Set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonTriggerSFTool.retrieve() );
 
-  }
+    // "asymmetric" diphoton triggers
+    std::map<std::string,std::string> diphotonTriggerSFMapAsymmetric {
+      // legs, Trigger keys, 
+      {"g25_loose,g25_medium_L1EM20VH", "DI_PH_2015_g25_loose_2016_g25_loose_2017_g25_medium_L1EM20VH_2018_g25_medium_L1EM20VH"},
+      {"g35_loose,g35_medium_L1EM20VH", "DI_PH_2015_g35_loose_2016_g35_loose_2017_g35_medium_L1EM20VH_2018_g35_medium_L1EM20VH"},
+    };
 
+    for(auto const& item : diphotonTriggerSFMapAsymmetric){
+
+      toolName = "AsgPhotonEfficiencyCorrectionTool_trigSF_asymm_diphoton_" + (item.first).substr(0,9) + photonIso_forTrigSF;
+      auto ph_trigSF = m_photonEfficiencySFTool_trigSF_AsymDiphoton.emplace(m_photonEfficiencySFTool_trigSF_AsymDiphoton.end(), "AsgPhotonEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( ph_trigSF->setProperty("IsoKey", photonIso_forTrigSF) );
+      ATH_CHECK( ph_trigSF->setProperty("TriggerKey", item.second) );
+      ATH_CHECK( ph_trigSF->setProperty("ForceDataType", 1) ); // Set DataType: 1 for FullSim and 3 for AFII
+      ATH_CHECK( ph_trigSF->initialize() );
+      m_photonTrigSFTools.push_back(ph_trigSF->getHandle());
+#ifndef XAOD_STANDALONE
+      m_legsPerTool_ph[toolName] = item.first;
+#else
+      m_legsPerTool_ph["ToolSvc."+toolName] = item.first;
+#endif
+
+      toolName = "AsgPhotonEfficiencyCorrectionTool_trigEff_asymm_diphoton_" + (item.first).substr(0,9) + photonIso_forTrigSF;
+      auto ph_trigEff = m_photonEfficiencySFTool_trigEff_AsymDiphoton.emplace(m_photonEfficiencySFTool_trigEff_AsymDiphoton.end(), "AsgPhotonEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( ph_trigEff->setProperty("IsoKey", photonIso_forTrigSF) );
+      ATH_CHECK( ph_trigEff->setProperty("TriggerKey", "Eff_"+item.second) );
+      ATH_CHECK( ph_trigEff->setProperty("ForceDataType", 1) ); // Set DataType: 1 for FullSim and 3 for AFII
+      ATH_CHECK( ph_trigEff->initialize() );
+      m_photonTrigEffTools.push_back(ph_trigEff->getHandle());
+#ifndef XAOD_STANDALONE
+      m_legsPerTool_ph[toolName] = item.first;
+#else
+      m_legsPerTool_ph["ToolSvc."+toolName] = item.first;
+#endif
+
+    }
+  }
 
  ///////////////////////////////////////////////////////////////////////////////////////////
  // Initialize the MC fudge tool
@@ -1268,10 +1287,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   if (!m_metSignif.isUserConfigured()) {
+    // See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MetSignificance 
     m_metSignif.setTypeAndName("met::METSignificance/metSignificance_"+jetname);
     ATH_CHECK( m_metSignif.setProperty("SoftTermParam", m_softTermParam) );
     ATH_CHECK( m_metSignif.setProperty("TreatPUJets", m_treatPUJets) );
     ATH_CHECK( m_metSignif.setProperty("DoPhiReso", m_doPhiReso) );
+    ATH_CHECK( m_metSignif.setProperty("IsAFII", isAtlfast()) ); 
     if(jetname == "AntiKt4EMTopo" || jetname =="AntiKt4EMPFlow"){
       ATH_CHECK( m_metSignif.setProperty("JetCollection", jetname) );
     } else {
@@ -1313,6 +1334,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2015", m_trig2015combination_diLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2016", m_trig2016combination_diLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2017", m_trig2017combination_diLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2018", m_trig2018combination_diLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerMatchingTool", m_trigMatchingTool.getHandle()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("NumberOfToys", 250) );
@@ -1327,10 +1349,24 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2015", m_trig2015combination_multiLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2016", m_trig2016combination_multiLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2017", m_trig2017combination_multiLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2018", m_trig2018combination_multiLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerMatchingTool", m_trigMatchingTool.getHandle()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );
+  }
+
+  if (!m_trigGlobalEffCorrTool_diPhoton.isUserConfigured()) {
+    m_trigGlobalEffCorrTool_diPhoton.setTypeAndName("TrigGlobalEfficiencyCorrectionTool/TrigGlobal_diPhoton");
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("PhotonEfficiencyTools", m_photonTrigEffTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("PhotonScaleFactorTools", m_photonTrigSFTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("TriggerCombination2015", m_trig2015combination_diPhoton) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("TriggerCombination2016", m_trig2016combination_diPhoton) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("TriggerCombination2017", m_trig2017combination_diPhoton) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("TriggerCombination2018", m_trig2018combination_diPhoton) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("ListOfLegsPerTool", m_legsPerTool_ph) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("NumberOfToys", 250) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.initialize() );
   }
 
 // /////////////////////////////////////////////////////////////////////////////////////////
@@ -1355,8 +1391,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_isoBaselineTool.isUserConfigured()) {
     m_isoBaselineTool.setTypeAndName("CP::IsolationSelectionTool/IsoBaselineTool");
-    ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "GradientLoose" : m_eleBaselineIso_WP    ) );
-    ATH_CHECK( m_isoBaselineTool.setProperty("MuonWP",     m_muBaselineIso_WP.empty()     ? "GradientLoose" : m_muBaselineIso_WP     ) );
+    ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "Gradient" : m_eleBaselineIso_WP    ) );
+    ATH_CHECK( m_isoBaselineTool.setProperty("MuonWP",     m_muBaselineIso_WP.empty()     ? "FCLoose" : m_muBaselineIso_WP     ) );
     ATH_CHECK( m_isoBaselineTool.setProperty("PhotonWP",   m_photonBaselineIso_WP.empty() ? "FixedCutTight" : m_photonBaselineIso_WP ) );
     ATH_CHECK( m_isoBaselineTool.retrieve() );
   }

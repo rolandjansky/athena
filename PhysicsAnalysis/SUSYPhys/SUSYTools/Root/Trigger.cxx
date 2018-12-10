@@ -49,7 +49,7 @@ bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) cons
   else if(year == 2016 && rn >= 302919 && rn <= 303892 ) return IsMETTrigPassed("HLT_xe100_mht_L1XE50",j400_OR); //2016 D4-F1
   else if(year == 2016 && rn >= 303943)                  return IsMETTrigPassed("HLT_xe110_mht_L1XE50",j400_OR); //2016 F2-(open) 
   else if(year == 2017 && rn >= 325713 && rn <= 331975 ) return IsMETTrigPassed("HLT_xe110_pufit_L1XE55", false); // 2017 B1-D5
-  else if(year == 2017 && rn >= 332304 )                 return IsMETTrigPassed("HLT_xe110_pufit_L1XE50", false); // 2017 D6-(open)
+  else if(year == 2017 && rn >= 332303 )                 return IsMETTrigPassed("HLT_xe110_pufit_L1XE50", false); // 2017 D6-(open)
   else if(year == 2018 && rn >= 348885 && rn <= 350013 ) return IsMETTrigPassed("HLT_xe110_pufit_xe70_L1XE50", false); // 2018 B-C5
   else if(year == 2018 && rn >= 350067 )                 return IsMETTrigPassed("HLT_xe110_pufit_xe65_L1XE50", false); // 2018 C5-(open)
   return false; 
@@ -325,24 +325,29 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     return trigchains;
   }
 
-  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache, std::vector<std::string>& v_trigs17_cache) const {
+  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache, std::vector<std::string>& v_trigs17_cache, std::vector<std::string>& v_trigs18_cache) const {
+
+    // e.g. SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
 
     static std::string del15 = "_2015_";
     static std::string del16 = "_2016_";
     static std::string del17 = "_2017_";
+    static std::string del18 = "_2018_";
 
     size_t pos = 0;
-    std::string token15, token16, token17;
+    std::string token15, token16, token17, token18;
 
-    //get trigger tokens for 2015, 2016 and 2017 
+    //get trigger tokens for 2015, 2016, 2017, and 2018 
     if ( (pos = trigExpr.find(del15)) != std::string::npos) {
       trigExpr.erase(0, pos + del15.length()); 
 
       pos = 0;
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
         token15 = trigExpr.substr(0, pos);
-        token16 = trigExpr.erase(0, pos + del16.length() + del17.length());
-        token17 = token16; // 2017 and 2016 use exact same trigger in string
+        token16 = trigExpr.erase(0, pos + del16.length() + del17.length() - 1);
+        // 2016-2018 use exact the same trigger string
+        token17 = token16; 
+        token18 = token16;
       }
     }
 
@@ -356,10 +361,14 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     if(token17.empty())
       token17 = trigExpr;
 
+    if(token18.empty())
+      token18 = trigExpr;
+
     //get trigger chains for matching in 2015 and 2016                                  
     v_trigs15_cache = GetTriggerOR(token15);
     v_trigs16_cache = GetTriggerOR(token16);
     v_trigs17_cache = GetTriggerOR(token17);
+    v_trigs18_cache = GetTriggerOR(token18);
   }
 
   Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const
@@ -372,7 +381,7 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
   double trig_sf(1.);
 
   if (trigExpr!="multiLepton" && trigExpr!="diLepton") {
-    ATH_MSG_ERROR( "Failed to retrieve signal electron trigger SF");
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger SF");
     return trig_sf;
   }
 
@@ -413,10 +422,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
  
   switch (result) {
   case CP::CorrectionCode::Error:
-    ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger SF");
     return 1.;
   case CP::CorrectionCode::OutOfValidityRange:
-    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal lepton trigger efficiency");
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for multi-lepton trigger SF");
     return 1.;
   default:
     break;
@@ -426,13 +435,116 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
 }
 
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const std::string& trigExpr) {
+  
+  double sf(1.);
+
+  //Set the new systematic variation
+  if (trigExpr == "diLepton") {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) for systematic var. " << systConfig.name() );
+    }
+  }
+
+  if (trigExpr == "multiLepton") {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) for systematic var. " << systConfig.name() );
+    }
+  }
+
+  //Get the SF for new config
+  sf = GetTriggerGlobalEfficiencySF (electrons, muons, trigExpr);
+
+  //Roll back to default
+  if (trigExpr == "diLepton") {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(m_currentSyst);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) back to default.");
+    }
+  }
+  if (trigExpr == "multiLepton") {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(m_currentSyst);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) back to default.");
+    }
+  }
+
+  return sf;
+
+}
+
+//
+// GetTriggerGlobalEfficiencySF function is meant to be used for "asymmetric" diphoton trigger SFs
+//
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::PhotonContainer& photons, const std::string& trigExpr) {
+
+  double trig_sf(1.);
+
+  if (trigExpr!="diPhoton") {
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger SF");
+    return trig_sf;
+  }
+
+  std::vector<const xAOD::Photon*> ph_trig;
+  ph_trig.clear();
+  for (const auto& photon : photons) {
+    if (!acc_passOR(*photon)) continue;
+    if (!acc_signal(*photon)) continue;
+    ph_trig.push_back(photon);
+  }
+
+  CP::CorrectionCode result;
+  if (ph_trig.size()>1) {
+    result = m_trigGlobalEffCorrTool_diPhoton->getEfficiencyScaleFactor(ph_trig, trig_sf);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger SF");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for diphoton trigger SF");
+    return 1.;
+  default:
+    break;
+  }
+
+  return trig_sf;
+
+}
+
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr) {
+  
+  double sf(1.);
+
+  //Set the new systematic variation
+  CP::SystematicCode ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) for systematic var. " << systConfig.name() );
+  }
+
+  //Get the SF for new config
+  sf = GetTriggerGlobalEfficiencySF (photons, trigExpr);
+
+  //Roll back to default
+  ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) back to default.");
+  }
+
+  return sf;
+
+}
+
 double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
 
   double trig_eff(1.);
   double trig_eff_data(1.);
 
   if (trigExpr!="multiLepton" && trigExpr!="diLepton") {
-    ATH_MSG_ERROR( "Failed to retrieve signal electron trigger SF");
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger efficiency");
     return trig_eff;
   }
 
@@ -473,10 +585,52 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
  
   switch (result) {
   case CP::CorrectionCode::Error:
-    ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
+    ATH_MSG_ERROR( "Failed to retrieve multi-lepton trigger efficiency");
     return 1.;
   case CP::CorrectionCode::OutOfValidityRange:
-    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal lepton trigger efficiency");
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for multi-lepton trigger efficiency");
+    return 1.;
+  default:
+    break;
+  }
+
+  if (isData()) return trig_eff_data;
+  else return trig_eff;
+
+}
+
+//
+// GetTriggerGlobalEfficiency function is meant to be used for "asymmetric" diphoton trigger SFs
+//
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::PhotonContainer& photons, const std::string& trigExpr) {
+
+  double trig_eff(1.);
+  double trig_eff_data(1.);
+
+  if (trigExpr!="diPhoton") {
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger efficiency");
+    return trig_eff;
+  }
+
+  std::vector<const xAOD::Photon*> ph_trig;
+  ph_trig.clear();
+  for (const auto& photon : photons) {
+    if (!acc_passOR(*photon)) continue;
+    if (!acc_signal(*photon)) continue;
+    ph_trig.push_back(photon);
+  }
+
+  CP::CorrectionCode result;
+  if (ph_trig.size()>1) {
+    result = m_trigGlobalEffCorrTool_diPhoton->getEfficiency(ph_trig, trig_eff_data, trig_eff);
+  }
+ 
+  switch (result) {
+  case CP::CorrectionCode::Error:
+    ATH_MSG_ERROR( "Failed to retrieve diphoton trigger efficiency");
+    return 1.;
+  case CP::CorrectionCode::OutOfValidityRange:
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for diphoton trigger efficiency");
     return 1.;
   default:
     break;

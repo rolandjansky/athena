@@ -187,7 +187,7 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 }
 
 
-double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF, const bool isoSF) const
+double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF, const bool isoSF, const bool triggerSF) const
 {
   double sf(1.);
 
@@ -209,6 +209,16 @@ double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool eff
     if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
 
     sf *= sf_iso;
+  }
+
+  if (triggerSF) {
+
+    double sf_trigger = 1.;
+
+    CP::CorrectionCode res = m_photonTriggerSFTool->getEfficiencyScaleFactor( ph, sf_trigger );
+    if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
+
+    sf *= sf_trigger;
   }
 
   ATH_MSG_VERBOSE( " ScaleFactor " << sf );
@@ -218,19 +228,24 @@ double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool eff
 }
 
 
-double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF)
+double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF, const bool triggerSF)
 {
   double sf(1.);
 
   //Set the new systematic variation
   CP::SystematicCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (reco) for systematic var. " << systConfig.name() );
   }
 
   ret = m_photonIsolationSFTool->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_photonTriggerSFTool->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   if (effSF) {
@@ -251,6 +266,16 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
     if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
 
     sf *= sf_iso;
+  }
+
+  if (triggerSF) {
+
+    double sf_trigger = 1.;
+
+    CP::CorrectionCode res = m_photonTriggerSFTool->getEfficiencyScaleFactor( ph, sf_trigger );
+    if (res == CP::CorrectionCode::OutOfValidityRange) ATH_MSG_WARNING(" GetSignalPhotonSF: getEfficiencyScaleFactor out of validity range");
+
+    sf *= sf_trigger;
   }
 
   //Roll back to current sys
@@ -261,7 +286,12 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
 
   ret = m_photonIsolationSFTool->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_photonTriggerSFTool->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ATH_MSG_VERBOSE( " ScaleFactor " << sf );
@@ -271,13 +301,13 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
 }
 
 
-double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF) const
+double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF, const bool triggerSF) const
 {
 
   double sf(1.);
 
   for (const auto& photon : photons) {
-    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF); }
+    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF, triggerSF); }
   }
 
   return sf;
@@ -285,13 +315,13 @@ double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, c
 }
 
 
-double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF)
+double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF, const bool triggerSF)
 {
 
   double sf(1.);
 
   for (const auto& photon : photons) {
-    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF); }
+    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF, triggerSF); }
   }
 
   return sf;

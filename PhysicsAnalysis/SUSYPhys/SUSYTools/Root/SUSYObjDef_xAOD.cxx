@@ -279,10 +279,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_elecEfficiencySFTool_reco(""),
     m_elecEfficiencySFTool_id(""),
     m_elecEfficiencySFTool_trig_singleLep(""),
+    m_elecEfficiencySFTool_trigEff_singleLep(""),
     m_elecEfficiencySFTool_iso(""),
     m_elecEfficiencySFTool_isoHighPt(""),
     m_elecEfficiencySFTool_chf(""),
-    m_elecEfficiencySFTool_trigEff_singleLep(""),
     //
     m_egammaCalibTool(""),
     m_elecSelLikelihood(""),
@@ -322,14 +322,22 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_trig2015combination_singleLep(""),
     m_trig2016combination_singleLep(""),
     m_trig2017combination_singleLep(""),
+    m_trig2018combination_singleLep(""),
     m_trig2015combination_diLep(""),
     m_trig2016combination_diLep(""),
     m_trig2017combination_diLep(""),
+    m_trig2018combination_diLep(""),
     m_trigGlobalEffCorrTool_diLep(""),
     m_trig2015combination_multiLep(""),
     m_trig2016combination_multiLep(""),
     m_trig2017combination_multiLep(""),
+    m_trig2018combination_multiLep(""),
     m_trigGlobalEffCorrTool_multiLep(""),
+    m_trig2015combination_diPhoton(""),
+    m_trig2016combination_diPhoton(""),
+    m_trig2017combination_diPhoton(""),
+    m_trig2018combination_diPhoton(""),
+    m_trigGlobalEffCorrTool_diPhoton(""),
     m_trigConfTool(""),
     m_trigDecTool(""),
     m_trigMatchingTool(""),
@@ -590,6 +598,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_trigGlobalEffCorrTool_diLep.declarePropertyFor( this, "TrigGlobalEfficiencyCorrection_diLep", "The TrigGlobalEfficiencyCorrection tool for dilepton" );
   m_trigGlobalEffCorrTool_multiLep.declarePropertyFor( this, "TrigGlobalEfficiencyCorrection_multiLep", "The TrigGlobalEfficiencyCorrection tool for trilepton" );
+  m_trigGlobalEffCorrTool_diPhoton.declarePropertyFor( this, "TrigGlobalEfficiencyCorrection_diPhoton", "The TrigGlobalEfficiencyCorrection tool for asymmetric diphoton" );
   m_trigConfTool.declarePropertyFor( this, "TrigConfigTool", "The TrigConfigTool" );
   m_trigDecTool.declarePropertyFor( this, "TrigDecisionTool", "The TrigDecisionTool" );
   m_trigMatchingTool.declarePropertyFor( this, "TrigMatchTool", "The TrigMatchingTool" );
@@ -656,15 +665,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     { "FCTight"                 , "FixedCutHighMuTight"     }
   };
 
-  // load photon trigger support
-  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2#Recommendations_for_full_2015_20
-  m_ph_trig_support.push_back("HLT_g20_tight_icalovloose_L1EM15VHI");
-  m_ph_trig_support.push_back("HLT_g22_tight_L1EM15VHI");
-  m_ph_trig_support.push_back("HLT_g25_loose");
-  m_ph_trig_support.push_back("HLT_g25_medium_L1EM20VH");
-  m_ph_trig_support.push_back("HLT_g35_medium_L1EM20VH");
-  m_ph_trig_support.push_back("HLT_g50_loose_L1EM20VH");
-    
   // load tau trigger support
   // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst#supported-tau-trigger
   m_tau_trig_support.push_back("HLT_tau25_medium1_tracktwo");
@@ -1128,12 +1128,19 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
+  configFromFile(m_trig2018combination_singleLep, "Trig.Singlelep2018", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2015combination_diLep, "Trig.Dilep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10"); 
   configFromFile(m_trig2016combination_diLep, "Trig.Dilep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
   configFromFile(m_trig2017combination_diLep, "Trig.Dilep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
+  configFromFile(m_trig2018combination_diLep, "Trig.Dilep2018", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
   configFromFile(m_trig2015combination_multiLep, "Trig.Multi2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || e17_lhloose_2e9_lhloose || 2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10 || 3mu6"); 
   configFromFile(m_trig2016combination_multiLep, "Trig.Multi2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || e17_lhloose_nod0_2e9_lhloose_nod0 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
   configFromFile(m_trig2017combination_multiLep, "Trig.Multi2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
+  configFromFile(m_trig2018combination_multiLep, "Trig.Multi2018", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
+  configFromFile(m_trig2015combination_diPhoton, "Trig.Diphoton2015", rEnv, "g35_loose_g25_loose");
+  configFromFile(m_trig2016combination_diPhoton, "Trig.Diphotonp2016", rEnv, "g35_loose_g25_loose"); 
+  configFromFile(m_trig2017combination_diPhoton, "Trig.Diphotonp2017", rEnv, "g35_medium_g25_medium_L12EM20VH"); 
+  configFromFile(m_trig2018combination_diPhoton, "Trig.Diphotonp2018", rEnv, "g35_medium_g25_medium_L12EM20VH"); 
   //
   configFromFile(m_muBaselinePt, "MuonBaseline.Pt", rEnv, 10000.);
   configFromFile(m_muBaselineEta, "MuonBaseline.Eta", rEnv, 2.7);
@@ -1167,7 +1174,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonEta, "Photon.Eta", rEnv, 2.37);
   configFromFile(m_photonId, "Photon.Id", rEnv, "Tight");
   configFromFile(m_photonIso_WP, "Photon.Iso", rEnv, "FixedCutTight");
-  configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "HLT_g20_tight_icalovloose_L1EM15VHI"); // how is it changed across years?
+  configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "DI_PH_2015_2016_g20_tight_2016_g22_tight_2017_2018_g20_tight_icalovloose_L1EM15VHI"); // for symmetric diphoton triggers
   configFromFile(m_photonCrackVeto, "Photon.CrackVeto", rEnv, true);
   configFromFile(m_photonAllowLate, "Photon.AllowLate", rEnv, false);
   //
@@ -1309,19 +1316,23 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   ATH_CHECK( validConfig(m_strictConfigCheck) );
 
   //** cache trigger chains for electron matching
-  GetTriggerTokens(m_electronTriggerSFStringSingle, v_trigs15_cache_singleEle, v_trigs16_cache_singleEle, v_trigs17_cache_singleEle);
+  GetTriggerTokens(m_electronTriggerSFStringSingle, v_trigs15_cache_singleEle, v_trigs16_cache_singleEle, v_trigs17_cache_singleEle, v_trigs18_cache_singleEle);
 
   //** cache trigger chains for matching (both electrons and muons)
-  GetTriggerTokens(m_electronTriggerSFStringSingle, v_trigs15_cache_singleEle, v_trigs16_cache_singleEle, v_trigs17_cache_singleEle);
+  GetTriggerTokens(m_electronTriggerSFStringSingle, v_trigs15_cache_singleEle, v_trigs16_cache_singleEle, v_trigs17_cache_singleEle, v_trigs18_cache_singleEle);
+
   v_trigs15_cache_singleLep = GetTriggerOR(m_trig2015combination_singleLep);
   v_trigs16_cache_singleLep = GetTriggerOR(m_trig2016combination_singleLep);
   v_trigs17_cache_singleLep = GetTriggerOR(m_trig2017combination_singleLep);
+  v_trigs18_cache_singleLep = GetTriggerOR(m_trig2018combination_singleLep);
   v_trigs15_cache_diLep = GetTriggerOR(m_trig2015combination_diLep);
   v_trigs16_cache_diLep = GetTriggerOR(m_trig2016combination_diLep);
   v_trigs17_cache_diLep = GetTriggerOR(m_trig2017combination_diLep);
+  v_trigs18_cache_diLep = GetTriggerOR(m_trig2018combination_diLep);
   v_trigs15_cache_multiLep = GetTriggerOR(m_trig2015combination_multiLep);
   v_trigs16_cache_multiLep = GetTriggerOR(m_trig2016combination_multiLep);
   v_trigs17_cache_multiLep = GetTriggerOR(m_trig2017combination_multiLep);
+  v_trigs18_cache_multiLep = GetTriggerOR(m_trig2018combination_multiLep);
 
   return StatusCode::SUCCESS;
 }
@@ -1778,31 +1789,22 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
   if (!m_trigGlobalEffCorrTool_diLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("TrigGlobalEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("TrigGlobalEfficiencyCorrectionTool (dilepton trigger) configured for systematic var. " << systConfig.name() );
     }
   }
   if (!m_trigGlobalEffCorrTool_multiLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("TrigGlobalEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) configured for systematic var. " << systConfig.name() );
     }
   }
   if (!m_elecEfficiencySFTool_iso.empty()) {
@@ -1844,28 +1846,37 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   if (!isData() && !m_photonEfficiencySFTool.empty()) {
     CP::SystematicCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (reco) for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool (reco) configured for systematic var. " << systConfig.name() );
     }
   }
   if (!isData() && !m_photonIsolationSFTool.empty()) {
     CP::SystematicCode ret = m_photonIsolationSFTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured (iso) for systematic var. " << systConfig.name() );
     }
   }
   if (!isData() && !m_photonTriggerSFTool.empty()) {
     CP::SystematicCode ret = m_photonTriggerSFTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured (trigger) for systematic var. " << systConfig.name() );
+    }
+  }
+  if (!m_trigGlobalEffCorrTool_diPhoton.empty()) {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) for systematic var. " << systConfig.name() );
+      return ret;
+    } else {
+      ATH_MSG_VERBOSE("TrigGlobalEfficiencyCorrectionTool (diphoton trigger) configured for systematic var. " << systConfig.name() );
     }
   }
   if (!m_egammaCalibTool.empty()) {
@@ -2121,13 +2132,6 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
     }
   }
-  if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
-    if ( m_elecEfficiencySFTool_trigEff_singleLep->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
   if (!m_trigGlobalEffCorrTool_diLep.empty()) {
     if ( m_trigGlobalEffCorrTool_diLep->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
@@ -2205,6 +2209,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   }
   if (!isData() && !m_photonTriggerSFTool.empty()) {
     if (m_photonTriggerSFTool->isAffectedBySystematic(sys)) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::Photon;
+      sysInfo.affectedWeights.insert(ST::Weights::Photon::Trigger);
+    }
+  }
+  if (!m_trigGlobalEffCorrTool_diPhoton.empty()) {
+    if ( m_trigGlobalEffCorrTool_diPhoton->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Photon;
       sysInfo.affectedWeights.insert(ST::Weights::Photon::Trigger);
