@@ -178,7 +178,6 @@ namespace ViewHelper
       //Make accessor for bookkeeping
       SG::AuxElement::Accessor< int > viewBookkeeper( "viewIndex" );
 
-      SG::AuxElement::ConstAccessor< float > seeAux( "eta" );
       
       //Loop over all views
       unsigned int offset = 0;
@@ -212,16 +211,7 @@ namespace ViewHelper
 
           //Add aux data for bookkeeping
           viewBookkeeper( *outputObject ) = viewIndex;
-	  if ( seeAux.isAvailable( *inputObject ) )
-	    m_msg << MSG::DEBUG << "JU input  " << seeAux( *inputObject ) << endmsg;
-	  
-	  if ( seeAux.isAvailable( *outputObject ) ) 
-	    m_msg << MSG::DEBUG << "JU output " << seeAux( *outputObject ) << endmsg;
         }
-	// junk to testing xAOD
-
-	
-	// eof junk
         m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
 
         //Declare remapping
