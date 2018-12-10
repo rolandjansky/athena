@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************************
@@ -34,11 +34,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileCondToolPulseShape.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
@@ -81,10 +77,6 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_timeStep(0.0)
   , m_pHRengine(0)
   , m_rndmSvc("AtRndmGenSvc", name)
-  , m_tileToolEmscale("TileCondToolEmscale")
-  , m_tileToolNoiseSample("TileCondToolNoiseSample")
-  , m_tileToolPulseShape("TileCondToolPulseShape")
-  , m_tileBadChanTool("TileBadChanTool")
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_MuRcvBuildTool("TileRawChannelBuilderMF")
   , m_run2(true)
@@ -93,15 +85,11 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
 
   declareProperty("TileInfoName"                   , m_infoName             = "TileInfo");
   declareProperty("IntegerDigits"                  , m_integerDigits        = false, "Round digits (default=false)");
-  declareProperty("TileBadChanTool"                , m_tileBadChanTool);
-  declareProperty("TileCondToolPulseShape"         , m_tileToolPulseShape);
   declareProperty("MaskBadChannels"                , m_maskBadChannels      = false, "Remove channels tagged bad (default=false)");
   declareProperty("UseCoolPulseShapes"             , m_useCoolPulseShapes   = false, "Pulse shapes from database (default=false)");
-  declareProperty("TileCondToolNoiseSample"        , m_tileToolNoiseSample);
   declareProperty("UseCoolNoise"                   , m_tileNoise            = false, "Noise from database (default=false)");
   declareProperty("UseCoolPedestal"                , m_tilePedestal         = false, "Pedestal from database (default=false)");
   declareProperty("RndmSvc"                        , m_rndmSvc, "Random Number Service used in TilePulseForTileMuonReceiver");
-  declareProperty("TileCondToolEmscale"            , m_tileToolEmscale, "Service to calibrate all channels");
   declareProperty("TileRawChannelBuilderMF"        , m_MuRcvBuildTool, "The tool by default is the Matched Filter");
 }
 

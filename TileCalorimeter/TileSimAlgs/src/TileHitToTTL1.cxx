@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -28,8 +28,6 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Calo includes
@@ -78,18 +76,14 @@ TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_tileThresh(false)
   , m_pHRengine(0)
   , m_rndmSvc ("AtRndmGenSvc", name)
-  , m_tileToolEmscale("TileCondToolEmscale")
-  , m_tileBadChanTool("TileBadChanTool")
 {
   m_infoName = "TileInfo";
   m_TileTTL1Type = "Standard";
 
   declareProperty("TileInfoName", m_infoName);
-  declareProperty("TileTTL1Type",m_TileTTL1Type);
+  declareProperty("TileTTL1Type", m_TileTTL1Type);
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TileHitToTTL1");
-  declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
-  declareProperty("maskBadChannels",m_maskBadChannels = true);
-  declareProperty("TileBadChanTool", m_tileBadChanTool);
+  declareProperty("maskBadChannels", m_maskBadChannels = true);
 }
 
 TileHitToTTL1::~TileHitToTTL1() {
