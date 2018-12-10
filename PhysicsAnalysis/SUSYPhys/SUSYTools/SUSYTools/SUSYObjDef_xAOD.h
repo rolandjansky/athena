@@ -243,13 +243,21 @@ namespace ST {
     //electrons
     float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final;
 
-    double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0") const override final;
+    double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0") const override final;
 
     double GetTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr = "diLepton") override final;
 
-    double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0") const override final;
+    double GetTriggerGlobalEfficiency(const xAOD::PhotonContainer& photons, const std::string& trigExpr = "diPhoton") override final;
+
+    double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0") const override final;
 
     double GetTriggerGlobalEfficiencySF(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr = "diLepton") override final;
+
+    double GetTriggerGlobalEfficiencySF(const xAOD::PhotonContainer& photons, const std::string& trigExpr = "diPhoton") override final;
+
+    double GetTriggerGlobalEfficiencySFsys(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const std::string& trigExpr = "diLepton") override final;
+
+    double GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr = "diPhoton") override final;
 
     float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
@@ -267,13 +275,13 @@ namespace ST {
     double GetTotalTauSFsys(const xAOD::TauJetContainer& taus, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
     //photons
-    double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true) const override final;
+    double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true, const bool triggerSF = false) const override final;
 
-    double GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) override final;
+    double GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true, const bool triggerSF = false) override final;
 
-    double GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF = true, const bool isoSF = true) const override final;
+    double GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF = true, const bool isoSF = true, const bool triggerSF = false) const override final;
 
-    double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true) override final;
+    double GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF = true, const bool isoSF = true, const bool triggerSF = false) override final;
 
     //jets
     double GetTotalJetSF(const xAOD::JetContainer* jets, const bool btagSF = true, const bool jvtSF = true, const bool fjvtSF = false) override final;
@@ -306,7 +314,7 @@ namespace ST {
     float GetTrigPrescale(const std::string&) const override final;
     const Trig::ChainGroup* GetTrigChainGroup(const std::string&) const override final;
     std::vector<std::string> GetTriggerOR(std::string trigExpr) const;
-    void GetTriggerTokens(std::string, std::vector<std::string>& , std::vector<std::string>& , std::vector<std::string>& ) const;
+    void GetTriggerTokens(std::string, std::vector<std::string>& , std::vector<std::string>& , std::vector<std::string>& , std::vector<std::string>& ) const;
     Trig::FeatureContainer GetTriggerFeatures(const std::string& chainName = "EF_.*", unsigned int condition = TrigDefs::Physics) const;
 
     float GetPileupWeight() override final;
@@ -396,15 +404,19 @@ namespace ST {
     std::vector<std::string> v_trigs15_cache_singleEle;
     std::vector<std::string> v_trigs16_cache_singleEle;
     std::vector<std::string> v_trigs17_cache_singleEle;
+    std::vector<std::string> v_trigs18_cache_singleEle;
     std::vector<std::string> v_trigs15_cache_singleLep;
     std::vector<std::string> v_trigs16_cache_singleLep;
     std::vector<std::string> v_trigs17_cache_singleLep;
+    std::vector<std::string> v_trigs18_cache_singleLep;
     std::vector<std::string> v_trigs15_cache_diLep;
     std::vector<std::string> v_trigs16_cache_diLep;
     std::vector<std::string> v_trigs17_cache_diLep;
+    std::vector<std::string> v_trigs18_cache_diLep;
     std::vector<std::string> v_trigs15_cache_multiLep;
     std::vector<std::string> v_trigs16_cache_multiLep;
     std::vector<std::string> v_trigs17_cache_multiLep;
+    std::vector<std::string> v_trigs18_cache_multiLep;
 
   protected:
 
@@ -509,7 +521,6 @@ namespace ST {
     std::vector<std::string> m_el_id_support;
     std::vector<std::string> m_ph_id_support;
     int m_mu_id_support; //max value
-    std::vector<std::string> m_ph_trig_support;
     std::vector<std::string> m_tau_id_support;
     std::vector<std::string> m_el_iso_support;
     std::vector<std::string> m_mu_iso_support;
@@ -666,7 +677,8 @@ namespace ST {
 
     std::string m_bTaggingCalibrationFilePath;
 
-    std::map<std::string,std::string> m_legsPerTool; // how can I define legs for 2015 triggers (no suffix "_nod0")
+    std::map<std::string,std::string> m_legsPerTool;
+    std::map<std::string,std::string> m_legsPerTool_ph;
 
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
@@ -712,12 +724,12 @@ namespace ST {
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_reco;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_id;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trig_singleLep;
-    std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_elecEfficiencySFTool_trig_mixLep;
+    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trigEff_singleLep;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_iso;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_isoHighPt;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_chf;
     //
-    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_trigEff_singleLep;
+    std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_elecEfficiencySFTool_trig_mixLep;
     std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_elecEfficiencySFTool_trigEff_mixLep;
     ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> m_elecTrigSFTools;
     ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> m_elecTrigEffTools;
@@ -730,6 +742,12 @@ namespace ST {
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEfficiencySFTool;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonIsolationSFTool;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonTriggerSFTool;
+    //
+    std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool>> m_photonEfficiencySFTool_trigSF_AsymDiphoton;
+    std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool>> m_photonEfficiencySFTool_trigEff_AsymDiphoton;
+    ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> m_photonTrigSFTools;
+    ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> m_photonTrigEffTools;
+    //
     asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> m_electronPhotonShowerShapeFudgeTool;
     asg::AnaToolHandle<IEGammaAmbiguityTool> m_egammaAmbiguityTool;
     asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_elecChargeIDSelectorTool;
@@ -761,14 +779,22 @@ namespace ST {
     std::string m_trig2015combination_singleLep;
     std::string m_trig2016combination_singleLep;
     std::string m_trig2017combination_singleLep;
+    std::string m_trig2018combination_singleLep;
     std::string m_trig2015combination_diLep;
     std::string m_trig2016combination_diLep;
     std::string m_trig2017combination_diLep;
+    std::string m_trig2018combination_diLep;
     asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_trigGlobalEffCorrTool_diLep;
     std::string m_trig2015combination_multiLep;
     std::string m_trig2016combination_multiLep;
     std::string m_trig2017combination_multiLep;
+    std::string m_trig2018combination_multiLep;
     asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_trigGlobalEffCorrTool_multiLep;
+    std::string m_trig2015combination_diPhoton;
+    std::string m_trig2016combination_diPhoton;
+    std::string m_trig2017combination_diPhoton;
+    std::string m_trig2018combination_diPhoton;
+    asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_trigGlobalEffCorrTool_diPhoton;
     asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
     asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
     asg::AnaToolHandle<Trig::IMatchingTool> m_trigMatchingTool;

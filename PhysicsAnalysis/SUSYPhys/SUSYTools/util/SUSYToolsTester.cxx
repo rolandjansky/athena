@@ -237,9 +237,11 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     m_grl.setTypeAndName("GoodRunsListSelectionTool/grl");
     m_grl.isUserConfigured();
     std::vector<std::string> myGRLs;
+
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/physics_25ns_21.0.19.xml"));
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20180129/physics_25ns_21.0.19.xml"));
-    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.xml"));
+    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.xml"));
+    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20181111/physics_25ns_Triggerno17e33prim.xml"));
 
     ANA_CHECK( m_grl.setProperty("GoodRunsListVec", myGRLs) );
     ANA_CHECK( m_grl.setProperty("PassThrough", false) );
@@ -262,6 +264,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Configure the SUSYObjDef instance
+
   ANA_CHECK( objTool.setProperty("DataSource", datasource) ) ;
   if(!config_file.empty())
     ANA_CHECK( objTool.setProperty("ConfigFile", config_file) );
@@ -269,34 +272,47 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ANA_CHECK( objTool.setBoolProperty("METDoCaloSyst", false) );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  ////
+  ////                                                                                   ////
   ////       ****     THESE FILES ARE MEANT FOR EXAMPLES OF USAGE ONLY        ****       ////
   ////       ****        AND SHOULD NOT BE USED FOR SERIOUS ANALYSIS          ****       ////
   ////                                                                                   ////
   ///////////////////////////////////////////////////////////////////////////////////////////
+  
   std::vector<std::string> prw_conf;
-  if ( autoconfigPRW == 1 && !isAtlfast && !isData ) {
-    ANA_CHECK( objTool.setBoolProperty("AutoconfigurePRWTool", true) );
-  } else {
-    if (prw_file == "DUMMY") {
-      prw_conf.push_back("dev/SUSYTools/merged_prw_mc16a_latest.root");
+  if (!isData) {
+    if ( autoconfigPRW == 1 ) {
+      ANA_CHECK( objTool.setBoolProperty("AutoconfigurePRWTool", true) );
     } else {
-      prw_conf = getTokens(prw_file,",");
+      if (prw_file == "DUMMY") {
+        prw_conf.push_back("dev/SUSYTools/merged_prw_mc16a_latest.root");
+      } else {
+        prw_conf = getTokens(prw_file,",");
+      }
+      ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
     }
-    ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
   }
 
-  bool is_201516 = true;
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////
+  //// Pick up only relevant ilumicalc files for each MC16 campaign. 
+  //// See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BackgroundStudies
+  ////
+  //// For mc16a:
+  //// GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root
+  //// GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root
+  ////
+  //// For mc16d:
+  //// GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
+  ////
+  //// For mc16e:
+  //// GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root
+  ////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
-    if (is_201516) {
-      ANA_CHECK( objTool.setProperty( "mcCampaign", "mc16a" ) );
-      prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"));
-      prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root"));
-    } else {
-      ANA_CHECK( objTool.setProperty( "mcCampaign", "mc16d" ) );
-      prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root"));
-    }
+    ANA_CHECK( objTool.setProperty( "mcCampaign", "mc16e" ) );
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"));
   } else {
     prw_lumicalc = getTokens(ilumicalc_file,",");
   }
@@ -466,7 +482,9 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     //Info( APP_NAME, "Passed MET Trigger = %i", (int)objTool.IsMETTrigPassed() );
 
     if (isData) {
-      eventPassesGRL = m_grl->passRunLB(ei->runNumber(), ei->lumiBlock());
+      // FIXME the run 348403 used for the art.DAOD data file is not in GRL!! :)
+      // remove GRL selection for the time being (until PHYSVAL sample is replaced)
+      //eventPassesGRL = m_grl->passRunLB(ei->runNumber(), ei->lumiBlock());
 
       eventPassesCleaning = !((ei->errorState(xAOD::EventInfo::LAr)  == xAOD::EventInfo::Error ) ||
                               (ei->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error ) ||

@@ -202,11 +202,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_selected(input) = 2;
   if (m_doElIsoSignal){
     dec_isol(input) = m_isoTool->accept(input);
-    if (m_eleIsoHighPt_WP == "FixedCutHighPtCaloOnly" && acc_topoetcone20.isAvailable(input)) {
-      dec_isolHighPt(input) = acc_topoetcone20(input)/input.pt() < 0.015 || m_isoHighPtTool->accept(input);
-    } else {
-      dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
-    }
+    dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
   }
 
   //ChargeIDSelector
@@ -278,13 +274,11 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
-  if ( (!m_doElIsoSignal) || acc_isol(input) ) {
-    if (acc_isolHighPt(input) || input.pt()<200e3) { // patch for removing the high-pt electron fakes /KY
-      ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
-    } else return false;
-  } else return false; //isolation selection with IsoTool
-
-
+  if (m_doElIsoSignal) { 
+    if ( !( (acc_isol(input) && input.pt()<200e3) || (acc_isolHighPt(input) && input.pt()>200e3)) ) return false;
+    ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation" );
+  }
+  
   if(!acc_passChID(input)) return false; //add charge flip check to signal definition
 
   dec_signal(input) = true;
@@ -361,7 +355,8 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     if(trigExpr==singleLepStr) { 
       if (this->treatAsYear()==2015) trigMChains = v_trigs15_cache_singleEle;
       else if (this->treatAsYear()==2016) trigMChains = v_trigs16_cache_singleEle; 
-      else trigMChains = v_trigs17_cache_singleEle;
+      else if (this->treatAsYear()==2017) trigMChains = v_trigs17_cache_singleEle; 
+      else trigMChains = v_trigs18_cache_singleEle;
       theExpr=m_electronTriggerSFStringSingle;
     } 
     else{
@@ -549,21 +544,6 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
-  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-  }
-
-  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-  }
-
-  ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-  }
-
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(systConfig);
   if (ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
@@ -600,21 +580,6 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   }
 
   ret = m_elecEfficiencySFTool_trig_singleLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
-  }
-
-  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
-  }
-
-  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
-  }
-
-  ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(m_currentSyst);
   if (ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
