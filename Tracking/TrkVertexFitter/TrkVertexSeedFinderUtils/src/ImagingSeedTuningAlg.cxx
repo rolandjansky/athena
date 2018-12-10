@@ -25,8 +25,6 @@
 #include "TrkVertexSeedFinderUtils/IVertexImageMaker.h"
 #include "TrkVertexSeedFinderUtils/IVertexClusterFinder.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
 #include <limits>
@@ -49,7 +47,6 @@ ImagingSeedTuningAlg::ImagingSeedTuningAlg( const std::string& name,
   m_trackFilter("InDet::InDetTrackSelectionTool"),
   m_seedFinder("Trk::ImagingSeedFinder"),
   m_impactPoint3dEstimator("Trk::ImpactPoint3dEstimator"),
-  m_iBeamCondSvc("BeamCondSvc", name),
   m_iTHistSvc("THistSvc", name),
   m_h_nTruthVertices(NULL), m_h_zTruthVertices(NULL), m_t_seeds(NULL),
   m_b_nTruth(0), m_b_nConditions(0), m_iCondition(0)
@@ -161,6 +158,8 @@ StatusCode ImagingSeedTuningAlg::initialize()
     m_refineZValues.size()*
     m_gaussianWindowValues.size();
 
+  ATH_CHECK(m_beamSpotKey.initialize());
+    
   return StatusCode::SUCCESS;
 }
 
@@ -230,9 +229,10 @@ StatusCode ImagingSeedTuningAlg::execute()
   theConstraint.makePrivateStore();
   if (m_useBeamConstraint)
   {
-    theConstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
-    theConstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
-    theConstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    theConstraint.setPosition(beamSpotHandle->beamVtx().position());
+    theConstraint.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+    theConstraint.setFitQuality(beamSpotHandle->beamVtx().fitQuality().chiSquared(), beamSpotHandle->beamVtx().fitQuality().doubleNumberDoF());
   }
 
   bool done = true;
@@ -469,12 +469,17 @@ void ImagingSeedTuningAlg::selectTracks(const xAOD::TrackParticleContainer* trac
 					std::vector<Trk::ITrackLink*>& trackVector)
 {
   bool selectionPassed{false};
+  const InDet::BeamSpotData* beamdata = nullptr;
+  if(m_useBeamConstraint){
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     beamdata =  beamSpotHandle.retrieve();
+  }
   for (auto itr  = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
     if (m_useBeamConstraint) {
       xAOD::Vertex beamposition;
       beamposition.makePrivateStore();
-      beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
-      beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      beamposition.setPosition(beamdata->beamVtx().position());
+      beamposition.setCovariancePosition(beamdata->beamVtx().covariancePosition());
       selectionPassed=static_cast<bool> (m_trackFilter->accept(**itr,&beamposition));
     }
     else
