@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -12,7 +12,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 using namespace SG;
