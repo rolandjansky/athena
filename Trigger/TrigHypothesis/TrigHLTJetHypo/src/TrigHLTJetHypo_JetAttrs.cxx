@@ -63,10 +63,8 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     //define vectors to be passed to condition    
     std::string match ("yes");
     std::vector<std::string> jetVarVec ;
-    std::vector<double> EVec ;
     std::vector<double> limitMinVec ;
     std::vector<double> limitMaxVec ;
-    unsigned int nmbVars= m_has.size()/m_E.size();
 
     if(m_E.size() == 0){
       ATH_MSG_INFO("amanda - no defined jet moments, return false");    
@@ -76,32 +74,27 @@ Conditions TrigHLTJetHypo_JetAttrs::getConditions() const {
     }
     //fill vectors
     else{
-        for(unsigned int noJets=0; noJets<m_E.size(); noJets++){
-          ATH_MSG_INFO("amanda - considering jet energies "<< m_E[noJets]);
-          EVec.push_back(m_E[noJets]);
-          for(unsigned int count=0; count<nmbVars; count++){
-              if(m_has[count+nmbVars*noJets].compare(match)==0){
-                jetVarVec.push_back(m_jetVars[(count+nmbVars*noJets)% m_jetVars.size()]);
-                ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[(count+nmbVars*noJets)% m_jetVars.size()]);
-                std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[(count+nmbVars*noJets)% m_jetVars.size()]))(m_limitMins[count+nmbVars*noJets], m_limitMaxs[count+nmbVars*noJets]);
+       for(unsigned int count=0; count<m_jetVars.size(); count++){
+           if(m_has[count].compare(match)==0){
+             jetVarVec.push_back(m_jetVars[(count)% m_jetVars.size()]);
+             ATH_MSG_INFO("amanda - getting limits for " << m_jetVars[count % m_jetVars.size()]);
+             std::pair<double,double> limits = (*m_conversionMap.at(m_jetVars[count % m_jetVars.size()]))(m_limitMins[count], m_limitMaxs[count]);
 
-                ATH_MSG_INFO("amanda - got limits " << limits);
-                limitMinVec.push_back(limits.first);
-                limitMaxVec.push_back(limits.second);
-              }
-              else{
-                ATH_MSG_INFO("amanda - m_has=false, return true");
-                jetVarVec.push_back(" "); // will return true in JetAttrsCondition and essentially be ignored
-                limitMinVec.push_back(-10.0); //placeholder values
-                limitMaxVec.push_back(-10.0);
-              }
-            }
-        }
+             ATH_MSG_INFO("amanda - got limits " << limits);
+             limitMinVec.push_back(limits.first);
+             limitMaxVec.push_back(limits.second);
+           }
+           else{
+             ATH_MSG_INFO("amanda - m_has=false, return true");
+             jetVarVec.push_back(" "); // will return true in JetAttrsCondition and essentially be ignored
+             limitMinVec.push_back(-10.0); //placeholder values
+             limitMaxVec.push_back(-10.0);
+           }
       }
+    }
 
-   auto conditions = conditionsFactoryJetAttrs(jetVarVec, EVec, limitMinVec, limitMaxVec);
+   auto conditions = conditionsFactoryJetAttrs(jetVarVec, limitMinVec, limitMaxVec);
 
-   ATH_MSG_INFO("amanda - no of jets to consider " << m_E.size());
 
    ATH_MSG_INFO("amanda - passing to conditionsFactory " << jetVarVec);
 

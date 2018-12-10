@@ -23,7 +23,6 @@ class JetAttrsCondition: public ICondition{
  public:
   JetAttrsCondition(
                  std::vector<std::string> jetVar,
-                 std::vector<double> E,
                  std::vector<double> limitMin,
                  std::vector<double> limitMax
                  );
@@ -39,12 +38,10 @@ class JetAttrsCondition: public ICondition{
  private:
 
   typedef struct {bool validCondition; double value;} Jet;
-  bool checkDecision(std::vector<bool>) const;
   bool passWidthCut(pHypoJet, int) const;
   bool passKtDRCut(pHypoJet, int) const;
 
   std::vector<std::string> m_jetVar;
-  std::vector<double> m_E;
   std::vector<double> m_limitMin;
   std::vector<double> m_limitMax;
 

@@ -85,7 +85,6 @@ Conditions conditionsFactoryFalse(double limitMin,
                           double limitMax); 
 
 Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
-                      const std::vector<double>& Es,
                       const std::vector<double>& limitMins,
                       const std::vector<double>& limitMaxs);
 

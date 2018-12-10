@@ -203,7 +203,6 @@ Conditions conditionsFactoryJetAttrsKtDR(double limitMin,
 }
 
 Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
-                      const std::vector<double>& Es,
                       const std::vector<double>& limitMins,
                       const std::vector<double>& limitMaxs){
   Conditions conditions;
@@ -221,7 +220,6 @@ Conditions conditionsFactoryJetAttrs(const std::vector<std::string>& jetVars,
   */
   std::shared_ptr<ICondition> 
     pCondition(new JetAttrsCondition(jetVars,
-                    Es,
                     limitMins,
                     limitMaxs));
 

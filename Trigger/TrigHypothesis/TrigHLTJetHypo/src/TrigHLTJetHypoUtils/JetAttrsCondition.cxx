@@ -11,12 +11,10 @@
 
 JetAttrsCondition::JetAttrsCondition(
                 std::vector<std::string> jetVar,
-                std::vector<double> E,
                 std::vector<double> limitMin,
                 std::vector<double> limitMax
                               ){
   m_jetVar = jetVar;
-  m_E = E;
   m_limitMin = limitMin;
   m_limitMax = limitMax;
 }
@@ -39,7 +37,7 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
 //  auto nmbVars = m_jetVar.size() / m_E.size(); // number of moments considered at each energy point
 
   std::cout << "amanda - in JetAttrsCondition \n";
-  std::cout << "amanda - length of condition input arrays (var,E,min,max): "<< m_jetVar.size() << m_E.size() << m_limitMin.size() << m_limitMax.size() << "\n";
+  std::cout << "amanda - length of condition input arrays (var,E,min,max): "<< m_jetVar.size() << m_limitMin.size() << m_limitMax.size() << "\n";
 
   //first working try
   /*
@@ -59,15 +57,13 @@ bool JetAttrsCondition::isSatisfied(const HypoJetVector& ips) const{
   //second working try - good for single E
   //For each jet (defined by energy value), consider all appropriate moments and return true/false for each
   //for (unsigned int jetEn=0; jetEn < m_E.size(); jetEn++){
-  if(m_E.size()==1){    
-    for (unsigned int index=0; index < m_jetVar.size(); index++){//for each jet variable
-      if(m_jetVar[index].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
-      else if(m_jetVar[index].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
-      else if(m_jetVar[index].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
-      else{trigDecision*=false;} //variable does not yet have passCut method
-    }
-    if(trigDecision){return true;} //if full trigger is satisfied, return true (trigDecision==true)
-  }  
+  for (unsigned int index=0; index < m_jetVar.size(); index++){//for each jet variable
+    if(m_jetVar[index].compare("width")==0){trigDecision*=passWidthCut(jet,index);}
+    else if(m_jetVar[index].compare("ktdr")==0){trigDecision*=passKtDRCut(jet,index);}
+    else if(m_jetVar[index].compare(" ")==0){trigDecision*=true;} //m_has = false so do not consider
+    else{trigDecision*=false;} //variable does not yet have passCut method
+  }
+  if(trigDecision){return true;} //if full trigger is satisfied, return true (trigDecision==true)
 
 
   return false;
