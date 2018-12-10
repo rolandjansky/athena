@@ -12,10 +12,6 @@ if DetFlags.detdescr.any_on():
     from AtlasGeoModel import GeoModelInit
     from AtlasGeoModel import SetupRecoGeometry
 
-    # Beam Spot service job options - just defines conditions data access
-    if DetFlags.detdescr.ID_on():
-        protectedInclude("InDetBeamSpotService/BeamCondSvc.py" )
-
     import os
     if "AthSimulation_DIR" not in os.environ:
         if DetFlags.detdescr.LAr_on():
