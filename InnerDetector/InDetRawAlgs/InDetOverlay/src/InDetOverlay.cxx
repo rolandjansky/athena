@@ -305,10 +305,10 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   
   
   declareProperty("TRTinputSDO_Name", m_TRTinputSDO_Name="TRT_SDO_Map");
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.060);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.030);
-  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.005);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.005);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.100);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.090);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.06);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.05);
 
   declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
   declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
@@ -683,13 +683,13 @@ void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll,
             //Get random number 
             int det =  m_trt_id->barrel_ec( pr1->identify() );
             float HTOccupancyCorrection = 0;
-            if(isElectron && isXenonStraw){ 
+            if(isElectron){ 
               HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
             } else { 
               HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE; 
             }
 
-            if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
+            if( isXenonStraw && ( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) ) 
               newword += 1 << (26-9);
             //
             TRT_LoLumRawData newrdo( pr1->identify(), newword); 
