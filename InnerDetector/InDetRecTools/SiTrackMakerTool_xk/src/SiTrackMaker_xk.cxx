@@ -20,7 +20,6 @@
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 
 ///////////////////////////////////////////////////////////////////
@@ -75,7 +74,6 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_seedsegmentsWrite = false;
 //  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
 //  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
-  m_beamconditions               = "BeamCondSvc"            ;
 
   declareInterface<ISiTrackMaker>(this);
 
@@ -134,10 +132,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
   // Get beam geometry
   //
-  m_beam = 0;
-  if(m_beamconditions!="") {
-    sc = service(m_beamconditions,m_beam);
-  }
+  ATH_CHECK( m_beamSpotKey.initialize() );
 
   // Get magnetic field service
   //
@@ -375,8 +370,9 @@ std::ostream& InDet::operator <<
 
 void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 {
-  if(m_beam) {Amg::Vector3D cb = m_beam->beamPos(); m_xybeam[0] = cb[0]; m_xybeam[1] = cb[1];}
-  else       {                                      m_xybeam[0] =    0.; m_xybeam[1] =    0.;}
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  if(beamSpotHandle.isValid()) { m_xybeam[0] = beamSpotHandle->beamPos()[0]; m_xybeam[1] = beamSpotHandle->beamPos()[1];}
+  else       {                   m_xybeam[0] =    0.;                        m_xybeam[1] =    0.;}
   
   m_pix          = PIX && m_usePix;
   m_sct          = SCT && m_useSct;
