@@ -24,6 +24,8 @@
 
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
+#include "TrigConfHLTData/HLTChainList.h"
+#include "TrigConfHLTData/HLTUtils.h"
 
 #include "GaudiKernel/Incident.h"
 
@@ -97,6 +99,16 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
     trigDec->setTBP(l1Result->itemsBeforePrescale());
   }
 
+  // Output bitsets (stored in a vector<uint32_t>)
+  std::vector<uint32_t> hltPassBits;
+  std::vector<uint32_t> hltPrescaleBits;
+  std::vector<uint32_t> hltResurrectBits;
+
+  std::set< std::vector<uint32_t>* > outputVectors;
+  outputVectors.insert( &hltPassBits );
+  outputVectors.insert( &hltPrescaleBits );
+  outputVectors.insert( &hltResurrectBits );
+
   if (hltResult) {
     ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size());
     TrigCompositeUtils::DecisionIDContainer allPassedSet;
@@ -109,8 +121,25 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
     if (allPassedSet.size()) {
       ++m_hltPassed;
     }
-    std::vector<TrigCompositeUtils::DecisionID> toRecordPassed(allPassedSet.begin(), allPassedSet.end());
-    trigDec->setChainMTPassedRaw(toRecordPassed);
+  
+    for (const TrigCompositeUtils::DecisionID id : allPassedSet) {
+      // Need to go from hash-ID to chain-counter. HLTChain counter currently does not give this a category
+      const std::string chainName = TrigConf::HLTUtils::hash2string(id);
+      if (chainName == "UNKNOWN HASH ID" || chainName == "UNKNOWN CATEGORY") {
+        ATH_MSG_ERROR("Unable to locate chain with hash:'" << id << "' in the TrigConf");
+        continue;
+      }
+      const TrigConf::HLTChain* chain = m_trigConfigSvc->chainList()->chain(chainName);
+      if (chain == nullptr) {
+        ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with ID:'" << id << "' and name:'" << chainName << "'");
+        continue;        
+      }
+      const size_t chainCounter = static_cast<size_t>( chain->chain_counter() );
+      resizeVectors(chainCounter, outputVectors); // Make sure we have enough room to be able to set the required bit
+      setBit(chainCounter, hltPassBits);
+    }
+
+    trigDec->setEFPassedRaw(hltPassBits);
   }
 
   // TODO prescaled
@@ -174,4 +203,21 @@ char TrigDecisionMakerMT::getBGByte(int BCId) const {
     return 0;
   }
   return bgs->bgPattern()[BCId];  
+}
+
+
+void TrigDecisionMakerMT::resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const {
+  const size_t block = bit / 32;
+  const size_t requiredSize = block + 1;
+  for (std::vector<uint32_t>* vecPtr : vectors) {
+    vecPtr->resize(requiredSize);
+  }
+  return;
+}
+
+
+void TrigDecisionMakerMT::setBit(const size_t bit, std::vector<uint32_t>& bits) const {
+  const size_t block = bit / 32;
+  const size_t offset = bit % 32;
+  bits.at(block) |= (uint32_t)1 << offset;
 }

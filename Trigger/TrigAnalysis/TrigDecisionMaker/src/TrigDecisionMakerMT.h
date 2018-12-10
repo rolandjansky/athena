@@ -86,6 +86,19 @@ namespace TrigDec {
 
   private:
 
+    /**
+     * @brief Ensures that the supplied vectors have sufficient capacity to store the given bit, where bits are packed into uint32_t.
+     * @param bit The bit we wish the vectors to be large enough to store
+     * @param vectors Set of pointers to all vectors which need resizing. Note, while the set of pointers is const, the vectors are not const.
+     **/  
+    void resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const;
+
+    /**
+     * @param bit The bit to set to 1 (bit 0 equates to the first bit). Requires the vector to have already been resized to be large enough.
+     * @param bits The vector to set the bit in.
+     **/
+    void setBit(const size_t bit, std::vector<uint32_t>& bits) const;
+
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
 
