@@ -11,7 +11,7 @@
 JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
 : JetModifierBase(name)
 , m_assocTracksName("")
-, m_htsel("") {
+, m_htsel("",this) {
   declareProperty("AssociatedTracks", m_assocTracksName);
   declareProperty("SumPtTrkName",m_sumPtTrkName="SumPtTrkPt500");
   declareProperty("TrackSelector", m_htsel);
