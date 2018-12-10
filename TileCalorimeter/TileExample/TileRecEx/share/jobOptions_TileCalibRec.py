@@ -1048,6 +1048,13 @@ if (doTileNtuple or doD3PD):
 
 
 if doD3PD:
+    try:
+        import CaloSysD3PDMaker
+    except ImportError:
+        doD3PD = False
+        log.warning ('CaloSysD3PDMaker not available; not making D3PD.')
+
+if doD3PD:
 
     def _args (level, name, kwin, **kw):
         kw = kw.copy()
@@ -1070,8 +1077,8 @@ if doD3PD:
         alg = MakerAlg(tuplename, seq, file = file ,D3PDSvc =D3PDSvc,streamNameRoot =streamNameRoot)
 
         if doCaloNtuple:
-            from CaloD3PDMaker.TileDetailsD3PDObject import TileDetailsD3PDObject
-            from CaloD3PDMaker.CaloInfoD3PDObject import CaloInfoD3PDObject
+            from CaloSysD3PDMaker.TileDetailsD3PDObject import TileDetailsD3PDObject
+            from CaloSysD3PDMaker.CaloInfoD3PDObject import CaloInfoD3PDObject
             from CaloD3PDMaker.MBTSD3PDObject import MBTSD3PDObject
 
             if doRecoESD and doCaloCell:
@@ -1118,15 +1125,15 @@ if doD3PD:
             alg+= xAODClusterD3PDObject(**_args(3, 'topo_cl',kw, sgkey='TileTopoCluster', prefix='topo_'))
 
         if doTileMuId:
-            from CaloD3PDMaker.TileMuD3PDObject import TileMuD3PDObject
+            from CaloSysD3PDMaker.TileMuD3PDObject import TileMuD3PDObject
             alg += TileMuD3PDObject(**_args(0,'TileMus',kw,sgkey='TileMuObj',prefix='tilemuid_'))
 
         if doTileRODMuId:
-            from CaloD3PDMaker.TileL2D3PDObject import TileL2D3PDObject
+            from CaloSysD3PDMaker.TileL2D3PDObject import TileL2D3PDObject
             alg += TileL2D3PDObject(**_args(2,'TileL2s',kw,exclude=['TileL2'],sgkey='TileL2Cnt',prefix='tilemurod_'))
 
         if doTileMuonFitter:
-            from CaloD3PDMaker.TileCosmicMuonD3PDObject import TileCosmicMuonD3PDObject
+            from CaloSysD3PDMaker.TileCosmicMuonD3PDObject import TileCosmicMuonD3PDObject
             if not 'doTMFMethod' in dir():
                 doTMFMethod = 'Hough'
 
