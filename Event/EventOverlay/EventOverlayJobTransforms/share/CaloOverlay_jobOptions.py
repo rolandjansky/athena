@@ -27,6 +27,9 @@ if DetFlags.overlay.LAr_on():
     #include( "LArAthenaPool/LArAthenaPool_joboptions.py" )
     # We also need the conditions svc for MC constants:
     if overlayFlags.isDataOverlay():
+       from LArROD.LArRODFlags import larRODFlags
+       larRODFlags.keepDSPRaw = False
+
        theApp.Dlls += [ "LArByteStream"]
        LArDigitKey = "FREE"
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/"+LArDigitKey]
@@ -47,8 +50,6 @@ if DetFlags.overlay.LAr_on():
 
     if overlayFlags.isDataOverlay():
         job.LArDigitThinner.InputContainerName = overlayFlags.dataStore()+"+FREE"
-        job.LArDigitThinner.RawChannelContainerName = "LArRawChannels_FromDigits"
-        job.digitmaker1.LArPileUpTool.PedestalKey = "LArPedestal"
         job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
 
 #----------------------------------------------------------------
