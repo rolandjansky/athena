@@ -53,7 +53,6 @@ def bJetStep1Sequence():
     InputMakerAlg.OutputLevel = DEBUG
     InputMakerAlg.LinkName = "initialRoI"
 
-
     # Construct jets
     from TrigUpgradeTest.jetDefs import jetRecoSequence
     (recoSequence, sequenceOut) = jetRecoSequence( InputMakerAlg.RoIs )
@@ -80,7 +79,6 @@ def bJetStep1Sequence():
     # Getting output track particle container name
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
-        viewAlg.OutputLevel = DEBUG
         if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
             TrackParticlesName = viewAlg.TrackParticlesName
 

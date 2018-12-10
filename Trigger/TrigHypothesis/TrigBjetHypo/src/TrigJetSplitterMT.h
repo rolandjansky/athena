@@ -56,6 +56,9 @@ class TrigJetSplitterMT : public AthAlgorithm {
   SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_outputRoiKey {this,"OutputRoi","SplitJet","Output RoI Container Key -- Same as OutputJets"};
   SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexKey {this,"OutputVertex","PrimaryVertex","Output Vertex Key"}; // TMP
+
+  // Tmp Part for creating custom jet collection. These Jets will be used for creating the output Jet collection
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","FSJETRoI",""};
 };
 
 #endif
