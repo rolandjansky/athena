@@ -89,14 +89,14 @@ int main(int argc, char* argv[])
     /// RAII on-the-fly creation of photon CP tools:
     vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool>> factory;
 
-    const char* mapPath = "PhotonEfficiencyCorrection/2015_2017/"
-            "rel21.2/Winter2018_Prerec_v1/map1.txt";
+    const char* mapPath = "PhotonEfficiencyCorrection/2015_2018/"
+            "rel21.2/Summer2018_Rec_v1/map1.txt";
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
         string name = "AsgPhotonEfficiencyCorrectionTool/" + std::string(j? "PhTrigEff" : "PhTrigSF");
         auto t = factory.emplace(factory.end(), name);
         t->setProperty("MapFilePath", mapPath).ignore();
-        t->setProperty("TriggerKey", string(j?"":"Eff_") + "HLT_g22_tight_L1EM15VHI").ignore();
+        t->setProperty("TriggerKey", string(j?"":"Eff_") + "DI_PH_2015_2016_g20_tight_2016_g22_tight_2017_2018_g20_tight_icalovloose_L1EM15VHI").ignore();
         t->setProperty("IsoKey", "Loose").ignore();
         t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full).ignore();
         if(t->initialize() != StatusCode::SUCCESS)
@@ -115,7 +115,12 @@ int main(int argc, char* argv[])
     asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> myTool("TrigGlobalEfficiencyCorrectionTool/TrigGlobal");
     myTool.setProperty("PhotonEfficiencyTools", photonEffTools).ignore();
     myTool.setProperty("PhotonScaleFactorTools", photonSFTools).ignore();
-    myTool.setProperty("TriggerCombination2017", "2g22_tight_L12EM15VHI").ignore();
+    std::map<std::string, std::string> triggers;
+    triggers["266904-302872"] = "2g20_tight"; /// 2015 + 2016 periods A-D3
+    triggers["302919-311481"] = "2g22_tight"; /// 2016 periods D4-L
+    triggers["2017"] = "2g22_tight_L12EM15VHI";
+    triggers["2018"] = "2g22_tight_L12EM15VHI";
+    myTool.setProperty("TriggerCombination", triggers).ignore();
 
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
     if(toys) myTool.setProperty("NumberOfToys", 1000).ignore();
@@ -124,6 +129,24 @@ int main(int argc, char* argv[])
         Error(MSGSOURCE, "Unable to initialize the TrigGlob tool!");
         return 3;
     }
+    
+    /// Uniform random run number generation spanning the target dataset.
+    /// In real life, use the PileupReweightingTool instead!
+    const unsigned periodRuns[] = {
+        /// 2015 periods D3-H, J
+        276262, 278727, 279932, 280423, 281130, 282625,
+        /// 2016 periods A3-L
+        297730, 300345, 301912, 302737, 303638, 303943, 305291, 307124, 
+        305359, 309311, 310015,
+        /// 2017 periods B-K
+        325713, 329385, 330857, 332720, 334842, 336497, 336832, 338183,
+        /// 2018 periods B-M
+        348885, 349534, 350310, 352274, 354107, 354826, 355261, 355331,
+        355529, 357050, 359191
+    };
+    std::uniform_int_distribution<unsigned> uniformPdf(0,
+            sizeof(periodRuns)/sizeof(*periodRuns) - 1);
+    std::default_random_engine randomEngine;
     
     /* ********************************************************************** */
     
@@ -137,7 +160,7 @@ int main(int argc, char* argv[])
         /// Get a random run number, and decorate the event info
         const xAOD::EventInfo* eventInfo = nullptr;
         event.retrieve(eventInfo,"EventInfo").ignore();
-        unsigned runNumber = 332720;
+        unsigned runNumber = periodRuns[uniformPdf(randomEngine)];
         eventInfo->auxdecor<unsigned>("RandomRunNumber") = runNumber;
 
         vector<const xAOD::Photon*> myTriggeringPhotons;
@@ -148,11 +171,11 @@ int main(int argc, char* argv[])
             if(!photon->caloCluster()) continue;
             float eta = fabs(photon->caloCluster()->etaBE(2));
             float pt = photon->pt();
-            if(pt<10e3f || eta>=2.37) continue;
+            if(pt<10e3f || eta>=2.37 || (eta>1.37 && eta<1.52)) continue;
             int t = photon->auxdata<int>("truthType");
             if(t!=14) continue;
             /// photon must be above trigger threshold:
-            if(pt < 26e3f) continue;
+            if(pt < (runNumber>=302919? 23e3f : 21e3f)) continue;
             myTriggeringPhotons.push_back(photon);
         }
 

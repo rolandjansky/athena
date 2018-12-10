@@ -93,10 +93,10 @@ int main(int argc, char* argv[])
 	for(auto& kv : legsPerKey)
 	{
 		const std::string& trigKey = kv.first;
-		for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
+		for(int j=0;j<2;++j) /// one tool instance for efficiencies, another for scale factors
 		{
 			auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(nTools++));
-			t->setProperty("MapFilePath", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt").ignore();
+			t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt").ignore();
 			t->setProperty("TriggerKey", (j? trigKey : "Eff_"+trigKey)).ignore();
 			t->setProperty("IdKey","Tight").ignore();
 			t->setProperty("IsoKey","FixedCutTightTrackOnly").ignore();
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 			}
 			auto& handles = j? electronSFTools : electronEffTools;
 			handles.push_back(t->getHandle());
-			// Safer to retrieve the name from the final ToolHandle, it might be prefixed (by the parent tool name) when the handle is copied
+			/// Safer to retrieve the name from the final ToolHandle, it might be prefixed (by the parent tool name) when the handle is copied
 			std::string name = handles[handles.size()-1].name();
 			legsPerTool[name] = legsPerKey[trigKey];
 		}
@@ -118,7 +118,6 @@ int main(int argc, char* argv[])
 	
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180905_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
 	muonTool.setProperty("OutputLevel", MSG::ERROR).ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
