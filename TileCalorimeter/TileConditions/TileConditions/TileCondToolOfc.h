@@ -14,7 +14,6 @@
 // Tile includes
 #include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileInfo.h"
-// #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/TileCondToolAutoCr.h"
 #include "TileConditions/TileCondToolPulseShape.h"
 
@@ -39,7 +38,8 @@ class IdContext;
  * Optionally, it can create cache table of OFCs with 1-ns step to minimize
  * CPU time. Also, by request, unity A/C matrix can be used.
  */
-class TileCondToolOfc: public AthAlgTool, public ITileCondToolOfc {
+class TileCondToolOfc: public extends<AthAlgTool, ITileCondToolOfc> {
+
   public:
 
     TileCondToolOfc(const std::string& type, const std::string& name, const IInterface* parent);
@@ -47,7 +47,6 @@ class TileCondToolOfc: public AthAlgTool, public ITileCondToolOfc {
 
     StatusCode initialize();
     StatusCode finalize();
-    static const InterfaceID& interfaceID();
 
     void CalcWeights(unsigned int drawerIdx, unsigned int channel, int gain, float phase, bool of2);
 
@@ -72,9 +71,12 @@ class TileCondToolOfc: public AthAlgTool, public ITileCondToolOfc {
     typedef std::map<int, std::unique_ptr<TileOfcWeightsStruct> > OfcPhaseCache;
     std::vector<std::unique_ptr<OfcPhaseCache> > m_ofc_phase_cache;
 
-    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;
-    ToolHandle<TileCondToolAutoCr> m_tileToolAutoCr;
-    //  ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
+        "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};
+
+    ToolHandle<TileCondToolAutoCr> m_tileToolAutoCr{this,
+        "TileCondToolAutoCr", "TileCondToolAutoCr", "Tile auto correlation matrix tool"};
+
     const TileInfo* m_tileInfo;
     TileOfcWeightsStruct m_weights;
 
