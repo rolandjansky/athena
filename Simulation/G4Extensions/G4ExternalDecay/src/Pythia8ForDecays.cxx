@@ -184,6 +184,9 @@ bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
     return true;
   }
 
+  // Special case : R-gluinoball
+  if (pdgId==1000993) return true;
+
   // This is not a gluino R-Hadron (probably a squark R-Hadron)
   return false;
 
