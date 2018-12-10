@@ -27,7 +27,7 @@ class Identifier;
 class MdtCalibrationTMaxShiftSvc : public MdtCalibrationShiftMapBase {
 public:
   /** constructor */
-  MdtCalibrationTMaxShiftSvc(const std::string &name, ISvcLocator *sl);
+  MdtCalibrationTMaxShiftSvc(const std::string &name, ISvcLocator* pSvcLocator);
 
   /** destructor */
   virtual ~MdtCalibrationTMaxShiftSvc();

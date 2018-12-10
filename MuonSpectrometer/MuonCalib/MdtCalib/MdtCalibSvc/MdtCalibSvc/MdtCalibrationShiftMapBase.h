@@ -31,10 +31,10 @@ class TTree;
    MdtCalibT0ShiftTool & MdtCalibTMaxShiftTool.
    @author Andreas Hoenle
 */
-class MdtCalibrationShiftMapBase : public extends<AthService, IG4FieldSvc> {
+class MdtCalibrationShiftMapBase : public extends<AthService, MuonCalib::IShiftMapTools> {
  public:
   /* constructor */
-  MdtCalibrationShiftMapBase(const std::string& name);
+  MdtCalibrationShiftMapBase(const std::string& name, ISvcLocator* pSvcLocator);
 
   /* destructor */
   virtual ~MdtCalibrationShiftMapBase() = 0;

@@ -34,9 +34,8 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define FILEANDLINE  " (" << __FILENAME__ << ":" << __LINE__ << ")"
 
-MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string &name,
-                                                   ISvcLocator *sl)
-    : AthService(name, sl), m_cablingSvc("MuonMDT_CablingSvc", name),
+MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string &name, ISvcLocator* pSvcLocator)
+    : base_class(name, pSvcLocator), m_cablingSvc("MuonMDT_CablingSvc", name),
       m_mapIsInitialized(false),
       m_mapFileName(""),
       m_centralValue(0),
@@ -48,18 +47,7 @@ MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string &name,
   declareProperty("ForceMapRecreate", m_forceMapRecreate=false);
 }
 
-MdtCalibrationShiftMapBase::~MdtCalibrationShiftMapBase() {}
-
-// queryInterface
-StatusCode MdtCalibrationShiftMapBase::queryInterface(const InterfaceID &riid, void **ppvIF) {
-  if ( interfaceID().versionMatch(riid) ) {
-    *ppvIF = dynamic_cast<MdtCalibrationShiftMapBase*>(this);
-  } else {
-    return AthService::queryInterface(riid, ppvIF);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
+MdtCalibrationShiftMapBase::~MdtCalibrationShiftMapBase() { ; }
 
 StatusCode MdtCalibrationShiftMapBase::initialize() {
   ATH_MSG_DEBUG( "Initializing" );

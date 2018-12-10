@@ -35,21 +35,10 @@
 #define FILEANDLINE  " (" << __FILENAME__ << ":" << __LINE__ << ")"
 
 MdtCalibrationT0ShiftSvc::MdtCalibrationT0ShiftSvc(const std::string &name,
-                                                   ISvcLocator *sl)
-    : MdtCalibrationShiftMapBase(name, sl) {}
+                                                   ISvcLocator* pSvcLocator)
+    : MdtCalibrationShiftMapBase(name, pSvcLocator) {}
 
 MdtCalibrationT0ShiftSvc::~MdtCalibrationT0ShiftSvc() {}
-
-// queryInterface
-StatusCode MdtCalibrationT0ShiftSvc::queryInterface(const InterfaceID &riid, void **ppvIF) {
-  if ( interfaceID().versionMatch(riid) ) {
-    *ppvIF = dynamic_cast<MdtCalibrationT0ShiftSvc*>(this);
-  } else {
-    return AthService::queryInterface(riid, ppvIF);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
 
 StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
 {

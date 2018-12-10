@@ -3,11 +3,11 @@
 */
 
 // std
+#include <sys/stat.h>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <sys/stat.h>
 
 // other packages
 #include "GaudiKernel/GaudiException.h"
@@ -34,32 +34,21 @@
 // private helper functions
 //
 
-#define __FILENAME__                                                           \
+#define __FILENAME__ \
   (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define FILEANDLINE " (" << __FILENAME__ << ":" << __LINE__ << ")"
 
 MdtCalibrationTMaxShiftSvc::MdtCalibrationTMaxShiftSvc(const std::string &name,
-                                                       ISvcLocator *sl)
-    : MdtCalibrationShiftMapBase(name, sl), m_tUpper(688.1818) {}
+                                                       ISvcLocator *pSvcLocator)
+    : MdtCalibrationShiftMapBase(name, pSvcLocator), m_tUpper(688.1818) {}
 
-MdtCalibrationTMaxShiftSvc::~MdtCalibrationTMaxShiftSvc() {}
+MdtCalibrationTMaxShiftSvc::~MdtCalibrationTMaxShiftSvc() { ; }
 
-// queryInterface
-StatusCode MdtCalibrationTMaxShiftSvc::queryInterface(const InterfaceID &riid, void **ppvIF) {
-  if ( interfaceID().versionMatch(riid) ) {
-    *ppvIF = dynamic_cast<MdtCalibrationTMaxShiftSvc*>(this);
-  } else {
-    return AthService::queryInterface(riid, ppvIF);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
-{
+StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
   if (m_mapIsInitialized) {
-    ATH_MSG_WARNING("Map already initalized. Multiple calls of initalizeMap "
-                    "should not happen.");
+    ATH_MSG_WARNING(
+        "Map already initalized. Multiple calls of initalizeMap "
+        "should not happen.");
     return StatusCode::SUCCESS;
   }
 
@@ -77,7 +66,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
   TRandom2 rng(/*seed*/ 20160211);
 
   /* idHelper to retrieve channel Identifiers */
-  const MdtIdHelper *               idhelper = nullptr;
+  const MdtIdHelper *idhelper = nullptr;
   const ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore",
                                              "detStore");
   ATH_CHECK(detStore->retrieve(idhelper, "MDTIDHELPER"));
@@ -90,16 +79,16 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
   /* Get ROBs */
   std::vector<uint32_t> robVector = m_cablingSvc->getAllROBId();
 
-  std::map<uint8_t, MdtSubdetectorMap *> *               listOfSubdet;
+  std::map<uint8_t, MdtSubdetectorMap *> *listOfSubdet;
   std::map<uint8_t, MdtSubdetectorMap *>::const_iterator it_sub;
 
-  std::map<uint8_t, MdtRODMap *> *               listOfROD;
+  std::map<uint8_t, MdtRODMap *> *listOfROD;
   std::map<uint8_t, MdtRODMap *>::const_iterator it_rod;
 
-  std::map<uint8_t, MdtCsmMap *> *               listOfCsm;
+  std::map<uint8_t, MdtCsmMap *> *listOfCsm;
   std::map<uint8_t, MdtCsmMap *>::const_iterator it_csm;
 
-  std::map<uint8_t, MdtAmtMap *> *               listOfAmt;
+  std::map<uint8_t, MdtAmtMap *> *listOfAmt;
   std::map<uint8_t, MdtAmtMap *>::const_iterator it_amt;
 
   DataHandle<MuonMDT_CablingMap> cablingMap = m_cablingSvc->getCablingMap();
@@ -127,7 +116,6 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
           amtId = it_amt->second->moduleId();
 
           for (int tubeId = 0; tubeId < 24; ++tubeId) {
-
             /* Get the offline ID, given the current detector element */
             if (!m_cablingSvc->getOfflineId(
                     subdetectorId, rodId, csmId, amtId, tubeId, stationName,
@@ -143,7 +131,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
               continue;
             }
 
-            bool             isValid = false;
+            bool isValid = false;
             const Identifier channelIdentifier =
                 idhelper->channelID(stationName, stationEta, stationPhi,
                                     multiLayer, layer, tube, true, &isValid);
@@ -178,7 +166,8 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
               return StatusCode::FAILURE;
             }
             float rn = rng.Gaus(m_centralValue, m_sigma);
-            float shift = rn / m_tUpper; // store relative variation: Delta_t / t
+            float shift =
+                rn / m_tUpper;  // store relative variation: Delta_t / t
             m_shiftValues[channelIdentifier] = shift;
           }
         }
@@ -195,8 +184,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtCalibrationTMaxShiftSvc::setTUpper(float tUpper)
-{
+StatusCode MdtCalibrationTMaxShiftSvc::setTUpper(float tUpper) {
   if (m_mapIsInitialized) {
     ATH_MSG_FATAL("You cannot change m_tUpper once the map is initialized.");
     return StatusCode::FAILURE;

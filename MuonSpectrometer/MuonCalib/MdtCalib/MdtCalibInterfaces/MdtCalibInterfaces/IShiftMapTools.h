@@ -29,10 +29,10 @@ namespace MuonCalib {
 class IShiftMapTools : virtual public IService {
  public:
   IShiftMapTools() { ; }
-  virtual ~IShiftMapTools.h() = 0;
+  virtual ~IShiftMapTools() = 0;
 
   // Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IG4FieldSvc, 1, 0);
+  DeclareInterfaceID(IShiftMapTools, 1, 0);
 
   /* initialization */
   virtual StatusCode initialize();

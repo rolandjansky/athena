@@ -28,7 +28,7 @@ class TTree;
 class MdtCalibrationT0ShiftSvc : public MdtCalibrationShiftMapBase {
 public:
   /** constructor */
-  MdtCalibrationT0ShiftSvc(const std::string &name, ISvcLocator *sl);
+  MdtCalibrationT0ShiftSvc(const std::string &name, ISvcLocator* pSvcLocator);
 
   /** destructor */
   ~MdtCalibrationT0ShiftSvc();
